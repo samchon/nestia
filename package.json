@@ -1,14 +1,14 @@
 {
-  "name": "nestdoc",
+  "name": "nestia",
   "version": "0.0.0",
   "description": "Automatic SDK and Document generator for the NestJS",
-  "main": "bin/index.js",
+  "main": "src/index.ts",
   "scripts": {
-    "test": "node bin/test"
+    "test": "ts-node src/test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/samchon/nestdoc.git"
+    "url": "https://github.com/samchon/nestia"
   },
   "keywords": [
     "nestjs",
@@ -20,13 +20,17 @@
   "author": "Jeongho Nam",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/samchon/nestdoc/issues"
+    "url": "https://github.com/samchon/nestia/issues"
   },
-  "homepage": "https://github.com/samchon/nestdoc#readme",
-  "devDependencies": {
+  "homepage": "https://github.com/samchon/nestia#readme",
+  "dependencies": {
     "@types/node": "^14.14.22",
+    "@types/reflect-metadata": "^0.1.0",
     "ts-node": "^9.1.1",
     "ttypescript": "^1.5.12",
     "typescript": "^4.1.3"
+  },
+  "devDependencies": {
+    "encrypted-nestjs": "^0.1.4"
   }
 }
