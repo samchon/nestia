@@ -50,17 +50,22 @@ export namespace TypeAnalyzer
     }
 
     function _Analyze_function(checker: ts.TypeChecker, controller: IController, func: IController.IFunction, node: ts.MethodDeclaration): IRoute
-    {
+    {   
+        const symbol: ts.Symbol = checker.getSymbolAtLocation(node.name)!;
+        const type: ts.Type = checker.getTypeOfSymbolAtLocation(symbol, node);
+        const signature: ts.Signature = type.getCallSignatures()[0];
+
         const route: IRoute = {
             name: func.name,
             method: func.method,
             path: path.join(controller.path, func.path),
             encrypted: func.encrypted,
-            type: "unknown",
-            parameters: []
+            parameters: [],
+            returnType: checker.typeToString(signature.getReturnType()),
         };
         for (const param of func.parameters)
             route.parameters.push(_Analyze_parameter(checker, param, node.parameters[param.index]));
+
         return route;
     }
 

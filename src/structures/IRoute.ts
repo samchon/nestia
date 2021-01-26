@@ -6,7 +6,7 @@ export interface IRoute
     method: string;
     path: string;
     encrypted: boolean;
-    type: string;
+    returnType: string;
     parameters: IRoute.IParameter[];
 }
 
