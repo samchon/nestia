@@ -1,9 +1,11 @@
+import { ParamCategory } from "./ParamCategory";
+
 export interface IController
 {
     file: string;
     name: string;
     path: string;
-    methods: IController.IFunction[];
+    functions: IController.IFunction[];
 }
 
 export namespace IController
@@ -22,7 +24,7 @@ export namespace IController
     {
         index: number;
         field: string | undefined;
-        type: "param" | "body" | "query";
+        category: ParamCategory;
         encrypted: boolean;
     }
 }

@@ -4,6 +4,7 @@
   "description": "Automatic SDK and Document generator for the NestJS",
   "main": "src/index.ts",
   "scripts": {
+    "dev": "tsc --watch",
     "test": "ts-node src/test"
   },
   "repository": {

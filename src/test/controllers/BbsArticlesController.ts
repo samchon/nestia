@@ -6,17 +6,18 @@ import { IBbsArticle } from "../structures/IBbsArticle";
 import { IPage } from "../structures/IPage";
 
 @nest.Controller("bbs/:group")
-export class TestController
+export class BbsArticlesController
 {
-
     @nest.Get()
     public index
         (
             @nest.Request() request: express.Request,
+            @nest.Param("group") group: string,
             @nest.Body() input: IPage.IRequest<"writer"|"title"|"content">
         ): Promise<IPage<IBbsArticle.ISummary>>
     {
         request;
+        group;
         input;
 
         return null!;
@@ -26,10 +27,12 @@ export class TestController
     public at
         (
             @nest.Request() request: express.Request,
+            @nest.Param("group") group: string,
             @nest.Param("id") id: number
         ): Promise<IBbsArticle>
     {
         request;
+        group;
         id;
 
         return null!;
@@ -39,10 +42,12 @@ export class TestController
     public store
         (
             @nest.Request() request: express.Request,
+            @nest.Param("group") group: string,
             @helper.EncryptedBody() input: IBbsArticle.IStore
         ): Promise<IBbsArticle>
     {
         request;
+        group;
         input;
 
         return null!;
@@ -52,12 +57,14 @@ export class TestController
     public update
         (
             @nest.Request() request: express.Request,
+            @nest.Param("group") group: string,
             @nest.Param("id") id: number,
             @nest.Body() input: IBbsArticle.IUpdate
         ): Promise<IBbsArticle>
     {
         request;
         id;
+        group;
         input;
 
         return null!;
@@ -67,15 +74,13 @@ export class TestController
     public delete
         (
             @nest.Request() request: express.Request,
-            @nest.Param("id") id: number,
-            @helper.TypedParam("pid", "number") pid: number,
-            @nest.Param("fid") fid: number
+            @nest.Param("group") group: string,
+            @nest.Param("id") id: number
         ): Promise<object>
     {
         request;
         id;
-        pid;
-        fid;
+        group;
 
         return null!;
     }

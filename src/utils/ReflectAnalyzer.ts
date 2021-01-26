@@ -1,32 +1,37 @@
-import { IController } from "../structures/IController";
 import { ArrayUtil } from "./ArrayUtil";
+
+import { IController } from "../structures/IController";
 
 type IModule =
 {
     [key: string]: any;
 }
 
-export namespace ControllerParser
+export namespace ReflectAnalyzer
 {
-    export async function parse(file: string): Promise<IController[]>
+    export async function analyze(unique: WeakSet<any>, file: string): Promise<IController[]>
     {
         const module: IModule = await import(file);
         const ret: IController[] = [];
 
         for (const tuple of Object.entries(module))
         {
-            const controller: IController | null = _Parse_controller(file, ...tuple);
+            if (unique.has(tuple[1]))
+                continue;
+            else
+                unique.add(tuple[1]);
+
+            const controller: IController | null = _Analyze_controller(file, ...tuple);
             if (controller !== null)
                 ret.push(controller);
         }
-        console.log(JSON.stringify(ret, null, 4));
         return ret;
     }
 
     /* ---------------------------------------------------------
         CONTROLLER
     --------------------------------------------------------- */
-    function _Parse_controller(file: string, name: string, creator: any): IController | null
+    function _Analyze_controller(file: string, name: string, creator: any): IController | null
     {
         //----
         // VALIDATIONS
@@ -47,15 +52,15 @@ export namespace ControllerParser
             file,
             name,
             path: Reflect.getMetadata("path", creator),
-            methods: []
+            functions: []
         };
 
         // PARSE CHILDREN DATA
         for (const tuple of Object.entries(creator.prototype))
         {
-            const child: IController.IFunction | null = _Parse_function(creator.prototype, ...tuple);
+            const child: IController.IFunction | null = _Analyze_function(creator.prototype, ...tuple);
             if (child !== null)
-                meta.methods.push(child);
+                meta.functions.push(child);
         }
 
         // RETURNS
@@ -65,7 +70,7 @@ export namespace ControllerParser
     /* ---------------------------------------------------------
         FUNCTION
     --------------------------------------------------------- */
-    function _Parse_function(classProto: any, name: string, proto: any): IController.IFunction | null
+    function _Analyze_function(classProto: any, name: string, proto: any): IController.IFunction | null
     {
         //----
         // VALIDATIONS
@@ -94,7 +99,7 @@ export namespace ControllerParser
         const nestParameters: NestParameters =  Reflect.getMetadata("__routeArguments__", classProto.constructor, name);
         for (const tuple of Object.entries(nestParameters))
         {
-            const child: IController.IParameter | null = _Parse_parameter(...tuple);
+            const child: IController.IParameter | null = _Analyze_parameter(...tuple);
             if (child !== null)
                 meta.parameters.push(child);
         }
@@ -109,11 +114,11 @@ export namespace ControllerParser
     /* ---------------------------------------------------------
         PARAMETER
     --------------------------------------------------------- */
-    function _Parse_parameter(key: string, param: INestParam): IController.IParameter | null
+    function _Analyze_parameter(key: string, param: INestParam): IController.IParameter | null
     {
         const symbol: string = key.split(":")[0];
         if (symbol.indexOf("__custom") !== -1)
-            return _Parse_custom_parameter(param);
+            return _Analyze_custom_parameter(param);
 
         const typeIndex: number = Number(symbol[0]);
         if (isNaN(typeIndex) === true)
@@ -124,34 +129,34 @@ export namespace ControllerParser
             return null;
 
         return {
-            type,
+            category: type,
             index: param.index,
             field: param.data,
             encrypted: false
         }
     }
 
-    function _Parse_custom_parameter(param: INestParam): IController.IParameter | null
+    function _Analyze_custom_parameter(param: INestParam): IController.IParameter | null
     {
         if (param.factory === undefined)
             return null;
         else if (param.factory.name === "EncryptedBody")
             return {
-                type: "body",
+                category: "body",
                 index: param.index,
                 field: param.data,
                 encrypted: true
             };
         else if (param.factory.name === "TypedParam")
             return {
-                type: "param",
+                category: "param",
                 index: param.index,
                 field: param.data,
                 encrypted: false
             };
         else if (param.factory.name === "TypedQuery")
             return {
-                type: "query",
+                category: "query",
                 index: param.index,
                 field: param.data,
                 encrypted: false
