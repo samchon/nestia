@@ -1,4 +1,4 @@
-import { ArrayUtil } from "./ArrayUtil";
+import { ArrayUtil } from "../utils/ArrayUtil";
 
 import { IController } from "../structures/IController";
 
@@ -56,7 +56,7 @@ export namespace ReflectAnalyzer
         };
 
         // PARSE CHILDREN DATA
-        for (const tuple of Object.entries(creator.prototype))
+        for (const tuple of _Get_prototype_entries(creator))
         {
             const child: IController.IFunction | null = _Analyze_function(creator.prototype, ...tuple);
             if (child !== null)
@@ -65,6 +65,17 @@ export namespace ReflectAnalyzer
 
         // RETURNS
         return meta;
+    }
+
+    function _Get_prototype_entries(creator: any): Array<[string, unknown]>
+    {
+        const tuple = Object.entries(creator.prototype);
+        const parent = Object.getPrototypeOf(creator);
+
+        if (parent.prototype !== undefined)
+            tuple.push(..._Get_prototype_entries(parent));
+
+        return tuple;
     }
 
     /* ---------------------------------------------------------
