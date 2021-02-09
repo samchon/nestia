@@ -1,9 +1,9 @@
 import * as express from "express";
-import * as helper from "encrypted-nestjs";
+import { EncryptedBody, EncryptedRoute, TypedParam } from "encrypted-nestjs";
 import * as nest from "@nestjs/common";
 
 import { SaleInquiriesController } from "../../../base/sales/articles/SaleInquiriesController";
-import { ISaleInquiry } from "../../../../structures/sales/articles/ISaleInquiry";
+import { ISaleInquiry } from "../../../../api/structures/sales/articles/ISaleInquiry";
 
 export abstract class ConsumerSaleInquiriesController<
         Request extends ISaleInquiry.IRequest, 
@@ -12,13 +12,13 @@ export abstract class ConsumerSaleInquiriesController<
         Store extends ISaleInquiry.IStore>
     extends SaleInquiriesController<Request, Summary, Content>
 {
-    @helper.EncryptedRoute.Post()
+    @EncryptedRoute.Post()
     public async store
         (
             @nest.Request() request: express.Request,
-            @helper.TypedParam("section", "string") section: string, 
-            @helper.TypedParam("saleId", "number") saleId: number, 
-            @helper.EncryptedBody() input: Store
+            @TypedParam("section", "string") section: string, 
+            @TypedParam("saleId", "number") saleId: number, 
+            @EncryptedBody() input: Store
         ): Promise<ISaleInquiry<Content>>
     {
         request;
@@ -29,14 +29,14 @@ export abstract class ConsumerSaleInquiriesController<
         return null!;
     }
 
-    @helper.EncryptedRoute.Post()
+    @EncryptedRoute.Post()
     public async update
         (
             @nest.Request() request: express.Request,
-            @helper.TypedParam("section", "string") section: string, 
-            @helper.TypedParam("saleId", "number") saleId: number, 
-            @helper.TypedParam("id", "number") id: number,
-            @helper.EncryptedBody() input: Store,
+            @TypedParam("section", "string") section: string, 
+            @TypedParam("saleId", "number") saleId: number, 
+            @TypedParam("id", "number") id: number,
+            @EncryptedBody() input: Store,
         ): Promise<ISaleInquiry<Content>>
     {
         request;
@@ -48,13 +48,13 @@ export abstract class ConsumerSaleInquiriesController<
         return null!;
     }
 
-    @helper.EncryptedRoute.Delete(":id")
+    @EncryptedRoute.Delete(":id")
     public async delete
         (
             @nest.Request() request: express.Request,
-            @helper.TypedParam("section", "string") section: string, 
-            @helper.TypedParam("saleId", "number") saleId: number, 
-            @helper.TypedParam("id", "number") id: number
+            @TypedParam("section", "string") section: string, 
+            @TypedParam("saleId", "number") saleId: number, 
+            @TypedParam("id", "number") id: number
         ): Promise<object>
     {
         request;

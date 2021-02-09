@@ -1,5 +1,5 @@
-import { IAttachmentFile } from "./IAttachmentFile";
-import { IPage } from "./IPage";
+import { IAttachmentFile } from "../../common/IAttachmentFile";
+import { IPage } from "../../common/IPage";
 
 export interface ISaleArticle<Content extends ISaleArticle.IContent>
 {

@@ -6,8 +6,14 @@ export interface IRoute
     method: string;
     path: string;
     encrypted: boolean;
-    output: string;
     parameters: IRoute.IParameter[];
+    imports: [string, string[]][];
+    output: string;
+
+    /**
+     * @internal
+     */
+    controller: string;
 }
 
 export namespace IRoute
@@ -15,8 +21,8 @@ export namespace IRoute
     export interface IParameter
     {
         name: string;
-        category: ParamCategory;
         field: string | undefined;
+        category: ParamCategory;
         encrypted: boolean;
         type: string;
     }

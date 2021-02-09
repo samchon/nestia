@@ -1,7 +1,7 @@
 import * as helper from "encrypted-nestjs";
 
-import { ISaleInquiry } from "../../../../structures/sales/articles/ISaleInquiry";
-import { IPage } from "../../../../structures/common/IPage";
+import { ISaleInquiry } from "../../../../api/structures/sales/articles/ISaleInquiry";
+import { IPage } from "../../../../api/structures/common/IPage";
 
 export abstract class SaleInquiriesController<
         Request extends ISaleInquiry.IRequest, 

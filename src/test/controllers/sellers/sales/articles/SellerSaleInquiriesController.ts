@@ -3,8 +3,8 @@ import * as helper from "encrypted-nestjs";
 import * as nest from "@nestjs/common";
 
 import { SaleInquiriesController } from "../../../base/sales/articles/SaleInquiriesController";
-import { ISaleAnswer } from "../../../../structures/sales/articles/ISaleAnswer";
-import { ISaleInquiry } from "../../../../structures/sales/articles/ISaleInquiry";
+import { ISaleAnswer } from "../../../../api/structures/sales/articles/ISaleAnswer";
+import { ISaleInquiry } from "../../../../api/structures/sales/articles/ISaleInquiry";
 
 export abstract class SellerSaleInquiriesController<
         Request extends ISaleInquiry.IRequest, 

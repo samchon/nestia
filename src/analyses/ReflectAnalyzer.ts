@@ -1,6 +1,7 @@
 import { ArrayUtil } from "../utils/ArrayUtil";
 
 import { IController } from "../structures/IController";
+import { ParamCategory } from "../structures/ParamCategory";
 
 type IModule =
 {
@@ -135,7 +136,7 @@ export namespace ReflectAnalyzer
         if (isNaN(typeIndex) === true)
             return null;
 
-        const type = NEST_PARAMETER_TYPES[typeIndex];
+        const type: ParamCategory | undefined = NEST_PARAMETER_TYPES[typeIndex];
         if (type === undefined)
             return null;
 

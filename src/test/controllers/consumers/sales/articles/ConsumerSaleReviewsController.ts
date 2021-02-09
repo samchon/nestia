@@ -1,10 +1,10 @@
 import * as nest from "@nestjs/common";
 
 import { ConsumerSaleInquiriesController } from "./ConsumerSaleInquiriesController";
-import { ISaleReview } from "../../../../structures/sales/articles/ISaleReview";
+import { ISaleReview } from "../../../../api/structures/sales/articles/ISaleReview";
 
 @nest.Controller("consumers/:section/sales/:saleId/questions")
-export class ConsumerSaleReviewssController 
+export class ConsumerSaleReviewsController 
     extends ConsumerSaleInquiriesController<
         ISaleReview.IRequest,
         ISaleReview.ISummary,

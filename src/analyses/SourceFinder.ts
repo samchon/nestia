@@ -3,6 +3,14 @@ import path from "path";
 
 export namespace SourceFinder
 {
+    export async function find(directory: string): Promise<string[]>
+    {
+        const output: string[] = [];
+        await gather(output, directory);
+
+        return output.map(str => path.normalize(str));
+    }
+
     async function gather(output: string[], directory: string): Promise<void>
     {
         const children: string[] = await fs.promises.readdir(directory);
@@ -21,13 +29,5 @@ export namespace SourceFinder
 
             output.push(current);
         }
-    }
-
-    export async function find(directory: string): Promise<string[]>
-    {
-        const output: string[] = [];
-        await gather(output, directory);
-
-        return output.map(str => path.normalize(str));
     }
 }

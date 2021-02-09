@@ -1,4 +1,4 @@
-import { IPage } from "./IPage";
+import { IPage } from "../../common/IPage";
 import { ISaleAnswer } from "./ISaleAnswer";
 import { ISaleArticle } from "./ISaleArticle";
 
