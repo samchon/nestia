@@ -7,21 +7,11 @@ import { IRoute } from "../structures/IRoute";
 
 import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ImportAnalyzer } from "./ImportAnalyzer";
-import { DomainError } from "tstl";
 
 export namespace ControllerAnalyzer
 {
-    export function analyze(controller: IController): IRoute[]
+    export function analyze(checker: tsc.TypeChecker, sourceFile: tsc.SourceFile, controller: IController): IRoute[]
     {
-        // PREPARE PROGRAM
-        const program: tsc.Program = tsc.createProgram([ controller.file ], {});
-        const checker: tsc.TypeChecker = program.getTypeChecker();
-
-        // LOAD SOURCE FILE
-        const sourceFile: tsc.SourceFile | undefined = program.getSourceFile(controller.file);
-        if (sourceFile === undefined)
-            return [];
-
         // FIND CONTROLLER CLASS
         const ret: IRoute[] = [];
         tsc.forEachChild(sourceFile, node =>
@@ -85,7 +75,7 @@ export namespace ControllerAnalyzer
         // PREPARE ASSETS
         const signature: tsc.Signature | undefined = checker.getSignatureFromDeclaration(declaration);
         if (signature === undefined)
-            throw new Error(`rror on ControllerAnalyzer._Analyze_function(): unable to get signature from the ${controller.name}.${func.name}().`);
+            throw new Error(`Error on ControllerAnalyzer._Analyze_function(): unable to get the ignature from the ${controller.name}.${func.name}().`);
         
         const importDict: ImportAnalyzer.Dictionary = new HashMap();
 
@@ -141,7 +131,7 @@ export namespace ControllerAnalyzer
 
         // VALIDATE PARAMETERS
         if ((param.category === "query" || param.category === "body") && param.field !== undefined)
-            throw new DomainError(`Error on nestia.analyses.ControllerAnalyzer.analyze(): Parameter ${controller.name}.${funcName}()#${name} is specifying a field ${param.field} of the request ${param.category} message, however, Nestia does not support the field specialization for the request ${param.category} message. Erase the ${controller.name}.${funcName}()#${name} parameter and re-define a new decorator accepting full structured message.`);
+            throw new Error(`Error on ${controller.name}.${funcName}(): parameter ${name} is specifying a field ${param.field} of the request ${param.category} message, however, Nestia does not support the field specialization for the request ${param.category} message. Erase the ${controller.name}.${funcName}()#${name} parameter and re-define a new decorator accepting full structured message.`);
 
         return {
             name,

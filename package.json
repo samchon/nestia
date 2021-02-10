@@ -33,6 +33,6 @@
     "typescript": "^4.1.3"
   },
   "devDependencies": {
-    "encrypted-nestjs": "^0.1.4"
+    "encrypted-nestjs": "^0.1.5"
   }
 }

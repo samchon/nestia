@@ -1,8 +1,4 @@
 lib/
 node_modules/
 
-src/test/api/functional
-src/test/api/typings
-src/test/api/utils
-
 package-lock.json

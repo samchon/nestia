@@ -1,0 +1,8 @@
+api/
+node_modules/
+
+src/test/
+
+*.*ignore
+package-lock.json
+tsconfig.json

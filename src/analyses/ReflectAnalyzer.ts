@@ -1,7 +1,11 @@
+import * as path from "path";
+
 import { ArrayUtil } from "../utils/ArrayUtil";
+import { StringUtil } from "../utils/StringUtil";
 
 import { IController } from "../structures/IController";
 import { ParamCategory } from "../structures/ParamCategory";
+import { equal } from "tstl/ranges/module";
 
 type IModule =
 {
@@ -59,7 +63,7 @@ export namespace ReflectAnalyzer
         // PARSE CHILDREN DATA
         for (const tuple of _Get_prototype_entries(creator))
         {
-            const child: IController.IFunction | null = _Analyze_function(creator.prototype, ...tuple);
+            const child: IController.IFunction | null = _Analyze_function(creator.prototype, meta, ...tuple);
             if (child !== null)
                 meta.functions.push(child);
         }
@@ -82,7 +86,7 @@ export namespace ReflectAnalyzer
     /* ---------------------------------------------------------
         FUNCTION
     --------------------------------------------------------- */
-    function _Analyze_function(classProto: any, name: string, proto: any): IController.IFunction | null
+    function _Analyze_function(classProto: any, controller: IController, name: string, proto: any): IController.IFunction | null
     {
         //----
         // VALIDATIONS
@@ -104,7 +108,8 @@ export namespace ReflectAnalyzer
             method: METHODS[Reflect.getMetadata("method", proto)],
             path: Reflect.getMetadata("path", proto),
             parameters: [],
-            encrypted: Reflect.hasMetadata("encryption", proto)
+            encrypted: Reflect.hasMetadata("__interceptors__", proto) 
+                && Reflect.getMetadata("__interceptors__", proto)[0]?.constructor?.name === "EncryptedRouteInterceptor"
         };
 
         // PARSE CHILDREN DATA
@@ -116,6 +121,13 @@ export namespace ReflectAnalyzer
                 meta.parameters.push(child);
         }
         meta.parameters = meta.parameters.sort((x, y) => x.index - y.index);
+
+        // VALIDATE PATH ARGUMENTS
+        const funcPathArguments: string[] = StringUtil.betweens(path.join(controller.path, meta.path).split("\\").join("/"), ":", "/").sort();
+        const paramPathArguments: string[] = meta.parameters.filter(param => param.category === "param").map(param => param.field!).sort();
+
+        if (equal(funcPathArguments, paramPathArguments) === false)
+            throw new Error(`Error on ${controller.name}.${name}(): binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${funcPathArguments.join(", ")}], parameters: [${paramPathArguments.join(", ")}])`);
 
         // RETURNS
         return meta;
@@ -162,13 +174,6 @@ export namespace ReflectAnalyzer
         else if (param.factory.name === "TypedParam")
             return {
                 category: "param",
-                index: param.index,
-                field: param.data,
-                encrypted: false
-            };
-        else if (param.factory.name === "TypedQuery")
-            return {
-                category: "query",
                 index: param.index,
                 field: param.data,
                 encrypted: false
