@@ -1,3 +1,4 @@
+import del from "del";
 import * as fs from "fs";
 
 export namespace DirectoryUtil
@@ -6,8 +7,8 @@ export namespace DirectoryUtil
     {
         try 
         { 
-            await fs.promises.rm(path, { recursive: true }); 
-        } 
+            await del(path);
+        }
         catch {}
     }
 

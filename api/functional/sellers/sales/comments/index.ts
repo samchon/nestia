@@ -43,6 +43,23 @@ export namespace store
     export type Output = Primitive<ISaleComment>;
 }
 
+// DELETE sellers/:section/sales/:saleId/comments/:articleId/:commentId
+// SellerSaleCommentsController.remove()
+export function remove(connection: IConnection, section: string, saleId: number, articleId: number, commentId: number): Promise<remove.Output>
+{
+    return Fetcher.fetch
+    (
+        connection,
+        {"input_encrypted":false,"output_encrypted":true},
+        "DELETE",
+        `sellers/"${section}"/sales/"${saleId}"/comments/"${articleId}"/"${commentId}"`
+    );
+}
+export namespace remove
+{
+    export type Output = Primitive<object>;
+}
+
 
 
 //---------------------------------------------------------

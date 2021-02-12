@@ -41,13 +41,14 @@ export abstract class SaleCommentsController
         return null!;
     }
 
+    @helper.EncryptedRoute.Delete(":commentId")
     public async remove
         (
             @helper.TypedParam("section", "string") section: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
             @helper.TypedParam("articleId", "number") articleId: number,
             @helper.TypedParam("commentId", "number") commentId: number
-        )
+        ): Promise<object>
     {
         section;
         saleId;
