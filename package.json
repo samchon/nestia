@@ -1,11 +1,14 @@
 {
   "name": "nestia",
-  "version": "0.0.0",
+  "version": "0.0.3",
   "description": "Automatic SDK and Document generator for the NestJS",
   "main": "src/index.ts",
+  "bin": {
+    "nestia": "./src/bin/nestia.ts"
+  },
   "scripts": {
     "dev": "tsc --watch",
-    "test": "ts-node src/test"
+    "test": "ts-node src/bin/nestia sdk src/test/controllers --out api"
   },
   "repository": {
     "type": "git",
@@ -25,8 +28,10 @@
   },
   "homepage": "https://github.com/samchon/nestia#readme",
   "dependencies": {
+    "@types/cli": "^0.11.19",
     "@types/node": "^14.14.22",
     "@types/reflect-metadata": "^0.1.0",
+    "cli": "^1.0.1",
     "ts-node": "^9.1.1",
     "tstl": "^2.4.14",
     "ttypescript": "^1.5.12",

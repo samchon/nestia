@@ -1,4 +1,5 @@
 import * as helper from "encrypted-nestjs";
+import * as nest from "@nestjs/common";
 
 import { ISaleInquiry } from "../../../../api/structures/sales/articles/ISaleInquiry";
 import { IPage } from "../../../../api/structures/common/IPage";
@@ -8,12 +9,12 @@ export abstract class SaleInquiriesController<
         Summary extends ISaleInquiry.ISummary, 
         Content extends ISaleInquiry.IContent>
 {
-    @helper.EncryptedRoute.Patch()
+    @helper.EncryptedRoute.Get()
     public async index
         (
             @helper.TypedParam("section", "string") section: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
-            @helper.EncryptedBody() input: Request
+            @nest.Query() input: Request
         ): Promise<IPage<Summary>>
     {
         section;

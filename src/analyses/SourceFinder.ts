@@ -1,5 +1,5 @@
-import fs from  "fs";
-import path from "path";
+import * as fs from  "fs";
+import * as path from "path";
 
 export namespace SourceFinder
 {
@@ -8,7 +8,7 @@ export namespace SourceFinder
         const output: string[] = [];
         await gather(output, directory);
 
-        return output.map(str => path.normalize(str));
+        return output.map(str => path.resolve(str));
     }
 
     async function gather(output: string[], directory: string): Promise<void>
@@ -26,7 +26,7 @@ export namespace SourceFinder
             }
             else if (file.substr(-3) !== ".ts" || file.substr(-5) === ".d.ts")
                 continue;
-
+                
             output.push(current);
         }
     }

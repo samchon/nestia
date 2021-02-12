@@ -18,10 +18,10 @@ export namespace FileGenerator
             emplace(root, route);
 
         const defaultImportDict: ImportDictionary = new ImportDictionary();
-        defaultImportDict.emplace(`${outDir}/__internal/AesPkcs5.ts`, "AesPkcs5");
-        defaultImportDict.emplace(`${outDir}/__internal/Fetcher.ts`, "Fetcher");
-        defaultImportDict.emplace(`${outDir}/IConnection.ts`, "IConnection");
-        defaultImportDict.emplace(`${outDir}/Primitive.ts`, "Primitive");
+        defaultImportDict.emplace(`${outDir}/__internal/AesPkcs5.ts`, true, "AesPkcs5");
+        defaultImportDict.emplace(`${outDir}/__internal/Fetcher.ts`, true, "Fetcher");
+        defaultImportDict.emplace(`${outDir}/IConnection.ts`, false, "IConnection");
+        defaultImportDict.emplace(`${outDir}/Primitive.ts`, false, "Primitive");
 
         await DirectoryUtil.remove(outDir + "/functional");
         await iterate(defaultImportDict, outDir + "/functional", root);
@@ -34,15 +34,15 @@ export namespace FileGenerator
 
         for (const key of identifiers)
         {
-            // DO EMPLACE
+            // EMPLACE IF REQUIRED
             let it: HashMap.Iterator<string, Directory> = directory.directories.find(key);
             if (it.equals(directory.directories.end()) === true)
                 it = directory.directories.emplace(key, new Directory(key)).first;
-            it.second.routes.push(route);
 
             // FOR THE NEXT STEP
             directory = it.second;
         }
+        directory.routes.push(route);
     }
 
     /* ---------------------------------------------------------
@@ -72,23 +72,27 @@ export namespace FileGenerator
         {
             for (const tuple of route.imports)
                 for (const instance of tuple[1])
-                    importDict.emplace(tuple[0], instance);
+                    importDict.emplace(tuple[0], false, instance);
             content += FunctionGenerator.generate(route) + "\n\n";
         }
 
-        content = defaultImportDict.toScript(outDir) + "\n\n" 
-            + importDict.toScript(outDir) + "\n\n" 
-            + content;
+        if (directory.routes.length !== 0)
+            content = defaultImportDict.toScript(outDir) + "\n\n" 
+                + importDict.toScript(outDir) + "\n\n" 
+                + content + "\n\n"
+                + defaultImportDict.listUp();
         await fs.promises.writeFile(`${outDir}/index.ts`, content, "utf8");
     }
 }
 
 class Directory
 {
-    public readonly directories: HashMap<string, Directory> = new HashMap();
-    public readonly routes: IRoute[] = [];
+    public readonly directories: HashMap<string, Directory>;
+    public readonly routes: IRoute[];
 
     public constructor(readonly name: string)
     {
+        this.directories = new HashMap();
+        this.routes = [];
     }
 }

@@ -1,13 +1,14 @@
 import { AesPkcs5 } from "./../../../../__internal/AesPkcs5";
 import { Fetcher } from "./../../../../__internal/Fetcher";
-import { IConnection } from "./../../../../IConnection";
-import { Primitive } from "./../../../../Primitive";
+import type { IConnection } from "./../../../../IConnection";
+import type { Primitive } from "./../../../../Primitive";
 
-import { IPage } from "./../../../../structures/common/IPage";
-import { ISaleComment } from "./../../../../structures/sales/articles/ISaleComment";
+import type { IPage } from "./../../../../structures/common/IPage";
+import type { ISaleComment } from "./../../../../structures/sales/articles/ISaleComment";
 
 
 // GET consumers/:section/sales/:saleId/comments/:articleId/
+// ConsumerSaleCommentsController.index()
 export function index(connection: IConnection, section: string, saleId: number, articleId: number): Promise<index.Output>
 {
     return Fetcher.fetch
@@ -24,6 +25,7 @@ export namespace index
 }
 
 // POST consumers/:section/sales/:saleId/comments/:articleId/
+// ConsumerSaleCommentsController.store()
 export function store(connection: IConnection, section: string, saleId: number, articleId: number, input: Primitive<store.Input>): Promise<store.Output>
 {
     return Fetcher.fetch
@@ -41,3 +43,10 @@ export namespace store
     export type Output = Primitive<ISaleComment>;
 }
 
+
+
+//---------------------------------------------------------
+// TO PREVENT THE UNUSED VARIABLE ERROR
+//---------------------------------------------------------
+AesPkcs5;
+Fetcher;

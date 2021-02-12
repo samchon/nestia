@@ -1,7 +1,7 @@
 import * as fs from "fs";
+import { DirectoryUtil } from "../utils/DirectoryUtil";
 
 import { IRoute } from "../structures/IRoute";
-import { DirectoryUtil } from "../utils/DirectoryUtil";
 import { FileGenerator } from "./FileGenerator";
 
 export namespace SdkGenerator
