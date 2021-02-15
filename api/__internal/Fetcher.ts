@@ -63,7 +63,23 @@ export class Fetcher
                 : connection.encryption!;
             content = AesPkcs5.decode(content, password.key, password.iv);
         }
-        return JSON.parse(content);
+
+        //----
+        // OUTPUT
+        //----
+        // PARSE RESPONSE BODY
+        const ret: { __set_headers__: Record<string, any> } & Primitive<Output> = JSON.parse(content);
+
+        // FIND __SET_HEADERS__ FIELD
+        if (ret.__set_headers__ !== undefined && typeof ret.__set_headers__ === "object")
+        {
+            if (connection.headers === undefined)
+                connection.headers = {};
+            Object.assign(connection.headers, ret.__set_headers__);
+        }
+
+        // RETURNS
+        return ret;
     }
 }
 

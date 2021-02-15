@@ -41,7 +41,7 @@ export namespace DirectoryUtil
             else
             {
                 const content: string = await fs.promises.readFile(fromPath, "utf8");
-                await fs.promises.writeFile(toPath, content, "utf8");
+                await fs.promises.writeFile(toPath, content.split("\r\n").join("\n"), "utf8");
             }
         }
     }
