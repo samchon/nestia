@@ -113,14 +113,19 @@ export namespace ReflectAnalyzer
         };
 
         // PARSE CHILDREN DATA
-        const nestParameters: NestParameters =  Reflect.getMetadata("__routeArguments__", classProto.constructor, name);
-        for (const tuple of Object.entries(nestParameters))
+        const nestParameters: NestParameters | undefined = Reflect.getMetadata("__routeArguments__", classProto.constructor, name);
+        if (nestParameters === undefined)
+            meta.parameters = [];
+        else
         {
-            const child: IController.IParameter | null = _Analyze_parameter(...tuple);
-            if (child !== null)
-                meta.parameters.push(child);
+            for (const tuple of Object.entries(nestParameters))
+            {
+                const child: IController.IParameter | null = _Analyze_parameter(...tuple);
+                if (child !== null)
+                    meta.parameters.push(child);
+            }
+            meta.parameters = meta.parameters.sort((x, y) => x.index - y.index);
         }
-        meta.parameters = meta.parameters.sort((x, y) => x.index - y.index);
 
         // VALIDATE PATH ARGUMENTS
         const funcPathArguments: string[] = StringUtil.betweens(path.join(controller.path, meta.path).split("\\").join("/"), ":", "/").sort();

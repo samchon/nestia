@@ -16,7 +16,6 @@ interface ICommand
 
 async function sdk(inputList: string[], command: ICommand): Promise<void>
 {
-
     // VALIDATE OUTPUT
     if (command.out === null)
         throw new Error(`Output directory is not specified. Add the "--out <output_directory>" option.`);
