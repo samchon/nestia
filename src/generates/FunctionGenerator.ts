@@ -51,7 +51,7 @@ export namespace FunctionGenerator
         let path: string = route.path;
 
         for (const param of parameters)
-            path = path.replace(`:${param.field}`, `"\${${param.name}}"`);
+            path = path.replace(`:${param.field}`, `\${${param.name}}`);
 
         new URLSearchParams()
         return (query !== undefined)

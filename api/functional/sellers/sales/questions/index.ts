@@ -17,7 +17,7 @@ export function store(connection: IConnection, section: string, saleId: number, 
         connection,
         {"input_encrypted":true,"output_encrypted":true},
         "POST",
-        `sellers/"${section}"/sales/"${saleId}"/questions/`,
+        `sellers/${section}/sales/${saleId}/questions/`,
         input
     );
 }
@@ -36,7 +36,7 @@ export function update(connection: IConnection, section: string, saleId: number,
         connection,
         {"input_encrypted":true,"output_encrypted":true},
         "POST",
-        `sellers/"${section}"/sales/"${saleId}"/questions/"${id}"`,
+        `sellers/${section}/sales/${saleId}/questions/${id}`,
         input
     );
 }
@@ -55,7 +55,7 @@ export function remove(connection: IConnection, section: string, saleId: number,
         connection,
         {"input_encrypted":false,"output_encrypted":true},
         "DELETE",
-        `sellers/"${section}"/sales/"${saleId}"/questions/"${id}"`
+        `sellers/${section}/sales/${saleId}/questions/${id}`
     );
 }
 export namespace remove
@@ -72,7 +72,7 @@ export function index(connection: IConnection, section: string, saleId: number, 
         connection,
         {"input_encrypted":false,"output_encrypted":true},
         "GET",
-        `sellers/"${section}"/sales/"${saleId}"/questions/?${new URLSearchParams(input as any).toString()}`
+        `sellers/${section}/sales/${saleId}/questions/?${new URLSearchParams(input as any).toString()}`
     );
 }
 export namespace index
@@ -90,7 +90,7 @@ export function at(connection: IConnection, section: string, saleId: number, id:
         connection,
         {"input_encrypted":false,"output_encrypted":true},
         "GET",
-        `sellers/"${section}"/sales/"${saleId}"/questions/"${id}"`
+        `sellers/${section}/sales/${saleId}/questions/${id}`
     );
 }
 export namespace at

@@ -16,7 +16,7 @@ export function index(connection: IConnection, section: string, saleId: number, 
         connection,
         {"input_encrypted":false,"output_encrypted":true},
         "GET",
-        `consumers/"${section}"/sales/"${saleId}"/comments/"${articleId}"/`
+        `consumers/${section}/sales/${saleId}/comments/${articleId}/`
     );
 }
 export namespace index
@@ -33,7 +33,7 @@ export function store(connection: IConnection, section: string, saleId: number, 
         connection,
         {"input_encrypted":true,"output_encrypted":true},
         "POST",
-        `consumers/"${section}"/sales/"${saleId}"/comments/"${articleId}"/`,
+        `consumers/${section}/sales/${saleId}/comments/${articleId}/`,
         input
     );
 }
@@ -52,7 +52,7 @@ export function remove(connection: IConnection, section: string, saleId: number,
         connection,
         {"input_encrypted":false,"output_encrypted":true},
         "DELETE",
-        `consumers/"${section}"/sales/"${saleId}"/comments/"${articleId}"/"${commentId}"`
+        `consumers/${section}/sales/${saleId}/comments/${articleId}/${commentId}`
     );
 }
 export namespace remove
