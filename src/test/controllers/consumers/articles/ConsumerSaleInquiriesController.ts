@@ -2,8 +2,8 @@ import * as express from "express";
 import { EncryptedBody, EncryptedRoute, TypedParam } from "encrypted-nestjs";
 import * as nest from "@nestjs/common";
 
-import { SaleInquiriesController } from "../base/SaleInquiriesController";
-import { ISaleInquiry } from "../../../../api/structures/sales/articles/ISaleInquiry";
+import { SaleInquiriesController } from "../../base/SaleInquiriesController";
+import { ISaleInquiry } from "../../../../../api/structures/sales/articles/ISaleInquiry";
 
 export abstract class ConsumerSaleInquiriesController<
         Request extends ISaleInquiry.IRequest, 

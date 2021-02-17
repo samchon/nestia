@@ -13,9 +13,13 @@ export namespace FileGenerator
     --------------------------------------------------------- */
     export async function generate(outDir: string, routeList: IRoute[]): Promise<void>
     {
-        const root: Directory = new Directory("functional");
+        // CONSTRUCT FOLDER TREE
+        const root: Directory = new Directory(null, "functional");
         for (const route of routeList)
             emplace(root, route);
+
+        // RELOCATE FOR ONLY ONE CONTROLLER METHOD IN AN URL CASE
+        relocate(root);
 
         const defaultImportDict: ImportDictionary = new ImportDictionary();
         defaultImportDict.emplace(`${outDir}/__internal/AesPkcs5.ts`, true, "AesPkcs5");
@@ -37,12 +41,27 @@ export namespace FileGenerator
             // EMPLACE IF REQUIRED
             let it: HashMap.Iterator<string, Directory> = directory.directories.find(key);
             if (it.equals(directory.directories.end()) === true)
-                it = directory.directories.emplace(key, new Directory(key)).first;
+                it = directory.directories.emplace(key, new Directory(directory, key)).first;
 
             // FOR THE NEXT STEP
             directory = it.second;
         }
         directory.routes.push(route);
+    }
+
+    function relocate(directory: Directory): void
+    {
+        if (directory.parent !== null 
+            && directory.directories.empty() 
+            && directory.routes.length === 1
+            && directory.name === directory.routes[0].name)
+        {
+            directory.parent.routes.push(directory.routes[0]);
+            directory.parent.directories.erase(directory.name);
+        }
+        else if (directory.directories.empty() === false)
+            for (const it of directory.directories)
+                relocate(it.second);
     }
 
     /* ---------------------------------------------------------
@@ -90,7 +109,7 @@ class Directory
     public readonly directories: HashMap<string, Directory>;
     public readonly routes: IRoute[];
 
-    public constructor(readonly name: string)
+    public constructor(readonly parent: Directory | null, readonly name: string)
     {
         this.directories = new HashMap();
         this.routes = [];

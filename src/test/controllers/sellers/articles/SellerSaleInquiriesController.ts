@@ -2,9 +2,9 @@ import * as express from "express";
 import * as helper from "encrypted-nestjs";
 import * as nest from "@nestjs/common";
 
-import { SaleInquiriesController } from "../base/SaleInquiriesController";
-import { ISaleAnswer } from "../../../../api/structures/sales/articles/ISaleAnswer";
-import { ISaleInquiry } from "../../../../api/structures/sales/articles/ISaleInquiry";
+import { SaleInquiriesController } from "../../base/SaleInquiriesController";
+import { ISaleAnswer } from "../../../../../api/structures/sales/articles/ISaleAnswer";
+import { ISaleInquiry } from "../../../../../api/structures/sales/articles/ISaleInquiry";
 
 export abstract class SellerSaleInquiriesController<
         Request extends ISaleInquiry.IRequest, 
