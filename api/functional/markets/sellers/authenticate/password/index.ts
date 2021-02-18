@@ -6,8 +6,16 @@ import type { Primitive } from "./../../../../../Primitive";
 import type { ISeller } from "./../../../../../structures/actors/ISeller";
 
 
-// PATCH markets/sellers/authenticate/password/change
-// SellerAuthenticateController.change()
+/**
+ * Change password.
+ * 
+ * @param connection Information of the remote HTTP(s) server with headers (+encryption password)
+ * @param input Old and new passwords
+ * @return Empty object
+ * 
+ * @controller SellerAuthenticateController.change()
+ * @path PATCH markets/sellers/authenticate/password/change
+ */
 export function change(connection: IConnection, input: Primitive<change.Input>): Promise<change.Output>
 {
     return Fetcher.fetch

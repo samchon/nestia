@@ -7,8 +7,16 @@ import type { ISeller } from "./../../../../structures/actors/ISeller";
 
 export * as password from "./password";
 
-// POST markets/sellers/authenticate/join
-// SellerAuthenticateController.join()
+/**
+ * Join as a seller.
+ * 
+ * @param connection Information of the remote HTTP(s) server with headers (+encryption password)
+ * @param input Information of yours
+ * @return Information of newly joined seller
+ * 
+ * @controller SellerAuthenticateController.join()
+ * @path POST markets/sellers/authenticate/join
+ */
 export function join(connection: IConnection, input: Primitive<join.Input>): Promise<join.Output>
 {
     return Fetcher.fetch
@@ -26,8 +34,16 @@ export namespace join
     export type Output = Primitive<ISeller>;
 }
 
-// POST markets/sellers/authenticate/login
-// SellerAuthenticateController.login()
+/**
+ * Log-in as a seller.
+ * 
+ * @param connection Information of the remote HTTP(s) server with headers (+encryption password)
+ * @param input Email and password
+ * @return Information of the seller
+ * 
+ * @controller SellerAuthenticateController.login()
+ * @path POST markets/sellers/authenticate/login
+ */
 export function login(connection: IConnection, input: Primitive<login.Input>): Promise<login.Output>
 {
     return Fetcher.fetch

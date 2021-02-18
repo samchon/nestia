@@ -9,6 +9,17 @@ export abstract class SaleInquiriesController<
         Summary extends ISaleInquiry.ISummary, 
         Content extends ISaleInquiry.IContent>
 {
+    /**
+     * Get page of summarized inquiries.
+     * 
+     * @param section Code of the target section
+     * @param saleId ID of the target sale
+     * @param input Information about pagination and searching
+     * @return Page of the inquiries
+     * 
+     * @throw 400 bad request error when type of the input data is not valid
+     * @throw 404 not found error when unable to find the matched record
+     */
     @helper.EncryptedRoute.Get()
     public async index
         (
@@ -24,6 +35,17 @@ export abstract class SaleInquiriesController<
         return null!;
     }
 
+    /**
+     * Get detailed record of an inquiry
+     * 
+     * @param section Code of the target section
+     * @param saleId ID of the target sale
+     * @param id ID of the Target inquiry
+     * @return Detailed record of the inquiry
+     * 
+     * @throw 400 bad request error when type of the input data is not valid
+     * @throw 404 not found error when unable to find the matched record
+     */
     @helper.EncryptedRoute.Get(":id")
     public async at
         (

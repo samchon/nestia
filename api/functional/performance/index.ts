@@ -6,8 +6,14 @@ import type { Primitive } from "./../../Primitive";
 import type { IPerformance } from "./../../structures/performance/IMemoryUsage";
 
 
-// GET performance/
-// PerformanceController.get()
+/**
+ * Get performance information of the server.
+ * 
+ * @return Performance information
+ * 
+ * @controller PerformanceController.get()
+ * @path GET performance/
+ */
 export function get(connection: IConnection, ): Promise<get.Output>
 {
     return Fetcher.fetch

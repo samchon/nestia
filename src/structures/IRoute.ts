@@ -1,3 +1,4 @@
+import type * as tsc from "typescript";
 import { ParamCategory } from "./ParamCategory";
 
 export interface IRoute
@@ -6,14 +7,14 @@ export interface IRoute
     method: string;
     path: string;
     encrypted: boolean;
+    
     parameters: IRoute.IParameter[];
     imports: [string, string[]][];
     output: string;
 
-    /**
-     * @internal
-     */
-    controller: string;
+    symbol: string;
+    comments: tsc.SymbolDisplayPart[];
+    tags: tsc.JSDocTagInfo[];
 }
 
 export namespace IRoute

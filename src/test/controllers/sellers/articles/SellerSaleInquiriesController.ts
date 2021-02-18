@@ -12,12 +12,28 @@ export abstract class SellerSaleInquiriesController<
         Content extends ISaleInquiry.IContent>
     extends SaleInquiriesController<Request, Summary, Content>
 {
-    @helper.EncryptedRoute.Post()
+    /**
+     * Store a new answer.
+     * 
+     * @param request Instance of the Express.Request
+     * @param section Code of the target section
+     * @param saleId ID of the target sale
+     * @param inquiryId ID of the target inquiry to be answered
+     * @param input Content to archive
+     * @return The inquiry with newly archived answer
+     * 
+     * @throw 400 bad request error when type of the input data is not valid
+     * @throw 401 unauthorized error when you've not logged in yet
+     * @throw 403 forbidden error when the sale is not yours
+     * @throw 422 unprocessable entity error when you've already answered
+     */
+    @helper.EncryptedRoute.Post(":inquiryId")
     public async store
         (
             @nest.Request() request: express.Request,
             @helper.TypedParam("section", "string") section: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
+            @helper.TypedParam("inquiryId", "number") inquiryId: number, 
             @helper.EncryptedBody() input: ISaleAnswer.IStore
         ): Promise<ISaleInquiry<Content>>
     {
@@ -25,17 +41,28 @@ export abstract class SellerSaleInquiriesController<
         section;
         saleId;
         input;
+        inquiryId;
 
         return null!;
     }
 
-    @helper.EncryptedRoute.Post(":id")
+    /**
+     * Update an answer.
+     * 
+     * @param request Instance of the Express.Request
+     * @param section Code of the target section
+     * @param saleId ID of the target sale
+     * @param inquiryId ID of the target inquiry to be updated
+     * @param input New content to be overwritten
+     * @return The inquiry record after the update
+     */
+    @helper.EncryptedRoute.Post(":inquiryId")
     public async update
         (
             @nest.Request() request: express.Request,
             @helper.TypedParam("section", "string") section: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
-            @helper.TypedParam("id", "number") id: number,
+            @helper.TypedParam("inquiryId", "number") inquiryId: number,
             @helper.EncryptedBody() input: ISaleAnswer.IStore,
         ): Promise<ISaleInquiry<Content>>
     {
@@ -43,24 +70,33 @@ export abstract class SellerSaleInquiriesController<
         section;
         saleId;
         input;
-        id;
+        inquiryId;
 
         return null!;
     }
 
-    @helper.EncryptedRoute.Delete(":id")
+    /**
+     * Remove an answer.
+     * 
+     * @param request Instance of the Express.Request
+     * @param section Code of the target section
+     * @param saleId ID of the target sale
+     * @param inquiryId ID of the target inquiry that the answer would be erased
+     * @return Empty object
+     */
+    @helper.EncryptedRoute.Delete(":inquiryId")
     public async remove
         (
             @nest.Request() request: express.Request,
             @helper.TypedParam("section", "string") section: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
-            @helper.TypedParam("id", "number") id: number
+            @helper.TypedParam("inquiryId", "number") inquiryId: number
         ): Promise<object>
     {
         request;
         section;
         saleId;
-        id;
+        inquiryId;
 
         return {};
     }

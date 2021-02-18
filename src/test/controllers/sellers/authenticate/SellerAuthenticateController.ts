@@ -7,6 +7,12 @@ import { ISeller } from "../../../../../api/structures/actors/ISeller";
 @nest.Controller("markets/sellers/authenticate")
 export class SellerAuthenticateController
 {
+    /**
+     * Join as a seller.
+     * 
+     * @param input Information of yours
+     * @return Information of newly joined seller
+     */
     @helper.EncryptedRoute.Post("join")
     public async join
         (
@@ -17,6 +23,12 @@ export class SellerAuthenticateController
         return null!;
     }
 
+    /**
+     * Log-in as a seller.
+     * 
+     * @param input Email and password
+     * @return Information of the seller
+     */
     @helper.EncryptedRoute.Post("login")
     public async login
         (
@@ -27,6 +39,13 @@ export class SellerAuthenticateController
         return null!;
     }
 
+    /**
+     * Change password.
+     * 
+     * @param httpReq Instance of the Express.Request
+     * @param input Old and new passwords
+     * @return Empty object
+     */
     @helper.EncryptedRoute.Patch("password/change")
     public async change
         (

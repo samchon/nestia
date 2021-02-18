@@ -106,7 +106,10 @@ export namespace ControllerAnalyzer
             parameters,
             output,
             imports,
-            controller: `${controller.name}.${func.name}()`
+
+            symbol: `${controller.name}.${func.name}()`,
+            comments: signature.getDocumentationComment(undefined),
+            tags: signature.getJsDocTags()
         };
     }
 
