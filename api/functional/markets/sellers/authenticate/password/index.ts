@@ -16,12 +16,12 @@ import type { ISeller } from "./../../../../../structures/actors/ISeller";
  * @controller SellerAuthenticateController.change()
  * @path PATCH markets/sellers/authenticate/password/change
  */
-export function change(connection: IConnection, input: Primitive<change.Input>): Promise<change.Output>
+export function change(connection: IConnection, input: Primitive<change.Input>): Promise<void>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":true,"output_encrypted":true},
+        {"input_encrypted":true,"output_encrypted":false},
         "PATCH",
         `markets/sellers/authenticate/password/change`,
         input
@@ -30,7 +30,6 @@ export function change(connection: IConnection, input: Primitive<change.Input>):
 export namespace change
 {
     export type Input = Primitive<ISeller.IChangePassword>;
-    export type Output = Primitive<object>;
 }
 
 

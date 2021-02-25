@@ -83,20 +83,18 @@ export abstract class SaleCommentsController
      * @throw 403 forbidden error when the comment is not yours
      * @throw 404 not found error when unable to find the matched record
      */
-    @helper.EncryptedRoute.Delete(":commentId")
+    @nest.Delete(":commentId")
     public async remove
         (
             @helper.TypedParam("section", "string") section: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
             @helper.TypedParam("articleId", "number") articleId: number,
             @helper.TypedParam("commentId", "number") commentId: number
-        ): Promise<object>
+        ): Promise<void>
     {
         section;
         saleId;
         articleId;
         commentId;
-
-        return {};
     }
 }

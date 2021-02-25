@@ -118,12 +118,17 @@ export namespace FunctionGenerator
                 return `${param.name}: ${type}`;
             }).join(", ");
 
+        // OUTPUT TYPE
+        const output: string = route.output === "void"
+            ? "void"
+            : `${route.name}.Output`;
+
         // RETURNS WITH CONSTRUCTION
         return ""
             + "/**\n"
             + comment.split("\r\n").join("\n").split("\n").map(str => ` * ${str}`).join("\n") + "\n"
             + " */\n"
-            + `export function ${route.name}(connection: IConnection, ${parameters}): Promise<${route.name}.Output>\n`
+            + `export function ${route.name}(connection: IConnection, ${parameters}): Promise<${output}>\n`
             + "{";
     }
 
@@ -134,13 +139,16 @@ export namespace FunctionGenerator
             types.push(new Pair("Query", query.type));
         if (input !== undefined)
             types.push(new Pair("Input", input.type));
-            
+        if (route.output !== "void")
+            types.push(new Pair("Output", route.output));
+        
+        if (types.length === 0)
+            return "}";
+        
         return `}\n`
             + `export namespace ${route.name}\n`
             + "{\n"
-            + (types.map(tuple => `    export type ${tuple.first} = Primitive<${tuple.second}>;`).join("\n"))
-            + (types.length !== 0 ? "\n" : "")
-            + `    export type Output = Primitive<${route.output}>;\n`
+            + (types.map(tuple => `    export type ${tuple.first} = Primitive<${tuple.second}>;`).join("\n")) + "\n"
             + "}";
     }
 }

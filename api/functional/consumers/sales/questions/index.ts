@@ -87,19 +87,15 @@ export namespace update
  * @controller ConsumerSaleQuestionsController.remove()
  * @path DELETE consumers/:section/sales/:saleId/questions/:id
  */
-export function remove(connection: IConnection, section: string, saleId: number, id: number): Promise<remove.Output>
+export function remove(connection: IConnection, section: string, saleId: number, id: number): Promise<void>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":false,"output_encrypted":true},
+        {"input_encrypted":false,"output_encrypted":false},
         "DELETE",
         `consumers/${section}/sales/${saleId}/questions/${id}`
     );
-}
-export namespace remove
-{
-    export type Output = Primitive<object>;
 }
 
 /**

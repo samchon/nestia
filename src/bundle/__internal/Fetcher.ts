@@ -51,6 +51,9 @@ export class Fetcher
         const response: Response = await fetch(`${connection.host}/${path}`, init);
         let content: string = await response.text();
 
+        if (!content)
+            return undefined!;
+
         // CHECK THE STATUS CODE
         if (response.status !== 200 && response.status !== 201)
             throw new HttpError(method, path, response.status, content);

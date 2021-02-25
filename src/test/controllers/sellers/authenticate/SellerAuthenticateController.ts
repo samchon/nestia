@@ -46,15 +46,14 @@ export class SellerAuthenticateController
      * @param input Old and new passwords
      * @return Empty object
      */
-    @helper.EncryptedRoute.Patch("password/change")
+    @nest.Patch("password/change")
     public async change
         (
             @nest.Request() httpReq: express.Request,
             @helper.EncryptedBody() input: ISeller.IChangePassword
-        ): Promise<object>
+        ): Promise<void>
     {
         httpReq;
         input;
-        return {};
     }
 }

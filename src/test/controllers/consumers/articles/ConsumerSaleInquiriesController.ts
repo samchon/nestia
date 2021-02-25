@@ -1,6 +1,6 @@
 import * as express from "express";
-import { EncryptedBody, EncryptedRoute, TypedParam } from "encrypted-nestjs";
 import * as nest from "@nestjs/common";
+import { EncryptedBody, EncryptedRoute, TypedParam } from "encrypted-nestjs";
 
 import { SaleInquiriesController } from "../../base/SaleInquiriesController";
 import { ISaleInquiry } from "../../../../../api/structures/sales/articles/ISaleInquiry";
@@ -87,20 +87,18 @@ export abstract class ConsumerSaleInquiriesController<
      * @throw 401 unauthorized error when you've not logged in yet
      * @throw 403 forbidden error when the article is not yours
      */
-    @EncryptedRoute.Delete(":id")
+    @nest.Delete(":id")
     public async remove
         (
             @nest.Request() request: express.Request,
             @TypedParam("section", "string") section: string, 
             @TypedParam("saleId", "number") saleId: number, 
             @TypedParam("id", "number") id: number
-        ): Promise<object>
+        ): Promise<void>
     {
         request;
         section;
         saleId;
         id;
-
-        return {};
     }
 }

@@ -84,20 +84,18 @@ export abstract class SellerSaleInquiriesController<
      * @param inquiryId ID of the target inquiry that the answer would be erased
      * @return Empty object
      */
-    @helper.EncryptedRoute.Delete(":inquiryId")
+    @nest.Delete(":inquiryId")
     public async remove
         (
             @nest.Request() request: express.Request,
             @helper.TypedParam("section", "string") section: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
             @helper.TypedParam("inquiryId", "number") inquiryId: number
-        ): Promise<object>
+        ): Promise<void>
     {
         request;
         section;
         saleId;
         inquiryId;
-
-        return {};
     }
 }
