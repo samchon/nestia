@@ -1,7 +1,7 @@
 import { AesPkcs5 } from "./../../../../__internal/AesPkcs5";
 import { Fetcher } from "./../../../../__internal/Fetcher";
+import { Primitive } from "./../../../../Primitive";
 import type { IConnection } from "./../../../../IConnection";
-import type { Primitive } from "./../../../../Primitive";
 
 import type { ISaleArticle } from "./../../../../structures/sales/articles/ISaleArticle";
 import type { ISaleInquiry } from "./../../../../structures/sales/articles/ISaleInquiry";
@@ -162,3 +162,4 @@ export namespace at
 //---------------------------------------------------------
 AesPkcs5;
 Fetcher;
+Primitive;

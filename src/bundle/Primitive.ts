@@ -19,6 +19,30 @@ export type Primitive<Instance> = value_of<Instance> extends object
         : never // cannot be
     : value_of<Instance>;
 
+export namespace Primitive
+{
+    /**
+     * Primitive object 하드 카피.
+     * 
+     * `Primitive.clone()` 은 파라미터 인스턴스를 원시 오브젝트 형태로 hard copy 하는 함수이다.
+     * 
+     * @param instance 복사 대상 인스턴스
+     * @return 복사된 객체
+     */
+    export function clone<Instance>(instance: Instance): Primitive<Instance>
+    {
+        return JSON.parse(JSON.stringify(instance));
+    }
+
+    /**
+     * @todo
+     */
+    export function equal_to<Instance>(x: Instance, y: Instance): boolean
+    {
+        return JSON.stringify(x) === JSON.stringify(y) || recursive_equal_to(x, y);
+    }
+}
+
 type PrimitiveObject<Instance extends object> = Instance extends Array<infer T>
     ? Primitive<T>[]
     : 
@@ -51,4 +75,34 @@ interface IValueOf<T>
 interface IJsonable<T>
 {
     toJSON(): T;
+}
+
+function object_equal_to<T extends object>(x: T, y: T): boolean
+{
+    for (const key in x)
+        if (recursive_equal_to(x[key], y[key]) === false)
+            return false;
+    return true;
+}
+
+function array_equal_to<T>(x: T[], y: T[]): boolean
+{
+    if (x.length !== y.length)
+        return false;
+
+    return x.every((value, index) => recursive_equal_to(value, y[index]));
+}
+
+function recursive_equal_to<T>(x: T, y: T): boolean
+{
+    const type = typeof x;
+    if (type !== typeof y)
+        return false;
+    else if (type === "object")
+        if (x instanceof Array)
+            return array_equal_to(x, y as typeof x);
+        else
+            return object_equal_to(<any>x as object, <any>y as object);
+    else
+        return x === y;
 }

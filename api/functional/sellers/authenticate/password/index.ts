@@ -1,9 +1,9 @@
-import { AesPkcs5 } from "./../../../../../__internal/AesPkcs5";
-import { Fetcher } from "./../../../../../__internal/Fetcher";
-import type { IConnection } from "./../../../../../IConnection";
-import type { Primitive } from "./../../../../../Primitive";
+import { AesPkcs5 } from "./../../../../__internal/AesPkcs5";
+import { Fetcher } from "./../../../../__internal/Fetcher";
+import { Primitive } from "./../../../../Primitive";
+import type { IConnection } from "./../../../../IConnection";
 
-import type { ISeller } from "./../../../../../structures/actors/ISeller";
+import type { ISeller } from "./../../../../structures/actors/ISeller";
 
 
 /**
@@ -14,7 +14,7 @@ import type { ISeller } from "./../../../../../structures/actors/ISeller";
  * @return Empty object
  * 
  * @controller SellerAuthenticateController.change()
- * @path PATCH markets/sellers/authenticate/password/change
+ * @path PATCH sellers/authenticate/password/change
  */
 export function change(connection: IConnection, input: Primitive<change.Input>): Promise<void>
 {
@@ -23,7 +23,7 @@ export function change(connection: IConnection, input: Primitive<change.Input>):
         connection,
         {"input_encrypted":true,"output_encrypted":false},
         "PATCH",
-        `markets/sellers/authenticate/password/change`,
+        `sellers/authenticate/password/change`,
         input
     );
 }
@@ -39,3 +39,4 @@ export namespace change
 //---------------------------------------------------------
 AesPkcs5;
 Fetcher;
+Primitive;

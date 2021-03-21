@@ -1,9 +1,9 @@
-import { AesPkcs5 } from "./../../../../__internal/AesPkcs5";
-import { Fetcher } from "./../../../../__internal/Fetcher";
-import type { IConnection } from "./../../../../IConnection";
-import type { Primitive } from "./../../../../Primitive";
+import { AesPkcs5 } from "./../../../__internal/AesPkcs5";
+import { Fetcher } from "./../../../__internal/Fetcher";
+import { Primitive } from "./../../../Primitive";
+import type { IConnection } from "./../../../IConnection";
 
-import type { ISeller } from "./../../../../structures/actors/ISeller";
+import type { ISeller } from "./../../../structures/actors/ISeller";
 
 export * as password from "./password";
 
@@ -15,7 +15,7 @@ export * as password from "./password";
  * @return Information of newly joined seller
  * 
  * @controller SellerAuthenticateController.join()
- * @path POST markets/sellers/authenticate/join
+ * @path POST sellers/authenticate/join
  */
 export function join(connection: IConnection, input: Primitive<join.Input>): Promise<join.Output>
 {
@@ -24,7 +24,7 @@ export function join(connection: IConnection, input: Primitive<join.Input>): Pro
         connection,
         {"input_encrypted":true,"output_encrypted":true},
         "POST",
-        `markets/sellers/authenticate/join`,
+        `sellers/authenticate/join`,
         input
     );
 }
@@ -42,7 +42,7 @@ export namespace join
  * @return Information of the seller
  * 
  * @controller SellerAuthenticateController.login()
- * @path POST markets/sellers/authenticate/login
+ * @path POST sellers/authenticate/login
  */
 export function login(connection: IConnection, input: Primitive<login.Input>): Promise<login.Output>
 {
@@ -51,7 +51,7 @@ export function login(connection: IConnection, input: Primitive<login.Input>): P
         connection,
         {"input_encrypted":true,"output_encrypted":true},
         "POST",
-        `markets/sellers/authenticate/login`,
+        `sellers/authenticate/login`,
         input
     );
 }
@@ -61,6 +61,21 @@ export namespace login
     export type Output = Primitive<ISeller>;
 }
 
+/**
+ * @controller SellerAuthenticateController.exit()
+ * @path DELETE sellers/authenticate/exit
+ */
+export function exit(connection: IConnection, ): Promise<void>
+{
+    return Fetcher.fetch
+    (
+        connection,
+        {"input_encrypted":false,"output_encrypted":false},
+        "DELETE",
+        `sellers/authenticate/exit`
+    );
+}
+
 
 
 //---------------------------------------------------------
@@ -68,3 +83,4 @@ export namespace login
 //---------------------------------------------------------
 AesPkcs5;
 Fetcher;
+Primitive;

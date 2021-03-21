@@ -24,8 +24,8 @@ export namespace FileGenerator
         const defaultImportDict: ImportDictionary = new ImportDictionary();
         defaultImportDict.emplace(`${outDir}/__internal/AesPkcs5.ts`, true, "AesPkcs5");
         defaultImportDict.emplace(`${outDir}/__internal/Fetcher.ts`, true, "Fetcher");
+        defaultImportDict.emplace(`${outDir}/Primitive.ts`, true, "Primitive");
         defaultImportDict.emplace(`${outDir}/IConnection.ts`, false, "IConnection");
-        defaultImportDict.emplace(`${outDir}/Primitive.ts`, false, "Primitive");
 
         await DirectoryUtil.remove(outDir + "/functional");
         await iterate(defaultImportDict, outDir + "/functional", root);

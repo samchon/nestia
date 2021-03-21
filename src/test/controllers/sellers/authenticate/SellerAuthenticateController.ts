@@ -4,7 +4,7 @@ import * as helper from "encrypted-nestjs";
 
 import { ISeller } from "../../../../../api/structures/actors/ISeller";
 
-@nest.Controller("markets/sellers/authenticate")
+@nest.Controller("sellers/authenticate")
 export class SellerAuthenticateController
 {
     /**
@@ -55,5 +55,14 @@ export class SellerAuthenticateController
     {
         httpReq;
         input;
+    }
+
+    @nest.Delete("exit")
+    public async exit
+        (
+            @nest.Request() httpReq: express.Request,
+        ): Promise<void>
+    {
+        httpReq;
     }
 }

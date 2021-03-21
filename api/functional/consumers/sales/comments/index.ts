@@ -1,7 +1,7 @@
 import { AesPkcs5 } from "./../../../../__internal/AesPkcs5";
 import { Fetcher } from "./../../../../__internal/Fetcher";
+import { Primitive } from "./../../../../Primitive";
 import type { IConnection } from "./../../../../IConnection";
-import type { Primitive } from "./../../../../Primitive";
 
 import type { IPage } from "./../../../../structures/common/IPage";
 import type { ISaleComment } from "./../../../../structures/sales/articles/ISaleComment";
@@ -106,3 +106,4 @@ export function remove(connection: IConnection, section: string, saleId: number,
 //---------------------------------------------------------
 AesPkcs5;
 Fetcher;
+Primitive;
