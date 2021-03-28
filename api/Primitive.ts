@@ -79,7 +79,7 @@ interface IJsonable<T>
 
 function object_equal_to<T extends object>(x: T, y: T): boolean
 {
-    for (let key in x)
+    for (const key in x)
         if (recursive_equal_to(x[key], y[key]) === false)
             return false;
     return true;
@@ -95,7 +95,7 @@ function array_equal_to<T>(x: T[], y: T[]): boolean
 
 function recursive_equal_to<T>(x: T, y: T): boolean
 {
-    let type = typeof x;
+    const type = typeof x;
     if (type !== typeof y)
         return false;
     else if (type === "object")

@@ -65,8 +65,11 @@ async function main(): Promise<void>
         {
             const inputs: string[] = [];
             for (const arg of process.argv.slice(3))
-                if (arg[0] !== "-")
-                    inputs.push(arg);
+            {
+                if (arg[0] === "-")
+                    break;
+                inputs.push(arg);
+            }
             await sdk(inputs, command);
         }
         catch (exp)

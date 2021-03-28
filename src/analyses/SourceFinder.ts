@@ -8,7 +8,7 @@ export namespace SourceFinder
         const output: string[] = [];
         await gather(output, directory);
 
-        return output.map(str => path.resolve(str));
+        return output;
     }
 
     async function gather(output: string[], directory: string): Promise<void>
@@ -16,7 +16,7 @@ export namespace SourceFinder
         const children: string[] = await fs.promises.readdir(directory);
         for (const file of children)
         {
-            const current: string = `${directory}/${file}`;
+            const current: string = `${directory}${path.sep}${file}`;
             const stats: fs.Stats = await fs.promises.lstat(current);
 
             if (stats.isDirectory() === true)
