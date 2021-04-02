@@ -27,7 +27,12 @@ export class Fetcher
         // METHOD & HEADERS
         const init: RequestInit = {
             method,
-            headers: connection.headers
+            headers: config.input_encrypted === false && input !== undefined && typeof input === "object"
+                ? { 
+                    ...connection.headers,
+                    "Content-Type": "application/json"
+                }
+                : connection.headers
         };
 
         // REQUEST BODY (WITH ENCRYPTION)
@@ -39,7 +44,7 @@ export class Fetcher
                 const password: IConnection.IEncyptionPassword = connection.encryption instanceof Function
                     ? connection.encryption!(content, true)
                     : connection.encryption!;
-                content = AesPkcs5.encode(content, password.key, password.iv);
+                content = AesPkcs5.encode(JSON.stringify(content), password.key, password.iv);
             }
             init.body = content;
         }
