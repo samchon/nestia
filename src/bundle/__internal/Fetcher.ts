@@ -75,16 +75,21 @@ export class Fetcher
         //----
         // OUTPUT
         //----
-        // PARSE RESPONSE BODY
-        const ret: { __set_headers__: Record<string, any> } & Primitive<Output> = JSON.parse(content);
-
-        // FIND __SET_HEADERS__ FIELD
-        if (ret.__set_headers__ !== undefined && typeof ret.__set_headers__ === "object")
+        let ret: { __set_headers__: Record<string, any> } & Primitive<Output> = content as any;
+        try
         {
-            if (connection.headers === undefined)
-                connection.headers = {};
-            Object.assign(connection.headers, ret.__set_headers__);
+            // PARSE RESPONSE BODY
+            ret = JSON.parse(ret as any);
+
+            // FIND __SET_HEADERS__ FIELD
+            if (ret.__set_headers__ !== undefined && typeof ret.__set_headers__ === "object")
+            {
+                if (connection.headers === undefined)
+                    connection.headers = {};
+                Object.assign(connection.headers, ret.__set_headers__);
+            }
         }
+        catch {}
 
         // RETURNS
         return ret;
