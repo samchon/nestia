@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module api.__internal
+ */
+//================================================================
 import * as crypto from "crypto";
 
 /**

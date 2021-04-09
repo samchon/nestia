@@ -95,17 +95,25 @@ export namespace FileGenerator
             content += FunctionGenerator.generate(route) + "\n\n";
         }
 
+        // FINALIZE THE CONTENT
         if (directory.routes.length !== 0)
             content = defaultImportDict.toScript(outDir) + "\n\n" 
                 + importDict.toScript(outDir) + "\n\n" 
                 + content + "\n\n"
                 + defaultImportDict.listUp();
+        content = "/**\n"
+            + " * @packageDocumentation\n"
+            + ` * @module ${directory.module}\n`
+            + " */\n"
+            + "//================================================================\n"
+            + content;
         await fs.promises.writeFile(`${outDir}/index.ts`, content, "utf8");
     }
 }
 
 class Directory
 {
+    public readonly module: string;
     public readonly directories: HashMap<string, Directory>;
     public readonly routes: IRoute[];
 
@@ -113,5 +121,8 @@ class Directory
     {
         this.directories = new HashMap();
         this.routes = [];
+        this.module = (this.parent !== null)
+            ? `${this.parent.module}.${name}`
+            : `api.${name}`;
     }
 }

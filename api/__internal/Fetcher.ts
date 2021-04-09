@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module api.__internal
+ */
+//================================================================
 import { AesPkcs5 } from "./AesPkcs5";
 import { HttpError } from "../HttpError";
 import { IConnection } from "../IConnection";
@@ -27,7 +32,12 @@ export class Fetcher
         // METHOD & HEADERS
         const init: RequestInit = {
             method,
-            headers: connection.headers
+            headers: config.input_encrypted === false && input !== undefined && typeof input === "object"
+                ? { 
+                    ...connection.headers,
+                    "Content-Type": "application/json"
+                }
+                : connection.headers
         };
 
         // REQUEST BODY (WITH ENCRYPTION)
@@ -70,16 +80,21 @@ export class Fetcher
         //----
         // OUTPUT
         //----
-        // PARSE RESPONSE BODY
-        const ret: { __set_headers__: Record<string, any> } & Primitive<Output> = JSON.parse(content);
-
-        // FIND __SET_HEADERS__ FIELD
-        if (ret.__set_headers__ !== undefined && typeof ret.__set_headers__ === "object")
+        let ret: { __set_headers__: Record<string, any> } & Primitive<Output> = content as any;
+        try
         {
-            if (connection.headers === undefined)
-                connection.headers = {};
-            Object.assign(connection.headers, ret.__set_headers__);
+            // PARSE RESPONSE BODY
+            ret = JSON.parse(ret as any);
+
+            // FIND __SET_HEADERS__ FIELD
+            if (ret.__set_headers__ !== undefined && typeof ret.__set_headers__ === "object")
+            {
+                if (connection.headers === undefined)
+                    connection.headers = {};
+                Object.assign(connection.headers, ret.__set_headers__);
+            }
         }
+        catch {}
 
         // RETURNS
         return ret;

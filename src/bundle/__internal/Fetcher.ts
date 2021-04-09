@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module api.__internal
+ */
+//================================================================
 import { AesPkcs5 } from "./AesPkcs5";
 import { HttpError } from "../HttpError";
 import { IConnection } from "../IConnection";

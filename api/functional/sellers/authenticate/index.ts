@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module api.functional.sellers.authenticate
+ */
+//================================================================
 import { AesPkcs5 } from "./../../../__internal/AesPkcs5";
 import { Fetcher } from "./../../../__internal/Fetcher";
 import { Primitive } from "./../../../Primitive";

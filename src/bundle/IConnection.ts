@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module api
+ */
+//================================================================
 export interface IConnection
 {
     host: string;

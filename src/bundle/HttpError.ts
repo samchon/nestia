@@ -1,4 +1,9 @@
 /**
+ * @packageDocumentation
+ * @module api
+ */
+//================================================================
+/**
  * HTTP Error from the backend server.
  * 
  * @author Jeongho Nam - https://github.com/samchon
