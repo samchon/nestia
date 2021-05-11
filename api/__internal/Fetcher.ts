@@ -57,8 +57,12 @@ export class Fetcher
         //----
         // RESPONSE MESSAGE
         //----
+        // NORMALIZE PATH
+        if (path[0] !== "/")
+            path = `/${path}`;
+
         // DO FETCH
-        const response: Response = await fetch(`${connection.host}/${path}`, init);
+        const response: Response = await fetch(`${connection.host}${path}`, init);
         let content: string = await response.text();
 
         if (!content)

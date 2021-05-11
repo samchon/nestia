@@ -1,4 +1,4 @@
-import * as path from "path";
+import * as NodePath from "path";
 import * as tsc from "typescript";
 import { HashMap } from "tstl/container/HashMap";
 
@@ -99,10 +99,15 @@ export namespace ControllerAnalyzer
         );
         const imports: [string, string[]][] = importDict.toJSON().map(pair => [pair.first, pair.second.toJSON()]);
 
+        // CONFIGURE PATH
+        let path: string = NodePath.join(controller.path, func.path).split("\\").join("/");
+        if (path[0] !== "/")
+            path = "/" + path;
+
         // RETURNS
         return {
             ...func,
-            path: path.join(controller.path, func.path).split("\\").join("/"),
+            path,
             parameters,
             output,
             imports,
