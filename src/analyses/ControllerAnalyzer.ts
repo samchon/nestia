@@ -41,22 +41,23 @@ export namespace ControllerAnalyzer
         const genericDict: GenericAnalyzer.Dictionary = GenericAnalyzer.analyze(checker, classNode);
 
         for (const property of classType.getProperties())
-            for (const declaration of property.declarations)
-            {
-                // TARGET ONLY METHOD
-                if (!tsc.isMethodDeclaration(declaration))
-                    continue;
-                
-                // IT MUST BE
-                const identifier = declaration.name;
-                if (!tsc.isIdentifier(identifier))
-                    continue;
-                
-                // ANALYZED WITH THE REFLECTED-FUNCTION
-                const func: IController.IFunction | undefined = controller.functions.find(f => f.name === identifier.escapedText);
-                if (func !== undefined)
-                    ret.push(_Analyze_function(checker, controller, genericDict, func, declaration));
-            }
+            if (property.declarations)
+                for (const declaration of property.declarations)
+                {
+                    // TARGET ONLY METHOD
+                    if (!tsc.isMethodDeclaration(declaration))
+                        continue;
+                    
+                    // IT MUST BE
+                    const identifier = declaration.name;
+                    if (!tsc.isIdentifier(identifier))
+                        continue;
+                    
+                    // ANALYZED WITH THE REFLECTED-FUNCTION
+                    const func: IController.IFunction | undefined = controller.functions.find(f => f.name === identifier.escapedText);
+                    if (func !== undefined)
+                        ret.push(_Analyze_function(checker, controller, genericDict, func, declaration));
+                }
         return ret;
     }
 

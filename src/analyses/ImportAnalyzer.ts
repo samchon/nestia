@@ -56,7 +56,7 @@ export namespace ImportAnalyzer
         // SPECIALIZATION
         //----
         const name: string = get_name(symbol);
-        const sourceFile: tsc.SourceFile = symbol.declarations[0]!.getSourceFile();
+        const sourceFile: tsc.SourceFile = symbol.declarations![0].getSourceFile();
 
         if (sourceFile.fileName.indexOf("typescript/lib") === -1)
         {

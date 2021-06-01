@@ -20,7 +20,11 @@ export class NestiaApplication
 
     private readonly bundle_checker_: Singleton<(str: string) => boolean>;
 
-    public constructor(inputs: string[], output: string)
+    public constructor
+        (
+            inputs: string[], 
+            output: string
+        )
     {
         this.inputs = inputs.map(str => path.resolve(str));
         this.output = path.resolve(output);

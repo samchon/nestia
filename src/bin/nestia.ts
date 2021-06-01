@@ -1,8 +1,8 @@
 #!/usr/bin/env ts-node-script
 
-import * as cli from "cli";
-import * as fs from "fs";
-import * as path from "path";
+import cli from "cli";
+import fs from "fs";
+import path from "path";
 
 import { Terminal } from "../utils/Terminal";
 

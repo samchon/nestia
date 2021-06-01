@@ -83,7 +83,7 @@ export namespace FunctionGenerator
                 if (tag.text === undefined)
                     return false;
                 
-                const variable: string = tag.text.split(" ")[0];
+                const variable: string = tag.text![0].text.split(" ")[0];
                 return route.parameters.find(param => variable === param.name) !== undefined;
             }
             return true;
@@ -96,7 +96,12 @@ export namespace FunctionGenerator
                 const capsule: Vector<tsc.JSDocTagInfo> = Vector.wrap(tags);
                 capsule.insert(capsule.nth(index), {
                     name: "param",
-                    text: "connection Information of the remote HTTP(s) server with headers (+encryption password)"
+                    text: [
+                        { 
+                            kind: "xxx",
+                            text: "connection Information of the remote HTTP(s) server with headers (+encryption password)" 
+                        }
+                    ]
                 });
             }
             comment += tags.map(t => `@${t.name} ${t.text ? t.text : ""}`).join("\n") + "\n\n";
