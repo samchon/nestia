@@ -71,40 +71,39 @@ export namespace FunctionGenerator
         // CONSTRUCT COMMENT
         //----
         // MAIN DESCRIPTION
-        let comment: string = route.comments.map(comment => comment.text).join("\n\n");
+        let comment: string = route.comments.map(comment => `${comment.kind === "linkText" ? " " : ""}${comment.text}`).join("");
         if (comment !== "")
             comment += "\n\n";
 
         // FILTER TAGS (VULNERABLE PARAMETERS WOULD BE REMOVED)
-        const tags: tsc.JSDocTagInfo[] = route.tags.filter(tag => 
+        const tagList: tsc.JSDocTagInfo[] = route.tags.filter(tag => tag.text !== undefined);
+        if (tagList.length !== 0)
         {
-            if (tag.name === "param")
-            {
-                if (tag.text === undefined)
-                    return false;
-                
-                const variable: string = tag.text![0].text.split(" ")[0];
-                return route.parameters.find(param => variable === param.name) !== undefined;
-            }
-            return true;
-        });
-        if (tags.length !== 0)
-        {
-            const index: number = tags.findIndex(t => t.name === "param");
+            const index: number = tagList.findIndex(t => t.name === "param");
             if (index !== -1)
             {
-                const capsule: Vector<tsc.JSDocTagInfo> = Vector.wrap(tags);
+                const capsule: Vector<tsc.JSDocTagInfo> = Vector.wrap(tagList);
                 capsule.insert(capsule.nth(index), {
                     name: "param",
                     text: [
+                        {
+                            kind: "parameterName",
+                            text: "connection"
+                        },
+                        {
+                            kind: "space",
+                            text: " "
+                        },
                         { 
-                            kind: "xxx",
+                            kind: "text",
                             text: "connection Information of the remote HTTP(s) server with headers (+encryption password)" 
                         }
                     ]
                 });
             }
-            comment += tags.map(t => `@${t.name} ${t.text ? t.text : ""}`).join("\n") + "\n\n";
+            comment += tagList
+                .map(tag => `@${tag.name} ${tag.text!.map(elem => elem.text).join("")}`)
+                .join("\n") + "\n\n";
         }
         
         // COMPLETE THE COMMENT

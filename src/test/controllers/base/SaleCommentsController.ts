@@ -10,6 +10,8 @@ export abstract class SaleCommentsController
     /**
      * Get page of comments.
      * 
+     * Get list of the {@link ISaleComment comments} with {@link IPage pagination}.
+     * 
      * @param section Code of the target section
      * @param saleId ID of the target sale
      * @param articleId ID of the target article
