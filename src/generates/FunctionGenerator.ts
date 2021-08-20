@@ -33,7 +33,9 @@ export namespace FunctionGenerator
         const fetchArguments: string[] = 
         [
             "connection",
-            JSON.stringify(config),
+            JSON.stringify(config, null, 4)
+                .split('"').join("")
+                .split("\n").join("\n" + " ".repeat(8)),
             `"${route.method}"`,
             path
         ];
@@ -115,13 +117,17 @@ export namespace FunctionGenerator
         // FINALIZATION
         //----
         // REFORM PARAMETERS TEXT
-        const parameters: string = route.parameters.map(param => 
+        const parameters: string[] = 
+        [
+            "connection: IConnection",
+            ...route.parameters.map(param => 
             {
                 const type: string = (param === query || param === input)
                     ? `Primitive<${route.name}.${param === query ? "Query" : "Input"}>`
                     : param.type
                 return `${param.name}: ${type}`;
-            }).join(", ");
+            })
+        ];
 
         // OUTPUT TYPE
         const output: string = route.output === "void"
@@ -133,7 +139,10 @@ export namespace FunctionGenerator
             + "/**\n"
             + comment.split("\r\n").join("\n").split("\n").map(str => ` * ${str}`).join("\n") + "\n"
             + " */\n"
-            + `export function ${route.name}(connection: IConnection, ${parameters}): Promise<${output}>\n`
+            + `export function ${route.name}\n` 
+            + `    (\n` 
+            + `${parameters.map(str => `        ${str}`).join(",\n")}\n`
+            + `    ): Promise<${output}>\n`
             + "{";
     }
 

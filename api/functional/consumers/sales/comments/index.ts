@@ -30,12 +30,22 @@ import type { ISaleComment } from "./../../../../structures/sales/articles/ISale
  * @controller ConsumerSaleCommentsController.index()
  * @path GET /consumers/:section/sales/:saleId/comments/:articleId/
  */
-export function index(connection: IConnection, section: string, saleId: number, articleId: number, input: Primitive<index.Query>): Promise<index.Output>
+export function index
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        articleId: number,
+        input: Primitive<index.Query>
+    ): Promise<index.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":false,"output_encrypted":true},
+        {
+            input_encrypted: false,
+            output_encrypted: true
+        },
         "GET",
         `/consumers/${section}/sales/${saleId}/comments/${articleId}/?${new URLSearchParams(input as any).toString()}`
     );
@@ -65,12 +75,22 @@ export namespace index
  * @controller ConsumerSaleCommentsController.store()
  * @path POST /consumers/:section/sales/:saleId/comments/:articleId/
  */
-export function store(connection: IConnection, section: string, saleId: number, articleId: number, input: Primitive<store.Input>): Promise<store.Output>
+export function store
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        articleId: number,
+        input: Primitive<store.Input>
+    ): Promise<store.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":true,"output_encrypted":true},
+        {
+            input_encrypted: true,
+            output_encrypted: true
+        },
         "POST",
         `/consumers/${section}/sales/${saleId}/comments/${articleId}/`,
         input
@@ -99,12 +119,22 @@ export namespace store
  * @controller ConsumerSaleCommentsController.remove()
  * @path DELETE /consumers/:section/sales/:saleId/comments/:articleId/:commentId
  */
-export function remove(connection: IConnection, section: string, saleId: number, articleId: number, commentId: number): Promise<void>
+export function remove
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        articleId: number,
+        commentId: number
+    ): Promise<void>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":false,"output_encrypted":false},
+        {
+            input_encrypted: false,
+            output_encrypted: false
+        },
         "DELETE",
         `/consumers/${section}/sales/${saleId}/comments/${articleId}/${commentId}`
     );

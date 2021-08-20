@@ -23,12 +23,19 @@ import type { ISeller } from "./../../../../structures/actors/ISeller";
  * @controller SellerAuthenticateController.change()
  * @path PATCH /sellers/authenticate/password/change
  */
-export function change(connection: IConnection, input: Primitive<change.Input>): Promise<void>
+export function change
+    (
+        connection: IConnection,
+        input: Primitive<change.Input>
+    ): Promise<void>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":true,"output_encrypted":false},
+        {
+            input_encrypted: true,
+            output_encrypted: false
+        },
         "PATCH",
         `/sellers/authenticate/password/change`,
         input

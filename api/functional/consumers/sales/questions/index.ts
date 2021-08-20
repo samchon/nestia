@@ -29,12 +29,21 @@ import type { IPage } from "./../../../../structures/common/IPage";
  * @controller ConsumerSaleQuestionsController.store()
  * @path POST /consumers/:section/sales/:saleId/questions/
  */
-export function store(connection: IConnection, section: string, saleId: number, input: Primitive<store.Input>): Promise<store.Output>
+export function store
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        input: Primitive<store.Input>
+    ): Promise<store.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":true,"output_encrypted":true},
+        {
+            input_encrypted: true,
+            output_encrypted: true
+        },
         "POST",
         `/consumers/${section}/sales/${saleId}/questions/`,
         input
@@ -64,12 +73,22 @@ export namespace store
  * @controller ConsumerSaleQuestionsController.update()
  * @path POST /consumers/:section/sales/:saleId/questions/:id
  */
-export function update(connection: IConnection, section: string, saleId: number, id: number, input: Primitive<update.Input>): Promise<update.Output>
+export function update
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        id: number,
+        input: Primitive<update.Input>
+    ): Promise<update.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":true,"output_encrypted":true},
+        {
+            input_encrypted: true,
+            output_encrypted: true
+        },
         "POST",
         `/consumers/${section}/sales/${saleId}/questions/${id}`,
         input
@@ -98,12 +117,21 @@ export namespace update
  * @controller ConsumerSaleQuestionsController.remove()
  * @path DELETE /consumers/:section/sales/:saleId/questions/:id
  */
-export function remove(connection: IConnection, section: string, saleId: number, id: number): Promise<void>
+export function remove
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        id: number
+    ): Promise<void>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":false,"output_encrypted":false},
+        {
+            input_encrypted: false,
+            output_encrypted: false
+        },
         "DELETE",
         `/consumers/${section}/sales/${saleId}/questions/${id}`
     );
@@ -124,12 +152,21 @@ export function remove(connection: IConnection, section: string, saleId: number,
  * @controller ConsumerSaleQuestionsController.index()
  * @path GET /consumers/:section/sales/:saleId/questions/
  */
-export function index(connection: IConnection, section: string, saleId: number, input: Primitive<index.Query>): Promise<index.Output>
+export function index
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        input: Primitive<index.Query>
+    ): Promise<index.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":false,"output_encrypted":true},
+        {
+            input_encrypted: false,
+            output_encrypted: true
+        },
         "GET",
         `/consumers/${section}/sales/${saleId}/questions/?${new URLSearchParams(input as any).toString()}`
     );
@@ -155,12 +192,21 @@ export namespace index
  * @controller ConsumerSaleQuestionsController.at()
  * @path GET /consumers/:section/sales/:saleId/questions/:id
  */
-export function at(connection: IConnection, section: string, saleId: number, id: number): Promise<at.Output>
+export function at
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        id: number
+    ): Promise<at.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":false,"output_encrypted":true},
+        {
+            input_encrypted: false,
+            output_encrypted: true
+        },
         "GET",
         `/consumers/${section}/sales/${saleId}/questions/${id}`
     );

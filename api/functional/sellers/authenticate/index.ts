@@ -23,12 +23,19 @@ export * as password from "./password";
  * @controller SellerAuthenticateController.join()
  * @path POST /sellers/authenticate/join
  */
-export function join(connection: IConnection, input: Primitive<join.Input>): Promise<join.Output>
+export function join
+    (
+        connection: IConnection,
+        input: Primitive<join.Input>
+    ): Promise<join.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":true,"output_encrypted":true},
+        {
+            input_encrypted: true,
+            output_encrypted: true
+        },
         "POST",
         `/sellers/authenticate/join`,
         input
@@ -51,12 +58,19 @@ export namespace join
  * @controller SellerAuthenticateController.login()
  * @path POST /sellers/authenticate/login
  */
-export function login(connection: IConnection, input: Primitive<login.Input>): Promise<login.Output>
+export function login
+    (
+        connection: IConnection,
+        input: Primitive<login.Input>
+    ): Promise<login.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":true,"output_encrypted":true},
+        {
+            input_encrypted: true,
+            output_encrypted: true
+        },
         "POST",
         `/sellers/authenticate/login`,
         input
@@ -73,12 +87,18 @@ export namespace login
  * @controller SellerAuthenticateController.exit()
  * @path DELETE /sellers/authenticate/exit
  */
-export function exit(connection: IConnection, ): Promise<void>
+export function exit
+    (
+        connection: IConnection
+    ): Promise<void>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":false,"output_encrypted":false},
+        {
+            input_encrypted: false,
+            output_encrypted: false
+        },
         "DELETE",
         `/sellers/authenticate/exit`
     );

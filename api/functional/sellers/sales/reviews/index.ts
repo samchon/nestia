@@ -33,12 +33,22 @@ import type { IPage } from "./../../../../structures/common/IPage";
  * @controller SellerSaleReviewsController.store()
  * @path POST /sellers/:section/sales/:saleId/reviews/:inquiryId
  */
-export function store(connection: IConnection, section: string, saleId: number, inquiryId: number, input: Primitive<store.Input>): Promise<store.Output>
+export function store
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        inquiryId: number,
+        input: Primitive<store.Input>
+    ): Promise<store.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":true,"output_encrypted":true},
+        {
+            input_encrypted: true,
+            output_encrypted: true
+        },
         "POST",
         `/sellers/${section}/sales/${saleId}/reviews/${inquiryId}`,
         input
@@ -65,12 +75,22 @@ export namespace store
  * @controller SellerSaleReviewsController.update()
  * @path POST /sellers/:section/sales/:saleId/reviews/:inquiryId
  */
-export function update(connection: IConnection, section: string, saleId: number, inquiryId: number, input: Primitive<update.Input>): Promise<update.Output>
+export function update
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        inquiryId: number,
+        input: Primitive<update.Input>
+    ): Promise<update.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":true,"output_encrypted":true},
+        {
+            input_encrypted: true,
+            output_encrypted: true
+        },
         "POST",
         `/sellers/${section}/sales/${saleId}/reviews/${inquiryId}`,
         input
@@ -96,12 +116,21 @@ export namespace update
  * @controller SellerSaleReviewsController.remove()
  * @path DELETE /sellers/:section/sales/:saleId/reviews/:inquiryId
  */
-export function remove(connection: IConnection, section: string, saleId: number, inquiryId: number): Promise<void>
+export function remove
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        inquiryId: number
+    ): Promise<void>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":false,"output_encrypted":false},
+        {
+            input_encrypted: false,
+            output_encrypted: false
+        },
         "DELETE",
         `/sellers/${section}/sales/${saleId}/reviews/${inquiryId}`
     );
@@ -122,12 +151,21 @@ export function remove(connection: IConnection, section: string, saleId: number,
  * @controller SellerSaleReviewsController.index()
  * @path GET /sellers/:section/sales/:saleId/reviews/
  */
-export function index(connection: IConnection, section: string, saleId: number, input: Primitive<index.Query>): Promise<index.Output>
+export function index
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        input: Primitive<index.Query>
+    ): Promise<index.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":false,"output_encrypted":true},
+        {
+            input_encrypted: false,
+            output_encrypted: true
+        },
         "GET",
         `/sellers/${section}/sales/${saleId}/reviews/?${new URLSearchParams(input as any).toString()}`
     );
@@ -153,12 +191,21 @@ export namespace index
  * @controller SellerSaleReviewsController.at()
  * @path GET /sellers/:section/sales/:saleId/reviews/:id
  */
-export function at(connection: IConnection, section: string, saleId: number, id: number): Promise<at.Output>
+export function at
+    (
+        connection: IConnection,
+        section: string,
+        saleId: number,
+        id: number
+    ): Promise<at.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":false,"output_encrypted":true},
+        {
+            input_encrypted: false,
+            output_encrypted: true
+        },
         "GET",
         `/sellers/${section}/sales/${saleId}/reviews/${id}`
     );

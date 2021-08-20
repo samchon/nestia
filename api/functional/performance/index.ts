@@ -20,12 +20,18 @@ import type { IPerformance } from "./../../structures/performance/IMemoryUsage";
  * @controller PerformanceController.get()
  * @path GET /performance/
  */
-export function get(connection: IConnection, ): Promise<get.Output>
+export function get
+    (
+        connection: IConnection
+    ): Promise<get.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {"input_encrypted":false,"output_encrypted":true},
+        {
+            input_encrypted: false,
+            output_encrypted: true
+        },
         "GET",
         `/performance/`
     );
