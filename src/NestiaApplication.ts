@@ -18,7 +18,7 @@ export class NestiaApplication
     public readonly inputs: string[];
     public readonly output: string;
 
-    private readonly bundle_checker_: Singleton<(str: string) => boolean>;
+    private readonly bundle_checker_: Singleton<Promise<(str: string) => boolean>>;
 
     public constructor
         (
