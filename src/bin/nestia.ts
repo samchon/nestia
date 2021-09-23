@@ -3,42 +3,77 @@
 import cli from "cli";
 import fs from "fs";
 import path from "path";
-
-import { Terminal } from "../utils/Terminal";
+import tsc from "typescript";
 
 import { NestiaApplication } from "../NestiaApplication";
 
+import { Terminal } from "../utils/Terminal";
+import { stripJsonComments } from "../utils/stripJsonComments";
+
 interface ICommand
 {
-    install: boolean;
     out: string | null;
 }
 
-async function sdk(inputList: string[], command: ICommand): Promise<void>
+async function sdk(input: string[], command: ICommand): Promise<void>
 {
-    // VALIDATE OUTPUT
+    let compilerOptions: tsc.CompilerOptions | undefined = {};
+
+    //----
+    // NESTIA.CONFIG.TS
+    //----
+    if (fs.existsSync("nestia.config.ts") === true)
+    {
+        const config: NestiaApplication.IConfiguration = await import(path.resolve("nestia.config.ts"));
+        compilerOptions = config.compilerOptions;
+        input = config.input;
+        command.out = config.output;
+    }
+    
+    //----
+    // VALIDATIONS
+    //----
+    // CHECK OUTPUT
     if (command.out === null)
         throw new Error(`Output directory is not specified. Add the "--out <output_directory>" option.`);
 
+    // CHECK PARENT DIRECTORY
     const parentPath: string = path.resolve(command.out + "/..");
     const parentStats: fs.Stats = await fs.promises.stat(parentPath);
+
     if (parentStats.isDirectory() === false)
         throw new Error(`Unable to find parent directory of the output path: "${parentPath}".`);
 
-    // VALIDATE INPUTS
-    for (const input of inputList)
+    // CHECK INPUTS
+    for (const path of input)
     {
-        const inputStats: fs.Stats = await fs.promises.stat(input);
+        const inputStats: fs.Stats = await fs.promises.stat(path);
         if (inputStats.isDirectory() === false)
-            throw new Error(`Target "${inputList}" is not a directory.`);
+            throw new Error(`Target "${path}" is not a directory.`);
     }
 
     //----
-    // GENERATE
+    // GENERATION
     //----
-    // CALL THE APP.SDK()
-    const app: NestiaApplication = new NestiaApplication(inputList, command.out);
-    await app.sdk();
+    if (fs.existsSync("tsconfig.json") === true)
+    {
+        const content: string = await fs.promises.readFile("tsconfig.json", "utf8");
+        const options: tsc.CompilerOptions = JSON.parse(stripJsonComments(content)).compilerOptions;
+
+        compilerOptions = compilerOptions
+            ? { ...options, ...compilerOptions }
+            : options;
+    }
+
+    // CHECK NESTIA.CONFIG.TS
+
+    // CALL THE APP.GENERATE()
+    const app: NestiaApplication = new NestiaApplication({
+        output: command.out,
+        input,
+        compilerOptions,
+    });
+    await app.generate();
 }
 
 async function install(): Promise<void>
@@ -58,7 +93,6 @@ async function main(): Promise<void>
     {
         const command: ICommand = cli.parse({
             out: ["o", "Output path of the SDK files", "string", null],
-            install: ["i", "Install Dependencies", "boolean", false]
         });
 
         try

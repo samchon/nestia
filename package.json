@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "0.2.3",
+  "version": "0.3.0-dev.20210923",
   "description": "Automatic SDK and Document generator for the NestJS",
   "main": "src/index.ts",
   "bin": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "tsc --watch",
-    "test": "ts-node src/bin/nestia sdk src/test/controllers --out api"
+    "test": "cd test && bash script.sh"
   },
   "repository": {
     "type": "git",

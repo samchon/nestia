@@ -14,6 +14,7 @@ export namespace FunctionGenerator
 
         return [head, body, tail]
             .map(closure => closure(route, query, input))
+            .filter(str => !!str)
             .join("\n");
     }
 
@@ -43,11 +44,12 @@ export namespace FunctionGenerator
             fetchArguments.push("input");
 
         // RETURNS WITH FINALIZATION
-        return ""
+        return "{\n"
             + "    return Fetcher.fetch\n"
             + "    (\n"
             + fetchArguments.map(param => `        ${param}`).join(",\n") + "\n"
-            + "    );";
+            + "    );\n"
+            + "}";
     }
 
     function get_path(route: IRoute, query: IRoute.IParameter | undefined): string
@@ -142,11 +144,10 @@ export namespace FunctionGenerator
             + `export function ${route.name}\n` 
             + `    (\n` 
             + `${parameters.map(str => `        ${str}`).join(",\n")}\n`
-            + `    ): Promise<${output}>\n`
-            + "{";
+            + `    ): Promise<${output}>`;
     }
 
-    function tail(route: IRoute, query: IRoute.IParameter | undefined, input: IRoute.IParameter | undefined): string
+    function tail(route: IRoute, query: IRoute.IParameter | undefined, input: IRoute.IParameter | undefined): string | null
     {
         const types: Pair<string, string>[] = [];
         if (query !== undefined)
@@ -157,10 +158,9 @@ export namespace FunctionGenerator
             types.push(new Pair("Output", route.output));
         
         if (types.length === 0)
-            return "}";
+            return null;
         
-        return `}\n`
-            + `export namespace ${route.name}\n`
+        return `export namespace ${route.name}\n`
             + "{\n"
             + (types.map(tuple => `    export type ${tuple.first} = Primitive<${tuple.second}>;`).join("\n")) + "\n"
             + "}";

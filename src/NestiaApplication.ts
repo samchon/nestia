@@ -15,26 +15,18 @@ import { ArrayUtil } from "./utils/ArrayUtil";
 
 export class NestiaApplication
 {
-    public readonly inputs: string[];
-    public readonly output: string;
-
+    private readonly config_: NestiaApplication.IConfiguration;
     private readonly bundle_checker_: Singleton<Promise<(str: string) => boolean>>;
 
-    public constructor
-        (
-            inputs: string[], 
-            output: string
-        )
+    public constructor(config: NestiaApplication.IConfiguration)
     {
-        this.inputs = inputs.map(str => path.resolve(str));
-        this.output = path.resolve(output);
-
+        this.config_ = config;
         this.bundle_checker_ = new Singleton(async () =>
         {
             const bundles: string[] = await fs.promises.readdir(`${__dirname}${path.sep}bundle`);
             const tuples: Pair<string, boolean>[] = await ArrayUtil.asyncMap(bundles, async file =>
             {
-                const relative: string = `${this.output}${path.sep}${file}`;
+                const relative: string = `${config.output}${path.sep}${file}`;
                 const stats: fs.Stats = await fs.promises.stat(`${__dirname}${path.sep}bundle${path.sep}${file}`);
 
                 return new Pair(relative, stats.isDirectory());
@@ -52,13 +44,13 @@ export class NestiaApplication
         });
     }
 
-    public async sdk(): Promise<void>
+    public async generate(): Promise<void>
     {
         // LOAD CONTROLLER FILES
         const fileList: string[] = [];
-        for (const input of this.inputs)
+        for (const file of this.config_.input.map(str => path.resolve(str)))
         {
-            const found: string[] = await SourceFinder.find(input);
+            const found: string[] = await SourceFinder.find(file);
             const filtered: string[] = await ArrayUtil.asyncFilter(found, file => this.is_not_excluded(file));
 
             fileList.push(...filtered);
@@ -72,7 +64,11 @@ export class NestiaApplication
             controllerList.push(...await ReflectAnalyzer.analyze(unique, file));
 
         // ANALYZE TYPESCRIPT CODE
-        const program: tsc.Program = tsc.createProgram(controllerList.map(c => c.file), {});
+        const program: tsc.Program = tsc.createProgram
+        (
+            controllerList.map(c => c.file), 
+            this.config_.compilerOptions || {}
+        );
         const checker: tsc.TypeChecker = program.getTypeChecker();
 
         const routeList: IRoute[] = [];
@@ -86,12 +82,22 @@ export class NestiaApplication
         }
 
         // DO GENERATE
-        await SdkGenerator.generate(this.output, routeList);
+        await SdkGenerator.generate(this.config_.output, routeList);
     }
 
     private async is_not_excluded(file: string): Promise<boolean>
     {
-        return file.indexOf(`${this.output}${path.sep}functional`) === -1
+        return file.indexOf(`${this.config_.output}${path.sep}functional`) === -1
             && (await this.bundle_checker_.get())(file) === false;
+    }
+}
+
+export namespace NestiaApplication
+{
+    export interface IConfiguration
+    {
+        input: string[];
+        output: string;
+        compilerOptions?: tsc.CompilerOptions;
     }
 }

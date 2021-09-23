@@ -1,7 +1,6 @@
 api/
 node_modules/
-
-src/test/
+test/
 
 *.*ignore
 package-lock.json
