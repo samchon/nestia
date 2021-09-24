@@ -249,9 +249,9 @@ Therefore, this **Nestia** makes you to be much convenient in the API interactio
 ### Technial Support
 samchon.github@gmail.com
 
-I get technical support about this **Nestia** and [safe-typeorm](https://github.com/samchon/safe-typeorm). 
+I can provide technical support about those **Nestia** and [safe-typeorm](https://github.com/samchon/safe-typeorm). 
 
-Therefore, if you have any question or need help, feel free to contact me. If you want to adapt this **Nestia** and [safe-typeorm](https://github.com/samchon/safe-typeorm) in your commercial project, I can provide you the best guidance. 
+Therefore, if you have any question or need help, feel free to contact me. If you want to adapt those **Nestia** and [safe-typeorm](https://github.com/samchon/safe-typeorm) in your commercial project, I can provide you the best guidance. 
 
 I also can help your backend project in the entire development level. If you're suffering by DB architecture design or API structure design, just contact me and get help. I'll help you with my best effort.
 
