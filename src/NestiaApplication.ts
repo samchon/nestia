@@ -26,7 +26,7 @@ export class NestiaApplication
             const bundles: string[] = await fs.promises.readdir(`${__dirname}${path.sep}bundle`);
             const tuples: Pair<string, boolean>[] = await ArrayUtil.asyncMap(bundles, async file =>
             {
-                const relative: string = `${config.output}${path.sep}${file}`;
+                const relative: string = `${this.config_.output}${path.sep}${file}`;
                 const stats: fs.Stats = await fs.promises.stat(`${__dirname}${path.sep}bundle${path.sep}${file}`);
 
                 return new Pair(relative, stats.isDirectory());
@@ -48,7 +48,11 @@ export class NestiaApplication
     {
         // LOAD CONTROLLER FILES
         const fileList: string[] = [];
-        for (const file of this.config_.input.map(str => path.resolve(str)))
+        const inputList: string[] = this.config_.input instanceof Array
+            ? this.config_.input
+            : [this.config_.input];
+
+        for (const file of inputList.map(str => path.resolve(str)))
         {
             const found: string[] = await SourceFinder.find(file);
             const filtered: string[] = await ArrayUtil.asyncFilter(found, file => this.is_not_excluded(file));
@@ -96,7 +100,7 @@ export namespace NestiaApplication
 {
     export interface IConfiguration
     {
-        input: string[];
+        input: string | string[];
         output: string;
         compilerOptions?: tsc.CompilerOptions;
     }

@@ -26,7 +26,7 @@ async function sdk(input: string[], command: ICommand): Promise<void>
     {
         const config: NestiaApplication.IConfiguration = await import(path.resolve("nestia.config.ts"));
         compilerOptions = config.compilerOptions;
-        input = config.input;
+        input = config.input instanceof Array ? config.input : [config.input];
         command.out = config.output;
     }
     
