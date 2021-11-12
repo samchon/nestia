@@ -28,10 +28,6 @@ export abstract class SaleInquiriesController<
             @nest.Query() input: Request
         ): Promise<IPage<Summary>>
     {
-        section;
-        saleId;
-        input;
-
         return null!;
     }
 
@@ -54,10 +50,6 @@ export abstract class SaleInquiriesController<
             @helper.TypedParam("id", "number") id: number
         ): Promise<ISaleInquiry<Content>>
     {
-        section;
-        saleId;
-        id;
-
         return null!;
     }
 }

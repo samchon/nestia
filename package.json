@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "Automatic SDK and Document generator for the NestJS",
   "main": "src/index.ts",
   "bin": {
@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "tsc --watch",
-    "test": "cd test && bash script.sh"
+    "test": "cd test && bash script.sh",
+    "test:default": "cd test/default && rimraf -rf src/api/functional && ts-node ../../src/bin/nestia sdk src/controllers --out src/api"
   },
   "repository": {
     "type": "git",
@@ -39,6 +40,7 @@
     "typescript": "^4.3.2"
   },
   "devDependencies": {
-    "encrypted-nestjs": "^0.1.5"
+    "encrypted-nestjs": "^0.1.5",
+    "rimraf": "^3.0.2"
   }
 }

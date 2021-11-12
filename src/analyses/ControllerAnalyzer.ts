@@ -52,7 +52,7 @@ export namespace ControllerAnalyzer
                     const identifier = declaration.name;
                     if (!tsc.isIdentifier(identifier))
                         continue;
-                    
+                
                     // ANALYZED WITH THE REFLECTED-FUNCTION
                     const func: IController.IFunction | undefined = controller.functions.find(f => f.name === identifier.escapedText);
                     if (func !== undefined)
@@ -135,7 +135,6 @@ export namespace ControllerAnalyzer
     {
         const symbol: tsc.Symbol = checker.getSymbolAtLocation(declaration.name)!;
         const type: tsc.Type = checker.getTypeOfSymbolAtLocation(symbol, declaration);
-
         const name: string = symbol.getEscapedName().toString();
 
         // VALIDATE PARAMETERS

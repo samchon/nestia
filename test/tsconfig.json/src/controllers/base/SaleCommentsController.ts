@@ -30,11 +30,6 @@ export abstract class SaleCommentsController
             @nest.Query() input: IPage.IRequest
         ): Promise<IPage<ISaleComment>>
     {
-        section;
-        saleId;
-        articleId;
-        input;
-
         return null!;
     }
 
@@ -63,12 +58,6 @@ export abstract class SaleCommentsController
             @helper.EncryptedBody() input: ISaleComment.IStore
         ): Promise<ISaleComment>
     {
-        request;
-        section;
-        saleId;
-        articleId;
-        input;
-
         return null!;
     }
 
@@ -94,9 +83,5 @@ export abstract class SaleCommentsController
             @helper.TypedParam("commentId", "number") commentId: number
         ): Promise<void>
     {
-        section;
-        saleId;
-        articleId;
-        commentId;
     }
 }

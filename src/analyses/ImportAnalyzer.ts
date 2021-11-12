@@ -41,12 +41,12 @@ export namespace ImportAnalyzer
             type = genericDict.get(type)!;
 
         // PRIMITIVE
-        const symbol: tsc.Symbol | undefined = type.getSymbol();
+        const symbol: tsc.Symbol | undefined = type.getSymbol() || type.aliasSymbol;
         if (symbol === undefined)
             return checker.typeToString(type, undefined, undefined);
         
         // UNION OR INTERSECT
-        else if (type.isUnionOrIntersection())
+        else if (type.aliasSymbol === undefined && type.isUnionOrIntersection())
         {
             const joiner: string = type.isIntersection() ? " & " : " | ";
             return type.types.map(child => explore(checker, genericDict, importDict, child)).join(joiner);

@@ -19,7 +19,6 @@ export class SellerAuthenticateController
             @helper.EncryptedBody() input: ISeller.IJoin
         ): Promise<ISeller>
     {
-        input;
         return null!;
     }
 
@@ -35,7 +34,6 @@ export class SellerAuthenticateController
             @helper.EncryptedBody() input: ISeller.ILogin
         ): Promise<ISeller>
     {
-        input;
         return null!;
     }
 
@@ -53,8 +51,6 @@ export class SellerAuthenticateController
             @helper.EncryptedBody() input: ISeller.IChangePassword
         ): Promise<void>
     {
-        httpReq;
-        input;
     }
 
     @nest.Delete("exit")
@@ -63,6 +59,5 @@ export class SellerAuthenticateController
             @nest.Request() httpReq: express.Request,
         ): Promise<void>
     {
-        httpReq;
     }
 }

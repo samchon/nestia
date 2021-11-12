@@ -34,7 +34,10 @@ export namespace FileGenerator
     function emplace(directory: Directory, route: IRoute): void
     {
         // SEPARATE IDENTIFIERS
-        const identifiers: string[] = route.path.split("/").filter(str => str[0] !== ":" && str.length !== 0);
+        const identifiers: string[] = route.path
+            .split("/")
+            .filter(str => str[0] !== ":" && str.length !== 0)
+            .map(str => str.split("-").join("_").split(".").join("_"));
 
         for (const key of identifiers)
         {
