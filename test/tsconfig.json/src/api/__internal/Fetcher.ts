@@ -20,7 +20,14 @@ export class Fetcher
     public static fetch<Output>(connection: IConnection, config: Fetcher.IConfig, method: "GET" | "DELETE", path: string): Promise<Primitive<Output>>;
     public static fetch<Input, Output>(connection: IConnection, config: Fetcher.IConfig, method: "POST" | "PUT" | "PATCH", path: string, input: Input): Promise<Primitive<Output>>;
 
-    public static async fetch<Output>(connection: IConnection, config: Fetcher.IConfig, method: string, path: string, input?: object): Promise<Primitive<Output>>
+    public static async fetch<Output>
+        (
+            connection: IConnection, 
+            config: Fetcher.IConfig, 
+            method: string, 
+            path: string, 
+            input?: object
+        ): Promise<Primitive<Output>>
     {
         if (config.input_encrypted === true || config.output_encrypted === true)
             if (connection.encryption === undefined)
@@ -57,12 +64,16 @@ export class Fetcher
         //----
         // RESPONSE MESSAGE
         //----
-        // NORMALIZE PATH
-        if (path !== "" && path[0] !== "/")
-            path = `/${path}`;
+        // URL SPECIFICATION
+        if (connection.host[connection.host.length - 1] !== "/" && path[0] !== "/")
+            path = "/" + path;
+        if (connection.path)
+            path = connection.path(path);
+        
+        const url: URL = new URL(`${connection.host}${path}`);
 
         // DO FETCH
-        const response: Response = await fetch(`${connection.host}${path}`, init);
+        const response: Response = await fetch(url.href, init);
         let content: string = await response.text();
 
         if (!content)

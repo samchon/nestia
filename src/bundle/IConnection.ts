@@ -8,7 +8,7 @@ export interface IConnection
     host: string;
     headers?: Record<string, string>;
     encryption?: IConnection.IEncyptionPassword | IConnection.EncryptionClosure;
-    enforcePath?: string;
+    path?: (path: string) => string;
 }
 
 export namespace IConnection

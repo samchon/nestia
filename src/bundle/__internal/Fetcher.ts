@@ -64,11 +64,16 @@ export class Fetcher
         //----
         // RESPONSE MESSAGE
         //----
-        // DO FETCH
-        if (connection.enforcePath)
-            path = connection.enforcePath;
+        // URL SPECIFICATION
+        if (connection.host[connection.host.length - 1] !== "/" && path[0] !== "/")
+            path = "/" + path;
+        if (connection.path)
+            path = connection.path(path);
+        
+        const url: URL = new URL(`${connection.host}${path}`);
 
-        const response: Response = await fetch(`${connection.host}${path}`, init);
+        // DO FETCH
+        const response: Response = await fetch(url.href, init);
         let content: string = await response.text();
 
         if (!content)
