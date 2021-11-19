@@ -2,8 +2,8 @@ import * as express from "express";
 import * as helper from "encrypted-nestjs";
 import * as nest from "@nestjs/common";
 
-import { IPage } from "../../api/structures/common/IPage";
-import { ISaleComment } from "../../api/structures/sales/articles/ISaleComment";
+import { IPage } from "@api/structures/common/IPage";
+import { ISaleComment } from "@api/structures/sales/articles/ISaleComment";
 
 export abstract class SaleCommentsController
 {

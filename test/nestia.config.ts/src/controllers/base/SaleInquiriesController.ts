@@ -1,8 +1,8 @@
 import * as helper from "encrypted-nestjs";
 import * as nest from "@nestjs/common";
 
-import { ISaleInquiry } from "../../api/structures/sales/articles/ISaleInquiry";
-import { IPage } from "../../api/structures/common/IPage";
+import { ISaleInquiry } from "@api/structures/sales/articles/ISaleInquiry";
+import { IPage } from "@api/structures/common/IPage";
 
 export abstract class SaleInquiriesController<
         Request extends ISaleInquiry.IRequest, 
@@ -28,10 +28,6 @@ export abstract class SaleInquiriesController<
             @nest.Query() input: Request
         ): Promise<IPage<Summary>>
     {
-        section;
-        saleId;
-        input;
-
         return null!;
     }
 
@@ -54,10 +50,6 @@ export abstract class SaleInquiriesController<
             @helper.TypedParam("id", "number") id: number
         ): Promise<ISaleInquiry<Content>>
     {
-        section;
-        saleId;
-        id;
-
         return null!;
     }
 }

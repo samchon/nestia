@@ -1,8 +1,8 @@
 import * as helper from "encrypted-nestjs";
 import * as nest from "@nestjs/common";
 
-import { IPage } from "../../../../nestia.config.ts/src/api/structures/common/IPage";
-import { ISaleEntireArtcle } from "../../api/structures/sales/articles/ISaleEntireArticle";
+import { IPage } from "@api/structures/common/IPage";
+import { ISaleEntireArtcle } from "@api/structures/sales/articles/ISaleEntireArticle";
 
 export abstract class SaleEntireArticlesController
 {

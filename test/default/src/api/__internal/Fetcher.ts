@@ -58,7 +58,7 @@ export class Fetcher
         // RESPONSE MESSAGE
         //----
         // NORMALIZE PATH
-        if (path[0] !== "/")
+        if (path !== "" && path[0] !== "/")
             path = `/${path}`;
 
         // DO FETCH

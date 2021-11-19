@@ -3,7 +3,7 @@ import * as nest from "@nestjs/common";
 import { EncryptedBody, EncryptedRoute, TypedParam } from "encrypted-nestjs";
 
 import { SaleInquiriesController } from "../../base/SaleInquiriesController";
-import { ISaleInquiry } from "../../../api/structures/sales/articles/ISaleInquiry";
+import { ISaleInquiry } from "@api/structures/sales/articles/ISaleInquiry";
 
 export abstract class ConsumerSaleInquiriesController<
         Request extends ISaleInquiry.IRequest, 
@@ -33,11 +33,6 @@ export abstract class ConsumerSaleInquiriesController<
             @EncryptedBody() input: Store
         ): Promise<ISaleInquiry<Content>>
     {
-        request;
-        section;
-        saleId;
-        input;
-
         return null!;
     }
 
@@ -65,12 +60,6 @@ export abstract class ConsumerSaleInquiriesController<
             @EncryptedBody() input: Store,
         ): Promise<ISaleInquiry<Content>>
     {
-        request;
-        section;
-        saleId;
-        input;
-        id;
-
         return null!;
     }
 

@@ -8,7 +8,7 @@ import { Fetcher } from "./../../../../__internal/Fetcher";
 import { Primitive } from "./../../../../Primitive";
 import type { IConnection } from "./../../../../IConnection";
 
-import type { IPage } from "./../../../../../../../nestia.config.ts/src/api/structures/common/IPage";
+import type { IPage } from "./../../../../structures/common/IPage";
 import type { ISaleEntireArtcle } from "./../../../../structures/sales/articles/ISaleEntireArticle";
 
 

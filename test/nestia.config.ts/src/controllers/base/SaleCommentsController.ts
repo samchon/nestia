@@ -2,8 +2,8 @@ import * as express from "express";
 import * as helper from "encrypted-nestjs";
 import * as nest from "@nestjs/common";
 
-import { IPage } from "../../api/structures/common/IPage";
-import { ISaleComment } from "../../api/structures/sales/articles/ISaleComment";
+import { IPage } from "@api/structures/common/IPage";
+import { ISaleComment } from "@api/structures/sales/articles/ISaleComment";
 
 export abstract class SaleCommentsController
 {
@@ -30,11 +30,6 @@ export abstract class SaleCommentsController
             @nest.Query() input: IPage.IRequest
         ): Promise<IPage<ISaleComment>>
     {
-        section;
-        saleId;
-        articleId;
-        input;
-
         return null!;
     }
 
@@ -63,12 +58,6 @@ export abstract class SaleCommentsController
             @helper.EncryptedBody() input: ISaleComment.IStore
         ): Promise<ISaleComment>
     {
-        request;
-        section;
-        saleId;
-        articleId;
-        input;
-
         return null!;
     }
 
@@ -94,9 +83,5 @@ export abstract class SaleCommentsController
             @helper.TypedParam("commentId", "number") commentId: number
         ): Promise<void>
     {
-        section;
-        saleId;
-        articleId;
-        commentId;
     }
 }
