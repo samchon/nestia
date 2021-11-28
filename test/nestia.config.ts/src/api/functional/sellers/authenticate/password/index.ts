@@ -32,18 +32,28 @@ export function change
     return Fetcher.fetch
     (
         connection,
-        {
-            input_encrypted: true,
-            output_encrypted: false
-        },
-        "PATCH",
-        `/sellers/authenticate/password/change`,
+        change.CONFIG,
+        change.METHOD,
+        change.path(),
         input
     );
 }
 export namespace change
 {
     export type Input = Primitive<ISeller.IChangePassword>;
+
+
+    export const METHOD = "PATCH";
+    export const PATH = "/sellers/authenticate/password/change";
+    export const CONFIG = {
+        input_encrypted: true,
+        output_encrypted: false,
+    };
+
+    export function path(): string
+    {
+        return `/sellers/authenticate/password/change`;
+    }
 }
 
 

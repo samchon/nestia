@@ -2,7 +2,6 @@ import type * as tsc from "typescript";
 import { Pair } from "tstl/utility/Pair";
 import { Vector } from "tstl/container/Vector";
 
-import { Fetcher } from "../bundle/__internal/Fetcher";
 import { IRoute } from "../structures/IRoute";
 
 export namespace FunctionGenerator
@@ -23,22 +22,14 @@ export namespace FunctionGenerator
     --------------------------------------------------------- */
     function body(route: IRoute, query: IRoute.IParameter | undefined, input: IRoute.IParameter | undefined): string
     {
-        // PATH WITH ENCRYPTION
-        const path: string = get_path(route, query);
-        const config: Fetcher.IConfig = {
-            input_encrypted: input !== undefined && input.encrypted,
-            output_encrypted: route.encrypted
-        };
-
         // FETCH ARGUMENTS WITH REQUST BODY
+        const parameters = filter_parameters(route, query);
         const fetchArguments: string[] = 
         [
             "connection",
-            JSON.stringify(config, null, 4)
-                .split('"').join("")
-                .split("\n").join("\n" + " ".repeat(8)),
-            `"${route.method}"`,
-            path
+            `${route.name}.CONFIG`,
+            `${route.name}.METHOD`,
+            `${route.name}.path(${parameters.map(p => p.name).join(", ")})`
         ];
         if (input !== undefined)
             fetchArguments.push("input");
@@ -52,18 +43,12 @@ export namespace FunctionGenerator
             + "}";
     }
 
-    function get_path(route: IRoute, query: IRoute.IParameter | undefined): string
+    function filter_parameters(route: IRoute, query: IRoute.IParameter | undefined): IRoute.IParameter[]
     {
         const parameters = route.parameters.filter(param => param.category === "param");
-        let path: string = route.path;
-
-        for (const param of parameters)
-            path = path.replace(`:${param.field}`, `\${${param.name}}`);
-
-        new URLSearchParams()
-        return (query !== undefined)
-            ? `\`${path}?\${new URLSearchParams(${query.name} as any).toString()}\``
-            : `\`${path}\``
+        if (query)
+            parameters.push(query);
+        return parameters;
     }
 
     /* ---------------------------------------------------------
@@ -149,6 +134,7 @@ export namespace FunctionGenerator
 
     function tail(route: IRoute, query: IRoute.IParameter | undefined, input: IRoute.IParameter | undefined): string | null
     {
+        // LIST UP TYPES
         const types: Pair<string, string>[] = [];
         if (query !== undefined)
             types.push(new Pair("Query", query.type));
@@ -157,12 +143,36 @@ export namespace FunctionGenerator
         if (route.output !== "void")
             types.push(new Pair("Output", route.output));
         
-        if (types.length === 0)
-            return null;
-        
+        // PATH WITH PARAMETERS
+        const parameters = filter_parameters(route, query);
+        let path: string = route.path;
+        for (const param of parameters)
+            if (param.category === "param")
+                path = path.replace(`:${param.field}`, `\${${param.name}}`);
+        path = (query !== undefined)
+            ? `\`${path}?\${new URLSearchParams(${query.name} as any).toString()}\``
+            : `\`${path}\``;
+
         return `export namespace ${route.name}\n`
             + "{\n"
-            + (types.map(tuple => `    export type ${tuple.first} = Primitive<${tuple.second}>;`).join("\n")) + "\n"
+            + 
+            (
+                types.length !== 0
+                    ? types.map(tuple => `    export type ${tuple.first} = Primitive<${tuple.second}>;`).join("\n") + "\n\n"
+                    : ""
+            )
+            + "\n"
+            + `    export const METHOD = "${route.method}";\n`
+            + `    export const PATH = "${route.path}";\n`
+            + `    export const CONFIG = {\n`
+            + `        input_encrypted: ${input !== undefined && input.encrypted},\n`
+            + `        output_encrypted: ${route.encrypted},\n`
+            + `    };\n`
+            + "\n"
+            + `    export function path(${parameters.map(param => `${param.name}: ${param.type}`).join(", ")}): string\n`
+            + `    {\n`
+            + `        return ${path};\n`
+            + `    }\n`
             + "}";
     }
 }

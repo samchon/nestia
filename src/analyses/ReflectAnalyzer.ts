@@ -1,4 +1,4 @@
-import * as path from "path";
+import Pather from "path";
 
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { StringUtil } from "../utils/StringUtil";
@@ -128,7 +128,7 @@ export namespace ReflectAnalyzer
         }
 
         // VALIDATE PATH ARGUMENTS
-        const funcPathArguments: string[] = StringUtil.betweens(path.join(controller.path, meta.path).split("\\").join("/"), ":", "/").sort();
+        const funcPathArguments: string[] = StringUtil.betweens(Pather.join(controller.path, meta.path).split("\\").join("/"), ":", "/").sort();
         const paramPathArguments: string[] = meta.parameters.filter(param => param.category === "param").map(param => param.field!).sort();
 
         if (equal(funcPathArguments, paramPathArguments) === false)

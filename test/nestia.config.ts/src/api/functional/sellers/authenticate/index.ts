@@ -32,12 +32,9 @@ export function join
     return Fetcher.fetch
     (
         connection,
-        {
-            input_encrypted: true,
-            output_encrypted: true
-        },
-        "POST",
-        `/sellers/authenticate/join`,
+        join.CONFIG,
+        join.METHOD,
+        join.path(),
         input
     );
 }
@@ -45,6 +42,19 @@ export namespace join
 {
     export type Input = Primitive<ISeller.IJoin>;
     export type Output = Primitive<ISeller>;
+
+
+    export const METHOD = "POST";
+    export const PATH = "/sellers/authenticate/join";
+    export const CONFIG = {
+        input_encrypted: true,
+        output_encrypted: true,
+    };
+
+    export function path(): string
+    {
+        return `/sellers/authenticate/join`;
+    }
 }
 
 /**
@@ -67,12 +77,9 @@ export function login
     return Fetcher.fetch
     (
         connection,
-        {
-            input_encrypted: true,
-            output_encrypted: true
-        },
-        "POST",
-        `/sellers/authenticate/login`,
+        login.CONFIG,
+        login.METHOD,
+        login.path(),
         input
     );
 }
@@ -80,6 +87,19 @@ export namespace login
 {
     export type Input = Primitive<ISeller.ILogin>;
     export type Output = Primitive<ISeller>;
+
+
+    export const METHOD = "POST";
+    export const PATH = "/sellers/authenticate/login";
+    export const CONFIG = {
+        input_encrypted: true,
+        output_encrypted: true,
+    };
+
+    export function path(): string
+    {
+        return `/sellers/authenticate/login`;
+    }
 }
 
 /**
@@ -95,13 +115,25 @@ export function exit
     return Fetcher.fetch
     (
         connection,
-        {
-            input_encrypted: false,
-            output_encrypted: false
-        },
-        "DELETE",
-        `/sellers/authenticate/exit`
+        exit.CONFIG,
+        exit.METHOD,
+        exit.path()
     );
+}
+export namespace exit
+{
+
+    export const METHOD = "DELETE";
+    export const PATH = "/sellers/authenticate/exit";
+    export const CONFIG = {
+        input_encrypted: false,
+        output_encrypted: false,
+    };
+
+    export function path(): string
+    {
+        return `/sellers/authenticate/exit`;
+    }
 }
 
 
