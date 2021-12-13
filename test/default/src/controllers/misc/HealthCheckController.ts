@@ -18,4 +18,10 @@ export class HealthCheckController
     {
         await std.sleep_for(ms);
     }
+
+    @nest.Post("print")
+    public print(@helper.PlainBody() value: string): string
+    {
+        return value;
+    }
 }

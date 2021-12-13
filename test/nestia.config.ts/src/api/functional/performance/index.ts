@@ -38,8 +38,8 @@ export namespace get
     export type Output = Primitive<IPerformance>;
 
 
-    export const METHOD = "GET";
-    export const PATH = "/performance";
+    export const METHOD = "GET" as const;
+    export const PATH: string = "/performance";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: true,

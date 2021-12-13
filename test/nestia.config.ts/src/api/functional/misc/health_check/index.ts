@@ -32,8 +32,8 @@ export function get
 export namespace get
 {
 
-    export const METHOD = "GET";
-    export const PATH = "/misc/health-check";
+    export const METHOD = "GET" as const;
+    export const PATH: string = "/misc/health-check";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: false,
@@ -67,8 +67,8 @@ export function sleep_for
 export namespace sleep_for
 {
 
-    export const METHOD = "GET";
-    export const PATH = "/misc/health-check/sleep-for/:ms";
+    export const METHOD = "GET" as const;
+    export const PATH: string = "/misc/health-check/sleep-for/:ms";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: false,

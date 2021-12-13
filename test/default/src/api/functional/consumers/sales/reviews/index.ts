@@ -52,8 +52,8 @@ export namespace store
     export type Output = Primitive<ISaleInquiry<ISaleReview.IContent>>;
 
 
-    export const METHOD = "POST";
-    export const PATH = "/consumers/:section/sales/:saleId/reviews";
+    export const METHOD = "POST" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/reviews";
     export const CONFIG = {
         input_encrypted: true,
         output_encrypted: true,
@@ -107,8 +107,8 @@ export namespace update
     export type Output = Primitive<ISaleInquiry<ISaleReview.IContent>>;
 
 
-    export const METHOD = "POST";
-    export const PATH = "/consumers/:section/sales/:saleId/reviews/:id";
+    export const METHOD = "POST" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/reviews/:id";
     export const CONFIG = {
         input_encrypted: true,
         output_encrypted: true,
@@ -156,8 +156,8 @@ export function remove
 export namespace remove
 {
 
-    export const METHOD = "DELETE";
-    export const PATH = "/consumers/:section/sales/:saleId/reviews/:id";
+    export const METHOD = "DELETE" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/reviews/:id";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: false,
@@ -206,8 +206,8 @@ export namespace index
     export type Output = Primitive<IPage<ISaleReview.ISummary>>;
 
 
-    export const METHOD = "GET";
-    export const PATH = "/consumers/:section/sales/:saleId/reviews";
+    export const METHOD = "GET" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/reviews";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: true,
@@ -255,8 +255,8 @@ export namespace at
     export type Output = Primitive<ISaleInquiry<ISaleReview.IContent>>;
 
 
-    export const METHOD = "GET";
-    export const PATH = "/consumers/:section/sales/:saleId/reviews/:id";
+    export const METHOD = "GET" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/reviews/:id";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: true,

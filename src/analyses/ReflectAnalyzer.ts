@@ -158,6 +158,7 @@ export namespace ReflectAnalyzer
             return null;
 
         return {
+            name: key,
             category: type,
             index: param.index,
             field: param.data,
@@ -169,15 +170,19 @@ export namespace ReflectAnalyzer
     {
         if (param.factory === undefined)
             return null;
-        else if (param.factory.name === "EncryptedBody")
+        else if (param.factory.name === "EncryptedBody" || param.factory.name === "PlainBody")
+        {
             return {
                 category: "body",
                 index: param.index,
+                name: param.name,
                 field: param.data,
-                encrypted: true
+                encrypted: param.factory.name === "EncryptedBody"
             };
+        }
         else if (param.factory.name === "TypedParam")
             return {
+                name: param.name,
                 category: "param",
                 index: param.index,
                 field: param.data,
@@ -193,6 +198,7 @@ export namespace ReflectAnalyzer
 
     interface INestParam
     {
+        name: string;
         index: number;
         factory?: Function;
         data: string | undefined;

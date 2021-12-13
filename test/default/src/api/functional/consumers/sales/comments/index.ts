@@ -53,8 +53,8 @@ export namespace index
     export type Output = Primitive<IPage<ISaleComment>>;
 
 
-    export const METHOD = "GET";
-    export const PATH = "/consumers/:section/sales/:saleId/comments/:articleId";
+    export const METHOD = "GET" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/comments/:articleId";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: true,
@@ -74,7 +74,7 @@ export namespace index
  * @param section Code of the target section
  * @param saleId ID of the target sale
  * @param articleId ID of the target article
- * @param input Content to write
+ * @param body Content to write
  * @return Newly archived comment
  * @throw 400 bad request error when type of the input data is not valid
  * @throw 401 unauthorized error when you've not logged in yet
@@ -91,7 +91,7 @@ export function store
         section: string,
         saleId: number,
         articleId: number,
-        input: Primitive<store.Input>
+        body: Primitive<store.Input>
     ): Promise<store.Output>
 {
     return Fetcher.fetch
@@ -100,7 +100,7 @@ export function store
         store.CONFIG,
         store.METHOD,
         store.path(section, saleId, articleId),
-        input
+        body
     );
 }
 export namespace store
@@ -109,8 +109,8 @@ export namespace store
     export type Output = Primitive<ISaleComment>;
 
 
-    export const METHOD = "POST";
-    export const PATH = "/consumers/:section/sales/:saleId/comments/:articleId";
+    export const METHOD = "POST" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/comments/:articleId";
     export const CONFIG = {
         input_encrypted: true,
         output_encrypted: true,
@@ -127,7 +127,7 @@ export namespace store
  * 
  * @param connection connection Information of the remote HTTP(s) server with headers (+encryption password)
  * @param section Code of the target section
- * @param saleId ID of the target sale
+ * @param sale_ID ID of the target sale
  * @param articleId ID of the target article
  * @param commentId ID of the target comment to be erased
  * @return Empty object
@@ -143,7 +143,7 @@ export function remove
     (
         connection: IConnection,
         section: string,
-        saleId: number,
+        sale_ID: number,
         articleId: number,
         commentId: number
     ): Promise<void>
@@ -153,22 +153,22 @@ export function remove
         connection,
         remove.CONFIG,
         remove.METHOD,
-        remove.path(section, saleId, articleId, commentId)
+        remove.path(section, sale_ID, articleId, commentId)
     );
 }
 export namespace remove
 {
 
-    export const METHOD = "DELETE";
-    export const PATH = "/consumers/:section/sales/:saleId/comments/:articleId/:commentId";
+    export const METHOD = "DELETE" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/comments/:articleId/:commentId";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: false,
     };
 
-    export function path(section: string, saleId: number, articleId: number, commentId: number): string
+    export function path(section: string, sale_ID: number, articleId: number, commentId: number): string
     {
-        return `/consumers/${section}/sales/${saleId}/comments/${articleId}/${commentId}`;
+        return `/consumers/${section}/sales/${sale_ID}/comments/${articleId}/${commentId}`;
     }
 }
 

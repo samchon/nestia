@@ -43,8 +43,8 @@ export namespace change
     export type Input = Primitive<ISeller.IChangePassword>;
 
 
-    export const METHOD = "PATCH";
-    export const PATH = "/sellers/authenticate/password/change";
+    export const METHOD = "PATCH" as const;
+    export const PATH: string = "/sellers/authenticate/password/change";
     export const CONFIG = {
         input_encrypted: true,
         output_encrypted: false,

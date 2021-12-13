@@ -45,7 +45,7 @@ export abstract class SaleCommentsController
      * @param section Code of the target section
      * @param saleId ID of the target sale
      * @param articleId ID of the target article
-     * @param input Content to write
+     * @param body Content to write
      * @return Newly archived comment
      * 
      * @throw 400 bad request error when type of the input data is not valid
@@ -60,14 +60,14 @@ export abstract class SaleCommentsController
             @helper.TypedParam("section", "string") section: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
             @helper.TypedParam("articleId", "number") articleId: number,
-            @helper.EncryptedBody() input: ISaleComment.IStore
+            @helper.EncryptedBody() body: ISaleComment.IStore
         ): Promise<ISaleComment>
     {
         request;
         section;
         saleId;
         articleId;
-        input;
+        body;
 
         return null!;
     }
@@ -76,7 +76,7 @@ export abstract class SaleCommentsController
      * Remove a comment.
      * 
      * @param section Code of the target section
-     * @param saleId ID of the target sale
+     * @param sale_ID ID of the target sale
      * @param articleId ID of the target article
      * @param commentId ID of the target comment to be erased
      * @return Empty object
@@ -89,13 +89,13 @@ export abstract class SaleCommentsController
     public async remove
         (
             @helper.TypedParam("section", "string") section: string, 
-            @helper.TypedParam("saleId", "number") saleId: number, 
+            @helper.TypedParam("saleId", "number") sale_ID: number, 
             @helper.TypedParam("articleId", "number") articleId: number,
             @helper.TypedParam("commentId", "number") commentId: number
         ): Promise<void>
     {
         section;
-        saleId;
+        sale_ID;
         articleId;
         commentId;
     }

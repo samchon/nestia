@@ -32,7 +32,7 @@ export namespace FunctionGenerator
             `${route.name}.path(${parameters.map(p => p.name).join(", ")})`
         ];
         if (input !== undefined)
-            fetchArguments.push("input");
+            fetchArguments.push(input.name);
 
         // RETURNS WITH FINALIZATION
         return "{\n"
@@ -162,8 +162,8 @@ export namespace FunctionGenerator
                     : ""
             )
             + "\n"
-            + `    export const METHOD = "${route.method}";\n`
-            + `    export const PATH = "${route.path}";\n`
+            + `    export const METHOD = "${route.method}" as const;\n`
+            + `    export const PATH: string = "${route.path}";\n`
             + `    export const CONFIG = {\n`
             + `        input_encrypted: ${input !== undefined && input.encrypted},\n`
             + `        output_encrypted: ${route.encrypted},\n`

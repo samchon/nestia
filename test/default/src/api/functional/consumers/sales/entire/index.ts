@@ -39,8 +39,8 @@ export namespace index
     export type Output = Primitive<IPage<ISaleEntireArtcle.ISummary>>;
 
 
-    export const METHOD = "GET";
-    export const PATH = "/consumers/:section/sales/:saleId/entire";
+    export const METHOD = "GET" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/entire";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: true,
@@ -78,8 +78,8 @@ export namespace at
     export type Output = Primitive<ISaleEntireArtcle>;
 
 
-    export const METHOD = "GET";
-    export const PATH = "/consumers/:section/sales/:saleId/entire/:id";
+    export const METHOD = "GET" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/entire/:id";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: true,

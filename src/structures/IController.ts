@@ -22,6 +22,7 @@ export namespace IController
 
     export interface IParameter
     {
+        name: string;
         index: number;
         field: string | undefined;
         category: ParamCategory;

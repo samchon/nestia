@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Automatic SDK and Document generator for the NestJS",
   "main": "src/index.ts",
   "bin": {
@@ -40,7 +40,7 @@
     "typescript": "^4.3.2"
   },
   "devDependencies": {
-    "encrypted-nestjs": "^0.1.5",
+    "encrypted-nestjs": "^0.1.15",
     "rimraf": "^3.0.2"
   }
 }

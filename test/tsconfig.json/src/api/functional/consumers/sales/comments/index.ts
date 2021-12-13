@@ -53,8 +53,8 @@ export namespace index
     export type Output = Primitive<IPage<ISaleComment>>;
 
 
-    export const METHOD = "GET";
-    export const PATH = "/consumers/:section/sales/:saleId/comments/:articleId";
+    export const METHOD = "GET" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/comments/:articleId";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: true,
@@ -109,8 +109,8 @@ export namespace store
     export type Output = Primitive<ISaleComment>;
 
 
-    export const METHOD = "POST";
-    export const PATH = "/consumers/:section/sales/:saleId/comments/:articleId";
+    export const METHOD = "POST" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/comments/:articleId";
     export const CONFIG = {
         input_encrypted: true,
         output_encrypted: true,
@@ -159,8 +159,8 @@ export function remove
 export namespace remove
 {
 
-    export const METHOD = "DELETE";
-    export const PATH = "/consumers/:section/sales/:saleId/comments/:articleId/:commentId";
+    export const METHOD = "DELETE" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/comments/:articleId/:commentId";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: false,

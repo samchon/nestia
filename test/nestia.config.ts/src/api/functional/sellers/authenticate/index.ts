@@ -44,8 +44,8 @@ export namespace join
     export type Output = Primitive<ISeller>;
 
 
-    export const METHOD = "POST";
-    export const PATH = "/sellers/authenticate/join";
+    export const METHOD = "POST" as const;
+    export const PATH: string = "/sellers/authenticate/join";
     export const CONFIG = {
         input_encrypted: true,
         output_encrypted: true,
@@ -89,8 +89,8 @@ export namespace login
     export type Output = Primitive<ISeller>;
 
 
-    export const METHOD = "POST";
-    export const PATH = "/sellers/authenticate/login";
+    export const METHOD = "POST" as const;
+    export const PATH: string = "/sellers/authenticate/login";
     export const CONFIG = {
         input_encrypted: true,
         output_encrypted: true,
@@ -123,8 +123,8 @@ export function exit
 export namespace exit
 {
 
-    export const METHOD = "DELETE";
-    export const PATH = "/sellers/authenticate/exit";
+    export const METHOD = "DELETE" as const;
+    export const PATH: string = "/sellers/authenticate/exit";
     export const CONFIG = {
         input_encrypted: false,
         output_encrypted: false,
