@@ -3,15 +3,12 @@
  * @module api.functional.consumers.sales.reviews
  */
 //================================================================
-import { AesPkcs5 } from "./../../../../__internal/AesPkcs5";
-import { Fetcher } from "./../../../../__internal/Fetcher";
-import { Primitive } from "./../../../../Primitive";
-import type { IConnection } from "./../../../../IConnection";
+import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import type { IConnection } from "nestia-fetcher";
 
 import type { ISaleReview } from "./../../../../structures/sales/articles/ISaleReview";
 import type { ISaleInquiry } from "./../../../../structures/sales/articles/ISaleInquiry";
 import type { IPage } from "./../../../../structures/common/IPage";
-
 
 /**
  * Store a new inquiry.
@@ -40,7 +37,7 @@ export function store
     return Fetcher.fetch
     (
         connection,
-        store.CONFIG,
+        store.ENCRYPTED,
         store.METHOD,
         store.path(section, saleId),
         input
@@ -51,12 +48,11 @@ export namespace store
     export type Input = Primitive<ISaleReview.IStore>;
     export type Output = Primitive<ISaleInquiry<ISaleReview.IContent>>;
 
-
     export const METHOD = "POST" as const;
     export const PATH: string = "/consumers/:section/sales/:saleId/reviews";
-    export const CONFIG = {
-        input_encrypted: true,
-        output_encrypted: true,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: true,
+        response: true,
     };
 
     export function path(section: string, saleId: number): string
@@ -95,7 +91,7 @@ export function update
     return Fetcher.fetch
     (
         connection,
-        update.CONFIG,
+        update.ENCRYPTED,
         update.METHOD,
         update.path(section, saleId, id),
         input
@@ -106,12 +102,11 @@ export namespace update
     export type Input = Primitive<ISaleReview.IStore>;
     export type Output = Primitive<ISaleInquiry<ISaleReview.IContent>>;
 
-
     export const METHOD = "POST" as const;
     export const PATH: string = "/consumers/:section/sales/:saleId/reviews/:id";
-    export const CONFIG = {
-        input_encrypted: true,
-        output_encrypted: true,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: true,
+        response: true,
     };
 
     export function path(section: string, saleId: number, id: number): string
@@ -148,7 +143,7 @@ export function remove
     return Fetcher.fetch
     (
         connection,
-        remove.CONFIG,
+        remove.ENCRYPTED,
         remove.METHOD,
         remove.path(section, saleId, id)
     );
@@ -158,9 +153,9 @@ export namespace remove
 
     export const METHOD = "DELETE" as const;
     export const PATH: string = "/consumers/:section/sales/:saleId/reviews/:id";
-    export const CONFIG = {
-        input_encrypted: false,
-        output_encrypted: false,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: false,
+        response: false,
     };
 
     export function path(section: string, saleId: number, id: number): string
@@ -195,7 +190,7 @@ export function index
     return Fetcher.fetch
     (
         connection,
-        index.CONFIG,
+        index.ENCRYPTED,
         index.METHOD,
         index.path(section, saleId, input)
     );
@@ -205,12 +200,11 @@ export namespace index
     export type Query = Primitive<ISaleInquiry.IRequest>;
     export type Output = Primitive<IPage<ISaleReview.ISummary>>;
 
-
     export const METHOD = "GET" as const;
     export const PATH: string = "/consumers/:section/sales/:saleId/reviews";
-    export const CONFIG = {
-        input_encrypted: false,
-        output_encrypted: true,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: false,
+        response: true,
     };
 
     export function path(section: string, saleId: number, input: ISaleInquiry.IRequest): string
@@ -245,7 +239,7 @@ export function at
     return Fetcher.fetch
     (
         connection,
-        at.CONFIG,
+        at.ENCRYPTED,
         at.METHOD,
         at.path(section, saleId, id)
     );
@@ -254,12 +248,11 @@ export namespace at
 {
     export type Output = Primitive<ISaleInquiry<ISaleReview.IContent>>;
 
-
     export const METHOD = "GET" as const;
     export const PATH: string = "/consumers/:section/sales/:saleId/reviews/:id";
-    export const CONFIG = {
-        input_encrypted: false,
-        output_encrypted: true,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: false,
+        response: true,
     };
 
     export function path(section: string, saleId: number, id: number): string

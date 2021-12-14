@@ -3,13 +3,10 @@
  * @module api.functional.sellers.authenticate
  */
 //================================================================
-import { AesPkcs5 } from "./../../../__internal/AesPkcs5";
-import { Fetcher } from "./../../../__internal/Fetcher";
-import { Primitive } from "./../../../Primitive";
-import type { IConnection } from "./../../../IConnection";
+import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import type { IConnection } from "nestia-fetcher";
 
 import type { ISeller } from "./../../../structures/actors/ISeller";
-
 export * as password from "./password";
 
 /**
@@ -32,7 +29,7 @@ export function join
     return Fetcher.fetch
     (
         connection,
-        join.CONFIG,
+        join.ENCRYPTED,
         join.METHOD,
         join.path(),
         input
@@ -43,12 +40,11 @@ export namespace join
     export type Input = Primitive<ISeller.IJoin>;
     export type Output = Primitive<ISeller>;
 
-
     export const METHOD = "POST" as const;
     export const PATH: string = "/sellers/authenticate/join";
-    export const CONFIG = {
-        input_encrypted: true,
-        output_encrypted: true,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: true,
+        response: true,
     };
 
     export function path(): string
@@ -77,7 +73,7 @@ export function login
     return Fetcher.fetch
     (
         connection,
-        login.CONFIG,
+        login.ENCRYPTED,
         login.METHOD,
         login.path(),
         input
@@ -88,12 +84,11 @@ export namespace login
     export type Input = Primitive<ISeller.ILogin>;
     export type Output = Primitive<ISeller>;
 
-
     export const METHOD = "POST" as const;
     export const PATH: string = "/sellers/authenticate/login";
-    export const CONFIG = {
-        input_encrypted: true,
-        output_encrypted: true,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: true,
+        response: true,
     };
 
     export function path(): string
@@ -115,7 +110,7 @@ export function exit
     return Fetcher.fetch
     (
         connection,
-        exit.CONFIG,
+        exit.ENCRYPTED,
         exit.METHOD,
         exit.path()
     );
@@ -125,9 +120,9 @@ export namespace exit
 
     export const METHOD = "DELETE" as const;
     export const PATH: string = "/sellers/authenticate/exit";
-    export const CONFIG = {
-        input_encrypted: false,
-        output_encrypted: false,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: false,
+        response: false,
     };
 
     export function path(): string

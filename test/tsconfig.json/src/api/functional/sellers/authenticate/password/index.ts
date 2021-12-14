@@ -3,13 +3,10 @@
  * @module api.functional.sellers.authenticate.password
  */
 //================================================================
-import { AesPkcs5 } from "./../../../../__internal/AesPkcs5";
-import { Fetcher } from "./../../../../__internal/Fetcher";
-import { Primitive } from "./../../../../Primitive";
-import type { IConnection } from "./../../../../IConnection";
+import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import type { IConnection } from "nestia-fetcher";
 
 import type { ISeller } from "./../../../../structures/actors/ISeller";
-
 
 /**
  * Change password.
@@ -32,7 +29,7 @@ export function change
     return Fetcher.fetch
     (
         connection,
-        change.CONFIG,
+        change.ENCRYPTED,
         change.METHOD,
         change.path(),
         input
@@ -42,12 +39,11 @@ export namespace change
 {
     export type Input = Primitive<ISeller.IChangePassword>;
 
-
     export const METHOD = "PATCH" as const;
     export const PATH: string = "/sellers/authenticate/password/change";
-    export const CONFIG = {
-        input_encrypted: true,
-        output_encrypted: false,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: true,
+        response: false,
     };
 
     export function path(): string

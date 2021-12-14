@@ -2,7 +2,6 @@ import * as fs from "fs";
 import { HashMap } from "tstl/container/HashMap";
 
 import { IRoute } from "../structures/IRoute";
-import { DirectoryUtil } from "../utils/DirectoryUtil";
 import { ImportDictionary } from "../utils/ImportDictionary";
 import { FunctionGenerator } from "./FunctionGenerator";
 
@@ -21,14 +20,8 @@ export namespace FileGenerator
         // RELOCATE FOR ONLY ONE CONTROLLER METHOD IN AN URL CASE
         relocate(root);
 
-        const defaultImportDict: ImportDictionary = new ImportDictionary();
-        defaultImportDict.emplace(`${outDir}/__internal/AesPkcs5.ts`, true, "AesPkcs5");
-        defaultImportDict.emplace(`${outDir}/__internal/Fetcher.ts`, true, "Fetcher");
-        defaultImportDict.emplace(`${outDir}/Primitive.ts`, true, "Primitive");
-        defaultImportDict.emplace(`${outDir}/IConnection.ts`, false, "IConnection");
-
-        await DirectoryUtil.remove(outDir + "/functional");
-        await iterate(defaultImportDict, outDir + "/functional", root);
+        // ITERATE FILES
+        await iterate(outDir + "/functional", root);
     }
 
     function emplace(directory: Directory, route: IRoute): void
@@ -70,7 +63,7 @@ export namespace FileGenerator
     /* ---------------------------------------------------------
         FILE ITERATOR
     --------------------------------------------------------- */
-    async function iterate(defaultImportDict: ImportDictionary, outDir: string, directory: Directory): Promise<void>
+    async function iterate(outDir: string, directory: Directory): Promise<void>
     {
         // CREATE A NEW DIRECTORY
         try
@@ -83,7 +76,7 @@ export namespace FileGenerator
         let content: string = "";
         for (const it of directory.directories)
         {
-            await iterate(defaultImportDict, `${outDir}/${it.first}`, it.second);
+            await iterate(`${outDir}/${it.first}`, it.second);
             content += `export * as ${it.first} from "./${it.first}";\n`;
         }
         content += "\n";
@@ -100,10 +93,23 @@ export namespace FileGenerator
 
         // FINALIZE THE CONTENT
         if (directory.routes.length !== 0)
-            content = defaultImportDict.toScript(outDir) + "\n\n" 
-                + importDict.toScript(outDir) + "\n\n" 
+            content = ""
+                + `import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";\n`
+                + `import type { IConnection } from "nestia-fetcher";\n`
+                + 
+                (
+                    importDict.empty()
+                        ? ""
+                        : "\n" + importDict.toScript(outDir) + "\n"
+                )
                 + content + "\n\n"
-                + defaultImportDict.listUp();
+                + "//---------------------------------------------------------\n"
+                + "// TO PREVENT THE UNUSED VARIABLE ERROR\n"
+                + "//---------------------------------------------------------\n"
+                + "AesPkcs5;\n"
+                + "Fetcher;\n"
+                + "Primitive;";
+
         content = "/**\n"
             + " * @packageDocumentation\n"
             + ` * @module ${directory.module}\n`

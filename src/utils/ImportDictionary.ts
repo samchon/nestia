@@ -8,6 +8,11 @@ export class ImportDictionary
 {
     private readonly dict_: HashMap<string, Pair<boolean, HashSet<string>>> = new HashMap();
 
+    public empty(): boolean
+    {
+        return this.dict_.empty();
+    }
+
     public emplace(file: string, realistic: boolean, instance: string): void
     {
         if (file.substr(-5) === ".d.ts")
@@ -35,18 +40,5 @@ export class ImportDictionary
             statements.push(`import ${!realistic ? "type " : ""}{ ${instances.join(", ")} } from "./${file}";`);
         }
         return statements.join("\n");
-    }
-
-    public listUp(): string
-    {
-        let content: string = ""
-            + "//---------------------------------------------------------\n"
-            + "// TO PREVENT THE UNUSED VARIABLE ERROR\n"
-            + "//---------------------------------------------------------\n";
-        for (const it of this.dict_)
-            if (it.second.first === true)
-                for (const instance of it.second.second)
-                    content += instance + ";\n";
-        return content;
     }
 }

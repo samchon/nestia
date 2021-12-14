@@ -3,14 +3,11 @@
  * @module api.functional.consumers.sales.comments
  */
 //================================================================
-import { AesPkcs5 } from "./../../../../__internal/AesPkcs5";
-import { Fetcher } from "./../../../../__internal/Fetcher";
-import { Primitive } from "./../../../../Primitive";
-import type { IConnection } from "./../../../../IConnection";
+import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import type { IConnection } from "nestia-fetcher";
 
 import type { IPage } from "./../../../../structures/common/IPage";
 import type { ISaleComment } from "./../../../../structures/sales/articles/ISaleComment";
-
 
 /**
  * Get page of comments.
@@ -42,7 +39,7 @@ export function index
     return Fetcher.fetch
     (
         connection,
-        index.CONFIG,
+        index.ENCRYPTED,
         index.METHOD,
         index.path(section, saleId, articleId, input)
     );
@@ -52,12 +49,11 @@ export namespace index
     export type Query = Primitive<IPage.IRequest<string>>;
     export type Output = Primitive<IPage<ISaleComment>>;
 
-
     export const METHOD = "GET" as const;
     export const PATH: string = "/consumers/:section/sales/:saleId/comments/:articleId";
-    export const CONFIG = {
-        input_encrypted: false,
-        output_encrypted: true,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: false,
+        response: true,
     };
 
     export function path(section: string, saleId: number, articleId: number, input: IPage.IRequest<string>): string
@@ -97,7 +93,7 @@ export function store
     return Fetcher.fetch
     (
         connection,
-        store.CONFIG,
+        store.ENCRYPTED,
         store.METHOD,
         store.path(section, saleId, articleId),
         body
@@ -108,12 +104,11 @@ export namespace store
     export type Input = Primitive<ISaleComment.IStore>;
     export type Output = Primitive<ISaleComment>;
 
-
     export const METHOD = "POST" as const;
     export const PATH: string = "/consumers/:section/sales/:saleId/comments/:articleId";
-    export const CONFIG = {
-        input_encrypted: true,
-        output_encrypted: true,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: true,
+        response: true,
     };
 
     export function path(section: string, saleId: number, articleId: number): string
@@ -151,7 +146,7 @@ export function remove
     return Fetcher.fetch
     (
         connection,
-        remove.CONFIG,
+        remove.ENCRYPTED,
         remove.METHOD,
         remove.path(section, sale_ID, articleId, commentId)
     );
@@ -161,9 +156,9 @@ export namespace remove
 
     export const METHOD = "DELETE" as const;
     export const PATH: string = "/consumers/:section/sales/:saleId/comments/:articleId/:commentId";
-    export const CONFIG = {
-        input_encrypted: false,
-        output_encrypted: false,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: false,
+        response: false,
     };
 
     export function path(section: string, sale_ID: number, articleId: number, commentId: number): string

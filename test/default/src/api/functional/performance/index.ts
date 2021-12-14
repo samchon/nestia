@@ -3,13 +3,10 @@
  * @module api.functional.performance
  */
 //================================================================
-import { AesPkcs5 } from "./../../__internal/AesPkcs5";
-import { Fetcher } from "./../../__internal/Fetcher";
-import { Primitive } from "./../../Primitive";
-import type { IConnection } from "./../../IConnection";
+import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import type { IConnection } from "nestia-fetcher";
 
 import type { IPerformance } from "./../../structures/performance/IMemoryUsage";
-
 
 /**
  * Get performance information of the server.
@@ -28,7 +25,7 @@ export function get
     return Fetcher.fetch
     (
         connection,
-        get.CONFIG,
+        get.ENCRYPTED,
         get.METHOD,
         get.path()
     );
@@ -37,12 +34,11 @@ export namespace get
 {
     export type Output = Primitive<IPerformance>;
 
-
     export const METHOD = "GET" as const;
     export const PATH: string = "/performance";
-    export const CONFIG = {
-        input_encrypted: false,
-        output_encrypted: true,
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: false,
+        response: true,
     };
 
     export function path(): string

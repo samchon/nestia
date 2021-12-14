@@ -78,11 +78,7 @@ async function sdk(input: string[], command: ICommand): Promise<void>
 
 async function install(): Promise<void>
 {
-    for (const module of ["@types/node", "node-fetch"])
-    {
-        console.log(`installing ${module}...`);
-        await Terminal.execute(`npm install --save-dev ${module}`);
-    }
+    await Terminal.execute("npm install --save nestia-fetcher");
 }
 
 async function main(): Promise<void>

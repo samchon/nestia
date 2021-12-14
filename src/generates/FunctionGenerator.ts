@@ -27,7 +27,7 @@ export namespace FunctionGenerator
         const fetchArguments: string[] = 
         [
             "connection",
-            `${route.name}.CONFIG`,
+            `${route.name}.ENCRYPTED`,
             `${route.name}.METHOD`,
             `${route.name}.path(${parameters.map(p => p.name).join(", ")})`
         ];
@@ -158,15 +158,15 @@ export namespace FunctionGenerator
             + 
             (
                 types.length !== 0
-                    ? types.map(tuple => `    export type ${tuple.first} = Primitive<${tuple.second}>;`).join("\n") + "\n\n"
+                    ? types.map(tuple => `    export type ${tuple.first} = Primitive<${tuple.second}>;`).join("\n") + "\n"
                     : ""
             )
             + "\n"
             + `    export const METHOD = "${route.method}" as const;\n`
             + `    export const PATH: string = "${route.path}";\n`
-            + `    export const CONFIG = {\n`
-            + `        input_encrypted: ${input !== undefined && input.encrypted},\n`
-            + `        output_encrypted: ${route.encrypted},\n`
+            + `    export const ENCRYPTED: Fetcher.IEncrypted = {\n`
+            + `        request: ${input !== undefined && input.encrypted},\n`
+            + `        response: ${route.encrypted},\n`
             + `    };\n`
             + "\n"
             + `    export function path(${parameters.map(param => `${param.name}: ${param.type}`).join(", ")}): string\n`

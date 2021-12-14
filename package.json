@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "0.4.1",
+  "version": "1.0.0",
   "description": "Automatic SDK and Document generator for the NestJS",
   "main": "src/index.ts",
   "bin": {
