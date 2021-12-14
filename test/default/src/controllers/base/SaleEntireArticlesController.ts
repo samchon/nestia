@@ -1,4 +1,4 @@
-import * as helper from "encrypted-nestjs";
+import helper from "nestia-helper";
 import * as nest from "@nestjs/common";
 
 import { IPage } from "../../../../nestia.config.ts/src/api/structures/common/IPage";

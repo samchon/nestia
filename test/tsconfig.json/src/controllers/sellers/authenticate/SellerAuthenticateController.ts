@@ -1,6 +1,6 @@
-import * as express from "express";
+import express from "express";
 import * as nest from "@nestjs/common";
-import * as helper from "encrypted-nestjs";
+import helper from "nestia-helper";
 
 import { ISeller } from "@api/structures/actors/ISeller";
 

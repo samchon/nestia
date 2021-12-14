@@ -1,4 +1,4 @@
-import * as helper from "encrypted-nestjs";
+import helper from "nestia-helper";
 import * as nest from "@nestjs/common";
 
 import { ISaleInquiry } from "../../api/structures/sales/articles/ISaleInquiry";

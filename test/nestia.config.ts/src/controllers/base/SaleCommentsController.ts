@@ -1,5 +1,5 @@
-import * as express from "express";
-import * as helper from "encrypted-nestjs";
+import express from "express";
+import helper from "nestia-helper";
 import * as nest from "@nestjs/common";
 
 import { IPage } from "@api/structures/common/IPage";
