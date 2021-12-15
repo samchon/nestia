@@ -240,21 +240,51 @@ export namespace store
 
 
 ## Appendix
+### Template Project
+https://github.com/samchon/backend
+
+I support template backend project using this **Nestia*** library, [backend](https://github.com/samchon/backend).
+
+Also, reading the README content of the [backend](https://github.com/samchon/backend) template repository, you can find lots of example backend projects who've been generated from the [backend](https://github.com/samchon/backend). Furthermore, the example projects guide how to generate SDK library from the **Nestia** and how to distribute the SDK library thorugh the NPM module.
+
+Therefore, if you're planning to compose your own backend project using this **Nestia**, I recommend you to create the repository and learn from the [backend](https://github.com/samchon/backend) template project.
+
+### Nestia-Helper
+https://github.com/samchon/nestia-helper
+
+Helper library of the `NestJS` with **Nestia**.
+
+[nestia-helper](https://github.com/samchon/nestia-helper) is a type of helper library for `Nestia` by enhancing decorator functions. Also, all of the decorator functions provided by this [nestia-helper](https://github.com/samchon/nestia-helper) are all fully compatible with the **Nestia**, who can generate SDK library by analyzing NestJS controller classes in the compilation level.
+
+Of course, this [nestia-helper](https://github.com/samchon/nestia-helper) is not essential for utilizing the `NestJS` and **Nestia**. You can generate SDK library of your NestJS developed backend server without this [nestia-helper](https://github.com/samchon/nestia-helper). However, as decorator functions of this [nestia-helper](https://github.com/samchon/nestia-helper) is enough strong, I recommend you to adapt this [nestia-helper](https://github.com/samchon/nestia-helper) when using `NestJS` and **Nestia**.
+
+  - Supported decorator functions
+    - [EncryptedController](https://github.com/samchon/nestia-helper#encryptedcontroller), [EncryptedModule](https://github.com/samchon/nestia-helper#encryptedmodule)
+    - [TypedRoute](https://github.com/samchon/nestia-helper#typedroute), [EncryptedRoute](https://github.com/samchon/nestia-helper#encryptedroute)
+    - [TypedParam](https://github.com/samchon/nestia-helper#typedparam), [EncryptedBody](https://github.com/samchon/nestia-helper#encryptedbody), [PlainBody](https://github.com/samchon/nestia-helper#plainbody)
+    - [ExceptionManager](https://github.com/samchon/nestia-helper#exceptionmanager)
+
 ### Safe-TypeORM
 https://github.com/samchon/safe-typeorm
 
-[safe-typeorm](https://github.com/samchon/safe-typeorm) is another library that what I've developed, helping typeorm in the compilation level and optimizes DB performance automatically without any extra dedication.
+[safe-typeorm](https://github.com/samchon/safe-typeorm) is another library that what I've developed, helping `TypeORM` in the compilation level and optimizes DB performance automatically without any extra dedication.
 
 Therefore, this **Nestia** makes you to be much convenient in the API interaction level and safe-typeorm helps you to be much convenient in the DB interaction level. With those **Nestia** and [safe-typeorm](https://github.com/samchon/safe-typeorm), let's implement the backend server much easily and conveniently.
 
-### Technial Support
-samchon.github@gmail.com
+  - When writing [**SQL query**](https://github.com/samchon/safe-typeorm#safe-query-builder),
+    - Errors would be detected in the **compilation** level
+    - **Auto Completion** would be provided
+    - **Type Hint** would be supported
+  - You can implement [**App-join**](https://github.com/samchon/safe-typeorm#app-join-builder) very conveniently
+  - When [**SELECT**ing for **JSON** conversion](https://github.com/samchon/safe-typeorm#json-select-builder)
+    - [**App-Join**](https://github.com/samchon/safe-typeorm#app-join-builder) with the related entities would be automatically done
+    - Exact JSON **type** would be automatically **deduced**
+    - The **performance** would be **automatically tuned**
+  - When [**INSERT**](https://github.com/samchon/safe-typeorm#insert-collection)ing records
+    - Sequence of tables would be automatically sorted by analyzing dependencies
+    - The **performance** would be **automatically tuned**
 
-I can provide technical support about those **Nestia** and [safe-typeorm](https://github.com/samchon/safe-typeorm). 
-
-Therefore, if you have any question or need help, feel free to contact me. If you want to adapt those **Nestia** and [safe-typeorm](https://github.com/samchon/safe-typeorm) in your commercial project, I can provide you the best guidance. 
-
-I also can help your backend project in the entire development level. If you're suffering by DB architecture design or API structure design, just contact me and get help. I'll help you with my best effort.
+![Safe-TypeORM Demo](https://raw.githubusercontent.com/samchon/safe-typeorm/master/assets/demonstrations/safe-query-builder.gif)
 
 ### Archidraw
 https://www.archisketch.com/
@@ -262,4 +292,3 @@ https://www.archisketch.com/
 I have special thanks to the Archidraw, where I'm working for.
 
 The Archidraw is a great IT company developing 3D interior editor and lots of solutions based on the 3D assets. Also, the Archidraw is the first company who had adopted this **Nestia** on their commercial backend project, even this **Nestia** was in the alpha level.
-
