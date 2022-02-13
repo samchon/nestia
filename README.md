@@ -152,7 +152,7 @@ export = {
 >     /* input: {
 >         include: ["src/controllers/*.controller.ts"],
 >         exclude: ["src/controllers/fake_*.controller.ts"]
->     }
+>     },*/
 >     output: "src/api"   
 > }
 > ```
