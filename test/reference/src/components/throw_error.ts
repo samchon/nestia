@@ -1,0 +1,1 @@
+throw new Error("Throws a manual error. It must be avoided by the exclude options.");

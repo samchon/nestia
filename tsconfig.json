@@ -74,10 +74,5 @@
     "skipLibCheck": true,                     /* Skip type checking of declaration files. */
     "forceConsistentCasingInFileNames": true  /* Disallow inconsistently-cased references to the same file. */
   },
-  "include": [
-    "src",
-    "test/default/src",
-    "test/nestia.config.ts/src",
-    // "test/tsconfig.json/src"
-  ]
+  "include": ["src"]
 }

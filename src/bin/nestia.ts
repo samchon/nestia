@@ -9,70 +9,58 @@ import { NestiaApplication } from "../NestiaApplication";
 
 import { Terminal } from "../utils/Terminal";
 import { stripJsonComments } from "../utils/stripJsonComments";
+import { IConfiguration } from "../IConfiguration";
 
 interface ICommand
 {
+    exclude: string | null;
     out: string | null;
 }
 
-async function sdk(input: string[], command: ICommand): Promise<void>
+async function sdk(include: string[], command: ICommand): Promise<void>
 {
-    let compilerOptions: tsc.CompilerOptions | undefined = {};
-
-    //----
-    // NESTIA.CONFIG.TS
-    //----
+    // CONFIGURATION
+    let config: IConfiguration;
     if (fs.existsSync("nestia.config.ts") === true)
+        config = {
+            ...await import(path.resolve("nestia.config.ts"))
+        };
+    else
     {
-        const config: NestiaApplication.IConfiguration = await import(path.resolve("nestia.config.ts"));
-        compilerOptions = config.compilerOptions;
-        input = config.input instanceof Array ? config.input : [config.input];
-        command.out = config.output;
+        if (command.out === null)
+            throw new Error(`Output directory is not specified. Add the "--out <output_directory>" option.`);
+        config = {
+            input: {
+                include,
+                exclude: command.exclude
+                    ? [command.exclude]
+                    : undefined
+            },
+            output: command.out
+        };
     }
     
-    //----
-    // VALIDATIONS
-    //----
-    // CHECK OUTPUT
-    if (command.out === null)
-        throw new Error(`Output directory is not specified. Add the "--out <output_directory>" option.`);
-
-    // CHECK PARENT DIRECTORY
-    const parentPath: string = path.resolve(command.out + "/..");
+    // VALIDATE OUTPUT DIRECTORY
+    const parentPath: string = path.resolve(config.output + "/..");
     const parentStats: fs.Stats = await fs.promises.stat(parentPath);
 
     if (parentStats.isDirectory() === false)
         throw new Error(`Unable to find parent directory of the output path: "${parentPath}".`);
 
-    // CHECK INPUTS
-    for (const path of input)
-    {
-        const inputStats: fs.Stats = await fs.promises.stat(path);
-        if (inputStats.isDirectory() === false)
-            throw new Error(`Target "${path}" is not a directory.`);
-    }
-
-    //----
     // GENERATION
-    //----
     if (fs.existsSync("tsconfig.json") === true)
     {
         const content: string = await fs.promises.readFile("tsconfig.json", "utf8");
         const options: tsc.CompilerOptions = JSON.parse(stripJsonComments(content)).compilerOptions;
 
-        compilerOptions = compilerOptions
-            ? { ...options, ...compilerOptions }
-            : options;
+        config.compilerOptions = {
+            ...options,
+            ...(config.compilerOptions || {})
+        };
     }
 
-    // CHECK NESTIA.CONFIG.TS
-
     // CALL THE APP.GENERATE()
-    const app: NestiaApplication = new NestiaApplication({
-        output: command.out,
-        input,
-        compilerOptions,
-    });
+    const app: NestiaApplication = new NestiaApplication(config);
     await app.generate();
 }
 
@@ -88,6 +76,7 @@ async function main(): Promise<void>
     else if (process.argv[2] === "sdk")
     {
         const command: ICommand = cli.parse({
+            exclude: ["e", "Something to exclude", "string", null],
             out: ["o", "Output path of the SDK files", "string", null],
         });
 

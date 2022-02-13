@@ -9,16 +9,17 @@ import { ReflectAnalyzer } from "./analyses/ReflectAnalyzer";
 import { SourceFinder } from "./analyses/SourceFinder";
 import { SdkGenerator } from "./generates/SdkGenerator";
 
+import { IConfiguration } from "./IConfiguration";
 import { IController } from "./structures/IController";
 import { IRoute } from "./structures/IRoute";
 import { ArrayUtil } from "./utils/ArrayUtil";
 
 export class NestiaApplication
 {
-    private readonly config_: NestiaApplication.IConfiguration;
+    private readonly config_: IConfiguration;
     private readonly bundle_checker_: Singleton<Promise<(str: string) => boolean>>;
 
-    public constructor(config: NestiaApplication.IConfiguration)
+    public constructor(config: IConfiguration)
     {
         this.config_ = config;
         this.bundle_checker_ = new Singleton(async () =>
@@ -47,18 +48,16 @@ export class NestiaApplication
     public async generate(): Promise<void>
     {
         // LOAD CONTROLLER FILES
-        const fileList: string[] = [];
-        const inputList: string[] = this.config_.input instanceof Array
-            ? this.config_.input
-            : [this.config_.input];
-
-        for (const file of inputList.map(str => path.resolve(str)))
-        {
-            const found: string[] = await SourceFinder.find(file);
-            const filtered: string[] = await ArrayUtil.asyncFilter(found, file => this.is_not_excluded(file));
-
-            fileList.push(...filtered);
-        }
+        const input: IConfiguration.IInput = this.config_.input instanceof Array
+            ? { include: this.config_.input }
+            : typeof this.config_.input === "string"
+                ? { include: [ this.config_.input ] }
+                : this.config_.input;
+        const fileList: string[] = await ArrayUtil.asyncFilter
+        (
+            await SourceFinder.find(input),
+            file => this.is_not_excluded(file)
+        );
 
         // ANALYZE REFLECTS
         const unique: WeakSet<any> = new WeakSet();
@@ -93,15 +92,5 @@ export class NestiaApplication
     {
         return file.indexOf(`${this.config_.output}${path.sep}functional`) === -1
             && (await this.bundle_checker_.get())(file) === false;
-    }
-}
-
-export namespace NestiaApplication
-{
-    export interface IConfiguration
-    {
-        input: string | string[];
-        output: string;
-        compilerOptions?: tsc.CompilerOptions;
     }
 }
