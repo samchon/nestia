@@ -247,18 +247,15 @@ export function store
         connection: IConnection,
         section: string,
         saleId: number,
-        input: store.Input
+        input: Primitive<store.Input>
     ): Promise<store.Output>
 {
     return Fetcher.fetch
     (
         connection,
-        {
-            input_encrypted: false,
-            output_encrypted: false
-        },
-        "POST",
-        `/consumers/${section}/sales/${saleId}/questions/`,
+        store.ENCRYPTED,
+        store.METHOD,
+        store.path(section, saleId),
         input
     );
 }
@@ -266,6 +263,18 @@ export namespace store
 {
     export type Input = Primitive<ISaleInquiry.IStore>;
     export type Output = Primitive<ISaleInquiry<ISaleArticle.IContent>>;
+
+    export const METHOD = "POST" as const;
+    export const PATH: string = "/consumers/:section/sales/:saleId/questions";
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: true,
+        response: true,
+    };
+
+    export function path(section: string, saleId: number): string
+    {
+        return `/consumers/${section}/sales/${saleId}/questions`;
+    }
 }
 ```
 
