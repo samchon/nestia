@@ -19,7 +19,6 @@ export class SellerAuthenticateController
             @helper.EncryptedBody() input: ISeller.IJoin
         ): Promise<ISeller>
     {
-        input;
         return null!;
     }
 

@@ -11,7 +11,7 @@ npx ts-node ../../src/bin/nestia sdk "src/controllers" --out "src/api"
 # HOWEVER, THE "TSCONFIG-PATHS" ENFORCES "TSCONFIG.JSON" WITH "BASEURL" OPTION
 cd ../alias@src
 npx rimraf src/api/functional
-npx ts-node -r tsconfig-paths/register ../../src/bin/nestia sdk "src/controllers" --out "src/api"
+npx ts-node ../../src/bin/nestia sdk "src/controllers" --out "src/api"
 
 #-------------------------------------------------------
 # NORMAL PROJECTS
