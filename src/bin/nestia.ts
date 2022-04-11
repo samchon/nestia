@@ -1,72 +1,82 @@
-#!/usr/bin/env ts-node-script
+#!/usr/bin/env ts-node
 
-import cli from "cli";
+import cp from "child_process";
 import fs from "fs";
-import path from "path";
 import tsc from "typescript";
 
-import { NestiaApplication } from "../NestiaApplication";
-
-import { Terminal } from "../utils/Terminal";
 import { stripJsonComments } from "../utils/stripJsonComments";
-import { IConfiguration } from "../IConfiguration";
 
-interface ICommand
+function install(): void
 {
-    exclude: string | null;
-    out: string | null;
+    const command: string = "npm install --save nestia-fetcher";
+    cp.execSync(command, { stdio: "inherit" });
 }
 
-async function sdk(include: string[], command: ICommand): Promise<void>
+function sdk(alias: boolean): void
 {
-    // CONFIGURATION
-    let config: IConfiguration;
-    if (fs.existsSync("nestia.config.ts") === true)
-        config = {
-            ...await import(path.resolve("nestia.config.ts"))
-        };
-    else
-    {
-        if (command.out === null)
-            throw new Error(`Output directory is not specified. Add the "--out <output_directory>" option.`);
-        config = {
-            input: {
-                include,
-                exclude: command.exclude
-                    ? [command.exclude]
-                    : undefined
-            },
-            output: command.out
-        };
-    }
-    
-    // VALIDATE OUTPUT DIRECTORY
-    const parentPath: string = path.resolve(config.output + "/..");
-    const parentStats: fs.Stats = await fs.promises.stat(parentPath);
-
-    if (parentStats.isDirectory() === false)
-        throw new Error(`Unable to find parent directory of the output path: "${parentPath}".`);
-
-    // GENERATION
-    if (fs.existsSync("tsconfig.json") === true)
-    {
-        const content: string = await fs.promises.readFile("tsconfig.json", "utf8");
-        const options: tsc.CompilerOptions = JSON.parse(stripJsonComments(content)).compilerOptions;
-
-        config.compilerOptions = {
-            ...options,
-            ...(config.compilerOptions || {})
-        };
-    }
-
-    // CALL THE APP.GENERATE()
-    const app: NestiaApplication = new NestiaApplication(config);
-    await app.generate();
+    const parameters: string[] = [
+        alias ? "npx ts-node -r tsconfig-paths/register" : "npx ts-node",
+        __dirname + "/../executable/sdk",
+        ...process.argv.slice(3)
+    ];
+    const command: string = parameters.join(" ");
+    cp.execSync(command, { stdio: "inherit" });
 }
 
-async function install(): Promise<void>
+async function tsconfig(task: (alias: boolean) => void): Promise<void>
 {
-    await Terminal.execute("npm install --save nestia-fetcher");
+    // NO TSCONFIG.JSON?
+    if (fs.existsSync("tsconfig.json") === false)
+    {
+        task(false);
+        return;
+    }
+
+    const content: string = await fs.promises.readFile("tsconfig.json", "utf8");
+    const json: any = JSON.parse(stripJsonComments(content));
+    const options: tsc.CompilerOptions = json.compilerOptions;
+
+    // NO ALIAS PATHS
+    if (!options.paths || !Object.entries(options.paths).length)
+    {
+        task(false);
+        return;
+    }
+
+    let closer: null | (() => Promise<void>) = null;
+    let error: Error | null = null;
+
+    if (!options.baseUrl)
+    {
+        options.baseUrl = "./";
+        await fs.promises.writeFile
+        (
+            "tsconfig.json", 
+            JSON.stringify(json, null, 2),
+            "utf8"
+        );
+
+        closer = () => fs.promises.writeFile
+        (
+            "tsconfig.json", 
+            content, 
+            "utf8"
+        );
+    }
+
+    try
+    {
+        task(true);
+    }
+    catch (exp)
+    {
+        error = exp as Error;
+    }
+
+    if (closer)
+        await closer();
+    if (error)
+        throw error;
 }
 
 async function main(): Promise<void>
@@ -74,33 +84,12 @@ async function main(): Promise<void>
     if (process.argv[2] === "install")
         await install();
     else if (process.argv[2] === "sdk")
-    {
-        const command: ICommand = cli.parse({
-            exclude: ["e", "Something to exclude", "string", null],
-            out: ["o", "Output path of the SDK files", "string", null],
-        });
-
-        try
-        {
-            const inputs: string[] = [];
-            for (const arg of process.argv.slice(3))
-            {
-                if (arg[0] === "-")
-                    break;
-                inputs.push(arg);
-            }
-            await sdk(inputs, command);
-        }
-        catch (exp)
-        {
-            console.log(exp);
-            process.exit(-1);
-        }
-    }
+        await tsconfig(sdk);
     else
-    {
-        console.log(`nestia supports only two commands; install and sdk, however you typed ${process.argv[2]}`);
-        process.exit(-1);
-    }
+        throw new Error(`nestia supports only two commands; install and sdk, however you typed ${process.argv[2]}`);
 }
-main();
+main().catch(exp =>
+{
+    console.log(exp.message);
+    process.exit(-1);
+});
