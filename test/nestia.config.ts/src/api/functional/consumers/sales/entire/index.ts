@@ -3,8 +3,9 @@
  * @module api.functional.consumers.sales.entire
  */
 //================================================================
-import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
+import { assertType } from "typescript-is";
 
 import type { IPage } from "./../../../../structures/common/IPage";
 import type { ISaleEntireArtcle } from "./../../../../structures/sales/articles/ISaleEntireArticle";
@@ -22,6 +23,10 @@ export function index
         input: Primitive<index.Query>
     ): Promise<index.Output>
 {
+    assertType<typeof section>(section);
+    assertType<typeof saleId>(saleId);
+    assertType<typeof input>(input);
+
     return Fetcher.fetch
     (
         connection,
@@ -61,6 +66,10 @@ export function at
         id: number
     ): Promise<at.Output>
 {
+    assertType<typeof section>(section);
+    assertType<typeof saleId>(saleId);
+    assertType<typeof id>(id);
+
     return Fetcher.fetch
     (
         connection,
@@ -86,11 +95,3 @@ export namespace at
     }
 }
 
-
-
-//---------------------------------------------------------
-// TO PREVENT THE UNUSED VARIABLE ERROR
-//---------------------------------------------------------
-AesPkcs5;
-Fetcher;
-Primitive;

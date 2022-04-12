@@ -1,6 +1,6 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as tsc from "typescript";
+import fs from "fs";
+import path from "path";
+import tsc from "typescript";
 import { Pair } from "tstl/utility/Pair";
 import { Singleton } from "tstl/thread/Singleton";
 
@@ -85,7 +85,7 @@ export class NestiaApplication
         }
 
         // DO GENERATE
-        await SdkGenerator.generate(this.config_.output, routeList);
+        await SdkGenerator.generate(this.config_, routeList);
     }
 
     private async is_not_excluded(file: string): Promise<boolean>

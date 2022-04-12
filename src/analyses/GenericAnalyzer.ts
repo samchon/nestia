@@ -1,4 +1,4 @@
-import * as tsc from "typescript";
+import tsc from "typescript";
 
 export namespace GenericAnalyzer
 {

@@ -3,8 +3,9 @@
  * @module api.functional.sellers.authenticate
  */
 //================================================================
-import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
+import { assertType } from "typescript-is";
 
 import type { ISeller } from "./../../../structures/actors/ISeller";
 export * as password from "./password";
@@ -26,6 +27,8 @@ export function join
         input: Primitive<join.Input>
     ): Promise<join.Output>
 {
+    assertType<typeof input>(input);
+
     return Fetcher.fetch
     (
         connection,
@@ -70,6 +73,8 @@ export function login
         input: Primitive<login.Input>
     ): Promise<login.Output>
 {
+    assertType<typeof input>(input);
+
     return Fetcher.fetch
     (
         connection,
@@ -131,11 +136,3 @@ export namespace exit
     }
 }
 
-
-
-//---------------------------------------------------------
-// TO PREVENT THE UNUSED VARIABLE ERROR
-//---------------------------------------------------------
-AesPkcs5;
-Fetcher;
-Primitive;

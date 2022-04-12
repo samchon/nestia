@@ -3,7 +3,7 @@
  * @module api.functional.consumers.sales.reviews
  */
 //================================================================
-import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
 
 import type { ISaleReview } from "./../../../../structures/sales/articles/ISaleReview";
@@ -261,11 +261,3 @@ export namespace at
     }
 }
 
-
-
-//---------------------------------------------------------
-// TO PREVENT THE UNUSED VARIABLE ERROR
-//---------------------------------------------------------
-AesPkcs5;
-Fetcher;
-Primitive;

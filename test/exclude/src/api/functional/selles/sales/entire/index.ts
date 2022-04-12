@@ -3,7 +3,7 @@
  * @module api.functional.selles.sales.entire
  */
 //================================================================
-import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
 
 import type { IPage } from "./../../../../../../../nestia.config.ts/src/api/structures/common/IPage";
@@ -86,11 +86,3 @@ export namespace at
     }
 }
 
-
-
-//---------------------------------------------------------
-// TO PREVENT THE UNUSED VARIABLE ERROR
-//---------------------------------------------------------
-AesPkcs5;
-Fetcher;
-Primitive;

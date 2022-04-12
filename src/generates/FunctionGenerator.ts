@@ -1,4 +1,4 @@
-import type * as tsc from "typescript";
+import type tsc from "typescript";
 import { Pair } from "tstl/utility/Pair";
 import { Vector } from "tstl/container/Vector";
 
@@ -6,13 +6,13 @@ import { IRoute } from "../structures/IRoute";
 
 export namespace FunctionGenerator
 {
-    export function generate(route: IRoute): string
+    export function generate(assert: boolean, route: IRoute): string
     {
         const query: IRoute.IParameter | undefined = route.parameters.find(param => param.category === "query");
         const input: IRoute.IParameter | undefined = route.parameters.find(param => param.category === "body");
 
         return [head, body, tail]
-            .map(closure => closure(route, query, input))
+            .map(closure => closure(route, query, input, assert))
             .filter(str => !!str)
             .join("\n");
     }
@@ -20,7 +20,13 @@ export namespace FunctionGenerator
     /* ---------------------------------------------------------
         BODY
     --------------------------------------------------------- */
-    function body(route: IRoute, query: IRoute.IParameter | undefined, input: IRoute.IParameter | undefined): string
+    function body
+        (
+            route: IRoute, 
+            query: IRoute.IParameter | undefined, 
+            input: IRoute.IParameter | undefined,
+            assert: boolean
+        ): string
     {
         // FETCH ARGUMENTS WITH REQUST BODY
         const parameters = filter_parameters(route, query);
@@ -34,8 +40,15 @@ export namespace FunctionGenerator
         if (input !== undefined)
             fetchArguments.push(input.name);
 
+        const assertions: string = assert === true && route.parameters.length !== 0
+            ? route.parameters
+                .map(param => `    assertType<typeof ${param.name}>(${param.name});`)
+                .join("\n") + "\n\n"
+            : "";
+
         // RETURNS WITH FINALIZATION
         return "{\n"
+            + assertions
             + "    return Fetcher.fetch\n"
             + "    (\n"
             + fetchArguments.map(param => `        ${param}`).join(",\n") + "\n"
@@ -54,7 +67,12 @@ export namespace FunctionGenerator
     /* ---------------------------------------------------------
         HEAD & TAIL
     --------------------------------------------------------- */
-    function head(route: IRoute, query: IRoute.IParameter | undefined, input: IRoute.IParameter | undefined): string
+    function head
+        (
+            route: IRoute, 
+            query: IRoute.IParameter | undefined, 
+            input: IRoute.IParameter | undefined
+        ): string
     {
         //----
         // CONSTRUCT COMMENT
@@ -132,7 +150,12 @@ export namespace FunctionGenerator
             + `    ): Promise<${output}>`;
     }
 
-    function tail(route: IRoute, query: IRoute.IParameter | undefined, input: IRoute.IParameter | undefined): string | null
+    function tail
+        (
+            route: IRoute, 
+            query: IRoute.IParameter | undefined, 
+            input: IRoute.IParameter | undefined
+        ): string | null
     {
         // LIST UP TYPES
         const types: Pair<string, string>[] = [];
