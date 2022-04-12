@@ -1,11 +1,11 @@
-import Pather from "path";
+import * as NodePath from "path";
+import { equal } from "tstl/ranges/module";
 
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { StringUtil } from "../utils/StringUtil";
 
 import { IController } from "../structures/IController";
 import { ParamCategory } from "../structures/ParamCategory";
-import { equal } from "tstl/ranges/module";
 
 type IModule =
 {
@@ -128,7 +128,7 @@ export namespace ReflectAnalyzer
         }
 
         // VALIDATE PATH ARGUMENTS
-        const funcPathArguments: string[] = StringUtil.betweens(Pather.join(controller.path, meta.path).split("\\").join("/"), ":", "/").sort();
+        const funcPathArguments: string[] = StringUtil.betweens(NodePath.join(controller.path, meta.path).split("\\").join("/"), ":", "/").sort();
         const paramPathArguments: string[] = meta.parameters.filter(param => param.category === "param").map(param => param.field!).sort();
 
         if (equal(funcPathArguments, paramPathArguments) === false)

@@ -1,4 +1,4 @@
-import type tsc from "typescript";
+import * as tsc from "typescript";
 import { Pair } from "tstl/utility/Pair";
 import { Vector } from "tstl/container/Vector";
 

@@ -1,4 +1,4 @@
-import path from "path";
+import * as path from "path";
 import { SourceFinder } from "../../src/analyses/SourceFinder";
 
 async function main(): Promise<void>

@@ -1,7 +1,7 @@
-import cli from "cli";
-import fs from "fs";
-import path from "path";
-import tsc from "typescript";
+import * as cli from "cli";
+import * as fs from "fs";
+import * as path from "path";
+import * as tsc from "typescript";
 import { Primitive } from "nestia-fetcher";
 
 import { IConfiguration } from "../IConfiguration";

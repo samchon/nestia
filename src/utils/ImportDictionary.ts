@@ -1,4 +1,4 @@
-import path from "path";
+import * as path from "path";
 
 import { HashMap } from "tstl/container/HashMap";
 import { HashSet } from "tstl/container/HashSet";
