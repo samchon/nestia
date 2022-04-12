@@ -3,8 +3,9 @@
  * @module api.functional.consumers.sales.comments
  */
 //================================================================
-import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
+import { assertType } from "typescript-is";
 
 import type { IPage } from "./../../../../structures/common/IPage";
 import type { ISaleComment } from "./../../../../structures/sales/articles/ISaleComment";
@@ -36,6 +37,11 @@ export function index
         input: Primitive<index.Query>
     ): Promise<index.Output>
 {
+    assertType<typeof section>(section);
+    assertType<typeof saleId>(saleId);
+    assertType<typeof articleId>(articleId);
+    assertType<typeof input>(input);
+
     return Fetcher.fetch
     (
         connection,
@@ -90,6 +96,11 @@ export function store
         input: Primitive<store.Input>
     ): Promise<store.Output>
 {
+    assertType<typeof section>(section);
+    assertType<typeof saleId>(saleId);
+    assertType<typeof articleId>(articleId);
+    assertType<typeof input>(input);
+
     return Fetcher.fetch
     (
         connection,
@@ -143,6 +154,11 @@ export function remove
         commentId: number
     ): Promise<void>
 {
+    assertType<typeof section>(section);
+    assertType<typeof saleId>(saleId);
+    assertType<typeof articleId>(articleId);
+    assertType<typeof commentId>(commentId);
+
     return Fetcher.fetch
     (
         connection,
@@ -167,11 +183,3 @@ export namespace remove
     }
 }
 
-
-
-//---------------------------------------------------------
-// TO PREVENT THE UNUSED VARIABLE ERROR
-//---------------------------------------------------------
-AesPkcs5;
-Fetcher;
-Primitive;

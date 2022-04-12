@@ -3,8 +3,9 @@
  * @module api.functional.consumers.sales.reviews
  */
 //================================================================
-import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
+import { assertType } from "typescript-is";
 
 import type { ISaleReview } from "./../../../../structures/sales/articles/ISaleReview";
 import type { ISaleInquiry } from "./../../../../structures/sales/articles/ISaleInquiry";
@@ -34,6 +35,10 @@ export function store
         input: Primitive<store.Input>
     ): Promise<store.Output>
 {
+    assertType<typeof section>(section);
+    assertType<typeof saleId>(saleId);
+    assertType<typeof input>(input);
+
     return Fetcher.fetch
     (
         connection,
@@ -88,6 +93,11 @@ export function update
         input: Primitive<update.Input>
     ): Promise<update.Output>
 {
+    assertType<typeof section>(section);
+    assertType<typeof saleId>(saleId);
+    assertType<typeof id>(id);
+    assertType<typeof input>(input);
+
     return Fetcher.fetch
     (
         connection,
@@ -140,6 +150,10 @@ export function remove
         id: number
     ): Promise<void>
 {
+    assertType<typeof section>(section);
+    assertType<typeof saleId>(saleId);
+    assertType<typeof id>(id);
+
     return Fetcher.fetch
     (
         connection,
@@ -187,6 +201,10 @@ export function index
         input: Primitive<index.Query>
     ): Promise<index.Output>
 {
+    assertType<typeof section>(section);
+    assertType<typeof saleId>(saleId);
+    assertType<typeof input>(input);
+
     return Fetcher.fetch
     (
         connection,
@@ -236,6 +254,10 @@ export function at
         id: number
     ): Promise<at.Output>
 {
+    assertType<typeof section>(section);
+    assertType<typeof saleId>(saleId);
+    assertType<typeof id>(id);
+
     return Fetcher.fetch
     (
         connection,
@@ -261,11 +283,3 @@ export namespace at
     }
 }
 
-
-
-//---------------------------------------------------------
-// TO PREVENT THE UNUSED VARIABLE ERROR
-//---------------------------------------------------------
-AesPkcs5;
-Fetcher;
-Primitive;

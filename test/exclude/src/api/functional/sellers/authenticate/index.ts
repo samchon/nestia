@@ -3,7 +3,7 @@
  * @module api.functional.sellers.authenticate
  */
 //================================================================
-import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
 
 import type { ISeller } from "./../../../structures/actors/ISeller";
@@ -131,11 +131,3 @@ export namespace exit
     }
 }
 
-
-
-//---------------------------------------------------------
-// TO PREVENT THE UNUSED VARIABLE ERROR
-//---------------------------------------------------------
-AesPkcs5;
-Fetcher;
-Primitive;

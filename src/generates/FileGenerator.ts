@@ -1,5 +1,6 @@
-import * as fs from "fs";
+import fs from "fs";
 import { HashMap } from "tstl/container/HashMap";
+import { IConfiguration } from "../IConfiguration";
 
 import { IRoute } from "../structures/IRoute";
 import { ImportDictionary } from "../utils/ImportDictionary";
@@ -10,7 +11,7 @@ export namespace FileGenerator
     /* ---------------------------------------------------------
         CONSTRUCTOR
     --------------------------------------------------------- */
-    export async function generate(outDir: string, routeList: IRoute[]): Promise<void>
+    export async function generate(config: IConfiguration, routeList: IRoute[]): Promise<void>
     {
         // CONSTRUCT FOLDER TREE
         const root: Directory = new Directory(null, "functional");
@@ -21,7 +22,7 @@ export namespace FileGenerator
         relocate(root);
 
         // ITERATE FILES
-        await iterate(outDir + "/functional", root);
+        await iterate(!!config.assert, config.output + "/functional", root);
     }
 
     function emplace(directory: Directory, route: IRoute): void
@@ -63,7 +64,12 @@ export namespace FileGenerator
     /* ---------------------------------------------------------
         FILE ITERATOR
     --------------------------------------------------------- */
-    async function iterate(outDir: string, directory: Directory): Promise<void>
+    async function iterate
+        (
+            assert: boolean, 
+            outDir: string, 
+            directory: Directory
+        ): Promise<void>
     {
         // CREATE A NEW DIRECTORY
         try
@@ -76,7 +82,7 @@ export namespace FileGenerator
         let content: string = "";
         for (const it of directory.directories)
         {
-            await iterate(`${outDir}/${it.first}`, it.second);
+            await iterate(assert, `${outDir}/${it.first}`, it.second);
             content += `export * as ${it.first} from "./${it.first}";\n`;
         }
         content += "\n";
@@ -88,27 +94,34 @@ export namespace FileGenerator
             for (const tuple of route.imports)
                 for (const instance of tuple[1])
                     importDict.emplace(tuple[0], false, instance);
-            content += FunctionGenerator.generate(route) + "\n\n";
+            content += FunctionGenerator.generate(assert, route) + "\n\n";
         }
 
         // FINALIZE THE CONTENT
         if (directory.routes.length !== 0)
+        {
+            const primitived: boolean = directory.routes.some(route => route.output !== "void" 
+                || route.parameters.some(param => param.category !== "param")
+            );
+            const asserted: boolean = assert 
+                && directory.routes.some(route => route.parameters.length !== 0);
+            
+            const fetcher: string[] = ["Fetcher"];
+            if (primitived) 
+                fetcher.push("Primitive");
+            
             content = ""
-                + `import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";\n`
+                + `import { ${fetcher.join(", ")} } from "nestia-fetcher";\n`
                 + `import type { IConnection } from "nestia-fetcher";\n`
+                + (asserted ? `import { assertType } from "typescript-is";\n` : "")
                 + 
                 (
                     importDict.empty()
                         ? ""
                         : "\n" + importDict.toScript(outDir) + "\n"
                 )
-                + content + "\n\n"
-                + "//---------------------------------------------------------\n"
-                + "// TO PREVENT THE UNUSED VARIABLE ERROR\n"
-                + "//---------------------------------------------------------\n"
-                + "AesPkcs5;\n"
-                + "Fetcher;\n"
-                + "Primitive;";
+                + content;
+        }
 
         content = "/**\n"
             + " * @packageDocumentation\n"

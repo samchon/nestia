@@ -1,4 +1,4 @@
-import type * as tsc from "typescript";
+import type tsc from "typescript";
 import { ParamCategory } from "./ParamCategory";
 
 export interface IRoute

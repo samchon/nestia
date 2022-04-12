@@ -5,6 +5,7 @@ export interface IConfiguration
     input: string | string[] | IConfiguration.IInput;
     output: string;
     compilerOptions?: tsc.CompilerOptions;
+    assert?: boolean;
 }
 export namespace IConfiguration
 {

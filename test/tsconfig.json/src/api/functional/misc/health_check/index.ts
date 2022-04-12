@@ -3,7 +3,7 @@
  * @module api.functional.misc.health_check
  */
 //================================================================
-import { AesPkcs5, Fetcher, Primitive } from "nestia-fetcher";
+import { Fetcher } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
 
 /**
@@ -75,11 +75,3 @@ export namespace sleep_for
     }
 }
 
-
-
-//---------------------------------------------------------
-// TO PREVENT THE UNUSED VARIABLE ERROR
-//---------------------------------------------------------
-AesPkcs5;
-Fetcher;
-Primitive;
