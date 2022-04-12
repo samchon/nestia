@@ -1,4 +1,4 @@
-import tsc from "typescript";
+import * as tsc from "typescript";
 
 import { HashMap } from "tstl/container/HashMap";
 import { HashSet } from "tstl/container/HashSet";

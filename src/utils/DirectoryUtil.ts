@@ -1,5 +1,5 @@
 import del from "del";
-import fs from "fs";
+import * as fs from "fs";
 
 export namespace DirectoryUtil
 {

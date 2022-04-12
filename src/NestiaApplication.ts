@@ -1,6 +1,6 @@
-import fs from "fs";
-import path from "path";
-import tsc from "typescript";
+import * as fs from "fs";
+import * as path from "path";
+import * as tsc from "typescript";
 import { Pair } from "tstl/utility/Pair";
 import { Singleton } from "tstl/thread/Singleton";
 

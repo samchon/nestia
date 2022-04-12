@@ -1,5 +1,5 @@
-import NodePath from "path";
-import tsc from "typescript";
+import * as NodePath from "path";
+import * as tsc from "typescript";
 import { HashMap } from "tstl/container/HashMap";
 
 import { IController } from "../structures/IController";

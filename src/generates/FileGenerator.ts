@@ -1,4 +1,4 @@
-import fs from "fs";
+import * as fs from "fs";
 import { HashMap } from "tstl/container/HashMap";
 import { IConfiguration } from "../IConfiguration";
 

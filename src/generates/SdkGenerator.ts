@@ -1,4 +1,4 @@
-import fs from "fs";
+import * as fs from "fs";
 import { DirectoryUtil } from "../utils/DirectoryUtil";
 
 import { IRoute } from "../structures/IRoute";
