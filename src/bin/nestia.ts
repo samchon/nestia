@@ -26,7 +26,7 @@ function sdk(): void
     // PREPARE COMMAND
     const parameters: string[] = [
         "npx ts-node -C ttypescript",
-        __dirname + "/../executable/sdk",
+        `"${__dirname}/../executable/sdk"`,
         ...process.argv.slice(3)
     ];
     const command: string = parameters.join(" ");
