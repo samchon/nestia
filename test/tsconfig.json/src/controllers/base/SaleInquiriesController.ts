@@ -1,8 +1,8 @@
 import helper from "nestia-helper";
 import * as nest from "@nestjs/common";
 
-import { ISaleInquiry } from "@api/structures/sales/articles/ISaleInquiry";
-import { IPage } from "@api/structures/common/IPage";
+import { IPage } from "../../api/structures/common/IPage";
+import { ISaleInquiry } from "../../api/structures/sales/articles/ISaleInquiry";
 
 export abstract class SaleInquiriesController<
         Request extends ISaleInquiry.IRequest, 

@@ -1,7 +1,8 @@
 import * as nest from "@nestjs/common";
 
+import { ISaleReview } from "../../../api/structures/sales/articles/ISaleReview";
+
 import { ConsumerSaleInquiriesController } from "./ConsumerSaleInquiriesController";
-import { ISaleReview } from "@api/structures/sales/articles/ISaleReview";
 
 @nest.Controller("consumers/:section/sales/:saleId/reviews")
 export class ConsumerSaleReviewsController 

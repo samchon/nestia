@@ -2,7 +2,7 @@ import express from "express";
 import * as nest from "@nestjs/common";
 import helper from "nestia-helper";
 
-import { ISeller } from "@api/structures/actors/ISeller";
+import { ISeller } from "../../../api/structures/actors/ISeller";
 
 @nest.Controller("sellers/authenticate")
 export class SellerAuthenticateController

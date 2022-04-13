@@ -2,8 +2,8 @@ import express from "express";
 import helper from "nestia-helper";
 import * as nest from "@nestjs/common";
 
-import { IPage } from "@api/structures/common/IPage";
-import { ISaleComment } from "@api/structures/sales/articles/ISaleComment";
+import { IPage } from "../../api/structures/common/IPage";
+import { ISaleComment } from "../../api/structures/sales/articles/ISaleComment";
 
 export abstract class SaleCommentsController
 {

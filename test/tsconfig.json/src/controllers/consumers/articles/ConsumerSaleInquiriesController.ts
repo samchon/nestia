@@ -2,8 +2,9 @@ import express from "express";
 import * as nest from "@nestjs/common";
 import { EncryptedBody, EncryptedRoute, TypedParam } from "nestia-helper";
 
+import { ISaleInquiry } from "../../../api/structures/sales/articles/ISaleInquiry";
+
 import { SaleInquiriesController } from "../../base/SaleInquiriesController";
-import { ISaleInquiry } from "@api/structures/sales/articles/ISaleInquiry";
 
 export abstract class ConsumerSaleInquiriesController<
         Request extends ISaleInquiry.IRequest, 

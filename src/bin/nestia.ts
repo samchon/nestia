@@ -50,7 +50,7 @@ async function main()
     else if (process.argv[2] === "sdk")
         await sdk();
     else
-        throw new Error(`nestia supports only two commands; install and sdk, however you typed ${process.argv[2]}`);
+        throw new Error(`nestia supports only two commands; install and sdk, however you've typed the "${process.argv[2]}"`);
 }
 main().catch(exp =>
 {

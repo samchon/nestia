@@ -1,8 +1,8 @@
 import helper from "nestia-helper";
 import * as nest from "@nestjs/common";
 
-import { IPage } from "@api/structures/common/IPage";
-import { ISaleEntireArtcle } from "@api/structures/sales/articles/ISaleEntireArticle";
+import { IPage } from "../../api/structures/common/IPage";
+import { ISaleEntireArtcle } from "../../api/structures/sales/articles/ISaleEntireArticle";
 
 export abstract class SaleEntireArticlesController
 {
