@@ -13,17 +13,9 @@ async function execute(name: string, tail: string): Promise<void>
         ? async () =>
         {
             const content = await fs.promises.readFile("tsconfig.json", "utf8");
-            return async () => 
-            {
-                await fs.promises.copyFile("tsconfig.json", "tsconfig.json.bak");
-                await fs.promises.writeFile("tsconfig.json", content, "utf8");
-            }
+            return () => fs.promises.writeFile("tsconfig.json", content, "utf8");
         } 
-        : () => async () => 
-        {
-            await fs.promises.copyFile("tsconfig.json", "tsconfig.json.bak");
-            await fs.promises.unlink("tsconfig.json");
-        }
+        : async () => () => fs.promises.unlink("tsconfig.json");
 
     const commands: string[] = [
         `npx rimraf src/api/functional`,
@@ -53,7 +45,7 @@ async function main(): Promise<void>
     await execute("alias@api", `"src/controllers" --out "src/api"`);
     await execute("alias@src", `"src/controllers" --out "src/api"`);
     await execute("default", `"src/controllers" --out "src/api"`);
-    await execute("exclude", `"src/controllers" --out "src/api" --exclude "src/controllers/**/throw_error.ts"`);
+    // await execute("exclude", `"src/controllers" --exclude "src/controllers/**/throw_error.ts" --out "src/api"`);
     await execute("nestia.config.ts", "");
     await execute("reference", `"src/**/*.controller.ts" --out "src/api"`);
     await execute("tsconfig.json", `"src/controllers" --out "src/api"`);

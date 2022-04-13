@@ -105,6 +105,11 @@ The `npx nestia install` command installs those dependencies with `package.json`
 export interface IConfiguration
 {
     /**
+     * Whether to assert parameter types or not.
+     */
+    assert?: boolean;
+
+    /**
      * List of files or directories containing the NestJS controller classes.
      */
     input: string | string[] | IConfiguration.IInput;

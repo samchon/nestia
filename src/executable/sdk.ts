@@ -2,11 +2,11 @@ import * as cli from "cli";
 import * as fs from "fs";
 import * as path from "path";
 import * as tsc from "typescript";
-import { Primitive } from "nestia-fetcher";
 
 import { IConfiguration } from "../IConfiguration";
 import { NestiaApplication } from "../NestiaApplication";
 import { stripJsonComments } from "../utils/stripJsonComments";
+import { NestiaConfig } from "../internal/NestiaConfig";
 
 interface ICommand
 {
@@ -17,13 +17,8 @@ interface ICommand
 async function sdk(include: string[], command: ICommand): Promise<void>
 {
     // CONFIGURATION
-    let config: IConfiguration;
-    if (fs.existsSync("nestia.config.ts") === true)
-        config = Primitive.clone
-        (
-            await import(path.resolve("nestia.config.ts"))
-        );
-    else
+    let config: IConfiguration | null = await NestiaConfig.get();
+    if (config === null)
     {
         if (command.out === null)
             throw new Error(`Output directory is not specified. Add the "--out <output_directory>" option.`);

@@ -25,7 +25,7 @@ export namespace TsConfig
         emitDecoratorMetadata: true,
         plugins: [
             { transform: "typescript-is/lib/transform-inline/transformer" }, 
-            { transform: "typescript-transform-paths" }
+            // { transform: "typescript-transform-paths" }
         ]
     };
 
@@ -65,51 +65,59 @@ export namespace TsConfig
                 "utf8"
             );
         }
-        else
+        else if (emend(config.compilerOptions as CSON.CommentObject) === true)
         {
-            // FILL ESSENTIAL PROPS
-            const options: CSON.CommentObject = config.compilerOptions as CSON.CommentObject;
-            for (const [key, value] of Object.entries(DEFAULT_OPTIONS))
-            {
-                if (!options[key])
-                    CSON.assign(config.compilerOptions, { [key]: value });
-                else if (options[key] instanceof Array && value instanceof Array && key !== "plugins")
-                    CSON.assign
-                    (
-                        config.compilerOptions,
-                        { 
-                            [key]: 
-                            [
-                                ...new Set
-                                ([
-                                    ...value, 
-                                    ...options[key] as string[]
-                                ])
-                            ]
-                        }
-                    );
-            }
-
-            if (!options.plugins)
-                CSON.assign(options.plugins, { plugins: DEFAULT_OPTIONS.plugins });
-            else
-            {
-                const optionPlugins: CSON.CommentArray<CSON.CommentObject> = options.plugins as CSON.CommentArray<CSON.CommentObject>;
-                for (const plugin of DEFAULT_OPTIONS.plugins)
-                {
-                    const found = optionPlugins.find(elem => elem.transform === plugin.transform);
-                    if (!found)
-                        optionPlugins.push(plugin);
-                }
-            }
+            // OVERWRITE THE CONTENT
+            await fs.promises.writeFile
+            (
+                "tsconfig.json",
+                CSON.stringify(config, null, 2),
+                "utf8"
+            );
         }
+    }
 
-        // OVERWRITE THE CONTENT
-        await fs.promises.writeFile
+    function emend(options: CSON.CommentObject): boolean
+    {
+        if (options.paths && Object.entries(options.paths).length !== 0)
+            DEFAULT_OPTIONS.plugins.push({ transform: "typescript-transform-paths" });
+
+        let changed: boolean = false;
+        for (const [key, value] of Object.entries(DEFAULT_OPTIONS))
+            if (options[key] instanceof Array && value instanceof Array)
+            {
+                merge<any>(options[key] as Array<any>, value,
+                    key !== "plugins"
+                        ? (x, y) => x === y
+                        : (x, y) => x.transform === y.transform
+                );
+                changed ||= true;
+            }
+            else if (options[key] !== value)
+            {
+                CSON.assign(options, { [key]: value });
+                changed ||= true;
+            }
+        return changed;
+    }
+
+    function merge<T>
         (
-            "tsconfig.json",
-            CSON.stringify(config, null, 2),
-            "utf8"
-        );
+            origin: T[], 
+            must: T[], 
+            pred: (a: T, b: T) => boolean
+        ): boolean
+    {
+        let changed: boolean = false;
+        for (const m of must)
+        {
+            const found: T | undefined = origin.find(elem => pred(elem, m));
+            if (found !== undefined)
+                continue;
+
+            origin.push(m);
+            changed ||= true;
+        }
+        return changed;
     }
 }
