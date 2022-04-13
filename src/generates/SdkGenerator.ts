@@ -36,4 +36,4 @@ export namespace SdkGenerator
     }
 }
 
-const BUNDLE = __dirname + "/../bundle"
+const BUNDLE = __dirname + "/../bundle";
