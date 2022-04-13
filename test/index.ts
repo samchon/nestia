@@ -5,7 +5,7 @@ const PATH = __dirname;
 
 function execute(name: string, tail: string): void
 {
-    process.chdir(`${PATH}/${name}`)
+    process.chdir(`${PATH}/${name}`);
     const commands: string[] = [
         `npx rimraf src/api/functional`,
         `npx ts-node -C ttypescript ../../src/bin/nestia sdk ${tail}`,
