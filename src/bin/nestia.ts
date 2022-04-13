@@ -2,6 +2,8 @@
 
 import * as cp from "child_process";
 import * as fs from "fs";
+import * as path from "path";
+import * as process from "process";
 
 import { CompilerOptions } from "../internal/CompilerOptions";
 import { stripJsonComments } from "../utils/stripJsonComments";
@@ -26,7 +28,7 @@ function sdk(): void
     // PREPARE COMMAND
     const parameters: string[] = [
         "npx ts-node -C ttypescript",
-        `"${__dirname}/../executable/sdk"`,
+        `"${path.relative(process.cwd(), `${__dirname}/../executable/sdk`)}"`,
         ...process.argv.slice(3)
     ];
     const command: string = parameters.join(" ");
@@ -37,7 +39,10 @@ function sdk(): void
         command, 
         { 
             stdio: "inherit",
-            env: { "NODE_NO_WARNINGS": "1" } 
+            env: { 
+                ...process.env, 
+                "NODE_NO_WARNINGS": "1" 
+            } 
         }
     );
 }
