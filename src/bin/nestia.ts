@@ -23,11 +23,11 @@ function install(): void
     }
 }
 
-function sdk(): void
+function sdk(file: string): void
 {
     // PREPARE COMMAND
     const parameters: string[] = [
-        "npx ts-node -C ttypescript",
+        `npx ts-node -C ttypescript --project "${file}"`,
         `"${path.relative(process.cwd(), `${__dirname}/../executable/sdk`)}"`,
         ...process.argv.slice(3)
     ];
@@ -58,69 +58,51 @@ function configure(config: IConfig): boolean
         return CompilerOptions.emend(config.compilerOptions);
 }
 
-async function tsconfig(task: () => void): Promise<void>
+async function tsconfig(task: (file: string) => void): Promise<void>
 {
     //----
     // PREPARE ASSETS
     //----
-    let prepare: null | (() => Promise<void>) = null;
-    let restore: null | (() => Promise<void>) = null;
+    let prepare: null | (() => Promise<[string, () => Promise<void>]>) = null;
 
+    // NO TSCONFIG.JSON?
     if (fs.existsSync("tsconfig.json") === false)
     {
-        // NO TSCONFIG.JSON
-        const config: IConfig = {
-            compilerOptions: CompilerOptions.DEFAULT
-        };
-        prepare = () => fs.promises.writeFile
-        (
-            "tsconfig.json",
-            JSON.stringify(config, null, 2),
-            "utf8"
-        );
-        restore = () => fs.promises.unlink("tsconfig.json")
+        const config = { compilerOptions: CompilerOptions.DEFAULT };
+        prepare = CompilerOptions.temporary(config);
     }
     else
     {
         // HAS TSCONFIG.JSON
         const content: string = await fs.promises.readFile("tsconfig.json", "utf8");
-        const config: IConfig = JSON.parse(stripJsonComments(content));
+        const config = JSON.parse(stripJsonComments(content));
+        
+        // NEED TO ADD TRANSFORM PLUGINS
         const changed: boolean = configure(config);
-
         if (changed === true)
-        {
-            // NEED TO ADD TRANSFORM PLUGINS
-            prepare = () => fs.promises.writeFile
-            (
-                "tsconfig.json", 
-                JSON.stringify(config, null, 2),
-                "utf8"
-            );
-            restore = () => fs.promises.writeFile("tsconfig.json", content, "utf8");
-        }
+            prepare = CompilerOptions.temporary(config);
     }
 
     //----
     // EXECUTION
     //----
-    // PREPARE SOMETHING
-    if (prepare !== null)
-        await prepare();
+    // CREATE TEMPORARY TSCONFIG
+    const [file, erasure] = prepare ? await prepare() : ["tsconfig.json", null];
 
     // EXECUTE THE TASK
     let error: Error | null = null;
     try
     {
-        task();
+        task(file);
     }
     catch (exp)
     {
         error = exp as Error;
     }
 
-    // RESTORE THE TSCONFIG.JSON
-    if (restore !== null)
-        await restore();
+    // REMOVE THE TEMPORARY TSCONFIG
+    if (erasure)
+        await erasure();
 
     // THROW ERROR IF EXISTS
     if (error)

@@ -1,3 +1,5 @@
+import * as fs from "fs";
+
 export interface CompilerOptions
 {
     target: string;
@@ -14,7 +16,10 @@ export interface CompilerOptions
     emitDecoratorMetadata?: boolean;
 }
 export namespace CompilerOptions
-{   
+{
+    /* -----------------------------------------------------------
+        DEFAULT VALUES
+    ----------------------------------------------------------- */
     export const DEPENDENCIES: string[] = [
         "nestia-fetcher", 
         "typescript-is"
@@ -110,4 +115,28 @@ export namespace CompilerOptions
         const checks: boolean[] = checkers.map(func => func());
         return checks.some(flag => flag);
     }
+
+    /* -----------------------------------------------------------
+        PROCEDURES
+    ----------------------------------------------------------- */
+    export function temporary(config: IConfig): () => Promise<[string, () => Promise<void>]>
+    {
+        return async () =>
+        {
+            const file: string = `nestia.temporary.tsconfig.${Math.random().toString().substr(2)}.json`;
+            
+            await fs.promises.writeFile
+            (
+                file,
+                JSON.stringify(config, null, 2),
+                "utf8" 
+            );
+            return [file, () => fs.promises.unlink(file)];
+        };
+    }
+}
+
+interface IConfig
+{
+    compilerOptions?: CompilerOptions;
 }
