@@ -2,6 +2,7 @@
 
 import * as cp from "child_process";
 import * as process from "process";
+import { NestiaSdkCli } from "./internal/NestiaSdkCli";
 
 function install(): void
 {
@@ -15,8 +16,7 @@ function install(): void
 
 async function sdk(): Promise<void>
 {
-    // EXECUTE THE COMMAND, BUT IGNORE WARNINGS
-    await import(`${__dirname}/sdk.js`);
+    await NestiaSdkCli.main(process.argv.slice(3));
 }
 async function main()
 {
