@@ -1,6 +1,6 @@
-bin/test/
 node_modules/
 src/
+test/
 
 *.*ignore
 *.js.map
