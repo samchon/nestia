@@ -1,4 +1,5 @@
 import * as cp from "child_process";
+import * as path from "path";
 import * as process from "process";
 
 const PATH = __dirname;
@@ -6,7 +7,7 @@ const PATH = __dirname;
 async function execute(name: string, tail: string): Promise<void>
 {
     console.log(name);
-    process.chdir(`${PATH}/${name}`);
+    process.chdir(`${path.relative(process.cwd(), PATH)}/${name}`);
 
     const commands: string[] = [
         `npx rimraf src/api/functional`,
