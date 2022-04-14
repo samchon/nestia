@@ -1,3 +1,4 @@
+import * as cp from "child_process";
 import * as fs from "fs";
 import * as process from "process";
 
@@ -15,7 +16,7 @@ export namespace TestBuilder
         
         process.chdir(`${PATH}/../../src/test/demonstrations/${name}`);
         if (fs.existsSync("src/api/functional"))
-            await fs.promises.rm("src/api/functional", { recursive: true });
+            cp.execSync("npx rimraf src/api/functional");
         
         try
         {
