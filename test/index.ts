@@ -1,5 +1,4 @@
 import * as cp from "child_process";
-import * as fs from "fs";
 import * as process from "process";
 
 const PATH = __dirname;
@@ -9,22 +8,12 @@ async function execute(name: string, tail: string): Promise<void>
     console.log(name);
     process.chdir(`${PATH}/${name}`);
 
-    const prepare = fs.existsSync("tsconfig.json")
-        ? async () =>
-        {
-            const content = await fs.promises.readFile("tsconfig.json", "utf8");
-            return () => fs.promises.writeFile("tsconfig.json", content, "utf8");
-        } 
-        : async () => () => fs.promises.unlink("tsconfig.json");
-
     const commands: string[] = [
         `npx rimraf src/api/functional`,
-        `npx ts-node -C ttypescript ../../src/bin/nestia sdk ${tail}`,
+        `node ../../bin/executable/nestia sdk ${tail}`,
     ];
     
-    const restore = await prepare();
     let error: Error | null = null;
-
     try
     {
         for (const comm of commands)
@@ -34,14 +23,13 @@ async function execute(name: string, tail: string): Promise<void>
     {
         error = exp as Error;
     }
-    await restore();
-
     if (error !== null)
         throw error;
 }
 
 async function main(): Promise<void>
 {
+    await execute("absolute", `"src/controllers" --out "src/api"`);
     await execute("alias@api", `"src/controllers" --out "src/api"`);
     await execute("alias@src", `"src/controllers" --out "src/api"`);
     await execute("default", `"src/controllers" --out "src/api"`);

@@ -2,11 +2,12 @@ import * as cli from "cli";
 import * as fs from "fs";
 import * as path from "path";
 import * as tsc from "typescript";
+import JSONC from "jsonc-simple-parser";
+import { WorkerConnector } from "tgrid/protocols/workers/WorkerConnector";
 
 import { IConfiguration } from "../IConfiguration";
 import { NestiaApplication } from "../NestiaApplication";
-import { stripJsonComments } from "../utils/stripJsonComments";
-import { NestiaConfig } from "../internal/NestiaConfig";
+import { NestiaConfig } from "./internal/NestiaConfig";
 
 interface ICommand
 {
@@ -14,10 +15,22 @@ interface ICommand
     out: string | null;
 }
 
-async function sdk(include: string[], command: ICommand): Promise<void>
+async function get_nestia_config(): Promise<IConfiguration | null>
 {
-    // CONFIGURATION
-    let config: IConfiguration | null = await NestiaConfig.get();
+    const connector = new WorkerConnector(null, null, "process");
+    await connector.connect(__dirname + "/internal/nestia.config.getter.js");
+
+    const driver = await connector.getDriver<typeof NestiaConfig>();
+    const config: IConfiguration | null = await driver.get();
+
+    await connector.close();
+    return config;
+}
+
+async function generate(include: string[], command: ICommand): Promise<void>
+{
+    // CONFIGRATION FROM THE NESTIA.CONFIG.JSON AND CLI
+    let config: IConfiguration | null = await get_nestia_config();
     if (config === null)
     {
         if (command.out === null)
@@ -40,11 +53,11 @@ async function sdk(include: string[], command: ICommand): Promise<void>
     if (parentStats.isDirectory() === false)
         throw new Error(`Unable to find parent directory of the output path: "${parentPath}".`);
 
-    // GENERATION
+    // CONFIGURATION FROM THE TSCONFIG.JSON
     if (fs.existsSync("tsconfig.json") === true)
     {
         const content: string = await fs.promises.readFile("tsconfig.json", "utf8");
-        const options: tsc.CompilerOptions = JSON.parse(stripJsonComments(content)).compilerOptions;
+        const options: tsc.CompilerOptions = JSONC.parse(content).compilerOptions;
 
         config.compilerOptions = {
             ...options,
@@ -73,7 +86,7 @@ async function main(): Promise<void>
                 break;
             inputs.push(arg);
         }
-        await sdk(inputs, command);
+        await generate(inputs, command);
     }
     catch (exp)
     {

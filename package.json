@@ -1,13 +1,15 @@
 {
   "name": "nestia",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "Automatic SDK and Document generator for the NestJS",
-  "main": "src/index.ts",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "bin": {
-    "nestia": "./src/bin/nestia.ts"
+    "nestia": "./bin/executable/nestia.js"
   },
   "scripts": {
-    "dev": "tsc --watch",
+    "build": "rimraf bin && ttsc",
+    "dev": "npm run build -- --watch",
     "test": "ts-node test/index"
   },
   "repository": {
@@ -28,15 +30,13 @@
   },
   "homepage": "https://github.com/samchon/nestia#readme",
   "dependencies": {
-    "@types/cli": "^0.11.19",
-    "@types/glob": "^7.2.0",
-    "@types/node": "^17.0.23",
-    "@types/reflect-metadata": "^0.1.0",
     "cli": "^1.0.1",
-    "comment-json": "^4.2.2",
     "del": "^6.0.0",
     "glob": "^7.2.0",
-    "ts-node": "^9.1.1",
+    "jsonc-simple-parser": "^2.2.1",
+    "tgrid": "^0.8.6",
+    "ts-node": "^10.4.0",
+    "tsconfig-paths": "^3.14.1",
     "tstl": "^2.5.3",
     "ttypescript": "^1.5.13",
     "typescript": "^4.6.3",
@@ -44,6 +44,10 @@
     "typescript-transform-paths": "^3.3.1"
   },
   "devDependencies": {
+    "@types/cli": "^0.11.19",
+    "@types/glob": "^7.2.0",
+    "@types/node": "^17.0.23",
+    "@types/reflect-metadata": "^0.1.0",
     "nestia-helper": "^2.0.0",
     "rimraf": "^3.0.2"
   }
