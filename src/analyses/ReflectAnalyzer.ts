@@ -74,13 +74,14 @@ export namespace ReflectAnalyzer
 
     function _Get_prototype_entries(creator: any): Array<[string, unknown]>
     {
-        const tuple = Object.entries(creator.prototype);
+        const keyList = Object.getOwnPropertyNames(creator.prototype);
+        const entries: Array<[string, unknown]> = keyList.map(key => [ key, creator.prototype[key] ]);
+        
         const parent = Object.getPrototypeOf(creator);
-
         if (parent.prototype !== undefined)
-            tuple.push(..._Get_prototype_entries(parent));
+            entries.push(..._Get_prototype_entries(parent));
 
-        return tuple;
+        return entries;
     }
 
     /* ---------------------------------------------------------
