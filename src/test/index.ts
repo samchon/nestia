@@ -26,6 +26,7 @@ async function main(): Promise<void>
     await execute("alias@api", ["src/controllers", "--out", "src/api"]);
     await execute("alias@src", ["src/controllers", "--out", "src/api"]);
     await execute("default", ["src/controllers", "--out", "src/api"]);
+    await execute("esnext", ["src/controllers", "--out", "src/api"]);
     // await execute("exclude", `"src/controllers" --exclude "src/controllers/**/throw_error.ts" --out "src/api"`);
     await execute("nestia.config.ts", []);
     await execute("reference", ["src/**/*.controller.ts", "--out", "src/api"]);
