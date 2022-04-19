@@ -2,17 +2,18 @@ import * as tsc from "typescript";
 import { Pair } from "tstl/utility/Pair";
 import { Vector } from "tstl/container/Vector";
 
+import { IConfiguration } from "../IConfiguration";
 import { IRoute } from "../structures/IRoute";
 
 export namespace FunctionGenerator
 {
-    export function generate(assert: boolean, route: IRoute): string
+    export function generate(config: IConfiguration, route: IRoute): string
     {
         const query: IRoute.IParameter | undefined = route.parameters.find(param => param.category === "query");
         const input: IRoute.IParameter | undefined = route.parameters.find(param => param.category === "body");
 
         return [head, body, tail]
-            .map(closure => closure(route, query, input, assert))
+            .map(closure => closure(route, query, input, config))
             .filter(str => !!str)
             .join("\n");
     }
@@ -25,7 +26,7 @@ export namespace FunctionGenerator
             route: IRoute, 
             query: IRoute.IParameter | undefined, 
             input: IRoute.IParameter | undefined,
-            assert: boolean
+            config: IConfiguration,
         ): string
     {
         // FETCH ARGUMENTS WITH REQUST BODY
@@ -38,9 +39,13 @@ export namespace FunctionGenerator
             `${route.name}.path(${parameters.map(p => p.name).join(", ")})`
         ];
         if (input !== undefined)
+        {
             fetchArguments.push(input.name);
+            if (config.json === true)
+                fetchArguments.push(`${route.name}.stringify`);
+        }
 
-        const assertions: string = assert === true && route.parameters.length !== 0
+        const assertions: string = config.assert === true && route.parameters.length !== 0
             ? route.parameters
                 .map(param => `    assertType<typeof ${param.name}>(${param.name});`)
                 .join("\n") + "\n\n"
@@ -71,7 +76,7 @@ export namespace FunctionGenerator
         (
             route: IRoute, 
             query: IRoute.IParameter | undefined, 
-            input: IRoute.IParameter | undefined
+            input: IRoute.IParameter | undefined,
         ): string
     {
         //----
@@ -154,7 +159,8 @@ export namespace FunctionGenerator
         (
             route: IRoute, 
             query: IRoute.IParameter | undefined, 
-            input: IRoute.IParameter | undefined
+            input: IRoute.IParameter | undefined,
+            config: IConfiguration,
         ): string | null
     {
         // LIST UP TYPES
@@ -196,6 +202,12 @@ export namespace FunctionGenerator
             + `    {\n`
             + `        return ${path};\n`
             + `    }\n`
+            + 
+            (
+                config.json === true && (route.method === "POST" || route.method === "PUT" || route.method === "PATCH") 
+                    ? `    export const stringify = createStringifier<Input>()\n`
+                    : ""
+            )
             + "}";
     }
 }

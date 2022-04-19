@@ -110,6 +110,15 @@ export interface IConfiguration
     assert?: boolean;
 
     /**
+     * Whether to optimize JSON string conversion or not.
+     * 
+     * If you configure this option to be `true`, the SDK library would utilize the
+     * [typescript-json](https://github.com/samchon/typescript-json) and the JSON string
+     * conversion speed really be two times faster.
+     */
+    json?: boolean;
+
+    /**
      * List of files or directories containing the NestJS controller classes.
      */
     input: string | string[] | IConfiguration.IInput;

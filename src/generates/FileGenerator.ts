@@ -22,7 +22,7 @@ export namespace FileGenerator
         relocate(root);
 
         // ITERATE FILES
-        await iterate(!!config.assert, config.output + "/functional", root);
+        await iterate(config, config.output + "/functional", root);
     }
 
     function emplace(directory: Directory, route: IRoute): void
@@ -66,7 +66,7 @@ export namespace FileGenerator
     --------------------------------------------------------- */
     async function iterate
         (
-            assert: boolean, 
+            config: IConfiguration, 
             outDir: string, 
             directory: Directory
         ): Promise<void>
@@ -82,7 +82,7 @@ export namespace FileGenerator
         let content: string = "";
         for (const it of directory.directories)
         {
-            await iterate(assert, `${outDir}/${it.first}`, it.second);
+            await iterate(config, `${outDir}/${it.first}`, it.second);
             content += `export * as ${it.first} from "./${it.first}";\n`;
         }
         content += "\n";
@@ -94,7 +94,7 @@ export namespace FileGenerator
             for (const tuple of route.imports)
                 for (const instance of tuple[1])
                     importDict.emplace(tuple[0], false, instance);
-            content += FunctionGenerator.generate(assert, route) + "\n\n";
+            content += FunctionGenerator.generate(config, route) + "\n\n";
         }
 
         // FINALIZE THE CONTENT
@@ -103,18 +103,21 @@ export namespace FileGenerator
             const primitived: boolean = directory.routes.some(route => route.output !== "void" 
                 || route.parameters.some(param => param.category !== "param")
             );
-            const asserted: boolean = assert 
+            const asserted: boolean = config.assert === true
                 && directory.routes.some(route => route.parameters.length !== 0);
+            const json: boolean = config.json === true
+                && directory.routes.some(route => route.method === "POST" || route.method === "PUT" || route.method === "PATCH");
             
             const fetcher: string[] = ["Fetcher"];
-            if (primitived) 
+            if (primitived)
                 fetcher.push("Primitive");
             
             content = ""
                 + `import { ${fetcher.join(", ")} } from "nestia-fetcher";\n`
                 + `import type { IConnection } from "nestia-fetcher";\n`
                 + (asserted ? `import { assertType } from "typescript-is";\n` : "")
-                + 
+                + (json ? `import { createStringifier } from "typescript-json";\n` : "")
+                +
                 (
                     importDict.empty()
                         ? ""

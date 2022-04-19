@@ -6,6 +6,7 @@ export interface IConfiguration
     output: string;
     compilerOptions?: tsc.CompilerOptions;
     assert?: boolean;
+    json?: boolean;
 }
 export namespace IConfiguration
 {

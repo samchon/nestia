@@ -6,6 +6,7 @@
 import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
 import { assertType } from "typescript-is";
+import { createStringifier } from "typescript-json";
 
 import type { ISeller } from "./../../../structures/actors/ISeller";
 export * as password from "./password";
@@ -35,7 +36,8 @@ export function join
         join.ENCRYPTED,
         join.METHOD,
         join.path(),
-        input
+        input,
+        join.stringify
     );
 }
 export namespace join
@@ -54,6 +56,7 @@ export namespace join
     {
         return `/sellers/authenticate/join`;
     }
+    export const stringify = createStringifier<Input>()
 }
 
 /**
@@ -81,7 +84,8 @@ export function login
         login.ENCRYPTED,
         login.METHOD,
         login.path(),
-        input
+        input,
+        login.stringify
     );
 }
 export namespace login
@@ -100,6 +104,7 @@ export namespace login
     {
         return `/sellers/authenticate/login`;
     }
+    export const stringify = createStringifier<Input>()
 }
 
 /**
