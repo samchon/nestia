@@ -128,7 +128,7 @@ export namespace store
     {
         return `/sellers/${section}/sales/${saleId}/comments/${articleId}`;
     }
-    export const stringify = createStringifier<Input>()
+    export const stringify = createStringifier<Input>();
 }
 
 /**

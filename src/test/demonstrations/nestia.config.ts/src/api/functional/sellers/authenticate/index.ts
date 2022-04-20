@@ -56,7 +56,7 @@ export namespace join
     {
         return `/sellers/authenticate/join`;
     }
-    export const stringify = createStringifier<Input>()
+    export const stringify = createStringifier<Input>();
 }
 
 /**
@@ -104,7 +104,7 @@ export namespace login
     {
         return `/sellers/authenticate/login`;
     }
-    export const stringify = createStringifier<Input>()
+    export const stringify = createStringifier<Input>();
 }
 
 /**

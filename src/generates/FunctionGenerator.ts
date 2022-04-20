@@ -205,7 +205,7 @@ export namespace FunctionGenerator
             + 
             (
                 config.json === true && (route.method === "POST" || route.method === "PUT" || route.method === "PATCH") 
-                    ? `    export const stringify = createStringifier<Input>()\n`
+                    ? `    export const stringify = createStringifier<Input>();\n`
                     : ""
             )
             + "}";

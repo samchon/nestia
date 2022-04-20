@@ -71,7 +71,7 @@ export namespace store
     {
         return `/sellers/${section}/sales/${saleId}/questions/${inquiryId}`;
     }
-    export const stringify = createStringifier<Input>()
+    export const stringify = createStringifier<Input>();
 }
 
 /**
@@ -129,7 +129,7 @@ export namespace update
     {
         return `/sellers/${section}/sales/${saleId}/questions/${inquiryId}`;
     }
-    export const stringify = createStringifier<Input>()
+    export const stringify = createStringifier<Input>();
 }
 
 /**

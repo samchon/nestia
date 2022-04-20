@@ -55,6 +55,6 @@ export namespace change
     {
         return `/sellers/authenticate/password/change`;
     }
-    export const stringify = createStringifier<Input>()
+    export const stringify = createStringifier<Input>();
 }
 
