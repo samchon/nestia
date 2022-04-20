@@ -6,6 +6,7 @@
 import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
 import { assertType } from "typescript-is";
+import { createStringifier } from "typescript-json";
 
 import type { ISeller } from "./../../../../structures/actors/ISeller";
 
@@ -35,7 +36,8 @@ export function change
         change.ENCRYPTED,
         change.METHOD,
         change.path(),
-        input
+        input,
+        change.stringify
     );
 }
 export namespace change
@@ -53,5 +55,6 @@ export namespace change
     {
         return `/sellers/authenticate/password/change`;
     }
+    export const stringify = createStringifier<Input>();
 }
 

@@ -6,6 +6,7 @@
 import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
 import { assertType } from "typescript-is";
+import { createStringifier } from "typescript-json";
 
 import type { ISaleInquiry } from "./../../../../structures/sales/articles/ISaleInquiry";
 import type { ISaleArticle } from "./../../../../structures/sales/articles/ISaleArticle";
@@ -45,7 +46,8 @@ export function store
         store.ENCRYPTED,
         store.METHOD,
         store.path(section, saleId),
-        input
+        input,
+        store.stringify
     );
 }
 export namespace store
@@ -64,6 +66,7 @@ export namespace store
     {
         return `/consumers/${section}/sales/${saleId}/questions`;
     }
+    export const stringify = createStringifier<Input>();
 }
 
 /**
@@ -104,7 +107,8 @@ export function update
         update.ENCRYPTED,
         update.METHOD,
         update.path(section, saleId, id),
-        input
+        input,
+        update.stringify
     );
 }
 export namespace update
@@ -123,6 +127,7 @@ export namespace update
     {
         return `/consumers/${section}/sales/${saleId}/questions/${id}`;
     }
+    export const stringify = createStringifier<Input>();
 }
 
 /**

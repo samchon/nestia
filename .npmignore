@@ -1,4 +1,4 @@
-bin/test/
+lib/test/
 node_modules/
 src/
 
