@@ -1,16 +1,16 @@
 {
   "name": "nestia",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "Automatic SDK and Document generator for the NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "bin": {
-    "nestia": "./bin/executable/nestia.js"
+    "nestia": "./lib/executable/nestia.js"
   },
   "scripts": {
-    "build": "rimraf bin && ttsc",
+    "build": "rimraf lib && ttsc",
     "dev": "npm run build -- --watch",
-    "test": "node bin/test"
+    "test": "node lib/test"
   },
   "repository": {
     "type": "git",

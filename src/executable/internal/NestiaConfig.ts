@@ -39,6 +39,17 @@ export namespace NestiaConfig
         });
 
         const config: IConfiguration = await import(path.resolve("nestia.config.ts"));
-        return assert(Primitive.clone(config));
+        try
+        {
+            return assert(Primitive.clone(config));
+        }
+        catch (exp)
+        {
+            const trial: IConfiguration & { default?: IConfiguration } = config as any;
+            if (trial.default && typeof trial.default === "object")
+                return assert(Primitive.clone(trial.default));
+            else
+                throw exp;
+        }
     });
 }

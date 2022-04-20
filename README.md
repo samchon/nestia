@@ -102,19 +102,27 @@ The `npx nestia install` command installs those dependencies with `package.json`
 ## Advanced
 ### `nestia.config.ts`
 ```typescript
+/**
+ * Definition for the `nestia.config.ts` file.
+ * 
+ * @author Samchon
+ */
 export interface IConfiguration
 {
     /**
      * Whether to assert parameter types or not.
+     * 
+     * If you configure this option to be `true`, all of the function parameters would be
+     * checked through the [typescript-is](https://github.com/woutervh-/typescript-is).
      */
     assert?: boolean;
 
     /**
-     * Whether to optimize JSON string conversion or not.
+     * Whether to optimize JSON string conversion 2x faster or not.
      * 
      * If you configure this option to be `true`, the SDK library would utilize the
      * [typescript-json](https://github.com/samchon/typescript-json) and the JSON string
-     * conversion speed really be two times faster.
+     * conversion speed really be 2x faster.
      */
     json?: boolean;
 
@@ -137,6 +145,10 @@ export interface IConfiguration
 }
 export namespace IConfiguration
 {
+    /**
+     * List of files or directories to include or exclude to specifying the NestJS 
+     * controllers.
+     */
     export interface IInput
     {
         /**
@@ -157,11 +169,14 @@ Instead of specifying `input` and `output` directories using the cli options, yo
 Write below content as the `nestia.config.ts` file and place it onto the root directory of your backend project. After the configuration, you can generate the SDK only with the `npx nestia sdk` command, without any directory specification. 
 
 ```typescript
-export = {
+import type nestia from "nestia";
+
+const config: nestia.IConfiguration = {
     input: "src/controllers",
     output: "src/api",
     assert: false
 };
+export default config;
 ```
 
 > Alternative options for the regular NestJS project:
