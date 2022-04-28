@@ -85,4 +85,3 @@ export namespace at
         return `/consumers/${section}/sales/${saleId}/entire/${id}`;
     }
 }
-

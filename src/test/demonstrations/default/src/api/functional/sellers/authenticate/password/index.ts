@@ -51,4 +51,3 @@ export namespace change
         return `/sellers/authenticate/password/change`;
     }
 }
-

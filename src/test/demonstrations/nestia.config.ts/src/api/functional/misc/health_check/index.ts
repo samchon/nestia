@@ -77,4 +77,3 @@ export namespace sleep_for
         return `/misc/health-check/sleep-for/${ms}`;
     }
 }
-

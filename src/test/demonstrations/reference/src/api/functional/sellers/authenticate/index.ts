@@ -7,6 +7,7 @@ import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
 
 import type { ISeller } from "./../../../structures/actors/ISeller";
+
 export * as password from "./password";
 
 /**
@@ -130,4 +131,3 @@ export namespace exit
         return `/sellers/authenticate/exit`;
     }
 }
-

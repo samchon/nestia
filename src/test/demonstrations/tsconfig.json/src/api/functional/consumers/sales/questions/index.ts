@@ -260,4 +260,3 @@ export namespace at
         return `/consumers/${section}/sales/${saleId}/questions/${id}`;
     }
 }
-

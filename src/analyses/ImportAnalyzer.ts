@@ -1,4 +1,4 @@
-import * as tsc from "typescript";
+import tsc from "typescript";
 
 import { HashMap } from "tstl/container/HashMap";
 import { HashSet } from "tstl/container/HashSet";
@@ -60,34 +60,37 @@ export namespace ImportAnalyzer
 
         if (sourceFile.fileName.indexOf("typescript/lib") === -1)
         {
-            let it: HashMap.Iterator<string, HashSet<string>> = importDict.find(sourceFile.fileName);
-            if (it.equals(importDict.end()) === true)
-                it = importDict.emplace(sourceFile.fileName, new HashSet()).first;
-            it.second.insert(name.split(".")[0]);
+            const set: HashSet<string> = importDict.take
+            (
+                sourceFile.fileName, 
+                () => new HashSet()
+            );
+            set.insert(name.split(".")[0]);
         }
 
         // CHECK GENERIC
         const generic: readonly tsc.Type[] = checker.getTypeArguments(type as tsc.TypeReference);
         if (generic.length)
-        {
             return name === "Promise"
                 ? explore(checker, genericDict, importDict, generic[0])
                 : `${name}<${generic.map(child => explore(checker, genericDict, importDict, child)).join(", ")}>`;
-        }
         else
             return name;
     }
 
     function get_name(symbol: tsc.Symbol): string
     {
-        let name: string = symbol.escapedName.toString();
-        let decl: tsc.Node = symbol.getDeclarations()![0].parent;
+        return explore_name
+        (
+            symbol.escapedName.toString(), 
+            symbol.getDeclarations()![0].parent
+        );
+    }
 
-        while (tsc.isModuleBlock(decl))
-        {
-            name = `${decl.parent.name.getText()}.${name}`;
-            decl = decl.parent.parent;
-        }
-        return name;
+    function explore_name(name: string, decl: tsc.Node): string
+    {
+        return tsc.isModuleBlock(decl)
+            ? explore_name(`${decl.parent.name.getText()}.${name}`, decl.parent.parent)
+            : name;
     }
 }

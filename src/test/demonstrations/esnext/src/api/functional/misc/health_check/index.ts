@@ -112,4 +112,3 @@ export namespace print
         return `/misc/health-check/print`;
     }
 }
-

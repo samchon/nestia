@@ -166,4 +166,3 @@ export namespace remove
         return `/consumers/${section}/sales/${sale_ID}/comments/${articleId}/${commentId}`;
     }
 }
-

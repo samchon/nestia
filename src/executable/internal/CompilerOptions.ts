@@ -41,7 +41,7 @@ export namespace CompilerOptions
         if (!options.plugins || !(options.plugins instanceof Array))
             options.plugins = [];
         
-        let transformed: boolean = false;
+        const transformed: true[] = [];
 
         const plugins: Record<string, any>[] = <any>options.plugins as Record<string, any>[];
         const emplace = (input: Record<string, any>) =>
@@ -49,7 +49,7 @@ export namespace CompilerOptions
             const found = plugins.find(p => Primitive.equal_to(p, input));
             if (found === undefined)
                 plugins.push(input);
-            transformed ||= true;
+            transformed.push(true);
         };
         
         if (assert === true)
@@ -58,7 +58,7 @@ export namespace CompilerOptions
             });
         if (options.paths && Object.entries(options.paths).length !== 0)
             emplace({ transform: "typescript-transform-paths" });
-        return [transformed, !!options.baseUrl];
+        return [!!transformed.length, !!options.baseUrl];
     }
 
     function merge_array<T>(origin: T[], must: T[]): void

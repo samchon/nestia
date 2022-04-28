@@ -57,4 +57,3 @@ export namespace change
     }
     export const stringify = createStringifier<Input>();
 }
-

@@ -33,16 +33,15 @@ export namespace FileGenerator
             .filter(str => str[0] !== ":" && str.length !== 0)
             .map(str => str.split("-").join("_").split(".").join("_"));
 
+        // OPEN DIRECTORIES
         for (const key of identifiers)
-        {
-            // EMPLACE IF REQUIRED
-            let it: HashMap.Iterator<string, Directory> = directory.directories.find(key);
-            if (it.equals(directory.directories.end()) === true)
-                it = directory.directories.emplace(key, new Directory(directory, key)).first;
+            directory = directory.directories.take
+            (
+                key, 
+                () => new Directory(directory, key)
+            );
 
-            // FOR THE NEXT STEP
-            directory = it.second;
-        }
+        // ADD ROUTE
         directory.routes.push(route);
     }
 
@@ -79,23 +78,27 @@ export namespace FileGenerator
         catch {}
         
         // ITERATE CHILDREN
-        let content: string = "";
+        const content: string[] = [];
         for (const it of directory.directories)
         {
             await iterate(config, `${outDir}/${it.first}`, it.second);
-            content += `export * as ${it.first} from "./${it.first}";\n`;
+            content.push(`export * as ${it.first} from "./${it.first}";`);
         }
-        content += "\n";
+        if (content.length && directory.routes.length)
+            content.push("");
 
         // ITERATE ROUTES
         const importDict: ImportDictionary = new ImportDictionary();
-        for (const route of directory.routes)
+        directory.routes.forEach((route, i) =>
         {
             for (const tuple of route.imports)
                 for (const instance of tuple[1])
                     importDict.emplace(tuple[0], false, instance);
-            content += FunctionGenerator.generate(config, route) + "\n\n";
-        }
+
+            content.push(FunctionGenerator.generate(config, route));
+            if (i !== directory.routes.length - 1)
+                content.push("");
+        });
 
         // FINALIZE THE CONTENT
         if (directory.routes.length !== 0)
@@ -112,27 +115,33 @@ export namespace FileGenerator
             if (primitived)
                 fetcher.push("Primitive");
             
-            content = ""
-                + `import { ${fetcher.join(", ")} } from "nestia-fetcher";\n`
-                + `import type { IConnection } from "nestia-fetcher";\n`
-                + (asserted ? `import { assertType } from "typescript-is";\n` : "")
-                + (json ? `import { createStringifier } from "typescript-json";\n` : "")
-                +
-                (
-                    importDict.empty()
-                        ? ""
-                        : "\n" + importDict.toScript(outDir) + "\n"
-                )
-                + content;
+            const head: string[] = [
+                `import { ${fetcher.join(", ")} } from "nestia-fetcher";`,
+                `import type { IConnection } from "nestia-fetcher";`,
+            ];
+            if (asserted)
+                head.push(`import { assertType } from "typescript-is";`);
+            if (json)
+                head.push(`import { createStringifier } from "typescript-json";`);
+            if (!importDict.empty())
+                head.push("", importDict.toScript(outDir));
+
+            content.push
+            (
+                ...head,
+                "", 
+                ...content.splice(0, content.length)
+            );
         }
 
-        content = "/**\n"
+        const script: string 
+            = "/**\n"
             + " * @packageDocumentation\n"
             + ` * @module ${directory.module}\n`
             + " */\n"
             + "//================================================================\n"
-            + content;
-        await fs.promises.writeFile(`${outDir}/index.ts`, content, "utf8");
+            + content.join("\n");
+        await fs.promises.writeFile(`${outDir}/index.ts`, script, "utf8");
     }
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "2.0.14",
+  "version": "2.0.15",
   "description": "Automatic SDK and Document generator for the NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -36,13 +36,13 @@
     "jsonc-simple-parser": "^2.2.1",
     "nestia-fetcher": "^2.0.1",
     "tgrid": "^0.8.6",
-    "ts-node": "^10.4.0",
+    "ts-node": "^10.7.0",
     "tsconfig-paths": "^3.14.1",
-    "tstl": "^2.5.3",
+    "tstl": "^2.5.5",
     "ttypescript": "^1.5.13",
     "typescript": "^4.6.3",
     "typescript-is": "^0.19.0",
-    "typescript-json": "^2.0.2",
+    "typescript-json": "^2.0.4",
     "typescript-transform-paths": "^3.3.1"
   },
   "devDependencies": {
