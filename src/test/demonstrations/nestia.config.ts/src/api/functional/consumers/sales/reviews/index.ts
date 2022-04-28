@@ -287,4 +287,3 @@ export namespace at
         return `/consumers/${section}/sales/${saleId}/reviews/${id}`;
     }
 }
-

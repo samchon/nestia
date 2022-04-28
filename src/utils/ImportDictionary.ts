@@ -22,10 +22,12 @@ export class ImportDictionary
         else
             throw new Error(`Error on ImportDictionary.emplace(): extension of the target file "${file}" is not "ts".`);
 
-        let it = this.dict_.find(file);
-        if (it.equals(this.dict_.end()) === true)
-            it = this.dict_.emplace(file, new Pair(realistic, new HashSet())).first;
-        it.second.second.insert(instance);
+        const pair: Pair<boolean, HashSet<string>> = this.dict_.take
+        (
+            file, 
+            () => new Pair(realistic, new HashSet())
+        );
+        pair.second.insert(instance);
     }
 
     public toScript(outDir: string): string

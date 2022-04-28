@@ -258,4 +258,3 @@ export namespace at
         return `/sellers/${section}/sales/${saleId}/questions/${id}`;
     }
 }
-

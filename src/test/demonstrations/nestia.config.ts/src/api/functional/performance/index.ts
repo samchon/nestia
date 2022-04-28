@@ -46,4 +46,3 @@ export namespace get
         return `/performance`;
     }
 }
-

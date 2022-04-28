@@ -101,11 +101,12 @@ export namespace ControllerAnalyzer
         const imports: [string, string[]][] = importDict.toJSON().map(pair => [pair.first, pair.second.toJSON()]);
 
         // CONFIGURE PATH
-        let path: string = NodePath.join(controller.path, func.path).split("\\").join("/");
-        if (path[0] !== "/")
-            path = "/" + path;
-        if (path[path.length - 1] === "/" && path !== "/")
-            path = path.substr(0, path.length - 1);
+        const path: string = _Normalize_path
+        (
+            NodePath.join(controller.path, func.path)
+                .split("\\")
+                .join("/")
+        );
 
         // RETURNS
         return {
@@ -119,6 +120,15 @@ export namespace ControllerAnalyzer
             comments: signature.getDocumentationComment(undefined),
             tags: signature.getJsDocTags()
         };
+    }
+
+    function _Normalize_path(path: string)
+    {
+        if (path[0] !== "/")
+            path = "/" + path;
+        if (path[path.length - 1] === "/" && path !== "/")
+            path = path.substr(0, path.length - 1);
+        return path;
     }
 
     /* ---------------------------------------------------------

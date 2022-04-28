@@ -43,22 +43,10 @@ export namespace NestiaSdkCli
 
     async function generate(include: string[], command: ICommand): Promise<void>
     {
-        // CONFIGRATION FROM THE NESTIA.CONFIG.JSON AND CLI
-        let config: IConfiguration | null = await get_nestia_config();
-        if (config === null)
-        {
-            if (command.out === null)
-                throw new Error(`Output directory is not specified. Add the "--out <output_directory>" option.`);
-            config = {
-                input: {
-                    include,
-                    exclude: command.exclude
-                        ? [command.exclude]
-                        : undefined
-                },
-                output: command.out
-            };
-        }
+        // CONFIGRATION
+        const config: IConfiguration 
+            = await get_nestia_config() 
+            ?? parse_cli(include, command);
         
         // VALIDATE OUTPUT DIRECTORY
         const parentPath: string = path.resolve(config.output + "/..");
@@ -94,5 +82,20 @@ export namespace NestiaSdkCli
 
         await connector.close();
         return config;
+    }
+
+    function parse_cli(include: string[], command: ICommand): IConfiguration
+    {
+        if (command.out === null)
+            throw new Error(`Output directory is not specified. Add the "--out <output_directory>" option.`);
+        return {
+            input: {
+                include,
+                exclude: command.exclude
+                    ? [command.exclude]
+                    : undefined
+            },
+            output: command.out
+        };
     }
 }
