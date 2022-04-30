@@ -7,6 +7,7 @@ import { IRoute } from "../structures/IRoute";
 
 import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ImportAnalyzer } from "./ImportAnalyzer";
+import { IType } from "../structures/IType";
 
 export namespace ControllerAnalyzer
 {
@@ -91,7 +92,7 @@ export namespace ControllerAnalyzer
             param, 
             declaration.parameters[param.index]
         ));
-        const output: string = ImportAnalyzer.analyze
+        const output: IType = ImportAnalyzer.analyze
         (
             checker,
             genericDict,

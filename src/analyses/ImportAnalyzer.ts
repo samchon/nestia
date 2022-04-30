@@ -1,8 +1,9 @@
 import tsc from "typescript";
-
 import { HashMap } from "tstl/container/HashMap";
 import { HashSet } from "tstl/container/HashSet";
+
 import { GenericAnalyzer } from "./GenericAnalyzer";
+import { IType } from "../structures/IType";
 
 export namespace ImportAnalyzer
 {
@@ -20,12 +21,50 @@ export namespace ImportAnalyzer
             genericDict: GenericAnalyzer.Dictionary, 
             importDict: Dictionary, 
             type: tsc.Type
-        ): string
+        ): IType
     {
-        return explore(checker, genericDict, importDict, type);
+        return {
+            metadata: get_type(checker, type),
+            escapedText: explore_escaped_name(checker, genericDict, importDict, type)
+        };
     }
 
-    function explore
+    /* ---------------------------------------------------------
+        TYPE
+    --------------------------------------------------------- */
+    function get_type(checker: tsc.TypeChecker, type: tsc.Type): tsc.Type
+    {
+        const symbol: tsc.Symbol | undefined = type.getSymbol() || type.aliasSymbol;
+        return symbol && get_name(symbol) === "Promise" 
+            ? escape_promise(checker, type)
+            : type;
+    }
+
+    function escape_promise
+        (
+            checker: tsc.TypeChecker, 
+            type: tsc.Type
+        ): tsc.Type
+    {
+        const generic: readonly tsc.Type[] = checker.getTypeArguments(type as tsc.TypeReference);
+        if (generic.length !== 1)
+            throw new Error("Error on ImportAnalyzer.analyze(): invalid promise type.");
+        return generic[0];
+    }
+
+    function get_name(symbol: tsc.Symbol): string
+    {
+        return explore_name
+        (
+            symbol.escapedName.toString(), 
+            symbol.getDeclarations()![0].parent
+        );
+    }
+
+    /* ---------------------------------------------------------
+        ESCAPED TEXT WITH IMPORT STATEMENTS
+    --------------------------------------------------------- */
+    function explore_escaped_name
         (
             checker: tsc.TypeChecker, 
             genericDict: GenericAnalyzer.Dictionary, 
@@ -49,7 +88,16 @@ export namespace ImportAnalyzer
         else if (type.aliasSymbol === undefined && type.isUnionOrIntersection())
         {
             const joiner: string = type.isIntersection() ? " & " : " | ";
-            return type.types.map(child => explore(checker, genericDict, importDict, child)).join(joiner);
+            return type.types.map
+            (
+                child => explore_escaped_name
+                (
+                    checker, 
+                    genericDict, 
+                    importDict, 
+                    child
+                )
+            ).join(joiner);
         }
 
         //----
@@ -72,20 +120,22 @@ export namespace ImportAnalyzer
         const generic: readonly tsc.Type[] = checker.getTypeArguments(type as tsc.TypeReference);
         if (generic.length)
             return name === "Promise"
-                ? explore(checker, genericDict, importDict, generic[0])
-                : `${name}<${generic.map(child => explore(checker, genericDict, importDict, child)).join(", ")}>`;
+                ? explore_escaped_name(checker, genericDict, importDict, generic[0])
+                : `${name}<${generic.map
+                    (
+                        child => explore_escaped_name
+                        (
+                            checker, 
+                            genericDict, 
+                            importDict, 
+                            child
+                        )
+                    ).join(", ")}>`;
         else
             return name;
     }
 
-    function get_name(symbol: tsc.Symbol): string
-    {
-        return explore_name
-        (
-            symbol.escapedName.toString(), 
-            symbol.getDeclarations()![0].parent
-        );
-    }
+    
 
     function explore_name(name: string, decl: tsc.Node): string
     {

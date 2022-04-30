@@ -37,6 +37,12 @@ export abstract class SellerSaleInquiriesController<
             @helper.EncryptedBody() input: ISaleAnswer.IStore
         ): Promise<ISaleInquiry<Content>>
     {
+        request;
+        section;
+        saleId;
+        inquiryId;
+        input;
+
         return null!;
     }
 
@@ -60,6 +66,12 @@ export abstract class SellerSaleInquiriesController<
             @helper.EncryptedBody() input: ISaleAnswer.IStore,
         ): Promise<ISaleInquiry<Content>>
     {
+        request;
+        section;
+        saleId;
+        inquiryId;
+        input;
+
         return null!;
     }
 
@@ -81,5 +93,9 @@ export abstract class SellerSaleInquiriesController<
             @helper.TypedParam("inquiryId", "number") inquiryId: number
         ): Promise<void>
     {
+        request;
+        section;
+        saleId;
+        inquiryId;
     }
 }

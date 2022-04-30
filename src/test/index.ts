@@ -2,15 +2,24 @@ import { WorkerConnector } from "tgrid/protocols/workers/WorkerConnector";
 
 import { TestBuilder } from "./TestBuilder";
 
-async function execute(name: string, elements: string[]): Promise<void>
+async function execute
+    (
+        name: string,
+        job: "sdk" | "swagger", 
+        elements: string[]
+    ): Promise<void>
 {
+    console.log(`${name} -> npx nestia ${job} ${elements.join(" ")}`);
+
     const worker = new WorkerConnector(null, null, "process");
     const location: string = `${__dirname}/test.builder.executor.js`;
 
     await worker.connect(location);
+    
     try
     {
-        await worker.getDriver<typeof TestBuilder>().main(name, elements);
+        const driver = worker.getDriver<typeof TestBuilder>();
+        await driver.main(name, job, elements);
         await worker.close();
     }
     catch (exp)
@@ -20,17 +29,41 @@ async function execute(name: string, elements: string[]): Promise<void>
     }
 }
 
+function get_arguments
+    (
+        target: "directory" | "pattern", 
+        job: "sdk" | "swagger",
+        specialize: boolean = false
+    ): string[]
+{
+    return [
+        target === "directory"
+            ? "src/controllers"
+            : "src/**/*.controller.ts",
+        "--out",
+        job === "sdk"
+            ? "src/api"
+            : specialize 
+                ? "swagger.json"
+                : "./"
+    ];
+}
+
 async function main(): Promise<void>
 {
-    await execute("absolute", ["src/controllers", "--out", "src/api"]);
-    await execute("alias@api", ["src/controllers", "--out", "src/api"]);
-    await execute("alias@src", ["src/controllers", "--out", "src/api"]);
-    await execute("default", ["src/controllers", "--out", "src/api"]);
-    await execute("esnext", ["src/controllers", "--out", "src/api"]);
-    // await execute("exclude", `"src/controllers" --exclude "src/controllers/**/throw_error.ts" --out "src/api"`);
-    await execute("nestia.config.ts", []);
-    await execute("reference", ["src/**/*.controller.ts", "--out", "src/api"]);
-    await execute("tsconfig.json", ["src/controllers", "--out", "src/api"]);
+    console.log("Build Demonstration Projects");
+    for (const job of ["sdk", "swagger"] as const)
+    {
+        console.log("---------------------------------------------------------");
+        await execute("absolute", job, get_arguments("directory", job));
+        await execute("alias@api", job, get_arguments("directory", job, true));
+        await execute("alias@src", job, get_arguments("directory", job));
+        await execute("default", job, get_arguments("directory", job, true));
+        await execute("esnext", job, get_arguments("directory", job));
+        await execute("nestia.config.ts", job, []);
+        await execute("reference", job, get_arguments("pattern", job, true));
+        await execute("tsconfig.json", job, get_arguments("directory", job));
+    }
 }
 main().catch(exp =>
 {

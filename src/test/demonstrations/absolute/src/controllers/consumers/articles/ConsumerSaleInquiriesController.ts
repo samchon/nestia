@@ -34,6 +34,11 @@ export abstract class ConsumerSaleInquiriesController<
             @EncryptedBody() input: Store
         ): Promise<ISaleInquiry<Content>>
     {
+        request;
+        section;
+        saleId;
+        input;
+
         return null!;
     }
 
