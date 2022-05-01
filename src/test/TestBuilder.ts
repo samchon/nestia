@@ -1,6 +1,6 @@
-import * as cp from "child_process";
-import * as fs from "fs";
-import * as process from "process";
+import cp from "child_process";
+import fs from "fs";
+import process from "process";
 
 import { NestiaCommand } from "../executable/internal/NestiaCommand";
 

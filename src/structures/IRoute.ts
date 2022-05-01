@@ -1,4 +1,4 @@
-import * as tsc from "typescript";
+import ts from "typescript";
 import { IType } from "./IType";
 import { ParamCategory } from "./ParamCategory";
 
@@ -14,8 +14,8 @@ export interface IRoute
     output: IType;
 
     symbol: string;
-    comments: tsc.SymbolDisplayPart[];
-    tags: tsc.JSDocTagInfo[];
+    comments: ts.SymbolDisplayPart[];
+    tags: ts.JSDocTagInfo[];
 }
 
 export namespace IRoute

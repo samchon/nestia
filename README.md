@@ -127,7 +127,7 @@ export interface IConfiguration
      * 
      * If omitted, the configuration would follow the `tsconfig.json`.
      */
-    compilerOptions?: tsc.CompilerOptions;
+    compilerOptions?: ts.CompilerOptions;
 
     /**
      * Whether to assert parameter types or not.

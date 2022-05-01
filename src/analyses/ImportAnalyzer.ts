@@ -1,4 +1,4 @@
-import tsc from "typescript";
+import ts from "typescript";
 import { HashMap } from "tstl/container/HashMap";
 import { HashSet } from "tstl/container/HashSet";
 
@@ -17,10 +17,10 @@ export namespace ImportAnalyzer
 
     export function analyze
         (
-            checker: tsc.TypeChecker, 
+            checker: ts.TypeChecker, 
             genericDict: GenericAnalyzer.Dictionary, 
             importDict: Dictionary, 
-            type: tsc.Type
+            type: ts.Type
         ): IType
     {
         return {
@@ -32,9 +32,9 @@ export namespace ImportAnalyzer
     /* ---------------------------------------------------------
         TYPE
     --------------------------------------------------------- */
-    function get_type(checker: tsc.TypeChecker, type: tsc.Type): tsc.Type
+    function get_type(checker: ts.TypeChecker, type: ts.Type): ts.Type
     {
-        const symbol: tsc.Symbol | undefined = type.getSymbol() || type.aliasSymbol;
+        const symbol: ts.Symbol | undefined = type.getSymbol() || type.aliasSymbol;
         return symbol && get_name(symbol) === "Promise" 
             ? escape_promise(checker, type)
             : type;
@@ -42,17 +42,17 @@ export namespace ImportAnalyzer
 
     function escape_promise
         (
-            checker: tsc.TypeChecker, 
-            type: tsc.Type
-        ): tsc.Type
+            checker: ts.TypeChecker, 
+            type: ts.Type
+        ): ts.Type
     {
-        const generic: readonly tsc.Type[] = checker.getTypeArguments(type as tsc.TypeReference);
+        const generic: readonly ts.Type[] = checker.getTypeArguments(type as ts.TypeReference);
         if (generic.length !== 1)
             throw new Error("Error on ImportAnalyzer.analyze(): invalid promise type.");
         return generic[0];
     }
 
-    function get_name(symbol: tsc.Symbol): string
+    function get_name(symbol: ts.Symbol): string
     {
         return explore_name
         (
@@ -66,10 +66,10 @@ export namespace ImportAnalyzer
     --------------------------------------------------------- */
     function explore_escaped_name
         (
-            checker: tsc.TypeChecker, 
+            checker: ts.TypeChecker, 
             genericDict: GenericAnalyzer.Dictionary, 
             importDict: Dictionary, 
-            type: tsc.Type
+            type: ts.Type
         ): string
     {
         //----
@@ -80,7 +80,7 @@ export namespace ImportAnalyzer
             type = genericDict.get(type)!;
 
         // PRIMITIVE
-        const symbol: tsc.Symbol | undefined = type.getSymbol() || type.aliasSymbol;
+        const symbol: ts.Symbol | undefined = type.getSymbol() || type.aliasSymbol;
         if (symbol === undefined)
             return checker.typeToString(type, undefined, undefined);
         
@@ -104,7 +104,7 @@ export namespace ImportAnalyzer
         // SPECIALIZATION
         //----
         const name: string = get_name(symbol);
-        const sourceFile: tsc.SourceFile = symbol.declarations![0].getSourceFile();
+        const sourceFile: ts.SourceFile = symbol.declarations![0].getSourceFile();
 
         if (sourceFile.fileName.indexOf("typescript/lib") === -1)
         {
@@ -117,9 +117,9 @@ export namespace ImportAnalyzer
         }
 
         // CHECK GENERIC
-        const generic: readonly tsc.Type[] = checker.getTypeArguments(type as tsc.TypeReference);
-        if (generic.length)
-            return name === "Promise"
+        const generic: readonly ts.Type[] = checker.getTypeArguments(type as ts.TypeReference);
+        return generic.length
+            ? name === "Promise"
                 ? explore_escaped_name(checker, genericDict, importDict, generic[0])
                 : `${name}<${generic.map
                     (
@@ -130,16 +130,13 @@ export namespace ImportAnalyzer
                             importDict, 
                             child
                         )
-                    ).join(", ")}>`;
-        else
-            return name;
-    }
+                    ).join(", ")}>`
+            : name;
+    }    
 
-    
-
-    function explore_name(name: string, decl: tsc.Node): string
+    function explore_name(name: string, decl: ts.Node): string
     {
-        return tsc.isModuleBlock(decl)
+        return ts.isModuleBlock(decl)
             ? explore_name(`${decl.parent.name.getText()}.${name}`, decl.parent.parent)
             : name;
     }

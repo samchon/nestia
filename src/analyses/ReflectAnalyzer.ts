@@ -1,4 +1,4 @@
-import * as NodePath from "path";
+import NodePath from "path";
 import { equal } from "tstl/ranges/module";
 
 import { ArrayUtil } from "../utils/ArrayUtil";

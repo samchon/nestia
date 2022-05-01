@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import * as cp from "child_process";
-import * as process from "process";
+import cp from "child_process";
+import process from "process";
 import { NestiaCommand } from "./internal/NestiaCommand";
 
 function install(): void

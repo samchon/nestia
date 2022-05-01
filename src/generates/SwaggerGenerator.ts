@@ -175,6 +175,8 @@ export namespace SwaggerGenerator
         const status: string = route.method === "GET" || route.method === "DELETE" 
             ? "200" 
             : "201";
+        const schema = generate_schema(checker, collection, route.output.metadata);
+            
         return {
             [status]: {
                 description
@@ -183,7 +185,7 @@ export namespace SwaggerGenerator
                 content: route.output.escapedText === "void" ? undefined : 
                 {
                     "application/json": {
-                        schema: generate_schema(checker, collection, route.output.metadata)
+                        schema
                     }
                 }
             }

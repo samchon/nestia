@@ -1,7 +1,7 @@
-import * as fs from "fs";
-import * as path from "path";
+import fs from "fs";
+import path from "path";
 import * as runner from "ts-node";
-import * as tsc from "typescript";
+import ts from "typescript";
 import { Pair } from "tstl/utility/Pair";
 import { Singleton } from "tstl/thread/Singleton";
 
@@ -85,7 +85,7 @@ export class NestiaApplication
     private async generate<Config>
         (
             config: (entire: IConfiguration) => Config,
-            archiver: (checker: tsc.TypeChecker, config: Config, routes: IRoute[]) => Promise<void>
+            archiver: (checker: ts.TypeChecker, config: Config, routes: IRoute[]) => Promise<void>
         ): Promise<void>
     {
         // MOUNT TS-NODE
@@ -111,17 +111,17 @@ export class NestiaApplication
             controllerList.push(...await ReflectAnalyzer.analyze(unique, file));
 
         // ANALYZE TYPESCRIPT CODE
-        const program: tsc.Program = tsc.createProgram
+        const program: ts.Program = ts.createProgram
         (
             controllerList.map(c => c.file), 
             this.config_.compilerOptions || { noEmit: true }
         );
-        const checker: tsc.TypeChecker = program.getTypeChecker();
+        const checker: ts.TypeChecker = program.getTypeChecker();
 
         const routeList: IRoute[] = [];
         for (const controller of controllerList)
         {
-            const sourceFile: tsc.SourceFile | undefined = program.getSourceFile(controller.file);
+            const sourceFile: ts.SourceFile | undefined = program.getSourceFile(controller.file);
             if (sourceFile === undefined)
                 continue;
 
@@ -143,7 +143,7 @@ export class NestiaApplication
                 )
             : () => 
                 {
-                    this.config_.compilerOptions = <any>CompilerOptions.DEFAULT_OPTIONS as tsc.CompilerOptions;
+                    this.config_.compilerOptions = <any>CompilerOptions.DEFAULT_OPTIONS as ts.CompilerOptions;
                     return [false, false];    
                 };
 

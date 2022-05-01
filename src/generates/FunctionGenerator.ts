@@ -1,4 +1,4 @@
-import * as tsc from "typescript";
+import ts from "typescript";
 import { Pair } from "tstl/utility/Pair";
 import { Vector } from "tstl/container/Vector";
 
@@ -93,13 +93,13 @@ export namespace FunctionGenerator
             comments.push("");
 
         // FILTER TAGS (VULNERABLE PARAMETERS WOULD BE REMOVED)
-        const tagList: tsc.JSDocTagInfo[] = route.tags.filter(tag => tag.text !== undefined);
+        const tagList: ts.JSDocTagInfo[] = route.tags.filter(tag => tag.text !== undefined);
         if (tagList.length !== 0)
         {
             const index: number = tagList.findIndex(t => t.name === "param");
             if (index !== -1)
             {
-                const capsule: Vector<tsc.JSDocTagInfo> = Vector.wrap(tagList);
+                const capsule: Vector<ts.JSDocTagInfo> = Vector.wrap(tagList);
                 capsule.insert(capsule.nth(index), {
                     name: "param",
                     text: [

@@ -1,23 +1,23 @@
-import * as NodePath from "path";
-import * as tsc from "typescript";
+import NodePath from "path";
+import ts from "typescript";
 import { HashMap } from "tstl/container/HashMap";
 
 import { IController } from "../structures/IController";
 import { IRoute } from "../structures/IRoute";
+import { IType } from "../structures/IType";
 
 import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ImportAnalyzer } from "./ImportAnalyzer";
-import { IType } from "../structures/IType";
 
 export namespace ControllerAnalyzer
 {
-    export function analyze(checker: tsc.TypeChecker, sourceFile: tsc.SourceFile, controller: IController): IRoute[]
+    export function analyze(checker: ts.TypeChecker, sourceFile: ts.SourceFile, controller: IController): IRoute[]
     {
         // FIND CONTROLLER CLASS
         const ret: IRoute[] = [];
-        tsc.forEachChild(sourceFile, node =>
+        ts.forEachChild(sourceFile, node =>
         {
-            if (tsc.isClassDeclaration(node) && node.name?.escapedText === controller.name)
+            if (ts.isClassDeclaration(node) && node.name?.escapedText === controller.name)
             {
                 // ANALYZE THE CONTROLLER
                 ret.push(..._Analyze_controller(checker, controller, node));
@@ -32,13 +32,13 @@ export namespace ControllerAnalyzer
     --------------------------------------------------------- */
     function _Analyze_controller
         (
-            checker: tsc.TypeChecker, 
+            checker: ts.TypeChecker, 
             controller: IController, 
-            classNode: tsc.ClassDeclaration
+            classNode: ts.ClassDeclaration
         ): IRoute[]
     {
         const ret: IRoute[] = [];
-        const classType: tsc.InterfaceType = checker.getTypeAtLocation(classNode) as tsc.InterfaceType;
+        const classType: ts.InterfaceType = checker.getTypeAtLocation(classNode) as ts.InterfaceType;
         const genericDict: GenericAnalyzer.Dictionary = GenericAnalyzer.analyze(checker, classNode);
 
         for (const property of classType.getProperties())
@@ -46,12 +46,12 @@ export namespace ControllerAnalyzer
                 for (const declaration of property.declarations)
                 {
                     // TARGET ONLY METHOD
-                    if (!tsc.isMethodDeclaration(declaration))
+                    if (!ts.isMethodDeclaration(declaration))
                         continue;
                     
                     // IT MUST BE
                     const identifier = declaration.name;
-                    if (!tsc.isIdentifier(identifier))
+                    if (!ts.isIdentifier(identifier))
                         continue;
                 
                     // ANALYZED WITH THE REFLECTED-FUNCTION
@@ -67,15 +67,15 @@ export namespace ControllerAnalyzer
     --------------------------------------------------------- */
     function _Analyze_function
         (
-            checker: tsc.TypeChecker, 
+            checker: ts.TypeChecker, 
             controller: IController, 
             genericDict: GenericAnalyzer.Dictionary,
             func: IController.IFunction, 
-            declaration: tsc.MethodDeclaration
+            declaration: ts.MethodDeclaration
         ): IRoute
     {
         // PREPARE ASSETS
-        const signature: tsc.Signature | undefined = checker.getSignatureFromDeclaration(declaration);
+        const signature: ts.Signature | undefined = checker.getSignatureFromDeclaration(declaration);
         if (signature === undefined)
             throw new Error(`Error on ControllerAnalyzer._Analyze_function(): unable to get the ignature from the ${controller.name}.${func.name}().`);
         
@@ -137,17 +137,17 @@ export namespace ControllerAnalyzer
     --------------------------------------------------------- */
     function _Analyze_parameter
         (
-            checker: tsc.TypeChecker, 
+            checker: ts.TypeChecker, 
             genericDict: GenericAnalyzer.Dictionary,
             importDict: ImportAnalyzer.Dictionary,
             controller: IController,
             funcName: string,
             param: IController.IParameter, 
-            declaration: tsc.ParameterDeclaration
+            declaration: ts.ParameterDeclaration
         ): IRoute.IParameter
     {
-        const symbol: tsc.Symbol = checker.getSymbolAtLocation(declaration.name)!;
-        const type: tsc.Type = checker.getTypeOfSymbolAtLocation(symbol, declaration);
+        const symbol: ts.Symbol = checker.getSymbolAtLocation(declaration.name)!;
+        const type: ts.Type = checker.getTypeOfSymbolAtLocation(symbol, declaration);
         const name: string = symbol.getEscapedName().toString();
 
         // VALIDATE PARAMETERS

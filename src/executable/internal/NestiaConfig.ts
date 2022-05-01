@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
+import fs from "fs";
+import path from "path";
 import * as runner from "ts-node";
 import { InvalidArgument } from "tstl/exception/InvalidArgument";
 import { Primitive } from "nestia-fetcher";
