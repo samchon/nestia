@@ -44,7 +44,7 @@
             "in": "query",
             "description": "",
             "schema": {
-              "$ref": "#/components/schemas/IPage.IRequest-lt-string-gt-.NonNullable"
+              "$ref": "#/components/schemas/IPage.IRequest-lt-string-gt-"
             },
             "required": true
           }
@@ -55,7 +55,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPage-lt-ISaleComment-gt-.NonNullable"
+                  "$ref": "#/components/schemas/IPage-lt-ISaleComment-gt-"
                 }
               }
             }
@@ -102,7 +102,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISaleComment.NonNullable"
+                "$ref": "#/components/schemas/ISaleComment"
               }
             }
           },
@@ -114,7 +114,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleComment.NonNullable"
+                  "$ref": "#/components/schemas/ISaleComment"
                 }
               }
             }
@@ -205,7 +205,7 @@
             "in": "query",
             "description": "",
             "schema": {
-              "$ref": "#/components/schemas/IPage.IRequest-lt-string-gt-.NonNullable"
+              "$ref": "#/components/schemas/IPage.IRequest-lt-string-gt-"
             },
             "required": true
           }
@@ -216,7 +216,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPage-lt-ISaleEntireArtcle.ISummary-gt-.NonNullable"
+                  "$ref": "#/components/schemas/IPage-lt-ISaleEntireArtcle.ISummary-gt-"
                 }
               }
             }
@@ -268,10 +268,10 @@
                 "schema": {
                   "anyOf": [
                     {
-                      "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleArticle.IContent-gt-.NonNullable"
+                      "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleArticle.IContent-gt-"
                     },
                     {
-                      "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleReview.IContent-gt-.NonNullable"
+                      "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleReview.IContent-gt-"
                     }
                   ]
                 }
@@ -312,7 +312,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable"
+                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-"
               }
             }
           },
@@ -324,7 +324,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-"
                 }
               }
             }
@@ -369,7 +369,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPage-lt-Summary-gt-.NonNullable"
+                  "$ref": "#/components/schemas/IPage-lt-Summary-gt-"
                 }
               }
             }
@@ -418,7 +418,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable"
+                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-"
               }
             }
           },
@@ -430,7 +430,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-"
                 }
               }
             }
@@ -519,7 +519,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable.o1"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.o1"
                 }
               }
             }
@@ -558,7 +558,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable"
+                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-"
               }
             }
           },
@@ -570,7 +570,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-"
                 }
               }
             }
@@ -615,7 +615,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPage-lt-Summary-gt-.NonNullable"
+                  "$ref": "#/components/schemas/IPage-lt-Summary-gt-"
                 }
               }
             }
@@ -664,7 +664,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable"
+                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-"
               }
             }
           },
@@ -676,7 +676,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-"
                 }
               }
             }
@@ -765,7 +765,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable.o1"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.o1"
                 }
               }
             }
@@ -819,7 +819,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPerformance.NonNullable"
+                  "$ref": "#/components/schemas/IPerformance"
                 }
               }
             }
@@ -867,7 +867,7 @@
             "in": "query",
             "description": "",
             "schema": {
-              "$ref": "#/components/schemas/IPage.IRequest-lt-string-gt-.NonNullable"
+              "$ref": "#/components/schemas/IPage.IRequest-lt-string-gt-"
             },
             "required": true
           }
@@ -878,7 +878,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPage-lt-ISaleComment-gt-.NonNullable"
+                  "$ref": "#/components/schemas/IPage-lt-ISaleComment-gt-"
                 }
               }
             }
@@ -925,7 +925,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISaleComment.NonNullable"
+                "$ref": "#/components/schemas/ISaleComment"
               }
             }
           },
@@ -937,7 +937,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleComment.NonNullable"
+                  "$ref": "#/components/schemas/ISaleComment"
                 }
               }
             }
@@ -1028,7 +1028,7 @@
             "in": "query",
             "description": "",
             "schema": {
-              "$ref": "#/components/schemas/IPage.IRequest-lt-string-gt-.NonNullable"
+              "$ref": "#/components/schemas/IPage.IRequest-lt-string-gt-"
             },
             "required": true
           }
@@ -1039,7 +1039,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPage-lt-ISaleEntireArtcle.ISummary-gt-.NonNullable"
+                  "$ref": "#/components/schemas/IPage-lt-ISaleEntireArtcle.ISummary-gt-"
                 }
               }
             }
@@ -1091,10 +1091,10 @@
                 "schema": {
                   "anyOf": [
                     {
-                      "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleArticle.IContent-gt-.NonNullable"
+                      "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleArticle.IContent-gt-"
                     },
                     {
-                      "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleReview.IContent-gt-.NonNullable"
+                      "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleReview.IContent-gt-"
                     }
                   ]
                 }
@@ -1145,7 +1145,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable.o2"
+                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.o2"
               }
             }
           },
@@ -1157,7 +1157,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable.o2"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.o2"
                 }
               }
             }
@@ -1245,7 +1245,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPage-lt-Summary-gt-.NonNullable"
+                  "$ref": "#/components/schemas/IPage-lt-Summary-gt-"
                 }
               }
             }
@@ -1295,7 +1295,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable.o1"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.o1"
                 }
               }
             }
@@ -1344,7 +1344,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable.o2"
+                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.o2"
               }
             }
           },
@@ -1356,7 +1356,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable.o2"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.o2"
                 }
               }
             }
@@ -1444,7 +1444,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPage-lt-Summary-gt-.NonNullable"
+                  "$ref": "#/components/schemas/IPage-lt-Summary-gt-"
                 }
               }
             }
@@ -1494,7 +1494,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.NonNullable.o1"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.o1"
                 }
               }
             }
@@ -1512,7 +1512,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISeller.NonNullable"
+                "$ref": "#/components/schemas/ISeller"
               }
             }
           },
@@ -1524,7 +1524,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISeller.NonNullable"
+                  "$ref": "#/components/schemas/ISeller"
                 }
               }
             }
@@ -1542,7 +1542,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISeller.NonNullable"
+                "$ref": "#/components/schemas/ISeller"
               }
             }
           },
@@ -1554,7 +1554,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISeller.NonNullable"
+                  "$ref": "#/components/schemas/ISeller"
                 }
               }
             }
@@ -1599,7 +1599,7 @@
   },
   "components": {
     "schemas": {
-      "IPage.IRequest-lt-string-gt-.NonNullable": {
+      "IPage.IRequest-lt-string-gt-": {
         "type": "object",
         "properties": {
           "page": {
@@ -1630,16 +1630,16 @@
         "nullable": false,
         "required": []
       },
-      "IPage-lt-ISaleComment-gt-.NonNullable": {
+      "IPage-lt-ISaleComment-gt-": {
         "type": "object",
         "properties": {
           "pagination": {
-            "$ref": "#/components/schemas/IPage.IPagination.NonNullable"
+            "$ref": "#/components/schemas/IPage.IPagination"
           },
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ISaleComment.NonNullable"
+              "$ref": "#/components/schemas/ISaleComment"
             },
             "nullable": false
           }
@@ -1650,7 +1650,7 @@
           "data"
         ]
       },
-      "IPage.IPagination.NonNullable": {
+      "IPage.IPagination": {
         "type": "object",
         "properties": {
           "page": {
@@ -1678,7 +1678,7 @@
           "total_pages"
         ]
       },
-      "ISaleComment.NonNullable": {
+      "ISaleComment": {
         "type": "object",
         "properties": {
           "id": {
@@ -1696,7 +1696,7 @@
           "contents": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ISaleComment.IContent.NonNullable"
+              "$ref": "#/components/schemas/ISaleComment.IContent"
             },
             "nullable": false
           },
@@ -1714,7 +1714,7 @@
           "created_at"
         ]
       },
-      "ISaleComment.IContent.NonNullable": {
+      "ISaleComment.IContent": {
         "type": "object",
         "properties": {
           "created_at": {
@@ -1732,21 +1732,21 @@
           "content"
         ]
       },
-      "IPage-lt-ISaleEntireArtcle.ISummary-gt-.NonNullable": {
+      "IPage-lt-ISaleEntireArtcle.ISummary-gt-": {
         "type": "object",
         "properties": {
           "pagination": {
-            "$ref": "#/components/schemas/IPage.IPagination.NonNullable"
+            "$ref": "#/components/schemas/IPage.IPagination"
           },
           "data": {
             "type": "array",
             "items": {
               "anyOf": [
                 {
-                  "$ref": "#/components/schemas/ISaleInquiry.ISummary.NonNullable"
+                  "$ref": "#/components/schemas/ISaleInquiry.ISummary"
                 },
                 {
-                  "$ref": "#/components/schemas/ISaleReview.ISummary.NonNullable"
+                  "$ref": "#/components/schemas/ISaleReview.ISummary"
                 }
               ]
             },
@@ -1759,7 +1759,7 @@
           "data"
         ]
       },
-      "ISaleInquiry.ISummary.NonNullable": {
+      "ISaleInquiry.ISummary": {
         "type": "object",
         "properties": {
           "writer": {
@@ -1802,7 +1802,7 @@
           "updated_at"
         ]
       },
-      "ISaleReview.ISummary.NonNullable": {
+      "ISaleReview.ISummary": {
         "type": "object",
         "properties": {
           "score": {
@@ -1850,7 +1850,7 @@
           "updated_at"
         ]
       },
-      "ISaleInquiry-lt-ISaleArticle.IContent-gt-.NonNullable": {
+      "ISaleInquiry-lt-ISaleArticle.IContent-gt-": {
         "type": "object",
         "properties": {
           "writer": {
@@ -1858,7 +1858,7 @@
             "nullable": false
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-.NonNullable"
+            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-"
           },
           "id": {
             "type": "number",
@@ -1871,7 +1871,7 @@
           "contents": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ISaleArticle.IContent.NonNullable"
+              "$ref": "#/components/schemas/ISaleArticle.IContent"
             },
             "nullable": false
           },
@@ -1890,7 +1890,7 @@
           "created_at"
         ]
       },
-      "ISaleArticle-lt-ISaleArticle.IContent-gt-.NonNullable": {
+      "ISaleArticle-lt-ISaleArticle.IContent-gt-": {
         "type": "object",
         "properties": {
           "id": {
@@ -1904,7 +1904,7 @@
           "contents": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ISaleArticle.IContent.NonNullable"
+              "$ref": "#/components/schemas/ISaleArticle.IContent"
             },
             "nullable": false
           },
@@ -1921,7 +1921,7 @@
           "created_at"
         ]
       },
-      "ISaleArticle.IContent.NonNullable": {
+      "ISaleArticle.IContent": {
         "type": "object",
         "properties": {
           "id": {
@@ -1943,7 +1943,7 @@
           "files": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/__type.NonNullable"
+              "$ref": "#/components/schemas/__type"
             },
             "nullable": false
           }
@@ -1957,7 +1957,7 @@
           "files"
         ]
       },
-      "__type.NonNullable": {
+      "__type": {
         "type": "object",
         "properties": {
           "name": {
@@ -1980,7 +1980,7 @@
           "path"
         ]
       },
-      "ISaleInquiry-lt-ISaleReview.IContent-gt-.NonNullable": {
+      "ISaleInquiry-lt-ISaleReview.IContent-gt-": {
         "type": "object",
         "properties": {
           "writer": {
@@ -1988,7 +1988,7 @@
             "nullable": false
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-.NonNullable"
+            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-"
           },
           "id": {
             "type": "number",
@@ -2001,7 +2001,7 @@
           "contents": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ISaleReview.IContent.NonNullable"
+              "$ref": "#/components/schemas/ISaleReview.IContent"
             },
             "nullable": false
           },
@@ -2020,7 +2020,7 @@
           "created_at"
         ]
       },
-      "ISaleReview.IContent.NonNullable": {
+      "ISaleReview.IContent": {
         "type": "object",
         "properties": {
           "score": {
@@ -2046,7 +2046,7 @@
           "files": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/__type.NonNullable"
+              "$ref": "#/components/schemas/__type"
             },
             "nullable": false
           }
@@ -2061,7 +2061,7 @@
           "files"
         ]
       },
-      "ISaleInquiry-lt-Content-gt-.NonNullable": {
+      "ISaleInquiry-lt-Content-gt-": {
         "type": "object",
         "properties": {
           "writer": {
@@ -2069,7 +2069,7 @@
             "nullable": false
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-.NonNullable"
+            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-"
           },
           "id": {
             "type": "number",
@@ -2099,11 +2099,11 @@
           "created_at"
         ]
       },
-      "IPage-lt-Summary-gt-.NonNullable": {
+      "IPage-lt-Summary-gt-": {
         "type": "object",
         "properties": {
           "pagination": {
-            "$ref": "#/components/schemas/IPage.IPagination.NonNullable"
+            "$ref": "#/components/schemas/IPage.IPagination"
           },
           "data": {
             "type": "array",
@@ -2117,7 +2117,7 @@
           "data"
         ]
       },
-      "ISaleInquiry-lt-Content-gt-.NonNullable.o1": {
+      "ISaleInquiry-lt-Content-gt-.o1": {
         "type": "object",
         "properties": {
           "writer": {
@@ -2125,7 +2125,7 @@
             "nullable": false
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-.NonNullable"
+            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-"
           },
           "id": {
             "type": "number",
@@ -2155,14 +2155,14 @@
           "created_at"
         ]
       },
-      "IPerformance.NonNullable": {
+      "IPerformance": {
         "type": "object",
         "properties": {
           "cpu": {
-            "$ref": "#/components/schemas/process.global.NodeJS.CpuUsage.NonNullable"
+            "$ref": "#/components/schemas/process.global.NodeJS.CpuUsage"
           },
           "memory": {
-            "$ref": "#/components/schemas/process.global.NodeJS.MemoryUsage.NonNullable"
+            "$ref": "#/components/schemas/process.global.NodeJS.MemoryUsage"
           }
         },
         "nullable": false,
@@ -2171,7 +2171,7 @@
           "memory"
         ]
       },
-      "process.global.NodeJS.CpuUsage.NonNullable": {
+      "process.global.NodeJS.CpuUsage": {
         "type": "object",
         "properties": {
           "user": {
@@ -2189,7 +2189,7 @@
           "system"
         ]
       },
-      "process.global.NodeJS.MemoryUsage.NonNullable": {
+      "process.global.NodeJS.MemoryUsage": {
         "type": "object",
         "properties": {
           "rss": {
@@ -2222,7 +2222,7 @@
           "arrayBuffers"
         ]
       },
-      "ISaleInquiry-lt-Content-gt-.NonNullable.o2": {
+      "ISaleInquiry-lt-Content-gt-.o2": {
         "type": "object",
         "properties": {
           "writer": {
@@ -2230,7 +2230,7 @@
             "nullable": false
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-.NonNullable"
+            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-"
           },
           "id": {
             "type": "number",
@@ -2260,7 +2260,7 @@
           "created_at"
         ]
       },
-      "ISeller.NonNullable": {
+      "ISeller": {
         "type": "object",
         "properties": {
           "id": {
