@@ -57,7 +57,7 @@ export namespace index
         response: true,
     };
 
-    export function path(section: [object Object], saleId: [object Object], articleId: [object Object], input: [object Object]): string
+    export function path(section: string, saleId: number, articleId: number, input: IPage.IRequest<string>): string
     {
         return `/sellers/${section}/sales/${saleId}/comments/${articleId}?${new URLSearchParams(input as any).toString()}`;
     }
@@ -112,7 +112,7 @@ export namespace store
         response: true,
     };
 
-    export function path(section: [object Object], saleId: [object Object], articleId: [object Object]): string
+    export function path(section: string, saleId: number, articleId: number): string
     {
         return `/sellers/${section}/sales/${saleId}/comments/${articleId}`;
     }
@@ -162,7 +162,7 @@ export namespace remove
         response: false,
     };
 
-    export function path(section: [object Object], saleId: [object Object], articleId: [object Object], commentId: [object Object]): string
+    export function path(section: string, saleId: number, articleId: number, commentId: number): string
     {
         return `/sellers/${section}/sales/${saleId}/comments/${articleId}/${commentId}`;
     }

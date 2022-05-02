@@ -48,7 +48,7 @@ export namespace index
         response: true,
     };
 
-    export function path(section: [object Object], saleId: [object Object], input: [object Object]): string
+    export function path(section: string, saleId: number, input: IPage.IRequest<string>): string
     {
         return `/consumers/${section}/sales/${saleId}/entire?${new URLSearchParams(input as any).toString()}`;
     }
@@ -90,7 +90,7 @@ export namespace at
         response: true,
     };
 
-    export function path(section: [object Object], saleId: [object Object], id: [object Object]): string
+    export function path(section: string, saleId: number, id: number): string
     {
         return `/consumers/${section}/sales/${saleId}/entire/${id}`;
     }

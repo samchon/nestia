@@ -63,7 +63,7 @@ export namespace store
         response: true,
     };
 
-    export function path(section: [object Object], saleId: [object Object]): string
+    export function path(section: string, saleId: number): string
     {
         return `/consumers/${section}/sales/${saleId}/questions`;
     }
@@ -124,7 +124,7 @@ export namespace update
         response: true,
     };
 
-    export function path(section: [object Object], saleId: [object Object], id: [object Object]): string
+    export function path(section: string, saleId: number, id: number): string
     {
         return `/consumers/${section}/sales/${saleId}/questions/${id}`;
     }
@@ -178,7 +178,7 @@ export namespace remove
         response: false,
     };
 
-    export function path(section: [object Object], saleId: [object Object], id: [object Object]): string
+    export function path(section: string, saleId: number, id: number): string
     {
         return `/consumers/${section}/sales/${saleId}/questions/${id}`;
     }
@@ -231,7 +231,7 @@ export namespace index
         response: true,
     };
 
-    export function path(section: [object Object], saleId: [object Object], input: [object Object]): string
+    export function path(section: string, saleId: number, input: ISaleInquiry.IRequest): string
     {
         return `/consumers/${section}/sales/${saleId}/questions?${new URLSearchParams(input as any).toString()}`;
     }
@@ -283,7 +283,7 @@ export namespace at
         response: true,
     };
 
-    export function path(section: [object Object], saleId: [object Object], id: [object Object]): string
+    export function path(section: string, saleId: number, id: number): string
     {
         return `/consumers/${section}/sales/${saleId}/questions/${id}`;
     }

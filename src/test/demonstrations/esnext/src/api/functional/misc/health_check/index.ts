@@ -70,7 +70,7 @@ export namespace sleep_for
         response: false,
     };
 
-    export function path(ms: [object Object]): string
+    export function path(ms: number): string
     {
         return `/misc/health-check/sleep-for/${ms}`;
     }

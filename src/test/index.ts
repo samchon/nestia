@@ -52,7 +52,7 @@ function get_arguments
 async function main(): Promise<void>
 {
     console.log("Build Demonstration Projects");
-    for (const job of [/*"sdk", */"swagger"] as const)
+    for (const job of ["sdk", "swagger"] as const)
     {
         console.log("---------------------------------------------------------");
         await execute("absolute", job, get_arguments("directory", job));

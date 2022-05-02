@@ -202,7 +202,7 @@ export namespace FunctionGenerator
             + `        response: ${route.encrypted},\n`
             + `    };\n`
             + "\n"
-            + `    export function path(${parameters.map(param => `${param.name}: ${param.type}`).join(", ")}): string\n`
+            + `    export function path(${parameters.map(param => `${param.name}: ${param.type.escapedText}`).join(", ")}): string\n`
             + `    {\n`
             + `        return ${path};\n`
             + `    }\n`

@@ -69,7 +69,7 @@ export namespace store
         response: true,
     };
 
-    export function path(section: [object Object], saleId: [object Object], inquiryId: [object Object]): string
+    export function path(section: string, saleId: number, inquiryId: number): string
     {
         return `/sellers/${section}/sales/${saleId}/reviews/${inquiryId}`;
     }
@@ -127,7 +127,7 @@ export namespace update
         response: true,
     };
 
-    export function path(section: [object Object], saleId: [object Object], inquiryId: [object Object]): string
+    export function path(section: string, saleId: number, inquiryId: number): string
     {
         return `/sellers/${section}/sales/${saleId}/reviews/${inquiryId}`;
     }
@@ -178,7 +178,7 @@ export namespace remove
         response: false,
     };
 
-    export function path(section: [object Object], saleId: [object Object], inquiryId: [object Object]): string
+    export function path(section: string, saleId: number, inquiryId: number): string
     {
         return `/sellers/${section}/sales/${saleId}/reviews/${inquiryId}`;
     }
@@ -231,7 +231,7 @@ export namespace index
         response: true,
     };
 
-    export function path(section: [object Object], saleId: [object Object], input: [object Object]): string
+    export function path(section: string, saleId: number, input: ISaleInquiry.IRequest): string
     {
         return `/sellers/${section}/sales/${saleId}/reviews?${new URLSearchParams(input as any).toString()}`;
     }
@@ -283,7 +283,7 @@ export namespace at
         response: true,
     };
 
-    export function path(section: [object Object], saleId: [object Object], id: [object Object]): string
+    export function path(section: string, saleId: number, id: number): string
     {
         return `/sellers/${section}/sales/${saleId}/reviews/${id}`;
     }

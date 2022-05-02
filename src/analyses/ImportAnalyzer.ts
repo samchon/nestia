@@ -132,7 +132,7 @@ export namespace ImportAnalyzer
                         )
                     ).join(", ")}>`
             : name;
-    }    
+    }
 
     function explore_name(name: string, decl: ts.Node): string
     {

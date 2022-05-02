@@ -4,9 +4,23 @@ import * as nest from "@nestjs/common";
 
 import { IPage } from "@api/structures/common/IPage";
 import { ISaleComment } from "@api/structures/sales/articles/ISaleComment";
+import { IAttachmentFile } from "@api/structures/common/IAttachmentFile";
+
+type P<T> = Promise<T>;
 
 export abstract class SaleCommentsController
 {
+    @nest.Get("files")
+    public async files
+        (
+            @helper.TypedParam("section", "string") section: string, 
+            @helper.TypedParam("saleId", "number") saleId: number, 
+            @helper.TypedParam("articleId", "number") articleId: number
+        ): Promise<IPage<IAttachmentFile>>
+    {
+        return null!;
+    }
+
     /**
      * Get page of comments.
      * 
@@ -28,7 +42,7 @@ export abstract class SaleCommentsController
             @helper.TypedParam("saleId", "number") saleId: number, 
             @helper.TypedParam("articleId", "number") articleId: number,
             @nest.Query() input: IPage.IRequest
-        ): Promise<IPage<ISaleComment>>
+        ): P<IPage<ISaleComment>>
     {
         return null!;
     }
