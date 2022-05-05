@@ -1,12 +1,15 @@
 import fs from "fs";
 import ts from "typescript";
 import NodePath from "path";
-import { MetadataFactory } from "typescript-json/lib/factories/MetadataFactory";
-import { SchemaFactory } from "typescript-json/lib/factories/SchemaFactory";
 
 import { IConfiguration } from "../IConfiguration";
 import { IRoute } from "../structures/IRoute";
 import { ISwagger } from "../structures/ISwagger";
+import { MetadataCollection } from "../factories/MetadataCollection";
+
+import { CommentFactory } from "../factories/CommentFactory";
+import { MetadataFactory } from "../factories/MetadataFactory";
+import { SchemaFactory } from "../factories/SchemaFactory";
 
 import { MapUtil } from "../utils/MapUtil";
 
@@ -25,7 +28,7 @@ export namespace SwaggerGenerator
             : NodePath.join(NodePath.resolve(config.output), "swagger.json");
 
         const swagger: ISwagger = await initialize(location);
-        const collection: MetadataFactory.Collection = new MetadataFactory.Collection(false);
+        const collection: MetadataCollection = new MetadataCollection(false);
         const pathDict: Map<string, ISwagger.IPath>= new Map();
 
         for (const route of routeList)
@@ -96,6 +99,7 @@ export namespace SwaggerGenerator
         ): ISwagger.IRoute
     {
         const bodyParam = route.parameters.find(param => param.category === "body");
+
         return {
             tags: [],
             parameters: route.parameters
@@ -112,7 +116,7 @@ export namespace SwaggerGenerator
                 ? generate_request_body(checker, collection, route, bodyParam)
                 : undefined,
             responses: generate_response_body(checker, collection, route),
-            description: ""
+            description: CommentFactory.generate(route.comments)
         };
     }
 
@@ -129,12 +133,7 @@ export namespace SwaggerGenerator
             in: parameter.category === "param"
                 ? "path"
                 : parameter.category,
-            description: get_parametric_description
-            (
-                route.comments, 
-                "parameterName", 
-                parameter.name
-            ),
+            description: get_parametric_description(route, "param", parameter.name) || "",
             schema: generate_schema(checker, collection, parameter.type.metadata),
             required: true
         };
@@ -149,16 +148,16 @@ export namespace SwaggerGenerator
         ): ISwagger.IRequestBody
     {
         return {
-            description: get_parametric_description
-            (
-                route.comments, 
-                "parameterName", 
-                parameter.name
-            ),
+            description: get_parametric_description(route, "param", parameter.name) || "",
             content:
             {
                 "application/json": {
-                    schema: generate_schema(checker, collection, route.output.metadata)
+                    schema: generate_schema
+                    (
+                        checker, 
+                        collection, 
+                        route.output.metadata
+                    )
                 }
             },
             required: true
@@ -172,6 +171,7 @@ export namespace SwaggerGenerator
             route: IRoute
         ): ISwagger.IResponseBody
     {
+        // OUTPUT WITH SUCCESS STATUS
         const status: string = route.method === "GET" || route.method === "DELETE" 
             ? "200" 
             : "201";
@@ -181,12 +181,12 @@ export namespace SwaggerGenerator
             collection, 
             route.output.metadata,
         );
-            
-        return {
+        const success: ISwagger.IResponseBody = {
             [status]: {
                 description
-                    : get_parametric_description(route.comments, "return")
-                    || get_parametric_description(route.comments, "returns"),
+                    : get_parametric_description(route, "return")
+                    || get_parametric_description(route, "returns")
+                    || "",
                 content: route.output.escapedText === "void" ? undefined : 
                 {
                     "application/json": {
@@ -194,19 +194,32 @@ export namespace SwaggerGenerator
                     }
                 }
             }
-        }
-    }
+        };
 
-    function get_parametric_description(comments: ts.SymbolDisplayPart[], kind: string, text?: string)
-    {
-        const index = comments.findIndex(c => 
-            c.kind === kind &&
-            (c.text === text || !text)
+        // EXCEPTION STATUSES
+        const exceptions: ISwagger.IResponseBody = Object.fromEntries(route.tags
+            .filter(tag => 
+                tag.name === "throw" &&
+                tag.text &&
+                tag.text.find(elem => 
+                    elem.kind === "text" &&
+                    isNaN(Number(elem.text.split(" ").map(str => str.trim())[0])) === false
+                ) !== undefined
+            )
+            .map(tag => 
+            {
+                const text: string = tag.text!.find(elem => elem.kind === "text")!.text;
+                const elements: string[] = text.split(" ").map(str => str.trim());
+
+                return [
+                    elements[0],
+                    {
+                        description: elements.slice(1).join(" "),
+                    }
+                ];
+            })
         );
-        const description = index !== -1
-            ? comments[index + 2]?.text
-            : undefined;
-        return description || "";
+        return { ...exceptions, ...success };
     }
 
     function generate_schema
@@ -218,5 +231,30 @@ export namespace SwaggerGenerator
     {
         const entity = MetadataFactory.generate(checker, type, collection);
         return SchemaFactory.schema(entity?.metadata || null);
+    }
+
+    function get_parametric_description
+        (
+            route: IRoute, 
+            tagName: string,
+            parameterName?: string,
+        ): string | undefined
+    {
+        const parametric: (elem: ts.JSDocTagInfo) => boolean = parameterName
+            ? tag => tag.text!.find
+            (
+                elem => elem.kind === "parameterName" 
+                    && elem.text === parameterName
+            ) !== undefined
+            : () => true;
+
+        const tag: ts.JSDocTagInfo | undefined = route.tags.find(tag =>
+            tag.name === tagName &&
+            tag.text &&
+            parametric(tag)
+        );
+        return tag && tag.text
+            ? tag.text.find(elem => elem.kind === "text")?.text
+            : undefined;
     }
 }

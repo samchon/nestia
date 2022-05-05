@@ -41,9 +41,12 @@ export namespace ISwagger
         description: string;
         content?: IJsonContent;
     }>;
+
     export interface IJsonContent
     {
-        "application/json": object;
+        "application/json": {
+            schema: object;
+        };
     }
     
 }

@@ -12,7 +12,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -22,7 +22,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -32,7 +32,7 @@
           {
             "name": "articleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target article",
             "schema": {
               "type": "number",
               "nullable": false
@@ -42,7 +42,7 @@
           {
             "name": "input",
             "in": "query",
-            "description": "",
+            "description": "Information about pagination and searching",
             "schema": {
               "$ref": "#/components/schemas/IPage.IRequest-lt-string-gt-"
             },
@@ -51,7 +51,7 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Page of the comments",
             "content": {
               "application/json": {
                 "schema": {
@@ -59,9 +59,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Get page of comments.\n\nGet list of the {@link ISaleComment comments} with {@link IPage pagination}."
       },
       "post": {
         "tags": [],
@@ -69,7 +75,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -79,7 +85,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -89,7 +95,7 @@
           {
             "name": "articleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target article",
             "schema": {
               "type": "number",
               "nullable": false
@@ -98,7 +104,7 @@
           }
         ],
         "requestBody": {
-          "description": "",
+          "description": "Content to write",
           "content": {
             "application/json": {
               "schema": {
@@ -110,7 +116,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
+            "description": "Newly archived comment",
             "content": {
               "application/json": {
                 "schema": {
@@ -118,9 +124,21 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "401": {
+            "description": "unauthorized error when you've not logged in yet"
+          },
+          "403": {
+            "description": "forbidden error when you're a seller and the sale is not yours"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Store a new comment."
       }
     },
     "/consumers/{section}/sales/{saleId}/comments/{articleId}/{commentId}": {
@@ -130,7 +148,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -140,7 +158,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -150,7 +168,7 @@
           {
             "name": "articleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target article",
             "schema": {
               "type": "number",
               "nullable": false
@@ -160,7 +178,7 @@
           {
             "name": "commentId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target comment to be erased",
             "schema": {
               "type": "number",
               "nullable": false
@@ -170,10 +188,19 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Empty object"
+          },
+          "401": {
+            "description": "unauthorized error when you've not logged in yet"
+          },
+          "403": {
+            "description": "forbidden error when the comment is not yours"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Remove a comment."
       }
     },
     "/consumers/{section}/sales/{saleId}/entire": {
@@ -289,7 +316,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -299,7 +326,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -308,7 +335,7 @@
           }
         ],
         "requestBody": {
-          "description": "",
+          "description": "Content to archive",
           "content": {
             "application/json": {
               "schema": {
@@ -320,7 +347,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
+            "description": "Newly archived inquiry",
             "content": {
               "application/json": {
                 "schema": {
@@ -328,9 +355,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "401": {
+            "description": "unauthorized error when you've not logged in yet"
           }
         },
-        "description": ""
+        "description": "Store a new inquiry."
       },
       "get": {
         "tags": [],
@@ -338,7 +371,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -348,7 +381,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -358,14 +391,14 @@
           {
             "name": "input",
             "in": "query",
-            "description": "",
+            "description": "Information about pagination and searching",
             "schema": {},
             "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Page of the inquiries",
             "content": {
               "application/json": {
                 "schema": {
@@ -373,9 +406,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Get page of summarized inquiries."
       }
     },
     "/consumers/{section}/sales/{saleId}/questions/{id}": {
@@ -385,7 +424,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -395,7 +434,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -405,7 +444,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "",
+            "description": "ID of the target article to be updated",
             "schema": {
               "type": "number",
               "nullable": false
@@ -414,7 +453,7 @@
           }
         ],
         "requestBody": {
-          "description": "",
+          "description": "New content to be overwritten",
           "content": {
             "application/json": {
               "schema": {
@@ -426,7 +465,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
+            "description": "The inquiry record after the update",
             "content": {
               "application/json": {
                 "schema": {
@@ -434,9 +473,18 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "401": {
+            "description": "unauthorized error when you've not logged in yet"
+          },
+          "403": {
+            "description": "forbidden error when the article is not yours"
           }
         },
-        "description": ""
+        "description": "Update an inquiry."
       },
       "delete": {
         "tags": [],
@@ -444,7 +492,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -454,7 +502,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -464,7 +512,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "",
+            "description": "ID of the target article to be erased",
             "schema": {
               "type": "number",
               "nullable": false
@@ -474,10 +522,19 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Empty object"
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "401": {
+            "description": "unauthorized error when you've not logged in yet"
+          },
+          "403": {
+            "description": "forbidden error when the article is not yours"
           }
         },
-        "description": ""
+        "description": "Remove an inquiry."
       },
       "get": {
         "tags": [],
@@ -485,7 +542,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -495,7 +552,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -505,7 +562,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "",
+            "description": "ID of the Target inquiry",
             "schema": {
               "type": "number",
               "nullable": false
@@ -515,7 +572,7 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Detailed record of the inquiry",
             "content": {
               "application/json": {
                 "schema": {
@@ -523,9 +580,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Get detailed record of an inquiry"
       }
     },
     "/consumers/{section}/sales/{saleId}/reviews": {
@@ -535,7 +598,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -545,7 +608,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -554,7 +617,7 @@
           }
         ],
         "requestBody": {
-          "description": "",
+          "description": "Content to archive",
           "content": {
             "application/json": {
               "schema": {
@@ -566,7 +629,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
+            "description": "Newly archived inquiry",
             "content": {
               "application/json": {
                 "schema": {
@@ -574,9 +637,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "401": {
+            "description": "unauthorized error when you've not logged in yet"
           }
         },
-        "description": ""
+        "description": "Store a new inquiry."
       },
       "get": {
         "tags": [],
@@ -584,7 +653,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -594,7 +663,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -604,14 +673,14 @@
           {
             "name": "input",
             "in": "query",
-            "description": "",
+            "description": "Information about pagination and searching",
             "schema": {},
             "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Page of the inquiries",
             "content": {
               "application/json": {
                 "schema": {
@@ -619,9 +688,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Get page of summarized inquiries."
       }
     },
     "/consumers/{section}/sales/{saleId}/reviews/{id}": {
@@ -631,7 +706,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -641,7 +716,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -651,7 +726,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "",
+            "description": "ID of the target article to be updated",
             "schema": {
               "type": "number",
               "nullable": false
@@ -660,7 +735,7 @@
           }
         ],
         "requestBody": {
-          "description": "",
+          "description": "New content to be overwritten",
           "content": {
             "application/json": {
               "schema": {
@@ -672,7 +747,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
+            "description": "The inquiry record after the update",
             "content": {
               "application/json": {
                 "schema": {
@@ -680,9 +755,18 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "401": {
+            "description": "unauthorized error when you've not logged in yet"
+          },
+          "403": {
+            "description": "forbidden error when the article is not yours"
           }
         },
-        "description": ""
+        "description": "Update an inquiry."
       },
       "delete": {
         "tags": [],
@@ -690,7 +774,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -700,7 +784,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -710,7 +794,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "",
+            "description": "ID of the target article to be erased",
             "schema": {
               "type": "number",
               "nullable": false
@@ -720,10 +804,19 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Empty object"
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "401": {
+            "description": "unauthorized error when you've not logged in yet"
+          },
+          "403": {
+            "description": "forbidden error when the article is not yours"
           }
         },
-        "description": ""
+        "description": "Remove an inquiry."
       },
       "get": {
         "tags": [],
@@ -731,7 +824,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -741,7 +834,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -751,7 +844,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "",
+            "description": "ID of the Target inquiry",
             "schema": {
               "type": "number",
               "nullable": false
@@ -761,7 +854,7 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Detailed record of the inquiry",
             "content": {
               "application/json": {
                 "schema": {
@@ -769,9 +862,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Get detailed record of an inquiry"
       }
     },
     "/misc/health-check": {
@@ -815,7 +914,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Performance information",
             "content": {
               "application/json": {
                 "schema": {
@@ -825,7 +924,7 @@
             }
           }
         },
-        "description": ""
+        "description": "Get performance information of the server."
       }
     },
     "/sellers/{section}/sales/{saleId}/comments/{articleId}": {
@@ -835,7 +934,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -845,7 +944,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -855,7 +954,7 @@
           {
             "name": "articleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target article",
             "schema": {
               "type": "number",
               "nullable": false
@@ -865,7 +964,7 @@
           {
             "name": "input",
             "in": "query",
-            "description": "",
+            "description": "Information about pagination and searching",
             "schema": {
               "$ref": "#/components/schemas/IPage.IRequest-lt-string-gt-"
             },
@@ -874,7 +973,7 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Page of the comments",
             "content": {
               "application/json": {
                 "schema": {
@@ -882,9 +981,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Get page of comments.\n\nGet list of the {@link ISaleComment comments} with {@link IPage pagination}."
       },
       "post": {
         "tags": [],
@@ -892,7 +997,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -902,7 +1007,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -912,7 +1017,7 @@
           {
             "name": "articleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target article",
             "schema": {
               "type": "number",
               "nullable": false
@@ -921,7 +1026,7 @@
           }
         ],
         "requestBody": {
-          "description": "",
+          "description": "Content to write",
           "content": {
             "application/json": {
               "schema": {
@@ -933,7 +1038,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
+            "description": "Newly archived comment",
             "content": {
               "application/json": {
                 "schema": {
@@ -941,9 +1046,21 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "401": {
+            "description": "unauthorized error when you've not logged in yet"
+          },
+          "403": {
+            "description": "forbidden error when you're a seller and the sale is not yours"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Store a new comment."
       }
     },
     "/sellers/{section}/sales/{saleId}/comments/{articleId}/{commentId}": {
@@ -953,7 +1070,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -963,7 +1080,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -973,7 +1090,7 @@
           {
             "name": "articleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target article",
             "schema": {
               "type": "number",
               "nullable": false
@@ -983,7 +1100,7 @@
           {
             "name": "commentId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target comment to be erased",
             "schema": {
               "type": "number",
               "nullable": false
@@ -993,10 +1110,19 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Empty object"
+          },
+          "401": {
+            "description": "unauthorized error when you've not logged in yet"
+          },
+          "403": {
+            "description": "forbidden error when the comment is not yours"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Remove a comment."
       }
     },
     "/sellers/{section}/sales/{saleId}/entire": {
@@ -1112,7 +1238,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -1122,7 +1248,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1132,7 +1258,7 @@
           {
             "name": "inquiryId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target inquiry to be updated",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1141,7 +1267,7 @@
           }
         ],
         "requestBody": {
-          "description": "",
+          "description": "New content to be overwritten",
           "content": {
             "application/json": {
               "schema": {
@@ -1153,7 +1279,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
+            "description": "The inquiry record after the update",
             "content": {
               "application/json": {
                 "schema": {
@@ -1163,7 +1289,7 @@
             }
           }
         },
-        "description": ""
+        "description": "Update an answer."
       },
       "delete": {
         "tags": [],
@@ -1171,7 +1297,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -1181,7 +1307,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1191,7 +1317,7 @@
           {
             "name": "inquiryId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target inquiry that the answer would be erased",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1201,10 +1327,10 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Empty object"
           }
         },
-        "description": ""
+        "description": "Remove an answer."
       }
     },
     "/sellers/{section}/sales/{saleId}/questions": {
@@ -1214,7 +1340,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -1224,7 +1350,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1234,14 +1360,14 @@
           {
             "name": "input",
             "in": "query",
-            "description": "",
+            "description": "Information about pagination and searching",
             "schema": {},
             "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Page of the inquiries",
             "content": {
               "application/json": {
                 "schema": {
@@ -1249,9 +1375,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Get page of summarized inquiries."
       }
     },
     "/sellers/{section}/sales/{saleId}/questions/{id}": {
@@ -1261,7 +1393,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -1271,7 +1403,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1281,7 +1413,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "",
+            "description": "ID of the Target inquiry",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1291,7 +1423,7 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Detailed record of the inquiry",
             "content": {
               "application/json": {
                 "schema": {
@@ -1299,9 +1431,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Get detailed record of an inquiry"
       }
     },
     "/sellers/{section}/sales/{saleId}/reviews/{inquiryId}": {
@@ -1311,7 +1449,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -1321,7 +1459,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1331,7 +1469,7 @@
           {
             "name": "inquiryId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target inquiry to be updated",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1340,7 +1478,7 @@
           }
         ],
         "requestBody": {
-          "description": "",
+          "description": "New content to be overwritten",
           "content": {
             "application/json": {
               "schema": {
@@ -1352,7 +1490,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
+            "description": "The inquiry record after the update",
             "content": {
               "application/json": {
                 "schema": {
@@ -1362,7 +1500,7 @@
             }
           }
         },
-        "description": ""
+        "description": "Update an answer."
       },
       "delete": {
         "tags": [],
@@ -1370,7 +1508,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -1380,7 +1518,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1390,7 +1528,7 @@
           {
             "name": "inquiryId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target inquiry that the answer would be erased",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1400,10 +1538,10 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Empty object"
           }
         },
-        "description": ""
+        "description": "Remove an answer."
       }
     },
     "/sellers/{section}/sales/{saleId}/reviews": {
@@ -1413,7 +1551,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -1423,7 +1561,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1433,14 +1571,14 @@
           {
             "name": "input",
             "in": "query",
-            "description": "",
+            "description": "Information about pagination and searching",
             "schema": {},
             "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Page of the inquiries",
             "content": {
               "application/json": {
                 "schema": {
@@ -1448,9 +1586,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Get page of summarized inquiries."
       }
     },
     "/sellers/{section}/sales/{saleId}/reviews/{id}": {
@@ -1460,7 +1604,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -1470,7 +1614,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1480,7 +1624,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "",
+            "description": "ID of the Target inquiry",
             "schema": {
               "type": "number",
               "nullable": false
@@ -1490,7 +1634,7 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Detailed record of the inquiry",
             "content": {
               "application/json": {
                 "schema": {
@@ -1498,9 +1642,15 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "bad request error when type of the input data is not valid"
+          },
+          "404": {
+            "description": "not found error when unable to find the matched record"
           }
         },
-        "description": ""
+        "description": "Get detailed record of an inquiry"
       }
     },
     "/sellers/authenticate/join": {
@@ -1508,7 +1658,7 @@
         "tags": [],
         "parameters": [],
         "requestBody": {
-          "description": "",
+          "description": "Information of yours",
           "content": {
             "application/json": {
               "schema": {
@@ -1520,7 +1670,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
+            "description": "Information of newly joined seller",
             "content": {
               "application/json": {
                 "schema": {
@@ -1530,7 +1680,7 @@
             }
           }
         },
-        "description": ""
+        "description": "Join as a seller."
       }
     },
     "/sellers/authenticate/login": {
@@ -1538,7 +1688,7 @@
         "tags": [],
         "parameters": [],
         "requestBody": {
-          "description": "",
+          "description": "Email and password",
           "content": {
             "application/json": {
               "schema": {
@@ -1550,7 +1700,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
+            "description": "Information of the seller",
             "content": {
               "application/json": {
                 "schema": {
@@ -1560,7 +1710,7 @@
             }
           }
         },
-        "description": ""
+        "description": "Log-in as a seller."
       }
     },
     "/sellers/authenticate/password/change": {
@@ -1568,7 +1718,7 @@
         "tags": [],
         "parameters": [],
         "requestBody": {
-          "description": "",
+          "description": "Old and new passwords",
           "content": {
             "application/json": {
               "schema": {}
@@ -1578,10 +1728,10 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Empty object"
           }
         },
-        "description": ""
+        "description": "Change password."
       }
     },
     "/sellers/authenticate/exit": {
@@ -1603,14 +1753,17 @@
         "type": "object",
         "properties": {
           "page": {
+            "description": "페이지 번호",
             "type": "number",
             "nullable": false
           },
           "limit": {
+            "description": "각 페이지 당 레코드 수 제한",
             "type": "number",
             "nullable": false
           },
           "search_fields": {
+            "description": "검색 필드",
             "type": "array",
             "items": {
               "type": "string",
@@ -1619,24 +1772,29 @@
             "nullable": false
           },
           "search_value": {
+            "description": "검색 값",
             "type": "string",
             "nullable": false
           },
           "sort": {
+            "description": "정렬 기준, 필드명을 부호와 함께 입력하면 됨\n\n  - 단순 필드명 입력 (`id`): 오름차순\n  - 양부호 사용 (`+id`): 오름차순\n  - 음부호 사용 (`-id`): 내림차순",
             "type": "string",
             "nullable": false
           }
         },
         "nullable": false,
-        "required": []
+        "required": [],
+        "description": "페이지 요청정보"
       },
       "IPage-lt-ISaleComment-gt-": {
         "type": "object",
         "properties": {
           "pagination": {
+            "description": "페이지 정보",
             "$ref": "#/components/schemas/IPage.IPagination"
           },
           "data": {
+            "description": "레코드 리스트",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleComment"
@@ -1648,24 +1806,29 @@
         "required": [
           "pagination",
           "data"
-        ]
+        ],
+        "description": "페이지 처리된 레코드 셋."
       },
       "IPage.IPagination": {
         "type": "object",
         "properties": {
           "page": {
+            "description": "현재의 페이지 번호",
             "type": "number",
             "nullable": false
           },
           "limit": {
+            "description": "개별 페이지 당 레코드 수 제한",
             "type": "number",
             "nullable": false
           },
           "total_count": {
+            "description": "전체 레코드 수",
             "type": "number",
             "nullable": false
           },
           "total_pages": {
+            "description": "전체 페이지 수",
             "type": "number",
             "nullable": false
           }
@@ -1676,24 +1839,29 @@
           "limit",
           "total_count",
           "total_pages"
-        ]
+        ],
+        "description": "페이지 정보"
       },
       "ISaleComment": {
         "type": "object",
         "properties": {
           "id": {
+            "description": "Primary Key.",
             "type": "number",
             "nullable": false
           },
           "writer_type": {
+            "description": "Type of the writer.",
             "type": "string",
             "nullable": false
           },
           "writer_name": {
+            "description": "Name of the writer.",
             "type": "string",
             "nullable": false
           },
           "contents": {
+            "description": "Contents of the comments.\n\nWhen the comment writer tries to modify content, it would not modify the comment\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleComment.IContent"
@@ -1701,6 +1869,7 @@
             "nullable": false
           },
           "created_at": {
+            "description": "Creation time.",
             "type": "string",
             "nullable": false
           }
@@ -1712,16 +1881,19 @@
           "writer_name",
           "contents",
           "created_at"
-        ]
+        ],
+        "description": "Comment wrote on an article."
       },
       "ISaleComment.IContent": {
         "type": "object",
         "properties": {
           "created_at": {
+            "description": "Creation time.",
             "type": "string",
             "nullable": false
           },
-          "content": {
+          "body": {
+            "description": "Body of the content.",
             "type": "string",
             "nullable": false
           }
@@ -1729,16 +1901,19 @@
         "nullable": false,
         "required": [
           "created_at",
-          "content"
-        ]
+          "body"
+        ],
+        "description": "Content info."
       },
       "IPage-lt-ISaleEntireArtcle.ISummary-gt-": {
         "type": "object",
         "properties": {
           "pagination": {
+            "description": "페이지 정보",
             "$ref": "#/components/schemas/IPage.IPagination"
           },
           "data": {
+            "description": "레코드 리스트",
             "type": "array",
             "items": {
               "anyOf": [
@@ -1757,36 +1932,44 @@
         "required": [
           "pagination",
           "data"
-        ]
+        ],
+        "description": "페이지 처리된 레코드 셋."
       },
       "ISaleInquiry.ISummary": {
         "type": "object",
         "properties": {
           "writer": {
+            "description": "Name of the writer.",
             "type": "string",
             "nullable": false
           },
           "answered": {
+            "description": "Password of the inquiry article.",
             "type": "boolean",
             "nullable": false
           },
           "id": {
+            "description": "Primary Key.",
             "type": "number",
             "nullable": false
           },
           "title": {
+            "description": "Title of the article.",
             "type": "string",
             "nullable": false
           },
           "hit": {
+            "description": "Hit count.\n\nHow many consumers had read.",
             "type": "number",
             "nullable": false
           },
           "created_at": {
+            "description": "Creaiton time.",
             "type": "string",
             "nullable": false
           },
           "updated_at": {
+            "description": "Updated time.",
             "type": "string",
             "nullable": false
           }
@@ -1800,40 +1983,49 @@
           "hit",
           "created_at",
           "updated_at"
-        ]
+        ],
+        "description": "Summarized info of the inquiry article."
       },
       "ISaleReview.ISummary": {
         "type": "object",
         "properties": {
           "score": {
+            "description": "Estimation score.",
             "type": "number",
             "nullable": false
           },
           "writer": {
+            "description": "Name of the writer.",
             "type": "string",
             "nullable": false
           },
           "answered": {
+            "description": "Password of the inquiry article.",
             "type": "boolean",
             "nullable": false
           },
           "id": {
+            "description": "Primary Key.",
             "type": "number",
             "nullable": false
           },
           "title": {
+            "description": "Title of the article.",
             "type": "string",
             "nullable": false
           },
           "hit": {
+            "description": "Hit count.\n\nHow many consumers had read.",
             "type": "number",
             "nullable": false
           },
           "created_at": {
+            "description": "Creaiton time.",
             "type": "string",
             "nullable": false
           },
           "updated_at": {
+            "description": "Updated time.",
             "type": "string",
             "nullable": false
           }
@@ -1848,27 +2040,33 @@
           "hit",
           "created_at",
           "updated_at"
-        ]
+        ],
+        "description": "Summarized info of the review."
       },
       "ISaleInquiry-lt-ISaleArticle.IContent-gt-": {
         "type": "object",
         "properties": {
           "writer": {
+            "description": "Name of the writer.",
             "type": "string",
             "nullable": false
           },
           "answer": {
+            "description": "Formal answer from the seller.",
             "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-"
           },
           "id": {
+            "description": "Primary Key.",
             "type": "number",
             "nullable": false
           },
           "hit": {
+            "description": "Hit count.\n\nHow many consumers had read.",
             "type": "number",
             "nullable": false
           },
           "contents": {
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleArticle.IContent"
@@ -1876,6 +2074,7 @@
             "nullable": false
           },
           "created_at": {
+            "description": "Creation time.",
             "type": "string",
             "nullable": false
           }
@@ -1888,20 +2087,24 @@
           "hit",
           "contents",
           "created_at"
-        ]
+        ],
+        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
       "ISaleArticle-lt-ISaleArticle.IContent-gt-": {
         "type": "object",
         "properties": {
           "id": {
+            "description": "Primary Key.",
             "type": "number",
             "nullable": false
           },
           "hit": {
+            "description": "Hit count.\n\nHow many consumers had read.",
             "type": "number",
             "nullable": false
           },
           "contents": {
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleArticle.IContent"
@@ -1909,6 +2112,7 @@
             "nullable": false
           },
           "created_at": {
+            "description": "Creation time.",
             "type": "string",
             "nullable": false
           }
@@ -1919,28 +2123,34 @@
           "hit",
           "contents",
           "created_at"
-        ]
+        ],
+        "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`."
       },
       "ISaleArticle.IContent": {
         "type": "object",
         "properties": {
           "id": {
+            "description": "Primary key.",
             "type": "number",
             "nullable": false
           },
           "created_at": {
+            "description": "Creation time.",
             "type": "string",
             "nullable": false
           },
           "title": {
+            "description": "Title of the content/",
             "type": "string",
             "nullable": false
           },
-          "content": {
+          "body": {
+            "description": "Body of the content.",
             "type": "string",
             "nullable": false
           },
           "files": {
+            "description": "Attached files.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/__type"
@@ -1953,22 +2163,26 @@
           "id",
           "created_at",
           "title",
-          "content",
+          "body",
           "files"
-        ]
+        ],
+        "description": "Content info."
       },
       "__type": {
         "type": "object",
         "properties": {
           "name": {
+            "description": "Name of the file.",
             "type": "string",
             "nullable": false
           },
           "extension": {
+            "description": "Extension of the file, but ommitable.",
             "type": "string",
             "nullable": false
           },
-          "path": {
+          "url": {
+            "description": "Full URL path of the file.",
             "type": "string",
             "nullable": false
           }
@@ -1977,28 +2191,34 @@
         "required": [
           "name",
           "extension",
-          "path"
-        ]
+          "url"
+        ],
+        "description": ""
       },
       "ISaleInquiry-lt-ISaleReview.IContent-gt-": {
         "type": "object",
         "properties": {
           "writer": {
+            "description": "Name of the writer.",
             "type": "string",
             "nullable": false
           },
           "answer": {
+            "description": "Formal answer from the seller.",
             "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-"
           },
           "id": {
+            "description": "Primary Key.",
             "type": "number",
             "nullable": false
           },
           "hit": {
+            "description": "Hit count.\n\nHow many consumers had read.",
             "type": "number",
             "nullable": false
           },
           "contents": {
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleReview.IContent"
@@ -2006,6 +2226,7 @@
             "nullable": false
           },
           "created_at": {
+            "description": "Creation time.",
             "type": "string",
             "nullable": false
           }
@@ -2018,32 +2239,39 @@
           "hit",
           "contents",
           "created_at"
-        ]
+        ],
+        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
       "ISaleReview.IContent": {
         "type": "object",
         "properties": {
           "score": {
+            "description": "Estimation score.",
             "type": "number",
             "nullable": false
           },
           "id": {
+            "description": "Primary key.",
             "type": "number",
             "nullable": false
           },
           "created_at": {
+            "description": "Creation time.",
             "type": "string",
             "nullable": false
           },
           "title": {
+            "description": "Title of the content/",
             "type": "string",
             "nullable": false
           },
-          "content": {
+          "body": {
+            "description": "Body of the content.",
             "type": "string",
             "nullable": false
           },
           "files": {
+            "description": "Attached files.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/__type"
@@ -2057,34 +2285,41 @@
           "id",
           "created_at",
           "title",
-          "content",
+          "body",
           "files"
-        ]
+        ],
+        "description": "Content info of the review."
       },
       "ISaleInquiry-lt-Content-gt-": {
         "type": "object",
         "properties": {
           "writer": {
+            "description": "Name of the writer.",
             "type": "string",
             "nullable": false
           },
           "answer": {
+            "description": "Formal answer from the seller.",
             "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-"
           },
           "id": {
+            "description": "Primary Key.",
             "type": "number",
             "nullable": false
           },
           "hit": {
+            "description": "Hit count.\n\nHow many consumers had read.",
             "type": "number",
             "nullable": false
           },
           "contents": {
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
             "type": "array",
             "items": {},
             "nullable": false
           },
           "created_at": {
+            "description": "Creation time.",
             "type": "string",
             "nullable": false
           }
@@ -2097,15 +2332,18 @@
           "hit",
           "contents",
           "created_at"
-        ]
+        ],
+        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
       "IPage-lt-Summary-gt-": {
         "type": "object",
         "properties": {
           "pagination": {
+            "description": "페이지 정보",
             "$ref": "#/components/schemas/IPage.IPagination"
           },
           "data": {
+            "description": "레코드 리스트",
             "type": "array",
             "items": {},
             "nullable": false
@@ -2115,32 +2353,39 @@
         "required": [
           "pagination",
           "data"
-        ]
+        ],
+        "description": "페이지 처리된 레코드 셋."
       },
       "ISaleInquiry-lt-Content-gt-.o1": {
         "type": "object",
         "properties": {
           "writer": {
+            "description": "Name of the writer.",
             "type": "string",
             "nullable": false
           },
           "answer": {
+            "description": "Formal answer from the seller.",
             "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-"
           },
           "id": {
+            "description": "Primary Key.",
             "type": "number",
             "nullable": false
           },
           "hit": {
+            "description": "Hit count.\n\nHow many consumers had read.",
             "type": "number",
             "nullable": false
           },
           "contents": {
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
             "type": "array",
             "items": {},
             "nullable": false
           },
           "created_at": {
+            "description": "Creation time.",
             "type": "string",
             "nullable": false
           }
@@ -2153,15 +2398,18 @@
           "hit",
           "contents",
           "created_at"
-        ]
+        ],
+        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
       "IPerformance": {
         "type": "object",
         "properties": {
           "cpu": {
+            "description": "CPU usage info.",
             "$ref": "#/components/schemas/process.global.NodeJS.CpuUsage"
           },
           "memory": {
+            "description": "Memory usage info.",
             "$ref": "#/components/schemas/process.global.NodeJS.MemoryUsage"
           }
         },
@@ -2169,16 +2417,19 @@
         "required": [
           "cpu",
           "memory"
-        ]
+        ],
+        "description": "Performance information of the backend server."
       },
       "process.global.NodeJS.CpuUsage": {
         "type": "object",
         "properties": {
           "user": {
+            "description": "",
             "type": "number",
             "nullable": false
           },
           "system": {
+            "description": "",
             "type": "number",
             "nullable": false
           }
@@ -2187,28 +2438,34 @@
         "required": [
           "user",
           "system"
-        ]
+        ],
+        "description": ""
       },
       "process.global.NodeJS.MemoryUsage": {
         "type": "object",
         "properties": {
           "rss": {
+            "description": "",
             "type": "number",
             "nullable": false
           },
           "heapTotal": {
+            "description": "",
             "type": "number",
             "nullable": false
           },
           "heapUsed": {
+            "description": "",
             "type": "number",
             "nullable": false
           },
           "external": {
+            "description": "",
             "type": "number",
             "nullable": false
           },
           "arrayBuffers": {
+            "description": "",
             "type": "number",
             "nullable": false
           }
@@ -2220,32 +2477,39 @@
           "heapUsed",
           "external",
           "arrayBuffers"
-        ]
+        ],
+        "description": ""
       },
       "ISaleInquiry-lt-Content-gt-.o2": {
         "type": "object",
         "properties": {
           "writer": {
+            "description": "Name of the writer.",
             "type": "string",
             "nullable": false
           },
           "answer": {
+            "description": "Formal answer from the seller.",
             "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-"
           },
           "id": {
+            "description": "Primary Key.",
             "type": "number",
             "nullable": false
           },
           "hit": {
+            "description": "Hit count.\n\nHow many consumers had read.",
             "type": "number",
             "nullable": false
           },
           "contents": {
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
             "type": "array",
             "items": {},
             "nullable": false
           },
           "created_at": {
+            "description": "Creation time.",
             "type": "string",
             "nullable": false
           }
@@ -2258,28 +2522,34 @@
           "hit",
           "contents",
           "created_at"
-        ]
+        ],
+        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
       "ISeller": {
         "type": "object",
         "properties": {
           "id": {
+            "description": "Primary key.",
             "type": "number",
             "nullable": false
           },
           "email": {
+            "description": "Email address.",
             "type": "string",
             "nullable": false
           },
           "name": {
+            "description": "Name of the seller.",
             "type": "string",
             "nullable": false
           },
           "mobile": {
+            "description": "Mobile number of the seller.",
             "type": "string",
             "nullable": false
           },
           "company": {
+            "description": "Belonged company name.",
             "type": "string",
             "nullable": false
           }
@@ -2291,7 +2561,8 @@
           "name",
           "mobile",
           "company"
-        ]
+        ],
+        "description": "Seller information."
       }
     }
   }

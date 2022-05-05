@@ -99,7 +99,9 @@ export namespace ControllerAnalyzer
             importDict,
             checker.getReturnTypeOfSignature(signature),
         );
-        const imports: [string, string[]][] = importDict.toJSON().map(pair => [pair.first, pair.second.toJSON()]);
+        const imports: [string, string[]][] = importDict
+            .toJSON()
+            .map(pair => [ pair.first, pair.second.toJSON() ]);
 
         // CONFIGURE PATH
         const path: string = _Normalize_path

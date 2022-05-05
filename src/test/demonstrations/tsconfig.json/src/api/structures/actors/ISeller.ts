@@ -1,9 +1,33 @@
+/**
+ * Seller information.
+ * 
+ * @author Jeongho Nam - https://github.com/samchon
+ */
 export interface ISeller
 {
+    /**
+     * Primary key.
+     */
     id: number;
+
+    /**
+     * Email address.
+     */
     email: string;
+
+    /**
+     * Name of the seller.
+     */
     name: string;
+
+    /**
+     * Mobile number of the seller.
+     */
     mobile: string;
+
+    /**
+     * Belonged company name.
+     */
     company: string;
 }
 
