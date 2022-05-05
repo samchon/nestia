@@ -1,5 +1,5 @@
+import ts from "typescript";
 import { Primitive } from "nestia-fetcher";
-import * as tsc from "typescript";
 
 export namespace CompilerOptions
 {
@@ -23,7 +23,7 @@ export namespace CompilerOptions
         module: "commonjs",
     };
 
-    export function emend(options: tsc.CompilerOptions, assert: boolean): [boolean, boolean]
+    export function emend(options: ts.CompilerOptions, assert: boolean): [boolean, boolean]
     {
         // EMEND PROPERTIES
         for (const [key, value] of Object.entries(ESSENTIAL_OPTIONS))

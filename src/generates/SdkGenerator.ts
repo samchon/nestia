@@ -1,5 +1,6 @@
-import * as fs from "fs";
-import * as path from "path";
+import fs from "fs";
+import ts from "typescript";
+import NodePath from "path";
 import { DirectoryUtil } from "../utils/DirectoryUtil";
 
 import { IRoute } from "../structures/IRoute";
@@ -10,12 +11,17 @@ export namespace SdkGenerator
 {
     export async function generate
         (
+            _checker: ts.TypeChecker,
             config: IConfiguration,
             routeList: IRoute[],
         ): Promise<void>
     {
         // PREPARE NEW DIRECTORIES
-        try { await fs.promises.mkdir(config.output); } catch {}
+        try 
+        { 
+            await fs.promises.mkdir(config.output!); 
+        } 
+        catch {}
 
         // BUNDLING
         const bundle: string[] = await fs.promises.readdir(BUNDLE_PATH);
@@ -36,5 +42,5 @@ export namespace SdkGenerator
         await FileGenerator.generate(config, routeList);
     }
 
-    export const BUNDLE_PATH = path.join(__dirname, "..", "..", "bundle");
+    export const BUNDLE_PATH = NodePath.join(__dirname, "..", "..", "bundle");
 }

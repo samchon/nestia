@@ -1,8 +1,0 @@
-node_modules/
-src/
-test/
-
-*.*ignore
-*.js.map
-package-lock.json
-tsconfig.json

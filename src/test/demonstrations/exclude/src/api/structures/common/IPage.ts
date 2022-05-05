@@ -1,7 +1,7 @@
 /**
  * 페이지 처리된 레코드 셋.
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export interface IPage<T extends object>
 {

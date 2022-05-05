@@ -14,6 +14,10 @@ export abstract class SaleEntireArticlesController
             @nest.Query() input: IPage.IRequest
         ): Promise<IPage<ISaleEntireArtcle.ISummary>>
     {
+        section;
+        saleId;
+        input;
+
         return null!;
     }
 
@@ -25,6 +29,10 @@ export abstract class SaleEntireArticlesController
             @helper.TypedParam("id", "number") id: number
         ): Promise<ISaleEntireArtcle>
     {
+        section;
+        saleId;
+        id;
+
         return null!;
     }
 }

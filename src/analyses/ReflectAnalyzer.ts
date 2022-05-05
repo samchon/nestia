@@ -1,4 +1,4 @@
-import * as NodePath from "path";
+import NodePath from "path";
 import { equal } from "tstl/ranges/module";
 
 import { ArrayUtil } from "../utils/ArrayUtil";
@@ -129,8 +129,18 @@ export namespace ReflectAnalyzer
         }
 
         // VALIDATE PATH ARGUMENTS
-        const funcPathArguments: string[] = StringUtil.betweens(NodePath.join(controller.path, meta.path).split("\\").join("/"), ":", "/").sort();
-        const paramPathArguments: string[] = meta.parameters.filter(param => param.category === "param").map(param => param.field!).sort();
+        const funcPathArguments: string[] = StringUtil.betweens
+        (
+            NodePath.join(controller.path, meta.path)
+                .split("\\")
+                .join("/"), 
+            ":", "/"
+        ).sort();
+        
+        const paramPathArguments: string[] = meta.parameters
+            .filter(param => param.category === "param")
+            .map(param => param.field!)
+            .sort();
 
         if (equal(funcPathArguments, paramPathArguments) === false)
             throw new Error(`Error on ${controller.name}.${name}(): binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${funcPathArguments.join(", ")}], parameters: [${paramPathArguments.join(", ")}])`);

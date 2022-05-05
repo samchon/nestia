@@ -1,6 +1,6 @@
-import * as fs from  "fs";
+import fs from  "fs";
 import glob from "glob";
-import * as path from "path";
+import path from "path";
 
 import { IConfiguration } from "../IConfiguration";
 

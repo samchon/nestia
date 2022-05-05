@@ -1,0 +1,69 @@
+[
+  {
+    "type": "array",
+    "items": {
+      "$ref": "components#/schemas/o0"
+    },
+    "nullable": false
+  },
+  {
+    "components": {
+      "schemas": {
+        "o0": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "number",
+              "nullable": false
+            },
+            "writer_type": {
+              "type": "string",
+              "nullable": false
+            },
+            "writer_name": {
+              "type": "string",
+              "nullable": false
+            },
+            "contents": {
+              "type": "array",
+              "items": {
+                "$ref": "components#/schemas/o1"
+              },
+              "nullable": false
+            },
+            "created_at": {
+              "type": "string",
+              "nullable": false
+            }
+          },
+          "nullable": false,
+          "required": [
+            "id",
+            "writer_type",
+            "writer_name",
+            "contents",
+            "created_at"
+          ]
+        },
+        "o1": {
+          "type": "object",
+          "properties": {
+            "created_at": {
+              "type": "string",
+              "nullable": false
+            },
+            "content": {
+              "type": "string",
+              "nullable": false
+            }
+          },
+          "nullable": false,
+          "required": [
+            "created_at",
+            "content"
+          ]
+        }
+      }
+    }
+  }
+]

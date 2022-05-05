@@ -1,9 +1,9 @@
-import * as tsc from "typescript";
+import ts from "typescript";
 
 /**
  * Definition for the `nestia.config.ts` file.
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export interface IConfiguration
 {
@@ -15,14 +15,14 @@ export interface IConfiguration
     /**
      * Output directory that SDK would be placed in.
      */
-    output: string;
+    output?: string;
 
     /**
      * Compiler options for the TypeScript.
      * 
      * If omitted, the configuration would follow the `tsconfig.json`.
      */
-    compilerOptions?: tsc.CompilerOptions;
+    compilerOptions?: ts.CompilerOptions;
 
     /**
      * Whether to assert parameter types or not.
@@ -40,6 +40,11 @@ export interface IConfiguration
      * conversion speed really be 2x faster.
      */
     json?: boolean;
+
+    /**
+     * Building `swagger.json` is also possible.
+     */
+    swagger?: IConfiguration.ISwagger;
 }
 export namespace IConfiguration
 {
@@ -58,5 +63,20 @@ export namespace IConfiguration
          * List of files or directories to be excluded.
          */
         exclude?: string[];
+    }
+
+    /**
+     * Building `swagger.json` is also possible.
+     */
+    export interface ISwagger
+    {
+        /**
+         * Output path of the `swagger.json`.
+         * 
+         * If you've configure only directory, the file name would be `swagger.json`. 
+         * Otherwise you configure file name and extension, the `swagger.json` file would
+         * be renamed to what you've configured.
+         */
+        output: string;
     }
 }

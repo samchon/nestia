@@ -12,6 +12,7 @@ export class SellerAuthenticateController
      * 
      * @param input Information of yours
      * @return Information of newly joined seller
+     * @tag sellers
      */
     @helper.EncryptedRoute.Post("join")
     public async join
@@ -19,6 +20,8 @@ export class SellerAuthenticateController
             @helper.EncryptedBody() input: ISeller.IJoin
         ): Promise<ISeller>
     {
+        input;
+
         return null!;
     }
 
@@ -27,6 +30,7 @@ export class SellerAuthenticateController
      * 
      * @param input Email and password
      * @return Information of the seller
+     * @tag sellers
      */
     @helper.EncryptedRoute.Post("login")
     public async login
@@ -34,6 +38,8 @@ export class SellerAuthenticateController
             @helper.EncryptedBody() input: ISeller.ILogin
         ): Promise<ISeller>
     {
+        input;
+
         return null!;
     }
 
@@ -43,6 +49,7 @@ export class SellerAuthenticateController
      * @param httpReq Instance of the Express.Request
      * @param input Old and new passwords
      * @return Empty object
+     * @tag sellers
      */
     @nest.Patch("password/change")
     public async change
@@ -51,13 +58,7 @@ export class SellerAuthenticateController
             @helper.EncryptedBody() input: ISeller.IChangePassword
         ): Promise<void>
     {
-    }
-
-    @nest.Delete("exit")
-    public async exit
-        (
-            @nest.Request() httpReq: express.Request,
-        ): Promise<void>
-    {
+        httpReq;
+        input;
     }
 }
