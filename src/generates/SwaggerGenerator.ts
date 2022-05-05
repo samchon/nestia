@@ -42,7 +42,7 @@ export namespace SwaggerGenerator
             path[route.method.toLowerCase()] = generate_route
             (
                 checker, 
-                collection, 
+                collection,
                 route
             );
         }
@@ -60,6 +60,9 @@ export namespace SwaggerGenerator
         );
     }
 
+    /* ---------------------------------------------------------
+        INITIALIZERS
+    --------------------------------------------------------- */
     async function initialize(path: string): Promise<ISwagger>
     {
         // LOAD OR CREATE NEW SWAGGER DATA
@@ -99,9 +102,19 @@ export namespace SwaggerGenerator
         ): ISwagger.IRoute
     {
         const bodyParam = route.parameters.find(param => param.category === "body");
+        const tags: string[] = route.tags
+            .filter(tag =>
+                tag.name === "tag" &&
+                tag.text &&
+                tag.text.find(elem => 
+                    elem.kind === "text" && 
+                    elem.text.length
+                ) !== undefined
+            )
+            .map(tag => tag.text!.find(elem => elem.kind === "text")!.text);
 
         return {
-            tags: [],
+            tags,
             parameters: route.parameters
                 .filter(param => param.category !== "body")
                 .map(param => generate_parameter
@@ -120,6 +133,9 @@ export namespace SwaggerGenerator
         };
     }
 
+    /* ---------------------------------------------------------
+        REQUEST & RESPONSE
+    --------------------------------------------------------- */
     function generate_parameter
         (
             checker: ts.TypeChecker,
@@ -156,7 +172,7 @@ export namespace SwaggerGenerator
                     (
                         checker, 
                         collection, 
-                        route.output.metadata
+                        parameter.type.metadata
                     )
                 }
             },
@@ -222,6 +238,9 @@ export namespace SwaggerGenerator
         return { ...exceptions, ...success };
     }
 
+    /* ---------------------------------------------------------
+        UTILS
+    --------------------------------------------------------- */
     function generate_schema
         (
             checker: ts.TypeChecker, 

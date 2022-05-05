@@ -158,7 +158,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISaleComment"
+                "$ref": "#/components/schemas/ISaleComment.IStore"
               }
             }
           },
@@ -388,9 +388,7 @@
           "description": "Content to archive",
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-"
-              }
+              "schema": {}
             }
           },
           "required": true
@@ -506,9 +504,7 @@
           "description": "New content to be overwritten",
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-"
-              }
+              "schema": {}
             }
           },
           "required": true
@@ -670,9 +666,7 @@
           "description": "Content to archive",
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-"
-              }
+              "schema": {}
             }
           },
           "required": true
@@ -788,9 +782,7 @@
           "description": "New content to be overwritten",
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-"
-              }
+              "schema": {}
             }
           },
           "required": true
@@ -1130,7 +1122,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISaleComment"
+                "$ref": "#/components/schemas/ISaleComment.IStore"
               }
             }
           },
@@ -1371,7 +1363,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.o2"
+                "$ref": "#/components/schemas/ISaleArticle.IContent"
               }
             }
           },
@@ -1582,7 +1574,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISaleInquiry-lt-Content-gt-.o2"
+                "$ref": "#/components/schemas/ISaleArticle.IContent"
               }
             }
           },
@@ -1762,7 +1754,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISeller"
+                "$ref": "#/components/schemas/ISeller.IJoin"
               }
             }
           },
@@ -1792,7 +1784,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ISeller"
+                "$ref": "#/components/schemas/ISeller.ILogin"
               }
             }
           },
@@ -1821,7 +1813,9 @@
           "description": "Old and new passwords",
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/ISeller.IChangePassword"
+              }
             }
           },
           "required": true
@@ -2060,6 +2054,21 @@
           "body"
         ],
         "description": "Content info."
+      },
+      "ISaleComment.IStore": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "description": "Body of the content.",
+            "type": "string",
+            "nullable": false
+          }
+        },
+        "nullable": false,
+        "required": [
+          "body"
+        ],
+        "description": "Store info."
       },
       "IPage-lt-ISaleEntireArtcle.ISummary-gt-": {
         "type": "object",
@@ -2681,6 +2690,45 @@
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
+      "ISeller.IJoin": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "description": "",
+            "type": "string",
+            "nullable": false
+          },
+          "password": {
+            "description": "",
+            "type": "string",
+            "nullable": false
+          },
+          "name": {
+            "description": "",
+            "type": "string",
+            "nullable": false
+          },
+          "mobile": {
+            "description": "",
+            "type": "string",
+            "nullable": false
+          },
+          "company": {
+            "description": "",
+            "type": "string",
+            "nullable": false
+          }
+        },
+        "nullable": false,
+        "required": [
+          "email",
+          "password",
+          "name",
+          "mobile",
+          "company"
+        ],
+        "description": ""
+      },
       "ISeller": {
         "type": "object",
         "properties": {
@@ -2719,6 +2767,48 @@
           "company"
         ],
         "description": "Seller information."
+      },
+      "ISeller.ILogin": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "description": "",
+            "type": "string",
+            "nullable": false
+          },
+          "password": {
+            "description": "",
+            "type": "string",
+            "nullable": false
+          }
+        },
+        "nullable": false,
+        "required": [
+          "email",
+          "password"
+        ],
+        "description": ""
+      },
+      "ISeller.IChangePassword": {
+        "type": "object",
+        "properties": {
+          "old_password": {
+            "description": "",
+            "type": "string",
+            "nullable": false
+          },
+          "new_password": {
+            "description": "",
+            "type": "string",
+            "nullable": false
+          }
+        },
+        "nullable": false,
+        "required": [
+          "old_password",
+          "new_password"
+        ],
+        "description": ""
       }
     }
   }

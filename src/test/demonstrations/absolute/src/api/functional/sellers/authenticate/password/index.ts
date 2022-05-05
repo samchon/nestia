@@ -16,6 +16,7 @@ import type { ISeller } from "./../../../../structures/actors/ISeller";
  * @param httpReq Instance of the Express.Request
  * @param input Old and new passwords
  * @return Empty object
+ * @tag sellers
  * 
  * @controller SellerAuthenticateController.change()
  * @path PATCH /sellers/authenticate/password/change
