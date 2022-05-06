@@ -6,12 +6,12 @@ import { ISaleEntireArtcle } from "@api/structures/sales/articles/ISaleEntireArt
 
 export abstract class SaleEntireArticlesController
 {
-    @helper.EncryptedRoute.Get()
+    @helper.EncryptedRoute.Patch()
     public async index
         (
             @helper.TypedParam("section", "string") section: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
-            @nest.Query() input: IPage.IRequest
+            @helper.EncryptedBody() input: IPage.IRequest
         ): Promise<IPage<ISaleEntireArtcle.ISummary>>
     {
         section;

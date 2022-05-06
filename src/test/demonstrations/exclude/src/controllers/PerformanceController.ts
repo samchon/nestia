@@ -11,7 +11,7 @@ export class PerformanceController
      * 
      * @return Performance information
      */
-    @helper.EncryptedRoute.Get()
+    @helper.EncryptedRoute.Patch()
     public get(): IPerformance
     {
         return {

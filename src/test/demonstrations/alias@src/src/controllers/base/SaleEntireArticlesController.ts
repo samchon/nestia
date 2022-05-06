@@ -1,17 +1,16 @@
 import helper from "nestia-helper";
-import * as nest from "@nestjs/common";
 
 import { IPage } from "@src/api/structures/common/IPage";
 import { ISaleEntireArtcle } from "@src/api/structures/sales/articles/ISaleEntireArticle";
 
 export abstract class SaleEntireArticlesController
 {
-    @helper.EncryptedRoute.Get()
+    @helper.EncryptedRoute.Patch()
     public async index
         (
             @helper.TypedParam("section", "string") section: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
-            @nest.Query() input: IPage.IRequest
+            @helper.EncryptedBody() input: IPage.IRequest
         ): Promise<IPage<ISaleEntireArtcle.ISummary>>
     {
         section;

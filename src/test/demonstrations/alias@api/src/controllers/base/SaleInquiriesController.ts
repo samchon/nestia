@@ -20,12 +20,12 @@ export abstract class SaleInquiriesController<
      * @throw 400 bad request error when type of the input data is not valid
      * @throw 404 not found error when unable to find the matched record
      */
-    @helper.EncryptedRoute.Get()
+    @helper.EncryptedRoute.Patch()
     public async index
         (
             @helper.TypedParam("section", "string") section: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
-            @nest.Query() input: Request
+            @helper.EncryptedBody() input: Request
         ): Promise<IPage<Summary>>
     {
         section;
