@@ -35,13 +35,13 @@ export abstract class SaleCommentsController
      * @throw 400 bad request error when type of the input data is not valid
      * @throw 404 not found error when unable to find the matched record
      */
-    @helper.EncryptedRoute.Get()
+    @helper.EncryptedRoute.Patch()
     public async index
         (
             @helper.TypedParam("section", "string") section: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
             @helper.TypedParam("articleId", "number") articleId: number,
-            @nest.Query() input: IPage.IRequest
+            @helper.EncryptedBody() input: IPage.IRequest
         ): P<IPage<ISaleComment>>
     {
         return null!;
