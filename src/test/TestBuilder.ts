@@ -27,7 +27,7 @@ export namespace TestBuilder
         if (job === "sdk" && fs.existsSync("src/api/functional"))
             cp.execSync("npx rimraf src/api/functional");
         else if (job === "swagger" && fs.existsSync("swagger.json"))
-            fs.rmSync("swagger.json");
+            cp.execSync("npx rimraf swagger.json");
         
         try
         {
