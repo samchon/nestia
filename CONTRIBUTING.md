@@ -42,7 +42,7 @@ If you succeeded to compile, but failed to pass the test-automation, then *debug
 ### Adding a Test
 As this `nestia` is not a typical library who being used by the `import` statement but a executable program generating the SDK (Software Development Kit), adding a test means that adding a demonstration project.
 
-I know that adding a demonstration project is much difficult than adding a test function, but there's no way if newly contributed code requires a new type of testing tool. Looking at the [src/test/demonstratios](src/test/demonstrations) directory and traveling the demonstration projects, create a new demonstration project following their structures and styles.
+I know that adding a demonstration project is much difficult than adding a test function, but there's no way if newly contributed code requires a new type of testing tool. Looking at the [src/test/demonstratios](demo) directory and traveling the demonstration projects, create a new demonstration project following their structures and styles.
 
 Of course, if your contribution code does not require a test new project, don't mind this.
 

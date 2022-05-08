@@ -3,8 +3,6 @@ import ts from "typescript";
 import { Singleton } from "tstl/thread/Singleton";
 
 import { IMetadata } from "../structures/IMetadata";
-
-import { CommentFactory } from "./CommentFactory";
 import { MetadataCollection } from "./MetadataCollection";
 import { TypeFactory } from "./TypeFactry";
 
@@ -215,18 +213,15 @@ export namespace MetadataFactory
             const type: ts.Type = checker.getTypeOfSymbolAtLocation(prop, node);
             
             // CHILD METADATA BY ADDITIONAL EXPLORATION
-            const child: IMetadata | null = explore
+            const child = explore
             (
                 collection, 
                 checker, 
                 type,
             );
-            if (child)
-            { 
-                if (node.questionToken)
-                    child.required = false;
-                child.description = CommentFactory.generate(prop.getDocumentationComment(checker))
-            }
+            if (child && node.questionToken)
+                child.required = false;
+
             object.properties[key] = child;
         }
         return id;

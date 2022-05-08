@@ -37,28 +37,37 @@ export namespace ControllerAnalyzer
             classNode: ts.ClassDeclaration
         ): IRoute[]
     {
-        const ret: IRoute[] = [];
         const classType: ts.InterfaceType = checker.getTypeAtLocation(classNode) as ts.InterfaceType;
         const genericDict: GenericAnalyzer.Dictionary = GenericAnalyzer.analyze(checker, classNode);
 
+        const ret: IRoute[] = [];
         for (const property of classType.getProperties())
-            if (property.declarations)
-                for (const declaration of property.declarations)
-                {
-                    // TARGET ONLY METHOD
-                    if (!ts.isMethodDeclaration(declaration))
-                        continue;
-                    
-                    // IT MUST BE
-                    const identifier = declaration.name;
-                    if (!ts.isIdentifier(identifier))
-                        continue;
-                
-                    // ANALYZED WITH THE REFLECTED-FUNCTION
-                    const func: IController.IFunction | undefined = controller.functions.find(f => f.name === identifier.escapedText);
-                    if (func !== undefined)
-                        ret.push(_Analyze_function(checker, controller, genericDict, func, declaration));
-                }
+        {
+            // GET METHOD DECLARATION
+            const declaration: ts.Declaration | undefined = (property.declarations || [])[0];
+            if (!declaration || !ts.isMethodDeclaration(declaration))
+                continue;
+
+            // IDENTIFIER MUST BE
+            const identifier = declaration.name;
+            if (!ts.isIdentifier(identifier))
+                continue;
+        
+            // ANALYZED WITH THE REFLECTED-FUNCTION
+            const runtime: IController.IFunction | undefined = controller.functions.find(f => f.name === identifier.escapedText);
+            if (runtime === undefined)
+                continue;
+
+            const route: IRoute = _Analyze_function
+            (
+                checker, 
+                controller, 
+                genericDict, 
+                runtime, 
+                property,
+            )
+            ret.push(route);
+        }
         return ret;
     }
 
@@ -71,13 +80,15 @@ export namespace ControllerAnalyzer
             controller: IController, 
             genericDict: GenericAnalyzer.Dictionary,
             func: IController.IFunction, 
-            declaration: ts.MethodDeclaration
+            symbol: ts.Symbol,
         ): IRoute
     {
         // PREPARE ASSETS
-        const signature: ts.Signature | undefined = checker.getSignatureFromDeclaration(declaration);
+        const type: ts.Type = checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration!);
+        const signature: ts.Signature | undefined = checker.getSignaturesOfType(type, ts.SignatureKind.Call)[0];
+
         if (signature === undefined)
-            throw new Error(`Error on ControllerAnalyzer._Analyze_function(): unable to get the ignature from the ${controller.name}.${func.name}().`);
+            throw new Error(`Error on ControllerAnalyzer._Analyze_function(): unable to get the signature from the ${controller.name}.${func.name}().`);
         
         const importDict: ImportAnalyzer.Dictionary = new HashMap();
 
@@ -90,14 +101,14 @@ export namespace ControllerAnalyzer
             controller,
             func.name,
             param, 
-            declaration.parameters[param.index]
+            signature.getParameters()[param.index]
         ));
         const output: IType = ImportAnalyzer.analyze
         (
             checker,
             genericDict,
             importDict,
-            checker.getReturnTypeOfSignature(signature),
+            signature.getReturnType(),
         );
         const imports: [string, string[]][] = importDict
             .toJSON()
@@ -145,11 +156,10 @@ export namespace ControllerAnalyzer
             controller: IController,
             funcName: string,
             param: IController.IParameter, 
-            declaration: ts.ParameterDeclaration
+            symbol: ts.Symbol
         ): IRoute.IParameter
     {
-        const symbol: ts.Symbol = checker.getSymbolAtLocation(declaration.name)!;
-        const type: ts.Type = checker.getTypeOfSymbolAtLocation(symbol, declaration);
+        const type: ts.Type = checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration!);
         const name: string = symbol.getEscapedName().toString();
 
         // VALIDATE PARAMETERS
