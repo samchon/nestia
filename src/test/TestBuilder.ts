@@ -16,16 +16,18 @@ export namespace TestBuilder
         const task = job === "sdk" ? 
         {
             generate: NestiaCommand.sdk,
-            file: "src/api/functional/consumers/sales/comments/index.ts"
+            file: "src/api/functional/index.ts"
         } :
         {
             generate: NestiaCommand.swagger,
             file: "swagger.json"
         };
         
-        process.chdir(`${PATH}/../../src/test/demonstrations/${name}`);
+        process.chdir(`${PATH}/../../demo/${name}`);
         if (job === "sdk" && fs.existsSync("src/api/functional"))
             cp.execSync("npx rimraf src/api/functional");
+        else if (job === "swagger" && fs.existsSync("swagger.json"))
+            fs.rmSync("swagger.json");
         
         try
         {

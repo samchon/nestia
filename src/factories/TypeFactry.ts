@@ -53,7 +53,7 @@ export namespace TypeFactory
     export function full_name(checker: ts.TypeChecker, type: ts.Type): string
     {
         // PRIMITIVE
-        const symbol: ts.Symbol | undefined = type.getSymbol() || type.aliasSymbol;
+        const symbol: ts.Symbol | undefined = type.aliasSymbol || type.getSymbol();
         if (symbol === undefined)
             return checker.typeToString(type, undefined, undefined);
         

@@ -55,14 +55,11 @@ async function main(): Promise<void>
     for (const job of ["swagger", "sdk"] as const)
     {
         console.log("---------------------------------------------------------");
-        await execute("absolute", job, get_arguments("directory", job));
-        await execute("alias@api", job, get_arguments("directory", job, true));
-        await execute("alias@src", job, get_arguments("directory", job));
-        await execute("default", job, get_arguments("directory", job, true));
-        await execute("esnext", job, get_arguments("directory", job));
-        await execute("nestia.config.ts", job, []);
-        await execute("reference", job, get_arguments("pattern", job, true));
-        await execute("tsconfig.json", job, get_arguments("directory", job));
+        await execute("encrypt", job, get_arguments("directory", job));
+        await execute("simple", job, get_arguments("directory", job));
+        await execute("generic", job, get_arguments("directory", job));
+        await execute("recursive", job, get_arguments("pattern", job));
+        await execute("union", job, get_arguments("directory", job));
     }
 }
 main().catch(exp =>

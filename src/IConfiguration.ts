@@ -14,28 +14,47 @@ export interface IConfiguration
 
     /**
      * Output directory that SDK would be placed in.
+     * 
+     * If not configured, you can't build the SDK library.
      */
     output?: string;
 
     /**
      * Compiler options for the TypeScript.
      * 
-     * If omitted, the configuration would follow the `tsconfig.json`.
+     * If you've omitted this property or the assigned property cannot fully cover the
+     * `tsconfig.json`, the properties from the `tsconfig.json` would be assigned to here.
+     * Otherwise, this property has been configured and it's detailed values are different 
+     * with the `tsconfig.json`, this property values would be used instead.
+     * 
+     * ```typescript
+     * import ts from "typescript";
+     * 
+     * const tsconfig: ts.TsConfig;
+     * const nestiaConfig: IConfiguration;
+     * 
+     * const compilerOptions: ts.CompilerOptions = {
+     *     ...tsconfig.compilerOptions,
+     *     ...(nestiaConfig.compilerOptions || {})
+     * }
+     * ```
      */
     compilerOptions?: ts.CompilerOptions;
 
     /**
      * Whether to assert parameter types or not.
      * 
-     * If you configure this option to be `true`, all of the function parameters would be
-     * checked through the [typescript-is](https://github.com/woutervh-/typescript-is).
+     * If you configure this property to be `true`, all of the function parameters would be
+     * checked through the [typescript-is](https://github.com/woutervh-/typescript-is). This
+     * option would make your SDK library slower, but would enahcne the type safety even in 
+     * the runtime level.
      */
     assert?: boolean;
 
     /**
      * Whether to optimize JSON string conversion 2x faster or not.
      * 
-     * If you configure this option to be `true`, the SDK library would utilize the
+     * If you configure this property to be `true`, the SDK library would utilize the
      * [typescript-json](https://github.com/samchon/typescript-json) and the JSON string
      * conversion speed really be 2x faster.
      */
@@ -43,6 +62,8 @@ export interface IConfiguration
 
     /**
      * Building `swagger.json` is also possible.
+     * 
+     * If not specified, you can't build the `swagger.json`.
      */
     swagger?: IConfiguration.ISwagger;
 }
@@ -73,9 +94,9 @@ export namespace IConfiguration
         /**
          * Output path of the `swagger.json`.
          * 
-         * If you've configure only directory, the file name would be `swagger.json`. 
-         * Otherwise you configure file name and extension, the `swagger.json` file would
-         * be renamed to what you've configured.
+         * If you've configured only directory, the file name would be the `swagger.json`. 
+         * Otherwise you've configured the full path with file name and extension, the 
+         * `swagger.json` file would be renamed to it.
          */
         output: string;
     }
