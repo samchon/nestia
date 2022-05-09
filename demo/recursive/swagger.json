@@ -127,7 +127,7 @@
         "type": "object",
         "properties": {
           "parent": {
-            "$ref": "#/components/schemas/ICategory.IInvert"
+            "$ref": "#/components/schemas/ICategory.IInvert.Nullable"
           },
           "id": {
             "type": "string",
@@ -143,6 +143,34 @@
           }
         },
         "nullable": false,
+        "required": [
+          "parent",
+          "id",
+          "code",
+          "name"
+        ],
+        "description": "Invert structure of the {@link ICategory}."
+      },
+      "ICategory.IInvert.Nullable": {
+        "type": "object",
+        "properties": {
+          "parent": {
+            "$ref": "#/components/schemas/ICategory.IInvert.Nullable"
+          },
+          "id": {
+            "type": "string",
+            "nullable": false
+          },
+          "code": {
+            "type": "string",
+            "nullable": false
+          },
+          "name": {
+            "type": "string",
+            "nullable": false
+          }
+        },
+        "nullable": true,
         "required": [
           "parent",
           "id",

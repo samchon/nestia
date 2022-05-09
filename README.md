@@ -17,21 +17,23 @@ npx nestia sdk "src/controller" --out "src/api"
 npx nestia sdk "src/**/*.controller.ts" --out "src/api"
 
 # BUILDING SWAGGER.JSON IS ALSO POSSIBLE
-npx nestia swagger "src/controller" -- out "swagger.json"
+npx nestia swagger "src/controller" --out "swagger.json"
 ```
 
 Don't write any `swagger` comment and DTO decorator. Just run the [nestia](https://github.com/samchon/nestia) up.
 
   - No swagger comment/decorator
   - No DTO comment/decorator
-  - Only pure NestJS code is required
+  - Only pure `interface`s and NestJS code are required
   - [Guide Documents (Wiki)](https://github.com/samchon/nestia/wiki), if you want to know more
 
 When you're developing a backend server using the `NestJS`, you don't need any extra dedication, for delivering the Rest API to the client developers, like writing the `swagger` comments or DTO decorators. 
 
 You just run this [nestia](https://github.com/samchon/nestia) up, then [nestia](https://github.com/samchon/nestia) would generate the SDK automatically, by analyzing your controller classes in the compliation and runtime level. With the automatically generated SDK through this [nestia](https://github.com/samchon/nestia), client developer also does not need any extra work, like reading `swagger` and writing the duplicated interaction code. Client developer only needs to import the SDK and calls matched function with the `await` symbol.
 
-> Even generating the `swagger.json` without any swagger comment and DTO decorator is also possible. When generating the `swagger.json`, no DTO comment and decorator is required, either. Use only the pure interface definitions.
+> Even generating the `swagger.json` is also possible. 
+>
+> When generating the `swagger.json`, use only the pure `interface` types, too.
 
 ```typescript
 import api from "@samchon/bbs-api";

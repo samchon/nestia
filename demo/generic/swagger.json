@@ -302,7 +302,7 @@
           },
           "extension": {
             "type": "string",
-            "nullable": false
+            "nullable": true
           },
           "url": {
             "type": "string",
@@ -326,7 +326,7 @@
             "nullable": false
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleInquiryAnswer-lt-ISaleArticle.IContent-gt-"
+            "$ref": "#/components/schemas/ISaleInquiryAnswer-lt-ISaleArticle.IContent-gt-.Nullable"
           },
           "id": {
             "type": "number",
@@ -359,7 +359,7 @@
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
-      "ISaleInquiryAnswer-lt-ISaleArticle.IContent-gt-": {
+      "ISaleInquiryAnswer-lt-ISaleArticle.IContent-gt-.Nullable": {
         "type": "object",
         "properties": {
           "id": {
@@ -382,7 +382,7 @@
             "nullable": false
           }
         },
-        "nullable": false,
+        "nullable": true,
         "required": [
           "id",
           "hit",
@@ -468,7 +468,7 @@
             "nullable": false
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleInquiryAnswer-lt-ISaleArticle.IContent-gt-"
+            "$ref": "#/components/schemas/ISaleInquiryAnswer-lt-ISaleArticle.IContent-gt-.Nullable"
           },
           "id": {
             "type": "number",

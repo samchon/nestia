@@ -109,7 +109,7 @@
           },
           "parent_id": {
             "type": "number",
-            "nullable": false
+            "nullable": true
           },
           "writer_type": {
             "type": "string",
@@ -117,7 +117,7 @@
           },
           "writer_name": {
             "type": "string",
-            "nullable": false
+            "nullable": true
           },
           "contents": {
             "type": "array",
