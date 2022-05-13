@@ -106,7 +106,7 @@
           "data": {
             "type": "array",
             "items": {
-              "anyOf": [
+              "oneOf": [
                 {
                   "$ref": "#/components/schemas/ISaleInquiry.ISummary"
                 },

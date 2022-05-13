@@ -38,7 +38,7 @@ export namespace SchemaFactory
         else
             return {
                 description: meta.description,
-                anyOf: unions
+                oneOf: unions
             };
     }
 
