@@ -3,6 +3,7 @@ const config = {
     output: "src/api",
     swagger: {
         output: "swagger.json"
-    }
+    },
+    json: true
 };
 export default config;
