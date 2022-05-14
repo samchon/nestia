@@ -31,7 +31,7 @@ Don't write any swagger comment and DTO decorator. Just run the `nestia` up.
   - No swagger comment/decorator
   - No DTO comment/decorator
   - Only pure `interface`s and NestJS code are required
-    - Suppors generic typed `interface`s and `controller`s
+    - Support generic typed `interface`s and `controller`s
     - Support union/intersection types
     - Support conditional types
 
