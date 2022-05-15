@@ -23,7 +23,7 @@ npx nestia sdk "src/controller" \
     --out "src/api"
 
 # BUILDING SWAGGER.JSON IS ALSO POSSIBLE
-npx nestia swagger "src/controller" -- out "swagger.json"
+npx nestia swagger "src/controller" --out "swagger.json"
 ```
 
 Don't write any swagger comment and DTO decorator. Just run the `nestia` up.
