@@ -577,7 +577,7 @@ npx nestia <nestia|swagger> <source_directories_or_patterns> \
 
 # EXAMPLES
 npx nestia nestia "src/controllers" --out "src/api"
-npx nestia swagger "src/**/*.controller.ts" -- out "swagger.json"
+npx nestia swagger "src/**/*.controller.ts" --out "swagger.json"
 npx nestia swagger "src/main/controllers" "src/sub/controllers" \
     --exclude "src/main/test" \
     --out "composite.swagger.json"
