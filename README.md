@@ -93,7 +93,7 @@ export async function trace_sale_question_and_comment
 ## Demonstrations
 Components | `nestia`::SDK | `nestia`::swagger | `@nestjs/swagger`
 -----------|---|---|---
-DTO with pure interface | ✔ | ✔ | ❌
+Pure DTO interface | ✔ | ✔ | ❌
 descriptions by comments | ✔ | ✔ | ❌
 Simple structure | ✔ | ✔ | ✔
 Generic typed structure | ✔ | ✔ | ❌
@@ -124,7 +124,71 @@ Look at the code below, you may see the difference between `nestia` and `@nestjs
 
 <details>
     <summary>
-        Pure DTO interface, of the <code>nestia</code>
+        Traditional DTO class using <code>@nestjs/swagger</code>
+    </summary>
+
+```typescript
+export class SaleArticleComment
+{
+    @ApiProperty({
+        description: 
+`Comment wrote on a sale related article.
+
+When an article of a sale has been enrolled, all of the participants like consumers and sellers can write a comment on that article. However, when the writer is a consumer, the consumer can hide its name through the annoymous option.
+
+Also, writing a reply comment for a specific comment is possible and in that case, the ISaleArticleComment.parent_id property would be activated.`
+    })
+    id: number;
+
+    @ApiProperty({
+        type: "number",
+        nullable: true,
+        description:
+`Parent comment ID.
+
+Only When this comment has been written as a reply.`
+    })
+    parent_id: number | null;
+
+    @ApiProperty({
+        type: "string",
+        description: "Type of the writer."
+    })
+    writer_type: "seller" | "consumer";
+
+    @ApiProperty({
+        type: "string",
+        nullable: true,
+        description:
+`Name of the writer.
+
+When this is a type of anonymous comment, writer name would be hidden.`
+    })
+    writer_name: string | null;
+
+    @ApiProperty({
+        type: "array",
+        items: {
+            schema: { $ref: getSchemaPath(SaleArticleComment.Content) }
+        },
+        description:
+`Contents of the comments.
+
+When the comment writer tries to modify content, it would not modify the comment content but would be accumulated Therefore, all of the people can read how the content has been changed.`
+    })
+    contents: SaleArticleComment.Content[];
+
+    @ApiProperty({
+        description: "Creation time."
+    })
+    created_at: string;
+}
+```
+</details>
+
+<details>
+    <summary>
+        Pure DTO interface using <code>nestia</code>
     </summary>
 
 ```typescript
@@ -218,70 +282,6 @@ export namespace ISaleArticleComment
          */
         created_at: string;
     }
-}
-```
-</details>
-
-<details>
-    <summary>
-        Legacy DTO class, of the <code>@nestjs/swagger</code>
-    </summary>
-
-```typescript
-export class SaleArticleComment
-{
-    @ApiProperty({
-        description: 
-`Comment wrote on a sale related article.
-
-When an article of a sale has been enrolled, all of the participants like consumers and sellers can write a comment on that article. However, when the writer is a consumer, the consumer can hide its name through the annoymous option.
-
-Also, writing a reply comment for a specific comment is possible and in that case, the ISaleArticleComment.parent_id property would be activated.`
-    })
-    id: number;
-
-    @ApiProperty({
-        type: "number",
-        nullable: true,
-        description:
-`Parent comment ID.
-
-Only When this comment has been written as a reply.`
-    })
-    parent_id: number | null;
-
-    @ApiProperty({
-        type: "string",
-        description: "Type of the writer."
-    })
-    writer_type: "seller" | "consumer";
-
-    @ApiProperty({
-        type: "string",
-        nullable: true,
-        description:
-`Name of the writer.
-
-When this is a type of anonymous comment, writer name would be hidden.`
-    })
-    writer_name: string | null;
-
-    @ApiProperty({
-        type: "array",
-        items: {
-            schema: { $ref: getSchemaPath(SaleArticleComment.Content) }
-        },
-        description:
-`Contents of the comments.
-
-When the comment writer tries to modify content, it would not modify the comment content but would be accumulated Therefore, all of the people can read how the content has been changed.`
-    })
-    contents: SaleArticleComment.Content[];
-
-    @ApiProperty({
-        description: "Creation time."
-    })
-    created_at: string;
 }
 ```
 </details>
@@ -399,9 +399,9 @@ export abstract class SaleInquiriesController<
 
 
 ### Software Development Kit
-> `Swagger` is torturing the client developers.
+> `Swagger` is torturing client developers.
 >
-> If you're a backend developer and you deliver a `Swagger` to your companion client developers, the client developers should analyze the `Swagger` and implement duplicated router functions with DTO interfaces by themselves. During those jobs, if a client developer takes a mistake by mis-reading the `Swagger`, it becomes a critical runtime error directly.
+> If you're a backend developer and you deliver a `Swagger` to your companion client developers, they should analyze the `Swagger` and implement duplicated router functions with DTO interfaces by themselves. During those jobs, if a client developer takes a mistake by mis-reading the `Swagger`, it becomes a critical runtime error directly.
 >
 > Why are you torturing the client developers such like that? If you deliver an SDK (Software Development Kit) instead of the `Swagger`, the client developers don't need to read the `Swagger` file. They never need to implement the duplicated DTO interfaces with router functions, either.
 >
