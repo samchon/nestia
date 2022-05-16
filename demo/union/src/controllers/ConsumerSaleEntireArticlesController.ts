@@ -33,4 +33,30 @@ export class ConsumerSaleEntireArticlesController
         
         return null!;
     }
+
+    /**
+     * Get detailed sale article record.
+     * 
+     * @param request Instance of the Express.Request
+     * @param section Code of the target section
+     * @param saleId ID of the target sale
+     * @param id ID of the target article
+     * @returns The detailed article record
+     */
+    @nest.Get(":id")
+    public async at
+        (
+            @nest.Request() request: express.Request,
+            @helper.TypedParam("section", "string") section: string, 
+            @helper.TypedParam("saleId", "number") saleId: number,
+            @helper.TypedParam("id", "number") id: number,
+        ): Promise<ISaleEntireArtcle>
+    {
+        request;
+        section;
+        saleId;
+        id;
+
+        return null!;
+    }
 }
