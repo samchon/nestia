@@ -286,6 +286,203 @@ export namespace ISaleArticleComment
 ```
 </details>
 
+<details>
+    <summary>
+        Pure DTO interface using <code>nestia</code>
+    </summary>
+
+```typescript
+/**
+ * Comment wrote on a sale related article.
+ * 
+ * When an article of a sale has been enrolled, all of the participants like consumers and
+ * sellers can write a comment on that article. However, when the writer is a consumer, the
+ * consumer can hide its name through the annoymous option. 
+ * 
+ * Also, writing a reply comment for a specific comment is possible and in that case, the 
+ * {@link ISaleArticleComment.parentId} property would be activated.
+ * 
+ * @author Jeongho Nam - https://github.com/samchon
+ */
+export interface ISaleArticleComment {
+    /**
+     * Primary Key.
+     */
+    id: number;
+
+    /**
+     * Parent comment ID.
+     * 
+     * Only When this comment has been written as a reply.
+     */
+    parentId: number | null;
+
+    /**
+     * Type of the writer.
+     */
+    writerType: "seller" | "consumer";
+
+    /**
+     * Name of the writer.
+     * 
+     * When this is a type of anonymous comment, writer name would be hidden.
+     */
+    writerName: string | null;
+
+    /**
+     * Contents of the comments.
+     * 
+     * When the comment writer tries to modify content, it would not modify the comment
+     * content but would be accumulated. Therefore, all the people can read how
+     * the content has been changed.
+     */
+    contents: ISaleArticleComment.IContent[];
+
+    /**
+     * Creation time.
+     */
+    createdAt: string;
+}
+export namespace ISaleArticleComment {
+    /**
+     * Store info.
+     */
+    export interface IStore {
+        /**
+         * Body of the content.
+         */
+        body: string;
+
+        /**
+         * Whether to hide the writer name or not.
+         */
+        annonymous: boolean;
+    }
+
+    /**
+     * Content info.
+     */
+    export interface IContent {
+        /**
+         * Primary Key.
+         */
+        id: string;
+
+        /**
+         * Body of the content.
+         */
+        body: string;
+
+        /**
+         * Creation time.
+         */
+        createdAt: string;
+    }
+}
+```
+</details>
+
+<details>
+    <summary>
+        Generic typed DTO using <code>nestia</code>
+    </summary>
+
+```typescript
+/**
+ * Inquiry article.
+ * 
+ * Sub-type of article and super-type of question and answer.
+ * 
+ *  - List of the sub-types
+ *    - {@link ISaleQuestion}
+ *    - {@link ISaleReview}
+ * 
+ * @template Content Content type
+ * @author Jeongho Nam - https://github.com/samchon
+ */
+export interface ISaleInquiry<Content extends ISaleInquiry.IContent> 
+    extends ISaleArticle<Content> 
+{
+    /**
+     * Primary Key.
+     */
+    id: number;
+
+    /**
+     * Name of the writer.
+     */
+    writer: string;
+
+    /**
+     * List of contents.
+     * 
+     * When the article writer tries to modify content, it would not modify the article
+     * content but would be accumulated. Therefore, all the people can read how
+     * the content has been changed.
+     */
+    contents: Content[];
+
+    /**
+     * Creation time.
+     */
+    createdAat: string;
+        
+    /**
+     * Formal answer from the seller.
+     */
+    answer: ISaleInquiryAnswer | null;
+}
+export namespace ISaleInquiry 
+{
+    /**
+     * Content info.
+     */
+    export interface IContent 
+    {
+        /**
+         * Primary Key
+         */
+        id: string;
+
+        /**
+         * Title of the content.
+         */
+        title: string;
+
+        /**
+         * Body of the content.
+         */
+        body: string;
+
+        /**
+         * Attached files.
+         */
+        files: IAttachmentFile[];
+
+        /**
+         * Creation time.
+         */
+        createdAt: string;
+    }
+}
+```
+</details>
+
+<details>
+    <summary>
+        Union typed DTO using <code>nestia</code>
+    </summary>
+
+```typescript
+/**
+ * Union type of the entire sub-type articles.
+ * 
+ * @author Jeongho Nam - https://github.com/samchon
+ */
+export type ISaleEntireArtcle = ISaleQuestion | ISaleReview;
+```
+</details>
+
 
 
 
