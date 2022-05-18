@@ -55,6 +55,7 @@ async function main(): Promise<void>
     for (const job of ["swagger", "sdk"] as const)
     {
         console.log("---------------------------------------------------------");
+        await execute("array", job, get_arguments("directory", job));
         await execute("encrypt", job, get_arguments("directory", job));
         await execute("simple", job, get_arguments("directory", job));
         await execute("generic", job, get_arguments("directory", job));

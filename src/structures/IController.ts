@@ -4,7 +4,7 @@ export interface IController
 {
     file: string;
     name: string;
-    path: string;
+    paths: string[];
     functions: IController.IFunction[];
 }
 
@@ -14,7 +14,7 @@ export namespace IController
     {
         name: string;
         method: string;
-        path: string;
+        paths: string[];
         encrypted: boolean;
 
         parameters: IParameter[];

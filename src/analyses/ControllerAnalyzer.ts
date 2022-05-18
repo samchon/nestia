@@ -58,7 +58,7 @@ export namespace ControllerAnalyzer
             if (runtime === undefined)
                 continue;
 
-            const route: IRoute = _Analyze_function
+            const routes: IRoute[] = _Analyze_function
             (
                 checker, 
                 controller, 
@@ -66,7 +66,7 @@ export namespace ControllerAnalyzer
                 runtime, 
                 property,
             )
-            ret.push(route);
+            ret.push(...routes);
         }
         return ret;
     }
@@ -81,7 +81,7 @@ export namespace ControllerAnalyzer
             genericDict: GenericAnalyzer.Dictionary,
             func: IController.IFunction, 
             symbol: ts.Symbol,
-        ): IRoute
+        ): IRoute[]
     {
         // PREPARE ASSETS
         const type: ts.Type = checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration!);
@@ -114,18 +114,9 @@ export namespace ControllerAnalyzer
             .toJSON()
             .map(pair => [ pair.first, pair.second.toJSON() ]);
 
-        // CONFIGURE PATH
-        const path: string = _Normalize_path
-        (
-            NodePath.join(controller.path, func.path)
-                .split("\\")
-                .join("/")
-        );
-
-        // RETURNS
-        return {
+        // CONSTRUCT COMMON DATA
+        const common: Omit<IRoute, "path"> = {
             ...func,
-            path,
             parameters,
             output,
             imports,
@@ -134,6 +125,25 @@ export namespace ControllerAnalyzer
             comments: signature.getDocumentationComment(undefined),
             tags: signature.getJsDocTags()
         };
+
+        // CONFIGURE PATHS
+        const pathList: string[] = [];
+        for (const controllerPath of controller.paths)
+            for (const filePath of func.paths)
+            {
+                const path: string = NodePath.join
+                    (
+                        controllerPath, 
+                        filePath
+                    ).split("\\").join("/");
+                pathList.push(_Normalize_path(path));
+            }
+
+        // RETURNS
+        return pathList.map(path => ({
+            ...common,
+            path,
+        }));
     }
 
     function _Normalize_path(path: string)
