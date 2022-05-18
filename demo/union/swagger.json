@@ -63,7 +63,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Code of the target section",
             "schema": {
               "type": "string",
               "nullable": false
@@ -73,7 +73,7 @@
           {
             "name": "saleId",
             "in": "path",
-            "description": "",
+            "description": "ID of the target sale",
             "schema": {
               "type": "number",
               "nullable": false
@@ -83,7 +83,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "",
+            "description": "ID of the target article",
             "schema": {
               "type": "number",
               "nullable": false
@@ -93,7 +93,7 @@
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "The detailed article record",
             "content": {
               "application/json": {
                 "schema": {
@@ -110,7 +110,7 @@
             }
           }
         },
-        "description": ""
+        "description": "Get detailed sale article record."
       }
     }
   },

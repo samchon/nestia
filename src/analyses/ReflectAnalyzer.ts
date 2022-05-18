@@ -53,10 +53,11 @@ export namespace ReflectAnalyzer
         // CONSTRUCTION
         //----
         // BASIC INFO
+        const paths: string[] = _Get_paths(Reflect.getMetadata("path", creator));
         const meta: IController = {
             file,
             name,
-            path: Reflect.getMetadata("path", creator),
+            paths,
             functions: []
         };
 
@@ -84,6 +85,16 @@ export namespace ReflectAnalyzer
         return entries;
     }
 
+    function _Get_paths(value: string | string[]): string[]
+    {
+        if (typeof value === "string")
+            return [value];
+        else if (value.length === 0)
+            return [""];
+        else
+            return value;
+    }
+
     /* ---------------------------------------------------------
         FUNCTION
     --------------------------------------------------------- */
@@ -107,7 +118,7 @@ export namespace ReflectAnalyzer
         const meta: IController.IFunction = {
             name,
             method: METHODS[Reflect.getMetadata("method", proto)],
-            path: Reflect.getMetadata("path", proto),
+            paths: _Get_paths(Reflect.getMetadata("path", proto)),
             parameters: [],
             encrypted: Reflect.hasMetadata("__interceptors__", proto) 
                 && Reflect.getMetadata("__interceptors__", proto)[0]?.constructor?.name === "EncryptedRouteInterceptor"
@@ -129,21 +140,25 @@ export namespace ReflectAnalyzer
         }
 
         // VALIDATE PATH ARGUMENTS
-        const funcPathArguments: string[] = StringUtil.betweens
-        (
-            NodePath.join(controller.path, meta.path)
-                .split("\\")
-                .join("/"), 
-            ":", "/"
-        ).sort();
-        
-        const paramPathArguments: string[] = meta.parameters
-            .filter(param => param.category === "param")
-            .map(param => param.field!)
-            .sort();
+        for (const controllerPath of controller.paths)
+            for (const metaPath of meta.paths)
+            {
+                const funcPathArguments: string[] = StringUtil.betweens
+                    (
+                        NodePath.join(controllerPath, metaPath)
+                            .split("\\")
+                            .join("/"), 
+                        ":", "/"
+                    ).sort();
+                
+                const paramPathArguments: string[] = meta.parameters
+                    .filter(param => param.category === "param")
+                    .map(param => param.field!)
+                    .sort();
 
-        if (equal(funcPathArguments, paramPathArguments) === false)
-            throw new Error(`Error on ${controller.name}.${name}(): binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${funcPathArguments.join(", ")}], parameters: [${paramPathArguments.join(", ")}])`);
+                if (equal(funcPathArguments, paramPathArguments) === false)
+                    throw new Error(`Error on ${controller.name}.${name}(): binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${funcPathArguments.join(", ")}], parameters: [${paramPathArguments.join(", ")}])`);
+        }
 
         // RETURNS
         return meta;
