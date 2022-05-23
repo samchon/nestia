@@ -1,9 +1,12 @@
+import { IJsonComponents } from "typescript-json/lib/structures/IJsonComponents";
+import { IJsonSchema } from "typescript-json/lib/structures/IJsonSchema";
+
 export interface ISwagger
 {
     openapi: "3.0";
     info: ISwagger.IInfo;
     paths: Record<string, ISwagger.IPath>;
-    components: Record<string, object>;
+    components: IJsonComponents;
 }
 export namespace ISwagger
 {
@@ -28,7 +31,7 @@ export namespace ISwagger
     {
         name: string;
         in: string;
-        schema: string;
+        schema: IJsonSchema;
         required: true;
         description: string;
     }
@@ -47,7 +50,7 @@ export namespace ISwagger
     export interface IJsonContent
     {
         "application/json": {
-            schema: object;
+            schema: IJsonSchema;
         };
     }
     

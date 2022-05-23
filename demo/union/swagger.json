@@ -99,10 +99,10 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/ISaleQuestion-lt-ISaleArticle.IContent-gt-"
+                      "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleArticle.IContent-gt-"
                     },
                     {
-                      "$ref": "#/components/schemas/ISaleReview-lt-ISaleReview.IContent-gt-"
+                      "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleReview.IContent-gt-"
                     }
                   ]
                 }
@@ -117,19 +117,23 @@
   "components": {
     "schemas": {
       "ISaleInquiry.IRequest": {
+        "$id": "ISaleInquiry.IRequest",
         "type": "object",
         "properties": {
           "answered": {
             "type": "boolean",
-            "nullable": false
+            "nullable": false,
+            "description": "Whether being answer by seller or not."
           },
           "page": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Page number."
           },
           "limit": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Maximum number of records per a page."
           },
           "search_fields": {
             "type": "array",
@@ -137,15 +141,18 @@
               "type": "string",
               "nullable": false
             },
-            "nullable": false
+            "nullable": false,
+            "description": "Search field(s)."
           },
           "search_value": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Search value."
           },
           "sort": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Standard of sorting, list up fields with symbols.\n\n  - Only field name (`id`): ASC\n  - Plus symbol (`+id`): ASC\n  - Minus symbol (`-id`): DESC"
           }
         },
         "nullable": false,
@@ -155,10 +162,12 @@
         "description": "Page request info."
       },
       "IPage-lt-ISaleEntireArtcle.ISummary-gt-": {
+        "$id": "IPage-lt-ISaleEntireArtcle.ISummary-gt-",
         "type": "object",
         "properties": {
           "pagination": {
-            "$ref": "#/components/schemas/IPage.IPagination"
+            "$ref": "#/components/schemas/IPage.IPagination",
+            "description": "Pagination info."
           },
           "data": {
             "type": "array",
@@ -172,7 +181,8 @@
                 }
               ]
             },
-            "nullable": false
+            "nullable": false,
+            "description": "List of the records."
           }
         },
         "nullable": false,
@@ -183,23 +193,28 @@
         "description": "Paginated records."
       },
       "IPage.IPagination": {
+        "$id": "IPage.IPagination",
         "type": "object",
         "properties": {
           "page": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Current page number."
           },
           "limit": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Maximum number of records per a page."
           },
           "total_count": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Number of entire records."
           },
           "total_pages": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Number of total pages."
           }
         },
         "nullable": false,
@@ -212,35 +227,43 @@
         "description": "Pagenation info."
       },
       "ISaleInquiry.ISummary": {
+        "$id": "ISaleInquiry.ISummary",
         "type": "object",
         "properties": {
           "writer": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Name of the writer."
           },
           "answered": {
             "type": "boolean",
-            "nullable": false
+            "nullable": false,
+            "description": "Whether being answer by seller or not."
           },
           "id": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key."
           },
           "title": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Title of the article."
           },
           "hit": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Hit count.\n\nHow many consumers had read."
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creaiton time."
           },
           "updated_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Updated time."
           }
         },
         "nullable": false,
@@ -256,39 +279,48 @@
         "description": "Summarized info of the inquiry article."
       },
       "ISaleReview.ISummary": {
+        "$id": "ISaleReview.ISummary",
         "type": "object",
         "properties": {
           "score": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Estimation score."
           },
           "writer": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Name of the writer."
           },
           "answered": {
             "type": "boolean",
-            "nullable": false
+            "nullable": false,
+            "description": "Whether being answer by seller or not."
           },
           "id": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key."
           },
           "title": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Title of the article."
           },
           "hit": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Hit count.\n\nHow many consumers had read."
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creaiton time."
           },
           "updated_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Updated time."
           }
         },
         "nullable": false,
@@ -304,34 +336,41 @@
         ],
         "description": "Summarized info of the review."
       },
-      "ISaleQuestion-lt-ISaleArticle.IContent-gt-": {
+      "ISaleInquiry-lt-ISaleArticle.IContent-gt-": {
+        "$id": "ISaleInquiry-lt-ISaleArticle.IContent-gt-",
         "type": "object",
         "properties": {
           "writer": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Name of the writer."
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleInquiryAnswer-lt-ISaleArticle.IContent-gt-.Nullable"
+            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable",
+            "description": "Formal answer from the seller."
           },
           "id": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key."
           },
           "hit": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Hit count.\n\nHow many consumers had read."
           },
           "contents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleArticle.IContent"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creation time."
           }
         },
         "nullable": false,
@@ -345,27 +384,32 @@
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
-      "ISaleInquiryAnswer-lt-ISaleArticle.IContent-gt-.Nullable": {
+      "ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable": {
+        "$id": "ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable",
         "type": "object",
         "properties": {
           "id": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key."
           },
           "hit": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Hit count.\n\nHow many consumers had read."
           },
           "contents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleArticle.IContent"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creation time."
           }
         },
         "nullable": true,
@@ -378,30 +422,36 @@
         "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`."
       },
       "ISaleArticle.IContent": {
+        "$id": "ISaleArticle.IContent",
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key"
           },
           "title": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Title of the content."
           },
           "body": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Body of the content."
           },
           "files": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IAttachmentFile"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "Attached files."
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creation time."
           }
         },
         "nullable": false,
@@ -415,23 +465,28 @@
         "description": "Content info."
       },
       "IAttachmentFile": {
+        "$id": "IAttachmentFile",
         "type": "object",
         "properties": {
           "id": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key."
           },
           "name": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Name of the file."
           },
           "extension": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "description": "Extension of the file, but ommitable."
           },
           "url": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Full URL path of the file."
           }
         },
         "nullable": false,
@@ -443,34 +498,41 @@
         ],
         "description": "Attachemd (physical) file info."
       },
-      "ISaleReview-lt-ISaleReview.IContent-gt-": {
+      "ISaleInquiry-lt-ISaleReview.IContent-gt-": {
+        "$id": "ISaleInquiry-lt-ISaleReview.IContent-gt-",
         "type": "object",
         "properties": {
           "writer": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Name of the writer."
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleInquiryAnswer-lt-ISaleArticle.IContent-gt-.Nullable"
+            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable",
+            "description": "Formal answer from the seller."
           },
           "id": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key."
           },
           "hit": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Hit count.\n\nHow many consumers had read."
           },
           "contents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleReview.IContent"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creation time."
           }
         },
         "nullable": false,
@@ -485,34 +547,41 @@
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
       "ISaleReview.IContent": {
+        "$id": "ISaleReview.IContent",
         "type": "object",
         "properties": {
           "score": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Estimation score."
           },
           "id": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key"
           },
           "title": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Title of the content."
           },
           "body": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Body of the content."
           },
           "files": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IAttachmentFile"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "Attached files."
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creation time."
           }
         },
         "nullable": false,

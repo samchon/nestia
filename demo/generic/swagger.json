@@ -47,7 +47,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleQuestion-lt-ISaleArticle.IContent-gt-"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleArticle.IContent-gt-"
                 }
               }
             }
@@ -114,7 +114,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleQuestion-lt-ISaleArticle.IContent-gt-"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleArticle.IContent-gt-"
                 }
               }
             }
@@ -174,7 +174,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleReview-lt-ISaleReview.IContent-gt-"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleReview.IContent-gt-"
                 }
               }
             }
@@ -241,7 +241,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleReview-lt-ISaleReview.IContent-gt-"
+                  "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleReview.IContent-gt-"
                 }
               }
             }
@@ -263,22 +263,26 @@
   "components": {
     "schemas": {
       "ISaleArticle.IStore": {
+        "$id": "ISaleArticle.IStore",
         "type": "object",
         "properties": {
           "title": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Title of the content."
           },
           "body": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Body of the content."
           },
           "files": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IAttachmentFile"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "Attached files."
           }
         },
         "nullable": false,
@@ -290,23 +294,28 @@
         "description": "Store info."
       },
       "IAttachmentFile": {
+        "$id": "IAttachmentFile",
         "type": "object",
         "properties": {
           "id": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key."
           },
           "name": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Name of the file."
           },
           "extension": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "description": "Extension of the file, but ommitable."
           },
           "url": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Full URL path of the file."
           }
         },
         "nullable": false,
@@ -318,34 +327,41 @@
         ],
         "description": "Attachemd (physical) file info."
       },
-      "ISaleQuestion-lt-ISaleArticle.IContent-gt-": {
+      "ISaleInquiry-lt-ISaleArticle.IContent-gt-": {
+        "$id": "ISaleInquiry-lt-ISaleArticle.IContent-gt-",
         "type": "object",
         "properties": {
           "writer": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Name of the writer."
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleInquiryAnswer-lt-ISaleArticle.IContent-gt-.Nullable"
+            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable",
+            "description": "Formal answer from the seller."
           },
           "id": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key."
           },
           "hit": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Hit count.\n\nHow many consumers had read."
           },
           "contents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleArticle.IContent"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creation time."
           }
         },
         "nullable": false,
@@ -359,27 +375,32 @@
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
-      "ISaleInquiryAnswer-lt-ISaleArticle.IContent-gt-.Nullable": {
+      "ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable": {
+        "$id": "ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable",
         "type": "object",
         "properties": {
           "id": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key."
           },
           "hit": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Hit count.\n\nHow many consumers had read."
           },
           "contents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleArticle.IContent"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creation time."
           }
         },
         "nullable": true,
@@ -392,30 +413,36 @@
         "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`."
       },
       "ISaleArticle.IContent": {
+        "$id": "ISaleArticle.IContent",
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key"
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creation time."
           },
           "title": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Title of the content."
           },
           "body": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Body of the content."
           },
           "files": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IAttachmentFile"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "Attached files."
           }
         },
         "nullable": false,
@@ -429,26 +456,31 @@
         "description": "Content info."
       },
       "ISaleReview.IStore": {
+        "$id": "ISaleReview.IStore",
         "type": "object",
         "properties": {
           "score": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Estimation score."
           },
           "title": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Title of the content."
           },
           "body": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Body of the content."
           },
           "files": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IAttachmentFile"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "Attached files."
           }
         },
         "nullable": false,
@@ -460,34 +492,41 @@
         ],
         "description": "Store info of the review."
       },
-      "ISaleReview-lt-ISaleReview.IContent-gt-": {
+      "ISaleInquiry-lt-ISaleReview.IContent-gt-": {
+        "$id": "ISaleInquiry-lt-ISaleReview.IContent-gt-",
         "type": "object",
         "properties": {
           "writer": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Name of the writer."
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleInquiryAnswer-lt-ISaleArticle.IContent-gt-.Nullable"
+            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable",
+            "description": "Formal answer from the seller."
           },
           "id": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key."
           },
           "hit": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Hit count.\n\nHow many consumers had read."
           },
           "contents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleReview.IContent"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creation time."
           }
         },
         "nullable": false,
@@ -502,34 +541,41 @@
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
       "ISaleReview.IContent": {
+        "$id": "ISaleReview.IContent",
         "type": "object",
         "properties": {
           "score": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Estimation score."
           },
           "id": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key"
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creation time."
           },
           "title": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Title of the content."
           },
           "body": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Body of the content."
           },
           "files": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IAttachmentFile"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "Attached files."
           }
         },
         "nullable": false,

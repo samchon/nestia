@@ -110,6 +110,7 @@
   "components": {
     "schemas": {
       "ISeller.IJoin": {
+        "$id": "ISeller.IJoin",
         "type": "object",
         "properties": {
           "email": {
@@ -140,31 +141,36 @@
           "name",
           "mobile",
           "company"
-        ],
-        "description": ""
+        ]
       },
       "ISeller": {
+        "$id": "ISeller",
         "type": "object",
         "properties": {
           "id": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary key."
           },
           "email": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Email address."
           },
           "name": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Name of the seller."
           },
           "mobile": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Mobile number of the seller."
           },
           "company": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Belonged company name."
           }
         },
         "nullable": false,
@@ -178,6 +184,7 @@
         "description": "Seller information."
       },
       "ISeller.ILogin": {
+        "$id": "ISeller.ILogin",
         "type": "object",
         "properties": {
           "email": {
@@ -193,10 +200,10 @@
         "required": [
           "email",
           "password"
-        ],
-        "description": ""
+        ]
       },
       "ISeller.IChangePassword": {
+        "$id": "ISeller.IChangePassword",
         "type": "object",
         "properties": {
           "old_password": {
@@ -212,8 +219,7 @@
         "required": [
           "old_password",
           "new_password"
-        ],
-        "description": ""
+        ]
       }
     }
   }

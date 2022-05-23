@@ -2,14 +2,14 @@ import fs from "fs";
 import ts from "typescript";
 import NodePath from "path";
 
+import { CommentFactory } from "typescript-json/lib/factories/CommentFactory";
+import { MetadataCollection } from "typescript-json/lib/factories/MetadataCollection";
+import { MetadataFactory } from "typescript-json/lib/factories/MetadataFactory";
+import { SchemaFactory } from "typescript-json/lib/factories/SchemaFactory";
+
 import { IConfiguration } from "../IConfiguration";
 import { IRoute } from "../structures/IRoute";
 import { ISwagger } from "../structures/ISwagger";
-import { MetadataCollection } from "../factories/MetadataCollection";
-
-import { CommentFactory } from "../factories/CommentFactory";
-import { MetadataFactory } from "../factories/MetadataFactory";
-import { SchemaFactory } from "../factories/SchemaFactory";
 
 import { MapUtil } from "../utils/MapUtil";
 
