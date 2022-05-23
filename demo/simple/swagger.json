@@ -82,15 +82,18 @@
   "components": {
     "schemas": {
       "ISaleArticleComment.IStore": {
+        "$id": "ISaleArticleComment.IStore",
         "type": "object",
         "properties": {
           "body": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Body of the content."
           },
           "annonymous": {
             "type": "boolean",
-            "nullable": false
+            "nullable": false,
+            "description": "Whether to hide the writer name or not."
           }
         },
         "nullable": false,
@@ -101,34 +104,41 @@
         "description": "Store info."
       },
       "ISaleArticleComment": {
+        "$id": "ISaleArticleComment",
         "type": "object",
         "properties": {
           "id": {
             "type": "number",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key."
           },
           "parent_id": {
             "type": "number",
-            "nullable": true
+            "nullable": true,
+            "description": "Parent comment ID.\n\nOnly When this comment has been written as a reply."
           },
           "writer_type": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Type of the writer."
           },
           "writer_name": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "description": "Name of the writer.\n\nWhen this is a type of anonymous comment, writer name would be hidden."
           },
           "contents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleArticleComment.IContent"
             },
-            "nullable": false
+            "nullable": false,
+            "description": "Contents of the comments.\n\nWhen the comment writer tries to modify content, it would not modify the comment\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creation time."
           }
         },
         "nullable": false,
@@ -143,19 +153,23 @@
         "description": "Comment wrote on a sale related article.\n\nWhen an article of a sale has been enrolled, all of the participants like consumers and\nsellers can write a comment on that article. However, when the writer is a consumer, the\nconsumer can hide its name through the annoymous option. \n\nAlso, writing a reply comment for a specific comment is possible and in that case, the \n{@link ISaleArticleComment.parent_id} property would be activated."
       },
       "ISaleArticleComment.IContent": {
+        "$id": "ISaleArticleComment.IContent",
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Primary Key."
           },
           "body": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Body of the content."
           },
           "created_at": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "description": "Creation time."
           }
         },
         "nullable": false,
