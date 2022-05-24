@@ -8,7 +8,7 @@ Automatic `SDK` and `Swagger` generator for the `NestJS`, evolved than ever.
 [![Guide Documents](https://img.shields.io/badge/wiki-documentation-forestgreen)](https://github.com/samchon/nestia/wiki)
 
   - Github: https://github.com/samchon/nestia
-  - NPM: https://www.npmjs.com/packages/nestia
+  - NPM: https://www.npmjs.com/package/nestia
   - Guide Documents: https://github.com/samchon/nestia/wiki
 
 `nestia` is an evolved `SDK` and `Swagger` generator, which analyzes your `NestJS` server code in the compilation level. With `nestia` and compilation level analyzer, you don't need to write any swagger or class-validator decorators. All you need to do is use the `nestia` CLI as shown below.
