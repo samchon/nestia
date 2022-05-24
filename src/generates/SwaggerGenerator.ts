@@ -3,7 +3,7 @@ import ts from "typescript";
 import NodePath from "path";
 
 import { CommentFactory } from "typescript-json/lib/factories/CommentFactory";
-import { MetadataCollection } from "typescript-json/lib/factories/MetadataCollection";
+import { MetadataCollection } from "typescript-json/lib/storages/MetadataCollection";
 import { MetadataFactory } from "typescript-json/lib/factories/MetadataFactory";
 import { SchemaFactory } from "typescript-json/lib/factories/SchemaFactory";
 
