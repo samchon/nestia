@@ -11,7 +11,7 @@ export class ConsumerSaleArticleCommentsController
      * Store a new comment.
      * 
      * @param request Instance of the Express.Request
-     * @param section Code of the target section
+     * @param sectionCode Code of the target section
      * @param saleId ID of the target sale
      * @param articleId ID of the target article
      * @param body Content to write
@@ -26,7 +26,7 @@ export class ConsumerSaleArticleCommentsController
     public async store
         (
             @nest.Request() request: express.Request,
-            @helper.TypedParam("section", "string") section: string, 
+            @helper.TypedParam("section", "string") sectionCode: string, 
             @helper.TypedParam("saleId", "number") saleId: number, 
             @helper.TypedParam("articleId", "number") articleId: number,
             @nest.Body() body: ISaleArticleComment.IStore

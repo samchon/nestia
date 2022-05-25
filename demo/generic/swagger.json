@@ -263,7 +263,6 @@
   "components": {
     "schemas": {
       "ISaleArticle.IStore": {
-        "$id": "ISaleArticle.IStore",
         "type": "object",
         "properties": {
           "title": {
@@ -294,7 +293,6 @@
         "description": "Store info."
       },
       "IAttachmentFile": {
-        "$id": "IAttachmentFile",
         "type": "object",
         "properties": {
           "id": {
@@ -328,7 +326,6 @@
         "description": "Attachemd (physical) file info."
       },
       "ISaleInquiry-lt-ISaleArticle.IContent-gt-": {
-        "$id": "ISaleInquiry-lt-ISaleArticle.IContent-gt-",
         "type": "object",
         "properties": {
           "writer": {
@@ -376,7 +373,6 @@
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
       "ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable": {
-        "$id": "ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable",
         "type": "object",
         "properties": {
           "id": {
@@ -413,7 +409,6 @@
         "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`."
       },
       "ISaleArticle.IContent": {
-        "$id": "ISaleArticle.IContent",
         "type": "object",
         "properties": {
           "id": {
@@ -456,7 +451,6 @@
         "description": "Content info."
       },
       "ISaleReview.IStore": {
-        "$id": "ISaleReview.IStore",
         "type": "object",
         "properties": {
           "score": {
@@ -493,7 +487,6 @@
         "description": "Store info of the review."
       },
       "ISaleInquiry-lt-ISaleReview.IContent-gt-": {
-        "$id": "ISaleInquiry-lt-ISaleReview.IContent-gt-",
         "type": "object",
         "properties": {
           "writer": {
@@ -541,7 +534,6 @@
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
       "ISaleReview.IContent": {
-        "$id": "ISaleReview.IContent",
         "type": "object",
         "properties": {
           "score": {

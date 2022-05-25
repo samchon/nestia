@@ -14,7 +14,7 @@ import type { ISaleArticleComment } from "./../../../../../structures/ISaleArtic
  * 
  * @param connection connection Information of the remote HTTP(s) server with headers (+encryption password)
  * @param request Instance of the Express.Request
- * @param section Code of the target section
+ * @param sectionCode Code of the target section
  * @param saleId ID of the target sale
  * @param articleId ID of the target article
  * @param body Content to write
@@ -31,7 +31,7 @@ import type { ISaleArticleComment } from "./../../../../../structures/ISaleArtic
 export function store
     (
         connection: IConnection,
-        section: string,
+        sectionCode: string,
         saleId: number,
         articleId: number,
         body: Primitive<store.Input>
@@ -42,7 +42,7 @@ export function store
         connection,
         store.ENCRYPTED,
         store.METHOD,
-        store.path(section, saleId, articleId),
+        store.path(sectionCode, saleId, articleId),
         body
     );
 }
@@ -58,8 +58,8 @@ export namespace store
         response: false,
     };
 
-    export function path(section: string, saleId: number, articleId: number): string
+    export function path(sectionCode: string, saleId: number, articleId: number): string
     {
-        return `/consumers/${section}/sales/${saleId}/articles/${articleId}/comments`;
+        return `/consumers/${sectionCode}/sales/${saleId}/articles/${articleId}/comments`;
     }
 }
