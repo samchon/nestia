@@ -18,7 +18,6 @@ export namespace ISwagger
         parameters: IParameter[];
         responses: IResponseBody;
         requestBody?: IRequestBody;
-        deprecated?: boolean;
         summary?: string;
     }
 

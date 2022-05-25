@@ -1,6 +1,7 @@
 import fs from "fs";
 import ts from "typescript";
 import NodePath from "path";
+import { VariadicSingleton } from "tstl/thread/VariadicSingleton";
 
 import { CommentFactory } from "typescript-json/lib/factories/CommentFactory";
 import { MetadataCollection } from "typescript-json/lib/storages/MetadataCollection";
@@ -12,6 +13,7 @@ import { IRoute } from "../structures/IRoute";
 import { ISwagger } from "../structures/ISwagger";
 
 import { MapUtil } from "../utils/MapUtil";
+import { Singleton } from "tstl/thread/Singleton";
 
 export namespace SwaggerGenerator
 {
@@ -117,8 +119,7 @@ export namespace SwaggerGenerator
             || !!route.parameters.find(param => param.encrypted === true);
         return {
             tags,
-            deprecated: encrypted ? true : undefined,
-            summary: encrypted ? "encrypted" : undefined,
+            summary: encrypted ? "encrypted</font>" : undefined,
             parameters: route.parameters
                 .filter(param => param.category !== "body")
                 .map(param => generate_parameter
@@ -168,7 +169,9 @@ export namespace SwaggerGenerator
         ): ISwagger.IRequestBody
     {
         return {
-            description: get_parametric_description(route, "param", parameter.name) || "",
+            description
+                : warning.get(parameter.encrypted).get("request") 
+                + (get_parametric_description(route, "param", parameter.name) || ""),
             content:
             {
                 "application/json": {
@@ -204,9 +207,10 @@ export namespace SwaggerGenerator
         const success: ISwagger.IResponseBody = {
             [status]: {
                 description
-                    : get_parametric_description(route, "return")
+                    : warning.get(route.encrypted).get("response", route.method)
+                    + (get_parametric_description(route, "return")
                     || get_parametric_description(route, "returns")
-                    || "",
+                    || ""),
                 content: route.output.escapedText === "void" ? undefined : 
                 {
                     "application/json": {
@@ -281,3 +285,31 @@ export namespace SwaggerGenerator
             : undefined;
     }
 }
+
+const warning = new VariadicSingleton((encrypted: boolean) =>
+{
+    if (encrypted === false)
+        return new Singleton(() => "");
+
+    return new VariadicSingleton((type: "request" | "response", method?: string) =>
+    {
+const summary = type  === "request"
+    ? "Request body must be encrypted." 
+    : "Response data have been encrypted.";
+
+const component = type === "request"
+    ? "[EncryptedBody](https://github.com/samchon/nestia-helper#encryptedbody)"
+    : `[EncryptedRoute.${method![0].toUpperCase()}.${method!.substring(1).toLowerCase()}](https://github.com/samchon/nestia-helper#encryptedroute)`
+
+return `## Warning
+${summary}
+
+The ${type} body data would be encrypted as "AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding", through the ${component} component.
+
+Therefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.
+
+-----------------
+
+`
+    });
+});

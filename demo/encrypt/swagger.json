@@ -8,11 +8,10 @@
     "/sellers/authenticate/join": {
       "post": {
         "tags": [],
-        "deprecated": true,
-        "summary": "encrypted",
+        "summary": "encrypted</font>",
         "parameters": [],
         "requestBody": {
-          "description": "Information of yours",
+          "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/nestia-helper#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nInformation of yours",
           "content": {
             "application/json": {
               "schema": {
@@ -24,7 +23,7 @@
         },
         "responses": {
           "201": {
-            "description": "Information of newly joined seller",
+            "description": "## Warning\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.P.ost](https://github.com/samchon/nestia-helper#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nInformation of newly joined seller",
             "content": {
               "application/json": {
                 "schema": {
@@ -40,11 +39,10 @@
     "/sellers/authenticate/login": {
       "post": {
         "tags": [],
-        "deprecated": true,
-        "summary": "encrypted",
+        "summary": "encrypted</font>",
         "parameters": [],
         "requestBody": {
-          "description": "Email and password",
+          "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/nestia-helper#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nEmail and password",
           "content": {
             "application/json": {
               "schema": {
@@ -56,7 +54,7 @@
         },
         "responses": {
           "201": {
-            "description": "Information of the seller",
+            "description": "## Warning\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.P.ost](https://github.com/samchon/nestia-helper#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nInformation of the seller",
             "content": {
               "application/json": {
                 "schema": {
@@ -72,11 +70,10 @@
     "/sellers/authenticate/password/change": {
       "patch": {
         "tags": [],
-        "deprecated": true,
-        "summary": "encrypted",
+        "summary": "encrypted</font>",
         "parameters": [],
         "requestBody": {
-          "description": "Old and new passwords",
+          "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/nestia-helper#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nOld and new passwords",
           "content": {
             "application/json": {
               "schema": {
