@@ -1,4 +1,3 @@
-import cp from "child_process";
 import fs from "fs";
 import process from "process";
 
@@ -24,10 +23,6 @@ export namespace TestBuilder
         };
         
         process.chdir(`${PATH}/../../demo/${name}`);
-        if (job === "sdk" && fs.existsSync("src/api/functional"))
-            cp.execSync("npx rimraf src/api/functional");
-        else if (job === "swagger" && fs.existsSync("swagger.json"))
-            cp.execSync("npx rimraf swagger.json");
         
         try
         {
