@@ -30,7 +30,7 @@ export namespace CompilerOptions
             if (options[key] instanceof Array && value instanceof Array)
                 merge_array(options[key] as Array<any>, value);
             else if (typeof options[key] === "object")
-                Object.assign(options[key], value);
+                Object.assign(options[key] as any, value);
             else
                 options[key] = value;
 
