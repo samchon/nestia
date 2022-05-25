@@ -14,6 +14,7 @@ import { ISwagger } from "../structures/ISwagger";
 
 import { MapUtil } from "../utils/MapUtil";
 import { Singleton } from "tstl/thread/Singleton";
+import { IJsonComponents } from "typescript-json";
 
 export namespace SwaggerGenerator
 {
@@ -24,6 +25,7 @@ export namespace SwaggerGenerator
             routeList: IRoute[]
         ): Promise<void>
     {
+        // PREPARE ASSETS
         const parsed: NodePath.ParsedPath = NodePath.parse(config.output);
         const location: string = !!parsed.ext
             ? NodePath.resolve(config.output)
@@ -31,8 +33,9 @@ export namespace SwaggerGenerator
 
         const swagger: ISwagger = await initialize(location);
         const collection: MetadataCollection = new MetadataCollection(false);
+        
+        // CONSTRUCT ROUTES
         const pathDict: Map<string, ISwagger.IPath>= new Map();
-
         for (const route of routeList)
         {
             const path: ISwagger.IPath = MapUtil.take
@@ -48,12 +51,17 @@ export namespace SwaggerGenerator
                 route
             );
         }
-
         swagger.paths = {};
         for (const [path, routes] of pathDict)
             swagger.paths[path] = routes;
-        swagger.components = SchemaFactory.components(collection.storage());
 
+        // CONSTRUCT COMPONENTS
+        swagger.components = SchemaFactory.components(collection.storage());
+        for (const object of Object.values(swagger.components.schemas))
+            if (object.$id)
+                delete (object as Partial<IJsonComponents.IObject>).$id;
+
+        // DO GENERATE
         await fs.promises.writeFile
         (
             location,
@@ -150,7 +158,7 @@ export namespace SwaggerGenerator
         ): ISwagger.IParameter
     {
         return {
-            name: parameter.name,
+            name: parameter.field || parameter.name,
             in: parameter.category === "param"
                 ? "path"
                 : parameter.category,

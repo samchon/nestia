@@ -107,7 +107,6 @@
   "components": {
     "schemas": {
       "ISeller.IJoin": {
-        "$id": "ISeller.IJoin",
         "type": "object",
         "properties": {
           "email": {
@@ -141,7 +140,6 @@
         ]
       },
       "ISeller": {
-        "$id": "ISeller",
         "type": "object",
         "properties": {
           "id": {
@@ -181,7 +179,6 @@
         "description": "Seller information."
       },
       "ISeller.ILogin": {
-        "$id": "ISeller.ILogin",
         "type": "object",
         "properties": {
           "email": {
@@ -200,7 +197,6 @@
         ]
       },
       "ISeller.IChangePassword": {
-        "$id": "ISeller.IChangePassword",
         "type": "object",
         "properties": {
           "old_password": {
