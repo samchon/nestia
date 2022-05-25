@@ -4,6 +4,7 @@ import { IJsonSchema } from "typescript-json/lib/structures/IJsonSchema";
 export interface ISwagger
 {
     openapi: "3.0";
+    servers: ISwagger.IServer[];
     info: ISwagger.IInfo;
     paths: Record<string, ISwagger.IPath>;
     components: IJsonComponents;
@@ -45,6 +46,12 @@ export namespace ISwagger
         description: string;
         content?: IJsonContent;
     }>;
+
+    export interface IServer
+    {
+        url: string;
+        description?: string;
+    }
 
     export interface IJsonContent
     {
