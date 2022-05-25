@@ -1,6 +1,7 @@
 import fs from "fs";
 import ts from "typescript";
 import NodePath from "path";
+import { Singleton } from "tstl/thread/Singleton";
 import { VariadicSingleton } from "tstl/thread/VariadicSingleton";
 
 import { CommentFactory } from "typescript-json/lib/factories/CommentFactory";
@@ -13,8 +14,6 @@ import { IRoute } from "../structures/IRoute";
 import { ISwagger } from "../structures/ISwagger";
 
 import { MapUtil } from "../utils/MapUtil";
-import { Singleton } from "tstl/thread/Singleton";
-import { IJsonComponents } from "typescript-json";
 
 export namespace SwaggerGenerator
 {
@@ -57,9 +56,6 @@ export namespace SwaggerGenerator
 
         // CONSTRUCT COMPONENTS
         swagger.components = SchemaFactory.components(collection.storage());
-        for (const object of Object.values(swagger.components.schemas))
-            if (object.$id)
-                delete (object as Partial<IJsonComponents.IObject>).$id;
 
         // DO GENERATE
         await fs.promises.writeFile

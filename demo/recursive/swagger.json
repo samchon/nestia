@@ -17,7 +17,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$recursiveRef": "#/components/schemas/ICategory"
+                    "$ref": "#/components/schemas/ICategory"
                   },
                   "nullable": false
                 }
@@ -49,7 +49,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$recursiveRef": "#/components/schemas/ICategory"
+                  "$ref": "#/components/schemas/ICategory"
                 }
               }
             }
@@ -92,13 +92,12 @@
   "components": {
     "schemas": {
       "ICategory": {
-        "$recursiveAnchor": true,
         "type": "object",
         "properties": {
           "children": {
             "type": "array",
             "items": {
-              "$recursiveRef": "#/components/schemas/ICategory"
+              "$ref": "#/components/schemas/ICategory"
             },
             "nullable": false,
             "description": "Children categories."
@@ -132,7 +131,7 @@
         "type": "object",
         "properties": {
           "parent": {
-            "$recursiveRef": "#/components/schemas/ICategory.IInvert.Nullable",
+            "$ref": "#/components/schemas/ICategory.IInvert.Nullable",
             "description": "Parent information."
           },
           "id": {
@@ -161,11 +160,10 @@
         "description": "Invert structure of the {@link ICategory}."
       },
       "ICategory.IInvert.Nullable": {
-        "$recursiveAnchor": true,
         "type": "object",
         "properties": {
           "parent": {
-            "$recursiveRef": "#/components/schemas/ICategory.IInvert.Nullable",
+            "$ref": "#/components/schemas/ICategory.IInvert.Nullable",
             "description": "Parent information."
           },
           "id": {
