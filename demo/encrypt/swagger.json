@@ -8,7 +8,7 @@
     "/sellers/authenticate/join": {
       "post": {
         "tags": [],
-        "summary": "encrypted</font>",
+        "summary": "encrypted",
         "parameters": [],
         "requestBody": {
           "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/nestia-helper#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nInformation of yours",
@@ -39,7 +39,7 @@
     "/sellers/authenticate/login": {
       "post": {
         "tags": [],
-        "summary": "encrypted</font>",
+        "summary": "encrypted",
         "parameters": [],
         "requestBody": {
           "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/nestia-helper#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nEmail and password",
@@ -70,7 +70,7 @@
     "/sellers/authenticate/password/change": {
       "patch": {
         "tags": [],
-        "summary": "encrypted</font>",
+        "summary": "encrypted",
         "parameters": [],
         "requestBody": {
           "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/nestia-helper#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nOld and new passwords",
