@@ -119,7 +119,7 @@ export namespace SwaggerGenerator
             || !!route.parameters.find(param => param.encrypted === true);
         return {
             tags,
-            summary: encrypted ? "encrypted</font>" : undefined,
+            summary: encrypted ? "encrypted" : undefined,
             parameters: route.parameters
                 .filter(param => param.category !== "body")
                 .map(param => generate_parameter
