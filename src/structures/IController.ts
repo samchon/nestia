@@ -1,17 +1,14 @@
 import { ParamCategory } from "./ParamCategory";
 
-export interface IController
-{
+export interface IController {
     file: string;
     name: string;
     paths: string[];
     functions: IController.IFunction[];
 }
 
-export namespace IController
-{
-    export interface IFunction
-    {
+export namespace IController {
+    export interface IFunction {
         name: string;
         method: string;
         paths: string[];
@@ -20,8 +17,7 @@ export namespace IController
         parameters: IParameter[];
     }
 
-    export interface IParameter
-    {
+    export interface IParameter {
         name: string;
         index: number;
         field: string | undefined;

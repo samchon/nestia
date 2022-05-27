@@ -8,48 +8,46 @@ import { assertType, is } from "typescript-is";
 
 import { IConfiguration } from "../../IConfiguration";
 
-export namespace NestiaConfig
-{
-    export function get(): Promise<IConfiguration | null>
-    {
+export namespace NestiaConfig {
+    export function get(): Promise<IConfiguration | null> {
         return singleton.get();
     }
 
-    function assert(config: IConfiguration): IConfiguration
-    {
-        assertType<Omit<typeof config, "input"|"compilerOptions">>(config);
-        if (is<string>(config.input) === false
-            && is<string[]>(config.input) === false
-            && is<IConfiguration.IInput>(config.input) === false)
-            throw new InvalidArgument("Error on NestiaConfig.get(): invalid input type.");
+    function assert(config: IConfiguration): IConfiguration {
+        assertType<Omit<typeof config, "input" | "compilerOptions">>(config);
+        if (
+            is<string>(config.input) === false &&
+            is<string[]>(config.input) === false &&
+            is<IConfiguration.IInput>(config.input) === false
+        )
+            throw new InvalidArgument(
+                "Error on NestiaConfig.get(): invalid input type.",
+            );
 
         return config;
     }
 
-    const singleton = new Singleton(async () =>
-    {
-        if (fs.existsSync("nestia.config.ts") === false)
-            return null;
+    const singleton = new Singleton(async () => {
+        if (fs.existsSync("nestia.config.ts") === false) return null;
 
         runner.register({
             emit: false,
             compilerOptions: {
-                noEmit: true
-            }
+                noEmit: true,
+            },
         });
 
-        const config: IConfiguration = await import(path.resolve("nestia.config.ts"));
-        try
-        {
+        const config: IConfiguration = await import(
+            path.resolve("nestia.config.ts")
+        );
+        try {
             return assert(Primitive.clone(config));
-        }
-        catch (exp)
-        {
-            const trial: IConfiguration & { default?: IConfiguration } = config as any;
+        } catch (exp) {
+            const trial: IConfiguration & { default?: IConfiguration } =
+                config as any;
             if (trial.default && typeof trial.default === "object")
                 return assert(Primitive.clone(trial.default));
-            else
-                throw exp;
+            else throw exp;
         }
     });
 }

@@ -5,129 +5,137 @@ import { Vector } from "tstl/container/Vector";
 import { IConfiguration } from "../IConfiguration";
 import { IRoute } from "../structures/IRoute";
 
-export namespace FunctionGenerator
-{
-    export function generate(config: IConfiguration, route: IRoute): string
-    {
-        const query: IRoute.IParameter | undefined = route.parameters.find(param => param.category === "query");
-        const input: IRoute.IParameter | undefined = route.parameters.find(param => param.category === "body");
+export namespace FunctionGenerator {
+    export function generate(config: IConfiguration, route: IRoute): string {
+        const query: IRoute.IParameter | undefined = route.parameters.find(
+            (param) => param.category === "query",
+        );
+        const input: IRoute.IParameter | undefined = route.parameters.find(
+            (param) => param.category === "body",
+        );
 
         return [head, body, tail]
-            .map(closure => closure(route, query, input, config))
-            .filter(str => !!str)
+            .map((closure) => closure(route, query, input, config))
+            .filter((str) => !!str)
             .join("\n");
     }
 
     /* ---------------------------------------------------------
         BODY
     --------------------------------------------------------- */
-    function body
-        (
-            route: IRoute, 
-            query: IRoute.IParameter | undefined, 
-            input: IRoute.IParameter | undefined,
-            config: IConfiguration,
-        ): string
-    {
+    function body(
+        route: IRoute,
+        query: IRoute.IParameter | undefined,
+        input: IRoute.IParameter | undefined,
+        config: IConfiguration,
+    ): string {
         // FETCH ARGUMENTS WITH REQUST BODY
         const parameters = filter_parameters(route, query);
-        const fetchArguments: string[] = 
-        [
+        const fetchArguments: string[] = [
             "connection",
             `${route.name}.ENCRYPTED`,
             `${route.name}.METHOD`,
-            `${route.name}.path(${parameters.map(p => p.name).join(", ")})`
+            `${route.name}.path(${parameters.map((p) => p.name).join(", ")})`,
         ];
-        if (input !== undefined)
-        {
+        if (input !== undefined) {
             fetchArguments.push(input.name);
             if (config.json === true)
                 fetchArguments.push(`${route.name}.stringify`);
         }
 
-        const assertions: string = config.assert === true && route.parameters.length !== 0
-            ? route.parameters
-                .map(param => `    assertType<typeof ${param.name}>(${param.name});`)
-                .join("\n") + "\n\n"
-            : "";
+        const assertions: string =
+            config.assert === true && route.parameters.length !== 0
+                ? route.parameters
+                      .map(
+                          (param) =>
+                              `    assertType<typeof ${param.name}>(${param.name});`,
+                      )
+                      .join("\n") + "\n\n"
+                : "";
 
         // RETURNS WITH FINALIZATION
-        return "{\n"
-            + assertions
-            + "    return Fetcher.fetch\n"
-            + "    (\n"
-            + fetchArguments.map(param => `        ${param}`).join(",\n") + "\n"
-            + "    );\n"
-            + "}";
+        return (
+            "{\n" +
+            assertions +
+            "    return Fetcher.fetch\n" +
+            "    (\n" +
+            fetchArguments.map((param) => `        ${param}`).join(",\n") +
+            "\n" +
+            "    );\n" +
+            "}"
+        );
     }
 
-    function filter_parameters(route: IRoute, query: IRoute.IParameter | undefined): IRoute.IParameter[]
-    {
-        const parameters = route.parameters.filter(param => param.category === "param");
-        if (query)
-            parameters.push(query);
+    function filter_parameters(
+        route: IRoute,
+        query: IRoute.IParameter | undefined,
+    ): IRoute.IParameter[] {
+        const parameters = route.parameters.filter(
+            (param) => param.category === "param",
+        );
+        if (query) parameters.push(query);
         return parameters;
     }
 
     /* ---------------------------------------------------------
         HEAD & TAIL
     --------------------------------------------------------- */
-    function head
-        (
-            route: IRoute, 
-            query: IRoute.IParameter | undefined, 
-            input: IRoute.IParameter | undefined,
-        ): string
-    {
+    function head(
+        route: IRoute,
+        query: IRoute.IParameter | undefined,
+        input: IRoute.IParameter | undefined,
+    ): string {
         //----
         // CONSTRUCT COMMENT
         //----
         // MAIN DESCRIPTION
         const comments: string[] = route.comments
-            .map(part => `${part.kind === "linkText" ? " " : ""}${part.text}`)
-            .map(str => str.split("\r\n").join("\n"))
+            .map((part) => `${part.kind === "linkText" ? " " : ""}${part.text}`)
+            .map((str) => str.split("\r\n").join("\n"))
             .join("")
             .split("\n")
             .filter((str, i, array) => str !== "" || i !== array.length - 1);
-        if (comments.length)
-            comments.push("");
+        if (comments.length) comments.push("");
 
         // FILTER TAGS (VULNERABLE PARAMETERS WOULD BE REMOVED)
-        const tagList: ts.JSDocTagInfo[] = route.tags.filter(tag => tag.text !== undefined);
-        if (tagList.length !== 0)
-        {
-            const index: number = tagList.findIndex(t => t.name === "param");
-            if (index !== -1)
-            {
+        const tagList: ts.JSDocTagInfo[] = route.tags.filter(
+            (tag) => tag.text !== undefined,
+        );
+        if (tagList.length !== 0) {
+            const index: number = tagList.findIndex((t) => t.name === "param");
+            if (index !== -1) {
                 const capsule: Vector<ts.JSDocTagInfo> = Vector.wrap(tagList);
                 capsule.insert(capsule.nth(index), {
                     name: "param",
                     text: [
                         {
                             kind: "parameterName",
-                            text: "connection"
+                            text: "connection",
                         },
                         {
                             kind: "space",
-                            text: " "
+                            text: " ",
                         },
-                        { 
+                        {
                             kind: "text",
-                            text: "connection Information of the remote HTTP(s) server with headers (+encryption password)" 
-                        }
-                    ]
+                            text: "connection Information of the remote HTTP(s) server with headers (+encryption password)",
+                        },
+                    ],
                 });
             }
-            comments.push
-            (
-                ...tagList.map(tag => `@${tag.name} ${tag.text!.map(elem => elem.text).join("")}`),
-                ""
+            comments.push(
+                ...tagList.map(
+                    (tag) =>
+                        `@${tag.name} ${tag
+                            .text!.map((elem) => elem.text)
+                            .join("")}`,
+                ),
+                "",
             );
         }
-        
+
         // COMPLETE THE COMMENT
-        comments.push
-        (
+        comments.push(
             `@controller ${route.symbol}`,
             `@path ${route.method} ${route.path}`,
             `@nestia Generated by Nestia - https://github.com/samchon/nestia`,
@@ -137,42 +145,45 @@ export namespace FunctionGenerator
         // FINALIZATION
         //----
         // REFORM PARAMETERS TEXT
-        const parameters: string[] = 
-        [
+        const parameters: string[] = [
             "connection: IConnection",
-            ...route.parameters.map(param => 
-            {
-                const type: string = (param === query || param === input)
-                    ? `Primitive<${route.name}.${param === query ? "Query" : "Input"}>`
-                    : param.type.escapedText
+            ...route.parameters.map((param) => {
+                const type: string =
+                    param === query || param === input
+                        ? `Primitive<${route.name}.${
+                              param === query ? "Query" : "Input"
+                          }>`
+                        : param.type.escapedText;
                 return `${param.name}: ${type}`;
-            })
+            }),
         ];
 
         // OUTPUT TYPE
-        const output: string = route.output.escapedText === "void"
-            ? "void"
-            : `${route.name}.Output`;
+        const output: string =
+            route.output.escapedText === "void"
+                ? "void"
+                : `${route.name}.Output`;
 
         // RETURNS WITH CONSTRUCTION
-        return ""
-            + "/**\n"
-            + comments.map(str => ` * ${str}`).join("\n") + "\n"
-            + " */\n"
-            + `export function ${route.name}\n` 
-            + `    (\n` 
-            + `${parameters.map(str => `        ${str}`).join(",\n")}\n`
-            + `    ): Promise<${output}>`;
+        return (
+            "" +
+            "/**\n" +
+            comments.map((str) => ` * ${str}`).join("\n") +
+            "\n" +
+            " */\n" +
+            `export function ${route.name}\n` +
+            `    (\n` +
+            `${parameters.map((str) => `        ${str}`).join(",\n")}\n` +
+            `    ): Promise<${output}>`
+        );
     }
 
-    function tail
-        (
-            route: IRoute, 
-            query: IRoute.IParameter | undefined, 
-            input: IRoute.IParameter | undefined,
-            config: IConfiguration,
-        ): string | null
-    {
+    function tail(
+        route: IRoute,
+        query: IRoute.IParameter | undefined,
+        input: IRoute.IParameter | undefined,
+        config: IConfiguration,
+    ): string | null {
         // LIST UP TYPES
         const types: Pair<string, string>[] = [];
         if (query !== undefined)
@@ -181,51 +192,55 @@ export namespace FunctionGenerator
             types.push(new Pair("Input", input.type.escapedText));
         if (route.output.escapedText !== "void")
             types.push(new Pair("Output", route.output.escapedText));
-        
+
         // PATH WITH PARAMETERS
         const parameters: IRoute.IParameter[] = filter_parameters(route, query);
         const path: string = compute_path(query, parameters, route.path);
 
-        return `export namespace ${route.name}\n`
-            + "{\n"
-            + 
-            (
-                types.length !== 0
-                    ? types.map(tuple => `    export type ${tuple.first} = Primitive<${tuple.second}>;`).join("\n") + "\n"
-                    : ""
-            )
-            + "\n"
-            + `    export const METHOD = "${route.method}" as const;\n`
-            + `    export const PATH: string = "${route.path}";\n`
-            + `    export const ENCRYPTED: Fetcher.IEncrypted = {\n`
-            + `        request: ${input !== undefined && input.encrypted},\n`
-            + `        response: ${route.encrypted},\n`
-            + `    };\n`
-            + "\n"
-            + `    export function path(${parameters.map(param => `${param.name}: ${param.type.escapedText}`).join(", ")}): string\n`
-            + `    {\n`
-            + `        return ${path};\n`
-            + `    }\n`
-            + 
-            (
-                config.json === true && (route.method === "POST" || route.method === "PUT" || route.method === "PATCH") 
-                    ? `    export const stringify = createStringifier<Input>();\n`
-                    : ""
-            )
-            + "}";
+        return (
+            `export namespace ${route.name}\n` +
+            "{\n" +
+            (types.length !== 0
+                ? types
+                      .map(
+                          (tuple) =>
+                              `    export type ${tuple.first} = Primitive<${tuple.second}>;`,
+                      )
+                      .join("\n") + "\n"
+                : "") +
+            "\n" +
+            `    export const METHOD = "${route.method}" as const;\n` +
+            `    export const PATH: string = "${route.path}";\n` +
+            `    export const ENCRYPTED: Fetcher.IEncrypted = {\n` +
+            `        request: ${input !== undefined && input.encrypted},\n` +
+            `        response: ${route.encrypted},\n` +
+            `    };\n` +
+            "\n" +
+            `    export function path(${parameters
+                .map((param) => `${param.name}: ${param.type.escapedText}`)
+                .join(", ")}): string\n` +
+            `    {\n` +
+            `        return ${path};\n` +
+            `    }\n` +
+            (config.json === true &&
+            (route.method === "POST" ||
+                route.method === "PUT" ||
+                route.method === "PATCH")
+                ? `    export const stringify = createStringifier<Input>();\n`
+                : "") +
+            "}"
+        );
     }
 
-    function compute_path
-        (
-            query: IRoute.IParameter | undefined,
-            parameters: IRoute.IParameter[], 
-            path: string, 
-        ): string
-    {
+    function compute_path(
+        query: IRoute.IParameter | undefined,
+        parameters: IRoute.IParameter[],
+        path: string,
+    ): string {
         for (const param of parameters)
             if (param.category === "param")
                 path = path.replace(`:${param.field}`, `\${${param.name}}`);
-        return (query !== undefined)
+        return query !== undefined
             ? `\`${path}?\${new URLSearchParams(${query.name} as any).toString()}\``
             : `\`${path}\``;
     }

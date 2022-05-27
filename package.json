@@ -10,6 +10,9 @@
   "scripts": {
     "build": "rimraf lib && ttsc",
     "dev": "npm run build -- --watch",
+    "eslint": "eslint src",
+    "eslint:fix": "eslint src --fix",
+    "prettier": "prettier src --write",
     "test": "node lib/test"
   },
   "repository": {
@@ -51,7 +54,11 @@
     "@types/glob": "^7.2.0",
     "@types/node": "^17.0.23",
     "@types/reflect-metadata": "^0.1.0",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "eslint": "^8.16.0",
     "nestia-helper": "^2.1.1",
+    "prettier": "^2.6.2",
     "rimraf": "^3.0.2"
   }
 }

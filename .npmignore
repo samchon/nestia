@@ -5,5 +5,7 @@ src/
 
 *.*ignore
 *.js.map
+.eslintrc.cjs
 package-lock.json
+prettier.config.js
 tsconfig.json
