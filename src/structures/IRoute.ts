@@ -2,13 +2,12 @@ import ts from "typescript";
 import { IType } from "./IType";
 import { ParamCategory } from "./ParamCategory";
 
-export interface IRoute
-{
+export interface IRoute {
     name: string;
     method: string;
     path: string;
     encrypted: boolean;
-    
+
     parameters: IRoute.IParameter[];
     imports: [string, string[]][];
     output: IType;
@@ -18,10 +17,8 @@ export interface IRoute
     tags: ts.JSDocTagInfo[];
 }
 
-export namespace IRoute
-{
-    export interface IParameter
-    {
+export namespace IRoute {
+    export interface IParameter {
         name: string;
         field: string | undefined;
         category: ParamCategory;

@@ -1,30 +1,27 @@
-import fs from  "fs";
+import fs from "fs";
 import glob from "glob";
 import path from "path";
 
 import { IConfiguration } from "../IConfiguration";
 
-export namespace SourceFinder
-{
-    export async function find(input: IConfiguration.IInput): Promise<string[]>
-    {
+export namespace SourceFinder {
+    export async function find(
+        input: IConfiguration.IInput,
+    ): Promise<string[]> {
         const dict: Set<string> = new Set();
-        await decode(input.include, str => dict.add(str));
+        await decode(input.include, (str) => dict.add(str));
         if (input.exclude)
-            await decode(input.exclude, str => dict.delete(str));
-            
+            await decode(input.exclude, (str) => dict.delete(str));
+
         return [...dict];
     }
 
-    async function decode
-        (
-            input: string[],
-            closure: (location: string) => void,
-        ): Promise<void>
-    {
+    async function decode(
+        input: string[],
+        closure: (location: string) => void,
+    ): Promise<void> {
         for (const pattern of input)
-            for (const location of await _Glob(path.resolve(pattern)))
-            {
+            for (const location of await _Glob(path.resolve(pattern))) {
                 const stats: fs.Stats = await fs.promises.stat(location);
                 if (stats.isDirectory() === true)
                     await iterate(closure, location);
@@ -33,41 +30,30 @@ export namespace SourceFinder
             }
     }
 
-    async function iterate
-        (
-            closure: (location: string) => void,
-            location: string
-        ): Promise<void>
-    {
+    async function iterate(
+        closure: (location: string) => void,
+        location: string,
+    ): Promise<void> {
         const directory: string[] = await fs.promises.readdir(location);
-        for (const file of directory)
-        {
+        for (const file of directory) {
             const next: string = path.resolve(`${location}/${file}`);
             const stats: fs.Stats = await fs.promises.stat(next);
 
-            if (stats.isDirectory() === true)
-                await iterate(closure, next);
-            else if (stats.isFile() && _Is_ts_file(file))
-                closure(next);
+            if (stats.isDirectory() === true) await iterate(closure, next);
+            else if (stats.isFile() && _Is_ts_file(file)) closure(next);
         }
     }
 
-    function _Glob(pattern: string): Promise<string[]>
-    {
-        return new Promise((resolve, reject) =>
-        {
-            glob(pattern, (err, matches) =>
-            {
-                if (err)
-                    reject(err);
-                else
-                    resolve(matches.map(str => path.resolve(str)));
+    function _Glob(pattern: string): Promise<string[]> {
+        return new Promise((resolve, reject) => {
+            glob(pattern, (err, matches) => {
+                if (err) reject(err);
+                else resolve(matches.map((str) => path.resolve(str)));
             });
         });
     }
 
-    function _Is_ts_file(file: string): boolean
-    {
+    function _Is_ts_file(file: string): boolean {
         return file.substr(-3) === ".ts" && file.substr(-5) !== ".d.ts";
     }
 }
