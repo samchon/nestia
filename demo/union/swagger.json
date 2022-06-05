@@ -127,6 +127,10 @@
         "properties": {
           "answered": {
             "type": "boolean",
+            "enum": [
+              false,
+              true
+            ],
             "nullable": false,
             "description": "Whether being answer by seller or not."
           },
@@ -144,6 +148,11 @@
             "type": "array",
             "items": {
               "type": "string",
+              "enum": [
+                "writer",
+                "title",
+                "content"
+              ],
               "nullable": false
             },
             "nullable": false,
@@ -239,6 +248,10 @@
           },
           "answered": {
             "type": "boolean",
+            "enum": [
+              false,
+              true
+            ],
             "nullable": false,
             "description": "Whether being answer by seller or not."
           },
@@ -295,6 +308,10 @@
           },
           "answered": {
             "type": "boolean",
+            "enum": [
+              false,
+              true
+            ],
             "nullable": false,
             "description": "Whether being answer by seller or not."
           },

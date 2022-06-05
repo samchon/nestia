@@ -64,6 +64,11 @@ export namespace ISaleArticleComment
         body: string;
 
         /**
+         * Extension, content type (format).
+         */
+        extension: "html" | "md" | "txt";
+
+        /**
          * Whether to hide the writer name or not.
          */
         annonymous: boolean;

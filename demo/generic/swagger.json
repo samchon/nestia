@@ -281,6 +281,16 @@
             "nullable": false,
             "description": "Body of the content."
           },
+          "extension": {
+            "type": "string",
+            "enum": [
+              "html",
+              "md",
+              "txt"
+            ],
+            "nullable": false,
+            "description": "Extension, content type (format)."
+          },
           "files": {
             "type": "array",
             "items": {
@@ -294,6 +304,7 @@
         "required": [
           "title",
           "body",
+          "extension",
           "files"
         ],
         "description": "Store info."
@@ -437,6 +448,16 @@
             "nullable": false,
             "description": "Body of the content."
           },
+          "extension": {
+            "type": "string",
+            "enum": [
+              "html",
+              "md",
+              "txt"
+            ],
+            "nullable": false,
+            "description": "Extension, content type (format)."
+          },
           "files": {
             "type": "array",
             "items": {
@@ -452,6 +473,7 @@
           "created_at",
           "title",
           "body",
+          "extension",
           "files"
         ],
         "description": "Content info."
@@ -474,6 +496,16 @@
             "nullable": false,
             "description": "Body of the content."
           },
+          "extension": {
+            "type": "string",
+            "enum": [
+              "html",
+              "md",
+              "txt"
+            ],
+            "nullable": false,
+            "description": "Extension, content type (format)."
+          },
           "files": {
             "type": "array",
             "items": {
@@ -488,6 +520,7 @@
           "score",
           "title",
           "body",
+          "extension",
           "files"
         ],
         "description": "Store info of the review."
@@ -567,6 +600,16 @@
             "nullable": false,
             "description": "Body of the content."
           },
+          "extension": {
+            "type": "string",
+            "enum": [
+              "html",
+              "md",
+              "txt"
+            ],
+            "nullable": false,
+            "description": "Extension, content type (format)."
+          },
           "files": {
             "type": "array",
             "items": {
@@ -583,6 +626,7 @@
           "created_at",
           "title",
           "body",
+          "extension",
           "files"
         ],
         "description": "Content info of the review."
