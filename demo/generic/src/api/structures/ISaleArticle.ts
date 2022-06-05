@@ -71,6 +71,11 @@ export namespace ISaleArticle
         body: string;
 
         /**
+         * Extension, content type (format).
+         */
+        extension: "html" | "md" | "txt";
+
+        /**
          * Attached files.
          */
         files: IAttachmentFile[];

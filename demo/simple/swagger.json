@@ -95,8 +95,22 @@
             "nullable": false,
             "description": "Body of the content."
           },
+          "extension": {
+            "type": "string",
+            "enum": [
+              "html",
+              "md",
+              "txt"
+            ],
+            "nullable": false,
+            "description": "Extension, content type (format)."
+          },
           "annonymous": {
             "type": "boolean",
+            "enum": [
+              false,
+              true
+            ],
             "nullable": false,
             "description": "Whether to hide the writer name or not."
           }
@@ -104,6 +118,7 @@
         "nullable": false,
         "required": [
           "body",
+          "extension",
           "annonymous"
         ],
         "description": "Store info."
@@ -123,6 +138,10 @@
           },
           "writer_type": {
             "type": "string",
+            "enum": [
+              "seller",
+              "consumer"
+            ],
             "nullable": false,
             "description": "Type of the writer."
           },
