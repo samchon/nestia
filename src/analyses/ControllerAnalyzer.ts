@@ -4,7 +4,7 @@ import { HashMap } from "tstl/container/HashMap";
 
 import { IController } from "../structures/IController";
 import { IRoute } from "../structures/IRoute";
-import { IType } from "../structures/IType";
+import { ITypeTuple } from "../structures/ITypeTuple";
 
 import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ImportAnalyzer } from "./ImportAnalyzer";
@@ -115,7 +115,7 @@ export namespace ControllerAnalyzer {
                 signature.getParameters()[param.index],
             ),
         );
-        const output: IType = ImportAnalyzer.analyze(
+        const output: ITypeTuple = ImportAnalyzer.analyze(
             checker,
             genericDict,
             importDict,

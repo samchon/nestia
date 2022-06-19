@@ -3,7 +3,7 @@ import { HashMap } from "tstl/container/HashMap";
 import { HashSet } from "tstl/container/HashSet";
 
 import { GenericAnalyzer } from "./GenericAnalyzer";
-import { IType } from "../structures/IType";
+import { ITypeTuple } from "../structures/ITypeTuple";
 
 export namespace ImportAnalyzer {
     export interface IOutput {
@@ -18,15 +18,11 @@ export namespace ImportAnalyzer {
         genericDict: GenericAnalyzer.Dictionary,
         importDict: Dictionary,
         type: ts.Type,
-    ): IType {
+    ): ITypeTuple {
+        type = get_type(checker, type);
         return {
-            metadata: get_type(checker, type),
-            escapedText: explore_escaped_name(
-                checker,
-                genericDict,
-                importDict,
-                type,
-            ),
+            type,
+            name: explore_escaped_name(checker, genericDict, importDict, type),
         };
     }
 

@@ -53,7 +53,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleArticle.IContent-gt-"
+                  "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleArticle.IContent_gt_"
                 }
               }
             }
@@ -120,7 +120,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleArticle.IContent-gt-"
+                  "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleArticle.IContent_gt_"
                 }
               }
             }
@@ -180,7 +180,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleReview.IContent-gt-"
+                  "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleReview.IContent_gt_"
                 }
               }
             }
@@ -247,7 +247,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry-lt-ISaleReview.IContent-gt-"
+                  "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleReview.IContent_gt_"
                 }
               }
             }
@@ -342,7 +342,7 @@
         ],
         "description": "Attachemd (physical) file info."
       },
-      "ISaleInquiry-lt-ISaleArticle.IContent-gt-": {
+      "ISaleInquiry_lt_ISaleArticle.IContent_gt_": {
         "type": "object",
         "properties": {
           "writer": {
@@ -351,7 +351,7 @@
             "description": "Name of the writer."
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable",
+            "$ref": "#/components/schemas/ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable",
             "description": "Formal answer from the seller."
           },
           "id": {
@@ -389,7 +389,7 @@
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
-      "ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable": {
+      "ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable": {
         "type": "object",
         "properties": {
           "id": {
@@ -525,7 +525,7 @@
         ],
         "description": "Store info of the review."
       },
-      "ISaleInquiry-lt-ISaleReview.IContent-gt-": {
+      "ISaleInquiry_lt_ISaleReview.IContent_gt_": {
         "type": "object",
         "properties": {
           "writer": {
@@ -534,7 +534,7 @@
             "description": "Name of the writer."
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleArticle-lt-ISaleArticle.IContent-gt-.Nullable",
+            "$ref": "#/components/schemas/ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable",
             "description": "Formal answer from the seller."
           },
           "id": {

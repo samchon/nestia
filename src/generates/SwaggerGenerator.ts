@@ -5,15 +5,18 @@ import { Singleton } from "tstl/thread/Singleton";
 import { VariadicSingleton } from "tstl/thread/VariadicSingleton";
 
 import { CommentFactory } from "typescript-json/lib/factories/CommentFactory";
-import { MetadataCollection } from "typescript-json/lib/storages/MetadataCollection";
+import { ApplicationProgrammer } from "typescript-json/lib/programmers/ApplicationProgrammer";
+import { MetadataCollection } from "typescript-json/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typescript-json/lib/factories/MetadataFactory";
-import { SchemaFactory } from "typescript-json/lib/factories/SchemaFactory";
 
 import { IConfiguration } from "../IConfiguration";
 import { IRoute } from "../structures/IRoute";
 import { ISwagger } from "../structures/ISwagger";
 
 import { MapUtil } from "../utils/MapUtil";
+import { IMetadata } from "typescript-json/lib/structures/IMetadata";
+import { IJsonSchema } from "typescript-json/lib/structures/IJsonSchema";
+import { IJsonApplication } from "typescript-json";
 
 export namespace SwaggerGenerator {
     export async function generate(
@@ -27,11 +30,15 @@ export namespace SwaggerGenerator {
             ? NodePath.resolve(config.output)
             : NodePath.join(NodePath.resolve(config.output), "swagger.json");
 
-        const swagger: ISwagger = await initialize(location);
-        const collection: MetadataCollection = new MetadataCollection(false);
+        const collection: MetadataCollection = new MetadataCollection({
+            replace: MetadataCollection.replace
+        });
 
-        // CONSTRUCT ROUTES
+        // CONSTRUCT SWAGGER DOCUMENTS
+        const tupleList: Array<ISchemaTuple> = [];
+        const swagger: ISwagger = await initialize(location);
         const pathDict: Map<string, ISwagger.IPath> = new Map();
+
         for (const route of routeList) {
             const path: ISwagger.IPath = MapUtil.take(
                 pathDict,
@@ -41,17 +48,29 @@ export namespace SwaggerGenerator {
             path[route.method.toLowerCase()] = generate_route(
                 checker,
                 collection,
+                tupleList,
                 route,
             );
         }
         swagger.paths = {};
-        for (const [path, routes] of pathDict) swagger.paths[path] = routes;
+        for (const [path, routes] of pathDict) {
+            swagger.paths[path] = routes;
+        }
 
-        // CONSTRUCT COMPONENTS
+        // FILL JSON-SCHEMAS
+        const application: IJsonApplication = ApplicationProgrammer.generate(
+            tupleList.map(({ metadata }) => metadata),
+            {
+                purpose: "swagger",
+            },
+        );
         swagger.components = {
             ...(swagger.components || {}),
-            ...SchemaFactory.components(collection.storage()),
+            schemas: application.components.schemas,
         };
+        tupleList.forEach(({ schema }, index) => {
+            Object.assign(schema, application.schemas[index]!);
+        });
 
         // DO GENERATE
         await fs.promises.writeFile(
@@ -99,7 +118,8 @@ export namespace SwaggerGenerator {
 
     function generate_route(
         checker: ts.TypeChecker,
-        collection: MetadataFactory.Collection,
+        collection: MetadataCollection,
+        tupleList: Array<ISchemaTuple>,
         route: IRoute,
     ): ISwagger.IRoute {
         const bodyParam = route.parameters.find(
@@ -125,12 +145,29 @@ export namespace SwaggerGenerator {
             parameters: route.parameters
                 .filter((param) => param.category !== "body")
                 .map((param) =>
-                    generate_parameter(checker, collection, route, param),
+                    generate_parameter(
+                        checker,
+                        collection,
+                        tupleList,
+                        route,
+                        param,
+                    ),
                 ),
             requestBody: bodyParam
-                ? generate_request_body(checker, collection, route, bodyParam)
+                ? generate_request_body(
+                      checker,
+                      collection,
+                      tupleList,
+                      route,
+                      bodyParam,
+                  )
                 : undefined,
-            responses: generate_response_body(checker, collection, route),
+            responses: generate_response_body(
+                checker,
+                collection,
+                tupleList,
+                route,
+            ),
             description: CommentFactory.generate(route.comments),
         };
     }
@@ -140,7 +177,8 @@ export namespace SwaggerGenerator {
     --------------------------------------------------------- */
     function generate_parameter(
         checker: ts.TypeChecker,
-        collection: MetadataFactory.Collection,
+        collection: MetadataCollection,
+        tupleList: Array<ISchemaTuple>,
         route: IRoute,
         parameter: IRoute.IParameter,
     ): ISwagger.IParameter {
@@ -153,7 +191,8 @@ export namespace SwaggerGenerator {
             schema: generate_schema(
                 checker,
                 collection,
-                parameter.type.metadata,
+                tupleList,
+                parameter.type.type,
             ),
             required: true,
         };
@@ -161,7 +200,8 @@ export namespace SwaggerGenerator {
 
     function generate_request_body(
         checker: ts.TypeChecker,
-        collection: MetadataFactory.Collection,
+        collection: MetadataCollection,
+        tupleList: Array<ISchemaTuple>,
         route: IRoute,
         parameter: IRoute.IParameter,
     ): ISwagger.IRequestBody {
@@ -175,7 +215,8 @@ export namespace SwaggerGenerator {
                     schema: generate_schema(
                         checker,
                         collection,
-                        parameter.type.metadata,
+                        tupleList,
+                        parameter.type.type,
                     ),
                 },
             },
@@ -185,16 +226,18 @@ export namespace SwaggerGenerator {
 
     function generate_response_body(
         checker: ts.TypeChecker,
-        collection: MetadataFactory.Collection,
+        collection: MetadataCollection,
+        tupleList: Array<ISchemaTuple>,
         route: IRoute,
     ): ISwagger.IResponseBody {
         // OUTPUT WITH SUCCESS STATUS
         const status: string =
             route.method === "GET" || route.method === "DELETE" ? "200" : "201";
-        const schema = generate_schema(
+        const schema: IJsonSchema = generate_schema(
             checker,
             collection,
-            route.output.metadata,
+            tupleList,
+            route.output.type,
         );
         const success: ISwagger.IResponseBody = {
             [status]: {
@@ -204,7 +247,7 @@ export namespace SwaggerGenerator {
                         get_parametric_description(route, "returns") ||
                         ""),
                 content:
-                    route.output.escapedText === "void"
+                    route.output.name === "void"
                         ? undefined
                         : {
                               "application/json": {
@@ -257,11 +300,22 @@ export namespace SwaggerGenerator {
     --------------------------------------------------------- */
     function generate_schema(
         checker: ts.TypeChecker,
-        collection: MetadataFactory.Collection,
+        collection: MetadataCollection,
+        tupleList: Array<ISchemaTuple>,
         type: ts.Type,
     ) {
-        const entity = MetadataFactory.generate(checker, type, collection);
-        return SchemaFactory.schema(entity?.metadata || null);
+        const metadata: IMetadata = MetadataFactory.generate(
+            checker,
+            collection,
+            type,
+            {
+                resolve: false,
+                constant: true,
+            },
+        );
+        const schema: IJsonSchema = {} as IJsonSchema;
+        tupleList.push({ metadata, schema });
+        return schema;
     }
 
     function get_parametric_description(
@@ -317,3 +371,8 @@ Therefore, just utilize this swagger editor only for referencing. If you need to
         },
     );
 });
+
+interface ISchemaTuple {
+    metadata: IMetadata;
+    schema: IJsonSchema;
+}
