@@ -1,5 +1,5 @@
 import ts from "typescript";
-import { IType } from "./IType";
+import { ITypeTuple } from "./ITypeTuple";
 import { ParamCategory } from "./ParamCategory";
 
 export interface IRoute {
@@ -10,7 +10,7 @@ export interface IRoute {
 
     parameters: IRoute.IParameter[];
     imports: [string, string[]][];
-    output: IType;
+    output: ITypeTuple;
 
     symbol: string;
     comments: ts.SymbolDisplayPart[];
@@ -23,6 +23,6 @@ export namespace IRoute {
         field: string | undefined;
         category: ParamCategory;
         encrypted: boolean;
-        type: IType;
+        type: ITypeTuple;
     }
 }

@@ -421,11 +421,11 @@ Look at the below code and feel how powerful `nestia` is. It should be stated th
     - 2nd sub-type controller, [`ConsumerSaleQuestionsController`](https://github.com/samchon/nestia/tree/master/demo/generic/src/controllers/ConsumerSaleQuestionsController.ts)
   - Union controller, [`ConsumerSaleEntireArticlesController`](https://github.com/samchon/nestia/tree/master/demo/union/src/controllers/ConsumerSaleEntireArticlesController.ts)
 
-> [typescript-is](https://github.com/woutervh-/typescript-is) can replace the class-validator with only one line.
+> [typescript-json](https://github.com/samchon/typescript-json) can replace the class-validator with only one line.
 > 
 > ```typescript
 > import * as nest from "@nestjs/common";
-> import { assertType } from "typescript-is";
+> import { assert } from "typescript-json";
 >
 > @nest.Controller("consumers/:section/sales/:saleId/questions")
 > export class SaleQuestionsController
@@ -436,7 +436,7 @@ Look at the below code and feel how powerful `nestia` is. It should be stated th
 > {
 >     public constructor() 
 >     {
->         super(input => assertType<ISaleQuestion.IStore>(input));
+>         super(input => assert(input));
 >     }
 > }
 > ```
@@ -543,7 +543,7 @@ Furthermore, there's not any problem even when a generic typed controller class 
 //================================================================
 import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
-import { createStringifier } from "typescript-json";
+import TSON from "typescript-json";
 
 import type { ISaleReview } from "./../../../../structures/ISaleReview";
 import type { ISaleInquiry } from "./../../../../structures/ISaleInquiry";
@@ -600,7 +600,7 @@ export namespace store
     {
         return `/consumers/${section}/sales/${saleId}/reviews`;
     }
-    export const stringify = createStringifier<Input>();
+    export const stringify = (input: Input) => TSON.stringify(input);
 }
 
 /**
@@ -660,7 +660,7 @@ export namespace update
     {
         return `/consumers/${section}/sales/${saleId}/reviews/${id}`;
     }
-    export const stringify = createStringifier<Input>();
+    export const stringify = (input: Input) => TSON.stringify(input);
 }
 ```
 
@@ -730,31 +730,31 @@ The detailed options are listed up to the `IConfiguration` interface. You can ut
  */
 export interface IConfiguration {
     /**
-     * List of files or directories containing the `NestJS` controller classes.
+     * List of files or directories containing the NestJS controller classes.
      */
     input: string | string[] | IConfiguration.IInput;
 
     /**
      * Output directory that SDK would be placed in.
-     * 
+     *
      * If not configured, you can't build the SDK library.
      */
     output?: string;
 
     /**
      * Compiler options for the TypeScript.
-     * 
+     *
      * If you've omitted this property or the assigned property cannot fully cover the
      * `tsconfig.json`, the properties from the `tsconfig.json` would be assigned to here.
-     * Otherwise, this property has been configured and it's detailed values are different 
-     * with the `tsconfig.json`, this property values would be overwritten.
-     * 
+     * Otherwise, this property has been configured and it's detailed values are different
+     * with the `tsconfig.json`, this property values would be used instead.
+     *
      * ```typescript
      * import ts from "typescript";
-     * 
+     *
      * const tsconfig: ts.TsConfig;
      * const nestiaConfig: IConfiguration;
-     * 
+     *
      * const compilerOptions: ts.CompilerOptions = {
      *     ...tsconfig.compilerOptions,
      *     ...(nestiaConfig.compilerOptions || {})
@@ -765,39 +765,38 @@ export interface IConfiguration {
 
     /**
      * Whether to assert parameter types or not.
-     * 
+     *
      * If you configure this property to be `true`, all of the function parameters would be
-     * checked through the [typescript-is](https://github.com/woutervh-/typescript-is). This
-     * option would make your SDK library slower, but would be much safer in the type level
-     * even in the runtime environment.
+     * checked through the [typescript-json](https://github.com/samchon/typescript-json#runtime-type-checkers).
+     * This option would make your SDK library slower, but would enahcne the type safety even
+     * in the runtime level.
      */
     assert?: boolean;
 
     /**
      * Whether to optimize JSON string conversion 2x faster or not.
-     * 
+     *
      * If you configure this property to be `true`, the SDK library would utilize the
-     * [typescript-json](https://github.com/samchon/typescript-json) and the JSON string
-     * conversion speed really be 2x faster.
+     * [typescript-json](https://github.com/samchon/typescript-json#fastest-json-string-converter)
+     * and the JSON string conversion speed really be 2x faster.
      */
     json?: boolean;
 
     /**
      * Building `swagger.json` is also possible.
-     * 
+     *
      * If not specified, you can't build the `swagger.json`.
      */
     swagger?: IConfiguration.ISwagger;
 }
-export namespace IConfiguration
-{
+export namespace IConfiguration {
     /**
-     * List of files or directories to include or exclude to specifying the `NestJS` 
+     * List of files or directories to include or exclude to specifying the NestJS
      * controllers.
      */
     export interface IInput {
         /**
-         * List of files or directories containing the `NestJS` controller classes.
+         * List of files or directories containing the NestJS controller classes.
          */
         include: string[];
 
@@ -813,9 +812,9 @@ export namespace IConfiguration
     export interface ISwagger {
         /**
          * Output path of the `swagger.json`.
-         * 
-         * If you've configured only directory, the file name would be the `swagger.json`. 
-         * Otherwise you've configured the full path with file name and extension, the 
+         *
+         * If you've configured only directory, the file name would be the `swagger.json`.
+         * Otherwise you've configured the full path with file name and extension, the
          * `swagger.json` file would be renamed to it.
          */
         output: string;
@@ -843,7 +842,7 @@ export default NESTIA_CONFIG;
 
 ## Appendix
 ### Dependencies of the SDK
-An SDK library generated by `nestia` requires [nestia-fetcher](https://github.com/samchon/nestia-fetcher) module. Also, [typescript-is](https://github.com/woutervh-/typescript-is) and [typescript-json](https://github.com/samchon/typescript-json) modules can be required following your `nestia.config.ts` configuration file.
+An SDK library generated by `nestia` requires [nestia-fetcher](https://github.com/samchon/nestia-fetcher) module. Also, [typescript-json](https://github.com/samchon/typescript-json) module can be required following your `nestia.config.ts` configuration file.
 
 The `npx nestia install` command installs those dependencies with the `package.json` configuration.
 

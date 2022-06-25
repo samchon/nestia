@@ -44,9 +44,9 @@ export interface IConfiguration {
      * Whether to assert parameter types or not.
      *
      * If you configure this property to be `true`, all of the function parameters would be
-     * checked through the [typescript-is](https://github.com/woutervh-/typescript-is). This
-     * option would make your SDK library slower, but would enahcne the type safety even in
-     * the runtime level.
+     * checked through the [typescript-json](https://github.com/samchon/typescript-json#runtime-type-checkers).
+     * This option would make your SDK library slower, but would enahcne the type safety even
+     * in the runtime level.
      */
     assert?: boolean;
 
@@ -54,8 +54,8 @@ export interface IConfiguration {
      * Whether to optimize JSON string conversion 2x faster or not.
      *
      * If you configure this property to be `true`, the SDK library would utilize the
-     * [typescript-json](https://github.com/samchon/typescript-json) and the JSON string
-     * conversion speed really be 2x faster.
+     * [typescript-json](https://github.com/samchon/typescript-json#fastest-json-string-converter)
+     * and the JSON string conversion speed really be 2x faster.
      */
     json?: boolean;
 

@@ -52,7 +52,7 @@ export namespace CompilerOptions {
 
         if (assert === true)
             emplace({
-                transform: "typescript-is/lib/transform-inline/transformer",
+                transform: "typescript-json/lib/transform",
             });
         if (options.paths && Object.entries(options.paths).length !== 0)
             emplace({ transform: "typescript-transform-paths" });

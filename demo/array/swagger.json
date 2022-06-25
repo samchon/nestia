@@ -209,6 +209,7 @@
   "components": {
     "schemas": {
       "ISaleArticleComment.IStore": {
+        "$id": "ISaleArticleComment.IStore",
         "type": "object",
         "properties": {
           "body": {
@@ -217,7 +218,6 @@
             "description": "Body of the content."
           },
           "extension": {
-            "type": "string",
             "enum": [
               "html",
               "md",
@@ -227,7 +227,6 @@
             "description": "Extension, content type (format)."
           },
           "annonymous": {
-            "type": "boolean",
             "enum": [
               false,
               true
@@ -245,6 +244,7 @@
         "description": "Store info."
       },
       "ISaleArticleComment": {
+        "$id": "ISaleArticleComment",
         "type": "object",
         "properties": {
           "id": {
@@ -258,7 +258,6 @@
             "description": "Parent comment ID.\n\nOnly When this comment has been written as a reply."
           },
           "writer_type": {
-            "type": "string",
             "enum": [
               "seller",
               "consumer"
@@ -274,7 +273,8 @@
           "contents": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ISaleArticleComment.IContent"
+              "$ref": "#/components/schemas/ISaleArticleComment.IContent",
+              "description": "Contents of the comments.\n\nWhen the comment writer tries to modify content, it would not modify the comment\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
             },
             "nullable": false,
             "description": "Contents of the comments.\n\nWhen the comment writer tries to modify content, it would not modify the comment\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
@@ -297,6 +297,7 @@
         "description": "Comment wrote on a sale related article.\n\nWhen an article of a sale has been enrolled, all of the participants like consumers and\nsellers can write a comment on that article. However, when the writer is a consumer, the\nconsumer can hide its name through the annoymous option. \n\nAlso, writing a reply comment for a specific comment is possible and in that case, the \n{@link ISaleArticleComment.parent_id} property would be activated."
       },
       "ISaleArticleComment.IContent": {
+        "$id": "ISaleArticleComment.IContent",
         "type": "object",
         "properties": {
           "id": {

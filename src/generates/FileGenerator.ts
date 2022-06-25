@@ -92,7 +92,7 @@ export namespace FileGenerator {
         if (directory.routes.length !== 0) {
             const primitived: boolean = directory.routes.some(
                 (route) =>
-                    route.output.escapedText !== "void" ||
+                    route.output.name !== "void" ||
                     route.parameters.some(
                         (param) => param.category !== "param",
                     ),
@@ -116,12 +116,8 @@ export namespace FileGenerator {
                 `import { ${fetcher.join(", ")} } from "nestia-fetcher";`,
                 `import type { IConnection } from "nestia-fetcher";`,
             ];
-            if (asserted)
-                head.push(`import { assertType } from "typescript-is";`);
-            if (json)
-                head.push(
-                    `import { createStringifier } from "typescript-json";`,
-                );
+            if (asserted || json)
+                head.push(`import TSON from "typescript-json";`);
             if (!importDict.empty()) head.push("", importDict.toScript(outDir));
 
             content.push(...head, "", ...content.splice(0, content.length));

@@ -6,7 +6,7 @@ import { NestiaCommand } from "./internal/NestiaCommand";
 
 function install(): void {
     // INSTALL DEPENDENCIES
-    for (const lib of ["nestia-fetcher", "typescript-is", "typescript-json"]) {
+    for (const lib of ["nestia-fetcher", "typescript-json"]) {
         const command: string = `npm install ${lib}`;
         cp.execSync(command, { stdio: "inherit" });
     }

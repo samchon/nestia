@@ -153,16 +153,14 @@ export namespace FunctionGenerator {
                         ? `Primitive<${route.name}.${
                               param === query ? "Query" : "Input"
                           }>`
-                        : param.type.escapedText;
+                        : param.type.name;
                 return `${param.name}: ${type}`;
             }),
         ];
 
         // OUTPUT TYPE
         const output: string =
-            route.output.escapedText === "void"
-                ? "void"
-                : `${route.name}.Output`;
+            route.output.name === "void" ? "void" : `${route.name}.Output`;
 
         // RETURNS WITH CONSTRUCTION
         return (
@@ -186,12 +184,10 @@ export namespace FunctionGenerator {
     ): string | null {
         // LIST UP TYPES
         const types: Pair<string, string>[] = [];
-        if (query !== undefined)
-            types.push(new Pair("Query", query.type.escapedText));
-        if (input !== undefined)
-            types.push(new Pair("Input", input.type.escapedText));
-        if (route.output.escapedText !== "void")
-            types.push(new Pair("Output", route.output.escapedText));
+        if (query !== undefined) types.push(new Pair("Query", query.type.name));
+        if (input !== undefined) types.push(new Pair("Input", input.type.name));
+        if (route.output.name !== "void")
+            types.push(new Pair("Output", route.output.name));
 
         // PATH WITH PARAMETERS
         const parameters: IRoute.IParameter[] = filter_parameters(route, query);
@@ -217,7 +213,7 @@ export namespace FunctionGenerator {
             `    };\n` +
             "\n" +
             `    export function path(${parameters
-                .map((param) => `${param.name}: ${param.type.escapedText}`)
+                .map((param) => `${param.name}: ${param.type.name}`)
                 .join(", ")}): string\n` +
             `    {\n` +
             `        return ${path};\n` +
