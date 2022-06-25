@@ -105,10 +105,10 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleArticle.IContent_gt_"
+                      "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleReview.IContent_gt_"
                     },
                     {
-                      "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleReview.IContent_gt_"
+                      "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleArticle.IContent_gt_"
                     }
                   ]
                 }
@@ -123,10 +123,10 @@
   "components": {
     "schemas": {
       "ISaleInquiry.IRequest": {
+        "$id": "ISaleInquiry.IRequest",
         "type": "object",
         "properties": {
           "answered": {
-            "type": "boolean",
             "enum": [
               false,
               true
@@ -147,13 +147,13 @@
           "search_fields": {
             "type": "array",
             "items": {
-              "type": "string",
               "enum": [
                 "writer",
                 "title",
                 "content"
               ],
-              "nullable": false
+              "nullable": false,
+              "description": "Search field(s)."
             },
             "nullable": false,
             "description": "Search field(s)."
@@ -176,6 +176,7 @@
         "description": "Page request info."
       },
       "IPage_lt_ISaleEntireArtcle.ISummary_gt_": {
+        "$id": "IPage_lt_ISaleEntireArtcle.ISummary_gt_",
         "type": "object",
         "properties": {
           "pagination": {
@@ -187,10 +188,12 @@
             "items": {
               "oneOf": [
                 {
-                  "$ref": "#/components/schemas/ISaleInquiry.ISummary"
+                  "$ref": "#/components/schemas/ISaleInquiry.ISummary",
+                  "description": "List of the records."
                 },
                 {
-                  "$ref": "#/components/schemas/ISaleReview.ISummary"
+                  "$ref": "#/components/schemas/ISaleReview.ISummary",
+                  "description": "List of the records."
                 }
               ]
             },
@@ -206,6 +209,7 @@
         "description": "Paginated records."
       },
       "IPage.IPagination": {
+        "$id": "IPage.IPagination",
         "type": "object",
         "properties": {
           "page": {
@@ -239,6 +243,7 @@
         "description": "Pagenation info."
       },
       "ISaleInquiry.ISummary": {
+        "$id": "ISaleInquiry.ISummary",
         "type": "object",
         "properties": {
           "writer": {
@@ -247,7 +252,6 @@
             "description": "Name of the writer."
           },
           "answered": {
-            "type": "boolean",
             "enum": [
               false,
               true
@@ -294,6 +298,7 @@
         "description": "Summarized info of the inquiry article."
       },
       "ISaleReview.ISummary": {
+        "$id": "ISaleReview.ISummary",
         "type": "object",
         "properties": {
           "score": {
@@ -307,7 +312,6 @@
             "description": "Name of the writer."
           },
           "answered": {
-            "type": "boolean",
             "enum": [
               false,
               true
@@ -354,7 +358,8 @@
         ],
         "description": "Summarized info of the review."
       },
-      "ISaleInquiry_lt_ISaleArticle.IContent_gt_": {
+      "ISaleInquiry_lt_ISaleReview.IContent_gt_": {
+        "$id": "ISaleInquiry_lt_ISaleReview.IContent_gt_",
         "type": "object",
         "properties": {
           "writer": {
@@ -379,7 +384,8 @@
           "contents": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ISaleArticle.IContent"
+              "$ref": "#/components/schemas/ISaleReview.IContent",
+              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
             },
             "nullable": false,
             "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
@@ -402,6 +408,7 @@
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
       "ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable": {
+        "$id": "ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable",
         "type": "object",
         "properties": {
           "id": {
@@ -417,7 +424,8 @@
           "contents": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ISaleArticle.IContent"
+              "$ref": "#/components/schemas/ISaleArticle.IContent",
+              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
             },
             "nullable": false,
             "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
@@ -438,6 +446,7 @@
         "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`."
       },
       "ISaleArticle.IContent": {
+        "$id": "ISaleArticle.IContent",
         "type": "object",
         "properties": {
           "id": {
@@ -458,7 +467,8 @@
           "files": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IAttachmentFile"
+              "$ref": "#/components/schemas/IAttachmentFile",
+              "description": "Attached files."
             },
             "nullable": false,
             "description": "Attached files."
@@ -480,6 +490,7 @@
         "description": "Content info."
       },
       "IAttachmentFile": {
+        "$id": "IAttachmentFile",
         "type": "object",
         "properties": {
           "id": {
@@ -512,54 +523,8 @@
         ],
         "description": "Attachemd (physical) file info."
       },
-      "ISaleInquiry_lt_ISaleReview.IContent_gt_": {
-        "type": "object",
-        "properties": {
-          "writer": {
-            "type": "string",
-            "nullable": false,
-            "description": "Name of the writer."
-          },
-          "answer": {
-            "$ref": "#/components/schemas/ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable",
-            "description": "Formal answer from the seller."
-          },
-          "id": {
-            "type": "number",
-            "nullable": false,
-            "description": "Primary Key."
-          },
-          "hit": {
-            "type": "number",
-            "nullable": false,
-            "description": "Hit count.\n\nHow many consumers had read."
-          },
-          "contents": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ISaleReview.IContent"
-            },
-            "nullable": false,
-            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
-          },
-          "created_at": {
-            "type": "string",
-            "nullable": false,
-            "description": "Creation time."
-          }
-        },
-        "nullable": false,
-        "required": [
-          "writer",
-          "answer",
-          "id",
-          "hit",
-          "contents",
-          "created_at"
-        ],
-        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
-      },
       "ISaleReview.IContent": {
+        "$id": "ISaleReview.IContent",
         "type": "object",
         "properties": {
           "score": {
@@ -585,7 +550,8 @@
           "files": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IAttachmentFile"
+              "$ref": "#/components/schemas/IAttachmentFile",
+              "description": "Attached files."
             },
             "nullable": false,
             "description": "Attached files."
@@ -606,6 +572,55 @@
           "created_at"
         ],
         "description": "Content info of the review."
+      },
+      "ISaleInquiry_lt_ISaleArticle.IContent_gt_": {
+        "$id": "ISaleInquiry_lt_ISaleArticle.IContent_gt_",
+        "type": "object",
+        "properties": {
+          "writer": {
+            "type": "string",
+            "nullable": false,
+            "description": "Name of the writer."
+          },
+          "answer": {
+            "$ref": "#/components/schemas/ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable",
+            "description": "Formal answer from the seller."
+          },
+          "id": {
+            "type": "number",
+            "nullable": false,
+            "description": "Primary Key."
+          },
+          "hit": {
+            "type": "number",
+            "nullable": false,
+            "description": "Hit count.\n\nHow many consumers had read."
+          },
+          "contents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ISaleArticle.IContent",
+              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+            },
+            "nullable": false,
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+          },
+          "created_at": {
+            "type": "string",
+            "nullable": false,
+            "description": "Creation time."
+          }
+        },
+        "nullable": false,
+        "required": [
+          "writer",
+          "answer",
+          "id",
+          "hit",
+          "contents",
+          "created_at"
+        ],
+        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       }
     }
   }

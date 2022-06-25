@@ -3,7 +3,7 @@ import path from "path";
 import * as runner from "ts-node";
 import { Primitive } from "nestia-fetcher";
 import { Singleton } from "tstl/thread/Singleton";
-import { assert } from "typescript-json";
+import { assertType } from "typescript-json";
 
 import { IConfiguration } from "../../IConfiguration";
 
@@ -30,6 +30,6 @@ export namespace NestiaConfig {
         const config: IConfiguration =
             typeof loaded.default === "object" ? loaded.default : loaded;
 
-        return assert(Primitive.clone(config));
+        return assertType(Primitive.clone(config));
     });
 }

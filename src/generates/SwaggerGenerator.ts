@@ -14,9 +14,9 @@ import { IRoute } from "../structures/IRoute";
 import { ISwagger } from "../structures/ISwagger";
 
 import { MapUtil } from "../utils/MapUtil";
-import { IMetadata } from "typescript-json/lib/structures/IMetadata";
 import { IJsonSchema } from "typescript-json/lib/structures/IJsonSchema";
 import { IJsonApplication } from "typescript-json";
+import { Metadata } from "typescript-json/lib/metadata/Metadata";
 
 export namespace SwaggerGenerator {
     export async function generate(
@@ -31,7 +31,7 @@ export namespace SwaggerGenerator {
             : NodePath.join(NodePath.resolve(config.output), "swagger.json");
 
         const collection: MetadataCollection = new MetadataCollection({
-            replace: MetadataCollection.replace
+            replace: MetadataCollection.replace,
         });
 
         // CONSTRUCT SWAGGER DOCUMENTS
@@ -304,7 +304,7 @@ export namespace SwaggerGenerator {
         tupleList: Array<ISchemaTuple>,
         type: ts.Type,
     ) {
-        const metadata: IMetadata = MetadataFactory.generate(
+        const metadata: Metadata = MetadataFactory.generate(
             checker,
             collection,
             type,
@@ -373,6 +373,6 @@ Therefore, just utilize this swagger editor only for referencing. If you need to
 });
 
 interface ISchemaTuple {
-    metadata: IMetadata;
+    metadata: Metadata;
     schema: IJsonSchema;
 }
