@@ -37,6 +37,10 @@ export function store
         input: Primitive<store.Input>
     ): Promise<store.Output>
 {
+    TSON.assertType<typeof section>(section);
+    TSON.assertType<typeof saleId>(saleId);
+    TSON.assertType<typeof input>(input);
+
     return Fetcher.fetch
     (
         connection,
@@ -63,7 +67,7 @@ export namespace store
     {
         return `/consumers/${section}/sales/${saleId}/questions`;
     }
-    export const stringify = createStringifier<Input>();
+    export const stringify = (input: Input) => TSON.stringify(input);
 }
 
 /**
@@ -97,6 +101,11 @@ export function update
         input: Primitive<update.Input>
     ): Promise<update.Output>
 {
+    TSON.assertType<typeof section>(section);
+    TSON.assertType<typeof saleId>(saleId);
+    TSON.assertType<typeof id>(id);
+    TSON.assertType<typeof input>(input);
+
     return Fetcher.fetch
     (
         connection,
@@ -123,5 +132,5 @@ export namespace update
     {
         return `/consumers/${section}/sales/${saleId}/questions/${id}`;
     }
-    export const stringify = createStringifier<Input>();
+    export const stringify = (input: Input) => TSON.stringify(input);
 }

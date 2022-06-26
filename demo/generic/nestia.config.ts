@@ -4,6 +4,7 @@ const config = {
     swagger: {
         output: "swagger.json"
     },
+    assert: true,
     json: true
 };
 export default config;
