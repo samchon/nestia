@@ -48,7 +48,7 @@ export namespace FunctionGenerator {
                 ? route.parameters
                       .map(
                           (param) =>
-                              `    assertType<typeof ${param.name}>(${param.name});`,
+                              `    TSON.assertType<typeof ${param.name}>(${param.name});`,
                       )
                       .join("\n") + "\n\n"
                 : "";
@@ -222,7 +222,7 @@ export namespace FunctionGenerator {
             (route.method === "POST" ||
                 route.method === "PUT" ||
                 route.method === "PATCH")
-                ? `    export const stringify = createStringifier<Input>();\n`
+                ? `    export const stringify = (input: Input) => TSON.stringify(input);\n`
                 : "") +
             "}"
         );
