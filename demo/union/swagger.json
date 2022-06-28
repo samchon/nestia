@@ -123,7 +123,6 @@
   "components": {
     "schemas": {
       "ISaleInquiry.IRequest": {
-        "$id": "ISaleInquiry.IRequest",
         "type": "object",
         "properties": {
           "answered": {
@@ -176,7 +175,6 @@
         "description": "Page request info."
       },
       "IPage_lt_ISaleEntireArtcle.ISummary_gt_": {
-        "$id": "IPage_lt_ISaleEntireArtcle.ISummary_gt_",
         "type": "object",
         "properties": {
           "pagination": {
@@ -209,7 +207,6 @@
         "description": "Paginated records."
       },
       "IPage.IPagination": {
-        "$id": "IPage.IPagination",
         "type": "object",
         "properties": {
           "page": {
@@ -243,7 +240,6 @@
         "description": "Pagenation info."
       },
       "ISaleInquiry.ISummary": {
-        "$id": "ISaleInquiry.ISummary",
         "type": "object",
         "properties": {
           "writer": {
@@ -298,7 +294,6 @@
         "description": "Summarized info of the inquiry article."
       },
       "ISaleReview.ISummary": {
-        "$id": "ISaleReview.ISummary",
         "type": "object",
         "properties": {
           "score": {
@@ -359,7 +354,6 @@
         "description": "Summarized info of the review."
       },
       "ISaleInquiry_lt_ISaleReview.IContent_gt_": {
-        "$id": "ISaleInquiry_lt_ISaleReview.IContent_gt_",
         "type": "object",
         "properties": {
           "writer": {
@@ -408,7 +402,6 @@
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
       },
       "ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable": {
-        "$id": "ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable",
         "type": "object",
         "properties": {
           "id": {
@@ -446,7 +439,6 @@
         "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`."
       },
       "ISaleArticle.IContent": {
-        "$id": "ISaleArticle.IContent",
         "type": "object",
         "properties": {
           "id": {
@@ -490,7 +482,6 @@
         "description": "Content info."
       },
       "IAttachmentFile": {
-        "$id": "IAttachmentFile",
         "type": "object",
         "properties": {
           "id": {
@@ -524,7 +515,6 @@
         "description": "Attachemd (physical) file info."
       },
       "ISaleReview.IContent": {
-        "$id": "ISaleReview.IContent",
         "type": "object",
         "properties": {
           "score": {
@@ -574,7 +564,6 @@
         "description": "Content info of the review."
       },
       "ISaleInquiry_lt_ISaleArticle.IContent_gt_": {
-        "$id": "ISaleInquiry_lt_ISaleArticle.IContent_gt_",
         "type": "object",
         "properties": {
           "writer": {

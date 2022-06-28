@@ -72,6 +72,10 @@ export namespace SwaggerGenerator {
             Object.assign(schema, application.schemas[index]!);
         });
 
+        // ERASE IJsonComponents.IObject.$id
+    for (const obj of Object.values(swagger.components.schemas))
+            if (obj.$id) delete obj.$id;
+
         // DO GENERATE
         await fs.promises.writeFile(
             location,
