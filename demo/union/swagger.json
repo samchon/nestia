@@ -126,6 +126,7 @@
         "type": "object",
         "properties": {
           "answered": {
+            "type": "boolean",
             "enum": [
               false,
               true
@@ -146,6 +147,7 @@
           "search_fields": {
             "type": "array",
             "items": {
+              "type": "string",
               "enum": [
                 "writer",
                 "title",
@@ -248,6 +250,7 @@
             "description": "Name of the writer."
           },
           "answered": {
+            "type": "boolean",
             "enum": [
               false,
               true
@@ -307,6 +310,7 @@
             "description": "Name of the writer."
           },
           "answered": {
+            "type": "boolean",
             "enum": [
               false,
               true

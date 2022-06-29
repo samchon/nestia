@@ -3,6 +3,8 @@ import ts from "typescript";
 import NodePath from "path";
 import { Singleton } from "tstl/thread/Singleton";
 import { VariadicSingleton } from "tstl/thread/VariadicSingleton";
+import { IJsonApplication, IJsonSchema } from "typescript-json";
+import { Metadata } from "typescript-json/lib/metadata/Metadata";
 
 import { CommentFactory } from "typescript-json/lib/factories/CommentFactory";
 import { ApplicationProgrammer } from "typescript-json/lib/programmers/ApplicationProgrammer";
@@ -14,9 +16,6 @@ import { IRoute } from "../structures/IRoute";
 import { ISwagger } from "../structures/ISwagger";
 
 import { MapUtil } from "../utils/MapUtil";
-import { IJsonSchema } from "typescript-json/lib/structures/IJsonSchema";
-import { IJsonApplication } from "typescript-json";
-import { Metadata } from "typescript-json/lib/metadata/Metadata";
 
 export namespace SwaggerGenerator {
     export async function generate(
@@ -73,7 +72,7 @@ export namespace SwaggerGenerator {
         });
 
         // ERASE IJsonComponents.IObject.$id
-    for (const obj of Object.values(swagger.components.schemas))
+        for (const obj of Object.values(swagger.components.schemas))
             if (obj.$id) delete obj.$id;
 
         // DO GENERATE
