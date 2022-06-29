@@ -217,6 +217,7 @@
             "description": "Body of the content."
           },
           "extension": {
+            "type": "string",
             "enum": [
               "html",
               "md",
@@ -226,6 +227,7 @@
             "description": "Extension, content type (format)."
           },
           "annonymous": {
+            "type": "boolean",
             "enum": [
               false,
               true
@@ -256,6 +258,7 @@
             "description": "Parent comment ID.\n\nOnly When this comment has been written as a reply."
           },
           "writer_type": {
+            "type": "string",
             "enum": [
               "seller",
               "consumer"

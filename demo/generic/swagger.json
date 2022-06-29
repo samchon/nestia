@@ -282,6 +282,7 @@
             "description": "Body of the content."
           },
           "extension": {
+            "type": "string",
             "enum": [
               "html",
               "md",
@@ -451,6 +452,7 @@
             "description": "Body of the content."
           },
           "extension": {
+            "type": "string",
             "enum": [
               "html",
               "md",
@@ -499,6 +501,7 @@
             "description": "Body of the content."
           },
           "extension": {
+            "type": "string",
             "enum": [
               "html",
               "md",
@@ -604,6 +607,7 @@
             "description": "Body of the content."
           },
           "extension": {
+            "type": "string",
             "enum": [
               "html",
               "md",
