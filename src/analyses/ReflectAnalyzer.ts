@@ -226,6 +226,7 @@ export namespace ReflectAnalyzer {
     ): IController.IParameter | null {
         if (param.factory === undefined) return null;
         else if (
+            param.factory.name === "TypedBody" ||
             param.factory.name === "EncryptedBody" ||
             param.factory.name === "PlainBody"
         ) {

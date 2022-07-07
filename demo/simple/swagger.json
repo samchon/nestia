@@ -107,10 +107,6 @@
           },
           "annonymous": {
             "type": "boolean",
-            "enum": [
-              false,
-              true
-            ],
             "nullable": false,
             "description": "Whether to hide the writer name or not."
           }
