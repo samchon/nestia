@@ -154,25 +154,15 @@ export class NestiaApplication {
 
     private prepare(): void {
         // CONSTRUCT OPTIONS
-        const predicator: () => [boolean, boolean] = this.config_
-            .compilerOptions
-            ? () =>
-                  CompilerOptions.emend(
-                      this.config_.compilerOptions!,
-                      !!this.config_.assert,
-                  )
-            : () => {
-                  this.config_.compilerOptions = (<any>(
-                      CompilerOptions.DEFAULT_OPTIONS
-                  )) as ts.CompilerOptions;
-                  return [false, false];
-              };
+        if (!this.config_.compilerOptions)
+            this.config_.compilerOptions =
+                CompilerOptions.DEFAULT_OPTIONS as any;
+        const absoluted: boolean = !!this.config_.compilerOptions?.baseUrl;
 
         // MOUNT TS-NODE
-        const [transformed, absoluted] = predicator();
         runner.register({
             emit: false,
-            compiler: transformed ? "ttypescript" : "typescript",
+            compiler: "ttypescript",
             compilerOptions: this.config_.compilerOptions,
             require: absoluted ? ["tsconfig-paths/register"] : undefined,
         });
