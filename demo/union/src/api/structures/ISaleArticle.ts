@@ -3,15 +3,14 @@ import { IPage } from "./IPage";
 
 /**
  * Article about a sale.
- * 
+ *
  * The `ISaleArticle` is a super type interface. Many sub-type articles would be
  * designed by extending this super type interface `ISaleArticle`.
- * 
+ *
  * @template Content Content type.
  * @author Jeongho Nam - https://github.com/samchon
  */
-export interface ISaleArticle<Content extends ISaleArticle.IContent>
-{
+export interface ISaleArticle<Content extends ISaleArticle.IContent> {
     /**
      * Primary Key.
      */
@@ -19,14 +18,14 @@ export interface ISaleArticle<Content extends ISaleArticle.IContent>
 
     /**
      * Hit count.
-     * 
+     *
      * How many consumers had read.
      */
     hit: number;
 
     /**
      * List of contents.
-     * 
+     *
      * When the article writer tries to modify content, it would not modify the article
      * content but would be accumulated. Therefore, all of the people can read how
      * the content has been changed.
@@ -38,18 +37,16 @@ export interface ISaleArticle<Content extends ISaleArticle.IContent>
      */
     created_at: string;
 }
-export namespace ISaleArticle
-{
+export namespace ISaleArticle {
     /**
      * Page request info.
      */
-    export type IRequest = IPage.IRequest<"title"|"content">;
+    export type IRequest = IPage.IRequest<"title" | "content">;
 
     /**
      * Summarized info of the article.
      */
-    export interface ISummary
-    {
+    export interface ISummary {
         /**
          * Primary Key.
          */
@@ -62,7 +59,7 @@ export namespace ISaleArticle
 
         /**
          * Hit count.
-         * 
+         *
          * How many consumers had read.
          */
         hit: number;
@@ -81,8 +78,7 @@ export namespace ISaleArticle
     /**
      * Content info.
      */
-    export interface IContent
-    {
+    export interface IContent {
         /**
          * Primary Key
          */

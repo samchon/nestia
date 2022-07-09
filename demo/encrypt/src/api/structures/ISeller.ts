@@ -1,10 +1,9 @@
 /**
  * Seller information.
- * 
+ *
  * @author Jeongho Nam - https://github.com/samchon
  */
-export interface ISeller
-{
+export interface ISeller {
     /**
      * Primary key.
      */
@@ -31,16 +30,13 @@ export interface ISeller
     company: string;
 }
 
-export namespace ISeller
-{
-    export interface ILogin
-    {
+export namespace ISeller {
+    export interface ILogin {
         email: string;
         password: string;
     }
 
-    export interface IJoin
-    {
+    export interface IJoin {
         email: string;
         password: string;
         name: string;
@@ -48,8 +44,7 @@ export namespace ISeller
         company: string;
     }
 
-    export interface IChangePassword
-    {
+    export interface IChangePassword {
         old_password: string;
         new_password: string;
     }

@@ -31,19 +31,27 @@ export class ImportDictionary {
     public toScript(outDir: string): string {
         const statements: string[] = [];
         for (const it of this.dict_) {
-            const file: string = path
-                .relative(outDir, it.first)
-                .split("\\")
-                .join("/");
+            const file: string = (() => {
+                const location: string = path
+                    .relative(outDir, it.first)
+                    .split("\\")
+                    .join("/");
+                const index: number = location.lastIndexOf(NODE_MODULES);
+                return index === -1
+                    ? `./${location}`
+                    : location.substring(index + NODE_MODULES.length);
+            })();
             const realistic: boolean = it.second.first;
             const instances: string[] = it.second.second.toJSON();
 
             statements.push(
                 `import ${!realistic ? "type " : ""}{ ${instances.join(
                     ", ",
-                )} } from "./${file}";`,
+                )} } from "${file}";`,
             );
         }
         return statements.join("\n");
     }
 }
+
+const NODE_MODULES = "node_modules/";

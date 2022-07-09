@@ -4,15 +4,14 @@ import { ISaleInquiryAnswer } from "./ISaleInquiryAnswer";
 
 /**
  * Inquiry article.
- * 
+ *
  * Sub-type of article and super-type of question and answer.
- * 
+ *
  * @template Content Content type
  * @author Jeongho Nam - https://github.com/samchon
  */
 export interface ISaleInquiry<Content extends ISaleInquiry.IContent>
-    extends ISaleArticle<Content>
-{
+    extends ISaleArticle<Content> {
     /**
      * Name of the writer.
      */
@@ -23,13 +22,12 @@ export interface ISaleInquiry<Content extends ISaleInquiry.IContent>
      */
     answer: ISaleInquiryAnswer | null;
 }
-export namespace ISaleInquiry
-{
+export namespace ISaleInquiry {
     /**
      * Page request info.
      */
-    export interface IRequest extends IPage.IRequest<"writer"|"title"|"content">
-    {
+    export interface IRequest
+        extends IPage.IRequest<"writer" | "title" | "content"> {
         /**
          * Whether being answer by seller or not.
          */
@@ -39,8 +37,7 @@ export namespace ISaleInquiry
     /**
      * Summarized info of the inquiry article.
      */
-    export interface ISummary extends ISaleArticle.ISummary
-    {
+    export interface ISummary extends ISaleArticle.ISummary {
         /**
          * Name of the writer.
          */

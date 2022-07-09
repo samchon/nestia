@@ -135,7 +135,7 @@
             "description": "forbidden error when the article is not yours"
           }
         },
-        "description": "Update an inquiry.\n\nUpdate ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}. \nTherefore, all of the poeple can read how the content has been changed."
+        "description": "Update an inquiry.\n\nUpdate ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.\nTherefore, all of the poeple can read how the content has been changed."
       }
     },
     "/consumers/{section}/sales/{saleId}/reviews": {
@@ -262,7 +262,7 @@
             "description": "forbidden error when the article is not yours"
           }
         },
-        "description": "Update an inquiry.\n\nUpdate ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}. \nTherefore, all of the poeple can read how the content has been changed."
+        "description": "Update an inquiry.\n\nUpdate ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.\nTherefore, all of the poeple can read how the content has been changed."
       }
     }
   },

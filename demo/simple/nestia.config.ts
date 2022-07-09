@@ -4,10 +4,10 @@ export const NESTIA_CONFIG: IConfiguration = {
     input: ["src/controllers"],
     output: "src/api",
     swagger: {
-        output: "swagger.json"
+        output: "swagger.json",
     },
     compilerOptions: {
-        noUnusedParameters: false
-    }
+        noUnusedParameters: false,
+    },
 };
 export default NESTIA_CONFIG;

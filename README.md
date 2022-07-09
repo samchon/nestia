@@ -91,8 +91,14 @@ export async function trace_sale_question_and_comment
 ## Setup
 Just like any other package, you've got to install it before you can use it.
 
+For reference, `ttypescript` is not mis-writing. Don't forget to install it.
+
 ```sh
 npm install --save-dev nestia
+
+npm install --save-dev typescript
+npm install --save-dev ttypescript
+npm install --save-dev ts-node
 ```
 
 After the installation, you can generate the `SDK` or `Swagger`, directly.

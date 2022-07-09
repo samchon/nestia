@@ -74,7 +74,7 @@ export namespace store
  * Update an inquiry.
  * 
  * Update ordinary inquiry article. However, it would not modify the content reocrd
- * {@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}. 
+ * {@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.
  * Therefore, all of the poeple can read how the content has been changed.
  * 
  * @param connection connection Information of the remote HTTP(s) server with headers (+encryption password)

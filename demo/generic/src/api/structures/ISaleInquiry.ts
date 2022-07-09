@@ -3,15 +3,14 @@ import { ISaleInquiryAnswer } from "./ISaleInquiryAnswer";
 
 /**
  * Inquiry article.
- * 
+ *
  * Sub-type of article and super-type of question and answer.
- * 
+ *
  * @template Content Content type
  * @author Jeongho Nam - https://github.com/samchon
  */
 export interface ISaleInquiry<Content extends ISaleInquiry.IContent>
-    extends ISaleArticle<Content>
-{
+    extends ISaleArticle<Content> {
     /**
      * Name of the writer.
      */
@@ -22,8 +21,7 @@ export interface ISaleInquiry<Content extends ISaleInquiry.IContent>
      */
     answer: ISaleInquiryAnswer | null;
 }
-export namespace ISaleInquiry
-{
+export namespace ISaleInquiry {
     /**
      * Content type of the inquiry article.
      */
