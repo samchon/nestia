@@ -1,10 +1,9 @@
 /**
  * Paginated records.
- * 
+ *
  * @author Jeongho Nam - https://github.com/samchon
  */
-export interface IPage<T extends object>
-{
+export interface IPage<T extends object> {
     /**
      * Pagination info.
      */
@@ -15,13 +14,11 @@ export interface IPage<T extends object>
      */
     data: T[];
 }
-export namespace IPage
-{
+export namespace IPage {
     /**
      * Pagenation info.
      */
-    export interface IPagination
-    {
+    export interface IPagination {
         /**
          * Current page number.
          */
@@ -29,7 +26,7 @@ export namespace IPage
 
         /**
          * Maximum number of records per a page.
-         * 
+         *
          * @default 100
          */
         limit: number;
@@ -48,8 +45,7 @@ export namespace IPage
     /**
      * Page request info.
      */
-    export interface IRequest<Field extends string = string>
-    {
+    export interface IRequest<Field extends string = string> {
         /**
          * Page number.
          */
@@ -57,7 +53,7 @@ export namespace IPage
 
         /**
          * Maximum number of records per a page.
-         * 
+         *
          * @default 100
          */
         limit?: number;
@@ -74,7 +70,7 @@ export namespace IPage
 
         /**
          * Standard of sorting, list up fields with symbols.
-         * 
+         *
          *   - Only field name (`id`): ASC
          *   - Plus symbol (`+id`): ASC
          *   - Minus symbol (`-id`): DESC

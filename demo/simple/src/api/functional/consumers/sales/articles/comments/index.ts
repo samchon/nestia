@@ -12,6 +12,10 @@ import type { ISaleArticleComment } from "./../../../../../structures/ISaleArtic
 /**
  * Store a new comment.
  * 
+ * Write a comment on a sale article. If you configure the comment to be
+ * `anonymous`, only administrator, you and seller of the sale can read
+ * the content.
+ * 
  * @param connection connection Information of the remote HTTP(s) server with headers (+encryption password)
  * @param request Instance of the Express.Request
  * @param sectionCode Code of the target section
@@ -32,8 +36,8 @@ export function store
     (
         connection: IConnection,
         sectionCode: string,
-        saleId: number,
-        articleId: number,
+        saleId: string,
+        articleId: string,
         body: Primitive<store.Input>
     ): Promise<store.Output>
 {
@@ -58,7 +62,7 @@ export namespace store
         response: false,
     };
 
-    export function path(sectionCode: string, saleId: number, articleId: number): string
+    export function path(sectionCode: string, saleId: string, articleId: string): string
     {
         return `/consumers/${sectionCode}/sales/${saleId}/articles/${articleId}/comments`;
     }

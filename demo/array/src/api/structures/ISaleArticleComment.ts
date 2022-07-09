@@ -1,17 +1,16 @@
 /**
  * Comment wrote on a sale related article.
- * 
+ *
  * When an article of a sale has been enrolled, all of the participants like consumers and
  * sellers can write a comment on that article. However, when the writer is a consumer, the
- * consumer can hide its name through the annoymous option. 
- * 
- * Also, writing a reply comment for a specific comment is possible and in that case, the 
+ * consumer can hide its name through the annoymous option.
+ *
+ * Also, writing a reply comment for a specific comment is possible and in that case, the
  * {@link ISaleArticleComment.parent_id} property would be activated.
- * 
+ *
  * @author Jeongho Nam - https://github.com/samchon
  */
-export interface ISaleArticleComment
-{
+export interface ISaleArticleComment {
     /**
      * Primary Key.
      */
@@ -19,7 +18,7 @@ export interface ISaleArticleComment
 
     /**
      * Parent comment ID.
-     * 
+     *
      * Only When this comment has been written as a reply.
      */
     parent_id: number | null;
@@ -31,14 +30,14 @@ export interface ISaleArticleComment
 
     /**
      * Name of the writer.
-     * 
+     *
      * When this is a type of anonymous comment, writer name would be hidden.
      */
     writer_name: string | null;
 
     /**
      * Contents of the comments.
-     * 
+     *
      * When the comment writer tries to modify content, it would not modify the comment
      * content but would be accumulated. Therefore, all of the people can read how
      * the content has been changed.
@@ -51,13 +50,11 @@ export interface ISaleArticleComment
     created_at: string;
 }
 
-export namespace ISaleArticleComment
-{
+export namespace ISaleArticleComment {
     /**
      * Store info.
      */
-    export interface IStore
-    {
+    export interface IStore {
         /**
          * Body of the content.
          */
@@ -77,8 +74,7 @@ export namespace ISaleArticleComment
     /**
      * Content info.
      */
-    export interface IContent
-    {
+    export interface IContent {
         /**
          * Primary Key.
          */

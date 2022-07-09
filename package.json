@@ -12,7 +12,7 @@
     "dev": "npm run build -- --watch",
     "eslint": "eslint src",
     "eslint:fix": "eslint src --fix",
-    "prettier": "prettier src --write",
+    "prettier": "prettier --write ./**/*.ts",
     "test": "node lib/test"
   },
   "repository": {
@@ -55,7 +55,7 @@
     "nestia-helper": "^3.0.5",
     "prettier": "^2.6.2",
     "rimraf": "^3.0.2",
-    "ttypescript": "^1.5.",
+    "ttypescript": "^1.5.13",
     "typescript": "^4.7.4",
     "typescript-json": "^3.0.10",
     "typescript-transform-paths": "^3.3.1"

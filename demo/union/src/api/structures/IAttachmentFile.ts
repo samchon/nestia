@@ -1,10 +1,9 @@
 /**
  * Attachemd (physical) file info.
- * 
+ *
  * @author Jeongho Nam - https://github.com/samchon
  */
-export interface IAttachmentFile
-{
+export interface IAttachmentFile {
     /**
      * Primary Key.
      */

@@ -1,10 +1,7 @@
 import * as nest from "@nestjs/common";
 
 @nest.Controller(["health", "healthy"])
-export class HealthController
-{
+export class HealthController {
     @nest.Get(["check", "alive"])
-    public check(): void
-    {
-    }
+    public check(): void {}
 }
