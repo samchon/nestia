@@ -18,6 +18,7 @@ export namespace NestiaConfig {
         runner.register({
             emit: false,
             compilerOptions: {
+                module: "CommonJS",
                 noEmit: true,
             },
         });
