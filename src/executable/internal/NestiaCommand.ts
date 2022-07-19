@@ -1,7 +1,7 @@
 import cli from "cli";
-import fs from "fs";
+import path from "path";
+import { parseNative } from "tsconfck";
 import ts from "typescript";
-import JSONC from "jsonc-simple-parser";
 import { WorkerConnector } from "tgrid/protocols/workers/WorkerConnector";
 
 import { IConfiguration } from "../../IConfiguration";
@@ -88,29 +88,50 @@ export namespace NestiaCommand {
         command: ICommand,
         output: IOutput,
     ): Promise<void> {
-        // CONFIGRATION
+        // CONFIGURATION
         const config: IConfiguration =
             (await get_nestia_config(output.validate)) ??
             parse_cli(include, command, output);
 
-        // CONFIGURATION FROM THE TSCONFIG.JSON
-        if (fs.existsSync("tsconfig.json") === true) {
-            const content: string = await fs.promises.readFile(
-                "tsconfig.json",
-                "utf8",
-            );
-            const options: ts.CompilerOptions =
-                JSONC.parse(content).compilerOptions;
+        const options = await get_typescript_options();
 
-            config.compilerOptions = {
-                ...options,
-                ...(config.compilerOptions || {}),
-            };
-        }
+        config.compilerOptions = {
+            ...options,
+            ...(config.compilerOptions || {}),
+        };
 
         // CALL THE APP.GENERATE()
         const app: NestiaApplication = new NestiaApplication(config);
         await task(app);
+    }
+
+    async function get_typescript_options(): Promise<ts.CompilerOptions | null> {
+        const configFileName = ts.findConfigFile(
+            process.cwd(),
+            ts.sys.fileExists,
+            "tsconfig.json",
+        );
+
+        if (!configFileName) return null;
+
+        const { tsconfig } = await parseNative(configFileName);
+
+        const configFileText = JSON.stringify(tsconfig);
+
+        const { config } = ts.parseConfigFileTextToJson(
+            configFileName,
+            configFileText,
+        );
+
+        const configParseResult = ts.parseJsonConfigFileContent(
+            config,
+            ts.sys,
+            path.dirname(configFileName),
+        );
+
+        const { moduleResolution, ...result } =
+            configParseResult.raw.compilerOptions;
+        return result;
     }
 
     async function get_nestia_config(

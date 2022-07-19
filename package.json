@@ -37,10 +37,10 @@
     "cli": "^1.0.1",
     "del": "^6.0.0",
     "glob": "^7.2.0",
-    "jsonc-simple-parser": "^2.2.1",
     "nestia-fetcher": "^2.0.1",
     "tgrid": "^0.8.6",
     "ts-node": "10.8.x",
+    "tsconfck": "^2.0.1",
     "tsconfig-paths": "^4.0.0",
     "tstl": "^2.5.6"
   },
