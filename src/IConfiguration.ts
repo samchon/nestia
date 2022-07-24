@@ -1,4 +1,5 @@
 import ts from "typescript";
+import type { StripEnums } from "./utils/StripEnums";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -38,7 +39,7 @@ export interface IConfiguration {
      * }
      * ```
      */
-    compilerOptions?: ts.CompilerOptions;
+    compilerOptions?: StripEnums<ts.CompilerOptions>;
 
     /**
      * Whether to assert parameter types or not.
