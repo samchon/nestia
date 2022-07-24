@@ -313,11 +313,6 @@
       "IAttachmentFile": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "number",
-            "nullable": false,
-            "description": "Primary Key."
-          },
           "name": {
             "type": "string",
             "nullable": false,
@@ -336,7 +331,6 @@
         },
         "nullable": false,
         "required": [
-          "id",
           "name",
           "extension",
           "url"

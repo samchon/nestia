@@ -28,7 +28,35 @@ export class ConsumerSaleEntireArticlesController {
         saleId;
         input;
 
-        return null!;
+        return {
+            pagination: {
+                page: 1,
+                limit: input.limit || 100,
+                total_count: 2,
+                total_pages: 1,
+            },
+            data: [
+                {
+                    writer: "someone",
+                    answered: false,
+                    id: 1,
+                    title: "some-title",
+                    hit: 0,
+                    created_at: new Date().toString(),
+                    updated_at: new Date().toString(),
+                },
+                {
+                    writer: "someone",
+                    answered: false,
+                    id: 2,
+                    title: "some-title",
+                    hit: 0,
+                    created_at: new Date().toString(),
+                    updated_at: new Date().toString(),
+                    score: 100,
+                },
+            ],
+        };
     }
 
     /**
@@ -52,6 +80,22 @@ export class ConsumerSaleEntireArticlesController {
         saleId;
         id;
 
-        return null!;
+        return {
+            id: 0,
+            hit: 0,
+            writer: "someone",
+            answer: null,
+            created_at: new Date().toString(),
+            contents: [
+                {
+                    id: "some-content-id",
+                    title: "some-title",
+                    body: "some-body-content",
+                    files: [],
+                    created_at: new Date().toString(),
+                    score: Math.random() < 0.5 ? 100 : undefined!,
+                },
+            ],
+        };
     }
 }

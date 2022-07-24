@@ -43,7 +43,7 @@
             "in": "path",
             "description": "",
             "schema": {
-              "type": "string",
+              "type": "number",
               "nullable": false
             },
             "required": true
@@ -73,7 +73,7 @@
             "in": "path",
             "description": "",
             "schema": {
-              "type": "string",
+              "type": "number",
               "nullable": false
             },
             "required": true
@@ -110,7 +110,7 @@
             "description": "Children categories."
           },
           "id": {
-            "type": "string",
+            "type": "number",
             "nullable": false,
             "description": "Primary Key."
           },
@@ -142,7 +142,7 @@
             "description": "Parent information."
           },
           "id": {
-            "type": "string",
+            "type": "number",
             "nullable": false,
             "description": "Primary Key."
           },
@@ -174,7 +174,7 @@
             "description": "Parent information."
           },
           "id": {
-            "type": "string",
+            "type": "number",
             "nullable": false,
             "description": "Primary Key."
           },

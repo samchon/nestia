@@ -5,11 +5,6 @@
  */
 export interface IAttachmentFile {
     /**
-     * Primary Key.
-     */
-    id: number;
-
-    /**
      * Name of the file.
      */
     name: string;

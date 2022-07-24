@@ -7,7 +7,7 @@
 import { Fetcher, Primitive } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
 
-import type { ICategory } from "./../../../../../../api/structures/ICategory";
+import type { ICategory } from "./../../../../structures/ICategory";
 
 /**
  * @controller ConsumerCategoriesController.top()
@@ -52,7 +52,7 @@ export namespace top
 export function at
     (
         connection: IConnection,
-        id: string
+        id: number
     ): Promise<at.Output>
 {
     return Fetcher.fetch
@@ -74,7 +74,7 @@ export namespace at
         response: false,
     };
 
-    export function path(id: string): string
+    export function path(id: number): string
     {
         return `/consumers/systematic/categories/${id}`;
     }
@@ -88,7 +88,7 @@ export namespace at
 export function invert
     (
         connection: IConnection,
-        id: string
+        id: number
     ): Promise<invert.Output>
 {
     return Fetcher.fetch
@@ -110,7 +110,7 @@ export namespace invert
         response: false,
     };
 
-    export function path(id: string): string
+    export function path(id: number): string
     {
         return `/consumers/systematic/categories/${id}/invert`;
     }

@@ -133,7 +133,7 @@ Unlike `@nestjs/swagger` which requires the DTO class with decorators, `nestia` 
 
 Look at the code below, you may see the difference between `nestia` and `@nestjs/swagger`, and thereby catch the meaning of the pure DTO interface.
 
-  - Simple [`ISaleArticleComment`](https://github.com/samchon/nestia/tree/master/demo/simple/src/api/structures/ISaleArticleComment.ts)
+  - Simple [`ISaleArticleComment`](https://github.com/samchon/nestia/tree/master/demo/safe/src/api/structures/ISaleArticleComment.ts)
   - Generic interfaces
     - grandparent interface, [`ISaleArticle<Content>`](https://github.com/samchon/nestia/tree/master/demo/generic/src/api/structures/ISaleArticle.ts)
     - parent interface, [`ISaleInquiry<Content>`](https://github.com/samchon/nestia/tree/master/demo/generic/src/api/structures/ISaleInquiry.ts)
@@ -420,7 +420,7 @@ In the Controller case, it's same with the upper DTO story. With `nestia`, defin
 
 Look at the below code and feel how powerful `nestia` is. It should be stated that, `@nestjs/swagger` cannot construct such generic or union typed controller class.
 
-  - Simple [`CustomerSaleArticleCommentsController`](https://github.com/samchon/nestia/blob/master/demo/simple/src/controllers/ConsumerSaleArticleCommentsController.ts)
+  - Simple [`CustomerSaleArticleCommentsController`](https://github.com/samchon/nestia/blob/master/demo/safe/src/controllers/ConsumerSaleArticleCommentsController.ts)
   - Generic controllers
     - abstract controller, [`SaleInquiriesController<Content, Store, Json>`](https://github.com/samchon/nestia/tree/master/demo/generic/src/controllers/SaleInquiriesController.ts)
     - 1st sub-type controller, [`ConsumerSaleQuestionsController`](https://github.com/samchon/nestia/tree/master/demo/generic/src/controllers/ConsumerSaleQuestionsController.ts)
@@ -535,7 +535,7 @@ Route method, path and parameters are well-formed and DTO structures are correct
 
 Furthermore, there's not any problem even when a generic typed controller class comes. `nestia` will specialize the generic arguments exactly, by analyzing your `NestJS` server code, in the compilation level.
 
-  - [simple/.../comments/index.ts](https://github.com/samchon/nestia/blob/master/demo/simple/src/api/functional/consumers/sales/articles/comments/index.ts)
+  - [simple/.../comments/index.ts](https://github.com/samchon/nestia/blob/master/demo/safe/src/api/functional/consumers/sales/articles/comments/index.ts)
   - [generic/.../questions/index.ts](https://github.com/samchon/nestia/tree/master/demo/generic/src/api/functional/consumers/sales/questions/index.ts)
   - [generic/.../reviews/index.ts](https://github.com/samchon/nestia/tree/master/demo/generic/src/api/functional/consumers/sales/reviews/index.ts)
   - [union/.../entire_articles/index.ts](https://github.com/samchon/nestia/tree/master/demo/union/src/api/functional/consumers/sales/entire_articles/index.ts)
@@ -868,21 +868,3 @@ I support template backend project using this `nestia` library, `samchon/backend
 Reading the README content of the backend template repository, you can find lots of example backend projects who've been generated from the backend. Furthermore, those example projects guide how to generate SDK library from `nestia` and how to distribute the SDK library thorugh the NPM module.
 
 Therefore, if you're planning to compose your own backend project using this `nestia`, I recommend you to create the repository and learn from the `samchon/backend` template project.
-
-### Archidraw
-https://www.archisketch.com/
-
-I have special thanks to the Archidraw, where I'm working for.
-
-The Archidraw is a great IT company developing 3D interior editor and lots of solutions based on the 3D assets. Also, the Archidraw is the first company who had adopted this nestia on their commercial backend project, even this nestia was in the alpha level.
-
-> 저희 회사 "아키드로우" 에서, 삼촌과 함께 일할 프론트 개발자 분들을, 최고의 대우로 모십니다.
->
-> "아키드로우" 는 3D (인테리어) 에디터 및 이에 관한 파생 솔루션들을 만드는 회사입니다. 다만 저희 회사의 주력 제품이 3D 에디터라 하여, 반드시 3D 내지 랜더링에 능숙해야 하는 것은 아니니, 일반적인 프론트 개발자 분들도 망설임없이 지원해주십시오.
->
-> 그리고 저희 회사는 분위기가 다들 친하고 즐겁게 지내는 분위기입니다. 더하여 위 `nestia` 나 [typescript-json](https://github.com/samchon/typescript-json) 및 [payments](https://github.com/archidraw/payments) 등, 제법 합리적(?)이고 재미난 프로젝트들을 다양하게 체험해보실 수 있습니다.
->
-> - 회사소개서: [archidraw.pdf](https://github.com/archidraw/payments/files/7696710/archidraw.pdf)
-> - 기술 스택: React + TypeScript
-> - 이력서: 자유 양식
-> - 지원처: samchon@archisketch.com

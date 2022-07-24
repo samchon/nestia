@@ -1,10 +1,10 @@
+import cp from "child_process";
 import fs from "fs";
-import process from "process";
 
 import { NestiaCommand } from "../executable/internal/NestiaCommand";
 
 export namespace TestBuilder {
-    export async function main(
+    export async function generate(
         name: string,
         job: "sdk" | "swagger",
         argv: string[],
@@ -28,6 +28,17 @@ export namespace TestBuilder {
                 throw new Error(
                     `Bug on NestiaCommand.${job}(): failed to generate file(s).`,
                 );
+        } catch (exp) {
+            console.log(exp);
+            throw exp;
+        }
+    }
+
+    export async function test(name: string): Promise<void> {
+        process.chdir(`${PATH}/../../demo/${name}`);
+
+        try {
+            cp.execSync("npx ts-node -C ttypescript src/test");
         } catch (exp) {
             console.log(exp);
             throw exp;
