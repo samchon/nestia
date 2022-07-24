@@ -31,7 +31,7 @@ export namespace ISaleInquiry {
         /**
          * Whether being answer by seller or not.
          */
-        answered: boolean;
+        answered?: boolean;
     }
 
     /**

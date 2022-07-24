@@ -4,10 +4,12 @@ import { TestBuilder } from "./TestBuilder";
 
 async function execute(
     name: string,
-    job: "sdk" | "swagger",
+    job: "sdk" | "swagger" | "test",
     elements: string[],
 ): Promise<void> {
-    console.log(`${name} -> npx nestia ${job} ${elements.join(" ")}`);
+    if (job === "test")
+        console.log(`${name} -> npx ts-node -C ttypescript src/test`);
+    else console.log(`${name} -> npx nestia ${job} ${elements.join(" ")}`);
 
     const worker = new WorkerConnector(null, null, "process");
     const location: string = `${__dirname}/test.builder.executor.js`;
@@ -16,7 +18,8 @@ async function execute(
 
     try {
         const driver = worker.getDriver<typeof TestBuilder>();
-        await driver.main(name, job, elements);
+        if (job === "test") await driver.test(name);
+        else await driver.generate(name, job, elements);
         await worker.close();
     } catch (exp) {
         await worker.close();
@@ -26,7 +29,7 @@ async function execute(
 
 function get_arguments(
     target: "directory" | "pattern",
-    job: "sdk" | "swagger",
+    job: "sdk" | "swagger" | "test",
     specialize: boolean = false,
 ): string[] {
     return [
@@ -38,16 +41,16 @@ function get_arguments(
 
 async function main(): Promise<void> {
     console.log("Build Demonstration Projects");
-    for (const job of ["swagger", "sdk"] as const) {
+    for (const job of ["swagger", "sdk", "test"] as const) {
         console.log(
             "---------------------------------------------------------",
         );
-        await execute("array", job, get_arguments("directory", job));
-        await execute("encrypt", job, get_arguments("directory", job));
-        await execute("simple", job, get_arguments("directory", job));
+        await execute("encrypted", job, get_arguments("directory", job));
+        await execute("safe", job, get_arguments("directory", job));
         await execute("generic", job, get_arguments("directory", job));
         await execute("recursive", job, get_arguments("pattern", job));
         await execute("union", job, get_arguments("directory", job));
+        await execute("multiple-paths", job, get_arguments("directory", job));
     }
 }
 main().catch((exp) => {
