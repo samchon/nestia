@@ -1,5 +1,5 @@
 import express from "express";
-import { Controller, Param, Post, Request } from "@nestjs/common";
+import { Controller, Param, Request } from "@nestjs/common";
 import { TypedBody, TypedRoute } from "nestia-helper";
 
 import { ISaleArticleComment } from "../api/structures/ISaleArticleComment";
