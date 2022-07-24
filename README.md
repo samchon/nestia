@@ -34,7 +34,6 @@ Ensure type safety | ✅ | ❌ | ❌
 import api from "@samchon/shopping-api";
 import { IPage } from "@samchon/shopping-api/lib/structures/IPage";
 import { ISale } from "@samchon/shopping-api/lib/structures/ISale";
-import { ISaleArticleComment } from "@samchon/shopping-api/lib/structures/ISaleArticleComment";
 import { ISaleQuestion } from "@samchon/shopping-api/lib/structures/ISaleQuestion";
 
 export async function trace_sale_question_and_comment
@@ -69,22 +68,9 @@ export async function trace_sale_question_and_comment
         }
     );
     console.log("question", question);
-
-    // WRITE A COMMENT
-    const comment: ISaleArticleComment = await api.functional.shoppings.sales.comments.store
-    (
-        connection,
-        "general",
-        sale.id,
-        question.id,
-        {
-            body: "p.s) Can you send me a detailed catalogue?",
-            anonymous: false
-        }
-    );
-    console.log("comment", comment);
 }
 ```
+
 
 
 
@@ -141,77 +127,6 @@ Look at the code below, you may see the difference between `nestia` and `@nestjs
     - 2nd sub-type interface, [`ISaleReview`](https://github.com/samchon/nestia/tree/master/demo/generic/src/api/structures/ISaleReview.ts)
   - Union alias type [`ISaleEntireArticle`](https://github.com/samchon/nestia/tree/master/demo/union/src/api/structures/ISaleEntireArticle.ts)
 
-> The below example code would be shown by clicking the arrow button or text.
-
-<details>
-    <summary>
-        Traditional DTO class using <code>@nestjs/swagger</code>
-    </summary>
-
-```typescript
-export class SaleArticleComment
-{
-    @ApiProperty({
-        description: 
-`Comment wrote on a sale related article.
-
-When an article of a sale has been enrolled, all of the participants like consumers and sellers can write a comment on that article. However, when the writer is a consumer, the consumer can hide its name through the annoymous option.
-
-Also, writing a reply comment for a specific comment is possible and in that case, the ISaleArticleComment.parent_id property would be activated.`
-    })
-    id: number;
-
-    @ApiProperty({
-        type: "number",
-        nullable: true,
-        description:
-`Parent comment ID.
-
-Only When this comment has been written as a reply.`
-    })
-    parent_id: number | null;
-
-    @ApiProperty({
-        type: "string",
-        description: "Type of the writer."
-    })
-    writer_type: "seller" | "consumer";
-
-    @ApiProperty({
-        type: "string",
-        nullable: true,
-        description:
-`Name of the writer.
-
-When this is a type of anonymous comment, writer name would be hidden.`
-    })
-    writer_name: string | null;
-
-    @ApiProperty({
-        type: "array",
-        items: {
-            schema: { $ref: getSchemaPath(SaleArticleComment.Content) }
-        },
-        description:
-`Contents of the comments.
-
-When the comment writer tries to modify content, it would not modify the comment content but would be accumulated Therefore, all of the people can read how the content has been changed.`
-    })
-    contents: SaleArticleComment.Content[];
-
-    @ApiProperty({
-        description: "Creation time."
-    })
-    created_at: string;
-}
-```
-</details>
-
-<details>
-    <summary>
-        Pure DTO interface using <code>nestia</code>
-    </summary>
-
 ```typescript
 /**
  * Comment wrote on a sale related article.
@@ -265,148 +180,8 @@ export interface ISaleArticleComment
      */
     created_at: string;
 }
-export namespace ISaleArticleComment
-{
-    /**
-     * Store info.
-     */
-    export interface IStore
-    {
-        /**
-         * Body of the content.
-         */
-        body: string;
-
-        /**
-         * Whether to hide the writer name or not.
-         */
-        annonymous: boolean;
-    }
-
-    /**
-     * Content info.
-     */
-    export interface IContent
-    {
-        /**
-         * Primary Key.
-         */
-        id: string;
-
-        /**
-         * Body of the content.
-         */
-        body: string;
-
-        /**
-         * Creation time.
-         */
-        created_at: string;
-    }
-}
 ```
-</details>
 
-<details>
-    <summary>
-        Generic typed DTO using <code>nestia</code>
-    </summary>
-
-```typescript
-/**
- * Inquiry article.
- * 
- * Sub-type of article and super-type of question and answer.
- * 
- *  - List of the sub-types
- *    - {@link ISaleQuestion}
- *    - {@link ISaleReview}
- * 
- * @template Content Content type
- * @author Jeongho Nam - https://github.com/samchon
- */
-export interface ISaleInquiry<Content extends ISaleInquiry.IContent> 
-    extends ISaleArticle<Content> 
-{
-    /**
-     * Primary Key.
-     */
-    id: number;
-
-    /**
-     * Name of the writer.
-     */
-    writer: string;
-
-    /**
-     * List of contents.
-     * 
-     * When the article writer tries to modify content, it would not modify the article
-     * content but would be accumulated. Therefore, all the people can read how
-     * the content has been changed.
-     */
-    contents: Content[];
-
-    /**
-     * Creation time.
-     */
-    createdAat: string;
-        
-    /**
-     * Formal answer from the seller.
-     */
-    answer: ISaleInquiryAnswer | null;
-}
-export namespace ISaleInquiry 
-{
-    /**
-     * Content info.
-     */
-    export interface IContent 
-    {
-        /**
-         * Primary Key
-         */
-        id: string;
-
-        /**
-         * Title of the content.
-         */
-        title: string;
-
-        /**
-         * Body of the content.
-         */
-        body: string;
-
-        /**
-         * Attached files.
-         */
-        files: IAttachmentFile[];
-
-        /**
-         * Creation time.
-         */
-        createdAt: string;
-    }
-}
-```
-</details>
-
-<details>
-    <summary>
-        Union typed DTO using <code>nestia</code>
-    </summary>
-
-```typescript
-/**
- * Union type of the entire sub-type articles.
- * 
- * @author Jeongho Nam - https://github.com/samchon
- */
-export type ISaleEntireArtcle = ISaleQuestion | ISaleReview;
-```
-</details>
 
 
 
@@ -416,9 +191,9 @@ Controller also can use the generic arguments.
 
 In the previous [Pure DTO Interface](#pure-dto-interface) corner, we've learned that `nestia` can use the pure interface type as DTO. Also, we've learned that utilizing generic, union/intersection and even conditional typed interfaces are also possible.
 
-In the Controller case, it's same with the upper DTO story. With `nestia`, defining a generic typed controller class is also possible, too. By defining a generic typed controller class as a super-type class, you can reduce both duplicated code and description comments.
+In the Controller case, it's same with the upper DTO story. With `nestia`, defining a generic typed controller class is also possible, too. By defining a generic typed controller class as a super-type class, you can reduce both duplicated code and description comments. 
 
-Look at the below code and feel how powerful `nestia` is. It should be stated that, `@nestjs/swagger` cannot construct such generic or union typed controller class.
+Look at the below code and feel how powerful `nestia` is.
 
   - Simple [`CustomerSaleArticleCommentsController`](https://github.com/samchon/nestia/blob/master/demo/safe/src/controllers/ConsumerSaleArticleCommentsController.ts)
   - Generic controllers
@@ -427,93 +202,46 @@ Look at the below code and feel how powerful `nestia` is. It should be stated th
     - 2nd sub-type controller, [`ConsumerSaleQuestionsController`](https://github.com/samchon/nestia/tree/master/demo/generic/src/controllers/ConsumerSaleQuestionsController.ts)
   - Union controller, [`ConsumerSaleEntireArticlesController`](https://github.com/samchon/nestia/tree/master/demo/union/src/controllers/ConsumerSaleEntireArticlesController.ts)
 
-> [typescript-json](https://github.com/samchon/typescript-json) can replace the class-validator with only one line.
-> 
-> ```typescript
-> import * as nest from "@nestjs/common";
-> import { assert } from "typescript-json";
->
-> @nest.Controller("consumers/:section/sales/:saleId/questions")
-> export class SaleQuestionsController
->     extends SaleInquiriesController<
->         ISaleQuestion,
->         ISaleQuestion.IContent,
->         ISaleQuestion.IStore> 
-> {
->     public constructor() 
->     {
->         super(input => assert(input));
->     }
-> }
-> ```
+Also, you can validate request body data from client automatically, by using [nestia-helper](https://github.com/samchon/nestia-helper) and its `TypedBody()` decorator. Furthermore, `nestia-helper` boosts up JSON string conversion speed about 5x times faster through its `TypedRoute()` component. 
+
+![typescript-json benchmark](https://user-images.githubusercontent.com/13158709/177259933-85a2f19e-01f3-4ac0-a035-a38e0ac38ef5.png)
 
 ```typescript
-import * as express from "express";
-import * as nest from "@nestjs/common";
-import helper from "nestia-helper";
+import express from "express";
+import { Controller, Param, Request } from "@nestjs/common";
+import { TypedBody, TypedRoute } from "nestia-helper";
 
-import { ISaleInquiry } from "@api/structures/ISaleInquiry";
+import { ISaleArticleComment } from "../api/structures/ISaleArticleComment";
 
-export abstract class SaleInquiriesController<
-        Content extends ISaleInquiry.IContent,
-        Store extends ISaleInquiry.IStore,
-        Json extends ISaleInquiry<Content>>
-{
+@Controller("consumers/:section/sales/:saleId/articles/:articleId/comments")
+export class ConsumerSaleArticleCommentsController {
     /**
-     * Constructor with type assert function.
-     */
-    protected constructor(private readonly assert: (input: Store) => void);
-
-    /**
-     * Store a new inquiry.
-     * 
-     * Write a new article inquirying about a sale.
-     * 
+     * Store a new comment.
+     *
+     * Write a comment on a sale article. If you configure the comment to be
+     * `anonymous`, only administrator, you and seller of the sale can read
+     * the content.
+     *
      * @param request Instance of the Express.Request
-     * @param section Code of the target section
+     * @param sectionCode Code of the target section
      * @param saleId ID of the target sale
-     * @param input Content to archive
-     * @return Newly archived inquiry
-     * 
+     * @param articleId ID of the target article
+     * @param body Content to write
+     * @return Newly archived comment
+     *
      * @throw 400 bad request error when type of the input data is not valid
      * @throw 401 unauthorized error when you've not logged in yet
+     * @throw 403 forbidden error when you're a seller and the sale is not yours
+     * @throw 404 not found error when unable to find the matched record
      */
-    @nest.Post()
-    public store
-        (
-            @nest.Request() request: express.Request,
-            @helper.TypedParam("section", "string") section: string, 
-            @helper.TypedParam("saleId", "string") saleId: string,
-            @nest.Body() input: Store
-        ): Promise<Json>;
-
-    /**
-     * Update an inquiry.
-     * 
-     * Update ordinary inquiry article. However, it would not modify the content reocrd
-     * {@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}. 
-     * Therefore, all of the poeple can read how the content has been changed.
-     * 
-     * @param request Instance of the Express.Request
-     * @param section Code of the target section
-     * @param saleId ID of the target sale
-     * @param id ID of the target article to be updated
-     * @param input New content to be overwritten
-     * @return The newly created content record
-     * 
-     * @throw 400 bad request error when type of the input data is not valid
-     * @throw 401 unauthorized error when you've not logged in yet
-     * @throw 403 forbidden error when the article is not yours
-     */
-    @nest.Put(":id")
-    public update
-        (
-            @nest.Request() request: express.Request,
-            @helper.TypedParam("section", "string") section: string, 
-            @helper.TypedParam("saleId", "string") saleId: string,
-            @helper.TypedParam("id", "number") id: number,
-            @nest.Body() input: Store
-        ): Promise<Json>;
+    @TypedRoute.Post() // 5x faster JSON.stringify()
+    public async store(
+        @Request() request: express.Request,
+        @Param("section") sectionCode: string,
+        @Param("saleId") saleId: string,
+        @Param("articleId") articleId: string,
+        @TypedBody() body: ISaleArticleComment.IStore, // auto validation
+    ): Promise<ISaleArticleComment>;
 }
 ```
 
