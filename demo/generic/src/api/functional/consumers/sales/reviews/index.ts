@@ -65,7 +65,7 @@ export namespace store
 
     export function path(section: string, saleId: string): string
     {
-        return `/consumers/${section}/sales/${saleId}/reviews`;
+        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/reviews`;
     }
     export const stringify = (input: Input) => TSON.stringify(input);
 }
@@ -130,7 +130,7 @@ export namespace update
 
     export function path(section: string, saleId: string, id: number): string
     {
-        return `/consumers/${section}/sales/${saleId}/reviews/${id}`;
+        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/reviews/${encodeURIComponent(id)}`;
     }
     export const stringify = (input: Input) => TSON.stringify(input);
 }

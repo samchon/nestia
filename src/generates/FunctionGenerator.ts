@@ -235,7 +235,10 @@ export namespace FunctionGenerator {
     ): string {
         for (const param of parameters)
             if (param.category === "param")
-                path = path.replace(`:${param.field}`, `\${${param.name}}`);
+                path = path.replace(
+                    `:${param.field}`,
+                    `\${encodeURIComponent(${param.name})}`,
+                );
         return query !== undefined
             ? `\`${path}?\${new URLSearchParams(${query.name} as any).toString()}\``
             : `\`${path}\``;

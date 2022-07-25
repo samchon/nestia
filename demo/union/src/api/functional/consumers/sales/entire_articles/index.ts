@@ -56,7 +56,7 @@ export namespace index
 
     export function path(section: string, saleId: number): string
     {
-        return `/consumers/${section}/sales/${saleId}/entire_articles`;
+        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/entire_articles`;
     }
 }
 
@@ -103,6 +103,6 @@ export namespace at
 
     export function path(section: string, saleId: number, id: number): string
     {
-        return `/consumers/${section}/sales/${saleId}/entire_articles/${id}`;
+        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/entire_articles/${encodeURIComponent(id)}`;
     }
 }
