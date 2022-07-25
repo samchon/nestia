@@ -64,6 +64,6 @@ export namespace store
 
     export function path(sectionCode: string, saleId: string, articleId: string): string
     {
-        return `/consumers/${sectionCode}/sales/${saleId}/articles/${articleId}/comments`;
+        return `/consumers/${encodeURIComponent(sectionCode)}/sales/${encodeURIComponent(saleId)}/articles/${encodeURIComponent(articleId)}/comments`;
     }
 }

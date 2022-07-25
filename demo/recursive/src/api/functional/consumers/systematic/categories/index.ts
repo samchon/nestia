@@ -76,7 +76,7 @@ export namespace at
 
     export function path(id: number): string
     {
-        return `/consumers/systematic/categories/${id}`;
+        return `/consumers/systematic/categories/${encodeURIComponent(id)}`;
     }
 }
 
@@ -112,6 +112,6 @@ export namespace invert
 
     export function path(id: number): string
     {
-        return `/consumers/systematic/categories/${id}/invert`;
+        return `/consumers/systematic/categories/${encodeURIComponent(id)}/invert`;
     }
 }
