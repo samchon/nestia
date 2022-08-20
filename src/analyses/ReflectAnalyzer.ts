@@ -1,8 +1,7 @@
-import NodePath from "path";
 import { equal } from "tstl/ranges/module";
 
 import { ArrayUtil } from "../utils/ArrayUtil";
-import { StringUtil } from "../utils/StringUtil";
+import { PathAnalyzer } from "./PathAnalyzer";
 
 import { IController } from "../structures/IController";
 import { ParamCategory } from "../structures/ParamCategory";
@@ -164,28 +163,33 @@ export namespace ReflectAnalyzer {
         }
 
         // VALIDATE PATH ARGUMENTS
-        for (const controllerPath of controller.paths)
-            for (const metaPath of meta.paths) {
-                const funcPathArguments: string[] = StringUtil.betweens(
-                    NodePath.join(controllerPath, metaPath)
-                        .split("\\")
-                        .join("/"),
-                    ":",
-                    "/",
+        for (const controllerLocation of controller.paths)
+            for (const metaLocation of meta.paths) {
+                // NORMALIZE LOCATION
+                const location: string = PathAnalyzer.join(
+                    controllerLocation,
+                    metaLocation,
+                );
+
+                // LIST UP PARAMETERS
+                const binded: string[] = PathAnalyzer.parameters(
+                    location,
+                    () => `${controller.name}.${name}()`,
                 ).sort();
 
-                const paramPathArguments: string[] = meta.parameters
+                const parameters: string[] = meta.parameters
                     .filter((param) => param.category === "param")
                     .map((param) => param.field!)
                     .sort();
 
-                if (equal(funcPathArguments, paramPathArguments) === false)
+                // DO VALIDATE
+                if (equal(binded, parameters) === false)
                     throw new Error(
                         `Error on ${
                             controller.name
-                        }.${name}(): binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${funcPathArguments.join(
+                        }.${name}(): binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${binded.join(
                             ", ",
-                        )}], parameters: [${paramPathArguments.join(", ")}])`,
+                        )}], parameters: [${parameters.join(", ")}])`,
                     );
             }
 

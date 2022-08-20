@@ -1,4 +1,3 @@
-import NodePath from "path";
 import ts from "typescript";
 import { HashMap } from "tstl/container/HashMap";
 
@@ -8,6 +7,7 @@ import { ITypeTuple } from "../structures/ITypeTuple";
 
 import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ImportAnalyzer } from "./ImportAnalyzer";
+import { PathAnalyzer } from "./PathAnalyzer";
 
 export namespace ControllerAnalyzer {
     export function analyze(
@@ -98,7 +98,7 @@ export namespace ControllerAnalyzer {
 
         if (signature === undefined)
             throw new Error(
-                `Error on ControllerAnalyzer._Analyze_function(): unable to get the signature from the ${controller.name}.${func.name}().`,
+                `Error on ControllerAnalyzer.analyze(): unable to get the signature from the ${controller.name}.${func.name}().`,
             );
 
         const importDict: ImportAnalyzer.Dictionary = new HashMap();
@@ -141,10 +141,16 @@ export namespace ControllerAnalyzer {
         const pathList: string[] = [];
         for (const controllerPath of controller.paths)
             for (const filePath of func.paths) {
-                const path: string = NodePath.join(controllerPath, filePath)
-                    .split("\\")
-                    .join("/");
-                pathList.push(_Normalize_path(path));
+                const path: string = PathAnalyzer.join(
+                    controllerPath,
+                    filePath,
+                );
+                pathList.push(
+                    PathAnalyzer.espace(
+                        path,
+                        () => "ControllerAnalyzer.analyze()",
+                    ),
+                );
             }
 
         // RETURNS
@@ -152,13 +158,6 @@ export namespace ControllerAnalyzer {
             ...common,
             path,
         }));
-    }
-
-    function _Normalize_path(path: string) {
-        if (path[0] !== "/") path = "/" + path;
-        if (path[path.length - 1] === "/" && path !== "/")
-            path = path.substr(0, path.length - 1);
-        return path;
     }
 
     /* ---------------------------------------------------------

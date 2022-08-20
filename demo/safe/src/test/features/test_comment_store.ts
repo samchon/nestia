@@ -1,4 +1,6 @@
 import TSON from "typescript-json";
+import { v4 } from "uuid";
+
 import api from "../../api";
 import { ISaleArticleComment } from "../../api/structures/ISaleArticleComment";
 
@@ -8,9 +10,9 @@ export async function test_comment_store(
     const comment: ISaleArticleComment =
         await api.functional.consumers.sales.articles.comments.store(
             connection,
-            "general",
-            "sale-id",
-            "article-id",
+            "abcdef0",
+            v4(),
+            v4(),
             {
                 body: "content-body",
                 extension: "md",
