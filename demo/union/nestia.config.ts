@@ -4,5 +4,6 @@ const config = {
     swagger: {
         output: "swagger.json",
     },
+    primitive: false,
 };
 export default config;

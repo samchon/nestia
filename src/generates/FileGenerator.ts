@@ -90,13 +90,15 @@ export namespace FileGenerator {
 
         // FINALIZE THE CONTENT
         if (directory.routes.length !== 0) {
-            const primitived: boolean = directory.routes.some(
-                (route) =>
-                    route.output.name !== "void" ||
-                    route.parameters.some(
-                        (param) => param.category !== "param",
-                    ),
-            );
+            const primitived: boolean =
+                config.primitive !== false &&
+                directory.routes.some(
+                    (route) =>
+                        route.output.name !== "void" ||
+                        route.parameters.some(
+                            (param) => param.category !== "param",
+                        ),
+                );
             const asserted: boolean =
                 config.assert === true &&
                 directory.routes.some((route) => route.parameters.length !== 0);
