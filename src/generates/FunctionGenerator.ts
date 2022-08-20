@@ -84,6 +84,7 @@ export namespace FunctionGenerator {
         route: IRoute,
         query: IRoute.IParameter | undefined,
         input: IRoute.IParameter | undefined,
+        config: IConfiguration,
     ): string {
         //----
         // CONSTRUCT COMMENT
@@ -149,7 +150,8 @@ export namespace FunctionGenerator {
             "connection: IConnection",
             ...route.parameters.map((param) => {
                 const type: string =
-                    param === query || param === input
+                    config.primitive !== false &&
+                    (param === query || param === input)
                         ? `Primitive<${route.name}.${
                               param === query ? "Query" : "Input"
                           }>`
@@ -200,7 +202,11 @@ export namespace FunctionGenerator {
                 ? types
                       .map(
                           (tuple) =>
-                              `    export type ${tuple.first} = Primitive<${tuple.second}>;`,
+                              `    export type ${tuple.first} = ${
+                                  config.primitive !== false
+                                      ? `Primitive<${tuple.second}>`
+                                      : tuple.second
+                              };`,
                       )
                       .join("\n") + "\n"
                 : "") +
