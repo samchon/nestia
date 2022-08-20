@@ -1,10 +1,17 @@
 import express from "express";
 import { Controller, Param, Request } from "@nestjs/common";
 import { TypedBody, TypedRoute } from "nestia-helper";
+import { v4 } from "uuid";
 
 import { ISaleArticleComment } from "../api/structures/ISaleArticleComment";
 
-@Controller("consumers/:section/sales/:saleId/articles/:articleId/comments")
+const CODE_REGEX = "[0-9a-f]{7}";
+const UUID_REGEX =
+    "[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}";
+
+@Controller(
+    `consumers/:section(${CODE_REGEX})/sales/:saleId(${UUID_REGEX})/articles/:articleId(${UUID_REGEX})/comments`,
+)
 export class ConsumerSaleArticleCommentsController {
     /**
      * Store a new comment.
@@ -46,7 +53,7 @@ export class ConsumerSaleArticleCommentsController {
             created_at: new Date().toString(),
             contents: [
                 {
-                    id: "some-content-id",
+                    id: v4(),
                     body: input.body,
                     created_at: new Date().toString(),
                 },
