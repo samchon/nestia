@@ -159,7 +159,7 @@ export namespace NestiaCommand {
     ): IConfiguration {
         if (command.out === null)
             throw new Error(
-                `Output directory is not specified. Add the "--out <output_directory>" option.`,
+                `Error on NestiaCommand.main(): output directory is not specified. Add the "--out <output_directory>" option.`,
             );
 
         const config: IConfiguration = {
