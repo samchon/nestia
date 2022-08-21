@@ -46,7 +46,7 @@
             "required": true
           },
           {
-            "name": "href",
+            "name": "location.href",
             "in": "query",
             "description": "`window.location.href`",
             "schema": {
@@ -183,7 +183,7 @@
             "required": true
           },
           {
-            "name": "href",
+            "name": "location.href",
             "in": "query",
             "description": "",
             "schema": {
