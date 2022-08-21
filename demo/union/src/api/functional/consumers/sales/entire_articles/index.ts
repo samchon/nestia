@@ -7,6 +7,7 @@
 import { Fetcher } from "nestia-fetcher";
 import type { IConnection } from "nestia-fetcher";
 
+import type { ISaleReview } from "./../../../../structures/ISaleReview";
 import type { ISaleInquiry } from "./../../../../structures/ISaleInquiry";
 import type { IPage } from "./../../../../structures/IPage";
 import type { ISaleEntireArtcle } from "./../../../../structures/ISaleEntireArticle";
@@ -18,6 +19,9 @@ import type { ISaleEntireArtcle } from "./../../../../structures/ISaleEntireArti
  * @param request Instance of the Express.Request
  * @param section Code of the target section
  * @param saleId ID of the target sale
+ * @param ip IP Address of the client
+ * @param href `window.location.href`
+ * @param query More query parameters
  * @param input Page request info
  * @returns Paged the entire articles
  * 
@@ -30,6 +34,9 @@ export function index
         connection: IConnection,
         section: string,
         saleId: number,
+        ip: string,
+        href: string,
+        query: ISaleReview.IQuery,
         input: ISaleInquiry.IRequest
     ): Promise<index.Output>
 {
@@ -38,12 +45,13 @@ export function index
         connection,
         index.ENCRYPTED,
         index.METHOD,
-        index.path(section, saleId),
+        index.path(section, saleId, ip, href, query),
         input
     );
 }
 export namespace index
 {
+    export type Query = ISaleReview.IQuery;
     export type Input = ISaleInquiry.IRequest;
     export type Output = IPage<ISaleEntireArtcle.ISummary>;
 
@@ -54,9 +62,13 @@ export namespace index
         response: false,
     };
 
-    export function path(section: string, saleId: number): string
+    export function path(section: string, saleId: number, ip: string, href: string, query: ISaleReview.IQuery): string
     {
-        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/entire_articles`;
+        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/entire_articles?${new URLSearchParams({
+            ...query,
+            ip,
+            href,
+        } as any).toString()}`;
     }
 }
 

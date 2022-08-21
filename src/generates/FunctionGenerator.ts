@@ -8,7 +8,7 @@ import { IRoute } from "../structures/IRoute";
 export namespace FunctionGenerator {
     export function generate(config: IConfiguration, route: IRoute): string {
         const query: IRoute.IParameter | undefined = route.parameters.find(
-            (param) => param.category === "query",
+            (param) => param.category === "query" && param.field === undefined,
         );
         const input: IRoute.IParameter | undefined = route.parameters.find(
             (param) => param.category === "body",
@@ -70,8 +70,10 @@ export namespace FunctionGenerator {
         route: IRoute,
         query: IRoute.IParameter | undefined,
     ): IRoute.IParameter[] {
-        const parameters = route.parameters.filter(
-            (param) => param.category === "param",
+        const parameters: IRoute.IParameter[] = route.parameters.filter(
+            (param) =>
+                param.category === "param" ||
+                (param.category === "query" && param.field !== undefined),
         );
         if (query) parameters.push(query);
         return parameters;
@@ -245,8 +247,30 @@ export namespace FunctionGenerator {
                     `:${param.field}`,
                     `\${encodeURIComponent(${param.name})}`,
                 );
-        return query !== undefined
-            ? `\`${path}?\${new URLSearchParams(${query.name} as any).toString()}\``
-            : `\`${path}\``;
+        const queryParams: IRoute.IParameter[] = parameters.filter(
+            (param) => param.category === "query" && param.field !== undefined,
+        );
+        if (query === undefined && queryParams.length === 0)
+            return `\`${path}\``;
+
+        const wrapper = (str: string) =>
+            `\`${path}?\${new URLSearchParams(${str}).toString()}\``;
+        if (query !== undefined && queryParams.length === 0)
+            return wrapper(`${query.name} as any`);
+        else if (query === undefined)
+            return wrapper(`
+        {
+            ${rest_query_parameters(queryParams)}
+        } as any`);
+        return wrapper(`{
+            ...${query.name},
+            ${rest_query_parameters(queryParams)},
+        } as any`);
+    }
+
+    function rest_query_parameters(parameters: IRoute.IParameter[]): string {
+        return parameters
+            .map((param) => param.name)
+            .join(`,\n${" ".repeat(12)}`);
     }
 }

@@ -5,3 +5,5 @@
  */
 //================================================================
 export * as entire_articles from "./entire_articles";
+export * as questions from "./questions";
+export * as reviews from "./reviews";
