@@ -13,7 +13,7 @@ export class ConsumerSaleEntireArticlesController {
      * @param request Instance of the Express.Request
      * @param section Code of the target section
      * @param saleId ID of the target sale
-     * @param ip IP Address of the client
+     * @param ipAddr IP Address of the client
      * @param href `window.location.href`
      * @param query More query parameters
      * @param input Page request info
@@ -24,8 +24,8 @@ export class ConsumerSaleEntireArticlesController {
         @nest.Request() request: express.Request,
         @helper.TypedParam("section", "string") section: string,
         @helper.TypedParam("saleId", "number") saleId: number,
-        @nest.Query("ip") ip: string,
-        @nest.Query("href") href: string,
+        @nest.Query("ip") ipAddr: string,
+        @nest.Query("location.href") href: string,
         @nest.Query() query: ISaleEntireArtcle.IQuery,
         @nest.Body() input: ISaleEntireArtcle.IRequest,
     ): Promise<IPage<ISaleEntireArtcle.ISummary>> {
@@ -33,7 +33,7 @@ export class ConsumerSaleEntireArticlesController {
         section;
         saleId;
         href;
-        ip;
+        ipAddr;
         query;
 
         return {

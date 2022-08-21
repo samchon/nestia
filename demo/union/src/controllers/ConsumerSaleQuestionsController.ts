@@ -12,15 +12,15 @@ export class ConsumerSaleQuestionsController {
         @nest.Request() request: express.Request,
         @helper.TypedParam("section", "string") section: string,
         @helper.TypedParam("saleId", "number") saleId: number,
-        @nest.Query("ip") ip: string,
-        @nest.Query("href") href: string,
+        @nest.Query("ip") ipAddr: string,
+        @nest.Query("location.href") href: string,
         @nest.Body() input: ISaleQuestion.IRequest,
     ): Promise<IPage<ISaleQuestion.ISummary>> {
         request;
         section;
         saleId;
         href;
-        ip;
+        ipAddr;
 
         return {
             pagination: {

@@ -1,4 +1,5 @@
 import ts from "typescript";
+import { Escaper } from "typescript-json/lib/utils/Escaper";
 import { Pair } from "tstl/utility/Pair";
 import { Vector } from "tstl/container/Vector";
 
@@ -262,7 +263,9 @@ export namespace FunctionGenerator {
         {
             ${rest_query_parameters(queryParams)}
         } as any`);
-        return wrapper(`{
+
+        return wrapper(`
+        {
             ...${query.name},
             ${rest_query_parameters(queryParams)},
         } as any`);
@@ -270,7 +273,15 @@ export namespace FunctionGenerator {
 
     function rest_query_parameters(parameters: IRoute.IParameter[]): string {
         return parameters
-            .map((param) => param.name)
+            .map((param) =>
+                param.name === param.field
+                    ? param.name
+                    : `${
+                          Escaper.variable(param.field!)
+                              ? param.field
+                              : JSON.stringify(param.field)
+                      }: ${param.name}`,
+            )
             .join(`,\n${" ".repeat(12)}`);
     }
 }

@@ -20,7 +20,7 @@ export function index
         connection: IConnection,
         section: string,
         saleId: number,
-        ip: string,
+        ipAddr: string,
         href: string,
         input: ISaleInquiry.IRequest
     ): Promise<index.Output>
@@ -30,7 +30,7 @@ export function index
         connection,
         index.ENCRYPTED,
         index.METHOD,
-        index.path(section, saleId, ip, href),
+        index.path(section, saleId, ipAddr, href),
         input
     );
 }
@@ -46,12 +46,12 @@ export namespace index
         response: false,
     };
 
-    export function path(section: string, saleId: number, ip: string, href: string): string
+    export function path(section: string, saleId: number, ipAddr: string, href: string): string
     {
         return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/questions?${new URLSearchParams(
         {
-            ip,
-            href
+            ip: ipAddr,
+            "location.href": href
         } as any).toString()}`;
     }
 }

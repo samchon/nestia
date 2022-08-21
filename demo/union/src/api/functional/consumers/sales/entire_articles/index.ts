@@ -19,7 +19,7 @@ import type { ISaleEntireArtcle } from "./../../../../structures/ISaleEntireArti
  * @param request Instance of the Express.Request
  * @param section Code of the target section
  * @param saleId ID of the target sale
- * @param ip IP Address of the client
+ * @param ipAddr IP Address of the client
  * @param href `window.location.href`
  * @param query More query parameters
  * @param input Page request info
@@ -34,7 +34,7 @@ export function index
         connection: IConnection,
         section: string,
         saleId: number,
-        ip: string,
+        ipAddr: string,
         href: string,
         query: ISaleReview.IQuery,
         input: ISaleInquiry.IRequest
@@ -45,7 +45,7 @@ export function index
         connection,
         index.ENCRYPTED,
         index.METHOD,
-        index.path(section, saleId, ip, href, query),
+        index.path(section, saleId, ipAddr, href, query),
         input
     );
 }
@@ -62,12 +62,13 @@ export namespace index
         response: false,
     };
 
-    export function path(section: string, saleId: number, ip: string, href: string, query: ISaleReview.IQuery): string
+    export function path(section: string, saleId: number, ipAddr: string, href: string, query: ISaleReview.IQuery): string
     {
-        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/entire_articles?${new URLSearchParams({
+        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/entire_articles?${new URLSearchParams(
+        {
             ...query,
-            ip,
-            href,
+            ip: ipAddr,
+            "location.href": href,
         } as any).toString()}`;
     }
 }
