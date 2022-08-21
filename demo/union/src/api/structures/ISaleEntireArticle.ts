@@ -17,4 +17,6 @@ export namespace ISaleEntireArtcle {
      * Page request union type of the entire sub-type articles.
      */
     export type IRequest = ISaleQuestion.IRequest | ISaleReview.IRequest;
+
+    export type IQuery = ISaleReview.IQuery;
 }

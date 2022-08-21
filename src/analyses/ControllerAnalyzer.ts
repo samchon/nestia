@@ -178,14 +178,15 @@ export namespace ControllerAnalyzer {
         );
         const name: string = symbol.getEscapedName().toString();
 
-        // VALIDATE PARAMETERS
-        if (
-            (param.category === "query" || param.category === "body") &&
-            param.field !== undefined
-        )
+        // DO NOT SUPPORT BODY PARAMETER
+        if (param.category === "body" && param.field !== undefined) {
+            const method: string = `${controller.name}.${funcName}()`;
             throw new Error(
-                `Error on ${controller.name}.${funcName}(): parameter ${name} is specifying a field ${param.field} of the request ${param.category} message, however, Nestia does not support the field specialization for the request ${param.category} message. Erase the ${controller.name}.${funcName}()#${name} parameter and re-define a new decorator accepting full structured message.`,
+                `Error on ${method}: nestia does not support body field specification. ` +
+                    `Therefore, erase the ${method}#${name} parameter and ` +
+                    `re-define a new body decorator accepting full structured message.`,
             );
+        }
 
         return {
             name,

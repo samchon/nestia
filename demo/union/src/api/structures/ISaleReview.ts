@@ -34,4 +34,9 @@ export namespace ISaleReview {
          */
         score: number;
     }
+
+    export interface IQuery {
+        code: string;
+        referrer: string;
+    }
 }
