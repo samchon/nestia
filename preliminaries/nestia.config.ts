@@ -64,7 +64,7 @@ export const NESTIA_CONFIG: IConfiguration = {
          * Otherwise you've configured the full path with file name and extension, the
          * `swagger.json` file would be renamed to it.
          */
-        output: "dist/swagger.json"
+        output: "dist/swagger.json",
     },
 };
 export default NESTIA_CONFIG;

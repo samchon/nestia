@@ -75,7 +75,8 @@
     "forceConsistentCasingInFileNames": true,  /* Disallow inconsistently-cased references to the same file. */
     "plugins": [
       { "transform": "typescript-json/lib/transform" }
-    ]
+    ],
+    "newLine": "LF",
   },
   "include": ["src"]
 }
