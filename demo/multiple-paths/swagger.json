@@ -238,7 +238,8 @@
           "extension",
           "annonymous"
         ],
-        "description": "Store info."
+        "description": "Store info.",
+        "jsDocTags": []
       },
       "ISaleArticleComment": {
         "type": "object",
@@ -291,7 +292,18 @@
           "contents",
           "created_at"
         ],
-        "description": "Comment wrote on a sale related article.\n\nWhen an article of a sale has been enrolled, all of the participants like consumers and\nsellers can write a comment on that article. However, when the writer is a consumer, the\nconsumer can hide its name through the annoymous option.\n\nAlso, writing a reply comment for a specific comment is possible and in that case, the\n{@link ISaleArticleComment.parent_id} property would be activated."
+        "description": "Comment wrote on a sale related article.\n\nWhen an article of a sale has been enrolled, all of the participants like consumers and\nsellers can write a comment on that article. However, when the writer is a consumer, the\nconsumer can hide its name through the annoymous option.\n\nAlso, writing a reply comment for a specific comment is possible and in that case, the\n{@link ISaleArticleComment.parent_id} property would be activated.",
+        "jsDocTags": [
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       },
       "ISaleArticleComment.IContent": {
         "type": "object",
@@ -318,7 +330,8 @@
           "body",
           "created_at"
         ],
-        "description": "Content info."
+        "description": "Content info.",
+        "jsDocTags": []
       }
     }
   }

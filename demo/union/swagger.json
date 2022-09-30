@@ -134,10 +134,10 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleReview.IContent_gt_"
+                      "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleArticle.IContent_gt_"
                     },
                     {
-                      "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleArticle.IContent_gt_"
+                      "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleReview.IContent_gt_"
                     }
                   ]
                 }
@@ -298,7 +298,8 @@
         "required": [
           "code",
           "referrer"
-        ]
+        ],
+        "jsDocTags": []
       },
       "ISaleInquiry.IRequest": {
         "type": "object",
@@ -316,7 +317,18 @@
           "limit": {
             "type": "number",
             "nullable": false,
-            "description": "Maximum number of records per a page."
+            "description": "Maximum number of records per a page.",
+            "jsDocTags": [
+              {
+                "name": "default",
+                "text": [
+                  {
+                    "text": "100",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ]
           },
           "search_fields": {
             "type": "array",
@@ -345,7 +357,8 @@
           }
         },
         "nullable": false,
-        "description": "Page request info."
+        "description": "Page request info.",
+        "jsDocTags": []
       },
       "IPage_lt_ISaleEntireArtcle.ISummary_gt_": {
         "type": "object",
@@ -366,7 +379,8 @@
                   "$ref": "#/components/schemas/ISaleReview.ISummary",
                   "description": "List of the records."
                 }
-              ]
+              ],
+              "description": "List of the records."
             },
             "nullable": false,
             "description": "List of the records."
@@ -377,7 +391,18 @@
           "pagination",
           "data"
         ],
-        "description": "Paginated records."
+        "description": "Paginated records.",
+        "jsDocTags": [
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       },
       "IPage.IPagination": {
         "type": "object",
@@ -390,7 +415,18 @@
           "limit": {
             "type": "number",
             "nullable": false,
-            "description": "Maximum number of records per a page."
+            "description": "Maximum number of records per a page.",
+            "jsDocTags": [
+              {
+                "name": "default",
+                "text": [
+                  {
+                    "text": "100",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ]
           },
           "total_count": {
             "type": "number",
@@ -410,7 +446,8 @@
           "total_count",
           "total_pages"
         ],
-        "description": "Pagenation info."
+        "description": "Pagenation info.",
+        "jsDocTags": []
       },
       "ISaleInquiry.ISummary": {
         "type": "object",
@@ -461,7 +498,8 @@
           "created_at",
           "updated_at"
         ],
-        "description": "Summarized info of the inquiry article."
+        "description": "Summarized info of the inquiry article.",
+        "jsDocTags": []
       },
       "ISaleReview.ISummary": {
         "type": "object",
@@ -518,7 +556,237 @@
           "created_at",
           "updated_at"
         ],
-        "description": "Summarized info of the review."
+        "description": "Summarized info of the review.",
+        "jsDocTags": []
+      },
+      "ISaleInquiry_lt_ISaleArticle.IContent_gt_": {
+        "type": "object",
+        "properties": {
+          "writer": {
+            "type": "string",
+            "nullable": false,
+            "description": "Name of the writer."
+          },
+          "answer": {
+            "$ref": "#/components/schemas/ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable",
+            "description": "Formal answer from the seller."
+          },
+          "id": {
+            "type": "number",
+            "nullable": false,
+            "description": "Primary Key."
+          },
+          "hit": {
+            "type": "number",
+            "nullable": false,
+            "description": "Hit count.\n\nHow many consumers had read."
+          },
+          "contents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ISaleArticle.IContent",
+              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+            },
+            "nullable": false,
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+          },
+          "created_at": {
+            "type": "string",
+            "nullable": false,
+            "description": "Creation time."
+          }
+        },
+        "nullable": false,
+        "required": [
+          "writer",
+          "answer",
+          "id",
+          "hit",
+          "contents",
+          "created_at"
+        ],
+        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer.",
+        "jsDocTags": [
+          {
+            "name": "template",
+            "text": [
+              {
+                "text": "Content",
+                "kind": "typeParameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content type",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
+      },
+      "ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "nullable": false,
+            "description": "Primary Key."
+          },
+          "hit": {
+            "type": "number",
+            "nullable": false,
+            "description": "Hit count.\n\nHow many consumers had read."
+          },
+          "contents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ISaleArticle.IContent",
+              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+            },
+            "nullable": false,
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+          },
+          "created_at": {
+            "type": "string",
+            "nullable": false,
+            "description": "Creation time."
+          }
+        },
+        "nullable": true,
+        "required": [
+          "id",
+          "hit",
+          "contents",
+          "created_at"
+        ],
+        "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`.",
+        "jsDocTags": [
+          {
+            "name": "template",
+            "text": [
+              {
+                "text": "Content",
+                "kind": "typeParameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content type.",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
+      },
+      "ISaleArticle.IContent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": false,
+            "description": "Primary Key"
+          },
+          "title": {
+            "type": "string",
+            "nullable": false,
+            "description": "Title of the content."
+          },
+          "body": {
+            "type": "string",
+            "nullable": false,
+            "description": "Body of the content."
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile",
+              "description": "Attached files."
+            },
+            "nullable": false,
+            "description": "Attached files."
+          },
+          "created_at": {
+            "type": "string",
+            "nullable": false,
+            "description": "Creation time."
+          }
+        },
+        "nullable": false,
+        "required": [
+          "id",
+          "title",
+          "body",
+          "files",
+          "created_at"
+        ],
+        "description": "Content info.",
+        "jsDocTags": []
+      },
+      "IAttachmentFile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "nullable": false,
+            "description": "Primary Key."
+          },
+          "name": {
+            "type": "string",
+            "nullable": false,
+            "description": "Name of the file."
+          },
+          "extension": {
+            "type": "string",
+            "nullable": true,
+            "description": "Extension of the file, but ommitable."
+          },
+          "url": {
+            "type": "string",
+            "nullable": false,
+            "description": "Full URL path of the file."
+          }
+        },
+        "nullable": false,
+        "required": [
+          "id",
+          "name",
+          "extension",
+          "url"
+        ],
+        "description": "Attachemd (physical) file info.",
+        "jsDocTags": [
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       },
       "ISaleInquiry_lt_ISaleReview.IContent_gt_": {
         "type": "object",
@@ -566,120 +834,35 @@
           "contents",
           "created_at"
         ],
-        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
-      },
-      "ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "nullable": false,
-            "description": "Primary Key."
+        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer.",
+        "jsDocTags": [
+          {
+            "name": "template",
+            "text": [
+              {
+                "text": "Content",
+                "kind": "typeParameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content type",
+                "kind": "text"
+              }
+            ]
           },
-          "hit": {
-            "type": "number",
-            "nullable": false,
-            "description": "Hit count.\n\nHow many consumers had read."
-          },
-          "contents": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ISaleArticle.IContent",
-              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
-            },
-            "nullable": false,
-            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
-          },
-          "created_at": {
-            "type": "string",
-            "nullable": false,
-            "description": "Creation time."
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
           }
-        },
-        "nullable": true,
-        "required": [
-          "id",
-          "hit",
-          "contents",
-          "created_at"
-        ],
-        "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`."
-      },
-      "ISaleArticle.IContent": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "nullable": false,
-            "description": "Primary Key"
-          },
-          "title": {
-            "type": "string",
-            "nullable": false,
-            "description": "Title of the content."
-          },
-          "body": {
-            "type": "string",
-            "nullable": false,
-            "description": "Body of the content."
-          },
-          "files": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IAttachmentFile",
-              "description": "Attached files."
-            },
-            "nullable": false,
-            "description": "Attached files."
-          },
-          "created_at": {
-            "type": "string",
-            "nullable": false,
-            "description": "Creation time."
-          }
-        },
-        "nullable": false,
-        "required": [
-          "id",
-          "title",
-          "body",
-          "files",
-          "created_at"
-        ],
-        "description": "Content info."
-      },
-      "IAttachmentFile": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "nullable": false,
-            "description": "Primary Key."
-          },
-          "name": {
-            "type": "string",
-            "nullable": false,
-            "description": "Name of the file."
-          },
-          "extension": {
-            "type": "string",
-            "nullable": true,
-            "description": "Extension of the file, but ommitable."
-          },
-          "url": {
-            "type": "string",
-            "nullable": false,
-            "description": "Full URL path of the file."
-          }
-        },
-        "nullable": false,
-        "required": [
-          "id",
-          "name",
-          "extension",
-          "url"
-        ],
-        "description": "Attachemd (physical) file info."
+        ]
       },
       "ISaleReview.IContent": {
         "type": "object",
@@ -728,55 +911,8 @@
           "files",
           "created_at"
         ],
-        "description": "Content info of the review."
-      },
-      "ISaleInquiry_lt_ISaleArticle.IContent_gt_": {
-        "type": "object",
-        "properties": {
-          "writer": {
-            "type": "string",
-            "nullable": false,
-            "description": "Name of the writer."
-          },
-          "answer": {
-            "$ref": "#/components/schemas/ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable",
-            "description": "Formal answer from the seller."
-          },
-          "id": {
-            "type": "number",
-            "nullable": false,
-            "description": "Primary Key."
-          },
-          "hit": {
-            "type": "number",
-            "nullable": false,
-            "description": "Hit count.\n\nHow many consumers had read."
-          },
-          "contents": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ISaleArticle.IContent",
-              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
-            },
-            "nullable": false,
-            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
-          },
-          "created_at": {
-            "type": "string",
-            "nullable": false,
-            "description": "Creation time."
-          }
-        },
-        "nullable": false,
-        "required": [
-          "writer",
-          "answer",
-          "id",
-          "hit",
-          "contents",
-          "created_at"
-        ],
-        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
+        "description": "Content info of the review.",
+        "jsDocTags": []
       },
       "IPage_lt_ISaleInquiry.ISummary_gt_": {
         "type": "object",
@@ -800,7 +936,18 @@
           "pagination",
           "data"
         ],
-        "description": "Paginated records."
+        "description": "Paginated records.",
+        "jsDocTags": [
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       },
       "IPage_lt_ISaleReview.ISummary_gt_": {
         "type": "object",
@@ -824,7 +971,18 @@
           "pagination",
           "data"
         ],
-        "description": "Paginated records."
+        "description": "Paginated records.",
+        "jsDocTags": [
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       }
     }
   }

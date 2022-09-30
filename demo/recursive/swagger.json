@@ -132,7 +132,18 @@
           "code",
           "name"
         ],
-        "description": "Systematic category info.\n\nThis `ICategory` has been designed to represent a systematic classfication. Also, its\nclassification has hierarchical and recursive relationship. Therefore, its structure has\na tree shape through the {@link ICategory.children} property.\n\nIf you want to see invert structure for getting parent information repeatedly, use the\n{@link ICategory.IInvert} type instead."
+        "description": "Systematic category info.\n\nThis `ICategory` has been designed to represent a systematic classfication. Also, its\nclassification has hierarchical and recursive relationship. Therefore, its structure has\na tree shape through the {@link ICategory.children} property.\n\nIf you want to see invert structure for getting parent information repeatedly, use the\n{@link ICategory.IInvert} type instead.",
+        "jsDocTags": [
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       },
       "ICategory.IInvert": {
         "type": "object",
@@ -164,7 +175,8 @@
           "code",
           "name"
         ],
-        "description": "Invert structure of the {@link ICategory}."
+        "description": "Invert structure of the {@link ICategory}.",
+        "jsDocTags": []
       },
       "ICategory.IInvert.Nullable": {
         "type": "object",
@@ -196,7 +208,8 @@
           "code",
           "name"
         ],
-        "description": "Invert structure of the {@link ICategory}."
+        "description": "Invert structure of the {@link ICategory}.",
+        "jsDocTags": []
       }
     }
   }

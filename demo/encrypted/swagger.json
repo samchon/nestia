@@ -150,7 +150,8 @@
           "name",
           "mobile",
           "company"
-        ]
+        ],
+        "jsDocTags": []
       },
       "ISeller": {
         "type": "object",
@@ -195,7 +196,18 @@
           "company",
           "created_at"
         ],
-        "description": "Seller information."
+        "description": "Seller information.",
+        "jsDocTags": [
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       },
       "ISeller.ILogin": {
         "type": "object",
@@ -213,7 +225,8 @@
         "required": [
           "email",
           "password"
-        ]
+        ],
+        "jsDocTags": []
       },
       "ISeller.IChangePassword": {
         "type": "object",
@@ -231,7 +244,8 @@
         "required": [
           "old_password",
           "new_password"
-        ]
+        ],
+        "jsDocTags": []
       }
     }
   },

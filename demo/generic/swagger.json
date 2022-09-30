@@ -308,7 +308,8 @@
           "extension",
           "files"
         ],
-        "description": "Store info."
+        "description": "Store info.",
+        "jsDocTags": []
       },
       "IAttachmentFile": {
         "type": "object",
@@ -335,7 +336,18 @@
           "extension",
           "url"
         ],
-        "description": "Attachemd (physical) file info."
+        "description": "Attachemd (physical) file info.",
+        "jsDocTags": [
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       },
       "ISaleInquiry_lt_ISaleArticle.IContent_gt_": {
         "type": "object",
@@ -383,7 +395,35 @@
           "contents",
           "created_at"
         ],
-        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
+        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer.",
+        "jsDocTags": [
+          {
+            "name": "template",
+            "text": [
+              {
+                "text": "Content",
+                "kind": "typeParameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content type",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       },
       "ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable": {
         "type": "object",
@@ -420,7 +460,35 @@
           "contents",
           "created_at"
         ],
-        "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`."
+        "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`.",
+        "jsDocTags": [
+          {
+            "name": "template",
+            "text": [
+              {
+                "text": "Content",
+                "kind": "typeParameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content type.",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       },
       "ISaleArticle.IContent": {
         "type": "object",
@@ -474,7 +542,8 @@
           "extension",
           "files"
         ],
-        "description": "Content info."
+        "description": "Content info.",
+        "jsDocTags": []
       },
       "ISaleReview.IStore": {
         "type": "object",
@@ -522,7 +591,8 @@
           "extension",
           "files"
         ],
-        "description": "Store info of the review."
+        "description": "Store info of the review.",
+        "jsDocTags": []
       },
       "ISaleInquiry_lt_ISaleReview.IContent_gt_": {
         "type": "object",
@@ -570,7 +640,35 @@
           "contents",
           "created_at"
         ],
-        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer."
+        "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer.",
+        "jsDocTags": [
+          {
+            "name": "template",
+            "text": [
+              {
+                "text": "Content",
+                "kind": "typeParameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content type",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       },
       "ISaleReview.IContent": {
         "type": "object",
@@ -630,7 +728,8 @@
           "extension",
           "files"
         ],
-        "description": "Content info of the review."
+        "description": "Content info of the review.",
+        "jsDocTags": []
       }
     }
   }
