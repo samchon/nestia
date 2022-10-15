@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Automatic SDK and Document generator for the NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -63,5 +63,14 @@
     "typescript": "^4.8.4",
     "typescript-transform-paths": "^3.3.1",
     "uuid": "^8.3.2"
-  }
+  },
+  "files": [
+    "README.md",
+    "LICENSE",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT",
+    "template",
+    "bundle",
+    "lib"
+  ]
 }

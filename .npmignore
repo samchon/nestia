@@ -1,12 +1,1 @@
-.vscode/
-demo/
-lib/test/
-node_modules/
-src/
-
-*.*ignore
-.eslintrc.cjs
-.prettierignore
-package-lock.json
-prettier.config.js
-tsconfig.json
+./lib/test/

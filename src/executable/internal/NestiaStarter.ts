@@ -1,6 +1,8 @@
 import cp from "child_process";
 import fs from "fs";
 
+const PATH = __dirname + "/../../../template";
+
 export namespace NestiaStarter {
     export async function start(dest: string | undefined): Promise<void> {
         // VALIDATION
@@ -8,9 +10,15 @@ export namespace NestiaStarter {
         else if (fs.existsSync(dest) === true)
             throw new Error(message("already exists"));
 
+        console.log("-----------------------------------------");
+        console.log(" Nestia Starter Kit");
+        console.log("-----------------------------------------");
+
         // COPY PROJECTS
         console.log("Copying files...");
-        await copy(__dirname + "/../../../template", dest);
+        await copy(PATH, dest);
+        await copy(PATH + "/bundle/gitignore", dest + "/.gitignore");
+        await copy(PATH + "/bundle/npmignore", dest + "/.npmignore");
         process.chdir(dest);
 
         // INSTALL DEPENDENCIES
@@ -29,7 +37,7 @@ export namespace NestiaStarter {
     async function copy(src: string, dest: string): Promise<void> {
         const stats: fs.Stats = await fs.promises.lstat(src);
         if (stats.isDirectory()) {
-            if (src === __dirname + "/../../../template/.git") return;
+            if (src === PATH + "/.git" || src === PATH + "/bundle") return;
 
             await fs.promises.mkdir(dest);
             for (const file of await fs.promises.readdir(src))
