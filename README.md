@@ -75,6 +75,16 @@ export async function trace_sale_question_and_comment
 
 
 ## Setup
+### Starter Kit
+```bash
+npx nestia start <directory>
+```
+
+Just run the upper command with target directory. Then, boilerplate project would be copied to the target directory.
+
+After the composition being completed, read the README content of the boilderplate project and start developing your backend server.
+
+### Manual Installation
 Just like any other package, you've got to install it before you can use it.
 
 For reference, `ttypescript` is not mis-writing. Don't forget to install it.

@@ -328,7 +328,8 @@
                   }
                 ]
               }
-            ]
+            ],
+            "default": 100
           },
           "search_fields": {
             "type": "array",
@@ -426,7 +427,8 @@
                   }
                 ]
               }
-            ]
+            ],
+            "default": 100
           },
           "total_count": {
             "type": "number",
