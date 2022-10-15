@@ -5,6 +5,7 @@ import fs from "fs";
 import process from "process";
 
 import type { NestiaCommand } from "./internal/NestiaCommand";
+import { NestiaStarter } from "./internal/NestiaStarter";
 
 function dependencies(): void {
     // INSTALL DEPENDENCIES
@@ -38,13 +39,14 @@ async function main() {
     const type: string | undefined = process.argv[2];
     const argv: string[] = process.argv.slice(3);
 
-    if (type === "install") dependencies();
+    if (type === "start") await NestiaStarter.start(argv[0]);
+    else if (type === "install") dependencies();
     else if (type === "init") await initialize();
     else if (type === "sdk") await execute((c) => c.sdk(argv));
     else if (type === "swagger") await execute((c) => c.swagger(argv));
     else
         throw new Error(
-            `nestia supports only four commands; (install, init, sdk and swagger), however you've typed the "${process.argv[2]}"`,
+            `nestia supports only five commands; (start, install, init, sdk and swagger), however you've typed the "${process.argv[2]}"`,
         );
 }
 main().catch((exp) => {
