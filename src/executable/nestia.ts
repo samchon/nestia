@@ -4,7 +4,7 @@ import cp from "child_process";
 import fs from "fs";
 import process from "process";
 
-import { NestiaCommand } from "./internal/NestiaCommand";
+import type { NestiaCommand } from "./internal/NestiaCommand";
 
 function dependencies(): void {
     // INSTALL DEPENDENCIES
@@ -27,17 +27,24 @@ async function initialize(): Promise<void> {
     await fs.promises.writeFile("nestia.config.ts", content, "utf8");
 }
 
+async function execute(
+    closure: (commander: typeof NestiaCommand) => Promise<void>,
+): Promise<void> {
+    const module = await import("./internal/NestiaCommand");
+    await closure(module.NestiaCommand);
+}
+
 async function main() {
     const type: string | undefined = process.argv[2];
     const argv: string[] = process.argv.slice(3);
 
     if (type === "install") dependencies();
     else if (type === "init") await initialize();
-    else if (type === "sdk") await NestiaCommand.sdk(argv);
-    else if (type === "swagger") await NestiaCommand.swagger(argv);
+    else if (type === "sdk") await execute((c) => c.sdk(argv));
+    else if (type === "swagger") await execute((c) => c.swagger(argv));
     else
         throw new Error(
-            `nestia supports only three commands; (install, sdk, swagger), however you've typed the "${process.argv[2]}"`,
+            `nestia supports only four commands; (install, init, sdk and swagger), however you've typed the "${process.argv[2]}"`,
         );
 }
 main().catch((exp) => {

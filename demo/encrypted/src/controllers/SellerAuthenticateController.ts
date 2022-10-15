@@ -1,4 +1,4 @@
-import express from "express";
+import type express from "express";
 import * as nest from "@nestjs/common";
 import helper from "nestia-helper";
 
