@@ -26,7 +26,7 @@ Intersection type | ✔ | ✔ | ▲
 Conditional type | ✔ | ▲ | ❌
 Auto completion | ✔ | ❌ | ❌
 Type hints | ✔ | ❌ | ❌
-2x faster `JSON.stringify()` | ✔ | ❌ | ❌
+5x faster `JSON.stringify()` | ✔ | ❌ | ❌
 Ensure type safety | ✅ | ❌ | ❌
 
 ```typescript
@@ -51,6 +51,7 @@ export async function trace_sale_question_and_comment
     const sale: ISale = await api.functional.shoppings.sales.at
     (
         connection, 
+        "general",
         index.data[0].id
     );
     console.log("sale", sale);
@@ -75,21 +76,31 @@ export async function trace_sale_question_and_comment
 
 
 ## Setup
-### Starter Kit
+### Boilerplate Project
 ```bash
 npx nestia start <directory>
 ```
 
-Just run the upper command with target directory. Then, boilerplate project would be copied to the target directory.
+Just run the uppder command, then boilerplate project using `nestia` would be installed.
 
-After the composition being completed, read the README content of the boilderplate project and start developing your backend server.
+When the installation has been completed, you can start NestJS backend development directly.  and you also can generate SDK library or Swagger documents by running below command. You can get more information by reading [README](https://github.com/samchon/nestia-template) content of the boilderplate project.
+
+```bash
+cd <directory>
+npm run build:sdk
+npm run build:swagger
+```
+
+However, supported range of the boilerplate project is limited. It guides from "setting up nestia configuration" to "how to accomplish TDD through SDK", but nothing more. If you want more guidance like 
+configuring DB or preparing non-distruptive update system, visit [samchon/backend](https://github.com/samchon/backend) and create a new repository from that.
 
 ### Manual Installation
-Just like any other package, you've got to install it before you can use it.
+If you need to manual install, follow below step.
 
-For reference, `ttypescript` is not mis-writing. Don't forget to install it.
+At first, install those dependencies.
 
 ```sh
+npm install --save nestia-helper
 npm install --save-dev nestia
 
 npm install --save-dev typescript
@@ -97,7 +108,21 @@ npm install --save-dev ttypescript
 npm install --save-dev ts-node
 ```
 
-After the installation, you can generate the `SDK` or `Swagger`, directly.
+After the installation, check the `tsconfig.json` file. When you're using nestia, your TypeScript project must be configured to using CommonJS module with strict mode. Also, if you configure plugins like below to using [nestia-helper](https://github.com/samchon/nestia-helper), you can get great benefit by using [pure DTO interface](#pure-dto-interface).
+
+```json
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "strict": true,
+    "plugins": [
+      { "transform": "nestia-helper/lib/transform" } 
+    ]
+  }
+}
+```
+
+When all manual setup processes are completed, you can generate the `SDK` or `Swagger`.
 
 ```sh
 npx nestia sdk "src/**/*.controller" --out "src/api"
@@ -212,9 +237,9 @@ Look at the below code and feel how powerful `nestia` is.
     - 2nd sub-type controller, [`ConsumerSaleQuestionsController`](https://github.com/samchon/nestia/tree/master/demo/generic/src/controllers/ConsumerSaleQuestionsController.ts)
   - Union controller, [`ConsumerSaleEntireArticlesController`](https://github.com/samchon/nestia/tree/master/demo/union/src/controllers/ConsumerSaleEntireArticlesController.ts)
 
-Also, you can validate request body data from client automatically, by using [nestia-helper](https://github.com/samchon/nestia-helper) and its `TypedBody()` decorator. Furthermore, `nestia-helper` boosts up JSON string conversion speed about 5x times faster through its `TypedRoute()` component. 
+Also, you can validate request body data from client automatically, by using [nestia-helper](https://github.com/samchon/nestia-helper) and its `TypedBody()` decorator, which is maximum 1,000x times faster than other. Furthermore, `nestia-helper` boosts up JSON string conversion speed about 5x times faster through its `TypedRoute()` component. 
 
-![typescript-json benchmark](https://user-images.githubusercontent.com/13158709/177259933-85a2f19e-01f3-4ac0-a035-a38e0ac38ef5.png)
+![typescript-json benchmark](https://user-images.githubusercontent.com/13158709/194713658-62fb0716-c24e-41f9-be0d-01edeabb1dd6.png)
 
 ```typescript
 import express from "express";
@@ -433,7 +458,7 @@ Components                   | `nestia.config.ts` | `CLI` | `@nestjs/swagger`
 -----------------------------|--------------------|-------|------------------
 Swagger Generation           | ✔  | ✔  | ✔
 SDK Generation               | ✔  | ✔  | ❌
-2x faster `JSON.stringify()` | ✔  | ❌ | ❌
+5x faster `JSON.stringify()` | ✔  | ❌ | ❌
 Type check in runtime        | ✔  | ❌ | ❌
 Custom compiler options      | ✔  | ❌ | ❌
 
@@ -467,9 +492,12 @@ The detailed options are listed up to the `IConfiguration` interface. You can ut
     <summary> Read <code>IConfiguration</code> </summary>
 
 ```typescript
+import ts from "typescript";
+import type { StripEnums } from "./utils/StripEnums";
+
 /**
  * Definition for the `nestia.config.ts` file.
- * 
+ *
  * @author Jeongho Nam - https://github.com/samchon
  */
 export interface IConfiguration {
@@ -505,7 +533,7 @@ export interface IConfiguration {
      * }
      * ```
      */
-    compilerOptions?: ts.CompilerOptions;
+    compilerOptions?: StripEnums<ts.CompilerOptions>;
 
     /**
      * Whether to assert parameter types or not.
@@ -514,6 +542,8 @@ export interface IConfiguration {
      * checked through the [typescript-json](https://github.com/samchon/typescript-json#runtime-type-checkers).
      * This option would make your SDK library slower, but would enahcne the type safety even
      * in the runtime level.
+     *
+     * @default false
      */
     assert?: boolean;
 
@@ -523,8 +553,25 @@ export interface IConfiguration {
      * If you configure this property to be `true`, the SDK library would utilize the
      * [typescript-json](https://github.com/samchon/typescript-json#fastest-json-string-converter)
      * and the JSON string conversion speed really be 2x faster.
+     *
+     * @default false
      */
     json?: boolean;
+
+    /**
+     * Whether to wrap DTO by primitive type.
+     *
+     * If you don't configure this property as `false`, all of DTOs in the
+     * SDK library would be automatically wrapped by {@link Primitive} type.
+     *
+     * For refenrece, if a DTO type be capsuled by the {@link Primitive} type,
+     * all of methods in the DTO type would be automatically erased. Also, if
+     * the DTO has a `toJSON()` method, the DTO type would be automatically
+     * converted to return type of the `toJSON()` method.
+     *
+     * @default true
+     */
+    primitive?: boolean;
 
     /**
      * Building `swagger.json` is also possible.
@@ -564,6 +611,7 @@ export namespace IConfiguration {
         output: string;
     }
 }
+
 ```
 </details>
 
@@ -598,11 +646,79 @@ cd packages/api
 npx nestia install
 ```
 
-### Template Repository
-https://github.com/samchon/backend
+### Nestia-Helper
+https://github.com/samchon/nestia-helper
 
-I support template backend project using this `nestia` library, `samchon/backend`.
+If you utilize `nestia` with [nestia-helper](https://github.com/samchon/nestia-helper), you can automatically validatea pure DTO interace without any extra dedication. It analyzes your backend server code in the compilation level and add request body validation code automatically.
 
-Reading the README content of the backend template repository, you can find lots of example backend projects who've been generated from the backend. Furthermore, those example projects guide how to generate SDK library from `nestia` and how to distribute the SDK library thorugh the NPM module.
+```typescript
+import helper from "nestia-helper";
+import { Controller } from "@nestjs/common";
 
-Therefore, if you're planning to compose your own backend project using this `nestia`, I recommend you to create the repository and learn from the `samchon/backend` template project.
+@Controller("bbs/articles")
+export class BbsArticlesController {
+    //----
+    // `TSON.stringify()` for `IBbsArticle` 
+    // Boost up JSON conversion speed about 5x times faster 
+    //----
+    // `TSON.assertType()` for `IBbsArticle.IStore`
+    // If client request body is not following type type, 
+    // `BadRequestException` (status code: 400) would be thrown
+    //----
+    @helper.TypedRoute.Post()
+    public async store(
+        // automatic validation
+        @helper.TypedBody() input: IBbsArticle.IStore
+    ): Promise<IBbsArticle> {
+        const article: BbsArticle = await BbsArticeProvider.store(input);
+        const json: IBbsArticle = await BbsArticleProvider.json().getOne(article);
+
+        // 5x times faster JSON conversion
+        return Paginator.paginate(stmt, input);
+    }
+}
+```
+
+### TypeScript-JSON
+https://github.com/samchon/typescript-json
+
+```typescript
+import TSON from "typescript-json";
+
+//----
+// RUNTIME VALIDATORS
+//----
+// ALLOW SUPERFLUOUS PROPERTIES
+TSON.assertType<T>(input); // throws exception
+TSON.is<T>(input); // returns boolean value
+TSON.validate<T>(input); // archives all errors
+
+// DO NOT ALLOW SUPERFLUOUS PROPERTIES
+TSON.equals<T>(input); // returns boolean value
+TSON.assertEquals<T>(input); // throws exception
+TSON.validateEquals<T>(input); // archives all errors
+
+//----
+// APPENDIX FUNCTIONS
+//----
+TSON.stringify<T>(input); // 5x faster JSON.stringify()
+TSON.application<[T, U, V], "swagger">(); // JSON schema application generator
+TSON.create<T>(input); // 2x faster object creator (only one-time construction)
+```
+
+`typescript-json` is a transformer library providing JSON related functions.
+
+  - Powerful Runtime type checkers:
+    - Performed by only one line, `TSON.assertType<T>(input)`
+    - Only one library which can validate union type
+    - Maximum 1,000x faster than other libraries
+  - 5x faster `JSON.stringify()` function:
+    - Performed by only one line: `TSON.stringify<T>(input)`
+    - Only one library which can stringify union type
+    - 10,000x faster optimizer construction time than similar libraries
+
+[typescript-json](https://github.com/samchon/typescript-json) analyzes TypeScript source code and generates optimized validators and JSON string converters in the compilation level. It is the reason why `nestia` can generate SDK library is by analyzing NestJS code and how [nestia-helper](https://github.com/samchon/nestia-helper) validates request body data automatically.
+
+Also, its performance enhancement is much greater than other libraries. For example, validator function `TSON.is<T>(input: T): boolean` is maximum 1,000x times faster than other validator libraries.
+
+![Is Function Benchmark](https://user-images.githubusercontent.com/13158709/194713658-62fb0716-c24e-41f9-be0d-01edeabb1dd6.png)
