@@ -299,7 +299,7 @@
           "code",
           "referrer"
         ],
-        "jsDocTags": []
+        "x-tson_jsDocTags": []
       },
       "ISaleInquiry.IRequest": {
         "type": "object",
@@ -318,7 +318,7 @@
             "type": "number",
             "nullable": false,
             "description": "Maximum number of records per a page.",
-            "jsDocTags": [
+            "x-tson-jsDocTags": [
               {
                 "name": "default",
                 "text": [
@@ -359,7 +359,7 @@
         },
         "nullable": false,
         "description": "Page request info.",
-        "jsDocTags": []
+        "x-tson_jsDocTags": []
       },
       "IPage_lt_ISaleEntireArtcle.ISummary_gt_": {
         "type": "object",
@@ -393,7 +393,7 @@
           "data"
         ],
         "description": "Paginated records.",
-        "jsDocTags": [
+        "x-tson_jsDocTags": [
           {
             "name": "author",
             "text": [
@@ -417,7 +417,7 @@
             "type": "number",
             "nullable": false,
             "description": "Maximum number of records per a page.",
-            "jsDocTags": [
+            "x-tson-jsDocTags": [
               {
                 "name": "default",
                 "text": [
@@ -449,7 +449,7 @@
           "total_pages"
         ],
         "description": "Pagenation info.",
-        "jsDocTags": []
+        "x-tson_jsDocTags": []
       },
       "ISaleInquiry.ISummary": {
         "type": "object",
@@ -501,7 +501,7 @@
           "updated_at"
         ],
         "description": "Summarized info of the inquiry article.",
-        "jsDocTags": []
+        "x-tson_jsDocTags": []
       },
       "ISaleReview.ISummary": {
         "type": "object",
@@ -559,7 +559,7 @@
           "updated_at"
         ],
         "description": "Summarized info of the review.",
-        "jsDocTags": []
+        "x-tson_jsDocTags": []
       },
       "ISaleInquiry_lt_ISaleArticle.IContent_gt_": {
         "type": "object",
@@ -608,7 +608,7 @@
           "created_at"
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer.",
-        "jsDocTags": [
+        "x-tson_jsDocTags": [
           {
             "name": "template",
             "text": [
@@ -673,7 +673,7 @@
           "created_at"
         ],
         "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`.",
-        "jsDocTags": [
+        "x-tson_jsDocTags": [
           {
             "name": "template",
             "text": [
@@ -744,7 +744,7 @@
           "created_at"
         ],
         "description": "Content info.",
-        "jsDocTags": []
+        "x-tson_jsDocTags": []
       },
       "IAttachmentFile": {
         "type": "object",
@@ -778,7 +778,7 @@
           "url"
         ],
         "description": "Attachemd (physical) file info.",
-        "jsDocTags": [
+        "x-tson_jsDocTags": [
           {
             "name": "author",
             "text": [
@@ -837,7 +837,7 @@
           "created_at"
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer.",
-        "jsDocTags": [
+        "x-tson_jsDocTags": [
           {
             "name": "template",
             "text": [
@@ -914,7 +914,7 @@
           "created_at"
         ],
         "description": "Content info of the review.",
-        "jsDocTags": []
+        "x-tson_jsDocTags": []
       },
       "IPage_lt_ISaleInquiry.ISummary_gt_": {
         "type": "object",
@@ -939,7 +939,7 @@
           "data"
         ],
         "description": "Paginated records.",
-        "jsDocTags": [
+        "x-tson_jsDocTags": [
           {
             "name": "author",
             "text": [
@@ -974,7 +974,7 @@
           "data"
         ],
         "description": "Paginated records.",
-        "jsDocTags": [
+        "x-tson_jsDocTags": [
           {
             "name": "author",
             "text": [

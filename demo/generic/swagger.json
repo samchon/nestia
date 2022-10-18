@@ -309,7 +309,7 @@
           "files"
         ],
         "description": "Store info.",
-        "jsDocTags": []
+        "x-tson_jsDocTags": []
       },
       "IAttachmentFile": {
         "type": "object",
@@ -337,7 +337,7 @@
           "url"
         ],
         "description": "Attachemd (physical) file info.",
-        "jsDocTags": [
+        "x-tson_jsDocTags": [
           {
             "name": "author",
             "text": [
@@ -396,7 +396,7 @@
           "created_at"
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer.",
-        "jsDocTags": [
+        "x-tson_jsDocTags": [
           {
             "name": "template",
             "text": [
@@ -461,7 +461,7 @@
           "created_at"
         ],
         "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`.",
-        "jsDocTags": [
+        "x-tson_jsDocTags": [
           {
             "name": "template",
             "text": [
@@ -543,7 +543,7 @@
           "files"
         ],
         "description": "Content info.",
-        "jsDocTags": []
+        "x-tson_jsDocTags": []
       },
       "ISaleReview.IStore": {
         "type": "object",
@@ -592,7 +592,7 @@
           "files"
         ],
         "description": "Store info of the review.",
-        "jsDocTags": []
+        "x-tson_jsDocTags": []
       },
       "ISaleInquiry_lt_ISaleReview.IContent_gt_": {
         "type": "object",
@@ -641,7 +641,7 @@
           "created_at"
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer.",
-        "jsDocTags": [
+        "x-tson_jsDocTags": [
           {
             "name": "template",
             "text": [
@@ -729,7 +729,7 @@
           "files"
         ],
         "description": "Content info of the review.",
-        "jsDocTags": []
+        "x-tson_jsDocTags": []
       }
     }
   }
