@@ -185,18 +185,24 @@ export namespace SwaggerGenerator {
         route: IRoute,
         parameter: IRoute.IParameter,
     ): ISwagger.IParameter {
+        const schema: IJsonSchema | null = generate_schema(
+            checker,
+            collection,
+            tupleList,
+            parameter.type.type,
+        );
+        if (schema === null)
+            throw new Error(
+                `Error on NestiaApplication.sdk(): invalid parameter type on ${route.symbol}#${parameter.name}`,
+            );
+
         return {
             name: parameter.field || parameter.name,
             in: parameter.category === "param" ? "path" : parameter.category,
             description:
                 get_parametric_description(route, "param", parameter.name) ||
                 "",
-            schema: generate_schema(
-                checker,
-                collection,
-                tupleList,
-                parameter.type.type,
-            ),
+            schema,
             required: true,
         };
     }
@@ -208,6 +214,17 @@ export namespace SwaggerGenerator {
         route: IRoute,
         parameter: IRoute.IParameter,
     ): ISwagger.IRequestBody {
+        const schema: IJsonSchema | null = generate_schema(
+            checker,
+            collection,
+            tupleList,
+            parameter.type.type,
+        );
+        if (schema === null)
+            throw new Error(
+                `Error on NestiaApplication.sdk(): invalid request body type on ${route.symbol}.`,
+            );
+
         return {
             description:
                 warning.get(parameter.encrypted).get("request") +
@@ -215,12 +232,7 @@ export namespace SwaggerGenerator {
                     ""),
             content: {
                 "application/json": {
-                    schema: generate_schema(
-                        checker,
-                        collection,
-                        tupleList,
-                        parameter.type.type,
-                    ),
+                    schema,
                 },
             },
             required: true,
@@ -236,7 +248,7 @@ export namespace SwaggerGenerator {
         // OUTPUT WITH SUCCESS STATUS
         const status: string =
             route.method === "GET" || route.method === "DELETE" ? "200" : "201";
-        const schema: IJsonSchema = generate_schema(
+        const schema: IJsonSchema | null = generate_schema(
             checker,
             collection,
             tupleList,
@@ -250,7 +262,7 @@ export namespace SwaggerGenerator {
                         get_parametric_description(route, "returns") ||
                         ""),
                 content:
-                    route.output.name === "void"
+                    schema === null || route.output.name === "void"
                         ? undefined
                         : {
                               "application/json": {
@@ -306,7 +318,7 @@ export namespace SwaggerGenerator {
         collection: MetadataCollection,
         tupleList: Array<ISchemaTuple>,
         type: ts.Type,
-    ) {
+    ): IJsonSchema | null {
         const metadata: Metadata = MetadataFactory.generate(
             checker,
             collection,
@@ -316,6 +328,8 @@ export namespace SwaggerGenerator {
                 constant: true,
             },
         );
+        if (metadata.empty() && metadata.nullable === false) return null;
+
         const schema: IJsonSchema = {} as IJsonSchema;
         tupleList.push({ metadata, schema });
         return schema;

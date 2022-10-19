@@ -444,7 +444,7 @@ Looking at the [simple/swagger.json](https://editor.swagger.io/?url=https%3A%2F%
 Looking at the another file [generic/swagger.json](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia%2Fmaster%2Fdemo%2Fgeneric%2Fswagger.json), you can find that there isn't any problem even when a generic typed DTO and controller come. The last file [union/swagger.json](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia%2Fmaster%2Fdemo%2Funion%2Fswagger.json), there's no problem on the union type, either.
 
   - View in the `Swagger Editor`
-    - [simple/swagger.json](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia%2Fmaster%2Fdemo%2Fsimple%2Fswagger.json)
+    - [simple/swagger.json](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia%2Fmaster%2Fdemo%2Fsafe%2Fswagger.json)
     - [generic/swagger.json](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia%2Fmaster%2Fdemo%2Fgeneric%2Fswagger.json)
     - [union/swagger.json](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia%2Fmaster%2Fdemo%2Funion%2Fswagger.json)
 
