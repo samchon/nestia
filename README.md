@@ -81,7 +81,7 @@ export async function trace_sale_question_and_comment
 npx nestia start <directory>
 ```
 
-Just run the uppder command, then boilerplate project using `nestia` would be installed.
+Just run the upper command, then boilerplate project using `nestia` would be installed.
 
 When the installation has been completed, you can start NestJS backend development directly.  and you also can generate SDK library or Swagger documents by running below command. You can get more information by reading [README](https://github.com/samchon/nestia-template) content of the boilderplate project.
 
