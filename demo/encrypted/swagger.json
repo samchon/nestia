@@ -124,23 +124,28 @@
         "properties": {
           "email": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "x-tson-required": true
           },
           "password": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "x-tson-required": true
           },
           "name": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "x-tson-required": true
           },
           "mobile": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "x-tson-required": true
           },
           "company": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -159,32 +164,38 @@
           "id": {
             "type": "number",
             "nullable": false,
-            "description": "Primary key."
+            "description": "Primary key.",
+            "x-tson-required": true
           },
           "email": {
             "type": "string",
             "nullable": false,
-            "description": "Email address."
+            "description": "Email address.",
+            "x-tson-required": true
           },
           "name": {
             "type": "string",
             "nullable": false,
-            "description": "Name of the seller."
+            "description": "Name of the seller.",
+            "x-tson-required": true
           },
           "mobile": {
             "type": "string",
             "nullable": false,
-            "description": "Mobile number of the seller."
+            "description": "Mobile number of the seller.",
+            "x-tson-required": true
           },
           "company": {
             "type": "string",
             "nullable": false,
-            "description": "Belonged company name."
+            "description": "Belonged company name.",
+            "x-tson-required": true
           },
           "created_at": {
             "type": "string",
             "nullable": false,
-            "description": "Joined time."
+            "description": "Joined time.",
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -214,11 +225,13 @@
         "properties": {
           "email": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "x-tson-required": true
           },
           "password": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -233,11 +246,13 @@
         "properties": {
           "old_password": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "x-tson-required": true
           },
           "new_password": {
             "type": "string",
-            "nullable": false
+            "nullable": false,
+            "x-tson-required": true
           }
         },
         "nullable": false,

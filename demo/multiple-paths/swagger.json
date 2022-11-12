@@ -214,7 +214,8 @@
           "body": {
             "type": "string",
             "nullable": false,
-            "description": "Body of the content."
+            "description": "Body of the content.",
+            "x-tson-required": true
           },
           "extension": {
             "type": "string",
@@ -224,12 +225,14 @@
               "txt"
             ],
             "nullable": false,
-            "description": "Extension, content type (format)."
+            "description": "Extension, content type (format).",
+            "x-tson-required": true
           },
           "annonymous": {
             "type": "boolean",
             "nullable": false,
-            "description": "Whether to hide the writer name or not."
+            "description": "Whether to hide the writer name or not.",
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -247,12 +250,14 @@
           "id": {
             "type": "number",
             "nullable": false,
-            "description": "Primary Key."
+            "description": "Primary Key.",
+            "x-tson-required": true
           },
           "parent_id": {
             "type": "number",
             "nullable": true,
-            "description": "Parent comment ID.\n\nOnly When this comment has been written as a reply."
+            "description": "Parent comment ID.\n\nOnly When this comment has been written as a reply.",
+            "x-tson-required": true
           },
           "writer_type": {
             "type": "string",
@@ -261,26 +266,31 @@
               "consumer"
             ],
             "nullable": false,
-            "description": "Type of the writer."
+            "description": "Type of the writer.",
+            "x-tson-required": true
           },
           "writer_name": {
             "type": "string",
             "nullable": true,
-            "description": "Name of the writer.\n\nWhen this is a type of anonymous comment, writer name would be hidden."
+            "description": "Name of the writer.\n\nWhen this is a type of anonymous comment, writer name would be hidden.",
+            "x-tson-required": true
           },
           "contents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleArticleComment.IContent",
-              "description": "Contents of the comments.\n\nWhen the comment writer tries to modify content, it would not modify the comment\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+              "description": "Contents of the comments.\n\nWhen the comment writer tries to modify content, it would not modify the comment\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
+              "x-tson-required": true
             },
             "nullable": false,
-            "description": "Contents of the comments.\n\nWhen the comment writer tries to modify content, it would not modify the comment\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+            "description": "Contents of the comments.\n\nWhen the comment writer tries to modify content, it would not modify the comment\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
+            "x-tson-required": true
           },
           "created_at": {
             "type": "string",
             "nullable": false,
-            "description": "Creation time."
+            "description": "Creation time.",
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -311,17 +321,20 @@
           "id": {
             "type": "string",
             "nullable": false,
-            "description": "Primary Key."
+            "description": "Primary Key.",
+            "x-tson-required": true
           },
           "body": {
             "type": "string",
             "nullable": false,
-            "description": "Body of the content."
+            "description": "Body of the content.",
+            "x-tson-required": true
           },
           "created_at": {
             "type": "string",
             "nullable": false,
-            "description": "Creation time."
+            "description": "Creation time.",
+            "x-tson-required": true
           }
         },
         "nullable": false,

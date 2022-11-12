@@ -104,25 +104,30 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ICategory",
-              "description": "Children categories."
+              "description": "Children categories.",
+              "x-tson-required": true
             },
             "nullable": false,
-            "description": "Children categories."
+            "description": "Children categories.",
+            "x-tson-required": true
           },
           "id": {
             "type": "number",
             "nullable": false,
-            "description": "Primary Key."
+            "description": "Primary Key.",
+            "x-tson-required": true
           },
           "code": {
             "type": "string",
             "nullable": false,
-            "description": "Identifier code."
+            "description": "Identifier code.",
+            "x-tson-required": true
           },
           "name": {
             "type": "string",
             "nullable": false,
-            "description": "Name of the category."
+            "description": "Name of the category.",
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -150,22 +155,26 @@
         "properties": {
           "parent": {
             "$ref": "#/components/schemas/ICategory.IInvert.Nullable",
-            "description": "Parent information."
+            "description": "Parent information.",
+            "x-tson-required": true
           },
           "id": {
             "type": "number",
             "nullable": false,
-            "description": "Primary Key."
+            "description": "Primary Key.",
+            "x-tson-required": true
           },
           "code": {
             "type": "string",
             "nullable": false,
-            "description": "Identifier code."
+            "description": "Identifier code.",
+            "x-tson-required": true
           },
           "name": {
             "type": "string",
             "nullable": false,
-            "description": "Name of the category."
+            "description": "Name of the category.",
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -183,22 +192,26 @@
         "properties": {
           "parent": {
             "$ref": "#/components/schemas/ICategory.IInvert.Nullable",
-            "description": "Parent information."
+            "description": "Parent information.",
+            "x-tson-required": true
           },
           "id": {
             "type": "number",
             "nullable": false,
-            "description": "Primary Key."
+            "description": "Primary Key.",
+            "x-tson-required": true
           },
           "code": {
             "type": "string",
             "nullable": false,
-            "description": "Identifier code."
+            "description": "Identifier code.",
+            "x-tson-required": true
           },
           "name": {
             "type": "string",
             "nullable": false,
-            "description": "Name of the category."
+            "description": "Name of the category.",
+            "x-tson-required": true
           }
         },
         "nullable": true,
