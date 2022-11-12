@@ -30,8 +30,7 @@ export namespace ImportAnalyzer {
         TYPE
     --------------------------------------------------------- */
     function get_type(checker: ts.TypeChecker, type: ts.Type): ts.Type {
-        const symbol: ts.Symbol | undefined =
-            type.getSymbol() || type.aliasSymbol;
+        const symbol: ts.Symbol | undefined = type.getSymbol();
         return symbol && get_name(symbol) === "Promise"
             ? escape_promise(checker, type)
             : type;
@@ -72,7 +71,7 @@ export namespace ImportAnalyzer {
 
         // PRIMITIVE
         const symbol: ts.Symbol | undefined =
-            type.getSymbol() || type.aliasSymbol;
+            type.aliasSymbol || type.getSymbol();
         if (symbol === undefined)
             return checker.typeToString(type, undefined, undefined);
         // UNION OR INTERSECT
@@ -109,9 +108,9 @@ export namespace ImportAnalyzer {
         }
 
         // CHECK GENERIC
-        const generic: readonly ts.Type[] = checker.getTypeArguments(
-            type as ts.TypeReference,
-        );
+        const generic: readonly ts.Type[] = type.aliasSymbol
+            ? type.aliasTypeArguments || []
+            : checker.getTypeArguments(type as ts.TypeReference);
         return generic.length
             ? name === "Promise"
                 ? explore_escaped_name(

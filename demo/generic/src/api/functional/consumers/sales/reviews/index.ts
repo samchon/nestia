@@ -9,7 +9,6 @@ import type { IConnection } from "nestia-fetcher";
 import TSON from "typescript-json";
 
 import type { ISaleReview } from "./../../../../structures/ISaleReview";
-import type { ISaleInquiry } from "./../../../../structures/ISaleInquiry";
 
 /**
  * Store a new inquiry.
@@ -54,7 +53,7 @@ export function store
 export namespace store
 {
     export type Input = Primitive<ISaleReview.IStore>;
-    export type Output = Primitive<ISaleInquiry<ISaleReview.IContent>>;
+    export type Output = Primitive<ISaleReview>;
 
     export const METHOD = "POST" as const;
     export const PATH: string = "/consumers/:section/sales/:saleId/reviews";
@@ -119,7 +118,7 @@ export function update
 export namespace update
 {
     export type Input = Primitive<ISaleReview.IStore>;
-    export type Output = Primitive<ISaleInquiry<ISaleReview.IContent>>;
+    export type Output = Primitive<ISaleReview>;
 
     export const METHOD = "PUT" as const;
     export const PATH: string = "/consumers/:section/sales/:saleId/reviews/:id";

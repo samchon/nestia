@@ -53,7 +53,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleArticle.IContent_gt_"
+                  "$ref": "#/components/schemas/ISaleQuestion"
                 }
               }
             }
@@ -120,7 +120,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleArticle.IContent_gt_"
+                  "$ref": "#/components/schemas/ISaleQuestion"
                 }
               }
             }
@@ -180,7 +180,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleReview.IContent_gt_"
+                  "$ref": "#/components/schemas/ISaleReview"
                 }
               }
             }
@@ -247,7 +247,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ISaleInquiry_lt_ISaleReview.IContent_gt_"
+                  "$ref": "#/components/schemas/ISaleReview"
                 }
               }
             }
@@ -274,12 +274,14 @@
           "title": {
             "type": "string",
             "nullable": false,
-            "description": "Title of the content."
+            "description": "Title of the content.",
+            "x-tson-required": true
           },
           "body": {
             "type": "string",
             "nullable": false,
-            "description": "Body of the content."
+            "description": "Body of the content.",
+            "x-tson-required": true
           },
           "extension": {
             "type": "string",
@@ -289,16 +291,19 @@
               "txt"
             ],
             "nullable": false,
-            "description": "Extension, content type (format)."
+            "description": "Extension, content type (format).",
+            "x-tson-required": true
           },
           "files": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IAttachmentFile",
-              "description": "Attached files."
+              "description": "Attached files.",
+              "x-tson-required": true
             },
             "nullable": false,
-            "description": "Attached files."
+            "description": "Attached files.",
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -317,17 +322,20 @@
           "name": {
             "type": "string",
             "nullable": false,
-            "description": "Name of the file."
+            "description": "Name of the file.",
+            "x-tson-required": true
           },
           "extension": {
             "type": "string",
             "nullable": true,
-            "description": "Extension of the file, but ommitable."
+            "description": "Extension of the file, but ommitable.",
+            "x-tson-required": true
           },
           "url": {
             "type": "string",
             "nullable": false,
-            "description": "Full URL path of the file."
+            "description": "Full URL path of the file.",
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -349,41 +357,48 @@
           }
         ]
       },
-      "ISaleInquiry_lt_ISaleArticle.IContent_gt_": {
+      "ISaleQuestion": {
         "type": "object",
         "properties": {
           "writer": {
             "type": "string",
             "nullable": false,
-            "description": "Name of the writer."
+            "description": "Name of the writer.",
+            "x-tson-required": true
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable",
-            "description": "Formal answer from the seller."
+            "$ref": "#/components/schemas/ISaleInquiryAnswer.Nullable",
+            "description": "Formal answer from the seller.",
+            "x-tson-required": true
           },
           "id": {
             "type": "number",
             "nullable": false,
-            "description": "Primary Key."
+            "description": "Primary Key.",
+            "x-tson-required": true
           },
           "hit": {
             "type": "number",
             "nullable": false,
-            "description": "Hit count.\n\nHow many consumers had read."
+            "description": "Hit count.\n\nHow many consumers had read.",
+            "x-tson-required": true
           },
           "contents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleArticle.IContent",
-              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
+              "x-tson-required": true
             },
             "nullable": false,
-            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
+            "x-tson-required": true
           },
           "created_at": {
             "type": "string",
             "nullable": false,
-            "description": "Creation time."
+            "description": "Creation time.",
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -425,32 +440,37 @@
           }
         ]
       },
-      "ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable": {
+      "ISaleInquiryAnswer.Nullable": {
         "type": "object",
         "properties": {
           "id": {
             "type": "number",
             "nullable": false,
-            "description": "Primary Key."
+            "description": "Primary Key.",
+            "x-tson-required": true
           },
           "hit": {
             "type": "number",
             "nullable": false,
-            "description": "Hit count.\n\nHow many consumers had read."
+            "description": "Hit count.\n\nHow many consumers had read.",
+            "x-tson-required": true
           },
           "contents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleArticle.IContent",
-              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
+              "x-tson-required": true
             },
             "nullable": false,
-            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
+            "x-tson-required": true
           },
           "created_at": {
             "type": "string",
             "nullable": false,
-            "description": "Creation time."
+            "description": "Creation time.",
+            "x-tson-required": true
           }
         },
         "nullable": true,
@@ -496,22 +516,26 @@
           "id": {
             "type": "string",
             "nullable": false,
-            "description": "Primary Key"
+            "description": "Primary Key",
+            "x-tson-required": true
           },
           "created_at": {
             "type": "string",
             "nullable": false,
-            "description": "Creation time."
+            "description": "Creation time.",
+            "x-tson-required": true
           },
           "title": {
             "type": "string",
             "nullable": false,
-            "description": "Title of the content."
+            "description": "Title of the content.",
+            "x-tson-required": true
           },
           "body": {
             "type": "string",
             "nullable": false,
-            "description": "Body of the content."
+            "description": "Body of the content.",
+            "x-tson-required": true
           },
           "extension": {
             "type": "string",
@@ -521,16 +545,19 @@
               "txt"
             ],
             "nullable": false,
-            "description": "Extension, content type (format)."
+            "description": "Extension, content type (format).",
+            "x-tson-required": true
           },
           "files": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IAttachmentFile",
-              "description": "Attached files."
+              "description": "Attached files.",
+              "x-tson-required": true
             },
             "nullable": false,
-            "description": "Attached files."
+            "description": "Attached files.",
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -551,17 +578,20 @@
           "score": {
             "type": "number",
             "nullable": false,
-            "description": "Estimation score."
+            "description": "Estimation score.",
+            "x-tson-required": true
           },
           "title": {
             "type": "string",
             "nullable": false,
-            "description": "Title of the content."
+            "description": "Title of the content.",
+            "x-tson-required": true
           },
           "body": {
             "type": "string",
             "nullable": false,
-            "description": "Body of the content."
+            "description": "Body of the content.",
+            "x-tson-required": true
           },
           "extension": {
             "type": "string",
@@ -571,16 +601,19 @@
               "txt"
             ],
             "nullable": false,
-            "description": "Extension, content type (format)."
+            "description": "Extension, content type (format).",
+            "x-tson-required": true
           },
           "files": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IAttachmentFile",
-              "description": "Attached files."
+              "description": "Attached files.",
+              "x-tson-required": true
             },
             "nullable": false,
-            "description": "Attached files."
+            "description": "Attached files.",
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -594,41 +627,48 @@
         "description": "Store info of the review.",
         "x-tson_jsDocTags": []
       },
-      "ISaleInquiry_lt_ISaleReview.IContent_gt_": {
+      "ISaleReview": {
         "type": "object",
         "properties": {
           "writer": {
             "type": "string",
             "nullable": false,
-            "description": "Name of the writer."
+            "description": "Name of the writer.",
+            "x-tson-required": true
           },
           "answer": {
-            "$ref": "#/components/schemas/ISaleArticle_lt_ISaleArticle.IContent_gt_.Nullable",
-            "description": "Formal answer from the seller."
+            "$ref": "#/components/schemas/ISaleInquiryAnswer.Nullable",
+            "description": "Formal answer from the seller.",
+            "x-tson-required": true
           },
           "id": {
             "type": "number",
             "nullable": false,
-            "description": "Primary Key."
+            "description": "Primary Key.",
+            "x-tson-required": true
           },
           "hit": {
             "type": "number",
             "nullable": false,
-            "description": "Hit count.\n\nHow many consumers had read."
+            "description": "Hit count.\n\nHow many consumers had read.",
+            "x-tson-required": true
           },
           "contents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ISaleReview.IContent",
-              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+              "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
+              "x-tson-required": true
             },
             "nullable": false,
-            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed."
+            "description": "List of contents.\n\nWhen the article writer tries to modify content, it would not modify the article\ncontent but would be accumulated. Therefore, all of the people can read how\nthe content has been changed.",
+            "x-tson-required": true
           },
           "created_at": {
             "type": "string",
             "nullable": false,
-            "description": "Creation time."
+            "description": "Creation time.",
+            "x-tson-required": true
           }
         },
         "nullable": false,
@@ -676,27 +716,32 @@
           "score": {
             "type": "number",
             "nullable": false,
-            "description": "Estimation score."
+            "description": "Estimation score.",
+            "x-tson-required": true
           },
           "id": {
             "type": "string",
             "nullable": false,
-            "description": "Primary Key"
+            "description": "Primary Key",
+            "x-tson-required": true
           },
           "created_at": {
             "type": "string",
             "nullable": false,
-            "description": "Creation time."
+            "description": "Creation time.",
+            "x-tson-required": true
           },
           "title": {
             "type": "string",
             "nullable": false,
-            "description": "Title of the content."
+            "description": "Title of the content.",
+            "x-tson-required": true
           },
           "body": {
             "type": "string",
             "nullable": false,
-            "description": "Body of the content."
+            "description": "Body of the content.",
+            "x-tson-required": true
           },
           "extension": {
             "type": "string",
@@ -706,16 +751,19 @@
               "txt"
             ],
             "nullable": false,
-            "description": "Extension, content type (format)."
+            "description": "Extension, content type (format).",
+            "x-tson-required": true
           },
           "files": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IAttachmentFile",
-              "description": "Attached files."
+              "description": "Attached files.",
+              "x-tson-required": true
             },
             "nullable": false,
-            "description": "Attached files."
+            "description": "Attached files.",
+            "x-tson-required": true
           }
         },
         "nullable": false,
