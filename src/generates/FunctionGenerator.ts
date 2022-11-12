@@ -49,7 +49,7 @@ export namespace FunctionGenerator {
                 ? route.parameters
                       .map(
                           (param) =>
-                              `    TSON.assertType<typeof ${param.name}>(${param.name});`,
+                              `    TSON.assert<typeof ${param.name}>(${param.name});`,
                       )
                       .join("\n") + "\n\n"
                 : "";

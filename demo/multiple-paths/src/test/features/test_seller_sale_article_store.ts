@@ -17,5 +17,5 @@ export async function test_consumer_seller_article_comment_store(
                 annonymous: false,
             },
         );
-    TSON.assertType(comment);
+    TSON.assert(comment);
 }

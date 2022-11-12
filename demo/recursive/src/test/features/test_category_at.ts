@@ -7,5 +7,5 @@ export async function test_category_at(
 ): Promise<void> {
     const category: ICategory =
         await api.functional.consumers.systematic.categories.at(connection, 0);
-    TSON.assertType(category);
+    TSON.assert(category);
 }

@@ -661,7 +661,7 @@ export class BbsArticlesController {
     // `TSON.stringify()` for `IBbsArticle` 
     // Boost up JSON conversion speed about 5x times faster 
     //----
-    // `TSON.assertType()` for `IBbsArticle.IStore`
+    // `TSON.assert()` for `IBbsArticle.IStore`
     // If client request body is not following type type, 
     // `BadRequestException` (status code: 400) would be thrown
     //----
@@ -689,13 +689,13 @@ import TSON from "typescript-json";
 // RUNTIME VALIDATORS
 //----
 // ALLOW SUPERFLUOUS PROPERTIES
-TSON.assertType<T>(input); // throws exception
+TSON.assert<T>(input); // throws exception
 TSON.is<T>(input); // returns boolean value
 TSON.validate<T>(input); // archives all errors
 
 // DO NOT ALLOW SUPERFLUOUS PROPERTIES
 TSON.equals<T>(input); // returns boolean value
-TSON.assertEquals<T>(input); // throws exception
+TSON.assert<T>(input); // throws exception
 TSON.validateEquals<T>(input); // archives all errors
 
 //----
@@ -709,9 +709,9 @@ TSON.create<T>(input); // 2x faster object creator (only one-time construction)
 `typescript-json` is a transformer library providing JSON related functions.
 
   - Powerful Runtime type checkers:
-    - Performed by only one line, `TSON.assertType<T>(input)`
+    - Performed by only one line, `TSON.assert<T>(input)`
     - Only one library which can validate union type
-    - Maximum 1,000x faster than other libraries
+    - Maximum 9,000x faster than other libraries
   - 5x faster `JSON.stringify()` function:
     - Performed by only one line: `TSON.stringify<T>(input)`
     - Only one library which can stringify union type
@@ -719,6 +719,4 @@ TSON.create<T>(input); // 2x faster object creator (only one-time construction)
 
 [typescript-json](https://github.com/samchon/typescript-json) analyzes TypeScript source code and generates optimized validators and JSON string converters in the compilation level. It is the reason why `nestia` can generate SDK library is by analyzing NestJS code and how [nestia-helper](https://github.com/samchon/nestia-helper) validates request body data automatically.
 
-Also, its performance enhancement is much greater than other libraries. For example, validator function `TSON.is<T>(input: T): boolean` is maximum 1,000x times faster than other validator libraries.
-
-![Is Function Benchmark](https://user-images.githubusercontent.com/13158709/194713658-62fb0716-c24e-41f9-be0d-01edeabb1dd6.png)
+Also, its performance enhancement is much greater than other libraries. For example, validator function `TSON.is<T>(input: T): boolean` is maximum 9,000x times faster than other validator libraries.

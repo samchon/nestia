@@ -7,5 +7,5 @@ export async function test_category_top(
 ): Promise<void> {
     const categories: ICategory[] =
         await api.functional.consumers.systematic.categories.top(connection);
-    TSON.assertType(categories);
+    TSON.assert(categories);
 }

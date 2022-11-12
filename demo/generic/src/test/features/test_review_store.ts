@@ -18,5 +18,5 @@ export async function test_review_store(
                 score: 100,
             },
         );
-    TSON.assertType(question);
+    TSON.assert(question);
 }

@@ -11,7 +11,7 @@ export class ConsumerSaleReviewsController extends SaleInquiriesController<
     ISaleReview.IStore,
     ISaleReview
 >({
-    assert: (input) => TSON.assertType(input),
+    assert: (input) => TSON.assert(input),
     stringify: (input) => TSON.stringify(input),
     convert: (input) => ({
         id: 0,

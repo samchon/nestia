@@ -15,5 +15,5 @@ export async function test_seller_join(
             password: "qweqwe123!",
         },
     );
-    TSON.assertType(seller);
+    TSON.assert(seller);
 }

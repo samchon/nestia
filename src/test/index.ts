@@ -45,6 +45,7 @@ async function main(): Promise<void> {
         console.log(
             "---------------------------------------------------------",
         );
+        await execute("176", job, get_arguments("directory", job));
         await execute("encrypted", job, get_arguments("directory", job));
         await execute("safe", job, get_arguments("directory", job));
         await execute("generic", job, get_arguments("directory", job));

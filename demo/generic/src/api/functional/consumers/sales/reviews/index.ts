@@ -36,9 +36,9 @@ export function store
         input: Primitive<store.Input>
     ): Promise<store.Output>
 {
-    TSON.assertType<typeof section>(section);
-    TSON.assertType<typeof saleId>(saleId);
-    TSON.assertType<typeof input>(input);
+    TSON.assert<typeof section>(section);
+    TSON.assert<typeof saleId>(saleId);
+    TSON.assert<typeof input>(input);
 
     return Fetcher.fetch
     (
@@ -100,10 +100,10 @@ export function update
         input: Primitive<update.Input>
     ): Promise<update.Output>
 {
-    TSON.assertType<typeof section>(section);
-    TSON.assertType<typeof saleId>(saleId);
-    TSON.assertType<typeof id>(id);
-    TSON.assertType<typeof input>(input);
+    TSON.assert<typeof section>(section);
+    TSON.assert<typeof saleId>(saleId);
+    TSON.assert<typeof id>(id);
+    TSON.assert<typeof input>(input);
 
     return Fetcher.fetch
     (
