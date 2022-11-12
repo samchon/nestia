@@ -19,5 +19,5 @@ export async function test_comment_store(
                 annonymous: true,
             },
         );
-    TSON.assertType(comment);
+    TSON.assert(comment);
 }

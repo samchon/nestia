@@ -12,7 +12,7 @@ export async function test_seller_password_change(
             password: "qweqwe123!",
         },
     );
-    TSON.assertType(seller);
+    TSON.assert(seller);
 
     await api.functional.sellers.authenticate.exit(connection);
 }

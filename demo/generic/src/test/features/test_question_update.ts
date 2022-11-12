@@ -17,7 +17,7 @@ export async function test_question_update(
                 extension: "html",
             },
         );
-    TSON.assertType(question);
+    TSON.assert(question);
 
     const updated: ISaleQuestion =
         await api.functional.consumers.sales.questions.update(
@@ -38,5 +38,5 @@ export async function test_question_update(
                 extension: "html",
             },
         );
-    TSON.assertType(updated);
+    TSON.assert(updated);
 }

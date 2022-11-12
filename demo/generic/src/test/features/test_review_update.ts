@@ -18,7 +18,7 @@ export async function test_review_update(
                 score: 100,
             },
         );
-    TSON.assertType(question);
+    TSON.assert(question);
 
     const updated: ISaleReview =
         await api.functional.consumers.sales.reviews.update(
@@ -40,5 +40,5 @@ export async function test_review_update(
                 score: 90,
             },
         );
-    TSON.assertType(updated);
+    TSON.assert(updated);
 }

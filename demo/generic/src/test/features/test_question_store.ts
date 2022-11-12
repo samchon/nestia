@@ -17,5 +17,5 @@ export async function test_question_store(
                 extension: "html",
             },
         );
-    TSON.assertType(question);
+    TSON.assert(question);
 }

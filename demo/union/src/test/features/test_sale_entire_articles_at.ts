@@ -12,5 +12,5 @@ export async function test_sale_entire_articles_at(
             0,
             0,
         );
-    TSON.assertType(article);
+    TSON.assert(article);
 }

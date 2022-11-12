@@ -23,5 +23,5 @@ export async function test_sale_entire_articles_index(
                 page: 3,
             },
         );
-    TSON.assertType(page);
+    TSON.assert(page);
 }

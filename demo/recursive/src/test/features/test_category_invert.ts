@@ -10,5 +10,5 @@ export async function test_category_invert(
             connection,
             0,
         );
-    TSON.assertType(category);
+    TSON.assert(category);
 }

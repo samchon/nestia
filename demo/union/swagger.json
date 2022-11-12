@@ -82,7 +82,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPage_lt_ISummary_gt_"
+                  "$ref": "#/components/schemas/IPage_lt_ISaleEntireArtcle.ISummary_gt_"
                 }
               }
             }
@@ -370,7 +370,7 @@
         "description": "Page request info.",
         "x-tson_jsDocTags": []
       },
-      "IPage_lt_ISummary_gt_": {
+      "IPage_lt_ISaleEntireArtcle.ISummary_gt_": {
         "type": "object",
         "properties": {
           "pagination": {
