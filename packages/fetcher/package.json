@@ -1,0 +1,48 @@
+{
+  "name": "@nestia/fetcher",
+  "version": "0.1.0",
+  "description": "Fetcher library of Nestia SDK",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "build": "rimraf lib && tsc",
+    "dev": "npm run build -- --watch",
+    "eslint": "eslint src",
+    "eslint:fix": "eslint src --fix",
+    "prettier": "prettier src --write"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/nestia"
+  },
+  "keywords": [
+    "nestia",
+    "fetcher",
+    "sdk"
+  ],
+  "author": "Jeongho Nam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samchon/nestia/issues"
+  },
+  "homepage": "https://github.com/samchon/nestia/packages/fetcher",
+  "devDependencies": {
+    "@types/node": "^18.11.14",
+    "@typescript-eslint/eslint-plugin": "^5.46.1",
+    "@typescript-eslint/parser": "^5.46.1",
+    "prettier": "^2.8.1",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "import2": "^1.0.3",
+    "node-fetch": "^3.3.0"
+  },
+  "files": [
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "lib",
+    "src"
+  ]
+}
