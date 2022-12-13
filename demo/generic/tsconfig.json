@@ -1,9 +1,0 @@
-{
-  "extends": "../tsconfig.base.json",
-  "compilerOptions": {
-    "paths": {
-      "@api": ["./src/api"],
-      "@api/*": ["./src/api/*"]
-    }
-  }
-}
