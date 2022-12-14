@@ -1,6 +1,9 @@
 import path from "path";
 import ts from "typescript";
 import { AssertProgrammer } from "typia/lib/programmers/AssertProgrammer";
+import { IsProgrammer } from "typia/lib/programmers/IsProgrammer";
+import { ValidateProgrammer } from "typia/lib/programmers/ValidateProgrammer";
+import { IProject } from "typia/lib/transformers/IProject";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
 
@@ -12,11 +15,11 @@ export namespace BodyTransformer {
     ): ts.Decorator {
         if (!ts.isCallExpression(decorator.expression)) return decorator;
         return ts.factory.createDecorator(
-            assert(project, type, decorator.expression),
+            validate(project, type, decorator.expression),
         );
     }
 
-    function assert(
+    function validate(
         project: INestiaTransformProject,
         type: ts.Type,
         expression: ts.CallExpression,
@@ -51,18 +54,38 @@ export namespace BodyTransformer {
         //----
         // TRANSFORMATION
         //----
-        // GENERATE ASSERT PLAN
-        const arrow: ts.ArrowFunction = AssertProgrammer.generate(
-            project,
-            expression.expression,
-        )(type);
+        // GENERATE VALIDATION PLAN
+        const parameter = (
+            key: string,
+            programmer: (
+                project: IProject,
+                modulo: ts.LeftHandSideExpression,
+            ) => (type: ts.Type) => ts.ArrowFunction,
+        ) =>
+            ts.factory.createObjectLiteralExpression([
+                ts.factory.createPropertyAssignment(
+                    ts.factory.createIdentifier("type"),
+                    ts.factory.createStringLiteral(key),
+                ),
+                ts.factory.createPropertyAssignment(
+                    ts.factory.createIdentifier(key),
+                    programmer(project, expression.expression)(type),
+                ),
+            ]);
+        const validator: ts.ObjectLiteralExpression = (() => {
+            if (project.options.validate === "is")
+                return parameter("is", IsProgrammer.generate);
+            else if (project.options.validate === "validate")
+                return parameter("validate", ValidateProgrammer.generate);
+            return parameter("assert", AssertProgrammer.generate);
+        })();
 
         // UPDATE DECORATOR FUNCTION CALL
         return ts.factory.updateCallExpression(
             expression,
             expression.expression,
             expression.typeArguments,
-            [arrow],
+            [validator],
         );
     }
 
