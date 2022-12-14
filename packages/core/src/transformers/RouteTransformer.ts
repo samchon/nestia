@@ -47,11 +47,11 @@ export namespace RouteTransformer {
 
             // CHECK DUPLICATE BOOSTER
             if (expression.arguments.length >= 2) return false;
-            else if (expression.arguments.length !== 0) {
+            else if (expression.arguments.length === 1) {
                 const last: ts.Expression =
                     expression.arguments[expression.arguments.length - 1];
                 const type: ts.Type = project.checker.getTypeAtLocation(last);
-                if (isObject(project.checker, type) === false) return false;
+                if (isObject(project.checker, type)) return false;
             }
             return true;
         })();

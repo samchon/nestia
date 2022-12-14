@@ -9,8 +9,17 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
+
       - name: fetcher
         working-directory: ./packages/fetcher
         run: |
           npm install
           npm run build
+
+      - name: core
+        working-directory: ./packages/core
+        run: |
+          npm install
+          npm run build
+          npm run build:test
+          npm run test

@@ -6,10 +6,12 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "build": "rimraf lib && tsc",
+    "build:test": "rimraf bin && ttsc -p test/tsconfig.json",
     "dev": "npm run build -- --watch",
     "eslint": "eslint ./**/*.ts",
     "eslint:fix": "eslint ./**/*.ts --fix",
-    "prettier": "prettier ./**/*.ts --write"
+    "prettier": "prettier ./**/*.ts --write",
+    "test": "node bin/test"
   },
   "repository": {
     "type": "git",
@@ -36,8 +38,10 @@
     "@typescript-eslint/eslint-plugin": "^5.46.1",
     "@typescript-eslint/parser": "^5.46.1",
     "eslint-plugin-deprecation": "^1.3.3",
+    "git-last-commit": "^1.0.1",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
+    "tstl": "^2.5.13",
     "ttypescript": "^1.5.15",
     "typescript": "^4.9.4"
   },
