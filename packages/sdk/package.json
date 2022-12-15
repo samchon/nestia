@@ -1,0 +1,66 @@
+{
+  "name": "@nestia/sdk",
+  "version": "0.1.0",
+  "description": "Nestia SDK and Swagger generator",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "node test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/nestia"
+  },
+  "keywords": [
+    "nestia",
+    "sdk",
+    "swagger",
+    "generator",
+    "nestjs",
+    "typia"
+  ],
+  "author": "Jeongho Nam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samchon/nestia/issues"
+  },
+  "homepage": "https://github.com/samchon/nestia",
+  "devDependencies": {
+    "@nestia/core": "^0.1.5",
+    "@nestia/fetcher": "^0.1.0",
+    "@trivago/prettier-plugin-sort-imports": "^4.0.0",
+    "@types/cli": "^0.11.21",
+    "@types/express": "^4.17.15",
+    "@types/glob": "^8.0.0",
+    "@types/node": "^18.11.15",
+    "@types/reflect-metadata": "^0.1.0",
+    "@types/uuid": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.46.1",
+    "@typescript-eslint/parser": "^5.46.1",
+    "eslint": "^8.29.0",
+    "prettier": "^2.8.1",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "ttypescript": "^1.5.15",
+    "typescript": "^4.9.4",
+    "typescript-transform-paths": "^3.4.4",
+    "uuid": "^9.0.0"
+  },
+  "dependencies": {
+    "cli": "^1.0.1",
+    "del": "^7.0.0",
+    "glob": "^8.0.3",
+    "path-to-regexp": "^6.2.1",
+    "tgrid": "^0.8.7",
+    "tsconfck": "^2.0.1",
+    "tsconfig-paths": "^4.1.1",
+    "tstl": "^2.5.13",
+    "typia": "^3.4.7"
+  },
+  "files": [
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "lib",
+    "src"
+  ]
+}
