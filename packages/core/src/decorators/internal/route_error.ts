@@ -4,9 +4,6 @@ import { Observable, throwError } from "rxjs";
 
 import { ExceptionManager } from "../../utils/ExceptionManager";
 
-/**
- * @internal
- */
 export function route_error(
     request: express.Request,
     error: any,

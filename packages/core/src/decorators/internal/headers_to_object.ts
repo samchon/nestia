@@ -1,8 +1,5 @@
 import http from "http";
 
-/**
- * @internal
- */
 export function headers_to_object(
     headers: http.IncomingHttpHeaders,
 ): Record<string, string> {
