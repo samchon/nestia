@@ -21,6 +21,7 @@ import {
     validateStringify,
 } from "typia";
 
+import { IResponseBodyStringifier } from "../options/IResponseBodyStringifier";
 import { Singleton } from "../utils/Singleton";
 import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
 import { get_path_and_stringify } from "./internal/get_path_and_stringify";
@@ -91,10 +92,12 @@ export namespace EncryptedRoute {
 
     function Generator(method: "Get" | "Post" | "Put" | "Patch" | "Delete") {
         function route(path?: string | string[]): MethodDecorator;
-        function route(stringify?: (input: any) => string): MethodDecorator;
-        function route(
+        function route<T>(
+            stringify?: IResponseBodyStringifier<T>,
+        ): MethodDecorator;
+        function route<T>(
             path: string | string[],
-            stringify: (input: any) => string,
+            stringify?: IResponseBodyStringifier<T>,
         ): MethodDecorator;
 
         function route(...args: any[]): MethodDecorator {

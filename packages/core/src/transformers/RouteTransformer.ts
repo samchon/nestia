@@ -34,7 +34,7 @@ export namespace RouteTransformer {
         if (!signature || !signature.declaration) return expression;
 
         // CHECK TO BE TRANSFORMED
-        const validate: boolean = (() => {
+        const done: boolean = (() => {
             // CHECK FILENAME
             const location: string = path.resolve(
                 signature.declaration.getSourceFile().fileName,
@@ -55,7 +55,7 @@ export namespace RouteTransformer {
             }
             return true;
         })();
-        if (validate === false) return expression;
+        if (done === false) return expression;
 
         // CHECK TYPE NODE
         const typeNode: ts.TypeNode | undefined =
@@ -86,10 +86,7 @@ export namespace RouteTransformer {
         const stringify: ts.ObjectLiteralExpression = (() => {
             if (project.options.stringify === "stringify")
                 return parameter("stringify", StringifyProgrammer.generate);
-            else if (
-                project.options.stringify === undefined ||
-                project.options.stringify === "assert"
-            )
+            else if (project.options.stringify === "assert")
                 return parameter("assert", AssertStringifyProgrammer.generate);
             else if (project.options.stringify === "validate")
                 return parameter(
