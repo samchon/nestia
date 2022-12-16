@@ -1,10 +1,9 @@
 import { equal } from "tstl/ranges/module";
 
-import { ArrayUtil } from "../utils/ArrayUtil";
-import { PathAnalyzer } from "./PathAnalyzer";
-
 import { IController } from "../structures/IController";
 import { ParamCategory } from "../structures/ParamCategory";
+import { ArrayUtil } from "../utils/ArrayUtil";
+import { PathAnalyzer } from "./PathAnalyzer";
 
 type IModule = {
     [key: string]: any;

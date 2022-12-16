@@ -1,5 +1,4 @@
 import path from "path";
-
 import { HashMap } from "tstl/container/HashMap";
 import { HashSet } from "tstl/container/HashSet";
 import { Pair } from "tstl/utility/Pair";

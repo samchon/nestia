@@ -1,4 +1,4 @@
-import { IJsonComponents, IJsonSchema } from "typescript-json";
+import { IJsonComponents, IJsonSchema } from "typia";
 
 export interface ISwagger {
     openapi: "3.0";

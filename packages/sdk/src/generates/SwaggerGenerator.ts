@@ -1,26 +1,24 @@
 import fs from "fs";
-import ts from "typescript";
 import NodePath from "path";
 import { Singleton } from "tstl/thread/Singleton";
 import { VariadicSingleton } from "tstl/thread/VariadicSingleton";
-import { IJsonApplication, IJsonSchema } from "typescript-json";
-import { Metadata } from "typescript-json/lib/metadata/Metadata";
+import ts from "typescript";
+import { IJsonApplication, IJsonSchema } from "typia";
+import { CommentFactory } from "typia/lib/factories/CommentFactory";
+import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
+import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
+import { Metadata } from "typia/lib/metadata/Metadata";
+import { ApplicationProgrammer } from "typia/lib/programmers/ApplicationProgrammer";
 
-import { CommentFactory } from "typescript-json/lib/factories/CommentFactory";
-import { ApplicationProgrammer } from "typescript-json/lib/programmers/ApplicationProgrammer";
-import { MetadataCollection } from "typescript-json/lib/factories/MetadataCollection";
-import { MetadataFactory } from "typescript-json/lib/factories/MetadataFactory";
-
-import { IConfiguration } from "../IConfiguration";
+import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
 import { ISwagger } from "../structures/ISwagger";
-
 import { MapUtil } from "../utils/MapUtil";
 
 export namespace SwaggerGenerator {
     export async function generate(
         checker: ts.TypeChecker,
-        config: IConfiguration.ISwagger,
+        config: INestiaConfig.ISwagger,
         routeList: IRoute[],
     ): Promise<void> {
         // PREPARE ASSETS
@@ -370,10 +368,10 @@ const warning = new VariadicSingleton((encrypted: boolean) => {
 
             const component =
                 type === "request"
-                    ? "[EncryptedBody](https://github.com/samchon/nestia-helper#encryptedbody)"
+                    ? "[EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody)"
                     : `[EncryptedRoute.${method![0].toUpperCase()}.${method!
                           .substring(1)
-                          .toLowerCase()}](https://github.com/samchon/nestia-helper#encryptedroute)`;
+                          .toLowerCase()}](https://github.com/samchon/@nestia/core#encryptedroute)`;
 
             return `## Warning
 ${summary}

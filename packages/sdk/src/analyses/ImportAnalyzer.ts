@@ -1,9 +1,9 @@
-import ts from "typescript";
 import { HashMap } from "tstl/container/HashMap";
 import { HashSet } from "tstl/container/HashSet";
+import ts from "typescript";
 
-import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ITypeTuple } from "../structures/ITypeTuple";
+import { GenericAnalyzer } from "./GenericAnalyzer";
 
 export namespace ImportAnalyzer {
     export interface IOutput {

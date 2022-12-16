@@ -1,10 +1,9 @@
-import ts from "typescript";
 import { HashMap } from "tstl/container/HashMap";
+import ts from "typescript";
 
 import { IController } from "../structures/IController";
 import { IRoute } from "../structures/IRoute";
 import { ITypeTuple } from "../structures/ITypeTuple";
-
 import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";

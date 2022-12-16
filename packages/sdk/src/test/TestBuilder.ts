@@ -1,7 +1,7 @@
 import cp from "child_process";
 import fs from "fs";
 
-import { NestiaCommand } from "../executable/internal/NestiaCommand";
+import { NestiaSdkCommand } from "../executable/internal/NestiaSdkCommand";
 
 export namespace TestBuilder {
     export async function generate(
@@ -12,15 +12,16 @@ export namespace TestBuilder {
         const task =
             job === "sdk"
                 ? {
-                      generate: NestiaCommand.sdk,
+                      generate: NestiaSdkCommand.sdk,
                       file: "src/api/functional/index.ts",
                   }
                 : {
-                      generate: NestiaCommand.swagger,
+                      generate: NestiaSdkCommand.swagger,
                       file: "swagger.json",
                   };
 
         process.chdir(`${PATH}/../../demo/${name}`);
+        if (fs.existsSync(task.file)) await fs.promises.unlink(task.file);
 
         try {
             await task.generate(argv, false);
@@ -38,7 +39,9 @@ export namespace TestBuilder {
         process.chdir(`${PATH}/../../demo/${name}`);
 
         try {
-            cp.execSync("npx ts-node -C ttypescript src/test");
+            cp.execSync("npx ts-node -C ttypescript src/test", {
+                stdio: "inherit",
+            });
         } catch (exp) {
             console.log(exp);
             throw exp;

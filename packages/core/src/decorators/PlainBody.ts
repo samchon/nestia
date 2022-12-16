@@ -13,7 +13,7 @@ import raw from "raw-body";
  *
  * If you adjust the regular {@link Body} decorator function to the body parameter,
  * you can't get the full body text because the {@link Body} tries to convert the
- * body text to JSON object. Therefore, `nestia-helper` provides this `PlainBody`
+ * body text to JSON object. Therefore, `@nestia/core` provides this `PlainBody`
  * decorator function to get the full body text.
  *
  * ```typescript

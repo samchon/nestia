@@ -1,7 +1,7 @@
 import fs from "fs";
 import { HashMap } from "tstl/container/HashMap";
-import { IConfiguration } from "../IConfiguration";
 
+import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
 import { ImportDictionary } from "../utils/ImportDictionary";
 import { FunctionGenerator } from "./FunctionGenerator";
@@ -11,7 +11,7 @@ export namespace FileGenerator {
         CONSTRUCTOR
     --------------------------------------------------------- */
     export async function generate(
-        config: IConfiguration,
+        config: INestiaConfig,
         routeList: IRoute[],
     ): Promise<void> {
         // CONSTRUCT FOLDER TREE
@@ -33,11 +33,12 @@ export namespace FileGenerator {
             .map((str) => str.split("-").join("_").split(".").join("_"));
 
         // OPEN DIRECTORIES
-        for (const key of identifiers)
+        for (const key of identifiers) {
             directory = directory.directories.take(
                 key,
                 () => new Directory(directory, key),
             );
+        }
 
         // ADD ROUTE
         directory.routes.push(route);
@@ -60,7 +61,7 @@ export namespace FileGenerator {
         FILE ITERATOR
     --------------------------------------------------------- */
     async function iterate(
-        config: IConfiguration,
+        config: INestiaConfig,
         outDir: string,
         directory: Directory,
     ): Promise<void> {
@@ -115,11 +116,10 @@ export namespace FileGenerator {
             if (primitived) fetcher.push("Primitive");
 
             const head: string[] = [
-                `import { ${fetcher.join(", ")} } from "nestia-fetcher";`,
-                `import type { IConnection } from "nestia-fetcher";`,
+                `import { ${fetcher.join(", ")} } from "@nestia/fetcher";`,
+                `import type { IConnection } from "@nestia/fetcher";`,
             ];
-            if (asserted || json)
-                head.push(`import TSON from "typescript-json";`);
+            if (asserted || json) head.push(`import typia from "typia";`);
             if (!importDict.empty()) head.push("", importDict.toScript(outDir));
 
             content.push(...head, "", ...content.splice(0, content.length));

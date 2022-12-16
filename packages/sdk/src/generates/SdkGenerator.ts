@@ -1,16 +1,15 @@
 import fs from "fs";
-import ts from "typescript";
 import NodePath from "path";
-import { DirectoryUtil } from "../utils/DirectoryUtil";
+import ts from "typescript";
 
+import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
 import { FileGenerator } from "./FileGenerator";
-import { IConfiguration } from "../IConfiguration";
 
 export namespace SdkGenerator {
     export async function generate(
         _checker: ts.TypeChecker,
-        config: IConfiguration,
+        config: INestiaConfig,
         routeList: IRoute[],
     ): Promise<void> {
         // PREPARE NEW DIRECTORIES
@@ -36,14 +35,16 @@ export namespace SdkGenerator {
                 );
             }
         }
-        await DirectoryUtil.copy(
-            BUNDLE_PATH + "/__internal",
-            config.output + "/__internal",
-        );
 
         // FUNCTIONAL
         await FileGenerator.generate(config, routeList);
     }
 
-    export const BUNDLE_PATH = NodePath.join(__dirname, "..", "..", "bundle");
+    export const BUNDLE_PATH = NodePath.join(
+        __dirname,
+        "..",
+        "..",
+        "assets",
+        "bundle",
+    );
 }

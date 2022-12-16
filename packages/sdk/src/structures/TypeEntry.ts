@@ -1,5 +1,5 @@
-import ts from "typescript";
 import { hash } from "tstl/functional/hash";
+import ts from "typescript";
 
 export class TypeEntry {
     public constructor(

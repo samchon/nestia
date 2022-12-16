@@ -12,9 +12,7 @@ async function execute(
     else console.log(`${name} -> npx nestia ${job} ${elements.join(" ")}`);
 
     const worker = new WorkerConnector(null, null, "process");
-    const location: string = `${__dirname}/test.builder.executor.js`;
-
-    await worker.connect(location);
+    await worker.connect(`${__dirname}/test.builder.executor.js`);
 
     try {
         const driver = worker.getDriver<typeof TestBuilder>();
@@ -47,9 +45,9 @@ async function main(): Promise<void> {
         );
         await execute("176", job, get_arguments("directory", job));
         await execute("encrypted", job, get_arguments("directory", job));
-        await execute("safe", job, get_arguments("directory", job));
         await execute("generic", job, get_arguments("directory", job));
         await execute("recursive", job, get_arguments("pattern", job));
+        await execute("safe", job, get_arguments("directory", job));
         await execute("union", job, get_arguments("directory", job));
         await execute("multiple-paths", job, get_arguments("directory", job));
     }

@@ -1,13 +1,13 @@
-import ts from "typescript";
-import { Escaper } from "typescript-json/lib/utils/Escaper";
-import { Pair } from "tstl/utility/Pair";
 import { Vector } from "tstl/container/Vector";
+import { Pair } from "tstl/utility/Pair";
+import ts from "typescript";
+import { Escaper } from "typia/lib/utils/Escaper";
 
-import { IConfiguration } from "../IConfiguration";
+import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
 
 export namespace FunctionGenerator {
-    export function generate(config: IConfiguration, route: IRoute): string {
+    export function generate(config: INestiaConfig, route: IRoute): string {
         const query: IRoute.IParameter | undefined = route.parameters.find(
             (param) => param.category === "query" && param.field === undefined,
         );
@@ -28,7 +28,7 @@ export namespace FunctionGenerator {
         route: IRoute,
         query: IRoute.IParameter | undefined,
         input: IRoute.IParameter | undefined,
-        config: IConfiguration,
+        config: INestiaConfig,
     ): string {
         // FETCH ARGUMENTS WITH REQUST BODY
         const parameters = filter_parameters(route, query);
@@ -49,7 +49,7 @@ export namespace FunctionGenerator {
                 ? route.parameters
                       .map(
                           (param) =>
-                              `    TSON.assert<typeof ${param.name}>(${param.name});`,
+                              `    typia.assert<typeof ${param.name}>(${param.name});`,
                       )
                       .join("\n") + "\n\n"
                 : "";
@@ -87,7 +87,7 @@ export namespace FunctionGenerator {
         route: IRoute,
         query: IRoute.IParameter | undefined,
         input: IRoute.IParameter | undefined,
-        config: IConfiguration,
+        config: INestiaConfig,
     ): string {
         //----
         // CONSTRUCT COMMENT
@@ -185,7 +185,7 @@ export namespace FunctionGenerator {
         route: IRoute,
         query: IRoute.IParameter | undefined,
         input: IRoute.IParameter | undefined,
-        config: IConfiguration,
+        config: INestiaConfig,
     ): string | null {
         // LIST UP TYPES
         const types: Pair<string, string>[] = [];
@@ -231,7 +231,7 @@ export namespace FunctionGenerator {
             (route.method === "POST" ||
                 route.method === "PUT" ||
                 route.method === "PATCH")
-                ? `    export const stringify = (input: Input) => TSON.stringify(input);\n`
+                ? `    export const stringify = (input: Input) => typia.stringify(input);\n`
                 : "") +
             "}"
         );

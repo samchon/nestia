@@ -23,3 +23,10 @@ jobs:
           npm run build
           npm run build:test
           npm run test
+
+      - name: sdk
+        working-directory: ./packages/sdk
+        run: |
+          npm install
+          npm run build
+          npm run test

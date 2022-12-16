@@ -3,8 +3,15 @@
   "version": "0.1.0",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "bin": {
+    "@nestia/sdk": "lib/executable/sdk.js"
+  },
   "scripts": {
-    "test": "node test"
+    "build": "rimraf lib && ttsc",
+    "dev": "rimraf lib && ttsc --watch",
+    "prettier": "prettier --write ./**/*.ts",
+    "test": "node lib/test"
   },
   "repository": {
     "type": "git",
@@ -30,7 +37,7 @@
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/cli": "^0.11.21",
     "@types/express": "^4.17.15",
-    "@types/glob": "^8.0.0",
+    "@types/glob": "^7.2.0",
     "@types/node": "^18.11.15",
     "@types/reflect-metadata": "^0.1.0",
     "@types/uuid": "^9.0.0",
@@ -47,8 +54,7 @@
   },
   "dependencies": {
     "cli": "^1.0.1",
-    "del": "^7.0.0",
-    "glob": "^8.0.3",
+    "glob": "^7.2.0",
     "path-to-regexp": "^6.2.1",
     "tgrid": "^0.8.7",
     "tsconfck": "^2.0.1",
@@ -57,10 +63,12 @@
     "typia": "^3.4.7"
   },
   "files": [
+    "assets",
+    "lib",
+    "src",
+    "!src/test",
     "README.md",
     "LICENSE",
-    "package.json",
-    "lib",
-    "src"
+    "package.json"
   ]
 }

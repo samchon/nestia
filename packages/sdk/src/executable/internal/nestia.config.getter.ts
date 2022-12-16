@@ -1,9 +1,10 @@
 import { WorkerServer } from "tgrid/protocols/workers/WorkerServer";
-import { NestiaConfig } from "./NestiaConfig";
+
+import { NestiaSdkConfig } from "./NestiaSdkConfig";
 
 async function main(): Promise<void> {
     const worker = new WorkerServer();
-    await worker.open(NestiaConfig);
+    await worker.open(NestiaSdkConfig);
 }
 main().catch((exp) => {
     console.log(exp);

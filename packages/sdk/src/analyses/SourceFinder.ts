@@ -2,13 +2,12 @@ import fs from "fs";
 import glob from "glob";
 import path from "path";
 
-import { IConfiguration } from "../IConfiguration";
+import { INestiaConfig } from "../INestiaConfig";
 
 export namespace SourceFinder {
-    export async function find(
-        input: IConfiguration.IInput,
-    ): Promise<string[]> {
+    export async function find(input: INestiaConfig.IInput): Promise<string[]> {
         const dict: Set<string> = new Set();
+
         await decode(input.include, (str) => dict.add(str));
         if (input.exclude)
             await decode(input.exclude, (str) => dict.delete(str));
@@ -20,7 +19,7 @@ export namespace SourceFinder {
         input: string[],
         closure: (location: string) => void,
     ): Promise<void> {
-        for (const pattern of input)
+        for (const pattern of input) {
             for (const location of await _Glob(path.resolve(pattern))) {
                 const stats: fs.Stats = await fs.promises.stat(location);
                 if (stats.isDirectory() === true)
@@ -28,6 +27,7 @@ export namespace SourceFinder {
                 else if (stats.isFile() && _Is_ts_file(location))
                     closure(location);
             }
+        }
     }
 
     async function iterate(

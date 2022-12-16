@@ -1,2 +1,2 @@
-export * from "./IConfiguration";
-export * from "./NestiaApplication";
+export * from "./INestiaConfig";
+export * from "./NestiaSdkApplication";
