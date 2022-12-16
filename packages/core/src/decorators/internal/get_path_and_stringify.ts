@@ -46,6 +46,7 @@ const assert =
                     path: exp.path,
                     reason: exp.message,
                     expected: exp.expected,
+                    value: exp.value,
                     message: MESSAGE,
                 });
             }

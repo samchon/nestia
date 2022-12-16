@@ -34,7 +34,7 @@ import { validate_request_body } from "./internal/validate_request_body";
  * @return Parameter decorator
  * @author Jeongho Nam - https://github.com/samchon
  */
-export function EncryptedBody<T>(validator: IRequestBodyValidator<T>) {
+export function EncryptedBody<T>(validator?: IRequestBodyValidator<T>) {
     const checker = validate_request_body("EncryptedBody")(validator);
     return createParamDecorator(async function EncryptedBody(
         _unknown: any,
