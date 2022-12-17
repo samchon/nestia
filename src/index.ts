@@ -10,8 +10,8 @@ npx nestia [command] [options?]
   1. npx nestia start <directory> ---manager (npm|pnpm|yarn)
     - npx nestia start project
     - npx nestia start project --manager pnpm
-  2. npx nestia setup \
-        --compiler (ttypescript|ts-patch) \
+  2. npx nestia setup \\
+        --compiler (ttypescript|ts-patch) \\
         --manager (npm|pnpm|yarn)
     - npx nestia setup
     - npx nestia setup --compiler ttypescript

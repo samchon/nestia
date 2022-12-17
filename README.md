@@ -9,8 +9,6 @@ Nestia is a helper library set for NestJS, supporting below features:
   - [`@nestia/sdk`](#nestiasdk): evolved **SDK** and **Swagger** generator for `@nestia/core`
   - `nestia`: just CLI (command line interface) tool
 
-For reference, **15,000x times faster validation** means the difference in validation speed between `typia` used by `@nestia/core` and `class-validator` used by `NestJS`. If you visit `typia` repo and [read how it fast and stable](https://github.com/samchon/typia/wiki/Runtime-Validators#powerful-validator), you may understand why I've started this `nestia` project.
-
 ![Is Function Benchmark](https://github.com/samchon/typia/raw/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/is.svg)
 
 > Measured on [Intel i5-1135g7, Surface Pro 8](https://github.com/samchon/typia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz#is)
@@ -54,7 +52,7 @@ npx ts-node -C ttypescript src/index.ts
 ```
 
 ### Manual Setup
-If you want to install and setup `nestia` manually, read [Guide Documents - Setup](https://github.com/samchon/nestia/wiki/Setup).
+If you want to install and configure `nestia` manually, read [Guide Documents - Setup](https://github.com/samchon/nestia/wiki/Setup).
 
 
 
@@ -63,13 +61,13 @@ If you want to install and setup `nestia` manually, read [Guide Documents - Setu
 [![npm version](https://img.shields.io/npm/v/@nestia/core.svg)](https://www.npmjs.com/package/@nestia/core)
 [![Downloads](https://img.shields.io/npm/dm/@nestia/core.svg)](https://www.npmjs.com/package/@nestia/core)
 
-super-fast validation decorators for NestJS.
+Super-fast validation decorators for NestJS.
 
-`@nestia/core` is a transformer library of NestJS, supporting super-fast validation decorators, by wrapping [typia](https://github.com/samchon/typia). Comparing validation speed with `class-validator`, `typia` is maximum **15,000x times faster** and it even much safer.
+`@nestia/core` is a transformer library of NestJS, supporting super-fast validation decorators, by wrapping [typia](https://github.com/samchon/typia). Comparing validation speed with `class-validator`, `typia` is maximum **15,000x times faster** and it is even much safer.
 
 Furthermore, `@nestia/core` can use pure interface typed DTO with **only one line**.
 
-Therefore, it does not require any extra dedication like defining JSON schema (`@nestjs/swagger`) or using class definition with decorator function calls (`class-validator`). Just enjoy the **superfast** decorator with pure TypeScript type.
+Therefore, it does not require any extra dedication like defining JSON schema (`@nestjs/swagger`), or using class definition with decorator function calls (`class-validator`). Just enjoy the superfast decorators with pure TypeScript type.
 
 ```typescript
 import { Controller } from "@nestjs/common";
@@ -95,12 +93,18 @@ export class BbsArticlesController {
 ### TypedBody
 `TypedBody()` is a decorator function of `application/json` typed request body.
 
-Also, it supports super-fast validation pipe using, which is maximum 15,000x times faster then ordinary `nest.Body()` decorator using `class-validator`.
+Also, it supports super-fast validation pipe, which is maximum **15,000x times faster** then `nest.Body()` function using `class-validator`.
 
 ### TypedRoute
-`TypedRoute()` is a decorator function of `application/json` typed reponse body.
+`TypedRoute` is a set of decorator functions for `application/json` typed response body.
 
-Also, it supports safe and fast JSON stringify function pipe, which is maximum 10x times faster than native `JSON.stringify()` function. Furthermore, it is type safe through validation.
+Also, it supports safe and fast JSON stringify function pipe, which is maximum 10x times faster than native `JSON.stringify()` function. Furthermore, it is **type safe** through validation.
+
+  - `TypedRoute.Get()`
+  - `TypedRoute.Post()`
+  - `TypedRoute.Put()`
+  - `TypedRoute.Patch()`
+  - `TypedRoute.Delete()`
 
 ### Comment Tags
 You can enhance DTO type validation by writing comment tags.
