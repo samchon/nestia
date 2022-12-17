@@ -1,0 +1,38 @@
+{
+  "name": "nestia",
+  "version": "4.0.0-dev.20221217",
+  "description": "Nestia CLI",
+  "main": "bin/index.js",
+  "bin": {
+    "nestia": "bin/index.js"
+  },
+  "scripts": {
+    "build": "rimraf bin && tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/nestia"
+  },
+  "keywords": [
+    "nestia"
+  ],
+  "author": "Jeongho Nam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samchon/nestia/issues"
+  },
+  "homepage": "https://github.com/samchon/nestia",
+  "devDependencies": {
+    "@nestia/core": "^0.1.6",
+    "@nestia/sdk": "^0.1.0",
+    "@types/node": "^18.11.16",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.9.4"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "LICENSE",
+    "package-json"
+  ]
+}
