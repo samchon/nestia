@@ -46,16 +46,6 @@ const add =
         if (exists === false) execute(`${manager} ${middle} ${modulo}`);
     };
 
-const remove =
-    (manager: string) =>
-    (modulo: string, devOnly: boolean): void => {
-        const middle: string =
-            manager === "yarn"
-                ? `remove${devOnly ? " -D" : ""}`
-                : `uninstall ${devOnly ? "--save-dev" : "--save"}`;
-        execute(`${manager} ${middle} ${modulo}`);
-    };
-
 const halt =
     (closer: () => any) =>
     (desc: string): never => {

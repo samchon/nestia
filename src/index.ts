@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { CommandParser } from "./CommandParser";
 import { NestiaSetupWizard } from "./NestiaSetupWizard";
 import { NestiaStarter } from "./NestiaStarter";

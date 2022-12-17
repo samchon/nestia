@@ -1,7 +1,7 @@
 # Nestia Core
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/samchon/nestia/blob/master/LICENSE)
 [![npm version](https://img.shields.io/npm/v/@nestia/core.svg)](https://www.npmjs.com/package/@nestia/core)
-[![Downloads](https://img.shields.io/npm/dm/typia.svg)](https://www.npmjs.com/package/@nestia/core)
+[![Downloads](https://img.shields.io/npm/dm/@nestia/core.svg)](https://www.npmjs.com/package/@nestia/core)
 [![Build Status](https://github.com/samchon/typia/workflows/build/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Abuild)
 [![Guide Documents](https://img.shields.io/badge/wiki-documentation-forestgreen)](https://github.com/samchon/nestia/wiki)
 
@@ -9,11 +9,13 @@
 npx nestia setup
 ```
 
-Super-easy and super-fast validator decorators for NestJS.
+super-fast validation decorators for NestJS.
 
-`@nestia/core` is a transformer library of NestJS, supporing super-easy and super-fast validation decorators, by using [typia](https://github.com/samchon/typia). Comparing validation speed with `class-validator`, `@nestia/core` is maximum **15,000x times faster** and it even supports every TypeScript types.
+`@nestia/core` is a transformer library of NestJS, supporting super-fast validation decorators, by wrapping [typia](https://github.com/samchon/typia). Comparing validation speed with `class-validator`, `typia` is maximum **15,000x times faster** and it even much safer.
 
-Furthremore, `@nestia/core` can use pure interface typed DTO with **only one line**. Therefore, it does not require any extra dedication like defining JSON schema (`@nestjs/swagger`) or using class definition with decorator function calls (`class-validator`). Just enjoy **super-easy** and **super-fast** through with pure TypeScript types.
+Furthermore, `@nestia/core` can use pure interface typed DTO with **only one line**.
+
+Therefore, it does not require any extra dedication like defining JSON schema (`@nestjs/swagger`) or using class definition with decorator function calls (`class-validator`). Just enjoy the **superfast** decorator with pure TypeScript type.
 
 ```typescript
 import { Controller } from "@nestjs/common";
@@ -24,92 +26,59 @@ import { IBbsArticle } from "@bbs-api/structures/IBbsArticle";
 @Controller("bbs/articles")
 export class BbsArticlesController {
     /** 
-     * `TypedRoute.Post()`: safe `JSON.stringify()` with type validation.
-     *
-     * Furthermore, its 10x times faster than native `JSON.stringify()` function.
+     * Store a new content.
+     * 
+     * @param inupt Content to store
+     * @returns Newly archived article
      */
-    @TypedRoute.Post()
+    @TypedRoute.Post() // 10x faster and safer JSON.stringify()
     public async store(
-        /**
-         * Super-fast request body validator through `TypedBody()`. 
-         *
-         * It also requires only one line.
-         */
-        @TypedBody() input: IBbsArticle.IStore
+        @TypedBody() input: IBbsArticle.IStore // supoer-fast validator
     ): Promise<IBbsArticle>;
 }
 ```
-
-```typescript
-/** 
- * You don't need any extra dedication like:
- * 
- *   - `@nestjs/swagger`: JSON schema definition
- *   - `class-transformer`: class definition with decorator function class
- *
- * Just enjoy the pure interface type as DTO
- */
-export interface IBbsArticle {
-    /**
-     * @format uuid
-     */
-    id: string;
-    writer: string;
-    title: string;
-    content: string;
-    created_at: string;
-}
-export namespace IBbsArticle {
-    export interface IStore {
-        writer: string;
-        title: string;
-        content: string;
-    }
-}
-```
-
-![Benchmark](https://github.com/samchon/typia/raw/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/is.svg)
-
-> Measured on [Intel i5-1135g7, Surface Pro 8](https://github.com/samchon/typia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz#is)
->
-> `@nestia/core` is providing super-easy and super-fast validator by wrapping [typia](https://github.com/samchon/typia)
-
 
 
 
 
 ## Setup
+### Boilerplate Project
+```bash
+npx nestia start <directory>
+```
+
+Just run above command, then boilerplate project would be constructed.
+
 ### Setup Wizard
 ```bash
 # setup both @nestia/core and @nestia/sdk
 npx nestia setup
 
 # setup @nestia/core only
-npx nestia setup
+npx @nestia/core setup
 ```
 
 When you run `npx nestia setup` command, all installation and configuration processes would be automatically done. If you want to setup `@nestia/core` only, run `npx @nestia/core setup` command instead.
 
-After the setup has been completed, you can compile your backend server code by using `ttsc` command. If you want to run your TypeScript file directly through `ts-node`, add `-C ttypescript` argument like below:
+After the setup has been fully completed, you can compile your backend server code by using `ttsc` command. If you want to run your TypeScript file directly through `ts-node`, add `-C ttypescript` argument like below:
 
 ```bash
 npx ttsc
 npx ts-node -C ttypescript src/index.ts
 ```
 
-> In the automated setup process, you can specialize package manager like `yarn` instead of `npm` by adding `--module yarn` argument. You also can specialize transformation compiler by using [`--module ts-patch`](https://github.com/nonara/ts-patch) argument. Default compiler is [`ttypescrpit`](https://github.com/cevek/ttypescript).
->
-> ```bash
-> npx nestia setup \
->    --compiler (ttypescript|ts-patch) 
->    --module (npm|pnpm|yarn)
->
-> npx nestia setup
-> npx nestia setup --module yarn
-> npx nestia setup --compiler ts-patch
-> ```
+Also, you can specify package manager by `--manage` argument like below:
 
-### NPM Packages
+```bash
+npx @nestia/core setup --manager npm
+npx @nestia/core setup --manager pnpm
+npx @nestia/core setup --manager yarn
+```
+
+### Manual Setup
+If you want to install and setup `@nestia/core` manually, read [Guide Documents - Setup](https://github.com/samchon/nestia/wiki/Setup).
+
+<!-- ### NPM Packages
 If you want to install and configure manually, install `@nestia/core` module first.
 
 Also, you need additional devDependencies to compile the TypeScript code with transformation. Therefore, install those all libraries `typescript`, `ttypescript` and `ts-node`. Inform that, `ttypescript` is not mis-writing. Do not forget to install the `ttypescript`.
@@ -161,7 +130,7 @@ export function stringify<T>(input: T): string; // unsafe, but very fast
 export function assertStringify<T>(input: T): string; // assert + stringify
 export function isStringify<T>(input: T): string | null; // is + stringify
 export function validateStringify<T>(input: T): IValidation<T>; // validate +
-```
+``` -->
 
 
 
@@ -176,31 +145,27 @@ import { IBbsArticle } from "@bbs-api/structures/IBbsArticle";
 @Controller("bbs/articles")
 export class BbsArticlesController {
     /** 
-     * `TypedRoute.Post()`: safe `JSON.stringify()` with type validation.
-     *
-     * Furthermore, its 10x times faster than native `JSON.stringify()` function.
+     * Store a new content.
+     * 
+     * @param inupt Content to store
+     * @returns Newly archived article
      */
-    @TypedRoute.Post()
+    @TypedRoute.Post() // 10x faster and safer JSON.stringify()
     public async store(
-        /**
-         * Super-fast request body validator through `TypedBody()`. 
-         *
-         * It also requires only one line.
-         */
-        @TypedBody() input: IBbsArticle.IStore
+        @TypedBody() input: IBbsArticle.IStore // supoer-fast validator
     ): Promise<IBbsArticle>;
 }
 ```
 
 ### TypedBody
-`TypedBody` is a decorator function for `application/json` typed request body. 
+`TypedBody()` is a decorator function of `application/json` typed request body.
 
-Also, it supports super-fast validation pipe, which is 15,000x times faster then ordinary `nest.Body()` decorator using `class-validator`.
+Also, it supports super-fast validation pipe using, which is maximum 15,000x times faster then ordinary `nest.Body()` decorator using `class-validator`.
 
 ### TypedRoute
-`TypedRoute` is a decorator function for `application/json` typed reponse body.
+`TypedRoute()` is a decorator function of `application/json` typed reponse body.
 
-Also, it supports safe and fast JSON stringify pipe, which is maximum 10x times faster than native `JSON.stringify()` function and it is even type safe.
+Also, it supports safe and fast JSON stringify function pipe, which is maximum 10x times faster than native `JSON.stringify()` function. Furthermore, it is type safe through validation.
 
 ### Encryption
 `@nestia/core` supports special decorator functions `EncryptedBody` and `EncryptedRout`. They're almost same with [TypedBody](#typedbody) and [TypedRoute](#typedroute), but there's only one thing different - it encrypts JSON data through AES-128/256 algorithm.
@@ -210,6 +175,49 @@ Also, it supports safe and fast JSON stringify pipe, which is maximum 10x times 
   - PKCS #5 Padding
   - Base64 Encoding
 
+### Comment Tags
+You can enhance DTO type validation by writing comment tags.
+
+If you want to know about it detaily, visit [Guide Documents of typia](https://github.com/samchon/typia/wiki/Runtime-Validators#comment-tags).
+
+```typescript
+export interface IBbsArticle {
+    /**
+     * @format uuid
+     */
+    id: string;
+
+    writer: IBbsArticle.IWriter;
+
+    /**
+     * @minItems 1
+     */
+    contents: IBbsArticle.IContent[];
+}
+export namespace IBbsArticle {
+    export interface IWriter {
+        /**
+         * @minLength 3
+         */
+        name: string;
+
+        /**
+         * @format email
+         */
+        email: string;
+
+        /**
+         * @pattern ^0[0-9]{7,16}
+         */
+        mobile: string;
+
+        /**
+         * @minimum 18
+         */
+        age: number;
+    }
+}
+```
 
 
 
@@ -221,9 +229,11 @@ npx nestia swagger
 npx nestia sdk
 ```
 
-When you adapt this `@nestia/core`, you can't use `@nestjs/swagger` more. Instead, I support `@nestia/sdk`, which is much more stable and powerful then before. Through this `@nestia/sdk` module, you can generate `swagger.json` and even generating SDK library is possible.
+Automatic *SDK* and *Swagger* generator for `@nestia/core`.
 
-For reference, SDK (Software Development Kit) library means a library which can be utilized by TypeScript client developer conveniently. When you generate SDK library through `@nestia/sdk`, `@nestia/sdk` will analyze your backend server code and generate codes like below:
+With `@nestia/core`, you can boost up validation speed maximum **15,000x times faster**. However, as `@nestjs/swagger` does not support `@nestia/core`, you can't generate swagger documents from `@nestjs/swagger` more.
+
+Instead, I provide you `@nestia/sdk` module, which can generate not only swagger documents, but also SDK (Software Development Kit) library.
 
 #### `BbsArticlesController.ts`
 ```typescript
@@ -235,17 +245,13 @@ import { IBbsArticle } from "@bbs-api/structures/IBbsArticle";
 @Controller("bbs/articles")
 export class BbsArticlesController {
     /** 
-     * `TypedRoute.Post()`: safe `JSON.stringify()` with type validation.
-     *
-     * Furthermore, its 10x times faster than native `JSON.stringify()` function.
+     * Store a new article.
+     * 
+     * @param input content to store
+     * @returns new article
      */
     @TypedRoute.Post()
     public async store(
-        /**
-         * Super-fast request body validator through `TypedBody()`. 
-         *
-         * It also requires only one line.
-         */
         @TypedBody() input: IBbsArticle.IStore
     ): Promise<IBbsArticle>;
 }
@@ -256,6 +262,12 @@ export class BbsArticlesController {
 import { Fetcher, IConnection } from "@nestia/fetcher";
 import { IBbsArticle } from "../../../structures/IBbsArticle";
 
+/**
+ * Store a new content.
+ * 
+ * @param input content to store
+ * @returns new article
+ */
 export function store(
     connection: api.IConnection, 
     input: IBbsArticle.IStore
