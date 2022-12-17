@@ -5,17 +5,13 @@
 [![Build Status](https://github.com/samchon/typia/workflows/build/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Abuild)
 [![Guide Documents](https://img.shields.io/badge/wiki-documentation-forestgreen)](https://github.com/samchon/nestia/wiki)
 
-```bash
-npx nestia setup
-```
+Super-fast validation decorators for NestJS.
 
-super-fast validation decorators for NestJS.
-
-`@nestia/core` is a transformer library of NestJS, supporting super-fast validation decorators, by wrapping [typia](https://github.com/samchon/typia). Comparing validation speed with `class-validator`, `typia` is maximum **15,000x times faster** and it even much safer.
+`@nestia/core` is a transformer library of NestJS, supporting super-fast validation decorators, by wrapping [typia](https://github.com/samchon/typia). Comparing validation speed with `class-validator`, `typia` is maximum **15,000x times faster** and it is even much safer.
 
 Furthermore, `@nestia/core` can use pure interface typed DTO with **only one line**.
 
-Therefore, it does not require any extra dedication like defining JSON schema (`@nestjs/swagger`) or using class definition with decorator function calls (`class-validator`). Just enjoy the **superfast** decorator with pure TypeScript type.
+Therefore, it does not require any extra dedication like defining JSON schema (`@nestjs/swagger`), or using class definition with decorator function calls (`class-validator`). Just enjoy the superfast decorators with pure TypeScript type.
 
 ```typescript
 import { Controller } from "@nestjs/common";
@@ -76,7 +72,7 @@ npx @nestia/core setup --manager yarn
 ```
 
 ### Manual Setup
-If you want to install and setup `@nestia/core` manually, read [Guide Documents - Setup](https://github.com/samchon/nestia/wiki/Setup).
+If you want to install and configure `@nestia/core` manually, read [Guide Documents - Setup](https://github.com/samchon/nestia/wiki/Setup).
 
 <!-- ### NPM Packages
 If you want to install and configure manually, install `@nestia/core` module first.
@@ -160,12 +156,18 @@ export class BbsArticlesController {
 ### TypedBody
 `TypedBody()` is a decorator function of `application/json` typed request body.
 
-Also, it supports super-fast validation pipe using, which is maximum 15,000x times faster then ordinary `nest.Body()` decorator using `class-validator`.
+Also, it supports super-fast validation pipe, which is maximum **15,000x times faster** then `nest.Body()` function using `class-validator`.
 
 ### TypedRoute
-`TypedRoute()` is a decorator function of `application/json` typed reponse body.
+`TypedRoute` is a set of decorator functions for `application/json` typed response body.
 
-Also, it supports safe and fast JSON stringify function pipe, which is maximum 10x times faster than native `JSON.stringify()` function. Furthermore, it is type safe through validation.
+Also, it supports safe and fast JSON stringify function pipe, which is maximum 10x times faster than native `JSON.stringify()` function. Furthermore, it is **type safe** through validation.
+
+  - `TypedRoute.Get()`
+  - `TypedRoute.Post()`
+  - `TypedRoute.Put()`
+  - `TypedRoute.Patch()`
+  - `TypedRoute.Delete()`
 
 ### Encryption
 `@nestia/core` supports special decorator functions `EncryptedBody` and `EncryptedRout`. They're almost same with [TypedBody](#typedbody) and [TypedRoute](#typedroute), but there's only one thing different - it encrypts JSON data through AES-128/256 algorithm.
