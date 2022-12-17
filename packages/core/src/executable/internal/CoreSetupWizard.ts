@@ -128,10 +128,13 @@ export namespace CoreSetupWizard {
                         transform: "@nestia/core/lib/transform",
                     } as any);
                 if (typia === undefined)
-                    await fs.promises.writeFile(
-                        "tsconfig.json",
-                        Comment.stringify(config, null, 2),
-                    );
+                    plugins.push({
+                        transform: "typia/lib/transform",
+                    } as any);
+                await fs.promises.writeFile(
+                    "tsconfig.json",
+                    Comment.stringify(config, null, 2),
+                );
             }
             if (temporary === true) remove(manager)("comment-json", false);
         };
