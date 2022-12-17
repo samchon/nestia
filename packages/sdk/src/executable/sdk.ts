@@ -6,6 +6,29 @@ import process from "process";
 import { CommandParser } from "./internal/CommandParser";
 import type { NestiaSdkCommand } from "./internal/NestiaSdkCommand";
 
+const USAGE = `Wrong command has been detected. Use like below:
+
+npx @nestia/sdk [command] [options?]
+
+  1. npx @nestia/sdk dependencies --manager (npm|pnpm|yarn)
+    - npx @nestia/sdk dependencies
+    - npx @nestia/sdk dependencies --manager pnpm
+  2. npx @nestia/sdk init
+  3. npx @nestia/sdk sdk <input> --out <output>
+    - npx @nestia/sdk sdk # when "nestia.config.ts" be configured
+    - npx @nestia/sdk sdk src/controllers --out src/api
+    - npx @nestia/sdk sdk src/**/*.controller.ts --out src/api
+  4. npx @nestia/sdk swagger <input> --out <output>
+    - npx @nestia/sdk swagger # when "nestia.config.ts" be configured
+    - npx @nestia/sdk swagger src/controllers --out src/api
+    - npx @nestia/sdk swagger src/**/*.controller.ts --out src/api       
+`;
+
+function halt(desc: string): never {
+    console.error(desc);
+    process.exit(-1);
+}
+
 function dependencies(argv: string[]): void {
     // INSTALL DEPENDENCIES
     const module = CommandParser.parse(argv).module ?? "npm";
@@ -19,7 +42,7 @@ function dependencies(argv: string[]): void {
 
 async function initialize(): Promise<void> {
     if (fs.existsSync("nestia.config.ts") === true)
-        throw new Error(
+        halt(
             `Error on nestia.sdk.initialize(): "nestia.config.ts" file already has been configured.`,
         );
     await fs.promises.copyFile(
@@ -43,7 +66,7 @@ async function main() {
     else if (type === "init") await initialize();
     else if (type === "sdk") await execute((c) => c.sdk(argv));
     else if (type === "swagger") await execute((c) => c.swagger(argv));
-    else throw new Error(``);
+    else halt(USAGE);
 }
 main().catch((exp) => {
     console.log(exp.message);
