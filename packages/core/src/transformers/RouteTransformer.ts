@@ -83,7 +83,7 @@ export namespace RouteTransformer {
                     programmer(project, expression.expression)(type),
                 ),
             ]);
-        const stringify: ts.ObjectLiteralExpression = (() => {
+        const stringify: ts.Expression = (() => {
             if (project.options.stringify === "stringify")
                 return parameter("stringify", StringifyProgrammer.generate);
             else if (project.options.stringify === "assert")
@@ -93,6 +93,8 @@ export namespace RouteTransformer {
                     "validate",
                     ValidateStringifyProgrammer.generate,
                 );
+            else if (project.options.stringify === null)
+                return ts.factory.createNull();
             return parameter("is", IsStringifyProgrammer.generate);
         })();
 

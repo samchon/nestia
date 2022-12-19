@@ -21,11 +21,12 @@ export const get_path_and_stringify =
 
 const take =
     (method: string) =>
-    <T>(functor?: IResponseBodyStringifier<T>) => {
+    <T>(functor?: IResponseBodyStringifier<T> | null) => {
         if (functor === undefined)
             throw new Error(
                 `Error on nestia.core.${method}(): no stringify function provided.`,
             );
+        else if (functor === null) return JSON.stringify;
         else if (functor.type === "stringify") return functor.stringify;
         else if (functor.type === "assert") return assert(functor.assert);
         else if (functor.type === "is") return is(functor.is);
