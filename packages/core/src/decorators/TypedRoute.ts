@@ -108,13 +108,16 @@ for (const method of [
     isStringify,
     stringify,
     validateStringify,
-]) {
-    Object.assign(TypedRoute.Get, method);
-    Object.assign(TypedRoute.Delete, method);
-    Object.assign(TypedRoute.Post, method);
-    Object.assign(TypedRoute.Put, method);
-    Object.assign(TypedRoute.Patch, method);
-}
+])
+    for (const [key, value] of Object.entries(method))
+        for (const deco of [
+            TypedRoute.Get,
+            TypedRoute.Delete,
+            TypedRoute.Post,
+            TypedRoute.Put,
+            TypedRoute.Patch,
+        ])
+            (deco as any)[key] = value;
 
 /**
  * @internal

@@ -120,13 +120,16 @@ for (const method of [
     isStringify,
     stringify,
     validateStringify,
-]) {
-    Object.assign(EncryptedRoute.Get, method);
-    Object.assign(EncryptedRoute.Delete, method);
-    Object.assign(EncryptedRoute.Post, method);
-    Object.assign(EncryptedRoute.Put, method);
-    Object.assign(EncryptedRoute.Patch, method);
-}
+])
+    for (const [key, value] of Object.entries(method))
+        for (const deco of [
+            EncryptedRoute.Get,
+            EncryptedRoute.Delete,
+            EncryptedRoute.Post,
+            EncryptedRoute.Put,
+            EncryptedRoute.Patch,
+        ])
+            (deco as any)[key] = value;
 
 /**
  * @internal

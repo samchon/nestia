@@ -124,13 +124,38 @@ export namespace CoreSetupWizard {
                 // DO CONFIGURE
                 options.strict = true;
                 if (core === undefined)
-                    plugins.push({
-                        transform: "@nestia/core/lib/transform",
-                    } as any);
+                    plugins.push(
+                        Comment.parse(`{
+                            "transform": "@nestia/core/lib/transform",
+        /**
+         * Validate request body.
+         * 
+         *   - "assert": Use typia.assert() function
+         *   - "is": Use typia.is() function
+         *   - "validate": Use typia.validate() function
+         */
+                            "validate": "assert",
+
+        /**
+         * Validate JSON typed response body.
+         * 
+         *   - null: Just use JSON.stringify() function, without boosting
+         *   - "stringify": Use typia.stringify() function, but dangerous
+         *   - "assert": Use typia.assertStringify() function
+         *   - "is": Use typia.isStringify() function
+         *   - "validate": Use typia.validateStringify() function
+         */
+                            "stringify": "is",
+                        }`) as Comment.CommentObject,
+                    );
                 if (typia === undefined)
-                    plugins.push({
-                        transform: "typia/lib/transform",
-                    } as any);
+                    plugins.push(
+                        Comment.parse(`{
+                            "transform": "typia/lib/transform",
+                            "numeric": true, // check isNaN() and isFinite()
+                            "functional": false, // validate function type
+                        }`) as Comment.CommentObject,
+                    );
                 await fs.promises.writeFile(
                     "tsconfig.json",
                     Comment.stringify(config, null, 2),
