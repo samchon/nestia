@@ -33,7 +33,7 @@ When you want to use `nestia` in orindary project, just type above command.
 
 All installation and configuration processes would be automatically done.
 
-Also, you can specify package manager by `--manage` argument like below:
+Also, you can specify package manager by `--manager` argument like below:
 
 ```bash
 npx nestia setup --manager npm
@@ -63,17 +63,19 @@ If you want to install and configure `nestia` manually, read [Guide Documents - 
 
 Super-fast validation decorators for NestJS.
 
-`@nestia/core` is a transformer library of NestJS, supporting super-fast validation decorators, by wrapping [typia](https://github.com/samchon/typia). Comparing validation speed with `class-validator`, `typia` is maximum **15,000x times faster** and it is even much safer.
+  - 15,000x faster request body validation
+  - 10x faster JSON response, even type safe
+  - Do not need DTO class definition, just fine with interface
 
-Furthermore, `@nestia/core` can use pure interface typed DTO with **only one line**.
+`@nestia/core` is a transformer library of NestJS, supporting super-fast validation decorators, by wrapping [typia](https://github.com/samchon/typia). Comparing validation speed with `class-validator`, [typia](https://github.com/samchon/typia) is maximum **15,000x times faster** and it is even much safer.
 
-Therefore, it does not require any extra dedication like defining JSON schema (`@nestjs/swagger`), or using class definition with decorator function calls (`class-validator`). Just enjoy the superfast decorators with pure TypeScript type.
+Furthermore, `@nestia/core` can use pure interface typed DTO with **only one line**. With `@nestia/core`, you don't need any extra dedication like defining JSON schema (`@nestjs/swagger`), or using class definition with decorator function calls (`class-validator`). Just enjoy the superfast decorators with pure TypeScript type.
 
 ```typescript
 import { Controller } from "@nestjs/common";
 import { TypedBody, TypedRoute } from "@nestia/core";
 
-import { IBbsArticle } from "@bbs-api/structures/IBbsArticle";
+import type { IBbsArticle } from "@bbs-api/structures/IBbsArticle";
 
 @Controller("bbs/articles")
 export class BbsArticlesController {
@@ -85,8 +87,10 @@ export class BbsArticlesController {
      */
     @TypedRoute.Post() // 10x faster and safer JSON.stringify()
     public async store(
-        @TypedBody() input: IBbsArticle.IStore // supoer-fast validator
-    ): Promise<IBbsArticle>;
+        @TypedBody() input: IBbsArticle.IStore // super-fast validator
+    ): Promise<IBbsArticle>; 
+        // do not need DTO class definition, 
+        // just fine with interface
 }
 ```
 
