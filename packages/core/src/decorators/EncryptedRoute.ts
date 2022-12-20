@@ -93,11 +93,11 @@ export namespace EncryptedRoute {
     function Generator(method: "Get" | "Post" | "Put" | "Patch" | "Delete") {
         function route(path?: string | string[]): MethodDecorator;
         function route<T>(
-            stringify?: IResponseBodyStringifier<T>,
+            stringify?: IResponseBodyStringifier<T> | null,
         ): MethodDecorator;
         function route<T>(
             path: string | string[],
-            stringify?: IResponseBodyStringifier<T>,
+            stringify?: IResponseBodyStringifier<T> | null,
         ): MethodDecorator;
 
         function route(...args: any[]): MethodDecorator {
