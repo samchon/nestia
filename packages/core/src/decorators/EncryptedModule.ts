@@ -60,17 +60,19 @@ export namespace EncryptedModule {
      *
      * @param path Directory path of the controller classes
      * @param password Encryption password or its getter function
+     * @param options Additional options except controller
      * @returns Class decorated module instance
      */
     export async function dynamic(
         path: string,
         password: IEncryptionPassword | IEncryptionPassword.Closure,
+        options: Omit<ModuleMetadata, "controllers"> = {},
     ): Promise<object> {
         // LOAD CONTROLLERS
         const controllers: Creator<object>[] = await load_controllers(path);
 
         // RETURNS WITH DECORATING
-        @EncryptedModule({ controllers }, password)
+        @EncryptedModule({ ...options, controllers }, password)
         class NestiaModule {}
         return NestiaModule;
     }

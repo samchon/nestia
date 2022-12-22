@@ -145,15 +145,13 @@ export namespace CoreSetupWizard {
          *   - "is": Use typia.isStringify() function
          *   - "validate": Use typia.validateStringify() function
          */
-                            "stringify": "is",
+                            "stringify": "is"
                         }`) as Comment.CommentObject,
                     );
                 if (typia === undefined)
                     plugins.push(
                         Comment.parse(`{
-                            "transform": "typia/lib/transform",
-                            "numeric": true, // check isNaN() and isFinite()
-                            "functional": false, // validate function type
+                            "transform": "typia/lib/transform"
                         }`) as Comment.CommentObject,
                     );
                 await fs.promises.writeFile(
