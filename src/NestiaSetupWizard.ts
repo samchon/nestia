@@ -3,22 +3,16 @@ import fs from "fs";
 
 export namespace NestiaSetupWizard {
     export async function ttypescript(manager: string): Promise<void> {
-        await prepare(manager);
-        const { CoreSetupWizard } = await import(
-            "@nestia/core/lib/executable/internal/CoreSetupWizard"
-        );
-        CoreSetupWizard.ttypescript(manager);
+        const wizard = await prepare(manager);
+        await wizard.ttypescript(manager);
     }
 
     export async function tsPatch(manager: string): Promise<void> {
-        await prepare(manager);
-        const { CoreSetupWizard } = await import(
-            "@nestia/core/lib/executable/internal/CoreSetupWizard"
-        );
-        CoreSetupWizard.tsPatch(manager);
+        const wizard = await prepare(manager);
+        await wizard.tsPatch(manager);
     }
 
-    export async function prepare(manager: string): Promise<any> {
+    async function prepare(manager: string) {
         if (fs.existsSync("package.json") === false)
             halt(() => {})("make package.json file or move to it.");
 
@@ -27,6 +21,13 @@ export namespace NestiaSetupWizard {
         );
         add(manager)(pack)("@nestia/core", false);
         add(manager)(pack)("@nestia/sdk", false);
+
+        const modulo: typeof import("@nestia/core/lib/executable/internal/CoreSetupWizard") =
+            await import(
+                process.cwd() +
+                    "/node_modules/@nestia/core/lib/executable/internal/CoreSetupWizard"
+            );
+        return modulo.CoreSetupWizard;
     }
 }
 
