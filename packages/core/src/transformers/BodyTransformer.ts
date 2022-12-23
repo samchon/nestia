@@ -69,7 +69,17 @@ export namespace BodyTransformer {
                 ),
                 ts.factory.createPropertyAssignment(
                     ts.factory.createIdentifier(key),
-                    programmer(project, expression.expression)(type),
+                    programmer(
+                        {
+                            ...project,
+                            options: {
+                                numeric: false,
+                                finite: false,
+                                functional: false,
+                            },
+                        },
+                        expression.expression,
+                    )(type),
                 ),
             ]);
         const validator: ts.ObjectLiteralExpression = (() => {

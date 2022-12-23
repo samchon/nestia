@@ -80,7 +80,13 @@ export namespace RouteTransformer {
                 ),
                 ts.factory.createPropertyAssignment(
                     ts.factory.createIdentifier(key),
-                    programmer(project, expression.expression)(type),
+                    programmer(
+                        {
+                            ...project,
+                            options: {}, // use default option
+                        },
+                        expression.expression,
+                    )(type),
                 ),
             ]);
         const stringify: ts.Expression = (() => {
