@@ -67,12 +67,15 @@ npx ttsc
 npx ts-node -C ttypescript src/index.ts
 ```
 
-Also, you can specify package manager by `--manage` argument like below:
+Also, you can specify package manager or target `tsconfig.json` file like below:
 
 ```bash
 npx @nestia/core setup --manager npm
 npx @nestia/core setup --manager pnpm
 npx @nestia/core setup --manager yarn
+
+npx @nestia/core setup --project tsconfig.json
+npx @nestia/core setup --project tsconfig.test.json
 ```
 
 ### Manual Setup

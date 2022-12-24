@@ -2,25 +2,30 @@ import cp from "child_process";
 import fs from "fs";
 
 export namespace NestiaSetupWizard {
-    export async function ttypescript(manager: string): Promise<void> {
-        const wizard = await prepare(manager);
-        await wizard.ttypescript(manager);
+    export interface IArguments {
+        manager: "npm" | "pnpm" | "yarn";
+        project: string;
     }
 
-    export async function tsPatch(manager: string): Promise<void> {
-        const wizard = await prepare(manager);
-        await wizard.tsPatch(manager);
+    export async function ttypescript(args: IArguments): Promise<void> {
+        const wizard = await prepare(args);
+        await wizard.ttypescript(args);
     }
 
-    async function prepare(manager: string) {
+    export async function tsPatch(args: IArguments): Promise<void> {
+        const wizard = await prepare(args);
+        await wizard.tsPatch(args);
+    }
+
+    async function prepare(args: IArguments) {
         if (fs.existsSync("package.json") === false)
             halt(() => {})("make package.json file or move to it.");
 
         const pack: any = JSON.parse(
             await fs.promises.readFile("package.json", "utf8"),
         );
-        add(manager)(pack)("@nestia/core", false);
-        add(manager)(pack)("@nestia/sdk", false);
+        add(args.manager)(pack)("@nestia/core", false);
+        add(args.manager)(pack)("@nestia/sdk", false);
 
         const modulo: typeof import("@nestia/core/lib/executable/internal/CoreSetupWizard") =
             await import(

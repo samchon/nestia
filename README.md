@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/samchon/typia/workflows/build/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Abuild)
 [![Guide Documents](https://img.shields.io/badge/wiki-documentation-forestgreen)](https://github.com/samchon/nestia/wiki)
 
-Nestia is a helper library set for NestJS, supporting below features:
+Nestia is a set of helper libraries for NestJS, supporting below features:
 
   - [`@nestia/core`](#nestiacore): **15,000x times faster** validation decorator using [typia](https://github.com/samchon/typia)
   - [`@nestia/sdk`](#nestiasdk): evolved **SDK** and **Swagger** generator for `@nestia/core`
@@ -33,12 +33,15 @@ When you want to use `nestia` in orindary project, just type above command.
 
 All installation and configuration processes would be automatically done.
 
-Also, you can specify package manager by `--manager` argument like below:
+Also, you can specify package manager or target `tsconfig.json` file like below:
 
 ```bash
 npx nestia setup --manager npm
 npx nestia setup --manager pnpm
 npx nestia setup --manager yarn
+
+npx nestia setup --project tsconfig.json
+npx nestia setup --project tsconfig.test.json
 ```
 
 After the setup, you can compile `@nestia/core` utilization code by using `ttsc` ([`ttypescript`](https://github.com/cevek/ttypescript)) command. If you want to run your TypeScript file directly through `ts-node`, add `-C ttypescript` argument like below:

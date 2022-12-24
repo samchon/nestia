@@ -6,12 +6,13 @@ const USAGE = `Wrong command has been detected. Use like below:
 
   npx @nestia/core setup \\
     --compiler (ttypescript|ts-patch) \\
-    --manager (npm|pnpm|yarn)
+    --manager (npm|pnpm|yarn) \\
+    --project {tsconfig.json file path}
 
   - npx @nestia/core setup
-  - npx @nestia/core setup --compiler ttypescript
   - npx @nestia/core setup --compiler ts-patch
-  - npx @nestia/core setup --manager pnpm`;
+  - npx @nestia/core setup --manager pnpm
+  - npx @nestia/core setup --project tsconfig.test.json`;
 
 function halt(desc: string): never {
     console.error(desc);
@@ -24,6 +25,8 @@ async function setup(): Promise<void> {
     );
     const manager: string = options.manager ?? "npm";
     const compiler: string = options.compiler ?? "ttypescript";
+    const project: string = options.project ?? "tsconfig.json";
+    console.log(options);
 
     if (
         (compiler !== "ttypescript" && compiler !== "ts-patch") ||
@@ -31,8 +34,8 @@ async function setup(): Promise<void> {
     )
         halt(USAGE);
     else if (compiler === "ttypescript")
-        await CoreSetupWizard.ttypescript(manager);
-    else await CoreSetupWizard.tsPatch(manager);
+        await CoreSetupWizard.ttypescript({ manager, project });
+    else await CoreSetupWizard.tsPatch({ manager, project });
 }
 
 async function main(): Promise<void> {

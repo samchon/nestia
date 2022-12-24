@@ -12,7 +12,8 @@ npx nestia [command] [options?]
     - npx nestia start project --manager pnpm
   2. npx nestia setup \\
         --compiler (ttypescript|ts-patch) \\
-        --manager (npm|pnpm|yarn)
+        --manager (npm|pnpm|yarn) \\
+        --project {tsconfig.json file path}
     - npx nestia setup
     - npx nestia setup --compiler ttypescript
     - npx nestia setup --compiler ts-patch
@@ -42,6 +43,7 @@ async function setup(): Promise<void> {
     );
     const manager: string = options.manager ?? "npm";
     const compiler: string = options.compiler ?? "ttypescript";
+    const project: string = options.project ?? "tsconfig.json";
 
     if (
         (compiler !== "ttypescript" && compiler !== "ts-patch") ||
@@ -49,8 +51,8 @@ async function setup(): Promise<void> {
     )
         halt(USAGE);
     else if (compiler === "ttypescript")
-        await NestiaSetupWizard.ttypescript(manager);
-    else await NestiaSetupWizard.tsPatch(manager);
+        await NestiaSetupWizard.ttypescript({ manager, project });
+    else await NestiaSetupWizard.tsPatch({ manager, project });
 }
 
 async function main(): Promise<void> {
