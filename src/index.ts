@@ -69,13 +69,15 @@ async function main(): Promise<void> {
         type === "swagger"
     ) {
         try {
-            await import("@nestia/sdk");
+            await import(process.cwd() + "/node_modules/@nestia/sdk");
         } catch {
             halt(
                 `@nestia/sdk has not been installed. Run "npx nestia setup" before.`,
             );
         }
-        await import("@nestia/sdk/lib/executable/sdk");
+        await import(
+            process.cwd() + "/node_modules/@nestia/sdk/lib/executable/sdk"
+        );
     } else halt(USAGE);
 }
 main().catch((exp) => {
