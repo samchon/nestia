@@ -14,8 +14,16 @@ import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
 import { ISwagger } from "../structures/ISwagger";
 import { MapUtil } from "../utils/MapUtil";
+import * as YAML from 'yamljs'
 
 export namespace SwaggerGenerator {
+
+    function isYAML (config: INestiaConfig.ISwagger) {
+        const fileExt = config.output.split('.').pop()
+        return (fileExt === 'yaml') || Boolean(config.yaml)
+    }
+
+
     export async function generate(
         checker: ts.TypeChecker,
         config: INestiaConfig.ISwagger,
@@ -25,7 +33,10 @@ export namespace SwaggerGenerator {
         const parsed: NodePath.ParsedPath = NodePath.parse(config.output);
         const location: string = !!parsed.ext
             ? NodePath.resolve(config.output)
-            : NodePath.join(NodePath.resolve(config.output), "swagger.json");
+            : NodePath.join(
+                NodePath.resolve(config.output),
+                "swagger" + (isYAML(config) ? "yaml" : "json")
+            );
 
         const collection: MetadataCollection = new MetadataCollection({
             replace: MetadataCollection.replace,
@@ -33,7 +44,7 @@ export namespace SwaggerGenerator {
 
         // CONSTRUCT SWAGGER DOCUMENTS
         const tupleList: Array<ISchemaTuple> = [];
-        const swagger: ISwagger = await initialize(location);
+        const swagger: ISwagger = await initialize(location, isYAML(config));
         const pathDict: Map<string, ISwagger.IPath> = new Map();
 
         for (const route of routeList) {
@@ -73,10 +84,13 @@ export namespace SwaggerGenerator {
         for (const obj of Object.values(swagger.components.schemas))
             if (obj.$id) delete obj.$id;
 
-        // DO GENERATE
+        // DO 
+        const stringifyFunction = (swagger: ISwagger) => isYAML(config)
+            ? YAML.stringify(swagger, 10, 2)
+            : JSON.stringify(swagger, null, 2)
         await fs.promises.writeFile(
             location,
-            JSON.stringify(swagger, null, 2),
+            stringifyFunction(swagger),
             "utf8",
         );
     }
@@ -84,10 +98,12 @@ export namespace SwaggerGenerator {
     /* ---------------------------------------------------------
         INITIALIZERS
     --------------------------------------------------------- */
-    async function initialize(path: string): Promise<ISwagger> {
+    async function initialize(path: string, isYaml: boolean): Promise<ISwagger> {
         // LOAD OR CREATE NEW SWAGGER DATA
         const swagger: ISwagger = fs.existsSync(path)
-            ? JSON.parse(await fs.promises.readFile(path, "utf8"))
+            ? isYaml
+                ? YAML.load(path)
+                : JSON.parse(await fs.promises.readFile(path, "utf8"))
             : {
                   openapi: "3.0.1",
                   servers: [

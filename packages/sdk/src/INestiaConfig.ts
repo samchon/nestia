@@ -81,9 +81,9 @@ export interface INestiaConfig {
     primitive?: boolean;
 
     /**
-     * Building `swagger.json` is also possible.
+     * Building swagger document is also possible.
      *
-     * If not specified, you can't build the `swagger.json`.
+     * If not specified, you can't build the swagger document.
      */
     swagger?: INestiaConfig.ISwagger;
 }
@@ -105,16 +105,24 @@ export namespace INestiaConfig {
     }
 
     /**
-     * Building `swagger.json` is also possible.
+     * Building swagger document is also possible.
      */
     export interface ISwagger {
         /**
-         * Output path of the `swagger.json`.
+         * Output path of the swagger document.
          *
-         * If you've configured only directory, the file name would be the `swagger.json`.
+         * If you've configured only directory, the file name would be the swagger document.
          * Otherwise you've configured the full path with file name and extension, the
-         * `swagger.json` file would be renamed to it.
+         * swagger document file would be renamed to it.
          */
         output: string;
+
+        /**
+         * Output swagger document's default format is JSON
+         * 
+         * If you want to export YAML
+         * set this value true
+         */
+        yaml?: boolean;
     }
 }
