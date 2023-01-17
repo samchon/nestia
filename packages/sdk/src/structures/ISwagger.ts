@@ -6,6 +6,7 @@ export interface ISwagger {
     info: ISwagger.IInfo;
     paths: Record<string, ISwagger.IPath>;
     components: IJsonComponents;
+    security: string[];
 }
 export namespace ISwagger {
     export type IPath = Record<string, IRoute>;
@@ -16,6 +17,7 @@ export namespace ISwagger {
         responses: IResponseBody;
         requestBody?: IRequestBody;
         summary?: string;
+        security?: string[];
     }
 
     export interface IInfo {
