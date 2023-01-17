@@ -31,7 +31,7 @@ export function TypedBody<T>(
         context: ExecutionContext,
     ) {
         const request: express.Request = context.switchToHttp().getRequest();
-        if (request.headers["content-type"] !== "application/json") {
+        if (isApplicationJson(request.headers["content-type"]) === false) {
             throw new BadRequestException(
                 "Request body is not the application/json.",
             );
@@ -47,3 +47,10 @@ export function TypedBody<T>(
 Object.assign(TypedBody, assert);
 Object.assign(TypedBody, is);
 Object.assign(TypedBody, validate);
+
+const isApplicationJson = (text?: string) =>
+    text !== undefined &&
+    text
+        .split(";")
+        .map((str) => str.trim())
+        .some((str) => str === "application/json");
