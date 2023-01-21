@@ -12,13 +12,13 @@ import { ApplicationProgrammer } from "typia/lib/programmers/ApplicationProgramm
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
-import { ISwagger } from "../structures/ISwagger";
+import { ISwaggerDocument } from "../structures/ISwaggerDocument";
 import { MapUtil } from "../utils/MapUtil";
 
 export namespace SwaggerGenerator {
     export async function generate(
         checker: ts.TypeChecker,
-        config: INestiaConfig.ISwagger,
+        config: INestiaConfig.ISwaggerConfig,
         routeList: IRoute[],
     ): Promise<void> {
         // PREPARE ASSETS
@@ -33,11 +33,11 @@ export namespace SwaggerGenerator {
 
         // CONSTRUCT SWAGGER DOCUMENTS
         const tupleList: Array<ISchemaTuple> = [];
-        const swagger: ISwagger = await initialize(location);
-        const pathDict: Map<string, ISwagger.IPath> = new Map();
+        const swagger: ISwaggerDocument = await initialize(location);
+        const pathDict: Map<string, ISwaggerDocument.IPath> = new Map();
 
         for (const route of routeList) {
-            const path: ISwagger.IPath = MapUtil.take(
+            const path: ISwaggerDocument.IPath = MapUtil.take(
                 pathDict,
                 get_path(route.path, route.parameters),
                 () => ({}),
@@ -62,12 +62,15 @@ export namespace SwaggerGenerator {
             },
         );
         swagger.components = {
-            ...(swagger.components || {}),
+            ...(swagger.components ?? {}),
             schemas: application.components.schemas,
         };
         tupleList.forEach(({ schema }, index) => {
             Object.assign(schema, application.schemas[index]!);
         });
+
+        // CONFIGURE SECURITY
+        if (config.security) fill_security(config.security, swagger);
 
         // ERASE IJsonComponents.IObject.$id
         for (const obj of Object.values(swagger.components.schemas))
@@ -84,9 +87,9 @@ export namespace SwaggerGenerator {
     /* ---------------------------------------------------------
         INITIALIZERS
     --------------------------------------------------------- */
-    async function initialize(path: string): Promise<ISwagger> {
+    async function initialize(path: string): Promise<ISwaggerDocument> {
         // LOAD OR CREATE NEW SWAGGER DATA
-        const swagger: ISwagger = fs.existsSync(path)
+        const swagger: ISwaggerDocument = fs.existsSync(path)
             ? JSON.parse(await fs.promises.readFile(path, "utf8"))
             : {
                   openapi: "3.0.1",
@@ -122,7 +125,7 @@ export namespace SwaggerGenerator {
         collection: MetadataCollection,
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
-    ): ISwagger.IRoute {
+    ): ISwaggerDocument.IRoute {
         const bodyParam = route.parameters.find(
             (param) => param.category === "body",
         );
@@ -173,6 +176,31 @@ export namespace SwaggerGenerator {
         };
     }
 
+    function fill_security(
+        security: Required<INestiaConfig.ISwaggerConfig>["security"],
+        swagger: ISwaggerDocument,
+    ): void {
+        swagger.security ??= [];
+        swagger.components.securitySchemes = {};
+
+        for (const [key, value] of Object.entries(security)) {
+            swagger.security.push(key);
+            swagger.components.securitySchemes[key] = emend_security(value);
+        }
+    }
+
+    function emend_security(
+        input: INestiaConfig.ISwaggerConfig.ISecurityScheme,
+    ): ISwaggerDocument.ISecurityScheme {
+        if (input.type === "apiKey")
+            return {
+                ...input,
+                in: input.in ?? "header",
+                name: input.name ?? "Authorization",
+            };
+        return input;
+    }
+
     /* ---------------------------------------------------------
         REQUEST & RESPONSE
     --------------------------------------------------------- */
@@ -182,7 +210,7 @@ export namespace SwaggerGenerator {
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
         parameter: IRoute.IParameter,
-    ): ISwagger.IParameter {
+    ): ISwaggerDocument.IParameter {
         const schema: IJsonSchema | null = generate_schema(
             checker,
             collection,
@@ -195,7 +223,7 @@ export namespace SwaggerGenerator {
             );
 
         return {
-            name: parameter.field || parameter.name,
+            name: parameter.field ?? parameter.name,
             in: parameter.category === "param" ? "path" : parameter.category,
             description:
                 get_parametric_description(route, "param", parameter.name) ||
@@ -211,7 +239,7 @@ export namespace SwaggerGenerator {
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
         parameter: IRoute.IParameter,
-    ): ISwagger.IRequestBody {
+    ): ISwaggerDocument.IRequestBody {
         const schema: IJsonSchema | null = generate_schema(
             checker,
             collection,
@@ -226,7 +254,7 @@ export namespace SwaggerGenerator {
         return {
             description:
                 warning.get(parameter.encrypted).get("request") +
-                (get_parametric_description(route, "param", parameter.name) ||
+                (get_parametric_description(route, "param", parameter.name) ??
                     ""),
             content: {
                 "application/json": {
@@ -242,7 +270,7 @@ export namespace SwaggerGenerator {
         collection: MetadataCollection,
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
-    ): ISwagger.IResponseBody {
+    ): ISwaggerDocument.IResponseBody {
         // OUTPUT WITH SUCCESS STATUS
         const status: string =
             route.method === "GET" || route.method === "DELETE" ? "200" : "201";
@@ -252,12 +280,12 @@ export namespace SwaggerGenerator {
             tupleList,
             route.output.type,
         );
-        const success: ISwagger.IResponseBody = {
+        const success: ISwaggerDocument.IResponseBody = {
             [status]: {
                 description:
                     warning.get(route.encrypted).get("response", route.method) +
-                    (get_parametric_description(route, "return") ||
-                        get_parametric_description(route, "returns") ||
+                    (get_parametric_description(route, "return") ??
+                        get_parametric_description(route, "returns") ??
                         ""),
                 content:
                     schema === null || route.output.name === "void"
@@ -271,7 +299,7 @@ export namespace SwaggerGenerator {
         };
 
         // EXCEPTION STATUSES
-        const exceptions: ISwagger.IResponseBody = Object.fromEntries(
+        const exceptions: ISwaggerDocument.IResponseBody = Object.fromEntries(
             route.tags
                 .filter(
                     (tag) =>

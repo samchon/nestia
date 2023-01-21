@@ -65,7 +65,7 @@
         "required": [
           "id"
         ],
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "Userspace.UserType2": {
         "type": "object",
@@ -86,7 +86,7 @@
           "id",
           "name"
         ],
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       }
     }
   }

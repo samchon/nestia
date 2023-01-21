@@ -149,7 +149,7 @@
           "mobile",
           "company"
         ],
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "ISeller": {
         "type": "object",
@@ -201,7 +201,7 @@
           "created_at"
         ],
         "description": "Seller information.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "author",
             "text": [
@@ -232,7 +232,7 @@
           "email",
           "password"
         ],
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "ISeller.IChangePassword": {
         "type": "object",
@@ -253,7 +253,7 @@
           "old_password",
           "new_password"
         ],
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       }
     }
   }

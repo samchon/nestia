@@ -242,7 +242,7 @@
           "annonymous"
         ],
         "description": "Store info.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "ISaleArticleComment": {
         "type": "object",
@@ -303,7 +303,7 @@
           "created_at"
         ],
         "description": "Comment wrote on a sale related article.\n\nWhen an article of a sale has been enrolled, all of the participants like consumers and\nsellers can write a comment on that article. However, when the writer is a consumer, the\nconsumer can hide its name through the annoymous option.\n\nAlso, writing a reply comment for a specific comment is possible and in that case, the\n{@link ISaleArticleComment.parent_id} property would be activated.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "author",
             "text": [
@@ -344,7 +344,7 @@
           "created_at"
         ],
         "description": "Content info.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       }
     }
   }

@@ -1,5 +1,6 @@
 import ts from "typescript";
 
+import { ISwaggerDocument } from "./structures/ISwaggerDocument";
 import type { StripEnums } from "./utils/StripEnums";
 
 /**
@@ -85,7 +86,7 @@ export interface INestiaConfig {
      *
      * If not specified, you can't build the `swagger.json`.
      */
-    swagger?: INestiaConfig.ISwagger;
+    swagger?: INestiaConfig.ISwaggerConfig;
 }
 export namespace INestiaConfig {
     /**
@@ -107,7 +108,7 @@ export namespace INestiaConfig {
     /**
      * Building `swagger.json` is also possible.
      */
-    export interface ISwagger {
+    export interface ISwaggerConfig {
         /**
          * Output path of the `swagger.json`.
          *
@@ -116,5 +117,31 @@ export namespace INestiaConfig {
          * `swagger.json` file would be renamed to it.
          */
         output: string;
+
+        /**
+         * Security schemes.
+         */
+        security?: Record<string, ISwaggerConfig.ISecurityScheme>;
+    }
+    export namespace ISwaggerConfig {
+        export type ISecurityScheme =
+            | IApiKey
+            | Exclude<
+                  ISwaggerDocument.ISecurityScheme,
+                  ISwaggerDocument.ISecurityScheme.IApiKey
+              >;
+        export interface IApiKey {
+            type: "apiKey";
+
+            /**
+             * @default header
+             */
+            in?: "header" | "query" | "cookie";
+
+            /**
+             * @default Authorization
+             */
+            name?: string;
+        }
     }
 }
