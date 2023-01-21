@@ -53,4 +53,11 @@ export namespace ISeller {
         old_password: string;
         new_password: string;
     }
+
+    export interface IAuthorized extends ISeller {
+        authorization: {
+            token: string;
+            expires_at: string;
+        };
+    }
 }

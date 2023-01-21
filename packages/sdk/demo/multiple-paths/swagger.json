@@ -20,7 +20,8 @@
             "description": ""
           }
         },
-        "description": ""
+        "description": "",
+        "x-nestia-jsDocTags": []
       }
     },
     "/health/alive": {
@@ -32,7 +33,8 @@
             "description": ""
           }
         },
-        "description": ""
+        "description": "",
+        "x-nestia-jsDocTags": []
       }
     },
     "/healthy/check": {
@@ -44,7 +46,8 @@
             "description": ""
           }
         },
-        "description": ""
+        "description": "",
+        "x-nestia-jsDocTags": []
       }
     },
     "/healthy/alive": {
@@ -56,7 +59,8 @@
             "description": ""
           }
         },
-        "description": ""
+        "description": "",
+        "x-nestia-jsDocTags": []
       }
     },
     "/consumers/{section}/sales/{saleId}/articles/{articleId}/comments": {
@@ -129,7 +133,139 @@
             "description": "not found error when unable to find the matched record"
           }
         },
-        "description": "Store a new comment."
+        "description": "Store a new comment.",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "request",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Instance of the Express.Request",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "section",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Code of the target section",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "saleId",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "ID of the target sale",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "articleId",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "ID of the target article",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content to write",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "return",
+            "text": [
+              {
+                "text": "Newly archived comment",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "400 bad request error when type of the input data is not valid",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "401 unauthorized error when you've not logged in yet",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "403 forbidden error when you're a seller and the sale is not yours",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "404 not found error when unable to find the matched record",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       }
     },
     "/sellers/{section}/sales/{saleId}/articles/{articleId}/comments": {
@@ -202,7 +338,139 @@
             "description": "not found error when unable to find the matched record"
           }
         },
-        "description": "Store a new comment."
+        "description": "Store a new comment.",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "request",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Instance of the Express.Request",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "section",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Code of the target section",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "saleId",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "ID of the target sale",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "articleId",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "ID of the target article",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content to write",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "return",
+            "text": [
+              {
+                "text": "Newly archived comment",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "400 bad request error when type of the input data is not valid",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "401 unauthorized error when you've not logged in yet",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "403 forbidden error when you're a seller and the sale is not yours",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "404 not found error when unable to find the matched record",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       }
     }
   },

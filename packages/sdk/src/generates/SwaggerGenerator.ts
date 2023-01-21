@@ -173,6 +173,7 @@ export namespace SwaggerGenerator {
                 route,
             ),
             description: CommentFactory.generate(route.comments),
+            "x-nestia-jsDocTags": route.tags,
         };
     }
 

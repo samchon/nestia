@@ -1,4 +1,5 @@
 import { IJsonComponents, IJsonSchema } from "typia";
+import { IJsDocTagInfo } from "typia/lib/metadata/IJsDocTagInfo";
 
 export interface ISwaggerDocument {
     openapi: "3.0";
@@ -79,13 +80,14 @@ export namespace ISwaggerDocument {
     --------------------------------------------------------- */
     export type IPath = Record<string, IRoute>;
     export interface IRoute {
-        description: string;
         tags: string[];
         parameters: IParameter[];
-        responses: IResponseBody;
         requestBody?: IRequestBody;
+        responses: IResponseBody;
         summary?: string;
+        description: string;
         security?: string[];
+        "x-nestia-jsDocTags": IJsDocTagInfo[];
     }
 
     export interface IParameter {

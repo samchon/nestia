@@ -125,6 +125,7 @@ export namespace ControllerAnalyzer {
             .map((pair) => [pair.first, pair.second.toJSON()]);
 
         // CONSTRUCT COMMON DATA
+        const tags = signature.getJsDocTags();
         const common: Omit<IRoute, "path"> = {
             ...func,
             parameters,
@@ -133,7 +134,26 @@ export namespace ControllerAnalyzer {
 
             symbol: `${controller.name}.${func.name}()`,
             comments: signature.getDocumentationComment(undefined),
-            tags: signature.getJsDocTags(),
+            tags,
+            setHeaders: tags
+                .filter(
+                    (t) =>
+                        t.text?.length &&
+                        t.text[0].text &&
+                        (t.name === "setHeader" || t.name === "assignHeaders"),
+                )
+                .map((t) =>
+                    t.name === "setHeader"
+                        ? {
+                              type: "setter",
+                              source: t.text![0].text.split(" ")[0].trim(),
+                              target: t.text![0].text.split(" ")[1]?.trim(),
+                          }
+                        : {
+                              type: "assigner",
+                              source: t.text![0].text,
+                          },
+                ),
         };
 
         // CONFIGURE PATHS

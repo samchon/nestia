@@ -54,17 +54,45 @@ export namespace FunctionGenerator {
                       .join("\n") + "\n\n"
                 : "";
 
-        // RETURNS WITH FINALIZATION
-        return (
-            "{\n" +
-            assertions +
-            "    return Fetcher.fetch\n" +
-            "    (\n" +
+        // FUNCTION CALL STATEMENT
+        const caller: string =
+            "Fetcher.fetch(\n" +
             fetchArguments.map((param) => `        ${param}`).join(",\n") +
             "\n" +
-            "    );\n" +
-            "}"
-        );
+            "    )";
+        if (route.setHeaders.length === 0)
+            return `{\n${assertions}    return ${caller};\n}`;
+
+        // SET HEADERS
+        const content: string[] = [
+            `{\n`,
+            assertions,
+            `    const output: ${route.name}.Output = await ${caller};\n`,
+            "\n",
+            `    // configure header(s)\n`,
+            `    connection.headers ??= {};\n`,
+        ];
+
+        for (const header of route.setHeaders) {
+            if (header.type === "assigner")
+                content.push(
+                    "    ",
+                    `Object.assign(connection.headers, ${access(
+                        "output",
+                        header.source,
+                    )});\n`,
+                );
+            else
+                content.push(
+                    "    ",
+                    `${access(
+                        "connection.headers",
+                        header.target ?? header.source,
+                    )} = ${access("output", header.source)};\n`,
+                );
+        }
+        content.push("\n", "    return output;\n", "}");
+        return content.join("");
     }
 
     function filter_parameters(
@@ -78,6 +106,10 @@ export namespace FunctionGenerator {
         );
         if (query) parameters.push(query);
         return parameters;
+    }
+
+    function access(x: string, y: string): string {
+        return y[0] === "[" ? `${x}${y}` : `${x}.${y}`;
     }
 
     /* ---------------------------------------------------------
@@ -174,7 +206,9 @@ export namespace FunctionGenerator {
             comments.map((str) => ` * ${str}`).join("\n") +
             "\n" +
             " */\n" +
-            `export function ${route.name}\n` +
+            `export${route.setHeaders ? " async" : ""} function ${
+                route.name
+            }\n` +
             `    (\n` +
             `${parameters.map((str) => `        ${str}`).join(",\n")}\n` +
             `    ): Promise<${output}>`
@@ -231,7 +265,7 @@ export namespace FunctionGenerator {
             (route.method === "POST" ||
                 route.method === "PUT" ||
                 route.method === "PATCH")
-                ? `    export const stringify = (input: Input) => typia.stringify(input);\n`
+                ? `    export const stringify = (input: Input) => typia.assertStringify(input);\n`
                 : "") +
             "}"
         );
