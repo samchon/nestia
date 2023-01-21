@@ -138,7 +138,7 @@
           "name"
         ],
         "description": "Systematic category info.\n\nThis `ICategory` has been designed to represent a systematic classfication. Also, its\nclassification has hierarchical and recursive relationship. Therefore, its structure has\na tree shape through the {@link ICategory.children} property.\n\nIf you want to see invert structure for getting parent information repeatedly, use the\n{@link ICategory.IInvert} type instead.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "author",
             "text": [
@@ -185,7 +185,7 @@
           "name"
         ],
         "description": "Invert structure of the {@link ICategory}.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "ICategory.IInvert.Nullable": {
         "type": "object",
@@ -222,7 +222,7 @@
           "name"
         ],
         "description": "Invert structure of the {@link ICategory}.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       }
     }
   }

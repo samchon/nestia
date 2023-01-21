@@ -314,7 +314,7 @@
           "files"
         ],
         "description": "Store info.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "IAttachmentFile": {
         "type": "object",
@@ -345,7 +345,7 @@
           "url"
         ],
         "description": "Attachemd (physical) file info.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "author",
             "text": [
@@ -411,7 +411,7 @@
           "created_at"
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "template",
             "text": [
@@ -481,7 +481,7 @@
           "created_at"
         ],
         "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "template",
             "text": [
@@ -570,7 +570,7 @@
           "files"
         ],
         "description": "Content info.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "ISaleReview.IStore": {
         "type": "object",
@@ -625,7 +625,7 @@
           "files"
         ],
         "description": "Store info of the review.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "ISaleReview": {
         "type": "object",
@@ -681,7 +681,7 @@
           "created_at"
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "template",
             "text": [
@@ -777,7 +777,7 @@
           "files"
         ],
         "description": "Content info of the review.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       }
     }
   }

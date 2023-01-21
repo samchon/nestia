@@ -301,7 +301,7 @@
           "code",
           "referrer"
         ],
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "ISaleInquiry.IRequest": {
         "type": "object",
@@ -368,7 +368,7 @@
         },
         "nullable": false,
         "description": "Page request info.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "IPage_lt_ISaleEntireArtcle.ISummary_gt_": {
         "type": "object",
@@ -407,7 +407,7 @@
           "data"
         ],
         "description": "Paginated records.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "author",
             "text": [
@@ -467,7 +467,7 @@
           "total_pages"
         ],
         "description": "Pagenation info.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "ISaleInquiry.ISummary": {
         "type": "object",
@@ -526,7 +526,7 @@
           "updated_at"
         ],
         "description": "Summarized info of the inquiry article.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "ISaleReview.ISummary": {
         "type": "object",
@@ -592,7 +592,7 @@
           "updated_at"
         ],
         "description": "Summarized info of the review.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "ISaleQuestion": {
         "type": "object",
@@ -648,7 +648,7 @@
           "created_at"
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "template",
             "text": [
@@ -718,7 +718,7 @@
           "created_at"
         ],
         "description": "Article about a sale.\n\nThe `ISaleArticle` is a super type interface. Many sub-type articles would be\ndesigned by extending this super type interface `ISaleArticle`.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "template",
             "text": [
@@ -795,7 +795,7 @@
           "created_at"
         ],
         "description": "Content info.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "IAttachmentFile": {
         "type": "object",
@@ -833,7 +833,7 @@
           "url"
         ],
         "description": "Attachemd (physical) file info.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "author",
             "text": [
@@ -899,7 +899,7 @@
           "created_at"
         ],
         "description": "Inquiry article.\n\nSub-type of article and super-type of question and answer.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "template",
             "text": [
@@ -983,7 +983,7 @@
           "created_at"
         ],
         "description": "Content info of the review.",
-        "x-typia_jsDocTags": []
+        "x-typia-jsDocTags": []
       },
       "IPage_lt_ISaleInquiry.ISummary_gt_": {
         "type": "object",
@@ -1011,7 +1011,7 @@
           "data"
         ],
         "description": "Paginated records.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "author",
             "text": [
@@ -1049,7 +1049,7 @@
           "data"
         ],
         "description": "Paginated records.",
-        "x-typia_jsDocTags": [
+        "x-typia-jsDocTags": [
           {
             "name": "author",
             "text": [
