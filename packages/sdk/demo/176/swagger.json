@@ -27,7 +27,8 @@
             }
           }
         },
-        "description": ""
+        "description": "",
+        "x-nestia-jsDocTags": []
       }
     },
     "/userspace/type2": {
@@ -46,7 +47,8 @@
             }
           }
         },
-        "description": ""
+        "description": "",
+        "x-nestia-jsDocTags": []
       }
     }
   },

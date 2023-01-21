@@ -16,6 +16,10 @@ export interface IRoute {
     symbol: string;
     comments: ts.SymbolDisplayPart[];
     tags: ts.JSDocTagInfo[];
+    setHeaders: Array<
+        | { type: "setter"; source: string; target?: string }
+        | { type: "assigner"; source: string }
+    >;
 }
 
 export namespace IRoute {

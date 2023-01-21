@@ -46,21 +46,21 @@ export interface INestiaConfig {
     /**
      * Whether to assert parameter types or not.
      *
-     * If you configure this property to be `true`, all of the function parameters would be
-     * checked through the [typia](https://github.com/samchon/typia#runtime-type-checkers).
-     * This option would make your SDK library slower, but would enahcne the type safety even
-     * in the runtime level.
+     * If you configure this property to be `true`, all of the function parameters
+     * would be checked through [typia](https://github.com/samchon/typia#runtime-validators).
+     * This option would make your SDK library slower, but would enahcne the type safety
+     * even in the runtime level.
      *
      * @default false
      */
     assert?: boolean;
 
     /**
-     * Whether to optimize JSON string conversion 2x faster or not.
+     * Whether to optimize JSON string conversion 10x faster or not.
      *
      * If you configure this property to be `true`, the SDK library would utilize the
-     * [typia](https://github.com/samchon/typia#fastest-json-string-converter)
-     * and the JSON string conversion speed really be 2x faster.
+     * [typia](https://github.com/samchon/typia#enhanced-json)
+     * and the JSON string conversion speed really be 10x faster.
      *
      * @default false
      */

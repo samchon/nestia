@@ -11,11 +11,12 @@ export class SellerAuthenticateController {
      *
      * @param input Information of yours
      * @return Information of newly joined seller
+     * @setHeader authorization.token Authorization
      */
     @core.EncryptedRoute.Post("join")
     public async join(
         @core.EncryptedBody() input: ISeller.IJoin,
-    ): Promise<ISeller> {
+    ): Promise<ISeller.IAuthorized> {
         return {
             id: 0,
             email: input.email,
@@ -23,6 +24,10 @@ export class SellerAuthenticateController {
             mobile: input.mobile,
             company: input.company,
             created_at: new Date().toString(),
+            authorization: {
+                token: "token",
+                expires_at: new Date().toString(),
+            },
         };
     }
 
@@ -31,11 +36,12 @@ export class SellerAuthenticateController {
      *
      * @param input Email and password
      * @return Information of the seller
+     * @assignHeaders authorization
      */
     @core.EncryptedRoute.Post("login")
     public async login(
         @core.EncryptedBody() input: ISeller.ILogin,
-    ): Promise<ISeller> {
+    ): Promise<ISeller.IAuthorized> {
         return {
             id: 0,
             email: input.email,
@@ -43,6 +49,10 @@ export class SellerAuthenticateController {
             name: "John Doe",
             company: "ABC Company",
             created_at: new Date().toString(),
+            authorization: {
+                token: "token",
+                expires_at: new Date().toString(),
+            },
         };
     }
 

@@ -31,7 +31,8 @@
             }
           }
         },
-        "description": ""
+        "description": "",
+        "x-nestia-jsDocTags": []
       }
     },
     "/consumers/systematic/categories/{id}": {
@@ -61,7 +62,8 @@
             }
           }
         },
-        "description": ""
+        "description": "",
+        "x-nestia-jsDocTags": []
       }
     },
     "/consumers/systematic/categories/{id}/invert": {
@@ -91,7 +93,8 @@
             }
           }
         },
-        "description": ""
+        "description": "",
+        "x-nestia-jsDocTags": []
       }
     }
   },

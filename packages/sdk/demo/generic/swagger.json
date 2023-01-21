@@ -65,7 +65,104 @@
             "description": "unauthorized error when you've not logged in yet"
           }
         },
-        "description": "Store a new inquiry.\n\nWrite a new article inquirying about a sale."
+        "description": "Store a new inquiry.\n\nWrite a new article inquirying about a sale.",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "request",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Instance of the Express.Request",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "section",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Code of the target section",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "saleId",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "ID of the target sale",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content to archive",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "return",
+            "text": [
+              {
+                "text": "Newly archived inquiry",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "400 bad request error when type of the input data is not valid",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "401 unauthorized error when you've not logged in yet",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       }
     },
     "/consumers/{section}/sales/{saleId}/questions/{id}": {
@@ -135,7 +232,130 @@
             "description": "forbidden error when the article is not yours"
           }
         },
-        "description": "Update an inquiry.\n\nUpdate ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.\nTherefore, all of the poeple can read how the content has been changed."
+        "description": "Update an inquiry.\n\nUpdate ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.\nTherefore, all of the poeple can read how the content has been changed.",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "request",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Instance of the Express.Request",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "section",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Code of the target section",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "saleId",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "ID of the target sale",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "id",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "ID of the target article to be updated",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "New content to be overwritten",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "return",
+            "text": [
+              {
+                "text": "The newly created content record",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "400 bad request error when type of the input data is not valid",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "401 unauthorized error when you've not logged in yet",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "403 forbidden error when the article is not yours",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       }
     },
     "/consumers/{section}/sales/{saleId}/reviews": {
@@ -192,7 +412,104 @@
             "description": "unauthorized error when you've not logged in yet"
           }
         },
-        "description": "Store a new inquiry.\n\nWrite a new article inquirying about a sale."
+        "description": "Store a new inquiry.\n\nWrite a new article inquirying about a sale.",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "request",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Instance of the Express.Request",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "section",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Code of the target section",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "saleId",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "ID of the target sale",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content to archive",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "return",
+            "text": [
+              {
+                "text": "Newly archived inquiry",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "400 bad request error when type of the input data is not valid",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "401 unauthorized error when you've not logged in yet",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       }
     },
     "/consumers/{section}/sales/{saleId}/reviews/{id}": {
@@ -262,7 +579,130 @@
             "description": "forbidden error when the article is not yours"
           }
         },
-        "description": "Update an inquiry.\n\nUpdate ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.\nTherefore, all of the poeple can read how the content has been changed."
+        "description": "Update an inquiry.\n\nUpdate ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.\nTherefore, all of the poeple can read how the content has been changed.",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "request",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Instance of the Express.Request",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "section",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Code of the target section",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "saleId",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "ID of the target sale",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "id",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "ID of the target article to be updated",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "New content to be overwritten",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "return",
+            "text": [
+              {
+                "text": "The newly created content record",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "400 bad request error when type of the input data is not valid",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "401 unauthorized error when you've not logged in yet",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "403 forbidden error when the article is not yours",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
       }
     }
   },
