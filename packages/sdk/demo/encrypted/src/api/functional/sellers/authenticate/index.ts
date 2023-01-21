@@ -29,7 +29,8 @@ export async function join
         input: Primitive<join.Input>
     ): Promise<join.Output>
 {
-    const output: join.Output = await Fetcher.fetch(
+    const output: join.Output = await Fetcher.fetch
+    (
         connection,
         join.ENCRYPTED,
         join.METHOD,
@@ -79,7 +80,8 @@ export async function login
         input: Primitive<login.Input>
     ): Promise<login.Output>
 {
-    const output: login.Output = await Fetcher.fetch(
+    const output: login.Output = await Fetcher.fetch
+    (
         connection,
         login.ENCRYPTED,
         login.METHOD,
@@ -123,7 +125,8 @@ export async function exit
         connection: IConnection
     ): Promise<void>
 {
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         exit.ENCRYPTED,
         exit.METHOD,

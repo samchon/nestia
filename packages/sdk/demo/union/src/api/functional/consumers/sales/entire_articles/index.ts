@@ -40,7 +40,8 @@ export async function index
         input: ISaleInquiry.IRequest
     ): Promise<index.Output>
 {
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         index.ENCRYPTED,
         index.METHOD,
@@ -94,7 +95,8 @@ export async function at
         id: number
     ): Promise<at.Output>
 {
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         at.ENCRYPTED,
         at.METHOD,

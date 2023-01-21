@@ -25,7 +25,8 @@ export async function index
         input: ISaleInquiry.IRequest
     ): Promise<index.Output>
 {
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         index.ENCRYPTED,
         index.METHOD,

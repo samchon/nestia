@@ -40,7 +40,8 @@ export async function store
     typia.assert<typeof saleId>(saleId);
     typia.assert<typeof input>(input);
 
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         store.ENCRYPTED,
         store.METHOD,
@@ -104,7 +105,8 @@ export async function update
     typia.assert<typeof id>(id);
     typia.assert<typeof input>(input);
 
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         update.ENCRYPTED,
         update.METHOD,
