@@ -19,7 +19,8 @@ export async function top
         connection: IConnection
     ): Promise<top.Output>
 {
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         top.ENCRYPTED,
         top.METHOD,
@@ -54,7 +55,8 @@ export async function at
         id: number
     ): Promise<at.Output>
 {
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         at.ENCRYPTED,
         at.METHOD,
@@ -89,7 +91,8 @@ export async function invert
         id: number
     ): Promise<invert.Output>
 {
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         invert.ENCRYPTED,
         invert.METHOD,

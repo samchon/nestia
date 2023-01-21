@@ -56,7 +56,8 @@ export namespace FunctionGenerator {
 
         // FUNCTION CALL STATEMENT
         const caller: string =
-            "Fetcher.fetch(\n" +
+            "Fetcher.fetch\n" +
+            "    (\n" +
             fetchArguments.map((param) => `        ${param}`).join(",\n") +
             "\n" +
             "    )";

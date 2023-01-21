@@ -19,7 +19,8 @@ export async function type1
         connection: IConnection
     ): Promise<type1.Output>
 {
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         type1.ENCRYPTED,
         type1.METHOD,
@@ -53,7 +54,8 @@ export async function type2
         connection: IConnection
     ): Promise<type2.Output>
 {
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         type2.ENCRYPTED,
         type2.METHOD,

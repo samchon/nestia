@@ -17,7 +17,8 @@ export async function check
         connection: IConnection
     ): Promise<void>
 {
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         check.ENCRYPTED,
         check.METHOD,

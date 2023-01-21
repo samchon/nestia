@@ -26,7 +26,8 @@ export async function change
         input: Primitive<change.Input>
     ): Promise<void>
 {
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         change.ENCRYPTED,
         change.METHOD,

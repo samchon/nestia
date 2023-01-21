@@ -37,7 +37,8 @@ export async function store
         input: Primitive<store.Input>
     ): Promise<store.Output>
 {
-    return Fetcher.fetch(
+    return Fetcher.fetch
+    (
         connection,
         store.ENCRYPTED,
         store.METHOD,
