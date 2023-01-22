@@ -6,7 +6,9 @@ import { IFilesystemBucket } from "../api/structures/IFilesystemBucket";
 @nest.Controller("filesystem")
 export class FilesystemController {
     @helper.TypedRoute.Get()
-    public get(): IFilesystemBucket[] {
+    public get(
+        @helper.TypedQuery() _input: IFilesystemBucket.IRequest,
+    ): IFilesystemBucket[] {
         return [
             {
                 type: "directory",

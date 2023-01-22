@@ -505,12 +505,24 @@
             "type": "string",
             "nullable": false,
             "x-typia-required": true
+          },
+          "alive": {
+            "type": "boolean",
+            "nullable": false,
+            "x-typia-required": true
+          },
+          "signal": {
+            "type": "number",
+            "nullable": false,
+            "x-typia-required": true
           }
         },
         "nullable": false,
         "required": [
           "code",
-          "referrer"
+          "referrer",
+          "alive",
+          "signal"
         ],
         "x-typia-jsDocTags": []
       },

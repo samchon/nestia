@@ -38,5 +38,7 @@ export namespace ISaleReview {
     export interface IQuery {
         code: string;
         referrer: string;
+        alive: boolean;
+        signal: number;
     }
 }

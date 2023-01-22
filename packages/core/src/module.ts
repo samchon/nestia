@@ -8,4 +8,5 @@ export * from "./decorators/PlainBody";
 export * from "./decorators/TypedBody";
 export * from "./decorators/TypedParam";
 export * from "./decorators/TypedRoute";
+export * from "./decorators/TypedQuery";
 export * from "./options/INestiaTransformOptions";

@@ -17,6 +17,8 @@ export async function test_sale_entire_articles_index(
             {
                 referrer: "NodeJS",
                 code: "some-code",
+                signal: 0,
+                alive: true,
             },
             {
                 limit: 10,

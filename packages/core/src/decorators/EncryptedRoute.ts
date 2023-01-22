@@ -156,7 +156,7 @@ class EncryptedRouteInterceptor implements NestInterceptor {
                 );
                 if (!param)
                     throw new Error(
-                        `Error on EncryptedRoute.${this.method}(): no encryption password is given.`,
+                        `Error on nestia.core.EncryptedRoute.${this.method}(): no encryption password is given.`,
                     );
 
                 const headers: Singleton<Record<string, string>> =

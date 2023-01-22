@@ -55,7 +55,7 @@ export function EncryptedBody<T>(validator?: IRequestBodyValidator<T>) {
         );
         if (!param)
             throw new Error(
-                "Error on EncryptedBody(): no encryption password is given.",
+                "Error on nestia.core.EncryptedBody(): no encryption password is given.",
             );
 
         // GET BODY DATA

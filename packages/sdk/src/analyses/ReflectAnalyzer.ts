@@ -248,6 +248,14 @@ export namespace ReflectAnalyzer {
                 field: param.data,
                 encrypted: false,
             };
+        else if (param.factory.name === "TypedQuery")
+            return {
+                name: param.name,
+                category: "query",
+                index: param.index,
+                field: undefined,
+                encrypted: false,
+            };
         else return null;
     }
 
