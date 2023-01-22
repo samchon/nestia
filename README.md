@@ -113,6 +113,30 @@ Also, it supports safe and fast JSON stringify function pipe, which is maximum 1
   - `TypedRoute.Patch()`
   - `TypedRoute.Delete()`
 
+### TypedQuery
+`TypedQuery` is a decorator function for `URLSearchParams` of `path`.
+
+Also, it supports automatic type casting for property types and super-fast validation pipe.
+
+```typescript
+interface SomeSearchParams {
+    page: number; // automatic casting
+    limit?: number; // does not allow null, but undefined does
+
+    extension?: string; // only atomic or constant typed properties
+    status: "alive" | "erased" | "both"; // properties are allowed
+}
+
+@Controller("some-path")
+export class SomeController {
+    @TypedRoute.Get()
+    public async index(
+        // automatic type casting and validation
+        @TypedQuery() query: SomeSearchParams
+    ): Promise<SomeEntity[]>;
+}
+```
+
 ### Comment Tags
 You can enhance DTO type validation by writing comment tags.
 

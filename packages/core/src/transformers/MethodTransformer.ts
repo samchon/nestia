@@ -1,7 +1,7 @@
 import ts from "typescript";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
-import { RouteTransformer } from "./RouteTransformer";
+import { MethodDecoratorTransformer } from "./MethodDecoratorTransformer";
 
 export namespace MethodTransformer {
     export function transform(
@@ -27,7 +27,11 @@ export namespace MethodTransformer {
                 method,
                 (method.modifiers || []).map((mod) =>
                     ts.isDecorator(mod)
-                        ? RouteTransformer.transform(project, escaped, mod)
+                        ? MethodDecoratorTransformer.transform(
+                              project,
+                              escaped,
+                              mod,
+                          )
                         : mod,
                 ),
                 method.asteriskToken,
@@ -42,7 +46,7 @@ export namespace MethodTransformer {
         return ts.factory.updateMethodDeclaration(
             method,
             decorators.map((deco) =>
-                RouteTransformer.transform(project, escaped, deco),
+                MethodDecoratorTransformer.transform(project, escaped, deco),
             ),
             (method as any).modifiers,
             method.asteriskToken,

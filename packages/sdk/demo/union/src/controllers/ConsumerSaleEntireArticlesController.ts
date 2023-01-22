@@ -26,7 +26,7 @@ export class ConsumerSaleEntireArticlesController {
         @core.TypedParam("saleId", "number") saleId: number,
         @nest.Query("ip") ipAddr: string,
         @nest.Query("location.href") href: string,
-        @nest.Query() query: ISaleEntireArtcle.IQuery,
+        @core.TypedQuery() query: ISaleEntireArtcle.IQuery,
         @nest.Body() input: ISaleEntireArtcle.IRequest,
     ): Promise<IPage<ISaleEntireArtcle.ISummary>> {
         request;

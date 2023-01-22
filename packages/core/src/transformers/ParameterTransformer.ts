@@ -1,25 +1,33 @@
 import ts from "typescript";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
-import { BodyTransformer } from "./BodyTransformer";
+import { ParameterDecoratorTransformer } from "./ParameterDecoratorTransformer";
 
 export namespace ParameterTransformer {
     export function transform(
         project: INestiaTransformProject,
         param: ts.ParameterDeclaration,
     ): ts.ParameterDeclaration {
+        // CHECK DECORATOR
         const decorators: readonly ts.Decorator[] | undefined = ts.getDecorators
             ? ts.getDecorators(param)
             : (param as any).decorators;
         if (!decorators?.length) return param;
 
+        // GET TYPE INFO
         const type: ts.Type = project.checker.getTypeAtLocation(param);
+
+        // WHEN LATEST TS VERSION
         if (ts.getDecorators !== undefined)
             return ts.factory.updateParameterDeclaration(
                 param,
                 (param.modifiers || []).map((mod) =>
                     ts.isDecorator(mod)
-                        ? BodyTransformer.transform(project, type, mod)
+                        ? ParameterDecoratorTransformer.transform(
+                              project,
+                              type,
+                              mod,
+                          )
                         : mod,
                 ),
                 param.dotDotDotToken,
@@ -32,7 +40,7 @@ export namespace ParameterTransformer {
         return ts.factory.updateParameterDeclaration(
             param,
             decorators.map((deco) =>
-                BodyTransformer.transform(project, type, deco),
+                ParameterDecoratorTransformer.transform(project, type, deco),
             ),
             (param as any).modifiers,
             param.dotDotDotToken,
