@@ -207,7 +207,7 @@ export namespace FunctionGenerator {
             comments.map((str) => ` * ${str}`).join("\n") +
             "\n" +
             " */\n" +
-            `export${route.setHeaders ? " async" : ""} function ${
+            `export${route.setHeaders.length ? " async" : ""} function ${
                 route.name
             }\n` +
             `    (\n` +

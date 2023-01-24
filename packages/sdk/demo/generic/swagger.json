@@ -45,7 +45,8 @@
               }
             }
           },
-          "required": true
+          "required": true,
+          "x-nestia-encrypted": false
         },
         "responses": {
           "201": {
@@ -56,7 +57,8 @@
                   "$ref": "#/components/schemas/ISaleQuestion"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": false
           },
           "400": {
             "description": "bad request error when type of the input data is not valid"
@@ -66,6 +68,7 @@
           }
         },
         "description": "Store a new inquiry.\n\nWrite a new article inquirying about a sale.",
+        "x-nestia-namespace": "consumers.sales.questions.store",
         "x-nestia-jsDocTags": [
           {
             "name": "param",
@@ -209,7 +212,8 @@
               }
             }
           },
-          "required": true
+          "required": true,
+          "x-nestia-encrypted": false
         },
         "responses": {
           "201": {
@@ -220,7 +224,8 @@
                   "$ref": "#/components/schemas/ISaleQuestion"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": false
           },
           "400": {
             "description": "bad request error when type of the input data is not valid"
@@ -233,6 +238,7 @@
           }
         },
         "description": "Update an inquiry.\n\nUpdate ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.\nTherefore, all of the poeple can read how the content has been changed.",
+        "x-nestia-namespace": "consumers.sales.questions.update",
         "x-nestia-jsDocTags": [
           {
             "name": "param",
@@ -392,7 +398,8 @@
               }
             }
           },
-          "required": true
+          "required": true,
+          "x-nestia-encrypted": false
         },
         "responses": {
           "201": {
@@ -403,7 +410,8 @@
                   "$ref": "#/components/schemas/ISaleReview"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": false
           },
           "400": {
             "description": "bad request error when type of the input data is not valid"
@@ -413,6 +421,7 @@
           }
         },
         "description": "Store a new inquiry.\n\nWrite a new article inquirying about a sale.",
+        "x-nestia-namespace": "consumers.sales.reviews.store",
         "x-nestia-jsDocTags": [
           {
             "name": "param",
@@ -556,7 +565,8 @@
               }
             }
           },
-          "required": true
+          "required": true,
+          "x-nestia-encrypted": false
         },
         "responses": {
           "201": {
@@ -567,7 +577,8 @@
                   "$ref": "#/components/schemas/ISaleReview"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": false
           },
           "400": {
             "description": "bad request error when type of the input data is not valid"
@@ -580,6 +591,7 @@
           }
         },
         "description": "Update an inquiry.\n\nUpdate ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.\nTherefore, all of the poeple can read how the content has been changed.",
+        "x-nestia-namespace": "consumers.sales.reviews.update",
         "x-nestia-jsDocTags": [
           {
             "name": "param",

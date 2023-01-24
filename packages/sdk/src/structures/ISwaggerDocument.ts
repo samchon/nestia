@@ -86,7 +86,7 @@ export namespace ISwaggerDocument {
         responses: IResponseBody;
         summary?: string;
         description: string;
-        security?: string[];
+        "x-nestia-namespace": string;
         "x-nestia-jsDocTags": IJsDocTagInfo[];
     }
 
@@ -101,12 +101,14 @@ export namespace ISwaggerDocument {
         description: string;
         content: IJsonContent;
         required: true;
+        "x-nestia-encrypted": boolean;
     }
     export type IResponseBody = Record<
         string,
         {
             description: string;
             content?: IJsonContent;
+            "x-nestia-encrypted"?: boolean;
         }
     >;
     export interface IJsonContent {

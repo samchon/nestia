@@ -17,10 +17,12 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "x-nestia-encrypted": false
           }
         },
         "description": "",
+        "x-nestia-namespace": "health.check.check",
         "x-nestia-jsDocTags": []
       }
     },
@@ -30,10 +32,12 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "x-nestia-encrypted": false
           }
         },
         "description": "",
+        "x-nestia-namespace": "health.alive.check",
         "x-nestia-jsDocTags": []
       }
     },
@@ -43,10 +47,12 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "x-nestia-encrypted": false
           }
         },
         "description": "",
+        "x-nestia-namespace": "healthy.check.check",
         "x-nestia-jsDocTags": []
       }
     },
@@ -56,10 +62,12 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "x-nestia-encrypted": false
           }
         },
         "description": "",
+        "x-nestia-namespace": "healthy.alive.check",
         "x-nestia-jsDocTags": []
       }
     },
@@ -107,7 +115,8 @@
               }
             }
           },
-          "required": true
+          "required": true,
+          "x-nestia-encrypted": false
         },
         "responses": {
           "201": {
@@ -118,7 +127,8 @@
                   "$ref": "#/components/schemas/ISaleArticleComment"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": false
           },
           "400": {
             "description": "bad request error when type of the input data is not valid"
@@ -134,6 +144,7 @@
           }
         },
         "description": "Store a new comment.",
+        "x-nestia-namespace": "consumers.sales.articles.comments.store",
         "x-nestia-jsDocTags": [
           {
             "name": "param",
@@ -312,7 +323,8 @@
               }
             }
           },
-          "required": true
+          "required": true,
+          "x-nestia-encrypted": false
         },
         "responses": {
           "201": {
@@ -323,7 +335,8 @@
                   "$ref": "#/components/schemas/ISaleArticleComment"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": false
           },
           "400": {
             "description": "bad request error when type of the input data is not valid"
@@ -339,6 +352,7 @@
           }
         },
         "description": "Store a new comment.",
+        "x-nestia-namespace": "sellers.sales.articles.comments.store",
         "x-nestia-jsDocTags": [
           {
             "name": "param",

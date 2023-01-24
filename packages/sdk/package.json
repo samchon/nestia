@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -10,6 +10,7 @@
   "scripts": {
     "build": "rimraf lib && ttsc",
     "dev": "rimraf lib && ttsc --watch",
+    "package": "npm publish --access public",
     "prettier": "prettier --write ./**/*.ts",
     "test": "node lib/test"
   },

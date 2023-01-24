@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -13,6 +13,7 @@
     "dev": "npm run build -- --watch",
     "eslint": "eslint ./**/*.ts",
     "eslint:fix": "eslint ./**/*.ts --fix",
+    "package": "npm publish --access public",
     "prettier": "prettier ./**/*.ts --write",
     "test": "node bin/test"
   },

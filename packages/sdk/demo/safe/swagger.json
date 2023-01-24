@@ -55,7 +55,8 @@
               }
             }
           },
-          "required": true
+          "required": true,
+          "x-nestia-encrypted": false
         },
         "responses": {
           "201": {
@@ -66,7 +67,8 @@
                   "$ref": "#/components/schemas/ISaleArticleComment"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": false
           },
           "400": {
             "description": "bad request error when type of the input data is not valid"
@@ -82,6 +84,7 @@
           }
         },
         "description": "Store a new comment.\n\nWrite a comment on a sale article. If you configure the comment to be\n`anonymous`, only administrator, you and seller of the sale can read\nthe content.",
+        "x-nestia-namespace": "consumers.sales.articles.comments.store",
         "x-nestia-jsDocTags": [
           {
             "name": "param",
