@@ -24,10 +24,12 @@
                   "$ref": "#/components/schemas/Userspace.UserType1"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": false
           }
         },
         "description": "",
+        "x-nestia-namespace": "userspace.type1.type1",
         "x-nestia-jsDocTags": []
       }
     },
@@ -44,10 +46,12 @@
                   "$ref": "#/components/schemas/Userspace.UserType2"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": false
           }
         },
         "description": "",
+        "x-nestia-namespace": "userspace.type2.type2",
         "x-nestia-jsDocTags": []
       }
     }

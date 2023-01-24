@@ -173,6 +173,12 @@ export namespace SwaggerGenerator {
                 route,
             ),
             description: CommentFactory.generate(route.comments),
+            "x-nestia-namespace": [
+                ...route.path
+                    .split("/")
+                    .filter((str) => str.length && str[0] !== ":"),
+                route.name,
+            ].join("."),
             "x-nestia-jsDocTags": route.tags,
         };
     }
@@ -263,6 +269,7 @@ export namespace SwaggerGenerator {
                 },
             },
             required: true,
+            "x-nestia-encrypted": parameter.encrypted,
         };
     }
 
@@ -296,6 +303,7 @@ export namespace SwaggerGenerator {
                                   schema,
                               },
                           },
+                "x-nestia-encrypted": route.encrypted,
             },
         };
 

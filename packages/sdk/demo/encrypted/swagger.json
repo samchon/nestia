@@ -25,7 +25,8 @@
               }
             }
           },
-          "required": true
+          "required": true,
+          "x-nestia-encrypted": true
         },
         "responses": {
           "201": {
@@ -36,10 +37,12 @@
                   "$ref": "#/components/schemas/ISeller.IAuthorized"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": true
           }
         },
         "description": "Join as a seller.",
+        "x-nestia-namespace": "sellers.authenticate.join.join",
         "x-nestia-jsDocTags": [
           {
             "name": "param",
@@ -93,7 +96,8 @@
               }
             }
           },
-          "required": true
+          "required": true,
+          "x-nestia-encrypted": true
         },
         "responses": {
           "201": {
@@ -104,10 +108,12 @@
                   "$ref": "#/components/schemas/ISeller.IAuthorized"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": true
           }
         },
         "description": "Log-in as a seller.",
+        "x-nestia-namespace": "sellers.authenticate.login.login",
         "x-nestia-jsDocTags": [
           {
             "name": "param",
@@ -161,14 +167,17 @@
               }
             }
           },
-          "required": true
+          "required": true,
+          "x-nestia-encrypted": true
         },
         "responses": {
           "201": {
-            "description": "Empty object"
+            "description": "Empty object",
+            "x-nestia-encrypted": false
           }
         },
         "description": "Change password.",
+        "x-nestia-namespace": "sellers.authenticate.password.change.change",
         "x-nestia-jsDocTags": [
           {
             "name": "param",
@@ -205,10 +214,12 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "x-nestia-encrypted": false
           }
         },
         "description": "Erase the seller by itself.",
+        "x-nestia-namespace": "sellers.authenticate.exit.exit",
         "x-nestia-jsDocTags": []
       }
     }

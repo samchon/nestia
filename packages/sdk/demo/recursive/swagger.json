@@ -28,10 +28,12 @@
                   "nullable": false
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": false
           }
         },
         "description": "",
+        "x-nestia-namespace": "consumers.systematic.categories.top",
         "x-nestia-jsDocTags": []
       }
     },
@@ -59,10 +61,12 @@
                   "$ref": "#/components/schemas/ICategory"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": false
           }
         },
         "description": "",
+        "x-nestia-namespace": "consumers.systematic.categories.at",
         "x-nestia-jsDocTags": []
       }
     },
@@ -90,10 +94,12 @@
                   "$ref": "#/components/schemas/ICategory.IInvert"
                 }
               }
-            }
+            },
+            "x-nestia-encrypted": false
           }
         },
         "description": "",
+        "x-nestia-namespace": "consumers.systematic.categories.invert.invert",
         "x-nestia-jsDocTags": []
       }
     }

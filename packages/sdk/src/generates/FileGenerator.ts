@@ -29,7 +29,7 @@ export namespace FileGenerator {
         // SEPARATE IDENTIFIERS
         const identifiers: string[] = route.path
             .split("/")
-            .filter((str) => str[0] !== ":" && str.length !== 0)
+            .filter((str) => str.length && str[0] !== ":")
             .map((str) => str.split("-").join("_").split(".").join("_"));
 
         // OPEN DIRECTORIES
