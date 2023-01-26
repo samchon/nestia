@@ -5,8 +5,8 @@
 
 Nestia is a set of helper libraries for NestJS, supporting below features:
 
-  - [`@nestia/core`](#nestiacore): **15,000x times faster** validation decorator using [typia](https://github.com/samchon/typia)
-  - [`@nestia/sdk`](#nestiasdk): evolved **SDK** and **Swagger** generator for `@nestia/core`
+  - [`@nestia/core`](#nestiacore): **15,000x times faster** validation decorators
+  - [`@nestia/sdk`](#nestiasdk): evolved **SDK** and **Swagger** generators
   - `nestia`: just CLI (command line interface) tool
 
 ![Is Function Benchmark](https://github.com/samchon/typia/raw/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/is.svg)
@@ -55,7 +55,7 @@ npx ts-node -C ttypescript src/index.ts
 ```
 
 ### Manual Setup
-If you want to install and configure `nestia` manually, read [Guide Documents - Setup](https://github.com/samchon/nestia/wiki/Setup).
+If you want to install and configure `nestia` manually, read [Guide Documents -> Setup](https://github.com/samchon/nestia/wiki/Setup).
 
 
 
@@ -97,89 +97,20 @@ export class BbsArticlesController {
 }
 ```
 
-### TypedBody
-`TypedBody()` is a decorator function of `application/json` typed request body.
+If you want to know more about this core library, visit [Guide Documents](https://github.com/samchon/nestia/wiki).
 
-Also, it supports super-fast validation pipe, which is maximum **15,000x times faster** then `nest.Body()` function using `class-validator`.
-
-### TypedRoute
-`TypedRoute` is a set of decorator functions for `application/json` typed response body.
-
-Also, it supports safe and fast JSON stringify function pipe, which is maximum 10x times faster than native `JSON.stringify()` function. Furthermore, it is **type safe** through validation.
-
-  - `TypedRoute.Get()`
-  - `TypedRoute.Post()`
-  - `TypedRoute.Put()`
-  - `TypedRoute.Patch()`
-  - `TypedRoute.Delete()`
-
-### TypedQuery
-`TypedQuery` is a decorator function for `URLSearchParams` of `path`.
-
-Also, it supports automatic type casting for property types and super-fast validation pipe.
-
-```typescript
-interface SomeSearchParams {
-    page: number; // automatic casting
-    limit?: number; // does not allow null, but undefined does
-
-    extension?: string; // only atomic or constant typed properties
-    status: "alive" | "erased" | "both"; // properties are allowed
-}
-
-@Controller("some-path")
-export class SomeController {
-    @TypedRoute.Get()
-    public async index(
-        // automatic type casting and validation
-        @TypedQuery() query: SomeSearchParams
-    ): Promise<SomeEntity[]>;
-}
-```
-
-### Comment Tags
-You can enhance DTO type validation by writing comment tags.
-
-If you want to know about it detaily, visit [Guide Documents of typia](https://github.com/samchon/typia/wiki/Runtime-Validators#comment-tags).
-
-```typescript
-export interface IBbsArticle {
-    /**
-     * @format uuid
-     */
-    id: string;
-
-    writer: IBbsArticle.IWriter;
-
-    /**
-     * @minItems 1
-     */
-    contents: IBbsArticle.IContent[];
-}
-export namespace IBbsArticle {
-    export interface IWriter {
-        /**
-         * @minLength 3
-         */
-        name: string;
-
-        /**
-         * @format email
-         */
-        email: string;
-
-        /**
-         * @pattern ^0[0-9]{7,16}
-         */
-        mobile: string;
-
-        /**
-         * @minimum 18
-         */
-        age: number;
-    }
-}
-```
+  - Decorators
+    - [TypedRoute](https://github.com/samchon/nestia/wiki/Core-Library#typedroute)
+    - [TypedBody](https://github.com/samchon/nestia/wiki/Core-Library#typedbody)
+    - [TypedQuery](https://github.com/samchon/nestia/wiki/Core-Library#typedquery)
+    - [TypedParam](https://github.com/samchon/nestia/wiki/Core-Library#typedparam)
+  - Enhancements
+    - [Comment Tags](https://github.com/samchon/nestia/wiki/Core-Library#comment-tags)
+    - [Configuration](https://github.com/samchon/nestia/wiki/Core-Library#configuration)
+  - Advanced Usage
+    - [DynamicModule](https://github.com/samchon/nestia/wiki/Core-Library#dynamicmodule)
+    - [Encryption](https://github.com/samchon/nestia/wiki/Core-Library#encryption)
+    - [Inheritance](https://github.com/samchon/nestia/wiki/Core-Library#inheritance)
 
 
 
@@ -204,19 +135,33 @@ npx nestia <sdk|swagger> <source_directories_or_patterns> \
 # EXAMPLES
 npx nestia sdk "src/**/*.controller.ts" --out "src/api"
 npx nestia swagger "src/controllers" --out "dist/swagger.json"
-```
 
-You can generate sdk or swagger documents by above commands.
-
-If you've configured `nestia.config.ts` file, you can omit all options like below. About the `nestia.config.ts` file, read [Guide Documents - Configuration](https://github.com/samchon/nestia/wiki/Configuration)
-
-```bash
+# ONLY WHEN "nestia.config.ts" FILE EXISTS
 npx nestia sdk
 npx nestia swagger
 ```
 
+You can generate sdk or swagger documents by above commands.
+
+If you want to know more, visit [Guide Documents](https://github.com/samchon/nestia/wiki).
+
+  - Generators
+    - [Swagger Documents](https://github.com/samchon/nestia/wiki/SDK-Generator#swagger-documents)
+    - [SDK Library](https://github.com/samchon/nestia/wiki/SDK-Generator#sdk-library)
+  - Advanced Usage
+    - [Comment Tags](https://github.com/samchon/nestia/wiki/SDK-Generator#comment-tags)
+    - [Configuration](https://github.com/samchon/nestia/wiki/SDK-Generator#configuration)
+
 ### Demonstration
-When you generate SDK library through `npx nestia sdk` command, `@nestia/sdk` will generate below code, by analyzing your backend source code in the compilation level. 
+Here is example projects building Swagger Documents and SDK Library with `npx nestia swagger` and `npx nestia sdk` comands. `@nestia/sdk` generates those documents and libraries by analyzing your NestJS backend server code in the compilation level.
+
+Project | Controller | SDK | Swagger
+--------|------------|-----|---------
+`npx nestia start` | [`BbsArticlesController`](https://github.com/samchon/nestia-template/blob/master/src/controllers/BbsArticlesController.ts) | [Function](https://github.com/samchon/nestia-template/blob/master/src/api/functional/bbs/articles/index.ts) | [Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia-template%2Fmaster%2Fdist%2Fswagger.json)
+[iamport-server](https://github.com/samchon/fake-iamport-server) | [`IamportCertificationsController`](https://github.com/samchon/fake-iamport-server/blob/master/src/controllers/FakeIamportCertificationsController.ts) | [Function](https://github.com/samchon/fake-iamport-server/blob/master/src/api/functional/certifications/index.ts) | [Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Ffake-iamport-server%2Fmaster%2Fdist%2Fswagger.json)
+[toss-payments-server](https://github.com/samchon/fake-toss-payments-server) | [`TossPaymentsController`](https://github.com/samchon/fake-toss-payments-server/blob/master/src/controllers/FakeTossPaymentsController.ts) | [Function](https://github.com/samchon/fake-toss-payments-server/blob/master/src/api/functional/v1/payments/index.ts) | [Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Ffake-toss-payments-server%2Fmaster%2Fdist%2Fswagger.json)
+
+Below code is a piece of SDK library generated by analyzing `BbsArticlesController.ts` file.
 
 ```typescript
 import { Fetcher, IConnection } from "@nestia/fetcher";
@@ -245,28 +190,6 @@ export namespace store {
     export function path(): string {
         return "/bbs/articles";
     }
-}
-```
-
-With SDK library, client developers would get take advantages of TypeScript like below. 
-
-If you want to learn how to distribute SDK library, visit and read [Guide Documents - Distribution](https://github.com/samchon/nestia/wiki/Distribution).
-
-```typescript
-import api from "@bbs-api";
-import typia from "typia";
-
-export async function test_bbs_article_store(connection: api.IConnection) {
-    const article: IBbsArticle = await api.functional.bbs.articles.store(
-        connection,
-        {
-            name: "John Doe",
-            title: "some title",
-            content: "some content",
-        }
-    );
-    typia.assert(article);
-    console.log(article);
 }
 ```
 
