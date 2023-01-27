@@ -3,9 +3,25 @@ import express from "express";
 
 import { assert } from "typia";
 
-export function TypedQuery(decoder?: (params: URLSearchParams) => any) {
-    if (decoder === undefined)
-        throw new Error("Error on TypedQuery(): no decoder function provided.");
+import { TransformError } from "./internal/TransformError";
+
+/**
+ * Type safe URL query decorator.
+ *
+ * `TypedQuery` is a decorator function that can parse URL query string. It is almost
+ * same with {@link nest.Query}, but it can automatically cast property type following
+ * its DTO definition. Also, `TypedQuery` performs type validation.
+ *
+ * For referecen, when URL query parameters are different with their promised
+ * type `T`, `BadRequestException` error (status code: 400) would be thrown.
+ *
+ * @returns Parameter decorator
+ * @author Jeongho Nam - https://github.com/samchon
+ */
+export function TypedQuery<T>(
+    decoder?: (params: URLSearchParams) => T,
+): ParameterDecorator {
+    if (decoder === undefined) throw TransformError("TypedQuery");
 
     return createParamDecorator(async function TypedQuery(
         _unknown: any,
@@ -36,6 +52,9 @@ export namespace TypedQuery {
 }
 Object.assign(TypedQuery, assert);
 
+/**
+ * @internal
+ */
 function tail(url: string): string {
     const index: number = url.indexOf("?");
     return index === -1 ? "" : url.substring(index + 1);

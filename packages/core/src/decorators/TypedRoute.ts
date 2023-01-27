@@ -13,6 +13,7 @@ import {
 import { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import express from "express";
 import { Observable, catchError, map } from "rxjs";
+
 import {
     assertStringify,
     isStringify,
@@ -25,14 +26,14 @@ import { get_path_and_stringify } from "./internal/get_path_and_stringify";
 import { route_error } from "./internal/route_error";
 
 /**
- * Safe router decorator functions.
+ * Type safe router decorator functions.
  *
  * `TypedRoute` is a module containing router decorator functions which can boost up
- * JSON string conversion speed about 5x times faster, through
- * [`typia.stringify()`](https://github.com/samchon/typia#fastest-json-string-conversion).
+ * JSON string conversion speed about 10x times faster. Furthermore, such JSON string
+ * conversion is even type safe through [typia](https://github.com/samchon/typia).
  *
- * Also, router functions in `TypedRoute` can convert custom error classes to the
- * regular {@link nest.HttpException} class automatically, through
+ * For reference, router functions of `TypedRoute` can convert custom error classes to
+ * the regular {@link nest.HttpException} class automatically, through
  * {@link ExceptionManager}.
  *
  * @author Jeongho Nam - https://github.com/samchon

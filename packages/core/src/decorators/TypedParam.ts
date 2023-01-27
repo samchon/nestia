@@ -6,12 +6,12 @@ import {
 import type express from "express";
 
 /**
- * URL parameter decorator with type.
+ * Type safe URL parameter decorator.
  *
- * `TypedParam` is a decorator function getting specific typed parameter from the HTTP
- * request URL. It's almost same with the {@link nest.Param}, but `TypedParam` can specify
- * the parameter type manually. Beside, the {@link nest.Param} always parses all of the
- * parameters as string type.
+ * `TypedParam` is a decorator function getting specific typed parameter from the
+ * HTTP request URL. It's almost same with the {@link nest.Param}, but `TypedParam`
+ * can specify the parameter type manually. Beside, the {@link nest.Param} always
+ * parses all of the parameters as string type.
  *
  * ```typescript
  * \@TypedRoute.Get("shopping/sales/:section/:id/:paused")
@@ -33,7 +33,7 @@ export function TypedParam(
     name: string,
     type: "boolean" | "number" | "string" | "uuid" = "string",
     nullable: boolean = false,
-) {
+): ParameterDecorator {
     return createParamDecorator(function TypedParam(
         {}: any,
         ctx: ExecutionContext,

@@ -5,19 +5,22 @@ import {
 } from "@nestjs/common";
 import type express from "express";
 import raw from "raw-body";
+
 import { assert, is, validate } from "typia";
 
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
 import { validate_request_body } from "./internal/validate_request_body";
 
 /**
- * Safe body decorator.
+ * Type safe body decorator.
  *
- * `TypedBody` is a decorator function getting JSON data from HTTP request. Also,
- * it validates the JSON data type through
- * [`typia.assert()`](https://github.com/samchon/typia#runtime-type-checkers)
- * function and throws `BadRequestException` error (status code: 400), if the JSON
- * data is not following the promised type.
+ * `TypedBody` is a decoratur function getting `application/json` typed data from
+ * request body. Also, it validates the request body data type through
+ * [typia](https://github.com/samchon/typia) and the validation speed is
+ * maximum 15,000x times faster than `class-validator`.
+ *
+ * For reference, when the request body data is not following the promised type `T`,
+ * `BadRequestException` error (status code: 400) would be thrown.
  *
  * @param validator Custom validator if required. Default is `typia.assert()`
  * @author Jeongho Nam - https://github.com/samchon

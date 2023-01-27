@@ -14,6 +14,7 @@ import {
 import { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import express from "express";
 import { Observable, catchError, map } from "rxjs";
+
 import {
     assertStringify,
     isStringify,
@@ -24,6 +25,7 @@ import {
 import { IResponseBodyStringifier } from "../options/IResponseBodyStringifier";
 import { Singleton } from "../utils/Singleton";
 import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
+import { TransformError } from "./internal/TransformError";
 import { get_path_and_stringify } from "./internal/get_path_and_stringify";
 import { headers_to_object } from "./internal/headers_to_object";
 import { route_error } from "./internal/route_error";
@@ -32,20 +34,19 @@ import { route_error } from "./internal/route_error";
  * Encrypted router decorator functions.
  *
  * `EncryptedRoute` is a module containing router decorator functions which encrypts
- * response body data through AES-128/250 encryption. Also, those decorator functions
- * can boost up JSON string conversion speed about 5x times faster, through
- * [`typia.stringify()`](https://github.com/samchon/typia#fastest-json-string-conversion).
+ * response body data through AES-128/250 encryption. Furthermore, they can boost
+ * up JSON string conversion speed about 10x times faster, even type safe through
+ * [typia](https://github.com/samchon/typia).
  *
- * For reference, `EncryptedRoute` encrypts response body usnig those options.
+ * For reference, router functions of `EncryptedRoute` can convert custom error classes
+ * to regular {@link nest.HttpException} class automatically, through
+ * {@link ExceptionManager}. Also, `EncryptedRoute` encrypts response body usnig those
+ * options.
  *
  *  - AES-128/256
  *  - CBC mode
  *  - PKCS #5 Padding
  *  - Base64 Encoding
- *
- * Also, router functions in `EncryptedRoute` can convert custom error classes to the
- * regular {@link nest.HttpException} class automatically, through
- * {@link ExceptionManager}.
  *
  * @author Jeongho Nam - https://github.com/samchon
  */
@@ -155,9 +156,7 @@ class EncryptedRouteInterceptor implements NestInterceptor {
                     context.getClass(),
                 );
                 if (!param)
-                    throw new Error(
-                        `Error on nestia.core.EncryptedRoute.${this.method}(): no encryption password is given.`,
-                    );
+                    throw TransformError(`EncryptedRoute.${this.method}`);
 
                 const headers: Singleton<Record<string, string>> =
                     new Singleton(() => {
