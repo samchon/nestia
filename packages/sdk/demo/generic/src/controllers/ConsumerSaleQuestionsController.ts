@@ -1,5 +1,6 @@
 import { ISaleQuestion } from "@api/structures/ISaleQuestion";
 import * as nest from "@nestjs/common";
+
 import typia from "typia";
 
 import { SaleInquiriesController } from "./SaleInquiriesController";
