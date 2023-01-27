@@ -6,6 +6,7 @@ module.exports = {
     trailingComma: "all",
     importOrder: [
         "<THIRD_PARTY_MODULES>",
+        "typia(.*)$",
         "^[./]",
     ],
     importOrderSeparation: true,

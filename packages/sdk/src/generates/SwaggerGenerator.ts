@@ -3,6 +3,7 @@ import NodePath from "path";
 import { Singleton } from "tstl/thread/Singleton";
 import { VariadicSingleton } from "tstl/thread/VariadicSingleton";
 import ts from "typescript";
+
 import { IJsonApplication, IJsonSchema } from "typia";
 import { CommentFactory } from "typia/lib/factories/CommentFactory";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
@@ -37,6 +38,8 @@ export namespace SwaggerGenerator {
         const pathDict: Map<string, ISwaggerDocument.IPath> = new Map();
 
         for (const route of routeList) {
+            if (route.tags.find((tag) => tag.name === "internal")) continue;
+
             const path: ISwaggerDocument.IPath = MapUtil.take(
                 pathDict,
                 get_path(route.path, route.parameters),

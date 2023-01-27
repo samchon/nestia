@@ -1,5 +1,6 @@
-import typia from "typia";
 import { v4 } from "uuid";
+
+import typia from "typia";
 
 import api from "../../api";
 import { ISaleArticleComment } from "../../api/structures/ISaleArticleComment";

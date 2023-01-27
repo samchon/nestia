@@ -1,5 +1,6 @@
 import api from "@api";
 import { ISaleQuestion } from "@api/structures/ISaleQuestion";
+
 import typia from "typia";
 
 export async function test_question_update(
