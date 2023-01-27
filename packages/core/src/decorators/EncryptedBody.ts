@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import type express from "express";
 import raw from "raw-body";
+
 import { assert, is, validate } from "typia";
 
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
@@ -17,14 +18,15 @@ import { validate_request_body } from "./internal/validate_request_body";
 /**
  * Encrypted body decorator.
  *
- * `EncryptedBody` is a decorator function getting JSON data from HTTP request who've
- * been encrypted by AES-128/256 algorithm. Also, `EncyrptedBody` validates the JSON
- * data type through
- * [`typia.assert()`](https://github.com/samchon/typia#runtime-type-checkers)
- * function and throws `BadRequestException` error (status code: 400), if the JSON
- * data is not following the promised type.
+ * `EncryptedBody` is a decorator function getting `application/json` typed data from
+ * requeset body which has been encrypted by AES-128/256 algorithm. Also,
+ * `EncyrptedBody` validates the request body data type through
+ * [typia](https://github.com/samchon/typia) ad the validation speed is
+ * maximum 15,000x times faster than `class-validator`.
  *
- * For reference, `EncryptedRoute` decrypts request body usnig those options.
+ * For reference, when the request body data is not following the promised type `T`,
+ * `BadRequestException` error (status code: 400) would be thrown. Also,
+ * `EncryptedRoute` decrypts request body usnig those options.
  *
  *  - AES-128/256
  *  - CBC mode
@@ -34,7 +36,9 @@ import { validate_request_body } from "./internal/validate_request_body";
  * @return Parameter decorator
  * @author Jeongho Nam - https://github.com/samchon
  */
-export function EncryptedBody<T>(validator?: IRequestBodyValidator<T>) {
+export function EncryptedBody<T>(
+    validator?: IRequestBodyValidator<T>,
+): ParameterDecorator {
     const checker = validate_request_body("EncryptedBody")(validator);
     return createParamDecorator(async function EncryptedBody(
         _unknown: any,

@@ -206,7 +206,7 @@ All functions in `typia` require **only one line**. You don't need any extra ded
 
 Also, as `typia` performs AOT (Ahead of Time) compilation skill, its performance is much faster than other competitive libaries. For an example, when comparing validate function `is()` with other competitive libraries, `typia` is maximum **15,000x times faster** than `class-validator`.
 
-## Reactia
+### Reactia
 > https://github.com/samchon/reactia
 >
 > Not published yet, but soon

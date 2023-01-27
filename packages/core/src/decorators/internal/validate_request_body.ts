@@ -1,15 +1,14 @@
 import { BadRequestException } from "@nestjs/common";
+
 import { IValidation, TypeGuardError } from "typia";
 
 import { IRequestBodyValidator } from "../../options/IRequestBodyValidator";
+import { TransformError } from "./TransformError";
 
 export const validate_request_body =
     (method: string) =>
     <T>(validator?: IRequestBodyValidator<T>) => {
-        if (!validator)
-            throw new Error(
-                `Error on nestia.core.${method}(): no transformer.`,
-            );
+        if (!validator) throw TransformError(method);
         else if (validator.type === "assert") return assert(validator.assert);
         else if (validator.type === "is") return is(validator.is);
         else if (validator.type === "validate")

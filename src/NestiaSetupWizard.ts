@@ -25,7 +25,8 @@ export namespace NestiaSetupWizard {
             await fs.promises.readFile("package.json", "utf8"),
         );
         add(args.manager)(pack)("@nestia/core", false);
-        add(args.manager)(pack)("@nestia/sdk", false);
+        add(args.manager)(pack)("@nestia/sdk", true);
+        add(args.manager)(pack)("nestia", true);
 
         const modulo: typeof import("@nestia/core/lib/executable/internal/CoreSetupWizard") =
             await import(
