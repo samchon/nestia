@@ -190,7 +190,7 @@ export namespace SwaggerGenerator {
         security: Required<INestiaConfig.ISwaggerConfig>["security"],
         swagger: ISwaggerDocument,
     ): void {
-        swagger.security ??= [];
+        swagger.security = [];
         swagger.components.securitySchemes = {};
 
         for (const [key, value] of Object.entries(security)) {
