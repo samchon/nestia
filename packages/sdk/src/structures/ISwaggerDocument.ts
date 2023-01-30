@@ -6,7 +6,7 @@ export interface ISwaggerDocument {
     servers: ISwaggerDocument.IServer[];
     info: ISwaggerDocument.IInfo;
     components: ISwaggerDocument.IComponents;
-    security?: string[];
+    security?: Record<string, string[]>[];
     paths: Record<string, ISwaggerDocument.IPath>;
 }
 export namespace ISwaggerDocument {

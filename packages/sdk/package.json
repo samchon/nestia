@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/samchon/nestia",
   "devDependencies": {
-    "@nestia/core": "^1.0.8",
+    "@nestia/core": "^1.0.10",
     "@nestia/fetcher": "^1.0.0",
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/cli": "^0.11.21",

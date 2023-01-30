@@ -370,6 +370,8 @@
     }
   },
   "security": [
-    "bearer"
+    {
+      "bearer": []
+    }
   ]
 }
