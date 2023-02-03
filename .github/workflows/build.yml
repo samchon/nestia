@@ -5,10 +5,10 @@ jobs:
   Ubuntu:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: 12.x
+          node-version: 16.x
 
       - name: fetcher
         working-directory: ./packages/fetcher
@@ -26,6 +26,13 @@ jobs:
 
       - name: sdk
         working-directory: ./packages/sdk
+        run: |
+          npm install
+          npm run build
+          npm run test
+
+      - name: e2e
+        working-directory: ./packages/e2e
         run: |
           npm install
           npm run build

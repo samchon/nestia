@@ -1,0 +1,52 @@
+{
+  "name": "@nestia/e2e",
+  "version": "0.1.1",
+  "description": "E2E test utilify functions",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "rimraf lib && tsc",
+    "dev": "npm run build -- --watch",
+    "prettier": "prettier --write ./src/**/*.ts",
+    "test": "node lib/test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/nestia"
+  },
+  "keywords": [
+    "e2e",
+    "nestia",
+    "nestjs",
+    "test",
+    "tdd",
+    "utility"
+  ],
+  "author": "Jeongho Nam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samchon/nestia/issues"
+  },
+  "homepage": "https://github.com/samchon/nestia#readme",
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.0.0",
+    "@types/cli": "^0.11.21",
+    "@types/node": "^18.11.18",
+    "prettier": "^2.8.3",
+    "rimraf": "^4.1.2",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "cli": "^1.0.1",
+    "tstl": "^2.5.13"
+  },
+  "files": [
+    "lib",
+    "src",
+    "!lib/test",
+    "!src/test",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ]
+}
