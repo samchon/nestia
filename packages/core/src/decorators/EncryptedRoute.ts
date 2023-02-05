@@ -34,13 +34,13 @@ import { route_error } from "./internal/route_error";
  * Encrypted router decorator functions.
  *
  * `EncryptedRoute` is a module containing router decorator functions which encrypts
- * response body data through AES-128/250 encryption. Furthermore, they can boost
+ * response body data through AES-128/256 encryption. Furthermore, they can boost
  * up JSON string conversion speed about 10x times faster, even type safe through
  * [typia](https://github.com/samchon/typia).
  *
  * For reference, router functions of `EncryptedRoute` can convert custom error classes
  * to regular {@link nest.HttpException} class automatically, through
- * {@link ExceptionManager}. Also, `EncryptedRoute` encrypts response body usnig those
+ * {@link ExceptionManager}. Also, `EncryptedRoute` encrypts response body using those
  * options.
  *
  *  - AES-128/256
