@@ -26,7 +26,7 @@ import { validate_request_body } from "./internal/validate_request_body";
  *
  * For reference, when the request body data is not following the promised type `T`,
  * `BadRequestException` error (status code: 400) would be thrown. Also,
- * `EncryptedRoute` decrypts request body usnig those options.
+ * `EncryptedRoute` decrypts request body using those options.
  *
  *  - AES-128/256
  *  - CBC mode
