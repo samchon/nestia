@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { CommandParser } from "./CommandParser";
 import { NestiaSetupWizard } from "./NestiaSetupWizard";
 import { NestiaStarter } from "./NestiaStarter";
 
@@ -7,7 +6,7 @@ const USAGE = `Wrong command has been detected. Use like below:
 
 npx nestia [command] [options?]
 
-  1. npx nestia start <directory> ---manager (npm|pnpm|yarn)
+  1. npx nestia start <directory> --manager (npm|pnpm|yarn)
     - npx nestia start project
     - npx nestia start project --manager pnpm
   2. npx nestia setup \\
@@ -37,31 +36,13 @@ function halt(desc: string): never {
     process.exit(-1);
 }
 
-async function setup(): Promise<void> {
-    const options: Record<string, string> = CommandParser.parse(
-        process.argv.slice(3),
-    );
-    const manager: string = options.manager ?? "npm";
-    const compiler: string = options.compiler ?? "ttypescript";
-    const project: string = options.project ?? "tsconfig.json";
-
-    if (
-        (compiler !== "ttypescript" && compiler !== "ts-patch") ||
-        (manager !== "npm" && manager !== "pnpm" && manager !== "yarn")
-    )
-        halt(USAGE);
-    else if (compiler === "ttypescript")
-        await NestiaSetupWizard.ttypescript({ manager, project });
-    else await NestiaSetupWizard.tsPatch({ manager, project });
-}
-
 async function main(): Promise<void> {
     const type: string | undefined = process.argv[2];
     const argv: string[] = process.argv.slice(3);
 
     if (type === "start")
         await NestiaStarter.start((msg) => halt(msg ?? USAGE))(argv);
-    else if (type === "setup") await setup();
+    else if (type === "setup") await NestiaSetupWizard.setup();
     else if (
         type === "dependencies" ||
         type === "init" ||

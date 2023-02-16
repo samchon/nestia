@@ -30,22 +30,9 @@ Just run above command, then boilerplate project would be constructed.
 npx nestia setup
 ```
 
-When you want to use `nestia` in orindary project, just type above command.
+Just type `npx nestia setup`, that's all.
 
-All installation and configuration processes would be automatically done.
-
-Also, you can specify package manager or target `tsconfig.json` file like below:
-
-```bash
-npx nestia setup --manager npm
-npx nestia setup --manager pnpm
-npx nestia setup --manager yarn
-
-npx nestia setup --project tsconfig.json
-npx nestia setup --project tsconfig.test.json
-```
-
-After the setup, you can compile `@nestia/core` utilization code by using `ttsc` ([`ttypescript`](https://github.com/cevek/ttypescript)) command. If you want to run your TypeScript file directly through `ts-node`, add `-C ttypescript` argument like below:
+If you've installed [ttypescript](https://github.com/cevek/ttypescript) during setup, you should compile `@nestia/core` utilization code through `ttsc` command, instead of `tsc`. 
 
 ```bash
 # COMPILE THROUGH TTYPESCRIPT
@@ -53,6 +40,20 @@ npx ttsc
 
 # RUN TS-NODE WITH TTYPESCRIPT
 npx ts-node -C ttypescript src/index.ts
+```
+
+Otherwise, you've chosen [ts-patch](https://github.com/nonara/ts-patch), you can use original `tsc` command. However, [ts-patch](https://github.com/nonara/ts-patch) hacks `node_modules/typescript` source code. Also, whenever update `typescript` version, you've to run `npm run prepare` command repeatedly.
+
+By the way, when using `@nest/cli`, you must just choose [ts-patch](https://github.com/nonara/ts-patch).
+
+```bash
+# USE ORIGINAL TSC COMMAND
+tsc
+npx ts-node src/index.ts
+
+# WHENVER UPDATE
+npm install --save-dev typescript@latest
+npm run prepare
 ```
 
 ### Manual Setup
@@ -89,7 +90,7 @@ export class BbsArticlesController {
      * @param inupt Content to store
      * @returns Newly archived article
      */
-    @TypedRoute.Post() // 10x faster and safer JSON.stringify()
+    @TypedRoute.Post() // 50x faster and safer JSON.stringify()
     public async store(
         @TypedBody() input: IBbsArticle.IStore // super-fast validator
     ): Promise<IBbsArticle>; 

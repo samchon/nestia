@@ -1,7 +1,7 @@
+import core from "@nestia/core";
 import * as nest from "@nestjs/common";
 import * as express from "express";
 
-import core from "../../src/index";
 import { ISaleArticleComment } from "../api/structures/ISaleArticleComment";
 
 @nest.Controller(
