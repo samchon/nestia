@@ -105,7 +105,8 @@
     "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
     "plugins": [
       { "transform": "../src/transform.ts" },
-      { "transform": "typia/lib/transform" }
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typia/lib/transform" },
     ]
   }
 }
