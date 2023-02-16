@@ -1,10 +1,10 @@
+import core from "@nestia/core";
 import * as nest from "@nestjs/common";
 import fs from "fs";
 import git from "git-last-commit";
 import { randint } from "tstl/algorithm/random";
 import { Singleton } from "tstl/thread/Singleton";
 
-import core from "../../src/index";
 import { ISystem } from "../api/structures/ISystem";
 
 @nest.Controller("system")

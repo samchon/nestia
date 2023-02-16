@@ -1,13 +1,13 @@
+import core from "@nestia/core";
 import * as nest from "@nestjs/common";
 
-import helper from "../../src";
 import { IFilesystemBucket } from "../api/structures/IFilesystemBucket";
 
 @nest.Controller("filesystem")
 export class FilesystemController {
-    @helper.TypedRoute.Get()
+    @core.TypedRoute.Get()
     public get(
-        @helper.TypedQuery() _input: IFilesystemBucket.IRequest,
+        @core.TypedQuery() _input: IFilesystemBucket.IRequest,
     ): IFilesystemBucket[] {
         return [
             {

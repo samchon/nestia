@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "4.0.5",
+  "version": "4.0.6",
   "description": "Nestia CLI",
   "main": "bin/index.js",
   "bin": {
@@ -31,7 +31,11 @@
   "devDependencies": {
     "@nestia/core": "^1.0.6",
     "@nestia/sdk": "^1.0.1",
+    "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",
+    "commander": "^10.0.0",
+    "comment-json": "^4.2.3",
+    "inquirer": "^8.2.5",
     "rimraf": "^3.0.2",
     "typescript": "^4.9.4"
   },

@@ -58,24 +58,30 @@ npx nestia setup
 npx @nestia/core setup
 ```
 
-When you run `npx nestia setup` command, all installation and configuration processes would be automatically done. If you want to setup `@nestia/core` only, run `npx @nestia/core setup` command instead.
+Just type `npx nestia setup`, that's all.
 
-After the setup has been fully completed, you can compile your backend server code by using `ttsc` command. If you want to run your TypeScript file directly through `ts-node`, add `-C ttypescript` argument like below:
+If you've installed [ttypescript](https://github.com/cevek/ttypescript) during setup, you should compile `@nestia/core` utilization code through `ttsc` command, instead of `tsc`. 
 
 ```bash
+# COMPILE THROUGH TTYPESCRIPT
 npx ttsc
+
+# RUN TS-NODE WITH TTYPESCRIPT
 npx ts-node -C ttypescript src/index.ts
 ```
 
-Also, you can specify package manager or target `tsconfig.json` file like below:
+Otherwise, you've chosen [ts-patch](https://github.com/nonara/ts-patch), you can use original `tsc` command. However, [ts-patch](https://github.com/nonara/ts-patch) hacks `node_modules/typescript` source code. Also, whenever update `typescript` version, you've to run `npm run prepare` command repeatedly.
+
+By the way, when using `@nest/cli`, you must just choose [ts-patch](https://github.com/nonara/ts-patch).
 
 ```bash
-npx @nestia/core setup --manager npm
-npx @nestia/core setup --manager pnpm
-npx @nestia/core setup --manager yarn
+# USE ORIGINAL TSC COMMAND
+tsc
+npx ts-node src/index.ts
 
-npx @nestia/core setup --project tsconfig.json
-npx @nestia/core setup --project tsconfig.test.json
+# HOWEVER, WHENVER UPDATE
+npm install --save-dev typescript@latest
+npm run prepare
 ```
 
 ### Manual Setup
@@ -99,7 +105,7 @@ export class BbsArticlesController {
      * @param inupt Content to store
      * @returns Newly archived article
      */
-    @TypedRoute.Put(":id") // 10x faster and safer JSON.stringify()
+    @TypedRoute.Put(":id") // 50x faster and safer JSON.stringify()
     public async store(
         @TypedParam("section", "string") section: string,
         @TypedParam("id", "uuid") id: string,
