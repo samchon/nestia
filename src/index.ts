@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import path from "path";
+import { FileRetriever } from "./internal/FileRetriever";
 import { NestiaSetupWizard } from "./NestiaSetupWizard";
 import { NestiaStarter } from "./NestiaStarter";
 
@@ -49,16 +51,14 @@ async function main(): Promise<void> {
         type === "sdk" ||
         type === "swagger"
     ) {
-        try {
-            await import(process.cwd() + "/node_modules/@nestia/sdk");
-        } catch {
+        const location: string | null = FileRetriever.file(
+            path.join("node_modules", "@nestia", "sdk"),
+        )(process.cwd());
+        if (location === null)
             halt(
                 `@nestia/sdk has not been installed. Run "npx nestia setup" before.`,
             );
-        }
-        await import(
-            process.cwd() + "/node_modules/@nestia/sdk/lib/executable/sdk"
-        );
+        await import(path.join(location, "lib", "executable", "sdk"));
     } else halt(USAGE);
 }
 main().catch((exp) => {
