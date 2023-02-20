@@ -2,6 +2,7 @@ import type CommanderModule from "commander";
 import fs from "fs";
 import type * as InquirerModule from "inquirer";
 import path from "path";
+import { FileRetriever } from "./FileRetriever";
 
 import { PackageManager } from "./PackageManager";
 
@@ -49,12 +50,13 @@ export namespace ArgumentParser {
 
     async function _Parse(pack: PackageManager): Promise<IArguments> {
         // PREPARE ASSETS
-        const { createPromptModule }: typeof InquirerModule = await import(
-            path.join(pack.directory, "node_modules", "inquirer")
-        );
-        const { program }: typeof CommanderModule = await import(
-            path.join(pack.directory, "node_modules", "commander")
-        );
+        const { createPromptModule }: typeof InquirerModule =
+            await FileRetriever.require(path.join("node_modules", "inquirer"))(
+                pack.directory,
+            );
+        const { program }: typeof CommanderModule = await FileRetriever.require(
+            path.join("node_modules", "commander"),
+        )(pack.directory);
 
         program.option("--compiler [compiler]", "compiler type");
         program.option("--manager [manager", "package manager");
