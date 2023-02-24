@@ -22,7 +22,7 @@ Thanks for your support.
 
 Your donation would encourage `nestia` development.
 
-[![Backers](https://opencollective.com/nestia/backers.svg?width=1000)](https://opencollective.com/nestia)
+[![Backers](https://opencollective.com/nestia/backers.svg?width=500)](https://opencollective.com/nestia)
 
 
 
