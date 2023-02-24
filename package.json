@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "4.0.7",
+  "version": "4.0.8",
   "description": "Nestia CLI",
   "main": "bin/index.js",
   "bin": {
