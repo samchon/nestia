@@ -17,6 +17,16 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
 
 
 
+## Sponsors and Backers
+Thanks for your support.
+
+Your donation would encourage `nestia` development.
+
+[![Backers](https://opencollective.com/nestia/backers.svg?width=1000)](https://opencollective.com/nestia)
+
+
+
+
 ## Setup
 ### Boilerplate Project
 ```bash
