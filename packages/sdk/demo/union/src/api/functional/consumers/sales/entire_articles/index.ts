@@ -7,8 +7,8 @@
 import { Fetcher } from "@nestia/fetcher";
 import type { IConnection } from "@nestia/fetcher";
 
-import type { ISaleReview } from "./../../../../structures/ISaleReview";
 import type { ISaleInquiry } from "./../../../../structures/ISaleInquiry";
+import type { ISaleReview } from "./../../../../structures/ISaleReview";
 import type { IPage } from "./../../../../structures/IPage";
 import type { ISaleEntireArtcle } from "./../../../../structures/ISaleEntireArticle";
 
@@ -34,10 +34,10 @@ export function index
         connection: IConnection,
         section: string,
         saleId: number,
-        ipAddr: string,
-        href: string,
+        input: ISaleInquiry.IRequest,
         query: ISaleReview.IQuery,
-        input: ISaleInquiry.IRequest
+        ipAddr: string | undefined,
+        href?: string | undefined
     ): Promise<index.Output>
 {
     return Fetcher.fetch
@@ -62,7 +62,7 @@ export namespace index
         response: false,
     };
 
-    export function path(section: string, saleId: number, ipAddr: string, href: string, query: ISaleReview.IQuery): string
+    export function path(section: string, saleId: number, ipAddr: string | undefined, href: string | undefined, query: ISaleReview.IQuery): string
     {
         return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/entire_articles?${new URLSearchParams(
         {

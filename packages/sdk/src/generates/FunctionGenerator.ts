@@ -193,7 +193,7 @@ export namespace FunctionGenerator {
                               param === query ? "Query" : "Input"
                           }>`
                         : param.type.name;
-                return `${param.name}: ${type}`;
+                return `${param.name}${param.optional ? "?" : ""}: ${type}`;
             }),
         ];
 

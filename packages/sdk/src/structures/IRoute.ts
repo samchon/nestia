@@ -29,5 +29,6 @@ export namespace IRoute {
         category: ParamCategory;
         encrypted: boolean;
         type: ITypeTuple;
+        optional: boolean;
     }
 }
