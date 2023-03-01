@@ -94,7 +94,7 @@ export namespace ISwaggerDocument {
         name: string;
         in: string;
         schema: IJsonSchema;
-        required: true;
+        required: boolean;
         description: string;
     }
     export interface IRequestBody {

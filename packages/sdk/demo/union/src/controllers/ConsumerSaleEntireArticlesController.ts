@@ -24,10 +24,10 @@ export class ConsumerSaleEntireArticlesController {
         @nest.Request() request: express.Request,
         @core.TypedParam("section", "string") section: string,
         @core.TypedParam("saleId", "number") saleId: number,
-        @nest.Query("ip") ipAddr: string,
-        @nest.Query("location.href") href: string,
-        @core.TypedQuery() query: ISaleEntireArtcle.IQuery,
         @nest.Body() input: ISaleEntireArtcle.IRequest,
+        @core.TypedQuery() query: ISaleEntireArtcle.IQuery,
+        @nest.Query("ip") ipAddr: string | undefined,
+        @nest.Query("location.href") href?: string,
     ): Promise<IPage<ISaleEntireArtcle.ISummary>> {
         request;
         section;

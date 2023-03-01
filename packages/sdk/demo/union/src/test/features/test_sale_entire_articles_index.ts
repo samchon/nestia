@@ -12,18 +12,18 @@ export async function test_sale_entire_articles_index(
             connection,
             "general",
             0,
-            "127.0.0.1",
-            __filename,
+            {
+                limit: 10,
+                page: 3,
+            },
             {
                 referrer: "NodeJS",
                 code: "some-code",
                 signal: 0,
                 alive: true,
             },
-            {
-                limit: 10,
-                page: 3,
-            },
+            "127.0.0.1",
+            __filename,
         );
     typia.assert(page);
 }

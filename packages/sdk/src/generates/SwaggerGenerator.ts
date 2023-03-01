@@ -239,7 +239,7 @@ export namespace SwaggerGenerator {
                 get_parametric_description(route, "param", parameter.name) ||
                 "",
             schema,
-            required: true,
+            required: required(parameter.type.type),
         };
     }
 
@@ -395,6 +395,17 @@ export namespace SwaggerGenerator {
             : undefined;
     }
 }
+
+const required = (type: ts.Type): boolean => {
+    if (type.isUnion()) return type.types.every((type) => required(type));
+    const obstacle = (other: ts.TypeFlags) => (type.getFlags() & other) === 0;
+    return (
+        obstacle(ts.TypeFlags.Undefined) &&
+        obstacle(ts.TypeFlags.Never) &&
+        obstacle(ts.TypeFlags.Void) &&
+        obstacle(ts.TypeFlags.VoidLike)
+    );
+};
 
 const warning = new VariadicSingleton((encrypted: boolean) => {
     if (encrypted === false) return new Singleton(() => "");

@@ -196,16 +196,37 @@ export namespace ControllerAnalyzer {
             symbol.valueDeclaration!,
         );
         const name: string = symbol.getEscapedName().toString();
+        const method: string = `${controller.name}.${funcName}()`;
+
+        const optional: boolean = !!checker.symbolToParameterDeclaration(
+            symbol,
+            undefined,
+            undefined,
+        )?.questionToken;
 
         // DO NOT SUPPORT BODY PARAMETER
-        if (param.category === "body" && param.field !== undefined) {
-            const method: string = `${controller.name}.${funcName}()`;
+        if (param.category === "body" && param.field !== undefined)
             throw new Error(
                 `Error on ${method}: nestia does not support body field specification. ` +
                     `Therefore, erase the ${method}#${name} parameter and ` +
                     `re-define a new body decorator accepting full structured message.`,
             );
-        }
+        else if (optional === true && param.category !== "query")
+            throw new Error(
+                `Error on ${method}: nestia does not support optional parameter except query parameter. ` +
+                    `Therefore, erase question mark on ${method}#${name} parameter, ` +
+                    `or re-define a new method without the "name" parameter.`,
+            );
+        else if (
+            optional === true &&
+            param.category === "query" &&
+            param.field === undefined
+        )
+            throw new Error(
+                `Error on ${method}: nestia does not support optional query parameter without field specification. ` +
+                    `Therefore, erase question mark on ${method}#${name} parameter, ` +
+                    `or re-define re-define parameters for each query parameters.`,
+            );
 
         return {
             name,
@@ -218,6 +239,7 @@ export namespace ControllerAnalyzer {
                 importDict,
                 type,
             ),
+            optional,
         };
     }
 }

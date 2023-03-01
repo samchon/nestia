@@ -1,5 +1,4 @@
 import chalk from "chalk";
-import cli from "cli";
 import fs from "fs";
 import NodePath from "path";
 
@@ -49,6 +48,14 @@ export namespace DynamicExecutor {
          * @returns Parameters
          */
         parameters: (name: string) => Parameters;
+
+        /**
+         * Filter function whether to run or not.
+         *
+         * @param name Function name
+         * @returns Whether to run or not
+         */
+        filter?: (name: string) => boolean;
 
         /**
          * Wrapper of test function.
@@ -165,14 +172,13 @@ export namespace DynamicExecutor {
         <Arguments extends any[]>(options: IOptions<Arguments>) =>
         (assert: boolean) =>
         async (path: string) => {
-            const command: ICommand = cli.parse();
             const report: IReport = {
                 location: path,
                 time: Date.now(),
                 executions: [],
             };
 
-            const executor = execute(options)(command)(report)(assert);
+            const executor = execute(options)(report)(assert);
             const iterator = iterate(executor);
             await iterator(path);
 
@@ -203,20 +209,15 @@ export namespace DynamicExecutor {
 
     const execute =
         <Arguments extends any[]>(options: IOptions<Arguments>) =>
-        (command: ICommand) =>
         (report: IReport) =>
         (assert: boolean) =>
         async (location: string, modulo: Module<Arguments>): Promise<void> => {
             for (const key in modulo) {
-                if (command.exclude && key.indexOf(command.exclude) !== -1)
-                    continue;
-                else if (command.include && key.indexOf(command.include) === -1)
-                    continue;
-                else if (
-                    key.substring(0, options.prefix.length) !== options.prefix
-                )
+                if (key.substring(0, options.prefix.length) !== options.prefix)
                     continue;
                 else if (!(modulo[key] instanceof Function)) continue;
+                else if (options.filter && options.filter(key) === false)
+                    continue;
 
                 const closure: Closure<Arguments> = modulo[key];
                 const func = async () => {
@@ -259,10 +260,6 @@ export namespace DynamicExecutor {
             }
         };
 
-    interface ICommand {
-        include?: string;
-        exclude?: string;
-    }
     interface Module<Arguments extends any[]> {
         [key: string]: Closure<Arguments>;
     }

@@ -36,6 +36,15 @@
             "required": true
           },
           {
+            "name": "query",
+            "in": "query",
+            "description": "More query parameters",
+            "schema": {
+              "$ref": "#/components/schemas/ISaleReview.IQuery"
+            },
+            "required": true
+          },
+          {
             "name": "ip",
             "in": "query",
             "description": "IP Address of the client",
@@ -43,7 +52,7 @@
               "type": "string",
               "nullable": false
             },
-            "required": true
+            "required": false
           },
           {
             "name": "location.href",
@@ -53,16 +62,7 @@
               "type": "string",
               "nullable": false
             },
-            "required": true
-          },
-          {
-            "name": "query",
-            "in": "query",
-            "description": "More query parameters",
-            "schema": {
-              "$ref": "#/components/schemas/ISaleReview.IQuery"
-            },
-            "required": true
+            "required": false
           }
         ],
         "requestBody": {
