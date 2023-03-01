@@ -107,13 +107,13 @@ export namespace PluginConfigurator {
         /**
          * Validate JSON typed response body.
          * 
-         *   - null: Just use JSON.stringify() function, without boosting
-         *   - "stringify": Use typia.stringify() function, but dangerous
          *   - "assert": Use typia.assertStringify() function
          *   - "is": Use typia.isStringify() function
          *   - "validate": Use typia.validateStringify() function
+         *   - "stringify": Use typia.stringify() function, but dangerous
+         *   - null: Just use JSON.stringify() function, without boosting
          */
-                    "stringify": "is"
+                    "stringify": "assert"
                 }`) as Comment.CommentObject,
             );
         if (typia === undefined)

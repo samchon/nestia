@@ -38,17 +38,19 @@ export namespace TypedRouteProgrammer {
                 ]);
 
             // RETURNS
-            if (project.options.stringify === "stringify")
-                return parameter("stringify", StringifyProgrammer.generate);
-            else if (project.options.stringify === "assert")
-                return parameter("assert", AssertStringifyProgrammer.generate);
+            if (project.options.stringify === "is")
+                return parameter("is", IsStringifyProgrammer.generate);
             else if (project.options.stringify === "validate")
                 return parameter(
                     "validate",
                     ValidateStringifyProgrammer.generate,
                 );
+            else if (project.options.stringify === "stringify")
+                return parameter("stringify", StringifyProgrammer.generate);
             else if (project.options.stringify === null)
                 return ts.factory.createNull();
-            return parameter("is", IsStringifyProgrammer.generate);
+
+            // ASSERT IS DEFAULT
+            return parameter("assert", AssertStringifyProgrammer.generate);
         };
 }
