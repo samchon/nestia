@@ -55,7 +55,7 @@ export class Fetcher {
         encrypted: Fetcher.IEncrypted,
         method: "POST" | "PUT" | "PATCH" | "DELETE",
         path: string,
-        input: Input,
+        input?: Input,
         stringify?: (input: Input) => string,
     ): Promise<Primitive<Output>>;
 
