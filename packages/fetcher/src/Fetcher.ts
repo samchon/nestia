@@ -24,7 +24,7 @@ import { Singleton } from "./internal/Singleton";
  */
 export class Fetcher {
     /**
-     * Fetch function for the `GET` or `DELETE` methods.
+     * Fetch function for the `GET` methods.
      *
      * @param connection Connection information for the remote HTTP server
      * @param encrypted Whether the request/response body be encrypted or not
@@ -35,12 +35,12 @@ export class Fetcher {
     public static fetch<Output>(
         connection: IConnection,
         encrypted: Fetcher.IEncrypted,
-        method: "GET" | "DELETE",
+        method: "GET",
         path: string,
     ): Promise<Primitive<Output>>;
 
     /**
-     * Fetch function for the `POST`, `PUT` and `PATCH` methods.
+     * Fetch function for the `POST`, `PUT`, `PATCH` and `DELETE` methods.
      *
      * @param connection Connection information for the remote HTTP server
      * @param encrypted Whether the request/response body be encrypted or not
@@ -53,7 +53,7 @@ export class Fetcher {
     public static fetch<Input, Output>(
         connection: IConnection,
         encrypted: Fetcher.IEncrypted,
-        method: "POST" | "PUT" | "PATCH",
+        method: "POST" | "PUT" | "PATCH" | "DELETE",
         path: string,
         input: Input,
         stringify?: (input: Input) => string,
