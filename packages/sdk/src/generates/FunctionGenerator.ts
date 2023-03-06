@@ -261,7 +261,7 @@ export namespace FunctionGenerator {
                 .map((param) => `${param.name}: ${param.type.name}`)
                 .join(", ")}): string\n` +
             `    {\n` +
-            `        return ${path};\n` +
+            `${path};\n` +
             `    }\n` +
             (config.json === true &&
             (route.method === "POST" ||
@@ -284,14 +284,27 @@ export namespace FunctionGenerator {
                     `:${param.field}`,
                     `\${encodeURIComponent(${param.name})}`,
                 );
+
+        // NO QUERY PARAMETER
         const queryParams: IRoute.IParameter[] = parameters.filter(
             (param) => param.category === "query" && param.field !== undefined,
         );
         if (query === undefined && queryParams.length === 0)
-            return `\`${path}\``;
+            return `${" ".repeat(8)}return \`${path}\``;
 
+        const computeName = (str: string): string =>
+            parameters.find((p) => p.name === str) !== undefined
+                ? computeName("_" + str)
+                : str;
+        const name: string = computeName("variables");
         const wrapper = (str: string) =>
-            `\`${path}?\${new URLSearchParams(${str}).toString()}\``;
+            [
+                `const ${name}: string = new URLSearchParams(${str}).toString()`,
+                `return \`${path}\${${name}.length ? \`?\${${name}}\` : ""}\``,
+            ]
+                .map((str) => `${" ".repeat(8)}${str}`)
+                .join("\n");
+
         if (query !== undefined && queryParams.length === 0)
             return wrapper(`${query.name} as any`);
         else if (query === undefined)

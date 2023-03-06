@@ -49,6 +49,7 @@ export namespace index
 
     export function path(section: string, saleId: number, query: ISaleReview.IQuery): string
     {
-        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/reviews?${new URLSearchParams(query as any).toString()}`;
+        const variables: string = new URLSearchParams(query as any).toString()
+        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/reviews${variables.length ? `?${variables}` : ""}`;
     }
 }

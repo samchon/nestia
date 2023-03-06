@@ -20,9 +20,9 @@ export function index
         connection: IConnection,
         section: string,
         saleId: number,
-        ipAddr: string,
-        href: string,
-        input: ISaleInquiry.IRequest
+        input: ISaleInquiry.IRequest,
+        ipAddr?: string | undefined,
+        href?: string | undefined
     ): Promise<index.Output>
 {
     return Fetcher.fetch
@@ -46,12 +46,13 @@ export namespace index
         response: false,
     };
 
-    export function path(section: string, saleId: number, ipAddr: string, href: string): string
+    export function path(section: string, saleId: number, ipAddr: string | undefined, href: string | undefined): string
     {
-        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/questions?${new URLSearchParams(
+        const variables: string = new URLSearchParams(
         {
             ip: ipAddr,
             "location.href": href
-        } as any).toString()}`;
+        } as any).toString()
+        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/questions${variables.length ? `?${variables}` : ""}`;
     }
 }

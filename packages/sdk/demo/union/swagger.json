@@ -394,7 +394,7 @@
               "type": "string",
               "nullable": false
             },
-            "required": true
+            "required": false
           },
           {
             "name": "location.href",
@@ -404,7 +404,7 @@
               "type": "string",
               "nullable": false
             },
-            "required": true
+            "required": false
           }
         ],
         "requestBody": {

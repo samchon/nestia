@@ -64,12 +64,13 @@ export namespace index
 
     export function path(section: string, saleId: number, ipAddr: string | undefined, href: string | undefined, query: ISaleReview.IQuery): string
     {
-        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/entire_articles?${new URLSearchParams(
+        const variables: string = new URLSearchParams(
         {
             ...query,
             ip: ipAddr,
             "location.href": href,
-        } as any).toString()}`;
+        } as any).toString()
+        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/entire_articles${variables.length ? `?${variables}` : ""}`;
     }
 }
 
