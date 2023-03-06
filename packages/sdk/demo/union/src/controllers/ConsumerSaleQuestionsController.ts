@@ -12,9 +12,9 @@ export class ConsumerSaleQuestionsController {
         @nest.Request() request: express.Request,
         @core.TypedParam("section", "string") section: string,
         @core.TypedParam("saleId", "number") saleId: number,
-        @nest.Query("ip") ipAddr: string,
-        @nest.Query("location.href") href: string,
         @nest.Body() input: ISaleQuestion.IRequest,
+        @nest.Query("ip") ipAddr?: string,
+        @nest.Query("location.href") href?: string,
     ): Promise<IPage<ISaleQuestion.ISummary>> {
         request;
         section;
