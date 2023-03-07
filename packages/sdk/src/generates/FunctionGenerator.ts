@@ -264,9 +264,8 @@ export namespace FunctionGenerator {
             `${path};\n` +
             `    }\n` +
             (config.json === true &&
-            (route.method === "POST" ||
-                route.method === "PUT" ||
-                route.method === "PATCH")
+            route.parameters.find((param) => param.category === "body") !==
+                undefined
                 ? `    export const stringify = (input: Input) => typia.assertStringify(input);\n`
                 : "") +
             "}"

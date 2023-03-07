@@ -364,6 +364,42 @@
         ]
       }
     },
+    "/consumers/{section}/sales/{saleId}/questions/refresh": {
+      "patch": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "section",
+            "in": "path",
+            "description": "",
+            "schema": {
+              "type": "string",
+              "nullable": false
+            },
+            "required": true
+          },
+          {
+            "name": "saleId",
+            "in": "path",
+            "description": "",
+            "schema": {
+              "type": "string",
+              "nullable": false
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "x-nestia-encrypted": false
+          }
+        },
+        "description": "",
+        "x-nestia-namespace": "consumers.sales.questions.refresh.refresh",
+        "x-nestia-jsDocTags": []
+      }
+    },
     "/consumers/{section}/sales/{saleId}/reviews": {
       "post": {
         "tags": [],
@@ -715,6 +751,42 @@
             ]
           }
         ]
+      }
+    },
+    "/consumers/{section}/sales/{saleId}/reviews/refresh": {
+      "patch": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "section",
+            "in": "path",
+            "description": "",
+            "schema": {
+              "type": "string",
+              "nullable": false
+            },
+            "required": true
+          },
+          {
+            "name": "saleId",
+            "in": "path",
+            "description": "",
+            "schema": {
+              "type": "string",
+              "nullable": false
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "x-nestia-encrypted": false
+          }
+        },
+        "description": "",
+        "x-nestia-namespace": "consumers.sales.reviews.refresh.refresh",
+        "x-nestia-jsDocTags": []
       }
     }
   },
