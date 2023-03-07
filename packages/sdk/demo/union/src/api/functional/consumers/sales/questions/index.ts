@@ -48,11 +48,14 @@ export namespace index
 
     export function path(section: string, saleId: number, ipAddr: string | undefined, href: string | undefined): string
     {
-        const variables: string = new URLSearchParams(
+        const variables: Record<any, any> = 
         {
             ip: ipAddr,
             "location.href": href
-        } as any).toString()
-        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/questions${variables.length ? `?${variables}` : ""}`;
+        } as any;
+        for (const [key, value] of Object.entries(variables))
+            if (value === undefined) delete variables[key];
+        const encoded: string = new URLSearchParams(variables).toString();
+        return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/questions${encoded.length ? `?${encoded}` : ""}`;;
     }
 }

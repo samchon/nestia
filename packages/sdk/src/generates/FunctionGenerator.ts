@@ -295,11 +295,16 @@ export namespace FunctionGenerator {
             parameters.find((p) => p.name === str) !== undefined
                 ? computeName("_" + str)
                 : str;
-        const name: string = computeName("variables");
-        const wrapper = (str: string) =>
+        const variables: string = computeName("variables");
+        const str: string = computeName("encoded");
+
+        const wrapper = (expr: string) =>
             [
-                `const ${name}: string = new URLSearchParams(${str}).toString()`,
-                `return \`${path}\${${name}.length ? \`?\${${name}}\` : ""}\``,
+                `const ${variables}: Record<any, any> = ${expr};`,
+                `for (const [key, value] of Object.entries(${variables}))`,
+                `    if (value === undefined) delete ${variables}[key];`,
+                `const ${str}: string = new URLSearchParams(${variables}).toString();`,
+                `return \`${path}\${${str}.length ? \`?\${${str}}\` : ""}\`;`,
             ]
                 .map((str) => `${" ".repeat(8)}${str}`)
                 .join("\n");
