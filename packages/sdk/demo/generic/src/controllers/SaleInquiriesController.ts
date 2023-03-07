@@ -84,6 +84,15 @@ export function SaleInquiriesController<
 
             return trait.convert(input);
         }
+
+        @core.TypedRoute.Patch("refresh")
+        public async refresh(
+            @core.TypedParam("section", "string") section: string,
+            @core.TypedParam("saleId", "string") saleId: string,
+        ): Promise<void> {
+            section;
+            saleId;
+        }
     }
     return SaleInquiriesController;
 }
