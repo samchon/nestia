@@ -83,6 +83,7 @@
             "description": "not found error when unable to find the matched record"
           }
         },
+        "summary": "Store a new comment",
         "description": "Store a new comment.\n\nWrite a comment on a sale article. If you configure the comment to be\n`anonymous`, only administrator, you and seller of the sale can read\nthe content.",
         "x-nestia-namespace": "consumers.sales.articles.comments.store",
         "x-nestia-jsDocTags": [

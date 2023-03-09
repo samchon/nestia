@@ -45,12 +45,11 @@ export function SaleInquiriesController<
         }
 
         /**
-         * Update an inquiry.
-         *
          * Update ordinary inquiry article. However, it would not modify the content reocrd
          * {@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.
          * Therefore, all of the poeple can read how the content has been changed.
          *
+         * @summary Update an inquiry.
          * @param request Instance of the Express.Request
          * @param section Code of the target section
          * @param saleId ID of the target sale

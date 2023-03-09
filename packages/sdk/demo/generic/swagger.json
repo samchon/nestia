@@ -67,6 +67,7 @@
             "description": "unauthorized error when you've not logged in yet"
           }
         },
+        "summary": "Store a new inquiry",
         "description": "Store a new inquiry.\n\nWrite a new article inquirying about a sale.",
         "x-nestia-namespace": "consumers.sales.questions.store",
         "x-nestia-jsDocTags": [
@@ -237,9 +238,19 @@
             "description": "forbidden error when the article is not yours"
           }
         },
-        "description": "Update an inquiry.\n\nUpdate ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.\nTherefore, all of the poeple can read how the content has been changed.",
+        "summary": "Update an inquiry.",
+        "description": "Update ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.\nTherefore, all of the poeple can read how the content has been changed.",
         "x-nestia-namespace": "consumers.sales.questions.update",
         "x-nestia-jsDocTags": [
+          {
+            "name": "summary",
+            "text": [
+              {
+                "text": "Update an inquiry.",
+                "kind": "text"
+              }
+            ]
+          },
           {
             "name": "param",
             "text": [
@@ -456,6 +467,7 @@
             "description": "unauthorized error when you've not logged in yet"
           }
         },
+        "summary": "Store a new inquiry",
         "description": "Store a new inquiry.\n\nWrite a new article inquirying about a sale.",
         "x-nestia-namespace": "consumers.sales.reviews.store",
         "x-nestia-jsDocTags": [
@@ -626,9 +638,19 @@
             "description": "forbidden error when the article is not yours"
           }
         },
-        "description": "Update an inquiry.\n\nUpdate ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.\nTherefore, all of the poeple can read how the content has been changed.",
+        "summary": "Update an inquiry.",
+        "description": "Update ordinary inquiry article. However, it would not modify the content reocrd\n{@link ISaleInquiry.IContent}, but be accumulated into the {@link ISaleInquiry.contents}.\nTherefore, all of the poeple can read how the content has been changed.",
         "x-nestia-namespace": "consumers.sales.reviews.update",
         "x-nestia-jsDocTags": [
+          {
+            "name": "summary",
+            "text": [
+              {
+                "text": "Update an inquiry.",
+                "kind": "text"
+              }
+            ]
+          },
           {
             "name": "param",
             "text": [

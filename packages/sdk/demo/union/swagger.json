@@ -90,6 +90,7 @@
             "x-nestia-encrypted": false
           }
         },
+        "summary": "List up entire sale articles",
         "description": "List up entire sale articles.",
         "x-nestia-namespace": "consumers.sales.entire_articles.index",
         "x-nestia-jsDocTags": [
@@ -279,6 +280,7 @@
             "x-nestia-encrypted": false
           }
         },
+        "summary": "Get detailed sale article record",
         "description": "Get detailed sale article record.",
         "x-nestia-namespace": "consumers.sales.entire_articles.at",
         "x-nestia-jsDocTags": [
