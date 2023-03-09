@@ -132,23 +132,36 @@ export namespace SwaggerGenerator {
         const bodyParam = route.parameters.find(
             (param) => param.category === "body",
         );
-        const tags: string[] = route.tags
-            .filter(
-                (tag) =>
-                    tag.name === "tag" &&
-                    tag.text &&
-                    tag.text.find(
-                        (elem) => elem.kind === "text" && elem.text.length,
-                    ) !== undefined,
-            )
-            .map((tag) => tag.text!.find((elem) => elem.kind === "text")!.text);
 
-        const encrypted: boolean =
-            route.encrypted === true ||
-            !!route.parameters.find((param) => param.encrypted === true);
+        const getTagTexts = (name: string) =>
+            route.tags
+                .filter(
+                    (tag) =>
+                        tag.name === name &&
+                        tag.text &&
+                        tag.text.find(
+                            (elem) => elem.kind === "text" && elem.text.length,
+                        ) !== undefined,
+                )
+                .map(
+                    (tag) =>
+                        tag.text!.find((elem) => elem.kind === "text")!.text,
+                );
+
+        const description: string = CommentFactory.generate(route.comments);
+        const summary: string | undefined = (() => {
+            const [explicit] = getTagTexts("summary");
+            if (explicit?.length) return explicit;
+
+            const index: number = description.indexOf(".");
+            if (index <= 0) return undefined;
+
+            const content: string = description.substring(0, index).trim();
+            return content.length ? content : undefined;
+        })();
+
         return {
-            tags,
-            summary: encrypted ? "encrypted" : undefined,
+            tags: getTagTexts("tag"),
             parameters: route.parameters
                 .filter((param) => param.category !== "body")
                 .map((param) =>
@@ -175,7 +188,8 @@ export namespace SwaggerGenerator {
                 tupleList,
                 route,
             ),
-            description: CommentFactory.generate(route.comments),
+            summary,
+            description,
             "x-nestia-namespace": [
                 ...route.path
                     .split("/")

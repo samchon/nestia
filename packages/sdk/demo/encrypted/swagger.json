@@ -14,7 +14,6 @@
     "/sellers/authenticate/join": {
       "post": {
         "tags": [],
-        "summary": "encrypted",
         "parameters": [],
         "requestBody": {
           "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nInformation of yours",
@@ -41,6 +40,7 @@
             "x-nestia-encrypted": true
           }
         },
+        "summary": "Join as a seller",
         "description": "Join as a seller.",
         "x-nestia-namespace": "sellers.authenticate.join.join",
         "x-nestia-jsDocTags": [
@@ -85,7 +85,6 @@
     "/sellers/authenticate/login": {
       "post": {
         "tags": [],
-        "summary": "encrypted",
         "parameters": [],
         "requestBody": {
           "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nEmail and password",
@@ -112,6 +111,7 @@
             "x-nestia-encrypted": true
           }
         },
+        "summary": "Log-in as a seller",
         "description": "Log-in as a seller.",
         "x-nestia-namespace": "sellers.authenticate.login.login",
         "x-nestia-jsDocTags": [
@@ -156,7 +156,6 @@
     "/sellers/authenticate/password/change": {
       "patch": {
         "tags": [],
-        "summary": "encrypted",
         "parameters": [],
         "requestBody": {
           "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nOld and new passwords",
@@ -176,6 +175,7 @@
             "x-nestia-encrypted": false
           }
         },
+        "summary": "Change password",
         "description": "Change password.",
         "x-nestia-namespace": "sellers.authenticate.password.change.change",
         "x-nestia-jsDocTags": [
@@ -218,6 +218,7 @@
             "x-nestia-encrypted": false
           }
         },
+        "summary": "Erase the seller by itself",
         "description": "Erase the seller by itself.",
         "x-nestia-namespace": "sellers.authenticate.exit.exit",
         "x-nestia-jsDocTags": []

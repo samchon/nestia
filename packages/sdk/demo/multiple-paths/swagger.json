@@ -143,6 +143,7 @@
             "description": "not found error when unable to find the matched record"
           }
         },
+        "summary": "Store a new comment",
         "description": "Store a new comment.",
         "x-nestia-namespace": "consumers.sales.articles.comments.store",
         "x-nestia-jsDocTags": [
@@ -351,6 +352,7 @@
             "description": "not found error when unable to find the matched record"
           }
         },
+        "summary": "Store a new comment",
         "description": "Store a new comment.",
         "x-nestia-namespace": "sellers.sales.articles.comments.store",
         "x-nestia-jsDocTags": [
