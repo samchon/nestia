@@ -1,5 +1,7 @@
 import { is_sorted } from "tstl/ranges";
 
+import { RandomGenerator } from "./RandomGenerator";
+
 /**
  * Test validator.
  *
@@ -69,6 +71,63 @@ export namespace TestValidator {
         };
 
     /**
+     * Valiate search options.
+     *
+     * Test a pagination API supporting search options.
+     *
+     * @param title Title of error message when searching is invalid
+     * @returns Currying function
+     *
+     * @example https://github.com/samchon/nestia-template/blob/master/src/test/features/api/bbs/test_api_bbs_article_index_search.ts
+     */
+    export const search =
+        (title: string) =>
+        /**
+         * @param getter A pagination API function to be called
+         */
+        <Entity extends IEntity<any>, Request>(
+            getter: (input: Request) => Promise<Entity[]>,
+        ) =>
+        /**
+         * @param total Total entity records for comparison
+         * @param sampleCount Sampling count. Default is 1
+         */
+        (total: Entity[], sampleCount: number = 1) =>
+        /**
+         * @param props Search properties
+         */
+        async <Values extends any[]>(
+            props: ISearchProps<Entity, Values, Request>,
+        ): Promise<void> => {
+            const samples: Entity[] = RandomGenerator.sample(
+                total,
+                sampleCount,
+            );
+            for (const s of samples) {
+                const values: Values = props.values(s);
+                const filtered: Entity[] = total.filter((entity) =>
+                    props.filter(entity, values),
+                );
+                const gotten: Entity[] = await getter(props.request(values));
+
+                TestValidator.index(`${title} (${props.fields.join(", ")})`)(
+                    filtered,
+                )(gotten);
+            }
+        };
+
+    export interface ISearchProps<
+        Entity extends IEntity<any>,
+        Values extends any[],
+        Request,
+    > {
+        fields: string[];
+        values(entity: Entity): Values;
+        filter(entity: Entity, values: Values): boolean;
+        request(values: Values): Request;
+    }
+
+    /**
      * Validate sorting options.
      *
      * Test a pagination API supporting sorting options.
@@ -77,8 +136,7 @@ export namespace TestValidator {
      * with multiple fields. However, as it forms a complicate currying function,
      * I recomend you to see below example code before using.
      *
-     * @param title Title of error messaeg when sorting is invalid
-     *
+     * @param title Title of error message when sorting is invalid
      * @example https://github.com/samchon/nestia-template/blob/master/src/test/features/api/bbs/test_api_bbs_article_index_sort.ts
      */
     export const sort =

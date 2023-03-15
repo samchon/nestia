@@ -2,8 +2,10 @@ import { RandomGenerator } from "../../../RandomGenerator";
 import { IBbsArticle } from "../structures/IBbsArticle";
 import { IPage } from "../structures/IPage";
 
-export function generate_random_articles(): IPage<IBbsArticle.ISummary> {
-    const data: IBbsArticle.ISummary[] = new Array(100).fill("").map(() => {
+export function generate_random_articles(
+    count: number = 100,
+): IPage<IBbsArticle.ISummary> {
+    const data: IBbsArticle.ISummary[] = new Array(count).fill("").map(() => {
         const created_at: string = RandomGenerator.date(
             new Date(),
             24 * 60 * 60 * 1000,
@@ -19,7 +21,7 @@ export function generate_random_articles(): IPage<IBbsArticle.ISummary> {
     return {
         pagination: {
             page: 1,
-            limit: 100,
+            limit: count,
             total_count: data.length,
             total_pages: 1,
         },
