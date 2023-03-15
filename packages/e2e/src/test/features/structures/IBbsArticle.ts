@@ -11,8 +11,17 @@ export namespace IBbsArticle {
          * The plus sign means ASC and minus sign means DESC.
          */
         sort?: IPage.IRequest.Sort<IRequest.SortableColumns>;
+
+        /**
+         * Search options.
+         */
+        search?: IRequest.ISearch;
     }
     export namespace IRequest {
+        export interface ISearch {
+            writer?: string;
+            title?: string;
+        }
         /**
          * List of sortable columns.
          */
