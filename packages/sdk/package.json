@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/samchon/nestia",
   "devDependencies": {
-    "@nestia/core": "^1.0.15",
+    "@nestia/core": "^1.0.17",
     "@nestia/fetcher": "^1.0.1",
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/cli": "^0.11.21",
@@ -49,7 +49,7 @@
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
     "ttypescript": "^1.5.15",
-    "typescript": "^4.9.4",
+    "typescript": "^4.9.5",
     "typescript-transform-paths": "^3.4.4",
     "uuid": "^9.0.0"
   },
@@ -61,7 +61,7 @@
     "tsconfck": "^2.0.1",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^2.5.13",
-    "typia": "^3.6.7"
+    "typia": "^3.6.8"
   },
   "files": [
     "assets",

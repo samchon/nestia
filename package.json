@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "4.0.9",
+  "version": "4.0.10",
   "description": "Nestia CLI",
   "main": "bin/index.js",
   "bin": {
@@ -29,15 +29,15 @@
   },
   "homepage": "https://github.com/samchon/nestia",
   "devDependencies": {
-    "@nestia/core": "^1.0.6",
-    "@nestia/sdk": "^1.0.1",
+    "@nestia/core": "^1.0.17",
+    "@nestia/sdk": "^1.0.16",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",
     "commander": "^10.0.0",
     "comment-json": "^4.2.3",
     "inquirer": "^8.2.5",
     "rimraf": "^3.0.2",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.5"
   },
   "files": [
     "bin",

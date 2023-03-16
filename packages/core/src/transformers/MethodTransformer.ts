@@ -88,7 +88,7 @@ function get_name(symbol: ts.Symbol): string {
 function explore_name(name: string, decl: ts.Node): string {
     return ts.isModuleBlock(decl)
         ? explore_name(
-              `${decl.parent.name.getText()}.${name}`,
+              `${decl.parent.name.getFullText().trim()}.${name}`,
               decl.parent.parent,
           )
         : name;

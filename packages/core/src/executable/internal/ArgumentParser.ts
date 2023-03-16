@@ -2,8 +2,8 @@ import type CommanderModule from "commander";
 import fs from "fs";
 import type * as InquirerModule from "inquirer";
 import path from "path";
-import { FileRetriever } from "./FileRetriever";
 
+import { FileRetriever } from "./FileRetriever";
 import { PackageManager } from "./PackageManager";
 
 export namespace ArgumentParser {
@@ -97,11 +97,21 @@ export namespace ArgumentParser {
         const configure = async () => {
             const fileList: string[] = await (
                 await fs.promises.readdir(process.cwd())
-            ).filter(
-                (str) =>
-                    str.substring(0, 8) === "tsconfig" &&
-                    str.substring(str.length - 5) === ".json",
-            );
+            )
+                .filter(
+                    (str) =>
+                        str.substring(0, 8) === "tsconfig" &&
+                        str.substring(str.length - 5) === ".json",
+                )
+                .sort((x, y) =>
+                    x === "tsconfig.json"
+                        ? -1
+                        : y === "tsconfig.json"
+                        ? 1
+                        : x < y
+                        ? -1
+                        : 1,
+                );
             if (fileList.length === 0) {
                 if (process.cwd() !== pack.directory)
                     throw new Error(`Unable to find "tsconfig.json" file.`);
