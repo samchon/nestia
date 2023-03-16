@@ -33,7 +33,7 @@ async function setup(): Promise<void> {
     const args: ArgumentParser.IArguments = await ArgumentParser.parse(pack);
 
     // INSTALL TYPESCRIPT
-    pack.install({ dev: true, modulo: "typescript" });
+    pack.install({ dev: true, modulo: "typescript", version: "4.9.5" });
     args.project ??= (() => {
         CommandExecutor.run("npx tsc --init", false);
         return (args.project = "tsconfig.json");

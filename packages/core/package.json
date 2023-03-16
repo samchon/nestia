@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -63,10 +63,10 @@
     "raw-body": "*",
     "reflect-metadata": "*",
     "rxjs": "*",
-    "typia": "^3.6.5"
+    "typia": "^3.6.8"
   },
   "peerDependencies": {
-    "typescript": ">= 4.5.2"
+    "typescript": ">= 4.5.2 && < 5.0.0"
   },
   "files": [
     "README.md",
