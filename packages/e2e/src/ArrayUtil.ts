@@ -84,4 +84,23 @@ export namespace ArrayUtil {
     export function flat<T>(matrix: T[][]): T[] {
         return ([] as T[]).concat(...matrix);
     }
+
+    export function subsets<T>(array: T[]): T[][] {
+        const check: boolean[] = new Array(array.length).fill(false);
+        const output: T[][] = [];
+    
+        const dfs = (depth: number) => {
+            if (depth === check.length)
+                output.push(array.filter((_v, idx) => check[idx]));
+            else {
+                check[depth] = true;
+                dfs(depth + 1);
+    
+                check[depth] = false;
+                dfs(depth + 1);
+            }
+        };
+        dfs(0);
+        return output;
+    }
 }
