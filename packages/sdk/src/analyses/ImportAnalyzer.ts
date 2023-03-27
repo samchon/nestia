@@ -73,7 +73,7 @@ export namespace ImportAnalyzer {
         const symbol: ts.Symbol | undefined =
             type.aliasSymbol || type.getSymbol();
         if (symbol === undefined)
-            return checker.typeToString(type, undefined, undefined);
+            return checker.typeToString(type, undefined, ts.TypeFormatFlags.NoTruncation);
         // UNION OR INTERSECT
         else if (
             type.aliasSymbol === undefined &&
