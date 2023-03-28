@@ -56,11 +56,11 @@ export interface INestiaConfig {
     assert?: boolean;
 
     /**
-     * Whether to optimize JSON string conversion 10x faster or not.
+     * Whether to optimize JSON string conversion 50x faster or not.
      *
      * If you configure this property to be `true`, the SDK library would utilize the
      * [typia](https://github.com/samchon/typia#enhanced-json)
-     * and the JSON string conversion speed really be 10x faster.
+     * and the JSON string conversion speed really be 50x faster.
      *
      * @default false
      */
