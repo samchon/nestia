@@ -15,5 +15,5 @@ export async function test_comment(connection: api.IConnection): Promise<void> {
                 annonymous: false,
             },
         );
-    typia.assert<typeof comment>(comment);
+    typia.assertEquals(comment);
 }

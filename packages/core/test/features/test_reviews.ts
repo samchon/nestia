@@ -16,5 +16,5 @@ export async function test_review(connection: api.IConnection): Promise<void> {
                 files: [],
             },
         );
-    typia.assert<typeof review>(review);
+    typia.assertEquals(review);
 }

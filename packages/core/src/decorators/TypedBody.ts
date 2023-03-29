@@ -47,6 +47,6 @@ export function TypedBody<T>(
     })();
 }
 
-Object.assign(TypedBody, assert);
 Object.assign(TypedBody, is);
+Object.assign(TypedBody, assert);
 Object.assign(TypedBody, validate);
