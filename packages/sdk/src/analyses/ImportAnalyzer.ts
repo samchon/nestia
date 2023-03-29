@@ -79,21 +79,28 @@ export namespace ImportAnalyzer {
                 ts.TypeFormatFlags.NoTruncation,
             );
         // UNION OR INTERSECT
-        else if (
-            type.aliasSymbol === undefined &&
-            type.isUnionOrIntersection()
-        ) {
-            const joiner: string = type.isIntersection() ? " & " : " | ";
-            return type.types
-                .map((child) =>
-                    explore_escaped_name(
-                        checker,
-                        genericDict,
-                        importDict,
-                        child,
-                    ),
-                )
-                .join(joiner);
+        else if (type.aliasSymbol === undefined) {
+            if (type.isUnionOrIntersection()) {
+                const joiner: string = type.isIntersection() ? " & " : " | ";
+                return type.types
+                    .map((child) =>
+                        explore_escaped_name(
+                            checker,
+                            genericDict,
+                            importDict,
+                            child,
+                        ),
+                    )
+                    .join(joiner);
+            } else {
+                const typeString = checker.typeToString(
+                    type,
+                    undefined,
+                    ts.TypeFormatFlags.NoTruncation,
+                );
+
+                return typeString;
+            }
         }
 
         //----
