@@ -106,10 +106,10 @@ export namespace TypedRoute {
     }
 }
 for (const method of [
-    assertStringify,
     isStringify,
-    stringify,
+    assertStringify,
     validateStringify,
+    stringify,
 ])
     for (const [key, value] of Object.entries(method))
         for (const deco of [

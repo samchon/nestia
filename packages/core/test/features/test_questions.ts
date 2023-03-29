@@ -17,5 +17,5 @@ export async function test_question(
                 files: [],
             },
         );
-    typia.assert<typeof question>(question);
+    typia.assertEquals(question);
 }

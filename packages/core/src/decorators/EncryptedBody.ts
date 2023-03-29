@@ -86,8 +86,8 @@ export function EncryptedBody<T>(
         return data;
     })();
 }
-Object.assign(EncryptedBody, assert);
 Object.assign(EncryptedBody, is);
+Object.assign(EncryptedBody, assert);
 Object.assign(EncryptedBody, validate);
 
 /**

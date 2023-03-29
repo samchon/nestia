@@ -9,5 +9,5 @@ export async function test_filesystem(
     const buckets: IFilesystemBucket[] = await api.functional.filesystem.get(
         connection,
     );
-    typia.assert<typeof buckets>(buckets);
+    typia.assertEquals(buckets);
 }
