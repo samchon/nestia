@@ -242,7 +242,7 @@
             ]
           },
           {
-            "name": "throw",
+            "name": "throws",
             "text": [
               {
                 "text": "400 bad request error when type of the input data is not valid",
@@ -251,7 +251,7 @@
             ]
           },
           {
-            "name": "throw",
+            "name": "throws",
             "text": [
               {
                 "text": "401 unauthorized error when you've not logged in yet",
@@ -260,7 +260,7 @@
             ]
           },
           {
-            "name": "throw",
+            "name": "throws",
             "text": [
               {
                 "text": "403 forbidden error when you're a seller and the sale is not yours",
@@ -269,7 +269,7 @@
             ]
           },
           {
-            "name": "throw",
+            "name": "throws",
             "text": [
               {
                 "text": "404 not found error when unable to find the matched record",
@@ -451,7 +451,7 @@
             ]
           },
           {
-            "name": "throw",
+            "name": "throws",
             "text": [
               {
                 "text": "400 bad request error when type of the input data is not valid",
@@ -460,7 +460,7 @@
             ]
           },
           {
-            "name": "throw",
+            "name": "throws",
             "text": [
               {
                 "text": "401 unauthorized error when you've not logged in yet",
@@ -469,7 +469,7 @@
             ]
           },
           {
-            "name": "throw",
+            "name": "throws",
             "text": [
               {
                 "text": "403 forbidden error when you're a seller and the sale is not yours",
@@ -478,7 +478,7 @@
             ]
           },
           {
-            "name": "throw",
+            "name": "throws",
             "text": [
               {
                 "text": "404 not found error when unable to find the matched record",

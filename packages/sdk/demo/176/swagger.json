@@ -17,7 +17,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "",
+            "description": "something",
             "content": {
               "application/json": {
                 "schema": {
@@ -28,31 +28,23 @@
             "x-nestia-encrypted": false
           }
         },
-        "description": "",
+        "summary": "Type one",
+        "description": "Type one.",
         "x-nestia-namespace": "userspace.type1.type1",
-        "x-nestia-jsDocTags": []
-      }
-    },
-    "/userspace/type2": {
-      "get": {
-        "tags": [],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Userspace.UserType2"
-                }
+        "x-nestia-jsDocTags": [
+          {
+            "name": "returns",
+            "text": [
+              {
+                "text": "something",
+                "kind": "text"
               }
-            },
-            "x-nestia-encrypted": false
+            ]
+          },
+          {
+            "name": "deprecated"
           }
-        },
-        "description": "",
-        "x-nestia-namespace": "userspace.type2.type2",
-        "x-nestia-jsDocTags": []
+        ]
       }
     }
   },
@@ -70,27 +62,6 @@
         "nullable": false,
         "required": [
           "id"
-        ],
-        "x-typia-jsDocTags": []
-      },
-      "Userspace.UserType2": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "nullable": false,
-            "x-typia-required": true
-          },
-          "name": {
-            "type": "string",
-            "nullable": false,
-            "x-typia-required": true
-          }
-        },
-        "nullable": false,
-        "required": [
-          "id",
-          "name"
         ],
         "x-typia-jsDocTags": []
       }
