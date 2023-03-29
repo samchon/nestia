@@ -5,6 +5,12 @@ import { Userspace } from "../api/structures/Userspace";
 
 @nest.Controller("userspace")
 export class UserspaceController {
+    /**
+     * Type one.
+     *
+     * @returns something
+     * @deprecated
+     */
     @core.TypedRoute.Get("type1")
     public async type1(): Promise<Userspace.UserType1> {
         return {
@@ -12,6 +18,9 @@ export class UserspaceController {
         };
     }
 
+    /**
+     * @internal
+     */
     @nest.Get("type2")
     public async type2(): Promise<Userspace.UserType2> {
         return {

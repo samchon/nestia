@@ -19,10 +19,10 @@ import type { ISaleArticleComment } from "./../../../../../structures/ISaleArtic
  * @param articleId ID of the target article
  * @param input Content to write
  * @return Newly archived comment
- * @throw 400 bad request error when type of the input data is not valid
- * @throw 401 unauthorized error when you've not logged in yet
- * @throw 403 forbidden error when you're a seller and the sale is not yours
- * @throw 404 not found error when unable to find the matched record
+ * @throws 400 bad request error when type of the input data is not valid
+ * @throws 401 unauthorized error when you've not logged in yet
+ * @throws 403 forbidden error when you're a seller and the sale is not yours
+ * @throws 404 not found error when unable to find the matched record
  * 
  * @controller MultipleCommentsController.store()
  * @path POST /consumers/:section/sales/:saleId/articles/:articleId/comments

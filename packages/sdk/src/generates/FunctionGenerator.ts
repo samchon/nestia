@@ -136,9 +136,7 @@ export namespace FunctionGenerator {
         if (comments.length) comments.push("");
 
         // FILTER TAGS (VULNERABLE PARAMETERS WOULD BE REMOVED)
-        const tagList: ts.JSDocTagInfo[] = route.tags.filter(
-            (tag) => tag.text !== undefined,
-        );
+        const tagList: ts.JSDocTagInfo[] = route.tags.slice();
         if (tagList.length !== 0) {
             const index: number = tagList.findIndex((t) => t.name === "param");
             if (index !== -1) {
@@ -162,11 +160,12 @@ export namespace FunctionGenerator {
                 });
             }
             comments.push(
-                ...tagList.map(
-                    (tag) =>
-                        `@${tag.name} ${tag
-                            .text!.map((elem) => elem.text)
-                            .join("")}`,
+                ...tagList.map((tag) =>
+                    tag.text
+                        ? `@${tag.name} ${tag.text
+                              .map((elem) => elem.text)
+                              .join("")}`
+                        : `@${tag.name}`,
                 ),
                 "",
             );

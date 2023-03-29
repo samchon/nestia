@@ -329,7 +329,7 @@ export namespace SwaggerGenerator {
             route.tags
                 .filter(
                     (tag) =>
-                        tag.name === "throw" &&
+                        (tag.name === "throw" || tag.name === "throws") &&
                         tag.text &&
                         tag.text.find(
                             (elem) =>
