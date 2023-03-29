@@ -7,7 +7,7 @@
 import { Fetcher, Primitive } from "@nestia/fetcher";
 import type { IConnection } from "@nestia/fetcher";
 
-import type { TryCatch, __object } from "./../../../controllers/AppController";
+import type { TryCatch } from "./../../../controllers/AppController";
 
 /**
  * @controller AppController.OnlyOneErrorObject()
@@ -29,7 +29,7 @@ export function OnlyOneErrorObject
 }
 export namespace OnlyOneErrorObject
 {
-    export type Output = Primitive<TryCatch<100, __object>>;
+    export type Output = Primitive<TryCatch<100, { readonly result: false; readonly code: 4000; readonly data: "Error happens something1."; }>>;
 
     export const METHOD = "GET" as const;
     export const PATH: string = "/only";
