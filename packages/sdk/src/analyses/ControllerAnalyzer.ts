@@ -114,12 +114,17 @@ export namespace ControllerAnalyzer {
                 signature.getParameters()[param.index],
             ),
         );
-        const output: ITypeTuple = ImportAnalyzer.analyze(
+        const output: ITypeTuple | null = ImportAnalyzer.analyze(
             checker,
             genericDict,
             importDict,
             signature.getReturnType(),
         );
+        if (output === null)
+            throw new Error(
+                `Error on ControllerAnalyzer.analyze(): unnamed return type from ${controller.name}.${func.name}().`,
+            );
+
         const imports: [string, string[]][] = importDict
             .toJSON()
             .map((pair) => [pair.first, pair.second.toJSON()]);
@@ -228,17 +233,24 @@ export namespace ControllerAnalyzer {
                     `or re-define re-define parameters for each query parameters.`,
             );
 
+        // GET TYPE NAME
+        const tuple: ITypeTuple | null = ImportAnalyzer.analyze(
+            checker,
+            genericDict,
+            importDict,
+            type,
+        );
+        if (tuple === null)
+            throw new Error(
+                `Error on ${method}: unnamed parameter type from ${method}#${name}.`,
+            );
+
         return {
             name,
             category: param.category,
             field: param.field,
             encrypted: param.encrypted,
-            type: ImportAnalyzer.analyze(
-                checker,
-                genericDict,
-                importDict,
-                type,
-            ),
+            type: tuple,
             optional,
         };
     }

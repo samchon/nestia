@@ -18,12 +18,23 @@ export namespace ImportAnalyzer {
         genericDict: GenericAnalyzer.Dictionary,
         importDict: Dictionary,
         type: ts.Type,
-    ): ITypeTuple {
+    ): ITypeTuple | null {
         type = get_type(checker, type);
-        return {
-            type,
-            name: explore_escaped_name(checker, genericDict, importDict, type),
-        };
+        explore_escaped_name(checker, genericDict, importDict, type);
+
+        try {
+            return {
+                type,
+                name: explore_escaped_name(
+                    checker,
+                    genericDict,
+                    importDict,
+                    type,
+                ),
+            };
+        } catch {
+            return null;
+        }
     }
 
     /* ---------------------------------------------------------
@@ -71,18 +82,10 @@ export namespace ImportAnalyzer {
 
         // PRIMITIVE
         const symbol: ts.Symbol | undefined =
-            type.aliasSymbol || type.getSymbol();
-        if (symbol === undefined)
-            return checker.typeToString(
-                type,
-                undefined,
-                ts.TypeFormatFlags.NoTruncation,
-            );
+            type.aliasSymbol ?? type.getSymbol();
+
         // UNION OR INTERSECT
-        else if (
-            type.aliasSymbol === undefined &&
-            type.isUnionOrIntersection()
-        ) {
+        if (type.aliasSymbol === undefined && type.isUnionOrIntersection()) {
             const joiner: string = type.isIntersection() ? " & " : " | ";
             return type.types
                 .map((child) =>
@@ -94,6 +97,20 @@ export namespace ImportAnalyzer {
                     ),
                 )
                 .join(joiner);
+        }
+
+        // NO SYMBOL
+        else if (symbol === undefined) {
+            const raw: string = checker.typeToString(
+                type,
+                undefined,
+                ts.TypeFormatFlags.NoTruncation,
+            );
+            if (raw === "__object")
+                throw new Error(
+                    "Error on ImportAnalyzer.analyze(): unnamed type exists.",
+                );
+            return raw;
         }
 
         //----

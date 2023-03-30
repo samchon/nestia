@@ -36,8 +36,8 @@ export function index
         saleId: number,
         input: ISaleInquiry.IRequest,
         query: ISaleReview.IQuery,
-        ipAddr: string | undefined,
-        href?: string | undefined
+        ipAddr: undefined | string,
+        href?: undefined | string
     ): Promise<index.Output>
 {
     return Fetcher.fetch
@@ -62,7 +62,7 @@ export namespace index
         response: false,
     };
 
-    export function path(section: string, saleId: number, ipAddr: string | undefined, href: string | undefined, query: ISaleReview.IQuery): string
+    export function path(section: string, saleId: number, ipAddr: undefined | string, href: undefined | string, query: ISaleReview.IQuery): string
     {
         const variables: Record<any, any> = 
         {
