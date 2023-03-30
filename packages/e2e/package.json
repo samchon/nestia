@@ -1,13 +1,14 @@
 {
   "name": "@nestia/e2e",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "description": "E2E test utilify functions",
   "main": "lib/index.js",
   "scripts": {
     "build": "rimraf lib && tsc",
     "dev": "npm run build -- --watch",
     "prettier": "prettier --write ./src/**/*.ts",
-    "test": "node lib/test"
+    "test": "node lib/test",
+    "prepare": "ts-patch install"
   },
   "repository": {
     "type": "git",
@@ -33,7 +34,10 @@
     "@types/node": "^18.11.18",
     "prettier": "^2.8.3",
     "rimraf": "^4.1.2",
-    "typescript": "^4.9.5"
+    "ts-node": "^10.9.1",
+    "ts-patch": "^2.1.0",
+    "typescript": "^4.9.5",
+    "typia": "^3.6.9"
   },
   "dependencies": {
     "chalk": "^4.1.2",

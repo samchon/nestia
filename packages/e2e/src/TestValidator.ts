@@ -1,6 +1,7 @@
 import { is_sorted } from "tstl/ranges";
 
 import { RandomGenerator } from "./RandomGenerator";
+import { json_equal_to } from "./internal/json_equal_to";
 
 /**
  * Test validator.
@@ -10,6 +11,43 @@ import { RandomGenerator } from "./RandomGenerator";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace TestValidator {
+    /**
+     * Test whether condition is satisfied.
+     *
+     * @param title Title of error message when condition is not satisfied
+     * @return Currying function
+     */
+    export const predicate = (title: string) => (condition: () => boolean) => {
+        if (condition() !== true)
+            throw new Error(
+                `Bug on ${title}: expected condition is not satisfied.`,
+            );
+    };
+
+    /**
+     * Test whether two values are equal.
+     *
+     * If you want to validate `covers` relationship,
+     * call smaller first and then larger.
+     *
+     * Otherwise you wanna non equals validator, combine with {@link error}.
+     *
+     * @param title Title of error message when different
+     * @returns Currying function
+     */
+    export const equals =
+        (title: string) =>
+        <T>(x: T) =>
+        (y: T) => {
+            const diff: string[] = json_equal_to(x, y);
+            if (diff.length)
+                throw new Error(
+                    `Bug on ${title}: found different values - [${diff.join(
+                        ", ",
+                    )}]`,
+                );
+        };
+
     /**
      * Test whether error occurs.
      *
