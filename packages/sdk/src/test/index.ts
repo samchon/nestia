@@ -44,7 +44,7 @@ async function main(): Promise<void> {
             "---------------------------------------------------------",
         );
         await execute("176", job, get_arguments("directory", job));
-        await execute("282", job, get_arguments("directory", job));
+        await execute("296", job, get_arguments("directory", job));
         await execute("encrypted", job, get_arguments("directory", job));
         await execute("generic", job, get_arguments("directory", job));
         await execute("recursive", job, get_arguments("pattern", job));
