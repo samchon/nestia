@@ -17,12 +17,37 @@ export namespace TestValidator {
      * @param title Title of error message when condition is not satisfied
      * @return Currying function
      */
-    export const predicate = (title: string) => (condition: () => boolean) => {
-        if (condition() !== true)
-            throw new Error(
-                `Bug on ${title}: expected condition is not satisfied.`,
-            );
-    };
+    export const predicate =
+        (title: string) =>
+        <T extends boolean | (() => boolean) | (() => Promise<boolean>)>(
+            condition: T,
+        ): T extends () => Promise<boolean> ? Promise<void> : void => {
+            const message = () =>
+                `Bug on ${title}: expected condition is not satisfied.`;
+
+            // SCALAR
+            if (typeof condition === "boolean") {
+                if (condition !== true) throw new Error(message());
+                return undefined as any;
+            }
+
+            // CLOSURE
+            const output: boolean | Promise<boolean> = condition();
+            if (typeof output === "boolean") {
+                if (output !== true) throw new Error(message());
+                return undefined as any;
+            }
+
+            // ASYNCHRONOUS
+            return new Promise<void>((resolve, reject) => {
+                output
+                    .then((flag) => {
+                        if (flag === true) resolve();
+                        else reject(message());
+                    })
+                    .catch(reject);
+            }) as any;
+        };
 
     /**
      * Test whether two values are equal.
@@ -59,13 +84,20 @@ export namespace TestValidator {
      */
     export const error =
         (title: string) =>
-        async (task: () => any | Promise<any>): Promise<void> => {
+        <T>(task: () => T): T extends Promise<any> ? Promise<void> : void => {
+            const message = () => `Bug on ${title}: exception must be thrown.`;
             try {
-                await task();
+                const output: T = task();
+                if (is_promise(output))
+                    return new Promise<void>((resolve, reject) =>
+                        output
+                            .catch(() => resolve())
+                            .then(() => reject(message())),
+                    ) as any;
+                else throw new Error(message());
             } catch {
-                return;
+                return undefined as any;
             }
-            throw new Error(`Bug on ${title}: exception must be thrown.`);
         };
 
     /**
@@ -238,4 +270,13 @@ interface IEntity<Type extends string | number | bigint> {
 
 function get_ids<Entity extends IEntity<any>>(entities: Entity[]): string[] {
     return entities.map((entity) => entity.id).sort((x, y) => (x < y ? -1 : 1));
+}
+
+function is_promise(input: any): input is Promise<any> {
+    return (
+        typeof input === "object" &&
+        input !== null &&
+        typeof (input as any).then === "function" &&
+        typeof (input as any).catch === "function"
+    );
 }
