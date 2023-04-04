@@ -5,7 +5,9 @@
 
 Nestia is a set of helper libraries for NestJS, supporting below features:
 
-  - [`@nestia/core`](#nestiacore): **15,000x times faster** validation decorators
+  - [`@nestia/core`](#nestiacore): super-fast decorators
+    - **15,000x faster** validation decorators
+    - **100x faster** JSON serialization decorators
   - [`@nestia/sdk`](#nestiasdk): evolved **SDK** and **Swagger** generators
     - SDK (Software Development Kit)
       - interaction library for client developers
@@ -79,7 +81,7 @@ If you want to install and configure `nestia` manually, read [Guide Documents ->
 Super-fast validation decorators for NestJS.
 
   - 15,000x faster request body validation
-  - 50x faster JSON response, even type safe
+  - 100x faster JSON response, even type safe
   - Do not need DTO class definition, just fine with interface
 
 `@nestia/core` is a transformer library of NestJS, supporting super-fast validation decorators, by wrapping [typia](https://github.com/samchon/typia). Comparing validation speed with `class-validator`, [typia](https://github.com/samchon/typia) is maximum **15,000x times faster** and it is even much safer.
@@ -193,11 +195,7 @@ Project | Controller | SDK | Swagger
 export function is<T>(input: unknown | T): input is T; // returns boolean
 export function assert<T>(input: unknown | T): T; // throws TypeGuardError
 export function validate<T>(input: unknown | T): IValidation<T>; // detailed
-
-// STRICT VALIDATORS
-export function equals<T>(input: unknown | T): input is T;
-export function assertEquals<T>(input: unknown | T): T;
-export function validateEquals<T>(input: unknown | T): IValidation<T>;
+export const customValidators: CustomValidatorMap; // can add custom validators
 
 // JSON
 export function application<T>(): IJsonApplication; // JSON schema
@@ -205,6 +203,9 @@ export function assertParse<T>(input: string): T; // type safe parser
 export function assertStringify<T>(input: T): string; // safe and faster
     // +) isParse, validateParse 
     // +) stringify, isStringify, validateStringify
+
+// MISC
+export function random<T>(): Primitive<T>; // generate random data
 ```
 
 `typia` is a transformer library of TypeScript, supporting below features:
