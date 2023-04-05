@@ -10,7 +10,7 @@ export async function test_validate_error(): Promise<void> {
     );
 
     // SYNCHRONOUS
-    await TestValidator.error("error")(() => {
+    TestValidator.error("error")(() => {
         throw new Error("Bug on TestValidator.error(): failed to catch error.");
     });
     TestValidator.error("error")(() =>
