@@ -22,19 +22,19 @@ export async function test_validate_search(): Promise<void> {
             }),
     )(data, 10);
 
-    search({
+    await search({
         fields: ["writer"],
         values: (entity) => [entity.writer],
         request: (values) => ({ search: { writer: values[0] } }),
         filter: (entity, values) => entity.writer === values[0],
     });
-    search({
+    await search({
         fields: ["title"],
         values: (entity) => [entity.title],
         request: (values) => ({ search: { title: values[0] } }),
         filter: (entity, values) => entity.title === values[0],
     });
-    search({
+    await search({
         fields: ["writer", "title"],
         values: (entity) => [entity.writer, entity.title],
         request: ([writer, title]) => ({

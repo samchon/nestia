@@ -1,14 +1,15 @@
 {
   "name": "@nestia/e2e",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "E2E test utilify functions",
   "main": "lib/index.js",
   "scripts": {
     "build": "rimraf lib && tsc",
     "dev": "npm run build -- --watch",
+    "eslint": "eslint src",
     "prettier": "prettier --write ./src/**/*.ts",
-    "test": "node lib/test",
-    "prepare": "ts-patch install"
+    "prepare": "ts-patch install",
+    "test": "node lib/test"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,8 @@
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/cli": "^0.11.21",
     "@types/node": "^18.11.18",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
     "prettier": "^2.8.3",
     "rimraf": "^4.1.2",
     "ts-node": "^10.9.1",
