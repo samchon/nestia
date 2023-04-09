@@ -6,8 +6,8 @@
 Nestia is a set of helper libraries for NestJS, supporting below features:
 
   - [`@nestia/core`](#nestiacore): super-fast decorators
-    - **15,000x faster** validation decorators
-    - **100x faster** JSON serialization decorators
+    - **20,000x faster** validation
+    - **200x faster** JSON serialization
   - [`@nestia/sdk`](#nestiasdk): evolved **SDK** and **Swagger** generators
     - SDK (Software Development Kit)
       - interaction library for client developers
@@ -204,8 +204,8 @@ export function assertStringify<T>(input: T): string; // safe and faster
     // +) isParse, validateParse 
     // +) stringify, isStringify, validateStringify
 
-// MISC
-export function random<T>(): Primitive<T>; // generate random data
+// RANDOM
+export function random<T>(g?: Partial<IRandomGenerator>): Primitive<T>;
 ```
 
 `typia` is a transformer library of TypeScript, supporting below features:
@@ -213,62 +213,8 @@ export function random<T>(): Primitive<T>; // generate random data
   - Super-fast Runtime Validators
   - Safe JSON parse and fast stringify functions
   - JSON schema generator
+  - Random data generation
 
 All functions in `typia` require **only one line**. You don't need any extra dedication like JSON schema definitions or decorator function calls. Just call `typia` function with only one line like `typia.assert<T>(input)`.
 
-Also, as `typia` performs AOT (Ahead of Time) compilation skill, its performance is much faster than other competitive libaries. For an example, when comparing validate function `is()` with other competitive libraries, `typia` is maximum **15,000x times faster** than `class-validator`.
-
-### Reactia
-> https://github.com/samchon/reactia
->
-> Not published yet, but soon
-
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/samchon/reactia/blob/master/LICENSE)
-[![Build Status](https://github.com/samchon/reactia/workflows/build/badge.svg)](https://github.com/samchon/reactia/actions?query=workflow%3Abuild)
-[![Guide Documents](https://img.shields.io/badge/wiki-documentation-forestgreen)](https://github.com/samchon/reactia/wiki)
-
-Reactia is an automatic React components generator, just by analyzing TypeScript type.
-
-  - `@reactia/core`: Core Library analyzing TypeScript type
-  - `@reactia/mui`: Material UI Theme for `core` and `nest`
-  - `@reactia/nest`: Automatic Frontend Application Builder for `NestJS`
-  <!-- - `reactia`: Just CLI tool -->
-
-![Sample](https://user-images.githubusercontent.com/13158709/199074008-46b2dd67-02be-40b1-aa0f-74ac41f3e0a7.png)
-
-When you want to automate an individual component, just use `@reactia/core`.
-
-```tsx
-import ReactDOM from "react-dom";
-
-import typia from "typia";
-import { ReactiaComponent } from "@reactia/core";
-import { MuiInputTheme } from "@reactia/mui";
-
-const RequestInput = ReactiaComponent<IRequestDto>(MuiInputTheme());
-const input: IRequestDto = { ... };
-
-ReactDOM.render(
-    <RequestInput input={input} />,
-    document.body
-);
-```
-
-Otherwise, you can fully automate frontend application development through `@reactia/nest`.
-
-```tsx
-import React from "react";
-import ReactDOM from "react-dom";
-
-import { ISwagger } "@nestia/swagger";
-import { MuiApplicationTheme } from "@reactia/mui";
-import { ReactiaApplication } from "@reactia/nest";
-
-const swagger: ISwagger = await import("./swagger.json");
-const App: React.FC = ReactiaApplication(MuiApplicationTheme())(swagger);
-
-ReactDOM.render(
-    <App />,
-    document.body
-);
-```
+Also, as `typia` performs AOT (Ahead of Time) compilation skill, its performance is much faster than other competitive libaries. For an example, when comparing validate function `is()` with other competitive libraries, `typia` is maximum **20,000x times faster** than `class-validator`.

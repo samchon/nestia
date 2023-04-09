@@ -7,11 +7,11 @@
 
 Super-fast validation decorators for NestJS.
 
-  - 15,000x faster request body validation
-  - 100x faster JSON response, even type safe
+  - 20,000x faster request body validation
+  - 200x faster JSON response, even type safe
   - Do not need DTO class definition, just fine with interface
 
-`@nestia/core` is a transformer library of NestJS, supporting super-fast validation decorators, by wrapping [typia](https://github.com/samchon/typia). Comparing validation speed with `class-validator`, [typia](https://github.com/samchon/typia) is maximum **15,000x times faster** and it is even much safer.
+`@nestia/core` is a transformer library of NestJS, supporting super-fast validation decorators, by wrapping [typia](https://github.com/samchon/typia). Comparing validation speed with `class-validator`, [typia](https://github.com/samchon/typia) is maximum **20,000x faster** and it is even much safer.
 
 Furthermore, `@nestia/core` can use pure interface typed DTO with **only one line**. With `@nestia/core`, you don't need any extra dedication like defining JSON schema (`@nestjs/swagger`), or using class definition with decorator function calls (`class-validator`). Just enjoy the superfast decorators with pure TypeScript type.
 
@@ -29,7 +29,7 @@ export class BbsArticlesController {
      * @param inupt Content to store
      * @returns Newly archived article
      */
-    @TypedRoute.Post() // 100x faster and safer JSON.stringify()
+    @TypedRoute.Post() // 200x faster and safer JSON serialization
     public async store(
         @TypedBody() input: IBbsArticle.IStore // super-fast validator
     ): Promise<IBbsArticle>; 
@@ -105,7 +105,7 @@ export class BbsArticlesController {
      * @param inupt Content to store
      * @returns Newly archived article
      */
-    @TypedRoute.Put(":id") // 100x faster and safer JSON.stringify()
+    @TypedRoute.Put(":id") // 200x faster and safer JSON serialization
     public async store(
         @TypedParam("section", "string") section: string,
         @TypedParam("id", "uuid") id: string,
