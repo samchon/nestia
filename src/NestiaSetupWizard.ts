@@ -20,7 +20,7 @@ export namespace NestiaSetupWizard {
         // INSTALL TYPESCRIPT
         pack.install({ dev: true, modulo: "typescript", version: "4.9.5" });
         args.project ??= (() => {
-            CommandExecutor.run("npx tsc --init", false);
+            CommandExecutor.run("npx tsc --init");
             return (args.project = "tsconfig.json");
         })();
         pack.install({ dev: true, modulo: "ts-node" });
@@ -35,7 +35,7 @@ export namespace NestiaSetupWizard {
                         "ts-patch install && " + data.scripts.prepare;
                 else data.scripts.prepare = "ts-patch install";
             });
-            CommandExecutor.run("npm run prepare", false);
+            CommandExecutor.run("npm run prepare");
         }
 
         // INSTALL AND CONFIGURE TYPIA
@@ -43,6 +43,6 @@ export namespace NestiaSetupWizard {
         pack.install({ dev: false, modulo: "@nestia/core" });
         pack.install({ dev: true, modulo: "@nestia/sdk" });
         pack.install({ dev: true, modulo: "nestia" });
-        await PluginConfigurator.configure(pack, args);
+        await PluginConfigurator.configure(args);
     }
 }

@@ -1,7 +1,7 @@
 {
   "name": "nestia",
-  "version": "4.0.10",
-  "description": "Nestia CLI",
+  "version": "4.0.11",
+  "description": "Nestia CLI tool",
   "main": "bin/index.js",
   "bin": {
     "nestia": "bin/index.js"
@@ -28,21 +28,24 @@
     "url": "https://github.com/samchon/nestia/issues"
   },
   "homepage": "https://github.com/samchon/nestia",
+  "dependencies": {
+    "commander": "^10.0.0",
+    "comment-json": "^4.2.3",
+    "inquirer": "^8.2.5"
+  },
   "devDependencies": {
     "@nestia/core": "^1.0.17",
     "@nestia/sdk": "^1.0.16",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",
-    "commander": "^10.0.0",
-    "comment-json": "^4.2.3",
-    "inquirer": "^8.2.5",
     "rimraf": "^3.0.2",
     "typescript": "^4.9.5"
   },
   "files": [
     "bin",
+    "src",
     "README.md",
     "LICENSE",
-    "package-json"
+    "package.json"
   ]
 }

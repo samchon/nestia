@@ -1,8 +1,6 @@
-import type CommanderModule from "commander";
+import commander from "commander";
 import fs from "fs";
-import type * as InquirerModule from "inquirer";
-import path from "path";
-import { FileRetriever } from "./FileRetriever";
+import inquirer from "inquirer";
 
 import { PackageManager } from "./PackageManager";
 
@@ -14,53 +12,13 @@ export namespace ArgumentParser {
     }
 
     export async function parse(pack: PackageManager): Promise<IArguments> {
-        // INSTALL TEMPORARY PACKAGES
-        const newbie = {
-            commander: pack.install({
-                dev: true,
-                modulo: "commander",
-                version: "10.0.0",
-                silent: true,
-            }),
-            inquirer: pack.install({
-                dev: true,
-                modulo: "inquirer",
-                version: "8.2.5",
-                silent: true,
-            }),
-        };
-
-        // TAKE OPTIONS
-        const output: IArguments | Error = await (async () => {
-            try {
-                return await _Parse(pack);
-            } catch (error) {
-                return error as Error;
-            }
-        })();
-
-        // REMOVE TEMPORARY PACKAGES
-        if (newbie.commander) pack.erase({ modulo: "commander", silent: true });
-        if (newbie.inquirer) pack.erase({ modulo: "inquirer", silent: true });
-
-        // RETURNS
-        if (output instanceof Error) throw output;
-        return output;
-    }
-
-    async function _Parse(pack: PackageManager): Promise<IArguments> {
         // PREPARE ASSETS
-        const { createPromptModule }: typeof InquirerModule =
-            await FileRetriever.require(path.join("node_modules", "inquirer"))(
-                pack.directory,
-            );
-        const { program }: typeof CommanderModule = await FileRetriever.require(
-            path.join("node_modules", "commander"),
-        )(pack.directory);
-
-        program.option("--compiler [compiler]", "compiler type");
-        program.option("--manager [manager", "package manager");
-        program.option("--project [project]", "tsconfig.json file location");
+        commander.program.option("--compiler [compiler]", "compiler type");
+        commander.program.option("--manager [manager", "package manager");
+        commander.program.option(
+            "--project [project]",
+            "tsconfig.json file location",
+        );
 
         // INTERNAL PROCEDURES
         const questioned = { value: false };
@@ -68,14 +26,14 @@ export namespace ArgumentParser {
             closure: (options: Partial<IArguments>) => Promise<IArguments>,
         ) => {
             return new Promise<IArguments>((resolve, reject) => {
-                program.action(async (options) => {
+                commander.program.action(async (options) => {
                     try {
                         resolve(await closure(options));
                     } catch (exp) {
                         reject(exp);
                     }
                 });
-                program.parseAsync().catch(reject);
+                commander.program.parseAsync().catch(reject);
             });
         };
         const select =
@@ -86,7 +44,7 @@ export namespace ArgumentParser {
             ): Promise<Choice> => {
                 questioned.value = true;
                 return (
-                    await createPromptModule()({
+                    await inquirer.createPromptModule()({
                         type: "list",
                         name: name,
                         message: message,

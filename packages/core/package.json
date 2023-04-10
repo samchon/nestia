@@ -1,12 +1,9 @@
 {
   "name": "@nestia/core",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
-  "bin": {
-    "@nestia/core": "lib/executable/core.js"
-  },
   "scripts": {
     "build": "rimraf lib && tsc",
     "build:test": "rimraf bin && ttsc -p test/tsconfig.json",
@@ -63,7 +60,7 @@
     "raw-body": "*",
     "reflect-metadata": "*",
     "rxjs": "*",
-    "typia": "^3.6.8"
+    "typia": "^3.7.4"
   },
   "peerDependencies": {
     "typescript": ">= 4.5.2 && < 5.0.0"
