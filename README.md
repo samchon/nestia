@@ -39,10 +39,9 @@ Just run above command, then boilerplate project would be constructed.
 
 ### Setup Wizard
 ```bash
+npm install --save-dev nestia
 npx nestia setup
 ```
-
-Just type `npx nestia setup`, that's all.
 
 If you've installed [ttypescript](https://github.com/cevek/ttypescript) during setup, you should compile `@nestia/core` utilization code through `ttsc` command, instead of `tsc`. 
 

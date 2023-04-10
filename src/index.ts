@@ -1,9 +1,4 @@
 #!/usr/bin/env node
-import path from "path";
-import { FileRetriever } from "./internal/FileRetriever";
-import { NestiaSetupWizard } from "./NestiaSetupWizard";
-import { NestiaStarter } from "./NestiaStarter";
-
 const USAGE = `Wrong command has been detected. Use like below:
 
 npx nestia [command] [options?]
@@ -42,23 +37,35 @@ async function main(): Promise<void> {
     const type: string | undefined = process.argv[2];
     const argv: string[] = process.argv.slice(3);
 
-    if (type === "start")
-        await NestiaStarter.start((msg) => halt(msg ?? USAGE))(argv);
-    else if (type === "setup") await NestiaSetupWizard.setup();
-    else if (
+    if (type === "start") {
+        await (
+            await import("./NestiaStarter")
+        ).NestiaStarter.start((msg) => halt(msg ?? USAGE))(argv);
+    } else if (type === "setup") {
+        try {
+            await import("comment-json");
+            await import("inquirer");
+            await import("commander");
+        } catch {
+            halt(
+                `nestia has not been installed. Run "npm i -D nestia" before.`,
+            );
+        }
+        await (await import("./NestiaSetupWizard")).NestiaSetupWizard.setup();
+    } else if (
         type === "dependencies" ||
         type === "init" ||
         type === "sdk" ||
         type === "swagger"
     ) {
-        const location: string | null = FileRetriever.file(
-            path.join("node_modules", "@nestia", "sdk"),
-        )(process.cwd());
-        if (location === null)
+        try {
+            require.resolve("@nestia/sdk/lib/executable/sdk");
+        } catch {
             halt(
                 `@nestia/sdk has not been installed. Run "npx nestia setup" before.`,
             );
-        await import(path.join(location, "lib", "executable", "sdk"));
+        }
+        await import("@nestia/sdk/lib/executable/sdk");
     } else halt(USAGE);
 }
 main().catch((exp) => {
