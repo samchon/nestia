@@ -1,5 +1,5 @@
 import { IEncryptionPassword } from "@nestia/fetcher/lib/IEncryptionPassword";
-import { Module, ModuleMetadata } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 
 import { Creator } from "../typings/Creator";
 import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
@@ -36,7 +36,7 @@ import { load_controllers } from "./internal/load_controller";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export function EncryptedModule(
-    metadata: ModuleMetadata,
+    metadata: Parameters<typeof Module>[0],
     password: IEncryptionPassword | IEncryptionPassword.Closure,
 ): ClassDecorator {
     return function (target: any) {
@@ -66,7 +66,7 @@ export namespace EncryptedModule {
     export async function dynamic(
         path: string,
         password: IEncryptionPassword | IEncryptionPassword.Closure,
-        options: Omit<ModuleMetadata, "controllers"> = {},
+        options: Omit<Parameters<typeof Module>[0], "controllers"> = {},
     ): Promise<object> {
         // LOAD CONTROLLERS
         const controllers: Creator<object>[] = await load_controllers(path);

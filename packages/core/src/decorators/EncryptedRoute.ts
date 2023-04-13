@@ -13,7 +13,7 @@ import {
 } from "@nestjs/common";
 import { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import express from "express";
-import { Observable, catchError, map } from "rxjs";
+import { catchError, map } from "rxjs/operators";
 
 import {
     assertStringify,
@@ -141,10 +141,7 @@ class EncryptedRouteInterceptor implements NestInterceptor {
         private readonly stringify: (input: any) => string,
     ) {}
 
-    public intercept(
-        context: ExecutionContext,
-        next: CallHandler,
-    ): Observable<any> {
+    public intercept(context: ExecutionContext, next: CallHandler) {
         const http: HttpArgumentsHost = context.switchToHttp();
         return next.handle().pipe(
             map((value) => {
