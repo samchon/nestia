@@ -6,7 +6,6 @@ import { PackageManager } from "./PackageManager";
 
 export namespace ArgumentParser {
     export interface IArguments {
-        compiler: "ts-patch" | "ttypescript";
         manager: "npm" | "pnpm" | "yarn";
         project: string | null;
     }
@@ -80,14 +79,6 @@ export namespace ArgumentParser {
 
         // DO CONSTRUCT
         return action(async (options) => {
-            if (options.compiler === undefined) {
-                console.log(COMPILER_DESCRIPTION);
-                options.compiler = await select("compiler")(`Compiler`)(
-                    pack.data.scripts?.build === "nest build"
-                        ? ["ts-patch" as const, "ttypescript" as const]
-                        : ["ttypescript" as const, "ts-patch" as const],
-                );
-            }
             options.manager ??= await select("manager")("Package Manager")([
                 "npm" as const,
                 "pnpm" as const,
@@ -102,13 +93,13 @@ export namespace ArgumentParser {
     }
 }
 
-const COMPILER_DESCRIPTION = [
-    `About compiler, if you adapt "ttypescript", you should use "ttsc" instead.`,
-    ``,
-    `Otherwise, you choose "ts-patch", you can use the original "tsc" command.`,
-    `However, the "ts-patch" hacks "node_modules/typescript" source code.`,
-    `Also, whenever update "typescript", you've to run "npm run prepare" command.`,
-    ``,
-    `By the way, when using "@nest/cli", you must just choose "ts-patch".`,
-    ``,
-].join("\n");
+// const COMPILER_DESCRIPTION = [
+//     `About compiler, if you adapt "ttypescript", you should use "ttsc" instead.`,
+//     ``,
+//     `Otherwise, you choose "ts-patch", you can use the original "tsc" command.`,
+//     `However, the "ts-patch" hacks "node_modules/typescript" source code.`,
+//     `Also, whenever update "typescript", you've to run "npm run prepare" command.`,
+//     ``,
+//     `By the way, when using "@nest/cli", you must just choose "ts-patch".`,
+//     ``,
+// ].join("\n");

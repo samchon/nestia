@@ -37,7 +37,7 @@ export namespace ParameterTransformer {
                 param.initializer,
             );
         // eslint-disable-next-line
-        return ts.factory.updateParameterDeclaration(
+        return (ts.factory.updateParameterDeclaration as any)(
             param,
             decorators.map((deco) =>
                 ParameterDecoratorTransformer.transform(project, type, deco),
