@@ -70,9 +70,14 @@ export namespace index
             ip: ipAddr,
             "location.href": href,
         } as any;
+        const search: URLSearchParams = new URLSearchParams();
         for (const [key, value] of Object.entries(variables))
-            if (value === undefined) delete variables[key];
-        const encoded: string = new URLSearchParams(variables).toString();
+            if (value === undefined) continue;
+            else if (Array.isArray(value))
+                value.forEach((elem) => search.append(key, String(elem)));
+            else
+                search.set(key, String(value));
+        const encoded: string = search.toString();
         return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/entire_articles${encoded.length ? `?${encoded}` : ""}`;;
     }
 }
