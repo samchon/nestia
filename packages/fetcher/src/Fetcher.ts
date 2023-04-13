@@ -130,14 +130,16 @@ export class Fetcher {
 
         // CHECK THE STATUS CODE
         if (
-            response.status !== encrypted.status &&
-            response.status !== 200 &&
-            response.status !== 201
+            (response.status !== undefined &&
+                response.status !== encrypted.status) ||
+            (response.status === undefined &&
+                response.status !== 200 &&
+                response.status !== 201)
         )
             throw new HttpError(method, path, response.status, body);
 
-        // FINALIZATION (WITH DECODING)
         if (encrypted.response === true) {
+            // FINALIZATION (WITH DECODING)
             const headers: Singleton<Record<string, string>> = new Singleton(
                 () => headers_to_object(response.headers),
             );
