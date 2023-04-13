@@ -1,13 +1,10 @@
 import { HttpException } from "@nestjs/common";
 import express from "express";
-import { Observable, throwError } from "rxjs";
+import { throwError } from "rxjs";
 
 import { ExceptionManager } from "../../utils/ExceptionManager";
 
-export function route_error(
-    request: express.Request,
-    error: any,
-): Observable<never> {
+export function route_error(request: express.Request, error: any) {
     error = (() => {
         // HTTP-ERROR
         if (error instanceof HttpException) return error;

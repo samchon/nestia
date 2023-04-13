@@ -7,8 +7,7 @@ async function execute(
     job: "sdk" | "swagger" | "test",
     elements: string[],
 ): Promise<void> {
-    if (job === "test")
-        console.log(`${name} -> npx ts-node -C ttypescript src/test`);
+    if (job === "test") console.log(`${name} -> npx ts-node src/test`);
     else console.log(`${name} -> npx nestia ${job} ${elements.join(" ")}`);
 
     const worker = new WorkerConnector(null, null, "process");
