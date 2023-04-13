@@ -57,32 +57,73 @@ export namespace TypedQueryProgrammer {
             for (const property of object.properties) {
                 const key: Metadata = property.key;
                 const value: Metadata = property.value;
-
-                if (
-                    (value.atomics.length ? 1 : 0) +
-                        (value.constants.length ? 1 : 0) +
-                        (value.templates.length ? 1 : 0) !==
-                    value.bucket()
-                )
-                    throw new Error(
-                        ErrorMessages.property(object)(key)(
-                            "only atomic typed propertie are allowed.",
-                        ),
-                    );
-                else if (value.atomics.length > 1 || value.constants.length > 1)
-                    throw new Error(
-                        ErrorMessages.property(object)(key)(
-                            "union type is not allowed.",
-                        ),
-                    );
-                else if (value.nullable === true)
-                    throw new Error(
-                        ErrorMessages.property(object)(key)(
-                            "property type cannot be null. Use undefined instead.",
-                        ),
-                    );
+                validate(object)(key)(value, 0);
             }
             return object;
+        };
+
+    const validate =
+        (obj: MetadataObject) =>
+        (key: Metadata) =>
+        (value: Metadata, depth: number): string[] => {
+            if (value.nullable)
+                throw new Error(
+                    ErrorMessages.property(obj)(key)(
+                        "nullable type is not allowed. Use undefindable type instead.",
+                    ),
+                );
+            else if (depth === 1 && value.required === false)
+                throw new Error(
+                    ErrorMessages.property(obj)(key)(
+                        "optional type is not allowed in array.",
+                    ),
+                );
+            else if (
+                value.maps.length ||
+                value.sets.length ||
+                value.objects.length
+            )
+                throw new Error(
+                    ErrorMessages.property(obj)(key)(
+                        "object type is not allowed",
+                    ),
+                );
+
+            const atom: string[] = [];
+            for (const type of value.atomics) atom.push(type);
+            for (const { type } of value.constants) atom.push(type);
+
+            if (depth === 0) {
+                if (atom.length && (value.arrays.length || value.arrays.length))
+                    throw new Error(
+                        ErrorMessages.property(obj)(key)(
+                            "union type is not allowed",
+                        ),
+                    );
+                for (const elem of value.arrays)
+                    atom.push(...validate(obj)(key)(elem, depth + 1));
+                for (const tuple of value.tuples)
+                    for (const elem of tuple)
+                        atom.push(...validate(obj)(key)(elem, depth + 1));
+            } else if (value.arrays.length || value.tuples.length)
+                throw new Error(
+                    ErrorMessages.property(obj)(key)(
+                        "double-array type is not allowed",
+                    ),
+                );
+
+            const size: number = new Set(atom).size;
+            if (size === 0)
+                throw new Error(
+                    ErrorMessages.property(obj)(key)("unknown type"),
+                );
+            else if (size > 1)
+                throw new Error(
+                    ErrorMessages.property(obj)(key)(
+                        "union type is not allowed",
+                    ),
+                );
+            return atom;
         };
 
     const decode =
@@ -143,20 +184,50 @@ export namespace TypedQueryProgrammer {
             const key: string = property.key.constants[0]!.values[0] as string;
             const value: Metadata = property.value;
 
-            const type: Atomic.Literal = value.atomics.length
-                ? value.atomics[0]!
+            const [type, isArray]: [Atomic.Literal, boolean] = value.atomics
+                .length
+                ? [value.atomics[0], false]
                 : value.constants.length
-                ? value.constants[0]!.type
-                : "string";
+                ? [value.constants[0]!.type, false]
+                : (() => {
+                      const meta = value.arrays[0] ?? value.tuples[0][0];
+                      return meta.atomics.length
+                          ? [meta.atomics[0], true]
+                          : [meta.constants[0]!.type, true];
+                  })();
             return ts.factory.createPropertyAssignment(
                 key,
-                decode_value(importer)(type)(
-                    ts.factory.createCallExpression(
-                        ts.factory.createIdentifier("input.get"),
-                        undefined,
-                        [ts.factory.createStringLiteral(key)],
-                    ),
-                ),
+                isArray
+                    ? ts.factory.createCallExpression(
+                          IdentifierFactory.join(
+                              ts.factory.createCallExpression(
+                                  ts.factory.createIdentifier("input.getAll"),
+                                  undefined,
+                                  [ts.factory.createStringLiteral(key)],
+                              ),
+                              "map",
+                          ),
+                          undefined,
+                          [
+                              ts.factory.createArrowFunction(
+                                  undefined,
+                                  undefined,
+                                  [IdentifierFactory.parameter("elem")],
+                                  undefined,
+                                  undefined,
+                                  decode_value(importer)(type)(
+                                      ts.factory.createIdentifier("elem"),
+                                  ),
+                              ),
+                          ],
+                      )
+                    : decode_value(importer)(type)(
+                          ts.factory.createCallExpression(
+                              ts.factory.createIdentifier("input.get"),
+                              undefined,
+                              [ts.factory.createStringLiteral(key)],
+                          ),
+                      ),
             );
         };
 
