@@ -129,7 +129,11 @@ export class Fetcher {
         if (!body) return undefined!;
 
         // CHECK THE STATUS CODE
-        if (response.status !== 200 && response.status !== 201)
+        if (
+            response.status !== encrypted.status &&
+            response.status !== 200 &&
+            response.status !== 201
+        )
             throw new HttpError(method, path, response.status, body);
 
         // FINALIZATION (WITH DECODING)
@@ -199,6 +203,11 @@ export namespace Fetcher {
          * Whether the response body be encrypted or not.
          */
         response: boolean;
+
+        /**
+         * When special status code is allowed.
+         */
+        status?: number;
     }
 }
 

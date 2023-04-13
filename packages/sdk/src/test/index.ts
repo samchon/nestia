@@ -50,6 +50,7 @@ async function main(): Promise<void> {
         await execute("safe", job, get_arguments("directory", job));
         await execute("union", job, get_arguments("directory", job));
         await execute("multiple-paths", job, get_arguments("directory", job));
+        await execute("status", job, get_arguments("directory", job));
     }
 }
 main().catch((exp) => {
