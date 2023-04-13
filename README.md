@@ -43,29 +43,7 @@ npm install --save-dev nestia
 npx nestia setup
 ```
 
-If you've installed [ttypescript](https://github.com/cevek/ttypescript) during setup, you should compile `@nestia/core` utilization code through `ttsc` command, instead of `tsc`. 
-
-```bash
-# COMPILE THROUGH TTYPESCRIPT
-npx ttsc
-
-# RUN TS-NODE WITH TTYPESCRIPT
-npx ts-node -C ttypescript src/index.ts
-```
-
-Otherwise, you've chosen [ts-patch](https://github.com/nonara/ts-patch), you can use original `tsc` command. However, [ts-patch](https://github.com/nonara/ts-patch) hacks `node_modules/typescript` source code. Also, whenever update `typescript` version, you've to run `npm run prepare` command repeatedly.
-
-By the way, when using `@nest/cli`, you must just choose [ts-patch](https://github.com/nonara/ts-patch).
-
-```bash
-# USE ORIGINAL TSC COMMAND
-tsc
-npx ts-node src/index.ts
-
-# WHENVER UPDATE
-npm install --save-dev typescript@latest
-npm run prepare
-```
+Just type above two commands, that's all.
 
 ### Manual Setup
 If you want to install and configure `nestia` manually, read [Guide Documents -> Setup](https://github.com/samchon/nestia/wiki/Setup).

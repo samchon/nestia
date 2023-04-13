@@ -7,13 +7,11 @@ npx nestia [command] [options?]
     - npx nestia start project
     - npx nestia start project --manager pnpm
   2. npx nestia setup \\
-        --compiler (ttypescript|ts-patch) \\
-        --manager (npm|pnpm|yarn) \\
-        --project {tsconfig.json file path}
+      --manager (npm|pnpm|yarn) \\
+      --project {tsconfig.json file path}
     - npx nestia setup
-    - npx nestia setup --compiler ttypescript
-    - npx nestia setup --compiler ts-patch
     - npx nestia setup --manager pnpm
+    - npx nestia setup --project tsconfig.test.json
   3. npx nestia dependencies --manager (npm|pnpm|yarn)
     - npx nestia dependencies
     - npx nestia dependencies --manager yarn

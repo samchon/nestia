@@ -1,13 +1,14 @@
 {
   "name": "nestia",
-  "version": "4.0.11",
+  "version": "4.1.0-dev.20230413",
   "description": "Nestia CLI tool",
   "main": "bin/index.js",
   "bin": {
     "nestia": "bin/index.js"
   },
   "scripts": {
-    "build": "rimraf bin && tsc"
+    "build": "rimraf bin && tsc",
+    "prettier": "prettier .src/**/*.ts --write"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,7 @@
     "@nestia/sdk": "^1.0.16",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",
+    "prettier": "^2.8.7",
     "rimraf": "^3.0.2",
     "typescript": "^4.9.5"
   },

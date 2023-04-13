@@ -43,7 +43,7 @@ export namespace MethodTransformer {
                 method.body,
             );
         // eslint-disable-next-line
-        return ts.factory.updateMethodDeclaration(
+        return (ts.factory.updateMethodDeclaration as any)(
             method,
             decorators.map((deco) =>
                 MethodDecoratorTransformer.transform(project, escaped, deco),

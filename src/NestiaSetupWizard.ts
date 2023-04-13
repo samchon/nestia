@@ -18,31 +18,29 @@ export namespace NestiaSetupWizard {
         );
 
         // INSTALL TYPESCRIPT
-        pack.install({ dev: true, modulo: "typescript", version: "4.9.5" });
+        pack.install({ dev: true, modulo: "typescript", version: "latest" });
         args.project ??= (() => {
             CommandExecutor.run("npx tsc --init");
             return (args.project = "tsconfig.json");
         })();
-        pack.install({ dev: true, modulo: "ts-node" });
+        pack.install({ dev: true, modulo: "ts-node", version: "latest" });
 
         // INSTALL COMPILER
-        pack.install({ dev: true, modulo: args.compiler });
-        if (args.compiler === "ts-patch") {
-            await pack.save((data) => {
-                data.scripts ??= {};
-                if (typeof data.scripts.prepare === "string")
+        pack.install({ dev: true, modulo: "ts-patch", version: "latest" });
+        await pack.save((data) => {
+            data.scripts ??= {};
+            if (typeof data.scripts.prepare === "string") {
+                if (data.scripts.prepare.includes("ts-patch install") === false)
                     data.scripts.prepare =
                         "ts-patch install && " + data.scripts.prepare;
-                else data.scripts.prepare = "ts-patch install";
-            });
-            CommandExecutor.run("npm run prepare");
-        }
+            } else data.scripts.prepare = "ts-patch install";
+        });
+        CommandExecutor.run("npm run prepare");
 
         // INSTALL AND CONFIGURE TYPIA
-        pack.install({ dev: false, modulo: "typia" });
-        pack.install({ dev: false, modulo: "@nestia/core" });
-        pack.install({ dev: true, modulo: "@nestia/sdk" });
-        pack.install({ dev: true, modulo: "nestia" });
+        pack.install({ dev: false, modulo: "typia", version: "latest" });
+        pack.install({ dev: false, modulo: "@nestia/core", version: "latest" });
+        pack.install({ dev: true, modulo: "@nestia/sdk", version: "latest" });
         await PluginConfigurator.configure(args);
     }
 }
