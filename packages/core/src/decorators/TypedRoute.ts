@@ -12,7 +12,7 @@ import {
 } from "@nestjs/common";
 import { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import express from "express";
-import { Observable, catchError, map } from "rxjs";
+import { catchError, map } from "rxjs/operators";
 
 import {
     assertStringify,
@@ -127,10 +127,7 @@ for (const method of [
 class TypedRouteInterceptor implements NestInterceptor {
     public constructor(private readonly stringify: (input: any) => string) {}
 
-    public intercept(
-        context: ExecutionContext,
-        next: CallHandler,
-    ): Observable<any> {
+    public intercept(context: ExecutionContext, next: CallHandler) {
         const http: HttpArgumentsHost = context.switchToHttp();
         const response: express.Response = http.getResponse();
         response.header("Content-Type", "application/json");
