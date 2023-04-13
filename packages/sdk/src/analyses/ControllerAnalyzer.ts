@@ -136,6 +136,7 @@ export namespace ControllerAnalyzer {
             parameters,
             output,
             imports,
+            status: func.status,
 
             symbol: `${controller.name}.${func.name}()`,
             comments: signature.getDocumentationComment(undefined),

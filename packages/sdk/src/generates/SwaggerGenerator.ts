@@ -298,7 +298,11 @@ export namespace SwaggerGenerator {
     ): ISwaggerDocument.IResponseBody {
         // OUTPUT WITH SUCCESS STATUS
         const status: string =
-            route.method === "GET" || route.method === "DELETE" ? "200" : "201";
+            route.status !== undefined
+                ? String(route.status)
+                : route.method === "GET" || route.method === "DELETE"
+                ? "200"
+                : "201";
         const schema: IJsonSchema | null = generate_schema(
             checker,
             collection,

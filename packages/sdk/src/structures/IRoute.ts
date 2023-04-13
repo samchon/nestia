@@ -8,6 +8,7 @@ export interface IRoute {
     method: string;
     path: string;
     encrypted: boolean;
+    status?: number;
 
     parameters: IRoute.IParameter[];
     imports: [string, string[]][];

@@ -254,6 +254,9 @@ export namespace FunctionGenerator {
             `    export const ENCRYPTED: Fetcher.IEncrypted = {\n` +
             `        request: ${input !== undefined && input.encrypted},\n` +
             `        response: ${route.encrypted},\n` +
+            (route.status !== undefined
+                ? `        status: ${route.status},\n`
+                : "") +
             `    };\n` +
             "\n" +
             `    export function path(${parameters
