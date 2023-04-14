@@ -50,9 +50,14 @@ export namespace index
     export function path(section: string, saleId: number, query: ISaleReview.IQuery): string
     {
         const variables: Record<any, any> = query as any;
+        const search: URLSearchParams = new URLSearchParams();
         for (const [key, value] of Object.entries(variables))
-            if (value === undefined) delete variables[key];
-        const encoded: string = new URLSearchParams(variables).toString();
+            if (value === undefined) continue;
+            else if (Array.isArray(value))
+                value.forEach((elem) => search.append(key, String(elem)));
+            else
+                search.set(key, String(value));
+        const encoded: string = search.toString();
         return `/consumers/${encodeURIComponent(section)}/sales/${encodeURIComponent(saleId)}/reviews${encoded.length ? `?${encoded}` : ""}`;;
     }
 }

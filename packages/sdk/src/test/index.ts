@@ -7,8 +7,7 @@ async function execute(
     job: "sdk" | "swagger" | "test",
     elements: string[],
 ): Promise<void> {
-    if (job === "test")
-        console.log(`${name} -> npx ts-node -C ttypescript src/test`);
+    if (job === "test") console.log(`${name} -> npx ts-node src/test`);
     else console.log(`${name} -> npx nestia ${job} ${elements.join(" ")}`);
 
     const worker = new WorkerConnector(null, null, "process");
@@ -51,6 +50,7 @@ async function main(): Promise<void> {
         await execute("safe", job, get_arguments("directory", job));
         await execute("union", job, get_arguments("directory", job));
         await execute("multiple-paths", job, get_arguments("directory", job));
+        await execute("status", job, get_arguments("directory", job));
     }
 }
 main().catch((exp) => {

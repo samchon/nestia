@@ -13,8 +13,8 @@ export namespace IController {
         method: string;
         paths: string[];
         encrypted: boolean;
-
         parameters: IParameter[];
+        status?: number;
     }
 
     export interface IParameter {

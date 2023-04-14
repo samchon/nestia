@@ -1,3 +1,4 @@
+import * as Constants from "@nestjs/common/constants";
 import { equal } from "tstl/ranges/module";
 
 import { IController } from "../structures/IController";
@@ -53,9 +54,9 @@ export namespace ReflectAnalyzer {
         else if (
             ArrayUtil.has(
                 Reflect.getMetadataKeys(creator),
-                "path",
-                "host",
-                "scope:options",
+                Constants.PATH_METADATA,
+                Constants.HOST_METADATA,
+                Constants.SCOPE_OPTIONS_METADATA,
             ) === false
         )
             return null;
@@ -65,7 +66,7 @@ export namespace ReflectAnalyzer {
         //----
         // BASIC INFO
         const paths: string[] = _Get_paths(
-            Reflect.getMetadata("path", creator),
+            Reflect.getMetadata(Constants.PATH_METADATA, creator),
         );
         const meta: IController = {
             file,
@@ -124,8 +125,11 @@ export namespace ReflectAnalyzer {
         if (!(proto instanceof Function)) return null;
         // MUST HAVE THOSE METADATE
         else if (
-            ArrayUtil.has(Reflect.getMetadataKeys(proto), "path", "method") ===
-            false
+            ArrayUtil.has(
+                Reflect.getMetadataKeys(proto),
+                Constants.PATH_METADATA,
+                Constants.METHOD_METADATA,
+            ) === false
         )
             return null;
 
@@ -135,18 +139,22 @@ export namespace ReflectAnalyzer {
         // BASIC INFO
         const meta: IController.IFunction = {
             name,
-            method: METHODS[Reflect.getMetadata("method", proto)],
-            paths: _Get_paths(Reflect.getMetadata("path", proto)),
+            method: METHODS[
+                Reflect.getMetadata(Constants.METHOD_METADATA, proto)
+            ],
+            paths: _Get_paths(
+                Reflect.getMetadata(Constants.PATH_METADATA, proto),
+            ),
             parameters: [],
             encrypted:
-                Reflect.hasMetadata("__interceptors__", proto) &&
-                Reflect.getMetadata("__interceptors__", proto)[0]?.constructor
-                    ?.name === "EncryptedRouteInterceptor",
+                Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
+                    ?.constructor?.name === "EncryptedRouteInterceptor",
+            status: Reflect.getMetadata(Constants.HTTP_CODE_METADATA, proto),
         };
 
         // PARSE CHILDREN DATA
         const nestParameters: NestParameters | undefined = Reflect.getMetadata(
-            "__routeArguments__",
+            Constants.ROUTE_ARGS_METADATA,
             classProto.constructor,
             name,
         );

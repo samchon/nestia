@@ -254,6 +254,9 @@ export namespace FunctionGenerator {
             `    export const ENCRYPTED: Fetcher.IEncrypted = {\n` +
             `        request: ${input !== undefined && input.encrypted},\n` +
             `        response: ${route.encrypted},\n` +
+            (route.status !== undefined
+                ? `        status: ${route.status},\n`
+                : "") +
             `    };\n` +
             "\n" +
             `    export function path(${parameters
@@ -295,15 +298,21 @@ export namespace FunctionGenerator {
                 ? computeName("_" + str)
                 : str;
         const variables: string = computeName("variables");
-        const str: string = computeName("encoded");
+        const search: string = computeName("search");
+        const encoded: string = computeName("encoded");
 
         const wrapper = (expr: string) =>
             [
                 `const ${variables}: Record<any, any> = ${expr};`,
+                `const ${search}: URLSearchParams = new URLSearchParams();`,
                 `for (const [key, value] of Object.entries(${variables}))`,
-                `    if (value === undefined) delete ${variables}[key];`,
-                `const ${str}: string = new URLSearchParams(${variables}).toString();`,
-                `return \`${path}\${${str}.length ? \`?\${${str}}\` : ""}\`;`,
+                `    if (value === undefined) continue;`,
+                `    else if (Array.isArray(value))`,
+                `        value.forEach((elem) => ${search}.append(key, String(elem)));`,
+                `    else`,
+                `        ${search}.set(key, String(value));`,
+                `const ${encoded}: string = ${search}.toString();`,
+                `return \`${path}\${${encoded}.length ? \`?\${${encoded}}\` : ""}\`;`,
             ]
                 .map((str) => `${" ".repeat(8)}${str}`)
                 .join("\n");

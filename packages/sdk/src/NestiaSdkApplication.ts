@@ -157,14 +157,16 @@ export class NestiaSdkApplication {
                 NestiaConfigCompilerOptions.DEFAULT_OPTIONS as any;
         const absoluted: boolean = !!this.config_.compilerOptions?.baseUrl;
 
-        const ttsc: boolean = (() => {
-            try {
-                require.resolve("ttypescript");
-                return true;
-            } catch (e) {
-                return false;
-            }
-        })();
+        const ttsc: boolean =
+            ts.version < "5.0.0" &&
+            (() => {
+                try {
+                    require.resolve("ttypescript");
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            })();
 
         // MOUNT TS-NODE
         runner.register({

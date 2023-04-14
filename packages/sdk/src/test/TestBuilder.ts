@@ -39,7 +39,7 @@ export namespace TestBuilder {
         process.chdir(`${PATH}/../../demo/${name}`);
 
         try {
-            cp.execSync("npx ts-node -C ttypescript src/test", {
+            cp.execSync("npx ts-node src/test", {
                 stdio: "inherit",
             });
         } catch (exp) {

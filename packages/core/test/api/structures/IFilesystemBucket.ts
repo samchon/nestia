@@ -13,5 +13,6 @@ export namespace IFilesystemBucket {
     export interface IRequest extends IPage.IRequest {
         extension?: string;
         trashed?: boolean;
+        locations?: string[];
     }
 }

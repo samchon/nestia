@@ -8,6 +8,11 @@ export async function test_filesystem(
 ): Promise<void> {
     const buckets: IFilesystemBucket[] = await api.functional.filesystem.get(
         connection,
+        {
+            locations: ["a", "b", "c"],
+            trashed: false,
+            extension: "jpg",
+        },
     );
     typia.assertEquals(buckets);
 }

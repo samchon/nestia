@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "1.0.20",
+  "version": "1.1.0-dev.20230415",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -8,10 +8,11 @@
     "@nestia/sdk": "lib/executable/sdk.js"
   },
   "scripts": {
-    "build": "rimraf lib && ttsc",
-    "dev": "rimraf lib && ttsc --watch",
-    "package:latest": "npm publish --access public",
-    "package:next": "npm publish --tag next --access public",
+    "build": "rimraf lib && tsc",
+    "dev": "rimraf lib &&ttsc --watch",
+    "package:latest": "npm run build && npm run test && npm publish --access public",
+    "package:next": "npm run package:latest -- --tag next",
+    "prepare": "ts-patch install",
     "prettier": "prettier --write ./**/*.ts",
     "test": "node lib/test"
   },
@@ -41,7 +42,7 @@
     "tsconfck": "^2.0.1",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^2.5.13",
-    "typia": "^3.7.5"
+    "typia": "^3.8.0-dev.20230413"
   },
   "peerDependencies": {
     "@nestjs/common": ">= 7.0.1",
@@ -51,8 +52,8 @@
     "typescript": ">= 4.5.2"
   },
   "devDependencies": {
-    "@nestia/core": "^1.0.20",
-    "@nestia/fetcher": "^1.0.1",
+    "@nestia/core": "^1.1.0-dev.20230414",
+    "@nestia/fetcher": "^1.1.0-dev.20230415",
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/cli": "^0.11.21",
     "@types/express": "^4.17.15",
@@ -65,9 +66,9 @@
     "eslint": "^8.29.0",
     "prettier": "^2.8.1",
     "rimraf": "^3.0.2",
-    "ts-node": "^10.6.0",
-    "ttypescript": "^1.5.15",
-    "typescript": "^4.9.5",
+    "ts-node": "^10.9.1",
+    "ts-patch": "^3.0.0-beta3",
+    "typescript": "^5.0.4",
     "typescript-transform-paths": "^3.4.4",
     "uuid": "^9.0.0"
   },
