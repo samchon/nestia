@@ -10,29 +10,35 @@ import type express from "express";
  *
  * `TypedParam` is a decorator function getting specific typed parameter from the
  * HTTP request URL. It's almost same with the {@link nest.Param}, but `TypedParam`
- * can specify the parameter type manually. Beside, the {@link nest.Param} always
- * parses all of the parameters as string type.
+ * automatically casts parameter value to be following its type. Beside, the
+ * {@link nest.Param} always parses all of the parameters as `string` type.
+ *
+ * Note that, if you just omit the `type` and `nullable` parameters, then
+ * `TypedParam` automatically determines the `type` and `nullable` values
+ * just by analyzing the parameter type. Only when you need to specify them
+ * are, you want to use the `uuid` type.
  *
  * ```typescript
- * \@TypedRoute.Get("shopping/sales/:section/:id/:paused")
+ * \@TypedRoute.Get("shopping/sales/:id/:no/:paused")
  * public async pause
  *     (
- *         \@TypedParam("section", "string") section: string,
- *         \@TypedParam("id", "number") id: number,
- *         \@TypedParam("paused", "boolean", true) paused: boolean | null
+ *         \@TypedParam("id", "uuid"), id: string, // uuid specification
+ *         \@TypedParam("no") id: number, // auto casting
+ *         \@TypedParam("paused") paused: boolean | null // auto casting
  *     ): Promise<void>;
  * ```
  *
  * @param name URL Parameter name
- * @param type Type of the URL parameter
+ * @param type If omit, automatically determined by the parameter type.
+ * @param nullable If omit, automatically determined by the parameter type.
  * @returns Parameter decorator
  *
  * @author Jeongho Nam - https://github.com/samchon
  */
 export function TypedParam(
     name: string,
-    type: "boolean" | "number" | "string" | "uuid" = "string",
-    nullable: boolean = false,
+    type?: "boolean" | "number" | "string" | "uuid",
+    nullable?: false | true,
 ): ParameterDecorator {
     return createParamDecorator(function TypedParam(
         {}: any,

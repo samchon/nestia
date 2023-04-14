@@ -37,7 +37,7 @@ export interface INestiaConfig {
      *
      * const compilerOptions: ts.CompilerOptions = {
      *     ...tsconfig.compilerOptions,
-     *     ...(nestiaConfig.compilerOptions || {})
+     *     ...(nestiaConfig.compilerOptions ?? {})
      * }
      * ```
      */
