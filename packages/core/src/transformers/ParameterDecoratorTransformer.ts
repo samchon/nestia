@@ -3,6 +3,7 @@ import ts from "typescript";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
 import { TypedBodyProgrammer } from "../programmers/TypedBodyProgrammer";
+import { TypedParamProgrammer } from "../programmers/TypedParamProgrammer";
 import { TypedQueryProgrammer } from "../programmers/TypedQueryProgrammer";
 
 export namespace ParameterDecoratorTransformer {
@@ -16,7 +17,6 @@ export namespace ParameterDecoratorTransformer {
         //----
         // CHECK DECORATOR
         if (!ts.isCallExpression(decorator.expression)) return decorator;
-        else if (decorator.expression.arguments.length !== 0) return decorator;
 
         // SIGNATURE DECLARATION
         const declaration: ts.Declaration | undefined =
@@ -37,7 +37,7 @@ export namespace ParameterDecoratorTransformer {
         const programmer: Programmer | undefined =
             FUNCTORS[
                 project.checker.getTypeAtLocation(declaration).symbol.name
-            ]?.();
+            ];
         if (programmer === undefined) return decorator;
 
         // GET TYPE INFO
@@ -51,22 +51,36 @@ export namespace ParameterDecoratorTransformer {
                 decorator.expression,
                 decorator.expression.expression,
                 decorator.expression.typeArguments,
-                [programmer(project, decorator.expression.expression)(type)],
+                programmer(
+                    project,
+                    decorator.expression.expression,
+                )(decorator.expression.arguments)(type),
             ),
         );
     }
 }
 
-interface Programmer {
-    (project: INestiaTransformProject, expression: ts.LeftHandSideExpression): (
-        type: ts.Type,
-    ) => ts.Expression;
-}
+type Programmer = (
+    project: INestiaTransformProject,
+    modulo: ts.LeftHandSideExpression,
+) => (
+    parameters: readonly ts.Expression[],
+) => (type: ts.Type) => readonly ts.Expression[];
 
-const FUNCTORS: Record<string, () => Programmer> = {
-    EncryptedBody: () => TypedBodyProgrammer.generate,
-    TypedBody: () => TypedBodyProgrammer.generate,
-    TypedQuery: () => TypedQueryProgrammer.generate,
+const FUNCTORS: Record<string, Programmer> = {
+    EncryptedBody: (project, modulo) => (parameters) => (type) =>
+        parameters.length
+            ? parameters
+            : [TypedBodyProgrammer.generate(project, modulo)(type)],
+    TypedBody: (project, modulo) => (parameters) => (type) =>
+        parameters.length
+            ? parameters
+            : [TypedBodyProgrammer.generate(project, modulo)(type)],
+    TypedParam: TypedParamProgrammer.generate,
+    TypedQuery: (project, modulo) => (parameters) => (type) =>
+        parameters.length
+            ? parameters
+            : [TypedQueryProgrammer.generate(project, modulo)(type)],
 };
 
 const LIB_PATH = path.join(
