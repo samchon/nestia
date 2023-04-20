@@ -11,16 +11,11 @@ export namespace TypedParamProgrammer {
         ({ checker }: INestiaTransformProject) =>
         (parameters: readonly ts.Expression[]) =>
         (type: ts.Type): readonly ts.Expression[] => {
-            const metadata: Metadata = MetadataFactory.generate(
-                checker,
-                new MetadataCollection(),
-                type,
-                {
-                    resolve: false,
-                    constant: true,
-                    validate,
-                },
-            );
+            const metadata: Metadata = MetadataFactory.analyze(checker)({
+                resolve: false,
+                constant: true,
+                validate,
+            })(new MetadataCollection())(type);
             const [atomic] = get_atomic_types(metadata);
 
             // AUTO TYPE SPECIFICATION
@@ -34,14 +29,11 @@ export namespace TypedParamProgrammer {
                 ];
 
             // TYPE HAS BEEN SPECIFIED IN DECORATOR
-            const specified: Metadata = MetadataFactory.generate(
-                checker,
-                new MetadataCollection(),
+            const specified: Metadata = MetadataFactory.analyze(checker)({
+                resolve: false,
+                constant: true,
+            })(new MetadataCollection())(
                 checker.getTypeAtLocation(parameters[1]),
-                {
-                    resolve: false,
-                    constant: true,
-                },
             );
             if (equals(atomic, specified) === false)
                 throw new Error(
@@ -57,14 +49,11 @@ export namespace TypedParamProgrammer {
                 ];
 
             // NULLABLE HAS BEEN SPECIFIED
-            const nullable: Metadata = MetadataFactory.generate(
-                checker,
-                new MetadataCollection(),
+            const nullable: Metadata = MetadataFactory.analyze(checker)({
+                resolve: false,
+                constant: true,
+            })(new MetadataCollection())(
                 checker.getTypeAtLocation(parameters[2]),
-                {
-                    resolve: false,
-                    constant: true,
-                },
             );
             if (nullable.getName() !== "true" && nullable.getName() !== "false")
                 throw new Error(error("nullable value must be literal type"));

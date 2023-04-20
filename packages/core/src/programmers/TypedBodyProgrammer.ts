@@ -16,8 +16,9 @@ export namespace TypedBodyProgrammer {
                 key: string,
                 programmer: (
                     project: IProject,
+                ) => (
                     modulo: ts.LeftHandSideExpression,
-                ) => (type: ts.Type) => ts.ArrowFunction,
+                ) => (equals: boolean) => (type: ts.Type) => ts.ArrowFunction,
             ) =>
                 ts.factory.createObjectLiteralExpression([
                     ts.factory.createPropertyAssignment(
@@ -26,25 +27,22 @@ export namespace TypedBodyProgrammer {
                     ),
                     ts.factory.createPropertyAssignment(
                         ts.factory.createIdentifier(key),
-                        programmer(
-                            {
-                                ...project,
-                                options: {
-                                    numeric: false,
-                                    finite: false,
-                                    functional: false,
-                                },
+                        programmer({
+                            ...project,
+                            options: {
+                                numeric: false,
+                                finite: false,
+                                functional: false,
                             },
-                            modulo,
-                        )(type),
+                        })(modulo)(false)(type),
                     ),
                 ]);
 
             // RETURNS
             if (project.options.validate === "is")
-                return parameter("is", IsProgrammer.generate);
+                return parameter("is", IsProgrammer.write);
             else if (project.options.validate === "validate")
-                return parameter("validate", ValidateProgrammer.generate);
-            return parameter("assert", AssertProgrammer.generate);
+                return parameter("validate", ValidateProgrammer.write);
+            return parameter("assert", AssertProgrammer.write);
         };
 }

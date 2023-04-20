@@ -25,15 +25,10 @@ export namespace TypedQueryProgrammer {
         (checker: ts.TypeChecker) =>
         (type: ts.Type): MetadataObject => {
             const collection: MetadataCollection = new MetadataCollection();
-            const metadata: Metadata = MetadataFactory.generate(
-                checker,
-                collection,
-                type,
-                {
-                    resolve: false,
-                    constant: true,
-                },
-            );
+            const metadata: Metadata = MetadataFactory.analyze(checker)({
+                resolve: false,
+                constant: true,
+            })(collection)(type);
             if (metadata.objects.length !== 1 || metadata.bucket() !== 1)
                 throw new Error(
                     ErrorMessages.object(metadata)(
@@ -141,15 +136,12 @@ export namespace TypedQueryProgrammer {
     const decode_object =
         (project: INestiaTransformProject, modulo: ts.LeftHandSideExpression) =>
         (type: ts.Type, object: MetadataObject): ts.ConciseBody => {
-            const assert: ts.ArrowFunction = AssertProgrammer.generate(
-                {
-                    ...project,
-                    options: {
-                        numeric: true,
-                    },
+            const assert: ts.ArrowFunction = AssertProgrammer.write({
+                ...project,
+                options: {
+                    numeric: true,
                 },
-                modulo,
-            )(type);
+            })(modulo)(false)(type);
             const output = ts.factory.createIdentifier("output");
 
             const importer = new FunctionImporter();
@@ -199,14 +191,13 @@ export namespace TypedQueryProgrammer {
                 key,
                 isArray
                     ? ts.factory.createCallExpression(
-                          IdentifierFactory.join(
+                          IdentifierFactory.access(
                               ts.factory.createCallExpression(
                                   ts.factory.createIdentifier("input.getAll"),
                                   undefined,
                                   [ts.factory.createStringLiteral(key)],
                               ),
-                              "map",
-                          ),
+                          )("map"),
                           undefined,
                           [
                               ts.factory.createArrowFunction(

@@ -58,12 +58,9 @@ export namespace SwaggerGenerator {
         }
 
         // FILL JSON-SCHEMAS
-        const application: IJsonApplication = ApplicationProgrammer.generate(
-            tupleList.map(({ metadata }) => metadata),
-            {
-                purpose: "swagger",
-            },
-        );
+        const application: IJsonApplication = ApplicationProgrammer.write({
+            purpose: "swagger",
+        })(tupleList.map(({ metadata }) => metadata));
         swagger.components = {
             ...(swagger.components ?? {}),
             schemas: application.components.schemas,
@@ -148,7 +145,7 @@ export namespace SwaggerGenerator {
                         tag.text!.find((elem) => elem.kind === "text")!.text,
                 );
 
-        const description: string = CommentFactory.generate(route.comments);
+        const description: string = CommentFactory.string(route.comments);
         const summary: string | undefined = (() => {
             const [explicit] = getTagTexts("summary");
             if (explicit?.length) return explicit;
@@ -375,15 +372,10 @@ export namespace SwaggerGenerator {
         tupleList: Array<ISchemaTuple>,
         type: ts.Type,
     ): IJsonSchema | null {
-        const metadata: Metadata = MetadataFactory.generate(
-            checker,
-            collection,
-            type,
-            {
-                resolve: false,
-                constant: true,
-            },
-        );
+        const metadata: Metadata = MetadataFactory.analyze(checker)({
+            resolve: false,
+            constant: true,
+        })(collection)(type);
         if (metadata.empty() && metadata.nullable === false) return null;
 
         const schema: IJsonSchema = {} as IJsonSchema;

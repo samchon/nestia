@@ -17,6 +17,7 @@ export namespace TypedRouteProgrammer {
                 key: string,
                 programmer: (
                     project: IProject,
+                ) => (
                     modulo: ts.LeftHandSideExpression,
                 ) => (type: ts.Type) => ts.ArrowFunction,
             ) =>
@@ -27,30 +28,24 @@ export namespace TypedRouteProgrammer {
                     ),
                     ts.factory.createPropertyAssignment(
                         ts.factory.createIdentifier(key),
-                        programmer(
-                            {
-                                ...project,
-                                options: {}, // use default option
-                            },
-                            modulo,
-                        )(type),
+                        programmer({
+                            ...project,
+                            options: {}, // use default option
+                        })(modulo)(type),
                     ),
                 ]);
 
             // RETURNS
             if (project.options.stringify === "is")
-                return parameter("is", IsStringifyProgrammer.generate);
+                return parameter("is", IsStringifyProgrammer.write);
             else if (project.options.stringify === "validate")
-                return parameter(
-                    "validate",
-                    ValidateStringifyProgrammer.generate,
-                );
+                return parameter("validate", ValidateStringifyProgrammer.write);
             else if (project.options.stringify === "stringify")
-                return parameter("stringify", StringifyProgrammer.generate);
+                return parameter("stringify", StringifyProgrammer.write);
             else if (project.options.stringify === null)
                 return ts.factory.createNull();
 
             // ASSERT IS DEFAULT
-            return parameter("assert", AssertStringifyProgrammer.generate);
+            return parameter("assert", AssertStringifyProgrammer.write);
         };
 }

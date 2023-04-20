@@ -130,9 +130,9 @@ export class Fetcher {
 
         // CHECK THE STATUS CODE
         if (
-            (response.status !== undefined &&
+            (encrypted.status !== undefined &&
                 response.status !== encrypted.status) ||
-            (response.status === undefined &&
+            (encrypted.status === undefined &&
                 response.status !== 200 &&
                 response.status !== 201)
         )
