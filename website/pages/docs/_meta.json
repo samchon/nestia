@@ -1,0 +1,12 @@
+{
+    "index": "🙋🏻‍♂️ Introduction",
+    "setup": "🛠 Setup",
+
+    "-- features": {
+        "type": "separator",
+        "title": "📖 Features"
+    },
+    "core": "Core Library",
+    "sdk": "SDK/Swagger Generator",
+    "migrate": "Swagger to NestJS"
+}
