@@ -1,6 +1,6 @@
 {
-    "-- decorators": {
-        "type": "seperator",
+    "decorators": {
+        "type": "separator",
         "title": "Decorators"
     },
     "TypedRoute": "TypedRoute",
@@ -9,17 +9,10 @@
     "TypedParam": "TypedParam",
 
     "-- enhancements": {
-        "type": "seperator",
+        "type": "separator",
         "title": "Enhancements"
     },
     "comment-tags": "Comment-Tags",
-    "configuration": "Configuration",
-
-    "-- advances": {
-        "type": "seperator",
-        "title": "Advanced Usage"
-    },
     "DynamicModule": "DynamicModule",
-    "encryption": "Encryption",
-    "inheritance": "Inheritance"
+    "encryption": "Encryption"
 }

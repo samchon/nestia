@@ -1,0 +1,18 @@
+# `TypedQuery`
+## Outline
+```typescript
+export function TypedQuery(): ParameterDecorator;
+```
+
+## How to use
+```typescript
+export class BbsArticlesController {
+    public async index(
+        @TypedQuery() query: IPage.IRequest
+    ): Promise<IPage<IBbsArticle.ISummary>> {
+        
+    }
+}
+```
+
+## Not possible

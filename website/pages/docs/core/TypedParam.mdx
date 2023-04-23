@@ -1,0 +1,41 @@
+# `TypedParam`
+## Outline
+```typescript filename="@nestia/core"
+export function TypedParam(name: string): ParameterDecorator;
+export function TypedParam(
+    nane: string, 
+    type: "uuid"
+): ParameterDecorator;
+```
+
+## How to use
+```typescript filename="ParametersController.ts"
+import { TypedRoute, TypedParam } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+
+@Controller("parameters")
+export class ParametersController {
+    @TypedRoute.Get("number")
+    public async number(
+        @TypedParam("value") value: number,
+    ): Promise<number> {
+        return value;
+    }
+
+    @TypedRoute.Get("string")
+    public async string(
+        @TypedParam("value") value: string,
+    ): Promise<string> {
+        return value;
+    }
+
+    @TypedRoute.Get("uuid")
+    public async uuid(
+        @TypedParam("value", "uuid") value: string
+    ): Promise<string> {
+        return value;
+    }
+}
+```
+
+## Not possible

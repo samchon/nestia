@@ -1,0 +1,277 @@
+import { Tabs, Tab } from 'nextra-theme-docs'
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+
+# `TypedRoute`
+## Outline
+```typescript filename="@nestia/core"
+export namespace TypedRoute {
+    export function Get(path?: string): MethodDecorator;
+    export function Post(path?: string): MethodDecorator;
+    export function Patch(path?: string): MethodDecorator;
+    export function Put(path?: string): MethodDecorator;
+    export function Delete(path?: string): MethodDecorator;
+}
+```
+
+Route decorators **200x faster**, even **type safe** and **easy to use**.
+
+`TypedRoute` is a namespaced module containing router decorators utilizing [`typia.assertStringify<T>()`](https://typia.io/docs/json/stringify/) function. Those decorators are almost same with original `NestJS`, but `TypedRoute` can boost up JSON serialization speed maximum 200x times faster than `class-transformer`, therefore much faster than original `NestJS`. 
+
+Furthermore, as `TypedRoute` utilizes [`typia.assertStringify()`](https://typia.io/docs/json/stringify) function, such it is even type safe. 
+
+Moreover, `TypedRoute` is much easier than `class-transformer`, because it just needs only pure TypeScript type definition. If you can't understand the word "pure TypeScript type", then move to below [**#How to use**](#how-to-use) section and read the `IBbsArticle` interface type. You may understand what it means.
+
+
+
+
+## How to use
+<Tabs 
+    items={[
+        <code>IBbsArticle.ts</code>,
+        <code>BbsArticlesController.ts</code>,
+        'Compiled JavaScript File'
+    ]}
+    defaultIndex={1}>
+    <Tab>
+```typescript copy filename="IBbsArticle.ts" showLineNumbers
+import { IAttachmentFile } from "./IAttachmentFile";
+
+export interface IBbsArticle {
+    /**
+     * @format uuid
+     */
+    id: string;
+
+    writer: string;
+
+    /** 
+     * @minLength 3
+     * @maxLength 50
+     */
+    title: string;
+
+    body: string;
+
+    /**
+     * @format date-time
+     */
+    created_at: string;
+    
+    files: IAttachmentFile[];
+}
+```
+    </Tab>
+    <Tab>
+```typescript copy filename="BbsArticlesController.ts" showLineNumbers {11-12}
+import { TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+
+import { IBbsArticle } from "./IBbsArticle";
+
+@Controller("bbs/articles")
+export class BbsArticlesController {
+    /**
+     * Get random article.
+     */
+    @TypedRoute.Get("random")
+    public async random(): Promise<IBbsArticle> {
+        return {
+            id: "2b5e21d8-0e44-4482-bd3e-4540dee7f3d6",
+            writer: "Samchon",
+            title: "Hello nestia users",
+            body: "Just use `TypedRoute.Get()` function like this",
+            created_at: "2023-04-23T12:04:54.168Z",
+            files: [],
+        };
+    }
+}
+```
+    </Tab>
+    <Tab>
+```javascript filename="BbsArticlesController.js" showLineNumbers {41-136}
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BbsArticlesController = void 0;
+const core_1 = require("@nestia/core");
+const common_1 = require("@nestjs/common");
+let BbsArticlesController = class BbsArticlesController {
+    /**
+     * Get random article.
+     */
+    random() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return {
+                id: "2b5e21d8-0e44-4482-bd3e-4540dee7f3d6",
+                writer: "Samchon",
+                title: "Hello nestia users",
+                body: "Just use `TypedRoute.Get()` function like this",
+                created_at: "2023-04-23T12:04:54.168Z",
+                files: [],
+            };
+        });
+    }
+};
+__decorate([
+    core_1.TypedRoute.Get("random", { 
+        type: "assert", 
+        assert: input => { 
+            const assert = input => {
+            const $guard = core_1.TypedRoute.Get.guard;
+            const $is_uuid = core_1.TypedRoute.Get.is_uuid;
+            const $is_datetime = core_1.TypedRoute.Get.is_datetime;
+            const __is = input => {
+                const $io0 = input => "string" === typeof input.id && $is_uuid(input.id) && "string" === typeof input.writer && ("string" === typeof input.title && 3 <= input.title.length && 50 >= input.title.length) && "string" === typeof input.body && ("string" === typeof input.created_at && $is_datetime(input.created_at)) && (Array.isArray(input.files) && input.files.every(elem => "object" === typeof elem && null !== elem && $io1(elem)));
+                const $io1 = input => (null === input.name || "string" === typeof input.name) && (null === input.extension || "string" === typeof input.extension) && "string" === typeof input.url;
+                return "object" === typeof input && null !== input && $io0(input);
+            };
+            if (false === __is(input))
+                ((input, _path, _exceptionable = true) => {
+                    const $ao0 = (input, _path, _exceptionable = true) => ("string" === typeof input.id && ($is_uuid(input.id) || $guard(_exceptionable, {
+                        path: _path + ".id",
+                        expected: "string (@format uuid)",
+                        value: input.id
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".id",
+                        expected: "string",
+                        value: input.id
+                    })) && ("string" === typeof input.writer || $guard(_exceptionable, {
+                        path: _path + ".writer",
+                        expected: "string",
+                        value: input.writer
+                    })) && ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string (@minLength 3)",
+                        value: input.title
+                    })) && (50 >= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string (@maxLength 50)",
+                        value: input.title
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string",
+                        value: input.title
+                    })) && ("string" === typeof input.body || $guard(_exceptionable, {
+                        path: _path + ".body",
+                        expected: "string",
+                        value: input.body
+                    })) && ("string" === typeof input.created_at && ($is_datetime(input.created_at) || $guard(_exceptionable, {
+                        path: _path + ".created_at",
+                        expected: "string (@format datetime)",
+                        value: input.created_at
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".created_at",
+                        expected: "string",
+                        value: input.created_at
+                    })) && ((Array.isArray(input.files) || $guard(_exceptionable, {
+                        path: _path + ".files",
+                        expected: "Array<Resolve<IAttachmentFile>>",
+                        value: input.files
+                    })) && input.files.every((elem, _index1) => ("object" === typeof elem && null !== elem || $guard(_exceptionable, {
+                        path: _path + ".files[" + _index1 + "]",
+                        expected: "Resolve<IAttachmentFile>",
+                        value: elem
+                    })) && $ao1(elem, _path + ".files[" + _index1 + "]", true && _exceptionable)));
+                    const $ao1 = (input, _path, _exceptionable = true) => (null === input.name || "string" === typeof input.name || $guard(_exceptionable, {
+                        path: _path + ".name",
+                        expected: "(null | string)",
+                        value: input.name
+                    })) && (null === input.extension || "string" === typeof input.extension || $guard(_exceptionable, {
+                        path: _path + ".extension",
+                        expected: "(null | string)",
+                        value: input.extension
+                    })) && ("string" === typeof input.url || $guard(_exceptionable, {
+                        path: _path + ".url",
+                        expected: "string",
+                        value: input.url
+                    }));
+                    return ("object" === typeof input && null !== input || $guard(true, {
+                        path: _path + "",
+                        expected: "Resolve<IBbsArticle>",
+                        value: input
+                    })) && $ao0(input, _path + "", true);
+                })(input, "$input", true);
+            return input;
+        }; 
+        const stringify = input => {
+            const $string = core_1.TypedRoute.Get.string;
+            const $is_uuid = core_1.TypedRoute.Get.is_uuid;
+            const $is_datetime = core_1.TypedRoute.Get.is_datetime;
+            const $io1 = input => (null === input.name || "string" === typeof input.name) && (null === input.extension || "string" === typeof input.extension) && "string" === typeof input.url;
+            const $so0 = input => `{"id":${"\"" + input.id + "\""},"writer":${$string(input.writer)},"title":${$string(input.title)},"body":${$string(input.body)},"created_at":${"\"" + input.created_at + "\""},"files":${`[${input.files.map(elem => $so1(elem)).join(",")}]`}}`;
+            const $so1 = input => `{"name":${null !== input.name ? $string(input.name) : "null"},"extension":${null !== input.extension ? $string(input.extension) : "null"},"url":${$string(input.url)}}`;
+            return $so0(input);
+        }; 
+        return stringify(assert(input)); 
+    }}),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], BbsArticlesController.prototype, "random", null);
+BbsArticlesController = __decorate([
+    (0, common_1.Controller)("bbs/articles")
+], BbsArticlesController);
+exports.BbsArticlesController = BbsArticlesController;
+```
+    </Tab>
+</Tabs>
+
+Just call `TypedRoute.${method}()` function on the target method, that's all.
+
+`Nestia` will analyze your type (`IBbsArticle`), and writes optimal code for the target type, in the compliation level. If you click the "Compiled JavaScript File" tab of above, you can see the optimal validation and JSON serialization code. 
+
+Such optimization is called AOT (Ahead of Time) compilation, and it is the secret of `TypedRoute`.
+
+
+
+
+## Peformance
+### JSON Serialize
+Comparing JSON serialization speed, [`typia`](https://typia.io/docs/json/stringify) is maximum 200x faster than `class-transformer`.
+
+For reference, `Nestia` is using `typia`, and `NestJS` is using `class-transformer`. The other one `fast-json-stringify` is made and used by `fastify` (do not mean NestJS fastify mode, but mean pure `fastify` library. NestJS fastify mode still utilizes `class-transformer`), and it requires JSON schema definition.
+
+From above benchmark graph, you can see that `class-transformer` is extremely slower than others, even including built-in `JSON.stringify()` function. I can't understand why `NestJS` has adopted such slow and difficult library. The other `fast-json-stringify` is enough faster, but it needs extra schema definition like `class-validator`, therefore not easy to use.
+
+  - `typia` needs only pure TypeScript type.
+  - `class-transformer` requires [DTO class with decorator function calls](https://github.com/samchon/typia/blob/master/benchmark/structures/class-validator/ClassValidatorObjectHierarchical.ts).
+  - `fast-json-stringify` requires [JSON schema definition](https://github.com/samchon/typia/blob/master/test/schemas/json/swagger/ObjectHierarchical.json).
+
+![Stringify Function Benchmark](https://github.com/samchon/typia/raw/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/stringify.svg)
+
+> Measured on [Intel i5-1135g7, Surface Pro 8](https://github.com/samchon/typia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz#stringify)
+
+### Server Benchmark
+Looking at above benchmark, someone may ask:
+
+> JSON serialization speed affects on the server performance? 
+>
+> I think that the JSON serialization is just a tiny thing in the server side, isn't it?
+
+My answer is, "Yes, it affects on the server performance".
+
+Most operations in NodeJS server are asynchronously executed in background thread, what are called "event based non-blocking I/O model". However, JSON serialization is a synchronous operation running on the main thread. Therefore, if the JSON serialization speed is slow, it makes the entire server program slow.
+
+I'll show you the benchmark result that, how JSON serizliation speed affects on the server performance.
+
+![Server Benchmark](https://raw.githubusercontent.com/samchon/typia/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/server.svg)
+
+> Measured on [Intel i5-1135g7, Surface Pro 8](https://github.com/samchon/typia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz#server)
