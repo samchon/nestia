@@ -1,18 +1,411 @@
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+
 # `TypedQuery`
 ## Outline
-```typescript
+```typescript filename="@nestia/core"
 export function TypedQuery(): ParameterDecorator;
 ```
 
+Type safe URL query decorator.
+
+`@TypedQuery()` is a decorator parsing URL query. 
+
+It's almost same with original `@Query()` function of `NestJS`, but `@TypedQuery()` is more stable and general. 
+
+While `NestJS` does not support query type validation, `@TypedQuery()` validates the request query type and throws 400 bad request error when mismatched. Also, while `NestJS` does not support property type (`@Query()` only supports `string` typed properties), `@TypedQuery()` can define variable property types like `number` or `boolean`.
+
+<Callout type="info">
+What the query parameter is? 
+
+This is the query parameter!
+
+`name=Samchon&age=20&isMale=true`
+</Callout>
+
+
+
+
+
 ## How to use
-```typescript
-export class BbsArticlesController {
-    public async index(
-        @TypedQuery() query: IPage.IRequest
-    ): Promise<IPage<IBbsArticle.ISummary>> {
-        
+<Tabs 
+    items={[
+        <code>IPage.ts</code>, 
+        <code>IBbsArticle.ts</code>, 
+        <code>BbsArticlesController.ts</code>, 
+        'Compiled JavaScript File'
+    ]}
+    defaultIndex={2}
+>
+    <Tab>
+```typescript copy filename="IPage.ts" showLineNumbers
+export interface IPage<T> {
+    data: T[];
+    pagination: IPage.IPagination;
+}
+export namespace IPage {
+    /**
+     * Page information.
+     */
+    export interface IPagination {
+        /**
+         * @type uint
+         */
+        current: number;
+
+        /**
+         * @type uint
+         */
+        limit: number;
+
+        /**
+         * @type uint
+         */
+        records: number;
+
+        /**
+         * @type uint
+         */
+        pages: number;
+    }
+
+    /**
+     * Page request data
+     */
+    export interface IRequest {
+        /**
+         * @type uint
+         */
+        page?: number;
+
+        /**
+         * @type uint
+         */
+        limit?: number;
     }
 }
 ```
+    </Tab>
+    <Tab>
+```typescript copy filename="IBbsArticle.ts" showLineNumbers
+export namespace IBbsArticle {
+    export interface ISummary {
+        /**
+         * @format uuid
+         */
+        id: string;
+        writer: string;
+        /** 
+         * @minLength 3
+         * @maxLength 50
+         */
+        title: string;
+        /**
+         * @format date-time
+         */
+        created_at: string;
+    }
+}
+```
+    </Tab>
+    <Tab>
+```typescript copy filename="BbsArticles.ts" showLineNumbers {11}
+import { TypedQuery, TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
 
-## Not possible
+import { IBbsArticle } from "./IBbsArticle";
+import { IPage } from "./IPage";
+
+@Controller("bbs/articles")
+export class BbsArticlesController {
+    @TypedRoute.Get()
+    public async index(
+        @TypedQuery() query: IPage.IRequest
+    ): Promise<IPage<IBbsArticle.ISummary>> {
+        return {
+            pagination: {
+                current: query.page ?? 1,
+                limit: query.limit ?? 100,
+                records: 0,
+                pages: 0,
+            },
+            data: [],
+        };
+    }
+}
+```
+    </Tab>
+    <Tab>
+```javascript filename="BbsArticles.js" showLineNumbers {171-218}
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BbsArticlesController = void 0;
+const core_1 = require("@nestia/core");
+const common_1 = require("@nestjs/common");
+let BbsArticlesController = class BbsArticlesController {
+    index(query) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            return {
+                pagination: {
+                    current: (_a = query.page) !== null && _a !== void 0 ? _a : 1,
+                    limit: (_b = query.limit) !== null && _b !== void 0 ? _b : 100,
+                    records: 0,
+                    pages: 0,
+                },
+                data: [],
+            };
+        });
+    }
+};
+__decorate([
+    core_1.TypedRoute.Get({ type: "assert", assert: input => { const assert = input => {
+            const $guard = core_1.TypedRoute.Get.guard;
+            const $is_uuid = core_1.TypedRoute.Get.is_uuid;
+            const $is_datetime = core_1.TypedRoute.Get.is_datetime;
+            const __is = input => {
+                const $is_uuid = core_1.TypedRoute.Get.is_uuid;
+                const $is_datetime = core_1.TypedRoute.Get.is_datetime;
+                const $io0 = input => Array.isArray(input.data) && input.data.every(elem => "object" === typeof elem && null !== elem && $io1(elem)) && ("object" === typeof input.pagination && null !== input.pagination && $io2(input.pagination));
+                const $io1 = input => "string" === typeof input.id && $is_uuid(input.id) && "string" === typeof input.writer && ("string" === typeof input.title && 3 <= input.title.length && 50 >= input.title.length) && ("string" === typeof input.created_at && $is_datetime(input.created_at));
+                const $io2 = input => "number" === typeof input.current && !Number.isNaN(input.current) && parseInt(input.current) === input.current && 0 <= input.current && ("number" === typeof input.limit && !Number.isNaN(input.limit) && parseInt(input.limit) === input.limit && 0 <= input.limit) && ("number" === typeof input.records && !Number.isNaN(input.records) && parseInt(input.records) === input.records && 0 <= input.records) && ("number" === typeof input.pages && !Number.isNaN(input.pages) && parseInt(input.pages) === input.pages && 0 <= input.pages);
+                return "object" === typeof input && null !== input && $io0(input);
+            };
+            if (false === __is(input))
+                ((input, _path, _exceptionable = true) => {
+                    const $ao0 = (input, _path, _exceptionable = true) => (Array.isArray(input.data) || $guard(_exceptionable, {
+                        path: _path + ".data",
+                        expected: "Array<IBbsArticle.ISummary>",
+                        value: input.data
+                    })) && input.data.every((elem, _index1) => ("object" === typeof elem && null !== elem || $guard(_exceptionable, {
+                        path: _path + ".data[" + _index1 + "]",
+                        expected: "IBbsArticle.ISummary",
+                        value: elem
+                    })) && $ao1(elem, _path + ".data[" + _index1 + "]", true && _exceptionable)) && (("object" === typeof input.pagination && null !== input.pagination || $guard(_exceptionable, {
+                        path: _path + ".pagination",
+                        expected: "IPage.IPagination",
+                        value: input.pagination
+                    })) && $ao2(input.pagination, _path + ".pagination", true && _exceptionable));
+                    const $ao1 = (input, _path, _exceptionable = true) => ("string" === typeof input.id && ($is_uuid(input.id) || $guard(_exceptionable, {
+                        path: _path + ".id",
+                        expected: "string (@format uuid)",
+                        value: input.id
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".id",
+                        expected: "string",
+                        value: input.id
+                    })) && ("string" === typeof input.writer || $guard(_exceptionable, {
+                        path: _path + ".writer",
+                        expected: "string",
+                        value: input.writer
+                    })) && ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string (@minLength 3)",
+                        value: input.title
+                    })) && (50 >= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string (@maxLength 50)",
+                        value: input.title
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string",
+                        value: input.title
+                    })) && ("string" === typeof input.created_at && ($is_datetime(input.created_at) || $guard(_exceptionable, {
+                        path: _path + ".created_at",
+                        expected: "string (@format datetime)",
+                        value: input.created_at
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".created_at",
+                        expected: "string",
+                        value: input.created_at
+                    }));
+                    const $ao2 = (input, _path, _exceptionable = true) => ("number" === typeof input.current && !Number.isNaN(input.current) && (parseInt(input.current) === input.current || $guard(_exceptionable, {
+                        path: _path + ".current",
+                        expected: "number (@type uint)",
+                        value: input.current
+                    })) && (0 <= input.current || $guard(_exceptionable, {
+                        path: _path + ".current",
+                        expected: "number (@type uint)",
+                        value: input.current
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".current",
+                        expected: "number",
+                        value: input.current
+                    })) && ("number" === typeof input.limit && !Number.isNaN(input.limit) && (parseInt(input.limit) === input.limit || $guard(_exceptionable, {
+                        path: _path + ".limit",
+                        expected: "number (@type uint)",
+                        value: input.limit
+                    })) && (0 <= input.limit || $guard(_exceptionable, {
+                        path: _path + ".limit",
+                        expected: "number (@type uint)",
+                        value: input.limit
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".limit",
+                        expected: "number",
+                        value: input.limit
+                    })) && ("number" === typeof input.records && !Number.isNaN(input.records) && (parseInt(input.records) === input.records || $guard(_exceptionable, {
+                        path: _path + ".records",
+                        expected: "number (@type uint)",
+                        value: input.records
+                    })) && (0 <= input.records || $guard(_exceptionable, {
+                        path: _path + ".records",
+                        expected: "number (@type uint)",
+                        value: input.records
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".records",
+                        expected: "number",
+                        value: input.records
+                    })) && ("number" === typeof input.pages && !Number.isNaN(input.pages) && (parseInt(input.pages) === input.pages || $guard(_exceptionable, {
+                        path: _path + ".pages",
+                        expected: "number (@type uint)",
+                        value: input.pages
+                    })) && (0 <= input.pages || $guard(_exceptionable, {
+                        path: _path + ".pages",
+                        expected: "number (@type uint)",
+                        value: input.pages
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".pages",
+                        expected: "number",
+                        value: input.pages
+                    }));
+                    return ("object" === typeof input && null !== input || $guard(true, {
+                        path: _path + "",
+                        expected: "IPage<IBbsArticle.ISummary>",
+                        value: input
+                    })) && $ao0(input, _path + "", true);
+                })(input, "$input", true);
+            return input;
+        }; const stringify = input => {
+            const $string = core_1.TypedRoute.Get.string;
+            const $is_uuid = core_1.TypedRoute.Get.is_uuid;
+            const $is_datetime = core_1.TypedRoute.Get.is_datetime;
+            const $io1 = input => "string" === typeof input.id && $is_uuid(input.id) && "string" === typeof input.writer && ("string" === typeof input.title && 3 <= input.title.length && 50 >= input.title.length) && ("string" === typeof input.created_at && $is_datetime(input.created_at));
+            const $io2 = input => "number" === typeof input.current && parseInt(input.current) === input.current && 0 <= input.current && ("number" === typeof input.limit && parseInt(input.limit) === input.limit && 0 <= input.limit) && ("number" === typeof input.records && parseInt(input.records) === input.records && 0 <= input.records) && ("number" === typeof input.pages && parseInt(input.pages) === input.pages && 0 <= input.pages);
+            const $so0 = input => `{"data":${`[${input.data.map(elem => $so1(elem)).join(",")}]`},"pagination":${$so2(input.pagination)}}`;
+            const $so1 = input => `{"id":${"\"" + input.id + "\""},"writer":${$string(input.writer)},"title":${$string(input.title)},"created_at":${"\"" + input.created_at + "\""}}`;
+            const $so2 = input => `{"current":${input.current},"limit":${input.limit},"records":${input.records},"pages":${input.pages}}`;
+            return $so0(input);
+        }; return stringify(assert(input)); } }),
+    __param(0, (0, core_1.TypedQuery)(input => {
+        const $number = core_1.TypedQuery.number;
+        const output = {
+            page: $number(input.get("page")),
+            limit: $number(input.get("limit"))
+        };
+        return (input => {
+            const $guard = core_1.TypedQuery.guard;
+            const __is = input => {
+                const $io0 = input => (undefined === input.page || "number" === typeof input.page && !Number.isNaN(input.page) && parseInt(input.page) === input.page && 0 <= input.page) && (undefined === input.limit || "number" === typeof input.limit && !Number.isNaN(input.limit) && parseInt(input.limit) === input.limit && 0 <= input.limit);
+                return "object" === typeof input && null !== input && false === Array.isArray(input) && $io0(input);
+            };
+            if (false === __is(input))
+                ((input, _path, _exceptionable = true) => {
+                    const $ao0 = (input, _path, _exceptionable = true) => (undefined === input.page || "number" === typeof input.page && !Number.isNaN(input.page) && (parseInt(input.page) === input.page || $guard(_exceptionable, {
+                        path: _path + ".page",
+                        expected: "number (@type uint)",
+                        value: input.page
+                    })) && (0 <= input.page || $guard(_exceptionable, {
+                        path: _path + ".page",
+                        expected: "number (@type uint)",
+                        value: input.page
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".page",
+                        expected: "(number | undefined)",
+                        value: input.page
+                    })) && (undefined === input.limit || "number" === typeof input.limit && !Number.isNaN(input.limit) && (parseInt(input.limit) === input.limit || $guard(_exceptionable, {
+                        path: _path + ".limit",
+                        expected: "number (@type uint)",
+                        value: input.limit
+                    })) && (0 <= input.limit || $guard(_exceptionable, {
+                        path: _path + ".limit",
+                        expected: "number (@type uint)",
+                        value: input.limit
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".limit",
+                        expected: "(number | undefined)",
+                        value: input.limit
+                    }));
+                    return ("object" === typeof input && null !== input && false === Array.isArray(input) || $guard(true, {
+                        path: _path + "",
+                        expected: "IPage.IRequest",
+                        value: input
+                    })) && $ao0(input, _path + "", true);
+                })(input, "$input", true);
+            return input;
+        })(output);
+    })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], BbsArticlesController.prototype, "index", null);
+BbsArticlesController = __decorate([
+    (0, common_1.Controller)("bbs/articles")
+], BbsArticlesController);
+exports.BbsArticlesController = BbsArticlesController;
+```
+    </Tab>
+</Tabs>
+
+Just call `@TypedQuery()` function on the query parameter, that's all.
+
+`Nestia` will analyze your type (`IPage.IRequest`), and writes optimal code for the target type, in the compilation level. If you click the "Compiled JavaScript" file tab of above and fine enhanced lines by blue lines, you can see the optimal parsing and validation code.
+
+Such optimization is called AOT (Ahead of Time) compilation, and it is the secret of `@TypedQuery`.
+
+
+
+
+## Restriction
+When using `@TypedQuery()`, you've to follow such restrction.
+
+At first, type of `@TypedQuery()` must be an **object type**. It does not allow union type. Also, nullable and undefindable types are not allowed, either. Note that, query parmaeter type must be a sole **object type** without any extra definition.
+
+At next, type of properties must be **atomic** type. The property type does not allow union type and nullable type either. However, undefindable type is possible. And if the union type is used only for literal values about same union type, it is possible
+
+  - `boolean`
+  - `number`
+  - `bigint`
+  - `string`
+
+```typescript
+export interface SomeQueryDto {
+    //----
+    // atomic types are fully allowed
+    //----
+    boolean: boolean;
+    number: number;
+    string: string;
+    bigint: bigint;
+    
+    //----
+    // SPECIAL CASES
+    //----
+    /// undefindable is allowed, 
+    /// but nullable is not
+    number?: number; 
+
+    /// union type is allowed only when 
+    /// literal values about same atomic type
+    type: "page" | "list"; 
+}
+```

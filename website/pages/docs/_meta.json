@@ -7,6 +7,5 @@
         "title": "📖 Features"
     },
     "core": "Core Library",
-    "sdk": "SDK/Swagger Generator",
-    "migrate": "Swagger to NestJS"
+    "sdk": "SDK/Swagger Generator"
 }

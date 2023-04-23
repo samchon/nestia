@@ -1,18 +1,6 @@
 {
-    "decorators": {
-        "type": "separator",
-        "title": "Decorators"
-    },
     "TypedRoute": "TypedRoute",
     "TypedBody": "TypedBody",
-    "TypedQuery": "TypedQuery",
     "TypedParam": "TypedParam",
-
-    "-- enhancements": {
-        "type": "separator",
-        "title": "Enhancements"
-    },
-    "comment-tags": "Comment-Tags",
-    "DynamicModule": "DynamicModule",
-    "encryption": "Encryption"
+    "TypedQuery": "TypedQuery"
 }

@@ -1,0 +1,12 @@
+{
+    "index": "Home",
+    "boilerplate": "Boilerplate Project",
+    "template": "Template Project",
+
+    "-- korean": {
+        "type": "separator",
+        "title": "🇰🇷 Korean only"
+    },
+    "iamport": "fake-iamport-server",
+    "toss-payments": "fake-toss-payments-server"
+}

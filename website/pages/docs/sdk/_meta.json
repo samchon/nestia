@@ -1,15 +1,4 @@
 {
-    "-- generators": {
-        "type": "separator",
-        "title": "Generators"
-    },
     "sdk": "SDK Library",
-    "swagger": "Swagger Documents",
-    "-- advanced": {
-        "type": "separator",
-        "title": "Advanced Usage"
-    },
-    "comment-tags": "Comment Tags",
-    "configuration": "Configuration",
-    "distribution": "Distribution"
+    "swagger": "Swagger Documents"
 }
