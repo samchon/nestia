@@ -7,5 +7,28 @@
         "title": "📖 Features"
     },
     "core": "Core Library",
-    "sdk": "SDK/Swagger Generator"
+    "sdk": "SDK/Swagger Generator",
+    "migrate": {
+        "type": "page",
+        "title": "Swagger to NestJS",
+        "hidden": true,
+        "display": "hidden"
+    },
+    "e2e": {
+        "type": "page",
+        "title": "E2E Test",
+        "hidden": true,
+        "display": "hidden"
+    },
+
+    "-- appendix": {
+        "type": "separator",
+        "title": "🔗 Appendix"
+    },
+    "related": "Related Projects",
+    "examples": {
+        "title": "Learn from Examples",
+        "href": "/examples",
+        "newWindow": "false"
+    }
 }
