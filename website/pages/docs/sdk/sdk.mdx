@@ -1,0 +1,394 @@
+import { Tabs, Tab } from 'nextra-theme-docs'
+
+# SDK Library
+## Outline
+<Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: "src/controllers",
+    output: "src/api",
+};
+export default config;
+```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" showLineNumbers {}
+npx nestia sdk
+```
+    </Tab>
+</Tabs>
+
+Configure [`nestia.config.ts`](#nestiaconfigts) file and run `npx nestia sdk` command.
+
+Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate SDK (Software Development Kit) library. With the SDK library, you can easily develop E2E test program. Also, frontend developers can utilize the SDK library to interact with your NestJS backend server, much safely and conveniently.
+
+If you can't imagine how the SDK library works, then look at the gif image of below. Left side is the NestJS backend server program, and right side is the Frontend program interacting with your server. As you can see, frontend developer is utilizing auto completion through SDK library. 
+
+Isn't it look like much more convenient and safer than before when using [Swagger Documents](swagger)?
+
+![SDK](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
+
+
+
+
+## Configuration
+### `nestia.config.ts`
+<Tabs items={[
+    <code>nestia.config.ts</code>, 
+    <code>INestiaConfig.ts</code>
+]}>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: "src/controllers",
+    output: "src/api",
+};
+export default config;
+```
+    </Tab>
+    <Tab>
+```typescript filename="INestiaConfig.ts" showLineNumbers
+import ts from "typescript";
+
+import { ISwaggerDocument } from "./structures/ISwaggerDocument";
+import type { StripEnums } from "./utils/StripEnums";
+
+/**
+ * Definition for the `nestia.config.ts` file.
+ *
+ * @author Jeongho Nam - https://github.com/samchon
+ */
+export interface INestiaConfig {
+    /**
+     * List of files or directories containing the NestJS controller classes.
+     */
+    input: string | string[] | INestiaConfig.IInput;
+
+    /**
+     * Output directory that SDK would be placed in.
+     *
+     * If not configured, you can't build the SDK library.
+     */
+    output?: string;
+
+    /**
+     * Compiler options for the TypeScript.
+     *
+     * If you've omitted this property or the assigned property cannot fully cover the
+     * `tsconfig.json`, the properties from the `tsconfig.json` would be assigned to here.
+     * Otherwise, this property has been configured and it's detailed values are different
+     * with the `tsconfig.json`, this property values would be used instead.
+     *
+     * ```typescript
+     * import ts from "typescript";
+     *
+     * const tsconfig: ts.TsConfig;
+     * const nestiaConfig: IConfiguration;
+     *
+     * const compilerOptions: ts.CompilerOptions = {
+     *     ...tsconfig.compilerOptions,
+     *     ...(nestiaConfig.compilerOptions || {})
+     * }
+     * ```
+     */
+    compilerOptions?: StripEnums<ts.CompilerOptions>;
+
+    /**
+     * Building `swagger.json` is also possible.
+     *
+     * If not specified, you can't build the `swagger.json`.
+     */
+    swagger?: INestiaConfig.ISwaggerConfig;
+}
+export namespace INestiaConfig {
+    /**
+     * List of files or directories to include or exclude to specifying the NestJS
+     * controllers.
+     */
+    export interface IInput {
+        /**
+         * List of files or directories containing the NestJS controller classes.
+         */
+        include: string[];
+
+        /**
+         * List of files or directories to be excluded.
+         */
+        exclude?: string[];
+    }
+    export interface ISwaggerConfig { ... }
+}
+```
+    </Tab>
+</Tabs>
+
+Make `nestia.config.ts` file and run `npx nestia sdk` command.
+
+At first, create `nestia.config.ts` file. It must be placed on the top level directory of your NestJS backend project. For reference, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
+
+When you've completed above configuration, just run `npx nestia sdk` command. Then, SDK library would be newly generated, and placed into the `$config.output` directory following your `nestia.config.ts` option..
+
+By the way, if your controller files are separated into multiple directories, you can choose two options. First is listing up every directories, and second is using regex expression. Also, you can exclude some special directories or files using `exclude` option. Of course, you can mix all of these options like below:
+
+<Tabs items={['List up every directories', 'Use regex pattern', 'Exclude']}>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: [
+        "src/controllers", 
+        "src/fake/controllers", 
+        "src/test/controllers",
+    ],
+    output: "src/api",
+};
+export default config;
+```
+    </Tab>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: "src/**/*.controller.ts",
+    output: "src/api",
+};
+export default config;
+```
+    </Tab>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: {
+        include: ["src/controllers"],
+        exclude: ["src/**/*.fake.ts"],
+    },
+    output: "src/api",
+};
+export default config;
+```
+    </Tab>
+</Tabs>
+
+### Manual CLI
+```bash
+npx nestia sdk <[source_directories_or_patterns]> \
+    --exclude <exclude_directory_or_pattern>
+    --out <output_directory>
+```
+
+Instead of configuring [`nestia.config.ts`](#nestiaconfigts), you can use the CLI command instead.
+
+If your controller files are gathered into one directory, then write like below. About the `output` path, it must be a path of directory, not of file.
+
+```bash
+npx nestia swagger "src/controllers" --out "./src/api"
+npx nestia swagger "src/controllers" --out "./src/api"
+```
+
+Otherwise, your controller files are separated in multiple directories, you can choose two options. The 1st is listing up every directories of the controller directories, and the other is using regex pattern like below.
+
+```bash
+npx nestia swagger \
+    "src/controllers" \
+    "src/appendix/controllers" \
+    --out "./src/api"
+npx nestia swagger "src/**/*.controller.ts" --out "./src/api"
+```
+
+Also, you can exclude some controller classes by specifying `--exclude` argument:
+
+```bash
+npx nestia swagger
+    "src/controllers" \
+    --exclude "src/**/*.fake.ts" \
+    --out "./dist/swagger.json"
+```
+
+
+
+
+## Comment Tags
+SDK library of `@nestia/sdk` supports special comment tags configuring client headers.
+
+  - `@setHeader`
+  - `@assignHeaders`
+
+At first, `@setHeader {accessor}` configures only one header property. It reads special value of response body data with the `accessor`, and configures the special value to client header with last accessor key. In the below example case, key of `authorization.token` would be `token`, and key of `authorization.timeout` would be `timeout`.
+
+The other one `@assignHeaders` overwrites every property values to the client headers, with special instance of response body data with `accessor`. In the below example case, every properties in `IShoppingCustomer.IActivated["authorization"]` would be assigned to the clinet headers.
+
+If you're confused, read example codes of below, clicking each tabs.
+
+<Tabs items={['NestJS Server Code', 'SDK Library Code']}>
+    <Tab>
+```typescript copy filename="ShoppingConsumerAuthenticateController.ts" showLineNumbers {6-7, 15}
+import { Controller } from "@nestjs/common";
+
+@Controller("shoppings/consumers/authenticate")
+export class ShoppingConsumerAuthenticateController {
+    /**
+     * @setHeader authorization.token token
+     * @setHeader authorization.timeout timeout
+     */
+    @TypedRoute.Post("join")
+    public join(
+        @TypedBody() input: IShoppingConsumer.IJoin
+    ): Promise<IShoppingConsumer.IActivated>;
+
+    /**
+     * @assignHeaders authorization
+     */
+    @TypedRoute.Post("login")
+    public login(
+        @TypedBody() inpu: IShoppingConsumer.ILogin
+    ): Promise<IShoppingConsumer.IActivated>;
+}
+```
+    </Tab>
+    <Tab>
+```typescript filename="src/api/functional/shoppings/customers/authenticate.ts" showLineNumbers {24-27, 47-49}
+/**
+ * @packageDocumentation
+ * @module api.functional.shoppings.consumers.authenticate
+ * @nestia Generated by Nestia - https://github.com/samchon/nestia 
+ */
+//================================================================
+import { Fetcher, Primitive } from "@nestia/fetcher";
+import type { IConnection } from "@nestia/fetcher";
+
+import type { IShoppingConsumer } from "../../../../structures/IShoppingConsumer";
+
+export async function join(
+    connection: IConnection,
+    input: IShoppingConsumer.IJoin
+): Promise<IShoppingConsumer.IActivated> {
+    const output: IShoppingConsumer.IActivated = await Fetcher.fetch(
+        connection,
+        join.ENCRYPTED,
+        join.METHOD,
+        join.path(),
+        input,
+    );
+    
+    // configure header(s)
+    connection.headers ??= {};
+    connection.headers.token = output.authorization.token;
+    connection.headers.timeout = output.authorization.timeout;
+    
+    return output;
+}
+export namespace join {
+    ...
+}
+
+export async function login(
+    connection: IConnection,
+    input: IShoppingConsumer.IJoin
+): Promise<IShoppingConsumer.IActivated> {
+    const output: IShoppingConsumer.IActivated = await Fetcher.fetch(
+        connection,
+        login.ENCRYPTED,
+        login.METHOD,
+        login.path(),
+        input,
+    );
+
+    // configure header(s)
+    connection.headers ??= {};
+    Object.assign(connection.headers, output.authorization);
+    
+    return output;
+}
+export namespace login {
+    ...
+}
+```
+    </Tab>
+</Tabs>
+
+
+
+
+
+## Distribution
+> Example project distrubuting SDK libraries as an NPM module:
+>
+>   - [`npx nestia start`](https://github.com/samchon/nestia-template)
+>   - [fake-iamport-server](https://github.com/samchon/fake-iamport-server)
+>   - [fake-toss-payments-server](https://github.com/samchon/fake-toss-payments-server)
+
+The best to way to distributing SDK library is just publishing as an NPM module.
+
+I recommend you to follow below directory structure. The SDK module would be built into `packges/api/lib` directory, and published from `packages/api` directory. Now, let's create the new directory `packages/api`, and prepare `package.json` for publishing.
+
+  - **packages**
+    - **packages/api/**
+      - **packages/api/package.json**
+  - src/
+    - **src/api/**
+      - src/api/functional/: SDK functions generated by `nestia`
+      - **src/api/structures/**: Gather all DTO interfaces into here
+      - index.ts
+      - module.ts
+    - models/
+    - controllers/
+  - **nestia.config.ts**: `nestia` configuration file
+  - **tsconfig.api.json**: TS configuration of the SDK library
+  - tsconfig.json
+  - package.json
+
+After that, gather all DTO interfaces into `src/api/structures` directory and build SDK functions into `src/api/functional`. Create an additional `tsconfig.api.json` file only for SDK module compilation and configure `tsconfig.api.json` like below:
+
+```json copy filename="tsconfig.api.json" showLineNumbers
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "./packages/api/lib",
+    "stripInternal": true,
+  },
+  "include": ["src/api"]
+}
+```
+
+Also, configure `nestia.config.ts` file like below:
+
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const NESTIA_CONFIG: INestiaConfig = {
+    input: "src/controllers",
+    output: "src/api",
+    swagger: {
+        output: "dist/swagger.json",
+        security: {
+            bearer: {
+                type: "apiKey",
+            },
+        },
+    },
+};
+export default NESTIA_CONFIG;
+```
+
+Once you've finished configuring the directory structure, `tsconfig.api.json` and `nestia.config.ts` files, all you need to do is publish the SDK library as an NPM module. Compile SDK module, move to `packages/api` directory, and do publish it.
+
+Note that, as the newly generated SDK library requires `@nestia/fetcher`, you've to add it dependency through `npm install --save @nestia/fetcher` like below.
+
+```bash copy showLineNumbers
+npx nestia sdk
+npx tsc -p tsconfig.api.json
+
+cd packages/api
+npm install --save @nestia/fetcher
+npm publish
+```

@@ -19,16 +19,5 @@
         "title": "E2E Test",
         "hidden": true,
         "display": "hidden"
-    },
-
-    "-- appendix": {
-        "type": "separator",
-        "title": "🔗 Appendix"
-    },
-    "related": "Related Projects",
-    "examples": {
-        "title": "Learn from Examples",
-        "href": "/examples",
-        "newWindow": "false"
     }
 }

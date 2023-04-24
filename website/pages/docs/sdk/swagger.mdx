@@ -246,6 +246,13 @@ export interface INestiaConfig {
      * ```
      */
     compilerOptions?: StripEnums<ts.CompilerOptions>;
+
+    /**
+     * Output directory that SDK would be placed in.
+     *
+     * If not configured, you can't build the SDK library.
+     */
+    output?: string;
 }
 export namespace INestiaConfig {
     /**
@@ -312,7 +319,7 @@ Make `nestia.config.ts` file and run `npx nestia swagger` command.
 
 At first, create `nestia.config.ts` file. It must be placed on the top level directory of your NestJS backend project. For reference, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
 
-When you've completed above configure, just run `npx nestia swagger` command. Then, `swagger.json` file would be newly generated, and placed into the `$input.swagger.output` directory following your `nestia.config.ts` configuration.
+When you've completed above configuration, just run `npx nestia swagger` command. Then, `swagger.json` file would be newly generated, and placed into the `$config.swagger.output` directory following your `nestia.config.ts` option.
 
 By the way, if your controller files are separated into multiple directories, you can choose two options. First is listing up every directories, and second is using regex expression. Also, you can exclude some special directories or files using `exclude` option. Of course, you can mix all of these options like below:
 
