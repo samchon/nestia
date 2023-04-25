@@ -71,7 +71,7 @@ const config: DocsThemeConfig = {
         },
         {
           property: "og:description",
-          content: "Superfast Runtime Validator with only one line"
+          content: "NestJS Helper Libraries"
         },
         {
           property: "og:site_name",
@@ -81,6 +81,26 @@ const config: DocsThemeConfig = {
           property: "og:url",
           content: "https://nestia.io"
         },
+        {
+          name: "twitter:card",
+          content: "summary"
+        },
+        {
+          name: "twitter:image",
+          content: "https://nestia.io/og.jpg"
+        },
+        {
+          name: "twitter:title",
+          content: "Nestia Guide Documents"
+        },
+        {
+          name: "twitter:description",
+          content: "NestJS Helper Libraries"
+        },
+        {
+          name: "twitter:site",
+          content: "@SamchonGithub"
+        }
       ]
     }
   },

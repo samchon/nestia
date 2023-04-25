@@ -27,44 +27,73 @@ Also, `@TypedBody()` is much more easier to use than `class-validator`, because 
     defaultIndex={1}>
     <Tab>
 ```typescript copy filename="IBbsArticle.ts" showLineNumbers
-import { IAttachmentFile } from "./IAttachmentFile";
+export interface IBbsArticle extends IBbsArticle.IStore {
+    /**
+     * @format uuid
+     */
+    id: string;
 
+    /**
+     * @format date-time
+     */
+    created_at: string;
+}
 export namespace IBbsArticle {
-    export interface IUpdate {
+    export interface IStore {
         /** 
          * @minLength 3
          * @maxLength 50
          */
         title: string;
         body: string;
-        files: IAttachmentFile.IStore[];
+        files: IAttachmentFile[];
     }
+}
+
+export interface IAttachmentFile {
+    /**
+     * @minLengt 1
+     * @maxLength 255
+     */
+    name: string | null;
+
+    /**
+     * @minLength 1
+     * @maxLength 8
+     */
+    extension: string | null;
+    
+    /**
+     * @format url
+     */
+    url: string;
 }
 ```
     </Tab>
     <Tab>
-```typescript copy filename="BbsArticlesController.ts" showLineNumbers {14}
-import { TypedBody, TypedParam } from "@nestia/core";
-import { Controller, Post } from "@nestjs/common";
+```typescript copy filename="BbsArticlesController.ts" showLineNumbers {10}
+import { TypedBody, TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
 
 import { IBbsArticle } from "./IBbsArticle";
 
 @Controller("bbs/articles")
 export class BbsArticlesController {
-    /**
-     * Update article.
-     */
-    @Post()
-    public async update(
-        @TypedParam("id", "uuid") id: string,
-        @TypedBody() input: IBbsArticle.IUpdate,
-    ): Promise<void> {}
+    @TypedRoute.Post()
+    public async store(
+        @TypedBody() input: IBbsArticle.IStore
+    ): Promise<IBbsArticle> {
+        return {
+            ...input,
+            id: "2b5e21d8-0e44-4482-bd3e-4540dee7f3d6",
+            created_at: "2023-04-23T12:04:54.168Z",
+        }
+    }
 }
 ```
     </Tab>
     <Tab>
-```javascript filename="BbsArticlesController.js" showLineNumbers {39-96}
-"use strict";
+```javascript filename="BbsArticlesController.js" showLineNumbers {140-221}
 "use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -92,23 +121,129 @@ exports.BbsArticlesController = void 0;
 const core_1 = require("@nestia/core");
 const common_1 = require("@nestjs/common");
 let BbsArticlesController = class BbsArticlesController {
-    /**
-     * Update article.
-     */
-    update(id, input) {
-        return __awaiter(this, void 0, void 0, function* () { });
+    store(input) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Object.assign(Object.assign({}, input), { id: "2b5e21d8-0e44-4482-bd3e-4540dee7f3d6", created_at: "2023-04-23T12:04:54.168Z" });
+        });
     }
 };
 __decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, core_1.TypedParam)("id", "uuid")),
-    __param(1, (0, core_1.TypedBody)({ 
+    core_1.TypedRoute.Post({ type: "assert", assert: input => { const assert = input => {
+            const __is = input => {
+                const $is_uuid = core_1.TypedRoute.Post.is_uuid;
+                const $is_datetime = core_1.TypedRoute.Post.is_datetime;
+                const $is_custom = core_1.TypedRoute.Post.is_custom;
+                const $is_url = core_1.TypedRoute.Post.is_url;
+                const $io0 = input => "string" === typeof input.id && $is_uuid(input.id) && ("string" === typeof input.created_at && $is_datetime(input.created_at)) && ("string" === typeof input.title && 3 <= input.title.length && 50 >= input.title.length) && "string" === typeof input.body && (Array.isArray(input.files) && input.files.every(elem => "object" === typeof elem && null !== elem && $io1(elem)));
+                const $io1 = input => (null === input.name || "string" === typeof input.name && 255 >= input.name.length && $is_custom("minLengt", "string", "1", input.name)) && (null === input.extension || "string" === typeof input.extension && 1 <= input.extension.length && 8 >= input.extension.length) && ("string" === typeof input.url && $is_url(input.url));
+                return "object" === typeof input && null !== input && $io0(input);
+            };
+            if (false === __is(input))
+                ((input, _path, _exceptionable = true) => {
+                    const $ao0 = (input, _path, _exceptionable = true) => ("string" === typeof input.id && ($is_uuid(input.id) || $guard(_exceptionable, {
+                        path: _path + ".id",
+                        expected: "string (@format uuid)",
+                        value: input.id
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".id",
+                        expected: "string",
+                        value: input.id
+                    })) && ("string" === typeof input.created_at && ($is_datetime(input.created_at) || $guard(_exceptionable, {
+                        path: _path + ".created_at",
+                        expected: "string (@format datetime)",
+                        value: input.created_at
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".created_at",
+                        expected: "string",
+                        value: input.created_at
+                    })) && ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string (@minLength 3)",
+                        value: input.title
+                    })) && (50 >= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string (@maxLength 50)",
+                        value: input.title
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string",
+                        value: input.title
+                    })) && ("string" === typeof input.body || $guard(_exceptionable, {
+                        path: _path + ".body",
+                        expected: "string",
+                        value: input.body
+                    })) && ((Array.isArray(input.files) || $guard(_exceptionable, {
+                        path: _path + ".files",
+                        expected: "Array<IAttachmentFile>",
+                        value: input.files
+                    })) && input.files.every((elem, _index1) => ("object" === typeof elem && null !== elem || $guard(_exceptionable, {
+                        path: _path + ".files[" + _index1 + "]",
+                        expected: "IAttachmentFile",
+                        value: elem
+                    })) && $ao1(elem, _path + ".files[" + _index1 + "]", true && _exceptionable)));
+                    const $ao1 = (input, _path, _exceptionable = true) => (null === input.name || "string" === typeof input.name && (255 >= input.name.length || $guard(_exceptionable, {
+                        path: _path + ".name",
+                        expected: "string (@maxLength 255)",
+                        value: input.name
+                    })) && ($is_custom("minLengt", "string", "1", input.name) || $guard(_exceptionable, {
+                        path: _path + ".name",
+                        expected: "string (@minLengt 1)",
+                        value: input.name
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".name",
+                        expected: "(null | string)",
+                        value: input.name
+                    })) && (null === input.extension || "string" === typeof input.extension && (1 <= input.extension.length || $guard(_exceptionable, {
+                        path: _path + ".extension",
+                        expected: "string (@minLength 1)",
+                        value: input.extension
+                    })) && (8 >= input.extension.length || $guard(_exceptionable, {
+                        path: _path + ".extension",
+                        expected: "string (@maxLength 8)",
+                        value: input.extension
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".extension",
+                        expected: "(null | string)",
+                        value: input.extension
+                    })) && ("string" === typeof input.url && ($is_url(input.url) || $guard(_exceptionable, {
+                        path: _path + ".url",
+                        expected: "string (@format url)",
+                        value: input.url
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".url",
+                        expected: "string",
+                        value: input.url
+                    }));
+                    return ("object" === typeof input && null !== input || $guard(true, {
+                        path: _path + "",
+                        expected: "IBbsArticle",
+                        value: input
+                    })) && $ao0(input, _path + "", true);
+                })(input, "$input", true);
+            return input;
+        }; const stringify = input => {
+            const $string = core_1.TypedRoute.Post.string;
+            const $is_uuid = core_1.TypedRoute.Post.is_uuid;
+            const $is_datetime = core_1.TypedRoute.Post.is_datetime;
+            const $is_custom = core_1.TypedRoute.Post.is_custom;
+            const $is_url = core_1.TypedRoute.Post.is_url;
+            const $io1 = input => (null === input.name || "string" === typeof input.name && 255 >= input.name.length && $is_custom("minLengt", "string", "1", input.name)) && (null === input.extension || "string" === typeof input.extension && 1 <= input.extension.length && 8 >= input.extension.length) && ("string" === typeof input.url && $is_url(input.url));
+            const $so0 = input => `{"id":${"\"" + input.id + "\""},"created_at":${"\"" + input.created_at + "\""},"title":${$string(input.title)},"body":${$string(input.body)},"files":${`[${input.files.map(elem => $so1(elem)).join(",")}]`}}`;
+            const $so1 = input => `{"name":${null !== input.name ? $string(input.name) : "null"},"extension":${null !== input.extension ? $string(input.extension) : "null"},"url":${"\"" + input.url + "\""}}`;
+            return $so0(input);
+        }; return stringify(assert(input)); } 
+    }),
+    __param(0, (0, core_1.TypedBody)({ 
         type: "assert", 
         assert: input => {
             const $guard = core_1.TypedBody.guard;
+            const $is_custom = core_1.TypedBody.is_custom;
+            const $is_url = core_1.TypedBody.is_url;
             const __is = input => {
+                const $is_custom = core_1.TypedBody.is_custom;
+                const $is_url = core_1.TypedBody.is_url;
                 const $io0 = input => "string" === typeof input.title && 3 <= input.title.length && 50 >= input.title.length && "string" === typeof input.body && (Array.isArray(input.files) && input.files.every(elem => "object" === typeof elem && null !== elem && $io1(elem)));
-                const $io1 = input => (null === input.name || "string" === typeof input.name) && (null === input.extension || "string" === typeof input.extension) && "string" === typeof input.url;
+                const $io1 = input => (null === input.name || "string" === typeof input.name && 255 >= input.name.length && $is_custom("minLengt", "string", "1", input.name)) && (null === input.extension || "string" === typeof input.extension && 1 <= input.extension.length && 8 >= input.extension.length) && ("string" === typeof input.url && $is_url(input.url));
                 return "object" === typeof input && null !== input && $io0(input);
             };
             if (false === __is(input))
@@ -131,29 +266,49 @@ __decorate([
                         value: input.body
                     })) && ((Array.isArray(input.files) || $guard(_exceptionable, {
                         path: _path + ".files",
-                        expected: "Array<Resolve<IAttachmentFile.IStore>>",
+                        expected: "Array<IAttachmentFile>",
                         value: input.files
                     })) && input.files.every((elem, _index1) => ("object" === typeof elem && null !== elem || $guard(_exceptionable, {
                         path: _path + ".files[" + _index1 + "]",
-                        expected: "Resolve<IAttachmentFile.IStore>",
+                        expected: "IAttachmentFile",
                         value: elem
                     })) && $ao1(elem, _path + ".files[" + _index1 + "]", true && _exceptionable)));
-                    const $ao1 = (input, _path, _exceptionable = true) => (null === input.name || "string" === typeof input.name || $guard(_exceptionable, {
+                    const $ao1 = (input, _path, _exceptionable = true) => (null === input.name || "string" === typeof input.name && (255 >= input.name.length || $guard(_exceptionable, {
+                        path: _path + ".name",
+                        expected: "string (@maxLength 255)",
+                        value: input.name
+                    })) && ($is_custom("minLengt", "string", "1", input.name) || $guard(_exceptionable, {
+                        path: _path + ".name",
+                        expected: "string (@minLengt 1)",
+                        value: input.name
+                    })) || $guard(_exceptionable, {
                         path: _path + ".name",
                         expected: "(null | string)",
                         value: input.name
-                    })) && (null === input.extension || "string" === typeof input.extension || $guard(_exceptionable, {
+                    })) && (null === input.extension || "string" === typeof input.extension && (1 <= input.extension.length || $guard(_exceptionable, {
+                        path: _path + ".extension",
+                        expected: "string (@minLength 1)",
+                        value: input.extension
+                    })) && (8 >= input.extension.length || $guard(_exceptionable, {
+                        path: _path + ".extension",
+                        expected: "string (@maxLength 8)",
+                        value: input.extension
+                    })) || $guard(_exceptionable, {
                         path: _path + ".extension",
                         expected: "(null | string)",
                         value: input.extension
-                    })) && ("string" === typeof input.url || $guard(_exceptionable, {
+                    })) && ("string" === typeof input.url && ($is_url(input.url) || $guard(_exceptionable, {
+                        path: _path + ".url",
+                        expected: "string (@format url)",
+                        value: input.url
+                    })) || $guard(_exceptionable, {
                         path: _path + ".url",
                         expected: "string",
                         value: input.url
                     }));
                     return ("object" === typeof input && null !== input || $guard(true, {
                         path: _path + "",
-                        expected: "Resolve<IBbsArticle.IUpdate>",
+                        expected: "IBbsArticle.IStore",
                         value: input
                     })) && $ao0(input, _path + "", true);
                 })(input, "$input", true);
@@ -161,9 +316,9 @@ __decorate([
         } 
     })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], BbsArticlesController.prototype, "update", null);
+], BbsArticlesController.prototype, "store", null);
 BbsArticlesController = __decorate([
     (0, common_1.Controller)("bbs/articles")
 ], BbsArticlesController);
@@ -181,10 +336,100 @@ Such optimization is called AOT (Ahead of Time) compilation, and it is the secre
 
 
 
+## Comment Tags
+You can enhance validation logic, of `@TypedBody()`, through comment tags.
+
+You know what? `@TypedBody()` utilizes [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function for request body data validation, and the [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function supports additional type checking logics through comment tags. For reference, the "Comment Tag" means a comment starting from `@` symbol. It follows `@${name} ${value}` format, and you can add multiple comment tags per each property.
+
+With those comment tags, you can add additional validation logics. If you want to add a custom validation logic, you also can do it. Read below Guide Docments of [typia](https://typia.io), and see the example code. You may understand how to utilize such comment tags, in a few minutes.
+
+  - [**`typia` > Validators > Comment Tags**](https://typia.io/docs/validators/comment-tags/)
+    - [Outline](/docs/validators/comment-tags/#outline)
+    - [Supported Tags](/docs/validators/comment-tags/#supported-tags)
+    - [Customization](/docs/validators/comment-tags/#customization)
+
+<Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
+    <Tab>
+```typescript copy filename="examples/src/is-comment-tags.ts" showLineNumbers {3}
+import typia from "typia";
+
+export const checkCommentTag = typia.createIs<CommentTag>();
+
+interface CommentTag {
+    /**
+     * @type int
+     */
+    type: number;
+
+    /**
+     * @exclusiveMinimum 19
+     * @maximum 100
+     */
+    number?: number;
+
+    /**
+     * @minLength 3
+     */
+    string: string;
+
+    /**
+     * @pattern ^[a-z]+$
+     */
+    pattern: string;
+
+    /**
+     * @format date-time
+     */
+    format: string | null;
+
+    /**
+     * In the Array case, possible to restrict its elements.
+     *
+     * @minItems 3
+     * @maxItems 100
+     * @format uuid
+     */
+    array: string[];
+}
+```
+    </Tab>
+    <Tab>
+```javascript filename="examples/bin/is-comment-tags.js" showLineNumbers {3-24}
+import typia from "typia";
+
+export const checkCommentTag = (input) => {
+    const $is_datetime = typia.createIs.is_datetime;
+    const $is_uuid = typia.createIs.is_uuid;
+    const $io0 = (input) =>
+        "number" === typeof input.type &&
+        parseInt(input.type) === input.type &&
+        (undefined === input.number ||
+            ("number" === typeof input.number &&
+                19 < input.number &&
+                100 >= input.number)) &&
+        "string" === typeof input.string &&
+        3 <= input.string.length &&
+        "string" === typeof input.pattern &&
+        RegExp(/^[a-z]+$/).test(input.pattern) &&
+        (null === input.format ||
+            ("string" === typeof input.format && $is_datetime(input.format))) &&
+        Array.isArray(input.array) &&
+        3 <= input.array.length &&
+        100 >= input.array.length &&
+        input.array.every((elem) => "string" === typeof elem && $is_uuid(elem));
+    return "object" === typeof input && null !== input && $io0(input);
+};
+```
+    </Tab>
+</Tabs>
+
+
+
+
 ## Benchmark
 Super-fast and super-safe.
 
-`Netia` utilizes [typia](https://typia.io/docs/), and `NestJS` uses `class-validator`. One thing amazing is, `typia` is maximum 20,000x faster than `class-validator` of `NestJS`. Color of `class-transformer` is skyblue, and can you find the skyblue color in the below benchmark graph? It may hard to find because `class-validator` is extremely slow.
+`Nestia` utilizes [typia](https://typia.io/docs/), and `NestJS` uses `class-validator`. One thing amazing is, `typia` is maximum 20,000x faster than `class-validator` of `NestJS`. Color of `class-transformer` is skyblue, and can you find the skyblue color in the below benchmark graph? It may hard to find because `class-validator` is extremely slow.
 
 ![Assert Function Benchmark](https://github.com/samchon/typia/raw/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/assert.svg)
 

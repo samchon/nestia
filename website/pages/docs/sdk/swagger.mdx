@@ -1,6 +1,6 @@
 import { Tabs, Tab } from 'nextra-theme-docs'
 
-# Swagger Generation
+# Swagger Documents
 ## Outline
 <Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
     <Tab>
@@ -478,7 +478,11 @@ export class SomeController {
 ### DTO Properties
 When declaring DTO, you can restrict property type through comment tags.
 
-Below list is every supported features in `@nestia/sdk`.
+You know what? `swagger.json` provides special DTO properties restricting the value type. For example, when declaring a `number` type in `swagger.json` through JSON schema definition, you can limit the numeric value range through `minimum` and `maximum` properties.
+
+In `@nestia/sdk`, you can configure such properties through comment tags, starting with `@` symbol. Also, such comment tags on DTO properties can be used to enhance validation logic by [`@TypedBody.${method}()`](../core/TypedBody#comment-tags), [`@TypedRoute()`](../core/TypedRoute#comment-tags) and [`@TypedQuery()`](../core/TypedQuery#comment-tags) functions.
+
+If it is hard to understand, just look at the example code below. You may understand in a few minutes.
 
   - number
     - `@type {"int"|"uint"}`
@@ -595,6 +599,9 @@ export interface IBbsArticle {
     </Tab>
 </Tabs>
 
+> https://swagger.io/docs/specification/data-models/data-types/
+>
+> This content would be helpful when reading `swagger.json` content
 
 
 

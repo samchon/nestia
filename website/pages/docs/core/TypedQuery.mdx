@@ -14,12 +14,12 @@ It's almost same with original `@Query()` function of `NestJS`, but `@TypedQuery
 
 While `NestJS` does not support query type validation, `@TypedQuery()` validates the request query type and throws 400 bad request error when mismatched. Also, while `NestJS` does not support property type (`@Query()` only supports `string` typed properties), `@TypedQuery()` can define variable property types like `number` or `boolean`.
 
-<Callout type="info">
+<Callout type="warning">
 **What the query parameter is?**
 
 This is the query parameter!
 
-  - `name=Samchon&age=20&sex=male
+  - `name=Samchon&age=20&sex=male`
 </Callout>
 
 
@@ -29,20 +29,60 @@ This is the query parameter!
 ## How to use
 <Tabs 
     items={[
-        <code>IPage.ts</code>, 
         <code>IBbsArticle.ts</code>, 
+        <code>IPage.ts</code>, 
         <code>BbsArticlesController.ts</code>, 
         'Compiled JavaScript File'
     ]}
     defaultIndex={2}
 >
     <Tab>
-```typescript copy filename="IPage.ts" showLineNumbers
+```typescript copy filename="IBbsArticle.ts" showLineNumbers
+export namespace IBbsArticle {
+    export interface ISummary {
+        /**
+         * @format uuid
+         */
+        id: string;
+
+        writer: string;
+
+        /** 
+         * @minLength 3
+         * @maxLength 50
+         */
+        title: string;
+
+        /**
+         * @format date-time
+         */
+        created_at: string;
+    }
+}
+```
+    </Tab>
+    <Tab>
+```typescript copy filename="IPage.ts" showLineNumbers {6-19}
 export interface IPage<T> {
     data: T[];
     pagination: IPage.IPagination;
 }
 export namespace IPage {
+    /**
+     * Page request data
+     */
+    export interface IRequest {
+        /**
+         * @type uint
+         */
+        page?: number;
+
+        /**
+         * @type uint
+         */
+        limit?: number;
+    }
+
     /**
      * Page information.
      */
@@ -66,43 +106,6 @@ export namespace IPage {
          * @type uint
          */
         pages: number;
-    }
-
-    /**
-     * Page request data
-     */
-    export interface IRequest {
-        /**
-         * @type uint
-         */
-        page?: number;
-
-        /**
-         * @type uint
-         */
-        limit?: number;
-    }
-}
-```
-    </Tab>
-    <Tab>
-```typescript copy filename="IBbsArticle.ts" showLineNumbers
-export namespace IBbsArticle {
-    export interface ISummary {
-        /**
-         * @format uuid
-         */
-        id: string;
-        writer: string;
-        /** 
-         * @minLength 3
-         * @maxLength 50
-         */
-        title: string;
-        /**
-         * @format date-time
-         */
-        created_at: string;
     }
 }
 ```
@@ -371,6 +374,97 @@ Just call `@TypedQuery()` function on the query parameter, that's all.
 `Nestia` will analyze your type (`IPage.IRequest`), and writes optimal code for the target type, in the compilation level. If you click the "Compiled JavaScript" file tab of above and fine enhanced lines by blue lines, you can see the optimal parsing and validation code.
 
 Such optimization is called AOT (Ahead of Time) compilation, and it is the secret of `@TypedQuery`.
+
+
+
+
+## Comment Tags
+You can enhance validation logic, of `@TypedQuery()`, through comment tags.
+
+You know what? `@TypedQuery()` utilizes [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function for query data validation, and the [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function supports additional type checking logics through comment tags. For reference, the "Comment Tag" means a comment starting from `@` symbol. It follows `@${name} ${value}` format, and you can add multiple comment tags per each property.
+
+With those comment tags, you can add additional validation logics. If you want to add a custom validation logic, you also can do it. Read below Guide Docments of [typia](https://typia.io), and see the example code. You may understand how to utilize such comment tags, in a few minutes.
+
+  - [**`typia` > Validators > Comment Tags**](https://typia.io/docs/validators/comment-tags/)
+    - [Outline](/docs/validators/comment-tags/#outline)
+    - [Supported Tags](/docs/validators/comment-tags/#supported-tags)
+    - [Customization](/docs/validators/comment-tags/#customization)
+
+<Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
+    <Tab>
+```typescript copy filename="examples/src/is-comment-tags.ts" showLineNumbers {3}
+import typia from "typia";
+
+export const checkCommentTag = typia.createIs<CommentTag>();
+
+interface CommentTag {
+    /**
+     * @type int
+     */
+    type: number;
+
+    /**
+     * @exclusiveMinimum 19
+     * @maximum 100
+     */
+    number?: number;
+
+    /**
+     * @minLength 3
+     */
+    string: string;
+
+    /**
+     * @pattern ^[a-z]+$
+     */
+    pattern: string;
+
+    /**
+     * @format date-time
+     */
+    format: string | null;
+
+    /**
+     * In the Array case, possible to restrict its elements.
+     *
+     * @minItems 3
+     * @maxItems 100
+     * @format uuid
+     */
+    array: string[];
+}
+```
+    </Tab>
+    <Tab>
+```javascript filename="examples/bin/is-comment-tags.js" showLineNumbers {3-24}
+import typia from "typia";
+
+export const checkCommentTag = (input) => {
+    const $is_datetime = typia.createIs.is_datetime;
+    const $is_uuid = typia.createIs.is_uuid;
+    const $io0 = (input) =>
+        "number" === typeof input.type &&
+        parseInt(input.type) === input.type &&
+        (undefined === input.number ||
+            ("number" === typeof input.number &&
+                19 < input.number &&
+                100 >= input.number)) &&
+        "string" === typeof input.string &&
+        3 <= input.string.length &&
+        "string" === typeof input.pattern &&
+        RegExp(/^[a-z]+$/).test(input.pattern) &&
+        (null === input.format ||
+            ("string" === typeof input.format && $is_datetime(input.format))) &&
+        Array.isArray(input.array) &&
+        3 <= input.array.length &&
+        100 >= input.array.length &&
+        input.array.every((elem) => "string" === typeof elem && $is_uuid(elem));
+    return "object" === typeof input && null !== input && $io0(input);
+};
+```
+    </Tab>
+</Tabs>
+
 
 
 
