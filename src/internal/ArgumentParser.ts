@@ -103,12 +103,14 @@ export namespace ArgumentParser {
 }
 
 const COMPILER_DESCRIPTION = [
-    `About compiler, if you adapt "ttypescript", you should use "ttsc" instead.`,
+    `Since Typescript tsc compiler doesn't support transformers we have to use alternative complier which support the feature.`,
     ``,
-    `Otherwise, you choose "ts-patch", you can use the original "tsc" command.`,
-    `However, the "ts-patch" hacks "node_modules/typescript" source code.`,
-    `Also, whenever update "typescript", you've to run "npm run prepare" command.`,
+    `If you choose "ttypescript", use "ttsc" command to compile your code.`,
     ``,
-    `By the way, when using "@nest/cli", you must just choose "ts-patch".`,
+    `Otherwise, you can choose "ts-patch" and keep the original "tsc" command.`,
+    `But keep in mind that "ts-patch" hacks node_modules/typescript source code to implement the feature.`,
+    `Also, "npm run prepare" must be run after reinstalling or updating the "typescript" package.`,
+    ``,
+    `"ts-patch" is recommended if you are using "@nest/cli".`,
     ``,
 ].join("\n");
