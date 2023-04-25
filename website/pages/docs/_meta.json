@@ -1,0 +1,23 @@
+{
+    "index": "🙋🏻‍♂️ Introduction",
+    "setup": "🛠 Setup",
+
+    "-- features": {
+        "type": "separator",
+        "title": "📖 Features"
+    },
+    "core": "Core Library",
+    "sdk": "SDK/Swagger Generator",
+    "migrate": {
+        "type": "page",
+        "title": "Swagger to NestJS",
+        "hidden": true,
+        "display": "hidden"
+    },
+    "e2e": {
+        "type": "page",
+        "title": "E2E Test",
+        "hidden": true,
+        "display": "hidden"
+    }
+}

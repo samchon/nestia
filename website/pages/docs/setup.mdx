@@ -1,0 +1,81 @@
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import Stack from '@mui/material/Stack';
+
+# Setup
+## Boilerplate
+```bash
+npx nestia start <directory>
+```
+
+Just run above `npx nestia start <directory>` command.
+
+Boilerplate would be automatically constructed in the `<directory>`.
+
+
+
+
+## Setup Wizard
+```bash
+npm install --save-dev nestia
+npx nestia seutp
+```
+
+Just run above `npx nestia setup` command.
+
+Setup Wizard will install and configure everything automatically.
+
+
+
+
+## Manual Setup
+```bash
+# COMPILERS
+npm install --save-dev typescript
+npm install --save-dev ts-node
+npm install --save-dev ts-patch
+
+# NESTIA
+npm install --save-dev nestia
+npm install --save-dev @nestia/sdk
+npm install --save @nestia/core
+```
+
+If you want to install `nestia` manually, you have to install `ts-node` and `ts-patch` modules as well as `typescript`. After installing those compilers, install `nestia` libraries like above.
+
+```json fileName="tsconfig.json"
+{
+    "strict": true,
+    "compilerOptions": {
+        "plugins": [
+            { "transform": "@nestia/core/lib/transform" },
+            { "transform": "typia/lib/transform" }
+        ]
+    }
+}
+```
+
+After that, configure `tsconfig.json` file like above.
+
+As `@nestia/core` and `typia` are generating optimal validation and JSON serialization code through [transformation](https://typia.io/docs/setup/#transformation), you've to configure them as `plugins`. 
+
+Also, never forget to configure `strict` as `true`. It is essential option for modern TypeScript development.
+
+```json fileName="package.json"
+{
+    "scripts": {
+        "prepare": "ts-patch install"
+    }
+}
+```
+
+At last, configure `npm run prepare` command like above. 
+
+Of course, you've to run the `npm run prepare` command after configuration.
+
+<br/>
+<Stack>
+    <Alert severity="warning">
+If manual setup is difficult, just use the [Setup Wizard](#setup-wizard).
+    </Alert>
+</Stack>

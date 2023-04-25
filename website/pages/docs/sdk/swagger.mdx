@@ -1,0 +1,659 @@
+import { Tabs, Tab } from 'nextra-theme-docs'
+
+# Swagger Documents
+## Outline
+<Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: "src/controllers",
+    swagger: {
+        output: "dist/swagger.json",
+        security: {
+            bearer: {
+                type: "apiKey",
+                name: "Authorization",
+                in: "header",
+            },
+        },
+    }
+};
+export default config;
+```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" showLineNumbers {}
+npx nestia swagger
+```
+    </Tab>
+</Tabs>
+
+Configure [`nestia.config.ts`](#nestiaconfigts) file and run `npx nestia swagger` command.
+
+Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate `swagger.json` file.
+
+For reference, `@nestia/sdk` is much easier than `@nestjs/swagger`, because `@nestia/sdk` can utilize pure TypeScript type as DTO. Otherwise, `@nestjs/swagger` needs complicate and duplicate schema definition. Look at the below example DTO definitions, and feel how `@nestia/sdk` is much convenient and evolved than ever.
+
+<Tabs items={[
+    "Evolved Nestia DTO",
+    "Legacy NestJS DTO",
+]}>
+    <Tab>
+```typescript filename="IBbsArticle.ts" showLineNumbers
+export interface IBbsArticle {
+    /**
+     * Primary Key.
+     * 
+     * @format uuid
+     */
+    id: string;
+
+    /**
+     * List of attached files.
+     */
+    files: IAttachmentFile[] | null;
+
+    /**
+     * Title of the article.
+     * 
+     * @minLength 5
+     * @maxLength 100
+     */
+    title: string | null;
+
+    /**
+     * Main content body of the article.
+     */
+    body: string;
+
+    /**
+     * Creation time of article.
+     * 
+     * @format date-time
+     */
+    created_at: string;
+}
+
+export interface IAttachmentFile {
+    /**
+     * File name.
+     * 
+     * @pattern ^[a-z0-9]+$
+     * @maxLength 255
+     */
+    name: string | null;
+
+    /**
+     * File extension.
+     * 
+     * @pattern ^[a-z0-9]+$
+     * @maxLength 8
+     */
+    extension: string | null;
+
+    /**
+     * URL of the file.
+     * 
+     * @format uri
+     */
+    url: string;
+}
+```
+    </Tab>
+    <Tab>
+```typescript filename="BbsArticle.ts" showLineNumbers
+export class BbsArticle {
+    @ApiProperty({
+        format: "uuid",
+    })
+    id!: string;
+
+    // DUPLICATED SCHEMA DEFINITION
+    // - duplicated function call + property type
+    // - have to specify `isArray` and `nullable` props by yourself
+    @ApiProperty({
+        type: () => AttachmentFile,
+        nullable: true,
+        isArray: true,
+        description: "List of attached files.",
+    })
+    files!: AttachmentFile[] | null;
+
+    @ApiProperty({
+        type: "string",
+        nullable: true,
+        minLength: 5,
+        maxLength: 100,
+        description: "Title of the article.",
+    })
+    title!: string | null;
+
+    @ApiProperty({
+        description: "Main content body of the article."
+    })
+    body!: string;
+
+    @ApiProperty({
+        format: "date-time",
+        description: "Creation time of article",
+    })
+    created_at!: string;
+}
+
+export class AttachmentFile {
+    @ApiProperty({
+        type: "string",
+        nullable: true,
+        maxLength: 255,
+        pattern: "^[a-zA-Z0-9-_]+$",
+        description: "File name.",
+    })
+    name!: string | null;
+
+    @ApiProperty({
+        type: "string",
+        nullable: true,
+        maxLength: 255,
+        pattern: "^[a-zA-Z0-9-_]+$",
+        description: "File extension.",
+    })
+    extension!: string | null;
+
+    @ApiProperty({
+        format: "url",
+        description: "URL of the file.",
+    })
+    url!: string;
+}
+```
+    </Tab>
+</Tabs>
+
+
+
+
+## Configuration
+### `nestia.config.ts`
+<Tabs items={[
+    <code>nestia.config.ts</code>, 
+    <code>INestiaConfig.ts</code>
+]}>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: "src/controllers",
+    swagger: {
+        output: "dist/swagger.json",
+        security: {
+            bearer: {
+                type: "apiKey",
+                name: "Authorization",
+                in: "header",
+            },
+        },
+    }
+};
+export default config;
+```
+    </Tab>
+    <Tab>
+```typescript filename="INestiaConfig.ts" showLineNumbers
+import ts from "typescript";
+
+import { ISwaggerDocument } from "./structures/ISwaggerDocument";
+import type { StripEnums } from "./utils/StripEnums";
+
+/**
+ * Definition for the `nestia.config.ts` file.
+ *
+ * @author Jeongho Nam - https://github.com/samchon
+ */
+export interface INestiaConfig {
+    /**
+     * List of files or directories containing the NestJS controller classes.
+     */
+    input: string | string[] | INestiaConfig.IInput;
+
+    /**
+     * Building `swagger.json` is also possible.
+     *
+     * If not specified, you can't build the `swagger.json`.
+     */
+    swagger?: INestiaConfig.ISwaggerConfig;
+
+    /**
+     * Compiler options for the TypeScript.
+     *
+     * If you've omitted this property or the assigned property cannot fully cover the
+     * `tsconfig.json`, the properties from the `tsconfig.json` would be assigned to here.
+     * Otherwise, this property has been configured and it's detailed values are different
+     * with the `tsconfig.json`, this property values would be used instead.
+     *
+     * ```typescript
+     * import ts from "typescript";
+     *
+     * const tsconfig: ts.TsConfig;
+     * const nestiaConfig: IConfiguration;
+     *
+     * const compilerOptions: ts.CompilerOptions = {
+     *     ...tsconfig.compilerOptions,
+     *     ...(nestiaConfig.compilerOptions || {})
+     * }
+     * ```
+     */
+    compilerOptions?: StripEnums<ts.CompilerOptions>;
+
+    /**
+     * Output directory that SDK would be placed in.
+     *
+     * If not configured, you can't build the SDK library.
+     */
+    output?: string;
+}
+export namespace INestiaConfig {
+    /**
+     * List of files or directories to include or exclude to specifying the NestJS
+     * controllers.
+     */
+    export interface IInput {
+        /**
+         * List of files or directories containing the NestJS controller classes.
+         */
+        include: string[];
+
+        /**
+         * List of files or directories to be excluded.
+         */
+        exclude?: string[];
+    }
+
+    /**
+     * Building `swagger.json` is also possible.
+     */
+    export interface ISwaggerConfig {
+        /**
+         * Output path of the `swagger.json`.
+         *
+         * If you've configured only directory, the file name would be the `swagger.json`.
+         * Otherwise you've configured the full path with file name and extension, the
+         * `swagger.json` file would be renamed to it.
+         */
+        output: string;
+
+        /**
+         * Security schemes.
+         */
+        security?: Record<string, ISwaggerConfig.ISecurityScheme>;
+    }
+    export namespace ISwaggerConfig {
+        export type ISecurityScheme =
+            | IApiKey
+            | Exclude<
+                  ISwaggerDocument.ISecurityScheme,
+                  ISwaggerDocument.ISecurityScheme.IApiKey
+              >;
+        export interface IApiKey {
+            type: "apiKey";
+
+            /**
+             * @default header
+             */
+            in?: "header" | "query" | "cookie";
+
+            /**
+             * @default Authorization
+             */
+            name?: string;
+        }
+    }
+}
+```
+    </Tab>
+</Tabs>
+
+Make `nestia.config.ts` file and run `npx nestia swagger` command.
+
+At first, create `nestia.config.ts` file. It must be placed on the top level directory of your NestJS backend project. For reference, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
+
+When you've completed above configuration, just run `npx nestia swagger` command. Then, `swagger.json` file would be newly generated, and placed into the `$config.swagger.output` directory following your `nestia.config.ts` option.
+
+By the way, if your controller files are separated into multiple directories, you can choose two options. First is listing up every directories, and second is using regex expression. Also, you can exclude some special directories or files using `exclude` option. Of course, you can mix all of these options like below:
+
+<Tabs items={['List up every directories', 'Use regex pattern', 'Exclude']}>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: [
+        "src/controllers", 
+        "src/fake/controllers", 
+        "src/test/controllers",
+    ],
+    swagger: {
+        output: "dist/swagger.json",
+        security: {
+            bearer: {
+                type: "apiKey",
+                name: "Authorization",
+                in: "header",
+            },
+        },
+    }
+};
+export default config;
+```
+    </Tab>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: "src/**/*.controller.ts",
+    swagger: {
+        output: "dist/swagger.json",
+        security: {
+            bearer: {
+                type: "apiKey",
+                name: "Authorization",
+                in: "header",
+            },
+        },
+    }
+};
+export default config;
+```
+    </Tab>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: {
+        include: ["src/controllers"],
+        exclude: ["src/**/*.fake.ts"],
+    },
+    swagger: {
+        output: "dist/swagger.json",
+        security: {
+            bearer: {
+                type: "apiKey",
+                name: "Authorization",
+                in: "header",
+            },
+        },
+    }
+};
+export default config;
+```
+    </Tab>
+</Tabs>
+
+
+
+
+### Manual CLI
+```bash
+npx nestia swagger <[source_directories_or_patterns]> \
+    --exclude <exclude_directory_or_pattern> \
+    --out <output_path>
+```
+
+Instead of configuring [`nestia.config.ts`](#nestiaconfigts), you can use the CLI command instead.
+
+If your controller files are gathered into one directory, then write like below. About the output path, it does not matter whether directory or file name. Of course, if you write only directory name, then file name of the Swagger Documents would be `swagger.json` as default.
+
+```bash
+npx nestia swagger "src/controllers" --out "./dist"
+npx nestia swagger "src/controllers" --out "./dist/swagger.json"
+```
+
+Otherwise, your controller files are separated in multiple directories, you can choose two options. The 1st is listing up every directories of the controller directories, and the other is using regex pattern like below.
+
+```bash
+npx nestia swagger "src/controllers" "src/appendix/controllers" --out "./dist/swagger.json"
+npx nestia swagger "src/**/*.controller.ts" --out "./dist"
+```
+
+Also, you can exclude some controller classes by specifying `--exclude` argument:
+
+```bash
+npx nestia swagger
+    "src/controllers" \
+    --exclude "src/**/*.fake.ts" \
+    --out "./dist/swagger.json"
+```
+
+
+
+
+## Comment Tags
+### Controller Methods
+Swagger generator `@nestia/sdk` supports three comment tags for controller methods:
+
+  - `@deprecated`: mark as `deprecated`
+  - `@internal`: hide, never be shown
+  - `@tag {name}`: grouppig
+
+At first, `@internal` tag is used to hide the controller method from the Swagger Documents. When you use it, the controller method would not be written in the `swagger.json` file. Otherwise, the `@deprecated` tag is used to mark the controller method as deprecated. When you use it, Swagger Editor will show the deprecated message about the route method like below.
+
+At last, `@tag {name}` tag is used for groupping.
+
+```typescript
+@Controller("some")
+export class SomeController {
+    /**
+     * Would be shown without any mark.
+     * 
+     * @tag public
+     */
+    @Get("public")
+    public public(): void {}
+
+    /**
+     * Would be marked as "deprecated"
+     * 
+     * @tag public
+     */
+    @Get("deprecated")
+    public deprepcated(): void {}
+
+    /**
+     * Would not be shown.
+     * 
+     * @internal
+     */
+    @Get("internal")
+    public internal(): void {}
+}
+```
+
+
+
+
+### DTO Properties
+https://swagger.io/docs/specification/data-models/data-types/
+
+You can utilize comments and comment tags to construct special fields of JSON schema.
+
+If you write any comment on a property, it would fill the `IJsonSchema.description` value. When you write some comment tags starting with `@` symbol, they would be placed into the proper properties of `IJsonSchema`. Below is the list of supported comment tags in the `@nestia/sdk`.
+
+Also, such comment tags of DTO properties can be used to enhance validation logic of `@nestia/core` library. Especially, [`@TypedBody.${method}()`](../core/TypedBody#comment-tags), [`@TypedRoute()`](../core/TypedRoute#comment-tags) and [`@TypedQuery()`](../core/TypedQuery#comment-tags) functions can use same comment tags for additional validation.
+
+Let's see how those comment tags work with example code.
+
+  - common
+    - `@deprecated`
+    - `@title {string}`
+    - `@default {value}`
+  - number
+    - `@type {"int"|"uint"}`
+    - `@minimum {number}`
+    - `@maximum {number}`
+    - `@exclusiveMinimum {number}`
+    - `@exclusiveMaximum {number}`
+    - `@multipleOf {number}`
+  - string
+    - `@minLength {number}`
+    - `@maxLength {number}`
+    - `@pattern {regex}`
+    - `@format {keyword}`
+    - `email`
+    - `uuid`
+    - `ipv4`
+    - `ipv6`
+    - `date`: YYYY-MM-DD
+    - `date-time`: `Date.toISOString()`
+  - array
+    - `@minItems {number}`
+    - `@maxItems {number}`
+
+<Tabs items={[
+    <code>IBbsArticle.ts</code>, 
+    <code>swagger.json</code>
+]}>
+    <Tab>
+```typescript copy filename="CommentTag.ts" showLineNumbers {5, 17-18, 30}
+export interface CommentTag {
+    /**
+     * @title Unsigned integer
+     * @type uint
+     * @deprecated
+     */
+    type: number;
+
+    /**
+     * @exclusiveMinimum 19
+     * @maximum 100
+     * @default 30
+     */
+    number?: number;
+
+    /**
+     * @minLength 3
+     */
+    string: string;
+
+    /**
+     * @pattern ^[a-z]+$
+     */
+    pattern: string;
+
+    /**
+     * @format date-time
+     */
+    format: string | null;
+    
+    /**
+     * In the Array case, possible to restrict its elements.
+     * 
+     * @minItems 3
+     * @maxItems 100
+     * @format uuid
+     */
+    array: string[];
+}
+```
+    </Tab>
+    <Tab>
+```json filename="swagger.json" showLineNumbers {8, 23-24, 35}
+"CommentTag": {
+    "$id": "components#/schemas/CommentTag",
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "integer",
+            "nullable": false,
+            "deprecated": true,
+            "title": "Unsigned integer",
+            "minimum": 0,
+        },
+        "number": {
+            "type": "number",
+            "nullable": false,
+            "minimum": 19,
+            "exclusiveMinimum": true,
+            "maximum": 100,
+            "default": 30,
+        },
+        "string": {
+            "type": "string",
+            "nullable": false,
+            "minLength": 3,
+        },
+        "pattern": {
+            "type": "string",
+            "nullable": false,
+            "pattern": "^[a-z]+$",
+        },
+        "format": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+        },
+        "array": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "nullable": false,
+                "description":
+                    "In the Array case, possible to restrict its elements.",
+                "format": "uuid",
+            },
+            "nullable": false,
+            "description":
+                "In the Array case, possible to restrict its elements.",
+            "minItems": 3,
+            "maxItems": 100,
+        },
+    },
+    "nullable": false,
+    "required": [
+        "type",
+        "string",
+        "pattern",
+        "format",
+        "array",
+    ]
+}
+```
+    </Tab>
+</Tabs>
+
+
+
+
+## Distribution
+You can choose two options for `swagger.json` file distribution.
+
+The 1st is publishing the `swagger.json` file in a public repo, and showing it through Swagger Editor like below:
+
+  - `samchon/nestia-template`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia-template%2Fmaster%2Fdist%2Fswagger.json)
+  - `samchon/fake-iamport-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Ffake-iamport-server%2Fmaster%2Fdist%2Fswagger.json)
+  - `samchon/fake-toss-payments-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Ffake-toss-payments-server%2Fmaster%2Fdist%2Fswagger.json)
+
+The 2nd way is to hosting the `swagger.json` file in the NestJS backend server.
+
+Read below example code, and follow it on yours:
+
+```typescript copy showLineNumbers
+import fs from "fs";
+import { NestFactory } from '@nestjs/core';
+import { SwaggerModule } from '@nestjs/swagger';
+
+async function open(): Promise<void> {
+    const app = await NestFactory.create(...);
+
+    const docs = require("...write swagger.json path");
+    docs.servers = [
+        { url: "write your server URL" }
+    ];
+    SwaggerModule.setup("swagger", app, docs);
+
+    await app.listen(8080);
+}
+```

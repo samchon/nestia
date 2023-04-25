@@ -1,0 +1,466 @@
+import { Tabs, Tab } from 'nextra-theme-docs'
+
+# `TypedBody`
+## Outline
+```typescript filename="@nestia/core"
+export function TypedBody(): ParameterDecorator;
+```
+
+Request body decorator **20,000x** faster, even **easy to use**.
+
+`@TypedBody()` is a decorator function parsing `application/json` typed request body, and validates the request body value type through [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function. If the request body is not following the promised type, 400 bad request error would be thrown.
+
+It is almost same with original `@Body()` function of `NestJS`, however, 20,000x faster. 
+
+Also, `@TypedBody()` is much more easier to use than `class-validator`, because it can use pure TypeScript type. If you can't understand the word "pure TypeScript type", then move to below [**#How to use**](#how-to-use) section and read the `IBbsArticle.IUpdate` interface type. You may understand what it means.
+
+
+
+
+## How to use
+<Tabs 
+    items={[
+        <code>IBbsArticle.ts</code>,
+        <code>BbsArticlesController.ts</code>,
+        'Compiled JavaScript File'
+    ]}
+    defaultIndex={1}>
+    <Tab>
+```typescript copy filename="IBbsArticle.ts" showLineNumbers
+export interface IBbsArticle extends IBbsArticle.IStore {
+    /**
+     * @format uuid
+     */
+    id: string;
+
+    /**
+     * @format date-time
+     */
+    created_at: string;
+}
+export namespace IBbsArticle {
+    export interface IStore {
+        /** 
+         * @minLength 3
+         * @maxLength 50
+         */
+        title: string;
+        body: string;
+        files: IAttachmentFile[];
+    }
+}
+
+export interface IAttachmentFile {
+    /**
+     * @minLengt 1
+     * @maxLength 255
+     */
+    name: string | null;
+
+    /**
+     * @minLength 1
+     * @maxLength 8
+     */
+    extension: string | null;
+    
+    /**
+     * @format url
+     */
+    url: string;
+}
+```
+    </Tab>
+    <Tab>
+```typescript copy filename="BbsArticlesController.ts" showLineNumbers {10}
+import { TypedBody, TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+
+import { IBbsArticle } from "./IBbsArticle";
+
+@Controller("bbs/articles")
+export class BbsArticlesController {
+    @TypedRoute.Post()
+    public async store(
+        @TypedBody() input: IBbsArticle.IStore
+    ): Promise<IBbsArticle> {
+        return {
+            ...input,
+            id: "2b5e21d8-0e44-4482-bd3e-4540dee7f3d6",
+            created_at: "2023-04-23T12:04:54.168Z",
+        }
+    }
+}
+```
+    </Tab>
+    <Tab>
+```javascript filename="BbsArticlesController.js" showLineNumbers {140-221}
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BbsArticlesController = void 0;
+const core_1 = require("@nestia/core");
+const common_1 = require("@nestjs/common");
+let BbsArticlesController = class BbsArticlesController {
+    store(input) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Object.assign(Object.assign({}, input), { id: "2b5e21d8-0e44-4482-bd3e-4540dee7f3d6", created_at: "2023-04-23T12:04:54.168Z" });
+        });
+    }
+};
+__decorate([
+    core_1.TypedRoute.Post({ type: "assert", assert: input => { const assert = input => {
+            const __is = input => {
+                const $is_uuid = core_1.TypedRoute.Post.is_uuid;
+                const $is_datetime = core_1.TypedRoute.Post.is_datetime;
+                const $is_custom = core_1.TypedRoute.Post.is_custom;
+                const $is_url = core_1.TypedRoute.Post.is_url;
+                const $io0 = input => "string" === typeof input.id && $is_uuid(input.id) && ("string" === typeof input.created_at && $is_datetime(input.created_at)) && ("string" === typeof input.title && 3 <= input.title.length && 50 >= input.title.length) && "string" === typeof input.body && (Array.isArray(input.files) && input.files.every(elem => "object" === typeof elem && null !== elem && $io1(elem)));
+                const $io1 = input => (null === input.name || "string" === typeof input.name && 255 >= input.name.length && $is_custom("minLengt", "string", "1", input.name)) && (null === input.extension || "string" === typeof input.extension && 1 <= input.extension.length && 8 >= input.extension.length) && ("string" === typeof input.url && $is_url(input.url));
+                return "object" === typeof input && null !== input && $io0(input);
+            };
+            if (false === __is(input))
+                ((input, _path, _exceptionable = true) => {
+                    const $ao0 = (input, _path, _exceptionable = true) => ("string" === typeof input.id && ($is_uuid(input.id) || $guard(_exceptionable, {
+                        path: _path + ".id",
+                        expected: "string (@format uuid)",
+                        value: input.id
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".id",
+                        expected: "string",
+                        value: input.id
+                    })) && ("string" === typeof input.created_at && ($is_datetime(input.created_at) || $guard(_exceptionable, {
+                        path: _path + ".created_at",
+                        expected: "string (@format datetime)",
+                        value: input.created_at
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".created_at",
+                        expected: "string",
+                        value: input.created_at
+                    })) && ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string (@minLength 3)",
+                        value: input.title
+                    })) && (50 >= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string (@maxLength 50)",
+                        value: input.title
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string",
+                        value: input.title
+                    })) && ("string" === typeof input.body || $guard(_exceptionable, {
+                        path: _path + ".body",
+                        expected: "string",
+                        value: input.body
+                    })) && ((Array.isArray(input.files) || $guard(_exceptionable, {
+                        path: _path + ".files",
+                        expected: "Array<IAttachmentFile>",
+                        value: input.files
+                    })) && input.files.every((elem, _index1) => ("object" === typeof elem && null !== elem || $guard(_exceptionable, {
+                        path: _path + ".files[" + _index1 + "]",
+                        expected: "IAttachmentFile",
+                        value: elem
+                    })) && $ao1(elem, _path + ".files[" + _index1 + "]", true && _exceptionable)));
+                    const $ao1 = (input, _path, _exceptionable = true) => (null === input.name || "string" === typeof input.name && (255 >= input.name.length || $guard(_exceptionable, {
+                        path: _path + ".name",
+                        expected: "string (@maxLength 255)",
+                        value: input.name
+                    })) && ($is_custom("minLengt", "string", "1", input.name) || $guard(_exceptionable, {
+                        path: _path + ".name",
+                        expected: "string (@minLengt 1)",
+                        value: input.name
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".name",
+                        expected: "(null | string)",
+                        value: input.name
+                    })) && (null === input.extension || "string" === typeof input.extension && (1 <= input.extension.length || $guard(_exceptionable, {
+                        path: _path + ".extension",
+                        expected: "string (@minLength 1)",
+                        value: input.extension
+                    })) && (8 >= input.extension.length || $guard(_exceptionable, {
+                        path: _path + ".extension",
+                        expected: "string (@maxLength 8)",
+                        value: input.extension
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".extension",
+                        expected: "(null | string)",
+                        value: input.extension
+                    })) && ("string" === typeof input.url && ($is_url(input.url) || $guard(_exceptionable, {
+                        path: _path + ".url",
+                        expected: "string (@format url)",
+                        value: input.url
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".url",
+                        expected: "string",
+                        value: input.url
+                    }));
+                    return ("object" === typeof input && null !== input || $guard(true, {
+                        path: _path + "",
+                        expected: "IBbsArticle",
+                        value: input
+                    })) && $ao0(input, _path + "", true);
+                })(input, "$input", true);
+            return input;
+        }; const stringify = input => {
+            const $string = core_1.TypedRoute.Post.string;
+            const $is_uuid = core_1.TypedRoute.Post.is_uuid;
+            const $is_datetime = core_1.TypedRoute.Post.is_datetime;
+            const $is_custom = core_1.TypedRoute.Post.is_custom;
+            const $is_url = core_1.TypedRoute.Post.is_url;
+            const $io1 = input => (null === input.name || "string" === typeof input.name && 255 >= input.name.length && $is_custom("minLengt", "string", "1", input.name)) && (null === input.extension || "string" === typeof input.extension && 1 <= input.extension.length && 8 >= input.extension.length) && ("string" === typeof input.url && $is_url(input.url));
+            const $so0 = input => `{"id":${"\"" + input.id + "\""},"created_at":${"\"" + input.created_at + "\""},"title":${$string(input.title)},"body":${$string(input.body)},"files":${`[${input.files.map(elem => $so1(elem)).join(",")}]`}}`;
+            const $so1 = input => `{"name":${null !== input.name ? $string(input.name) : "null"},"extension":${null !== input.extension ? $string(input.extension) : "null"},"url":${"\"" + input.url + "\""}}`;
+            return $so0(input);
+        }; return stringify(assert(input)); } 
+    }),
+    __param(0, (0, core_1.TypedBody)({ 
+        type: "assert", 
+        assert: input => {
+            const $guard = core_1.TypedBody.guard;
+            const $is_custom = core_1.TypedBody.is_custom;
+            const $is_url = core_1.TypedBody.is_url;
+            const __is = input => {
+                const $is_custom = core_1.TypedBody.is_custom;
+                const $is_url = core_1.TypedBody.is_url;
+                const $io0 = input => "string" === typeof input.title && 3 <= input.title.length && 50 >= input.title.length && "string" === typeof input.body && (Array.isArray(input.files) && input.files.every(elem => "object" === typeof elem && null !== elem && $io1(elem)));
+                const $io1 = input => (null === input.name || "string" === typeof input.name && 255 >= input.name.length && $is_custom("minLengt", "string", "1", input.name)) && (null === input.extension || "string" === typeof input.extension && 1 <= input.extension.length && 8 >= input.extension.length) && ("string" === typeof input.url && $is_url(input.url));
+                return "object" === typeof input && null !== input && $io0(input);
+            };
+            if (false === __is(input))
+                ((input, _path, _exceptionable = true) => {
+                    const $ao0 = (input, _path, _exceptionable = true) => ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string (@minLength 3)",
+                        value: input.title
+                    })) && (50 >= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string (@maxLength 50)",
+                        value: input.title
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string",
+                        value: input.title
+                    })) && ("string" === typeof input.body || $guard(_exceptionable, {
+                        path: _path + ".body",
+                        expected: "string",
+                        value: input.body
+                    })) && ((Array.isArray(input.files) || $guard(_exceptionable, {
+                        path: _path + ".files",
+                        expected: "Array<IAttachmentFile>",
+                        value: input.files
+                    })) && input.files.every((elem, _index1) => ("object" === typeof elem && null !== elem || $guard(_exceptionable, {
+                        path: _path + ".files[" + _index1 + "]",
+                        expected: "IAttachmentFile",
+                        value: elem
+                    })) && $ao1(elem, _path + ".files[" + _index1 + "]", true && _exceptionable)));
+                    const $ao1 = (input, _path, _exceptionable = true) => (null === input.name || "string" === typeof input.name && (255 >= input.name.length || $guard(_exceptionable, {
+                        path: _path + ".name",
+                        expected: "string (@maxLength 255)",
+                        value: input.name
+                    })) && ($is_custom("minLengt", "string", "1", input.name) || $guard(_exceptionable, {
+                        path: _path + ".name",
+                        expected: "string (@minLengt 1)",
+                        value: input.name
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".name",
+                        expected: "(null | string)",
+                        value: input.name
+                    })) && (null === input.extension || "string" === typeof input.extension && (1 <= input.extension.length || $guard(_exceptionable, {
+                        path: _path + ".extension",
+                        expected: "string (@minLength 1)",
+                        value: input.extension
+                    })) && (8 >= input.extension.length || $guard(_exceptionable, {
+                        path: _path + ".extension",
+                        expected: "string (@maxLength 8)",
+                        value: input.extension
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".extension",
+                        expected: "(null | string)",
+                        value: input.extension
+                    })) && ("string" === typeof input.url && ($is_url(input.url) || $guard(_exceptionable, {
+                        path: _path + ".url",
+                        expected: "string (@format url)",
+                        value: input.url
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".url",
+                        expected: "string",
+                        value: input.url
+                    }));
+                    return ("object" === typeof input && null !== input || $guard(true, {
+                        path: _path + "",
+                        expected: "IBbsArticle.IStore",
+                        value: input
+                    })) && $ao0(input, _path + "", true);
+                })(input, "$input", true);
+            return input;
+        } 
+    })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], BbsArticlesController.prototype, "store", null);
+BbsArticlesController = __decorate([
+    (0, common_1.Controller)("bbs/articles")
+], BbsArticlesController);
+exports.BbsArticlesController = BbsArticlesController;
+```
+    </Tab>
+</Tabs>
+
+Just call `@TypedBody()` function on the request body property, that's all.
+
+`Nestia` will analyze your type (`IBbsArticle.IUpdate`), and writes optimal code for the target type, in the compilation level. If you click the "Complied JavaScript File" tab of above, you can see the optimal validation code. 
+
+Such optimization is called AOT (Ahead of Time) compilation, and it is the secret of `@TypedBody`.
+
+
+
+
+## Comment Tags
+You can enhance validation logic, of `@TypedBody()`, through comment tags.
+
+You know what? `@TypedBody()` utilizes [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function for request body data validation, and the [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function supports additional type checking logics through comment tags. For reference, the "Comment Tag" means a comment starting from `@` symbol. It follows `@${name} ${value}` format, and you can add multiple comment tags per each property.
+
+With those comment tags, you can add additional validation logics. If you want to add a custom validation logic, you also can do it. Read below Guide Docments of [typia](https://typia.io), and see the example code. You may understand how to utilize such comment tags, in a few minutes.
+
+  - [**`typia` > Validators > Comment Tags**](https://typia.io/docs/validators/comment-tags/)
+    - [Outline](/docs/validators/comment-tags/#outline)
+    - [Supported Tags](/docs/validators/comment-tags/#supported-tags)
+    - [Customization](/docs/validators/comment-tags/#customization)
+
+<Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
+    <Tab>
+```typescript copy filename="examples/src/is-comment-tags.ts" showLineNumbers {3}
+import typia from "typia";
+
+export const checkCommentTag = typia.createIs<CommentTag>();
+
+interface CommentTag {
+    /**
+     * @type int
+     */
+    type: number;
+
+    /**
+     * @exclusiveMinimum 19
+     * @maximum 100
+     */
+    number?: number;
+
+    /**
+     * @minLength 3
+     */
+    string: string;
+
+    /**
+     * @pattern ^[a-z]+$
+     */
+    pattern: string;
+
+    /**
+     * @format date-time
+     */
+    format: string | null;
+
+    /**
+     * In the Array case, possible to restrict its elements.
+     *
+     * @minItems 3
+     * @maxItems 100
+     * @format uuid
+     */
+    array: string[];
+}
+```
+    </Tab>
+    <Tab>
+```javascript filename="examples/bin/is-comment-tags.js" showLineNumbers {3-24}
+import typia from "typia";
+
+export const checkCommentTag = (input) => {
+    const $is_datetime = typia.createIs.is_datetime;
+    const $is_uuid = typia.createIs.is_uuid;
+    const $io0 = (input) =>
+        "number" === typeof input.type &&
+        parseInt(input.type) === input.type &&
+        (undefined === input.number ||
+            ("number" === typeof input.number &&
+                19 < input.number &&
+                100 >= input.number)) &&
+        "string" === typeof input.string &&
+        3 <= input.string.length &&
+        "string" === typeof input.pattern &&
+        RegExp(/^[a-z]+$/).test(input.pattern) &&
+        (null === input.format ||
+            ("string" === typeof input.format && $is_datetime(input.format))) &&
+        Array.isArray(input.array) &&
+        3 <= input.array.length &&
+        100 >= input.array.length &&
+        input.array.every((elem) => "string" === typeof elem && $is_uuid(elem));
+    return "object" === typeof input && null !== input && $io0(input);
+};
+```
+    </Tab>
+</Tabs>
+
+
+
+
+## Benchmark
+Super-fast and super-safe.
+
+`Nestia` utilizes [typia](https://typia.io/docs/), and `NestJS` uses `class-validator`. One thing amazing is, `typia` is maximum 20,000x faster than `class-validator` of `NestJS`. Color of `class-transformer` is skyblue, and can you find the skyblue color in the below benchmark graph? It may hard to find because `class-validator` is extremely slow.
+
+![Assert Function Benchmark](https://github.com/samchon/typia/raw/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/assert.svg)
+
+> Measured on [Intel i5-1135g7, Surface Pro 8](https://github.com/samchon/typia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz#assert)
+
+Furthermore, while other libraries can't validate complicate union types, `typia` can validate every TypeScript types. However, in the `class-validator` case, it always be failed when any type of complicate comes. I can't understand why `NestJS` has adopted such slow and unstable library.
+
+Moreover, only `typia` can utilize pure TypeScript type, without any extra schema definition. Beside, all of other libraries require extra and duplicated schema definition, different with pure TypeScript type. `Nestia` is using such wonderful, super-fast and super-fast `typia` library.
+
+  - `TypeBox` requires [`TypeBox` schema](https://github.com/samchon/typia/blob/master/benchmark/structures/typebox/TypeboxObjectHierarchical.ts)
+  - `ajv` requires [JSON schema definition](https://github.com/samchon/typia/blob/master/test/schemas/json/swagger/ObjectHierarchical.json)
+  - `io-ts` requires [`io-ts` schema](https://github.com/samchon/typia/blob/master/benchmark/structures/io-ts/IoTsObjectHierarchical.ts)
+  - `zod` requires [`zod` schema](https://github.com/samchon/typia/blob/master/benchmark/structures/zod/ZodObjectHierarchical.ts)
+  - `class-validator` requires [DTO class with decorator function calls](https://github.com/samchon/typia/blob/master/benchmark/structures/class-validator/ClassValidatorObjectHierarchical.ts)
+
+Components               | `typia` | `TypeBox` | `ajv` | `io-ts` | `zod` | `C.V.`
+-------------------------|--------|-----------|-------|---------|-------|------------------
+**Easy to use**          | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ 
+[Object (simple)](https://github.com/samchon/typia/blob/master/test/structures/ObjectSimple.ts)          | ✔ | ✔ | ✔ | ✔ | ✔ | ✔
+[Object (hierarchical)](https://github.com/samchon/typia/blob/master/test/structures/ObjectHierarchical.ts)    | ✔ | ✔ | ✔ | ✔ | ✔ | ✔
+[Object (recursive)](https://github.com/samchon/typia/blob/master/test/structures/ObjectRecursive.ts)       | ✔ | ❌ | ✔ | ✔ | ✔ | ✔ | ✔
+[Object (union, implicit)](https://github.com/samchon/typia/blob/master/test/structures/ObjectUnionImplicit.ts) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[Object (union, explicit)](https://github.com/samchon/typia/blob/master/test/structures/ObjectUnionExplicit.ts) | ✔ | ✔ | ✔ | ✔ | ✔ | ❌
+[Object (additional tags)](https://github.com/samchon/typia/#comment-tags)        | ✔ | ✔ | ✔ | ✔ | ✔ | ✔
+[Object (template literal types)](https://github.com/samchon/typia/blob/master/test/structures/TemplateUnion.ts) | ✔ | ✔ | ✔ | ❌ | ❌ | ❌
+[Object (dynamic properties)](https://github.com/samchon/typia/blob/master/test/structures/DynamicTemplate.ts) | ✔ | ✔ | ✔ | ❌ | ❌ | ❌
+[Array (rest tuple)](https://github.com/samchon/typia/blob/master/test/structures/TupleRestAtomic.ts) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[Array (hierarchical)](https://github.com/samchon/typia/blob/master/test/structures/ArrayHierarchical.ts)     | ✔ | ✔ | ✔ | ✔ | ✔ | ✔
+[Array (recursive)](https://github.com/samchon/typia/blob/master/test/structures/ArrayRecursive.ts)        | ✔ | ✔ | ✔ | ✔ | ✔ | ❌
+[Array (recursive, union)](https://github.com/samchon/typia/blob/master/test/structures/ArrayRecursiveUnionExplicit.ts) | ✔ | ✔ | ❌ | ✔ | ✔ | ❌
+[Array (R+U, implicit)](https://github.com/samchon/typia/blob/master/test/structures/ArrayRecursiveUnionImplicit.ts)    | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[**Ultimate Union Type**](https://github.com/samchon/typia/blob/master/src/schemas/IJsonSchema.ts)  | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+
+> `C.V.` means `class-validator`
