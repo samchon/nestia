@@ -9,16 +9,9 @@
 
 Nestia is a set of helper libraries for NestJS, supporting below features:
 
-  - `@nestia/core`: super-fast decorator
+  - `@nestia/core`: super-fast decorators
   - `@nestia/sdk`: evolved SDK and Swagger generator
   - `nestia`: just CLI (command line interface) tool
-
-> **Note**
-> 
-> - **Only one line** required, with pure TypeScript type
-> - Runtime validator is **20,000x faster** than `class-validator`
-> - JSON serialization is **200x faster** than `class-transformer`
-> - SDK is similar with [tRPC](https://trpc.io), but much advanced
 
 ![nestia-sdk-demo](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
 
