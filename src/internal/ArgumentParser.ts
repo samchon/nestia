@@ -105,7 +105,7 @@ export namespace ArgumentParser {
 const COMPILER_DESCRIPTION = [
     `Since Typescript tsc compiler doesn't support transformers we have to use alternative complier which support the feature.`,
     ``,
-    `If you choose "ttypescript", use "ttsc" command to compile your code.`,
+    `If you choose "ttypescript", use "ttsc" instead of "tsc" to compile your code.`,
     ``,
     `Otherwise, you can choose "ts-patch" and keep the original "tsc" command.`,
     `But keep in mind that "ts-patch" hacks node_modules/typescript source code to implement the feature.`,
