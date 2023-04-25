@@ -1,5 +1,5 @@
 # Nestia
-![Nestia Logo](https://nestia.io/logo.png)
+![Nestia Logo](https://nestia.io/logo.jpg)
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/samchon/nestia/blob/master/LICENSE)
 [![npm version](https://img.shields.io/npm/v/@nestia/core.svg)](https://www.npmjs.com/package/@nestia/core)
