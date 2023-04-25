@@ -1,125 +1,55 @@
-# Nestia Core Library
+# Nestia
+![Nestia Logo](https://nestia.io/logo.png)
+
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/samchon/nestia/blob/master/LICENSE)
 [![npm version](https://img.shields.io/npm/v/@nestia/core.svg)](https://www.npmjs.com/package/@nestia/core)
-[![Downloads](https://img.shields.io/npm/dm/@nestia/core.svg)](https://www.npmjs.com/package/@nestia/core)
-[![Build Status](https://github.com/samchon/typia/workflows/build/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Abuild)
-[![Guide Documents](https://img.shields.io/badge/wiki-documentation-forestgreen)](https://github.com/samchon/nestia/wiki)
+[![Downloads](https://img.shields.io/npm/dm/nestia.svg)](https://www.npmjs.com/package/nestia)
+[![Build Status](https://github.com/samchon/nestia/workflows/build/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Abuild)
+[![Guide Documents](https://img.shields.io/badge/guide-documents-forestgreen)](https://nestia.io/docs/)
 
-Super-fast validation decorators for NestJS.
+Nestia is a set of helper libraries for NestJS, supporting below features:
 
-  - 20,000x faster request body validation
-  - 200x faster JSON response, even type safe
-  - Do not need DTO class definition, just fine with interface
+  - `@nestia/core`: super-fast decorator
+  - `@nestia/sdk`: evolved SDK and Swagger generator
+  - `nestia`: just CLI (command line interface) tool
 
-`@nestia/core` is a transformer library of NestJS, supporting super-fast validation decorators, by wrapping [typia](https://github.com/samchon/typia). Comparing validation speed with `class-validator`, [typia](https://github.com/samchon/typia) is maximum **20,000x faster** and it is even much safer.
+> **Note**
+> 
+> - **Only one line** required, with pure TypeScript type
+> - Runtime validator is **20,000x faster** than `class-validator`
+> - JSON serialization is **200x faster** than `class-transformer`
+> - SDK is similar with [tRPC](https://trpc.io), but much advanced
 
-Furthermore, `@nestia/core` can use pure interface typed DTO with **only one line**. With `@nestia/core`, you don't need any extra dedication like defining JSON schema (`@nestjs/swagger`), or using class definition with decorator function calls (`class-validator`). Just enjoy the superfast decorators with pure TypeScript type.
+![nestia-sdk-demo](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
 
-```typescript
-import { Controller } from "@nestjs/common";
-import { TypedBody, TypedRoute } from "@nestia/core";
-
-import type { IBbsArticle } from "@bbs-api/structures/IBbsArticle";
-
-@Controller("bbs/articles")
-export class BbsArticlesController {
-    /** 
-     * Store a new content.
-     * 
-     * @param inupt Content to store
-     * @returns Newly archived article
-     */
-    @TypedRoute.Post() // 200x faster and safer JSON serialization
-    public async store(
-        @TypedBody() input: IBbsArticle.IStore // super-fast validator
-    ): Promise<IBbsArticle>; 
-        // do not need DTO class definition, 
-        // just fine with interface
-}
-```
+> Left is server code, and right is client code utilizing SDK
 
 
 
 
-## Setup
-### Boilerplate Project
-```bash
-npx nestia start <directory>
-```
+## Sponsors and Backers
+Thanks for your support.
 
-Just run above command, then boilerplate project would be constructed.
+Your donation would encourage `nestia` development.
 
-### Setup Wizard
-```bash
-npm install --save-dev nestia
-npx nestia setup
-```
-
-If you've installed [ttypescript](https://github.com/cevek/ttypescript) during setup, you should compile `@nestia/core` utilization code through `ttsc` command, instead of `tsc`. 
-
-```bash
-# COMPILE THROUGH TTYPESCRIPT
-npx ttsc
-
-# RUN TS-NODE WITH TTYPESCRIPT
-npx ts-node -C ttypescript src/index.ts
-```
-
-Otherwise, you've chosen [ts-patch](https://github.com/nonara/ts-patch), you can use original `tsc` command. However, [ts-patch](https://github.com/nonara/ts-patch) hacks `node_modules/typescript` source code. Also, whenever update `typescript` version, you've to run `npm run prepare` command repeatedly.
-
-By the way, when using `@nest/cli`, you must just choose [ts-patch](https://github.com/nonara/ts-patch).
-
-```bash
-# USE ORIGINAL TSC COMMAND
-tsc
-npx ts-node src/index.ts
-
-# HOWEVER, WHENVER UPDATE
-npm install --save-dev typescript@latest
-npm run prepare
-```
-
-### Manual Setup
-If you want to install and configure `@nestia/core` manually, read [Guide Documents - Setup](https://github.com/samchon/nestia/wiki/Setup).
+[![Backers](https://opencollective.com/nestia/backers.svg?avatarHeight=75&width=600)](https://opencollective.com/nestia)
 
 
 
 
-## Features
-```typescript
-import { Controller } from "@nestjs/common";
-import { TypedBody, TypedRoute } from "@nestia/core";
+## Guide Documents
+Check out the document in the [website](https://nestia.io/docs/):
 
-import { IBbsArticle } from "@bbs-api/structures/IBbsArticle";
+### 🏠 Home
+  - [Introduction](https://nestia.io/docs/)
+  - [Setup](https://nestia.io/docs/setup/)
 
-@Controller("bbs/articles")
-export class BbsArticlesController {
-    /** 
-     * Store a new content.
-     * 
-     * @param inupt Content to store
-     * @returns Newly archived article
-     */
-    @TypedRoute.Put(":id") // 200x faster and safer JSON serialization
-    public async store(
-        @TypedParam("section", "string") section: string,
-        @TypedParam("id", "uuid") id: string,
-        @TypedBody() input: IBbsArticle.IUpdate // super-fast validator
-    ): Promise<IBbsArticle.IContent>;
-}
-```
-
-About detailed features, read [Guide Documents](https://github.com/samchon/nestia/wiki)
-
-  - Decorators
-    - [TypedRoute](https://github.com/samchon/nestia/wiki/Core-Library#typedroute)
-    - [TypedBody](https://github.com/samchon/nestia/wiki/Core-Library#typedbody)
-    - [TypedQuery](https://github.com/samchon/nestia/wiki/Core-Library#typedquery)
-    - [TypedParam](https://github.com/samchon/nestia/wiki/Core-Library#typedparam)
-  - Enhancements
-    - [Comment Tags](https://github.com/samchon/nestia/wiki/Core-Library#comment-tags)
-    - [Configuration](https://github.com/samchon/nestia/wiki/Core-Library#configuration)
-  - Advanced Usage
-    - [DynamicModule](https://github.com/samchon/nestia/wiki/Core-Library#dynamicmodule)
-    - [Encryption](https://github.com/samchon/nestia/wiki/Core-Library#encryption)
-    - [Inheritance](https://github.com/samchon/nestia/wiki/Core-Library#inheritance)
+### 📖 Features
+  - Core Library
+    - [TypedRoute](https://nestia.io/docs/core/TypedRoute/)
+    - [TypedBody](https://nestia.io/docs/core/TypedBody/)
+    - [TypedParam](https://nestia.io/docs/core/TypedParam/)
+    - [TypedQuery](https://nestia.io/docs/core/TypedRoute/)
+  - SDK/Swagger Generator
+    - [SDK Library](https://nestia.io/docs/sdk/sdk/)
+    - [Swagger Documents](https://nestia.io/docs/sdk/swagger/)

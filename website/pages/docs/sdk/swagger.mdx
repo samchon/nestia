@@ -476,14 +476,20 @@ export class SomeController {
 
 
 ### DTO Properties
-When declaring DTO, you can restrict property type through comment tags.
+https://swagger.io/docs/specification/data-models/data-types/
 
-You know what? `swagger.json` provides special DTO properties restricting the value type. For example, when declaring a `number` type in `swagger.json` through JSON schema definition, you can limit the numeric value range through `minimum` and `maximum` properties.
+You can utilize comments and comment tags to construct special fields of JSON schema.
 
-In `@nestia/sdk`, you can configure such properties through comment tags, starting with `@` symbol. Also, such comment tags on DTO properties can be used to enhance validation logic by [`@TypedBody.${method}()`](../core/TypedBody#comment-tags), [`@TypedRoute()`](../core/TypedRoute#comment-tags) and [`@TypedQuery()`](../core/TypedQuery#comment-tags) functions.
+If you write any comment on a property, it would fill the `IJsonSchema.description` value. When you write some comment tags starting with `@` symbol, they would be placed into the proper properties of `IJsonSchema`. Below is the list of supported comment tags in the `@nestia/sdk`.
 
-If it is hard to understand, just look at the example code below. You may understand in a few minutes.
+Also, such comment tags of DTO properties can be used to enhance validation logic of `@nestia/core` library. Especially, [`@TypedBody.${method}()`](../core/TypedBody#comment-tags), [`@TypedRoute()`](../core/TypedRoute#comment-tags) and [`@TypedQuery()`](../core/TypedQuery#comment-tags) functions can use same comment tags for additional validation.
 
+Let's see how those comment tags work with example code.
+
+  - common
+    - `@deprecated`
+    - `@title {string}`
+    - `@default {value}`
   - number
     - `@type {"int"|"uint"}`
     - `@minimum {number}`
@@ -511,97 +517,113 @@ If it is hard to understand, just look at the example code below. You may unders
     <code>swagger.json</code>
 ]}>
     <Tab>
-```typescript copy filename="IBbsArticle.ts" showLineNumbers {5, 17-18, 30}
-export interface IBbsArticle {
+```typescript copy filename="CommentTag.ts" showLineNumbers {5, 17-18, 30}
+export interface CommentTag {
     /**
-     * Primary Key.
-     * 
-     * @format uuid
+     * @title Unsigned integer
+     * @type uint
+     * @deprecated
      */
-    id: string;
+    type: number;
 
     /**
-     * List of attached files.
+     * @exclusiveMinimum 19
+     * @maximum 100
+     * @default 30
      */
-    files: IAttachmentFile[] | null;
+    number?: number;
 
     /**
-     * Title of the article.
-     * 
-     * @minLength 5
-     * @maxLength 100
+     * @minLength 3
      */
-    title: string | null;
+    string: string;
 
     /**
-     * Main content body of the article.
+     * @pattern ^[a-z]+$
      */
-    body: string;
+    pattern: string;
 
     /**
-     * Creation time of article.
-     * 
      * @format date-time
      */
-    created_at: string;
+    format: string | null;
+    
+    /**
+     * In the Array case, possible to restrict its elements.
+     * 
+     * @minItems 3
+     * @maxItems 100
+     * @format uuid
+     */
+    array: string[];
 }
 ```
     </Tab>
     <Tab>
 ```json filename="swagger.json" showLineNumbers {8, 23-24, 35}
-"IBbsArticle": {
+"CommentTag": {
+    "$id": "components#/schemas/CommentTag",
     "type": "object",
     "properties": {
-        "id": {
+        "type": {
+            "type": "integer",
+            "nullable": false,
+            "deprecated": true,
+            "title": "Unsigned integer",
+            "minimum": 0,
+        },
+        "number": {
+            "type": "number",
+            "nullable": false,
+            "minimum": 19,
+            "exclusiveMinimum": true,
+            "maximum": 100,
+            "default": 30,
+        },
+        "string": {
             "type": "string",
             "nullable": false,
-            "description": "Primary Key.",
-            "format": "uuid"
+            "minLength": 3,
         },
-        "files": {
+        "pattern": {
+            "type": "string",
+            "nullable": false,
+            "pattern": "^[a-z]+$",
+        },
+        "format": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+        },
+        "array": {
             "type": "array",
             "items": {
-                "$ref": "#/components/schemas/IAttachmentFile",
-                "description": "List of attached files."
+                "type": "string",
+                "nullable": false,
+                "description":
+                    "In the Array case, possible to restrict its elements.",
+                "format": "uuid",
             },
-            "nullable": true,
-            "description": "List of attached files."
-        },
-        "title": {
-            "type": "string",
-            "nullable": true,
-            "description": "Title of the article.",
-            "minLength": 5,
-            "maxLength": 100
-        },
-        "body": {
-            "type": "string",
             "nullable": false,
-            "description": "Main content body of the article."
+            "description":
+                "In the Array case, possible to restrict its elements.",
+            "minItems": 3,
+            "maxItems": 100,
         },
-        "created_at": {
-            "type": "string",
-            "nullable": false,
-            "description": "Creation time of article.",
-            "format": "date-time"
-        }
     },
     "nullable": false,
     "required": [
-        "id",
-        "files",
-        "title",
-        "body",
-        "created_at"
+        "type",
+        "string",
+        "pattern",
+        "format",
+        "array",
     ]
 }
 ```
     </Tab>
 </Tabs>
 
-> https://swagger.io/docs/specification/data-models/data-types/
->
-> This content would be helpful when reading `swagger.json` content
 
 
 
