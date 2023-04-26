@@ -28,18 +28,17 @@
  * @template Instance Target argument type.
  * @author Jenogho Nam - https://github.com/samchon
  */
-export type Primitive<Instance> = _Equal<
-    Instance,
-    _Primitive<Instance>
-> extends true
-    ? Instance
-    : _Primitive<Instance>;
+export type Primitive<T> = _Equal<T, _Primitive<T>> extends true
+    ? T
+    : _Primitive<T>;
 
 type _Equal<X, Y> = X extends Y ? (Y extends X ? true : false) : false;
 
 type _Primitive<Instance> = _ValueOf<Instance> extends object
     ? Instance extends object
-        ? Instance extends IJsonable<infer Raw>
+        ? Instance extends _Native
+            ? {}
+            : Instance extends IJsonable<infer Raw>
             ? _ValueOf<Raw> extends object
                 ? Raw extends object
                     ? _PrimitiveObject<Raw> // object would be primitified
@@ -50,12 +49,18 @@ type _Primitive<Instance> = _ValueOf<Instance> extends object
     : _ValueOf<Instance>;
 
 type _PrimitiveObject<Instance extends object> = Instance extends Array<infer T>
-    ? _Primitive<T>[]
+    ? _IsTuple<Instance> extends true
+        ? _PrimitiveSpread<Instance>
+        : _Primitive<T>[]
     : {
           [P in keyof Instance]: Instance[P] extends Function
               ? never
               : _Primitive<Instance[P]>;
       };
+
+type _PrimitiveSpread<T extends any[]> = T extends [infer F, ...infer Rest]
+    ? [_Primitive<F>, ..._PrimitiveSpread<Rest>]
+    : [];
 
 type _ValueOf<Instance> = _IsValueOf<Instance, Boolean> extends true
     ? boolean
@@ -64,6 +69,36 @@ type _ValueOf<Instance> = _IsValueOf<Instance, Boolean> extends true
     : _IsValueOf<Instance, String> extends true
     ? string
     : Instance;
+
+type _Native =
+    | Set<any>
+    | Map<any, any>
+    | WeakSet<any>
+    | WeakMap<any, any>
+    | Uint8Array
+    | Uint8ClampedArray
+    | Uint16Array
+    | Uint32Array
+    | BigUint64Array
+    | Int8Array
+    | Int16Array
+    | Int32Array
+    | BigInt64Array
+    | Float32Array
+    | Float64Array
+    | ArrayBuffer
+    | SharedArrayBuffer
+    | DataView;
+
+type _IsTuple<T extends readonly any[] | { length: number }> = [T] extends [
+    never,
+]
+    ? false
+    : T extends readonly any[]
+    ? number extends T["length"]
+        ? false
+        : true
+    : false;
 
 type _IsValueOf<
     Instance,
