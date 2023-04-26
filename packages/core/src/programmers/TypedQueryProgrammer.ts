@@ -61,13 +61,7 @@ export namespace TypedQueryProgrammer {
         (obj: MetadataObject) =>
         (key: Metadata) =>
         (value: Metadata, depth: number): string[] => {
-            if (value.nullable)
-                throw new Error(
-                    ErrorMessages.property(obj)(key)(
-                        "nullable type is not allowed. Use undefindable type instead.",
-                    ),
-                );
-            else if (depth === 1 && value.required === false)
+            if (depth === 1 && value.required === false)
                 throw new Error(
                     ErrorMessages.property(obj)(key)(
                         "optional type is not allowed in array.",
@@ -88,11 +82,17 @@ export namespace TypedQueryProgrammer {
             for (const type of value.atomics) atom.push(type);
             for (const { type } of value.constants) atom.push(type);
 
-            if (depth === 0) {
-                if (atom.length && (value.arrays.length || value.arrays.length))
+            if (depth === 0 && (value.arrays.length || value.arrays.length)) {
+                if (atom.length)
                     throw new Error(
                         ErrorMessages.property(obj)(key)(
                             "union type is not allowed",
+                        ),
+                    );
+                else if (value.required === false)
+                    throw new Error(
+                        ErrorMessages.property(obj)(key)(
+                            "array type cannot be optional",
                         ),
                     );
                 for (const elem of value.arrays)

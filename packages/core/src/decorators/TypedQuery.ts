@@ -37,19 +37,19 @@ export function TypedQuery<T>(
  * @internal
  */
 export namespace TypedQuery {
-    export function boolean(
-        str: string | null | undefined,
-    ): boolean | undefined {
-        return str?.length ? Boolean(str) : undefined;
+    export function boolean(str: string | null): boolean | null | undefined {
+        if (str === null) return undefined;
+        else if (str === "null") return null;
+        return str.length ? Boolean(str) : true;
     }
-    export function number(str: string | null | undefined): number | undefined {
-        return str?.length ? Number(str) : undefined;
+    export function number(str: string | null): number | null | undefined {
+        return str?.length ? (str === "null" ? null : Number(str)) : undefined;
     }
-    export function bigint(str: string | null | undefined): bigint | undefined {
-        return str?.length ? BigInt(str) : undefined;
+    export function bigint(str: string | null): bigint | null | undefined {
+        return str?.length ? (str === "null" ? null : BigInt(str)) : undefined;
     }
-    export function string(str: string | null | undefined): string | undefined {
-        return str !== undefined && str !== null ? str : undefined;
+    export function string(str: string | null): string | null | undefined {
+        return str === null ? undefined : str === "null" ? null : str;
     }
 }
 Object.assign(TypedQuery, assert);
