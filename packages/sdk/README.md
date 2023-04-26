@@ -1,82 +1,55 @@
-# Nestia SDK Generator
+# Nestia
+![Nestia Logo](https://nestia.io/logo.png)
+
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/samchon/nestia/blob/master/LICENSE)
-[![npm version](https://img.shields.io/npm/v/@nestia/sdk.svg)](https://www.npmjs.com/package/@nestia/sdk)
-[![Downloads](https://img.shields.io/npm/dm/@nestia/sdk.svg)](https://www.npmjs.com/package/@nestia/sdk)
-[![Build Status](https://github.com/samchon/typia/workflows/build/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Abuild)
-[![Guide Documents](https://img.shields.io/badge/wiki-documentation-forestgreen)](https://github.com/samchon/nestia/wiki)
+[![npm version](https://img.shields.io/npm/v/@nestia/core.svg)](https://www.npmjs.com/package/@nestia/core)
+[![Downloads](https://img.shields.io/npm/dm/nestia.svg)](https://www.npmjs.com/package/nestia)
+[![Build Status](https://github.com/samchon/nestia/workflows/build/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Abuild)
+[![Guide Documents](https://img.shields.io/badge/guide-documents-forestgreen)](https://nestia.io/docs/)
 
-Automatic *SDK* and *Swagger* generator for `@nestia/core`.
+Nestia is a set of helper libraries for NestJS, supporting below features:
 
-With `@nestia/core`, you can boost up validation speed maximum **15,000x times faster**. However, as `@nestjs/swagger` does not support `@nestia/core`, you can't generate swagger documents from `@nestjs/swagger` more.
+  - `@nestia/core`: super-fast decorators
+  - `@nestia/sdk`: evolved SDK and Swagger generator
+  - `nestia`: just CLI (command line interface) tool
 
-Instead, I provide you `@nestia/sdk` module, which can generate not only swagger documents, but also SDK (Software Development Kit) library.
+> **Note**
+> 
+> - **Only one line** required, with pure TypeScript type
+> - Runtime validator is **20,000x faster** than `class-validator`
+> - JSON serialization is **200x faster** than `class-transformer`
+> - SDK is similar with [tRPC](https://trpc.io), but much advanced
 
 ![nestia-sdk-demo](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
 
-
-
-
-## Setup
-### Boilerplate Project
-```bash
-npx nestia start <directory>
-```
-
-Just run above command, then boilerplate project would be constructed.
-
-### Setup Wizard
-```bash
-npx nestia setup
-```
-
-When you want to use `nestia` in orindary project, just type above command.
-
-All installation and configuration processes would be automatically done.
-
-Also, you can specify package manager by `--manage` argument like below:
-
-```bash
-npx nestia setup --manager npm
-npx nestia setup --manager pnpm
-npx nestia setup --manager yarn
-```
-
-### Sole Setup
-If you want to install and setup `@nestia/sdk` only, just do it.
-
-```bash
-npm install --save-dev @nestia/sdk
-```
+> Left is server code, and right is client code utilizing SDK
 
 
 
 
-## Usage
-```bash
-# BASIC COMMAND
-npx nestia <sdk|swagger> <source_directories_or_patterns> \
-    --exclude <exclude_directory_or_pattern> \
-    --out <output_directory_or_file>
+## Sponsors and Backers
+Thanks for your support.
 
-# EXAMPLES
-npx nestia sdk "src/**/*.controller.ts" --out "src/api"
-npx nestia swagger "src/controllers" --out "dist/swagger.json"
-```
+Your donation would encourage `nestia` development.
 
-You can generate sdk or swagger documents by above commands.
+[![Backers](https://opencollective.com/nestia/backers.svg?avatarHeight=75&width=600)](https://opencollective.com/nestia)
 
-If you've configured `nestia.config.ts` file, you can omit all options like below. About the `nestia.config.ts` file, read [Guide Documents -> SDK Generator -> Configuration](https://github.com/samchon/nestia/wiki/SDK-Generator#configuration)
 
-```bash
-npx nestia sdk
-npx nestia swagger
-```
 
-If you want to know more, visit [Guide Documents](https://github.com/samchon/nestia/wiki).
 
-  - Generators
-    - [Swagger Documents](https://github.com/samchon/nestia/wiki/SDK-Generator#swagger-documents)
-    - [SDK Library](https://github.com/samchon/nestia/wiki/SDK-Generator#sdk-library)
-  - Advanced Usage
-    - [Comment Tags](https://github.com/samchon/nestia/wiki/SDK-Generator#comment-tags)
-    - [Configuration](https://github.com/samchon/nestia/wiki/SDK-Generator#configuration)
+## Guide Documents
+Check out the document in the [website](https://nestia.io/docs/):
+
+### 🏠 Home
+  - [Introduction](https://nestia.io/docs/)
+  - [Setup](https://nestia.io/docs/setup/)
+
+### 📖 Features
+  - Core Library
+    - [TypedRoute](https://nestia.io/docs/core/TypedRoute/)
+    - [TypedBody](https://nestia.io/docs/core/TypedBody/)
+    - [TypedParam](https://nestia.io/docs/core/TypedParam/)
+    - [TypedQuery](https://nestia.io/docs/core/TypedRoute/)
+  - SDK/Swagger Generator
+    - [SDK Library](https://nestia.io/docs/sdk/sdk/)
+    - [Swagger Documents](https://nestia.io/docs/sdk/swagger/)
