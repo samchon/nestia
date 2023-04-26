@@ -50,6 +50,9 @@ export namespace PluginConfigurator {
 
         // DO CONFIGURE
         compilerOptions.strict = true;
+        compilerOptions.experimentalDecorators = true;
+        compilerOptions.emitDecoratorMetadata = true;
+
         if (core === undefined)
             plugins.push(
                 comments.parse(`{

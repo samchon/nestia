@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "4.1.0-dev.20230413",
+  "version": "4.1.0",
   "description": "Nestia CLI tool",
   "main": "bin/index.js",
   "bin": {
@@ -35,8 +35,8 @@
     "inquirer": "^8.2.5"
   },
   "devDependencies": {
-    "@nestia/core": "^1.0.17",
-    "@nestia/sdk": "^1.0.16",
+    "@nestia/core": "^1.1.0",
+    "@nestia/sdk": "^1.1.0",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",
     "prettier": "^2.8.7",

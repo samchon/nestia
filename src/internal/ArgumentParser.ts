@@ -12,7 +12,6 @@ export namespace ArgumentParser {
 
     export async function parse(pack: PackageManager): Promise<IArguments> {
         // PREPARE ASSETS
-        commander.program.option("--compiler [compiler]", "compiler type");
         commander.program.option("--manager [manager", "package manager");
         commander.program.option(
             "--project [project]",
@@ -92,14 +91,3 @@ export namespace ArgumentParser {
         });
     }
 }
-
-// const COMPILER_DESCRIPTION = [
-//     `About compiler, if you adapt "ttypescript", you should use "ttsc" instead.`,
-//     ``,
-//     `Otherwise, you choose "ts-patch", you can use the original "tsc" command.`,
-//     `However, the "ts-patch" hacks "node_modules/typescript" source code.`,
-//     `Also, whenever update "typescript", you've to run "npm run prepare" command.`,
-//     ``,
-//     `By the way, when using "@nest/cli", you must just choose "ts-patch".`,
-//     ``,
-// ].join("\n");
