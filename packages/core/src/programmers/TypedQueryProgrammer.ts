@@ -15,7 +15,8 @@ import { INestiaTransformProject } from "../options/INestiaTransformProject";
 
 export namespace TypedQueryProgrammer {
     export const generate =
-        (project: INestiaTransformProject, modulo: ts.LeftHandSideExpression) =>
+        (project: INestiaTransformProject) =>
+        (modulo: ts.LeftHandSideExpression) =>
         (type: ts.Type): ts.Expression => {
             const object: MetadataObject = getObject(project.checker)(type);
             return decode(project, modulo)(type, object);
@@ -140,6 +141,7 @@ export namespace TypedQueryProgrammer {
                 ...project,
                 options: {
                     numeric: true,
+                    finite: true,
                 },
             })(modulo)(false)(type);
             const output = ts.factory.createIdentifier("output");

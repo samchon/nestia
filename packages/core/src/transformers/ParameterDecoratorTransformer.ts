@@ -71,16 +71,16 @@ const FUNCTORS: Record<string, Programmer> = {
     EncryptedBody: (project, modulo) => (parameters) => (type) =>
         parameters.length
             ? parameters
-            : [TypedBodyProgrammer.generate(project, modulo)(type)],
+            : [TypedBodyProgrammer.generate(project)(modulo)(type)],
     TypedBody: (project, modulo) => (parameters) => (type) =>
         parameters.length
             ? parameters
-            : [TypedBodyProgrammer.generate(project, modulo)(type)],
+            : [TypedBodyProgrammer.generate(project)(modulo)(type)],
     TypedParam: TypedParamProgrammer.generate,
     TypedQuery: (project, modulo) => (parameters) => (type) =>
         parameters.length
             ? parameters
-            : [TypedQueryProgrammer.generate(project, modulo)(type)],
+            : [TypedQueryProgrammer.generate(project)(modulo)(type)],
 };
 
 const LIB_PATH = path.join(
