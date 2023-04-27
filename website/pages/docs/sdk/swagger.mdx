@@ -105,6 +105,7 @@ export interface IAttachmentFile {
     <Tab>
 ```typescript filename="BbsArticle.ts" showLineNumbers
 export class BbsArticle {
+    @IsString()
     @ApiProperty({
         format: "uuid",
     })
@@ -113,6 +114,10 @@ export class BbsArticle {
     // DUPLICATED SCHEMA DEFINITION
     // - duplicated function call + property type
     // - have to specify `isArray` and `nullable` props by yourself
+    @IsArray()
+    @IsObject()
+    @ValidateNested()
+    @Type(() => AttachmentFile)
     @ApiProperty({
         type: () => AttachmentFile,
         nullable: true,
@@ -121,6 +126,8 @@ export class BbsArticle {
     })
     files!: AttachmentFile[] | null;
 
+    @IsString()
+    @IsOptional()
     @ApiProperty({
         type: "string",
         nullable: true,
@@ -130,11 +137,13 @@ export class BbsArticle {
     })
     title!: string | null;
 
+    @IsString()
     @ApiProperty({
         description: "Main content body of the article."
     })
     body!: string;
 
+    @IsString()
     @ApiProperty({
         format: "date-time",
         description: "Creation time of article",
@@ -143,6 +152,8 @@ export class BbsArticle {
 }
 
 export class AttachmentFile {
+    @IsString()
+    @IsOptional()
     @ApiProperty({
         type: "string",
         nullable: true,
@@ -152,6 +163,8 @@ export class AttachmentFile {
     })
     name!: string | null;
 
+    @IsString()
+    @IsOptional()
     @ApiProperty({
         type: "string",
         nullable: true,
@@ -161,6 +174,7 @@ export class AttachmentFile {
     })
     extension!: string | null;
 
+    @IsString()
     @ApiProperty({
         format: "url",
         description: "URL of the file.",

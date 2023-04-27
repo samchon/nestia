@@ -9,22 +9,8 @@
         "title": "📖 Guide Documents",
         "type": "page"
     },
-    "examples": {
-        "title": "🏫 Learn from Examples",
-        "type": "page",
-        "hidden": true,
-        "display": "hidden"
-    },
-    "playground": {
-        "title": "💻 Playground",
-        "type": "page",
-        "href": "https://stackblitz.com/edit/node-qssdpq?file=src/index.ts&view=editor",
-        "newWindow": true,
-        "hidden": true,
-        "display": "hidden"
-    },
     "contact": {
-        "title": "✉ Contant Me",
+        "title": "✉ Contact Me",
         "type": "page",
         "href": "mailto:samchon.github@gmail.com"
     }

@@ -8,16 +8,14 @@
     },
     "core": "Core Library",
     "sdk": "SDK/Swagger Generator",
-    "migrate": {
-        "type": "page",
-        "title": "Swagger to NestJS",
-        "hidden": true,
-        "display": "hidden"
+
+    "-- appendix": {
+        "type": "separator",
+        "title": "🔗 Appendix"
     },
-    "e2e": {
-        "type": "page",
-        "title": "E2E Test",
-        "hidden": true,
-        "display": "hidden"
+    "articles": {
+        "title": "⇲ dev.to Articles",
+        "href": "https://dev.to/samchon/series/22751",
+        "newWindow": true
     }
 }
