@@ -56,8 +56,7 @@ export namespace MethodDecoratorTransformer {
                 decorator.expression.typeArguments,
                 [
                     ...decorator.expression.arguments,
-                    TypedRouteProgrammer.generate(
-                        project,
+                    TypedRouteProgrammer.generate(project)(
                         decorator.expression.expression,
                     )(type),
                 ],

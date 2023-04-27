@@ -1,7 +1,11 @@
-import { ExecutionContext, createParamDecorator } from "@nestjs/common";
+import {
+    BadRequestException,
+    ExecutionContext,
+    createParamDecorator,
+} from "@nestjs/common";
 import express from "express";
 
-import { assert } from "typia";
+import { TypeGuardError, assert } from "typia";
 
 import { TransformError } from "./internal/TransformError";
 
@@ -29,7 +33,21 @@ export function TypedQuery<T>(
     ) {
         const request: express.Request = ctx.switchToHttp().getRequest();
         const params: URLSearchParams = new URLSearchParams(tail(request.url));
-        return decoder(params);
+        try {
+            return decoder(params);
+        } catch (exp) {
+            if (exp instanceof TypeGuardError) {
+                throw new BadRequestException({
+                    path: exp.path,
+                    reason: exp.message,
+                    expected: exp.expected,
+                    value: exp.value,
+                    message:
+                        "Request query parameters are not following the promised type.",
+                });
+            }
+            throw exp;
+        }
     })();
 }
 
@@ -40,7 +58,12 @@ export namespace TypedQuery {
     export function boolean(str: string | null): boolean | null | undefined {
         if (str === null) return undefined;
         else if (str === "null") return null;
-        return str.length ? Boolean(str) : true;
+        else if (str.length === 0) return true;
+        return str === "true" || str === "1"
+            ? true
+            : str === "false" || str === "0"
+            ? false
+            : (str as any); // wrong type
     }
     export function number(str: string | null): number | null | undefined {
         return str?.length ? (str === "null" ? null : Number(str)) : undefined;

@@ -10,7 +10,8 @@ import { INestiaTransformProject } from "../options/INestiaTransformProject";
 
 export namespace TypedRouteProgrammer {
     export const generate =
-        (project: INestiaTransformProject, modulo: ts.LeftHandSideExpression) =>
+        (project: INestiaTransformProject) =>
+        (modulo: ts.LeftHandSideExpression) =>
         (type: ts.Type): ts.Expression => {
             // GENERATE STRINGIFY PLAN
             const parameter = (
