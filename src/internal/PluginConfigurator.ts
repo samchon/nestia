@@ -33,7 +33,11 @@ export namespace PluginConfigurator {
         })();
 
         // CHECK WHETHER CONFIGURED
-        const strict: boolean = compilerOptions.strict === true;
+        const strict: boolean | undefined = compilerOptions.strict as
+            | boolean
+            | undefined;
+        const strictNullChecks: boolean | undefined =
+            compilerOptions.strictNullChecks as boolean | undefined;
         const core: comments.CommentObject | undefined = plugins.find(
             (p) =>
                 typeof p === "object" &&
@@ -46,10 +50,18 @@ export namespace PluginConfigurator {
                 p !== null &&
                 p.transform === "typia/lib/transform",
         );
-        if (strict && !!core && !!typia) return;
+        if (
+            strictNullChecks !== false &&
+            (strict === true || strictNullChecks === true) &&
+            core !== undefined &&
+            typia !== undefined
+        )
+            return;
 
         // DO CONFIGURE
-        compilerOptions.strict = true;
+        compilerOptions.strictNullChecks = true;
+        if (strict === undefined && strictNullChecks === undefined)
+            compilerOptions.strict = true;
         compilerOptions.experimentalDecorators = true;
         compilerOptions.emitDecoratorMetadata = true;
 
