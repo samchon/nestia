@@ -6,8 +6,5 @@
       "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
       },
-    },
-    "[mdx]": {
-      "editor.wordWrap": "on"
     }
   }
