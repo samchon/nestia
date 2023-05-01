@@ -1,12 +1,11 @@
-import fs from "fs";
-import typia from "typia";
+const fs = require("fs");
 
-const directory = (name: string) => `${__dirname}/../features/${name}`;
+const directory = (name) => `${__dirname}/../features/${name}`;
 
 const copy =
-    (src: string) =>
-    async (dest: string): Promise<void> => {
-        const stats: fs.Stats = await fs.promises.lstat(src);
+    (src) =>
+    async (dest) => {
+        const stats = await fs.promises.lstat(src);
         if (stats.isDirectory()) {
             await fs.promises.mkdir(dest);
             for (const file of await fs.promises.readdir(src))
@@ -14,13 +13,12 @@ const copy =
         } else await fs.promises.copyFile(src, dest);
     };
 
-const main = async (): Promise<void> => {
-    const type: "success" | "error" = process.argv[2] as "success" | "error";
-    const name: string = process.argv[3];
-
-    typia.assert(type);
-    typia.assert(name);
-
+const main = async () => {
+    const name = process.argv[3];
+    if (name === undefined)
+        throw new Error("No name specified. (e.g. npm run generate route-error-generic");
+    
+    const type = name.includes("error") ? "error" : "success";
     if (fs.existsSync(directory(name)))
         throw new Error("duplicated name exists.");
     await copy(`${__dirname}/../template/${type}`)(directory(name));

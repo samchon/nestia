@@ -1,15 +1,12 @@
-import cp from "child_process";
-import fs from "fs";
+const cp = require("child_process");
+const fs = require("fs");
 
 const main = async () => {
-    const directory = (name: string) => `${__dirname}/../../packages/${name}`;
-    const devDependencies: [string, string][] = [];
+    const directory = (name) => `${__dirname}/../../packages/${name}`;
+    const devDependencies = [];
 
     for (const modulo of await fs.promises.readdir(directory(""))) {
-        const content: {
-            dependencies?: Record<string, string>;
-            devDependencies?: Record<string, string>;
-        } = JSON.parse(
+        const content = JSON.parse(
             await fs.promises.readFile(
                 `${directory(modulo)}/package.json`,
                 "utf8",

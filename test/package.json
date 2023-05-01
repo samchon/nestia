@@ -5,9 +5,9 @@
   "description": "Test program of Nestia",
   "main": "index.js",
   "scripts": {
-    "generate": "ts-node src/generate.ts",
-    "setup": "ts-node src/setup.ts",
-    "start": "ts-node src/start.ts",
+    "generate": "node executable/generate",
+    "setup": "node executable/setup",
+    "start": "node executable/start",
     "prepare": "ts-patch install"
   },
   "repository": {

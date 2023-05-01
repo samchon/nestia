@@ -1,26 +1,24 @@
-import cp from "child_process";
-import fs from "fs";
+const cp = require("child_process");
+const fs = require("fs");
 
-import { ArrayUtil, TestValidator } from "@nestia/e2e";
+const library = (name) => `${__dirname}/../../packages/${name}`;
+const feature = (name) => `${__dirname}/../features/${name}`;
 
-const library = (name: string) => `${__dirname}/../../packages/${name}`;
-const feature = (name: string) => `${__dirname}/../features/${name}`;
-
-const build = async (name: string): Promise<void> => {
+const build = async (name) => {
     process.chdir(library(name));
 
     console.log(`Building @nestia/${name}`);
     cp.execSync("npm install", { stdio: "ignore" });
     cp.execSync("npm run build", { stdio: "ignore" });
 
-    const pack: { scripts: Record<string, string> } = JSON.parse(
+    const pack = JSON.parse(
         await fs.promises.readFile("package.json", "utf8"),
     );
     if (pack.scripts.test !== undefined)
         cp.execSync("npm run test", { stdio: "ignore" });
 };
 
-const execute = (name: string, i: number): void => {
+const execute = (name, i) => {
     // MOVE TO THE DIRECTORY
     process.chdir(feature(name));
     console.log(
@@ -38,25 +36,30 @@ const execute = (name: string, i: number): void => {
         cp.execSync("npx tsc");
     };
     if (name.includes("error")) {
-        TestValidator.error("compile error")(compile);
-        return;
+        try {
+            TestValidator.error("compile error")(compile);
+            throw new Error("compile error must be occured.");
+        }
+        catch {
+            return;
+        }
     } else compile();
 
     // GENERATE SWAGGER & SDK
-    const configured: boolean = fs.existsSync(
+    const configured = fs.existsSync(
         `${feature(name)}/nestia.config.ts`,
     );
-    const elements: string[] = configured
+    const elements = configured
         ? []
         : fs.existsSync("src/controllers")
         ? ["src/controllers"]
         : ["src/**.controller.ts"];
 
-    const generate = (type: "sdk" | "swagger") => {
+    const generate = (type) => {
         console.log(`  - npx nestia ${type}`);
 
-        const command: string = `node ${library("sdk")}/lib/executable/sdk`;
-        const argv: string = `${type} ${elements.join(" ")}`;
+        const command = `node ${library("sdk")}/lib/executable/sdk`;
+        const argv = `${type} ${elements.join(" ")}`;
         cp.execSync(`${command} ${argv}`, { stdio: "inherit" });
     };
     generate("swagger");
@@ -69,8 +72,8 @@ const execute = (name: string, i: number): void => {
     }
 };
 
-const main = async (): Promise<void> => {
-    const title = (name: string) =>
+const main = async () => {
+    const title = (name) =>
         console.log(
             "\n" +
                 "===================================================\n" +
@@ -80,10 +83,8 @@ const main = async (): Promise<void> => {
 
     if (process.argv.find((str) => str === "--skipBuild") === undefined) {
         title("BUILD LIBRARIES");
-        await ArrayUtil.asyncForEach(
-            await fs.promises.readdir(library("")),
-            build,
-        );
+        for (const name of await fs.promises.readdir(library("")))
+            await build(name);
     }
 
     title("TEST FEATURES");
