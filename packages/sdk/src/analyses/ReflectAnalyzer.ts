@@ -6,6 +6,8 @@ import { ParamCategory } from "../structures/ParamCategory";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { PathAnalyzer } from "./PathAnalyzer";
 
+declare const Reflect: any;
+
 type IModule = {
     [key: string]: any;
 };

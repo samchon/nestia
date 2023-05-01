@@ -10,30 +10,8 @@ jobs:
         with:
           node-version: 16.x
 
-      - name: fetcher
-        working-directory: ./packages/fetcher
+      - name: test
+        working-directory: ./test
         run: |
           npm install
-          npm run build
-
-      - name: core
-        working-directory: ./packages/core
-        run: |
-          npm install
-          npm run build
-          npm run build:test
-          npm run test
-
-      - name: sdk
-        working-directory: ./packages/sdk
-        run: |
-          npm install
-          npm run build
-          npm run test
-
-      - name: e2e
-        working-directory: ./packages/e2e
-        run: |
-          npm install
-          npm run build
-          npm run test
+          npm run start

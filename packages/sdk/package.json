@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -11,11 +11,10 @@
     "build": "rimraf lib && tsc",
     "dev": "rimraf lib && tsc --watch",
     "eslint": "eslint ./**/*.ts",
-    "package:latest": "npm run build && npm run test && npm publish --access public",
+    "package:latest": "npm run build && npm publish --access public",
     "package:next": "npm run package:latest -- --tag next",
     "prepare": "ts-patch install",
-    "prettier": "prettier --write ./**/*.ts",
-    "test": "node lib/test"
+    "prettier": "prettier --write ./**/*.ts"
   },
   "repository": {
     "type": "git",
@@ -69,8 +68,8 @@
     "prettier": "^2.8.1",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
-    "ts-patch": "3.0.0-beta3",
-    "typescript": "^5.0.4",
+    "ts-patch": "v2.1.0",
+    "typescript": "^4.9.5",
     "typescript-transform-paths": "^3.4.4",
     "uuid": "^9.0.0"
   },
@@ -78,8 +77,6 @@
     "assets",
     "lib",
     "src",
-    "!lib/test",
-    "!src/test",
     "README.md",
     "LICENSE",
     "package.json"

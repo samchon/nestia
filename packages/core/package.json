@@ -6,15 +6,13 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "build": "rimraf lib && tsc",
-    "build:test": "rimraf bin && tsc -p test/tsconfig.json",
     "dev": "npm run build -- --watch",
     "eslint": "eslint ./**/*.ts",
     "eslint:fix": "eslint ./**/*.ts --fix",
-    "package:latest": "npm run build && npm run build:test && npm run test && npm publish --access public",
+    "package:latest": "npm run build && npm publish --access public",
     "package:next": "npm run package:latest -- --tag next",
     "prepare": "ts-patch install",
-    "prettier": "prettier ./**/*.ts --write",
-    "test": "node bin/test"
+    "prettier": "prettier ./**/*.ts --write"
   },
   "repository": {
     "type": "git",
@@ -63,9 +61,9 @@
     "prettier": "^2.8.7",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
-    "ts-patch": "3.0.0-beta3",
+    "ts-patch": "^2.1.0",
     "tstl": "^2.5.13",
-    "typescript": "^5.0.4",
+    "typescript": "^4.9.5",
     "typescript-transform-paths": "^3.4.6"
   },
   "files": [
