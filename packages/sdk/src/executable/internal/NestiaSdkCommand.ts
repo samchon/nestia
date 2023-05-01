@@ -138,7 +138,7 @@ export namespace NestiaSdkCommand {
         validate: (config: INestiaConfig) => boolean,
     ): Promise<INestiaConfig | null> {
         const connector = new WorkerConnector(null, null, "process");
-        await connector.connect(`${__dirname}/nestia.config.getter.js`);
+        await connector.connect(`${__dirname}/nestia.config.getter.${__filename.substr(-2)}`);
 
         const driver = await connector.getDriver<typeof NestiaSdkConfig>();
         const config: INestiaConfig | null = await driver.get();

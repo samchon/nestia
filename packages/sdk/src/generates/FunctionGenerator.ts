@@ -283,7 +283,7 @@ export namespace FunctionGenerator {
             if (param.category === "param")
                 path = path.replace(
                     `:${param.field}`,
-                    `\${encodeURIComponent(${param.name})}`,
+                    `\${encodeURIComponent(${param.name} ?? "null")}`,
                 );
 
         // NO QUERY PARAMETER
