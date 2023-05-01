@@ -7,7 +7,7 @@ const feature = (name) => `${__dirname}/../features/${name}`;
 const build = async (name) => {
     process.chdir(library(name));
 
-    console.log(`Building @nestia/${name}`);
+    process.stdout.write(`  - @nestia/${name}`);
     cp.execSync("npm install", { stdio: "ignore" });
     cp.execSync("npm run build", { stdio: "ignore" });
 
@@ -18,23 +18,13 @@ const build = async (name) => {
         cp.execSync("npm run test", { stdio: "ignore" });
 };
 
-const execute = (name, i) => {
+const execute = (name) => {
     // MOVE TO THE DIRECTORY
     process.chdir(feature(name));
-    console.log(
-        "" +
-            (i === 0
-                ? ""
-                : "\n---------------------------------------------------\n") +
-            `  ${name}\n` +
-            "---------------------------------------------------",
-    );
+    process.stdout.write(`  - ${name}`);
 
     // COMPILE
-    const compile = () => {
-        console.log("  - npx tsc");
-        cp.execSync("npx tsc");
-    };
+    const compile = () => cp.execSync("npx tsc");
     if (name.includes("error")) {
         try {
             TestValidator.error("compile error")(compile);
@@ -61,39 +51,37 @@ const execute = (name, i) => {
                 ? `${type} ${input} --out swagger.json`
                 : `${type} ${input} --out src/api`
             : type;
-        console.log(`  - npx nestia ${argv}`);
-
         const command = `node ${library("sdk")}/lib/executable/sdk`;
-        cp.execSync(`${command} ${argv}`, { stdio: "inherit" });
+        cp.execSync(`${command} ${argv}`, { stdio: "ignore" });
     };
     generate("swagger");
     generate("sdk");
     compile();
 
     // RUN TEST AUTOMATION PROGRAM
-    if (fs.existsSync("src/test")) {
-        console.log("  - npx ts-node src/test");
-        cp.execSync("npx ts-node src/test", { stdio: "inherit" });
-    }
+    if (fs.existsSync("src/test"))
+        cp.execSync("npx ts-node src/test", { stdio: "ignore" });
 };
 
 const main = async () => {
-    const title = (name) =>
-        console.log(
-            "\n" +
-                "===================================================\n" +
-                `  ${name}\n` +
-                "===================================================",
-        );
-
-    if (process.argv.find((str) => str === "--skipBuild") === undefined) {
-        title("BUILD LIBRARIES");
-        for (const name of await fs.promises.readdir(library("")))
-            await build(name);
+    const measure = (title) => async (task) => {
+        const time = Date.now();
+        await task();
+        const elapsed = Date.now() - time;
+        console.log(`${title}: ${elapsed.toLocaleString()} ms`);
     }
 
-    title("TEST FEATURES");
-    (await fs.promises.readdir(feature(""))).forEach(execute);
+    await measure("\nTotal Elapsed Time")(async () => {
+        if (!process.argv.find((str) => str === "--skipBuild")) {
+            console.log("Build Packages");
+            for (const name of await fs.promises.readdir(library("")))
+                await measure("")(() => build(name));
+        }
+
+        console.log("\nTest Features");
+        for (const name of await fs.promises.readdir(feature("")))
+            await measure("")(async () => execute(name));
+    });
 };
 
 main().catch((exp) => {
