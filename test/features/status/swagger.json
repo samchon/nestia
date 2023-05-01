@@ -78,15 +78,18 @@
         "properties": {
           "cpu": {
             "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage",
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "memory": {
             "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage",
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "resource": {
             "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage",
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           }
         },
         "nullable": false,
@@ -114,12 +117,14 @@
           "user": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "system": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           }
         },
         "nullable": false,
@@ -135,27 +140,32 @@
           "rss": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "heapTotal": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "heapUsed": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "external": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "arrayBuffers": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           }
         },
         "nullable": false,
@@ -174,82 +184,98 @@
           "fsRead": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "fsWrite": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "involuntaryContextSwitches": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "ipcReceived": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "ipcSent": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "majorPageFault": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "maxRSS": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "minorPageFault": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "sharedMemorySize": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "signalsCount": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "swappedOut": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "systemCPUTime": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "unsharedDataSize": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "unsharedStackSize": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "userCPUTime": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "voluntaryContextSwitches": {
             "type": "number",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           }
         },
         "nullable": false,
@@ -297,6 +323,7 @@
               }
             ],
             "x-typia-required": true,
+            "x-typia-optional": false,
             "format": "uuid"
           },
           "title": {
@@ -333,22 +360,26 @@
               }
             ],
             "x-typia-required": true,
+            "x-typia-optional": false,
             "minLength": 3,
             "maxLength": 50
           },
           "body": {
             "type": "string",
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "files": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IAttachmentFile",
-              "x-typia-required": true
+              "x-typia-required": true,
+              "x-typia-optional": false
             },
             "nullable": false,
-            "x-typia-required": true
+            "x-typia-required": true,
+            "x-typia-optional": false
           },
           "created_at": {
             "type": "string",
@@ -371,6 +402,7 @@
               }
             ],
             "x-typia-required": true,
+            "x-typia-optional": false,
             "format": "date-time"
           }
         },
@@ -417,6 +449,7 @@
               }
             ],
             "x-typia-required": true,
+            "x-typia-optional": false,
             "maxLength": 255
           },
           "extension": {
@@ -453,6 +486,7 @@
               }
             ],
             "x-typia-required": true,
+            "x-typia-optional": false,
             "minLength": 1,
             "maxLength": 8
           },
@@ -477,6 +511,7 @@
               }
             ],
             "x-typia-required": true,
+            "x-typia-optional": false,
             "format": "url"
           }
         },

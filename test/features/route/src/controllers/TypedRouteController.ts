@@ -9,6 +9,11 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 export class TypedRouteController {
     @core.TypedRoute.Get("random")
     public async random(): Promise<IBbsArticle> {
-        return typia.random<IBbsArticle>();
+        return {
+            ...typia.random<IBbsArticle>(),
+            ...{
+                dummy: 1,
+            },
+        };
     }
 }

@@ -14,7 +14,7 @@ const copy =
     };
 
 const main = async () => {
-    const name = process.argv[3];
+    const name = process.argv[2];
     if (name === undefined)
         throw new Error("No name specified. (e.g. npm run generate route-error-generic");
     

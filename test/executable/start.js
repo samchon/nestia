@@ -43,27 +43,32 @@ const execute = (name, i) => {
         catch {
             return;
         }
-    } else compile();
+    }
 
     // GENERATE SWAGGER & SDK
     const configured = fs.existsSync(
         `${feature(name)}/nestia.config.ts`,
     );
-    const elements = configured
-        ? []
+    const input = configured
+        ? null
         : fs.existsSync("src/controllers")
-        ? ["src/controllers"]
-        : ["src/**.controller.ts"];
+            ? "src/controllers"
+            : "src/**/*.controller.ts";
 
     const generate = (type) => {
-        console.log(`  - npx nestia ${type}`);
+        const argv = input !== null
+            ? type === "swagger"
+                ? `${type} ${input} --out swagger.json`
+                : `${type} ${input} --out src/api`
+            : type;
+        console.log(`  - npx nestia ${argv}`);
 
         const command = `node ${library("sdk")}/lib/executable/sdk`;
-        const argv = `${type} ${elements.join(" ")}`;
         cp.execSync(`${command} ${argv}`, { stdio: "inherit" });
     };
     generate("swagger");
     generate("sdk");
+    compile();
 
     // RUN TEST AUTOMATION PROGRAM
     if (fs.existsSync("src/test")) {
