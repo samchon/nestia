@@ -19,12 +19,11 @@ export namespace RandomGenerator {
      * @param length Length of alphabets
      * @returns Generated alphabets
      */
-    export function alphabets(length: number): string {
-        return new Array(length)
+    export const alphabets = (length: number): string =>
+        new Array(length)
             .fill("")
             .map(() => CHARACTERS[randint(0, CHARACTERS.length - 1)])
             .join("");
-    }
 
     /**
      * Generate random alpha-numeric characters.
@@ -34,12 +33,11 @@ export namespace RandomGenerator {
      * @param length Length of characters
      * @returns Generated string
      */
-    export function alphaNumeric(length: number): string {
-        return new Array(length)
+    export const alphaNumeric = (length: number): string =>
+        new Array(length)
             .fill("")
             .map(() => LETTERS[randint(0, LETTERS.length - 1)])
             .join("");
-    }
 
     /**
      * Generate random name.
@@ -47,9 +45,8 @@ export namespace RandomGenerator {
      * @param length Length of paragraph, default is 2 or 3
      * @returns Generated name
      */
-    export function name(length: number = randint(2, 3)): string {
-        return paragraph(length)();
-    }
+    export const name = (length: number = randint(2, 3)): string =>
+        paragraph(length)();
 
     /**
      * Generate random paragraph.
@@ -106,40 +103,29 @@ export namespace RandomGenerator {
      * @param content Target content
      * @returns Random substring
      */
-    export function substring(content: string): string {
+    export const substring = (content: string): string => {
         const first: number = randint(0, content.length - 1);
         const last: number = randint(first + 1, content.length);
 
         return content.substring(first, last).trim();
-    }
+    };
 
     /**
      * Generate random mobile number.
      *
      * @param prefix Prefix string, default is "010"
      * @returns Random mobile number
+     * @example 010-334-0067
      */
-    export function mobile(prefix: string = "010"): string {
-        return `${prefix}${digit(3, 4)}${digit(4, 4)}`;
-    }
-
-    /**
-     * Generate random digit.
-     *
-     * Generate random digit that filling front with zero characters
-     * when value is less than maximum cipher.
-     *
-     * @param minC Minimum cipher
-     * @param maxC Maximum cipher
-     * @returns
-     */
-    export function digit(minC: number, maxC: number): string {
-        const val: number = randint(0, Math.pow(10.0, maxC) - 1);
-        const log10: number = val ? Math.floor(Math.log10(val)) + 1 : 0;
-        const prefix: string = "0".repeat(Math.max(0, minC - log10));
-
-        return prefix + val.toString();
-    }
+    export const mobile = (prefix: string = "010"): string =>
+        [
+            prefix,
+            (() => {
+                const value = randint(0, 9999);
+                return value.toString().padStart(value < 1_000 ? 3 : 4, "0");
+            })(),
+            randint(0, 9999).toString().padStart(4, "0"),
+        ].join("-");
 
     /**
      * Generate random date.
@@ -148,10 +134,10 @@ export namespace RandomGenerator {
      * @param range Range of random milliseconds
      * @returns Random date
      */
-    export function date(from: Date, range: number): Date {
-        const time: number = from.getTime() + randint(0, range);
-        return new Date(time);
-    }
+    export const date =
+        (from: Date) =>
+        (range: number): Date =>
+            new Date(from.getTime() + randint(0, range));
 
     /**
      * Pick random elements from an array.
@@ -160,11 +146,13 @@ export namespace RandomGenerator {
      * @param count Number of count to pick
      * @returns Sampled array
      */
-    export function sample<T>(array: T[], count: number): T[] {
-        const ret: T[] = [];
-        _Sample(array, back_inserter(ret), count);
-        return ret;
-    }
+    export const sample =
+        <T>(array: T[]) =>
+        (count: number): T[] => {
+            const ret: T[] = [];
+            _Sample(array, back_inserter(ret), count);
+            return ret;
+        };
 
     /**
      * Pick random element from an array.
@@ -172,7 +160,6 @@ export namespace RandomGenerator {
      * @param array Target array
      * @returns picked element
      */
-    export function pick<T>(array: T[]): T {
-        return array[randint(0, array.length - 1)];
-    }
+    export const pick = <T>(array: T[]): T =>
+        array[randint(0, array.length - 1)];
 }

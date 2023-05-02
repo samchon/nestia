@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@nestia/e2e.svg)](https://www.npmjs.com/package/@nestia/e2e)
 [![Downloads](https://img.shields.io/npm/dm/@nestia/e2e.svg)](https://www.npmjs.com/package/@nestia/e2e)
 [![Build Status](https://github.com/samchon/typia/workflows/build/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Abuild)
-[![Guide Documents](https://img.shields.io/badge/wiki-documentation-forestgreen)](https://github.com/samchon/nestia/wiki)
+[![Guide Documents](https://img.shields.io/badge/wiki-documentation-forestgreen)](https://typia.io/docs/)
 
 Helper library for E2E testing in NestJS.
 

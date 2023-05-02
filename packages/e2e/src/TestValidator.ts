@@ -169,10 +169,8 @@ export namespace TestValidator {
         async <Values extends any[]>(
             props: ISearchProps<Entity, Values, Request>,
         ): Promise<void> => {
-            const samples: Entity[] = RandomGenerator.sample(
-                total,
-                sampleCount,
-            );
+            const samples: Entity[] =
+                RandomGenerator.sample(total)(sampleCount);
             for (const s of samples) {
                 const values: Values = props.values(s);
                 const filtered: Entity[] = total.filter((entity) =>
