@@ -21,7 +21,7 @@ npm install --save-dev nestia
 npx nestia setup
 ```
 
-Just run above `npx nestia setup` command.
+When you want to setup `nestia` in exiting project, just run above `npx nestia setup` command.
 
 Setup Wizard will install and configure everything automatically.
 
@@ -46,6 +46,7 @@ If you want to install `nestia` manually, you have to install `ts-node` and `ts-
 ```json fileName="tsconfig.json"
 {
     "strict": true,
+    "strictNullChecks": true,
     "compilerOptions": {
         "plugins": [
             { "transform": "@nestia/core/lib/transform" },
@@ -59,7 +60,7 @@ After that, configure `tsconfig.json` file like above.
 
 As `@nestia/core` and `typia` are generating optimal validation and JSON serialization code through [transformation](https://typia.io/docs/setup/#transformation), you've to configure them as `plugins`. 
 
-Also, never forget to configure `strict` as `true`. It is essential option for modern TypeScript development.
+Also, never forget to configure `strict` (or `strictNullChecks`) as `true`. It is essential option for modern TypeScript development.
 
 ```json fileName="package.json"
 {
