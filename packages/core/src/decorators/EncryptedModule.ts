@@ -64,7 +64,7 @@ export namespace EncryptedModule {
      * @returns Class decorated module instance
      */
     export async function dynamic(
-        path: string,
+        path: string | string[] | { include: string[]; exclude?: string[] },
         password: IEncryptionPassword | IEncryptionPassword.Closure,
         options: Omit<Parameters<typeof Module>[0], "controllers"> = {},
     ): Promise<object> {

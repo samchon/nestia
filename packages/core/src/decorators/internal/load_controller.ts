@@ -1,35 +1,42 @@
 import is_ts_node from "detect-ts-node";
-import fs from "fs";
 
 import { Creator } from "../../typings/Creator";
+import { SourceFinder } from "../../utils/SourceFinder";
 
-export async function load_controllers(
-    path: string,
-): Promise<Creator<object>[]> {
-    const output: any[] = [];
-    await iterate(output, path);
-    return output;
-}
+export const load_controllers = async (
+    path: string | string[] | { include: string[]; exclude?: string[] },
+): Promise<Creator<object>[]> => {
+    const sources: string[] = await SourceFinder.find({
+        include: Array.isArray(path)
+            ? path
+            : typeof path === "object"
+            ? path.include
+            : [path],
+        exclude:
+            typeof path === "object" && !Array.isArray(path)
+                ? path.exclude ?? []
+                : [],
+        filter:
+            EXTENSION === "ts"
+                ? (file) =>
+                      file.substring(file.length - 3) === ".ts" &&
+                      file.substring(file.length - 5) !== ".d.ts"
+                : (flle) => flle.substring(flle.length - 3) === ".js",
+    });
+    return mount(sources);
+};
 
-async function iterate(
-    controllers: Creator<object>[],
-    path: string,
-): Promise<void> {
-    const directory: string[] = await fs.promises.readdir(path);
-    for (const file of directory) {
-        const current: string = `${path}/${file}`;
-        const stats: fs.Stats = await fs.promises.lstat(current);
-
-        if (stats.isDirectory() === true) await iterate(controllers, current);
-        else if (file.substring(file.length - 3) === `.${EXTENSION}`) {
-            const external: any = await import(current);
-            for (const key in external) {
-                const instance: Creator<object> = external[key];
-                if (Reflect.getMetadata("path", instance) !== undefined)
-                    controllers.push(instance);
-            }
+async function mount(sources: string[]): Promise<any[]> {
+    const controllers: any[] = [];
+    for (const file of sources) {
+        const external: any = await import(file);
+        for (const key in external) {
+            const instance: Creator<object> = external[key];
+            if (Reflect.getMetadata("path", instance) !== undefined)
+                controllers.push(instance);
         }
     }
+    return controllers;
 }
 
 const EXTENSION = is_ts_node ? "ts" : "js";

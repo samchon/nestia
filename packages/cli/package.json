@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "description": "Nestia CLI tool",
   "main": "bin/index.js",
   "bin": {
@@ -8,7 +8,8 @@
   },
   "scripts": {
     "build": "rimraf bin && tsc",
-    "prettier": "prettier ./src/**/*.ts --write"
+    "prettier": "prettier ./src/**/*.ts --write",
+    "package:next": "npm publish --access public --tag next"
   },
   "repository": {
     "type": "git",
@@ -35,8 +36,8 @@
     "inquirer": "^8.2.5"
   },
   "devDependencies": {
-    "@nestia/core": "^1.1.0",
-    "@nestia/sdk": "^1.1.0",
+    "@nestia/core": "^1.2.0",
+    "@nestia/sdk": "^1.2.0",
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",

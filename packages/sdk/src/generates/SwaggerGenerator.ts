@@ -17,72 +17,74 @@ import { ISwaggerDocument } from "../structures/ISwaggerDocument";
 import { MapUtil } from "../utils/MapUtil";
 
 export namespace SwaggerGenerator {
-    export async function generate(
-        checker: ts.TypeChecker,
-        config: INestiaConfig.ISwaggerConfig,
-        routeList: IRoute[],
-    ): Promise<void> {
-        // PREPARE ASSETS
-        const parsed: NodePath.ParsedPath = NodePath.parse(config.output);
-        const location: string = !!parsed.ext
-            ? NodePath.resolve(config.output)
-            : NodePath.join(NodePath.resolve(config.output), "swagger.json");
+    export const generate =
+        (checker: ts.TypeChecker) =>
+        (config: INestiaConfig.ISwaggerConfig) =>
+        async (routeList: IRoute[]): Promise<void> => {
+            // PREPARE ASSETS
+            const parsed: NodePath.ParsedPath = NodePath.parse(config.output);
+            const location: string = !!parsed.ext
+                ? NodePath.resolve(config.output)
+                : NodePath.join(
+                      NodePath.resolve(config.output),
+                      "swagger.json",
+                  );
 
-        const collection: MetadataCollection = new MetadataCollection({
-            replace: MetadataCollection.replace,
-        });
+            const collection: MetadataCollection = new MetadataCollection({
+                replace: MetadataCollection.replace,
+            });
 
-        // CONSTRUCT SWAGGER DOCUMENTS
-        const tupleList: Array<ISchemaTuple> = [];
-        const swagger: ISwaggerDocument = await initialize(location);
-        const pathDict: Map<string, ISwaggerDocument.IPath> = new Map();
+            // CONSTRUCT SWAGGER DOCUMENTS
+            const tupleList: Array<ISchemaTuple> = [];
+            const swagger: ISwaggerDocument = await initialize(location);
+            const pathDict: Map<string, ISwaggerDocument.IPath> = new Map();
 
-        for (const route of routeList) {
-            if (route.tags.find((tag) => tag.name === "internal")) continue;
+            for (const route of routeList) {
+                if (route.tags.find((tag) => tag.name === "internal")) continue;
 
-            const path: ISwaggerDocument.IPath = MapUtil.take(
-                pathDict,
-                get_path(route.path, route.parameters),
-                () => ({}),
+                const path: ISwaggerDocument.IPath = MapUtil.take(
+                    pathDict,
+                    get_path(route.path, route.parameters),
+                    () => ({}),
+                );
+                path[route.method.toLowerCase()] = generate_route(
+                    checker,
+                    collection,
+                    tupleList,
+                    route,
+                );
+            }
+            swagger.paths = {};
+            for (const [path, routes] of pathDict) {
+                swagger.paths[path] = routes;
+            }
+
+            // FILL JSON-SCHEMAS
+            const application: IJsonApplication = ApplicationProgrammer.write({
+                purpose: "swagger",
+            })(tupleList.map(({ metadata }) => metadata));
+            swagger.components = {
+                ...(swagger.components ?? {}),
+                schemas: application.components.schemas,
+            };
+            tupleList.forEach(({ schema }, index) => {
+                Object.assign(schema, application.schemas[index]!);
+            });
+
+            // CONFIGURE SECURITY
+            if (config.security) fill_security(config.security, swagger);
+
+            // ERASE IJsonComponents.IObject.$id
+            for (const obj of Object.values(swagger.components.schemas))
+                if (obj.$id) delete obj.$id;
+
+            // DO GENERATE
+            await fs.promises.writeFile(
+                location,
+                JSON.stringify(swagger, null, 2),
+                "utf8",
             );
-            path[route.method.toLowerCase()] = generate_route(
-                checker,
-                collection,
-                tupleList,
-                route,
-            );
-        }
-        swagger.paths = {};
-        for (const [path, routes] of pathDict) {
-            swagger.paths[path] = routes;
-        }
-
-        // FILL JSON-SCHEMAS
-        const application: IJsonApplication = ApplicationProgrammer.write({
-            purpose: "swagger",
-        })(tupleList.map(({ metadata }) => metadata));
-        swagger.components = {
-            ...(swagger.components ?? {}),
-            schemas: application.components.schemas,
         };
-        tupleList.forEach(({ schema }, index) => {
-            Object.assign(schema, application.schemas[index]!);
-        });
-
-        // CONFIGURE SECURITY
-        if (config.security) fill_security(config.security, swagger);
-
-        // ERASE IJsonComponents.IObject.$id
-        for (const obj of Object.values(swagger.components.schemas))
-            if (obj.$id) delete obj.$id;
-
-        // DO GENERATE
-        await fs.promises.writeFile(
-            location,
-            JSON.stringify(swagger, null, 2),
-            "utf8",
-        );
-    }
 
     /* ---------------------------------------------------------
         INITIALIZERS

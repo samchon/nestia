@@ -35,7 +35,7 @@ const execute = (name) => {
         }
     }
 
-    // GENERATE SWAGGER & SDK
+    // GENERATE SWAGGER & SDK & E2E
     const configured = fs.existsSync(
         `${feature(name)}/nestia.config.ts`,
     );
@@ -54,8 +54,28 @@ const execute = (name) => {
         const command = `node ${library("sdk")}/lib/executable/sdk`;
         cp.execSync(`${command} ${argv}`, { stdio: "ignore" });
     };
+
+    for (const file of [
+        "swagger.json", 
+        "src/api/functional", 
+        "src/api/HttpError.ts",
+        "src/api/IConnection.ts",
+        "src/api/index.ts",
+        "src/api/module.ts",
+        "src/api/Primitive.ts",
+        "src/test/features/api/automated"
+    ])
+        cp.execSync(`npx rimraf ${file}`, { stdio: "ignore" });
+
     generate("swagger");
     generate("sdk");
+    if (input === null) {
+        const config = fs.readFileSync(
+            `${feature(name)}/nestia.config.ts`, 
+            "utf8"
+        );
+        if (config.includes("e2e:")) generate("e2e");
+    }
     compile();
 
     // RUN TEST AUTOMATION PROGRAM
@@ -79,8 +99,15 @@ const main = async () => {
         }
 
         console.log("\nTest Features");
+        const only = (() => {
+            const index = process.argv.findIndex(str => str === "--only");
+            return (index === -1 || process.argv.length < index + 2)
+                ? null
+                : process.argv[index + 1] ?? null;
+        })();
         for (const name of await fs.promises.readdir(feature("")))
-            await measure("")(async () => execute(name));
+            if (name === (only ?? name))
+                await measure("")(async () => execute(name));
     });
 };
 

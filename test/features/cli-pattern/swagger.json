@@ -277,18 +277,6 @@
         ],
         "x-typia-jsDocTags": []
       }
-    },
-    "securitySchemes": {
-      "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
-      }
     }
-  },
-  "security": [
-    {
-      "bearer": []
-    }
-  ]
+  }
 }

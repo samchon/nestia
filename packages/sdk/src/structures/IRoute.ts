@@ -31,5 +31,9 @@ export namespace IRoute {
         encrypted: boolean;
         type: ITypeTuple;
         optional: boolean;
+        meta?: {
+            type: string;
+            nullable: boolean;
+        };
     }
 }

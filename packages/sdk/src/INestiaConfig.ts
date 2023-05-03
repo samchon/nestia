@@ -22,6 +22,13 @@ export interface INestiaConfig {
     output?: string;
 
     /**
+     * Otput directory that e2e test codes would be placed in.
+     *
+     * If not configured, you can't generate e2e test functions.
+     */
+    e2e?: string;
+
+    /**
      * Compiler options for the TypeScript.
      *
      * If you've omitted this property or the assigned property cannot fully cover the

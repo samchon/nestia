@@ -40,10 +40,7 @@ export function TypedParam(
     type?: "boolean" | "number" | "string" | "uuid",
     nullable?: false | true,
 ): ParameterDecorator {
-    return createParamDecorator(function TypedParam(
-        {}: any,
-        ctx: ExecutionContext,
-    ) {
+    function TypedParam({}: any, ctx: ExecutionContext) {
         const request: express.Request = ctx.switchToHttp().getRequest();
         const str: string = request.params[name];
 
@@ -69,7 +66,10 @@ export function TypedParam(
                 );
             return str;
         } else return str;
-    })(name);
+    }
+    (TypedParam as any).nullable = !!nullable;
+    (TypedParam as any).type = type;
+    return createParamDecorator(TypedParam)(name);
 }
 
 const UUID_PATTERN =
