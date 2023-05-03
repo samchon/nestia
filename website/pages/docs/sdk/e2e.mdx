@@ -1,0 +1,48 @@
+## E2E Test Functions
+```bash
+npx nestia e2e
+```
+
+If you type above command, `@nestia/sdk` will generate E2E test functions for every API in your NestJS backend project.
+
+Here is an example of generated E2E test functions:
+
+```typescript filename="test/api/features/automated/test_api_body_store.ts" showLineNumbers
+import typia, { Primitive } from "typia";
+
+import api from "./../../../../api";
+import type { IBbsArticle } from "./../../../../api/structures/IBbsArticle";
+
+export const test_api_body_store = async (
+    connection: api.IConnection
+): Promise<void> => {
+    const output: Primitive<IBbsArticle> = 
+        await api.functional.body.store(
+            connection,
+            typia.random<Primitive<IBbsArticle.IStore>>(),
+        );
+    typia.assert(output);
+};
+```
+
+
+
+## Configuration
+To generate E2E test functions, you've configure `nestia.config.ts` file like below.
+
+At least, you've to configure those properties:
+
+  - `input`
+  - `output`
+  - `e2e`
+
+```typescript
+import { INestiaConfig } from "@nestia/sdk";
+
+export const NESTIA_CONFIG: INestiaConfig = {
+    input: ["src/controllers"],
+    output: "src/api",
+    e2e: "src/test",
+};
+export default NESTIA_CONFIG;
+```

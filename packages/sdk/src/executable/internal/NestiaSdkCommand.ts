@@ -43,7 +43,7 @@ export namespace NestiaSdkCommand {
             assign: (config, output) => (config.output = output),
             validate: (config) => !!config.output,
             location: (config) => config.output!,
-        })(argv)((app) => app.sdk());
+        })(argv)((app) => app.e2e());
 
     const main =
         (props: IProps) =>

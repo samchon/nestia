@@ -56,6 +56,7 @@ export namespace NestiaSetupWizard {
         // INSTALL AND CONFIGURE TYPIA + NESTIA
         pack.install({ dev: false, modulo: "typia", version: "latest" });
         pack.install({ dev: false, modulo: "@nestia/core", version: "latest" });
+        pack.install({ dev: true, modulo: "@nestia/e2e", version: "latest" });
         pack.install({ dev: true, modulo: "@nestia/sdk", version: "latest" });
         await PluginConfigurator.configure(args);
     }

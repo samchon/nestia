@@ -19,7 +19,7 @@ export namespace E2eFileProgrammer {
                 (p) => p.category === "param" && p.meta?.type === "uuid",
             );
             const content: string = [
-                ...(route.parameters.length
+                ...(route.parameters.length || route.output.name !== "void"
                     ? [
                           config.primitive === false
                               ? `import typia from "typia";`
@@ -87,27 +87,28 @@ export namespace E2eFileProgrammer {
         };
 
     const name = (route: IRoute): string =>
-        [
+        postfix([
             "test_api",
             ...route.path
                 .split("/")
                 .filter((str) => str.length && str[0] !== ":")
                 .map(normalize),
-            route.name,
-        ].join("_");
+        ])(route.name).join("_");
 
     const accessor = (route: IRoute): string =>
-        [
+        postfix([
             "api.functional",
             ...route.path
                 .split("/")
                 .filter((str) => str.length && str[0] !== ":")
                 .map(normalize),
-            route.name,
-        ].join(".");
+        ])(route.name).join(".");
 
     const normalize = (str: string) =>
         str.split("-").join("_").split(".").join("_");
+
+    const postfix = (array: string[]) => (name: string) =>
+        array.at(-1) === name ? array : [...array, name];
 
     const primitive =
         (config: INestiaConfig) =>
