@@ -25,7 +25,7 @@ export namespace DynamicModule {
      * @returns module instance
      */
     export async function mount(
-        path: string,
+        path: string | string[] | { include: string[]; exclude?: string[] },
         metadata: Omit<ModuleMetadata, "controllers"> = {},
     ): Promise<object> {
         // LOAD CONTROLLERS

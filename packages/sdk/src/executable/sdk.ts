@@ -14,14 +14,9 @@ npx @nestia/sdk [command] [options?]
     - npx @nestia/sdk dependencies
     - npx @nestia/sdk dependencies --manager pnpm
   2. npx @nestia/sdk init
-  3. npx @nestia/sdk sdk <input> --out <output>
-    - npx @nestia/sdk sdk # when "nestia.config.ts" be configured
-    - npx @nestia/sdk sdk src/controllers --out src/api
-    - npx @nestia/sdk sdk src/**/*.controller.ts --out src/api
-  4. npx @nestia/sdk swagger <input> --out <output>
-    - npx @nestia/sdk swagger # when "nestia.config.ts" be configured
-    - npx @nestia/sdk swagger src/controllers --out src/api
-    - npx @nestia/sdk swagger src/**/*.controller.ts --out src/api       
+  3. npx @nestia/sdk sdk
+  4. npx @nestia/sdk swagger
+  5. npx @nestia/sdk e2e
 `;
 
 function halt(desc: string): never {
@@ -66,6 +61,7 @@ async function main() {
     else if (type === "init") await initialize();
     else if (type === "sdk") await execute((c) => c.sdk(argv));
     else if (type === "swagger") await execute((c) => c.swagger(argv));
+    else if (type === "e2e") await execute((c) => c.e2e(argv));
     else halt(USAGE);
 }
 main().catch((exp) => {

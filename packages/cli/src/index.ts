@@ -6,24 +6,12 @@ npx nestia [command] [options?]
   1. npx nestia start <directory> --manager (npm|pnpm|yarn)
     - npx nestia start project
     - npx nestia start project --manager pnpm
-  2. npx nestia setup \\
-      --manager (npm|pnpm|yarn) \\
-      --project {tsconfig.json file path}
-    - npx nestia setup
-    - npx nestia setup --manager pnpm
-    - npx nestia setup --project tsconfig.test.json
-  3. npx nestia dependencies --manager (npm|pnpm|yarn)
-    - npx nestia dependencies
-    - npx nestia dependencies --manager yarn
+  2. npx nestia setup
+  3. npx nestia dependencies
   4. npx nestia init
-  5. npx nestia sdk <input> --out <output>
-    - npx nestia sdk # when "nestia.config.ts" be configured
-    - npx nestia sdk src/controllers --out src/api
-    - npx nestia sdk src/**/*.controller.ts --out src/api
-  6. npx nestia swagger <input> --out <output>
-    - npx nestia swagger # when "nestia.config.ts" be configured
-    - npx nestia swagger src/controllers --out src/api
-    - npx nestia swagger src/**/*.controller.ts --out src/api       
+  5. npx nestia sdk
+  6. npx nestia swagger
+  7. npx nestia e2e
 `;
 
 function halt(desc: string): never {
@@ -54,7 +42,8 @@ async function main(): Promise<void> {
         type === "dependencies" ||
         type === "init" ||
         type === "sdk" ||
-        type === "swagger"
+        type === "swagger" ||
+        type === "e2e"
     ) {
         try {
             require.resolve("@nestia/sdk/lib/executable/sdk");

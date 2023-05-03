@@ -250,15 +250,25 @@ export namespace ReflectAnalyzer {
                 field: param.data,
                 encrypted: param.factory.name === "EncryptedBody",
             };
-        } else if (param.factory.name === "TypedParam")
+        } else if (param.factory.name === "TypedParam") {
             return {
                 name: param.name,
                 category: "param",
                 index: param.index,
                 field: param.data,
                 encrypted: false,
+                meta: (() => {
+                    const type = (param.factory as any).type;
+                    const nullable = (param.factory as any).nullable;
+                    if (type !== undefined && nullable !== undefined)
+                        return {
+                            type,
+                            nullable,
+                        };
+                    return undefined;
+                })(),
             };
-        else if (param.factory.name === "TypedQuery")
+        } else if (param.factory.name === "TypedQuery")
             return {
                 name: param.name,
                 category: "query",

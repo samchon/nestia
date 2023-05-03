@@ -253,6 +253,7 @@ export namespace ControllerAnalyzer {
             encrypted: param.encrypted,
             type: tuple,
             optional,
+            meta: param.meta,
         };
     }
 }

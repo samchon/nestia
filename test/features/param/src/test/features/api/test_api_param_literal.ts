@@ -1,6 +1,6 @@
-import api from "@api";
+import { TestValidator } from "@nestia/e2e";
 
-import { TestValidator } from "../../../../../../packages/e2e/src/TestValidator";
+import api from "@api";
 
 export const test_api_param_literal = async (
     connection: api.IConnection,

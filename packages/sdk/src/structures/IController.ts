@@ -23,5 +23,9 @@ export namespace IController {
         field: string | undefined;
         category: ParamCategory;
         encrypted: boolean;
+        meta?: {
+            type: string;
+            nullable: boolean;
+        };
     }
 }

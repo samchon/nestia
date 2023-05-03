@@ -1,9 +1,9 @@
 import typia from "typia";
 
+import { TestValidator } from "@nestia/e2e";
+
 import api from "@api";
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
-
-import { TestValidator } from "../../../../../../packages/e2e/src/TestValidator";
 
 export const test_api_body = async (
     connection: api.IConnection,

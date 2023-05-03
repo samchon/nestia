@@ -1,20 +1,21 @@
 import fs from "fs";
 import path from "path";
 import * as runner from "ts-node";
-import { Singleton } from "tstl/thread/Singleton";
-import { Pair } from "tstl/utility/Pair";
+import { Pair, Singleton } from "tstl";
 import ts from "typescript";
 
 import { INestiaConfig } from "./INestiaConfig";
 import { ControllerAnalyzer } from "./analyses/ControllerAnalyzer";
 import { ReflectAnalyzer } from "./analyses/ReflectAnalyzer";
-import { SourceFinder } from "./analyses/SourceFinder";
 import { NestiaConfigCompilerOptions } from "./executable/internal/NestiaConfigCompilerOptions";
+import { E2eGenerator } from "./generates/E2eGenerator";
 import { SdkGenerator } from "./generates/SdkGenerator";
 import { SwaggerGenerator } from "./generates/SwaggerGenerator";
 import { IController } from "./structures/IController";
 import { IRoute } from "./structures/IRoute";
 import { ArrayUtil } from "./utils/ArrayUtil";
+import { NestiaConfigUtil } from "./utils/NestiaConfigUtil";
+import { SourceFinder } from "./utils/SourceFinder";
 
 export class NestiaSdkApplication {
     private readonly config_: INestiaConfig;
@@ -57,6 +58,39 @@ export class NestiaSdkApplication {
         });
     }
 
+    public async e2e(): Promise<void> {
+        if (!this.config_.output)
+            throw new Error(
+                "Error on NestiaApplication.e2e(): output path of SDK is not specified.",
+            );
+        else if (!this.config_.e2e)
+            throw new Error(
+                "Error on NestiaApplication.e2e(): output path of e2e test files is not specified.",
+            );
+
+        const validate =
+            (title: string) =>
+            async (location: string): Promise<void> => {
+                const parent: string = path.resolve(location + "/..");
+                const stats: fs.Stats = await fs.promises.lstat(parent);
+                if (stats.isDirectory() === false)
+                    throw new Error(
+                        `Error on NestiaApplication.e2e(): output directory of ${title} does not exists.`,
+                    );
+            };
+        await validate("sdk")(this.config_.output);
+        await validate("e2e")(this.config_.e2e);
+
+        await this.generate(
+            (config) => config,
+            () => SdkGenerator.generate,
+        );
+        await this.generate(
+            (config) => config,
+            () => E2eGenerator.generate,
+        );
+    }
+
     public async sdk(): Promise<void> {
         if (!this.config_.output)
             throw new Error(
@@ -69,12 +103,14 @@ export class NestiaSdkApplication {
             throw new Error(
                 "Error on NestiaApplication.sdk(): output directory does not exists.",
             );
-
-        await this.generate((config) => config, SdkGenerator.generate);
+        await this.generate(
+            (config) => config,
+            () => SdkGenerator.generate,
+        );
     }
 
     public async swagger(): Promise<void> {
-        if (!this.config_.swagger || !this.config_.swagger.output)
+        if (!this.config_.swagger?.output)
             throw new Error(
                 `Error on NestiaApplication.swagger(): output path of the "swagger.json" is not specified.`,
             );
@@ -99,22 +135,23 @@ export class NestiaSdkApplication {
         config: (entire: INestiaConfig) => Config,
         archiver: (
             checker: ts.TypeChecker,
-            config: Config,
-            routes: IRoute[],
-        ) => Promise<void>,
+        ) => (config: Config) => (routes: IRoute[]) => Promise<void>,
     ): Promise<void> {
         // MOUNT TS-NODE
         this.prepare();
 
         // LOAD CONTROLLER FILES
-        const input: INestiaConfig.IInput =
-            this.config_.input instanceof Array
-                ? { include: this.config_.input }
-                : typeof this.config_.input === "string"
-                ? { include: [this.config_.input] }
-                : this.config_.input;
+        const input: INestiaConfig.IInput = NestiaConfigUtil.input(
+            this.config_.input,
+        );
         const fileList: string[] = await ArrayUtil.asyncFilter(
-            await SourceFinder.find(input),
+            await SourceFinder.find({
+                include: input.include,
+                exclude: input.exclude,
+                filter: (file) =>
+                    file.substring(file.length - 3) === ".ts" &&
+                    file.substring(file.length - 5) !== ".d.ts",
+            }),
             (file) => this.is_not_excluded(file),
         );
 
@@ -147,7 +184,7 @@ export class NestiaSdkApplication {
         }
 
         // DO GENERATE
-        await archiver(checker, config(this.config_), routeList);
+        await archiver(checker)(config(this.config_))(routeList);
     }
 
     private prepare(): void {
