@@ -1,6 +1,6 @@
-import ts from "typescript";
+import type ts from "typescript";
 
-import { ISwaggerDocument } from "./structures/ISwaggerDocument";
+import type { ISwaggerDocument } from "./structures/ISwaggerDocument";
 import type { StripEnums } from "./utils/StripEnums";
 
 /**
@@ -9,6 +9,13 @@ import type { StripEnums } from "./utils/StripEnums";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export interface INestiaConfig {
+    /**
+     * Building `swagger.json` is also possible.
+     *
+     * If not specified, you can't build the `swagger.json`.
+     */
+    swagger?: INestiaConfig.ISwaggerConfig;
+
     /**
      * List of files or directories containing the NestJS controller classes.
      */
@@ -22,9 +29,27 @@ export interface INestiaConfig {
     output?: string;
 
     /**
-     * Otput directory that e2e test codes would be placed in.
+     * Target directory that SDK distribution files would be placed in.
      *
-     * If not configured, you can't generate e2e test functions.
+     * If you configure this property and runs `npx nestia sdk` command,
+     * distribution environments for the SDK library would be generated.
+     *
+     * After the SDK library generation, move to the `distribute` directory,
+     * and runs `npm publish` command, then you can share SDK library with
+     * other client (frontend) developers.
+     *
+     * Recommend to use `"packages/api"` value.
+     */
+    distribute?: string;
+
+    /**
+     * Target directory that e2e test functions would be placed in.
+     *
+     * If you configure this property and runs `npx nestia e2e` command,
+     * `@nestia/sdk` will analyze your NestJS backend server code, and
+     * generates e2e test functions for every API endpoints.
+     *
+     * If not configured, you can't run `npx nestia e2e` command.
      */
     e2e?: string;
 
@@ -53,21 +78,27 @@ export interface INestiaConfig {
     /**
      * Whether to assert parameter types or not.
      *
-     * If you configure this property to be `true`, all of the function parameters
-     * would be checked through [typia](https://github.com/samchon/typia#runtime-validators).
-     * This option would make your SDK library slower, but would enahcne the type safety
-     * even in the runtime level.
+     * If you configure this property to be `true`, all of the function
+     * parameters of SDK library would be checked through
+     * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
+     *
+     * This option would make your SDK library compilation time a little bit slower,
+     * but would enahcne the type safety even in the runtime level.
      *
      * @default false
      */
     assert?: boolean;
 
     /**
-     * Whether to optimize JSON string conversion 50x faster or not.
+     * Whether to optimize JSON string conversion 10x faster or not.
      *
      * If you configure this property to be `true`, the SDK library would utilize the
-     * [typia](https://github.com/samchon/typia#enhanced-json)
-     * and the JSON string conversion speed really be 50x faster.
+     * [`typia.assertStringify<T>() function`](https://github.com/samchon/typia#enhanced-json)
+     * to boost up JSON serialization speed and ensure type safety.
+     *
+     * This option would make your SDK library compilation time a little bit slower,
+     * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
+     * safety even in the rumtime level.
      *
      * @default false
      */
@@ -87,13 +118,6 @@ export interface INestiaConfig {
      * @default true
      */
     primitive?: boolean;
-
-    /**
-     * Building `swagger.json` is also possible.
-     *
-     * If not specified, you can't build the `swagger.json`.
-     */
-    swagger?: INestiaConfig.ISwaggerConfig;
 }
 export namespace INestiaConfig {
     /**

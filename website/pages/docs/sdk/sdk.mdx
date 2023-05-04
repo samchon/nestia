@@ -10,6 +10,7 @@ import { INestiaConfig } from "@nestia/sdk";
 const config: INestiaConfig = {
     input: "src/controllers",
     output: "src/api",
+    distribute: "packages/api",
 };
 export default config;
 ```
@@ -47,21 +48,22 @@ Furthermore, `@nestia/sdk` is even much easier and powerful than `@nestjs/swagge
     <code>INestiaConfig.ts</code>
 ]}>
     <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
+```typescript copy filename="nestia.config.ts" showLineNumbers {4-5}
 import { INestiaConfig } from "@nestia/sdk";
 
 const config: INestiaConfig = {
     input: "src/controllers",
     output: "src/api",
+    distribute: "packages/api",
 };
 export default config;
 ```
     </Tab>
     <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers {12-22}
-import ts from "typescript";
+```typescript filename="INestiaConfig.ts" showLineNumbers {19-29}
+import type ts from "typescript";
 
-import { ISwaggerDocument } from "./structures/ISwaggerDocument";
+import type { ISwaggerDocument } from "./structures/ISwaggerDocument";
 import type { StripEnums } from "./utils/StripEnums";
 
 /**
@@ -70,6 +72,13 @@ import type { StripEnums } from "./utils/StripEnums";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export interface INestiaConfig {
+    /**
+     * Building `swagger.json` is also possible.
+     *
+     * If not specified, you can't build the `swagger.json`.
+     */
+    swagger?: INestiaConfig.ISwaggerConfig;
+
     /**
      * List of files or directories containing the NestJS controller classes.
      */
@@ -83,18 +92,29 @@ export interface INestiaConfig {
     output?: string;
 
     /**
-     * Output directory that e2e test functions would be placed in.
-     * 
-     * If not configured, you can't generate automatic e2e test functions.
+     * Target directory that SDK distribution files would be placed in.
+     *
+     * If you configure this property and runs `npx nestia sdk` command,
+     * distribution environments for the SDK library would be generated.
+     *
+     * After the SDK library generation, move to the `distribute` directory,
+     * and runs `npm publish` command, then you can share SDK library with
+     * other client (frontend) developers.
+     *
+     * Recommend to use `"packages/api"` value.
      */
-    e2e?: string;
+    distribute?: string;
 
     /**
-     * Building `swagger.json` is also possible.
+     * Target directory that e2e test functions would be placed in.
      *
-     * If not specified, you can't build the `swagger.json`.
+     * If you configure this property and runs `npx nestia e2e` command,
+     * `@nestia/sdk` will analyze your NestJS backend server code, and
+     * generates e2e test functions for every API endpoints.
+     *
+     * If not configured, you can't run `npx nestia e2e` command.
      */
-    swagger?: INestiaConfig.ISwaggerConfig;
+    e2e?: string;
 
     /**
      * Compiler options for the TypeScript.
@@ -112,11 +132,55 @@ export interface INestiaConfig {
      *
      * const compilerOptions: ts.CompilerOptions = {
      *     ...tsconfig.compilerOptions,
-     *     ...(nestiaConfig.compilerOptions || {})
+     *     ...(nestiaConfig.compilerOptions ?? {})
      * }
      * ```
      */
     compilerOptions?: StripEnums<ts.CompilerOptions>;
+
+    /**
+     * Whether to assert parameter types or not.
+     *
+     * If you configure this property to be `true`, all of the function
+     * parameters of SDK library would be checked through
+     * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
+     *
+     * This option would make your SDK library compilation time a little bit slower,
+     * but would enahcne the type safety even in the runtime level.
+     *
+     * @default false
+     */
+    assert?: boolean;
+
+    /**
+     * Whether to optimize JSON string conversion 10x faster or not.
+     *
+     * If you configure this property to be `true`, the SDK library would utilize the
+     * [`typia.assertStringify<T>() function`](https://github.com/samchon/typia#enhanced-json)
+     * to boost up JSON serialization speed and ensure type safety.
+     *
+     * This option would make your SDK library compilation time a little bit slower,
+     * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
+     * safety even in the rumtime level.
+     *
+     * @default false
+     */
+    json?: boolean;
+
+    /**
+     * Whether to wrap DTO by primitive type.
+     *
+     * If you don't configure this property as `false`, all of DTOs in the
+     * SDK library would be automatically wrapped by {@link Primitive} type.
+     *
+     * For refenrece, if a DTO type be capsuled by the {@link Primitive} type,
+     * all of methods in the DTO type would be automatically erased. Also, if
+     * the DTO has a `toJSON()` method, the DTO type would be automatically
+     * converted to return type of the `toJSON()` method.
+     *
+     * @default true
+     */
+    primitive?: boolean;
 }
 export namespace INestiaConfig {
     /**
@@ -134,7 +198,46 @@ export namespace INestiaConfig {
          */
         exclude?: string[];
     }
-    export interface ISwaggerConfig { ... }
+
+    /**
+     * Building `swagger.json` is also possible.
+     */
+    export interface ISwaggerConfig {
+        /**
+         * Output path of the `swagger.json`.
+         *
+         * If you've configured only directory, the file name would be the `swagger.json`.
+         * Otherwise you've configured the full path with file name and extension, the
+         * `swagger.json` file would be renamed to it.
+         */
+        output: string;
+
+        /**
+         * Security schemes.
+         */
+        security?: Record<string, ISwaggerConfig.ISecurityScheme>;
+    }
+    export namespace ISwaggerConfig {
+        export type ISecurityScheme =
+            | IApiKey
+            | Exclude<
+                  ISwaggerDocument.ISecurityScheme,
+                  ISwaggerDocument.ISecurityScheme.IApiKey
+              >;
+        export interface IApiKey {
+            type: "apiKey";
+
+            /**
+             * @default header
+             */
+            in?: "header" | "query" | "cookie";
+
+            /**
+             * @default Authorization
+             */
+            name?: string;
+        }
+    }
 }
 ```
     </Tab>
@@ -165,6 +268,7 @@ const config: INestiaConfig = {
         "src/test/controllers",
     ],
     output: "src/api",
+    distribute: "packages/api",
 };
 export default config;
 ```
@@ -176,6 +280,7 @@ import { INestiaConfig } from "@nestia/sdk";
 const config: INestiaConfig = {
     input: "src/**/*.controller.ts",
     output: "src/api",
+    distribute: "packages/api",
 };
 export default config;
 ```
@@ -338,75 +443,100 @@ export namespace login {
 
 
 ## Distribution
-> Example project distrubuting SDK libraries as an NPM module:
->
->   - [`npx nestia start`](https://github.com/samchon/nestia-template)
->   - [fake-iamport-server](https://github.com/samchon/fake-iamport-server)
->   - [fake-toss-payments-server](https://github.com/samchon/fake-toss-payments-server)
+```typescript copy filename="nestia.config.ts" showLineNumbers {6}
+import { INestiaConfig } from "@nestia/sdk";
+ 
+const config: INestiaConfig = {
+    input: "src/controllers",
+    output: "src/api",
+    distribute: "packages/api",
+};
+export default config;
+```
 
 The best to way to distributing SDK library is just publishing as an NPM module.
 
-I recommend you to follow below directory structure. The SDK module would be built into `packges/api/lib` directory, and published from `packages/api` directory. Now, let's create the new directory `packages/api`, and prepare `package.json` for publishing.
+Configure `distribute` property of [`nestia.config.ts`](#nestiaconfigts) file, and run `npx nestia sdk` command. After that, distribution environments would be automatically composed with SDK library generation. At last, move to the `packages/api` directory, and run `npm run deploy` command for publishing.
 
-  - **packages**
-    - **packages/api/**
-      - **packages/api/package.json**
-  - src/
-    - **src/api/**
-      - src/api/functional/: SDK functions generated by `nestia`
-      - **src/api/structures/**: Gather all DTO interfaces into here
-      - index.ts
-      - module.ts
-    - models/
-    - controllers/
-  - **nestia.config.ts**: `nestia` configuration file
-  - **tsconfig.api.json**: TS configuration of the SDK library
-  - tsconfig.json
-  - package.json
+From now on, client developers can use the SDK library just by using `npm install` command.
 
-After that, gather all DTO interfaces into `src/api/structures` directory and build SDK functions into `src/api/functional`. Create an additional `tsconfig.api.json` file only for SDK module compilation and configure `tsconfig.api.json` like below:
+```bash copy filename="deploy.sh" showLineNumbers
+cd packages/api
+npm run deploy
+```
 
-```json copy filename="tsconfig.api.json" showLineNumbers
+Of course, before publishing the NPM module, you've to customize some configurations like package name. Initial name of the distribution envirionments is `@ORGANIZATION/PROJECT-api`, but you must change the package name of yours, isn't it?
+
+Also, if your SDK library utilize special alias `paths`, you also need to customize `tsconfig.json` file, too. Reading below example `package.json` and `tsconfig.json` files generated by `nestia`, consider which features to customize.
+
+<Tabs items={[
+    <code>package.json</code>, 
+    <code>tsconfig.json</code>
+]}>
+    <Tab>
+```json filename="package.json" showLineNumbers {2}
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "declaration": true,
-    "outDir": "./packages/api/lib",
-    "stripInternal": true,
+  "name": "@ORGANIZATION/PROJECT-api",
+  "version": "0.1.0",
+  "description": "SDK library generated by Nestia",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "build": "npm run build:sdk && npm run compile",
+    "build:sdk": "rimraf ../../src/api/functional && cd ../.. && npx nestia sdk && cd packages/api",
+    "compile": "rimraf lib && tsc",
+    "deploy": "npm run build && npm publish"
   },
-  "include": ["src/api"]
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/nestia"
+  },
+  "author": "Jeongho Nam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samchon/nestia/issues"
+  },
+  "homepage": "https://github.com/samchon/nestia#readme",
+  "devDependencies": {
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@nestia/fetcher": "^1.2.0"
+  },
+  "files": [
+    "lib",
+    "package.json",
+    "README.md"
+  ]
 }
 ```
+    </Tab>
+    <Tab>
+```json filename="tsconfig.json" showLineNumbers
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "lib": [
+      "DOM",
+      "ES2015"
+    ],
+    "module": "commonjs",
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./lib",
+    "downlevelIteration": true,
+    "newLine": "lf",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "../../src/api"
+  ]
+}
 
-Also, configure `nestia.config.ts` file like below:
-
-```typescript copy filename="nestia.config.ts" showLineNumbers
-import { INestiaConfig } from "@nestia/sdk";
-
-const NESTIA_CONFIG: INestiaConfig = {
-    input: "src/controllers",
-    output: "src/api",
-    swagger: {
-        output: "dist/swagger.json",
-        security: {
-            bearer: {
-                type: "apiKey",
-            },
-        },
-    },
-};
-export default NESTIA_CONFIG;
 ```
-
-Once you've finished configuring the directory structure, `tsconfig.api.json` and `nestia.config.ts` files, all you need to do is publish the SDK library as an NPM module. Compile SDK module, move to `packages/api` directory, and do publish it.
-
-Note that, as the newly generated SDK library requires `@nestia/fetcher`, you've to add it dependency through `npm install --save @nestia/fetcher` like below.
-
-```bash copy showLineNumbers
-npx nestia sdk
-npx tsc -p tsconfig.api.json
-
-cd packages/api
-npm install --save @nestia/fetcher
-npm publish
-```
+    </Tab>
+</Tabs>

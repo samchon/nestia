@@ -21,6 +21,8 @@ export namespace SwaggerGenerator {
         (checker: ts.TypeChecker) =>
         (config: INestiaConfig.ISwaggerConfig) =>
         async (routeList: IRoute[]): Promise<void> => {
+            console.log("Generating Swagger Documents...");
+
             // PREPARE ASSETS
             const parsed: NodePath.ParsedPath = NodePath.parse(config.output);
             const location: string = !!parsed.ext

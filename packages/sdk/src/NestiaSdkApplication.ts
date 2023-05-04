@@ -159,12 +159,14 @@ export class NestiaSdkApplication {
         const unique: WeakSet<any> = new WeakSet();
         const controllerList: IController[] = [];
 
+        console.log("Analyzing reflections...");
         for (const file of fileList)
             controllerList.push(
                 ...(await ReflectAnalyzer.analyze(unique, file)),
             );
 
         // ANALYZE TYPESCRIPT CODE
+        console.log("Analyzing source codes...");
         const program: ts.Program = ts.createProgram(
             controllerList.map((c) => c.file),
             this.config_.compilerOptions || { noEmit: true },
