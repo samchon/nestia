@@ -7,7 +7,7 @@
         "title": "📖 Features"
     },
     "core": "Core Library",
-    "sdk": "SDK/Swagger Generator",
+    "sdk": "Generators",
 
     "-- appendix": {
         "type": "separator",

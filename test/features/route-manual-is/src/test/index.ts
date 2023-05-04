@@ -27,7 +27,7 @@ async function main(): Promise<void> {
         console.log("Success");
         console.log("Elapsed time", report.time.toLocaleString(), `ms`);
     } else {
-        // for (const exp of exceptions) console.log(exp);
+        for (const exp of exceptions) console.log(exp);
         console.log("Failed");
         console.log("Elapsed time", report.time.toLocaleString(), `ms`);
         process.exit(-1);
