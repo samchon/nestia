@@ -1,20 +1,23 @@
+import { INestApplication } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+
+import core from "@nestia/core";
 import { DynamicExecutor } from "@nestia/e2e";
 
-import { Backend } from "../Backend";
-
 async function main(): Promise<void> {
-    const server: Backend = new Backend();
-    await server.open();
+    const server: INestApplication = await NestFactory.create(
+        await core.DynamicModule.mount({
+            include: ["src/controllers"],
+            exclude: [],
+        }),
+    );
+    await server.listen(37_000);
 
     const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
         prefix: "test",
         parameters: () => [
             {
                 host: "http://127.0.0.1:37000",
-                encryption: {
-                    key: "A".repeat(32),
-                    iv: "B".repeat(16),
-                },
             },
         ],
     })(`${__dirname}/features`);

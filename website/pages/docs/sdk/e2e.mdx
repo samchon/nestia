@@ -1,17 +1,37 @@
-## E2E Test Functions
-```bash
+import { Tabs, Tab } from 'nextra-theme-docs'
+
+## Outline
+<Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {6}
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: "src/controllers",
+    output: "src/api",
+    e2e: "test",
+};
+export default config;
+```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" showLineNumbers
 npx nestia e2e
 ```
+    </Tab>
+</Tabs>
 
-If you type above command, `@nestia/sdk` will generate E2E test functions for every API in your NestJS backend project.
+Configure [`nestia.config.ts`](#configuration) file and run `npx nesta e2e` command.
+
+Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate both [SDK (Software Development Kit) library](./sdk) for client developers. Also, E2E test functions, utilizing the [SDK library](./sdk), will be automatically generated for correspnding to every API functions.
 
 Here is an example of generated E2E test functions:
 
 ```typescript filename="test/api/features/automated/test_api_body_store.ts" showLineNumbers
 import typia, { Primitive } from "typia";
 
-import api from "./../../../../api";
-import type { IBbsArticle } from "./../../../../api/structures/IBbsArticle";
+import api from "../../../../src/api";
+import type { IBbsArticle } from "../../../../src/api/structures/IBbsArticle";
 
 export const test_api_body_store = async (
     connection: api.IConnection
@@ -27,22 +47,426 @@ export const test_api_body_store = async (
 
 
 
+
 ## Configuration
-To generate E2E test functions, you've configure `nestia.config.ts` file like below.
-
-At least, you've to configure those properties:
-
-  - `input`
-  - `output`
-  - `e2e`
-
-```typescript
+<Tabs items={[
+    <code>nestia.config.ts</code>, 
+    <code>INestiaConfig.ts</code>
+]}>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {6}
 import { INestiaConfig } from "@nestia/sdk";
 
-export const NESTIA_CONFIG: INestiaConfig = {
-    input: ["src/controllers"],
+const config: INestiaConfig = {
+    input: "src/controllers",
     output: "src/api",
-    e2e: "src/test",
+    e2e: "test",
 };
-export default NESTIA_CONFIG;
+export default config;
 ```
+    </Tab>
+    <Tab>
+```typescript filename="INestiaConfig.ts" showLineNumbers {12-29}
+import ts from "typescript";
+
+import { ISwaggerDocument } from "./structures/ISwaggerDocument";
+import type { StripEnums } from "./utils/StripEnums";
+
+/**
+ * Definition for the `nestia.config.ts` file.
+ *
+ * @author Jeongho Nam - https://github.com/samchon
+ */
+export interface INestiaConfig {
+    /**
+     * List of files or directories containing the NestJS controller classes.
+     */
+    input: string | string[] | INestiaConfig.IInput;
+
+    /**
+     * Output directory that SDK would be placed in.
+     *
+     * If not configured, you can't build the SDK library.
+     */
+    output?: string;
+
+    /**
+     * Output directory that e2e test functions would be placed in.
+     * 
+     * If not configured, you can't generate automatic e2e test functions.
+     */
+    e2e?: string;
+
+    /**
+     * Building `swagger.json` is also possible.
+     *
+     * If not specified, you can't build the `swagger.json`.
+     */
+    swagger?: INestiaConfig.ISwaggerConfig;
+
+    /**
+     * Compiler options for the TypeScript.
+     *
+     * If you've omitted this property or the assigned property cannot fully cover the
+     * `tsconfig.json`, the properties from the `tsconfig.json` would be assigned to here.
+     * Otherwise, this property has been configured and it's detailed values are different
+     * with the `tsconfig.json`, this property values would be used instead.
+     *
+     * ```typescript
+     * import ts from "typescript";
+     *
+     * const tsconfig: ts.TsConfig;
+     * const nestiaConfig: IConfiguration;
+     *
+     * const compilerOptions: ts.CompilerOptions = {
+     *     ...tsconfig.compilerOptions,
+     *     ...(nestiaConfig.compilerOptions || {})
+     * }
+     * ```
+     */
+    compilerOptions?: StripEnums<ts.CompilerOptions>;
+}
+export namespace INestiaConfig {
+    /**
+     * List of files or directories to include or exclude to specifying the NestJS
+     * controllers.
+     */
+    export interface IInput {
+        /**
+         * List of files or directories containing the NestJS controller classes.
+         */
+        include: string[];
+
+        /**
+         * List of files or directories to be excluded.
+         */
+        exclude?: string[];
+    }
+    export interface ISwaggerConfig { ... }
+}
+```
+    </Tab>
+</Tabs>
+
+Make `nestia.config.ts` file and run `npx nestia sdk` command.
+
+At first, create `nestia.config.ts` file. It must be placed on the top level directory of your NestJS backend project. Of course, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
+
+At least, you've to configure those three properties:
+
+  - `input`: Path of controller files
+  - `output`: Path of output directory for SDK library
+  - `e2e`: Path of output directory for E2E test functions
+
+When you've completed above configuration, just run `npx nestia e2e` command. Then, [SDK library](./sdk) would be generated into the `$config.output` directory, and E2E test functions would be generated into the `$config.e2e` directory, following your `nestia.config.ts` option.
+
+By the way, if your controller files are separated into multiple directories, you can choose two options. First is listing up every directories, and second is using regex expression. Also, you can exclude some special directories or files using `exclude` option. Of course, you can mix all of these options like below:
+
+<Tabs items={['List up every directories', 'Use regex pattern', 'Exclude']} defaultIndex={2}>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: [
+        "src/controllers", 
+        "src/fake/controllers", 
+        "src/test/controllers",
+    ],
+    output: "src/api",
+    e2e: "test",
+};
+export default config;
+```
+    </Tab>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: "src/**/*.controller.ts",
+    output: "src/api",
+    e2e: "test",
+};
+export default config;
+```
+    </Tab>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+
+const config: INestiaConfig = {
+    input: {
+        include: ["src/controllers"],
+        exclude: ["src/**/*.fake.ts"],
+    },
+    output: "src/api",
+    e2e: "test",
+};
+export default config;
+```
+    </Tab>
+</Tabs>
+
+
+
+
+## Customization
+```typescript filename="test/index.ts" showLineNumbers {8-17}
+import core from "@nestia/core";
+import { DynamicExecutor } from "@nestia/e2e";
+
+import { INestApplication } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+
+async function main(): Promise<void> {
+    const server: INestApplication = await NestFactory.create(
+        await core.DynamicModule.mount({
+            // follows your nestia.config.ts setting
+            controllers: {
+                input: ["src/controllers"],
+                exclude: ["src/**/*.fake.ts"],
+            },
+        }),
+    );
+    await server.listen(37_000);
+
+    const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
+        prefix: "test",
+        parameters: () => [
+            {
+                host: "http://127.0.0.1:37000",
+            },
+        ],
+    })(`${__dirname}/features`);
+    await server.close();
+
+    const exceptions: Error[] = report.executions
+        .filter((exec) => exec.error !== null)
+        .map((exec) => exec.error!);
+    if (exceptions.length === 0) {
+        console.log("Success");
+        console.log("Elapsed time", report.time.toLocaleString(), `ms`);
+    } else {
+        for (const exp of exceptions) console.log(exp);
+        console.log("Failed");
+        console.log("Elapsed time", report.time.toLocaleString(), `ms`);
+        process.exit(-1);
+    }
+}
+main().catch((exp) => {
+    console.log(exp);
+    process.exit(-1);
+});
+```
+
+Nothing be specified, customize by yourself.
+
+When you generate e2e test functions through `npx nestia e2e` command, such `index.ts` file would be placed into the top level directory of test program. As you can see, the initial e2e test program only opens your NestJS backend server only with path of controllers with port number `37,000`.
+
+However, it may not fully meet your requirements. For example, you may connect to a database server, and also need to configure DI (Dependency Injection) classes, too. You've to configure those things by yourself. `@nestia/sdk` can analyzes your backend server in the compilation level, but unable to reproduce such customizations.
+
+<Tabs defaultIndex={2} items={[
+    'Original Controller',
+    'SDK Function', 
+    'E2E Test Function', 
+]}>
+    <Tab>
+```typescript filename="src/controllers/BbsArticlesController.ts" showLineNumbers
+import { Controller } from "@nestjs/common";
+import typia from "typia";
+
+import core from "@nestia/core";
+
+import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+
+@Controller("/bbs/articles/:section")
+export class BbsArticlesController {
+    /**
+     * Store a new article.
+     *
+     * @param section Section code
+     * @param input Content to store
+     * @returns Newly archived article
+     */
+    @core.TypedRoute.Post()
+    public async store(
+        @core.TypedParam("section") section: string,
+        @core.TypedBody() input: IBbsArticle.IStore,
+    ): Promise<IBbsArticle> {
+        return {
+            ...typia.random<IBbsArticle>(),
+            section,
+            ...input,
+        };
+    }
+
+    /**
+     * Update an article.
+     *
+     * @param section Section code
+     * @param id Target article ID
+     * @param input Content to update
+     * @returns Updated content
+     */
+    @core.TypedRoute.Put(":id")
+    public async update(
+        @core.TypedParam("section") section: string,
+        @core.TypedParam("id", "uuid") id: string,
+        @core.TypedBody() input: IBbsArticle.IStore,
+    ): Promise<IBbsArticle> {
+        return {
+            ...typia.random<IBbsArticle>(),
+            id,
+            section,
+            ...input,
+        };
+    }
+}
+```
+    </Tab>
+    <Tab>
+```typescript filename="src/api/functional/bbs/articles/index.ts" showLineNumbers
+/**
+ * @packageDocumentation
+ * @module api.functional.bbs.articles
+ * @nestia Generated by Nestia - https://github.com/samchon/nestia 
+ */
+//================================================================
+import { Fetcher, Primitive } from "@nestia/fetcher";
+import type { IConnection } from "@nestia/fetcher";
+
+import type { IBbsArticle } from "./../../../structures/IBbsArticle";
+
+/**
+ * Store a new article.
+ * 
+ * @param connection connection Information of the remote HTTP(s) server with headers (+encryption password)
+ * @param section Section code
+ * @param input Content to store
+ * @returns Newly archived article
+ * 
+ * @controller BbsArticlesController.store()
+ * @path POST /bbs/articles/:section
+ * @nestia Generated by Nestia - https://github.com/samchon/nestia
+ */
+export function store
+    (
+        connection: IConnection,
+        section: string,
+        input: Primitive<store.Input>
+    ): Promise<store.Output>
+{
+    return Fetcher.fetch
+    (
+        connection,
+        store.ENCRYPTED,
+        store.METHOD,
+        store.path(section),
+        input
+    );
+}
+export namespace store
+{
+    export type Input = Primitive<IBbsArticle.IStore>;
+    export type Output = Primitive<IBbsArticle>;
+
+    export const METHOD = "POST" as const;
+    export const PATH: string = "/bbs/articles/:section";
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: false,
+        response: false,
+    };
+
+    export function path(section: string): string
+    {
+        return `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
+    }
+}
+
+/**
+ * Update an article.
+ * 
+ * @param connection connection Information of the remote HTTP(s) server with headers (+encryption password)
+ * @param section Section code
+ * @param id Target article ID
+ * @param input Content to update
+ * @returns Updated content
+ * 
+ * @controller BbsArticlesController.update()
+ * @path PUT /bbs/articles/:section/:id
+ * @nestia Generated by Nestia - https://github.com/samchon/nestia
+ */
+export function update
+    (
+        connection: IConnection,
+        section: string,
+        id: string,
+        input: Primitive<update.Input>
+    ): Promise<update.Output>
+{
+    return Fetcher.fetch
+    (
+        connection,
+        update.ENCRYPTED,
+        update.METHOD,
+        update.path(section, id),
+        input
+    );
+}
+export namespace update
+{
+    export type Input = Primitive<IBbsArticle.IStore>;
+    export type Output = Primitive<IBbsArticle>;
+
+    export const METHOD = "PUT" as const;
+    export const PATH: string = "/bbs/articles/:section/:id";
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: false,
+        response: false,
+    };
+
+    export function path(section: string, id: string): string
+    {
+        return `/bbs/articles/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
+    }
+}
+```
+    </Tab>
+    <Tab>
+```typescript filename="test/features/api/automated/test_api_bbs_articles_update.ts" showLineNumbers
+import typia, { Primitive } from "typia";
+
+import api from "../../../../src/api";
+import type { IBbsArticle } from "../../../../src/api/structures/IBbsArticle";
+
+export const test_api_bbs_articles_update = async (
+    connection: api.IConnection,
+): Promise<void> => {
+    const output: Primitive<IBbsArticle> =
+        await api.functional.bbs.articles.update(
+            connection,
+            typia.random<Primitive<string>>(),
+            uuid(),
+            typia.random<Primitive<IBbsArticle.IStore>>(),
+        );
+    typia.assert(output);
+};
+
+const uuid = (): string =>
+    "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+```
+    </Tab>
+</Tabs>
+
+You also need to customize each e2e test functions.
+
+When you run `npx nestia e2e` command, every e2e functions would be placed into `$config.e2e/features/api/automated` directory. Also, automatically generated e2e test functions are composing parameters through [`typia.random<T>()`](https://typia.io/docs/random) function.
+
+If your NestJS backend server development has not been completed, and your API functions are in the mock-up level, such random parameter composition would not be problem. Otherwise your API functions are enoughly completed, such random parameter composition may occur logic error.
+
+Therefore, you also need to customize automatically generated e2e test functions. Move each e2e test files from the `$config.e2e/features/api/automated` directory to somewhere else, and customize those e2e test functions to be suitable for your domain logics.

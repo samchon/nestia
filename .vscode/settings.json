@@ -1,10 +1,13 @@
 {
-    "editor.tabSize": 4,
-    "[typescript]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode",
-      "editor.formatOnSave": true,
-      "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-      },
-    }
+  "editor.tabSize": 4,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    },
+  },
+  "[mdx]": {
+    "editor.wordWrap": "on"
   }
+}

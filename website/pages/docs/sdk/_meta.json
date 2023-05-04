@@ -1,5 +1,5 @@
 {
-    "sdk": "SDK Library",
     "swagger": "Swagger Documents",
-    "e2e": "E2E Functions"
+    "sdk": "SDK Library",
+    "e2e": "E2E Test Functions"
 }

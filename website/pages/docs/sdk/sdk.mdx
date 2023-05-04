@@ -23,7 +23,7 @@ npx nestia sdk
 
 Configure [`nestia.config.ts`](#nestiaconfigts) file and run `npx nestia sdk` command.
 
-Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate SDK (Software Development Kit) library. With the SDK library, you can easily develop E2E test program. Also, frontend developers can utilize the SDK library to interact with your NestJS backend server, much safely and conveniently.
+Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate SDK (Software Development Kit) library. With the SDK library, you can easily develop e2e test program. Also, frontend developers can utilize the SDK library to interact with your NestJS backend server, much safely and conveniently.
 
 If you can't imagine how the SDK library works, then look at the gif image of below. Left side is the NestJS backend server program, and right side is the Frontend program interacting with your server. As you can see, frontend developer is utilizing auto completion through SDK library. 
 
@@ -58,7 +58,7 @@ export default config;
 ```
     </Tab>
     <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers
+```typescript filename="INestiaConfig.ts" showLineNumbers {12-22}
 import ts from "typescript";
 
 import { ISwaggerDocument } from "./structures/ISwaggerDocument";
@@ -83,6 +83,20 @@ export interface INestiaConfig {
     output?: string;
 
     /**
+     * Output directory that e2e test functions would be placed in.
+     * 
+     * If not configured, you can't generate automatic e2e test functions.
+     */
+    e2e?: string;
+
+    /**
+     * Building `swagger.json` is also possible.
+     *
+     * If not specified, you can't build the `swagger.json`.
+     */
+    swagger?: INestiaConfig.ISwaggerConfig;
+
+    /**
      * Compiler options for the TypeScript.
      *
      * If you've omitted this property or the assigned property cannot fully cover the
@@ -103,13 +117,6 @@ export interface INestiaConfig {
      * ```
      */
     compilerOptions?: StripEnums<ts.CompilerOptions>;
-
-    /**
-     * Building `swagger.json` is also possible.
-     *
-     * If not specified, you can't build the `swagger.json`.
-     */
-    swagger?: INestiaConfig.ISwaggerConfig;
 }
 export namespace INestiaConfig {
     /**
@@ -135,9 +142,14 @@ export namespace INestiaConfig {
 
 Make `nestia.config.ts` file and run `npx nestia sdk` command.
 
-At first, create `nestia.config.ts` file. It must be placed on the top level directory of your NestJS backend project. For reference, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
+At first, create `nestia.config.ts` file. It must be placed on the top level directory of your NestJS backend project. Of course, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
 
-When you've completed above configuration, just run `npx nestia sdk` command. Then, SDK library would be newly generated, and placed into the `$config.output` directory following your `nestia.config.ts` option..
+At least, you've to configure those two properties:
+
+  - `input`: Path of controller files
+  - `output`: Path of output directory for SDK library
+
+When you've completed above configuration, just run `npx nestia sdk` command. Then, SDK library would be newly generated, and placed into the `$config.output` directory following your `nestia.config.ts` option.
 
 By the way, if your controller files are separated into multiple directories, you can choose two options. First is listing up every directories, and second is using regex expression. Also, you can exclude some special directories or files using `exclude` option. Of course, you can mix all of these options like below:
 

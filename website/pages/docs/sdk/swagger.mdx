@@ -215,7 +215,7 @@ export default config;
 ```
     </Tab>
     <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers
+```typescript filename="INestiaConfig.ts" showLineNumbers {12-15, 31-36, 81-88}
 import ts from "typescript";
 
 import { ISwaggerDocument } from "./structures/ISwaggerDocument";
@@ -231,6 +231,20 @@ export interface INestiaConfig {
      * List of files or directories containing the NestJS controller classes.
      */
     input: string | string[] | INestiaConfig.IInput;
+
+    /**
+     * Output directory that SDK would be placed in.
+     *
+     * If not configured, you can't build the SDK library.
+     */
+    output?: string;
+
+    /**
+     * Output directory that e2e test functions would be placed in.
+     * 
+     * If not configured, you can't generate automatic e2e test functions.
+     */
+    e2e?: string;
 
     /**
      * Building `swagger.json` is also possible.
@@ -260,13 +274,6 @@ export interface INestiaConfig {
      * ```
      */
     compilerOptions?: StripEnums<ts.CompilerOptions>;
-
-    /**
-     * Output directory that SDK would be placed in.
-     *
-     * If not configured, you can't build the SDK library.
-     */
-    output?: string;
 }
 export namespace INestiaConfig {
     /**
@@ -331,7 +338,12 @@ export namespace INestiaConfig {
 
 Make `nestia.config.ts` file and run `npx nestia swagger` command.
 
-At first, create `nestia.config.ts` file. It must be placed on the top level directory of your NestJS backend project. For reference, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
+At first, create `nestia.config.ts` file. It must be placed on the top level directory of your NestJS backend project. Of course, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
+
+At least, you've to configure those two properties:
+
+  - `input`: Path of controller files
+  - `swagger.output`: Path of `swagger.json` file
 
 When you've completed above configuration, just run `npx nestia swagger` command. Then, `swagger.json` file would be newly generated, and placed into the `$config.swagger.output` directory following your `nestia.config.ts` option.
 
