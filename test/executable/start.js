@@ -67,6 +67,9 @@ const execute = (name) => {
     ])
         cp.execSync(`npx rimraf ${file}`, { stdio: "ignore" });
 
+    if (name.includes("distribute"))
+        cp.execSync(`npx rimraf packages/api`, { stdio: "inherit" });
+
     generate("swagger");
     generate("sdk");
     if (input === null) {
