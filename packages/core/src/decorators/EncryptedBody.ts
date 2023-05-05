@@ -2,6 +2,7 @@ import { AesPkcs5, IEncryptionPassword } from "@nestia/fetcher";
 import {
     BadRequestException,
     ExecutionContext,
+    HttpException,
     createParamDecorator,
 } from "@nestjs/common";
 import type express from "express";
@@ -12,7 +13,9 @@ import { assert, is, validate } from "typia";
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
 import { Singleton } from "../utils/Singleton";
 import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
+import { get_text_body } from "./internal/get_text_body";
 import { headers_to_object } from "./internal/headers_to_object";
+import { send_bad_request } from "./internal/send_bad_request";
 import { validate_request_body } from "./internal/validate_request_body";
 
 /**
@@ -42,14 +45,16 @@ export function EncryptedBody<T>(
     const checker = validate_request_body("EncryptedBody")(validator);
     return createParamDecorator(async function EncryptedBody(
         _unknown: any,
-        ctx: ExecutionContext,
+        context: ExecutionContext,
     ) {
-        const request: express.Request | FastifyRequest = ctx
+        const request: express.Request | FastifyRequest = context
             .switchToHttp()
             .getRequest();
         if (isTextPlain(request.headers["content-type"]) === false)
-            throw new BadRequestException(
-                `Request body type is not "text/plain".`,
+            return send_bad_request(context)(
+                new BadRequestException(
+                    `Request body type is not "text/plain".`,
+                ),
             );
 
         const param:
@@ -57,7 +62,7 @@ export function EncryptedBody<T>(
             | IEncryptionPassword.Closure
             | undefined = Reflect.getMetadata(
             ENCRYPTION_METADATA_KEY,
-            ctx.getClass(),
+            context.getClass(),
         );
         if (!param)
             throw new Error(
@@ -68,7 +73,7 @@ export function EncryptedBody<T>(
         const headers: Singleton<Record<string, string>> = new Singleton(() =>
             headers_to_object(request.headers),
         );
-        const body: string = request.body;
+        const body: string = await get_text_body(request);
         const password: IEncryptionPassword =
             typeof param === "function"
                 ? param({ headers: headers.get(), body }, false)
@@ -76,7 +81,11 @@ export function EncryptedBody<T>(
 
         // PARSE AND VALIDATE DATA
         const data: any = JSON.parse(decrypt(body, password.key, password.iv));
-        checker(data);
+        const error: Error | null = checker(data);
+        if (error !== null)
+            if (error instanceof HttpException)
+                return send_bad_request(context)(error);
+            else throw error;
         return data;
     })();
 }

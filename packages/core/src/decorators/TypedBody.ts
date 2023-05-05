@@ -1,6 +1,7 @@
 import {
     BadRequestException,
     ExecutionContext,
+    HttpException,
     createParamDecorator,
 } from "@nestjs/common";
 import type express from "express";
@@ -9,6 +10,7 @@ import type { FastifyRequest } from "fastify";
 import { assert, is, validate } from "typia";
 
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
+import { send_bad_request } from "./internal/send_bad_request";
 import { validate_request_body } from "./internal/validate_request_body";
 
 /**
@@ -29,7 +31,7 @@ export function TypedBody<T>(
     validator?: IRequestBodyValidator<T>,
 ): ParameterDecorator {
     const checker = validate_request_body("TypedBody")(validator);
-    return createParamDecorator(async function TypedBody(
+    return createParamDecorator(function TypedBody(
         _unknown: any,
         context: ExecutionContext,
     ) {
@@ -37,16 +39,17 @@ export function TypedBody<T>(
             .switchToHttp()
             .getRequest();
         if (isApplicationJson(request.headers["content-type"]) === false)
-            throw new BadRequestException(
-                `Request body type is not "application/json".`,
+            return send_bad_request(context)(
+                new BadRequestException(
+                    `Request body type is not "application/json".`,
+                ),
             );
 
-        try {
-            checker(request.body);
-        } catch (exp) {
-            if (exp instanceof BadRequestException) console.log(exp);
-            throw exp;
-        }
+        const error: Error | null = checker(request.body);
+        if (error !== null)
+            if (error instanceof HttpException)
+                return send_bad_request(context)(error);
+            else throw error;
         return request.body;
     })();
 }

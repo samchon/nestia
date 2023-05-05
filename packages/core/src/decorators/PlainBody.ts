@@ -6,6 +6,9 @@ import {
 import type express from "express";
 import type { FastifyRequest } from "fastify";
 
+import { get_text_body } from "./internal/get_text_body";
+import { send_bad_request } from "./internal/send_bad_request";
+
 /**
  * Plain body decorator.
  *
@@ -28,15 +31,17 @@ import type { FastifyRequest } from "fastify";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export const PlainBody: () => ParameterDecorator = createParamDecorator(
-    async function PlainBody(_data: any, ctx: ExecutionContext) {
-        const request: express.Request | FastifyRequest = ctx
+    async function PlainBody(_data: any, context: ExecutionContext) {
+        const request: express.Request | FastifyRequest = context
             .switchToHttp()
             .getRequest();
-        if (isTextPlain(request.headers["content-type"]) === false)
-            throw new BadRequestException(
-                `Request body type is not "text/plain".`,
-            );
-        return request.body;
+        return isTextPlain(request.headers["content-type"])
+            ? get_text_body(request)
+            : send_bad_request(context)(
+                  new BadRequestException(
+                      `Request body type is not "text/plain".`,
+                  ),
+              );
     },
 );
 

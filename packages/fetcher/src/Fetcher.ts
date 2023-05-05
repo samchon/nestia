@@ -89,7 +89,7 @@ export class Fetcher {
                       }
                     : connection.headers ?? {},
         };
-        if (encrypted.request)
+        if (encrypted.request || typeof input === "string")
             (init.headers as Record<string, string>)["Content-Type"] =
                 "text/plain";
 

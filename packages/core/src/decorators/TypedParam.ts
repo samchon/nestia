@@ -5,6 +5,8 @@ import {
 } from "@nestjs/common";
 import type express from "express";
 
+import { send_bad_request } from "./internal/send_bad_request";
+
 /**
  * Type safe URL parameter decorator.
  *
@@ -40,8 +42,8 @@ export function TypedParam(
     type?: "boolean" | "number" | "string" | "uuid",
     nullable?: false | true,
 ): ParameterDecorator {
-    function TypedParam({}: any, ctx: ExecutionContext) {
-        const request: express.Request = ctx.switchToHttp().getRequest();
+    function TypedParam({}: any, context: ExecutionContext) {
+        const request: express.Request = context.switchToHttp().getRequest();
         const str: string = request.params[name];
 
         if (nullable === true && str === "null") return null;
@@ -49,20 +51,26 @@ export function TypedParam(
             if (str === "true" || str === "1") return true;
             else if (str === "false" || str === "0") return false;
             else
-                throw new BadRequestException(
-                    `Value of the URL parameter '${name}' is not a boolean.`,
+                return send_bad_request(context)(
+                    new BadRequestException(
+                        `Value of the URL parameter '${name}' is not a boolean.`,
+                    ),
                 );
         } else if (type === "number") {
             const value: number = Number(str);
             if (isNaN(value))
-                throw new BadRequestException(
-                    `Value of the URL parameter "${name}" is not a number.`,
+                return send_bad_request(context)(
+                    new BadRequestException(
+                        `Value of the URL parameter "${name}" is not a number.`,
+                    ),
                 );
             return value;
         } else if (type === "uuid") {
             if (UUID_PATTERN.test(str) === false)
-                throw new BadRequestException(
-                    `Value of the URL parameter "${name}" is not a valid UUID.`,
+                return send_bad_request(context)(
+                    new BadRequestException(
+                        `Value of the URL parameter "${name}" is not a valid UUID.`,
+                    ),
                 );
             return str;
         } else return str;

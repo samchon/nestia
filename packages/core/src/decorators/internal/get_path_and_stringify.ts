@@ -1,6 +1,6 @@
 import { InternalServerErrorException } from "@nestjs/common";
 
-import { IValidation, TypeGuardError } from "typia";
+import typia, { IValidation, TypeGuardError } from "typia";
 
 import { IResponseBodyStringifier } from "../../options/IResponseBodyStringifier";
 import { TransformError } from "./TransformError";
@@ -41,7 +41,7 @@ const assert =
         try {
             return closure(data);
         } catch (exp) {
-            if (exp instanceof TypeGuardError) {
+            if (typia.is<TypeGuardError>(exp))
                 throw new InternalServerErrorException({
                     path: exp.path,
                     reason: exp.message,
@@ -49,7 +49,6 @@ const assert =
                     value: exp.value,
                     message: MESSAGE,
                 });
-            }
             throw exp;
         }
     };
