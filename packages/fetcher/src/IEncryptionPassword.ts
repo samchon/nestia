@@ -18,22 +18,6 @@ export interface IEncryptionPassword {
      * Initialization vector.
      */
     iv: string;
-
-    /**
-     * Disable encryption to let content as plain.
-     *
-     * When you configure this `disabled` variable to be `false`, encryption and decryption
-     * algorithm would be disabled. Therefore, content like request or response body
-     * would be considered as a plain text instead.
-     *
-     * Default is `false`.
-     */
-    disabled?:
-        | boolean
-        | ((
-              param: IEncryptionPassword.IParameter,
-              encoded: boolean,
-          ) => boolean);
 }
 export namespace IEncryptionPassword {
     /**

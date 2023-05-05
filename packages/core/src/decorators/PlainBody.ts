@@ -4,7 +4,7 @@ import {
     createParamDecorator,
 } from "@nestjs/common";
 import type express from "express";
-import raw from "raw-body";
+import type { FastifyRequest } from "fastify";
 
 /**
  * Plain body decorator.
@@ -28,11 +28,21 @@ import raw from "raw-body";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export const PlainBody: () => ParameterDecorator = createParamDecorator(
-    async function PlainBody(_data: any, context: ExecutionContext) {
-        const request: express.Request = context.switchToHttp().getRequest();
-        if (!request.readable) throw new BadRequestException("Invalid body");
-
-        const body: string = (await raw(request)).toString("utf8").trim();
-        return body;
+    async function PlainBody(_data: any, ctx: ExecutionContext) {
+        const request: express.Request | FastifyRequest = ctx
+            .switchToHttp()
+            .getRequest();
+        if (isTextPlain(request.headers["content-type"]) === false)
+            throw new BadRequestException(
+                `Request body type is not "text/plain".`,
+            );
+        return request.body;
     },
 );
+
+const isTextPlain = (text?: string): boolean =>
+    text !== undefined &&
+    text
+        .split(";")
+        .map((str) => str.trim())
+        .some((str) => str === "text/plain");

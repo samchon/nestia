@@ -37,9 +37,9 @@
     "@nestjs/common": ">= 7.0.1",
     "@nestjs/core": ">= 7.0.1",
     "@nestjs/platform-express": ">= 7.0.1",
+    "@nestjs/platform-fastify": ">= 7.0.1",
     "detect-ts-node": "^1.0.5",
     "glob": "^7.2.0",
-    "raw-body": ">= 2.0.0",
     "reflect-metadata": ">= 0.1.12",
     "rxjs": ">= 6.0.0",
     "typia": "^3.8.4"
