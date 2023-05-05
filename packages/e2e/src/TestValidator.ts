@@ -100,6 +100,38 @@ export namespace TestValidator {
             }
         };
 
+    export const httpError =
+        (title: string) =>
+        (status: number) =>
+        <T>(task: () => T): T extends Promise<any> ? Promise<void> : void => {
+            const message = () =>
+                `Bug on ${title}: status code must be ${status}.`;
+            const predicate = (exp: any) =>
+                typeof exp === "object" &&
+                exp.constructor.name === "HttpError" &&
+                exp.status === status
+                    ? null
+                    : new Error(message());
+            try {
+                const output: T = task();
+                if (is_promise(output))
+                    return new Promise<void>((resolve, reject) =>
+                        output
+                            .catch((exp) => {
+                                const res: Error | null = predicate(exp);
+                                if (res) reject(res);
+                                else resolve();
+                            })
+                            .then(() => reject(message())),
+                    ) as any;
+                else throw new Error(message());
+            } catch (exp) {
+                const res: Error | null = predicate(exp);
+                if (res) throw res;
+                return undefined!;
+            }
+        };
+
     /**
      * Validate index API.
      *

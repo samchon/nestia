@@ -1,0 +1,22 @@
+import typia from "typia";
+
+import api from "@api";
+import { ISeller } from "@api/lib/structures/ISeller";
+
+import { RandomGenerator } from "../../../../../../../packages/e2e/src/RandomGenerator";
+
+export const test_api_encrypted_long = async (
+    connection: api.IConnection,
+): Promise<void> => {
+    const seller: ISeller = await api.functional.sellers.authenticate.join(
+        connection,
+        {
+            email: "someone@someone.com",
+            name: "Someone",
+            mobile: "01012345678",
+            company: RandomGenerator.alphabets(1_000_000),
+            password: "qweqwe123!",
+        },
+    );
+    typia.assert(seller);
+};

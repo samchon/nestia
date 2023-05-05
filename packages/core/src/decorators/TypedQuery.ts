@@ -3,11 +3,13 @@ import {
     ExecutionContext,
     createParamDecorator,
 } from "@nestjs/common";
-import express from "express";
+import type express from "express";
+import type { FastifyRequest } from "fastify";
 
-import { TypeGuardError, assert } from "typia";
+import typia, { TypeGuardError, assert } from "typia";
 
 import { TransformError } from "./internal/TransformError";
+import { send_bad_request } from "./internal/send_bad_request";
 
 /**
  * Type safe URL query decorator.
@@ -27,25 +29,29 @@ export function TypedQuery<T>(
 ): ParameterDecorator {
     if (decoder === undefined) throw TransformError("TypedQuery");
 
-    return createParamDecorator(async function TypedQuery(
+    return createParamDecorator(function TypedQuery(
         _unknown: any,
-        ctx: ExecutionContext,
+        context: ExecutionContext,
     ) {
-        const request: express.Request = ctx.switchToHttp().getRequest();
+        const request: express.Request | FastifyRequest = context
+            .switchToHttp()
+            .getRequest();
         const params: URLSearchParams = new URLSearchParams(tail(request.url));
+
         try {
             return decoder(params);
         } catch (exp) {
-            if (exp instanceof TypeGuardError) {
-                throw new BadRequestException({
-                    path: exp.path,
-                    reason: exp.message,
-                    expected: exp.expected,
-                    value: exp.value,
-                    message:
-                        "Request query parameters are not following the promised type.",
-                });
-            }
+            if (typia.is<TypeGuardError>(exp))
+                return send_bad_request(context)(
+                    new BadRequestException({
+                        path: exp.path,
+                        reason: exp.message,
+                        expected: exp.expected,
+                        value: exp.value,
+                        message:
+                            "Request query parameters are not following the promised type.",
+                    }),
+                );
             throw exp;
         }
     })();

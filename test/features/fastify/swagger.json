@@ -295,6 +295,42 @@
         "x-nestia-jsDocTags": []
       }
     },
+    "/plain": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "nullable": false
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "nullable": false
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "description": "",
+        "x-nestia-namespace": "plain.send",
+        "x-nestia-jsDocTags": []
+      }
+    },
     "/sellers/authenticate/join": {
       "post": {
         "tags": [],
@@ -505,6 +541,186 @@
         "summary": "Erase the seller by itself",
         "description": "Erase the seller by itself.",
         "x-nestia-namespace": "sellers.authenticate.exit.exit",
+        "x-nestia-jsDocTags": []
+      }
+    },
+    "/param/{value}/boolean": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "description": "",
+            "schema": {
+              "type": "boolean",
+              "nullable": false
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean",
+                  "nullable": false
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "description": "",
+        "x-nestia-namespace": "param.boolean.boolean",
+        "x-nestia-jsDocTags": []
+      }
+    },
+    "/param/{value}/number": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "description": "",
+            "schema": {
+              "type": "number",
+              "nullable": false
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "nullable": false
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "description": "",
+        "x-nestia-namespace": "param.number.number",
+        "x-nestia-jsDocTags": []
+      }
+    },
+    "/param/{value}/string": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "description": "",
+            "schema": {
+              "type": "string",
+              "nullable": false
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "nullable": false
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "description": "",
+        "x-nestia-namespace": "param.string.string",
+        "x-nestia-jsDocTags": []
+      }
+    },
+    "/param/{value}/nullable": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "description": "",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "nullable": true
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "description": "",
+        "x-nestia-namespace": "param.nullable.nullable",
+        "x-nestia-jsDocTags": []
+      }
+    },
+    "/param/{value}/literal": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "description": "",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "A",
+                "B",
+                "C"
+              ],
+              "nullable": false
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "A",
+                    "B",
+                    "C"
+                  ],
+                  "nullable": false
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "description": "",
+        "x-nestia-namespace": "param.literal.literal",
         "x-nestia-jsDocTags": []
       }
     }
