@@ -87,29 +87,35 @@ export class Fetcher {
                           ...connection.headers,
                           "Content-Type": "application/json",
                       }
-                    : connection.headers,
+                    : connection.headers ?? {},
         };
+        if (encrypted.request)
+            (init.headers as Record<string, string>)["Content-Type"] =
+                "text/plain";
 
         // REQUEST BODY (WITH ENCRYPTION)
-        if (input !== undefined) {
-            let body: string = (stringify || JSON.stringify)(input);
-            if (encrypted.request === true) {
-                const headers: Singleton<Record<string, string>> =
-                    new Singleton(() => init.headers as Record<string, string>);
+        if (input !== undefined)
+            init.body = (() => {
+                const json: string = (stringify ?? JSON.stringify)(input);
+                if (!encrypted.request) return json;
+
                 const password:
                     | IEncryptionPassword
                     | IEncryptionPassword.Closure =
                     connection.encryption instanceof Function
                         ? connection.encryption!(
-                              { headers: headers.get(), body },
+                              {
+                                  headers: init.headers as Record<
+                                      string,
+                                      string
+                                  >,
+                                  body: json,
+                              },
                               true,
                           )
                         : connection.encryption!;
-                if (is_disabled(password, headers, body, true) === false)
-                    body = AesPkcs5.encrypt(body, password.key, password.iv);
-            }
-            init.body = body;
-        }
+                return AesPkcs5.encrypt(json, password.key, password.iv);
+            })();
 
         //----
         // RESPONSE MESSAGE
@@ -125,8 +131,8 @@ export class Fetcher {
 
         // DO FETCH
         const response: Response = await (await polyfill.get())(url.href, init);
-        let body: string = await response.text();
-        if (!body) return undefined!;
+        const text: string = await response.text();
+        if (!text) return undefined!;
 
         // CHECK THE STATUS CODE
         if (
@@ -136,29 +142,33 @@ export class Fetcher {
                 response.status !== 200 &&
                 response.status !== 201)
         )
-            throw new HttpError(method, path, response.status, body);
+            throw new HttpError(method, path, response.status, text);
 
-        if (encrypted.response === true) {
-            // FINALIZATION (WITH DECODING)
-            const headers: Singleton<Record<string, string>> = new Singleton(
-                () => headers_to_object(response.headers),
-            );
-            const password: IEncryptionPassword | IEncryptionPassword.Closure =
-                connection.encryption instanceof Function
-                    ? connection.encryption!(
-                          { headers: headers.get(), body },
-                          false,
-                      )
-                    : connection.encryption!;
-            if (is_disabled(password, headers, body, false) === false)
-                body = AesPkcs5.decrypt(body, password.key, password.iv);
-        }
+        const content: string = !encrypted.response
+            ? text
+            : (() => {
+                  const password:
+                      | IEncryptionPassword
+                      | IEncryptionPassword.Closure =
+                      connection.encryption instanceof Function
+                          ? connection.encryption!(
+                                {
+                                    headers: headers_to_object(
+                                        response.headers,
+                                    ),
+                                    body: text,
+                                },
+                                false,
+                            )
+                          : connection.encryption!;
+                  return AesPkcs5.decrypt(text, password.key, password.iv);
+              })();
 
         //----
         // OUTPUT
         //----
         let ret: { __set_headers__: Record<string, any> } & Primitive<Output> =
-            body as any;
+            content as any;
         try {
             // PARSE RESPONSE BODY
             ret = JSON.parse(ret as any);
@@ -226,24 +236,6 @@ const polyfill = new Singleton(async (): Promise<typeof fetch> => {
     }
     return window.fetch;
 });
-
-function is_disabled(
-    password: IEncryptionPassword,
-    headers: Singleton<Record<string, string>>,
-    body: string,
-    encoded: boolean,
-): boolean {
-    if (password.disabled === undefined) return false;
-    if (typeof password.disabled === "function")
-        return password.disabled(
-            {
-                headers: headers.get(),
-                body,
-            },
-            encoded,
-        );
-    return password.disabled;
-}
 
 function headers_to_object(headers: Headers): Record<string, string> {
     const output: Record<string, string> = {};

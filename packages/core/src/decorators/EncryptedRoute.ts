@@ -165,24 +165,11 @@ class EncryptedRouteInterceptor implements NestInterceptor {
                     typeof param === "function"
                         ? param({ headers: headers.get(), body }, false)
                         : param;
-                const disabled: boolean =
-                    password.disabled === undefined
-                        ? false
-                        : typeof password.disabled === "function"
-                        ? password.disabled(
-                              { headers: headers.get(), body },
-                              false,
-                          )
-                        : password.disabled;
 
                 const response: express.Response = http.getResponse();
-                response.header(
-                    "Content-Type",
-                    disabled ? "application/json" : "text/plain",
-                );
+                response.header("Content-Type", "text/plain");
 
-                if (disabled === true) return body;
-                else if (body === undefined) return body;
+                if (body === undefined) return body;
                 return AesPkcs5.encrypt(body, password.key, password.iv);
             }),
             catchError((err) => route_error(http.getRequest(), err)),

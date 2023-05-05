@@ -5,7 +5,7 @@ import {
     createParamDecorator,
 } from "@nestjs/common";
 import type express from "express";
-import raw from "raw-body";
+import type { FastifyRequest } from "fastify";
 
 import { assert, is, validate } from "typia";
 
@@ -44,10 +44,12 @@ export function EncryptedBody<T>(
         _unknown: any,
         ctx: ExecutionContext,
     ) {
-        const request: express.Request = ctx.switchToHttp().getRequest();
-        if (request.readable === false)
+        const request: express.Request | FastifyRequest = ctx
+            .switchToHttp()
+            .getRequest();
+        if (isTextPlain(request.headers["content-type"]) === false)
             throw new BadRequestException(
-                "Request body is not the text/plain.",
+                `Request body type is not "text/plain".`,
             );
 
         const param:
@@ -66,22 +68,14 @@ export function EncryptedBody<T>(
         const headers: Singleton<Record<string, string>> = new Singleton(() =>
             headers_to_object(request.headers),
         );
-        const body: string = (await raw(request, "utf8")).trim();
+        const body: string = request.body;
         const password: IEncryptionPassword =
             typeof param === "function"
                 ? param({ headers: headers.get(), body }, false)
                 : param;
-        const disabled: boolean =
-            password.disabled === undefined
-                ? false
-                : typeof password.disabled === "function"
-                ? password.disabled({ headers: headers.get(), body }, true)
-                : password.disabled;
 
         // PARSE AND VALIDATE DATA
-        const data: any = JSON.parse(
-            disabled ? body : decrypt(body, password.key, password.iv),
-        );
+        const data: any = JSON.parse(decrypt(body, password.key, password.iv));
         checker(data);
         return data;
     })();
@@ -93,7 +87,7 @@ Object.assign(EncryptedBody, validate);
 /**
  * @internal
  */
-function decrypt(body: string, key: string, iv: string): string {
+const decrypt = (body: string, key: string, iv: string): string => {
     try {
         return AesPkcs5.decrypt(body, key, iv);
     } catch (exp) {
@@ -103,4 +97,11 @@ function decrypt(body: string, key: string, iv: string): string {
             );
         else throw exp;
     }
-}
+};
+
+const isTextPlain = (text?: string): boolean =>
+    text !== undefined &&
+    text
+        .split(";")
+        .map((str) => str.trim())
+        .some((str) => str === "text/plain");

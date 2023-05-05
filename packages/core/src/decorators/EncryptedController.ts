@@ -11,11 +11,6 @@ import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
  * encryption algorithm and password would be used by {@link EncryptedRoute} and
  * {@link EncryptedBody} to encrypt the request and response body of the HTTP protocol.
  *
- * > However, if you've configure the {@link IEncryptionPassword.disabled} to be `true`,
- * > you can disable the encryption and decryption algorithm. Therefore, when the
- * > {@link IEncryptionPassword.disable} becomes the `true`, content like request and
- * > response body would be considered as a plain text instead.
- *
  * By the way, you can configure the encryption password in the global level by using
  * {@link EncryptedModule} instead of the {@link nest.Module} in the module level. In
  * that case, you don't need to use this `EncryptedController` more. Just use the
