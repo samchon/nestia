@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -11,7 +11,8 @@
     "eslint:fix": "eslint ./**/*.ts --fix",
     "package:latest": "npm run build && npm publish --access public",
     "package:next": "npm run package:latest -- --tag next",
-    "prettier": "prettier ./**/*.ts --write"
+    "prettier": "prettier ./**/*.ts --write",
+    "prepare": "ts-patch install"
   },
   "repository": {
     "type": "git",
@@ -63,6 +64,7 @@
     "prettier": "^2.8.7",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
+    "ts-patch": "^2.1.0",
     "tstl": "^2.5.13",
     "typescript": "^4.9.5",
     "typescript-transform-paths": "^3.4.6"

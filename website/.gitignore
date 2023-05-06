@@ -1,4 +1,5 @@
 .next
+articles/
 node_modules/
 out/
 
