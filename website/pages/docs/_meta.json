@@ -6,6 +6,7 @@
         "type": "separator",
         "title": "📖 Features"
     },
+    "pure": "Pure TypeScript",
     "core": "Core Library",
     "sdk": "Generators",
 

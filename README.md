@@ -48,6 +48,7 @@ Check out the document in the [website](https://nestia.io/docs/):
   - [Setup](https://nestia.io/docs/setup/)
 
 ### 📖 Features
+  - [Pure TypeScript](https://nestia.io/docs/pure)
   - Core Library
     - [TypedRoute](https://nestia.io/docs/core/TypedRoute/)
     - [TypedBody](https://nestia.io/docs/core/TypedBody/)

@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "README": "node build/README.js"
   },
   "repository": {
     "type": "git",
