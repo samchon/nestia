@@ -10,7 +10,7 @@
 Nestia is a set of helper libraries for NestJS, supporting below features:
 
   - `@nestia/core`: super-fast decorators
-  - `@nestia/sdk`
+  - `@nestia/sdk`:
     - SDK generator for clients
     - Swagger generator evolved than ever
     - Automatic E2E test functions generator
@@ -54,6 +54,6 @@ Check out the document in the [website](https://nestia.io/docs/):
     - [TypedParam](https://nestia.io/docs/core/TypedParam/)
     - [TypedQuery](https://nestia.io/docs/core/TypedRoute/)
   - Generators
-    - [SDK Library](https://nestia.io/docs/sdk/sdk/)
     - [Swagger Documents](https://nestia.io/docs/sdk/swagger/)
+    - [SDK Library](https://nestia.io/docs/sdk/sdk/)
     - [E2E Functions](https://nestia.io/docs/sdk/e2e/)
