@@ -10,7 +10,7 @@ export namespace SdkGenerator {
     export const generate =
         (config: INestiaConfig) =>
         async (routes: IRoute[]): Promise<void> => {
-            console.log("Generating SDK library...");
+            console.log("Generating SDK Library");
 
             // PREPARE NEW DIRECTORIES
             try {

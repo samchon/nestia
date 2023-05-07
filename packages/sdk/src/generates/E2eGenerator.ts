@@ -10,7 +10,7 @@ export namespace E2eGenerator {
     export const generate =
         (config: INestiaConfig) =>
         async (routeList: IRoute[]): Promise<void> => {
-            console.log("Generating E2E Test Functions...");
+            console.log("Generating E2E Test Functions");
 
             // PREPARE DIRECTORIES
             const output: string = path.resolve(config.e2e!);
