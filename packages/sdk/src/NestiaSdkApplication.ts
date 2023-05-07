@@ -81,13 +81,13 @@ export class NestiaSdkApplication {
         await validate("sdk")(this.config_.output);
         await validate("e2e")(this.config_.e2e);
 
+        title("Nestia E2E Generator");
         await this.generate(
             (config) => config,
-            () => SdkGenerator.generate,
-        );
-        await this.generate(
-            (config) => config,
-            () => E2eGenerator.generate,
+            () => (config) => async (routes) => {
+                await SdkGenerator.generate(config)(routes);
+                await E2eGenerator.generate(config)(routes);
+            },
         );
     }
 
@@ -103,6 +103,8 @@ export class NestiaSdkApplication {
             throw new Error(
                 "Error on NestiaApplication.sdk(): output directory does not exists.",
             );
+
+        title("Nestia SDK Generator");
         await this.generate(
             (config) => config,
             () => SdkGenerator.generate,
@@ -125,6 +127,7 @@ export class NestiaSdkApplication {
                 "Error on NestiaApplication.swagger(): output directory does not exists.",
             );
 
+        title("Nestia Swagger Generator");
         await this.generate(
             (config) => config.swagger!,
             SwaggerGenerator.generate,
@@ -157,32 +160,52 @@ export class NestiaSdkApplication {
 
         // ANALYZE REFLECTS
         const unique: WeakSet<any> = new WeakSet();
-        const controllerList: IController[] = [];
+        const controllers: IController[] = [];
 
-        console.log("Analyzing reflections...");
+        console.log("Analyzing reflections");
         for (const file of fileList)
-            controllerList.push(
-                ...(await ReflectAnalyzer.analyze(unique, file)),
-            );
+            controllers.push(...(await ReflectAnalyzer.analyze(unique, file)));
+
+        const agg: number = (() => {
+            const set: Set<string> = new Set();
+            for (const c of controllers)
+                for (const cPath of c.paths)
+                    for (const f of c.functions)
+                        for (const fPath of f.paths)
+                            set.add(`${f.method}::${cPath}/${fPath}`);
+            return set.size;
+        })();
+
+        console.log(`  - controllers: #${controllers.length}`);
+        console.log(`  - paths: #${agg}`);
+        console.log(
+            `  - routes: #${controllers
+                .map(
+                    (c) =>
+                        c.paths.length *
+                        c.functions
+                            .map((f) => f.paths.length)
+                            .reduce((a, b) => a + b),
+                )
+                .reduce((a, b) => a + b, 0)}`,
+        );
 
         // ANALYZE TYPESCRIPT CODE
-        console.log("Analyzing source codes...");
+        console.log("Analyzing source codes");
         const program: ts.Program = ts.createProgram(
-            controllerList.map((c) => c.file),
+            controllers.map((c) => c.file),
             this.config_.compilerOptions || { noEmit: true },
         );
         const checker: ts.TypeChecker = program.getTypeChecker();
 
         const routeList: IRoute[] = [];
-        for (const controller of controllerList) {
-            const sourceFile: ts.SourceFile | undefined = program.getSourceFile(
-                controller.file,
+        for (const c of controllers) {
+            const file: ts.SourceFile | undefined = program.getSourceFile(
+                c.file,
             );
-            if (sourceFile === undefined) continue;
+            if (file === undefined) continue;
 
-            routeList.push(
-                ...ControllerAnalyzer.analyze(checker, sourceFile, controller),
-            );
+            routeList.push(...ControllerAnalyzer.analyze(checker, file, c));
         }
 
         // DO GENERATE
@@ -231,3 +254,9 @@ export class NestiaSdkApplication {
         );
     }
 }
+
+const title = (str: string): void => {
+    console.log("-----------------------------------------------------------");
+    console.log(` ${str}`);
+    console.log("-----------------------------------------------------------");
+};
