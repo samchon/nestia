@@ -4,11 +4,9 @@
   "version": "0.0.0",
   "description": "Nestia station",
   "main": "prettier.config.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
-    "README": "node build/README.js"
+    "build": "node build/index.js",
+    "test": "cd test && npm run start"
   },
   "repository": {
     "type": "git",
