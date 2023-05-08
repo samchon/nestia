@@ -9,7 +9,7 @@ const execute = (command) => {
     cp.execSync(command, { stdio: "inherit" });
 };
 
-const main = fs.readdirSync(PACKAGES).forEach((lib) => {
+const main = () => fs.readdirSync(PACKAGES).forEach((lib) => {
     const location = `${PACKAGES}/${lib}`;
     if (fs.existsSync(`${location}/package.json`) === false)
         return;
@@ -29,3 +29,4 @@ const main = fs.readdirSync(PACKAGES).forEach((lib) => {
     execute("npm run build");
     if (test) execute("npm run test");
 });
+main();

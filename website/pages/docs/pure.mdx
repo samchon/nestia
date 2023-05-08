@@ -27,29 +27,28 @@ This is the power of `nestia`, with pure TypeScript type.
     <Tab>
 ```typescript filename="BbsArticle.ts" showLineNumbers {8-21}
 export class BbsArticle {
-    @IsString()
     @ApiProperty({
         format: "uuid",
     })
+    @IsString()
     id!: string;
 
     // DUPLICATED SCHEMA DEFINITION
     // - duplicated function call + property type
     // - have to specify `isArray` and `nullable` props by yourself
-    @IsArray()
-    @IsObject()
-    @ValidateNested()
-    @Type(() => AttachmentFile)
     @ApiProperty({
         type: () => AttachmentFile,
         nullable: true,
         isArray: true,
         description: "List of attached files.",
     })
+    @IsArray()
+    @IsObject()
+    @IsOptional()
+    @Type(() => AttachmentFile)
+    @ValidateNested()
     files!: AttachmentFile[] | null;
 
-    @IsString()
-    @IsOptional()
     @ApiProperty({
         type: "string",
         nullable: true,
@@ -57,25 +56,25 @@ export class BbsArticle {
         maxLength: 100,
         description: "Title of the article.",
     })
+    @IsOptional()
+    @IsString()
     title!: string | null;
 
-    @IsString()
     @ApiProperty({
         description: "Main content body of the article."
     })
+    @IsString()
     body!: string;
 
-    @IsString()
     @ApiProperty({
         format: "date-time",
         description: "Creation time of article",
     })
+    @IsString()
     created_at!: string;
 }
 
 export class AttachmentFile {
-    @IsString()
-    @IsOptional()
     @ApiProperty({
         type: "string",
         nullable: true,
@@ -83,10 +82,10 @@ export class AttachmentFile {
         pattern: "^[a-zA-Z0-9-_]+$",
         description: "File name.",
     })
+    @IsOptional()
+    @IsString()
     name!: string | null;
 
-    @IsString()
-    @IsOptional()
     @ApiProperty({
         type: "string",
         nullable: true,
@@ -94,13 +93,15 @@ export class AttachmentFile {
         pattern: "^[a-zA-Z0-9-_]+$",
         description: "File extension.",
     })
+    @IsOptional()
+    @IsString()
     extension!: string | null;
 
-    @IsString()
     @ApiProperty({
         format: "url",
         description: "URL of the file.",
     })
+    @IsString()
     url!: string;
 }
 ```
