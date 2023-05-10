@@ -185,7 +185,7 @@ export class NestiaSdkApplication {
                         c.paths.length *
                         c.functions
                             .map((f) => f.paths.length)
-                            .reduce((a, b) => a + b),
+                            .reduce((a, b) => a + b, 0),
                 )
                 .reduce((a, b) => a + b, 0)}`,
         );

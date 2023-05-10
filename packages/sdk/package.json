@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "1.2.3",
+  "version": "1.2.5",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -42,7 +42,7 @@
     "tsconfck": "^2.0.1",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^2.5.13",
-    "typia": "^3.8.4"
+    "typia": "^3.8.5"
   },
   "peerDependencies": {
     "@nestjs/common": ">= 7.0.1",

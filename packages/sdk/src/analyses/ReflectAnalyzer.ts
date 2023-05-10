@@ -17,7 +17,21 @@ export namespace ReflectAnalyzer {
         unique: WeakSet<any>,
         file: string,
     ): Promise<IController[]> {
-        const module: IModule = await import(file);
+        const module: IModule = await (async () => {
+            try {
+                return await import(file);
+            } catch (exp) {
+                console.log(
+                    ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
+                );
+                console.log(`Error on "${file}" file. Check your code.`);
+                console.log(exp);
+                console.log(
+                    ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
+                );
+                process.exit(-1);
+            }
+        })();
         const ret: IController[] = [];
 
         for (const tuple of Object.entries(module)) {
