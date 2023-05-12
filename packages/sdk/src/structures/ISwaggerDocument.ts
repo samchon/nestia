@@ -2,7 +2,7 @@ import { IJsonComponents, IJsonSchema } from "typia";
 import { IJsDocTagInfo } from "typia/lib/metadata/IJsDocTagInfo";
 
 export interface ISwaggerDocument {
-    openapi: "3.0";
+    openapi: "3.0.1";
     servers: ISwaggerDocument.IServer[];
     info: ISwaggerDocument.IInfo;
     components: ISwaggerDocument.IComponents;
@@ -18,6 +18,7 @@ export namespace ISwaggerDocument {
     export interface IInfo {
         version: string;
         title: string;
+        description?: string;
     }
 
     export interface IComponents extends IJsonComponents {

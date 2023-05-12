@@ -150,6 +150,18 @@ export namespace INestiaConfig {
         output: string;
 
         /**
+         * API information.
+         *
+         * If omitted, `package.json` content would be used instead.
+         */
+        info?: Partial<ISwaggerDocument.IInfo>;
+
+        /**
+         * List of server addresses.
+         */
+        servers?: ISwaggerDocument.IServer[];
+
+        /**
          * Security schemes.
          */
         security?: Record<string, ISwaggerConfig.ISecurityScheme>;
