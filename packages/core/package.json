@@ -32,7 +32,7 @@
   "bugs": {
     "url": "https://github.com/samchon/nestia/issues"
   },
-  "homepage": "https://github.com/samchon/nestia",
+  "homepage": "https://nestia.io",
   "dependencies": {
     "@nestia/fetcher": "^1.2.1",
     "@nestjs/common": ">= 7.0.1",

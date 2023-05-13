@@ -33,7 +33,7 @@
   "bugs": {
     "url": "https://github.com/samchon/nestia/issues"
   },
-  "homepage": "https://github.com/samchon/nestia",
+  "homepage": "https://nestia.io",
   "dependencies": {
     "cli": "^1.0.1",
     "glob": "^7.2.0",
