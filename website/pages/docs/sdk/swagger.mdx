@@ -18,6 +18,12 @@ const config: INestiaConfig = {
                 in: "header",
             },
         },
+        servers: [
+            {
+                url: "http://localhost:3000",
+                description: "Local Server"
+            }
+        ],
     }
 };
 export default config;
@@ -58,13 +64,19 @@ const config: INestiaConfig = {
                 in: "header",
             },
         },
+        servers: [
+            {
+                url: "http://localhost:3000",
+                description: "Local Server"
+            }
+        ],
     }
 };
 export default config;
 ```
     </Tab>
     <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers {12-22, 142-156}
+```typescript filename="INestiaConfig.ts" showLineNumbers {12-17, 142-168}
 import type ts from "typescript";
 
 import type { ISwaggerDocument } from "./structures/ISwaggerDocument";
@@ -79,7 +91,7 @@ export interface INestiaConfig {
     /**
      * Building `swagger.json` is also possible.
      *
-     * If not specified, you can't build the `swagger.json` file.
+     * If not specified, you can't build the `swagger.json`.
      */
     swagger?: INestiaConfig.ISwaggerConfig;
 
@@ -217,6 +229,18 @@ export namespace INestiaConfig {
         output: string;
 
         /**
+         * API information.
+         *
+         * If omitted, `package.json` content would be used instead.
+         */
+        info?: Partial<ISwaggerDocument.IInfo>;
+
+        /**
+         * List of server addresses.
+         */
+        servers?: ISwaggerDocument.IServer[];
+
+        /**
          * Security schemes.
          */
         security?: Record<string, ISwaggerConfig.ISecurityScheme>;
@@ -262,7 +286,7 @@ By the way, if your controller files are separated into multiple directories, yo
 
 <Tabs items={['List up every directories', 'Use regex pattern', 'Exclude']}>
     <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
+```typescript copy filename="nestia.config.ts" showLineNumbers {4-8}
 import { INestiaConfig } from "@nestia/sdk";
 
 const config: INestiaConfig = {
@@ -280,13 +304,19 @@ const config: INestiaConfig = {
                 in: "header",
             },
         },
+        servers: [
+            {
+                url: "http://localhost:3000",
+                description: "Local Server"
+            }
+        ],
     }
 };
 export default config;
 ```
     </Tab>
     <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
+```typescript copy filename="nestia.config.ts" showLineNumbers {4}
 import { INestiaConfig } from "@nestia/sdk";
 
 const config: INestiaConfig = {
@@ -300,13 +330,19 @@ const config: INestiaConfig = {
                 in: "header",
             },
         },
+        servers: [
+            {
+                url: "http://localhost:3000",
+                description: "Local Server"
+            }
+        ],
     }
 };
 export default config;
 ```
     </Tab>
     <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
+```typescript copy filename="nestia.config.ts" showLineNumbers {4-7}
 import { INestiaConfig } from "@nestia/sdk";
 
 const config: INestiaConfig = {
@@ -323,6 +359,12 @@ const config: INestiaConfig = {
                 in: "header",
             },
         },
+        servers: [
+            {
+                url: "http://localhost:3000",
+                description: "Local Server"
+            }
+        ],
     }
 };
 export default config;

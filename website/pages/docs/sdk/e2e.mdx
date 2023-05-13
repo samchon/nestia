@@ -72,7 +72,7 @@ export default config;
 ```
     </Tab>
     <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers {12-29}
+```typescript filename="INestiaConfig.ts" showLineNumbers {12-33}
 import type ts from "typescript";
 
 import type { ISwaggerDocument } from "./structures/ISwaggerDocument";
@@ -85,13 +85,6 @@ import type { StripEnums } from "./utils/StripEnums";
  */
 export interface INestiaConfig {
     /**
-     * Building `swagger.json` is also possible.
-     *
-     * If not specified, you can't build the `swagger.json`.
-     */
-    swagger?: INestiaConfig.ISwaggerConfig;
-
-    /**
      * List of files or directories containing the NestJS controller classes.
      */
     input: string | string[] | INestiaConfig.IInput;
@@ -102,6 +95,17 @@ export interface INestiaConfig {
      * If not configured, you can't build the SDK library.
      */
     output?: string;
+
+    /**
+     * Target directory that e2e test functions would be placed in.
+     *
+     * If you configure this property and runs `npx nestia e2e` command,
+     * `@nestia/sdk` will analyze your NestJS backend server code, and
+     * generates e2e test functions for every API endpoints.
+     *
+     * If not configured, you can't run `npx nestia e2e` command.
+     */
+    e2e?: string;
 
     /**
      * Target directory that SDK distribution files would be placed in.
@@ -118,15 +122,11 @@ export interface INestiaConfig {
     distribute?: string;
 
     /**
-     * Target directory that e2e test functions would be placed in.
+     * Building `swagger.json` is also possible.
      *
-     * If you configure this property and runs `npx nestia e2e` command,
-     * `@nestia/sdk` will analyze your NestJS backend server code, and
-     * generates e2e test functions for every API endpoints.
-     *
-     * If not configured, you can't run `npx nestia e2e` command.
+     * If not specified, you can't build the `swagger.json`.
      */
-    e2e?: string;
+    swagger?: INestiaConfig.ISwaggerConfig;
 
     /**
      * Compiler options for the TypeScript.
@@ -225,6 +225,18 @@ export namespace INestiaConfig {
         output: string;
 
         /**
+         * API information.
+         *
+         * If omitted, `package.json` content would be used instead.
+         */
+        info?: Partial<ISwaggerDocument.IInfo>;
+
+        /**
+         * List of server addresses.
+         */
+        servers?: ISwaggerDocument.IServer[];
+
+        /**
          * Security schemes.
          */
         security?: Record<string, ISwaggerConfig.ISecurityScheme>;
@@ -271,7 +283,7 @@ By the way, if your controller files are separated into multiple directories, yo
 
 <Tabs items={['List up every directories', 'Use regex pattern', 'Exclude']} defaultIndex={2}>
     <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
+```typescript copy filename="nestia.config.ts" showLineNumbers {4-8}
 import { INestiaConfig } from "@nestia/sdk";
 
 const config: INestiaConfig = {
@@ -288,7 +300,7 @@ export default config;
 ```
     </Tab>
     <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
+```typescript copy filename="nestia.config.ts" showLineNumbers {4}
 import { INestiaConfig } from "@nestia/sdk";
 
 const config: INestiaConfig = {
@@ -301,7 +313,7 @@ export default config;
 ```
     </Tab>
     <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
+```typescript copy filename="nestia.config.ts" showLineNumbers {4-7}
 import { INestiaConfig } from "@nestia/sdk";
 
 const config: INestiaConfig = {

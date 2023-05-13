@@ -213,6 +213,18 @@ export namespace INestiaConfig {
         output: string;
 
         /**
+         * API information.
+         *
+         * If omitted, `package.json` content would be used instead.
+         */
+        info?: Partial<ISwaggerDocument.IInfo>;
+
+        /**
+         * List of server addresses.
+         */
+        servers?: ISwaggerDocument.IServer[];
+
+        /**
          * Security schemes.
          */
         security?: Record<string, ISwaggerConfig.ISecurityScheme>;
@@ -258,7 +270,7 @@ By the way, if your controller files are separated into multiple directories, yo
 
 <Tabs items={['List up every directories', 'Use regex pattern', 'Exclude']}>
     <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
+```typescript copy filename="nestia.config.ts" showLineNumbers {4-8}
 import { INestiaConfig } from "@nestia/sdk";
 
 const config: INestiaConfig = {
@@ -274,7 +286,7 @@ export default config;
 ```
     </Tab>
     <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
+```typescript copy filename="nestia.config.ts" showLineNumbers {4}
 import { INestiaConfig } from "@nestia/sdk";
 
 const config: INestiaConfig = {
@@ -286,7 +298,7 @@ export default config;
 ```
     </Tab>
     <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
+```typescript copy filename="nestia.config.ts" showLineNumbers {4-7}
 import { INestiaConfig } from "@nestia/sdk";
 
 const config: INestiaConfig = {
