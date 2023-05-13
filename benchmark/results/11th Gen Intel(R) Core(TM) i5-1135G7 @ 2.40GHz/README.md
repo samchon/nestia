@@ -9,16 +9,16 @@
 ## stringify
 ![stringify benchmark](images/stringify.svg)
 
- Types | express-nestia | express-nestjs | express-pure | fastify-nestia | fastify-nestjs | fastify-pure 
--------|------|------|------|------|------|------
- object (simple) | 56 | 7.93 | 48 | 135 | 8.63 | 115 
- object (hierarchical) | 130 | 16 | 91 | 166 | 17 | 141 
- object (recursive) | 135 | 14 | 98 | 164 | 13 | 92 
- object (union, explicit) | 103 | 7.02 | 66 | 123 | 6.83 | 67 
- array (simple) | 115 | 14 | 100 | 143 | 15 | 121 
- array (hierarchical) | 157 | 13 | 106 | 155 | 13 | 66 
- array (recursive) | 124 | 13 | 99 | 129 | 12 | 88 
- array (union, explicit) | 105 | 12 | 93 | 98 | 13 | 82 
+ Types | nestia-express | nestia-fastify | NestJS-express | NestJS-fastify 
+-------|------|------|------|------
+ object (simple) | 55 | 122 | 8.03 | 8.77 
+ object (hierarchical) | 132 | 157 | 16 | 16 
+ object (recursive) | 131 | 168 | 14 | 15 
+ object (union, explicit) | 100 | 122 | 6.63 | 6.92 
+ array (simple) | 112 | 140 | 16 | 15 
+ array (hierarchical) | 155 | 158 | 13 | 13 
+ array (recursive) | 125 | 136 | 13 | 14 
+ array (union, explicit) | 121 | 129 | 15 | 16 
 
 > Unit: Megabytes/sec
 
@@ -28,4 +28,4 @@
 
 
 
-Total elapsed time: 638,407 ms
+Total elapsed time: 426,859 ms

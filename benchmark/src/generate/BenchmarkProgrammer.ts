@@ -26,6 +26,10 @@ export namespace BenchmarkProgrammer {
                 emend(category.name),
                 emend(library.name),
             ].join("/");
+
+            try {
+                await fs.promises.mkdir(location);
+            } catch {}
             for (const file of await fs.promises.readdir(location))
                 if (!file.includes("create"))
                     await fs.promises.rm(`${location}/${file}`);
@@ -56,11 +60,7 @@ export namespace BenchmarkProgrammer {
     }
 
     export const emend = (name: string) =>
-        name
-            .replaceAll("(", "")
-            .replaceAll(")", "")
-            .replaceAll(" ", "-")
-            .toLowerCase();
+        name.replaceAll("(", "").replaceAll(")", "").replaceAll(" ", "-");
     export const pascal = (name: string) =>
         name
             .split("-")
