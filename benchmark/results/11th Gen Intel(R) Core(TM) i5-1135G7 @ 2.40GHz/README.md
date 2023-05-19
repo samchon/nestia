@@ -11,14 +11,14 @@
 
  Types | nestia-express | nestia-fastify | NestJS-express | NestJS-fastify 
 -------|------|------|------|------
- object (simple) | 55 | 122 | 8.03 | 8.77 
- object (hierarchical) | 132 | 157 | 16 | 16 
- object (recursive) | 131 | 168 | 14 | 15 
- object (union, explicit) | 100 | 122 | 6.63 | 6.92 
- array (simple) | 112 | 140 | 16 | 15 
- array (hierarchical) | 155 | 158 | 13 | 13 
- array (recursive) | 125 | 136 | 13 | 14 
- array (union, explicit) | 121 | 129 | 15 | 16 
+ object (simple) | 49 | 104 | 5.87 | 7.79 
+ object (hierarchical) | 129 | 164 | 15 | 17 
+ object (recursive) | 136 | 163 | 13 | 13 
+ object (union, explicit) | 95 | 125 | 7.01 | 6.96 
+ array (simple) | 114 | 130 | 15 | 15 
+ array (hierarchical) | 162 | 149 | 12 | 13 
+ array (recursive) | 133 | 138 | 14 | 13 
+ array (union, explicit) | 124 | 132 | 16 | 15 
 
 > Unit: Megabytes/sec
 
@@ -28,4 +28,4 @@
 
 
 
-Total elapsed time: 426,859 ms
+Total elapsed time: 448,468 ms
