@@ -115,7 +115,7 @@ export namespace RandomGenerator {
      *
      * @param prefix Prefix string, default is "010"
      * @returns Random mobile number
-     * @example 010-334-0067
+     * @example 0103340067
      */
     export const mobile = (prefix: string = "010"): string =>
         [
@@ -125,7 +125,7 @@ export namespace RandomGenerator {
                 return value.toString().padStart(value < 1_000 ? 3 : 4, "0");
             })(),
             randint(0, 9999).toString().padStart(4, "0"),
-        ].join("-");
+        ].join("");
 
     /**
      * Generate random date.
