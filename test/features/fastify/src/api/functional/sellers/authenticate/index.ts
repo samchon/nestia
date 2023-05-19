@@ -14,7 +14,6 @@ export * as password from "./password";
 /**
  * Join as a seller.
  * 
- * @param connection connection Information of the remote HTTP(s) server with headers (+encryption password)
  * @param input Information of yours
  * @return Information of newly joined seller
  * @setHeader authorization.token Authorization
@@ -65,7 +64,6 @@ export namespace join
 /**
  * Log-in as a seller.
  * 
- * @param connection connection Information of the remote HTTP(s) server with headers (+encryption password)
  * @param input Email and password
  * @return Information of the seller
  * @assignHeaders authorization

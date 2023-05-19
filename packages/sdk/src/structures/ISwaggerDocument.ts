@@ -86,7 +86,7 @@ export namespace ISwaggerDocument {
         requestBody?: IRequestBody;
         responses: IResponseBody;
         summary?: string;
-        description: string;
+        description?: string;
         "x-nestia-namespace": string;
         "x-nestia-jsDocTags": IJsDocTagInfo[];
     }

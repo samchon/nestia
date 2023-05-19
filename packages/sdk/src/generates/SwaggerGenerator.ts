@@ -6,7 +6,6 @@ import ts from "typescript";
 
 import typia from "typia";
 import { IJsonApplication, IJsonSchema } from "typia";
-import { CommentFactory } from "typia/lib/factories/CommentFactory";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { Metadata } from "typia/lib/metadata/Metadata";
@@ -185,8 +184,12 @@ export namespace SwaggerGenerator {
                         tag.text!.find((elem) => elem.kind === "text")!.text,
                 );
 
-        const description: string = CommentFactory.string(route.comments);
+        const description: string | undefined = route.description?.length
+            ? route.description
+            : undefined;
         const summary: string | undefined = (() => {
+            if (description === undefined) return undefined;
+
             const [explicit] = getTagTexts("summary");
             if (explicit?.length) return explicit;
 

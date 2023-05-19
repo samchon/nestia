@@ -12,7 +12,6 @@ import type { ISeller } from "./../../../../structures/ISeller";
 /**
  * Change password.
  * 
- * @param connection connection Information of the remote HTTP(s) server with headers (+encryption password)
  * @param input Old and new passwords
  * @return Empty object
  * 

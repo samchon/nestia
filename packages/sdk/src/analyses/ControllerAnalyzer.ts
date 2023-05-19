@@ -1,6 +1,8 @@
 import { HashMap } from "tstl/container/HashMap";
 import ts from "typescript";
 
+import { CommentFactory } from "typia/lib/factories/CommentFactory";
+
 import { IController } from "../structures/IController";
 import { IRoute } from "../structures/IRoute";
 import { ITypeTuple } from "../structures/ITypeTuple";
@@ -139,7 +141,7 @@ export namespace ControllerAnalyzer {
             status: func.status,
 
             symbol: `${controller.name}.${func.name}()`,
-            comments: signature.getDocumentationComment(undefined),
+            description: CommentFactory.description(symbol),
             tags,
             setHeaders: tags
                 .filter(

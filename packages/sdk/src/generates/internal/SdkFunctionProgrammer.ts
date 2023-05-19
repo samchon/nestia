@@ -132,18 +132,9 @@ export namespace SdkFunctionProgrammer {
             // CONSTRUCT COMMENT
             //----
             // MAIN DESCRIPTION
-            const comments: string[] = route.comments
-                .map(
-                    (part) =>
-                        `${part.kind === "linkText" ? " " : ""}${part.text}`,
-                )
-                .map((str) => str.split("\r\n").join("\n"))
-                .join("")
-                .split("\n")
-                .filter(
-                    (str, i, array) => str !== "" || i !== array.length - 1,
-                );
-            if (comments.length) comments.push("");
+            const comments: string[] = route.description
+                ? route.description.split("\n")
+                : [];
 
             // FILTER TAGS (VULNERABLE PARAMETERS WOULD BE REMOVED)
             const tagList: ts.JSDocTagInfo[] = route.tags.slice();
@@ -172,19 +163,10 @@ export namespace SdkFunctionProgrammer {
                         ],
                     });
                 }
-                comments.push(
-                    ...tagList.map((tag) =>
-                        tag.text
-                            ? `@${tag.name} ${tag.text
-                                  .map((elem) => elem.text)
-                                  .join("")}`
-                            : `@${tag.name}`,
-                    ),
-                    "",
-                );
             }
 
             // COMPLETE THE COMMENT
+            if (!!comments.length) comments.push("");
             comments.push(
                 `@controller ${route.symbol}`,
                 `@path ${route.method} ${route.path}`,

@@ -15,7 +15,7 @@ export interface IRoute {
     output: ITypeTuple;
 
     symbol: string;
-    comments: ts.SymbolDisplayPart[];
+    description?: string;
     tags: ts.JSDocTagInfo[];
     setHeaders: Array<
         | { type: "setter"; source: string; target?: string }
