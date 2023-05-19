@@ -29,7 +29,7 @@
   "bugs": {
     "url": "https://github.com/samchon/nestia/issues"
   },
-  "homepage": "https://github.com/samchon/nestia",
+  "homepage": "https://nestia.io",
   "dependencies": {
     "commander": "^10.0.0",
     "comment-json": "^4.2.3",

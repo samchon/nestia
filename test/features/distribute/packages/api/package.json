@@ -19,7 +19,7 @@
   "bugs": {
     "url": "https://github.com/samchon/nestia/issues"
   },
-  "homepage": "https://github.com/samchon/nestia#readme",
+  "homepage": "https://nestia.io",
   "files": [
     "lib",
     "package.json",
