@@ -13,7 +13,6 @@ import type { IBbsArticle } from "./../../../structures/IBbsArticle";
 /**
  * Store a new article.
  * 
- * @param connection connection Information of the remote HTTP(s) server with headers (+encryption password)
  * @param section Section code
  * @param input Content to store
  * @returns Newly archived article
@@ -61,7 +60,6 @@ export namespace store
 /**
  * Update an article.
  * 
- * @param connection connection Information of the remote HTTP(s) server with headers (+encryption password)
  * @param section Section code
  * @param id Target article ID
  * @param input Content to update

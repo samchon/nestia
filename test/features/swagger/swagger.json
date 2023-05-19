@@ -22,7 +22,6 @@
             "x-nestia-encrypted": false
           }
         },
-        "description": "",
         "x-nestia-namespace": "health.get",
         "x-nestia-jsDocTags": []
       }
@@ -44,7 +43,6 @@
             "x-nestia-encrypted": false
           }
         },
-        "description": "",
         "x-nestia-namespace": "performance.get",
         "x-nestia-jsDocTags": []
       }
@@ -57,19 +55,16 @@
         "properties": {
           "cpu": {
             "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage",
-            "description": "",
             "x-typia-required": true,
             "x-typia-optional": false
           },
           "memory": {
             "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage",
-            "description": "",
             "x-typia-required": true,
             "x-typia-optional": false
           },
           "resource": {
             "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage",
-            "description": "",
             "x-typia-required": true,
             "x-typia-optional": false
           }
@@ -80,7 +75,7 @@
           "memory",
           "resource"
         ],
-        "description": "Performance info.",
+        "description": "Performance info.\n\n@author Samchon",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -97,18 +92,14 @@
         "type": "object",
         "properties": {
           "user": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "system": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           }
         },
         "nullable": false,
@@ -122,39 +113,29 @@
         "type": "object",
         "properties": {
           "rss": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "heapTotal": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "heapUsed": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "external": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "arrayBuffers": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           }
         },
         "nullable": false,
@@ -171,116 +152,84 @@
         "type": "object",
         "properties": {
           "fsRead": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "fsWrite": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "involuntaryContextSwitches": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "ipcReceived": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "ipcSent": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "majorPageFault": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "maxRSS": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "minorPageFault": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "sharedMemorySize": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "signalsCount": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "swappedOut": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "systemCPUTime": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "unsharedDataSize": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "unsharedStackSize": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "userCPUTime": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           },
           "voluntaryContextSwitches": {
-            "type": "number",
-            "nullable": false,
-            "description": "",
             "x-typia-required": true,
-            "x-typia-optional": false
+            "x-typia-optional": false,
+            "type": "number"
           }
         },
         "nullable": false,
