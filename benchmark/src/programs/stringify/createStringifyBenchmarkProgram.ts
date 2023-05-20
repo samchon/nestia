@@ -38,8 +38,7 @@ const shoot = (port: number) =>
             {
                 url: `http://127.0.0.1:${port}/stringify`,
                 method: "GET",
-                connections: 100,
-                workers: Math.min(1, Math.ceil(PHYSICAL_CPU_COUNT / 2)),
+                workers: Math.min(2, PHYSICAL_CPU_COUNT - 2),
             },
             (err, result) => {
                 if (err) reject(err);

@@ -138,8 +138,8 @@ export namespace BenchmarkReporter {
             __dirname + "/../../package.json",
             "utf8",
         );
-        const data: { version: string } = JSON.parse(content);
-        return data.version;
+        const data = JSON.parse(content);
+        return data.dependencies["@nestia/core"].substring(1);
     }
 
     const DICTIONARY: Record<string, string> = {
