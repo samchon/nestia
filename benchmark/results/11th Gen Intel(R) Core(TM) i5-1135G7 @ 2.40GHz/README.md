@@ -3,7 +3,7 @@
 > - Memory: 16,218 MB
 > - OS: win32
 > - NodeJS version: v16.20.0
-> - Nestia version: v0.1.0
+> - Nestia version: v1.2.2
 
 
 ## stringify
@@ -11,14 +11,14 @@
 
  Types | nestia-express | nestia-fastify | NestJS-express | NestJS-fastify 
 -------|------|------|------|------
- object (simple) | 49 | 104 | 5.87 | 7.79 
- object (hierarchical) | 129 | 164 | 15 | 17 
- object (recursive) | 136 | 163 | 13 | 13 
- object (union, explicit) | 95 | 125 | 7.01 | 6.96 
- array (simple) | 114 | 130 | 15 | 15 
- array (hierarchical) | 162 | 149 | 12 | 13 
- array (recursive) | 133 | 138 | 14 | 13 
- array (union, explicit) | 124 | 132 | 16 | 15 
+ object (simple) | 46 | 128 | 7.08 | 6.25 
+ object (hierarchical) | 138 | 177 | 14 | 16 
+ object (recursive) | 139 | 190 | 14 | 15 
+ object (union, explicit) | 96 | 126 | 6.86 | 6.87 
+ array (simple) | 111 | 134 | 15 | 15 
+ array (hierarchical) | 144 | 143 | 13 | 12 
+ array (recursive) | 125 | 127 | 13 | 13 
+ array (union, explicit) | 117 | 131 | 15 | 15 
 
 > Unit: Megabytes/sec
 
@@ -28,4 +28,4 @@
 
 
 
-Total elapsed time: 448,468 ms
+Total elapsed time: 365,934 ms
