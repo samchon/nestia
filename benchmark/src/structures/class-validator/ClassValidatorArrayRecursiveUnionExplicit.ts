@@ -2,7 +2,7 @@ import * as tr from "class-transformer";
 import * as cv from "class-validator";
 import "reflect-metadata";
 
-export class ClassValidatorArrayRecursiveUnionExplicit {
+class Explicit {
     @cv.IsNumber()
     id!: number;
 
@@ -21,12 +21,12 @@ export class ClassValidatorArrayRecursiveUnionExplicit {
     @cv.IsIn(["jpg", "txt", "zip", "lnk"])
     extension?: string;
 
+    @tr.Type(() => Explicit)
     @cv.IsOptional()
     @cv.IsArray()
+    @cv.IsObject({ each: true })
     @cv.ValidateNested({ each: true })
-    @cv.IsObject()
-    @tr.Type(() => ClassValidatorArrayRecursiveUnionExplicit)
-    children?: ClassValidatorArrayRecursiveUnionExplicit[];
+    children?: Explicit[];
 
     @cv.IsOptional()
     @cv.IsNumber()
@@ -52,9 +52,17 @@ export class ClassValidatorArrayRecursiveUnionExplicit {
     @cv.IsNumber()
     count?: number;
 
+    @tr.Type(() => Explicit)
     @cv.IsOptional()
-    @cv.ValidateNested()
     @cv.IsObject()
-    @tr.Type(() => ClassValidatorArrayRecursiveUnionExplicit)
-    target?: ClassValidatorArrayRecursiveUnionExplicit;
+    @cv.ValidateNested()
+    target?: Explicit;
+}
+
+export class ClassValidatorArrayRecursiveUnionExplicit {
+    @tr.Type(() => Explicit)
+    @cv.IsArray()
+    @cv.IsObject({ each: true })
+    @cv.ValidateNested({ each: true })
+    data!: Explicit[];
 }

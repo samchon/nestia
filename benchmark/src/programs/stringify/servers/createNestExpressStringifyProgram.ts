@@ -1,16 +1,18 @@
-import { INestApplication, Module } from "@nestjs/common";
+import { INestApplication, Module, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import tgrid from "tgrid";
 import { IPointer } from "tstl/functional/IPointer";
 
-import { IServerProgram } from "../../IServerProgram";
+import { Collection } from "../../../structures/pure/Collection";
+import { IStringifyServerProgram } from "../IStringifyServerProgram";
 
 export const createNestExpressStringifyProgram =
+    (transform: boolean) =>
     (port: number) =>
-    async <T>(controller: (input: T) => any) => {
+    async <T>(controller: (input: Collection<T>) => any) => {
         const app: IPointer<INestApplication | null> = { value: null };
 
-        const provider: IServerProgram<any> = {
+        const provider: IStringifyServerProgram<any> = {
             open: async (input) => {
                 app.value = await NestFactory.create(
                     (() => {
@@ -24,6 +26,8 @@ export const createNestExpressStringifyProgram =
                         logger: false,
                     },
                 );
+                if (transform)
+                    app.value.useGlobalPipes(new ValidationPipe({ transform }));
                 await app.value.listen(port);
                 return port;
             },

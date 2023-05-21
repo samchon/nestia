@@ -2,8 +2,9 @@ import cannon from "autocannon";
 import PHYSICAL_CPU_COUNT from "physical-cpu-count";
 import tgrid from "tgrid";
 
+import { Collection } from "../../structures/pure/Collection";
 import { IBenchmarkProgram } from "../IBenchmarkProgram";
-import { IServerProgram } from "../IServerProgram";
+import { IStringifyServerProgram } from "./IStringifyServerProgram";
 
 export const createStringifyBenchmarkProgram = async <T>(
     location: string,
@@ -19,8 +20,9 @@ export const createStringifyBenchmarkProgram = async <T>(
             );
             await connector.connect(location);
 
-            const data: T[] = new Array(100).fill(input);
-            const controller = connector.getDriver<IServerProgram<T[]>>();
+            const data: Collection<T> = { data: new Array(100).fill(input) };
+            const controller =
+                connector.getDriver<IStringifyServerProgram<T>>();
             const port: number = await controller.open(data);
 
             const result: IBenchmarkProgram.IMeasurement = await shoot(port);
@@ -39,6 +41,8 @@ const shoot = (port: number) =>
                 url: `http://127.0.0.1:${port}/stringify`,
                 method: "GET",
                 workers: Math.min(2, PHYSICAL_CPU_COUNT - 2),
+                timeout: 300,
+                // connections: 1_000,
             },
             (err, result) => {
                 if (err) reject(err);

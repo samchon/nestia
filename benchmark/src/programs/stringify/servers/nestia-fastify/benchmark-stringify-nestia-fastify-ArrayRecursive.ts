@@ -2,14 +2,15 @@ import { Controller } from "@nestjs/common";
 
 import core from "@nestia/core";
 
+import { Collection } from "../../../../structures/pure/Collection";
 import { ArrayRecursive } from "../../../../structures/pure/ArrayRecursive";
 import { createNestFastifyStringifyProgram } from "../createNestFastifyStringifyProgram";
 
-createNestFastifyStringifyProgram(37_022)((input: ArrayRecursive[]) => {
+createNestFastifyStringifyProgram(false)(37_022)((input: Collection<ArrayRecursive>) => {
     @Controller()
     class NestiaController {
         @core.TypedRoute.Get("stringify")
-        public stringify(): ArrayRecursive[] {
+        public stringify(): Collection<ArrayRecursive> {
             return input;
         }
     }

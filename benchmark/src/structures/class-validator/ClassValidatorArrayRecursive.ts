@@ -4,7 +4,7 @@ import "reflect-metadata";
 
 import { ClassValidatorTimestamp } from "./ClassValidatorTimestamp";
 
-export class ClassValidatorArrayRecursive {
+class Recursive {
     @cv.IsNumber()
     public id!: number;
 
@@ -14,14 +14,22 @@ export class ClassValidatorArrayRecursive {
     @cv.IsNumber()
     public sequence!: number;
 
-    @cv.ValidateNested({ each: true })
-    @cv.IsObject()
     @tr.Type(() => ClassValidatorTimestamp)
+    @cv.IsObject()
+    @cv.ValidateNested({ each: true })
     public created_at!: ClassValidatorTimestamp;
 
+    @tr.Type(() => Recursive)
     @cv.IsArray()
+    @cv.IsObject({ each: true })
     @cv.ValidateNested({ each: true })
-    @cv.IsObject()
-    @tr.Type(() => ClassValidatorArrayRecursive)
-    public children!: ClassValidatorArrayRecursive[];
+    public children!: Recursive[];
+}
+
+export class ClassValidatorArrayRecursive {
+    @tr.Type(() => Recursive)
+    @cv.IsArray()
+    @cv.IsObject({ each: true })
+    @cv.ValidateNested({ each: true })
+    public data!: Recursive[];
 }
