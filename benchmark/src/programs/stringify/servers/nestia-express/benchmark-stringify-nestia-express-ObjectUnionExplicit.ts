@@ -2,14 +2,15 @@ import { Controller } from "@nestjs/common";
 
 import core from "@nestia/core";
 
+import { Collection } from "../../../../structures/pure/Collection";
 import { ObjectUnionExplicit } from "../../../../structures/pure/ObjectUnionExplicit";
 import { createNestExpressStringifyProgram } from "../createNestExpressStringifyProgram";
 
-createNestExpressStringifyProgram(37_011)((input: ObjectUnionExplicit[]) => {
+createNestExpressStringifyProgram(false)(37_011)((input: Collection<ObjectUnionExplicit>) => {
     @Controller()
     class NestiaController {
         @core.TypedRoute.Get("stringify")
-        public stringify(): ObjectUnionExplicit[] {
+        public stringify(): Collection<ObjectUnionExplicit> {
             return input;
         }
     }

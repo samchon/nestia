@@ -2,14 +2,15 @@ import { Controller } from "@nestjs/common";
 
 import core from "@nestia/core";
 
+import { Collection } from "../../../../structures/pure/Collection";
 import { ArrayHierarchical } from "../../../../structures/pure/ArrayHierarchical";
 import { createNestFastifyStringifyProgram } from "../createNestFastifyStringifyProgram";
 
-createNestFastifyStringifyProgram(37_022)((input: ArrayHierarchical[]) => {
+createNestFastifyStringifyProgram(false)(37_022)((input: Collection<ArrayHierarchical>) => {
     @Controller()
     class NestiaController {
         @core.TypedRoute.Get("stringify")
-        public stringify(): ArrayHierarchical[] {
+        public stringify(): Collection<ArrayHierarchical> {
             return input;
         }
     }

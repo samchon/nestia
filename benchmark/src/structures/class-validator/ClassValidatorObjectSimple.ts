@@ -2,36 +2,43 @@ import * as tr from "class-transformer";
 import * as cv from "class-validator";
 import "reflect-metadata";
 
-export class ClassValidatorObjectSimple {
-    @cv.ValidateNested()
-    @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectSimple.Point3D)
-    public scale!: ClassValidatorObjectSimple.Point3D;
+class Point3D {
+    @cv.IsNumber()
+    public x!: number;
 
-    @cv.ValidateNested()
-    @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectSimple.Point3D)
-    public position!: ClassValidatorObjectSimple.Point3D;
+    @cv.IsNumber()
+    public y!: number;
 
-    @cv.ValidateNested()
-    @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectSimple.Point3D)
-    public rotate!: ClassValidatorObjectSimple.Point3D;
-
-    @cv.ValidateNested()
-    @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectSimple.Point3D)
-    public pivot!: ClassValidatorObjectSimple.Point3D;
+    @cv.IsNumber()
+    public z!: number;
 }
-export namespace ClassValidatorObjectSimple {
-    export class Point3D {
-        @cv.IsNumber()
-        public x!: number;
 
-        @cv.IsNumber()
-        public y!: number;
+class Simple {
+    @tr.Type(() => Point3D)
+    @cv.IsObject()
+    @cv.ValidateNested()
+    public scale!: Point3D;
 
-        @cv.IsNumber()
-        public z!: number;
-    }
+    @tr.Type(() => Point3D)
+    @cv.IsObject()
+    @cv.ValidateNested()
+    public position!: Point3D;
+
+    @tr.Type(() => Point3D)
+    @cv.IsObject()
+    @cv.ValidateNested()
+    public rotate!: Point3D;
+
+    @tr.Type(() => Point3D)
+    @cv.IsObject()
+    @cv.ValidateNested()
+    public pivot!: Point3D;
+}
+
+export class ClassValidatorObjectSimple {
+    @tr.Type(() => Simple)
+    @cv.IsArray()
+    @cv.IsObject({ each: true })
+    @cv.ValidateNested({ each: true })
+    public data!: Simple[];
 }

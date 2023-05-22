@@ -2,14 +2,15 @@ import { Controller } from "@nestjs/common";
 
 import core from "@nestia/core";
 
+import { Collection } from "../../../../structures/pure/Collection";
 import { ObjectSimple } from "../../../../structures/pure/ObjectSimple";
 import { createNestExpressStringifyProgram } from "../createNestExpressStringifyProgram";
 
-createNestExpressStringifyProgram(37_011)((input: ObjectSimple[]) => {
+createNestExpressStringifyProgram(false)(37_011)((input: Collection<ObjectSimple>) => {
     @Controller()
     class NestiaController {
         @core.TypedRoute.Get("stringify")
-        public stringify(): ObjectSimple[] {
+        public stringify(): Collection<ObjectSimple> {
             return input;
         }
     }

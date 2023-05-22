@@ -4,12 +4,12 @@ import "reflect-metadata";
 
 import { ClassValidatorTimestamp } from "./ClassValidatorTimestamp";
 
-export class ClassValidatorObjectRecursive {
+class Recursive {
+    @tr.Type(() => Recursive)
     @cv.IsOptional()
-    @cv.ValidateNested({ each: true })
     @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectRecursive)
-    public parent!: ClassValidatorObjectRecursive | null;
+    @cv.ValidateNested({ each: true })
+    public parent!: Recursive | null;
 
     @cv.IsNumber()
     public id!: number;
@@ -27,4 +27,12 @@ export class ClassValidatorObjectRecursive {
     @cv.IsObject()
     @tr.Type(() => ClassValidatorTimestamp)
     public created_at!: ClassValidatorTimestamp;
+}
+
+export class ClassValidatorObjectRecursive {
+    @tr.Type(() => Recursive)
+    @cv.IsArray()
+    @cv.IsObject({ each: true })
+    @cv.ValidateNested({ each: true })
+    public data!: Recursive[];
 }

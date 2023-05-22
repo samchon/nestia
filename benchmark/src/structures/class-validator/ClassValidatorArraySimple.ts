@@ -2,21 +2,7 @@ import * as tr from "class-transformer";
 import * as cv from "class-validator";
 import "reflect-metadata";
 
-export class ClassValidatorArraySimple {
-    @cv.IsString()
-    name!: string;
-
-    @cv.IsString()
-    email!: string;
-
-    @cv.ValidateNested({ each: true })
-    @cv.IsArray()
-    @cv.IsObject()
-    @tr.Type(() => ClassValidatorHobby)
-    hobbies!: ClassValidatorHobby[];
-}
-
-class ClassValidatorHobby {
+class Hobby {
     @cv.IsString()
     name!: string;
 
@@ -25,4 +11,26 @@ class ClassValidatorHobby {
 
     @cv.IsString()
     body!: string;
+}
+
+class ArraySimple {
+    @cv.IsString()
+    name!: string;
+
+    @cv.IsString()
+    email!: string;
+
+    @tr.Type(() => Hobby)
+    @cv.IsArray()
+    @cv.IsObject({ each: true })
+    @cv.ValidateNested({ each: true })
+    hobbies!: Hobby[];
+}
+
+export class ClassValidatorArraySimple {
+    @tr.Type(() => ArraySimple)
+    @cv.IsArray()
+    @cv.IsObject({ each: true })
+    @cv.ValidateNested({ each: true })
+    data!: ArraySimple[];
 }

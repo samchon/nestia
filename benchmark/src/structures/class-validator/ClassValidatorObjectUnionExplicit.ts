@@ -2,7 +2,23 @@ import * as tr from "class-transformer";
 import * as cv from "class-validator";
 import "reflect-metadata";
 
-export class ClassValidatorObjectUnionExplicit {
+class Point {
+    @cv.IsNumber()
+    x!: number;
+
+    @cv.IsNumber()
+    y!: number;
+}
+
+class Polyline {
+    @tr.Type(() => Point)
+    @cv.IsArray()
+    @cv.IsObject({ each: true })
+    @cv.ValidateNested({ each: true })
+    points!: Point[];
+}
+
+class Explicit {
     @cv.IsString()
     @cv.IsIn([
         "point",
@@ -23,148 +39,65 @@ export class ClassValidatorObjectUnionExplicit {
     @cv.IsNumber()
     y?: number;
 
+    @tr.Type(() => Point)
     @cv.IsOptional()
-    @cv.ValidateNested()
     @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectUnionExplicit.Point)
-    p1?: ClassValidatorObjectUnionExplicit.Point;
+    @cv.ValidateNested()
+    p1?: Point;
+
+    @tr.Type(() => Point)
+    @cv.IsOptional()
+    @cv.IsObject()
+    @cv.ValidateNested()
+    p2?: Point;
+
+    @tr.Type(() => Point)
+    @cv.IsOptional()
+    @cv.IsObject()
+    @cv.ValidateNested()
+    p3?: Point;
 
     @cv.IsOptional()
     @cv.ValidateNested()
     @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectUnionExplicit.Point)
-    p2?: ClassValidatorObjectUnionExplicit.Point;
+    @tr.Type(() => Point)
+    p4?: Point;
 
-    @cv.IsOptional()
-    @cv.ValidateNested()
-    @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectUnionExplicit.Point)
-    p3?: ClassValidatorObjectUnionExplicit.Point;
-
-    @cv.IsOptional()
-    @cv.ValidateNested()
-    @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectUnionExplicit.Point)
-    p4?: ClassValidatorObjectUnionExplicit.Point;
-
+    @tr.Type(() => Point)
     @cv.IsOptional()
     @cv.IsArray()
+    @cv.IsObject({ each: true })
     @cv.ValidateNested({ each: true })
-    @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectUnionExplicit.Point)
-    points?: ClassValidatorObjectUnionExplicit.Point[];
+    points?: Point[];
 
+    @tr.Type(() => Polyline)
     @cv.IsOptional()
-    @cv.ValidateNested()
     @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectUnionExplicit.Polyline)
-    outer?: ClassValidatorObjectUnionExplicit.Polyline;
+    @cv.ValidateNested()
+    outer?: Polyline;
 
+    @tr.Type(() => Polyline)
     @cv.IsOptional()
     @cv.IsArray()
+    @cv.IsObject({ each: true })
     @cv.ValidateNested({ each: true })
-    @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectUnionExplicit.Polyline)
-    inner?: ClassValidatorObjectUnionExplicit.Polyline[];
+    inner?: Polyline[];
 
+    @tr.Type(() => Point)
     @cv.IsOptional()
-    @cv.ValidateNested()
     @cv.IsObject()
-    @tr.Type(() => ClassValidatorObjectUnionExplicit.Point)
-    point?: ClassValidatorObjectUnionExplicit.Point;
+    @cv.ValidateNested()
+    centroid?: Point;
 
     @cv.IsOptional()
     @cv.IsNumber()
     radius?: number;
 }
-export namespace ClassValidatorObjectUnionExplicit {
-    export class Point {
-        @cv.IsNumber()
-        x!: number;
 
-        @cv.IsNumber()
-        y!: number;
-    }
-
-    export class Line {
-        @cv.ValidateNested()
-        @cv.IsObject()
-        @tr.Type(() => Point)
-        p1!: Point;
-
-        @cv.ValidateNested()
-        @cv.IsObject()
-        @tr.Type(() => Point)
-        p2!: Point;
-    }
-
-    export class Triangle {
-        @cv.ValidateNested()
-        @cv.IsObject()
-        @tr.Type(() => Point)
-        p1!: Point;
-
-        @cv.ValidateNested()
-        @cv.IsObject()
-        @tr.Type(() => Point)
-        p2!: Point;
-
-        @cv.ValidateNested()
-        @cv.IsObject()
-        @tr.Type(() => Point)
-        p3!: Point;
-    }
-
-    export class Rectangle {
-        @cv.ValidateNested()
-        @cv.IsObject()
-        @tr.Type(() => Point)
-        p1!: Point;
-
-        @cv.ValidateNested()
-        @cv.IsObject()
-        @tr.Type(() => Point)
-        p2!: Point;
-
-        @cv.ValidateNested()
-        @cv.IsObject()
-        @tr.Type(() => Point)
-        p3!: Point;
-
-        @cv.ValidateNested()
-        @cv.IsObject()
-        @tr.Type(() => Point)
-        p4!: Point;
-    }
-
-    export class Polyline {
-        @cv.IsArray()
-        @cv.ValidateNested({ each: true })
-        @cv.IsObject()
-        @tr.Type(() => Point)
-        points!: Point[];
-    }
-
-    export class Polygon {
-        @cv.ValidateNested()
-        @cv.IsObject()
-        @tr.Type(() => Polyline)
-        outer!: Polyline;
-
-        @cv.IsArray()
-        @cv.ValidateNested({ each: true })
-        @cv.IsObject()
-        @tr.Type(() => Polyline)
-        inner!: Polyline[];
-    }
-
-    export class Circle {
-        @cv.ValidateNested()
-        @cv.IsObject()
-        @tr.Type(() => Point)
-        centroid!: Point;
-
-        @cv.IsNumber()
-        radius!: number;
-    }
+export class ClassValidatorObjectUnionExplicit {
+    @tr.Type(() => Explicit)
+    @cv.IsArray()
+    @cv.IsObject({ each: true })
+    @cv.ValidateNested({ each: true })
+    data!: Explicit[];
 }

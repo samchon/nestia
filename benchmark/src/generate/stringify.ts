@@ -33,29 +33,6 @@ const CLIENTS: BenchmarkProgrammer.ILibrary[] = [
 }));
 
 const SERVERS: BenchmarkProgrammer.ILibrary[] = [
-    // {
-    //     name: "express (pure)",
-    //     body: () =>
-    //         [
-    //             `import { createExpressServerStringifyProgram } from "../createExpressServerStringifyProgram";`,
-    //             ``,
-    //             `createExpressServerStringifyProgram(JSON.stringify);`,
-    //         ].join("\n"),
-    // },
-    // {
-    //     name: "fastify (pure)",
-    //     body: (type: string) =>
-    //         [
-    //             `import typia from "typia";`,
-    //             ``,
-    //             `import { ${type} } from "../../../../structures/pure/${type}";`,
-    //             `import { createFastifyServerStringifyProgram } from "../createFastifyServerStringifyProgram";`,
-    //             ``,
-    //             `createFastifyServerStringifyProgram(`,
-    //             `   typia.application<[${type}[]], "ajv">()`,
-    //             `);`,
-    //         ].join("\n"),
-    // },
     ...["express", "fastify"].map((lib) => ({
         name: `NestJS (${lib})`,
         body: (type: string) => {
@@ -72,17 +49,15 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
                 `import { ${type} } from "../../../../structures/class-validator/${type}";`,
                 `import { ${program} } from "../${program}";`,
                 ``,
-                `${program}(${port})(`,
-                `    (input: ${type}[]) => {`,
+                `${program}(true)(${port})(`,
+                `    (input: ${type}) => {`,
                 `        @Controller()`,
                 `        class NestJsController {`,
                 `            @Get("stringify")`,
-                `            public stringify(): ${type}[] {`,
-                `                return input.map((i) => `,
-                `                    plainToInstance(`,
-                `                        ${type},`,
-                `                        i,`,
-                `                    )`,
+                `            public stringify(): ${type} {`,
+                `                return plainToInstance(`,
+                `                    ${type},`,
+                `                    input,`,
                 `                );`,
                 `            }`,
                 `        }`,
@@ -105,14 +80,15 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
                 ``,
                 `import core from "@nestia/core";`,
                 ``,
+                `import { Collection } from "../../../../structures/pure/Collection";`,
                 `import { ${type} } from "../../../../structures/pure/${type}";`,
                 `import { ${program} } from "../${program}";`,
                 ``,
-                `${program}(${port})((input: ${type}[]) => {`,
+                `${program}(false)(${port})((input: Collection<${type}>) => {`,
                 `    @Controller()`,
                 `    class NestiaController {`,
                 `        @core.TypedRoute.Get("stringify")`,
-                `        public stringify(): ${type}[] {`,
+                `        public stringify(): Collection<${type}> {`,
                 `            return input;`,
                 `        }`,
                 `    }`,

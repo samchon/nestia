@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import {
     FastifyAdapter,
@@ -7,14 +7,16 @@ import {
 import tgrid from "tgrid";
 import { IPointer } from "tstl/functional/IPointer";
 
-import { IServerProgram } from "../../IServerProgram";
+import { Collection } from "../../../structures/pure/Collection";
+import { IStringifyServerProgram } from "../IStringifyServerProgram";
 
 export const createNestFastifyStringifyProgram =
+    (transform: boolean) =>
     (port: number) =>
-    async <T>(controller: (input: T) => any) => {
+    async <T>(controller: (input: Collection<T>) => any) => {
         const app: IPointer<NestFastifyApplication | null> = { value: null };
 
-        const provider: IServerProgram<any> = {
+        const provider: IStringifyServerProgram<any> = {
             open: async (input) => {
                 app.value = await NestFactory.create<NestFastifyApplication>(
                     (() => {
@@ -27,6 +29,8 @@ export const createNestFastifyStringifyProgram =
                     new FastifyAdapter(),
                     { logger: false },
                 );
+                if (transform)
+                    app.value.useGlobalPipes(new ValidationPipe({ transform }));
                 await app.value.listen(port);
                 return port;
             },
