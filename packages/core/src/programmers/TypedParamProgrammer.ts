@@ -91,6 +91,7 @@ const error = (message: string) =>
 
 const equals = (atomic: string, p: Metadata) => {
     const name: string = p.getName();
-    if (atomic === "string") return name === `"string"` || name === `"uuid"`;
+    if (atomic === "string")
+        return name === `"string"` || name === `"uuid"` || name === `"date"`;
     return `"${atomic}"` === name;
 };

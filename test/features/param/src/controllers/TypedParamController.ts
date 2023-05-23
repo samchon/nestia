@@ -32,4 +32,28 @@ export class TypedParamController {
     ): "A" | "B" | "C" {
         return value;
     }
+
+    @core.TypedRoute.Get(":value/uuid")
+    public uuid(@core.TypedParam("value", "uuid") value: string): string {
+        return value;
+    }
+
+    @core.TypedRoute.Get(":value/date")
+    public date(@core.TypedParam("value", "date") value: string): string {
+        return value;
+    }
+
+    @core.TypedRoute.Get(":value/uuid_nullable")
+    public uuid_nullable(
+        @core.TypedParam("value", "uuid") value: string | null,
+    ): string | null {
+        return value;
+    }
+
+    @core.TypedRoute.Get(":value/date_nullable")
+    public date_nullable(
+        @core.TypedParam("value", "date") value: string | null,
+    ): string | null {
+        return value;
+    }
 }

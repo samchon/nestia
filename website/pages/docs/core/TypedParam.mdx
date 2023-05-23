@@ -6,7 +6,7 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 export function TypedParam(name: string): ParameterDecorator;
 export function TypedParam(
     nane: string, 
-    type: "uuid"
+    type: "uuid" | "date"
 ): ParameterDecorator;
 ```
 
@@ -16,7 +16,7 @@ Type safe path parameter decorator.
 
 It's almost same with original `@Param()` function of `NestJS`, however, `@TypedParam()` is more type safe. 
 
-As `@TypedParam()` can anlayze source code in the compilation level, it can specify parameter type by itself. Also, while `NestJS` cannot distinguish `nullable` type and consider every parameter value as a `string` type, `@TypedParam()` can do it. Furthermore, `@TypedParam()` provides special type `"uuid"`.
+As `@TypedParam()` can anlayze source code in the compilation level, it can specify parameter type by itself. Also, while `NestJS` cannot distinguish `nullable` type and consider every parameter value as a `string` type, `@TypedParam()` can do it. Furthermore, `@TypedParam()` provides special type `"uuid"` and `"date"`.
 
 Let's read below example code, and see how `@TypedParam()` works.
 
@@ -135,7 +135,7 @@ exports.ParametersController = ParametersController;
 
 Just call `@TypedParam()` function on the path paremeter, that's all.
 
-If you want to special parameter type `"uuid"`, write it as the second argument.
+If you want to special parameter type `"uuid"` or `"date"`, write it as the second argument.
 
 When wrong typed value comes, 400 bad request error would be thrown.
 
@@ -149,6 +149,7 @@ When wrong typed value comes, 400 bad request error would be thrown.
   - `number`
   - `string`
   - `uuid`
+  - `date`: YYYY-MM-DD
 
 Also, `@TypedParam()` allows nullable like `number | null`, but undefindable type is not.
 
