@@ -39,7 +39,7 @@ import { send_bad_request } from "./internal/send_bad_request";
  */
 export function TypedParam(
     name: string,
-    type?: "boolean" | "number" | "string" | "uuid",
+    type?: "boolean" | "number" | "string" | "uuid" | "date",
     nullable?: false | true,
 ): ParameterDecorator {
     function TypedParam({}: any, context: ExecutionContext) {
@@ -73,7 +73,16 @@ export function TypedParam(
                     ),
                 );
             return str;
-        } else return str;
+        } else if (type === "date") {
+            if (DATE_PATTERN.test(str) === false)
+                return send_bad_request(context)(
+                    new BadRequestException(
+                        `Value of the URL parameter "${name}" is not a valid date.`,
+                    ),
+                );
+            return str;
+        } 
+        else return str;
     }
     (TypedParam as any).nullable = !!nullable;
     (TypedParam as any).type = type;
@@ -82,3 +91,4 @@ export function TypedParam(
 
 const UUID_PATTERN =
     /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;

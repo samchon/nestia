@@ -26,6 +26,16 @@ export namespace SwaggerGenerator {
 
             // PREPARE ASSETS
             const parsed: NodePath.ParsedPath = NodePath.parse(config.output);
+            const directory: string = NodePath.dirname(parsed.dir);
+            if (fs.existsSync(directory) === false)
+                try {
+                    await fs.promises.mkdir(directory);
+                } catch {}
+            if (fs.existsSync(directory) === false)
+                throw new Error(
+                    `Error on NestiaApplication.swagger(): failed to create output directory: ${directory}`,
+                );
+
             const location: string = !!parsed.ext
                 ? NodePath.resolve(config.output)
                 : NodePath.join(
@@ -283,7 +293,7 @@ export namespace SwaggerGenerator {
         );
         if (schema === null)
             throw new Error(
-                `Error on NestiaApplication.sdk(): invalid parameter type on ${route.symbol}#${parameter.name}`,
+                `Error on NestiaApplication.swagger(): invalid parameter type on ${route.symbol}#${parameter.name}`,
             );
 
         return {
