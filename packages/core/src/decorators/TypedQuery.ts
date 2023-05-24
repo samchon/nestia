@@ -9,7 +9,6 @@ import type { FastifyRequest } from "fastify";
 import typia, { TypeGuardError, assert } from "typia";
 
 import { TransformError } from "./internal/TransformError";
-import { send_bad_request } from "./internal/send_bad_request";
 
 /**
  * Type safe URL query decorator.
@@ -42,16 +41,14 @@ export function TypedQuery<T>(
             return decoder(params);
         } catch (exp) {
             if (typia.is<TypeGuardError>(exp))
-                return send_bad_request(context)(
-                    new BadRequestException({
-                        path: exp.path,
-                        reason: exp.message,
-                        expected: exp.expected,
-                        value: exp.value,
-                        message:
-                            "Request query parameters are not following the promised type.",
-                    }),
-                );
+                throw new BadRequestException({
+                    path: exp.path,
+                    reason: exp.message,
+                    expected: exp.expected,
+                    value: exp.value,
+                    message:
+                        "Request query parameters are not following the promised type.",
+                });
             throw exp;
         }
     })();

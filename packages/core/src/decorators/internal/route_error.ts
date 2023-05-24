@@ -1,10 +1,14 @@
 import { HttpException } from "@nestjs/common";
 import express from "express";
+import type { FastifyRequest } from "fastify";
 import { throwError } from "rxjs";
 
 import { ExceptionManager } from "../../utils/ExceptionManager";
 
-export function route_error(request: express.Request, error: any) {
+export function route_error(
+    request: express.Request | FastifyRequest,
+    error: any,
+) {
     error = (() => {
         // HTTP-ERROR
         if (error instanceof HttpException) return error;
@@ -19,7 +23,9 @@ export function route_error(request: express.Request, error: any) {
 
     try {
         error.method = request.method;
-        error.path = request.path;
+        error.path =
+            (request as express.Request).path ??
+            (request as FastifyRequest).routerPath;
     } catch {}
 
     setTimeout(() => {

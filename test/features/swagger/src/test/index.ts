@@ -1,18 +1,20 @@
-import core from "@nestia/core";
-import { DynamicExecutor } from "@nestia/e2e";
-
 import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 
+import core from "@nestia/core";
+import { DynamicExecutor } from "@nestia/e2e";
+
 async function main(): Promise<void> {
     const server: INestApplication = await NestFactory.create(
-        await core.DynamicModule.mount(
-            {"include":["src/controllers"],"exclude":[]},
-        ),
+        await core.DynamicModule.mount({
+            include: ["src/controllers"],
+            exclude: [],
+        }),
     );
     await server.listen(37_000);
 
     const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
+        extension: __dirname.substring(__dirname.length - 2),
         prefix: "test",
         parameters: () => [
             {
