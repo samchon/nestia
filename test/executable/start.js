@@ -118,6 +118,10 @@ const main = async () => {
                 JSON.stringify(pack, null, 2),
                 "utf8"
             );
+            cp.execSync("npm install", { 
+                cwd: __dirname + "/..", 
+                stdio: "ignore", 
+            })
         }
 
         console.log("\nTest Features");
