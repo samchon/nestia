@@ -16,6 +16,11 @@ const build = async (name) => {
     );
     if (pack.scripts.test !== undefined)
         cp.execSync("npm run test", { stdio: "ignore" });
+
+    return {
+        name: pack.name,
+        location: `../packages/${name}/${pack.name.replace("@", "").replace("/", "-")}-${pack.version}.tgz`
+    };
 };
 
 const execute = (name) => {
@@ -97,8 +102,22 @@ const main = async () => {
     await measure("\nTotal Elapsed Time")(async () => {
         if (!process.argv.find((str) => str === "--skipBuild")) {
             console.log("Build Packages");
+            const modules = [];
             for (const name of await fs.promises.readdir(library("")))
-                await measure("")(() => build(name));
+                await measure("")(async () => {
+                    modules.push(await build(name));
+                });
+
+            const pack = JSON.parse(
+                await fs.promises.readFile(`${__dirname}/../package.json`, "utf8")
+            );
+            for (const { name, location } of modules)
+                pack.devDependencies[name] = location;
+            await fs.promises.writeFile(
+                `${__dirname}/../package.json`,
+                JSON.stringify(pack, null, 2),
+                "utf8"
+            );
         }
 
         console.log("\nTest Features");
