@@ -79,6 +79,13 @@ export namespace DynamicExecutor {
          * @default true
          */
         showElapsedTime?: boolean;
+
+        /**
+         * Extension of dynamic functions.
+         *
+         * @default js
+         */
+        extension?: string;
     }
 
     /**
@@ -179,33 +186,40 @@ export namespace DynamicExecutor {
             };
 
             const executor = execute(options)(report)(assert);
-            const iterator = iterate(executor);
+            const iterator = iterate(options.extension ?? "js")(executor);
             await iterator(path);
 
             report.time = Date.now() - report.time;
             return report;
         };
 
-    const iterate = <Arguments extends any[]>(
-        executor: (path: string, modulo: Module<Arguments>) => Promise<void>,
-    ) => {
-        const visitor = async (path: string): Promise<void> => {
-            const directory: string[] = await fs.promises.readdir(path);
-            for (const file of directory) {
-                const location: string = NodePath.resolve(`${path}/${file}`);
-                const stats: fs.Stats = await fs.promises.lstat(location);
+    const iterate =
+        (extension: string) =>
+        <Arguments extends any[]>(
+            executor: (
+                path: string,
+                modulo: Module<Arguments>,
+            ) => Promise<void>,
+        ) => {
+            const visitor = async (path: string): Promise<void> => {
+                const directory: string[] = await fs.promises.readdir(path);
+                for (const file of directory) {
+                    const location: string = NodePath.resolve(
+                        `${path}/${file}`,
+                    );
+                    const stats: fs.Stats = await fs.promises.lstat(location);
 
-                if (stats.isDirectory() === true) {
-                    await visitor(location);
-                    continue;
-                } else if (file.substr(-3) !== `.${EXTENSION}`) continue;
+                    if (stats.isDirectory() === true) {
+                        await visitor(location);
+                        continue;
+                    } else if (file.substr(-3) !== `.${extension}`) continue;
 
-                const modulo: Module<Arguments> = await import(location);
-                await executor(location, modulo);
-            }
+                    const modulo: Module<Arguments> = await import(location);
+                    await executor(location, modulo);
+                }
+            };
+            return visitor;
         };
-        return visitor;
-    };
 
     const execute =
         <Arguments extends any[]>(options: IOptions<Arguments>) =>
@@ -263,5 +277,4 @@ export namespace DynamicExecutor {
     interface Module<Arguments extends any[]> {
         [key: string]: Closure<Arguments>;
     }
-    const EXTENSION: string = __filename.substring(__filename.length - 2);
 }

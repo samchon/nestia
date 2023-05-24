@@ -2,7 +2,6 @@ import { AesPkcs5, IEncryptionPassword } from "@nestia/fetcher";
 import {
     BadRequestException,
     ExecutionContext,
-    HttpException,
     createParamDecorator,
 } from "@nestjs/common";
 import type express from "express";
@@ -15,7 +14,6 @@ import { Singleton } from "../utils/Singleton";
 import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
 import { get_text_body } from "./internal/get_text_body";
 import { headers_to_object } from "./internal/headers_to_object";
-import { send_bad_request } from "./internal/send_bad_request";
 import { validate_request_body } from "./internal/validate_request_body";
 
 /**
@@ -51,10 +49,8 @@ export function EncryptedBody<T>(
             .switchToHttp()
             .getRequest();
         if (isTextPlain(request.headers["content-type"]) === false)
-            return send_bad_request(context)(
-                new BadRequestException(
-                    `Request body type is not "text/plain".`,
-                ),
+            throw new BadRequestException(
+                `Request body type is not "text/plain".`,
             );
 
         const param:
@@ -82,10 +78,7 @@ export function EncryptedBody<T>(
         // PARSE AND VALIDATE DATA
         const data: any = JSON.parse(decrypt(body, password.key, password.iv));
         const error: Error | null = checker(data);
-        if (error !== null)
-            if (error instanceof HttpException)
-                return send_bad_request(context)(error);
-            else throw error;
+        if (error !== null) throw error;
         return data;
     })();
 }

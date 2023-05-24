@@ -4,8 +4,7 @@ import {
     createParamDecorator,
 } from "@nestjs/common";
 import type express from "express";
-
-import { send_bad_request } from "./internal/send_bad_request";
+import type { FastifyRequest } from "fastify";
 
 /**
  * Type safe URL parameter decorator.
@@ -43,46 +42,39 @@ export function TypedParam(
     nullable?: false | true,
 ): ParameterDecorator {
     function TypedParam({}: any, context: ExecutionContext) {
-        const request: express.Request = context.switchToHttp().getRequest();
-        const str: string = request.params[name];
+        const request: express.Request | FastifyRequest = context
+            .switchToHttp()
+            .getRequest();
+        const str: string = (request.params as any)[name];
 
         if (nullable === true && str === "null") return null;
         else if (type === "boolean") {
             if (str === "true" || str === "1") return true;
             else if (str === "false" || str === "0") return false;
             else
-                return send_bad_request(context)(
-                    new BadRequestException(
-                        `Value of the URL parameter '${name}' is not a boolean.`,
-                    ),
+                throw new BadRequestException(
+                    `Value of the URL parameter '${name}' is not a boolean.`,
                 );
         } else if (type === "number") {
             const value: number = Number(str);
             if (isNaN(value))
-                return send_bad_request(context)(
-                    new BadRequestException(
-                        `Value of the URL parameter "${name}" is not a number.`,
-                    ),
+                throw new BadRequestException(
+                    `Value of the URL parameter "${name}" is not a number.`,
                 );
             return value;
         } else if (type === "uuid") {
             if (UUID_PATTERN.test(str) === false)
-                return send_bad_request(context)(
-                    new BadRequestException(
-                        `Value of the URL parameter "${name}" is not a valid UUID.`,
-                    ),
+                throw new BadRequestException(
+                    `Value of the URL parameter "${name}" is not a valid UUID.`,
                 );
             return str;
         } else if (type === "date") {
             if (DATE_PATTERN.test(str) === false)
-                return send_bad_request(context)(
-                    new BadRequestException(
-                        `Value of the URL parameter "${name}" is not a valid date.`,
-                    ),
+                throw new BadRequestException(
+                    `Value of the URL parameter "${name}" is not a valid date.`,
                 );
             return str;
-        } 
-        else return str;
+        } else return str;
     }
     (TypedParam as any).nullable = !!nullable;
     (TypedParam as any).type = type;
