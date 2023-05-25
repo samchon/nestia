@@ -14,7 +14,7 @@ Besides, `nestia` needs only pure TypeScript type. You don't need to define any 
 ## Demonstration
 If you're confusing how DTO of `NestJS` and `nestia` are different, just see example codes below.
 
-At first, look at the first (*`Triple duplicated NestJS DTO`*) tab, and find the `BbsArticle.files` property, enhanced by blue coloured blocks. Looking at the `files` property, how do you feel? Just defining an array object type, you've to call 7 decorator functions. If you take any mistake when using the decorator like omitting `isArray` property, it would be a critical runtime erorr.
+At first, look at the first (*`Triple duplicated NestJS DTO`*) tab, and find the `BbsArticle.files` property, enhanced by blue coloured blocks. Looking at the `files` property, how do you feel? Just defining an array object type, you've to call 7 decorator functions. If you take any mistake when using the decorator like omitting `isArray` property, it would be a critical runtime error.
 
 Besides, `nestia` needs only one line. Click the second (*`Pure Nestia DTO`*) tab, and find the `IAttachmentFile.files` property. Only one line being used, and `IBbsArticle` and `IAttachment` types are not even class, but just interface types. Comparing it to the first tab, how do you feel? Isn't it more simple and readable?
 
