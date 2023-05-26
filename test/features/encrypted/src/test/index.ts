@@ -7,7 +7,7 @@ async function main(): Promise<void> {
     await server.open();
 
     const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
-        extension: __dirname.substring(__dirname.length - 2),
+        extension: __filename.substring(__filename.length - 2),
         prefix: "test",
         parameters: () => [
             {
