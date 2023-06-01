@@ -2,4 +2,4 @@ bin/
 lib/
 node_modules/
 packages/*/*.tgz
-pnpm-lock.yaml
+package-lock.json

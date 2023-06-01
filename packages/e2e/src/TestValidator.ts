@@ -104,14 +104,23 @@ export namespace TestValidator {
         (title: string) =>
         (status: number) =>
         <T>(task: () => T): T extends Promise<any> ? Promise<void> : void => {
-            const message = () =>
-                `Bug on ${title}: status code must be ${status}.`;
+            const message = (actual?: number) =>
+                typeof actual === "number"
+                    ? `Bug on ${title}: status code must be ${status}, but ${actual}.`
+                    : `Bug on ${title}: status code must be ${status}, but succeeded.`;
             const predicate = (exp: any): Error | null =>
                 typeof exp === "object" &&
                 exp.constructor.name === "HttpError" &&
                 exp.status === status
                     ? null
-                    : new Error(message());
+                    : new Error(
+                          message(
+                              typeof exp === "object" &&
+                                  exp.constructor.name === "HttpError"
+                                  ? exp.status
+                                  : undefined,
+                          ),
+                      );
             try {
                 const output: T = task();
                 if (is_promise(output))
