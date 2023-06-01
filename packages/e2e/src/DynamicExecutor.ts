@@ -226,14 +226,15 @@ export namespace DynamicExecutor {
         (report: IReport) =>
         (assert: boolean) =>
         async (location: string, modulo: Module<Arguments>): Promise<void> => {
-            for (const key in modulo) {
-                if (key.substring(0, options.prefix.length) !== options.prefix)
-                    continue;
-                else if (!(modulo[key] instanceof Function)) continue;
-                else if (options.filter && options.filter(key) === false)
+            for (const [key, closure] of Object.entries(modulo)) {
+                if (
+                    key.substring(0, options.prefix.length) !==
+                        options.prefix ||
+                    typeof closure !== "function" ||
+                    (options.filter && options.filter(key) === false)
+                )
                     continue;
 
-                const closure: Closure<Arguments> = modulo[key];
                 const func = async () => {
                     if (options.wrapper !== undefined)
                         await options.wrapper(key, closure);
@@ -263,12 +264,14 @@ export namespace DynamicExecutor {
                         );
                     }
                 } catch (exp) {
-                    if (!(exp instanceof Error)) return;
-
                     result.time = Date.now() - result.time;
-                    result.error = exp;
+                    result.error = exp as Error;
 
-                    console.log(`  - ${label} -> ${chalk.redBright(exp.name)}`);
+                    console.log(
+                        `  - ${label} -> ${chalk.redBright(
+                            (exp as Error)?.name,
+                        )}`,
+                    );
                     if (assert === true) throw exp;
                 }
             }

@@ -106,7 +106,7 @@ export namespace TestValidator {
         <T>(task: () => T): T extends Promise<any> ? Promise<void> : void => {
             const message = () =>
                 `Bug on ${title}: status code must be ${status}.`;
-            const predicate = (exp: any) =>
+            const predicate = (exp: any): Error | null =>
                 typeof exp === "object" &&
                 exp.constructor.name === "HttpError" &&
                 exp.status === status
@@ -122,7 +122,7 @@ export namespace TestValidator {
                                 if (res) reject(res);
                                 else resolve();
                             })
-                            .then(() => reject(message())),
+                            .then(() => reject(new Error(message()))),
                     ) as any;
                 else throw new Error(message());
             } catch (exp) {
