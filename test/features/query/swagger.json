@@ -21,7 +21,7 @@
             "in": "query",
             "description": "",
             "schema": {
-              "$ref": "#/components/schemas/IPage.IRequest"
+              "$ref": "#/components/objects/IPage.IRequest"
             },
             "required": true
           }
@@ -32,7 +32,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPage_lt_IBbsArticle.ISummary_gt_"
+                  "$ref": "#/components/objects/IPage_lt_IBbsArticle.ISummary_gt_"
                 }
               }
             },
@@ -67,7 +67,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPerformance"
+                  "$ref": "#/components/objects/IPerformance"
                 }
               }
             },
@@ -80,7 +80,7 @@
     }
   },
   "components": {
-    "schemas": {
+    "objects": {
       "IPage.IRequest": {
         "type": "object",
         "properties": {
@@ -147,15 +147,11 @@
             "x-typia-optional": false,
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IBbsArticle.ISummary",
-              "x-typia-required": true,
-              "x-typia-optional": false
+              "$ref": "#/components/objects/IBbsArticle.ISummary"
             }
           },
           "pagination": {
-            "$ref": "#/components/schemas/IPage.IPagination",
-            "x-typia-required": true,
-            "x-typia-optional": false
+            "$ref": "#/components/objects/IPage.IPagination"
           }
         },
         "nullable": false,
@@ -384,19 +380,13 @@
         "type": "object",
         "properties": {
           "cpu": {
-            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage",
-            "x-typia-required": true,
-            "x-typia-optional": false
+            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
           },
           "memory": {
-            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage",
-            "x-typia-required": true,
-            "x-typia-optional": false
+            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
           },
           "resource": {
-            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage",
-            "x-typia-required": true,
-            "x-typia-optional": false
+            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
           }
         },
         "nullable": false,

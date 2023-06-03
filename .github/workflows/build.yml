@@ -12,6 +12,4 @@ jobs:
 
       - name: test
         working-directory: ./test
-        run: |
-          npm run setup
-          npm run start
+        run: npm run start

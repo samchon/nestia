@@ -14,6 +14,7 @@ export namespace TypedParamProgrammer {
             const metadata: Metadata = MetadataFactory.analyze(checker)({
                 resolve: false,
                 constant: true,
+                absorb: true,
                 validate,
             })(new MetadataCollection())(type);
             const [atomic] = get_atomic_types(metadata);
@@ -32,6 +33,7 @@ export namespace TypedParamProgrammer {
             const specified: Metadata = MetadataFactory.analyze(checker)({
                 resolve: false,
                 constant: true,
+                absorb: true,
             })(new MetadataCollection())(
                 checker.getTypeAtLocation(parameters[1]),
             );
@@ -52,6 +54,7 @@ export namespace TypedParamProgrammer {
             const nullable: Metadata = MetadataFactory.analyze(checker)({
                 resolve: false,
                 constant: true,
+                absorb: true,
             })(new MetadataCollection())(
                 checker.getTypeAtLocation(parameters[2]),
             );
