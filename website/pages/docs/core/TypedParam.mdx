@@ -36,21 +36,21 @@ import { Controller, Get } from "@nestjs/common";
  
 @Controller("parameters")
 export class ParametersController {
-    @Get("number")
+    @Get("number/:value")
     public async number(
         @TypedParam("value") value: number | null,
     ): Promise<number | null> {
         return value;
     }
  
-    @Get("string")
+    @Get("string/:value")
     public async string(
         @TypedParam("value") value: string,
     ): Promise<string> {
         return value;
     }
  
-    @Get("uuid")
+    @Get("uuid/:value")
     public async uuid(
         @TypedParam("value", "uuid") value: string
     ): Promise<string> {
@@ -105,21 +105,21 @@ let ParametersController = class ParametersController {
     }
 };
 __decorate([
-    (0, common_1.Get)("number"),
+    (0, common_1.Get)("number/:value"),
     __param(0, (0, core_1.TypedParam)("value", "number", true)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], ParametersController.prototype, "number", null);
 __decorate([
-    (0, common_1.Get)("string"),
+    (0, common_1.Get)("string/:value"),
     __param(0, (0, core_1.TypedParam)("value", "string", false)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ParametersController.prototype, "string", null);
 __decorate([
-    (0, common_1.Get)("uuid"),
+    (0, common_1.Get)("uuid/:value"),
     __param(0, (0, core_1.TypedParam)("value", "uuid", false)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
