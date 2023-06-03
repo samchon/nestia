@@ -21,7 +21,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/IBbsArticle.IStore"
+                "$ref": "#/components/objects/IBbsArticle.IStore"
               }
             }
           },
@@ -34,7 +34,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IBbsArticle"
+                  "$ref": "#/components/objects/IBbsArticle"
                 }
               }
             },
@@ -92,7 +92,7 @@
             "in": "query",
             "description": "",
             "schema": {
-              "$ref": "#/components/schemas/IAttachmentFile"
+              "$ref": "#/components/objects/IAttachmentFile"
             },
             "required": true
           }
@@ -103,7 +103,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IAttachmentFile"
+                  "$ref": "#/components/objects/IAttachmentFile"
                 }
               }
             },
@@ -152,7 +152,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPerformance"
+                  "$ref": "#/components/objects/IPerformance"
                 }
               }
             },
@@ -165,7 +165,7 @@
     }
   },
   "components": {
-    "schemas": {
+    "objects": {
       "IBbsArticle.IStore": {
         "type": "object",
         "properties": {
@@ -217,9 +217,7 @@
             "x-typia-optional": false,
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IAttachmentFile",
-              "x-typia-required": true,
-              "x-typia-optional": false
+              "$ref": "#/components/objects/IAttachmentFile"
             }
           }
         },
@@ -441,9 +439,7 @@
             "x-typia-optional": false,
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IAttachmentFile",
-              "x-typia-required": true,
-              "x-typia-optional": false
+              "$ref": "#/components/objects/IAttachmentFile"
             }
           }
         },
@@ -462,19 +458,13 @@
         "type": "object",
         "properties": {
           "cpu": {
-            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage",
-            "x-typia-required": true,
-            "x-typia-optional": false
+            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
           },
           "memory": {
-            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage",
-            "x-typia-required": true,
-            "x-typia-optional": false
+            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
           },
           "resource": {
-            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage",
-            "x-typia-required": true,
-            "x-typia-optional": false
+            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
           }
         },
         "nullable": false,

@@ -10,6 +10,7 @@ const build = async (name) => {
     process.stdout.write(`  - @nestia/${name}`);
     cp.execSync("npm install", { stdio: "ignore" });
     cp.execSync("npm run build", { stdio: "ignore" });
+    cp.execSync("npm pack", { stdio: "ignore" });
 
     const pack = JSON.parse(
         await fs.promises.readFile("package.json", "utf8"),
@@ -56,7 +57,7 @@ const execute = (name) => {
                 ? `${type} ${input} --out swagger.json`
                 : `${type} ${input} --out src/api`
             : type;
-        const command = `node ${library("sdk")}/lib/executable/sdk`;
+        const command = `npx nestia`;
         cp.execSync(`${command} ${argv}`, { stdio: "ignore" });
     };
 

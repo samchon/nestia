@@ -29,6 +29,7 @@ export namespace TypedQueryProgrammer {
             const metadata: Metadata = MetadataFactory.analyze(checker)({
                 resolve: false,
                 constant: true,
+                absorb: true,
             })(collection)(type);
             if (metadata.objects.length !== 1 || metadata.bucket() !== 1)
                 throw new Error(
@@ -96,10 +97,10 @@ export namespace TypedQueryProgrammer {
                             "array type cannot be optional",
                         ),
                     );
-                for (const elem of value.arrays)
-                    atom.push(...validate(obj)(key)(elem, depth + 1));
+                for (const array of value.arrays)
+                    atom.push(...validate(obj)(key)(array.value, depth + 1));
                 for (const tuple of value.tuples)
-                    for (const elem of tuple)
+                    for (const elem of tuple.elements)
                         atom.push(...validate(obj)(key)(elem, depth + 1));
             } else if (value.arrays.length || value.tuples.length)
                 throw new Error(
@@ -184,7 +185,8 @@ export namespace TypedQueryProgrammer {
                 : value.constants.length
                 ? [value.constants[0]!.type, false]
                 : (() => {
-                      const meta = value.arrays[0] ?? value.tuples[0][0];
+                      const meta =
+                          value.arrays[0]?.value ?? value.tuples[0].elements[0];
                       return meta.atomics.length
                           ? [meta.atomics[0], true]
                           : [meta.constants[0]!.type, true];
