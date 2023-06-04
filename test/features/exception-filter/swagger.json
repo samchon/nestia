@@ -21,7 +21,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/objects/IBbsArticle.IStore"
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
               }
             }
           },
@@ -34,7 +34,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/IBbsArticle"
+                  "$ref": "#/components/schemas/IBbsArticle"
                 }
               }
             },
@@ -92,7 +92,7 @@
             "in": "query",
             "description": "",
             "schema": {
-              "$ref": "#/components/objects/IAttachmentFile"
+              "$ref": "#/components/schemas/IAttachmentFile"
             },
             "required": true
           }
@@ -103,7 +103,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/IAttachmentFile"
+                  "$ref": "#/components/schemas/IAttachmentFile"
                 }
               }
             },
@@ -152,7 +152,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/IPerformance"
+                  "$ref": "#/components/schemas/IPerformance"
                 }
               }
             },
@@ -217,7 +217,7 @@
             "x-typia-optional": false,
             "type": "array",
             "items": {
-              "$ref": "#/components/objects/IAttachmentFile"
+              "$ref": "#/components/schemas/IAttachmentFile"
             }
           }
         },
@@ -439,7 +439,7 @@
             "x-typia-optional": false,
             "type": "array",
             "items": {
-              "$ref": "#/components/objects/IAttachmentFile"
+              "$ref": "#/components/schemas/IAttachmentFile"
             }
           }
         },
@@ -458,13 +458,13 @@
         "type": "object",
         "properties": {
           "cpu": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
           },
           "memory": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
           },
           "resource": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
           }
         },
         "nullable": false,
