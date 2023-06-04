@@ -82,7 +82,7 @@
     }
   },
   "components": {
-    "objects": {
+    "schemas": {
       "IPerformance": {
         "type": "object",
         "properties": {
