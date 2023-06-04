@@ -36,7 +36,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/IPerformance"
+                  "$ref": "#/components/schemas/IPerformance"
                 }
               }
             },
@@ -57,7 +57,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/IBbsArticle"
+                  "$ref": "#/components/schemas/IBbsArticle"
                 }
               }
             },
@@ -75,13 +75,13 @@
         "type": "object",
         "properties": {
           "cpu": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
           },
           "memory": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
           },
           "resource": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
           }
         },
         "nullable": false,
@@ -343,7 +343,7 @@
             "x-typia-optional": false,
             "type": "array",
             "items": {
-              "$ref": "#/components/objects/IAttachmentFile"
+              "$ref": "#/components/schemas/IAttachmentFile"
             }
           },
           "created_at": {

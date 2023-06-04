@@ -36,7 +36,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/IPerformance"
+                  "$ref": "#/components/schemas/IPerformance"
                 }
               }
             },
@@ -87,13 +87,13 @@
         "type": "object",
         "properties": {
           "cpu": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
           },
           "memory": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
           },
           "resource": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
           }
         },
         "nullable": false,

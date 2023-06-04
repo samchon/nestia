@@ -21,7 +21,7 @@
             "in": "query",
             "description": "",
             "schema": {
-              "$ref": "#/components/objects/IPage.IRequest"
+              "$ref": "#/components/schemas/IPage.IRequest"
             },
             "required": true
           }
@@ -32,7 +32,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/IPage_lt_IBbsArticle.ISummary_gt_"
+                  "$ref": "#/components/schemas/IPage_lt_IBbsArticle.ISummary_gt_"
                 }
               }
             },
@@ -67,7 +67,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/IPerformance"
+                  "$ref": "#/components/schemas/IPerformance"
                 }
               }
             },
@@ -147,11 +147,11 @@
             "x-typia-optional": false,
             "type": "array",
             "items": {
-              "$ref": "#/components/objects/IBbsArticle.ISummary"
+              "$ref": "#/components/schemas/IBbsArticle.ISummary"
             }
           },
           "pagination": {
-            "$ref": "#/components/objects/IPage.IPagination"
+            "$ref": "#/components/schemas/IPage.IPagination"
           }
         },
         "nullable": false,
@@ -380,13 +380,13 @@
         "type": "object",
         "properties": {
           "cpu": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
           },
           "memory": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
           },
           "resource": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
           }
         },
         "nullable": false,

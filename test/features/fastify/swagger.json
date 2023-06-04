@@ -30,7 +30,7 @@
             "in": "query",
             "description": "",
             "schema": {
-              "$ref": "#/components/objects/IPage.IRequest"
+              "$ref": "#/components/schemas/IPage.IRequest"
             },
             "required": true
           }
@@ -41,7 +41,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/IPage_lt_IBbsArticle.ISummary_gt_"
+                  "$ref": "#/components/schemas/IPage_lt_IBbsArticle.ISummary_gt_"
                 }
               }
             },
@@ -69,7 +69,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/objects/IBbsArticle.IStore"
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
               }
             }
           },
@@ -82,7 +82,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/IBbsArticle"
+                  "$ref": "#/components/schemas/IBbsArticle"
                 }
               }
             },
@@ -167,7 +167,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/objects/IBbsArticle.IStore"
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
               }
             }
           },
@@ -180,7 +180,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/IBbsArticle"
+                  "$ref": "#/components/schemas/IBbsArticle"
                 }
               }
             },
@@ -278,7 +278,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/IPerformance"
+                  "$ref": "#/components/schemas/IPerformance"
                 }
               }
             },
@@ -331,7 +331,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/objects/ISeller.IJoin"
+                "$ref": "#/components/schemas/ISeller.IJoin"
               }
             }
           },
@@ -344,7 +344,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/ISeller.IAuthorized"
+                  "$ref": "#/components/schemas/ISeller.IAuthorized"
                 }
               }
             },
@@ -402,7 +402,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/objects/ISeller.ILogin"
+                "$ref": "#/components/schemas/ISeller.ILogin"
               }
             }
           },
@@ -415,7 +415,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/objects/ISeller.IAuthorized"
+                  "$ref": "#/components/schemas/ISeller.IAuthorized"
                 }
               }
             },
@@ -473,7 +473,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/objects/ISeller.IChangePassword"
+                "$ref": "#/components/schemas/ISeller.IChangePassword"
               }
             }
           },
@@ -771,11 +771,11 @@
             "x-typia-optional": false,
             "type": "array",
             "items": {
-              "$ref": "#/components/objects/IBbsArticle.ISummary"
+              "$ref": "#/components/schemas/IBbsArticle.ISummary"
             }
           },
           "pagination": {
-            "$ref": "#/components/objects/IPage.IPagination"
+            "$ref": "#/components/schemas/IPage.IPagination"
           }
         },
         "nullable": false,
@@ -1057,7 +1057,7 @@
             "x-typia-optional": false,
             "type": "array",
             "items": {
-              "$ref": "#/components/objects/IAttachmentFile"
+              "$ref": "#/components/schemas/IAttachmentFile"
             }
           }
         },
@@ -1284,7 +1284,7 @@
             "x-typia-optional": false,
             "type": "array",
             "items": {
-              "$ref": "#/components/objects/IAttachmentFile"
+              "$ref": "#/components/schemas/IAttachmentFile"
             }
           }
         },
@@ -1304,13 +1304,13 @@
         "type": "object",
         "properties": {
           "cpu": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
           },
           "memory": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
           },
           "resource": {
-            "$ref": "#/components/objects/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
+            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
           }
         },
         "nullable": false,
@@ -1540,7 +1540,7 @@
         "type": "object",
         "properties": {
           "authorization": {
-            "$ref": "#/components/objects/__type"
+            "$ref": "#/components/schemas/__type"
           },
           "id": {
             "description": "Primary key.",
