@@ -253,7 +253,7 @@
     }
   },
   "components": {
-    "objects": {
+    "schemas": {
       "IBbsArticle.IStore": {
         "type": "object",
         "properties": {

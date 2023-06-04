@@ -704,7 +704,7 @@
     }
   },
   "components": {
-    "objects": {
+    "schemas": {
       "IPage.IRequest": {
         "type": "object",
         "properties": {

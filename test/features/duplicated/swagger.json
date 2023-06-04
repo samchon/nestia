@@ -91,7 +91,7 @@
     }
   },
   "components": {
-    "objects": {
+    "schemas": {
       "IBbsArticle": {
         "type": "object",
         "properties": {
