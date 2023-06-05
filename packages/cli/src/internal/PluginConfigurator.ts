@@ -75,6 +75,9 @@ export namespace PluginConfigurator {
          *   - "assert": Use typia.assert() function
          *   - "is": Use typia.is() function
          *   - "validate": Use typia.validate() function
+         *   - "assertEquals": Use typia.assertEquals() function
+         *   - "equals": Use typia.equals() function
+         *   - "validateEquals": Use typia.validateEquals() function
          */
                             "validate": "assert",
 
