@@ -116,6 +116,9 @@ export namespace SdkFileProgrammer {
                             route.method === "PUT" ||
                             route.method === "PATCH",
                     );
+                const random: boolean =
+                    config.random === true &&
+                    directory.routes.some((s) => s.output.name !== "void");
 
                 const fetcher: string[] = ["Fetcher"];
                 if (primitived) fetcher.push("Primitive");
@@ -124,7 +127,8 @@ export namespace SdkFileProgrammer {
                     `import { ${fetcher.join(", ")} } from "@nestia/fetcher";`,
                     `import type { IConnection } from "@nestia/fetcher";`,
                 ];
-                if (asserted || json) head.push(`import typia from "typia";`);
+                if (asserted || json || random)
+                    head.push(`import typia from "typia";`);
                 if (!importDict.empty())
                     head.push("", importDict.toScript(outDir));
 

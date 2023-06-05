@@ -21,6 +21,22 @@ export interface IConnection {
     host: string;
 
     /**
+     * Use `typia.random<T>()` function instead.
+     *
+     * If you configure this property to be `true`, your SDK library does not send
+     * any request to remote backend server, but just returns a random data generated
+     * by `typia.random<T>()` function.
+     *
+     * By the way, to utilize this random property, SDK library must be generated with
+     * `random` option, too. Open `nestia.config.ts` file, and configure `random: true`
+     * property in the top level. Then newly generated SDK library would have a
+     * built-in random generator.
+     *
+     * @default false
+     */
+    random?: boolean;
+
+    /**
      * Header values delivered to the remote HTTP server.
      */
     headers?: Record<string, string>;

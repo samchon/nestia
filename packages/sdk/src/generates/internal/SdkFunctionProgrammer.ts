@@ -1,6 +1,4 @@
-import { Vector } from "tstl/container/Vector";
 import { Pair } from "tstl/utility/Pair";
-import ts from "typescript";
 
 import { Escaper } from "typia/lib/utils/Escaper";
 
@@ -19,10 +17,10 @@ export namespace SdkFunctionProgrammer {
                 (param) => param.category === "body",
             );
 
-            return [head, body, tail]
-                .map((closure) => closure(config)(route)({ query, input }))
-                .filter((str) => !!str)
-                .join("\n");
+            const [x, y, z] = [head, body, tail].map((closure) =>
+                closure(config)(route)({ query, input }),
+            );
+            return `${x} ${y}\n${z}`;
         };
 
     /* ---------------------------------------------------------
@@ -62,20 +60,34 @@ export namespace SdkFunctionProgrammer {
                     : "";
 
             // FUNCTION CALL STATEMENT
-            const caller: string =
-                "Fetcher.fetch\n" +
-                "    (\n" +
-                fetchArguments.map((param) => `        ${param}`).join(",\n") +
-                "\n" +
-                "    )";
+            const caller = (awa: boolean) => {
+                const random = () =>
+                    route.output.name === "void"
+                        ? "undefined"
+                        : `typia.random<${route.name}.Output>()`;
+                const fetch = (tab: string) =>
+                    [
+                        `${awa ? "await " : ""} Fetcher.fetch(`,
+                        fetchArguments
+                            .map((param) => `${tab}    ${param}`)
+                            .join(",\n"),
+                        `${tab})`,
+                    ].join("\n");
+                if (!config.random) return fetch(" ".repeat(8));
+                return (
+                    `connection.random\n` +
+                    `        ? ${random()}\n` +
+                    `        : ${fetch(" ".repeat(10))}`
+                );
+            };
             if (route.setHeaders.length === 0)
-                return `{\n${assertions}    return ${caller};\n}`;
+                return `{\n${assertions}    return ${caller(false)};\n}`;
 
             // SET HEADERS
             const content: string[] = [
                 `{\n`,
                 assertions,
-                `    const output: ${route.name}.Output = await ${caller};\n`,
+                `    const output: ${route.name}.Output = ${caller(true)};\n`,
                 "\n",
                 `    // configure header(s)\n`,
                 `    connection.headers ??= {};\n`,
@@ -136,35 +148,6 @@ export namespace SdkFunctionProgrammer {
                 ? route.description.split("\n")
                 : [];
 
-            // FILTER TAGS (VULNERABLE PARAMETERS WOULD BE REMOVED)
-            const tagList: ts.JSDocTagInfo[] = route.tags.slice();
-            if (tagList.length !== 0) {
-                const index: number = tagList.findIndex(
-                    (t) => t.name === "param",
-                );
-                if (index !== -1) {
-                    const capsule: Vector<ts.JSDocTagInfo> =
-                        Vector.wrap(tagList);
-                    capsule.insert(capsule.nth(index), {
-                        name: "param",
-                        text: [
-                            {
-                                kind: "parameterName",
-                                text: "connection",
-                            },
-                            {
-                                kind: "space",
-                                text: " ",
-                            },
-                            {
-                                kind: "text",
-                                text: "connection Information of the remote HTTP(s) server with headers (+encryption password)",
-                            },
-                        ],
-                    });
-                }
-            }
-
             // COMPLETE THE COMMENT
             if (!!comments.length) comments.push("");
             comments.push(
@@ -202,10 +185,7 @@ export namespace SdkFunctionProgrammer {
                 comments.map((str) => ` * ${str}`).join("\n") +
                 "\n" +
                 " */\n" +
-                `export${route.setHeaders.length ? " async" : ""} function ${
-                    route.name
-                }\n` +
-                `    (\n` +
+                `export async function ${route.name} (\n` +
                 `${parameters.map((str) => `        ${str}`).join(",\n")}\n` +
                 `    ): Promise<${output}>`
             );
@@ -217,7 +197,7 @@ export namespace SdkFunctionProgrammer {
         (props: {
             query: IRoute.IParameter | undefined;
             input: IRoute.IParameter | undefined;
-        }): string | null => {
+        }): string => {
             // LIST UP TYPES
             const types: Pair<string, string>[] = [];
             if (props.query !== undefined)
@@ -238,8 +218,7 @@ export namespace SdkFunctionProgrammer {
             });
 
             return (
-                `export namespace ${route.name}\n` +
-                "{\n" +
+                `export namespace ${route.name} {\n` +
                 (types.length !== 0
                     ? types
                           .map(
@@ -267,8 +246,7 @@ export namespace SdkFunctionProgrammer {
                 "\n" +
                 `    export function path(${parameters
                     .map((param) => `${param.name}: ${param.type.name}`)
-                    .join(", ")}): string\n` +
-                `    {\n` +
+                    .join(", ")}): string {\n` +
                 `${path};\n` +
                 `    }\n` +
                 (config.json === true &&

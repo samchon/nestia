@@ -118,6 +118,20 @@ export interface INestiaConfig {
      * @default true
      */
     primitive?: boolean;
+
+    /**
+     * Allow random data generation in SDK level.
+     *
+     * If you configure this property to be `true`, random data generator would be
+     * installed in the SDK library. Client developer can utilize the built-in
+     * random data generator, instead of communicating with the backend server,
+     * just by configuring {@link IConnection.random} property to be `true`.
+     *
+     * For reference, random generator would utilize `typia.random<T>()` function.
+     *
+     * @default false
+     */
+    random?: boolean;
 }
 export namespace INestiaConfig {
     /**
