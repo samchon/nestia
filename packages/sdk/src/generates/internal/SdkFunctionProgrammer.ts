@@ -64,20 +64,29 @@ export namespace SdkFunctionProgrammer {
                 const random = () =>
                     route.output.name === "void"
                         ? "undefined"
-                        : `typia.random<${route.name}.Output>()`;
+                        : [
+                              `${route.name}.random(`,
+                              `${space(
+                                  14,
+                              )}typeof connection.random === "object" &&`,
+                              `${space(18)}connection.random !== null`,
+                              `${space(18)}? connection.random`,
+                              `${space(18)}: undefined`,
+                              `${space(10)})`,
+                          ].join("\n");
                 const fetch = (tab: string) =>
                     [
-                        `${awa ? "await " : ""} Fetcher.fetch(`,
+                        `${awa ? "await " : ""}Fetcher.fetch(`,
                         fetchArguments
-                            .map((param) => `${tab}    ${param}`)
-                            .join(",\n"),
+                            .map((param) => `${tab}    ${param},`)
+                            .join("\n"),
                         `${tab})`,
                     ].join("\n");
-                if (!config.random) return fetch(" ".repeat(8));
+                if (!config.random) return fetch(space(4));
                 return (
-                    `connection.random\n` +
+                    `!!connection.random\n` +
                     `        ? ${random()}\n` +
-                    `        : ${fetch(" ".repeat(10))}`
+                    `        : ${fetch(space(10))}`
                 );
             };
             if (route.setHeaders.length === 0)
@@ -185,9 +194,9 @@ export namespace SdkFunctionProgrammer {
                 comments.map((str) => ` * ${str}`).join("\n") +
                 "\n" +
                 " */\n" +
-                `export async function ${route.name} (\n` +
-                `${parameters.map((str) => `        ${str}`).join(",\n")}\n` +
-                `    ): Promise<${output}>`
+                `export async function ${route.name}(\n` +
+                parameters.map((str) => `    ${str},\n`).join("") +
+                `): Promise<${output}>`
             );
         };
 
@@ -244,11 +253,15 @@ export namespace SdkFunctionProgrammer {
                     : "") +
                 `    };\n` +
                 "\n" +
-                `    export function path(${parameters
+                `    export const path = (${parameters
                     .map((param) => `${param.name}: ${param.type.name}`)
-                    .join(", ")}): string {\n` +
+                    .join(", ")}): string => {\n` +
                 `${path};\n` +
                 `    }\n` +
+                (config.random && route.output.name !== "void"
+                    ? `    export const random = (g?: Partial<typia.IRandomGenerator>): Output =>\n` +
+                      `        typia.random<Output>(g);\n`
+                    : "") +
                 (config.json === true &&
                 route.parameters.find((param) => param.category === "body") !==
                     undefined
@@ -275,7 +288,7 @@ export namespace SdkFunctionProgrammer {
             (param) => param.category === "query" && param.field !== undefined,
         );
         if (props.query === undefined && queryParams.length === 0)
-            return `${" ".repeat(8)}return \`${props.path}\``;
+            return `${space(8)}return \`${props.path}\``;
 
         const computeName = (str: string): string =>
             props.parameters.find((p) => p.name === str) !== undefined
@@ -298,7 +311,7 @@ export namespace SdkFunctionProgrammer {
                 `const ${encoded}: string = ${search}.toString();`,
                 `return \`${props.path}\${${encoded}.length ? \`?\${${encoded}}\` : ""}\`;`,
             ]
-                .map((str) => `${" ".repeat(8)}${str}`)
+                .map((str) => `${space(8)}${str}`)
                 .join("\n");
 
         if (props.query !== undefined && queryParams.length === 0)
@@ -327,5 +340,7 @@ export namespace SdkFunctionProgrammer {
                               : JSON.stringify(param.field)
                       }: ${param.name}`,
             )
-            .join(`,\n${" ".repeat(12)}`);
+            .join(`,\n${space(12)}`);
 }
+
+const space = (count: number) => " ".repeat(count);

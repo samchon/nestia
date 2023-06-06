@@ -5,7 +5,7 @@
   "description": "Test program of Nestia",
   "main": "index.js",
   "scripts": {
-    "clean": "rimraf ../packages/*/*.tgz",
+    "clean": "rimraf ../packages/*/*.tgz && npm uninstall @nestia/core @nestia/e2e @nestia/fetcher @nestia/sdk nestia",
     "generate": "node executable/generate",
     "start": "node executable/start",
     "prepare": "ts-patch install"
@@ -25,10 +25,6 @@
   },
   "homepage": "https://nestia.io",
   "devDependencies": {
-    "@nestia/core": "../packages/core/nestia-core-1.3.3.tgz",
-    "@nestia/e2e": "../packages/e2e/nestia-e2e-0.3.2.tgz",
-    "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-1.3.0.tgz",
-    "@nestia/sdk": "../packages/sdk/nestia-sdk-1.3.3.tgz",
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/node": "^18.11.15",
     "@types/uuid": "^9.0.0",
@@ -36,12 +32,16 @@
     "@typescript-eslint/parser": "^5.46.1",
     "eslint": "^8.29.0",
     "eslint-plugin-deprecation": "^1.4.1",
-    "nestia": "../packages/cli/nestia-4.2.1.tgz",
     "ts-node": "^10.9.1",
     "ts-patch": "v2.1.0",
     "typescript": "^4.9.5",
     "typescript-transform-paths": "^3.4.4",
     "typia": "^4.0.2",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "nestia": "../packages/cli/nestia-4.2.1.tgz",
+    "@nestia/core": "../packages/core/nestia-core-1.3.3.tgz",
+    "@nestia/e2e": "../packages/e2e/nestia-e2e-0.3.2.tgz",
+    "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-1.3.1.tgz",
+    "@nestia/sdk": "../packages/sdk/nestia-sdk-1.3.4.tgz"
   }
 }
