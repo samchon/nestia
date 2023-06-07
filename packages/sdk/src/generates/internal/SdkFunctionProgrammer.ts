@@ -174,9 +174,9 @@ export namespace SdkFunctionProgrammer {
                     const type: string =
                         config.primitive !== false &&
                         (param === props.query || param === props.input)
-                            ? `Primitive<${route.name}.${
+                            ? `${route.name}.${
                                   param === props.query ? "Query" : "Input"
-                              }>`
+                              }`
                             : param.type.name;
                     return `${param.name}${param.optional ? "?" : ""}: ${type}`;
                 }),
@@ -253,7 +253,14 @@ export namespace SdkFunctionProgrammer {
                 `    };\n` +
                 "\n" +
                 `    export const path = (${parameters
-                    .map((param) => `${param.name}: ${param.type.name}`)
+                    .map(
+                        (param) =>
+                            `${param.name}: ${
+                                param.category === "query"
+                                    ? `${route.name}.Query`
+                                    : param.type.name
+                            }`,
+                    )
                     .join(", ")}): string => {\n` +
                 `${path};\n` +
                 `    }\n` +

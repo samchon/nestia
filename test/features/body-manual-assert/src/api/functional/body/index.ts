@@ -16,7 +16,7 @@ import type { IBbsArticle } from "./../../structures/IBbsArticle";
  */
 export async function store(
     connection: IConnection,
-    input: Primitive<store.Input>,
+    input: store.Input,
 ): Promise<store.Output> {
     return Fetcher.fetch(
         connection,

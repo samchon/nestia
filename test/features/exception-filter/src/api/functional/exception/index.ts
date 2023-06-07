@@ -16,7 +16,7 @@ import type { IBbsArticle, IAttachmentFile } from "./../../structures/IBbsArticl
  */
 export async function typedBody(
     connection: IConnection,
-    input: Primitive<typedBody.Input>,
+    input: typedBody.Input,
 ): Promise<typedBody.Output> {
     return Fetcher.fetch(
         connection,
@@ -108,7 +108,7 @@ export namespace typedParam {
  */
 export async function typedQuery(
     connection: IConnection,
-    file: Primitive<typedQuery.Query>,
+    file: typedQuery.Query,
 ): Promise<typedQuery.Output> {
     return Fetcher.fetch(
         connection,
@@ -128,7 +128,7 @@ export namespace typedQuery {
         response: false,
     };
 
-    export const path = (file: IAttachmentFile): string => {
+    export const path = (file: typedQuery.Query): string => {
         const variables: Record<any, any> = file as any;
         const search: URLSearchParams = new URLSearchParams();
         for (const [key, value] of Object.entries(variables))

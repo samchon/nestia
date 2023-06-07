@@ -19,7 +19,7 @@ export * as performance from "./performance";
  */
 export async function request(
     connection: IConnection,
-    input: Primitive<request.Input>,
+    input: request.Input,
 ): Promise<request.Output> {
     return Fetcher.fetch(
         connection,

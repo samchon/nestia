@@ -25,7 +25,7 @@ import type { IBbsArticle } from "./../../structures/IBbsArticle";
 export async function index(
     connection: IConnection,
     section: null | string,
-    input: Primitive<index.Input>,
+    input: index.Input,
 ): Promise<index.Output> {
     return !!connection.random
         ? index.simulate(
@@ -60,7 +60,7 @@ export namespace index {
     export const simulate = async (
         connection: IConnection,
         section: null | string,
-        input: IPage.IRequest,
+        input: index.Input,
     ): Promise<Output> => {
         const assert =
             (message: (exp: typia.TypeGuardError) => string) =>
@@ -114,7 +114,7 @@ export namespace index {
 export async function query(
     connection: IConnection,
     section: null | string,
-    input: Primitive<query.Query>,
+    input: query.Query,
 ): Promise<query.Output> {
     return !!connection.random
         ? query.simulate(
@@ -140,7 +140,7 @@ export namespace query {
         response: false,
     };
 
-    export const path = (section: null | string, input: IPage.IRequest): string => {
+    export const path = (section: null | string, input: query.Query): string => {
         const variables: Record<any, any> = input as any;
         const search: URLSearchParams = new URLSearchParams();
         for (const [key, value] of Object.entries(variables))
@@ -157,7 +157,7 @@ export namespace query {
     export const simulate = async (
         connection: IConnection,
         section: null | string,
-        input: IPage.IRequest,
+        input: query.Query,
     ): Promise<Output> => {
         const assert =
             (message: (exp: typia.TypeGuardError) => string) =>
@@ -298,7 +298,7 @@ export namespace at {
 export async function store(
     connection: IConnection,
     section: string,
-    input: Primitive<store.Input>,
+    input: store.Input,
 ): Promise<store.Output> {
     return !!connection.random
         ? store.simulate(
@@ -333,7 +333,7 @@ export namespace store {
     export const simulate = async (
         connection: IConnection,
         section: string,
-        input: IBbsArticle.IStore,
+        input: store.Input,
     ): Promise<Output> => {
         const assert =
             (message: (exp: typia.TypeGuardError) => string) =>
@@ -389,7 +389,7 @@ export async function update(
     connection: IConnection,
     section: string,
     id: string,
-    input: Primitive<update.Input>,
+    input: update.Input,
 ): Promise<update.Output> {
     return !!connection.random
         ? update.simulate(
@@ -426,7 +426,7 @@ export namespace update {
         connection: IConnection,
         section: string,
         id: string,
-        input: IBbsArticle.IStore,
+        input: update.Input,
     ): Promise<Output> => {
         const assert =
             (message: (exp: typia.TypeGuardError) => string) =>
