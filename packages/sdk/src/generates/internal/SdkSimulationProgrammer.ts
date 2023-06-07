@@ -30,7 +30,16 @@ export namespace SdkSimulationProgrammer {
                     ? "_connection"
                     : "connection"
             }: IConnection,`,
-            ...route.parameters.map((p) => `    ${p.name}: ${p.type.name},`),
+            ...route.parameters.map(
+                (p) =>
+                    `    ${p.name}: ${
+                        p.category === "query" || p.category === "body"
+                            ? `${route.name}.${
+                                  p.category === "query" ? "Query" : "Input"
+                              }`
+                            : p.type.name
+                    },`,
+            ),
             `): Promise<${output ? "Output" : "void"}> => {`,
             ...body.map((l) => `    ${l}`),
             `}`,

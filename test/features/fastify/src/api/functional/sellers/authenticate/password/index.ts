@@ -21,7 +21,7 @@ import type { ISeller } from "./../../../../structures/ISeller";
  */
 export async function change(
     connection: IConnection,
-    input: Primitive<change.Input>,
+    input: change.Input,
 ): Promise<void> {
     return Fetcher.fetch(
         connection,

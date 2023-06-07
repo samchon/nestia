@@ -14,7 +14,7 @@ import type { IConnection, Primitive } from "@nestia/fetcher";
  */
 export async function send(
     connection: IConnection,
-    body: Primitive<send.Input>,
+    body: send.Input,
 ): Promise<send.Output> {
     return Fetcher.fetch(
         connection,

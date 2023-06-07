@@ -17,7 +17,7 @@ import type { IBbsArticle } from "./../../../structures/IBbsArticle";
  */
 export async function index(
     connection: IConnection,
-    query: Primitive<index.Query>,
+    query: index.Query,
 ): Promise<index.Output> {
     return Fetcher.fetch(
         connection,
@@ -37,7 +37,7 @@ export namespace index {
         response: false,
     };
 
-    export const path = (query: IPage.IRequest): string => {
+    export const path = (query: index.Query): string => {
         const variables: Record<any, any> = query as any;
         const search: URLSearchParams = new URLSearchParams();
         for (const [key, value] of Object.entries(variables))

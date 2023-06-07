@@ -24,7 +24,7 @@ export * as password from "./password";
  */
 export async function join(
     connection: IConnection,
-    input: Primitive<join.Input>,
+    input: join.Input,
 ): Promise<join.Output> {
     const output: join.Output = await Fetcher.fetch(
         connection,
@@ -69,7 +69,7 @@ export namespace join {
  */
 export async function login(
     connection: IConnection,
-    input: Primitive<login.Input>,
+    input: login.Input,
 ): Promise<login.Output> {
     const output: login.Output = await Fetcher.fetch(
         connection,

@@ -24,7 +24,7 @@ import type { IBbsArticle } from "./../../../structures/IBbsArticle";
 export async function store(
     connection: IConnection,
     section: string,
-    input: Primitive<store.Input>,
+    input: store.Input,
 ): Promise<store.Output> {
     typia.assert<typeof section>(section);
     typia.assert<typeof input>(input);
@@ -69,7 +69,7 @@ export async function update(
     connection: IConnection,
     section: string,
     id: string,
-    input: Primitive<update.Input>,
+    input: update.Input,
 ): Promise<update.Output> {
     typia.assert<typeof section>(section);
     typia.assert<typeof id>(id);

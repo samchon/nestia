@@ -18,7 +18,7 @@ import type { IBbsArticle } from "./../../../structures/IBbsArticle";
 export async function index(
     connection: IConnection,
     section: string,
-    query: Primitive<index.Query>,
+    query: index.Query,
 ): Promise<index.Output> {
     return Fetcher.fetch(
         connection,
@@ -38,7 +38,7 @@ export namespace index {
         response: false,
     };
 
-    export const path = (section: string, query: IPage.IRequest): string => {
+    export const path = (section: string, query: index.Query): string => {
         const variables: Record<any, any> = query as any;
         const search: URLSearchParams = new URLSearchParams();
         for (const [key, value] of Object.entries(variables))
@@ -66,7 +66,7 @@ export namespace index {
 export async function store(
     connection: IConnection,
     section: string,
-    input: Primitive<store.Input>,
+    input: store.Input,
 ): Promise<store.Output> {
     return Fetcher.fetch(
         connection,
@@ -108,7 +108,7 @@ export async function update(
     connection: IConnection,
     section: string,
     id: string,
-    input: Primitive<update.Input>,
+    input: update.Input,
 ): Promise<update.Output> {
     return Fetcher.fetch(
         connection,
