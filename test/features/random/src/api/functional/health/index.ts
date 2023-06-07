@@ -16,7 +16,9 @@ export async function get(
     connection: IConnection,
 ): Promise<void> {
     return !!connection.random
-        ? undefined
+        ? get.simulate(
+              connection,
+          )
         : Fetcher.fetch(
               connection,
               get.ENCRYPTED,
@@ -35,5 +37,9 @@ export namespace get {
 
     export const path = (): string => {
         return `/health`;
+    }
+    export const simulate = async (
+        _connection: IConnection,
+    ): Promise<void> => {
     }
 }

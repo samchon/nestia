@@ -120,16 +120,22 @@ export namespace SdkFileProgrammer {
                     config.random === true &&
                     directory.routes.some((s) => s.output.name !== "void");
 
+                const classes: string[] = ["Fetcher"];
                 const typings: string[] = ["IConnection"];
                 if (primitived) typings.push("Primitive");
+                if (
+                    config.random &&
+                    directory.routes.some((r) => !!r.parameters.length)
+                )
+                    classes.push("HttpError");
 
                 const head: string[] = [
-                    `import { Fetcher } from "@nestia/fetcher";`,
+                    `import { ${classes.join(", ")} } from "@nestia/fetcher";`,
                     `import type { ${typings.join(
                         ", ",
                     )} } from "@nestia/fetcher";`,
                 ];
-                if (asserted || json || random)
+                if (asserted || json || random || classes.length === 2)
                     head.push(`import typia from "typia";`);
                 if (!importDict.empty())
                     head.push("", importDict.toScript(outDir));
