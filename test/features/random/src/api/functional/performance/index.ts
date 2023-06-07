@@ -19,11 +19,8 @@ export async function get(
     connection: IConnection,
 ): Promise<get.Output> {
     return !!connection.random
-        ? get.random(
-              typeof connection.random === "object" &&
-                  connection.random !== null
-                  ? connection.random
-                  : undefined
+        ? get.simulate(
+              connection,
           )
         : Fetcher.fetch(
               connection,
@@ -47,4 +44,14 @@ export namespace get {
     }
     export const random = (g?: Partial<typia.IRandomGenerator>): Output =>
         typia.random<Output>(g);
+    export const simulate = async (
+        connection: IConnection,
+    ): Promise<Output> => {
+        return typia.random<Output>(
+            typeof connection.random === 'object'
+            && connection.random !== null
+                ? connection.random
+                : undefined
+        );
+    }
 }

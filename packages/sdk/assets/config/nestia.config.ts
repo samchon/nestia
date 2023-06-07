@@ -1,6 +1,22 @@
-import { INestiaSdkConfiguration } from "@nestia/sdk";
+import { INestiaConfig } from "@nestia/sdk";
 
-export const NESTIA_CONFIG: INestiaSdkConfiguration = {
+export const NESTIA_CONFIG: INestiaConfig = {
+    /**
+     * Building `swagger.json` is also possible.
+     *
+     * If not specified, you can't build the `swagger.json`.
+     */
+    swagger: {
+        /**
+         * Output path of the `swagger.json`.
+         *
+         * If you've configured only directory, the file name would be the `swagger.json`.
+         * Otherwise you've configured the full path with file name and extension, the
+         * `swagger.json` file would be renamed to it.
+         */
+        output: "dist/swagger.json",
+    },
+
     /**
      * List of files or directories containing the NestJS controller classes.
      */
@@ -52,19 +68,17 @@ export const NESTIA_CONFIG: INestiaSdkConfiguration = {
     // primitive: false,
 
     /**
-     * Building `swagger.json` is also possible.
+     * Allow random data generation in SDK level.
      *
-     * If not specified, you can't build the `swagger.json`.
+     * If you configure this property to be `true`, random data generator would be
+     * installed in the SDK library. Client developer can utilize the built-in
+     * random data generator, instead of communicating with the backend server,
+     * just by configuring {@link IConnection.random} property to be `true`.
+     *
+     * For reference, random generator would utilize `typia.random<T>()` function.
+     *
+     * @default false
      */
-    swagger: {
-        /**
-         * Output path of the `swagger.json`.
-         *
-         * If you've configured only directory, the file name would be the `swagger.json`.
-         * Otherwise you've configured the full path with file name and extension, the
-         * `swagger.json` file would be renamed to it.
-         */
-        output: "dist/swagger.json",
-    },
+    // random: true,
 };
 export default NESTIA_CONFIG;

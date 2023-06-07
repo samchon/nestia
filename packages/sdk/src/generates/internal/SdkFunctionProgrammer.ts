@@ -4,6 +4,7 @@ import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
+import { SdkSimulationProgrammer } from "./SdkSimulationProgrammer";
 
 export namespace SdkFunctionProgrammer {
     export const generate =
@@ -62,18 +63,16 @@ export namespace SdkFunctionProgrammer {
             // FUNCTION CALL STATEMENT
             const caller = (awa: boolean) => {
                 const random = () =>
-                    route.output.name === "void"
-                        ? "undefined"
-                        : [
-                              `${route.name}.random(`,
-                              `${space(
-                                  14,
-                              )}typeof connection.random === "object" &&`,
-                              `${space(18)}connection.random !== null`,
-                              `${space(18)}? connection.random`,
-                              `${space(18)}: undefined`,
-                              `${space(10)})`,
-                          ].join("\n");
+                    [
+                        `${route.name}.simulate(`,
+                        `    connection,`,
+                        ...route.parameters.map((p) => `    ${p.name},`),
+                        `)`,
+                    ]
+                        .map((line, i) =>
+                            i === 0 ? line : `${space(10)}${line}`,
+                        )
+                        .join("\n");
                 const fetch = (tab: string) =>
                     [
                         `${awa ? "await " : ""}Fetcher.fetch(`,
@@ -261,6 +260,9 @@ export namespace SdkFunctionProgrammer {
                 (config.random && route.output.name !== "void"
                     ? `    export const random = (g?: Partial<typia.IRandomGenerator>): Output =>\n` +
                       `        typia.random<Output>(g);\n`
+                    : "") +
+                (config.random
+                    ? SdkSimulationProgrammer.generate(route) + "\n"
                     : "") +
                 (config.json === true &&
                 route.parameters.find((param) => param.category === "body") !==
