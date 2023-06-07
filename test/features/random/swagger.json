@@ -507,6 +507,219 @@
           }
         ]
       }
+    },
+    "/sellers/authenticate/join": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nInformation of yours",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ISeller.IJoin"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": true
+        },
+        "responses": {
+          "201": {
+            "description": "## Warning\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.P.ost](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nInformation of newly joined seller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ISeller.IAuthorized"
+                }
+              }
+            },
+            "x-nestia-encrypted": true
+          }
+        },
+        "summary": "Join as a seller",
+        "description": "Join as a seller.\n\n@param input Information of yours\n@return Information of newly joined seller\n@setHeader authorization.token Authorization",
+        "x-nestia-namespace": "sellers.authenticate.join.join",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Information of yours",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "return",
+            "text": [
+              {
+                "text": "Information of newly joined seller",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "setHeader",
+            "text": [
+              {
+                "text": "authorization.token Authorization",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "/sellers/authenticate/login": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nEmail and password",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ISeller.ILogin"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": true
+        },
+        "responses": {
+          "201": {
+            "description": "## Warning\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.P.ost](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nInformation of the seller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ISeller.IAuthorized"
+                }
+              }
+            },
+            "x-nestia-encrypted": true
+          }
+        },
+        "summary": "Log-in as a seller",
+        "description": "Log-in as a seller.\n\n@param input Email and password\n@return Information of the seller\n@assignHeaders authorization",
+        "x-nestia-namespace": "sellers.authenticate.login.login",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Email and password",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "return",
+            "text": [
+              {
+                "text": "Information of the seller",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "assignHeaders",
+            "text": [
+              {
+                "text": "authorization",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "/sellers/authenticate/password/change": {
+      "patch": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nOld and new passwords",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ISeller.IChangePassword"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": true
+        },
+        "responses": {
+          "201": {
+            "description": "Empty object",
+            "x-nestia-encrypted": false
+          }
+        },
+        "summary": "Change password",
+        "description": "Change password.\n\n@param input Old and new passwords\n@return Empty object",
+        "x-nestia-namespace": "sellers.authenticate.password.change.change",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Old and new passwords",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "return",
+            "text": [
+              {
+                "text": "Empty object",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "/sellers/authenticate/exit": {
+      "delete": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "x-nestia-encrypted": false
+          }
+        },
+        "summary": "Erase the seller by itself",
+        "description": "Erase the seller by itself.",
+        "x-nestia-namespace": "sellers.authenticate.exit.exit",
+        "x-nestia-jsDocTags": []
+      }
     }
   },
   "components": {
@@ -1301,6 +1514,163 @@
           "files"
         ],
         "description": "@minLength 3\n@maxLength 50",
+        "x-typia-jsDocTags": []
+      },
+      "ISeller.IJoin": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "password": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "name": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "mobile": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "company": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "email",
+          "password",
+          "name",
+          "mobile",
+          "company"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ISeller.IAuthorized": {
+        "type": "object",
+        "properties": {
+          "authorization": {
+            "$ref": "#/components/schemas/__type"
+          },
+          "id": {
+            "description": "Primary key.",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "email": {
+            "description": "Email address.",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the seller.",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "mobile": {
+            "description": "Mobile number of the seller.",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "company": {
+            "description": "Belonged company name.",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "created_at": {
+            "description": "Joined time.",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "authorization",
+          "id",
+          "email",
+          "name",
+          "mobile",
+          "company",
+          "created_at"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "__type": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "expires_at": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "token",
+          "expires_at"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ISeller.ILogin": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "password": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "email",
+          "password"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "ISeller.IChangePassword": {
+        "type": "object",
+        "properties": {
+          "old_password": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "new_password": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "old_password",
+          "new_password"
+        ],
         "x-typia-jsDocTags": []
       }
     },

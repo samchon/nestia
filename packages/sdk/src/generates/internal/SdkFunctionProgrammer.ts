@@ -64,7 +64,7 @@ export namespace SdkFunctionProgrammer {
             const caller = (awa: boolean) => {
                 const random = () =>
                     [
-                        `${route.name}.simulate(`,
+                        `${awa ? "await " : ""}${route.name}.simulate(`,
                         `    connection,`,
                         ...route.parameters.map((p) => `    ${p.name},`),
                         `)`,
