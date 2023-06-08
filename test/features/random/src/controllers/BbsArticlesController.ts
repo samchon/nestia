@@ -1,5 +1,6 @@
 import { Controller } from "@nestjs/common";
 import typia from "typia";
+import { v4 } from "uuid";
 
 import core from "@nestia/core";
 
@@ -7,8 +8,8 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 import { Global } from "../Global";
 import { IPage } from "@api/lib/structures/IPage";
 
-@Controller("random/:section")
-export class RandomController {
+@Controller("bbs/:section/articles")
+export class BbsArticlesController {
     /**
      * Paginate entire articles.
      *
@@ -55,14 +56,32 @@ export class RandomController {
     @core.TypedRoute.Get(":id")
     public async at(
         @core.TypedParam("section") section: string,
-        @core.TypedParam("id", "uuid") id: string,
+        @core.TypedParam("id", "uuid") id: string | null,
     ): Promise<IBbsArticle> {
         Global.used = true;
         return {
             ...typia.random<IBbsArticle>(),
-            id,
+            id: id ?? v4(),
             section,
         };
+    }
+
+    /**
+     * Get first article of a day.
+     * 
+     * @param section Section code
+     * @param date Target data
+     * @returns The first article info
+     */
+    @core.TypedRoute.Get("first/:date")
+    public async first(
+        @core.TypedParam("section") section: string,
+        @core.TypedParam("date", "date") date: string,
+    ): Promise<IBbsArticle> {
+        Global.used = true;
+        section;
+        date;
+        return typia.random<IBbsArticle>();
     }
 
     /**

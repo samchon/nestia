@@ -36,6 +36,15 @@ export namespace SdkGenerator {
                         );
                 }
             }
+            if (config.random && routes.some((r) => !!r.parameters.length)) {
+                try {
+                    await fs.promises.mkdir(`${config.output}/utils`);
+                } catch {}
+                await fs.promises.copyFile(
+                    `${BUNDLE_PATH}/utils/NestiaSimulator.ts`,
+                    `${config.output}/utils/NestiaSimulator.ts`,
+                );
+            }
 
             // FUNCTIONAL
             await SdkFileProgrammer.generate(config)(routes);

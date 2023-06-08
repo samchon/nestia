@@ -13,13 +13,6 @@ export namespace SdkSimulationProgrammer {
         ];
         const body: string[] = [
             ...(route.parameters.length !== 0 ? assert(route.parameters) : []),
-            ...route.parameters
-                .map((p) => [
-                    `assert(`,
-                    `    ${message(p)}`,
-                    `)(() => typia.assert(${p.name}));`,
-                ])
-                .flat(),
             ...(output ? returns() : []),
         ];
 
@@ -48,45 +41,23 @@ export namespace SdkSimulationProgrammer {
             .join("\n");
     };
 
-    const message = (p: IRoute.IParameter): string => {
-        if (p.category === "param")
-            return `() => "URL parameter \\"${p.name}\\" is not \${exp.expected} type."`;
-        else
-            return `() => "Request ${
-                p.category === "query" ? "query parameters are" : "body is"
-            } not following the promised type."`;
-    };
-
-    const assert = (parameters: IRoute.IParameter[]): string[] => {
-        return [
-            `const assert =`,
-            `    (message: (exp: typia.TypeGuardError) => string) =>`,
-            `    <T>(task: () => T): void => {`,
-            `        try {`,
-            `            task()`,
-            `        }`,
-            `        catch (exp) {`,
-            `            if (typia.is<typia.TypeGuardError>(exp))`,
-            `                throw new HttpError(`,
-            `                    METHOD,`,
-            "                    `${connection.host}${path(" +
-                parameters
-                    .filter((p) => p.category !== "body")
-                    .map((p) => p.name)
-                    .join(", ") +
-                ")}`,",
-            `                    400,`,
-            `                    JSON.stringify({`,
-            `                        method: exp.method,`,
-            `                        path: exp.path,`,
-            `                        expected: exp.expected,`,
-            `                        value: exp.value,`,
-            `                        message: message(exp),`,
-            `                    })`,
-            `                );`,
-            `            throw exp`,
-            `        }`,
-            `    };`,
-        ];
-    };
+    const assert = (parameters: IRoute.IParameter[]): string[] => [
+        `const assert = NestiaSimulator.assert({`,
+        `    method: METHOD,`,
+        `    host: connection.host,`,
+        `    path: path(${parameters
+            .filter((p) => p.category !== "body")
+            .map((p) => p.name)
+            .join(", ")})`,
+        `});`,
+        ...parameters.map((p) =>
+            p.category === "body"
+                ? `assert.body(() => typia.assert(${p.name}));`
+                : p.category === "query"
+                ? `assert.query(() => typia.assert(${p.name}));`
+                : `assert.param("${p.field}")("${
+                      p.meta?.type ?? p.type.name
+                  }")(() => typia.assert(${p.name}));`,
+        ),
+    ];
 }

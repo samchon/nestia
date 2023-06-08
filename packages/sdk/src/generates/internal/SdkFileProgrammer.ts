@@ -83,6 +83,16 @@ export namespace SdkFileProgrammer {
 
             // ITERATE ROUTES
             const importDict: ImportDictionary = new ImportDictionary();
+            if (
+                config.random &&
+                directory.routes.some((r) => !!r.parameters.length)
+            )
+                importDict.emplace(
+                    `${config.output}/utils/NestiaSimulator.ts`,
+                    true,
+                    "NestiaSimulator",
+                );
+
             directory.routes.forEach((route, i) => {
                 for (const tuple of route.imports)
                     for (const instance of tuple[1])
@@ -118,16 +128,14 @@ export namespace SdkFileProgrammer {
                     );
                 const random: boolean =
                     config.random === true &&
-                    directory.routes.some((s) => s.output.name !== "void");
+                    directory.routes.some(
+                        (s) =>
+                            !!s.parameters.length || s.output.name !== "void",
+                    );
 
                 const classes: string[] = ["Fetcher"];
                 const typings: string[] = ["IConnection"];
                 if (primitived) typings.push("Primitive");
-                if (
-                    config.random &&
-                    directory.routes.some((r) => !!r.parameters.length)
-                )
-                    classes.push("HttpError");
 
                 const head: string[] = [
                     `import { ${classes.join(", ")} } from "@nestia/fetcher";`,
@@ -135,7 +143,7 @@ export namespace SdkFileProgrammer {
                         ", ",
                     )} } from "@nestia/fetcher";`,
                 ];
-                if (asserted || json || random || classes.length === 2)
+                if (asserted || json || random)
                     head.push(`import typia from "typia";`);
                 if (!importDict.empty())
                     head.push("", importDict.toScript(outDir));
