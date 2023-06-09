@@ -48,7 +48,10 @@ export namespace SdkGenerator {
                         );
                 }
             }
-            if (config.random && routes.some((r) => !!r.parameters.length)) {
+            if (
+                (config.simulate ?? (config as any).random) === true &&
+                routes.some((r) => !!r.parameters.length)
+            ) {
                 try {
                     await fs.promises.mkdir(`${config.output}/utils`);
                 } catch {}

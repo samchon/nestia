@@ -28,7 +28,7 @@ export async function join(
     connection: IConnection,
     input: join.Input,
 ): Promise<join.Output> {
-    const output: join.Output = !!connection.random
+    const output: join.Output = !!(connection.simulate ?? (connection as any).random)
         ? await join.simulate(
               connection,
               input,
@@ -73,10 +73,10 @@ export namespace join {
             path: path()
         });
         assert.body(() => typia.assert(input));
-        return typia.random<Output>(
-            typeof connection.random === 'object'
-            && connection.random !== null
-                ? connection.random
+        return random(
+            typeof (connection.simulate ?? (connection as any).random) === 'object'
+            && (connection.simulate ?? (connection as any).random) !== null
+                ? (connection.simulate ?? (connection as any).random)
                 : undefined
         );
     }
@@ -97,7 +97,7 @@ export async function login(
     connection: IConnection,
     input: login.Input,
 ): Promise<login.Output> {
-    const output: login.Output = !!connection.random
+    const output: login.Output = !!(connection.simulate ?? (connection as any).random)
         ? await login.simulate(
               connection,
               input,
@@ -142,10 +142,10 @@ export namespace login {
             path: path()
         });
         assert.body(() => typia.assert(input));
-        return typia.random<Output>(
-            typeof connection.random === 'object'
-            && connection.random !== null
-                ? connection.random
+        return random(
+            typeof (connection.simulate ?? (connection as any).random) === 'object'
+            && (connection.simulate ?? (connection as any).random) !== null
+                ? (connection.simulate ?? (connection as any).random)
                 : undefined
         );
     }
@@ -161,7 +161,7 @@ export namespace login {
 export async function exit(
     connection: IConnection,
 ): Promise<void> {
-    return !!connection.random
+    return !!(connection.simulate ?? (connection as any).random)
         ? exit.simulate(
               connection,
           )

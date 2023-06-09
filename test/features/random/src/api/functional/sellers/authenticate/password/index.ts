@@ -25,7 +25,7 @@ export async function change(
     connection: IConnection,
     input: change.Input,
 ): Promise<void> {
-    return !!connection.random
+    return !!(connection.simulate ?? (connection as any).random)
         ? change.simulate(
               connection,
               input,

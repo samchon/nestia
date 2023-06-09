@@ -13,7 +13,7 @@ async function main(): Promise<void> {
         parameters: () => [
             {
                 host: "http://127.0.0.1:37000",
-                random: true,
+                simulate: true,
             },
         ],
     })(`${__dirname}/features`);
