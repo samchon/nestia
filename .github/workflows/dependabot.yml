@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/packages/core'
+    schedule:
+      interval: 'daily'
+    allow:
+      - dependency-name: "typia"
+  - package-ecosystem: 'npm'
+    directory: '/packages/e2e'
+    schedule:
+      interval: 'daily'
+    allow:
+      - dependency-name: "typia"
+  - package-ecosystem: 'npm'
+    directory: '/packages/sdk'
+    schedule:
+      interval: 'daily'
+    allow:
+      - dependency-name: "typia"
+  - package-ecosystem: 'npm'
+    directory: '/test'
+    schedule:
+      interval: 'daily'
+    allow:
+      - dependency-name: "typia"
