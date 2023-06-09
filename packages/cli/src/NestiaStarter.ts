@@ -33,7 +33,7 @@ export namespace NestiaStarter {
             process.chdir(dest);
 
             // INSTALL DEPENDENCIES
-            execute(`${manager} install`);
+            execute(manager === "yarn" ? "yarn" : `${manager} install`);
 
             // BUILD TYPESCRIPT
             execute("npm run build");
