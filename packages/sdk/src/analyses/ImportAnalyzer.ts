@@ -100,18 +100,12 @@ export namespace ImportAnalyzer {
         }
 
         // NO SYMBOL
-        else if (symbol === undefined) {
-            const raw: string = checker.typeToString(
+        else if (symbol === undefined)
+            return checker.typeToString(
                 type,
                 undefined,
                 ts.TypeFormatFlags.NoTruncation,
             );
-            if (raw === "__object")
-                throw new Error(
-                    "Error on ImportAnalyzer.analyze(): unnamed type exists.",
-                );
-            return raw;
-        }
 
         //----
         // SPECIALIZATION

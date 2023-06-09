@@ -78,10 +78,11 @@ export namespace NestiaSdkCommand {
                 (await get_nestia_config(props.validate)) ??
                 parse_cli(props)(command)(include);
 
-            const options = await get_typescript_options();
+            const options: ts.CompilerOptions | null =
+                await get_typescript_options();
             config.compilerOptions = {
-                ...options,
-                ...(config.compilerOptions || {}),
+                ...(options ?? {}),
+                ...(config.compilerOptions ?? {}),
             };
 
             // CALL THE APP.GENERATE()
