@@ -81,9 +81,10 @@ export namespace SdkFunctionProgrammer {
                             .join("\n"),
                         `${tab})`,
                     ].join("\n");
-                if (!config.random) return fetch(space(4));
+                if (!(config.simulate ?? (config as any).random))
+                    return fetch(space(4));
                 return (
-                    `!!connection.random\n` +
+                    `!!(connection.simulate ?? (connection as any).random)\n` +
                     `        ? ${random()}\n` +
                     `        : ${fetch(space(10))}`
                 );
@@ -264,11 +265,12 @@ export namespace SdkFunctionProgrammer {
                     .join(", ")}): string => {\n` +
                 `${path};\n` +
                 `    }\n` +
-                (config.random && route.output.name !== "void"
+                ((config.simulate ?? (config as any).random) === true &&
+                route.output.name !== "void"
                     ? `    export const random = (g?: Partial<typia.IRandomGenerator>): Output =>\n` +
                       `        typia.random<Output>(g);\n`
                     : "") +
-                (config.random
+                ((config.simulate ?? (config as any).random) === true
                     ? SdkSimulationProgrammer.generate(route) + "\n"
                     : "") +
                 (config.json === true &&

@@ -15,7 +15,7 @@ import type { IConnection } from "@nestia/fetcher";
 export async function get(
     connection: IConnection,
 ): Promise<void> {
-    return !!connection.random
+    return !!(connection.simulate ?? (connection as any).random)
         ? get.simulate(
               connection,
           )
