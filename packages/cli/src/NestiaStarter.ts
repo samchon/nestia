@@ -7,9 +7,17 @@ export namespace NestiaStarter {
         async (argv: string[]): Promise<void> => {
             // VALIDATION
             const dest: string | undefined = argv[0];
-            const manager: string = argv[1] ?? "npm";
-
+            const manager: string =
+                argv[1] === "--manager" && argv[2] ? argv[2] : "npm";
             if (dest === undefined) halter();
+            else if (
+                manager !== "npm" &&
+                manager !== "yarn" &&
+                manager !== "pnpm"
+            )
+                throw new Error(
+                    "Invalid package manager. Only npm, yarn, and pnpm are supported.",
+                );
             else if (fs.existsSync(dest) === true)
                 halter("The target directory already exists.");
 
