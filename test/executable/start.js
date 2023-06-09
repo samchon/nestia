@@ -29,19 +29,7 @@ const execute = (name) => {
     process.chdir(feature(name));
     process.stdout.write(`  - ${name}`);
 
-    // COMPILE
-    const compile = () => cp.execSync("npx tsc");
-    if (name.includes("error")) {
-        try {
-            TestValidator.error("compile error")(compile);
-            throw new Error("compile error must be occured.");
-        }
-        catch {
-            return;
-        }
-    }
-
-    // GENERATE SWAGGER & SDK & E2E
+    // PREPARE ASSETS
     const configured = fs.existsSync(
         `${feature(name)}/nestia.config.ts`,
     );
@@ -61,6 +49,21 @@ const execute = (name) => {
         cp.execSync(`${command} ${argv}`, { stdio: "ignore" });
     };
 
+    // ERROR MODE HANDLING
+    if (name.includes("error")) {
+        try {
+            TestValidator.error("compile error")(() => {
+                cp.execSync("npx tsc");
+                generate("sdk");
+            });
+            throw new Error("compile error must be occured.");
+        }
+        catch {
+            return;
+        }
+    }
+
+    // GENERATE SWAGGER & SDK & E2E
     for (const file of [
         "swagger.json", 
         "src/api/functional", 
@@ -85,7 +88,7 @@ const execute = (name) => {
         );
         if (config.includes("e2e:")) generate("e2e");
     }
-    compile();
+    cp.execSync("npx tsc");
 
     // RUN TEST AUTOMATION PROGRAM
     if (fs.existsSync("src/test"))

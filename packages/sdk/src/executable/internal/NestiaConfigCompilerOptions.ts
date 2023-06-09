@@ -14,5 +14,6 @@ export namespace NestiaConfigCompilerOptions {
         ...ESSENTIAL_OPTIONS,
         target: "es5",
         module: "commonjs",
+        strictNullChecks: true,
     };
 }

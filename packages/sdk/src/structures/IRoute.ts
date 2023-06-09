@@ -14,6 +14,7 @@ export interface IRoute {
     imports: [string, string[]][];
     output: ITypeTuple;
 
+    location: string;
     symbol: string;
     description?: string;
     tags: ts.JSDocTagInfo[];

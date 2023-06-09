@@ -70,6 +70,7 @@ export namespace ControllerAnalyzer {
                 controller,
                 genericDict,
                 runtime,
+                declaration,
                 property,
             );
             ret.push(...routes);
@@ -85,6 +86,7 @@ export namespace ControllerAnalyzer {
         controller: IController,
         genericDict: GenericAnalyzer.Dictionary,
         func: IController.IFunction,
+        declaration: ts.Declaration,
         symbol: ts.Symbol,
     ): IRoute[] {
         // PREPARE ASSETS
@@ -141,6 +143,9 @@ export namespace ControllerAnalyzer {
             status: func.status,
 
             symbol: `${controller.name}.${func.name}()`,
+            location: `${declaration.getSourceFile().fileName}:${
+                declaration.pos
+            }`,
             description: CommentFactory.description(symbol),
             tags,
             setHeaders: tags
