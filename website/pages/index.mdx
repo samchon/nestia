@@ -1,8 +1,6 @@
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 
-<meta http-equiv="refresh" content="0; url=/docs" />
-
 ## Outline
 
 ![Nestia Logo](/logo.png)
@@ -44,10 +42,11 @@ import Stack from '@mui/material/Stack';
 Nestia is a set of helper libraries for [NestJS](https://docs.nestjs.com), supporting below features:
 
   - `@nestia/core`: super-fast decorators
-  - `@nestia/sdk`: 
+  - `@nestia/sdk`:
     - SDK generator for clients
     - Swagger generator evolved than ever
     - Automatic E2E test functions generator
+    - Backend Simulator for client developers
   - `nestia`: just CLI (command line interface) tool
 
 <br/>
@@ -56,15 +55,20 @@ Nestia is a set of helper libraries for [NestJS](https://docs.nestjs.com), suppo
         Only **one line** required, with pure TypeScript type
     </Alert>
     <Alert severity="success">
-        Runtime validator is **20,000x** faster than `class-validator`
+        Enhance performance **30x** up
+        - Runtime validator is **20,000x** faster than `class-validator`
+        - JSON serialization is **200x faster** than `class-transformer`
     </Alert>
-    <Alert severity="info">
-        JSON serialization is **200x faster** than `class-transformer`
-    </Alert>
-    <Alert severity="error">
-        SDK is similar with [tRPC](https://trpc.io), but much advanced
+    <Alert severity="info"> 
+        Software Development Kit
+        - SDK is similar with [tRPC](https://trpc.io), but much advanced
+        - Simulator is similar with [msw](https://mswjs.io/), but fully automated
     </Alert>
 </Stack>
+
+![SDK](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
+
+> Left is server code, and right is client (frontend) code
 
 
 
