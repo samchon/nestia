@@ -1,26 +1,39 @@
 version: 2
 updates:
+#######################################################
   - package-ecosystem: 'npm'
     directory: '/packages/core'
     schedule:
       interval: 'daily'
+    versioning-strategy: increase
     allow:
+      - dependency-name: "@nestia/fetcher"
       - dependency-name: "typia"
+#######################################################
   - package-ecosystem: 'npm'
     directory: '/packages/e2e'
     schedule:
       interval: 'daily'
+    versioning-strategy: increase
     allow:
       - dependency-name: "typia"
+#######################################################
   - package-ecosystem: 'npm'
     directory: '/packages/sdk'
     schedule:
       interval: 'daily'
+    versioning-strategy: increase
     allow:
+      - dependency-name: "@nestia/fetcher"
+      - dependency-name: "tgrid"
+      - dependency-name: "tstl"
       - dependency-name: "typia"
+#######################################################
   - package-ecosystem: 'npm'
     directory: '/test'
     schedule:
       interval: 'daily'
+    versioning-strategy: increase
     allow:
       - dependency-name: "typia"
+#######################################################
