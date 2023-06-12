@@ -58,6 +58,7 @@ export namespace NestiaSetupWizard {
         pack.install({ dev: false, modulo: "@nestia/core", version: "latest" });
         pack.install({ dev: true, modulo: "@nestia/e2e", version: "latest" });
         pack.install({ dev: true, modulo: "@nestia/sdk", version: "latest" });
+        pack.install({ dev: true, modulo: "nestia", version: "latest" });
         await PluginConfigurator.configure(args);
     }
 }
