@@ -14,14 +14,18 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
     - SDK generator for clients
     - Swagger generator evolved than ever
     - Automatic E2E test functions generator
+    - Backend Simulator for client applications
   - `nestia`: just CLI (command line interface) tool
 
 > **Note**
 > 
 > - **Only one line** required, with pure TypeScript type
-> - Runtime validator is **20,000x faster** than `class-validator`
-> - JSON serialization is **200x faster** than `class-transformer`
-> - SDK is similar with [tRPC](https://trpc.io), but much advanced
+> - Enhance performance **30x** up
+>   - Runtime validator is **20,000x faster** than `class-validator`
+>   - JSON serialization is **200x faster** than `class-transformer`
+> - Software Development Kit
+>   - SDK is similar with [tRPC](https://trpc.io), but much advanced
+>   - Simulator is similar with [msw](https://mswjs.io/), but fully automated
 
 ![nestia-sdk-demo](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
 
@@ -58,3 +62,4 @@ Check out the document in the [website](https://nestia.io/docs/):
     - [Swagger Documents](https://nestia.io/docs/sdk/swagger/)
     - [SDK Library](https://nestia.io/docs/sdk/sdk/)
     - [E2E Functions](https://nestia.io/docs/sdk/e2e/)
+    - [Simulation Mode](https://nestia.io/docs/sdk/simulation/)

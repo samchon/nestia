@@ -7,8 +7,6 @@ export namespace NestiaStarter {
         async (argv: string[]): Promise<void> => {
             // VALIDATION
             const dest: string | undefined = argv[0];
-            const manager: string = argv[1] ?? "npm";
-
             if (dest === undefined) halter();
             else if (fs.existsSync(dest) === true)
                 halter("The target directory already exists.");
@@ -25,7 +23,7 @@ export namespace NestiaStarter {
             process.chdir(dest);
 
             // INSTALL DEPENDENCIES
-            execute(`${manager} install`);
+            execute("npm install");
 
             // BUILD TYPESCRIPT
             execute("npm run build");

@@ -12,6 +12,18 @@ export namespace SdkGenerator {
         async (routes: IRoute[]): Promise<void> => {
             console.log("Generating SDK Library");
 
+            // FIND IMPLICIT TYPES
+            const implicit: IRoute[] = routes.filter(is_implicit_return_typed);
+            if (implicit.length > 0)
+                throw new Error(
+                    "NestiaApplication.sdk(): implicit return type is not allowed.\n" +
+                        "\n" +
+                        "List of implicit return typed routes:\n" +
+                        implicit
+                            .map((it) => `  - ${it.symbol} at "${it.location}"`)
+                            .join("\n"),
+                );
+
             // PREPARE NEW DIRECTORIES
             try {
                 await fs.promises.mkdir(config.output!);
@@ -36,7 +48,10 @@ export namespace SdkGenerator {
                         );
                 }
             }
-            if (config.random && routes.some((r) => !!r.parameters.length)) {
+            if (
+                (config.simulate ?? (config as any).random) === true &&
+                routes.some((r) => !!r.parameters.length)
+            ) {
                 try {
                     await fs.promises.mkdir(`${config.output}/utils`);
                 } catch {}
@@ -63,3 +78,20 @@ export namespace SdkGenerator {
         "api",
     );
 }
+
+const is_implicit_return_typed = (route: IRoute): boolean => {
+    const name: string = route.output.name;
+    if (name === "void") return false;
+    else if (name.indexOf("readonly [") !== -1) return true;
+
+    const pos: number = name.indexOf("__object");
+    if (pos === -1) return false;
+
+    const before: number = pos - 1;
+    const after: number = pos + "__object".length;
+    for (const i of [before, after])
+        if (name[i] === undefined) continue;
+        else if (VARIABLE.test(name[i])) return false;
+    return true;
+};
+const VARIABLE = /[a-zA-Z_$0-9]/;

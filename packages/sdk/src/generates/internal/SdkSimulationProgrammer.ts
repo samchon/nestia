@@ -4,10 +4,10 @@ export namespace SdkSimulationProgrammer {
     export const generate = (route: IRoute): string => {
         const output: boolean = route.output.name !== "void";
         const returns = () => [
-            `return typia.random<Output>(`,
-            `    typeof connection.random === 'object'`,
-            `    && connection.random !== null`,
-            `        ? connection.random`,
+            `return random(`,
+            `    typeof (connection.simulate ?? (connection as any).random) === 'object'`,
+            `    && (connection.simulate ?? (connection as any).random) !== null`,
+            `        ? (connection.simulate ?? (connection as any).random)`,
             `        : undefined`,
             `);`,
         ];

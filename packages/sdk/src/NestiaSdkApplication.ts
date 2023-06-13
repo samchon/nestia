@@ -18,13 +18,11 @@ import { NestiaConfigUtil } from "./utils/NestiaConfigUtil";
 import { SourceFinder } from "./utils/SourceFinder";
 
 export class NestiaSdkApplication {
-    private readonly config_: INestiaConfig;
     private readonly bundle_checker_: Singleton<
         Promise<(str: string) => boolean>
     >;
 
-    public constructor(config: INestiaConfig) {
-        this.config_ = config;
+    public constructor(private readonly config_: INestiaConfig) {
         this.bundle_checker_ = new Singleton(async () => {
             if (!this.config_.output) return () => false;
 
@@ -83,6 +81,7 @@ export class NestiaSdkApplication {
 
         title("Nestia E2E Generator");
         await this.generate(
+            "e2e",
             (config) => config,
             () => (config) => async (routes) => {
                 await SdkGenerator.generate(config)(routes);
@@ -106,6 +105,7 @@ export class NestiaSdkApplication {
 
         title("Nestia SDK Generator");
         await this.generate(
+            "sdk",
             (config) => config,
             () => SdkGenerator.generate,
         );
@@ -129,19 +129,21 @@ export class NestiaSdkApplication {
 
         title("Nestia Swagger Generator");
         await this.generate(
+            "swagger",
             (config) => config.swagger!,
             SwaggerGenerator.generate,
         );
     }
 
     private async generate<Config>(
+        method: string,
         config: (entire: INestiaConfig) => Config,
         archiver: (
             checker: ts.TypeChecker,
         ) => (config: Config) => (routes: IRoute[]) => Promise<void>,
     ): Promise<void> {
         // MOUNT TS-NODE
-        this.prepare();
+        this.prepare(method);
 
         // LOAD CONTROLLER FILES
         const input: INestiaConfig.IInput = NestiaConfigUtil.input(
@@ -204,7 +206,6 @@ export class NestiaSdkApplication {
                 c.file,
             );
             if (file === undefined) continue;
-
             routeList.push(...ControllerAnalyzer.analyze(checker, file, c));
         }
 
@@ -212,12 +213,22 @@ export class NestiaSdkApplication {
         await archiver(checker)(config(this.config_))(routeList);
     }
 
-    private prepare(): void {
+    private prepare(method: string): void {
         // CONSTRUCT OPTIONS
         if (!this.config_.compilerOptions)
             this.config_.compilerOptions =
                 NestiaConfigCompilerOptions.DEFAULT_OPTIONS as any;
         const absoluted: boolean = !!this.config_.compilerOptions?.baseUrl;
+
+        // CHECK STRICT OPTION
+        const strict: boolean =
+            this.config_.compilerOptions?.strictNullChecks !== undefined
+                ? !!this.config_.compilerOptions.strictNullChecks
+                : !!this.config_.compilerOptions?.strict;
+        if (strict === false)
+            throw new Error(
+                `Error on NestiaSdkApplication.${method}(): nestia requires \`compilerOptions.strictNullChecks\` to be true.`,
+            );
 
         const ttsc: boolean =
             ts.version < "5.0.0" &&

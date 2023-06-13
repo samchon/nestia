@@ -18,7 +18,7 @@ import type { IPerformance } from "./../../structures/IPerformance";
 export async function get(
     connection: IConnection,
 ): Promise<get.Output> {
-    return !!connection.random
+    return !!(connection.simulate ?? (connection as any).random)
         ? get.simulate(
               connection,
           )
@@ -47,10 +47,10 @@ export namespace get {
     export const simulate = async (
         connection: IConnection,
     ): Promise<Output> => {
-        return typia.random<Output>(
-            typeof connection.random === 'object'
-            && connection.random !== null
-                ? connection.random
+        return random(
+            typeof (connection.simulate ?? (connection as any).random) === 'object'
+            && (connection.simulate ?? (connection as any).random) !== null
+                ? (connection.simulate ?? (connection as any).random)
                 : undefined
         );
     }

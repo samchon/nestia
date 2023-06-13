@@ -3,9 +3,7 @@ const USAGE = `Wrong command has been detected. Use like below:
 
 npx nestia [command] [options?]
 
-  1. npx nestia start <directory> --manager (npm|pnpm|yarn)
-    - npx nestia start project
-    - npx nestia start project --manager pnpm
+  1. npx nestia start <directory>
   2. npx nestia setup
   3. npx nestia dependencies
   4. npx nestia init
