@@ -1,0 +1,38 @@
+{
+  "name": "@ORGANIZATION/PROJECT",
+  "version": "0.1.0",
+  "scripts": {
+    "----------------------------------------------": "",
+    "build": "npm run build:sdk && npm run build:main && npm run build:test",
+    "build:main": "rimraf lib && tsc",
+    "build:api": "rimraf packages/api/lib && npm run build:sdk && tsc -p packages/api/tsconfig.json",
+    "build:sdk": "rimraf src/api/functional && nestia sdk",
+    "build:swagger": "nestia swagger",
+    "build:test": "rimraf bin && tsc -p test/tsconfig.json",
+    "dev": "npm run build:test -- --watch",
+    "eslint": "eslint src && eslint test",
+    "eslint:fix": "eslint --fix src && eslint --fix test",
+    "prepare": "ts-patch install",
+    "prettier": "prettier src --write && prettier test --write",
+    "-----------------------------------------------": "",
+    "start": "node lib/executable/server",
+    "test": "node bin/test",
+    "------------------------------------------------": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/nestia"
+  },
+  "keywords": [
+    "nestia",
+    "nestjs",
+    "swagger",
+    "migrate"
+  ],
+  "author": "Jeongho Nam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samchon/nestia"
+  },
+  "homepage": "https://nestia.io/docs/migrate"
+}

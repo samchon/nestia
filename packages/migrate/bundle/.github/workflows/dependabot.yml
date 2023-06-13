@@ -1,0 +1,24 @@
+version: 2
+updates:
+#######################################################
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+    open-pull-requests-limit: 25
+    versioning-strategy: increase
+    allow:
+      - dependency-name: "@nestia/core"
+      - dependency-name: "@nestia/e2e"
+      - dependency-name: "@nestia/sdk"
+      - dependency-name: "nestia"
+      - dependency-name: "tstl"
+      - dependency-name: "typia"
+#######################################################
+  - package-ecosystem: 'npm'
+    directory: '/packages/api'
+    schedule:
+      interval: 'daily'
+    open-pull-requests-limit: 25
+    versioning-strategy: increase
+#######################################################
