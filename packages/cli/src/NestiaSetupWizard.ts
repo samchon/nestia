@@ -18,22 +18,7 @@ export namespace NestiaSetupWizard {
         // INSTALL TYPESCRIPT COMPILERS
         pack.install({ dev: true, modulo: "ts-patch", version: "latest" });
         pack.install({ dev: true, modulo: "ts-node", version: "latest" });
-        pack.install({
-            dev: true,
-            modulo: "typescript",
-            version: (() => {
-                const version: string = (() => {
-                    try {
-                        return require("ts-patch/package.json")?.version ?? "";
-                    } catch {
-                        return "";
-                    }
-                })();
-                return Number(version.split(".")[0] ?? "") >= 3
-                    ? "latest"
-                    : "4.9.5";
-            })(),
-        });
+        pack.install({ dev: true, modulo: "typescript", version: "latest" });
         args.project ??= (() => {
             CommandExecutor.run("npx tsc --init");
             return (args.project = "tsconfig.json");

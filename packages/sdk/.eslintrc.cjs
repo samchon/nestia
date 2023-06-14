@@ -9,7 +9,7 @@ module.exports = {
     ],
     parser: "@typescript-eslint/parser",
     parserOptions: {
-        project: ["tsconfig.json", "test/tsconfig.json"]
+        project: ["tsconfig.json"]
     },
     ignorePatterns: ["bin", "lib/**/*.d.ts", "node_modules"],
     overrides: [

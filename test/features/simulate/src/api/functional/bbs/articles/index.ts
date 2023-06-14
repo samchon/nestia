@@ -28,7 +28,7 @@ export async function index(
     section: null | string,
     input: index.Input,
 ): Promise<index.Output> {
-    return !!(connection.simulate ?? (connection as any).random)
+    return !!connection.simulate
         ? index.simulate(
               connection,
               section,
@@ -71,9 +71,9 @@ export namespace index {
         assert.param("section")("string")(() => typia.assert(section));
         assert.body(() => typia.assert(input));
         return random(
-            typeof (connection.simulate ?? (connection as any).random) === 'object'
-            && (connection.simulate ?? (connection as any).random) !== null
-                ? (connection.simulate ?? (connection as any).random)
+            typeof connection.simulate === 'object' &&
+                connection.simulate !== null
+                ? connection.simulate
                 : undefined
         );
     }
@@ -95,7 +95,7 @@ export async function query(
     section: null | string,
     input: query.Query,
 ): Promise<query.Output> {
-    return !!(connection.simulate ?? (connection as any).random)
+    return !!connection.simulate
         ? query.simulate(
               connection,
               section,
@@ -146,9 +146,9 @@ export namespace query {
         assert.param("section")("string")(() => typia.assert(section));
         assert.query(() => typia.assert(input));
         return random(
-            typeof (connection.simulate ?? (connection as any).random) === 'object'
-            && (connection.simulate ?? (connection as any).random) !== null
-                ? (connection.simulate ?? (connection as any).random)
+            typeof connection.simulate === 'object' &&
+                connection.simulate !== null
+                ? connection.simulate
                 : undefined
         );
     }
@@ -170,7 +170,7 @@ export async function at(
     section: string,
     id: null | string,
 ): Promise<at.Output> {
-    return !!(connection.simulate ?? (connection as any).random)
+    return !!connection.simulate
         ? at.simulate(
               connection,
               section,
@@ -211,9 +211,9 @@ export namespace at {
         assert.param("section")("string")(() => typia.assert(section));
         assert.param("id")("uuid")(() => typia.assert(id));
         return random(
-            typeof (connection.simulate ?? (connection as any).random) === 'object'
-            && (connection.simulate ?? (connection as any).random) !== null
-                ? (connection.simulate ?? (connection as any).random)
+            typeof connection.simulate === 'object' &&
+                connection.simulate !== null
+                ? connection.simulate
                 : undefined
         );
     }
@@ -235,7 +235,7 @@ export async function store(
     section: string,
     input: store.Input,
 ): Promise<store.Output> {
-    return !!(connection.simulate ?? (connection as any).random)
+    return !!connection.simulate
         ? store.simulate(
               connection,
               section,
@@ -278,9 +278,9 @@ export namespace store {
         assert.param("section")("string")(() => typia.assert(section));
         assert.body(() => typia.assert(input));
         return random(
-            typeof (connection.simulate ?? (connection as any).random) === 'object'
-            && (connection.simulate ?? (connection as any).random) !== null
-                ? (connection.simulate ?? (connection as any).random)
+            typeof connection.simulate === 'object' &&
+                connection.simulate !== null
+                ? connection.simulate
                 : undefined
         );
     }
@@ -304,7 +304,7 @@ export async function update(
     id: string,
     input: update.Input,
 ): Promise<update.Output> {
-    return !!(connection.simulate ?? (connection as any).random)
+    return !!connection.simulate
         ? update.simulate(
               connection,
               section,
@@ -350,9 +350,9 @@ export namespace update {
         assert.param("id")("uuid")(() => typia.assert(id));
         assert.body(() => typia.assert(input));
         return random(
-            typeof (connection.simulate ?? (connection as any).random) === 'object'
-            && (connection.simulate ?? (connection as any).random) !== null
-                ? (connection.simulate ?? (connection as any).random)
+            typeof connection.simulate === 'object' &&
+                connection.simulate !== null
+                ? connection.simulate
                 : undefined
         );
     }
@@ -374,7 +374,7 @@ export async function first(
     section: string,
     date: string,
 ): Promise<first.Output> {
-    return !!(connection.simulate ?? (connection as any).random)
+    return !!connection.simulate
         ? first.simulate(
               connection,
               section,
@@ -415,9 +415,9 @@ export namespace first {
         assert.param("section")("string")(() => typia.assert(section));
         assert.param("date")("date")(() => typia.assert(date));
         return random(
-            typeof (connection.simulate ?? (connection as any).random) === 'object'
-            && (connection.simulate ?? (connection as any).random) !== null
-                ? (connection.simulate ?? (connection as any).random)
+            typeof connection.simulate === 'object' &&
+                connection.simulate !== null
+                ? connection.simulate
                 : undefined
         );
     }

@@ -5,9 +5,9 @@ export namespace SdkSimulationProgrammer {
         const output: boolean = route.output.name !== "void";
         const returns = () => [
             `return random(`,
-            `    typeof (connection.simulate ?? (connection as any).random) === 'object'`,
-            `    && (connection.simulate ?? (connection as any).random) !== null`,
-            `        ? (connection.simulate ?? (connection as any).random)`,
+            `    typeof connection.simulate === 'object' &&`,
+            `        connection.simulate !== null`,
+            `        ? connection.simulate`,
             `        : undefined`,
             `);`,
         ];

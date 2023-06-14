@@ -18,9 +18,7 @@ export namespace DistributionComposer {
         };
 
         const typia: boolean =
-            !!config.assert ||
-            !!config.json ||
-            !!(config.simulate ?? (config as any).random);
+            !!config.assert || !!config.json || !!config.simulate;
         const done: boolean = await configured({
             typia,
             distribute: config.distribute!,
