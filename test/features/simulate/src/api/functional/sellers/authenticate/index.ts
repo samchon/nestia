@@ -28,7 +28,7 @@ export async function join(
     connection: IConnection,
     input: join.Input,
 ): Promise<join.Output> {
-    const output: join.Output = !!(connection.simulate ?? (connection as any).random)
+    const output: join.Output = !!connection.simulate
         ? await join.simulate(
               connection,
               input,
@@ -74,9 +74,9 @@ export namespace join {
         });
         assert.body(() => typia.assert(input));
         return random(
-            typeof (connection.simulate ?? (connection as any).random) === 'object'
-            && (connection.simulate ?? (connection as any).random) !== null
-                ? (connection.simulate ?? (connection as any).random)
+            typeof connection.simulate === 'object' &&
+                connection.simulate !== null
+                ? connection.simulate
                 : undefined
         );
     }
@@ -97,7 +97,7 @@ export async function login(
     connection: IConnection,
     input: login.Input,
 ): Promise<login.Output> {
-    const output: login.Output = !!(connection.simulate ?? (connection as any).random)
+    const output: login.Output = !!connection.simulate
         ? await login.simulate(
               connection,
               input,
@@ -143,9 +143,9 @@ export namespace login {
         });
         assert.body(() => typia.assert(input));
         return random(
-            typeof (connection.simulate ?? (connection as any).random) === 'object'
-            && (connection.simulate ?? (connection as any).random) !== null
-                ? (connection.simulate ?? (connection as any).random)
+            typeof connection.simulate === 'object' &&
+                connection.simulate !== null
+                ? connection.simulate
                 : undefined
         );
     }
@@ -161,7 +161,7 @@ export namespace login {
 export async function exit(
     connection: IConnection,
 ): Promise<void> {
-    return !!(connection.simulate ?? (connection as any).random)
+    return !!connection.simulate
         ? exit.simulate(
               connection,
           )

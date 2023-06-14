@@ -84,7 +84,7 @@ export namespace SdkFileProgrammer {
             // ITERATE ROUTES
             const importDict: ImportDictionary = new ImportDictionary();
             if (
-                (config.simulate ?? (config as any).random) === true &&
+                config.simulate === true &&
                 directory.routes.some((r) => !!r.parameters.length)
             )
                 importDict.emplace(
@@ -127,7 +127,7 @@ export namespace SdkFileProgrammer {
                             route.method === "PATCH",
                     );
                 const random: boolean =
-                    (config.simulate ?? (config as any).random) === true &&
+                    config.simulate === true &&
                     directory.routes.some(
                         (s) =>
                             !!s.parameters.length || s.output.name !== "void",

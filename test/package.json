@@ -33,15 +33,15 @@
     "eslint": "^8.29.0",
     "eslint-plugin-deprecation": "^1.4.1",
     "ts-node": "^10.9.1",
-    "ts-patch": "v2.1.0",
-    "typescript": "^4.9.5",
+    "ts-patch": "v3.0.0",
+    "typescript": "^5.1.3",
     "typescript-transform-paths": "^3.4.4",
-    "typia": "^4.0.8",
+    "typia": "^4.0.9",
     "uuid": "^9.0.0",
-    "nestia": "../packages/cli/nestia-4.3.0.tgz",
-    "@nestia/core": "../packages/core/nestia-core-1.3.5.tgz",
+    "nestia": "../packages/cli/nestia-4.3.2.tgz",
+    "@nestia/core": "../packages/core/nestia-core-1.3.7.tgz",
     "@nestia/e2e": "../packages/e2e/nestia-e2e-0.3.2.tgz",
-    "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-1.3.3.tgz",
-    "@nestia/sdk": "../packages/sdk/nestia-sdk-1.3.11.tgz"
+    "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-1.3.4.tgz",
+    "@nestia/sdk": "../packages/sdk/nestia-sdk-1.3.14.tgz"
   }
 }

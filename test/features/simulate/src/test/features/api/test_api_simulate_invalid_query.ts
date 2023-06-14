@@ -4,7 +4,7 @@ import typia, { Primitive } from "typia";
 import api from "@api";
 import { IPage } from "@api/lib/structures/IPage";
 
-export const test_api_random_invalid_query = (
+export const test_api_simulate_invalid_query = (
     connection: api.IConnection
 ): Promise<void> => 
     TestValidator.httpError("invalid query")(400)(() =>

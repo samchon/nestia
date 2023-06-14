@@ -4,7 +4,7 @@ import typia, { Primitive } from "typia";
 import api from "@api";
 import type { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
-export const test_api_random_invalid_body = (
+export const test_api_simulate_invalid_body = (
     connection: api.IConnection
 ): Promise<void> => 
     TestValidator.httpError("invalid body")(400)(() =>

@@ -47,13 +47,4 @@ export interface IConnection {
      * @default false
      */
     simulate?: boolean | Partial<IRandomGenerator>;
-
-    /**
-     * Use simulation mode.
-     *
-     * @default false
-     * @deprecated Use {@link simulate} property instead.
-     *             This property would be erased after v2.0 update
-     */
-    random?: boolean | Partial<IRandomGenerator>;
 }
