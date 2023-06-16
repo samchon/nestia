@@ -11,9 +11,11 @@ export class TypedBodyController {
     public async store(
         @core.TypedBody() input: IBbsArticle.IStore,
     ): Promise<IBbsArticle> {
-        return {
+        const output: IBbsArticle = {
             ...typia.random<IBbsArticle>(),
             ...input,
         };
+        console.log("is", typia.is(output));
+        return output;
     }
 }

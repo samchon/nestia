@@ -2,5 +2,8 @@
     "swagger": "Swagger Documents",
     "sdk": "SDK Library",
     "e2e": "E2E Test Functions",
-    "simulation": "Simulation Mode"
+    "simulator": "Mockup Simulator",
+    "simulation": {
+        "display": "hidden"
+    }
 }

@@ -49,7 +49,7 @@ export namespace SdkGenerator {
                 }
             }
             if (
-                (config.simulate ?? (config as any).random) === true &&
+                config.simulate === true &&
                 routes.some((r) => !!r.parameters.length)
             ) {
                 try {

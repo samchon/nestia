@@ -19,10 +19,10 @@ const config: DocsThemeConfig = {
   ),
   project: {
     link: 'https://github.com/samchon/nestia',
-    icon: <img
-      alt="Nestia Github repo stars" 
-      src="https://img.shields.io/github/stars/samchon/nestia?style=social" 
-    />
+    // icon: <img
+    //   alt="Nestia Github repo stars" 
+    //   src="https://img.shields.io/github/stars/samchon/nestia?style=social" 
+    // />
   },
   docsRepositoryBase: 'https://github.com/samchon/nestia/blob/master/website',
   footer: {
