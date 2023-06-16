@@ -291,6 +291,14 @@ export namespace SwaggerGenerator {
             throw new Error(
                 `Error on NestiaApplication.swagger(): invalid parameter type on ${route.symbol}#${parameter.name}`,
             );
+        else if (
+            !!parameter.meta &&
+            (schema as IJsonSchema.IString).type === "string"
+        ) {
+            const string: IJsonSchema.IString = schema as IJsonSchema.IString;
+            if (parameter.meta.type === "uuid") string.format = "uuid";
+            else if (parameter.meta.type === "date") string.format = "date";
+        }
 
         return {
             name: parameter.field ?? parameter.name,
