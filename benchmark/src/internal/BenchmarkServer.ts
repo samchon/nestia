@@ -157,6 +157,7 @@ export namespace BenchmarkServer {
         ArrayRecursiveUnionExplicit: ArrayRecursiveUnionExplicit,
     };
     const LIBARIES: string[] = [
+        "fastify",
         "nestia-express",
         "nestia-fastify",
         "NestJS-express",

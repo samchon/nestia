@@ -6,7 +6,7 @@ import { Collection } from "../../../../structures/pure/Collection";
 import { ArraySimple } from "../../../../structures/pure/ArraySimple";
 import { createNestExpressAssertProgram } from "../createNestExpressAssertProgram";
 
-createNestExpressAssertProgram(false)(37_011)(() => {
+createNestExpressAssertProgram(false)(37_012)(() => {
     @Controller()
     class NestiaController {
         @core.TypedRoute.Post("assert")
