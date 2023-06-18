@@ -16,6 +16,7 @@ const CLIENTS: BenchmarkProgrammer.ILibrary[] = [
     "nestia (fastify)",
     "NestJS (express)",
     "NestJS (fastify)",
+    "fastify",
 ].map((name) => ({
     name,
     body: (type: string) =>
@@ -73,7 +74,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
             const program: string = `createNest${lib[0].toUpperCase()}${lib.substring(
                 1,
             )}StringifyProgram`;
-            const port: string = lib === "express" ? `37_011` : `37_022`;
+            const port: string = lib === "express" ? `37_012` : `37_022`;
 
             return [
                 `import { Controller } from "@nestjs/common";`,
@@ -97,6 +98,23 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
             ].join("\n");
         },
     })),
+    {
+        name: "fastify",
+        body: (type: string) => {
+            const program = "createAjvStringifyProgram";
+            return [
+                `import typia from "typia";`,
+                ``,
+                `import { Collection } from "../../../../structures/pure/Collection";`,
+                `import { ${type} } from "../../../../structures/pure/${type}";`,
+                `import { ${program} } from "../${program}";`,
+                ``,
+                `${program}(37_002)(`,
+                `    typia.application<[Collection<${type}>], "ajv">()`,
+                `);`,
+            ].join("\n");
+        },
+    },
 ];
 
 BenchmarkProgrammer.generate({

@@ -16,6 +16,7 @@ const CLIENTS: BenchmarkProgrammer.ILibrary[] = [
     "nestia (fastify)",
     "NestJS (express)",
     "NestJS (fastify)",
+    "fastify",
 ].map((name) => ({
     name,
     body: (type: string) =>
@@ -53,9 +54,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
                 `        @Controller()`,
                 `        class NestJsController {`,
                 `            @Post("assert")`,
-                `            public assert(@Body() input: ${type}): void {`,
-                `                input;`,
-                `            }`,
+                `            public assert(@Body() _input: ${type}): void {}`,
                 `        }`,
                 `        return NestJsController;`,
                 `    },`,
@@ -69,10 +68,10 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
             const program: string = `createNest${lib[0].toUpperCase()}${lib.substring(
                 1,
             )}AssertProgram`;
-            const port: string = lib === "express" ? `37_011` : `37_022`;
+            const port: string = lib === "express" ? `37_012` : `37_022`;
 
             return [
-                `import { Controller } from "@nestjs/common";`,
+                `import { Controller, Post } from "@nestjs/common";`,
                 ``,
                 `import core from "@nestia/core";`,
                 ``,
@@ -83,16 +82,31 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
                 `${program}(false)(${port})(() => {`,
                 `    @Controller()`,
                 `    class NestiaController {`,
-                `        @core.TypedRoute.Post("assert")`,
-                `        public assert(@core.TypedBody() input: Collection<${type}>): void {`,
-                `            input;`,
-                `        }`,
+                `        @Post("assert")`,
+                `        public assert(@core.TypedBody() _input: Collection<${type}>): void {}`,
                 `    }`,
                 `    return NestiaController;`,
                 `});`,
             ].join("\n");
         },
     })),
+    {
+        name: "fastify",
+        body: (type: string) => {
+            const program = "createAjvAssertProgram";
+            return [
+                `import typia from "typia";`,
+                ``,
+                `import { Collection } from "../../../../structures/pure/Collection";`,
+                `import { ${type} } from "../../../../structures/pure/${type}";`,
+                `import { ${program} } from "../${program}";`,
+                ``,
+                `${program}(37_002)(`,
+                `    typia.application<[Collection<${type}>], "ajv">()`,
+                `);`,
+            ].join("\n");
+        },
+    },
 ];
 
 BenchmarkProgrammer.generate({
