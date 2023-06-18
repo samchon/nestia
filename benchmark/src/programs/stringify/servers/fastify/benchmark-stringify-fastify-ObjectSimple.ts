@@ -1,8 +1,9 @@
 import typia from "typia";
 
+import { Collection } from "../../../../structures/pure/Collection";
 import { ObjectSimple } from "../../../../structures/pure/ObjectSimple";
 import { createAjvStringifyProgram } from "../createAjvStringifyProgram";
 
 createAjvStringifyProgram(37_002)(
-    typia.application<[ObjectSimple], "swagger">(),
+    typia.application<[Collection<ObjectSimple>], "ajv">()
 );

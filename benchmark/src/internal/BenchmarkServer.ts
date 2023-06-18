@@ -159,8 +159,8 @@ export namespace BenchmarkServer {
     const LIBARIES: string[] = [
         "nestia-express",
         "nestia-fastify",
+        "fastify",
         "NestJS-express",
         "NestJS-fastify",
-        "fastify",
     ];
 }

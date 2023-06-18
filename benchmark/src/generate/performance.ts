@@ -105,11 +105,12 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
             return [
                 `import typia from "typia";`,
                 ``,
+                `import { Collection } from "../../../../structures/pure/Collection";`,
                 `import { ${type} } from "../../../../structures/pure/${type}";`,
                 `import { ${program} } from "../${program}";`,
                 ``,
                 `${program}(37_002)(`,
-                `    typia.application<[${type}], "swagger">()`,
+                `    typia.application<[Collection<${type}>], "ajv">()`,
                 `);`,
             ].join("\n");
         },

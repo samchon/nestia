@@ -1,8 +1,9 @@
 import typia from "typia";
 
+import { Collection } from "../../../../structures/pure/Collection";
 import { ArrayHierarchical } from "../../../../structures/pure/ArrayHierarchical";
 import { createAjvAssertProgram } from "../createAjvAssertProgram";
 
 createAjvAssertProgram(37_002)(
-    typia.application<[ArrayHierarchical], "swagger">(),
+    typia.application<[Collection<ArrayHierarchical>], "ajv">()
 );

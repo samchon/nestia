@@ -1,35 +1,24 @@
-import { Controller, HttpException, Module, Post } from "@nestjs/common";
+import { Controller, Module, Post } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import {
     FastifyAdapter,
     NestFastifyApplication,
 } from "@nestjs/platform-fastify";
-import Ajv from "ajv";
 import tgrid from "tgrid";
 import typia from "typia";
 
+import { FastifyBody } from "../../internal/FastifyBody";
 import { FastifyRoute } from "../../internal/FastifyRoute";
-import { getFastifyComponents } from "../../internal/getFastifyComponents";
 import { IPerformanceServerProgram } from "../IPerformanceServerProgram";
 
 export const createAjvPerformanceProgram =
     (port: number) => async (doc: typia.IJsonApplication) => {
-        const validate = new Ajv({
-            strict: true,
-            strictSchema: false,
-            schemas: getFastifyComponents(doc),
-        }).compile(doc.schemas[0]);
-
         @Controller()
         class PerformanceController {
             @FastifyRoute(doc)(Post)("performance")
-            public async performance(input: any): Promise<any> {
-                const success = validate(input);
-                if (success === false)
-                    throw new HttpException(
-                        validate.errors![0].message ?? "Unknown",
-                        400,
-                    );
+            public async performance(
+                @FastifyBody(doc) input: any,
+            ): Promise<any> {
                 return input;
             }
         }

@@ -8,9 +8,7 @@ createNestFastifyAssertProgram(true)(37_021)(
         @Controller()
         class NestJsController {
             @Post("assert")
-            public assert(@Body() input: ClassValidatorArrayRecursiveUnionExplicit): void {
-                input;
-            }
+            public assert(@Body() _input: ClassValidatorArrayRecursiveUnionExplicit): void {}
         }
         return NestJsController;
     },

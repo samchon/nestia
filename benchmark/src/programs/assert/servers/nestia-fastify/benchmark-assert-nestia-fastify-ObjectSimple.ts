@@ -1,4 +1,4 @@
-import { Controller } from "@nestjs/common";
+import { Controller, Post } from "@nestjs/common";
 
 import core from "@nestia/core";
 
@@ -9,10 +9,8 @@ import { createNestFastifyAssertProgram } from "../createNestFastifyAssertProgra
 createNestFastifyAssertProgram(false)(37_022)(() => {
     @Controller()
     class NestiaController {
-        @core.TypedRoute.Post("assert")
-        public assert(@core.TypedBody() input: Collection<ObjectSimple>): void {
-            input;
-        }
+        @Post("assert")
+        public assert(@core.TypedBody() _input: Collection<ObjectSimple>): void {}
     }
     return NestiaController;
 });
