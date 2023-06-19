@@ -58,13 +58,14 @@ export namespace TestValidator {
      * Otherwise you wanna non equals validator, combine with {@link error}.
      *
      * @param title Title of error message when different
+     * @param exception Exception filter for ignoring some keys
      * @returns Currying function
      */
     export const equals =
-        (title: string) =>
+        (title: string, exception: (key: string) => boolean = () => false) =>
         <T>(x: T) =>
         (y: T) => {
-            const diff: string[] = json_equal_to(x, y);
+            const diff: string[] = json_equal_to(exception)(x)(y);
             if (diff.length)
                 throw new Error(
                     `Bug on ${title}: found different values - [${diff.join(
