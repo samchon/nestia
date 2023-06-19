@@ -62,4 +62,4 @@ Check out the document in the [website](https://nestia.io/docs/):
     - [Swagger Documents](https://nestia.io/docs/sdk/swagger/)
     - [SDK Library](https://nestia.io/docs/sdk/sdk/)
     - [E2E Functions](https://nestia.io/docs/sdk/e2e/)
-    - [Simulation Mode](https://nestia.io/docs/sdk/simulation/)
+    - [Modeup Simulator](https://nestia.io/docs/sdk/simulator/)
