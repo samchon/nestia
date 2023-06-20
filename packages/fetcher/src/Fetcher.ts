@@ -78,6 +78,7 @@ export class Fetcher {
         //----
         // METHOD & HEADERS
         const init: RequestInit = {
+            ...(connection.options ?? {}),
             method,
             headers:
                 encrypted.request === false &&
@@ -88,7 +89,6 @@ export class Fetcher {
                           "Content-Type": "application/json",
                       }
                     : connection.headers ?? {},
-            credentials: connection.credentials,
         };
         if (encrypted.request || typeof input === "string")
             (init.headers as Record<string, string>)["Content-Type"] =

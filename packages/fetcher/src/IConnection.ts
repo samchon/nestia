@@ -14,6 +14,7 @@ import { IRandomGenerator } from "./IRandomGenerator";
  * or {@link IEncryptionPassword.Closure} variable.
  *
  * @author Jenogho Nam - https://github.com/samchon
+ * @author Seungjun We - https://github.com/SeungjunWe
  */
 export interface IConnection {
     /**
@@ -49,7 +50,88 @@ export interface IConnection {
     simulate?: boolean | Partial<IRandomGenerator>;
 
     /**
-     * A string indicating whether credentials will be sent with the request always, never, or only when sent to a same-origin URL. Sets request's credentials.
+     * Additional options for the `fetch` function.
      */
-    credentials?: "omit" | "same-origin" | "include";
+    options?: IConnection.IOptions;
+}
+export namespace IConnection {
+    /**
+     * Addiotional options for the `fetch` function.
+     *
+     * Almost same with {@link RequestInit} type of the {@link fetch} function,
+     * but `body`, `headers` and `method` properties are omitted.
+     *
+     * The reason why defining duplicated definition of {@link RequestInit}
+     * is for legacy NodeJS environments, which does not have the {@link fetch}
+     * function type.
+     */
+    export interface IOptions {
+        /**
+         * A string indicating how the request will interact with the browser's
+         * cache to set request's cache.
+         */
+        cache?:
+            | "default"
+            | "force-cache"
+            | "no-cache"
+            | "no-store"
+            | "only-if-cached"
+            | "reload";
+
+        /**
+         * A string indicating whether credentials will be sent with the request
+         * always, never, or only when sent to a same-origin URL. Sets request's
+         * credentials.
+         */
+        credentials?: "omit" | "same-origin" | "include";
+
+        /**
+         * A cryptographic hash of the resource to be fetched by request.
+         *
+         * Sets request's integrity.
+         */
+        integrity?: string;
+
+        /**
+         * A boolean to set request's keepalive.
+         */
+        keepalive?: boolean;
+
+        /**
+         * A string to indicate whether the request will use CORS, or will be
+         * restricted to same-origin URLs.
+         *
+         * Sets request's mode.
+         */
+        mode?: "cors" | "navigate" | "no-cors" | "same-origin";
+
+        /**
+         * A string indicating whether request follows redirects, results in
+         * an error upon encountering a redirect, or returns the redirect
+         * (in an opaque fashion).
+         *
+         * Sets request's redirect.
+         */
+        redirect?: "error" | "follow" | "manual";
+
+        /**
+         * A string whose value is a same-origin URL, "about:client", or the
+         * empty string, to set request's referrer.
+         */
+        referrer?: string;
+
+        /**
+         * A referrer policy to set request's referrerPolicy.
+         */
+        referrerPolicy?:
+            | ""
+            | "no-referrer"
+            | "no-referrer-when-downgrade"
+            | "origin"
+            | "origin-when-cross-origin"
+            | "same-origin"
+            | "strict-origin"
+            | "strict-origin-when-cross-origin"
+            | "unsafe-url";
+    }
 }
