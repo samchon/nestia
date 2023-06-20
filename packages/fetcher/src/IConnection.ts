@@ -47,4 +47,9 @@ export interface IConnection {
      * @default false
      */
     simulate?: boolean | Partial<IRandomGenerator>;
+
+    /**
+     * A string indicating whether credentials will be sent with the request always, never, or only when sent to a same-origin URL. Sets request's credentials.
+     */
+    credentials?: RequestCredentials;
 }
