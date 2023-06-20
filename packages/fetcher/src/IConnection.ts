@@ -51,5 +51,5 @@ export interface IConnection {
     /**
      * A string indicating whether credentials will be sent with the request always, never, or only when sent to a same-origin URL. Sets request's credentials.
      */
-    credentials?: RequestCredentials;
+    credentials?: "omit" | "same-origin" | "include";
 }
