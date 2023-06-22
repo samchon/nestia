@@ -1,5 +1,6 @@
 import fs from "fs";
 import NodePath from "path";
+import { IPointer } from "tstl";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
@@ -33,6 +34,7 @@ export namespace SdkGenerator {
             const bundle: string[] = await fs.promises.readdir(BUNDLE_PATH);
             for (const file of bundle) {
                 const current: string = `${BUNDLE_PATH}/${file}`;
+                const target: string = `${config.output}/${file}`;
                 const stats: fs.Stats = await fs.promises.stat(current);
 
                 if (stats.isFile() === true) {
@@ -40,12 +42,16 @@ export namespace SdkGenerator {
                         current,
                         "utf8",
                     );
-                    if (file !== "index.ts" || fs.existsSync(`${config.output}/${file}`) === false)
-                        await fs.promises.writeFile(
-                            `${config.output}/${file}`,
-                            content,
-                            "utf8",
-                        );
+                    if (fs.existsSync(target) === false)
+                        await fs.promises.writeFile(target, content, "utf8");
+                    else if (BUNDLE_CHANGES[file] !== undefined) {
+                        const r: IPointer<string> = {
+                            value: await fs.promises.readFile(target, "utf8"),
+                        };
+                        for (const [before, after] of BUNDLE_CHANGES[file])
+                            r.value = r.value.replace(before, after);
+                        await fs.promises.writeFile(target, r.value, "utf8");
+                    }
                 }
             }
             if (
@@ -95,3 +101,22 @@ const is_implicit_return_typed = (route: IRoute): boolean => {
     return true;
 };
 const VARIABLE = /[a-zA-Z_$0-9]/;
+
+const BUNDLE_CHANGES: Record<string, [string, string][]> = {
+    "IConnection.ts": [
+        [
+            `export { IConnection } from "@nestia/fetcher"`,
+            `export type { IConnection } from "@nestia/fetcher"`,
+        ],
+    ],
+    "module.ts": [
+        [`export * from "./IConnection"`, `export type * from "./IConnection"`],
+        [`export * from "./Primitive"`, `export type * from "./Primitive"`],
+    ],
+    "Primitive.ts": [
+        [
+            `export { Primitive } from "@nestia/fetcher"`,
+            `export type { Primitive } from "@nestia/fetcher"`,
+        ],
+    ],
+};
