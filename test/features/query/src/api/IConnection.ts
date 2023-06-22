@@ -1,1 +1,1 @@
-export { IConnection } from "@nestia/fetcher";
+export type { IConnection } from "@nestia/fetcher";

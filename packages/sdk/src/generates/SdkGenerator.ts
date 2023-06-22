@@ -40,7 +40,7 @@ export namespace SdkGenerator {
                         current,
                         "utf8",
                     );
-                    if (fs.existsSync(`${config.output}/${file}`) === false)
+                    if (file !== "index.ts" || fs.existsSync(`${config.output}/${file}`) === false)
                         await fs.promises.writeFile(
                             `${config.output}/${file}`,
                             content,
