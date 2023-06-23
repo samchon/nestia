@@ -1,4 +1,5 @@
 import fs from "fs";
+import PHYSICAL_CPU_COUNT from "physical-cpu-count";
 import tgrid from "tgrid";
 import { Driver } from "tgrid/components/Driver";
 
@@ -89,13 +90,10 @@ export namespace BenchmarkServer {
                 null,
                 "process",
             );
-            await connector.connect(file, {
-                execArgv: ["--max-old-space-size=16000"],
-            });
+            await connector.connect(file);
 
             const result: IBenchmarkProgram.IMeasurement | null =
                 await measureProgram(type)(factory)(connector.getDriver());
-
             await connector.close();
             return result;
         };

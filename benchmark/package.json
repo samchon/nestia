@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rimraf bin && tsc",
     "generate": "ts-node src/generate",
-    "start": "npm run build && node bin --max-old-space-size=16000",
+    "start": "npm run build && node bin",
     "prepare": "ts-patch install"
   },
   "repository": {
