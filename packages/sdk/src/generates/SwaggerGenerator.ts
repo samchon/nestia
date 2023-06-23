@@ -205,8 +205,10 @@ export namespace SwaggerGenerator {
             const content: string = description.substring(0, index).trim();
             return content.length ? content : undefined;
         })();
+        const deprecated = route.tags.find((tag) => tag.name === "deprecated");
 
         return {
+            deprecated: deprecated ? true : undefined,
             tags: getTagTexts("tag"),
             parameters: route.parameters
                 .filter((param) => param.category !== "body")
