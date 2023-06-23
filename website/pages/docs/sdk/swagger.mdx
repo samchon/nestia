@@ -432,7 +432,7 @@ Swagger generator `@nestia/sdk` supports three comment tags for controller metho
   - `@deprecated`: mark as `deprecated`
   - `@internal`: hide, never be shown
   - `@tag {name}`: grouppig
-  - `@summery` : short description of endpoint
+  - `@summary` : short description of endpoint
     - Can be replaced by top sentence ends with `.` symbol
 
 At first, `@internal` tag is used to hide the controller method from the Swagger Documents. When you use it, the controller method would not be written in the `swagger.json` file. Otherwise, the `@deprecated` tag is used to mark the controller method as deprecated. When you use it, Swagger Editor will show the deprecated message about the route method like below.
