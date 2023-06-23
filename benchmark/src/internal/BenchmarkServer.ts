@@ -1,4 +1,6 @@
 import fs from "fs";
+import os from "os";
+import PHYSICAL_CPU_COUNT from "physical-cpu-count";
 import tgrid from "tgrid";
 import { Driver } from "tgrid/components/Driver";
 
@@ -89,10 +91,17 @@ export namespace BenchmarkServer {
                 null,
                 "process",
             );
-            await connector.connect(file, {
-                execArgv: ["--max-old-space-size=16000"],
-            });
+            const memory = Math.max(
+                4_000,
+                Math.min(
+                    PHYSICAL_CPU_COUNT * 2_000,
+                    os.totalmem() / 1_000_000 / 1.5,
+                ),
+            );
 
+            await connector.connect(file, {
+                execArgv: [`--max-old-space-size=${memory}`],
+            });
             const result: IBenchmarkProgram.IMeasurement | null =
                 await measureProgram(type)(factory)(connector.getDriver());
 
