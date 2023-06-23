@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rimraf bin && tsc",
     "generate": "ts-node src/generate",
-    "start": "npm run build && node bin",
+    "start": "npm run build && node bin --max-old-space-size=16000",
     "prepare": "ts-patch install"
   },
   "repository": {
@@ -42,6 +42,7 @@
     "jsdom": "^22.0.0",
     "physical-cpu-count": "^2.0.0",
     "prettier": "^2.8.8",
+    "rimraf": "^5.0.1",
     "tgrid": "^0.8.7",
     "ts-node": "^10.9.1",
     "ts-patch": "^3.0.0",

@@ -89,7 +89,9 @@ export namespace BenchmarkServer {
                 null,
                 "process",
             );
-            await connector.connect(file);
+            await connector.connect(file, {
+                execArgv: ["--max-old-space-size=16000"],
+            });
 
             const result: IBenchmarkProgram.IMeasurement | null =
                 await measureProgram(type)(factory)(connector.getDriver());
