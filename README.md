@@ -63,3 +63,7 @@ Check out the document in the [website](https://nestia.io/docs/):
     - [SDK Library](https://nestia.io/docs/sdk/sdk/)
     - [E2E Functions](https://nestia.io/docs/sdk/e2e/)
     - [Mockup Simulator](https://nestia.io/docs/sdk/simulator/)
+
+### 🔗 Appendix
+  - [⇲ Benchmark Result](https://github.com/samchon/nestia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz)
+  - [⇲ `dev.to` Articles](https://dev.to/samchon/series/22751)
