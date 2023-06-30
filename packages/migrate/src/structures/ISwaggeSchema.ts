@@ -1,17 +1,17 @@
-export type ISwaggerSchema = 
+export type ISwaggerSchema =
     // union types
-    ISwaggerSchema.IAnyOf |
-    ISwaggerSchema.IOneOf |
+    | ISwaggerSchema.IAnyOf
+    | ISwaggerSchema.IOneOf
     // atomic types
-    ISwaggerSchema.IBoolean |
-    ISwaggerSchema.INumber |
-    ISwaggerSchema.IString |
+    | ISwaggerSchema.IBoolean
+    | ISwaggerSchema.INumber
+    | ISwaggerSchema.IString
     // instance types
-    ISwaggerSchema.IArray |
-    ISwaggerSchema.IObject |
-    ISwaggerSchema.IRecursive |
+    | ISwaggerSchema.IArray
+    | ISwaggerSchema.IObject
+    | ISwaggerSchema.IRecursive
     // any type
-    ISwaggerSchema.IUnknown;
+    | ISwaggerSchema.IUnknown;
 export namespace ISwaggerSchema {
     export interface IAnyOf extends IAttribute {
         anyOf: ISwaggerSchema[];
@@ -78,5 +78,7 @@ export namespace ISwaggerSchema {
         title?: string;
         description?: string;
         deprecated?: boolean;
+        "x-typia-optional"?: boolean;
+        "x-typia-rest"?: boolean;
     }
 }
