@@ -1,18 +1,18 @@
 export type ISwaggerSchema =
-    // union types
+    | ISwaggerSchema.IUnknown
     | ISwaggerSchema.IAnyOf
     | ISwaggerSchema.IOneOf
-    // atomic types
     | ISwaggerSchema.IBoolean
+    | ISwaggerSchema.IInteger
     | ISwaggerSchema.INumber
     | ISwaggerSchema.IString
-    // instance types
     | ISwaggerSchema.IArray
     | ISwaggerSchema.IObject
-    | ISwaggerSchema.IRecursive
-    // any type
-    | ISwaggerSchema.IUnknown;
+    | ISwaggerSchema.IReference;
 export namespace ISwaggerSchema {
+    export interface IUnknown extends IAttribute {
+        type?: undefined;
+    }
     export interface IAnyOf extends IAttribute {
         anyOf: ISwaggerSchema[];
     }
@@ -22,9 +22,11 @@ export namespace ISwaggerSchema {
 
     export interface IBoolean extends ISignificant<"boolean"> {
         default?: boolean;
+        enum?: boolean[];
     }
     export interface IInteger extends ISignificant<"integer"> {
-        default?: number;
+        /** @type int */ default?: number;
+        /** @type int */ enum?: number[];
         /** @type int */ minimum?: number;
         /** @type int */ maximum?: number;
         /** @type int */ exclusiveMinimum?: boolean;
@@ -33,6 +35,7 @@ export namespace ISwaggerSchema {
     }
     export interface INumber extends ISignificant<"number"> {
         default?: number;
+        enum?: number[];
         minimum?: number;
         maximum?: number;
         exclusiveMinimum?: boolean;
@@ -41,6 +44,7 @@ export namespace ISwaggerSchema {
     }
     export interface IString extends ISignificant<"string"> {
         default?: string;
+        enum?: string[];
         format?: string;
         pattern?: string;
         /** @type uint */ minLength?: number;
@@ -63,11 +67,8 @@ export namespace ISwaggerSchema {
         "x-typia-patternProperties"?: Record<string, ISwaggerSchema>;
     }
 
-    export interface IRecursive extends IAttribute {
+    export interface IReference extends IAttribute {
         $ref: string;
-    }
-    export interface IUnknown extends IAttribute {
-        type?: undefined;
     }
 
     interface ISignificant<Type extends string> extends IAttribute {
