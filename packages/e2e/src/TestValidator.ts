@@ -142,6 +142,25 @@ export namespace TestValidator {
             }
         };
 
+    export function proceed(task: () => Promise<any>): Promise<Error | null>;
+    export function proceed(task: () => any): Error | null;
+    export function proceed(
+        task: () => any,
+    ): Promise<Error | null> | (Error | null) {
+        try {
+            const output: any = task();
+            if (is_promise(output))
+                return new Promise<Error | null>((resolve) =>
+                    output
+                        .catch((exp) => resolve(exp as Error))
+                        .then(() => resolve(null)),
+                );
+        } catch (exp) {
+            return exp as Error;
+        }
+        return null;
+    }
+
     /**
      * Validate index API.
      *
