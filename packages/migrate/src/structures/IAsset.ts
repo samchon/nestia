@@ -1,6 +1,8 @@
+import { IProgramController } from "./IProgramController";
 import { ISwagger } from "./ISwagger";
 
 export interface IAsset {
     swagger: ISwagger;
-    output: string;
+    controllers: IProgramController[];
+    schemas: string[];
 }

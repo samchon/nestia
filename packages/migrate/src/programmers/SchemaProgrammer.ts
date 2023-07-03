@@ -86,7 +86,7 @@ export namespace SchemaProgrammer {
                       .join(", ")}]`
                 : `Array<${writeSchema(tagger)(schema.items)}>`;
     const writeTupleElement = (schema: ISwaggerSchema): string => {
-        const name: string = write(schema);
+        const name: string = writeSchema(() => () => {})(schema);
         return schema["x-typia-optional"]
             ? `${name}?`
             : schema["x-typia-rest"]
