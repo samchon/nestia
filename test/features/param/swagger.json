@@ -223,6 +223,7 @@
             "in": "path",
             "description": "",
             "schema": {
+              "format": "uuid",
               "type": "string"
             },
             "required": true
@@ -254,6 +255,7 @@
             "in": "path",
             "description": "",
             "schema": {
+              "format": "date",
               "type": "string"
             },
             "required": true
@@ -285,6 +287,7 @@
             "in": "path",
             "description": "",
             "schema": {
+              "format": "uuid",
               "type": "string",
               "nullable": true
             },
@@ -318,6 +321,7 @@
             "in": "path",
             "description": "",
             "schema": {
+              "format": "date",
               "type": "string",
               "nullable": true
             },
