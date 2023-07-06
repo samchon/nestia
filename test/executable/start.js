@@ -99,6 +99,17 @@ const execute = (name) => {
         cp.execSync("npx ts-node src/test", { stdio: "ignore" });
 };
 
+const migrate = (name) => {
+    const swagger = `${__dirname}/../features/${name}/swagger.json`;
+    cp.execSync(
+        `npx @nestia/migrate ${swagger} ${name}`, 
+        { 
+            stdio: 'inherit', 
+            cwd: __dirname + "/../migrated" 
+        }
+    );
+}
+
 const main = async () => {
     const measure = (title) => async (task) => {
         const time = Date.now();
@@ -132,16 +143,29 @@ const main = async () => {
             })
         }
 
-        console.log("\nTest Features");
         const only = (() => {
             const index = process.argv.findIndex(str => str === "--only");
             return (index === -1 || process.argv.length < index + 2)
                 ? null
                 : process.argv[index + 1] ?? null;
         })();
-        for (const name of await fs.promises.readdir(feature("")))
-            if (name === (only ?? name))
-                await measure("")(async () => execute(name));
+
+        console.log("\nTest Features");
+        if (!process.argv.includes("--skipFeatures")) {
+            for (const name of await fs.promises.readdir(feature("")))
+                if (name === (only ?? name))
+                    await measure(name)(async () => execute(name));
+        }
+
+        console.log("\nMigration Tests");
+        if (!process.argv.includes("--skipMigrate")) {
+            if (fs.existsSync(`${__dirname}/../migrated`))
+                fs.rmSync(`${__dirname}/../migrated`, { recursive: true });
+            fs.mkdirSync(`${__dirname}/../migrated`);
+            for (const name of await fs.promises.readdir(feature("")))
+                if (name === (only ?? name) && !name.includes("error"))
+                    await measure(name)(async () => migrate(name));
+        }
     });
 };
 

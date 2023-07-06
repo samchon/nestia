@@ -150,9 +150,9 @@ export namespace ControllerProgrammer {
         return [
             `import core from "@nestia/core";`,
             `import { Controller } from "@nestjs/common";`,
+            ...(typia ? [`import typia from "typia";`] : []),
             "",
-            ...(typia ? [`import typia from "typia";`, "\n"] : []),
-            ...(imports.length ? [...imports, "\n"] : []),
+            ...(imports.length ? [...imports, ""] : []),
             body,
         ].join("\n");
     };
