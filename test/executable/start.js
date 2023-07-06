@@ -104,7 +104,7 @@ const migrate = (name) => {
     cp.execSync(
         `npx @nestia/migrate ${swagger} ${name}`, 
         { 
-            stdio: 'inherit', 
+            stdio: 'ignore', 
             cwd: __dirname + "/../migrated" 
         }
     );
