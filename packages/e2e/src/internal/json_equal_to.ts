@@ -1,37 +1,38 @@
-function array_equal_to(
-    items: string[],
-    name: string,
-    x: any[],
-    y: any[],
-): void {
-    if (x.length !== y.length) items.push(`${name}.length`);
-    x.forEach((xItem, i) => any_equal_to(items, `${name}[${i}]`, xItem, y[i]));
-}
+export const json_equal_to =
+    (exception: (key: string) => boolean) =>
+    <T>(x: T) =>
+    (y: T): string[] => {
+        const container: string[] = [];
+        const iterate =
+            (accessor: string) =>
+            (x: any) =>
+            (y: any): void => {
+                if (typeof x !== typeof y) container.push(accessor);
+                else if (x instanceof Array)
+                    if (!(y instanceof Array)) container.push(accessor);
+                    else array(accessor)(x)(y);
+                else if (x instanceof Object) object(accessor)(x)(y);
+                else if (x !== y) container.push(accessor);
+            };
+        const array =
+            (accessor: string) =>
+            (x: any[]) =>
+            (y: any[]): void => {
+                if (x.length !== y.length) container.push(`${accessor}.length`);
+                x.forEach((xItem, i) =>
+                    iterate(`${accessor}[${i}]`)(xItem)(y[i]),
+                );
+            };
+        const object =
+            (accessor: string) =>
+            (x: any) =>
+            (y: any): void =>
+                Object.keys(x)
+                    .filter((key) => x[key] !== undefined && !exception(key))
+                    .forEach((key) =>
+                        iterate(`${accessor}.${key}`)(x[key])(y[key]),
+                    );
 
-function object_equal_to(
-    items: string[],
-    name: string,
-    x: any,
-    y: any,
-): boolean {
-    for (const key in x) {
-        if (key.substr(-2) === "id" || key.substr(-3) === "_at") continue;
-        any_equal_to(items, `${name}.${key}`, x[key], y[key]);
-    }
-    return true;
-}
-
-function any_equal_to(items: string[], name: string, x: any, y: any): void {
-    if (typeof x !== typeof y) items.push(name);
-    else if (x instanceof Array)
-        if (!(y instanceof Array)) items.push(name);
-        else array_equal_to(items, name, x, y);
-    else if (x instanceof Object) object_equal_to(items, name, x, y);
-    else if (x !== y) items.push(name);
-}
-
-export function json_equal_to<T>(x: T, y: T): string[] {
-    const ret: string[] = [];
-    any_equal_to(ret, "", x, y);
-    return ret;
-}
+        iterate("")(x)(y);
+        return container;
+    };

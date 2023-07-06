@@ -6,7 +6,7 @@ import { Collection } from "../../../../structures/pure/Collection";
 import { ObjectUnionExplicit } from "../../../../structures/pure/ObjectUnionExplicit";
 import { createNestExpressStringifyProgram } from "../createNestExpressStringifyProgram";
 
-createNestExpressStringifyProgram(false)(37_011)((input: Collection<ObjectUnionExplicit>) => {
+createNestExpressStringifyProgram(false)(37_012)((input: Collection<ObjectUnionExplicit>) => {
     @Controller()
     class NestiaController {
         @core.TypedRoute.Get("stringify")

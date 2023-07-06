@@ -14,11 +14,10 @@ export const createNestFastifyStringifyProgram =
     (transform: boolean) =>
     (port: number) =>
     async <T>(controller: (input: Collection<T>) => any) => {
-        const app: IPointer<NestFastifyApplication | null> = { value: null };
-
+        const server: IPointer<NestFastifyApplication | null> = { value: null };
         const provider: IStringifyServerProgram<any> = {
             open: async (input) => {
-                app.value = await NestFactory.create<NestFastifyApplication>(
+                server.value = await NestFactory.create<NestFastifyApplication>(
                     (() => {
                         @Module({
                             controllers: [controller(input)],
@@ -30,12 +29,14 @@ export const createNestFastifyStringifyProgram =
                     { logger: false },
                 );
                 if (transform)
-                    app.value.useGlobalPipes(new ValidationPipe({ transform }));
-                await app.value.listen(port);
+                    server.value.useGlobalPipes(
+                        new ValidationPipe({ transform }),
+                    );
+                await server.value.listen(port);
                 return port;
             },
             close: async () => {
-                if (app.value) await app.value.close();
+                if (server.value) await server.value.close();
             },
         };
 

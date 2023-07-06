@@ -6,7 +6,7 @@ import { Collection } from "../../../../structures/pure/Collection";
 import { ObjectRecursive } from "../../../../structures/pure/ObjectRecursive";
 import { createNestExpressStringifyProgram } from "../createNestExpressStringifyProgram";
 
-createNestExpressStringifyProgram(false)(37_011)((input: Collection<ObjectRecursive>) => {
+createNestExpressStringifyProgram(false)(37_012)((input: Collection<ObjectRecursive>) => {
     @Controller()
     class NestiaController {
         @core.TypedRoute.Get("stringify")

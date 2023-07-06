@@ -40,13 +40,13 @@ export namespace TypedQueryProgrammer {
             else if (metadata.nullable === true)
                 throw new Error(
                     ErrorMessages.object(metadata)(
-                        "target type T cannot be null.",
+                        "query parameter cannot be null.",
                     ),
                 );
             else if (metadata.required === false)
                 throw new Error(
                     ErrorMessages.object(metadata)(
-                        "target type T cannot be undefined.",
+                        "query parameter cannot be undefined.",
                     ),
                 );
 
@@ -237,7 +237,7 @@ export namespace TypedQueryProgrammer {
 
 namespace ErrorMessages {
     export const object = (type: Metadata) => (message: string) =>
-        `Error on nestia.core.TypedQuery<${type}>(): ${message}`;
+        `Error on nestia.core.TypedQuery<${type.getName()}>(): ${message}`;
 
     export const property =
         (obj: MetadataObject) => (key: Metadata) => (message: string) =>

@@ -81,6 +81,7 @@ export namespace ISwaggerDocument {
     --------------------------------------------------------- */
     export type IPath = Record<string, IRoute>;
     export interface IRoute {
+        deprecated?: boolean;
         tags: string[];
         parameters: IParameter[];
         requestBody?: IRequestBody;

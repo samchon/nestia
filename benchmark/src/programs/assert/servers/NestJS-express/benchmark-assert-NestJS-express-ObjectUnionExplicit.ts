@@ -8,9 +8,7 @@ createNestExpressAssertProgram(true)(37_011)(
         @Controller()
         class NestJsController {
             @Post("assert")
-            public assert(@Body() input: ClassValidatorObjectUnionExplicit): void {
-                input;
-            }
+            public assert(@Body() _input: ClassValidatorObjectUnionExplicit): void {}
         }
         return NestJsController;
     },

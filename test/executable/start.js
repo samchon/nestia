@@ -62,6 +62,10 @@ const execute = (name) => {
             return;
         }
     }
+    else if (name === "verbatimModuleSyntax") {
+        cp.execSync("npx tsc");
+        return;
+    }
 
     // GENERATE SWAGGER & SDK & E2E
     for (const file of [

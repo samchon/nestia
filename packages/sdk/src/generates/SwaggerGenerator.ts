@@ -205,8 +205,10 @@ export namespace SwaggerGenerator {
             const content: string = description.substring(0, index).trim();
             return content.length ? content : undefined;
         })();
+        const deprecated = route.tags.find((tag) => tag.name === "deprecated");
 
         return {
+            deprecated: deprecated ? true : undefined,
             tags: getTagTexts("tag"),
             parameters: route.parameters
                 .filter((param) => param.category !== "body")
@@ -292,12 +294,14 @@ export namespace SwaggerGenerator {
                 `Error on NestiaApplication.swagger(): invalid parameter type on ${route.symbol}#${parameter.name}`,
             );
         else if (
+            parameter.category === "param" &&
             !!parameter.meta &&
-            (schema as IJsonSchema.IString).type === "string"
+            (parameter.meta.type === "date" ||
+                parameter.meta.type === "uuid") &&
+            schema !== null
         ) {
             const string: IJsonSchema.IString = schema as IJsonSchema.IString;
-            if (parameter.meta.type === "uuid") string.format = "uuid";
-            else if (parameter.meta.type === "date") string.format = "date";
+            string.format = parameter.meta.type;
         }
 
         return {

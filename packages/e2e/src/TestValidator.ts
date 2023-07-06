@@ -58,13 +58,14 @@ export namespace TestValidator {
      * Otherwise you wanna non equals validator, combine with {@link error}.
      *
      * @param title Title of error message when different
+     * @param exception Exception filter for ignoring some keys
      * @returns Currying function
      */
     export const equals =
-        (title: string) =>
+        (title: string, exception: (key: string) => boolean = () => false) =>
         <T>(x: T) =>
         (y: T) => {
-            const diff: string[] = json_equal_to(x, y);
+            const diff: string[] = json_equal_to(exception)(x)(y);
             if (diff.length)
                 throw new Error(
                     `Bug on ${title}: found different values - [${diff.join(
@@ -140,6 +141,25 @@ export namespace TestValidator {
                 return undefined!;
             }
         };
+
+    export function proceed(task: () => Promise<any>): Promise<Error | null>;
+    export function proceed(task: () => any): Error | null;
+    export function proceed(
+        task: () => any,
+    ): Promise<Error | null> | (Error | null) {
+        try {
+            const output: any = task();
+            if (is_promise(output))
+                return new Promise<Error | null>((resolve) =>
+                    output
+                        .catch((exp) => resolve(exp as Error))
+                        .then(() => resolve(null)),
+                );
+        } catch (exp) {
+            return exp as Error;
+        }
+        return null;
+    }
 
     /**
      * Validate index API.

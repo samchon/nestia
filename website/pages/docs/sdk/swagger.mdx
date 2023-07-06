@@ -432,39 +432,640 @@ Swagger generator `@nestia/sdk` supports three comment tags for controller metho
   - `@deprecated`: mark as `deprecated`
   - `@internal`: hide, never be shown
   - `@tag {name}`: grouppig
+  - `@summary` : short description of endpoint
 
 At first, `@internal` tag is used to hide the controller method from the Swagger Documents. When you use it, the controller method would not be written in the `swagger.json` file. Otherwise, the `@deprecated` tag is used to mark the controller method as deprecated. When you use it, Swagger Editor will show the deprecated message about the route method like below.
 
+Also, the `@summary` tag is used to write short description of the endpoint. By the way, the `@summary` tag can be replaced by writing top sentence ends with `.` symbol.
+
 At last, `@tag {name}` tag is used for groupping.
 
-```typescript
-@Controller("some")
-export class SomeController {
+<Tabs items={['Controller', 'Swagger Documents']}>
+    <Tab>
+```typescript filename="Controller" showLineNumbers {13-14, 32, 43, 63}
+import { Controller } from "@nestjs/common";
+import typia from "typia";
+
+import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
+
+import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+
+@Controller("bbs/articles/:section")
+export class BbsArticlesController {
     /**
      * Would be shown without any mark.
-     * 
+     *
      * @tag public
+     * @summary Public API
+     * @param section Section code
+     * @param input Content to store
+     * @returns Newly archived article
      */
-    @Get("public")
-    public public(): void {}
+    @TypedRoute.Post()
+    public async store(
+        @TypedParam("section") section: string,
+        @TypedBody() input: IBbsArticle.IStore,
+    ): Promise<IBbsArticle> {
+        return {
+            ...typia.random<IBbsArticle>(),
+            ...input,
+            section,
+        };
+    }
 
     /**
-     * Would be marked as "deprecated"
-     * 
-     * @tag public
+     * Deprecated API.
+     *
+     * Would be marked as "deprecated".
+     *
+     * For reference, top sentence "Deprecated API." can replace the `@summary` tag.
+     *
+     * @param section Section code
+     * @param id Target article ID
+     * @param input Content to update
+     * @returns Updated content
+     *
+     * @deprecated
      */
-    @Get("deprecated")
-    public deprepcated(): void {}
+    @TypedRoute.Put(":id")
+    public async update(
+        @TypedParam("section") section: string,
+        @TypedParam("id", "uuid") id: string,
+        @TypedBody() input: IBbsArticle.IStore,
+    ): Promise<IBbsArticle> {
+        return {
+            ...typia.random<IBbsArticle>(),
+            ...input,
+            id,
+            section,
+        };
+    }
 
     /**
      * Would not be shown.
-     * 
+     *
      * @internal
      */
-    @Get("internal")
-    public internal(): void {}
+    @TypedRoute.Delete(":id")
+    public erase(
+        @TypedParam("section") section: string,
+        @TypedParam("id", "uuid") id: string,
+    ): void {
+        section;
+        id;
+    }
 }
 ```
+    </Tab>
+    <Tab>
+```json filename="swagger.json" showLineNumbers {17-19, 56, 126, 173}
+{
+  "openapi": "3.0.1",
+  "servers": [
+    {
+      "url": "https://github.com/samchon/nestia",
+      "description": "insert your server url"
+    }
+  ],
+  "info": {
+    "version": "0.0.0",
+    "title": "@nestia/test",
+    "description": "Test program of Nestia"
+  },
+  "paths": {
+    "/bbs/articles/{section}": {
+      "post": {
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "section",
+            "in": "path",
+            "description": "Section code",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "Content to store",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
+        "responses": {
+          "201": {
+            "description": "Newly archived article",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "summary": "Public API",
+        "description": "Would be shown without any mark.\n\n@tag public\n@summary Public API\n@param section Section code\n@param input Content to store\n@returns Newly archived article",
+        "x-nestia-namespace": "bbs.articles.store",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "tag",
+            "text": [
+              {
+                "text": "public",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "summary",
+            "text": [
+              {
+                "text": "Public API",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "section",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Section code",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content to store",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "returns",
+            "text": [
+              {
+                "text": "Newly archived article",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "/bbs/articles/{section}/{id}": {
+      "put": {
+        "deprecated": true,
+        "tags": [],
+        "parameters": [
+          {
+            "name": "section",
+            "in": "path",
+            "description": "Section code",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Target article ID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "Content to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
+        "responses": {
+          "201": {
+            "description": "Updated content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "summary": "Deprecated API",
+        "description": "Deprecated API.\n\nWould be marked as \"deprecated\".\n\nFor reference, top sentence \"Deprecated API.\" can replace the `@summary` tag.\n\n@param section Section code\n@param id Target article ID\n@param input Content to update\n@returns Updated content\n\n@deprecated",
+        "x-nestia-namespace": "bbs.articles.update",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "section",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Section code",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "id",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Target article ID",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content to update",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "returns",
+            "text": [
+              {
+                "text": "Updated content",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "deprecated"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IBbsArticle.IStore": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "description": "@minLength 3\n@maxLength 50",
+            "x-typia-metaTags": [
+              {
+                "kind": "minLength",
+                "value": 3
+              },
+              {
+                "kind": "maxLength",
+                "value": 50
+              }
+            ],
+            "x-typia-jsDocTags": [
+              {
+                "name": "minLength",
+                "text": [
+                  {
+                    "text": "3",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "maxLength",
+                "text": [
+                  {
+                    "text": "50",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "files": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "nullable": false,
+        "required": [
+          "title",
+          "body",
+          "files"
+        ],
+        "description": "@minLength 3\n@maxLength 50",
+        "x-typia-jsDocTags": []
+      },
+      "IAttachmentFile": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "@minLengt 1\n@maxLength 255",
+            "x-typia-metaTags": [
+              {
+                "kind": "maxLength",
+                "value": 255
+              }
+            ],
+            "x-typia-jsDocTags": [
+              {
+                "name": "minLengt",
+                "text": [
+                  {
+                    "text": "1",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "maxLength",
+                "text": [
+                  {
+                    "text": "255",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "maxLength": 255,
+            "nullable": true
+          },
+          "extension": {
+            "description": "@minLength 1\n@maxLength 8",
+            "x-typia-metaTags": [
+              {
+                "kind": "minLength",
+                "value": 1
+              },
+              {
+                "kind": "maxLength",
+                "value": 8
+              }
+            ],
+            "x-typia-jsDocTags": [
+              {
+                "name": "minLength",
+                "text": [
+                  {
+                    "text": "1",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "maxLength",
+                "text": [
+                  {
+                    "text": "8",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8,
+            "nullable": true
+          },
+          "url": {
+            "description": "@format url",
+            "x-typia-metaTags": [
+              {
+                "kind": "format",
+                "value": "url"
+              }
+            ],
+            "x-typia-jsDocTags": [
+              {
+                "name": "format",
+                "text": [
+                  {
+                    "text": "url",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "url"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "name",
+          "extension",
+          "url"
+        ],
+        "description": "@format url",
+        "x-typia-jsDocTags": []
+      },
+      "IBbsArticle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "@format uuid",
+            "x-typia-metaTags": [
+              {
+                "kind": "format",
+                "value": "uuid"
+              }
+            ],
+            "x-typia-jsDocTags": [
+              {
+                "name": "format",
+                "text": [
+                  {
+                    "text": "uuid",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "uuid"
+          },
+          "section": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "created_at": {
+            "description": "@format date-time",
+            "x-typia-metaTags": [
+              {
+                "kind": "format",
+                "value": "datetime"
+              }
+            ],
+            "x-typia-jsDocTags": [
+              {
+                "name": "format",
+                "text": [
+                  {
+                    "text": "date-time",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          "title": {
+            "description": "@minLength 3\n@maxLength 50",
+            "x-typia-metaTags": [
+              {
+                "kind": "minLength",
+                "value": 3
+              },
+              {
+                "kind": "maxLength",
+                "value": 50
+              }
+            ],
+            "x-typia-jsDocTags": [
+              {
+                "name": "minLength",
+                "text": [
+                  {
+                    "text": "3",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "maxLength",
+                "text": [
+                  {
+                    "text": "50",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "files": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "nullable": false,
+        "required": [
+          "id",
+          "section",
+          "created_at",
+          "title",
+          "body",
+          "files"
+        ],
+        "description": "@format date-time",
+        "x-typia-jsDocTags": []
+      }
+    }
+  }
+}
+```
+    </Tab>
+</Tabs>
+
+![Swagger Editor](/images/swagger-tags.png)
 
 
 
@@ -496,12 +1097,12 @@ Let's see how those comment tags work with example code.
     - `@maxLength {number}`
     - `@pattern {regex}`
     - `@format {keyword}`
-    - `email`
-    - `uuid`
-    - `ipv4`
-    - `ipv6`
-    - `date`: YYYY-MM-DD
-    - `date-time`: `Date.toISOString()`
+      - `email`
+      - `uuid`
+      - `ipv4`
+      - `ipv6`
+      - `date`: YYYY-MM-DD
+      - `date-time`: `Date.toISOString()`
   - array
     - `@minItems {number}`
     - `@maxItems {number}`

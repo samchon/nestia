@@ -78,6 +78,7 @@ export class Fetcher {
         //----
         // METHOD & HEADERS
         const init: RequestInit = {
+            ...(connection.options ?? {}),
             method,
             headers:
                 encrypted.request === false &&

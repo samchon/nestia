@@ -50,7 +50,7 @@ const shoot =
                     body,
                     workers: Math.min(2, PHYSICAL_CPU_COUNT - 2),
                     timeout: 300,
-                    // connections: 1_000,
+                    connections: 500,
                 },
                 (err, result) => {
                     if (err) reject(err);

@@ -1,4 +1,5 @@
 import fs from "fs";
+import PHYSICAL_CPU_COUNT from "physical-cpu-count";
 import tgrid from "tgrid";
 import { Driver } from "tgrid/components/Driver";
 
@@ -93,7 +94,6 @@ export namespace BenchmarkServer {
 
             const result: IBenchmarkProgram.IMeasurement | null =
                 await measureProgram(type)(factory)(connector.getDriver());
-
             await connector.close();
             return result;
         };
@@ -159,6 +159,7 @@ export namespace BenchmarkServer {
     const LIBARIES: string[] = [
         "nestia-express",
         "nestia-fastify",
+        "fastify",
         "NestJS-express",
         "NestJS-fastify",
     ];
