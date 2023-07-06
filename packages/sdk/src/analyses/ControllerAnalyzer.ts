@@ -252,7 +252,6 @@ export namespace ControllerAnalyzer {
             throw new Error(
                 `Error on ${method}: unnamed parameter type from ${method}#${name}.`,
             );
-
         return {
             name,
             category: param.category,
