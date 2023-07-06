@@ -59,6 +59,10 @@ const iterate = (collection: IMigrateFile[]) => async (location: string) => {
 const archive = async (collection: IMigrateFile[]): Promise<void> => {
     const body: string = JSON.stringify(collection, null, 4);
     const content: string = `export const TEMPLATE = ${body}`;
+
+    try {
+        await fs.promises.mkdir(`${ROOT}/src/bundles`);
+    } catch {}
     await fs.promises.writeFile(`${ROOT}/src/bundles/TEMPLATE.ts`, content);
 };
 

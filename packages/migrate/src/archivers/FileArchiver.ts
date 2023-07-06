@@ -10,6 +10,7 @@ export namespace FileArchiver {
         (operator: IOperator) =>
         (output: string) =>
         async (files: IMigrateFile[]): Promise<void> => {
+            await operator.mkdir(output);
             const visited: Set<string> = new Set();
             for (const f of files) {
                 await mkdir(operator.mkdir)(output)(visited)(f.location);
