@@ -1,20 +1,29 @@
+import { Escaper } from "typia/lib/utils/Escaper";
+
 import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { JsonTypeChecker } from "../utils/JsonTypeChecker";
 
 export namespace SchemaProgrammer {
-    export const write = (schema: ISwaggerSchema): string =>
-        writeSchema(() => () => {})(schema);
+    export const write =
+        (references: ISwaggerSchema.IReference[]) =>
+        (schema: ISwaggerSchema): string =>
+            writeSchema(references)(() => () => {})(schema);
 
     type Tagger = (tag: string) => (value?: string) => void;
     const writeSchema =
+        (references: ISwaggerSchema.IReference[]) =>
         (tagger: Tagger) =>
         (schema: ISwaggerSchema): string => {
             // SPECIAL TYPES
             if (JsonTypeChecker.isUnknown(schema)) return "any";
             else if (JsonTypeChecker.isAnyOf(schema))
-                return schema.anyOf.map(writeSchema(tagger)).join(" | ");
+                return schema.anyOf
+                    .map(writeSchema(references)(tagger))
+                    .join(" | ");
             else if (JsonTypeChecker.isOneOf(schema))
-                return schema.oneOf.map(writeSchema(tagger)).join(" | ");
+                return schema.oneOf
+                    .map(writeSchema(references)(tagger))
+                    .join(" | ");
             // ATOMIC TYPES
             else if (JsonTypeChecker.isBoolean(schema))
                 return writeBoolean(tagger)(schema);
@@ -26,9 +35,13 @@ export namespace SchemaProgrammer {
                 return writeString(tagger)(schema);
             // INSTANCE TYPES
             else if (JsonTypeChecker.isArray(schema))
-                return writeArray(tagger)(schema);
+                return writeArray(references)(tagger)(schema);
             else if (JsonTypeChecker.isObject(schema))
-                return writeObject(schema);
+                return writeObject(references)(schema);
+            else if (JsonTypeChecker.isReference(schema)) {
+                references.push(schema);
+                return schema.$ref.replace(`#/components/schemas/`, ``);
+            }
             // NOTHING
             return "any";
         };
@@ -67,7 +80,10 @@ export namespace SchemaProgrammer {
         (tagger: Tagger) =>
         (schema: ISwaggerSchema.IString): string => {
             if (schema.default) tagger("default")(schema.default);
-            if (schema.enum?.length) return schema.enum.join(" | ");
+            if (schema.enum?.length)
+                return schema.enum
+                    .map((str) => JSON.stringify(str))
+                    .join(" | ");
 
             if (schema.minLength !== undefined)
                 tagger("minLength")(schema.minLength.toString());
@@ -78,58 +94,77 @@ export namespace SchemaProgrammer {
         };
 
     const writeArray =
+        (references: ISwaggerSchema.IReference[]) =>
         (tagger: Tagger) =>
         (schema: ISwaggerSchema.IArray): string =>
             schema["x-typia-tuple"]
                 ? `[${schema["x-typia-tuple"].items
-                      .map(writeTupleElement)
+                      .map(writeTupleElement(references))
                       .join(", ")}]`
-                : `Array<${writeSchema(tagger)(schema.items)}>`;
-    const writeTupleElement = (schema: ISwaggerSchema): string => {
-        const name: string = writeSchema(() => () => {})(schema);
-        return schema["x-typia-optional"]
-            ? `${name}?`
-            : schema["x-typia-rest"]
-            ? `...${name}`
-            : name;
-    };
+                : `Array<${writeSchema(references)(tagger)(schema.items)}>`;
+    const writeTupleElement =
+        (references: ISwaggerSchema.IReference[]) =>
+        (schema: ISwaggerSchema): string => {
+            const name: string = writeSchema(references)(() => () => {})(
+                schema,
+            );
+            return schema["x-typia-optional"]
+                ? `${name}?`
+                : schema["x-typia-rest"]
+                ? `...${name}`
+                : name;
+        };
 
-    const writeObject = (schema: ISwaggerSchema.IObject): string => {
-        const entries = Object.entries(schema.properties);
-        return typeof schema.additionalProperties === "object"
-            ? entries.length
-                ? `${writeStaticObject(schema)} & ${writeDynamicObject(
-                      schema.additionalProperties,
-                  )}`
-                : writeDynamicObject(schema.additionalProperties)
-            : writeStaticObject(schema);
-    };
-    const writeStaticObject = (schema: ISwaggerSchema.IObject): string =>
-        [
-            "{",
-            ...Object.entries(schema.properties)
-                .map(([key, value]) =>
-                    writeProperty(key)(
-                        (schema.required ?? []).some((r) => r === key),
-                    )(value),
-                )
-                .map(tab(4))
-                .join("\n"),
-            "}",
-        ].join("\n");
-    const writeDynamicObject = (additional: ISwaggerSchema): string => {
-        return [
-            "{",
-            tab(4)(writeProperty("[key: string]")(true)(additional)),
-            "}",
-        ].join("\n");
-    };
+    const writeObject =
+        (references: ISwaggerSchema.IReference[]) =>
+        (schema: ISwaggerSchema.IObject): string => {
+            const entries = Object.entries(schema.properties);
+            return typeof schema.additionalProperties === "object"
+                ? entries.length
+                    ? `${writeStaticObject(references)(
+                          schema,
+                      )} & ${writeDynamicObject(references)(
+                          schema.additionalProperties,
+                      )}`
+                    : writeDynamicObject(references)(
+                          schema.additionalProperties,
+                      )
+                : writeStaticObject(references)(schema);
+        };
+    const writeStaticObject =
+        (references: ISwaggerSchema.IReference[]) =>
+        (schema: ISwaggerSchema.IObject): string =>
+            [
+                "{",
+                ...Object.entries(schema.properties)
+                    .map(([key, value]) =>
+                        writeProperty(references)(key)(
+                            (schema.required ?? []).some((r) => r === key),
+                        )(value),
+                    )
+                    .map(tab(4)),
+                "}",
+            ].join("\n");
+    const writeDynamicObject =
+        (references: ISwaggerSchema.IReference[]) =>
+        (additional: ISwaggerSchema): string => {
+            return [
+                "{",
+                tab(4)(
+                    writeProperty(references)("[key: string]", true)(true)(
+                        additional,
+                    ),
+                ),
+                "}",
+            ].join("\n");
+        };
 
     const writeProperty =
-        (key: string) =>
+        (references: ISwaggerSchema.IReference[]) =>
+        (key: string, ensureVariable: boolean = false) =>
         (required: boolean) =>
         (schema: ISwaggerSchema): string => {
-            const content: string[] = (schema.description ?? "").split("\n");
+            const content: string[] = [];
             const tagger = (tag: string) => (value?: string) => {
                 const exists: boolean =
                     (!!schema.description?.length &&
@@ -139,12 +174,17 @@ export namespace SchemaProgrammer {
                     if (value?.length) content.push(`@${tag} ${value}`);
                     else content.push(`@${tag}`);
             };
+            if (schema.description) {
+                content.push(...schema.description.split("\n"));
+                if (!schema.description.split("\n").at(-1)?.startsWith("@"))
+                    content.push("");
+            }
 
             // STARTS FROM TITLE
             if (schema.title) tagger("@title")(schema.title);
 
             // GET TYPE WITH SPECIAL TAGS
-            const type: string = writeSchema(tagger)(schema);
+            const type: string = writeSchema(references)(tagger)(schema);
 
             // ENDS WITH DEPRECATED TAG
             if (schema.deprecated) tagger("@deprecated")();
@@ -158,7 +198,11 @@ export namespace SchemaProgrammer {
                           " */",
                           "",
                       ].join("\n");
-            return `${description}${key}${required ? "" : "?"}: ${type};`;
+            return `${description}${
+                ensureVariable === false && Escaper.variable(key) === false
+                    ? JSON.stringify(key)
+                    : key
+            }${required ? "" : "?"}: ${type};`;
         };
 
     const tab =

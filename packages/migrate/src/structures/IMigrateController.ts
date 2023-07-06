@@ -1,4 +1,4 @@
-import { IMigrateRoute } from "./IMigrateMethod";
+import { IMigrateRoute } from "./IMigrateRoute";
 
 export interface IMigrateController {
     name: string;

@@ -6,12 +6,13 @@ export interface ISwaggerRoute {
     responses: ISwaggerRoute.IResponseBody;
     summary?: string;
     description?: string;
+    deprecated?: boolean;
     tags: string[];
 }
 export namespace ISwaggerRoute {
     export interface IParameter {
         name: string;
-        in: string;
+        in: "path" | "query" | "header" | "cookie";
         schema: ISwaggerSchema;
         required: boolean;
         description: string;
@@ -31,7 +32,10 @@ export namespace ISwaggerRoute {
         }
     >;
     export interface IContent {
-        "application/json": {
+        "text/plain"?: {
+            schema: ISwaggerSchema.IString;
+        };
+        "application/json"?: {
             schema: ISwaggerSchema;
         };
     }
