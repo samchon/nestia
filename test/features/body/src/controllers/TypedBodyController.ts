@@ -15,7 +15,6 @@ export class TypedBodyController {
             ...typia.random<IBbsArticle>(),
             ...input,
         };
-        console.log("is", typia.is(output));
         return output;
     }
 }
