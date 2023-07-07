@@ -119,6 +119,7 @@
             "in": "path",
             "description": "Target article ID",
             "schema": {
+              "format": "uuid",
               "type": "string"
             },
             "required": true
