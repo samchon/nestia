@@ -18,12 +18,15 @@ export namespace E2eFileProgrammer {
                     importDict.emplace(tuple[0], false, instance);
 
             const additional: string[] = [];
-            for (const param of route.parameters)
-                if (param.category === "param")
-                    if (param.meta?.type === "uuid") additional.push(UUID);
-                    else if (param.meta?.type === "date") additional.push(DATE);
+            for (const param of route.parameters) {
+                const type = getAdditional(param);
+                if (type === "uuid") additional.push(UUID);
+                else if (type === "date") additional.push(DATE);
+            }
+
             const content: string = [
-                ...(route.parameters.length || route.output.name !== "void"
+                ...(!!route.parameters.filter((p) => getAdditional(p) === null)
+                    .length || route.output.name !== "void"
                     ? [
                           config.primitive === false
                               ? `import typia from "typia";`
@@ -120,6 +123,13 @@ export namespace E2eFileProgrammer {
         (config: INestiaConfig) =>
         (name: string): string =>
             config.primitive !== false ? `Primitive<${name}>` : name;
+
+    const getAdditional = (param: IRoute.IParameter): "uuid" | "date" | null =>
+        param.category === "param" && param.meta?.type === "uuid"
+            ? "uuid"
+            : param.category === "param" && param.meta?.type === "date"
+            ? "date"
+            : null;
 }
 
 const UUID = `const uuid = (): string =>
