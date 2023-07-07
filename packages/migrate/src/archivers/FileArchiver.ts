@@ -2,19 +2,19 @@ import { IMigrateFile } from "../structures/IMigrateFile";
 
 export namespace FileArchiver {
     export interface IOperator {
-        mkdir(path: string): Promise<void>;
-        writeFile(path: string, content: string): Promise<void>;
+        mkdir(path: string): void;
+        writeFile(path: string, content: string): void;
     }
 
     export const archive =
         (operator: IOperator) =>
         (output: string) =>
-        async (files: IMigrateFile[]): Promise<void> => {
-            await operator.mkdir(output);
+        (files: IMigrateFile[]): void => {
+            operator.mkdir(output);
             const visited: Set<string> = new Set();
             for (const f of files) {
-                await mkdir(operator.mkdir)(output)(visited)(f.location);
-                await operator.writeFile(
+                mkdir(operator.mkdir)(output)(visited)(f.location);
+                operator.writeFile(
                     [output, f.location, f.file].join("/"),
                     f.content,
                 );
@@ -22,17 +22,17 @@ export namespace FileArchiver {
         };
 
     const mkdir =
-        (creator: (path: string) => Promise<void>) =>
+        (creator: (path: string) => void) =>
         (output: string) =>
         (visited: Set<string>) =>
-        async (path: string): Promise<void> => {
+        (path: string): void => {
             const sequence: string[] = path
                 .split("/")
                 .map((_str, i, entire) => entire.slice(0, i + 1).join("/"));
             for (const s of sequence)
                 if (visited.has(s) === false)
                     try {
-                        await creator([output, s].join("/"));
+                        creator([output, s].join("/"));
                         visited.add(s);
                     } catch {}
         };

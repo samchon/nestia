@@ -94,7 +94,8 @@
           "date": {
             "x-typia-required": true,
             "x-typia-optional": false,
-            "$ref": "#/components/objects/Date"
+            "type": "string",
+            "format": "date-time"
           },
           "date_with_tag": {
             "description": "@formt date-time",
@@ -111,19 +112,19 @@
             ],
             "x-typia-required": true,
             "x-typia-optional": false,
-            "$ref": "#/components/objects/Date"
+            "type": "string",
+            "format": "date-time"
           },
           "date_but_union": {
             "oneOf": [
               {
                 "x-typia-required": true,
                 "x-typia-optional": false,
-                "$ref": "#/components/objects/Date"
+                "type": "string",
+                "format": "date-time"
               },
               {
-                "x-typia-required": true,
-                "x-typia-optional": false,
-                "$ref": "#/components/objects/Buffer"
+                "$ref": "#/components/schemas/__type"
               }
             ],
             "x-typia-required": true,
@@ -140,15 +141,34 @@
         "description": "@formt date-time",
         "x-typia-jsDocTags": []
       },
-      "Date": {
+      "__type": {
         "type": "object",
-        "properties": {},
-        "nullable": false
-      },
-      "Buffer": {
-        "type": "object",
-        "properties": {},
-        "nullable": false
+        "properties": {
+          "type": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "Buffer"
+            ]
+          },
+          "data": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "x-typia-required": true,
+              "x-typia-optional": false,
+              "type": "number"
+            }
+          }
+        },
+        "nullable": false,
+        "required": [
+          "type",
+          "data"
+        ],
+        "x-typia-jsDocTags": []
       },
       "IPerformance": {
         "type": "object",

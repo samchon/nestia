@@ -6,33 +6,27 @@ import { SetupWizard } from "../utils/SetupWizard";
 const INPUT = __dirname + "/../../assets/input";
 const OUTPUT = __dirname + "/../../assets/output";
 
-const main = async () => {
-    if (fs.existsSync(OUTPUT))
-        await fs.promises.rm(OUTPUT, { recursive: true });
-    await fs.promises.mkdir(OUTPUT);
+const main = () => {
+    if (fs.existsSync(OUTPUT)) fs.rmSync(OUTPUT, { recursive: true });
+    fs.mkdirSync(OUTPUT);
 
-    const directory: string[] = await fs.promises.readdir(INPUT);
+    const directory: string[] = fs.readdirSync(INPUT);
     for (const file of directory) {
         const location: string = `${INPUT}/${file}`;
         if (!location.endsWith(".json")) continue;
 
-        const swagger: ISwagger = JSON.parse(
-            await fs.promises.readFile(location, "utf8"),
-        );
+        const swagger: ISwagger = JSON.parse(fs.readFileSync(location, "utf8"));
         const app = new NestiaMigrateApplication(swagger);
         app.analyze();
 
         const project: string = `${OUTPUT}/${file.replace(".json", "")}`;
-        await fs.promises.mkdir(project);
-        await app.generate({
-            mkdir: fs.promises.mkdir,
+        fs.mkdirSync(project);
+        app.generate({
+            mkdir: fs.mkdirSync,
             writeFile: (path, content) =>
                 fs.promises.writeFile(path, content, "utf8"),
         })(project);
-        await SetupWizard.setup(project);
+        SetupWizard.setup(project);
     }
 };
-main().catch((exp) => {
-    console.error(exp);
-    process.exit(-1);
-});
+main();

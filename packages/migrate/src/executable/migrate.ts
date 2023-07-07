@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "fs";
+import path from "path";
 
 import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
 import { ISwagger } from "../structures/ISwagger";
@@ -17,42 +18,43 @@ function halt(desc: string): never {
     process.exit(-1);
 }
 
-const main = async (argv: string[]) => {
-    const input: string | undefined = argv[0];
-    const output: string | undefined = argv[1];
+const main = (argv: string[]) => {
+    const resolve = (str: string | undefined) =>
+        str ? path.resolve(str).split("\\").join("/") : undefined;
+    const input: string | undefined = resolve(argv[0]);
+    const output: string | undefined = resolve(argv[1]);
 
     // VALIDATE ARGUMENTS
     if (input === undefined || output === undefined) halt(USAGE);
-    else if (fs.existsSync(output)) halt("Output directory alreay exists.");
-    else if (fs.existsSync(output + "/..") === false)
+
+    // VALIDATE OUTPUT DIRECTORY
+    const parent: string = resolve(output + "/..")!;
+    if (fs.existsSync(output)) halt("Output directory alreay exists.");
+    else if (fs.existsSync(parent) === false)
         halt("Output directory's parent directory does not exist.");
-    else if ((await fs.promises.stat(output + "/..")).isDirectory() === false)
+    else if (fs.statSync(parent).isDirectory() === false)
         halt("Output directory's parent is not a directory.");
 
     // READ SWAGGER
-    const swagger: ISwagger = await (async () => {
+    const swagger: ISwagger = (() => {
         if (fs.existsSync(input) === false)
             halt("Unable to find the input swagger.json file.");
-        const stats: fs.Stats = await fs.promises.stat(input);
+        const stats: fs.Stats = fs.statSync(input);
         if (stats.isFile() === false)
             halt("The input swagger.json is not a file.");
-        const content: string = await fs.readFileSync(input, "utf-8");
+        const content: string = fs.readFileSync(input, "utf-8");
         const swagger: ISwagger = JSON.parse(content);
         return swagger;
     })();
 
     // DO GENERATE
     const app = new NestiaMigrateApplication(swagger);
-    await app.generate({
-        mkdir: fs.promises.mkdir,
-        writeFile: (path, content) =>
-            fs.promises.writeFile(path, content, "utf8"),
+    app.generate({
+        mkdir: fs.mkdirSync,
+        writeFile: (path, content) => fs.writeFileSync(path, content, "utf8"),
     })(output);
 
     // RUN SCRIPTS
     SetupWizard.setup(output);
 };
-main(process.argv.slice(2)).catch((exp) => {
-    console.log(exp);
-    process.exit(-1);
-});
+main(process.argv.slice(2));

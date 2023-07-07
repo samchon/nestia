@@ -34,18 +34,15 @@ export class NestiaMigrateApplication {
 
     public generate =
         (archiver: NestiaMigrateApplication.IArchiver) =>
-        async (output: string): Promise<void> => {
+        (output: string): void => {
             const program: IMigrateProgram = this.analyze();
             const files: IMigrateFile[] = MigrateProgrammer.write(program);
-            await FileArchiver.archive(archiver)(output)([
-                ...files,
-                ...TEMPLATE,
-            ]);
+            FileArchiver.archive(archiver)(output)([...files, ...TEMPLATE]);
         };
 }
 export namespace NestiaMigrateApplication {
     export interface IArchiver {
-        mkdir: (path: string) => Promise<void>;
-        writeFile: (path: string, content: string) => Promise<void>;
+        mkdir: (path: string) => void;
+        writeFile: (path: string, content: string) => void;
     }
 }
