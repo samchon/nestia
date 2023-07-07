@@ -72,7 +72,7 @@ export namespace TypedParamProgrammer {
 
 const validate = (meta: Metadata) => {
     if (meta.any) throw new Error(error("do not allow any type"));
-    else if (meta.required === false)
+    else if (meta.isRequired() === false)
         throw new Error(error("do not allow undefindable type"));
 
     const atomics: string[] = get_atomic_types(meta);

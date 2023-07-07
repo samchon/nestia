@@ -43,7 +43,7 @@ export namespace TypedQueryProgrammer {
                         "query parameter cannot be null.",
                     ),
                 );
-            else if (metadata.required === false)
+            else if (metadata.isRequired() === false)
                 throw new Error(
                     ErrorMessages.object(metadata)(
                         "query parameter cannot be undefined.",
@@ -63,7 +63,7 @@ export namespace TypedQueryProgrammer {
         (obj: MetadataObject) =>
         (key: Metadata) =>
         (value: Metadata, depth: number): string[] => {
-            if (depth === 1 && value.required === false)
+            if (depth === 1 && value.isRequired() === false)
                 throw new Error(
                     ErrorMessages.property(obj)(key)(
                         "optional type is not allowed in array.",
@@ -91,7 +91,7 @@ export namespace TypedQueryProgrammer {
                             "union type is not allowed",
                         ),
                     );
-                else if (value.required === false)
+                else if (value.isRequired() === false)
                     throw new Error(
                         ErrorMessages.property(obj)(key)(
                             "array type cannot be optional",

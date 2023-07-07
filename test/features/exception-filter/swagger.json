@@ -68,6 +68,7 @@
             "in": "path",
             "description": "",
             "schema": {
+              "format": "uuid",
               "type": "string"
             },
             "required": true
