@@ -434,9 +434,13 @@ export namespace SwaggerGenerator {
         type: ts.Type,
     ): IJsonSchema | null {
         const metadata: Metadata = MetadataFactory.analyze(checker)({
-            resolve: false,
+            resolve: true,
             constant: true,
             absorb: false,
+            validate: (meta) => {
+                if (meta.atomics.find((str) => str === "bigint"))
+                    throw new Error(NO_BIGIT);
+            },
         })(collection)(type);
         if (metadata.empty() && metadata.nullable === false) return null;
 
@@ -514,3 +518,5 @@ interface ISchemaTuple {
     metadata: Metadata;
     schema: IJsonSchema;
 }
+
+const NO_BIGIT = "Error on typia.application(): does not allow bigint type.";
