@@ -168,9 +168,12 @@ const main = async () => {
                 fs.rmSync(`${__dirname}/../migrated`, { recursive: true });
 
             fs.mkdirSync(`${__dirname}/../migrated`);
-            for (const name of await fs.promises.readdir(featureDirectory("")))
-                if (name === (only ?? name) && !name.includes("error"))
-                    await measure()(async () => migrate(name));
+            const task = (name) => measure()(async () => migrate(name));
+            await task("body");
+            await task("date");
+            await task("param");
+            await task("plain");
+            await task("query");
         }
     });
 };

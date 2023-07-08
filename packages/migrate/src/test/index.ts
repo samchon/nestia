@@ -1,32 +1,62 @@
+import cp from "child_process";
 import fs from "fs";
 
-import { ISwagger, NestiaMigrateApplication } from "../module";
-import { SetupWizard } from "../utils/SetupWizard";
+import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
+import { ISwagger } from "../structures/ISwagger";
 
-const INPUT = __dirname + "/../../assets/input";
+const SAMPLE = __dirname + "/../../assets/input";
+const TEST = __dirname + "/../../../../test/features";
 const OUTPUT = __dirname + "/../../assets/output";
+
+const measure = (title: string) => (task: () => void) => {
+    process.stdout.write(`  - ${title}: `);
+    const time: number = Date.now();
+    task();
+    console.log(`${(Date.now() - time).toLocaleString()} ms`);
+    return time;
+};
+
+const execute = (project: string) => (swagger: ISwagger) =>
+    measure(project)(() => {
+        const app: NestiaMigrateApplication = new NestiaMigrateApplication(
+            swagger,
+        );
+        app.analyze();
+        app.generate({
+            mkdir: fs.mkdirSync,
+            writeFile: (path, content) =>
+                fs.writeFileSync(path, content, "utf8"),
+        })(`${OUTPUT}/${project}`);
+
+        cp.execSync(`npx tsc -p ${OUTPUT}/${project}/tsconfig.json`, {
+            stdio: "inherit",
+            cwd: `${OUTPUT}/${project}`,
+        });
+    });
 
 const main = () => {
     if (fs.existsSync(OUTPUT)) fs.rmSync(OUTPUT, { recursive: true });
     fs.mkdirSync(OUTPUT);
 
-    const directory: string[] = fs.readdirSync(INPUT);
-    for (const file of directory) {
-        const location: string = `${INPUT}/${file}`;
+    for (const file of fs.readdirSync(SAMPLE)) {
+        const location: string = `${SAMPLE}/${file}`;
         if (!location.endsWith(".json")) continue;
 
+        const project: string = file.substring(0, file.length - 5);
         const swagger: ISwagger = JSON.parse(fs.readFileSync(location, "utf8"));
-        const app = new NestiaMigrateApplication(swagger);
-        app.analyze();
+        execute(project)(swagger);
+    }
 
-        const project: string = `${OUTPUT}/${file.replace(".json", "")}`;
-        fs.mkdirSync(project);
-        app.generate({
-            mkdir: fs.mkdirSync,
-            writeFile: (path, content) =>
-                fs.promises.writeFile(path, content, "utf8"),
-        })(project);
-        SetupWizard.setup(project);
+    for (const feature of fs.readdirSync(TEST)) {
+        const stats: fs.Stats = fs.statSync(`${TEST}/${feature}`);
+        if (stats.isDirectory() === false) continue;
+        else if (feature.includes("error")) continue;
+
+        const location: string = `${TEST}/${feature}/swagger.json`;
+        if (fs.existsSync(location) === false) continue;
+
+        const swagger: ISwagger = JSON.parse(fs.readFileSync(location, "utf8"));
+        execute(feature)(swagger);
     }
 };
 main();
