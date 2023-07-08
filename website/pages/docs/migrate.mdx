@@ -18,7 +18,9 @@ npx @nestia/migrate swagger.json output_directory
 
 When you run `npx @nestia/migrate swagger.json <output>` command, `@nestia/migrate` will analyze your `swagger.json` file, and generate a NestJS project into the `<output>` direcory. If you're considering to migrate your backend project to NestJS, `@nestia/migrate` will be a good starting point.
 
-Also, `@nestia/sdk` can generate below things from NestJS project. It means that, with `@nestia/migrate`, you can generate [SDK Library](./sdk/sdk) or [Mockup Simulator](./sdk/simulator) from every backend projects. If you don't have plan to migrate to NestJS, but hope to take advantages of it, `@nestia/migrate` will be a good choice. Languages and frameworks, they're no longer matter in backend development. Let's enjoy the new worls with `@nestia/migrate`.
+Also, `@nestia/sdk` can generate below things from NestJS project. 
+
+It means that, with `@nestia/migrate`, you can generate [SDK Library](./sdk/sdk) or [Mockup Simulator](./sdk/simulator) from every backend projects. If you don't have plan to migrate to NestJS, but hope to take advantages of it, `@nestia/migrate` will be a good choice. Languages and frameworks, they're no longer matter in backend development. Let's enjoy the new world with `@nestia/migrate`.
 
   - [SDK (Software Development Kit)](./sdk/sdk)
   - [Mockup Simulator](./sdk/simulator)
@@ -52,7 +54,13 @@ By the way, `@nestia/migrate` supports only OpenAPI v3.0 specification. If you h
 
 
 ## Generated NestJS Project
-<Tabs items={['Swagger', 'Controller', 'SDK (Mockup Simulator)']}>
+<Tabs 
+    items={[
+        'Swagger', 
+        'Controller', 
+        'SDK (Mockup Simulator)',
+    ]} 
+    defaultIndex={2}>
     <Tab>
 ```json filename="swagger.json" showLineNumbers {}
 {
@@ -196,8 +204,12 @@ As you can see from above example case, `@nestia/migrate` perfectly revives ever
 
 
 ## Online Migration
-I'm making a new type of `swagger-ui` which can perform `@nestia/migrate` on website. 
+I'm making a new library named `@nestia/editor`.
 
-It will also support auto-completion and type-hints by embedding TypeScript Editor.
+It's a type of evolved `swagger-ui`, embedding TypeScript Editor, `@nestia/migrate` and `@nestia/sdk`. 
+
+By embedding TypeScript Editor in `swagger-ui`, you can take advatanges of TypeScript compiler like type hints and auto-completions. Also, if you turn on simulation mode, `@nestia/editor` will utilize embeded [Mockup Simulator](./sdk/simulator) of `@nestia/sdk`, instead of sending request to the real backend server.
+
+Of course, as `@nestia/editor` includes `@nestia/migrate`, you can build and download [SDK library](./sdk/sdk) and [Mockup Simulator](./sdk/simulator) in the website.
 
 Look forward to it, I'll show you a new world.
