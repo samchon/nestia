@@ -1,0 +1,59 @@
+{
+  "name": "@nestia/migrate",
+  "version": "0.1.6",
+  "description": "Migration program from swagger to NestJS",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "bin": {
+    "@nestia/migrate": "lib/executable/migrate.js"
+  },
+  "scripts": {
+    "build": "rimraf lib && tsc",
+    "dev": "npm run build -- --watch",
+    "prepare": "ts-patch install && ts-node src/executable/bundle.ts",
+    "test": "node lib/test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/nestia"
+  },
+  "keywords": [
+    "migration",
+    "swagger",
+    "NestJS",
+    "nestia"
+  ],
+  "author": "Jeongho Nam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samchon/nestia/issues"
+  },
+  "homepage": "https://github.com/samchon/nestia#readme",
+  "devDependencies": {
+    "@nestia/core": "^1.4.3",
+    "@nestia/fetcher": "^1.4.0",
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
+    "@types/node": "^20.3.3",
+    "prettier": "^2.8.8",
+    "rimraf": "^5.0.1",
+    "serialize-error": "^4.1.0",
+    "source-map-support": "^0.5.21",
+    "ts-node": "^10.9.1",
+    "ts-patch": "^3.0.1",
+    "tstl": "^2.5.13",
+    "typescript": "^5.1.6",
+    "typescript-transform-paths": "^3.4.6"
+  },
+  "dependencies": {
+    "typia": "^4.1.4"
+  },
+  "files": [
+    "lib",
+    "src",
+    "!lib/test",
+    "!src/test",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ]
+}

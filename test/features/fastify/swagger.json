@@ -297,7 +297,7 @@
         "requestBody": {
           "description": "",
           "content": {
-            "application/json": {
+            "text/plain": {
               "schema": {
                 "type": "string"
               }
@@ -310,7 +310,7 @@
           "201": {
             "description": "",
             "content": {
-              "application/json": {
+              "text/plain": {
                 "schema": {
                   "type": "string"
                 }

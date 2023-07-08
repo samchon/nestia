@@ -15,6 +15,7 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
     - Swagger generator evolved than ever
     - Automatic E2E test functions generator
     - Mockup Simulator for client applications
+  - `@nestia/migrate`: migration from Swagger to NestJS
   - `nestia`: just CLI (command line interface) tool
 
 > **Note**
@@ -63,3 +64,8 @@ Check out the document in the [website](https://nestia.io/docs/):
     - [SDK Library](https://nestia.io/docs/sdk/sdk/)
     - [E2E Functions](https://nestia.io/docs/sdk/e2e/)
     - [Mockup Simulator](https://nestia.io/docs/sdk/simulator/)
+  - [Swagger to NestJS](https://nestia.io/docs/migrate/)
+
+### 🔗 Appendix
+  - [⇲ Benchmark Result](https://github.com/samchon/nestia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz)
+  - [⇲ `dev.to` Articles](https://dev.to/samchon/series/22751)
