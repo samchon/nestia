@@ -7,6 +7,11 @@ const featureDirectory = (name) => `${__dirname}/../features/${name}`;
 
 const build = async (name) => {
     process.chdir(libraryDirectory(name));
+    fs.writeFileSync(
+        "README.md", 
+        fs.readFileSync(__dirname + "/../../README.md", "utf8"),
+        "utf8"
+    );
 
     process.stdout.write(`  - @nestia/${name}`);
     cp.execSync("npm install", { stdio: "inherit" });
