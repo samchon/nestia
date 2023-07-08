@@ -244,7 +244,10 @@ export namespace SdkFunctionProgrammer {
                 `    export const PATH: string = "${route.path}";\n` +
                 `    export const ENCRYPTED: Fetcher.IEncrypted = {\n` +
                 `        request: ${
-                    props.input !== undefined && props.input.encrypted
+                    props.input !== undefined &&
+                    props.input.custom === true &&
+                    props.input.category === "body" &&
+                    props.input.encrypted
                 },\n` +
                 `        response: ${route.encrypted},\n` +
                 (route.status !== undefined

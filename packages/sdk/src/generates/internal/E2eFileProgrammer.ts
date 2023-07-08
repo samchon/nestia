@@ -87,6 +87,7 @@ export namespace E2eFileProgrammer {
         (param: IRoute.IParameter): string => {
             const middle: string =
                 param.category === "param" &&
+                param.custom &&
                 (param.meta?.type === "uuid" || param.meta?.type === "date")
                     ? param.meta.nullable
                         ? `Math.random() < .2 ? null : ${param.meta.type}()`
@@ -124,12 +125,15 @@ export namespace E2eFileProgrammer {
         (name: string): string =>
             config.primitive !== false ? `Primitive<${name}>` : name;
 
-    const getAdditional = (param: IRoute.IParameter): "uuid" | "date" | null =>
-        param.category === "param" && param.meta?.type === "uuid"
-            ? "uuid"
-            : param.category === "param" && param.meta?.type === "date"
-            ? "date"
-            : null;
+    const getAdditional = (
+        param: IRoute.IParameter,
+    ): "uuid" | "date" | null => {
+        if (param.custom === false || param.category !== "param" || !param.meta)
+            return null;
+        else if (param.meta.type === "uuid") return "uuid";
+        else if (param.meta.type === "date") return "date";
+        return null;
+    };
 }
 
 const UUID = `const uuid = (): string =>

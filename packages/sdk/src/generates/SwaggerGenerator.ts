@@ -294,6 +294,7 @@ export namespace SwaggerGenerator {
                 `Error on NestiaApplication.swagger(): invalid parameter type on ${route.symbol}#${parameter.name}`,
             );
         else if (
+            parameter.custom &&
             parameter.category === "param" &&
             !!parameter.meta &&
             (parameter.meta.type === "date" ||
@@ -332,19 +333,27 @@ export namespace SwaggerGenerator {
             throw new Error(
                 `Error on NestiaApplication.sdk(): invalid request body type on ${route.symbol}.`,
             );
+        else if (parameter.category !== "body")
+            throw new Error("Unreachable code.");
+
+        const contentType = parameter.custom
+            ? parameter.contentType
+            : "application/json";
 
         return {
             description:
-                warning.get(parameter.encrypted).get("request") +
+                warning
+                    .get(parameter.custom && parameter.encrypted)
+                    .get("request") +
                 (get_parametric_description(route, "param", parameter.name) ??
                     ""),
             content: {
-                "application/json": {
+                [contentType]: {
                     schema,
                 },
             },
             required: true,
-            "x-nestia-encrypted": parameter.encrypted,
+            "x-nestia-encrypted": parameter.custom && parameter.encrypted,
         };
     }
 
@@ -378,7 +387,7 @@ export namespace SwaggerGenerator {
                     schema === null || route.output.name === "void"
                         ? undefined
                         : {
-                              "application/json": {
+                              [route.output.contentType]: {
                                   schema,
                               },
                           },
