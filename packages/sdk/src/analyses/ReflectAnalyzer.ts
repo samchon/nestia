@@ -166,6 +166,13 @@ export namespace ReflectAnalyzer {
                 Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
                     ?.constructor?.name === "EncryptedRouteInterceptor",
             status: Reflect.getMetadata(Constants.HTTP_CODE_METADATA, proto),
+            contentType:
+                Reflect.getMetadata(Constants.HEADERS_METADATA, proto)?.find(
+                    (h: Record<string, string>) =>
+                        typeof h?.name === "string" &&
+                        typeof h?.value === "string" &&
+                        h.name.toLowerCase() === "content-type",
+                )?.value ?? "application/json",
         };
 
         // PARSE CHILDREN DATA
@@ -240,11 +247,11 @@ export namespace ReflectAnalyzer {
         if (type === undefined) return null;
 
         return {
+            custom: false,
             name: key,
             category: type,
             index: param.index,
             field: param.data,
-            encrypted: false,
         };
     }
 
@@ -258,19 +265,24 @@ export namespace ReflectAnalyzer {
             param.factory.name === "PlainBody"
         ) {
             return {
+                custom: true,
                 category: "body",
                 index: param.index,
                 name: param.name,
                 field: param.data,
                 encrypted: param.factory.name === "EncryptedBody",
+                contentType:
+                    param.factory.name === "PlainBody"
+                        ? "text/plain"
+                        : "application/json",
             };
         } else if (param.factory.name === "TypedParam") {
             return {
+                custom: true,
                 name: param.name,
                 category: "param",
                 index: param.index,
                 field: param.data,
-                encrypted: false,
                 meta: (() => {
                     const type = (param.factory as any).type;
                     const nullable = (param.factory as any).nullable;
@@ -284,11 +296,11 @@ export namespace ReflectAnalyzer {
             };
         } else if (param.factory.name === "TypedQuery")
             return {
+                custom: true,
                 name: param.name,
                 category: "query",
                 index: param.index,
                 field: undefined,
-                encrypted: false,
             };
         else return null;
     }
