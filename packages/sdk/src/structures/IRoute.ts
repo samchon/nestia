@@ -1,7 +1,7 @@
 import ts from "typescript";
 
+import { IController } from "./IController";
 import { ITypeTuple } from "./ITypeTuple";
-import { ParamCategory } from "./ParamCategory";
 
 export interface IRoute {
     name: string;
@@ -12,7 +12,7 @@ export interface IRoute {
 
     parameters: IRoute.IParameter[];
     imports: [string, string[]][];
-    output: ITypeTuple;
+    output: IRoute.IOutput;
 
     location: string;
     symbol: string;
@@ -25,16 +25,11 @@ export interface IRoute {
 }
 
 export namespace IRoute {
-    export interface IParameter {
-        name: string;
-        field: string | undefined;
-        category: ParamCategory;
-        encrypted: boolean;
-        type: ITypeTuple;
+    export type IParameter = IController.IParameter & {
         optional: boolean;
-        meta?: {
-            type: string;
-            nullable: boolean;
-        };
+        type: ITypeTuple;
+    };
+    export interface IOutput extends ITypeTuple {
+        contentType: "application/json" | "text/plain";
     }
 }

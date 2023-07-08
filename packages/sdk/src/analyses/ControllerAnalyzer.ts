@@ -118,13 +118,13 @@ export namespace ControllerAnalyzer {
                 signature.getParameters()[param.index],
             ),
         );
-        const output: ITypeTuple | null = ImportAnalyzer.analyze(
+        const outputType: ITypeTuple | null = ImportAnalyzer.analyze(
             checker,
             genericDict,
             importDict,
             signature.getReturnType(),
         );
-        if (output === null)
+        if (outputType === null)
             throw new Error(
                 `Error on ControllerAnalyzer.analyze(): unnamed return type from ${controller.name}.${func.name}().`,
             );
@@ -138,7 +138,7 @@ export namespace ControllerAnalyzer {
         const common: Omit<IRoute, "path"> = {
             ...func,
             parameters,
-            output,
+            output: { ...outputType, contentType: func.contentType },
             imports,
             status: func.status,
 
@@ -253,13 +253,10 @@ export namespace ControllerAnalyzer {
                 `Error on ${method}: unnamed parameter type from ${method}#${name}.`,
             );
         return {
+            ...param,
             name,
-            category: param.category,
-            field: param.field,
-            encrypted: param.encrypted,
-            type: tuple,
             optional,
-            meta: param.meta,
+            type: tuple,
         };
     }
 }

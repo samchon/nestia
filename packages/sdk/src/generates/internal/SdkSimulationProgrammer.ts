@@ -56,7 +56,7 @@ export namespace SdkSimulationProgrammer {
                 : p.category === "query"
                 ? `assert.query(() => typia.assert(${p.name}));`
                 : `assert.param("${p.field}")("${
-                      p.meta?.type ?? p.type.name
+                      p.custom && p.meta ? p.meta.type : p.type.name
                   }")(() => typia.assert(${p.name}));`,
         ),
     ];

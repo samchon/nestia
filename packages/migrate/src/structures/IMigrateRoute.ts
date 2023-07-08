@@ -7,8 +7,8 @@ export interface IMigrateRoute {
     parameters: IMigrateRoute.IParameter[];
     headers: ISwaggerSchema | null;
     query: ISwaggerSchema | null;
-    body: ISwaggerSchema | null;
-    response: ISwaggerSchema | null;
+    body: IMigrateRoute.IBody | null;
+    response: IMigrateRoute.IBody | null;
     description?: string;
 }
 export namespace IMigrateRoute {
@@ -16,5 +16,9 @@ export namespace IMigrateRoute {
         key: string;
         schema: ISwaggerSchema;
         description?: string;
+    }
+    export interface IBody {
+        type: "text/plain" | "application/json";
+        schema: ISwaggerSchema;
     }
 }

@@ -128,10 +128,23 @@ export namespace ControllerProgrammer {
             `}`,
         ].join("\n");
 
+        const core: boolean = controller.routes.some(
+            (r) =>
+                r.body !== null ||
+                r.response === null ||
+                r.response.type === "application/json",
+        );
         const typia: boolean = controller.routes.some(
             (m) => m.response !== null,
         );
-        const imports: string[] = [
+        const common: Set<string> = new Set(["Controller"]);
+        for (const r of controller.routes)
+            if (r.response?.type === "text/plain") {
+                common.add("Header");
+                common.add(StringUtil.capitalize(r.method));
+            }
+
+        const dtoImports: string[] = [
             ...new Set(
                 references.map(
                     (r) =>
@@ -148,11 +161,11 @@ export namespace ControllerProgrammer {
         );
 
         return [
-            `import core from "@nestia/core";`,
-            `import { Controller } from "@nestjs/common";`,
+            ...(core ? [`import core from "@nestia/core";`] : []),
+            `import { ${[...common].join(", ")} } from "@nestjs/common";`,
             ...(typia ? [`import typia from "typia";`] : []),
             "",
-            ...(imports.length ? [...imports, ""] : []),
+            ...(dtoImports.length ? [...dtoImports, ""] : []),
             body,
         ].join("\n");
     };

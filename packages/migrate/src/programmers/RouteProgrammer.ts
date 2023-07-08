@@ -17,7 +17,14 @@ export namespace RouteProgrammer {
             const response = emplaceBodySchema(
                 emplaceReference(swagger)("response"),
             )((route.responses["200"] ?? route.responses["201"])?.content);
-            if (body === false || response === false) return null;
+            if (body === false || response === false) {
+                console.log(
+                    `Failed to migrate ${props.method.toUpperCase()} ${
+                        props.path
+                    }: @nestia/migrate supports only application/json or text/plain format yet.`,
+                );
+                return null;
+            }
 
             const [headers, query] = ["header", "query"].map((type) => {
                 const parameters = route.parameters.filter(
@@ -179,12 +186,20 @@ export namespace RouteProgrammer {
 
     const emplaceBodySchema =
         (emplacer: (schema: ISwaggerSchema) => ISwaggerSchema.IReference) =>
-        (content?: ISwaggerRoute.IContent): false | null | ISwaggerSchema => {
+        (
+            content?: ISwaggerRoute.IContent,
+        ): false | null | IMigrateRoute.IBody => {
             if (!content) return null;
             else if (content["application/json"]) {
                 const schema = content["application/json"].schema;
-                return isNotObjectLiteral(schema) ? schema : emplacer(schema);
-            } else if (content["text/plain"]) return { type: "string" };
+                return {
+                    type: "application/json",
+                    schema: isNotObjectLiteral(schema)
+                        ? schema
+                        : emplacer(schema),
+                };
+            } else if (content["text/plain"])
+                return { type: "text/plain", schema: { type: "string" } };
             return false;
         };
 
@@ -201,8 +216,12 @@ export namespace RouteProgrammer {
         (references: ISwaggerSchema.IReference[]) =>
         (route: IMigrateRoute): string => {
             const output: string = route.response
-                ? SchemaProgrammer.write(references)(route.response)
+                ? SchemaProgrammer.write(references)(route.response.schema)
                 : "void";
+            const decorator: string =
+                route.body?.type === "text/plain"
+                    ? [`@Header("Content-Type", "text/plain")`, `@`].join("\n")
+                    : "@core.TypedRoute.";
             const content: string[] = [
                 ...(route.description
                     ? [
@@ -213,7 +232,7 @@ export namespace RouteProgrammer {
                           " */",
                       ]
                     : []),
-                `@core.TypedRoute.${StringUtil.capitalize(route.method)}${
+                `${decorator}${StringUtil.capitalize(route.method)}${
                     route.path.length ? `(${JSON.stringify(route.path)})` : "()"
                 }`,
                 `public async ${route.name}(`,
@@ -226,11 +245,13 @@ export namespace RouteProgrammer {
                       ]
                     : []),
                 ...(route.body
-                    ? [
-                          `    @core.TypedBody() body: ${SchemaProgrammer.write(
-                              references,
-                          )(route.body)},`,
-                      ]
+                    ? route.body.type === "application/json"
+                        ? [
+                              `    @core.TypedBody() body: ${SchemaProgrammer.write(
+                                  references,
+                              )(route.body.schema)},`,
+                          ]
+                        : [`    @core.PlainBody() body: string,`]
                     : []),
                 `): Promise<${output}> {`,
                 ...route.parameters.map(

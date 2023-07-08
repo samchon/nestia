@@ -9,6 +9,8 @@
     },
     "core": "Core Library",
     "sdk": "Generators",
+    "migrate": "Swagger to NestJS",
+    "editor": "Nestia Editor",
 
     "-- appendix": {
         "type": "separator",

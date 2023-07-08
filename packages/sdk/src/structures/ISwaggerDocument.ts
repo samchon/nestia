@@ -114,7 +114,10 @@ export namespace ISwaggerDocument {
         }
     >;
     export interface IJsonContent {
-        "application/json": {
+        "application/json"?: {
+            schema: IJsonSchema;
+        };
+        "text/plain"?: {
             schema: IJsonSchema;
         };
     }
