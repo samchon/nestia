@@ -118,7 +118,7 @@ export namespace SchemaProgrammer {
     const writeObject =
         (references: ISwaggerSchema.IReference[]) =>
         (schema: ISwaggerSchema.IObject): string => {
-            const entries = Object.entries(schema.properties);
+            const entries = Object.entries(schema.properties ?? {});
             return typeof schema.additionalProperties === "object"
                 ? entries.length
                     ? `${writeStaticObject(references)(
@@ -136,7 +136,7 @@ export namespace SchemaProgrammer {
         (schema: ISwaggerSchema.IObject): string =>
             [
                 "{",
-                ...Object.entries(schema.properties)
+                ...Object.entries(schema.properties ?? {})
                     .map(([key, value]) =>
                         writeProperty(references)(key)(
                             (schema.required ?? []).some((r) => r === key),

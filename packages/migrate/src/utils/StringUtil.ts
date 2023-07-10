@@ -19,7 +19,7 @@ export namespace StringUtil {
             .map((str) => normalize(str.trim()))
             .filter((str) => !!str.length);
 
-    export const reJoinWithoutParameters = (path: string) =>
+    export const reJoinWithDecimalParameters = (path: string) =>
         split(path)
             .map((str) =>
                 str[0] === "{" && str[str.length - 1] === "}"

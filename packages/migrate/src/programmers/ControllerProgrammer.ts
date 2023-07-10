@@ -57,12 +57,12 @@ export namespace ControllerProgrammer {
                     routes.map((r) => r.path),
                 );
                 for (const r of routes)
-                    r.path = StringUtil.reJoinWithoutParameters(
+                    r.path = StringUtil.reJoinWithDecimalParameters(
                         r.path.replace(prefix, ""),
                     );
                 const controller: IMigrateController = {
                     name: StringUtil.pascal(location) + "Controller",
-                    path: StringUtil.reJoinWithoutParameters(prefix),
+                    path: StringUtil.reJoinWithDecimalParameters(prefix),
                     location: "src/controllers/" + location,
                     routes,
                 };
