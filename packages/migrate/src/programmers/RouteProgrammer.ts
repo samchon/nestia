@@ -16,7 +16,7 @@ export namespace RouteProgrammer {
             );
             const response = emplaceBodySchema(
                 emplaceReference(swagger)("response"),
-            )((route.responses["200"] ?? route.responses["201"])?.content);
+            )((route.responses?.["200"] ?? route.responses?.["201"])?.content);
             if (body === false || response === false) {
                 console.log(
                     `Failed to migrate ${props.method.toUpperCase()} ${
@@ -27,7 +27,7 @@ export namespace RouteProgrammer {
             }
 
             const [headers, query] = ["header", "query"].map((type) => {
-                const parameters = route.parameters.filter(
+                const parameters = (route.parameters ?? []).filter(
                     (p) => p.in === type,
                 );
                 if (parameters.length === 0) return null;
@@ -53,6 +53,7 @@ export namespace RouteProgrammer {
                     (p) =>
                         JsonTypeChecker.isBoolean(p.schema) ||
                         JsonTypeChecker.isNumber(p.schema) ||
+                        JsonTypeChecker.isInteger(p.schema) ||
                         JsonTypeChecker.isString(p.schema),
                 );
                 if (objects.length === 1) return objects[0];
@@ -61,7 +62,9 @@ export namespace RouteProgrammer {
                     parameters.length
                 )
                     throw new Error(
-                        `Error on nestia.migrate.RouteProgrammer.analze(): ${type} typed parameters must be only one object type.`,
+                        `Error on nestia.migrate.RouteProgrammer.analze(): ${type} typed parameters must be only one object type - ${StringUtil.capitalize(
+                            props.method,
+                        )} "${props.path}".`,
                     );
 
                 const entire: ISwaggerSchema.IObject[] = [
@@ -92,11 +95,7 @@ export namespace RouteProgrammer {
                 return parameters.length === 0
                     ? null
                     : emplaceReference(swagger)(
-                          StringUtil.pascal(
-                              `I/Api/${StringUtil.reJoinWithoutParameters(
-                                  props.path,
-                              )}`,
-                          ) +
+                          StringUtil.pascal(`I/Api/${props.path}`) +
                               "." +
                               StringUtil.pascal(`${props.method}/${type}`),
                       )({
@@ -105,7 +104,9 @@ export namespace RouteProgrammer {
                               ...new Map<string, ISwaggerSchema>(
                                   entire
                                       .map((o) =>
-                                          Object.entries(o.properties).map(
+                                          Object.entries(
+                                              o.properties ?? {},
+                                          ).map(
                                               ([name, schema]) =>
                                                   [
                                                       name,
@@ -134,7 +135,7 @@ export namespace RouteProgrammer {
                 path: props.path,
                 method: props.method,
                 headers,
-                parameters: route.parameters
+                parameters: (route.parameters ?? [])
                     .filter((p) => p.in === "path")
                     .map((p) => ({
                         key: p.name,
@@ -190,16 +191,23 @@ export namespace RouteProgrammer {
             content?: ISwaggerRoute.IContent,
         ): false | null | IMigrateRoute.IBody => {
             if (!content) return null;
-            else if (content["application/json"]) {
-                const schema = content["application/json"].schema;
+
+            const entries: [string, { schema: ISwaggerSchema }][] =
+                Object.entries(content);
+            const json = entries.find((e) => e[0].includes("application/json"));
+
+            if (json) {
+                const { schema } = json[1];
                 return {
                     type: "application/json",
                     schema: isNotObjectLiteral(schema)
                         ? schema
                         : emplacer(schema),
                 };
-            } else if (content["text/plain"])
-                return { type: "text/plain", schema: { type: "string" } };
+            }
+
+            const text = entries.find((e) => e[0].includes("text/plain"));
+            if (text) return { type: "text/plain", schema: { type: "string" } };
             return false;
         };
 

@@ -61,7 +61,7 @@ export namespace ISwaggerSchema {
         items: ISwaggerSchema[];
     }
     export interface IObject extends ISignificant<"object"> {
-        properties: Record<string, ISwaggerSchema>;
+        properties?: Record<string, ISwaggerSchema>;
         required?: string[];
         additionalProperties?: ISwaggerSchema | boolean;
         "x-typia-patternProperties"?: Record<string, ISwaggerSchema>;
