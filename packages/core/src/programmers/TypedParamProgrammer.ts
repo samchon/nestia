@@ -15,8 +15,8 @@ export namespace TypedParamProgrammer {
                 resolve: false,
                 constant: true,
                 absorb: true,
-                validate,
             })(new MetadataCollection())(type);
+            validate(metadata);
             const [atomic] = get_atomic_types(metadata);
 
             // AUTO TYPE SPECIFICATION
@@ -38,9 +38,8 @@ export namespace TypedParamProgrammer {
                 checker.getTypeAtLocation(parameters[1]),
             );
             if (equals(atomic, specified) === false)
-                throw new Error(
-                    error("different type between parameter and variable"),
-                );
+                throw error("different type between parameter and variable");
+
             if (parameters.length === 2)
                 return [
                     parameters[0],
@@ -59,38 +58,40 @@ export namespace TypedParamProgrammer {
                 checker.getTypeAtLocation(parameters[2]),
             );
             if (nullable.getName() !== "true" && nullable.getName() !== "false")
-                throw new Error(error("nullable value must be literal type"));
+                throw error("nullable value must be literal type");
             else if (metadata.nullable !== (nullable.getName() === "true"))
-                throw new Error(
-                    error(
-                        "different type (nullable) between parameter and variable",
-                    ),
+                throw error(
+                    "different type (nullable) between parameter and variable",
                 );
             return parameters;
         };
 }
 
 const validate = (meta: Metadata) => {
-    if (meta.any) throw new Error(error("do not allow any type"));
+    if (meta.any) throw error("do not allow any type");
     else if (meta.isRequired() === false)
-        throw new Error(error("do not allow undefindable type"));
+        throw error("do not allow undefindable type");
 
     const atomics: string[] = get_atomic_types(meta);
     const expected: number =
         meta.atomics.length +
+        meta.templates.length +
         meta.constants.map((c) => c.values.length).reduce((a, b) => a + b, 0);
     if (meta.size() !== expected || atomics.length === 0)
-        throw new Error(error("only atomic or constant types is allowed"));
-    else if (atomics.length > 1)
-        throw new Error(error("do not allow union type"));
+        throw error("only atomic or constant types is allowed");
+    else if (atomics.length > 1) throw error("do not allow union type");
 };
 
 const get_atomic_types = (meta: Metadata): string[] => [
-    ...new Set([...meta.atomics, ...meta.constants.map((c) => c.type)]),
+    ...new Set([
+        ...meta.atomics,
+        ...meta.constants.map((c) => c.type),
+        ...(meta.templates.length ? ["string"] : []),
+    ]),
 ];
 
 const error = (message: string) =>
-    `Error on nestia.core.TypedParam(): ${message}.`;
+    new Error(`Error on nestia.core.TypedParam(): ${message}.`);
 
 const equals = (atomic: string, p: Metadata) => {
     const name: string = p.getName();

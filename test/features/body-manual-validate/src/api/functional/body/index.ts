@@ -23,7 +23,7 @@ export async function store(
         store.ENCRYPTED,
         store.METHOD,
         store.path(),
-        input,
+        input
     );
 }
 export namespace store {

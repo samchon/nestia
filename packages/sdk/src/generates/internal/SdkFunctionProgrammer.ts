@@ -3,6 +3,7 @@ import { Pair } from "tstl/utility/Pair";
 import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaConfig } from "../../INestiaConfig";
+import { IController } from "../../structures/IController";
 import { IRoute } from "../../structures/IRoute";
 import { SdkSimulationProgrammer } from "./SdkSimulationProgrammer";
 
@@ -34,10 +35,26 @@ export namespace SdkFunctionProgrammer {
             query: IRoute.IParameter | undefined;
             input: IRoute.IParameter | undefined;
         }): string => {
+            const textBody: boolean =
+                props.input !== undefined &&
+                props.input.category === "body" &&
+                (props.input as IController.IBodyParameter).contentType ===
+                    "text/plain";
+
             // FETCH ARGUMENTS WITH REQUST BODY
             const parameters = filter_parameters(route)(props.query);
-            const fetchArguments: string[] = [
-                "connection",
+            const fetchArguments: Array<string | string[]> = [
+                textBody
+                    ? [
+                          "{",
+                          "    ...connection,",
+                          "    headers: {",
+                          "        ...(connection.headers ?? {}),",
+                          `        "Content-Type": "text/plain",`,
+                          "    },",
+                          "}",
+                      ]
+                    : "connection",
                 `${route.name}.ENCRYPTED`,
                 `${route.name}.METHOD`,
                 `${route.name}.path(${parameters
@@ -46,7 +63,8 @@ export namespace SdkFunctionProgrammer {
             ];
             if (props.input !== undefined) {
                 fetchArguments.push(props.input.name);
-                if (config.json === true)
+                if (textBody) fetchArguments.push("(str) => str");
+                else if (config.json === true)
                     fetchArguments.push(`${route.name}.stringify`);
             }
 
@@ -77,8 +95,14 @@ export namespace SdkFunctionProgrammer {
                     [
                         `${awa ? "await " : ""}Fetcher.fetch(`,
                         fetchArguments
-                            .map((param) => `${tab}    ${param},`)
-                            .join("\n"),
+                            .map((param) =>
+                                typeof param === "string"
+                                    ? `${tab}    ${param}`
+                                    : param
+                                          .map((str) => `${tab}    ${str}`)
+                                          .join("\n"),
+                            )
+                            .join(",\n"),
                         `${tab})`,
                     ].join("\n");
                 if (!config.simulate) return fetch(space(4));

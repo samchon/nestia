@@ -15,12 +15,16 @@ import type { IConnection } from "@nestia/fetcher";
 export async function get(
     connection: IConnection,
 ): Promise<void> {
-    return Fetcher.fetch(
-        connection,
-        get.ENCRYPTED,
-        get.METHOD,
-        get.path(),
-    );
+    return !!connection.simulate
+        ? get.simulate(
+              connection,
+          )
+        : Fetcher.fetch(
+              connection,
+              get.ENCRYPTED,
+              get.METHOD,
+              get.path()
+          );
 }
 export namespace get {
 
@@ -33,5 +37,9 @@ export namespace get {
 
     export const path = (): string => {
         return `/health`;
+    }
+    export const simulate = async (
+        _connection: IConnection,
+    ): Promise<void> => {
     }
 }

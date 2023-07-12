@@ -47,7 +47,7 @@
         "x-nestia-jsDocTags": []
       }
     },
-    "/plain": {
+    "/plain/string": {
       "post": {
         "tags": [],
         "parameters": [],
@@ -76,7 +76,79 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "plain.send",
+        "x-nestia-namespace": "plain.string.string",
+        "x-nestia-jsDocTags": []
+      }
+    },
+    "/plain/template": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string",
+                "pattern": "^((something_-?\\d+\\.?\\d*_interesting_(.*)_is_not_false_it\\?)|(something_-?\\d+\\.?\\d*_interesting_(.*)_is_not_true_it\\?))$"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "x-nestia-namespace": "plain.template.template",
+        "x-nestia-jsDocTags": []
+      }
+    },
+    "/plain/constant": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "A",
+                  "B",
+                  "C"
+                ]
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "x-nestia-namespace": "plain.constant.constant",
         "x-nestia-jsDocTags": []
       }
     }
