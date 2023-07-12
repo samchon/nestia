@@ -1,3 +1,5 @@
+import { Escaper } from "typia/lib/utils/Escaper";
+
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { ISwagger } from "../structures/ISwagger";
@@ -130,6 +132,11 @@ export namespace RouteProgrammer {
                       });
             });
 
+            const parameterNames: Set<string> = new Set(
+                (route.parameters ?? [])
+                    .filter((p) => p.in === "path")
+                    .map((p) => StringUtil.normalize(p.name)),
+            );
             return {
                 name: "@lazy",
                 path: props.path,
@@ -138,7 +145,16 @@ export namespace RouteProgrammer {
                 parameters: (route.parameters ?? [])
                     .filter((p) => p.in === "path")
                     .map((p) => ({
-                        key: p.name,
+                        key: (() => {
+                            let key: string = StringUtil.normalize(p.name);
+                            if (Escaper.variable(key)) return key;
+
+                            while (true) {
+                                key = "_" + key;
+                                if (parameterNames.has(key) === false)
+                                    return key;
+                            }
+                        })(),
                         schema: {
                             ...p.schema,
                             description: p.schema.description ?? p.description,

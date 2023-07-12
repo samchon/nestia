@@ -3,6 +3,7 @@ import fs from "fs";
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
+import { MapUtil } from "../../utils/MapUtil";
 import { SdkFunctionProgrammer } from "./SdkFunctionProgrammer";
 import { SdkRouteDirectory } from "./SdkRouteDirectory";
 
@@ -20,9 +21,6 @@ export namespace SdkFileProgrammer {
             );
             for (const route of routeList) emplace(root)(route);
 
-            // RELOCATE FOR ONLY ONE CONTROLLER METHOD IN AN URL CASE
-            relocate(root);
-
             // ITERATE FILES
             await iterate(config)(root)(config.output + "/functional");
         };
@@ -30,15 +28,10 @@ export namespace SdkFileProgrammer {
     const emplace =
         (directory: SdkRouteDirectory) =>
         (route: IRoute): void => {
-            // SEPARATE IDENTIFIERS
-            const identifiers: string[] = route.path
-                .split("/")
-                .filter((str) => str.length && str[0] !== ":")
-                .map((str) => str.split("-").join("_").split(".").join("_"));
-
             // OPEN DIRECTORIES
-            for (const key of identifiers) {
-                directory = directory.directories.take(
+            for (const key of route.accessors.slice(0, -1)) {
+                directory = MapUtil.take(
+                    directory.children,
                     key,
                     () => new SdkRouteDirectory(directory, key),
                 );
@@ -47,19 +40,6 @@ export namespace SdkFileProgrammer {
             // ADD ROUTE
             directory.routes.push(route);
         };
-
-    const relocate = (directory: SdkRouteDirectory): void => {
-        if (
-            directory.parent !== null &&
-            directory.directories.empty() &&
-            directory.routes.length === 1 &&
-            directory.name === directory.routes[0].name
-        ) {
-            directory.parent.routes.push(directory.routes[0]);
-            directory.parent.directories.erase(directory.name);
-        } else if (directory.directories.empty() === false)
-            for (const it of directory.directories) relocate(it.second);
-    };
 
     /* ---------------------------------------------------------
         FILE ITERATOR
@@ -75,9 +55,9 @@ export namespace SdkFileProgrammer {
 
             // ITERATE CHILDREN
             const content: string[] = [];
-            for (const it of directory.directories) {
-                await iterate(config)(it.second)(`${outDir}/${it.first}`);
-                content.push(`export * as ${it.first} from "./${it.first}";`);
+            for (const [key, value] of directory.children) {
+                await iterate(config)(value)(`${outDir}/${key}`);
+                content.push(`export * as ${key} from "./${key}";`);
             }
             if (content.length && directory.routes.length) content.push("");
 

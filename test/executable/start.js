@@ -21,7 +21,9 @@ const build = async (name) => {
     const pack = JSON.parse(
         await fs.promises.readFile("package.json", "utf8"),
     );
-    if (pack.scripts.test !== undefined)
+    if (pack.scripts.test !== undefined &&
+        process.argv.includes("--skipTest") === false
+    )
         cp.execSync("npm run test", { stdio: "inherit" });
 
     return {
@@ -128,14 +130,21 @@ const main = async () => {
         console.log(`${title ?? ""}: ${elapsed.toLocaleString()} ms`);
     }
 
+    const library = (() => {
+        const index = process.argv.findIndex(str => str === "--library");
+        return (index === -1 || process.argv.length < index + 2)
+            ? null
+            : process.argv[index + 1] ?? null;
+    })();
     await measure("\nTotal Elapsed Time")(async () => {
         if (!process.argv.find((str) => str === "--skipBuild")) {
             console.log("Build Packages");
             const modules = [];
             for (const name of await fs.promises.readdir(libraryDirectory("")))
-                await measure("")(async () => {
-                    modules.push(await build(name));
-                });
+                if (name === (library ?? name))
+                    await measure("")(async () => {
+                        modules.push(await build(name));
+                    });
 
             const pack = JSON.parse(
                 await fs.promises.readFile(`${__dirname}/../package.json`, "utf8")
@@ -171,8 +180,8 @@ const main = async () => {
         if (!process.argv.includes("--skipMigrates")) {
             if (fs.existsSync(`${__dirname}/../migrated`))
                 fs.rmSync(`${__dirname}/../migrated`, { recursive: true });
-
             fs.mkdirSync(`${__dirname}/../migrated`);
+            
             for (const name of ["body", "date", "param", "plain", "query"])
                 if (name === (only ?? name))
                     await measure()(async () => migrate(name));

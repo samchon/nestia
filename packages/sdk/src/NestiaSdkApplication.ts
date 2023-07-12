@@ -5,6 +5,7 @@ import { Pair, Singleton } from "tstl";
 import ts from "typescript";
 
 import { INestiaConfig } from "./INestiaConfig";
+import { AccessorAnalyzer } from "./analyses/AccessorAnalyzer";
 import { ControllerAnalyzer } from "./analyses/ControllerAnalyzer";
 import { ReflectAnalyzer } from "./analyses/ReflectAnalyzer";
 import { NestiaConfigCompilerOptions } from "./executable/internal/NestiaConfigCompilerOptions";
@@ -210,6 +211,7 @@ export class NestiaSdkApplication {
         }
 
         // DO GENERATE
+        AccessorAnalyzer.analyze(routeList);
         await archiver(checker)(config(this.config_))(routeList);
     }
 
