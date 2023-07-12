@@ -1,9 +1,9 @@
 import api from "./../../../../api";
 
-export const test_api_variable_$catch_$catch = async (
+export const test_api_variable_$try = async (
     connection: api.IConnection
 ): Promise<void> => {
-    await api.functional.variable.$catch.$catch(
+    await api.functional.variable.$try(
         connection,
     );
 };

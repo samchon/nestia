@@ -173,8 +173,8 @@ const main = async () => {
         if (!process.argv.includes("--skipMigrates")) {
             if (fs.existsSync(`${__dirname}/../migrated`))
                 fs.rmSync(`${__dirname}/../migrated`, { recursive: true });
-
             fs.mkdirSync(`${__dirname}/../migrated`);
+            
             for (const name of ["body", "date", "param", "plain", "query"])
                 if (name === (only ?? name))
                     await measure()(async () => migrate(name));

@@ -4,22 +4,24 @@ import { IRoute } from "../structures/IRoute";
 
 export namespace AccessorAnalyzer {
     export const analyze = (routes: IRoute[]) => {
+        shrink(routes);
         variable(routes);
         shrink(routes);
         for (const r of routes) r.name = r.accessors.at(-1) ?? r.name;
     };
 
-    const prepare = (routeList: IRoute[]): Set<string> => {
-        const dict: Set<string> = new Set();
+    const prepare = (routeList: IRoute[]): Map<string, number> => {
+        const dict: Map<string, number> = new Map();
         for (const route of routeList)
-            route.accessors.forEach((_a, i) =>
-                dict.add(route.accessors.slice(0, i + 1).join(".")),
-            );
+            route.accessors.forEach((_a, i) => {
+                const key: string = route.accessors.slice(0, i + 1).join(".");
+                dict.set(key, (dict.get(key) ?? 0) + 1);
+            });
         return dict;
     };
 
     const variable = (routeList: IRoute[]) => {
-        const dict: Set<string> = prepare(routeList);
+        const dict: Map<string, number> = prepare(routeList);
         for (const route of routeList) {
             const emended: string[] = route.accessors.slice();
             route.accessors.forEach((accessor, i) => {
@@ -41,7 +43,7 @@ export namespace AccessorAnalyzer {
     };
 
     const shrink = (routeList: IRoute[]) => {
-        const dict: Set<string> = prepare(routeList);
+        const dict: Map<string, number> = prepare(routeList);
         for (const route of routeList) {
             if (
                 route.accessors.length < 2 ||
@@ -50,7 +52,7 @@ export namespace AccessorAnalyzer {
                 continue;
 
             const cut: string[] = route.accessors.slice(0, -1);
-            if (dict.has(cut.join(".")) === true) continue;
+            if ((dict.get(cut.join(".")) ?? 0) > 1) continue;
 
             route.accessors = cut;
         }
