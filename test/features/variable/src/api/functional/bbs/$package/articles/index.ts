@@ -31,7 +31,7 @@ export async function index(
         index.ENCRYPTED,
         index.METHOD,
         index.path(section),
-        input,
+        input
     );
 }
 export namespace index {
@@ -70,7 +70,7 @@ export async function $catch(
         connection,
         $catch.ENCRYPTED,
         $catch.METHOD,
-        $catch.path(section, input),
+        $catch.path(section, input)
     );
 }
 export namespace $catch {
@@ -118,7 +118,7 @@ export async function at(
         connection,
         at.ENCRYPTED,
         at.METHOD,
-        at.path(section, id),
+        at.path(section, id)
     );
 }
 export namespace at {
@@ -156,7 +156,7 @@ export async function $new(
         connection,
         $new.ENCRYPTED,
         $new.METHOD,
-        $new.path(section, date),
+        $new.path(section, date)
     );
 }
 export namespace $new {
@@ -195,7 +195,7 @@ export async function store(
         store.ENCRYPTED,
         store.METHOD,
         store.path(section),
-        input,
+        input
     );
 }
 export namespace store {
@@ -237,7 +237,7 @@ export async function update(
         update.ENCRYPTED,
         update.METHOD,
         update.path(section, id),
-        input,
+        input
     );
 }
 export namespace update {
@@ -275,7 +275,7 @@ export async function $$delete(
         connection,
         $$delete.ENCRYPTED,
         $$delete.METHOD,
-        $$delete.path(section, id),
+        $$delete.path(section, id)
     );
 }
 export namespace $$delete {
@@ -310,7 +310,7 @@ export async function $delete(
         connection,
         $delete.ENCRYPTED,
         $delete.METHOD,
-        $delete.path(section),
+        $delete.path(section)
     );
 }
 export namespace $delete {

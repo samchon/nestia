@@ -21,7 +21,7 @@ export async function random(
         connection,
         random.ENCRYPTED,
         random.METHOD,
-        random.path(),
+        random.path()
     );
 }
 export namespace random {

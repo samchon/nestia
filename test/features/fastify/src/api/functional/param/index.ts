@@ -20,7 +20,7 @@ export async function boolean(
         connection,
         boolean.ENCRYPTED,
         boolean.METHOD,
-        boolean.path(value),
+        boolean.path(value)
     );
 }
 export namespace boolean {
@@ -51,7 +51,7 @@ export async function number(
         connection,
         number.ENCRYPTED,
         number.METHOD,
-        number.path(value),
+        number.path(value)
     );
 }
 export namespace number {
@@ -82,7 +82,7 @@ export async function string(
         connection,
         string.ENCRYPTED,
         string.METHOD,
-        string.path(value),
+        string.path(value)
     );
 }
 export namespace string {
@@ -113,7 +113,7 @@ export async function nullable(
         connection,
         nullable.ENCRYPTED,
         nullable.METHOD,
-        nullable.path(value),
+        nullable.path(value)
     );
 }
 export namespace nullable {
@@ -144,7 +144,7 @@ export async function literal(
         connection,
         literal.ENCRYPTED,
         literal.METHOD,
-        literal.path(value),
+        literal.path(value)
     );
 }
 export namespace literal {

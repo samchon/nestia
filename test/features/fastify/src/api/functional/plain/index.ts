@@ -17,11 +17,18 @@ export async function send(
     body: send.Input,
 ): Promise<send.Output> {
     return Fetcher.fetch(
-        connection,
+        {
+            ...connection,
+            headers: {
+                ...(connection.headers ?? {}),
+                "Content-Type": "text/plain",
+            },
+        },
         send.ENCRYPTED,
         send.METHOD,
         send.path(),
         body,
+        (str) => str
     );
 }
 export namespace send {

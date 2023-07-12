@@ -40,9 +40,9 @@
     "typia": "^4.1.6",
     "uuid": "^9.0.0",
     "nestia": "../packages/cli/nestia-4.3.2.tgz",
-    "@nestia/core": "../packages/core/nestia-core-1.4.4-dev.20230713.tgz",
+    "@nestia/core": "../packages/core/nestia-core-1.4.4.tgz",
     "@nestia/e2e": "../packages/e2e/nestia-e2e-0.3.6.tgz",
     "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-1.4.0.tgz",
-    "@nestia/sdk": "../packages/sdk/nestia-sdk-1.4.11-dev.20230713.tgz"
+    "@nestia/sdk": "../packages/sdk/nestia-sdk-1.4.11.tgz"
   }
 }

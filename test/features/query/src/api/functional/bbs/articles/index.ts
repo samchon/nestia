@@ -23,7 +23,7 @@ export async function index(
         connection,
         index.ENCRYPTED,
         index.METHOD,
-        index.path(query),
+        index.path(query)
     );
 }
 export namespace index {
