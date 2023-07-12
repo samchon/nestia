@@ -10,6 +10,7 @@ export interface IRoute {
     encrypted: boolean;
     status?: number;
 
+    accessors: string[];
     parameters: IRoute.IParameter[];
     imports: [string, string[]][];
     output: IRoute.IOutput;

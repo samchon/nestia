@@ -6,6 +6,7 @@ import { CommentFactory } from "typia/lib/factories/CommentFactory";
 import { IController } from "../structures/IController";
 import { IRoute } from "../structures/IRoute";
 import { ITypeTuple } from "../structures/ITypeTuple";
+import { PathUtil } from "../utils/PathUtil";
 import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";
@@ -135,7 +136,7 @@ export namespace ControllerAnalyzer {
 
         // CONSTRUCT COMMON DATA
         const tags = signature.getJsDocTags();
-        const common: Omit<IRoute, "path"> = {
+        const common: Omit<IRoute, "path" | "accessors"> = {
             ...func,
             parameters,
             output: { ...outputType, contentType: func.contentType },
@@ -189,6 +190,7 @@ export namespace ControllerAnalyzer {
         return pathList.map((path) => ({
             ...common,
             path,
+            accessors: [...PathUtil.accessors(path), func.name],
         }));
     }
 
