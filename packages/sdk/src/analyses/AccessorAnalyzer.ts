@@ -21,6 +21,7 @@ export namespace AccessorAnalyzer {
     const variable = (routeList: IRoute[]) => {
         const dict: Set<string> = prepare(routeList);
         for (const route of routeList) {
+            const emended: string[] = route.accessors.slice();
             route.accessors.forEach((accessor, i) => {
                 if (Escaper.variable(accessor)) return;
                 while (true) {
@@ -30,11 +31,12 @@ export namespace AccessorAnalyzer {
                         accessor,
                     ].join(".");
                     if (dict.has(partial) === false) {
-                        route.accessors[i] = accessor;
+                        emended[i] = accessor;
                         break;
                     }
                 }
             });
+            route.accessors.splice(0, route.accessors.length, ...emended);
         }
     };
 

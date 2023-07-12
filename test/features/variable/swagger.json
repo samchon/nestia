@@ -85,12 +85,10 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "variable.delete.$delete",
+        "x-nestia-namespace": "variable.delete.$$delete",
         "x-nestia-jsDocTags": []
-      }
-    },
-    "/variable/dollarDelete": {
-      "delete": {
+      },
+      "get": {
         "tags": [],
         "parameters": [],
         "responses": {
@@ -99,7 +97,7 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "variable.dollarDelete.$delete",
+        "x-nestia-namespace": "variable.delete.$delete",
         "x-nestia-jsDocTags": []
       }
     },

@@ -7,5 +7,4 @@
 export * as $try from "./$try";
 export * as $catch from "./$catch";
 export * as $delete from "./$delete";
-export * as dollarDelete from "./dollarDelete";
 export * as $1234 from "./$1234";
