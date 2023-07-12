@@ -6,6 +6,7 @@
 //================================================================
 import { Fetcher } from "@nestia/fetcher";
 import type { IConnection, Primitive } from "@nestia/fetcher";
+import typia from "typia";
 
 import type { IPerformance } from "./../../structures/IPerformance";
 
@@ -17,12 +18,16 @@ import type { IPerformance } from "./../../structures/IPerformance";
 export async function get(
     connection: IConnection,
 ): Promise<get.Output> {
-    return Fetcher.fetch(
-        connection,
-        get.ENCRYPTED,
-        get.METHOD,
-        get.path(),
-    );
+    return !!connection.simulate
+        ? get.simulate(
+              connection,
+          )
+        : Fetcher.fetch(
+              connection,
+              get.ENCRYPTED,
+              get.METHOD,
+              get.path()
+          );
 }
 export namespace get {
     export type Output = Primitive<IPerformance>;
@@ -36,5 +41,17 @@ export namespace get {
 
     export const path = (): string => {
         return `/performance`;
+    }
+    export const random = (g?: Partial<typia.IRandomGenerator>): Output =>
+        typia.random<Output>(g);
+    export const simulate = async (
+        connection: IConnection,
+    ): Promise<Output> => {
+        return random(
+            typeof connection.simulate === 'object' &&
+                connection.simulate !== null
+                ? connection.simulate
+                : undefined
+        );
     }
 }

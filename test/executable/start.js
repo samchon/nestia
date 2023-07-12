@@ -183,7 +183,7 @@ const main = async () => {
             fs.mkdirSync(`${__dirname}/../migrated`);
             
             for (const name of ["body", "date", "param", "plain", "query"])
-                if (name === (only ?? name))
+                if (name.includes(only ?? name))
                     await measure()(async () => migrate(name));
         }
     });

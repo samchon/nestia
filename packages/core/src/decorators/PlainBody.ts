@@ -6,7 +6,10 @@ import {
 import type express from "express";
 import type { FastifyRequest } from "fastify";
 
+import { assert } from "typia";
+
 import { get_text_body } from "./internal/get_text_body";
+import { validate_request_body } from "./internal/validate_request_body";
 
 /**
  * Plain body decorator.
@@ -29,8 +32,24 @@ import { get_text_body } from "./internal/get_text_body";
  * @return Parameter decorator
  * @author Jeongho Nam - https://github.com/samchon
  */
-export const PlainBody: () => ParameterDecorator = createParamDecorator(
-    async function PlainBody(_data: any, context: ExecutionContext) {
+export function PlainBody(): ParameterDecorator;
+
+/**
+ * @internal
+ */
+export function PlainBody(
+    assert?: (input: unknown) => string,
+): ParameterDecorator {
+    const checker = assert
+        ? validate_request_body("PlainBody")({
+              type: "assert",
+              assert,
+          })
+        : null;
+    return createParamDecorator(async function PlainBody(
+        _data: any,
+        context: ExecutionContext,
+    ) {
         const request: express.Request | FastifyRequest = context
             .switchToHttp()
             .getRequest();
@@ -38,9 +57,15 @@ export const PlainBody: () => ParameterDecorator = createParamDecorator(
             throw new BadRequestException(
                 `Request body type is not "text/plain".`,
             );
-        return get_text_body(request);
-    },
-);
+        const value: string = await get_text_body(request);
+        if (checker) {
+            const error: Error | null = checker(value);
+            if (error !== null) throw error;
+        }
+        return value;
+    })();
+}
+Object.assign(PlainBody, assert);
 
 const isTextPlain = (text?: string): boolean =>
     text !== undefined &&
