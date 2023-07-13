@@ -37,6 +37,7 @@ export namespace BenchmarkServer {
         const types: string[] = await findTypes(
             libraries.map((str) => `${location}/${str}`),
         );
+        types.splice(1);
 
         const result: Record<
             string,

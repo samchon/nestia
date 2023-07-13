@@ -58,10 +58,7 @@ const shoot =
                     if (err) reject(err);
                     else
                         resolve({
-                            amount:
-                                size *
-                                (result["2xx" as "2XX"] * 2 +
-                                    result["4xx" as "4XX"]),
+                            amount: size * (result["2xx"] * 2 + result["4xx"]),
                             time:
                                 result.finish.getTime() -
                                 result.start.getTime(),
