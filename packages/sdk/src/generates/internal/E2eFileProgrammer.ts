@@ -38,7 +38,12 @@ export namespace E2eFileProgrammer {
                     .join("/")}";`,
                 ...(importDict.empty()
                     ? []
-                    : [importDict.toScript(props.current)]),
+                    : [
+                          importDict.toScript(
+                              props.current,
+                              config.transformPath,
+                          ),
+                      ]),
                 "",
                 arrow(config)(route),
                 ...(additional.length ? ["", ...additional] : []),

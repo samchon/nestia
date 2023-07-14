@@ -133,6 +133,14 @@ export interface INestiaConfig {
      * @default false
      */
     simulate?: boolean;
+
+    /**
+     * Transforms a specific path when build sdk.
+     *
+     * This can be used to prevent package import statements
+     * from changing to relative paths when using monorepo.
+     */
+    transformPath?: Record<string, string>;
 }
 export namespace INestiaConfig {
     /**

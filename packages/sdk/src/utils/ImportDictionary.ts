@@ -27,18 +27,37 @@ export class ImportDictionary {
         pair.second.insert(instance);
     }
 
-    public toScript(outDir: string): string {
+    public toScript(
+        outDir: string,
+        transformPath?: Record<string, string>,
+    ): string {
         const statements: string[] = [];
         for (const it of this.dict_) {
             const file: string = (() => {
+                const absolutePath: string = it.first.split("\\").join("/");
+                const index: number = absolutePath.lastIndexOf(NODE_MODULES);
+                if (index !== -1) {
+                    return absolutePath.substring(index + NODE_MODULES.length);
+                }
                 const location: string = path
-                    .relative(outDir, it.first)
+                    .relative(outDir, absolutePath)
                     .split("\\")
                     .join("/");
-                const index: number = location.lastIndexOf(NODE_MODULES);
-                return index === -1
-                    ? `./${location}`
-                    : location.substring(index + NODE_MODULES.length);
+                if (!transformPath) {
+                    return `./${location}`;
+                } else {
+                    for (const [pathKey, transformTo] of Object.entries(
+                        transformPath,
+                    )) {
+                        const absolutePathIndex =
+                            absolutePath.lastIndexOf(pathKey);
+                        if (absolutePathIndex === -1) continue;
+                        return `${transformTo}${absolutePath.substring(
+                            absolutePathIndex + pathKey.length,
+                        )}`;
+                    }
+                    return `./${location}`;
+                }
             })();
             const realistic: boolean = it.second.first;
             const instances: string[] = it.second.second.toJSON();

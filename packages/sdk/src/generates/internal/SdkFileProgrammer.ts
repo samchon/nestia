@@ -126,7 +126,10 @@ export namespace SdkFileProgrammer {
                 if (asserted || json || random)
                     head.push(`import typia from "typia";`);
                 if (!importDict.empty())
-                    head.push("", importDict.toScript(outDir));
+                    head.push(
+                        "",
+                        importDict.toScript(outDir, config.transformPath),
+                    );
 
                 content.push(...head, "", ...content.splice(0, content.length));
             }
