@@ -36,7 +36,7 @@ export async function string(
               string.METHOD,
               string.path(),
               body,
-              (str) => str
+              (str) => str,
           );
 }
 export namespace string {
@@ -100,7 +100,7 @@ export async function template(
               template.METHOD,
               template.path(),
               body,
-              (str) => str
+              (str) => str,
           );
 }
 export namespace template {
@@ -164,7 +164,7 @@ export async function constant(
               constant.METHOD,
               constant.path(),
               body,
-              (str) => str
+              (str) => str,
           );
 }
 export namespace constant {

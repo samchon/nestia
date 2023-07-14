@@ -19,7 +19,7 @@ export async function get(
         connection,
         get.ENCRYPTED,
         get.METHOD,
-        get.path()
+        get.path(),
     );
 }
 export namespace get {

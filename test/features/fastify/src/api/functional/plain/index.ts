@@ -28,7 +28,7 @@ export async function send(
         send.METHOD,
         send.path(),
         body,
-        (str) => str
+        (str) => str,
     );
 }
 export namespace send {

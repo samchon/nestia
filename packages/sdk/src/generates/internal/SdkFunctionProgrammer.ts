@@ -102,7 +102,7 @@ export namespace SdkFunctionProgrammer {
                                           .map((str) => `${tab}    ${str}`)
                                           .join("\n"),
                             )
-                            .join(",\n"),
+                            .join(",\n") + ",",
                         `${tab})`,
                     ].join("\n");
                 if (!config.simulate) return fetch(space(4));
