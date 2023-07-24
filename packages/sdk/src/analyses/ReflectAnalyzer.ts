@@ -1,12 +1,12 @@
 import * as Constants from "@nestjs/common/constants";
+import "reflect-metadata";
 import { equal } from "tstl/ranges/module";
 
 import { IController } from "../structures/IController";
 import { ParamCategory } from "../structures/ParamCategory";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { PathAnalyzer } from "./PathAnalyzer";
-
-declare const Reflect: any;
+import { SecurityAnalyzer } from "./SecurityAnalyzer";
 
 type IModule = {
     [key: string]: any;
@@ -89,6 +89,7 @@ export namespace ReflectAnalyzer {
             name,
             paths,
             functions: [],
+            security: _Get_security(creator),
         };
 
         // PARSE CHILDREN DATA
@@ -123,6 +124,12 @@ export namespace ReflectAnalyzer {
         if (typeof value === "string") return [value];
         else if (value.length === 0) return [""];
         else return value;
+    }
+
+    function _Get_security(value: any): Record<string, string[]>[] {
+        const entire: Record<string, string[]>[] | undefined =
+            Reflect.getMetadata("swagger/apiSecurity", value);
+        return entire ? SecurityAnalyzer.merge(...entire) : [];
     }
 
     /* ---------------------------------------------------------
@@ -173,6 +180,7 @@ export namespace ReflectAnalyzer {
                         typeof h?.value === "string" &&
                         h.name.toLowerCase() === "content-type",
                 )?.value ?? "application/json",
+            security: _Get_security(proto),
         };
 
         // PARSE CHILDREN DATA

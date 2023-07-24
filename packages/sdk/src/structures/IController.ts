@@ -5,6 +5,7 @@ export interface IController {
     name: string;
     paths: string[];
     functions: IController.IFunction[];
+    security: Record<string, string[]>[];
 }
 
 export namespace IController {
@@ -17,6 +18,7 @@ export namespace IController {
         status?: number;
         type?: string;
         contentType: "application/json" | "text/plain";
+        security: Record<string, string[]>[];
     }
 
     export type IParameter =

@@ -35,15 +35,16 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "^1.4.0",
+    "@nestia/fetcher": ">= 1.4.0",
     "cli": "^1.0.1",
     "glob": "^7.2.0",
     "path-to-regexp": "^6.2.1",
+    "reflect-metadata": ">= 0.1.12",
     "tgrid": "^0.8.7",
     "tsconfck": "^2.0.1",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^2.5.13",
-    "typia": "^4.1.4"
+    "typia": ">= 4.1.4"
   },
   "peerDependencies": {
     "@nestia/fetcher": ">= 1.4.0",

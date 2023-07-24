@@ -14,6 +14,8 @@ import { ApplicationProgrammer } from "typia/lib/programmers/ApplicationProgramm
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
 import { ISwaggerDocument } from "../structures/ISwaggerDocument";
+import { ISwaggerRoute } from "../structures/ISwaggerRoute";
+import { ISwaggerSecurityScheme } from "../structures/ISwaggerSecurityScheme";
 import { FileRetriever } from "../utils/FileRetriever";
 import { MapUtil } from "../utils/MapUtil";
 
@@ -50,12 +52,15 @@ export namespace SwaggerGenerator {
             // CONSTRUCT SWAGGER DOCUMENTS
             const tupleList: Array<ISchemaTuple> = [];
             const swagger: ISwaggerDocument = await initialize(config);
-            const pathDict: Map<string, ISwaggerDocument.IPath> = new Map();
+            const pathDict: Map<
+                string,
+                Record<string, ISwaggerRoute>
+            > = new Map();
 
             for (const route of routeList) {
                 if (route.tags.find((tag) => tag.name === "internal")) continue;
 
-                const path: ISwaggerDocument.IPath = MapUtil.take(
+                const path: Record<string, ISwaggerRoute> = MapUtil.take(
                     pathDict,
                     get_path(route.path, route.parameters),
                     () => ({}),
@@ -170,7 +175,7 @@ export namespace SwaggerGenerator {
         collection: MetadataCollection,
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
-    ): ISwaggerDocument.IRoute {
+    ): ISwaggerRoute {
         const bodyParam = route.parameters.find(
             (param) => param.category === "body",
         );
@@ -238,6 +243,7 @@ export namespace SwaggerGenerator {
             ),
             summary,
             description,
+            security: route.security.length ? route.security : undefined,
             "x-nestia-namespace": [
                 ...route.path
                     .split("/")
@@ -262,8 +268,8 @@ export namespace SwaggerGenerator {
     }
 
     function emend_security(
-        input: INestiaConfig.ISwaggerConfig.ISecurityScheme,
-    ): ISwaggerDocument.ISecurityScheme {
+        input: ISwaggerSecurityScheme,
+    ): ISwaggerSecurityScheme {
         if (input.type === "apiKey")
             return {
                 ...input,
@@ -282,7 +288,7 @@ export namespace SwaggerGenerator {
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
         parameter: IRoute.IParameter,
-    ): ISwaggerDocument.IParameter {
+    ): ISwaggerRoute.IParameter {
         const schema: IJsonSchema | null = generate_schema(
             checker,
             collection,
@@ -322,7 +328,7 @@ export namespace SwaggerGenerator {
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
         parameter: IRoute.IParameter,
-    ): ISwaggerDocument.IRequestBody {
+    ): ISwaggerRoute.IRequestBody {
         const schema: IJsonSchema | null = generate_schema(
             checker,
             collection,
@@ -362,7 +368,7 @@ export namespace SwaggerGenerator {
         collection: MetadataCollection,
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
-    ): ISwaggerDocument.IResponseBody {
+    ): ISwaggerRoute.IResponseBody {
         // OUTPUT WITH SUCCESS STATUS
         const status: string =
             route.status !== undefined
@@ -376,7 +382,7 @@ export namespace SwaggerGenerator {
             tupleList,
             route.output.type,
         );
-        const success: ISwaggerDocument.IResponseBody = {
+        const success: ISwaggerRoute.IResponseBody = {
             [status]: {
                 description:
                     warning.get(route.encrypted).get("response", route.method) +
@@ -396,7 +402,7 @@ export namespace SwaggerGenerator {
         };
 
         // EXCEPTION STATUSES
-        const exceptions: ISwaggerDocument.IResponseBody = Object.fromEntries(
+        const exceptions: ISwaggerRoute.IResponseBody = Object.fromEntries(
             route.tags
                 .filter(
                     (tag) =>

@@ -1,6 +1,7 @@
 import type ts from "typescript";
 
 import type { ISwaggerDocument } from "./structures/ISwaggerDocument";
+import { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
 import type { StripEnums } from "./utils/StripEnums";
 
 /**
@@ -179,27 +180,6 @@ export namespace INestiaConfig {
         /**
          * Security schemes.
          */
-        security?: Record<string, ISwaggerConfig.ISecurityScheme>;
-    }
-    export namespace ISwaggerConfig {
-        export type ISecurityScheme =
-            | IApiKey
-            | Exclude<
-                  ISwaggerDocument.ISecurityScheme,
-                  ISwaggerDocument.ISecurityScheme.IApiKey
-              >;
-        export interface IApiKey {
-            type: "apiKey";
-
-            /**
-             * @default header
-             */
-            in?: "header" | "query" | "cookie";
-
-            /**
-             * @default Authorization
-             */
-            name?: string;
-        }
+        security?: Record<string, ISwaggerSecurityScheme>;
     }
 }
