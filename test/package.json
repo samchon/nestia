@@ -37,7 +37,7 @@
     "ts-patch": "v3.0.0",
     "typescript": "^5.1.3",
     "typescript-transform-paths": "^3.4.4",
-    "typia": "^4.1.6",
+    "typia": "^4.1.7",
     "uuid": "^9.0.0",
     "nestia": "../packages/cli/nestia-4.3.2.tgz",
     "@nestia/core": "../packages/core/nestia-core-1.4.4.tgz",
