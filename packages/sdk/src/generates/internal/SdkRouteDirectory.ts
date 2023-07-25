@@ -1,17 +1,15 @@
-import { HashMap } from "tstl";
-
 import { IRoute } from "../../structures/IRoute";
 
 export class SdkRouteDirectory {
     public readonly module: string;
-    public readonly directories: HashMap<string, SdkRouteDirectory>;
+    public readonly children: Map<string, SdkRouteDirectory>;
     public readonly routes: IRoute[];
 
     public constructor(
         readonly parent: SdkRouteDirectory | null,
         readonly name: string,
     ) {
-        this.directories = new HashMap();
+        this.children = new Map();
         this.routes = [];
         this.module =
             this.parent !== null

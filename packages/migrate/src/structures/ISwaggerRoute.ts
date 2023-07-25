@@ -1,32 +1,32 @@
 import { ISwaggerSchema } from "./ISwaggeSchema";
 
 export interface ISwaggerRoute {
-    parameters: ISwaggerRoute.IParameter[];
+    parameters?: ISwaggerRoute.IParameter[];
     requestBody?: ISwaggerRoute.IRequestBody;
-    responses: ISwaggerRoute.IResponseBody;
+    responses?: ISwaggerRoute.IResponseBody;
     summary?: string;
     description?: string;
     deprecated?: boolean;
-    tags: string[];
+    tags?: string[];
 }
 export namespace ISwaggerRoute {
     export interface IParameter {
         name: string;
         in: "path" | "query" | "header" | "cookie";
         schema: ISwaggerSchema;
-        required: boolean;
-        description: string;
+        required?: boolean;
+        description?: string;
     }
     export interface IRequestBody {
-        description: string;
+        description?: string;
         content: IContent;
-        required: true;
-        "x-nestia-encrypted": boolean;
+        required?: true;
+        "x-nestia-encrypted"?: boolean;
     }
     export type IResponseBody = Record<
         string,
         {
-            description: string;
+            description?: string;
             content?: IContent;
             "x-nestia-encrypted"?: boolean;
         }

@@ -32,7 +32,7 @@ export async function store(
         store.METHOD,
         store.path(section),
         input,
-        store.stringify,
+        store.stringify
     );
 }
 export namespace store {
@@ -76,7 +76,7 @@ export async function update(
         update.METHOD,
         update.path(section, id),
         input,
-        update.stringify,
+        update.stringify
     );
 }
 export namespace update {

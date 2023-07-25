@@ -35,7 +35,7 @@ export async function change(
               change.ENCRYPTED,
               change.METHOD,
               change.path(),
-              input,
+              input
           );
 }
 export namespace change {

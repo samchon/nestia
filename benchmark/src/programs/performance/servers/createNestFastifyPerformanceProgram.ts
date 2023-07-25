@@ -27,7 +27,12 @@ export const createNestFastifyPerformanceProgram =
                     { logger: false },
                 );
                 if (transform)
-                    app.value.useGlobalPipes(new ValidationPipe({ transform }));
+                    app.value.useGlobalPipes(
+                        new ValidationPipe({
+                            transform,
+                            stopAtFirstError: true,
+                        }),
+                    );
                 await app.value.listen(port);
                 return port;
             },

@@ -30,7 +30,10 @@ export const createNestFastifyStringifyProgram =
                 );
                 if (transform)
                     server.value.useGlobalPipes(
-                        new ValidationPipe({ transform }),
+                        new ValidationPipe({
+                            transform,
+                            stopAtFirstError: true,
+                        }),
                     );
                 await server.value.listen(port);
                 return port;

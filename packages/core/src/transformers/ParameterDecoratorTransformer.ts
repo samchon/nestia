@@ -2,6 +2,7 @@ import path from "path";
 import ts from "typescript";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
+import { PlainBodyProgrammer } from "../programmers/PlainBodyProgrammer";
 import { TypedBodyProgrammer } from "../programmers/TypedBodyProgrammer";
 import { TypedParamProgrammer } from "../programmers/TypedParamProgrammer";
 import { TypedQueryProgrammer } from "../programmers/TypedQueryProgrammer";
@@ -82,6 +83,8 @@ const FUNCTORS: Record<string, Programmer> = {
         parameters.length
             ? parameters
             : [TypedQueryProgrammer.generate(project)(modulo)(type)],
+    PlainBody: (project) => (modulo) => () => (type) =>
+        PlainBodyProgrammer.generate(project)(modulo)(type),
 };
 
 const LIB_PATH = path.join(

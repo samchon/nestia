@@ -23,7 +23,7 @@ export async function typedBody(
         typedBody.ENCRYPTED,
         typedBody.METHOD,
         typedBody.path(),
-        input,
+        input
     );
 }
 export namespace typedBody {
@@ -54,7 +54,7 @@ export async function typedManual(
         connection,
         typedManual.ENCRYPTED,
         typedManual.METHOD,
-        typedManual.path(),
+        typedManual.path()
     );
 }
 export namespace typedManual {
@@ -84,7 +84,7 @@ export async function typedParam(
         connection,
         typedParam.ENCRYPTED,
         typedParam.METHOD,
-        typedParam.path(id),
+        typedParam.path(id)
     );
 }
 export namespace typedParam {
@@ -114,7 +114,7 @@ export async function typedQuery(
         connection,
         typedQuery.ENCRYPTED,
         typedQuery.METHOD,
-        typedQuery.path(file),
+        typedQuery.path(file)
     );
 }
 export namespace typedQuery {
@@ -154,7 +154,7 @@ export async function internal(
         connection,
         internal.ENCRYPTED,
         internal.METHOD,
-        internal.path(),
+        internal.path()
     );
 }
 export namespace internal {

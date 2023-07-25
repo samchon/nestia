@@ -4,7 +4,6 @@ import path from "path";
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
 import { NestiaConfigUtil } from "../utils/NestiaConfigUtil";
-import { PathUtil } from "../utils/PathUtil";
 import { E2eFileProgrammer } from "./internal/E2eFileProgrammer";
 
 export namespace E2eGenerator {
@@ -12,18 +11,6 @@ export namespace E2eGenerator {
         (config: INestiaConfig) =>
         async (routeList: IRoute[]): Promise<void> => {
             console.log("Generating E2E Test Functions");
-
-            const pathDict: Map<string, number> = new Map();
-            for (const route of routeList) {
-                const sequence: string[] = PathUtil.accessors(route.path).map(
-                    (_str, i, entire) => entire.slice(0, i + 1).join("/"),
-                );
-                for (const s of sequence) {
-                    const count: number = pathDict.get(s) ?? 0;
-                    pathDict.set(s, count + 1);
-                }
-            }
-            const counter = (path: string): number => pathDict.get(path) ?? 0;
 
             // PREPARE DIRECTORIES
             const output: string = path.resolve(config.e2e!);
@@ -37,7 +24,7 @@ export namespace E2eGenerator {
 
             // GENERATE EACH TEST FILES
             for (const route of routeList)
-                await E2eFileProgrammer.generate(config)(counter)({
+                await E2eFileProgrammer.generate(config)({
                     api: path.resolve(config.output!),
                     current: path.join(output, "features", "api", "automated"),
                 })(route);

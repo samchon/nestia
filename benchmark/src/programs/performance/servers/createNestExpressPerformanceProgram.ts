@@ -26,7 +26,12 @@ export const createNestExpressPerformanceProgram =
                 );
                 app.value.use(express.json({ limit: "50mb" }));
                 if (transform)
-                    app.value.useGlobalPipes(new ValidationPipe({ transform }));
+                    app.value.useGlobalPipes(
+                        new ValidationPipe({
+                            transform,
+                            stopAtFirstError: true,
+                        }),
+                    );
                 await app.value.listen(port);
                 return port;
             },
