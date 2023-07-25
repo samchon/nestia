@@ -32,7 +32,7 @@ export async function store(
         store.ENCRYPTED,
         store.METHOD,
         store.path(section),
-        input
+        input,
     );
 }
 export namespace store {
@@ -80,7 +80,7 @@ export async function update(
         update.ENCRYPTED,
         update.METHOD,
         update.path(section, id),
-        input
+        input,
     );
 }
 export namespace update {
@@ -117,7 +117,7 @@ export async function erase(
         connection,
         erase.ENCRYPTED,
         erase.METHOD,
-        erase.path(section, id)
+        erase.path(section, id),
     );
 }
 export namespace erase {

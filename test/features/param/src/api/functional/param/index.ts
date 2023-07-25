@@ -20,7 +20,7 @@ export async function boolean(
         connection,
         boolean.ENCRYPTED,
         boolean.METHOD,
-        boolean.path(value)
+        boolean.path(value),
     );
 }
 export namespace boolean {
@@ -51,7 +51,7 @@ export async function number(
         connection,
         number.ENCRYPTED,
         number.METHOD,
-        number.path(value)
+        number.path(value),
     );
 }
 export namespace number {
@@ -82,7 +82,7 @@ export async function string(
         connection,
         string.ENCRYPTED,
         string.METHOD,
-        string.path(value)
+        string.path(value),
     );
 }
 export namespace string {
@@ -113,7 +113,7 @@ export async function nullable(
         connection,
         nullable.ENCRYPTED,
         nullable.METHOD,
-        nullable.path(value)
+        nullable.path(value),
     );
 }
 export namespace nullable {
@@ -144,7 +144,7 @@ export async function literal(
         connection,
         literal.ENCRYPTED,
         literal.METHOD,
-        literal.path(value)
+        literal.path(value),
     );
 }
 export namespace literal {
@@ -175,7 +175,7 @@ export async function uuid(
         connection,
         uuid.ENCRYPTED,
         uuid.METHOD,
-        uuid.path(value)
+        uuid.path(value),
     );
 }
 export namespace uuid {
@@ -206,7 +206,7 @@ export async function date(
         connection,
         date.ENCRYPTED,
         date.METHOD,
-        date.path(value)
+        date.path(value),
     );
 }
 export namespace date {
@@ -237,7 +237,7 @@ export async function uuid_nullable(
         connection,
         uuid_nullable.ENCRYPTED,
         uuid_nullable.METHOD,
-        uuid_nullable.path(value)
+        uuid_nullable.path(value),
     );
 }
 export namespace uuid_nullable {
@@ -268,7 +268,7 @@ export async function date_nullable(
         connection,
         date_nullable.ENCRYPTED,
         date_nullable.METHOD,
-        date_nullable.path(value)
+        date_nullable.path(value),
     );
 }
 export namespace date_nullable {

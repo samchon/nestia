@@ -26,7 +26,7 @@ export async function request(
         request.ENCRYPTED,
         request.METHOD,
         request.path(),
-        input
+        input,
     );
 }
 export namespace request {

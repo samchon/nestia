@@ -39,7 +39,7 @@ export async function index(
               index.ENCRYPTED,
               index.METHOD,
               index.path(section),
-              input
+              input,
           );
 }
 export namespace index {
@@ -105,7 +105,7 @@ export async function query(
               connection,
               query.ENCRYPTED,
               query.METHOD,
-              query.path(section, input)
+              query.path(section, input),
           );
 }
 export namespace query {
@@ -180,7 +180,7 @@ export async function at(
               connection,
               at.ENCRYPTED,
               at.METHOD,
-              at.path(section, id)
+              at.path(section, id),
           );
 }
 export namespace at {
@@ -245,7 +245,7 @@ export async function first(
               connection,
               first.ENCRYPTED,
               first.METHOD,
-              first.path(section, date)
+              first.path(section, date),
           );
 }
 export namespace first {
@@ -311,7 +311,7 @@ export async function store(
               store.ENCRYPTED,
               store.METHOD,
               store.path(section),
-              input
+              input,
           );
 }
 export namespace store {
@@ -381,7 +381,7 @@ export async function update(
               update.ENCRYPTED,
               update.METHOD,
               update.path(section, id),
-              input
+              input,
           );
 }
 export namespace update {
