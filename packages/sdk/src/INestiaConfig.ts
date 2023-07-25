@@ -179,6 +179,10 @@ export namespace INestiaConfig {
 
         /**
          * Security schemes.
+         *
+         * When generating `swagger.json` file through `nestia`, if your controllers or
+         * theirs methods have a security key which is not enrolled in here property,
+         * it would be an error.
          */
         security?: Record<string, ISwaggerSecurityScheme>;
     }

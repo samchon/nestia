@@ -1,3 +1,13 @@
+/**
+ * Security schema of Swagger Documents.
+ *
+ * `ISwaggerSecurityScheme` is a data structure representing content of
+ * `securitySchemes` in `swagger.json` file. It is composed with 5 types of security
+ * schemes as an union type like below.
+ *
+ * @reference https://swagger.io/specification/#security-scheme-object
+ * @author Jeongho Nam - https://github.com/samchon
+ */
 export type ISwaggerSecurityScheme =
     | ISwaggerSecurityScheme.IHttpBasic
     | ISwaggerSecurityScheme.IHttpBearer

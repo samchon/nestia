@@ -26,6 +26,7 @@
   "homepage": "https://nestia.io",
   "devDependencies": {
     "@nestia/migrate": "../packages/migrate/nestia-migrate-0.1.8.tgz",
+    "@nestjs/swagger": "^7.1.2",
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/node": "^18.11.15",
     "@types/uuid": "^9.0.0",
@@ -43,6 +44,6 @@
     "@nestia/core": "../packages/core/nestia-core-1.4.4.tgz",
     "@nestia/e2e": "../packages/e2e/nestia-e2e-0.3.6.tgz",
     "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-1.4.0.tgz",
-    "@nestia/sdk": "../packages/sdk/nestia-sdk-1.4.12.tgz"
+    "@nestia/sdk": "../packages/sdk/nestia-sdk-1.4.13-dev.20230726.tgz"
   }
 }

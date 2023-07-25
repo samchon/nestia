@@ -26,6 +26,9 @@ export namespace SwaggerGenerator {
         async (routeList: IRoute[]): Promise<void> => {
             console.log("Generating Swagger Documents");
 
+            // VALIDATE SECURITY
+            validate_security(config)(routeList);
+
             // PREPARE ASSETS
             const parsed: NodePath.ParsedPath = NodePath.parse(config.output);
             const directory: string = NodePath.dirname(parsed.dir);
@@ -98,6 +101,76 @@ export namespace SwaggerGenerator {
                 JSON.stringify(swagger, null, 2),
                 "utf8",
             );
+        };
+
+    const validate_security =
+        (config: INestiaConfig.ISwaggerConfig) =>
+        (routeList: IRoute[]): void | never => {
+            const securityMap: Map<
+                string,
+                { scheme: ISwaggerSecurityScheme; scopes: Set<string> }
+            > = new Map();
+            for (const [key, value] of Object.entries(config.security ?? {}))
+                securityMap.set(key, {
+                    scheme: emend_security(value),
+                    scopes:
+                        value.type === "oauth2"
+                            ? new Set([
+                                  ...Object.keys(
+                                      value.flows.authorizationCode?.scopes ??
+                                          {},
+                                  ),
+                                  ...Object.keys(
+                                      value.flows.implicit?.scopes ?? {},
+                                  ),
+                                  ...Object.keys(
+                                      value.flows.password?.scopes ?? {},
+                                  ),
+                                  ...Object.keys(
+                                      value.flows.clientCredentials?.scopes ??
+                                          {},
+                                  ),
+                              ])
+                            : new Set(),
+                });
+
+            const validate =
+                (reporter: (str: string) => void) =>
+                (key: string, scopes: string[]) => {
+                    const security = securityMap.get(key);
+                    if (security === undefined)
+                        return reporter(
+                            `target security "${key}" does not exists.`,
+                        );
+                    else if (scopes.length === 0) return;
+                    else if (security.scheme.type !== "oauth2")
+                        return reporter(
+                            `target security "${key}" is not "oauth2" type, but you've configured the scopes.`,
+                        );
+                    for (const s of scopes)
+                        if (security.scopes.has(s) === false)
+                            reporter(
+                                `target security ${key} does not have scope "${s}".`,
+                            );
+                };
+
+            const violations: string[] = [];
+            for (const route of routeList)
+                for (const record of route.security)
+                    for (const [key, scopes] of Object.entries(record))
+                        validate((str) =>
+                            violations.push(
+                                `  - ${str} (${route.symbol} at "${route.location}")`,
+                            ),
+                        )(key, scopes);
+
+            if (violations.length)
+                throw new Error(
+                    `Error on NestiaApplication.swagger(): invalid security configuration.\n` +
+                        `\n` +
+                        `List of violations:\n` +
+                        violations.join("\n"),
+                );
         };
 
     /* ---------------------------------------------------------
@@ -251,6 +324,7 @@ export namespace SwaggerGenerator {
                 route.name,
             ].join("."),
             "x-nestia-jsDocTags": route.tags,
+            "x-nestia-method": route.method,
         };
     }
 
