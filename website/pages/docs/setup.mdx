@@ -144,7 +144,7 @@ If you're using `@nestia/core` module, you've to use only standard TypeScript co
 
 Do you remember? `@nestia/core` boosts up [runtime validation](./core/typedbody) and [JSON serialization](./core/typedroute) through [AOT compilation](./pure/#aot-compilation). By the way, `@nestia/core` performs the AOT compilation through standardd TypeScript compiler API. Therefore, if you want to utilize those superfast decorators of `@nestia/core` module, you have to use only standard TypeScript compiler.
 
-I also know that non-standard compilers are faster than standard. However, all of them are erasing type information, and skip typec checking, for rapid compilation. Without type information, `@nestia/core` can't do anything, and it is the reason why `@nestia/core` is not supporting them.
+I also know that non-standard compilers are faster than standard. However, all of them are erasing type information, and skipping type checking for rapid compilation. By the way, without type information, `@nestia/core` can't do anything. It is the reason why `@nestia/core` does not support them.
 
   - Standard TypeScript Compiler (keep type info)
     - [Microsoft/TypeScript](https://github.com/microsoft/typescript)
