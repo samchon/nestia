@@ -20,7 +20,7 @@ export namespace ISwaggerRoute {
         in: string;
         schema: IJsonSchema;
         required: boolean;
-        description: string;
+        description?: string;
     }
     export interface IRequestBody {
         description: string;

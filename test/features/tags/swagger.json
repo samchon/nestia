@@ -118,7 +118,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/bbs/articles/{section}/{id}": {
@@ -238,7 +239,8 @@
           {
             "name": "deprecated"
           }
-        ]
+        ],
+        "x-nestia-method": "PUT"
       }
     }
   },

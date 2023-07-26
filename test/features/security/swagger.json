@@ -257,7 +257,7 @@
     "securitySchemes": {
       "basic": {
         "type": "http",
-        "schema": "basic"
+        "scheme": "basic"
       },
       "bearer": {
         "type": "http",

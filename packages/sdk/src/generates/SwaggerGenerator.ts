@@ -4,8 +4,7 @@ import { Singleton } from "tstl/thread/Singleton";
 import { VariadicSingleton } from "tstl/thread/VariadicSingleton";
 import ts from "typescript";
 
-import typia from "typia";
-import { IJsonApplication, IJsonSchema } from "typia";
+import typia, { IJsonApplication, IJsonComponents, IJsonSchema } from "typia";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { Metadata } from "typia/lib/metadata/Metadata";
@@ -69,6 +68,7 @@ export namespace SwaggerGenerator {
                     () => ({}),
                 );
                 path[route.method.toLowerCase()] = generate_route(
+                    config,
                     checker,
                     collection,
                     tupleList,
@@ -140,17 +140,17 @@ export namespace SwaggerGenerator {
                     const security = securityMap.get(key);
                     if (security === undefined)
                         return reporter(
-                            `target security "${key}" does not exists.`,
+                            `target security scheme "${key}" does not exists.`,
                         );
                     else if (scopes.length === 0) return;
                     else if (security.scheme.type !== "oauth2")
                         return reporter(
-                            `target security "${key}" is not "oauth2" type, but you've configured the scopes.`,
+                            `target security scheme "${key}" is not "oauth2" type, but you've configured the scopes.`,
                         );
                     for (const s of scopes)
                         if (security.scopes.has(s) === false)
                             reporter(
-                                `target security ${key} does not have scope "${s}".`,
+                                `target security scheme "${key}" does not have a specific scope "${s}".`,
                             );
                 };
 
@@ -166,7 +166,7 @@ export namespace SwaggerGenerator {
 
             if (violations.length)
                 throw new Error(
-                    `Error on NestiaApplication.swagger(): invalid security configuration.\n` +
+                    `Error on NestiaApplication.swagger(): invalid security specification. Check your "nestia.config.ts" file's "swagger.security" property, or each controller methods.\n` +
                         `\n` +
                         `List of violations:\n` +
                         violations.join("\n"),
@@ -244,6 +244,7 @@ export namespace SwaggerGenerator {
     }
 
     function generate_route(
+        config: INestiaConfig.ISwaggerConfig,
         checker: ts.TypeChecker,
         collection: MetadataCollection,
         tupleList: Array<ISchemaTuple>,
@@ -292,13 +293,15 @@ export namespace SwaggerGenerator {
                 .filter((param) => param.category !== "body")
                 .map((param) =>
                     generate_parameter(
+                        config,
                         checker,
                         collection,
                         tupleList,
                         route,
                         param,
                     ),
-                ),
+                )
+                .flat(),
             requestBody: bodyParam
                 ? generate_request_body(
                       checker,
@@ -357,12 +360,13 @@ export namespace SwaggerGenerator {
         REQUEST & RESPONSE
     --------------------------------------------------------- */
     function generate_parameter(
+        config: INestiaConfig.ISwaggerConfig,
         checker: ts.TypeChecker,
         collection: MetadataCollection,
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
         parameter: IRoute.IParameter,
-    ): ISwaggerRoute.IParameter {
+    ): ISwaggerRoute.IParameter[] {
         const schema: IJsonSchema | null = generate_schema(
             checker,
             collection,
@@ -383,17 +387,68 @@ export namespace SwaggerGenerator {
         ) {
             const string: IJsonSchema.IString = schema as IJsonSchema.IString;
             string.format = parameter.meta.type;
+        } else if (
+            config.decompose === true &&
+            parameter.category === "query"
+        ) {
+            const metadata: Metadata = MetadataFactory.analyze(checker)({
+                resolve: true,
+                constant: true,
+                absorb: true,
+                validate: (meta) => {
+                    if (meta.atomics.find((str) => str === "bigint"))
+                        throw new Error(NO_BIGIT);
+                },
+            })(collection)(parameter.type.type);
+            if (
+                metadata.size() === 1 &&
+                metadata.objects.length === 1 &&
+                metadata.objects[0].properties.every(
+                    (prop) =>
+                        prop.key.size() &&
+                        prop.key.constants.length === 1 &&
+                        prop.key.constants[0].type === "string" &&
+                        route.parameters.every(
+                            (param) =>
+                                param.name !== prop.key.constants[0].values[0],
+                        ),
+                )
+            ) {
+                const app: IJsonApplication = ApplicationProgrammer.write({
+                    purpose: "swagger",
+                })([metadata]);
+                const top = Object.values(app.components.schemas ?? {})[0];
+
+                if (typia.is<IJsonComponents.IObject>(top))
+                    return Object.entries(top.properties).map(
+                        ([key, value]) => ({
+                            name: key,
+                            in: "query",
+                            schema: value,
+                            required: top.required?.includes(key) ?? false,
+                            description: value.description,
+                        }),
+                    );
+            }
         }
 
-        return {
-            name: parameter.field ?? parameter.name,
-            in: parameter.category === "param" ? "path" : parameter.category,
-            description:
-                get_parametric_description(route, "param", parameter.name) ||
-                "",
-            schema,
-            required: required(parameter.type.type),
-        };
+        return [
+            {
+                name: parameter.field ?? parameter.name,
+                in:
+                    parameter.category === "param"
+                        ? "path"
+                        : parameter.category,
+                description:
+                    get_parametric_description(
+                        route,
+                        "param",
+                        parameter.name,
+                    ) || "",
+                schema,
+                required: required(parameter.type.type),
+            },
+        ];
     }
 
     function generate_request_body(

@@ -1,5 +1,5 @@
 /**
- * Security schema of Swagger Documents.
+ * Security scheme of Swagger Documents.
  *
  * `ISwaggerSecurityScheme` is a data structure representing content of
  * `securitySchemes` in `swagger.json` file. It is composed with 5 types of security
@@ -17,7 +17,7 @@ export type ISwaggerSecurityScheme =
 export namespace ISwaggerSecurityScheme {
     export interface IHttpBasic {
         type: "http";
-        schema: "basic";
+        scheme: "basic";
     }
     export interface IHttpBearer {
         type: "http";
@@ -26,7 +26,15 @@ export namespace ISwaggerSecurityScheme {
     }
     export interface IApiKey {
         type: "apiKey";
+
+        /**
+         * @default header
+         */
         in?: "header" | "query" | "cookie";
+
+        /**
+         * @default Authorization
+         */
         name?: string;
     }
 

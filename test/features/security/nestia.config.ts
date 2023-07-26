@@ -9,7 +9,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
         security: {
             basic: {
                 type: "http",
-                schema: "basic",
+                scheme: "basic",
             },
             bearer: {
                 type: "http",
@@ -19,14 +19,15 @@ export const NESTIA_CONFIG: INestiaConfig = {
                 type: "oauth2",
                 flows: {
                     implicit: {
-                        authorizationUrl: "https://example.com/api/oauth/dialog",
+                        authorizationUrl:
+                            "https://example.com/api/oauth/dialog",
                         refreshUrl: "https://example.com/api/oauth/refresh",
                         scopes: {
                             "write:pets": "modify pets in your account",
                             "read:pets": "read your pets",
-                        }
-                    }
-                }
+                        },
+                    },
+                },
             },
             security: {
                 type: "oauth2",
@@ -35,8 +36,8 @@ export const NESTIA_CONFIG: INestiaConfig = {
                         tokenUrl: "https://example.com/api/oauth/dialog",
                         refreshUrl: "https://example.com/api/oauth/refresh",
                         scopes: {
-                            "x1": "x1",
-                            "x2": "x2",
+                            x1: "x1",
+                            x2: "x2",
                         },
                     },
                 },

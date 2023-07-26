@@ -1,4 +1,4 @@
-export type ISwaggerSecurity = 
+export type ISwaggerSecurity =
     | ISwaggerSecurity.IHttpBasic
     | ISwaggerSecurity.IHttpBearer
     | ISwaggerSecurity.IApiKey
@@ -7,7 +7,7 @@ export type ISwaggerSecurity =
 export namespace ISwaggerSecurity {
     export interface IHttpBasic {
         type: "http";
-        schema: "basic";
+        scheme: "basic";
     }
     export interface IHttpBearer {
         type: "http";

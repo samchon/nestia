@@ -283,7 +283,8 @@ export namespace SdkFunctionProgrammer {
                     .map(
                         (param) =>
                             `${param.name}: ${
-                                param.category === "query"
+                                param.category === "query" &&
+                                param.type.name === props.query?.type.name
                                     ? `${route.name}.Query`
                                     : param.type.name
                             }`,

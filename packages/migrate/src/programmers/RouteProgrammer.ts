@@ -56,19 +56,27 @@ export namespace RouteProgrammer {
                         JsonTypeChecker.isBoolean(p.schema) ||
                         JsonTypeChecker.isNumber(p.schema) ||
                         JsonTypeChecker.isInteger(p.schema) ||
-                        JsonTypeChecker.isString(p.schema),
+                        JsonTypeChecker.isString(p.schema) ||
+                        JsonTypeChecker.isArray(p.schema),
                 );
-                if (objects.length === 1) return objects[0];
-                else if (
-                    objects.length + primitives.length !==
-                    parameters.length
-                )
+                if (objects.length === 1 && primitives.length === 0)
+                    return objects[0];
+                else if (objects.length > 1)
                     throw new Error(
                         `Error on nestia.migrate.RouteProgrammer.analze(): ${type} typed parameters must be only one object type - ${StringUtil.capitalize(
                             props.method,
                         )} "${props.path}".`,
                     );
 
+                const dto: ISwaggerSchema.IObject | null = objects[0]
+                    ? JsonTypeChecker.isObject(objects[0])
+                        ? objects[0]
+                        : ((swagger.components.schemas ?? {})[
+                              (
+                                  objects[0] as ISwaggerSchema.IReference
+                              ).$ref.replace(`#/components/schemas/`, ``)
+                          ] as ISwaggerSchema.IObject)
+                    : null;
                 const entire: ISwaggerSchema.IObject[] = [
                     ...objects.map((o) =>
                         JsonTypeChecker.isObject(o)
@@ -79,8 +87,8 @@ export namespace RouteProgrammer {
                     ),
                     {
                         type: "object",
-                        properties: Object.fromEntries(
-                            primitives.map((p) => [
+                        properties: Object.fromEntries([
+                            ...primitives.map((p) => [
                                 p.name,
                                 {
                                     ...p.schema,
@@ -88,10 +96,16 @@ export namespace RouteProgrammer {
                                         p.schema.description ?? p.description,
                                 },
                             ]),
-                        ),
-                        required: primitives
-                            .filter((p) => p.required)
-                            .map((p) => p.name),
+                            ...(dto
+                                ? Object.entries(dto.properties ?? {})
+                                : []),
+                        ]),
+                        required: [
+                            ...primitives
+                                .filter((p) => p.required)
+                                .map((p) => p.name),
+                            ...(dto ? dto.required ?? [] : []),
+                        ],
                     },
                 ];
                 return parameters.length === 0
@@ -186,6 +200,9 @@ export namespace RouteProgrammer {
         }
         if (route.tags) route.tags.forEach((name) => add(`@tag ${name}`));
         if (route.deprecated) add("@deprecated");
+        for (const security of route.security ?? [])
+            for (const [name, scopes] of Object.entries(security))
+                add(`@security ${[name, ...scopes].join("")}`);
         return content.length ? content.join("\n") : undefined;
     };
 

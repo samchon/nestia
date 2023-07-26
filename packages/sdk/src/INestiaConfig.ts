@@ -185,5 +185,15 @@ export namespace INestiaConfig {
          * it would be an error.
          */
         security?: Record<string, ISwaggerSecurityScheme>;
+
+        /**
+         * Decompose query DTO.
+         *
+         * If you configure this property to be `true`, the query DTO would be decomposed
+         * into individual query parameters per each property.
+         *
+         * @default false
+         */
+        decompose?: boolean;
     }
 }

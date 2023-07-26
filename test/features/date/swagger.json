@@ -30,7 +30,8 @@
           }
         },
         "x-nestia-namespace": "date.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/health": {
@@ -44,7 +45,8 @@
           }
         },
         "x-nestia-namespace": "health.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/performance": {
@@ -65,7 +67,8 @@
           }
         },
         "x-nestia-namespace": "performance.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     }
   },
