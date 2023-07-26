@@ -31,7 +31,7 @@ export async function join(
         join.ENCRYPTED,
         join.METHOD,
         join.path(),
-        input
+        input,
     );
 
     // configure header(s)
@@ -76,7 +76,7 @@ export async function login(
         login.ENCRYPTED,
         login.METHOD,
         login.path(),
-        input
+        input,
     );
 
     // configure header(s)
@@ -115,7 +115,7 @@ export async function exit(
         connection,
         exit.ENCRYPTED,
         exit.METHOD,
-        exit.path()
+        exit.path(),
     );
 }
 export namespace exit {

@@ -99,7 +99,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "PATCH"
       },
       "get": {
         "tags": [],
@@ -184,7 +185,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "GET"
       },
       "post": {
         "tags": [],
@@ -271,7 +273,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/bbs/package/{section}/articles/{id}": {
@@ -359,7 +362,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "GET"
       },
       "put": {
         "tags": [],
@@ -473,7 +477,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "PUT"
       },
       "delete": {
         "tags": [],
@@ -542,7 +547,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "DELETE"
       }
     },
     "/bbs/package/{section}/articles/new/{date}": {
@@ -629,7 +635,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "GET"
       }
     },
     "/health": {
@@ -643,7 +650,8 @@
           }
         },
         "x-nestia-namespace": "health.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/performance": {
@@ -664,7 +672,8 @@
           }
         },
         "x-nestia-namespace": "performance.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     }
   },

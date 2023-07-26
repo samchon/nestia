@@ -1,6 +1,7 @@
 import type ts from "typescript";
 
 import type { ISwaggerDocument } from "./structures/ISwaggerDocument";
+import { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
 import type { StripEnums } from "./utils/StripEnums";
 
 /**
@@ -178,28 +179,21 @@ export namespace INestiaConfig {
 
         /**
          * Security schemes.
+         *
+         * When generating `swagger.json` file through `nestia`, if your controllers or
+         * theirs methods have a security key which is not enrolled in here property,
+         * it would be an error.
          */
-        security?: Record<string, ISwaggerConfig.ISecurityScheme>;
-    }
-    export namespace ISwaggerConfig {
-        export type ISecurityScheme =
-            | IApiKey
-            | Exclude<
-                  ISwaggerDocument.ISecurityScheme,
-                  ISwaggerDocument.ISecurityScheme.IApiKey
-              >;
-        export interface IApiKey {
-            type: "apiKey";
+        security?: Record<string, ISwaggerSecurityScheme>;
 
-            /**
-             * @default header
-             */
-            in?: "header" | "query" | "cookie";
-
-            /**
-             * @default Authorization
-             */
-            name?: string;
-        }
+        /**
+         * Decompose query DTO.
+         *
+         * If you configure this property to be `true`, the query DTO would be decomposed
+         * into individual query parameters per each property.
+         *
+         * @default false
+         */
+        decompose?: boolean;
     }
 }

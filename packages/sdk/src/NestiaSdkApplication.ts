@@ -210,6 +210,18 @@ export class NestiaSdkApplication {
             routeList.push(...ControllerAnalyzer.analyze(checker, file, c));
         }
 
+        // FIND IMPLICIT TYPES
+        const implicit: IRoute[] = routeList.filter(is_implicit_return_typed);
+        if (implicit.length > 0)
+            throw new Error(
+                `NestiaApplication.${method}(): implicit return type is not allowed.\n` +
+                    "\n" +
+                    "List of implicit return typed routes:\n" +
+                    implicit
+                        .map((it) => `  - ${it.symbol} at "${it.location}"`)
+                        .join("\n"),
+            );
+
         // DO GENERATE
         AccessorAnalyzer.analyze(routeList);
         await archiver(checker)(config(this.config_))(routeList);
@@ -273,3 +285,20 @@ const title = (str: string): void => {
     console.log(` ${str}`);
     console.log("-----------------------------------------------------------");
 };
+
+const is_implicit_return_typed = (route: IRoute): boolean => {
+    const name: string = route.output.name;
+    if (name === "void") return false;
+    else if (name.indexOf("readonly [") !== -1) return true;
+
+    const pos: number = name.indexOf("__object");
+    if (pos === -1) return false;
+
+    const before: number = pos - 1;
+    const after: number = pos + "__object".length;
+    for (const i of [before, after])
+        if (name[i] === undefined) continue;
+        else if (VARIABLE.test(name[i])) return false;
+    return true;
+};
+const VARIABLE = /[a-zA-Z_$0-9]/;

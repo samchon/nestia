@@ -102,7 +102,7 @@ export namespace SdkFunctionProgrammer {
                                           .map((str) => `${tab}    ${str}`)
                                           .join("\n"),
                             )
-                            .join(",\n"),
+                            .join(",\n") + ",",
                         `${tab})`,
                     ].join("\n");
                 if (!config.simulate) return fetch(space(4));
@@ -283,7 +283,8 @@ export namespace SdkFunctionProgrammer {
                     .map(
                         (param) =>
                             `${param.name}: ${
-                                param.category === "query"
+                                param.category === "query" &&
+                                param.type.name === props.query?.type.name
                                     ? `${route.name}.Query`
                                     : param.type.name
                             }`,

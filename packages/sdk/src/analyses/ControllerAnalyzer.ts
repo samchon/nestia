@@ -10,6 +10,7 @@ import { PathUtil } from "../utils/PathUtil";
 import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";
+import { SecurityAnalyzer } from "./SecurityAnalyzer";
 
 export namespace ControllerAnalyzer {
     export function analyze(
@@ -134,8 +135,29 @@ export namespace ControllerAnalyzer {
             .toJSON()
             .map((pair) => [pair.first, pair.second.toJSON()]);
 
-        // CONSTRUCT COMMON DATA
+        // PARSE COMMENT TAGS
         const tags = signature.getJsDocTags();
+        const security: Record<string, string[]>[] = SecurityAnalyzer.merge(
+            ...controller.security,
+            ...func.security,
+            ...tags
+                .filter((tag) => tag.name === "security")
+                .map((tag) =>
+                    (tag.text ?? []).map((text) => {
+                        const line: string[] = text.text
+                            .split(" ")
+                            .filter((s) => s.trim())
+                            .filter((s) => !!s.length);
+                        if (line.length === 0) return {};
+                        return {
+                            [line[0]]: line.slice(1),
+                        };
+                    }),
+                )
+                .flat(),
+        );
+
+        // CONSTRUCT COMMON DATA
         const common: Omit<IRoute, "path" | "accessors"> = {
             ...func,
             parameters,
@@ -168,6 +190,7 @@ export namespace ControllerAnalyzer {
                               source: t.text![0].text,
                           },
                 ),
+            security,
         };
 
         // CONFIGURE PATHS

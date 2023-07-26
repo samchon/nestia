@@ -21,7 +21,7 @@ export async function at(
         connection,
         at.ENCRYPTED,
         at.METHOD,
-        at.path()
+        at.path(),
     );
 }
 export namespace at {

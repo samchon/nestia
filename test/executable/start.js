@@ -14,9 +14,9 @@ const build = async (name) => {
     );
 
     process.stdout.write(`  - @nestia/${name}`);
-    cp.execSync("npm install", { stdio: "inherit" });
-    cp.execSync("npm run build", { stdio: "inherit" });
-    cp.execSync("npm pack", { stdio: "inherit" });
+    cp.execSync("npm install", { stdio: "ignore" });
+    cp.execSync("npm run build", { stdio: "ignore" });
+    cp.execSync("npm pack", { stdio: "ignore" });
 
     const pack = JSON.parse(
         await fs.promises.readFile("package.json", "utf8"),
@@ -24,7 +24,7 @@ const build = async (name) => {
     if (pack.scripts.test !== undefined &&
         process.argv.includes("--skipTest") === false
     )
-        cp.execSync("npm run test", { stdio: "inherit" });
+        cp.execSync("npm run test", { stdio: "ignore" });
 
     return {
         name: pack.name,
@@ -54,7 +54,7 @@ const feature = (name) => {
                 : `${type} ${input} --out src/api`
             : type;
         const command = `npx nestia`;
-        cp.execSync(`${command} ${argv}`, { stdio: "inherit" });
+        cp.execSync(`${command} ${argv}`, { stdio: "ignore" });
     };
 
     // ERROR MODE HANDLING
@@ -62,6 +62,7 @@ const feature = (name) => {
         try {
             TestValidator.error("compile error")(() => {
                 cp.execSync("npx tsc", { stdio: "ignore" });
+                generate("swagger");
                 generate("sdk");
             });
             throw new Error("compile error must be occured.");
@@ -71,7 +72,7 @@ const feature = (name) => {
         }
     }
     else if (name === "verbatimModuleSyntax") {
-        cp.execSync("npx tsc", { stdio: "inherit" });
+        cp.execSync("npx tsc", { stdio: "ignore" });
         return;
     }
 
@@ -86,10 +87,10 @@ const feature = (name) => {
         "src/api/Primitive.ts",
         "src/test/features/api/automated"
     ])
-        cp.execSync(`npx rimraf ${file}`, { stdio: "inherit" });
+        cp.execSync(`npx rimraf ${file}`, { stdio: "ignore" });
 
     if (name.includes("distribute"))
-        cp.execSync(`npx rimraf packages/api`, { stdio: "inherit" });
+        cp.execSync(`npx rimraf packages/api`, { stdio: "ignore" });
 
     generate("swagger");
     generate("sdk");
@@ -100,11 +101,11 @@ const feature = (name) => {
         );
         if (config.includes("e2e:")) generate("e2e");
     }
-    cp.execSync("npx tsc", { stdio: "inherit" });
+    cp.execSync("npx tsc", { stdio: "ignore" });
 
     // RUN TEST AUTOMATION PROGRAM
     if (fs.existsSync("src/test"))
-        cp.execSync("npx ts-node src/test", { stdio: "inherit" });
+        cp.execSync("npx ts-node src/test", { stdio: "ignore" });
 };
 
 const migrate = (name) => {
@@ -116,7 +117,7 @@ const migrate = (name) => {
     cp.execSync(
         `npx @nestia/migrate ${input} ${output}`, 
         { 
-            stdio: "inherit",
+            stdio: "ignore",
             cwd,
         }
     );
@@ -158,7 +159,7 @@ const main = async () => {
             );
             cp.execSync("npm install", { 
                 cwd: __dirname + "/..", 
-                stdio: "inherit", 
+                stdio: "ignore", 
             })
         }
 
@@ -172,7 +173,7 @@ const main = async () => {
         console.log("\nTest Features");
         if (!process.argv.includes("--skipFeatures")) {
             for (const name of await fs.promises.readdir(featureDirectory("")))
-                if (name === (only ?? name))
+                if (name.includes(only ?? name))
                     await measure()(async () => feature(name));
         }
 

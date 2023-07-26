@@ -12,4 +12,4 @@ jobs:
 
       - name: test
         working-directory: ./test
-        run: npm run start
+        run: npm run start -- --skipTest

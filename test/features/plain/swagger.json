@@ -23,7 +23,8 @@
           }
         },
         "x-nestia-namespace": "health.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/performance": {
@@ -44,7 +45,8 @@
           }
         },
         "x-nestia-namespace": "performance.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/plain/string": {
@@ -77,7 +79,8 @@
           }
         },
         "x-nestia-namespace": "plain.string.string",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "POST"
       }
     },
     "/plain/template": {
@@ -111,7 +114,8 @@
           }
         },
         "x-nestia-namespace": "plain.template.template",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "POST"
       }
     },
     "/plain/constant": {
@@ -149,7 +153,8 @@
           }
         },
         "x-nestia-namespace": "plain.constant.constant",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "POST"
       }
     }
   },

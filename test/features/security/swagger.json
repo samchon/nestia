@@ -1,0 +1,302 @@
+{
+  "openapi": "3.0.1",
+  "servers": [
+    {
+      "url": "https://github.com/samchon/nestia",
+      "description": "insert your server url"
+    }
+  ],
+  "info": {
+    "version": "0.0.0",
+    "title": "@nestia/test",
+    "description": "Test program of Nestia"
+  },
+  "paths": {
+    "/basic": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IToken"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "x-nestia-namespace": "basic.basic",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/basic_by_comment": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IToken"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "description": "@security basic",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
+        "x-nestia-namespace": "basic_by_comment.basic_by_comment",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "security",
+            "text": [
+              {
+                "text": "basic",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/bearer": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IToken"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-nestia-namespace": "bearer.bearer",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/bearer_by_comment": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IToken"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "description": "@security bearer",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "x-nestia-namespace": "bearer_by_comment.bearer_by_comment",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "security",
+            "text": [
+              {
+                "text": "bearer",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/oauth2": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IToken"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "security": [
+          {
+            "oauth2": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ],
+        "x-nestia-namespace": "oauth2.oauth2",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/oauth2_by_comment": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IToken"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "description": "@security oauth2 write:pets read:pets",
+        "security": [
+          {
+            "oauth2": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ],
+        "x-nestia-namespace": "oauth2_by_comment.oauth2_by_comment",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "security",
+            "text": [
+              {
+                "text": "oauth2 write:pets read:pets",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/security": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IToken"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "x-nestia-namespace": "security.security",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IToken": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "value"
+        ],
+        "x-typia-jsDocTags": []
+      }
+    },
+    "securitySchemes": {
+      "basic": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://example.com/api/oauth/dialog",
+            "refreshUrl": "https://example.com/api/oauth/refresh",
+            "scopes": {
+              "write:pets": "modify pets in your account",
+              "read:pets": "read your pets"
+            }
+          }
+        }
+      },
+      "security": {
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://example.com/api/oauth/dialog",
+            "refreshUrl": "https://example.com/api/oauth/refresh",
+            "scopes": {
+              "x1": "x1",
+              "x2": "x2"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "basic": [],
+      "bearer": [],
+      "oauth2": [],
+      "security": []
+    }
+  ]
+}

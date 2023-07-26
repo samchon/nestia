@@ -4,8 +4,7 @@ import { Singleton } from "tstl/thread/Singleton";
 import { VariadicSingleton } from "tstl/thread/VariadicSingleton";
 import ts from "typescript";
 
-import typia from "typia";
-import { IJsonApplication, IJsonSchema } from "typia";
+import typia, { IJsonApplication, IJsonComponents, IJsonSchema } from "typia";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { Metadata } from "typia/lib/metadata/Metadata";
@@ -14,6 +13,8 @@ import { ApplicationProgrammer } from "typia/lib/programmers/ApplicationProgramm
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
 import { ISwaggerDocument } from "../structures/ISwaggerDocument";
+import { ISwaggerRoute } from "../structures/ISwaggerRoute";
+import { ISwaggerSecurityScheme } from "../structures/ISwaggerSecurityScheme";
 import { FileRetriever } from "../utils/FileRetriever";
 import { MapUtil } from "../utils/MapUtil";
 
@@ -23,6 +24,9 @@ export namespace SwaggerGenerator {
         (config: INestiaConfig.ISwaggerConfig) =>
         async (routeList: IRoute[]): Promise<void> => {
             console.log("Generating Swagger Documents");
+
+            // VALIDATE SECURITY
+            validate_security(config)(routeList);
 
             // PREPARE ASSETS
             const parsed: NodePath.ParsedPath = NodePath.parse(config.output);
@@ -50,17 +54,21 @@ export namespace SwaggerGenerator {
             // CONSTRUCT SWAGGER DOCUMENTS
             const tupleList: Array<ISchemaTuple> = [];
             const swagger: ISwaggerDocument = await initialize(config);
-            const pathDict: Map<string, ISwaggerDocument.IPath> = new Map();
+            const pathDict: Map<
+                string,
+                Record<string, ISwaggerRoute>
+            > = new Map();
 
             for (const route of routeList) {
                 if (route.tags.find((tag) => tag.name === "internal")) continue;
 
-                const path: ISwaggerDocument.IPath = MapUtil.take(
+                const path: Record<string, ISwaggerRoute> = MapUtil.take(
                     pathDict,
                     get_path(route.path, route.parameters),
                     () => ({}),
                 );
                 path[route.method.toLowerCase()] = generate_route(
+                    config,
                     checker,
                     collection,
                     tupleList,
@@ -93,6 +101,76 @@ export namespace SwaggerGenerator {
                 JSON.stringify(swagger, null, 2),
                 "utf8",
             );
+        };
+
+    const validate_security =
+        (config: INestiaConfig.ISwaggerConfig) =>
+        (routeList: IRoute[]): void | never => {
+            const securityMap: Map<
+                string,
+                { scheme: ISwaggerSecurityScheme; scopes: Set<string> }
+            > = new Map();
+            for (const [key, value] of Object.entries(config.security ?? {}))
+                securityMap.set(key, {
+                    scheme: emend_security(value),
+                    scopes:
+                        value.type === "oauth2"
+                            ? new Set([
+                                  ...Object.keys(
+                                      value.flows.authorizationCode?.scopes ??
+                                          {},
+                                  ),
+                                  ...Object.keys(
+                                      value.flows.implicit?.scopes ?? {},
+                                  ),
+                                  ...Object.keys(
+                                      value.flows.password?.scopes ?? {},
+                                  ),
+                                  ...Object.keys(
+                                      value.flows.clientCredentials?.scopes ??
+                                          {},
+                                  ),
+                              ])
+                            : new Set(),
+                });
+
+            const validate =
+                (reporter: (str: string) => void) =>
+                (key: string, scopes: string[]) => {
+                    const security = securityMap.get(key);
+                    if (security === undefined)
+                        return reporter(
+                            `target security scheme "${key}" does not exists.`,
+                        );
+                    else if (scopes.length === 0) return;
+                    else if (security.scheme.type !== "oauth2")
+                        return reporter(
+                            `target security scheme "${key}" is not "oauth2" type, but you've configured the scopes.`,
+                        );
+                    for (const s of scopes)
+                        if (security.scopes.has(s) === false)
+                            reporter(
+                                `target security scheme "${key}" does not have a specific scope "${s}".`,
+                            );
+                };
+
+            const violations: string[] = [];
+            for (const route of routeList)
+                for (const record of route.security)
+                    for (const [key, scopes] of Object.entries(record))
+                        validate((str) =>
+                            violations.push(
+                                `  - ${str} (${route.symbol} at "${route.location}")`,
+                            ),
+                        )(key, scopes);
+
+            if (violations.length)
+                throw new Error(
+                    `Error on NestiaApplication.swagger(): invalid security specification. Check your "nestia.config.ts" file's "swagger.security" property, or each controller methods.\n` +
+                        `\n` +
+                        `List of violations:\n` +
+                        violations.join("\n"),
+                );
         };
 
     /* ---------------------------------------------------------
@@ -166,11 +244,12 @@ export namespace SwaggerGenerator {
     }
 
     function generate_route(
+        config: INestiaConfig.ISwaggerConfig,
         checker: ts.TypeChecker,
         collection: MetadataCollection,
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
-    ): ISwaggerDocument.IRoute {
+    ): ISwaggerRoute {
         const bodyParam = route.parameters.find(
             (param) => param.category === "body",
         );
@@ -214,13 +293,15 @@ export namespace SwaggerGenerator {
                 .filter((param) => param.category !== "body")
                 .map((param) =>
                     generate_parameter(
+                        config,
                         checker,
                         collection,
                         tupleList,
                         route,
                         param,
                     ),
-                ),
+                )
+                .flat(),
             requestBody: bodyParam
                 ? generate_request_body(
                       checker,
@@ -238,6 +319,7 @@ export namespace SwaggerGenerator {
             ),
             summary,
             description,
+            security: route.security.length ? route.security : undefined,
             "x-nestia-namespace": [
                 ...route.path
                     .split("/")
@@ -245,6 +327,7 @@ export namespace SwaggerGenerator {
                 route.name,
             ].join("."),
             "x-nestia-jsDocTags": route.tags,
+            "x-nestia-method": route.method,
         };
     }
 
@@ -262,8 +345,8 @@ export namespace SwaggerGenerator {
     }
 
     function emend_security(
-        input: INestiaConfig.ISwaggerConfig.ISecurityScheme,
-    ): ISwaggerDocument.ISecurityScheme {
+        input: ISwaggerSecurityScheme,
+    ): ISwaggerSecurityScheme {
         if (input.type === "apiKey")
             return {
                 ...input,
@@ -277,12 +360,13 @@ export namespace SwaggerGenerator {
         REQUEST & RESPONSE
     --------------------------------------------------------- */
     function generate_parameter(
+        config: INestiaConfig.ISwaggerConfig,
         checker: ts.TypeChecker,
         collection: MetadataCollection,
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
         parameter: IRoute.IParameter,
-    ): ISwaggerDocument.IParameter {
+    ): ISwaggerRoute.IParameter[] {
         const schema: IJsonSchema | null = generate_schema(
             checker,
             collection,
@@ -303,17 +387,68 @@ export namespace SwaggerGenerator {
         ) {
             const string: IJsonSchema.IString = schema as IJsonSchema.IString;
             string.format = parameter.meta.type;
+        } else if (
+            config.decompose === true &&
+            parameter.category === "query"
+        ) {
+            const metadata: Metadata = MetadataFactory.analyze(checker)({
+                resolve: true,
+                constant: true,
+                absorb: true,
+                validate: (meta) => {
+                    if (meta.atomics.find((str) => str === "bigint"))
+                        throw new Error(NO_BIGIT);
+                },
+            })(collection)(parameter.type.type);
+            if (
+                metadata.size() === 1 &&
+                metadata.objects.length === 1 &&
+                metadata.objects[0].properties.every(
+                    (prop) =>
+                        prop.key.size() &&
+                        prop.key.constants.length === 1 &&
+                        prop.key.constants[0].type === "string" &&
+                        route.parameters.every(
+                            (param) =>
+                                param.name !== prop.key.constants[0].values[0],
+                        ),
+                )
+            ) {
+                const app: IJsonApplication = ApplicationProgrammer.write({
+                    purpose: "swagger",
+                })([metadata]);
+                const top = Object.values(app.components.schemas ?? {})[0];
+
+                if (typia.is<IJsonComponents.IObject>(top))
+                    return Object.entries(top.properties).map(
+                        ([key, value]) => ({
+                            name: key,
+                            in: "query",
+                            schema: value,
+                            required: top.required?.includes(key) ?? false,
+                            description: value.description,
+                        }),
+                    );
+            }
         }
 
-        return {
-            name: parameter.field ?? parameter.name,
-            in: parameter.category === "param" ? "path" : parameter.category,
-            description:
-                get_parametric_description(route, "param", parameter.name) ||
-                "",
-            schema,
-            required: required(parameter.type.type),
-        };
+        return [
+            {
+                name: parameter.field ?? parameter.name,
+                in:
+                    parameter.category === "param"
+                        ? "path"
+                        : parameter.category,
+                description:
+                    get_parametric_description(
+                        route,
+                        "param",
+                        parameter.name,
+                    ) || "",
+                schema,
+                required: required(parameter.type.type),
+            },
+        ];
     }
 
     function generate_request_body(
@@ -322,7 +457,7 @@ export namespace SwaggerGenerator {
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
         parameter: IRoute.IParameter,
-    ): ISwaggerDocument.IRequestBody {
+    ): ISwaggerRoute.IRequestBody {
         const schema: IJsonSchema | null = generate_schema(
             checker,
             collection,
@@ -362,7 +497,7 @@ export namespace SwaggerGenerator {
         collection: MetadataCollection,
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
-    ): ISwaggerDocument.IResponseBody {
+    ): ISwaggerRoute.IResponseBody {
         // OUTPUT WITH SUCCESS STATUS
         const status: string =
             route.status !== undefined
@@ -376,7 +511,7 @@ export namespace SwaggerGenerator {
             tupleList,
             route.output.type,
         );
-        const success: ISwaggerDocument.IResponseBody = {
+        const success: ISwaggerRoute.IResponseBody = {
             [status]: {
                 description:
                     warning.get(route.encrypted).get("response", route.method) +
@@ -396,7 +531,7 @@ export namespace SwaggerGenerator {
         };
 
         // EXCEPTION STATUSES
-        const exceptions: ISwaggerDocument.IResponseBody = Object.fromEntries(
+        const exceptions: ISwaggerRoute.IResponseBody = Object.fromEntries(
             route.tags
                 .filter(
                     (tag) =>

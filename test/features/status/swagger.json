@@ -23,7 +23,8 @@
           }
         },
         "x-nestia-namespace": "health.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/performance": {
@@ -44,7 +45,8 @@
           }
         },
         "x-nestia-namespace": "performance.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/status/random": {
@@ -65,7 +67,8 @@
           }
         },
         "x-nestia-namespace": "status.random.random",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     }
   },

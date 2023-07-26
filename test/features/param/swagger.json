@@ -23,7 +23,8 @@
           }
         },
         "x-nestia-namespace": "health.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/performance": {
@@ -44,7 +45,8 @@
           }
         },
         "x-nestia-namespace": "performance.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/param/{value}/boolean": {
@@ -75,7 +77,8 @@
           }
         },
         "x-nestia-namespace": "param.boolean.boolean",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/param/{value}/number": {
@@ -106,7 +109,8 @@
           }
         },
         "x-nestia-namespace": "param.number.number",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/param/{value}/string": {
@@ -137,7 +141,8 @@
           }
         },
         "x-nestia-namespace": "param.string.string",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/param/{value}/nullable": {
@@ -170,7 +175,8 @@
           }
         },
         "x-nestia-namespace": "param.nullable.nullable",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/param/{value}/literal": {
@@ -211,7 +217,8 @@
           }
         },
         "x-nestia-namespace": "param.literal.literal",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/param/{value}/uuid": {
@@ -243,7 +250,8 @@
           }
         },
         "x-nestia-namespace": "param.uuid.uuid",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/param/{value}/date": {
@@ -275,7 +283,8 @@
           }
         },
         "x-nestia-namespace": "param.date.date",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/param/{value}/uuid_nullable": {
@@ -309,7 +318,8 @@
           }
         },
         "x-nestia-namespace": "param.uuid_nullable.uuid_nullable",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/param/{value}/date_nullable": {
@@ -343,7 +353,8 @@
           }
         },
         "x-nestia-namespace": "param.date_nullable.date_nullable",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     }
   },

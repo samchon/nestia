@@ -42,7 +42,8 @@
           }
         },
         "x-nestia-namespace": "exception.typedBody.typedBody",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "POST"
       }
     },
     "/exception/typedManual": {
@@ -56,7 +57,8 @@
           }
         },
         "x-nestia-namespace": "exception.typedManual.typedManual",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/exception/{id}/typedParam": {
@@ -81,7 +83,8 @@
           }
         },
         "x-nestia-namespace": "exception.typedParam.typedParam",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/exception/typedQuery": {
@@ -112,7 +115,8 @@
           }
         },
         "x-nestia-namespace": "exception.typedQuery.typedQuery",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/exception/internal": {
@@ -126,7 +130,8 @@
           }
         },
         "x-nestia-namespace": "exception.internal.internal",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/health": {
@@ -140,7 +145,8 @@
           }
         },
         "x-nestia-namespace": "health.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/performance": {
@@ -161,7 +167,8 @@
           }
         },
         "x-nestia-namespace": "performance.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     }
   },

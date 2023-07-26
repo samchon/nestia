@@ -23,6 +23,7 @@ export interface IRoute {
         | { type: "setter"; source: string; target?: string }
         | { type: "assigner"; source: string }
     >;
+    security: Record<string, string[]>[];
 }
 
 export namespace IRoute {

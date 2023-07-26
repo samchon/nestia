@@ -7,6 +7,7 @@ export interface ISwaggerRoute {
     summary?: string;
     description?: string;
     deprecated?: boolean;
+    security?: Record<string, string[]>[];
     tags?: string[];
 }
 export namespace ISwaggerRoute {

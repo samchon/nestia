@@ -99,7 +99,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "PATCH"
       },
       "get": {
         "tags": [],
@@ -184,7 +185,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "GET"
       },
       "post": {
         "tags": [],
@@ -271,7 +273,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/bbs/{section}/articles/{id}": {
@@ -359,7 +362,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "GET"
       },
       "put": {
         "tags": [],
@@ -473,7 +477,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "PUT"
       }
     },
     "/bbs/{section}/articles/first/{date}": {
@@ -560,7 +565,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "GET"
       }
     },
     "/health": {
@@ -574,7 +580,8 @@
           }
         },
         "x-nestia-namespace": "health.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/performance": {
@@ -595,7 +602,8 @@
           }
         },
         "x-nestia-namespace": "performance.get",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
       }
     },
     "/sellers/authenticate/join": {
@@ -666,7 +674,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/sellers/authenticate/login": {
@@ -737,7 +746,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/sellers/authenticate/password/change": {
@@ -792,7 +802,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "PATCH"
       }
     },
     "/sellers/authenticate/exit": {
@@ -808,7 +819,8 @@
         "summary": "Erase the seller by itself",
         "description": "Erase the seller by itself.",
         "x-nestia-namespace": "sellers.authenticate.exit.exit",
-        "x-nestia-jsDocTags": []
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "DELETE"
       }
     }
   },
