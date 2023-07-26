@@ -1,3 +1,4 @@
+import path from "path";
 import { HashMap } from "tstl/container/HashMap";
 import ts from "typescript";
 
@@ -166,9 +167,15 @@ export namespace ControllerAnalyzer {
             status: func.status,
 
             symbol: `${controller.name}.${func.name}()`,
-            location: `${declaration.getSourceFile().fileName}:${
-                declaration.pos
-            }`,
+            location: (() => {
+                const file = declaration.getSourceFile();
+                const { line, character } = file.getLineAndCharacterOfPosition(
+                    declaration.pos,
+                );
+                return `${path.relative(process.cwd(), file.fileName)}:${
+                    line + 1
+                }:${character + 1}`;
+            })(),
             description: CommentFactory.description(symbol),
             tags,
             setHeaders: tags
