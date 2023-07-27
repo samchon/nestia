@@ -2,6 +2,10 @@ import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Stack from '@mui/material/Stack';
 
+
+
+
+# Setup
 ## Boilerplate
 ```bash showLineNumbers copyable
 npx nestia start <directory>
@@ -14,8 +18,7 @@ Boilerplate would be automatically constructed in the `<directory>`.
 
 
 
-## Setup
-### Setup Wizard
+## Setup Wizard
 ```bash showLineNumbers copy
 npm install --save-dev nestia
 npx nestia setup
@@ -25,11 +28,10 @@ When you want to setup `nestia` in exiting project, just run above `npx nestia s
 
 Setup Wizard will install and configure everything automatically.
 
-### Webpack
-When you want to bundle your NestJS project into a single file, you have to install `webpack` manually.  
 
-Never run `nest build --webpack` command of `@nestjs/cli`, because it is not compatible with `nestia`.
 
+
+## Webpack
 ```bash showLineNumbers copy
 # SETUP NESTIA
 npm install --save-dev nestia
@@ -39,9 +41,9 @@ npx nestia setup
 npm install --save-dev webpack webpack-cli webpack-node-externals
 ```
 
-After installing both `nestia` and `webpack`, configure `webpack.config.js` file like below. 
+When you want to bundle your NestJS project into a single file, you have to install `webpack` manually.  
 
-If required, update `entry`, `output` or `optimization` properties as you want.
+Never run `nest build --webpack` command of `@nestjs/cli`, because it is not compatible with `nestia`.
 
 ```javascript filename="webpack.config.js" showLineNumbers copy
 const path = require("path");
@@ -77,13 +79,20 @@ module.exports = {
 };
 ```
 
-After that, you can bundle your NestJS project into a single file, just by running `npx webpack` command.
+After installing both `nestia` and `webpack`, configure `webpack.config.js` file like above. 
+
+If required, update `entry`, `output` or `optimization` properties as you want.
 
 ```bash showLineNumbers copy
 npx webpack
 ```
 
-### Manual Setup
+At last, you can bundle your NestJS project into a single file, just by running `npx webpack` command.
+
+
+
+
+## Manual Setup
 ```bash showLineNumbers copyable
 # COMPILERS
 npm install --save-dev typescript
@@ -94,18 +103,23 @@ npm install --save-dev ts-patch
 npm install --save-dev nestia
 npm install --save-dev @nestia/sdk
 npm install --save @nestia/core
+npm install --save @nestia/e2e
 ```
 
 If you want to install `nestia` manually, you have to install `ts-node` and `ts-patch` modules as well as `typescript`. After installing those compilers, install `nestia` libraries like above.
 
-```json fileName="tsconfig.json"
+```json fileName="tsconfig.json" showLineNumbers copy
 {
     "strict": true,
     "strictNullChecks": true,
     "compilerOptions": {
         "plugins": [
-            { "transform": "@nestia/core/lib/transform" },
             { "transform": "typia/lib/transform" },
+            { 
+                "transform": "@nestia/core/lib/transform",
+                "validate": "assert",
+                "stringify": "assert", 
+            },
         ],
     },
 }
@@ -113,11 +127,15 @@ If you want to install `nestia` manually, you have to install `ts-node` and `ts-
 
 After that, configure `tsconfig.json` file like above.
 
-As `@nestia/core` and `typia` are generating optimal validation and JSON serialization code through [transformation](https://typia.io/docs/setup/#transformation), you've to configure them as `plugins`. 
+As `@nestia/core` and `typia` are generating optimal validation and JSON serialization code through [transformation](https://typia.io/docs/setup/#transformation), you've to configure them as `plugins`. For reference, you can choose which [`typia`](https://github.com/samchon/typia) functions to be used in [validation](./core/TypedBody) and [JSON serialization](./core/TypedRoute).
+
+  - [`is`](https://typia.io/docs/validators/is/): check validation only, and do not reveal the reason why 
+  - [`assert`](https://typia.io/docs/validators/assert/): find the 1st type error with reason
+  - [`validate`](https://typia.io/docs/validators/validate/): find every type errors with detailed reasons
 
 Also, never forget to configure `strict` (or `strictNullChecks`) as `true`. It is essential option for modern TypeScript development.
 
-```json fileName="package.json"
+```json fileName="package.json" showLineNumbers copy
 {
     "scripts": {
         "prepare": "ts-patch install"
@@ -132,7 +150,7 @@ Of course, you've to run the `npm run prepare` command after configuration.
 <br/>
 <Stack>
     <Alert severity="warning">
-If manual setup is difficult, just use the [Setup Wizard](#setup-wizard).
+If manual setup is difficult, just use the [Setup Wizard](#setup-wizard) \o/.
     </Alert>
 </Stack>
 
