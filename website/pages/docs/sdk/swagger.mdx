@@ -30,7 +30,7 @@ export default config;
 ```
     </Tab>
     <Tab>
-```bash filename="Terminal" showLineNumbers {}
+```bash filename="Terminal" copy showLineNumbers {}
 npx nestia swagger
 ```
     </Tab>
@@ -454,7 +454,7 @@ export default config;
 
 
 ### Manual CLI
-```bash
+```bash filename="Terminal" copy showLineNumbers {}
 npx nestia swagger <[source_directories_or_patterns]> \
     --exclude <exclude_directory_or_pattern> \
     --out <output_path>
@@ -464,21 +464,21 @@ Instead of configuring [`nestia.config.ts`](#nestiaconfigts), you can use the CL
 
 If your controller files are gathered into one directory, then write like below. About the output path, it does not matter whether directory or file name. Of course, if you write only directory name, then file name of the Swagger Documents would be `swagger.json` as default.
 
-```bash
+```bash filename="Terminal" copy showLineNumbers {}
 npx nestia swagger "src/controllers" --out "./dist"
 npx nestia swagger "src/controllers" --out "./dist/swagger.json"
 ```
 
 Otherwise, your controller files are separated in multiple directories, you can choose two options. The 1st is listing up every directories of the controller directories, and the other is using regex pattern like below.
 
-```bash
+```bash filename="Terminal" copy showLineNumbers {}
 npx nestia swagger "src/controllers" "src/appendix/controllers" --out "./dist/swagger.json"
 npx nestia swagger "src/**/*.controller.ts" --out "./dist"
 ```
 
 Also, you can exclude some controller classes by specifying `--exclude` argument:
 
-```bash
+```bash filename="Terminal" copy showLineNumbers {}
 npx nestia swagger
     "src/controllers" \
     --exclude "src/**/*.fake.ts" \

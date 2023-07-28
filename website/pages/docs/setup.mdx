@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack';
 
 # Setup
 ## Boilerplate
-```bash showLineNumbers copyable
+```bash filename="Terminal" copy showLineNumbers
 npx nestia start <directory>
 ```
 
@@ -19,7 +19,7 @@ Boilerplate would be automatically constructed in the `<directory>`.
 
 
 ## Setup Wizard
-```bash showLineNumbers copy
+```bash filename="Terminal" copy showLineNumbers
 npm install --save-dev nestia
 npx nestia setup
 ```
@@ -32,7 +32,7 @@ Setup Wizard will install and configure everything automatically.
 
 
 ## Webpack
-```bash showLineNumbers copy
+```bash filename="Terminal" copy showLineNumbers
 # SETUP NESTIA
 npm install --save-dev nestia
 npx nestia setup
@@ -84,7 +84,7 @@ After installing both `nestia` and `webpack`, configure `webpack.config.js` file
 
 If required, update `entry`, `output` or `optimization` properties as you want.
 
-```bash showLineNumbers copy
+```bash filename="Terminal" copy showLineNumbers
 npx webpack
 ```
 
@@ -94,7 +94,7 @@ At last, you can bundle your NestJS project into a single file, just by running 
 
 
 ## Manual Setup
-```bash showLineNumbers copyable
+```bash filename="Terminal" copy showLineNumbers
 # COMPILERS
 npm install --save-dev typescript
 npm install --save-dev ts-node
@@ -109,7 +109,7 @@ npm install --save @nestia/e2e
 
 If you want to install `nestia` manually, you have to install `ts-node` and `ts-patch` modules as well as `typescript`. After installing those compilers, install `nestia` libraries like above.
 
-```json fileName="tsconfig.json" showLineNumbers copy
+```json filename="tsconfig.json" showLineNumbers copy
 {
     "strict": true,
     "strictNullChecks": true,
@@ -136,7 +136,7 @@ As `@nestia/core` and `typia` are generating optimal validation and JSON seriali
 
 Also, never forget to configure `strict` (or `strictNullChecks`) as `true`. It is essential option for modern TypeScript development.
 
-```json fileName="package.json" showLineNumbers copy
+```json filename="package.json" showLineNumbers copy
 {
     "scripts": {
         "prepare": "ts-patch install"
@@ -144,9 +144,15 @@ Also, never forget to configure `strict` (or `strictNullChecks`) as `true`. It i
 }
 ```
 
+```bash filename="Terminal" copy showLineNumbers
+npm run prepare
+```
+
 At last, configure `npm run prepare` command like above. 
 
 Of course, you've to run the `npm run prepare` command after configuration.
+
+For reference, [`ts-patch`](https://github.com/nonara/ts-patch) is an helper library of TypeScript compiler that supporting custom transformations by plugins. With the [`ts-patch`](https://github.com/nonara/ts-patch) setup and plugin configurations, whenever you run `tsc` command, your `@nestia/core` decorator function call statements would be transformed to the optimal operation codes in the compiled JavaScript files.
 
 <br/>
 <Stack>

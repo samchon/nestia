@@ -370,7 +370,7 @@ export default config;
 </Tabs>
 
 ### Manual CLI
-```bash
+```bash filename="Terminal" copy showLineNumbers
 npx nestia sdk <[source_directories_or_patterns]> \
     --exclude <exclude_directory_or_pattern>
     --out <output_directory>
@@ -380,14 +380,14 @@ Instead of configuring [`nestia.config.ts`](#nestiaconfigts), you can use the CL
 
 If your controller files are gathered into one directory, then write like below. About the `output` path, it must be a path of directory, not of file.
 
-```bash
+```bash filename="Terminal" copy showLineNumbers
 npx nestia swagger "src/controllers" --out "./src/api"
 npx nestia swagger "src/controllers" --out "./src/api"
 ```
 
 Otherwise, your controller files are separated in multiple directories, you can choose two options. The 1st is listing up every directories of the controller directories, and the other is using regex pattern like below.
 
-```bash
+```bash filename="Terminal" copy showLineNumbers
 npx nestia swagger \
     "src/controllers" \
     "src/appendix/controllers" \
@@ -397,7 +397,7 @@ npx nestia swagger "src/**/*.controller.ts" --out "./src/api"
 
 Also, you can exclude some controller classes by specifying `--exclude` argument:
 
-```bash
+```bash filename="Terminal" copy showLineNumbers
 npx nestia swagger
     "src/controllers" \
     --exclude "src/**/*.fake.ts" \
@@ -528,7 +528,7 @@ Configure `distribute` property of [`nestia.config.ts`](#nestiaconfigts) file, a
 
 From now on, client developers can use the SDK library just by using `npm install` command.
 
-```bash copy filename="deploy.sh" showLineNumbers
+```bash filename="deploy.sh" copy showLineNumbers
 cd packages/api
 npm run deploy
 ```

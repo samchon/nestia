@@ -3,7 +3,7 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 ## Outline
 <Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
     <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {7}
+```typescript filename="nestia.config.ts" copy showLineNumbers {7}
 import { INestiaConfig } from "@nestia/sdk";
 
 const config: INestiaConfig = {
@@ -16,7 +16,7 @@ export default config;
 ```
     </Tab>
     <Tab>
-```bash filename="Terminal" showLineNumbers
+```bash filename="Terminal" copy showLineNumbers
 npx nestia e2e
 ```
     </Tab>
