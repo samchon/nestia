@@ -1,6 +1,7 @@
 import type ts from "typescript";
 
-import type { ISwaggerDocument } from "./structures/ISwaggerDocument";
+import type { ISwagger } from "./structures/ISwagger";
+import { ISwaggerInfo } from "./structures/ISwaggerInfo";
 import { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
 import type { StripEnums } from "./utils/StripEnums";
 
@@ -170,12 +171,12 @@ export namespace INestiaConfig {
          *
          * If omitted, `package.json` content would be used instead.
          */
-        info?: Partial<ISwaggerDocument.IInfo>;
+        info?: Partial<ISwaggerInfo>;
 
         /**
          * List of server addresses.
          */
-        servers?: ISwaggerDocument.IServer[];
+        servers?: ISwagger.IServer[];
 
         /**
          * Security schemes.

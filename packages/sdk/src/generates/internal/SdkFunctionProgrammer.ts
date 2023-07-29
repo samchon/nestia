@@ -42,7 +42,7 @@ export namespace SdkFunctionProgrammer {
                     "text/plain";
 
             // FETCH ARGUMENTS WITH REQUST BODY
-            const parameters = filter_parameters(route)(props.query);
+            const parameters = filter_path_parameters(route)(props.query);
             const fetchArguments: Array<string | string[]> = [
                 textBody
                     ? [
@@ -69,8 +69,11 @@ export namespace SdkFunctionProgrammer {
             }
 
             const assertions: string =
-                config.assert === true && route.parameters.length !== 0
+                config.assert === true &&
+                route.parameters.filter((p) => p.category !== "headers")
+                    .length !== 0
                     ? route.parameters
+                          .filter((p) => p.category !== "headers")
                           .map(
                               (param) =>
                                   `    typia.assert<typeof ${param.name}>(${param.name});`,
@@ -84,7 +87,9 @@ export namespace SdkFunctionProgrammer {
                     [
                         `${awa ? "await " : ""}${route.name}.simulate(`,
                         `    connection,`,
-                        ...route.parameters.map((p) => `    ${p.name},`),
+                        ...route.parameters
+                            .filter((p) => p.category !== "headers")
+                            .map((p) => `    ${p.name},`),
                         `)`,
                     ]
                         .map((line, i) =>
@@ -145,13 +150,15 @@ export namespace SdkFunctionProgrammer {
             return content.join("");
         };
 
-    const filter_parameters =
+    const filter_path_parameters =
         (route: IRoute) =>
         (query: IRoute.IParameter | undefined): IRoute.IParameter[] => {
             const parameters: IRoute.IParameter[] = route.parameters.filter(
                 (param) =>
-                    param.category === "param" ||
-                    (param.category === "query" && param.field !== undefined),
+                    param.category !== "headers" &&
+                    (param.category === "param" ||
+                        (param.category === "query" &&
+                            param.field !== undefined)),
             );
             if (query) parameters.push(query);
             return parameters;
@@ -194,16 +201,20 @@ export namespace SdkFunctionProgrammer {
             // REFORM PARAMETERS TEXT
             const parameters: string[] = [
                 "connection: IConnection",
-                ...route.parameters.map((param) => {
-                    const type: string =
-                        config.primitive !== false &&
-                        (param === props.query || param === props.input)
-                            ? `${route.name}.${
-                                  param === props.query ? "Query" : "Input"
-                              }`
-                            : param.type.name;
-                    return `${param.name}${param.optional ? "?" : ""}: ${type}`;
-                }),
+                ...route.parameters
+                    .filter((p) => p.category !== "headers")
+                    .map((param) => {
+                        const type: string =
+                            config.primitive !== false &&
+                            (param === props.query || param === props.input)
+                                ? `${route.name}.${
+                                      param === props.query ? "Query" : "Input"
+                                  }`
+                                : param.type.name;
+                        return `${param.name}${
+                            param.optional ? "?" : ""
+                        }: ${type}`;
+                    }),
             ];
 
             // OUTPUT TYPE
@@ -240,9 +251,9 @@ export namespace SdkFunctionProgrammer {
                 types.push(new Pair("Output", route.output.name));
 
             // PATH WITH PARAMETERS
-            const parameters: IRoute.IParameter[] = filter_parameters(route)(
-                props.query,
-            );
+            const parameters: IRoute.IParameter[] = filter_path_parameters(
+                route,
+            )(props.query);
             const path: string = compute_path({
                 path: route.path,
                 query: props.query,
@@ -328,7 +339,9 @@ export namespace SdkFunctionProgrammer {
             return `${space(8)}return \`${props.path}\``;
 
         const computeName = (str: string): string =>
-            props.parameters.find((p) => p.name === str) !== undefined
+            props.parameters
+                .filter((p) => p.category !== "headers")
+                .find((p) => p.name === str) !== undefined
                 ? computeName("_" + str)
                 : str;
         const variables: string = computeName("variables");
@@ -368,6 +381,7 @@ export namespace SdkFunctionProgrammer {
 
     const rest_query_parameters = (parameters: IRoute.IParameter[]): string =>
         parameters
+            .filter((param) => param.category !== "headers")
             .map((param) =>
                 param.name === param.field
                     ? param.name

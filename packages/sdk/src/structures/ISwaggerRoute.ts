@@ -16,7 +16,7 @@ export interface ISwaggerRoute {
 }
 export namespace ISwaggerRoute {
     export interface IParameter {
-        name: string;
+        name?: string;
         in: string;
         schema: IJsonSchema;
         required: boolean;

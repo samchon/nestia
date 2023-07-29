@@ -9,7 +9,10 @@
   "info": {
     "version": "0.0.0",
     "title": "@nestia/test",
-    "description": "Test program of Nestia"
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
   },
   "paths": {
     "/bbs/articles/{section}": {
@@ -173,7 +176,7 @@
           }
         },
         "summary": "Deprecated API",
-        "description": "Deprecated API.\n\nWould be marked as \"deprecated\".\n\nFor reference, top sentence \"Deprecated API.\" can replace the `@summary` tag.\n\n@param section Section code\n@param id Target article ID\n@param input Content to update\n@returns Updated content\n\n@deprecated",
+        "description": "Deprecated API.\n\nWould be marked as \"deprecated\".\n\nFor reference, top sentence \"Deprecated API.\" can replace the `@summary` tag.\n\n@param section Section code\n@param id Target article ID\n@param input Content to update\n@returns Updated content\n@deprecated",
         "x-nestia-namespace": "bbs.articles.update",
         "x-nestia-jsDocTags": [
           {
@@ -307,7 +310,6 @@
           "body",
           "files"
         ],
-        "description": "@minLength 3\n@maxLength 50",
         "x-typia-jsDocTags": []
       },
       "IAttachmentFile": {
@@ -417,7 +419,6 @@
           "extension",
           "url"
         ],
-        "description": "@format url",
         "x-typia-jsDocTags": []
       },
       "IBbsArticle": {
@@ -537,7 +538,6 @@
           "body",
           "files"
         ],
-        "description": "@format date-time",
         "x-typia-jsDocTags": []
       }
     }

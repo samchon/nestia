@@ -28,7 +28,6 @@ const clone = async (): Promise<void> => {
     // REMOVE VUNLERABLE FILES
     for (const path of [
         `${TEMPLATE}/.git`,
-        `${TEMPLATE}/dist`,
         `${TEMPLATE}/src/api`,
         `${TEMPLATE}/src/controllers`,
         `${TEMPLATE}/src/providers`,

@@ -9,7 +9,10 @@
   "info": {
     "version": "0.0.0",
     "title": "@nestia/test",
-    "description": "Test program of Nestia"
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
   },
   "paths": {
     "/exception/typedBody": {
@@ -92,7 +95,6 @@
         "tags": [],
         "parameters": [
           {
-            "name": "file",
             "in": "query",
             "description": "",
             "schema": {
@@ -235,7 +237,6 @@
           "body",
           "files"
         ],
-        "description": "@minLength 3\n@maxLength 50",
         "x-typia-jsDocTags": []
       },
       "IAttachmentFile": {
@@ -345,7 +346,6 @@
           "extension",
           "url"
         ],
-        "description": "@format url",
         "x-typia-jsDocTags": []
       },
       "IBbsArticle": {
@@ -459,7 +459,6 @@
           "body",
           "files"
         ],
-        "description": "@format date-time",
         "x-typia-jsDocTags": []
       },
       "IPerformance": {

@@ -24,11 +24,19 @@ export namespace IController {
     export type IParameter =
         | ICommonParameter
         | IQueryParameter
+        | IHeadersParameter
         | IBodyParameter
         | IPathParameter;
     export interface ICommonParameter {
         custom: false;
         category: ParamCategory;
+        index: number;
+        name: string;
+        field: string | undefined;
+    }
+    export interface IHeadersParameter {
+        custom: true;
+        category: "headers";
         index: number;
         name: string;
         field: string | undefined;

@@ -9,7 +9,10 @@
   "info": {
     "version": "0.0.0",
     "title": "@nestia/test",
-    "description": "Test program of Nestia"
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
   },
   "paths": {
     "/health": {
@@ -382,7 +385,6 @@
           "files",
           "created_at"
         ],
-        "description": "@format date-time",
         "x-typia-jsDocTags": []
       },
       "IAttachmentFile": {
@@ -492,7 +494,6 @@
           "extension",
           "url"
         ],
-        "description": "@format url",
         "x-typia-jsDocTags": []
       }
     },

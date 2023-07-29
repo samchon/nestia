@@ -58,7 +58,9 @@ export namespace E2eFileProgrammer {
             const output = [
                 `await ${accessor(route)}(`,
                 `${" ".repeat(tab * 4)}connection,`,
-                ...route.parameters.map(parameter(config)(tab)),
+                ...route.parameters
+                    .filter((param) => param.category !== "headers")
+                    .map(parameter(config)(tab)),
                 `${" ".repeat((tab - 1) * 4)});`,
             ].join("\n");
             return [

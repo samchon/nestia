@@ -9,7 +9,10 @@
   "info": {
     "version": "0.0.0",
     "title": "@nestia/test",
-    "description": "Test program of Nestia"
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
   },
   "paths": {
     "/bbs/{section}/articles": {
@@ -116,7 +119,6 @@
             "required": true
           },
           {
-            "name": "input",
             "in": "query",
             "description": "Page request info",
             "schema": {
@@ -830,7 +832,7 @@
         "type": "object",
         "properties": {
           "page": {
-            "description": "@type uint",
+            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -855,7 +857,7 @@
             "nullable": true
           },
           "limit": {
-            "description": "@type uint",
+            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -881,7 +883,7 @@
           }
         },
         "nullable": false,
-        "description": "@type uint",
+        "description": "Page request data",
         "x-typia-jsDocTags": []
       },
       "IPage_lt_IBbsArticle.ISummary_gt_": {
@@ -1014,14 +1016,13 @@
           "title",
           "created_at"
         ],
-        "description": "@format date-time",
         "x-typia-jsDocTags": []
       },
       "IPage.IPagination": {
         "type": "object",
         "properties": {
           "current": {
-            "description": "@type uint",
+            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -1045,7 +1046,7 @@
             "minimum": 0
           },
           "limit": {
-            "description": "@type uint",
+            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -1069,7 +1070,7 @@
             "minimum": 0
           },
           "records": {
-            "description": "@type uint",
+            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -1093,7 +1094,7 @@
             "minimum": 0
           },
           "pages": {
-            "description": "@type uint",
+            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -1124,7 +1125,7 @@
           "records",
           "pages"
         ],
-        "description": "@type uint",
+        "description": "Page information.",
         "x-typia-jsDocTags": []
       },
       "IBbsArticle": {
@@ -1244,7 +1245,6 @@
           "body",
           "files"
         ],
-        "description": "@format date-time",
         "x-typia-jsDocTags": []
       },
       "IAttachmentFile": {
@@ -1354,7 +1354,6 @@
           "extension",
           "url"
         ],
-        "description": "@format url",
         "x-typia-jsDocTags": []
       },
       "IBbsArticle.IStore": {
@@ -1418,7 +1417,6 @@
           "body",
           "files"
         ],
-        "description": "@minLength 3\n@maxLength 50",
         "x-typia-jsDocTags": []
       },
       "IPerformance": {

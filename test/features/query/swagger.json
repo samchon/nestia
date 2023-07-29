@@ -9,7 +9,10 @@
   "info": {
     "version": "0.0.0",
     "title": "@nestia/test",
-    "description": "Test program of Nestia"
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
   },
   "paths": {
     "/query/typed": {
@@ -17,7 +20,6 @@
         "tags": [],
         "parameters": [
           {
-            "name": "query",
             "in": "query",
             "description": "",
             "schema": {
@@ -49,7 +51,6 @@
         "tags": [],
         "parameters": [
           {
-            "name": "query",
             "in": "query",
             "description": "",
             "schema": {
@@ -122,7 +123,6 @@
             "required": true
           },
           {
-            "name": "query",
             "in": "query",
             "description": "",
             "schema": {

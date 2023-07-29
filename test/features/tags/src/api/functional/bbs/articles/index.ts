@@ -62,7 +62,6 @@ export namespace store {
  * @param id Target article ID
  * @param input Content to update
  * @returns Updated content
- * 
  * @deprecated
  * 
  * @controller BbsArticlesController.update()
