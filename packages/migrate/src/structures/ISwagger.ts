@@ -1,9 +1,10 @@
 import { ISwaggerComponents } from "./ISwaggerComponents";
+import { ISwaggerInfo } from "./ISwaggerInfo";
 import { ISwaggerRoute } from "./ISwaggerRoute";
 
 export interface ISwagger {
     openapi: `3.0.${number}`;
-    info: ISwagger.IInfo;
+    info: ISwaggerInfo;
     servers: ISwagger.IServer[];
 
     components: ISwaggerComponents;
@@ -13,11 +14,6 @@ export interface ISwagger {
 export namespace ISwagger {
     export interface IServer {
         url: string;
-        description?: string;
-    }
-    export interface IInfo {
-        version: string;
-        title: string;
         description?: string;
     }
     export type IPath = Record<string, ISwaggerRoute>;

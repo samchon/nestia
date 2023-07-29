@@ -271,7 +271,7 @@ export namespace ReflectAnalyzer {
             param.factory.name === "TypedBody" ||
             param.factory.name === "EncryptedBody" ||
             param.factory.name === "PlainBody"
-        ) {
+        )
             return {
                 custom: true,
                 category: "body",
@@ -284,11 +284,19 @@ export namespace ReflectAnalyzer {
                         ? "text/plain"
                         : "application/json",
             };
-        } else if (param.factory.name === "TypedParam") {
+        else if (param.factory.name === "TypedHeaders")
             return {
                 custom: true,
+                category: "headers",
                 name: param.name,
+                index: param.index,
+                field: param.data,
+            };
+        else if (param.factory.name === "TypedParam")
+            return {
+                custom: true,
                 category: "param",
+                name: param.name,
                 index: param.index,
                 field: param.data,
                 meta: (() => {
@@ -302,7 +310,7 @@ export namespace ReflectAnalyzer {
                     return undefined;
                 })(),
             };
-        } else if (param.factory.name === "TypedQuery")
+        else if (param.factory.name === "TypedQuery")
             return {
                 custom: true,
                 name: param.name,
@@ -324,6 +332,7 @@ export namespace ReflectAnalyzer {
         data: string | undefined;
     }
 
+    // node_modules/@nestjs/common/lib/route-paramtypes.enum.ts
     const NEST_PARAMETER_TYPES = [
         undefined,
         undefined,
@@ -331,7 +340,7 @@ export namespace ReflectAnalyzer {
         "body",
         "query",
         "param",
-        undefined,
+        "headers",
         undefined,
         undefined,
         undefined,

@@ -45,6 +45,6 @@
     "@nestia/core": "../packages/core/nestia-core-1.4.4.tgz",
     "@nestia/e2e": "../packages/e2e/nestia-e2e-0.3.6.tgz",
     "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-1.4.0.tgz",
-    "@nestia/sdk": "../packages/sdk/nestia-sdk-1.4.15.tgz"
+    "@nestia/sdk": "../packages/sdk/nestia-sdk-1.4.16.tgz"
   }
 }

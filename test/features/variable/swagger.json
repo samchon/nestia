@@ -53,7 +53,7 @@
           }
         },
         "summary": "Paginate entire articles",
-        "description": "Paginate entire articles.\n\n@param section Section code\n@param input Page request info\n@returns Paginated articles with summarized info",
+        "description": "Paginate entire articles.\n\n@param Section code\n@param Page request info\n@returns Paginated articles with summarized info",
         "x-nestia-namespace": "bbs.package.articles.index",
         "x-nestia-jsDocTags": [
           {
@@ -116,7 +116,6 @@
             "required": true
           },
           {
-            "name": "input",
             "in": "query",
             "description": "Page request info",
             "schema": {
@@ -139,7 +138,7 @@
           }
         },
         "summary": "Paginate entire articles (query ver",
-        "description": "Paginate entire articles (query ver.).\n\n@param section Section code\n@param input Page request info\n@returns Paginated articles with summarized info",
+        "description": "Paginate entire articles (query ver.).\n\n@param Section code\n@param Page request info\n@returns Paginated articles with summarized info",
         "x-nestia-namespace": "bbs.package.articles.$catch",
         "x-nestia-jsDocTags": [
           {
@@ -227,7 +226,7 @@
           }
         },
         "summary": "Store a new article",
-        "description": "Store a new article.\n\n@param section Section code\n@param input Content to store\n@returns Newly archived article",
+        "description": "Store a new article.\n\n@param Section code\n@param Content to store\n@returns Newly archived article",
         "x-nestia-namespace": "bbs.package.articles.store",
         "x-nestia-jsDocTags": [
           {
@@ -316,7 +315,7 @@
           }
         },
         "summary": "Read an article",
-        "description": "Read an article.\n\n@param section Section code\n@param id Target article ID\n@returns Detailed article info",
+        "description": "Read an article.\n\n@param Section code\n@param Target article ID\n@returns Detailed article info",
         "x-nestia-namespace": "bbs.package.articles.at",
         "x-nestia-jsDocTags": [
           {
@@ -414,7 +413,7 @@
           }
         },
         "summary": "Update an article",
-        "description": "Update an article.\n\n@param section Section code\n@param id Target article ID\n@param input Content to update\n@returns Updated content",
+        "description": "Update an article.\n\n@param Section code\n@param Target article ID\n@param Content to update\n@returns Updated content",
         "x-nestia-namespace": "bbs.package.articles.update",
         "x-nestia-jsDocTags": [
           {
@@ -510,7 +509,7 @@
           }
         },
         "summary": "Delete an article",
-        "description": "Delete an article.\n\n@param section Section code\n@param id Target article ID",
+        "description": "Delete an article.\n\n@param Section code\n@param Target article ID",
         "x-nestia-namespace": "bbs.package.articles.$$delete",
         "x-nestia-jsDocTags": [
           {
@@ -589,7 +588,7 @@
           }
         },
         "summary": "Get new article of a day",
-        "description": "Get new article of a day.\n\n@param section Section code\n@param date Target data\n@returns The new article info",
+        "description": "Get new article of a day.\n\n@param Section code\n@param Target data\n@returns The new article info",
         "x-nestia-namespace": "bbs.package.articles.new.$new",
         "x-nestia-jsDocTags": [
           {
@@ -683,7 +682,7 @@
         "type": "object",
         "properties": {
           "page": {
-            "description": "@type uint",
+            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -708,7 +707,7 @@
             "nullable": true
           },
           "limit": {
-            "description": "@type uint",
+            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -734,7 +733,7 @@
           }
         },
         "nullable": false,
-        "description": "@type uint",
+        "description": "Page request data",
         "x-typia-jsDocTags": []
       },
       "IPage_lt_IBbsArticle.ISummary_gt_": {
@@ -867,14 +866,13 @@
           "title",
           "created_at"
         ],
-        "description": "@format date-time",
         "x-typia-jsDocTags": []
       },
       "IPage.IPagination": {
         "type": "object",
         "properties": {
           "current": {
-            "description": "@type uint",
+            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -898,7 +896,7 @@
             "minimum": 0
           },
           "limit": {
-            "description": "@type uint",
+            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -922,7 +920,7 @@
             "minimum": 0
           },
           "records": {
-            "description": "@type uint",
+            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -946,7 +944,7 @@
             "minimum": 0
           },
           "pages": {
-            "description": "@type uint",
+            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -977,7 +975,7 @@
           "records",
           "pages"
         ],
-        "description": "@type uint",
+        "description": "Page information.",
         "x-typia-jsDocTags": []
       },
       "IBbsArticle": {
@@ -1097,7 +1095,6 @@
           "body",
           "files"
         ],
-        "description": "@format date-time",
         "x-typia-jsDocTags": []
       },
       "IAttachmentFile": {
@@ -1207,7 +1204,6 @@
           "extension",
           "url"
         ],
-        "description": "@format url",
         "x-typia-jsDocTags": []
       },
       "IBbsArticle.IStore": {
@@ -1271,7 +1267,6 @@
           "body",
           "files"
         ],
-        "description": "@minLength 3\n@maxLength 50",
         "x-typia-jsDocTags": []
       },
       "IPerformance": {

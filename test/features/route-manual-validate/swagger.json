@@ -382,7 +382,6 @@
           "files",
           "created_at"
         ],
-        "description": "@format date-time",
         "x-typia-jsDocTags": []
       },
       "IAttachmentFile": {
@@ -492,7 +491,6 @@
           "extension",
           "url"
         ],
-        "description": "@format url",
         "x-typia-jsDocTags": []
       }
     },

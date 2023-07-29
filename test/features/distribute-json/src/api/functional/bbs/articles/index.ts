@@ -13,8 +13,8 @@ import type { IBbsArticle } from "./../../../structures/IBbsArticle";
 /**
  * Store a new article.
  * 
- * @param section Section code
- * @param input Content to store
+ * @param Section code
+ * @param Content to store
  * @returns Newly archived article
  * 
  * @controller BbsArticlesController.store()
@@ -55,9 +55,9 @@ export namespace store {
 /**
  * Update an article.
  * 
- * @param section Section code
- * @param id Target article ID
- * @param input Content to update
+ * @param Section code
+ * @param Target article ID
+ * @param Content to update
  * @returns Updated content
  * 
  * @controller BbsArticlesController.update()

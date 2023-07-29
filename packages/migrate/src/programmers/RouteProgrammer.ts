@@ -103,7 +103,7 @@ export namespace RouteProgrammer {
                         required: [
                             ...primitives
                                 .filter((p) => p.required)
-                                .map((p) => p.name),
+                                .map((p) => p.name!),
                             ...(dto ? dto.required ?? [] : []),
                         ],
                     },
@@ -149,7 +149,7 @@ export namespace RouteProgrammer {
             const parameterNames: Set<string> = new Set(
                 (route.parameters ?? [])
                     .filter((p) => p.in === "path")
-                    .map((p) => StringUtil.normalize(p.name)),
+                    .map((p) => StringUtil.normalize(p.name!)),
             );
             return {
                 name: "@lazy",
@@ -160,7 +160,7 @@ export namespace RouteProgrammer {
                     .filter((p) => p.in === "path")
                     .map((p) => ({
                         key: (() => {
-                            let key: string = StringUtil.normalize(p.name);
+                            let key: string = StringUtil.normalize(p.name!);
                             if (Escaper.variable(key)) return key;
 
                             while (true) {

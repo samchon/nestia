@@ -14,7 +14,7 @@ export * as password from "./password";
 /**
  * Join as a seller.
  * 
- * @param input Information of yours
+ * @param Information of yours
  * @return Information of newly joined seller
  * @setHeader authorization.token Authorization
  * 
@@ -59,7 +59,7 @@ export namespace join {
 /**
  * Log-in as a seller.
  * 
- * @param input Email and password
+ * @param Email and password
  * @return Information of the seller
  * @assignHeaders authorization
  * 

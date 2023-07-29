@@ -17,7 +17,6 @@
         "tags": [],
         "parameters": [
           {
-            "name": "query",
             "in": "query",
             "description": "",
             "schema": {
@@ -49,7 +48,6 @@
         "tags": [],
         "parameters": [
           {
-            "name": "query",
             "in": "query",
             "description": "",
             "schema": {
@@ -122,7 +120,6 @@
             "required": true
           },
           {
-            "name": "query",
             "in": "query",
             "description": "",
             "schema": {

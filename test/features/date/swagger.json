@@ -141,7 +141,6 @@
           "date_with_tag",
           "date_but_union"
         ],
-        "description": "@formt date-time",
         "x-typia-jsDocTags": []
       },
       "__type": {

@@ -344,7 +344,6 @@
           "body",
           "files"
         ],
-        "description": "@minLength 3\n@maxLength 50",
         "x-typia-jsDocTags": []
       },
       "IAttachmentFile": {
@@ -454,7 +453,6 @@
           "extension",
           "url"
         ],
-        "description": "@format url",
         "x-typia-jsDocTags": []
       },
       "IBbsArticle": {
@@ -568,7 +566,6 @@
           "body",
           "files"
         ],
-        "description": "@format date-time",
         "x-typia-jsDocTags": []
       }
     },
