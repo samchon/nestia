@@ -9,7 +9,10 @@
   "info": {
     "version": "0.0.0",
     "title": "@nestia/test",
-    "description": "Test program of Nestia"
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
   },
   "paths": {
     "/health": {
@@ -79,7 +82,7 @@
           }
         },
         "summary": "Join as a seller",
-        "description": "Join as a seller.\n\n@param Information of yours\n@return Information of newly joined seller\n@setHeader authorization.token Authorization",
+        "description": "Join as a seller.\n\n@param input Information of yours\n@return Information of newly joined seller\n@setHeader authorization.token Authorization",
         "x-nestia-namespace": "sellers.authenticate.join.join",
         "x-nestia-jsDocTags": [
           {
@@ -151,7 +154,7 @@
           }
         },
         "summary": "Log-in as a seller",
-        "description": "Log-in as a seller.\n\n@param Email and password\n@return Information of the seller\n@assignHeaders authorization",
+        "description": "Log-in as a seller.\n\n@param input Email and password\n@return Information of the seller\n@assignHeaders authorization",
         "x-nestia-namespace": "sellers.authenticate.login.login",
         "x-nestia-jsDocTags": [
           {
@@ -216,7 +219,7 @@
           }
         },
         "summary": "Change password",
-        "description": "Change password.\n\n@param Old and new passwords\n@return Empty object",
+        "description": "Change password.\n\n@param input Old and new passwords\n@return Empty object",
         "x-nestia-namespace": "sellers.authenticate.password.change.change",
         "x-nestia-jsDocTags": [
           {

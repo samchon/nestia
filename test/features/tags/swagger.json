@@ -9,7 +9,10 @@
   "info": {
     "version": "0.0.0",
     "title": "@nestia/test",
-    "description": "Test program of Nestia"
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
   },
   "paths": {
     "/bbs/articles/{section}": {
@@ -54,7 +57,7 @@
           }
         },
         "summary": "Public API",
-        "description": "Would be shown without any mark.\n\n@tag public\n@summary Public API\n@param Section code\n@param Content to store\n@returns Newly archived article",
+        "description": "Would be shown without any mark.\n\n@tag public\n@summary Public API\n@param section Section code\n@param input Content to store\n@returns Newly archived article",
         "x-nestia-namespace": "bbs.articles.store",
         "x-nestia-jsDocTags": [
           {
@@ -173,7 +176,7 @@
           }
         },
         "summary": "Deprecated API",
-        "description": "Deprecated API.\n\nWould be marked as \"deprecated\".\n\nFor reference, top sentence \"Deprecated API.\" can replace the `@summary` tag.\n\n@param Section code\n@param Target article ID\n@param Content to update\n@returns Updated content\n@deprecated",
+        "description": "Deprecated API.\n\nWould be marked as \"deprecated\".\n\nFor reference, top sentence \"Deprecated API.\" can replace the `@summary` tag.\n\n@param section Section code\n@param id Target article ID\n@param input Content to update\n@returns Updated content\n@deprecated",
         "x-nestia-namespace": "bbs.articles.update",
         "x-nestia-jsDocTags": [
           {

@@ -9,7 +9,10 @@
   "info": {
     "version": "0.0.0",
     "title": "@nestia/test",
-    "description": "Test program of Nestia"
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
   },
   "paths": {
     "/bbs/{section}/articles": {
@@ -53,7 +56,7 @@
           }
         },
         "summary": "Paginate entire articles",
-        "description": "Paginate entire articles.\n\n@param Section code\n@param Page request info\n@returns Paginated articles with summarized info",
+        "description": "Paginate entire articles.\n\n@param section Section code\n@param input Page request info\n@returns Paginated articles with summarized info",
         "x-nestia-namespace": "bbs.articles.index",
         "x-nestia-jsDocTags": [
           {
@@ -138,7 +141,7 @@
           }
         },
         "summary": "Paginate entire articles (query ver",
-        "description": "Paginate entire articles (query ver.).\n\n@param Section code\n@param Page request info\n@returns Paginated articles with summarized info",
+        "description": "Paginate entire articles (query ver.).\n\n@param section Section code\n@param input Page request info\n@returns Paginated articles with summarized info",
         "x-nestia-namespace": "bbs.articles.query",
         "x-nestia-jsDocTags": [
           {
@@ -226,7 +229,7 @@
           }
         },
         "summary": "Store a new article",
-        "description": "Store a new article.\n\n@param Section code\n@param Content to store\n@returns Newly archived article",
+        "description": "Store a new article.\n\n@param section Section code\n@param input Content to store\n@returns Newly archived article",
         "x-nestia-namespace": "bbs.articles.store",
         "x-nestia-jsDocTags": [
           {
@@ -315,7 +318,7 @@
           }
         },
         "summary": "Read an article",
-        "description": "Read an article.\n\n@param Section code\n@param Target article ID\n@returns Detailed article info",
+        "description": "Read an article.\n\n@param section Section code\n@param id Target article ID\n@returns Detailed article info",
         "x-nestia-namespace": "bbs.articles.at",
         "x-nestia-jsDocTags": [
           {
@@ -413,7 +416,7 @@
           }
         },
         "summary": "Update an article",
-        "description": "Update an article.\n\n@param Section code\n@param Target article ID\n@param Content to update\n@returns Updated content",
+        "description": "Update an article.\n\n@param section Section code\n@param id Target article ID\n@param input Content to update\n@returns Updated content",
         "x-nestia-namespace": "bbs.articles.update",
         "x-nestia-jsDocTags": [
           {
@@ -518,7 +521,7 @@
           }
         },
         "summary": "Get first article of a day",
-        "description": "Get first article of a day.\n\n@param Section code\n@param Target data\n@returns The first article info",
+        "description": "Get first article of a day.\n\n@param section Section code\n@param date Target data\n@returns The first article info",
         "x-nestia-namespace": "bbs.articles.first.first",
         "x-nestia-jsDocTags": [
           {
@@ -635,7 +638,7 @@
           }
         },
         "summary": "Join as a seller",
-        "description": "Join as a seller.\n\n@param Information of yours\n@return Information of newly joined seller\n@setHeader authorization.token Authorization",
+        "description": "Join as a seller.\n\n@param input Information of yours\n@return Information of newly joined seller\n@setHeader authorization.token Authorization",
         "x-nestia-namespace": "sellers.authenticate.join.join",
         "x-nestia-jsDocTags": [
           {
@@ -707,7 +710,7 @@
           }
         },
         "summary": "Log-in as a seller",
-        "description": "Log-in as a seller.\n\n@param Email and password\n@return Information of the seller\n@assignHeaders authorization",
+        "description": "Log-in as a seller.\n\n@param input Email and password\n@return Information of the seller\n@assignHeaders authorization",
         "x-nestia-namespace": "sellers.authenticate.login.login",
         "x-nestia-jsDocTags": [
           {
@@ -772,7 +775,7 @@
           }
         },
         "summary": "Change password",
-        "description": "Change password.\n\n@param Old and new passwords\n@return Empty object",
+        "description": "Change password.\n\n@param input Old and new passwords\n@return Empty object",
         "x-nestia-namespace": "sellers.authenticate.password.change.change",
         "x-nestia-jsDocTags": [
           {

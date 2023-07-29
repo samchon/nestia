@@ -9,7 +9,10 @@
   "info": {
     "version": "0.0.0",
     "title": "@nestia/test",
-    "description": "Test program of Nestia"
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
   },
   "paths": {
     "/bbs/articles/{section}": {
@@ -52,7 +55,7 @@
           }
         },
         "summary": "Store a new article",
-        "description": "Store a new article.\n\n@param Section code\n@param Content to store\n@returns Newly archived article",
+        "description": "Store a new article.\n\n@param section Section code\n@param input Content to store\n@returns Newly archived article",
         "x-nestia-namespace": "bbs.articles.store",
         "x-nestia-jsDocTags": [
           {
@@ -152,7 +155,7 @@
           }
         },
         "summary": "Update an article",
-        "description": "Update an article.\n\n@param Section code\n@param Target article ID\n@param Content to update\n@returns Updated content",
+        "description": "Update an article.\n\n@param section Section code\n@param id Target article ID\n@param input Content to update\n@returns Updated content",
         "x-nestia-namespace": "bbs.articles.update",
         "x-nestia-jsDocTags": [
           {

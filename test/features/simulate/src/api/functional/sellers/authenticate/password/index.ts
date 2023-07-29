@@ -14,7 +14,7 @@ import type { ISeller } from "./../../../../structures/ISeller";
 /**
  * Change password.
  * 
- * @param Old and new passwords
+ * @param input Old and new passwords
  * @return Empty object
  * 
  * @controller SellerAuthenticateController.change()

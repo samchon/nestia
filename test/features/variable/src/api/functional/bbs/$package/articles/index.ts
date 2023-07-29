@@ -13,8 +13,8 @@ import type { IBbsArticle } from "./../../../../structures/IBbsArticle";
 /**
  * Paginate entire articles.
  * 
- * @param Section code
- * @param Page request info
+ * @param section Section code
+ * @param input Page request info
  * @returns Paginated articles with summarized info
  * 
  * @controller BbsPackageArticlesController.index()
@@ -53,8 +53,8 @@ export namespace index {
 /**
  * Paginate entire articles (query ver.).
  * 
- * @param Section code
- * @param Page request info
+ * @param section Section code
+ * @param input Page request info
  * @returns Paginated articles with summarized info
  * 
  * @controller BbsPackageArticlesController.catch()
@@ -101,8 +101,8 @@ export namespace $catch {
 /**
  * Read an article.
  * 
- * @param Section code
- * @param Target article ID
+ * @param section Section code
+ * @param id Target article ID
  * @returns Detailed article info
  * 
  * @controller BbsPackageArticlesController.at()
@@ -139,8 +139,8 @@ export namespace at {
 /**
  * Get new article of a day.
  * 
- * @param Section code
- * @param Target data
+ * @param section Section code
+ * @param date Target data
  * @returns The new article info
  * 
  * @controller BbsPackageArticlesController.new()
@@ -177,8 +177,8 @@ export namespace $new {
 /**
  * Store a new article.
  * 
- * @param Section code
- * @param Content to store
+ * @param section Section code
+ * @param input Content to store
  * @returns Newly archived article
  * 
  * @controller BbsPackageArticlesController.store()
@@ -217,9 +217,9 @@ export namespace store {
 /**
  * Update an article.
  * 
- * @param Section code
- * @param Target article ID
- * @param Content to update
+ * @param section Section code
+ * @param id Target article ID
+ * @param input Content to update
  * @returns Updated content
  * 
  * @controller BbsPackageArticlesController.update()
@@ -259,8 +259,8 @@ export namespace update {
 /**
  * Delete an article.
  * 
- * @param Section code
- * @param Target article ID
+ * @param section Section code
+ * @param id Target article ID
  * 
  * @controller BbsPackageArticlesController.delete()
  * @path DELETE /bbs/package/:section/articles/:id
@@ -295,7 +295,7 @@ export namespace $$delete {
 /**
  * Remove every articles in a section.
  * 
- * @param Section code
+ * @param section Section code
  * @internal
  * 
  * @controller BbsPackageArticlesController.$delete()

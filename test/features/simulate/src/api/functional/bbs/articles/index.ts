@@ -15,8 +15,8 @@ import type { IBbsArticle } from "./../../../structures/IBbsArticle";
 /**
  * Paginate entire articles.
  * 
- * @param Section code
- * @param Page request info
+ * @param section Section code
+ * @param input Page request info
  * @returns Paginated articles with summarized info
  * 
  * @controller BbsArticlesController.index()
@@ -82,8 +82,8 @@ export namespace index {
 /**
  * Paginate entire articles (query ver.).
  * 
- * @param Section code
- * @param Page request info
+ * @param section Section code
+ * @param input Page request info
  * @returns Paginated articles with summarized info
  * 
  * @controller BbsArticlesController.query()
@@ -157,8 +157,8 @@ export namespace query {
 /**
  * Read an article.
  * 
- * @param Section code
- * @param Target article ID
+ * @param section Section code
+ * @param id Target article ID
  * @returns Detailed article info
  * 
  * @controller BbsArticlesController.at()
@@ -222,8 +222,8 @@ export namespace at {
 /**
  * Get first article of a day.
  * 
- * @param Section code
- * @param Target data
+ * @param section Section code
+ * @param date Target data
  * @returns The first article info
  * 
  * @controller BbsArticlesController.first()
@@ -287,8 +287,8 @@ export namespace first {
 /**
  * Store a new article.
  * 
- * @param Section code
- * @param Content to store
+ * @param section Section code
+ * @param input Content to store
  * @returns Newly archived article
  * 
  * @controller BbsArticlesController.store()
@@ -354,9 +354,9 @@ export namespace store {
 /**
  * Update an article.
  * 
- * @param Section code
- * @param Target article ID
- * @param Content to update
+ * @param section Section code
+ * @param id Target article ID
+ * @param input Content to update
  * @returns Updated content
  * 
  * @controller BbsArticlesController.update()
