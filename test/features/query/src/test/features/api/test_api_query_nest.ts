@@ -15,10 +15,10 @@ export const test_api_query_nest = async (
         values: ["a", "b", "c"],
     };
     const result: IQuery = await api.functional.query.nest(connection, {
-        ...input,
         limit: input.limit ? `${input.limit}` : undefined,
         enforce: input.enforce ? "true" : "false",
         atomic: input.atomic ? input.atomic : "null",
+        values: input.values ?? [],
     });
     typia.assertEquals(result);
     TestValidator.equals("nest")(input)(result);

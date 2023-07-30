@@ -91,12 +91,6 @@ export namespace TypedQueryProgrammer {
                             "union type is not allowed",
                         ),
                     );
-                else if (value.isRequired() === false)
-                    throw new Error(
-                        ErrorMessages.property(obj)(key)(
-                            "array type cannot be optional",
-                        ),
-                    );
                 for (const array of value.arrays)
                     atom.push(...validate(obj)(key)(array.value, depth + 1));
                 for (const tuple of value.tuples)
