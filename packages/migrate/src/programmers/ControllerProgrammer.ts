@@ -14,7 +14,7 @@ export namespace ControllerProgrammer {
         for (const [path, collection] of Object.entries(swagger.paths)) {
             // PREPARE DIRECTORIES
             const location: string = StringUtil.split(path)
-                .filter((str) => str[0] !== "{")
+                .filter((str) => str[0] !== "{" && str[0] !== ":")
                 .join("/");
             for (const s of sequence(location)) MapUtil.take(dict)(s)(() => []);
 
