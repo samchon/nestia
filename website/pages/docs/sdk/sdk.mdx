@@ -101,10 +101,12 @@ export default config;
 ```
     </Tab>
     <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers {19-29}
+```typescript filename="INestiaConfig.ts" showLineNumbers {21-31}
 import type ts from "typescript";
 
-import type { ISwaggerDocument } from "./structures/ISwaggerDocument";
+import type { ISwagger } from "./structures/ISwagger";
+import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
+import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
 import type { StripEnums } from "./utils/StripEnums";
 
 /**
@@ -273,38 +275,17 @@ export namespace INestiaConfig {
          *
          * If omitted, `package.json` content would be used instead.
          */
-        info?: Partial<ISwaggerDocument.IInfo>;
+        info?: Partial<ISwaggerInfo>;
 
         /**
          * List of server addresses.
          */
-        servers?: ISwaggerDocument.IServer[];
+        servers?: ISwagger.IServer[];
 
         /**
          * Security schemes.
          */
-        security?: Record<string, ISwaggerConfig.ISecurityScheme>;
-    }
-    export namespace ISwaggerConfig {
-        export type ISecurityScheme =
-            | IApiKey
-            | Exclude<
-                  ISwaggerDocument.ISecurityScheme,
-                  ISwaggerDocument.ISecurityScheme.IApiKey
-              >;
-        export interface IApiKey {
-            type: "apiKey";
-
-            /**
-             * @default header
-             */
-            in?: "header" | "query" | "cookie";
-
-            /**
-             * @default Authorization
-             */
-            name?: string;
-        }
+        security?: Record<string, ISwaggerSecurityScheme>;
     }
 }
 ```
