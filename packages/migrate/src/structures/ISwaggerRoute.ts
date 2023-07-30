@@ -21,7 +21,7 @@ export namespace ISwaggerRoute {
     export interface IRequestBody {
         description?: string;
         content: IContent;
-        required?: true;
+        required?: boolean;
         "x-nestia-encrypted"?: boolean;
     }
     export type IResponseBody = Record<

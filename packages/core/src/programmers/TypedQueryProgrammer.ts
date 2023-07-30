@@ -142,18 +142,41 @@ export namespace TypedQueryProgrammer {
             const output = ts.factory.createIdentifier("output");
 
             const importer = new FunctionImporter();
+            const optionalArrays: string[] = [];
             const statements: ts.Statement[] = [
                 StatementFactory.constant(
                     "output",
                     ts.factory.createObjectLiteralExpression(
                         object.properties
                             .filter((prop) => (prop.key as any).isSoleLiteral())
-                            .map((prop) =>
-                                decode_regular_property(importer)(prop),
-                            ),
+                            .map((prop) => {
+                                if (
+                                    !prop.value.isRequired() &&
+                                    prop.value.arrays.length +
+                                        prop.value.tuples.length >
+                                        0
+                                )
+                                    optionalArrays.push(
+                                        prop.key.constants[0]!
+                                            .values[0] as string,
+                                    );
+                                return decode_regular_property(importer)(prop);
+                            }),
                         true,
                     ),
                 ),
+                ...optionalArrays.map((key) => {
+                    const access = IdentifierFactory.access(output)(key);
+                    return ts.factory.createIfStatement(
+                        ts.factory.createStrictEquality(
+                            ts.factory.createNumericLiteral(0),
+                            IdentifierFactory.access(access)("length"),
+                        ),
+                        ts.factory.createExpressionStatement(
+                            ts.factory.createDeleteExpression(access),
+                        ),
+                    );
+                }),
                 ts.factory.createReturnStatement(
                     ts.factory.createCallExpression(assert, undefined, [
                         output,

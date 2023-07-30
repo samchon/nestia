@@ -146,11 +146,24 @@ export namespace RouteProgrammer {
                       });
             });
 
-            const parameterNames: Set<string> = new Set(
-                (route.parameters ?? [])
-                    .filter((p) => p.in === "path")
-                    .map((p) => StringUtil.normalize(p.name!)),
-            );
+            const parameterNames: string[] = StringUtil.split(props.path)
+                .filter((str) => str[0] === "{" || str[0] === ":")
+                .map((str) =>
+                    str[0] === "{"
+                        ? str.substring(1, str.length - 1)
+                        : str.substring(1),
+                );
+            if (
+                parameterNames.length !==
+                (route.parameters ?? []).filter((p) => p.in === "path").length
+            ) {
+                console.log(
+                    `Failed to migrate ${props.method.toUpperCase()} ${
+                        props.path
+                    }: number of path parameters are not matched with its full path.`,
+                );
+                return null;
+            }
             return {
                 name: "@lazy",
                 path: props.path,
@@ -158,14 +171,16 @@ export namespace RouteProgrammer {
                 headers,
                 parameters: (route.parameters ?? [])
                     .filter((p) => p.in === "path")
-                    .map((p) => ({
+                    .map((p, i) => ({
                         key: (() => {
-                            let key: string = StringUtil.normalize(p.name!);
+                            let key: string = StringUtil.normalize(
+                                parameterNames[i],
+                            );
                             if (Escaper.variable(key)) return key;
 
                             while (true) {
                                 key = "_" + key;
-                                if (parameterNames.has(key) === false)
+                                if (!parameterNames.some((s) => s === key))
                                     return key;
                             }
                         })(),
