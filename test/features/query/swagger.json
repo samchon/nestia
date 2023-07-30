@@ -166,12 +166,12 @@
             "type": "boolean"
           },
           "values": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
+            "x-typia-required": false,
+            "x-typia-optional": true,
             "type": "array",
             "items": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
+              "x-typia-required": false,
+              "x-typia-optional": true,
               "type": "string"
             }
           },
@@ -185,7 +185,6 @@
         "nullable": false,
         "required": [
           "enforce",
-          "values",
           "atomic"
         ],
         "x-typia-jsDocTags": []
@@ -246,20 +245,19 @@
             "type": "boolean"
           },
           "values": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
+            "x-typia-required": false,
+            "x-typia-optional": true,
             "type": "array",
             "items": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
+              "x-typia-required": false,
+              "x-typia-optional": true,
               "type": "string"
             }
           }
         },
         "nullable": false,
         "required": [
-          "enforce",
-          "values"
+          "enforce"
         ],
         "x-typia-jsDocTags": []
       }
