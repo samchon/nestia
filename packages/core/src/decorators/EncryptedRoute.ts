@@ -38,10 +38,10 @@ import { route_error } from "./internal/route_error";
  * up JSON string conversion speed about 50x times faster than `class-transformer`,
  * even type safe through [typia](https://github.com/samchon/typia).
  *
- * For reference, router functions of `EncryptedRoute` can convert custom error classes
- * to regular {@link nest.HttpException} class automatically, through
- * {@link ExceptionManager}. Also, `EncryptedRoute` encrypts response body using those
- * options.
+ * For reference, if you try to invalid data that is not following the promised
+ * type `T`, 500 internal server error would be thrown. Also, as `EncryptedRoute`
+ * composes JSON string through `typia.assertStringify<T>()` function, it is not
+ * possible to modify response data through interceptors.
  *
  *  - AES-128/256
  *  - CBC mode
