@@ -17,7 +17,7 @@ import { validate_request_body } from "./internal/validate_request_body";
  * `TypedBody` is a decoratur function getting `application/json` typed data from
  * request body. Also, it validates the request body data type through
  * [typia](https://github.com/samchon/typia) and the validation speed is
- * maximum 15,000x times faster than `class-validator`.
+ * maximum 20,000x times faster than `class-validator`.
  *
  * For reference, when the request body data is not following the promised type `T`,
  * `BadRequestException` error (status code: 400) would be thrown.

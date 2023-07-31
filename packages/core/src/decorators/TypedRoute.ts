@@ -29,13 +29,14 @@ import { route_error } from "./internal/route_error";
  * Type safe router decorator functions.
  *
  * `TypedRoute` is a module containing router decorator functions which can boost up
- * JSON string conversion speed about 50x times faster than `class-transformer`.
+ * JSON string conversion speed about 200x times faster than `class-transformer`.
  * Furthermore, such JSON string conversion is even type safe through
  * [typia](https://github.com/samchon/typia).
  *
- * For reference, router functions of `TypedRoute` can convert custom error classes to
- * the regular {@link nest.HttpException} class automatically, through
- * {@link ExceptionManager}.
+ * For reference, if you try to invalid data that is not following the promised
+ * type `T`, 500 internal server error would be thrown. Also, as `TypedRoute` composes
+ * JSON string through `typia.assertStringify<T>()` function, it is not possible to
+ * modify response data through interceptors.
  *
  * @author Jeongho Nam - https://github.com/samchon
  */

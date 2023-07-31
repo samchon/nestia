@@ -10,6 +10,7 @@ import { MetadataProperty } from "typia/lib/metadata/MetadataProperty";
 import { AssertProgrammer } from "typia/lib/programmers/AssertProgrammer";
 import { FunctionImporter } from "typia/lib/programmers/helpers/FunctionImporeter";
 import { Atomic } from "typia/lib/typings/Atomic";
+import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
 
@@ -50,9 +51,17 @@ export namespace TypedQueryProgrammer {
                     ),
                 );
 
-            const object = metadata.objects[0]!;
+            const object: MetadataObject = metadata.objects[0]!;
+            if (object.properties.some((p) => !(p.key as any).isSoleLiteral()))
+                throw new Error(
+                    ErrorMessages.object(metadata)(
+                        "dynamic property is not allowed.",
+                    ),
+                );
+
             for (const property of object.properties) {
-                const key: Metadata = property.key;
+                const key: string = property.key.constants[0]
+                    .values[0] as string;
                 const value: Metadata = property.value;
                 validate(object)(key)(value, 0);
             }
@@ -61,7 +70,7 @@ export namespace TypedQueryProgrammer {
 
     const validate =
         (obj: MetadataObject) =>
-        (key: Metadata) =>
+        (key: string) =>
         (value: Metadata, depth: number): string[] => {
             if (depth === 1 && value.isRequired() === false)
                 throw new Error(
@@ -139,29 +148,26 @@ export namespace TypedQueryProgrammer {
                     finite: true,
                 },
             })(modulo)(false)(type);
-            const output = ts.factory.createIdentifier("output");
+            const output: ts.Identifier = ts.factory.createIdentifier("output");
 
-            const importer = new FunctionImporter();
+            const importer: FunctionImporter = new FunctionImporter();
             const optionalArrays: string[] = [];
             const statements: ts.Statement[] = [
                 StatementFactory.constant(
                     "output",
                     ts.factory.createObjectLiteralExpression(
-                        object.properties
-                            .filter((prop) => (prop.key as any).isSoleLiteral())
-                            .map((prop) => {
-                                if (
-                                    !prop.value.isRequired() &&
-                                    prop.value.arrays.length +
-                                        prop.value.tuples.length >
-                                        0
-                                )
-                                    optionalArrays.push(
-                                        prop.key.constants[0]!
-                                            .values[0] as string,
-                                    );
-                                return decode_regular_property(importer)(prop);
-                            }),
+                        object.properties.map((prop) => {
+                            if (
+                                !prop.value.isRequired() &&
+                                prop.value.arrays.length +
+                                    prop.value.tuples.length >
+                                    0
+                            )
+                                optionalArrays.push(
+                                    prop.key.constants[0]!.values[0] as string,
+                                );
+                            return decode_regular_property(importer)(prop);
+                        }),
                         true,
                     ),
                 ),
@@ -209,7 +215,9 @@ export namespace TypedQueryProgrammer {
                           : [meta.constants[0]!.type, true];
                   })();
             return ts.factory.createPropertyAssignment(
-                key,
+                Escaper.variable(key)
+                    ? key
+                    : ts.factory.createStringLiteral(key),
                 isArray
                     ? ts.factory.createCallExpression(
                           IdentifierFactory.access(
@@ -257,8 +265,6 @@ namespace ErrorMessages {
         `Error on nestia.core.TypedQuery<${type.getName()}>(): ${message}`;
 
     export const property =
-        (obj: MetadataObject) => (key: Metadata) => (message: string) =>
-            `Error on nestia.core.TypedQuery<${
-                obj.name
-            }>(): property ${key.getName()} - ${message}`;
+        (obj: MetadataObject) => (key: string) => (message: string) =>
+            `Error on nestia.core.TypedQuery<${obj.name}>(): property "${key}" - ${message}`;
 }

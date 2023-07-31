@@ -9,7 +9,7 @@
       // "disableSolutionSearching": true,                 /* Opt a project out of multi-project reference checking when editing. */
       // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
       /* Language and Environment */
-      "target": "es2016", /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */// "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
+      "target": "ESNext", /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */// "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
       // "jsx": "preserve",                                /* Specify what JSX code is generated. */
       "experimentalDecorators": true,                   /* Enable experimental support for TC39 stage 2 draft decorators. */
       "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
@@ -45,7 +45,7 @@
       // "emitDeclarationOnly": true,                      /* Only output d.ts files and not JavaScript files. */
       // "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
       // "outFile": "./",                                  /* Specify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output. */
-      // "outDir": "./",                                   /* Specify an output folder for all emitted files. */
+      // "outDir": "./bin",                                   /* Specify an output folder for all emitted files. */
       // "removeComments": true,                           /* Disable emitting comments. */
       "noEmit": true,                                   /* Disable emitting files from a compilation. */
       // "importHelpers": true,                            /* Allow importing helper functions from tslib once per project, instead of including them per-file. */
