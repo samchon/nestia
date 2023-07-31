@@ -1009,6 +1009,8 @@ Let's see how those comment tags work with example code.
 
   - common
     - `@deprecated`
+    - `@hidden`
+    - `@internal`
     - `@title {string}`
     - `@default {value}`
   - number
@@ -1038,9 +1040,11 @@ Let's see how those comment tags work with example code.
     <code>swagger.json</code>
 ]}>
     <Tab>
-```typescript copy filename="CommentTag.ts" showLineNumbers {5-6, 10-12, 17, 22, 27, 34-36}
+```typescript copy filename="CommentTag.ts"
 export interface CommentTag {
     /**
+     * Deprecated tags are just used for marking.
+     * 
      * @title Unsigned integer
      * @type uint
      * @deprecated
@@ -1048,6 +1052,26 @@ export interface CommentTag {
     type: number;
 
     /**
+     * Internal tagged property never be shown in JSON schema.
+     * 
+     * It even doesn't be shown in other `typia` functions like `assert<T>()`.
+     * 
+     * @internal
+     */
+    internal: number[];
+
+    /**
+     * Hidden tagged property never be shown in JSON schema.
+     * 
+     * However, it would be shown in other `typia` functions like `stringify<T>()`.
+     * 
+     * @hidden
+     */
+    hidden: boolean;
+
+    /**
+     * You can limit the range of number.
+     * 
      * @exclusiveMinimum 19
      * @maximum 100
      * @default 30
@@ -1055,16 +1079,22 @@ export interface CommentTag {
     number?: number;
 
     /**
+     * You can limit the length of string.
+     * 
      * @minLength 3
      */
     string: string;
 
     /**
+     * You can limit the pattern of string.
+     * 
      * @pattern ^[a-z]+$
      */
     pattern: string;
 
     /**
+     * You can limit the format of string.
+     * 
      * @format date-time
      */
     format: string | null;
@@ -1081,65 +1111,63 @@ export interface CommentTag {
 ```
     </Tab>
     <Tab>
-```json filename="swagger.json" showLineNumbers {6, 8, 10, 15-18, 23, 28, 33, 42, 47-48}
+```json filename="swagger.json" showLineNumbers {6-7, 9-10, 15-18, 23, 28, 33, 42, 44-45}
 "CommentTag": {
-    "$id": "components#/schemas/CommentTag",
+    "$id": "#/components/schemas/CommentTag",
     "type": "object",
     "properties": {
         "type": {
-            "type": "integer",
-            "nullable": false,
             "deprecated": true,
             "title": "Unsigned integer",
-            "minimum": 0,
+            "description": "Deprecated tags are just used for marking.\n\n@title Unsigned integer\n@type uint\n@deprecated",
+            "type": "integer",
+            "minimum": 0
         },
         "number": {
+            "description": "You can limit the range of number.\n\n@exclusiveMinimum 19\n@maximum 100\n@default 30",
             "type": "number",
-            "nullable": false,
             "minimum": 19,
             "exclusiveMinimum": true,
             "maximum": 100,
-            "default": 30,
+            "default": 30
         },
         "string": {
+            "description": "You can limit the length of string.\n\n@minLength 3",
             "type": "string",
-            "nullable": false,
-            "minLength": 3,
+            "minLength": 3
         },
         "pattern": {
+            "description": "You can limit the pattern of string.\n\n@pattern ^[a-z]+$",
             "type": "string",
-            "nullable": false,
-            "pattern": "^[a-z]+$",
+            "pattern": "^[a-z]+$"
         },
         "format": {
+            "description": "You can limit the format of string.\n\n@format date-time",
             "type": "string",
-            "nullable": true,
             "format": "date-time",
+            "nullable": true
         },
         "array": {
+            "description": "In the Array case, possible to restrict its elements.\n\n@minItems 3\n@maxItems 100\n@format uuid",
             "type": "array",
             "items": {
+                "description": "In the Array case, possible to restrict its elements.\n\n@minItems 3\n@maxItems 100\n@format uuid",
                 "type": "string",
-                "nullable": false,
-                "description":
-                    "In the Array case, possible to restrict its elements.",
-                "format": "uuid",
+                "format": "uuid"
             },
-            "nullable": false,
-            "description":
-                "In the Array case, possible to restrict its elements.",
             "minItems": 3,
-            "maxItems": 100,
-        },
+            "maxItems": 100
+        }
     },
-    "nullable": false,
     "required": [
         "type",
+        "hidden",
         "string",
         "pattern",
         "format",
-        "array",
-    ]
+        "array"
+    ],
+    "description": "In the Array case, possible to restrict its elements.\n\n@minItems 3\n@maxItems 100\n@format uuid"
 }
 ```
     </Tab>
@@ -1222,9 +1250,9 @@ You can choose two options for `swagger.json` file distribution.
 
 The 1st is publishing the `swagger.json` file in a public repo, and showing it through Swagger Editor like below:
 
-  - `samchon/nestia-template`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia-template%2Fmaster%2Fdist%2Fswagger.json)
-  - `samchon/fake-iamport-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Ffake-iamport-server%2Fmaster%2Fdist%2Fswagger.json)
-  - `samchon/fake-toss-payments-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Ffake-toss-payments-server%2Fmaster%2Fdist%2Fswagger.json)
+  - `samchon/nestia-template`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia-template%2Fmaster%2Fpackages%2Fapi%2Fswagger.json)
+  - `samchon/fake-iamport-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Ffake-iamport-server%2Fmaster%2Fpackages%2Fapi%2Fswagger.json)
+  - `samchon/fake-toss-payments-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Ffake-toss-payments-server%2Fmaster%2Fpackages%2Fapi%2Fswagger.json)
 
 The 2nd way is to hosting the `swagger.json` file in the NestJS backend server.
 
