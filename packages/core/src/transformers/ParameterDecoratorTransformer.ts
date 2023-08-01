@@ -4,6 +4,7 @@ import ts from "typescript";
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
 import { PlainBodyProgrammer } from "../programmers/PlainBodyProgrammer";
 import { TypedBodyProgrammer } from "../programmers/TypedBodyProgrammer";
+import { TypedHeadersProgrammer } from "../programmers/TypedHeadersProgrammer";
 import { TypedParamProgrammer } from "../programmers/TypedParamProgrammer";
 import { TypedQueryProgrammer } from "../programmers/TypedQueryProgrammer";
 
@@ -78,6 +79,10 @@ const FUNCTORS: Record<string, Programmer> = {
         parameters.length
             ? parameters
             : [TypedBodyProgrammer.generate(project)(modulo)(type)],
+    TypedHeaders: (project) => (modulo) => (parameters) => (type) =>
+        parameters.length
+            ? parameters
+            : [TypedHeadersProgrammer.generate(project)(modulo)(type)],
     TypedParam: (project) => () => TypedParamProgrammer.generate(project),
     TypedQuery: (project) => (modulo) => (parameters) => (type) =>
         parameters.length

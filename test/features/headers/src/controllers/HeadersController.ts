@@ -18,6 +18,15 @@ export class HeadersController {
      * 
      * @author Samchon
      */
+    @core.TypedRoute.Patch()
+    public emplace(
+        @core.TypedHeaders() headers: IHeaders,
+        @core.TypedParam("section", "string") section: string,
+    ): IHeaders {
+        section;
+        return headers;
+    }
+
     @core.TypedRoute.Post()
     public store(
         @Headers() headers: IHeaders,

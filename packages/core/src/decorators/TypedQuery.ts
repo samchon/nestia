@@ -17,13 +17,20 @@ import { TransformError } from "./internal/TransformError";
  * same with {@link nest.Query}, but it can automatically cast property type following
  * its DTO definition. Also, `TypedQuery` performs type validation.
  *
- * For referecen, when URL query parameters are different with their promised
- * type `T`, `BadRequestException` error (status code: 400) would be thrown.
+ * For reference, target type `T` must follw such restriction. Also, if actual URL
+ * query parameter values are different with their promised type `T`,
+ * `BadRequestException` error (status code: 400) would be thrown.
+ *
+ * 1. Type `T` must be an object type
+ * 2. Do not allow dynamic property
+ * 3. Prpoerty value cannot be `undefined`, but `null` is possible
+ * 4. Only `boolean`, `bigint`, `number`, `string` or their array types are allowed
+ * 5. By the way, union type never be not allowed
  *
  * @returns Parameter decorator
  * @author Jeongho Nam - https://github.com/samchon
  */
-export function TypedQuery<T>(
+export function TypedQuery<T extends object>(
     decoder?: (params: URLSearchParams) => T,
 ): ParameterDecorator {
     if (decoder === undefined) throw TransformError("TypedQuery");

@@ -16,15 +16,19 @@ export namespace E2eFileProgrammer {
                     importDict.emplace(tuple[0], false, instance);
 
             const additional: string[] = [];
-            for (const param of route.parameters) {
+            for (const param of route.parameters.filter(
+                (p) => p.category !== "headers",
+            )) {
                 const type = getAdditional(param);
                 if (type === "uuid") additional.push(UUID);
                 else if (type === "date") additional.push(DATE);
             }
 
             const content: string = [
-                ...(!!route.parameters.filter((p) => getAdditional(p) === null)
-                    .length || route.output.name !== "void"
+                ...(!!route.parameters.filter(
+                    (p) =>
+                        p.category !== "headers" && getAdditional(p) === null,
+                ).length || route.output.name !== "void"
                     ? [
                           config.primitive === false
                               ? `import typia from "typia";`
