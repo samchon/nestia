@@ -77,28 +77,38 @@ export class Fetcher {
         // REQUEST MESSSAGE
         //----
         // METHOD & HEADERS
+        const headers: Record<string, IConnection.HeaderValue | undefined> = {
+            ...(connection.headers ?? {}),
+        };
+        if (method !== "GET" && method !== "DELETE")
+            headers["Content-Type"] ??=
+                encrypted.request === true || typeof input === "string"
+                    ? "text/plain"
+                    : "application/json";
+
         const init: RequestInit = {
             ...(connection.options ?? {}),
             method,
-            headers:
-                encrypted.request === false &&
-                input !== undefined &&
-                typeof input === "object"
-                    ? {
-                          ...connection.headers,
-                          "Content-Type": "application/json",
-                      }
-                    : connection.headers ?? {},
+            headers: (() => {
+                const output: [string, string][] = [];
+                for (const [key, value] of Object.entries(headers))
+                    if (value === undefined) continue;
+                    else if (Array.isArray(value))
+                        for (const v of value) output.push([key, String(v)]);
+                    else output.push([key, String(value)]);
+                return output;
+            })(),
         };
-        if (encrypted.request || typeof input === "string")
-            (init.headers as Record<string, string>)["Content-Type"] =
-                "text/plain";
 
         // REQUEST BODY (WITH ENCRYPTION)
         if (input !== undefined)
             init.body = (() => {
-                const json: string = (stringify ?? JSON.stringify)(input);
-                if (!encrypted.request) return json;
+                const json: string =
+                    encrypted.request === true ||
+                    headers["Content-Type"] !== "text/plain"
+                        ? (stringify ?? JSON.stringify)(input)
+                        : String(input);
+                if (encrypted.request !== true) return json;
 
                 const password:
                     | IEncryptionPassword
@@ -172,7 +182,13 @@ export class Fetcher {
             content as any;
         try {
             // PARSE RESPONSE BODY
-            ret = JSON.parse(ret as any);
+            if (
+                encrypted.response ||
+                (response.headers.get("Content-Type") ?? "").indexOf(
+                    "application/json",
+                ) !== -1
+            )
+                ret = JSON.parse(ret as any);
 
             // FIND __SET_HEADERS__ FIELD
             if (

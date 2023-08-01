@@ -16,7 +16,7 @@ import { IRandomGenerator } from "./IRandomGenerator";
  * @author Jenogho Nam - https://github.com/samchon
  * @author Seungjun We - https://github.com/SeungjunWe
  */
-export interface IConnection {
+export interface IConnection<Headers extends object = {}> {
     /**
      * Host address of the remote HTTP server.
      */
@@ -25,7 +25,8 @@ export interface IConnection {
     /**
      * Header values delivered to the remote HTTP server.
      */
-    headers?: Record<string, string>;
+    headers?: Record<string, IConnection.HeaderValue> &
+        IConnection.Headerify<Headers>;
 
     /**
      * Encryption password of its closure function.
@@ -134,4 +135,22 @@ export namespace IConnection {
             | "strict-origin-when-cross-origin"
             | "unsafe-url";
     }
+
+    export type HeaderValue =
+        | string
+        | boolean
+        | number
+        | bigint
+        | string
+        | Array<boolean>
+        | Array<number>
+        | Array<bigint>
+        | Array<number>
+        | Array<string>;
+
+    export type Headerify<T extends object> = {
+        [P in keyof T]?: T[P] extends HeaderValue | undefined
+            ? T[P] | undefined
+            : never;
+    };
 }

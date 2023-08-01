@@ -1,3 +1,5 @@
+import cp from "child_process";
+
 import typia from "typia";
 
 import { FileArchiver } from "./archivers/FileArchiver";
@@ -37,7 +39,16 @@ export class NestiaMigrateApplication {
         (output: string): void => {
             const program: IMigrateProgram = this.analyze();
             const files: IMigrateFile[] = MigrateProgrammer.write(program);
-            FileArchiver.archive(archiver)(output)([...files, ...TEMPLATE]);
+
+            try {
+                cp.execSync(
+                    `git clone https://github.com/samchon/nestia-template "${output}"`,
+                    { stdio: "inherit" },
+                );
+            } catch {
+                FileArchiver.archive(archiver)(output)(TEMPLATE);
+            }
+            FileArchiver.archive(archiver)(output)(files);
         };
 }
 export namespace NestiaMigrateApplication {

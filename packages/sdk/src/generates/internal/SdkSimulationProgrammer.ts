@@ -26,7 +26,13 @@ export namespace SdkSimulationProgrammer {
                     .length === 0 && route.output.name === "void"
                     ? "_connection"
                     : "connection"
-            }: IConnection,`,
+            }: ${
+                route.parameters.some(
+                    (p) => p.category === "headers" && p.field === undefined,
+                )
+                    ? `IConnection<${route.name}.Headers>`
+                    : `IConnection`
+            },`,
             ...route.parameters
                 .filter((p) => p.category !== "headers")
                 .map(
@@ -52,7 +58,7 @@ export namespace SdkSimulationProgrammer {
         `    method: METHOD,`,
         `    host: connection.host,`,
         `    path: path(${parameters
-            .filter((p) => p.category !== "body" && p.category !== "headers")
+            .filter((p) => p.category === "param" || p.category === "query")
             .map((p) => p.name)
             .join(", ")})`,
         `});`,
@@ -64,7 +70,7 @@ export namespace SdkSimulationProgrammer {
                     : p.category === "query"
                     ? `assert.query(() => typia.assert(${p.name}));`
                     : p.category === "headers"
-                    ? `assert.headers(() => typia.assert(${p.name}));` // not yet
+                    ? `assert.headers(() => typia.assert(connection.headers);` // not reachable
                     : `assert.param("${p.field}")("${
                           p.custom && p.meta ? p.meta.type : p.type.name
                       }")(() => typia.assert(${p.name}));`,

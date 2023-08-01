@@ -34,7 +34,13 @@ export async function join(
               input,
           )
         : await Fetcher.fetch(
-              connection,
+              {
+                  ...connection,
+                  headers: {
+                      ...(connection.headers ?? {}),
+                      "Content-Type": "text/plain",
+                  },
+              },
               join.ENCRYPTED,
               join.METHOD,
               join.path(),
@@ -103,7 +109,13 @@ export async function login(
               input,
           )
         : await Fetcher.fetch(
-              connection,
+              {
+                  ...connection,
+                  headers: {
+                      ...(connection.headers ?? {}),
+                      "Content-Type": "text/plain",
+                  },
+              },
               login.ENCRYPTED,
               login.METHOD,
               login.path(),
