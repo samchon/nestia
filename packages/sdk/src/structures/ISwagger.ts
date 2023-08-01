@@ -46,16 +46,16 @@ export interface ISwagger {
      */
     components: ISwaggerComponents;
 
-    /**
-     * A declaration of which security mechanisms can be used across the API.
-     *
-     * When this property be configured, it would be overwritten in every API routes.
-     *
-     * For reference, key means the name of security scheme and value means the `scopes`.
-     * The `scopes` can be used only when target security scheme is `oauth2` type,
-     * especially for {@link ISwaggerSecurityScheme.IOAuth2.IFlow.scopes} property.
-     */
-    security?: Record<string, string[]>[];
+    // /**
+    //  * A declaration of which security mechanisms can be used across the API.
+    //  *
+    //  * When this property be configured, it would be overwritten in every API routes.
+    //  *
+    //  * For reference, key means the name of security scheme and value means the `scopes`.
+    //  * The `scopes` can be used only when target security scheme is `oauth2` type,
+    //  * especially for {@link ISwaggerSecurityScheme.IOAuth2.IFlow.scopes} property.
+    //  */
+    // security?: Record<string, string[]>[];
 }
 export namespace ISwagger {
     /**

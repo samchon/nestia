@@ -82,7 +82,7 @@
           }
         },
         "summary": "Join as a seller",
-        "description": "Join as a seller.\n\n@param input Information of yours\n@return Information of newly joined seller\n@setHeader authorization.token Authorization",
+        "description": "Join as a seller.",
         "x-nestia-namespace": "sellers.authenticate.join.join",
         "x-nestia-jsDocTags": [
           {
@@ -154,7 +154,7 @@
           }
         },
         "summary": "Log-in as a seller",
-        "description": "Log-in as a seller.\n\n@param input Email and password\n@return Information of the seller\n@assignHeaders authorization",
+        "description": "Log-in as a seller.",
         "x-nestia-namespace": "sellers.authenticate.login.login",
         "x-nestia-jsDocTags": [
           {
@@ -219,7 +219,7 @@
           }
         },
         "summary": "Change password",
-        "description": "Change password.\n\n@param input Old and new passwords\n@return Empty object",
+        "description": "Change password.",
         "x-nestia-namespace": "sellers.authenticate.password.change.change",
         "x-nestia-jsDocTags": [
           {
@@ -291,7 +291,7 @@
           "memory",
           "resource"
         ],
-        "description": "Performance info.\n\n@author Samchon",
+        "description": "Performance info.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -634,10 +634,5 @@
         "name": "Authorization"
       }
     }
-  },
-  "security": [
-    {
-      "bearer": []
-    }
-  ]
+  }
 }

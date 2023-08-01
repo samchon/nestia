@@ -40,6 +40,7 @@ export namespace basic {
 }
 
 /**
+ * 
  * @security basic
  * 
  * @controller SecurityController.basic_by_comment()
@@ -102,6 +103,7 @@ export namespace bearer {
 }
 
 /**
+ * 
  * @security bearer
  * 
  * @controller SecurityController.bearer_by_comment()
@@ -164,6 +166,7 @@ export namespace oauth2 {
 }
 
 /**
+ * 
  * @security oauth2 write:pets read:pets
  * 
  * @controller SecurityController.oauth2_by_comment()

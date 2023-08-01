@@ -378,10 +378,5 @@
         "name": "Authorization"
       }
     }
-  },
-  "security": [
-    {
-      "bearer": []
-    }
-  ]
+  }
 }

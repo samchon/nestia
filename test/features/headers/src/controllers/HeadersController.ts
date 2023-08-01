@@ -8,6 +8,16 @@ import { IHeaders } from "@api/lib/structures/IHeaders";
 
 @Controller("headers/:section")
 export class HeadersController {
+    /**
+     * Store a new article.
+     * 
+     * @param headers Headers for authentication
+     * @param section Target section code
+     * @param input Content to store
+     * @returns Store article
+     * 
+     * @author Samchon
+     */
     @core.TypedRoute.Post()
     public store(
         @Headers() headers: IHeaders,
@@ -20,6 +30,16 @@ export class HeadersController {
         return typia.random<IBbsArticle>();
     }
 
+    /**
+     * Update an article.
+     * 
+     * @param section Target section code
+     * @param id Target article id
+     * @param name Name in header for authentication
+     * @param input Content to update
+     * 
+     * @author Samchon
+     */
     @core.TypedRoute.Put(":id")
     public update(
         @core.TypedParam("section", "string") section: string,

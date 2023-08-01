@@ -21,7 +21,7 @@
         "parameters": [
           {
             "in": "header",
-            "description": "",
+            "description": "Headers for authentication",
             "schema": {
               "$ref": "#/components/schemas/IHeaders"
             },
@@ -30,7 +30,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Target section code",
             "schema": {
               "type": "string"
             },
@@ -38,7 +38,7 @@
           }
         ],
         "requestBody": {
-          "description": "",
+          "description": "Content to store",
           "content": {
             "application/json": {
               "schema": {
@@ -51,7 +51,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
+            "description": "Store article",
             "content": {
               "application/json": {
                 "schema": {
@@ -62,8 +62,80 @@
             "x-nestia-encrypted": false
           }
         },
+        "summary": "Store a new article",
+        "description": "Store a new article.",
         "x-nestia-namespace": "headers.store",
-        "x-nestia-jsDocTags": [],
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "headers",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Headers for authentication",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "section",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Target section code",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content to store",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "returns",
+            "text": [
+              {
+                "text": "Store article",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
         "x-nestia-method": "POST"
       }
     },
@@ -74,7 +146,7 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
+            "description": "Target section code",
             "schema": {
               "type": "string"
             },
@@ -83,7 +155,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "",
+            "description": "Target article id",
             "schema": {
               "format": "uuid",
               "type": "string"
@@ -93,7 +165,7 @@
           {
             "name": "x-name",
             "in": "header",
-            "description": "",
+            "description": "Name in header for authentication",
             "schema": {
               "type": "string"
             },
@@ -101,7 +173,7 @@
           }
         ],
         "requestBody": {
-          "description": "",
+          "description": "Content to update",
           "content": {
             "application/json": {
               "schema": {
@@ -118,8 +190,88 @@
             "x-nestia-encrypted": false
           }
         },
+        "summary": "Update an article",
+        "description": "Update an article.",
         "x-nestia-namespace": "headers.update",
-        "x-nestia-jsDocTags": [],
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "section",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Target section code",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "id",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Target article id",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "name",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Name in header for authentication",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content to update",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
         "x-nestia-method": "PUT"
       }
     },
@@ -194,7 +346,6 @@
         "type": "object",
         "properties": {
           "title": {
-            "description": "@minLength 3\n@maxLength 50",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -257,7 +408,6 @@
         "type": "object",
         "properties": {
           "name": {
-            "description": "@minLengt 1\n@maxLength 255",
             "x-typia-metaTags": [
               {
                 "kind": "maxLength",
@@ -291,7 +441,6 @@
             "nullable": true
           },
           "extension": {
-            "description": "@minLength 1\n@maxLength 8",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -330,7 +479,6 @@
             "nullable": true
           },
           "url": {
-            "description": "@format url",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -366,7 +514,6 @@
         "type": "object",
         "properties": {
           "id": {
-            "description": "@format uuid",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -390,7 +537,6 @@
             "format": "uuid"
           },
           "created_at": {
-            "description": "@format date-time",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -414,7 +560,6 @@
             "format": "date-time"
           },
           "title": {
-            "description": "@minLength 3\n@maxLength 50",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -494,7 +639,7 @@
           "memory",
           "resource"
         ],
-        "description": "Performance info.\n\n@author Samchon",
+        "description": "Performance info.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -680,10 +825,5 @@
         "name": "Authorization"
       }
     }
-  },
-  "security": [
-    {
-      "bearer": []
-    }
-  ]
+  }
 }

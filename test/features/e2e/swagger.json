@@ -55,7 +55,7 @@
           }
         },
         "summary": "Store a new article",
-        "description": "Store a new article.\n\n@param section Section code\n@param input Content to store\n@returns Newly archived article",
+        "description": "Store a new article.",
         "x-nestia-namespace": "bbs.articles.store",
         "x-nestia-jsDocTags": [
           {
@@ -155,7 +155,7 @@
           }
         },
         "summary": "Update an article",
-        "description": "Update an article.\n\n@param section Section code\n@param id Target article ID\n@param input Content to update\n@returns Updated content",
+        "description": "Update an article.",
         "x-nestia-namespace": "bbs.articles.update",
         "x-nestia-jsDocTags": [
           {
@@ -266,7 +266,6 @@
         "type": "object",
         "properties": {
           "title": {
-            "description": "@minLength 3\n@maxLength 50",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -329,7 +328,6 @@
         "type": "object",
         "properties": {
           "name": {
-            "description": "@minLengt 1\n@maxLength 255",
             "x-typia-metaTags": [
               {
                 "kind": "maxLength",
@@ -363,7 +361,6 @@
             "nullable": true
           },
           "extension": {
-            "description": "@minLength 1\n@maxLength 8",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -402,7 +399,6 @@
             "nullable": true
           },
           "url": {
-            "description": "@format url",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -438,7 +434,6 @@
         "type": "object",
         "properties": {
           "id": {
-            "description": "@format uuid",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -467,7 +462,6 @@
             "type": "string"
           },
           "created_at": {
-            "description": "@format date-time",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -491,7 +485,6 @@
             "format": "date-time"
           },
           "title": {
-            "description": "@minLength 3\n@maxLength 50",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -572,7 +565,7 @@
           "memory",
           "resource"
         ],
-        "description": "Performance info.\n\n@author Samchon",
+        "description": "Performance info.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -758,10 +751,5 @@
         "name": "Authorization"
       }
     }
-  },
-  "security": [
-    {
-      "bearer": []
-    }
-  ]
+  }
 }

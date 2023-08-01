@@ -1,5 +1,6 @@
 import { Pair } from "tstl/utility/Pair";
 
+import { IJsDocTagInfo } from "typia/lib/metadata/IJsDocTagInfo";
 import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaConfig } from "../../INestiaConfig";
@@ -186,6 +187,21 @@ export namespace SdkFunctionProgrammer {
             const comments: string[] = route.description
                 ? route.description.split("\n")
                 : [];
+            const tags: IJsDocTagInfo[] = route.tags.filter(
+                (tag) =>
+                    tag.name !== "param" ||
+                    route.parameters
+                        .filter((p) => p.category !== "headers")
+                        .some((p) => p.name === tag.text?.[0]?.text),
+            );
+            if (tags.length !== 0) {
+                const content: string[] = tags.map((t) =>
+                    t.text?.length
+                        ? `@${t.name} ${t.text.map((e) => e.text).join("")}`
+                        : `@${t.name}`,
+                );
+                comments.push("", ...new Set(content));
+            }
 
             // COMPLETE THE COMMENT
             if (!!comments.length) comments.push("");

@@ -357,13 +357,9 @@ export namespace SwaggerGenerator {
         security: Required<INestiaConfig.ISwaggerConfig>["security"],
         swagger: ISwagger,
     ): void {
-        swagger.security = [{}];
         swagger.components.securitySchemes = {};
-
-        for (const [key, value] of Object.entries(security)) {
-            swagger.security[0]![key] = [];
+        for (const [key, value] of Object.entries(security))
             swagger.components.securitySchemes[key] = emend_security(value);
-        }
     }
 
     function emend_security(
