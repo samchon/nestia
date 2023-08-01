@@ -412,7 +412,6 @@
         "type": "object",
         "properties": {
           "title": {
-            "description": "@minLength 3\n@maxLength 50",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -475,7 +474,6 @@
         "type": "object",
         "properties": {
           "name": {
-            "description": "@minLengt 1\n@maxLength 255",
             "x-typia-metaTags": [
               {
                 "kind": "maxLength",
@@ -509,7 +507,6 @@
             "nullable": true
           },
           "extension": {
-            "description": "@minLength 1\n@maxLength 8",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -548,7 +545,6 @@
             "nullable": true
           },
           "url": {
-            "description": "@format url",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -584,7 +580,6 @@
         "type": "object",
         "properties": {
           "id": {
-            "description": "@format uuid",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -608,7 +603,6 @@
             "format": "uuid"
           },
           "created_at": {
-            "description": "@format date-time",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -632,7 +626,6 @@
             "format": "date-time"
           },
           "title": {
-            "description": "@minLength 3\n@maxLength 50",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -712,7 +705,7 @@
           "memory",
           "resource"
         ],
-        "description": "Performance info.\n\n@author Samchon",
+        "description": "Performance info.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -898,10 +891,5 @@
         "name": "Authorization"
       }
     }
-  },
-  "security": [
-    {
-      "bearer": []
-    }
-  ]
+  }
 }

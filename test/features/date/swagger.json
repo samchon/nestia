@@ -81,7 +81,6 @@
         "type": "object",
         "properties": {
           "string": {
-            "description": "@formt date-time",
             "x-typia-jsDocTags": [
               {
                 "name": "formt",
@@ -104,7 +103,6 @@
             "format": "date-time"
           },
           "date_with_tag": {
-            "description": "@formt date-time",
             "x-typia-jsDocTags": [
               {
                 "name": "formt",
@@ -194,7 +192,7 @@
           "memory",
           "resource"
         ],
-        "description": "Performance info.\n\n@author Samchon",
+        "description": "Performance info.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -380,10 +378,5 @@
         "name": "Authorization"
       }
     }
-  },
-  "security": [
-    {
-      "bearer": []
-    }
-  ]
+  }
 }

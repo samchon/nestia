@@ -17,7 +17,10 @@
   "paths": {
     "/health": {
       "get": {
-        "tags": [],
+        "tags": [
+          "system",
+          "health"
+        ],
         "parameters": [],
         "responses": {
           "200": {
@@ -25,18 +28,51 @@
             "x-nestia-encrypted": false
           }
         },
+        "summary": "Health check API",
+        "description": "Health check API.\n\nJust for health checking API liveness.",
         "x-nestia-namespace": "health.get",
-        "x-nestia-jsDocTags": [],
+        "x-nestia-jsDocTags": [
+          {
+            "name": "tag",
+            "text": [
+              {
+                "text": "system",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "tag",
+            "text": [
+              {
+                "text": "health",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
         "x-nestia-method": "GET"
       }
     },
     "/performance": {
       "get": {
-        "tags": [],
+        "tags": [
+          "system",
+          "performance"
+        ],
         "parameters": [],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Performance info",
             "content": {
               "application/json": {
                 "schema": {
@@ -47,8 +83,65 @@
             "x-nestia-encrypted": false
           }
         },
+        "summary": "Get server performance info",
+        "description": "Get server performance info.",
         "x-nestia-namespace": "performance.get",
-        "x-nestia-jsDocTags": [],
+        "x-nestia-jsDocTags": [
+          {
+            "name": "returns",
+            "text": [
+              {
+                "text": "Performance info",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "warning",
+            "text": [
+              {
+                "text": "This route is only for testing purposes",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "reference",
+            "text": [
+              {
+                "text": "https://nodejs.org/api/process.html#processmemoryusage",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "tag",
+            "text": [
+              {
+                "text": "system",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "tag",
+            "text": [
+              {
+                "text": "performance",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
         "x-nestia-method": "GET"
       }
     },
@@ -57,7 +150,7 @@
         "tags": [],
         "parameters": [],
         "requestBody": {
-          "description": "",
+          "description": "Content to store",
           "content": {
             "application/json": {
               "schema": {
@@ -70,7 +163,7 @@
         },
         "responses": {
           "201": {
-            "description": "",
+            "description": "Newly archived article",
             "content": {
               "application/json": {
                 "schema": {
@@ -81,8 +174,72 @@
             "x-nestia-encrypted": false
           }
         },
+        "summary": "Store an article",
+        "description": "Store an article.",
         "x-nestia-namespace": "body.store",
-        "x-nestia-jsDocTags": [],
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "request",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Request object from express. Must be disappeared in SDK",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content to store",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "returns",
+            "text": [
+              {
+                "text": "Newly archived article",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Samchon",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "warning",
+            "text": [
+              {
+                "text": "This is an fake API",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
         "x-nestia-method": "POST"
       }
     }
@@ -108,7 +265,7 @@
           "memory",
           "resource"
         ],
-        "description": "Performance info.\n\n@author Samchon",
+        "description": "Performance info.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -290,7 +447,6 @@
         "type": "object",
         "properties": {
           "title": {
-            "description": "@minLength 3\n@maxLength 50",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -353,7 +509,6 @@
         "type": "object",
         "properties": {
           "name": {
-            "description": "@minLengt 1\n@maxLength 255",
             "x-typia-metaTags": [
               {
                 "kind": "maxLength",
@@ -387,7 +542,6 @@
             "nullable": true
           },
           "extension": {
-            "description": "@minLength 1\n@maxLength 8",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -426,7 +580,6 @@
             "nullable": true
           },
           "url": {
-            "description": "@format url",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -462,7 +615,6 @@
         "type": "object",
         "properties": {
           "id": {
-            "description": "@format uuid",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -486,7 +638,6 @@
             "format": "uuid"
           },
           "created_at": {
-            "description": "@format date-time",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -510,7 +661,6 @@
             "format": "date-time"
           },
           "title": {
-            "description": "@minLength 3\n@maxLength 50",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -579,10 +729,5 @@
         "name": "Authorization"
       }
     }
-  },
-  "security": [
-    {
-      "bearer": []
-    }
-  ]
+  }
 }

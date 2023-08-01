@@ -56,7 +56,7 @@
           }
         },
         "summary": "Paginate entire articles",
-        "description": "Paginate entire articles.\n\n@param section Section code\n@param input Page request info\n@returns Paginated articles with summarized info",
+        "description": "Paginate entire articles.",
         "x-nestia-namespace": "bbs.package.articles.index",
         "x-nestia-jsDocTags": [
           {
@@ -141,7 +141,7 @@
           }
         },
         "summary": "Paginate entire articles (query ver",
-        "description": "Paginate entire articles (query ver.).\n\n@param section Section code\n@param input Page request info\n@returns Paginated articles with summarized info",
+        "description": "Paginate entire articles (query ver.).",
         "x-nestia-namespace": "bbs.package.articles.$catch",
         "x-nestia-jsDocTags": [
           {
@@ -229,7 +229,7 @@
           }
         },
         "summary": "Store a new article",
-        "description": "Store a new article.\n\n@param section Section code\n@param input Content to store\n@returns Newly archived article",
+        "description": "Store a new article.",
         "x-nestia-namespace": "bbs.package.articles.store",
         "x-nestia-jsDocTags": [
           {
@@ -318,7 +318,7 @@
           }
         },
         "summary": "Read an article",
-        "description": "Read an article.\n\n@param section Section code\n@param id Target article ID\n@returns Detailed article info",
+        "description": "Read an article.",
         "x-nestia-namespace": "bbs.package.articles.at",
         "x-nestia-jsDocTags": [
           {
@@ -416,7 +416,7 @@
           }
         },
         "summary": "Update an article",
-        "description": "Update an article.\n\n@param section Section code\n@param id Target article ID\n@param input Content to update\n@returns Updated content",
+        "description": "Update an article.",
         "x-nestia-namespace": "bbs.package.articles.update",
         "x-nestia-jsDocTags": [
           {
@@ -512,7 +512,7 @@
           }
         },
         "summary": "Delete an article",
-        "description": "Delete an article.\n\n@param section Section code\n@param id Target article ID",
+        "description": "Delete an article.",
         "x-nestia-namespace": "bbs.package.articles.$$delete",
         "x-nestia-jsDocTags": [
           {
@@ -591,7 +591,7 @@
           }
         },
         "summary": "Get new article of a day",
-        "description": "Get new article of a day.\n\n@param section Section code\n@param date Target data\n@returns The new article info",
+        "description": "Get new article of a day.",
         "x-nestia-namespace": "bbs.package.articles.new.$new",
         "x-nestia-jsDocTags": [
           {
@@ -685,7 +685,6 @@
         "type": "object",
         "properties": {
           "page": {
-            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -710,7 +709,6 @@
             "nullable": true
           },
           "limit": {
-            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -765,7 +763,6 @@
         "type": "object",
         "properties": {
           "id": {
-            "description": "@format uuid",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -799,7 +796,6 @@
             "type": "string"
           },
           "title": {
-            "description": "@minLength 3\n@maxLength 50",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -837,7 +833,6 @@
             "maxLength": 50
           },
           "created_at": {
-            "description": "@format date-time",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -875,7 +870,6 @@
         "type": "object",
         "properties": {
           "current": {
-            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -899,7 +893,6 @@
             "minimum": 0
           },
           "limit": {
-            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -923,7 +916,6 @@
             "minimum": 0
           },
           "records": {
-            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -947,7 +939,6 @@
             "minimum": 0
           },
           "pages": {
-            "description": "@type",
             "x-typia-metaTags": [
               {
                 "kind": "type",
@@ -985,7 +976,6 @@
         "type": "object",
         "properties": {
           "id": {
-            "description": "@format uuid",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -1014,7 +1004,6 @@
             "type": "string"
           },
           "created_at": {
-            "description": "@format date-time",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -1038,7 +1027,6 @@
             "format": "date-time"
           },
           "title": {
-            "description": "@minLength 3\n@maxLength 50",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -1104,7 +1092,6 @@
         "type": "object",
         "properties": {
           "name": {
-            "description": "@minLengt 1\n@maxLength 255",
             "x-typia-metaTags": [
               {
                 "kind": "maxLength",
@@ -1138,7 +1125,6 @@
             "nullable": true
           },
           "extension": {
-            "description": "@minLength 1\n@maxLength 8",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -1177,7 +1163,6 @@
             "nullable": true
           },
           "url": {
-            "description": "@format url",
             "x-typia-metaTags": [
               {
                 "kind": "format",
@@ -1213,7 +1198,6 @@
         "type": "object",
         "properties": {
           "title": {
-            "description": "@minLength 3\n@maxLength 50",
             "x-typia-metaTags": [
               {
                 "kind": "minLength",
@@ -1291,7 +1275,7 @@
           "memory",
           "resource"
         ],
-        "description": "Performance info.\n\n@author Samchon",
+        "description": "Performance info.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -1477,10 +1461,5 @@
         "name": "Authorization"
       }
     }
-  },
-  "security": [
-    {
-      "bearer": []
-    }
-  ]
+  }
 }

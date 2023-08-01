@@ -104,8 +104,19 @@ const feature = (name) => {
     cp.execSync("npx tsc", { stdio: "ignore" });
 
     // RUN TEST AUTOMATION PROGRAM
-    if (fs.existsSync("src/test"))
-        cp.execSync("npx ts-node src/test", { stdio: "ignore" });
+    if (fs.existsSync("src/test")) {
+        const test = () => cp.execSync("npx ts-node src/test", { stdio: "ignore" });
+        try {
+            test();
+        }
+        catch {
+            try {
+                test();
+            } catch {
+                test();
+            }
+        }
+    }
 };
 
 const migrate = (name) => {

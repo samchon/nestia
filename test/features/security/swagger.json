@@ -59,7 +59,6 @@
             "x-nestia-encrypted": false
           }
         },
-        "description": "@security basic",
         "security": [
           {
             "basic": []
@@ -124,7 +123,6 @@
             "x-nestia-encrypted": false
           }
         },
-        "description": "@security bearer",
         "security": [
           {
             "bearer": []
@@ -192,7 +190,6 @@
             "x-nestia-encrypted": false
           }
         },
-        "description": "@security oauth2 write:pets read:pets",
         "security": [
           {
             "oauth2": [
@@ -293,13 +290,5 @@
         }
       }
     }
-  },
-  "security": [
-    {
-      "basic": [],
-      "bearer": [],
-      "oauth2": [],
-      "security": []
-    }
-  ]
+  }
 }
