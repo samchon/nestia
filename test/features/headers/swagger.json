@@ -21,44 +21,6 @@
         "parameters": [
           {
             "in": "header",
-            "description": "",
-            "schema": {
-              "$ref": "#/components/schemas/IHeaders"
-            },
-            "required": true
-          },
-          {
-            "name": "section",
-            "in": "path",
-            "description": "",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IHeaders"
-                }
-              }
-            },
-            "x-nestia-encrypted": false
-          }
-        },
-        "x-nestia-namespace": "headers.emplace",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "PATCH"
-      },
-      "post": {
-        "tags": [],
-        "parameters": [
-          {
-            "in": "header",
             "description": "Headers for authentication",
             "schema": {
               "$ref": "#/components/schemas/IHeaders"
@@ -75,25 +37,13 @@
             "required": true
           }
         ],
-        "requestBody": {
-          "description": "Content to store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IBbsArticle.IStore"
-              }
-            }
-          },
-          "required": true,
-          "x-nestia-encrypted": false
-        },
         "responses": {
           "201": {
             "description": "Store article",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IBbsArticle"
+                  "$ref": "#/components/schemas/IHeaders"
                 }
               }
             },
@@ -102,7 +52,7 @@
         },
         "summary": "Store a new article",
         "description": "Store a new article.",
-        "x-nestia-namespace": "headers.store",
+        "x-nestia-namespace": "headers.emplace",
         "x-nestia-jsDocTags": [
           {
             "name": "param",
@@ -174,6 +124,56 @@
             ]
           }
         ],
+        "x-nestia-method": "PATCH"
+      },
+      "post": {
+        "tags": [],
+        "parameters": [
+          {
+            "in": "header",
+            "description": "",
+            "schema": {
+              "$ref": "#/components/schemas/IHeaders"
+            },
+            "required": true
+          },
+          {
+            "name": "section",
+            "in": "path",
+            "description": "",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "x-nestia-namespace": "headers.store",
+        "x-nestia-jsDocTags": [],
         "x-nestia-method": "POST"
       }
     },
