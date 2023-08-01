@@ -22,7 +22,13 @@ export async function request(
     input: request.Input,
 ): Promise<request.Output> {
     return Fetcher.fetch(
-        connection,
+        {
+            ...connection,
+            headers: {
+                ...(connection.headers ?? {}),
+                "Content-Type": "application/json",
+            },
+        },
         request.ENCRYPTED,
         request.METHOD,
         request.path(),

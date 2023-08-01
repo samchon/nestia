@@ -12,16 +12,22 @@ export namespace SdkFunctionProgrammer {
     export const generate =
         (config: INestiaConfig) =>
         (route: IRoute): string => {
-            const query: IRoute.IParameter | undefined = route.parameters.find(
-                (param) =>
-                    param.category === "query" && param.field === undefined,
-            );
-            const input: IRoute.IParameter | undefined = route.parameters.find(
-                (param) => param.category === "body",
-            );
-
             const [x, y, z] = [head, body, tail].map((closure) =>
-                closure(config)(route)({ query, input }),
+                closure(config)(route)({
+                    headers: route.parameters.find(
+                        (param) =>
+                            param.category === "headers" &&
+                            param.field === undefined,
+                    ),
+                    query: route.parameters.find(
+                        (param) =>
+                            param.category === "query" &&
+                            param.field === undefined,
+                    ),
+                    input: route.parameters.find(
+                        (param) => param.category === "body",
+                    ),
+                }),
             );
             return `${x} ${y}\n${z}`;
         };
@@ -36,22 +42,25 @@ export namespace SdkFunctionProgrammer {
             query: IRoute.IParameter | undefined;
             input: IRoute.IParameter | undefined;
         }): string => {
-            const textBody: boolean =
-                props.input !== undefined &&
-                props.input.category === "body" &&
-                (props.input as IController.IBodyParameter).contentType ===
-                    "text/plain";
-
             // FETCH ARGUMENTS WITH REQUST BODY
-            const parameters = filter_path_parameters(route)(props.query);
+            const parameters: IRoute.IParameter[] = filter_path_parameters(
+                route,
+            )(props.query);
+            const contentType: string | undefined =
+                props.input !== undefined
+                    ? (props.input as IController.IBodyParameter).encrypted
+                        ? "text/plain"
+                        : (props.input as IController.IBodyParameter)
+                              .contentType ?? "application/json"
+                    : undefined;
             const fetchArguments: Array<string | string[]> = [
-                textBody
+                contentType
                     ? [
                           "{",
                           "    ...connection,",
                           "    headers: {",
                           "        ...(connection.headers ?? {}),",
-                          `        "Content-Type": "text/plain",`,
+                          `        "Content-Type": "${contentType}",`,
                           "    },",
                           "}",
                       ]
@@ -64,17 +73,21 @@ export namespace SdkFunctionProgrammer {
             ];
             if (props.input !== undefined) {
                 fetchArguments.push(props.input.name);
-                if (textBody) fetchArguments.push("(str) => str");
-                else if (config.json === true)
+                if (config.json === true)
                     fetchArguments.push(`${route.name}.stringify`);
             }
 
             const assertions: string =
                 config.assert === true &&
-                route.parameters.filter((p) => p.category !== "headers")
-                    .length !== 0
+                route.parameters.filter(
+                    (p) => p.category !== "headers" || p.field === undefined,
+                ).length !== 0
                     ? route.parameters
-                          .filter((p) => p.category !== "headers")
+                          .filter(
+                              (p) =>
+                                  p.category !== "headers" ||
+                                  p.field === undefined,
+                          )
                           .map(
                               (param) =>
                                   `    typia.assert<typeof ${param.name}>(${param.name});`,
@@ -156,10 +169,8 @@ export namespace SdkFunctionProgrammer {
         (query: IRoute.IParameter | undefined): IRoute.IParameter[] => {
             const parameters: IRoute.IParameter[] = route.parameters.filter(
                 (param) =>
-                    param.category !== "headers" &&
-                    (param.category === "param" ||
-                        (param.category === "query" &&
-                            param.field !== undefined)),
+                    param.category === "param" ||
+                    (param.category === "query" && param.field !== undefined),
             );
             if (query) parameters.push(query);
             return parameters;
@@ -216,7 +227,11 @@ export namespace SdkFunctionProgrammer {
             //----
             // REFORM PARAMETERS TEXT
             const parameters: string[] = [
-                "connection: IConnection",
+                route.parameters.some(
+                    (p) => p.category === "headers" && p.field === undefined,
+                )
+                    ? `connection: IConnection<${`${route.name}.Headers`}>`
+                    : "connection: IConnection",
                 ...route.parameters
                     .filter((p) => p.category !== "headers")
                     .map((param) => {
@@ -255,10 +270,13 @@ export namespace SdkFunctionProgrammer {
         (route: IRoute) =>
         (props: {
             query: IRoute.IParameter | undefined;
+            headers: IRoute.IParameter | undefined;
             input: IRoute.IParameter | undefined;
         }): string => {
             // LIST UP TYPES
             const types: Pair<string, string>[] = [];
+            if (props.headers !== undefined)
+                types.push(new Pair("Headers", props.headers.type.name));
             if (props.query !== undefined)
                 types.push(new Pair("Query", props.query.type.name));
             if (props.input !== undefined)

@@ -27,7 +27,13 @@ export async function join(
     input: join.Input,
 ): Promise<join.Output> {
     const output: join.Output = await Fetcher.fetch(
-        connection,
+        {
+            ...connection,
+            headers: {
+                ...(connection.headers ?? {}),
+                "Content-Type": "text/plain",
+            },
+        },
         join.ENCRYPTED,
         join.METHOD,
         join.path(),
@@ -72,7 +78,13 @@ export async function login(
     input: login.Input,
 ): Promise<login.Output> {
     const output: login.Output = await Fetcher.fetch(
-        connection,
+        {
+            ...connection,
+            headers: {
+                ...(connection.headers ?? {}),
+                "Content-Type": "text/plain",
+            },
+        },
         login.ENCRYPTED,
         login.METHOD,
         login.path(),

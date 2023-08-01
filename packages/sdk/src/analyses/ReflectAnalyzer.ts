@@ -280,7 +280,8 @@ export namespace ReflectAnalyzer {
                 field: param.data,
                 encrypted: param.factory.name === "EncryptedBody",
                 contentType:
-                    param.factory.name === "PlainBody"
+                    param.factory.name === "PlainBody" ||
+                    param.factory.name === "EncryptedBody"
                         ? "text/plain"
                         : "application/json",
             };

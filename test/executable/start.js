@@ -153,7 +153,8 @@ const main = async () => {
             console.log("Build Packages");
             const modules = [];
             for (const name of await fs.promises.readdir(libraryDirectory("")))
-                if (name === (library ?? name))
+                if (name === "migrate") continue;
+                else if (name === (library ?? name))
                     await measure("")(async () => {
                         modules.push(await build(name));
                     });

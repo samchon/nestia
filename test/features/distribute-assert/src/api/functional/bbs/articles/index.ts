@@ -30,7 +30,13 @@ export async function store(
     typia.assert<typeof input>(input);
 
     return Fetcher.fetch(
-        connection,
+        {
+            ...connection,
+            headers: {
+                ...(connection.headers ?? {}),
+                "Content-Type": "application/json",
+            },
+        },
         store.ENCRYPTED,
         store.METHOD,
         store.path(section),
@@ -76,7 +82,13 @@ export async function update(
     typia.assert<typeof input>(input);
 
     return Fetcher.fetch(
-        connection,
+        {
+            ...connection,
+            headers: {
+                ...(connection.headers ?? {}),
+                "Content-Type": "application/json",
+            },
+        },
         update.ENCRYPTED,
         update.METHOD,
         update.path(section, id),

@@ -59,9 +59,24 @@ export namespace E2eFileProgrammer {
         (config: INestiaConfig) =>
         (route: IRoute): string => {
             const tab: number = route.output.name === "void" ? 2 : 3;
+            const headers = route.parameters.find(
+                (p) => p.category === "headers" && p.field === undefined,
+            );
             const output = [
                 `await ${accessor(route)}(`,
-                `${" ".repeat(tab * 4)}connection,`,
+                headers !== undefined
+                    ? [
+                          "{",
+                          "    ...connection,",
+                          "    headers: {",
+                          "        ...(connection.headers ?? {}),",
+                          `        ...typia.random<${headers.type.name}>(),`,
+                          "    },",
+                          "},",
+                      ]
+                          .map((line) => `${" ".repeat(tab * 4)}${line}`)
+                          .join("\n")
+                    : `${" ".repeat(tab * 4)}connection,`,
                 ...route.parameters
                     .filter((param) => param.category !== "headers")
                     .map(parameter(config)(tab)),

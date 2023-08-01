@@ -24,7 +24,13 @@ export async function change(
     input: change.Input,
 ): Promise<void> {
     return Fetcher.fetch(
-        connection,
+        {
+            ...connection,
+            headers: {
+                ...(connection.headers ?? {}),
+                "Content-Type": "text/plain",
+            },
+        },
         change.ENCRYPTED,
         change.METHOD,
         change.path(),

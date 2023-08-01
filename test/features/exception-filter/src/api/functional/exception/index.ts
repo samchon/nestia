@@ -19,7 +19,13 @@ export async function typedBody(
     input: typedBody.Input,
 ): Promise<typedBody.Output> {
     return Fetcher.fetch(
-        connection,
+        {
+            ...connection,
+            headers: {
+                ...(connection.headers ?? {}),
+                "Content-Type": "application/json",
+            },
+        },
         typedBody.ENCRYPTED,
         typedBody.METHOD,
         typedBody.path(),

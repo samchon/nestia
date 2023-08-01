@@ -338,7 +338,7 @@
         "requestBody": {
           "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nInformation of yours",
           "content": {
-            "application/json": {
+            "text/plain": {
               "schema": {
                 "$ref": "#/components/schemas/ISeller.IJoin"
               }
@@ -410,7 +410,7 @@
         "requestBody": {
           "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nEmail and password",
           "content": {
-            "application/json": {
+            "text/plain": {
               "schema": {
                 "$ref": "#/components/schemas/ISeller.ILogin"
               }
@@ -482,7 +482,7 @@
         "requestBody": {
           "description": "## Warning\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nOld and new passwords",
           "content": {
-            "application/json": {
+            "text/plain": {
               "schema": {
                 "$ref": "#/components/schemas/ISeller.IChangePassword"
               }
