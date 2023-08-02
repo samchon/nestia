@@ -396,7 +396,7 @@
               "type": "boolean"
             }
           },
-          "x-descriptions": {
+          "X-Descriptions": {
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "array",
@@ -412,7 +412,7 @@
           "x-category",
           "x-values",
           "x-flags",
-          "x-descriptions"
+          "X-Descriptions"
         ],
         "x-typia-jsDocTags": []
       },

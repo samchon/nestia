@@ -12,7 +12,7 @@ export interface ISwaggerRoute {
     description?: string;
     "x-nestia-method": string;
     "x-nestia-namespace": string;
-    "x-nestia-jsDocTags": IJsDocTagInfo[];
+    "x-nestia-jsDocTags"?: IJsDocTagInfo[];
 }
 export namespace ISwaggerRoute {
     export interface IParameter {

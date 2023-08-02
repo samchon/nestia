@@ -628,7 +628,7 @@
           "201": {
             "description": "## Warning\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.P.ost](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nInformation of newly joined seller",
             "content": {
-              "application/json": {
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ISeller.IAuthorized"
                 }
@@ -700,7 +700,7 @@
           "201": {
             "description": "## Warning\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.P.ost](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n-----------------\n\nInformation of the seller",
             "content": {
-              "application/json": {
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ISeller.IAuthorized"
                 }
