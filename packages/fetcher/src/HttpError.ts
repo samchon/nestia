@@ -20,7 +20,13 @@ export class HttpError extends Error {
      * @param message Error message from the remote HTTP server.
      */
     public constructor(
-        public readonly method: "GET" | "DELETE" | "POST" | "PUT" | "PATCH",
+        public readonly method:
+            | "GET"
+            | "DELETE"
+            | "POST"
+            | "PUT"
+            | "PATCH"
+            | "HEAD",
         public readonly path: string,
         public readonly status: number,
         message: string,
@@ -61,7 +67,7 @@ export namespace HttpError {
      * Returned type of {@link HttpError.toJSON} method.
      */
     export interface IProps<T> {
-        method: "GET" | "DELETE" | "POST" | "PUT" | "PATCH";
+        method: "GET" | "DELETE" | "POST" | "PUT" | "PATCH" | "HEAD";
         path: string;
         status: number;
         message: T;

@@ -163,11 +163,47 @@ export namespace ReflectAnalyzer {
         const encrypted: boolean =
             Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
                 ?.constructor?.name === "EncryptedRouteInterceptor";
+        const method: string =
+            METHODS[Reflect.getMetadata(Constants.METHOD_METADATA, proto)];
+        if (method === undefined || method === "OPTIONS") return null;
+
+        const parameters: IController.IParameter[] = (() => {
+            const nestParameters: NestParameters | undefined =
+                Reflect.getMetadata(
+                    Constants.ROUTE_ARGS_METADATA,
+                    classProto.constructor,
+                    name,
+                );
+            if (nestParameters === undefined) return [];
+
+            const output: IController.IParameter[] = [];
+            for (const tuple of Object.entries(nestParameters)) {
+                const child: IController.IParameter | null = _Analyze_parameter(
+                    ...tuple,
+                );
+                if (child !== null) output.push(child);
+            }
+            return output.sort((x, y) => x.index - y.index);
+        })();
+
+        // VALIDATE BODY
+        const body: IController.IParameter | undefined = parameters.find(
+            (param) => param.category === "body",
+        );
+        if (body !== undefined && (method === "GET" || method === "HEAD"))
+            throw new Error(
+                `Error on ${controller.name}.${name}(): "body" parameter cannot be used in the "GET" or "HEAD" method`,
+            );
+
+        // DO CONSTRUCT
         const meta: IController.IFunction = {
             name,
-            method: METHODS[
-                Reflect.getMetadata(Constants.METHOD_METADATA, proto)
-            ],
+            methods:
+                method === "ALL"
+                    ? body !== undefined
+                        ? ["GET", "POST", "PUT", "DELETE", "PATCH"]
+                        : ["POST", "PUT", "DELETE", "PATCH"]
+                    : [method],
             paths: _Get_paths(
                 Reflect.getMetadata(Constants.PATH_METADATA, proto),
             ),
@@ -184,23 +220,6 @@ export namespace ReflectAnalyzer {
                   )?.value ?? "application/json",
             security: _Get_security(proto),
         };
-
-        // PARSE CHILDREN DATA
-        const nestParameters: NestParameters | undefined = Reflect.getMetadata(
-            Constants.ROUTE_ARGS_METADATA,
-            classProto.constructor,
-            name,
-        );
-        if (nestParameters === undefined) meta.parameters = [];
-        else {
-            for (const tuple of Object.entries(nestParameters)) {
-                const child: IController.IParameter | null = _Analyze_parameter(
-                    ...tuple,
-                );
-                if (child !== null) meta.parameters.push(child);
-            }
-            meta.parameters = meta.parameters.sort((x, y) => x.index - y.index);
-        }
 
         // VALIDATE PATH ARGUMENTS
         for (const controllerLocation of controller.paths)
@@ -236,8 +255,6 @@ export namespace ReflectAnalyzer {
         // RETURNS
         return meta;
     }
-
-    const METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH"];
 
     /* ---------------------------------------------------------
         PARAMETER
@@ -334,20 +351,32 @@ export namespace ReflectAnalyzer {
         factory?: (...args: any) => any;
         data: string | undefined;
     }
-
-    // node_modules/@nestjs/common/lib/route-paramtypes.enum.ts
-    const NEST_PARAMETER_TYPES = [
-        undefined,
-        undefined,
-        undefined,
-        "body",
-        "query",
-        "param",
-        "headers",
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-    ] as const;
 }
+
+// node_modules/@nestjs/common/lib/enums/request-method.enum.ts
+const METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE",
+    "PATCH",
+    "ALL",
+    "OPTIONS",
+    "HEAD",
+];
+
+// node_modules/@nestjs/common/lib/route-paramtypes.enum.ts
+const NEST_PARAMETER_TYPES = [
+    undefined,
+    undefined,
+    undefined,
+    "body",
+    "query",
+    "param",
+    "headers",
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+] as const;

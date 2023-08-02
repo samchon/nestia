@@ -131,6 +131,14 @@ export namespace ControllerAnalyzer {
             throw new Error(
                 `Error on ControllerAnalyzer.analyze(): unnamed return type from ${controller.name}.${func.name}().`,
             );
+        else if (
+            func.methods.includes("HEAD") &&
+            outputType.name !== "void" &&
+            outputType.name !== "undefined"
+        )
+            throw new Error(
+                `Error on ControllerAnalyzer.analyze(): HEAD method must return void type - ${controller.name}.${func.name}().`,
+            );
 
         const imports: [string, string[]][] = importDict
             .toJSON()
@@ -159,7 +167,7 @@ export namespace ControllerAnalyzer {
         );
 
         // CONSTRUCT COMMON DATA
-        const common: Omit<IRoute, "path" | "accessors"> = {
+        const common: Omit<IRoute, "method" | "path" | "accessors"> = {
             ...func,
             parameters,
             output: { ...outputType, contentType: func.contentType },
@@ -217,11 +225,16 @@ export namespace ControllerAnalyzer {
             }
 
         // RETURNS
-        return pathList.map((path) => ({
-            ...common,
-            path,
-            accessors: [...PathUtil.accessors(path), func.name],
-        }));
+        return func.methods
+            .map((method) =>
+                pathList.map((path) => ({
+                    ...common,
+                    method,
+                    path,
+                    accessors: [...PathUtil.accessors(path), func.name],
+                })),
+            )
+            .flat();
     }
 
     /* ---------------------------------------------------------
