@@ -44,7 +44,7 @@
     "tsconfck": "^2.0.1",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^2.5.13",
-    "typia": "^4.1.13"
+    "typia": "^4.1.14"
   },
   "peerDependencies": {
     "@nestia/fetcher": ">= 1.5.1",
