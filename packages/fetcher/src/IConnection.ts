@@ -136,6 +136,11 @@ export namespace IConnection {
             | "unsafe-url";
     }
 
+    /**
+     * Type of allowed header values.
+     *
+     * Only atomic or array of atomic values are allowed.
+     */
     export type HeaderValue =
         | string
         | boolean
@@ -148,9 +153,67 @@ export namespace IConnection {
         | Array<number>
         | Array<string>;
 
+    /**
+     * Type of headers
+     *
+     * `Headerify` removes every properties that are not allowed in the
+     * HTTP headers type.
+     *
+     * Below are list of prohibited in HTTP headers.
+     *
+     * 1. Value type one of {@link HeaderValue}
+     * 2. Key is "set-cookie", but value is not an Array type
+     * 3. Key is one of them, but value is Array type
+     *   - "age"
+     *   - "authorization"
+     *   - "content-length"
+     *   - "content-type"
+     *   - "etag"
+     *   - "expires"
+     *   - "from"
+     *   - "host"
+     *   - "if-modified-since"
+     *   - "if-unmodified-since"
+     *   - "last-modified"
+     *   - "location"
+     *   - "max-forwards"
+     *   - "proxy-authorization"
+     *   - "referer"
+     *   - "retry-after"
+     *   - "server"
+     *   - "user-agent"
+     */
     export type Headerify<T extends object> = {
         [P in keyof T]?: T[P] extends HeaderValue | undefined
-            ? T[P] | undefined
+            ? P extends string
+                ? Lowercase<P> extends "set-cookie"
+                    ? T[P] extends Array<HeaderValue>
+                        ? T[P] | undefined
+                        : never
+                    : Lowercase<P> extends
+                          | "age"
+                          | "authorization"
+                          | "content-length"
+                          | "content-type"
+                          | "etag"
+                          | "expires"
+                          | "from"
+                          | "host"
+                          | "if-modified-since"
+                          | "if-unmodified-since"
+                          | "last-modified"
+                          | "location"
+                          | "max-forwards"
+                          | "proxy-authorization"
+                          | "referer"
+                          | "retry-after"
+                          | "server"
+                          | "user-agent"
+                    ? T[P] extends Array<HeaderValue>
+                        ? never
+                        : T[P] | undefined
+                    : T[P] | undefined
+                : never
             : never;
     };
 }

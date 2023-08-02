@@ -199,13 +199,7 @@ export namespace TypedHeadersProgrammer {
                           ? [meta.atomics[0], true]
                           : [meta.constants[0]!.type, true];
                   })();
-            if (key.toLowerCase() !== key)
-                throw new Error(
-                    ErrorMessages.property(object)(key)(
-                        `property "${key}" must be lower case.`,
-                    ),
-                );
-            else if (isArray && SINGULAR.has(key))
+            if (isArray && SINGULAR.has(key))
                 throw new Error(
                     ErrorMessages.property(object)(key)(
                         `property "${key}" cannot be array.`,
@@ -220,7 +214,7 @@ export namespace TypedHeadersProgrammer {
 
             const accessor = IdentifierFactory.access(
                 ts.factory.createIdentifier("input"),
-            )(key);
+            )(key.toLowerCase());
 
             return ts.factory.createPropertyAssignment(
                 Escaper.variable(key)

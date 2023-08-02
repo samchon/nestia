@@ -85,7 +85,7 @@
             "required": true
           },
           {
-            "name": "x-descriptions",
+            "name": "X-Descriptions",
             "in": "header",
             "schema": {
               "x-typia-required": true,
@@ -195,7 +195,7 @@
             "required": true
           },
           {
-            "name": "x-descriptions",
+            "name": "X-Descriptions",
             "in": "header",
             "schema": {
               "x-typia-required": true,
@@ -388,7 +388,7 @@
               "type": "boolean"
             }
           },
-          "x-descriptions": {
+          "X-Descriptions": {
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "array",
@@ -404,7 +404,7 @@
           "x-category",
           "x-values",
           "x-flags",
-          "x-descriptions"
+          "X-Descriptions"
         ],
         "x-typia-jsDocTags": []
       },

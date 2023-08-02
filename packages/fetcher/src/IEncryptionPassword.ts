@@ -15,7 +15,7 @@ export interface IEncryptionPassword {
     key: string;
 
     /**
-     * Initialization vector.
+     * Initialization Vector.
      */
     iv: string;
 }

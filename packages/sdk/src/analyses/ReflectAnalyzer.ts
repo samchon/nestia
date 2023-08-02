@@ -160,6 +160,9 @@ export namespace ReflectAnalyzer {
         // CONSTRUCTION
         //----
         // BASIC INFO
+        const encrypted: boolean =
+            Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
+                ?.constructor?.name === "EncryptedRouteInterceptor";
         const meta: IController.IFunction = {
             name,
             method: METHODS[
@@ -169,17 +172,16 @@ export namespace ReflectAnalyzer {
                 Reflect.getMetadata(Constants.PATH_METADATA, proto),
             ),
             parameters: [],
-            encrypted:
-                Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
-                    ?.constructor?.name === "EncryptedRouteInterceptor",
             status: Reflect.getMetadata(Constants.HTTP_CODE_METADATA, proto),
-            contentType:
-                Reflect.getMetadata(Constants.HEADERS_METADATA, proto)?.find(
-                    (h: Record<string, string>) =>
-                        typeof h?.name === "string" &&
-                        typeof h?.value === "string" &&
-                        h.name.toLowerCase() === "content-type",
-                )?.value ?? "application/json",
+            encrypted,
+            contentType: encrypted
+                ? "text/plain"
+                : Reflect.getMetadata(Constants.HEADERS_METADATA, proto)?.find(
+                      (h: Record<string, string>) =>
+                          typeof h?.name === "string" &&
+                          typeof h?.value === "string" &&
+                          h.name.toLowerCase() === "content-type",
+                  )?.value ?? "application/json",
             security: _Get_security(proto),
         };
 

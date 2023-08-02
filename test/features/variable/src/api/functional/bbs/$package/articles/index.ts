@@ -27,7 +27,13 @@ export async function index(
     input: index.Input,
 ): Promise<index.Output> {
     return Fetcher.fetch(
-        connection,
+        {
+            ...connection,
+            headers: {
+                ...(connection.headers ?? {}),
+                "Content-Type": "application/json",
+            },
+        },
         index.ENCRYPTED,
         index.METHOD,
         index.path(section),
@@ -191,7 +197,13 @@ export async function store(
     input: store.Input,
 ): Promise<store.Output> {
     return Fetcher.fetch(
-        connection,
+        {
+            ...connection,
+            headers: {
+                ...(connection.headers ?? {}),
+                "Content-Type": "application/json",
+            },
+        },
         store.ENCRYPTED,
         store.METHOD,
         store.path(section),
@@ -233,7 +245,13 @@ export async function update(
     input: update.Input,
 ): Promise<update.Output> {
     return Fetcher.fetch(
-        connection,
+        {
+            ...connection,
+            headers: {
+                ...(connection.headers ?? {}),
+                "Content-Type": "application/json",
+            },
+        },
         update.ENCRYPTED,
         update.METHOD,
         update.path(section, id),
