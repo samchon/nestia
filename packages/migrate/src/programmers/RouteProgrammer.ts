@@ -14,11 +14,11 @@ export namespace RouteProgrammer {
         (props: { path: string; method: string }) =>
         (route: ISwaggerRoute): IMigrateRoute | null => {
             const body = emplaceBodySchema(emplaceReference(swagger)("body"))(
-                route.requestBody?.content,
+                route.requestBody,
             );
             const response = emplaceBodySchema(
                 emplaceReference(swagger)("response"),
-            )((route.responses?.["200"] ?? route.responses?.["201"])?.content);
+            )(route.responses?.["201"] ?? route.responses?.["200"]);
             if (body === false || response === false) {
                 console.log(
                     `Failed to migrate ${props.method.toUpperCase()} ${
@@ -193,32 +193,47 @@ export namespace RouteProgrammer {
                 body,
                 response,
                 description: describe(route),
+                "x-nestia-jsDocTags": route["x-nestia-jsDocTags"],
             };
         };
 
     const describe = (route: ISwaggerRoute): string | undefined => {
-        const content: string[] = [];
+        const commentTags: string[] = [];
         const add = (text: string) => {
-            if (!route.description || route.description.indexOf(text) === -1)
-                content.push(text);
+            if (commentTags.every((line) => line !== text))
+                commentTags.push(text);
         };
-        if (route.summary)
-            add(
-                (route.summary.endsWith(".")
-                    ? route.summary
-                    : route.summary + ".") + "\n",
-            );
-        if (route.description) {
-            content.push(...route.description.split("\n"));
-            if (!route.description.split("\n").at(-1)?.startsWith("@"))
-                content.push("");
+
+        let description: string | undefined = route.description;
+        if (route.summary) {
+            const emended: string = route.summary.endsWith(".")
+                ? route.summary
+                : route.summary + ".";
+            if (
+                description !== undefined &&
+                !description?.startsWith(route.summary) &&
+                !route["x-nestia-jsDocTags"]?.some((t) => t.name === "summary")
+            )
+                description = `${emended}\n${description}`;
         }
         if (route.tags) route.tags.forEach((name) => add(`@tag ${name}`));
         if (route.deprecated) add("@deprecated");
         for (const security of route.security ?? [])
             for (const [name, scopes] of Object.entries(security))
                 add(`@security ${[name, ...scopes].join("")}`);
-        return content.length ? content.join("\n") : undefined;
+        for (const jsDocTag of route["x-nestia-jsDocTags"] ?? [])
+            if (jsDocTag.text?.length)
+                add(
+                    `@${jsDocTag.name} ${jsDocTag.text
+                        .map((text) => text.text)
+                        .join("")}`,
+                );
+            else add(`@${jsDocTag.name}`);
+        return description?.length
+            ? commentTags.length
+                ? `${description}\n\n${commentTags.join("\n")}`
+                : description
+            : commentTags.join("\n");
     };
 
     const isNotObjectLiteral = (schema: ISwaggerSchema): boolean =>
@@ -235,14 +250,21 @@ export namespace RouteProgrammer {
 
     const emplaceBodySchema =
         (emplacer: (schema: ISwaggerSchema) => ISwaggerSchema.IReference) =>
-        (
-            content?: ISwaggerRoute.IContent,
-        ): false | null | IMigrateRoute.IBody => {
-            if (!content) return null;
+        (meta?: {
+            description?: string;
+            content?: ISwaggerRoute.IContent;
+            "x-nestia-encrypted"?: boolean;
+        }): false | null | IMigrateRoute.IBody => {
+            if (!meta?.content) return null;
 
             const entries: [string, { schema: ISwaggerSchema }][] =
-                Object.entries(content);
-            const json = entries.find((e) => e[0].includes("application/json"));
+                Object.entries(meta.content);
+            const json = entries.find((e) =>
+                meta["x-nestia-encrypted"] === true
+                    ? e[0].includes("text/plain") ||
+                      e[0].includes("application/json")
+                    : e[0].includes("application/json"),
+            );
 
             if (json) {
                 const { schema } = json[1];
@@ -251,6 +273,7 @@ export namespace RouteProgrammer {
                     schema: isNotObjectLiteral(schema)
                         ? schema
                         : emplacer(schema),
+                    "x-nestia-encrypted": meta["x-nestia-encrypted"],
                 };
             }
 
@@ -275,7 +298,9 @@ export namespace RouteProgrammer {
                 ? SchemaProgrammer.write(references)(route.response.schema)
                 : "void";
             const decorator: string =
-                route.body?.type === "text/plain"
+                route.body?.["x-nestia-encrypted"] === true
+                    ? "@core.EncryptedRoute."
+                    : route.body?.type === "text/plain"
                     ? [`@Header("Content-Type", "text/plain")`, `@`].join("\n")
                     : "@core.TypedRoute.";
             const content: string[] = [
@@ -293,15 +318,28 @@ export namespace RouteProgrammer {
                 }`,
                 `public async ${route.name}(`,
                 ...route.parameters.map((p) => `    ${writeParameter(p)},`),
+                ...(route.headers
+                    ? [
+                          `    @core.TypedHeaders() headers: ${SchemaProgrammer.write(
+                              references,
+                          )(route.headers)},`,
+                      ]
+                    : []),
                 ...(route.query
                     ? [
                           `    @core.TypedQuery() query: ${SchemaProgrammer.write(
                               references,
-                          )(route.query)}`,
+                          )(route.query)},`,
                       ]
                     : []),
                 ...(route.body
-                    ? route.body.type === "application/json"
+                    ? route.body["x-nestia-encrypted"] === true
+                        ? [
+                              `    @core.EncryptedBody() body: ${SchemaProgrammer.write(
+                                  references,
+                              )(route.body.schema)},`,
+                          ]
+                        : route.body.type === "application/json"
                         ? [
                               `    @core.TypedBody() body: ${SchemaProgrammer.write(
                                   references,
@@ -313,7 +351,7 @@ export namespace RouteProgrammer {
                 ...route.parameters.map(
                     (p) => `    ${StringUtil.normalize(p.key)};`,
                 ),
-                // ...(route.headers ? ["headers;"] : []),
+                ...(route.headers ? ["    headers;"] : []),
                 ...(route.query ? ["    query;"] : []),
                 ...(route.body ? ["    body;"] : []),
                 ...(output !== "void"

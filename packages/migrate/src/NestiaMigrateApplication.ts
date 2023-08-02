@@ -43,8 +43,18 @@ export class NestiaMigrateApplication {
             try {
                 cp.execSync(
                     `git clone https://github.com/samchon/nestia-template "${output}"`,
-                    { stdio: "inherit" },
+                    { stdio: "ignore" },
                 );
+                for (const path of [
+                    "/.git",
+                    "/src/api",
+                    "/src/controllers",
+                    "/src/providers",
+                    "/test/features",
+                ])
+                    cp.execSync(`rm -rf "${output}${path}"`, {
+                        stdio: "ignore",
+                    });
             } catch {
                 FileArchiver.archive(archiver)(output)(TEMPLATE);
             }

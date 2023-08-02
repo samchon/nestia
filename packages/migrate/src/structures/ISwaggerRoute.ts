@@ -1,3 +1,5 @@
+import { IJsDocTagInfo } from "typia/lib/metadata/IJsDocTagInfo";
+
 import { ISwaggerSchema } from "./ISwaggeSchema";
 
 export interface ISwaggerRoute {
@@ -9,6 +11,7 @@ export interface ISwaggerRoute {
     deprecated?: boolean;
     security?: Record<string, string[]>[];
     tags?: string[];
+    "x-nestia-jsDocTags"?: IJsDocTagInfo[];
 }
 export namespace ISwaggerRoute {
     export interface IParameter {
@@ -34,7 +37,7 @@ export namespace ISwaggerRoute {
     >;
     export interface IContent {
         "text/plain"?: {
-            schema: ISwaggerSchema.IString;
+            schema: ISwaggerSchema;
         };
         "application/json"?: {
             schema: ISwaggerSchema;

@@ -10,7 +10,6 @@ export namespace FileArchiver {
         (operator: IOperator) =>
         (output: string) =>
         (files: IMigrateFile[]): void => {
-            operator.mkdir(output);
             const visited: Set<string> = new Set();
             for (const f of files) {
                 mkdir(operator.mkdir)(output)(visited)(f.location);
