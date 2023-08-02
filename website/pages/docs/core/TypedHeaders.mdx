@@ -1,0 +1,392 @@
+import { Tabs, Tab } from 'nextra-theme-docs'
+
+# `TypedHeaders`
+## Outline
+```typescript filename="@nestia/core"
+export function TypedHeaders(): ParameterDecorator;
+```
+
+Request headers decorator, type safe.
+
+`@TypedHeaders()` is a decorator function parsing request headers to a typed object. It validates the request header values through [`typia.assert<T>()`](https://typia.io/docs/validators/assert). If the request header values are invalid, it will throw 400 bad request exception.
+
+It is almost same with original `@Headers()` of `NestJS`, but much type safe.
+
+
+
+
+## How to use
+<Tabs 
+    items={[
+        <code>IHeaders.ts</code>, 
+        <code>HeadersController.ts</code>, 
+        'Compiled JavaScript File'
+    ]}
+    defaultIndex={1}
+>
+    <Tab>
+```typescript filename="IHeaders.ts" showLineNumbers {7}
+export interface IHeaders {
+    "x-category": "x" | "y" | "z";
+    "x-memo"?: string;
+    "x-name"?: string;
+    "x-values": number[];
+    "x-flags": boolean[];
+    "X-Descriptions": string[]; // ALLOW UPPER-CASE
+}
+```
+    </Tab>
+    <Tab>
+```typescript filename="HeadersController.ts" showLineNumbers {20}
+import { Controller } from "@nestjs/common";
+
+import core from "@nestia/core";
+
+import { IHeaders } from "@api/lib/structures/IHeaders";
+
+@Controller("headers/:section")
+export class HeadersController {
+    /**
+     * Emplace headers.
+     *
+     * @param headers Headers for authentication
+     * @param section Target section code
+     * @returns Store article
+     *
+     * @author Samchon
+     */
+    @core.TypedRoute.Patch()
+    public emplace(
+        @core.TypedHeaders() headers: IHeaders,
+        @core.TypedParam("section", "string") section: string,
+    ): void {
+        headers;
+        section;
+    }
+}
+```
+    </Tab>
+    <Tab>
+```javascript filename="HeadersController.js" showLineNumbers {48-49}
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HeadersController = void 0;
+const common_1 = require("@nestjs/common");
+const core_1 = __importDefault(require("@nestia/core"));
+let HeadersController = exports.HeadersController = class HeadersController {
+    /**
+     * Emplace headers.
+     *
+     * @param headers Headers for authentication
+     * @param section Target section code
+     * @returns Store article
+     *
+     * @author Samchon
+     */
+    emplace(headers, section) {
+        headers;
+        section;
+    }
+};
+__decorate([
+    (0, common_1.Get)(),
+    __param(0, core_1.default.TypedHeaders(input => {
+        const $number = core_1.default.TypedHeaders.number;
+        const $boolean = core_1.default.TypedHeaders.boolean;
+        const $string = core_1.default.TypedHeaders.string;
+        const output = {
+            "x-category": input["x-category"],
+            "x-memo": input["x-memo"],
+            "x-name": input["x-name"],
+            "x-values": input["x-values"]?.split(", ")?.map($number),
+            "x-flags": input["x-flags"]?.split(", ")?.map($boolean),
+            "X-Descriptions": input["x-descriptions"]?.split(", ")?.map($string),
+                // AUTOMATIC UPPER-CASE CONVERTING
+        };
+        return (input => {
+            const __is = input => {
+                const $io0 = input => ("x" === input["x-category"] || "y" === input["x-category"] || "z" === input["x-category"]) && (undefined === input["x-memo"] || "string" === typeof input["x-memo"]) && (undefined === input["x-name"] || "string" === typeof input["x-name"]) && (Array.isArray(input["x-values"]) && input["x-values"].every(elem => "number" === typeof elem && Number.isFinite(elem))) && (Array.isArray(input["x-flags"]) && input["x-flags"].every(elem => "boolean" === typeof elem)) && (Array.isArray(input["X-Descriptions"]) && input["X-Descriptions"].every(elem => "string" === typeof elem));
+                return "object" === typeof input && null !== input && $io0(input);
+            };
+            if (false === __is(input))
+                ((input, _path, _exceptionable = true) => {
+                    const $guard = core_1.default.TypedHeaders.guard;
+                    const $ao0 = (input, _path, _exceptionable = true) => ("x" === input["x-category"] || "y" === input["x-category"] || "z" === input["x-category"] || $guard(_exceptionable, {
+                        path: _path + "[\"x-category\"]",
+                        expected: "(\"x\" | \"y\" | \"z\")",
+                        value: input["x-category"]
+                    })) && (undefined === input["x-memo"] || "string" === typeof input["x-memo"] || $guard(_exceptionable, {
+                        path: _path + "[\"x-memo\"]",
+                        expected: "(string | undefined)",
+                        value: input["x-memo"]
+                    })) && (undefined === input["x-name"] || "string" === typeof input["x-name"] || $guard(_exceptionable, {
+                        path: _path + "[\"x-name\"]",
+                        expected: "(string | undefined)",
+                        value: input["x-name"]
+                    })) && ((Array.isArray(input["x-values"]) || $guard(_exceptionable, {
+                        path: _path + "[\"x-values\"]",
+                        expected: "Array<number>",
+                        value: input["x-values"]
+                    })) && input["x-values"].every((elem, _index1) => "number" === typeof elem && Number.isFinite(elem) || $guard(_exceptionable, {
+                        path: _path + "[\"x-values\"][" + _index1 + "]",
+                        expected: "number",
+                        value: elem
+                    })) || $guard(_exceptionable, {
+                        path: _path + "[\"x-values\"]",
+                        expected: "Array<number>",
+                        value: input["x-values"]
+                    })) && ((Array.isArray(input["x-flags"]) || $guard(_exceptionable, {
+                        path: _path + "[\"x-flags\"]",
+                        expected: "Array<boolean>",
+                        value: input["x-flags"]
+                    })) && input["x-flags"].every((elem, _index2) => "boolean" === typeof elem || $guard(_exceptionable, {
+                        path: _path + "[\"x-flags\"][" + _index2 + "]",
+                        expected: "boolean",
+                        value: elem
+                    })) || $guard(_exceptionable, {
+                        path: _path + "[\"x-flags\"]",
+                        expected: "Array<boolean>",
+                        value: input["x-flags"]
+                    })) && ((Array.isArray(input["X-Descriptions"]) || $guard(_exceptionable, {
+                        path: _path + "[\"X-Descriptions\"]",
+                        expected: "Array<string>",
+                        value: input["X-Descriptions"]
+                    })) && input["X-Descriptions"].every((elem, _index3) => "string" === typeof elem || $guard(_exceptionable, {
+                        path: _path + "[\"X-Descriptions\"][" + _index3 + "]",
+                        expected: "string",
+                        value: elem
+                    })) || $guard(_exceptionable, {
+                        path: _path + "[\"X-Descriptions\"]",
+                        expected: "Array<string>",
+                        value: input["X-Descriptions"]
+                    }));
+                    return ("object" === typeof input && null !== input || $guard(true, {
+                        path: _path + "",
+                        expected: "IHeaders",
+                        value: input
+                    })) && $ao0(input, _path + "", true) || $guard(true, {
+                        path: _path + "",
+                        expected: "IHeaders",
+                        value: input
+                    });
+                })(input, "$input", true);
+            return input;
+        })(output);
+    })),
+    __param(1, core_1.default.TypedParam("section", "string", false)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], HeadersController.prototype, "emplace", null);
+exports.HeadersController = HeadersController = __decorate([
+    (0, common_1.Controller)("headers/:section")
+], HeadersController);
+```
+    </Tab>
+</Tabs>
+
+Just call `@TypedHeaders()` function on the request headers parameter, that's all.
+
+`Nestia` will analyze your type (`IHeaders`), and write optimal conversion and validation code for the target type, in the compilation level. If you click the "Compiled JavaScript File" tab of above, you can see the optimal code.
+
+Also, as you can see from the "Compiled JavaScript File", when upper case alphabet is used in the header key name like `IHeaders["X-Descriptions"]`, `@TypedHeaders()` would automatically convert to the upper case alphabet key named property from lower case key named property of raw data.
+
+Such optimization is called AOT (Ahead of Time) compilation, and it is the secret of `@TypedHeaders`
+
+> Besides, the original `@Headers()` decorator of `NestJS` does not support such automatic upper case conversion. When you've define upper-cased property name in DTO, `undefined` value always be assigned, even if you've sent upper-cased property in the client side.
+
+
+
+
+## Comment Tags
+You can enhance validation logic, of `@TypedHeaders()`, through comment tags.
+
+You know what? `@TypedHeaders()` utilizes [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function for query data validation, and the [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function supports additional type checking logics through comment tags. For reference, the "Comment Tag" means a comment starting from `@` symbol. It follows `@${name} ${value}` format, and you can add multiple comment tags per each property.
+
+With those comment tags, you can add additional validation logics. If you want to add a custom validation logic, you also can do it. Read below Guide Docments of [typia](https://typia.io), and see the example code. You may understand how to utilize such comment tags, in a few minutes.
+
+  - [**`typia` > Validators > Comment Tags**](https://typia.io/docs/validators/comment-tags/)
+    - [Outline](https://typia.io/docs/validators/comment-tags/#outline)
+    - [Supported Tags](https://typia.io/docs/validators/comment-tags/#supported-tags)
+    - [Customization](https://typia.io/docs/validators/comment-tags/#customization)
+
+<Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
+    <Tab>
+```typescript copy filename="examples/src/is-comment-tags.ts" showLineNumbers {3}
+import typia from "typia";
+
+export const checkCommentTag = typia.createIs<CommentTag>();
+
+interface CommentTag {
+    /**
+     * @type int
+     */
+    type: number;
+
+    /**
+     * @exclusiveMinimum 19
+     * @maximum 100
+     */
+    number?: number;
+
+    /**
+     * @minLength 3
+     */
+    string: string;
+
+    /**
+     * @pattern ^[a-z]+$
+     */
+    pattern: string;
+
+    /**
+     * @format date-time
+     */
+    format: string;
+
+    /**
+     * In the Array case, possible to restrict its elements.
+     *
+     * @minItems 3
+     * @maxItems 100
+     * @format uuid
+     */
+    array: string[];
+}
+```
+    </Tab>
+    <Tab>
+```javascript filename="examples/bin/is-comment-tags.js" showLineNumbers {3-24}
+import typia from "typia";
+
+export const checkCommentTag = (input) => {
+    const $is_datetime = typia.createIs.is_datetime;
+    const $is_uuid = typia.createIs.is_uuid;
+    const $io0 = (input) =>
+        "number" === typeof input.type &&
+        parseInt(input.type) === input.type &&
+        (undefined === input.number ||
+            ("number" === typeof input.number &&
+                19 < input.number &&
+                100 >= input.number)) &&
+        "string" === typeof input.string &&
+        3 <= input.string.length &&
+        "string" === typeof input.pattern &&
+        RegExp(/^[a-z]+$/).test(input.pattern) &&
+        "string" === typeof input.format && $
+        is_datetime(input.format) &&
+        Array.isArray(input.array) &&
+        3 <= input.array.length &&
+        100 >= input.array.length &&
+        input.array.every((elem) => "string" === typeof elem && $is_uuid(elem));
+    return "object" === typeof input && null !== input && $io0(input);
+};
+```
+    </Tab>
+</Tabs>
+
+
+
+
+## Restriction
+When using `@TypedHeaders()`, you've to follow such restrictions.
+
+At first, type of `@TypedHeaders()` must be a pure **object** type. It does not allow union type. Also, nullable types are not allowed, either. Note that, request headers type must be a sole **object type** without any extra definition. Of course, the word **object** does not contain array type.
+
+At next, type of properties must be **atomic**, or array of atomic type. In the atomic type case, the atomic type allows both nullable and undefindable types. However, mixed union atomic type like `string | number` or `"1" | "2" | 3` are not allowed. Also, the array type does not allow both nullable and undefindable types, either.
+
+  - `boolean`
+  - `number`
+  - `bigint`
+  - `string`
+
+At last, HTTP headers has special restriction on value types for specific key names. For example, `Set-Cookie` must be Array type, and `Authorization` must be an atomic type like `string`. Therefore, `@TypedHeaders()` also restricts the value type of specific key names, and it is described in below.
+
+  - Only array type allowed:
+    - `set-cookie`
+  - Only atomic type allowed:
+     - `age`
+     - `authorization`
+     - `content-length`
+     - `content-type`
+     - `etag`
+     - `expires`
+     - `from`
+     - `host`
+     - `if-modified-since`
+     - `if-unmodified-since`
+     - `last-modified`
+     - `location`
+     - `max-forwards`
+     - `proxy-authorization`
+     - `referer`
+     - `retry-after`
+     - `server`
+     - `user-agent`
+
+```typescript filename="SomeHeadersDto.ts" showLineNumbers
+export interface SomeHeadersDto {
+    //----
+    // ATOMIC TYPES
+    //----
+    // ALLOWED
+    boolean: boolean;
+    number: number;
+    string: string;
+    bigint: bigint;
+    optional_number?: number;
+    nullable_string: string | null;
+    literal_union: "A" | "B" | "C" | "D";
+
+    // NOT ALLOWED
+    mixed_union: string | number | boolean;
+    mixed_literal: "A" | "B" | 3;
+
+    //----
+    // ARRAY TYPES
+    //----
+    // ALLOWED
+    nullable_element_array: (string | null)[];
+    string_array: string[];
+    number_array: number[];
+    literal_union_array: ("A" | "B" | "C")[];
+    literal_tuple: ["A", "B", "C"];
+
+    // NOT ALLOWED
+    optional_element_array: (string | undefined)[];
+    optional_array: string[] | undefined;
+    nullable_array: string[] | null;
+    union_atomic_array: (string | number)[];
+    mixed_literal_array: ("A", "B", 3)[];
+    mixed_tuple: ["A", "B", 3];
+
+    //----
+    // SPECIAL CASES
+    //----
+    // MUST BE ARRAY
+    "Set-Cookie": string[];
+
+    // MUST BE ATOMIC
+    Accept: string;
+    Authorization: string;
+
+    // NOT ALLOWED - MUST BE ATOMIC
+    referer: string[];
+    age: number[];
+}
+```
