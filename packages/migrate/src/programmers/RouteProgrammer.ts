@@ -3,6 +3,7 @@ import { Escaper } from "typia/lib/utils/Escaper";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { ISwagger } from "../structures/ISwagger";
+import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { ISwaggerRoute } from "../structures/ISwaggerRoute";
 import { JsonTypeChecker } from "../utils/JsonTypeChecker";
 import { StringUtil } from "../utils/StringUtil";
@@ -301,17 +302,47 @@ export namespace RouteProgrammer {
         };
 
     export const write =
+        (importer: (module: string) => (instance: string) => string) =>
+        (components: ISwaggerComponents) =>
         (references: ISwaggerSchema.IReference[]) =>
         (route: IMigrateRoute): string => {
             const output: string = route.response
-                ? SchemaProgrammer.write(references)(route.response.schema)
+                ? SchemaProgrammer.write(components)(references)(
+                      route.response.schema,
+                  )
                 : "void";
-            const decorator: string =
-                route.body?.["x-nestia-encrypted"] === true
-                    ? "@core.EncryptedRoute."
-                    : route.body?.type === "text/plain"
-                    ? [`@Header("Content-Type", "text/plain")`, `@`].join("\n")
-                    : "@core.TypedRoute.";
+
+            const methoder = (composer: (name: string) => string) =>
+                `${composer(
+                    StringUtil.capitalize(route.method),
+                )}(${JSON.stringify(route.path)})`;
+            const decorator: string[] =
+                route.response?.["x-nestia-encrypted"] === true
+                    ? [
+                          `@${importer("@nestia/core")(
+                              "EncryptedRoute",
+                          )}.${methoder((str) => str)}`,
+                      ]
+                    : route.response?.type === "text/plain"
+                    ? [
+                          `@${importer("@nestjs/common")(
+                              "Header",
+                          )}("Content-Type", "text/plain")`,
+                          `@${methoder((str) =>
+                              importer("@nestjs/common")(str),
+                          )}`,
+                      ]
+                    : route.method === "head"
+                    ? [
+                          `@${importer("@nestjs/common")("Head")}${methoder(
+                              () => "",
+                          )}`,
+                      ]
+                    : [
+                          `@${importer("@nestia/core")(
+                              "TypedRoute",
+                          )}.${methoder((str) => str)}`,
+                      ];
             const content: string[] = [
                 ...(route.description
                     ? [
@@ -322,21 +353,26 @@ export namespace RouteProgrammer {
                           " */",
                       ]
                     : []),
-                `${decorator}${StringUtil.capitalize(route.method)}${
-                    route.path.length ? `(${JSON.stringify(route.path)})` : "()"
-                }`,
+                ...decorator,
                 `public async ${route.name}(`,
-                ...route.parameters.map((p) => `    ${writeParameter(p)},`),
+                ...route.parameters.map(
+                    (param) =>
+                        `    ${writeParameter(components)(importer)(param)},`,
+                ),
                 ...(route.headers
                     ? [
-                          `    @core.TypedHeaders() headers: ${SchemaProgrammer.write(
+                          `    @${importer("@nestia/core")(
+                              "TypedHeaders",
+                          )}() headers: ${SchemaProgrammer.write(components)(
                               references,
                           )(route.headers)},`,
                       ]
                     : []),
                 ...(route.query
                     ? [
-                          `    @core.TypedQuery() query: ${SchemaProgrammer.write(
+                          `    @${importer("@nestia/core")(
+                              "TypedQuery",
+                          )}() query: ${SchemaProgrammer.write(components)(
                               references,
                           )(route.query)},`,
                       ]
@@ -344,17 +380,25 @@ export namespace RouteProgrammer {
                 ...(route.body
                     ? route.body["x-nestia-encrypted"] === true
                         ? [
-                              `    @core.EncryptedBody() body: ${SchemaProgrammer.write(
+                              `    @${importer("@nestia/core")(
+                                  "EncryptedBody",
+                              )}() body: ${SchemaProgrammer.write(components)(
                                   references,
                               )(route.body.schema)},`,
                           ]
                         : route.body.type === "application/json"
                         ? [
-                              `    @core.TypedBody() body: ${SchemaProgrammer.write(
+                              `    @${importer("@nestia/core")(
+                                  "TypedBody",
+                              )}() body: ${SchemaProgrammer.write(components)(
                                   references,
                               )(route.body.schema)},`,
                           ]
-                        : [`    @core.PlainBody() body: string,`]
+                        : [
+                              `    @${importer("@nestia/core")(
+                                  "PlainBody",
+                              )}() body: string,`,
+                          ]
                     : []),
                 `): Promise<${output}> {`,
                 ...route.parameters.map(
@@ -364,27 +408,33 @@ export namespace RouteProgrammer {
                 ...(route.query ? ["    query;"] : []),
                 ...(route.body ? ["    body;"] : []),
                 ...(output !== "void"
-                    ? [`    return typia.random<${output}>();`]
+                    ? [
+                          `    return ${importer("typia")(
+                              "random",
+                          )}<${output}>();`,
+                      ]
                     : []),
                 `}`,
             ];
             return content.join("\n");
         };
 
-    const writeParameter = ({
-        key,
-        schema,
-    }: IMigrateRoute.IParameter): string => {
-        const variable = StringUtil.normalize(key);
-        const format =
-            JsonTypeChecker.isString(schema) &&
-            (schema.format === "uuid" || schema.format === "date")
-                ? schema.format
-                : null;
-        return `@core.TypedParam(${JSON.stringify(key)}${
-            format ? `, ${JSON.stringify(format)}` : ""
-        }) ${variable}: ${SchemaProgrammer.write([])(schema)}`;
-    };
+    const writeParameter =
+        (components: ISwaggerComponents) =>
+        (importer: (library: string) => (instance: string) => string) =>
+        ({ key, schema }: IMigrateRoute.IParameter): string => {
+            const variable = StringUtil.normalize(key);
+            const format =
+                JsonTypeChecker.isString(schema) &&
+                (schema.format === "uuid" || schema.format === "date")
+                    ? schema.format
+                    : null;
+            return `@${importer("@nestia/core")("TypedParam")}(${JSON.stringify(
+                key,
+            )}${
+                format ? `, ${JSON.stringify(format)}` : ""
+            }) ${variable}: ${SchemaProgrammer.write(components)([])(schema)}`;
+        };
 }
 
 const SUPPORTED_METHODS: Set<string> = new Set([

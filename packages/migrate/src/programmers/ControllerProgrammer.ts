@@ -2,8 +2,10 @@ import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { ISwagger } from "../structures/ISwagger";
+import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
+import { ImportProgrammer } from "./ImportProgrammer";
 import { RouteProgrammer } from "./RouteProgrammer";
 
 export namespace ControllerProgrammer {
@@ -112,61 +114,55 @@ export namespace ControllerProgrammer {
         }
     };
 
-    export const write = (controller: IMigrateController): string => {
-        const references: ISwaggerSchema.IReference[] = [];
-        const body: string = [
-            `@Controller(${JSON.stringify(controller.path)})`,
-            `export class ${controller.name} {`,
-            controller.routes
-                .map((r) =>
-                    RouteProgrammer.write(references)(r)
-                        .split("\n")
-                        .map((l) => `    ${l}`)
-                        .join("\n"),
-                )
-                .join("\n\n"),
-            `}`,
-        ].join("\n");
+    export const write =
+        (components: ISwaggerComponents) =>
+        (controller: IMigrateController): string => {
+            const importer: ImportProgrammer = new ImportProgrammer();
+            const references: ISwaggerSchema.IReference[] = [];
+            const body: string = [
+                `@${importer.add({
+                    library: "@nestjs/common",
+                    instance: "Controller",
+                })}(${JSON.stringify(controller.path)})`,
+                `export class ${controller.name} {`,
+                controller.routes
+                    .map((r) =>
+                        RouteProgrammer.write(
+                            (library) => (instance) =>
+                                importer.add({
+                                    library,
+                                    instance,
+                                }),
+                        )(components)(references)(r)
+                            .split("\n")
+                            .map((l) => `    ${l}`)
+                            .join("\n"),
+                    )
+                    .join("\n\n"),
+                `}`,
+            ].join("\n");
 
-        const core: boolean = controller.routes.some(
-            (r) =>
-                r.body !== null ||
-                r.response === null ||
-                r.response.type === "application/json",
-        );
-        const typia: boolean = controller.routes.some(
-            (m) => m.response !== null,
-        );
-        const common: Set<string> = new Set(["Controller"]);
-        for (const r of controller.routes)
-            if (r.response?.type === "text/plain") {
-                common.add("Header");
-                common.add(StringUtil.capitalize(r.method));
-            }
-
-        const dtoImports: string[] = [
-            ...new Set(
-                references.map(
-                    (r) =>
-                        r.$ref
-                            .replace("#/components/schemas/", "")
-                            .split(".")[0],
+            const dtoImports: string[] = [
+                ...new Set(
+                    references.map(
+                        (r) =>
+                            r.$ref
+                                .replace("#/components/schemas/", "")
+                                .split(".")[0],
+                    ),
                 ),
-            ),
-        ].map(
-            (ref) =>
-                `import { ${ref} } from "${"../".repeat(
-                    StringUtil.split(controller.location).length - 1,
-                )}api/structures/${ref}"`,
-        );
+            ].map(
+                (ref) =>
+                    `import { ${ref} } from "${"../".repeat(
+                        StringUtil.split(controller.location).length - 1,
+                    )}api/structures/${ref}"`,
+            );
 
-        return [
-            ...(core ? [`import core from "@nestia/core";`] : []),
-            `import { ${[...common].join(", ")} } from "@nestjs/common";`,
-            ...(typia ? [`import typia from "typia";`] : []),
-            "",
-            ...(dtoImports.length ? [...dtoImports, ""] : []),
-            body,
-        ].join("\n");
-    };
+            return [
+                importer.toScript(),
+                "",
+                ...(dtoImports.length ? [...dtoImports, ""] : []),
+                body,
+            ].join("\n");
+        };
 }
