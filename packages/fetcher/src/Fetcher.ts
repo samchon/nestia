@@ -87,7 +87,7 @@ export class Fetcher {
         const headers: Record<string, IConnection.HeaderValue | undefined> = {
             ...(connection.headers ?? {}),
         };
-        if (method !== "GET" && method !== "HEAD")
+        if (input !== undefined)
             headers["Content-Type"] ??=
                 encrypted.request === true || typeof input === "string"
                     ? "text/plain"

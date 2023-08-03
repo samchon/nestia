@@ -119,20 +119,20 @@ const feature = (name) => {
     }
 };
 
-const migrate = (name) => {
-    const input = path.resolve(`${__dirname}/../features/${name}/swagger.json`);
-    const output = path.resolve(`${__dirname}/../migrated/${name}`);
-    const cwd = path.resolve(`${__dirname}/../migrated`);
+// const migrate = (name) => {
+//     const input = path.resolve(`${__dirname}/../features/${name}/swagger.json`);
+//     const output = path.resolve(`${__dirname}/../migrated/${name}`);
+//     const cwd = path.resolve(`${__dirname}/../migrated`);
 
-    process.stdout.write(`  - ${name}`);
-    cp.execSync(
-        `npx @nestia/migrate ${input} ${output}`, 
-        { 
-            stdio: "ignore",
-            cwd,
-        }
-    );
-}
+//     process.stdout.write(`  - ${name}`);
+//     cp.execSync(
+//         `npx @nestia/migrate ${input} ${output}`, 
+//         { 
+//             stdio: "ignore",
+//             cwd,
+//         }
+//     );
+// }
 
 const main = async () => {
     const measure = (title) => async (task) => {
@@ -153,8 +153,7 @@ const main = async () => {
             console.log("Build Packages");
             const modules = [];
             for (const name of await fs.promises.readdir(libraryDirectory("")))
-                if (name === "migrate") continue;
-                else if (name === (library ?? name))
+                if (name === (library ?? name))
                     await measure("")(async () => {
                         modules.push(await build(name));
                     });
@@ -189,16 +188,16 @@ const main = async () => {
                     await measure()(async () => feature(name));
         }
 
-        console.log("\nMigration Tests");
-        if (!process.argv.includes("--skipMigrates")) {
-            if (fs.existsSync(`${__dirname}/../migrated`))
-                fs.rmSync(`${__dirname}/../migrated`, { recursive: true });
-            fs.mkdirSync(`${__dirname}/../migrated`);
+        // console.log("\nMigration Tests");
+        // if (!process.argv.includes("--skipMigrates")) {
+        //     if (fs.existsSync(`${__dirname}/../migrated`))
+        //         fs.rmSync(`${__dirname}/../migrated`, { recursive: true });
+        //     fs.mkdirSync(`${__dirname}/../migrated`);
             
-            for (const name of ["body", "date", "param", "plain", "query"])
-                if (name.includes(only ?? name))
-                    await measure()(async () => migrate(name));
-        }
+        //     for (const name of ["body", "date", "head", "param", "plain", "query" ,"security"])
+        //         if (name.includes(only ?? name))
+        //             await measure()(async () => migrate(name));
+        // }
     });
 };
 

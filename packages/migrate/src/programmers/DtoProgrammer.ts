@@ -1,6 +1,7 @@
 import { IMigrateDto } from "../structures/IMigrateDto";
 import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { ISwagger } from "../structures/ISwagger";
+import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { MapUtil } from "../utils/MapUtil";
 import { SchemaProgrammer } from "./SchemaProgrammer";
 
@@ -25,30 +26,33 @@ export namespace DtoProgrammer {
         return modulo;
     };
 
-    export const write = (dto: IMigrateDto): string => {
-        const references: ISwaggerSchema.IReference[] = [];
-        const body: string = iterate(references)(dto);
-        const imports: string[] = [
-            ...new Set(
-                references
-                    .map(
-                        (s) =>
-                            s.$ref
-                                .replace(`#/components/schemas/`, ``)
-                                .split(".")[0],
-                    )
-                    .filter((str) => str !== dto.name),
-            ),
-        ];
-        const content: string[] = [
-            ...imports.map((i) => `import { ${i} } from "./${i}";`),
-            ...(imports.length ? [""] : []),
-            body,
-        ];
-        return content.join("\n");
-    };
+    export const write =
+        (components: ISwaggerComponents) =>
+        (dto: IMigrateDto): string => {
+            const references: ISwaggerSchema.IReference[] = [];
+            const body: string = iterate(components)(references)(dto);
+            const imports: string[] = [
+                ...new Set(
+                    references
+                        .map(
+                            (s) =>
+                                s.$ref
+                                    .replace(`#/components/schemas/`, ``)
+                                    .split(".")[0],
+                        )
+                        .filter((str) => str !== dto.name),
+                ),
+            ];
+            const content: string[] = [
+                ...imports.map((i) => `import { ${i} } from "./${i}";`),
+                ...(imports.length ? [""] : []),
+                body,
+            ];
+            return content.join("\n");
+        };
 
     const iterate =
+        (components: ISwaggerComponents) =>
         (references: ISwaggerSchema.IReference[]) =>
         (dto: IMigrateDto): string => {
             const content: string[] = [];
@@ -63,15 +67,15 @@ export namespace DtoProgrammer {
                           ]
                         : []),
                     `export type ${dto.name} = ${SchemaProgrammer.write(
-                        references,
-                    )(dto.schema)}`,
+                        components,
+                    )(references)(dto.schema)}`,
                 );
             }
             if (dto.children.length) {
                 content.push(
                     `export namespace ${dto.name} {`,
                     ...dto.children.map((c) =>
-                        iterate(references)(c)
+                        iterate(components)(references)(c)
                             .split("\n")
                             .map((l) => `    ${l}`)
                             .join("\n"),

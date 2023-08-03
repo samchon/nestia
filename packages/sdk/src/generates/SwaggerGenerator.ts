@@ -565,7 +565,9 @@ export namespace SwaggerGenerator {
         const status: string =
             route.status !== undefined
                 ? String(route.status)
-                : route.method === "GET" || route.method === "DELETE"
+                : route.method === "GET" ||
+                  route.method === "HEAD" ||
+                  route.method === "DELETE"
                 ? "200"
                 : "201";
         const schema: IJsonSchema | null = generate_schema(
