@@ -207,7 +207,7 @@ export namespace ReflectAnalyzer {
             paths: _Get_paths(
                 Reflect.getMetadata(Constants.PATH_METADATA, proto),
             ),
-            parameters: [],
+            parameters,
             status: Reflect.getMetadata(Constants.HTTP_CODE_METADATA, proto),
             encrypted,
             contentType: encrypted
