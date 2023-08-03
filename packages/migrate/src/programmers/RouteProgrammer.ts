@@ -26,6 +26,15 @@ export namespace RouteProgrammer {
                     }: @nestia/migrate supports only application/json or text/plain format yet.`,
                 );
                 return null;
+            } else if (
+                SUPPORTED_METHODS.has(props.method.toUpperCase()) === false
+            ) {
+                console.log(
+                    `Failed to migrate ${props.method.toUpperCase()} ${
+                        props.path
+                    }: @nestia/migrate does not support ${props.method.toUpperCase()} method.`,
+                );
+                return null;
             }
 
             const [headers, query] = ["header", "query"].map((type) => {
@@ -377,3 +386,12 @@ export namespace RouteProgrammer {
         }) ${variable}: ${SchemaProgrammer.write([])(schema)}`;
     };
 }
+
+const SUPPORTED_METHODS: Set<string> = new Set([
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "HEAD",
+]);

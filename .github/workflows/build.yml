@@ -10,6 +10,10 @@ jobs:
         with:
           node-version: 16.x
 
-      - name: test
+      # - name: test migrate
+      #   working-directory: ./packages/migrate
+      #   run: npm install && npm run build && npm run test
+
+      - name: test entire
         working-directory: ./test
         run: npm run start -- --skipTest

@@ -23,6 +23,13 @@ import { Singleton } from "./internal/Singleton";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export class Fetcher {
+    public static fetch(
+        connection: IConnection,
+        encrypted: Fetcher.IEncrypted,
+        method: "HEAD",
+        path: string,
+    ): Promise<void>;
+
     /**
      * Fetch function for the `GET` methods.
      *
@@ -62,7 +69,7 @@ export class Fetcher {
     public static async fetch<Output>(
         connection: IConnection,
         encrypted: Fetcher.IEncrypted,
-        method: "GET" | "DELETE" | "POST" | "PUT" | "PATCH",
+        method: "GET" | "DELETE" | "POST" | "PUT" | "PATCH" | "HEAD",
         path: string,
         input?: object,
         stringify?: (input: object) => string,
@@ -80,7 +87,7 @@ export class Fetcher {
         const headers: Record<string, IConnection.HeaderValue | undefined> = {
             ...(connection.headers ?? {}),
         };
-        if (method !== "GET" && method !== "DELETE")
+        if (method !== "GET" && method !== "HEAD")
             headers["Content-Type"] ??=
                 encrypted.request === true || typeof input === "string"
                     ? "text/plain"
@@ -142,8 +149,7 @@ export class Fetcher {
 
         // DO FETCH
         const response: Response = await (await polyfill.get())(url.href, init);
-        const text: string = await response.text();
-        if (!text) return undefined!;
+        const text: string = (await response.text()) ?? "";
 
         // CHECK THE STATUS CODE
         if (
@@ -155,6 +161,13 @@ export class Fetcher {
         )
             throw new HttpError(method, path, response.status, text);
 
+        //----
+        // OUTPUT
+        //----
+        // HEAD METHOD CANNOT HAVE ANYTHING
+        if (method === "HEAD") return undefined!;
+
+        // DECRYPT RESPONSE BODY
         const content: string = !encrypted.response
             ? text
             : (() => {
@@ -174,12 +187,9 @@ export class Fetcher {
                           : connection.encryption!;
                   return AesPkcs5.decrypt(text, password.key, password.iv);
               })();
-
-        //----
-        // OUTPUT
-        //----
         let ret: { __set_headers__: Record<string, any> } & Primitive<Output> =
             content as any;
+
         try {
             // PARSE RESPONSE BODY
             if (
