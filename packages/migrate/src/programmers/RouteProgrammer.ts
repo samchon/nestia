@@ -156,7 +156,9 @@ export namespace RouteProgrammer {
                       });
             });
 
-            const parameterNames: string[] = StringUtil.split(props.path)
+            const parameterNames: string[] = StringUtil.splitWithNormalization(
+                props.path,
+            )
                 .filter((str) => str[0] === "{" || str[0] === ":")
                 .map((str) =>
                     str[0] === "{"

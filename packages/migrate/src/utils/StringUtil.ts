@@ -3,24 +3,26 @@ export namespace StringUtil {
         str[0].toUpperCase() + str.slice(1).toLowerCase();
 
     export const pascal = (path: string) =>
-        split(path)
+        splitWithNormalization(path)
             .filter((str) => str[0] !== "{")
             .map(capitalize)
             .join("");
 
     export const camel = (path: string) =>
-        split(path)
+        splitWithNormalization(path)
             .map((str, i) => (i === 0 ? str : capitalize(str)))
             .join("");
 
-    export const split = (path: string) =>
+    export const splitWithNormalization = (path: string) =>
         path
             .split("/")
             .map((str) => normalize(str.trim()))
             .filter((str) => !!str.length);
 
     export const reJoinWithDecimalParameters = (path: string) =>
-        split(path)
+        path
+            .split("/")
+            .filter((str) => !!str.length)
             .map((str) =>
                 str[0] === "{" && str[str.length - 1] === "}"
                     ? `:${str.substring(1, str.length - 1)}`

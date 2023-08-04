@@ -38,16 +38,26 @@ const main = () => {
     if (fs.existsSync(OUTPUT)) fs.rmSync(OUTPUT, { recursive: true });
     fs.mkdirSync(OUTPUT);
 
+    const only = (() => {
+        const index: number = process.argv.indexOf("--only");
+        if (index !== -1) return process.argv[index + 1]?.trim();
+        return undefined;
+    })();
+
     for (const file of fs.readdirSync(SAMPLE)) {
         const location: string = `${SAMPLE}/${file}`;
         if (!location.endsWith(".json")) continue;
 
         const project: string = file.substring(0, file.length - 5);
+        if ((only ?? project) !== project) continue;
+
         const swagger: ISwagger = JSON.parse(fs.readFileSync(location, "utf8"));
         execute(project)(swagger);
     }
 
     for (const feature of fs.readdirSync(TEST)) {
+        if ((only ?? feature) !== feature) continue;
+
         const stats: fs.Stats = fs.statSync(`${TEST}/${feature}`);
         if (stats.isDirectory() === false) continue;
         else if (feature.includes("error")) continue;
