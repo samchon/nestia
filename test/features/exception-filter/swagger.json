@@ -95,6 +95,7 @@
         "tags": [],
         "parameters": [
           {
+            "name": "file",
             "in": "query",
             "description": "",
             "schema": {
