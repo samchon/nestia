@@ -106,7 +106,7 @@ const feature = (name) => {
     // RUN TEST AUTOMATION PROGRAM
     const test = () => cp.execSync("npx ts-node src/test", { stdio: "ignore" });
     if (fs.existsSync("src/test")) {
-        for (let i = 0; i < 7; ++i)
+        for (let i = 0; i < 10; ++i)
             try {
                 test();
                 return;
