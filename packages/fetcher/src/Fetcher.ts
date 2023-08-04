@@ -168,7 +168,7 @@ export class Fetcher {
         if (method === "HEAD") return undefined!;
 
         // DECRYPT RESPONSE BODY
-        const content: string = !encrypted.response
+        const content: string = !encrypted.response || text.length === 0
             ? text
             : (() => {
                   const password:
@@ -198,7 +198,7 @@ export class Fetcher {
                     "application/json",
                 ) !== -1
             )
-                ret = JSON.parse(ret as any);
+                ret = content.length ? JSON.parse(content) : undefined!;
         } catch {}
 
         // RETURNS
