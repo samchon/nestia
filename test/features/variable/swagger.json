@@ -119,6 +119,7 @@
             "required": true
           },
           {
+            "name": "input",
             "in": "query",
             "description": "Page request info",
             "schema": {

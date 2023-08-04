@@ -495,7 +495,7 @@ export namespace SwaggerGenerator {
 
         return [
             {
-                name: parameter.field,
+                name: parameter.field ?? parameter.name,
                 in:
                     parameter.category === "param"
                         ? "path"

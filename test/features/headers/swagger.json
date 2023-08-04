@@ -20,6 +20,7 @@
         "tags": [],
         "parameters": [
           {
+            "name": "headers",
             "in": "header",
             "description": "Headers for authentication",
             "schema": {
@@ -130,6 +131,7 @@
         "tags": [],
         "parameters": [
           {
+            "name": "headers",
             "in": "header",
             "description": "",
             "schema": {
