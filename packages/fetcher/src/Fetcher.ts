@@ -199,15 +199,6 @@ export class Fetcher {
                 ) !== -1
             )
                 ret = JSON.parse(ret as any);
-
-            // FIND __SET_HEADERS__ FIELD
-            if (
-                ret.__set_headers__ !== undefined &&
-                typeof ret.__set_headers__ === "object"
-            ) {
-                if (connection.headers === undefined) connection.headers = {};
-                Object.assign(connection.headers, ret.__set_headers__);
-            }
         } catch {}
 
         // RETURNS
