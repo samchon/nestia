@@ -25,7 +25,7 @@
   },
   "homepage": "https://nestia.io",
   "devDependencies": {
-    "@nestia/migrate": "../packages/migrate/nestia-migrate-0.2.1-dev.20230803.tgz",
+    "@nestia/migrate": "../packages/migrate/nestia-migrate-0.2.1.tgz",
     "@nestjs/swagger": "^7.1.2",
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/express": "^4.17.17",

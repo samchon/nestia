@@ -15,7 +15,7 @@ export namespace ControllerProgrammer {
         // GATHER ROUTES
         for (const [path, collection] of Object.entries(swagger.paths)) {
             // PREPARE DIRECTORIES
-            const location: string = StringUtil.split(path)
+            const location: string = StringUtil.splitWithNormalization(path)
                 .filter((str) => str[0] !== "{" && str[0] !== ":")
                 .join("/");
             for (const s of sequence(location)) MapUtil.take(dict)(s)(() => []);
@@ -74,7 +74,7 @@ export namespace ControllerProgrammer {
     };
 
     const sequence = (location: string): string[] =>
-        StringUtil.split(location)
+        StringUtil.splitWithNormalization(location)
             .map((_str, i, entire) => entire.slice(0, i + 1).join("/"))
             .slice(0, -1)
             .reverse();
@@ -86,7 +86,9 @@ export namespace ControllerProgrammer {
         }
         const dict: Map<string, IRouteCapsule[]> = new Map();
         for (const route of controller.routes) {
-            const additional: string[] = StringUtil.split(route.path);
+            const additional: string[] = StringUtil.splitWithNormalization(
+                route.path,
+            );
             const statics: string[] = additional.filter(
                 (str) => str[0] !== ":",
             );
@@ -154,7 +156,8 @@ export namespace ControllerProgrammer {
             ].map(
                 (ref) =>
                     `import { ${ref} } from "${"../".repeat(
-                        StringUtil.split(controller.location).length - 1,
+                        StringUtil.splitWithNormalization(controller.location)
+                            .length - 1,
                     )}api/structures/${ref}"`,
             );
 
