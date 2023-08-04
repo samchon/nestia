@@ -223,33 +223,7 @@ export namespace TypedHeadersProgrammer {
                 isArray
                     ? key === "set-cookie"
                         ? accessor
-                        : ts.factory.createCallChain(
-                              ts.factory.createPropertyAccessChain(
-                                  ts.factory.createCallChain(
-                                      ts.factory.createPropertyAccessChain(
-                                          accessor,
-                                          ts.factory.createToken(
-                                              ts.SyntaxKind.QuestionDotToken,
-                                          ),
-                                          ts.factory.createIdentifier("split"),
-                                      ),
-                                      undefined,
-                                      undefined,
-                                      [
-                                          ts.factory.createStringLiteral(
-                                              key === "cookie" ? "; " : ", ",
-                                          ),
-                                      ],
-                                  ),
-                                  ts.factory.createToken(
-                                      ts.SyntaxKind.QuestionDotToken,
-                                  ),
-                                  ts.factory.createIdentifier("map"),
-                              ),
-                              undefined,
-                              undefined,
-                              [importer.use(type)],
-                          )
+                        : decode_array(importer)(type)(key)(value)(accessor)
                     : decode_value(importer)(type)(accessor),
             );
         };
@@ -265,6 +239,45 @@ export namespace TypedHeadersProgrammer {
                       undefined,
                       [value],
                   );
+
+    const decode_array =
+        (importer: FunctionImporter) =>
+        (type: Atomic.Literal) =>
+        (key: string) =>
+        (value: Metadata) =>
+        (accessor: ts.Expression) => {
+            const expression = ts.factory.createCallChain(
+                ts.factory.createPropertyAccessChain(
+                    ts.factory.createCallChain(
+                        ts.factory.createPropertyAccessChain(
+                            accessor,
+                            ts.factory.createToken(
+                                ts.SyntaxKind.QuestionDotToken,
+                            ),
+                            ts.factory.createIdentifier("split"),
+                        ),
+                        undefined,
+                        undefined,
+                        [
+                            ts.factory.createStringLiteral(
+                                key === "cookie" ? "; " : ", ",
+                            ),
+                        ],
+                    ),
+                    ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+                    ts.factory.createIdentifier("map"),
+                ),
+                undefined,
+                undefined,
+                [importer.use(type)],
+            );
+            if (value.isRequired() === false) return expression;
+            return ts.factory.createBinaryExpression(
+                expression,
+                ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
+                ts.factory.createArrayLiteralExpression([], false),
+            );
+        };
 }
 
 namespace ErrorMessages {
