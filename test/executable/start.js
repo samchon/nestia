@@ -104,15 +104,15 @@ const feature = (name) => {
     cp.execSync("npx tsc", { stdio: "ignore" });
 
     // RUN TEST AUTOMATION PROGRAM
-    const test = () => cp.execSync("npx ts-node src/test", { stdio: "ignore" });
     if (fs.existsSync("src/test")) {
+        const test = () => cp.execSync("npx ts-node src/test", { stdio: "ignore" });
         for (let i = 0; i < 3; ++i)
             try {
                 test();
                 return;
             } catch {}
+        test();
     }
-    test();
 };
 
 // const migrate = (name) => {
