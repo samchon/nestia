@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { IEncryptionPassword } from "./IEncryptionPassword";
 import { IRandomGenerator } from "./IRandomGenerator";
 
@@ -134,6 +136,11 @@ export namespace IConnection {
             | "strict-origin"
             | "strict-origin-when-cross-origin"
             | "unsafe-url";
+
+        /**
+         * An AbortSignal to set request's signal.
+         */
+        signal?: AbortSignal | null;
     }
 
     /**
