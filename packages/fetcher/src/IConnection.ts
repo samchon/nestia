@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { IEncryptionPassword } from "./IEncryptionPassword";
 import { IRandomGenerator } from "./IRandomGenerator";
 
