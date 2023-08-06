@@ -24,7 +24,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "^1.5.8",
+    "@nestia/core": "^1.6.0-dev.20230807",
     "typia": "^4.1.16"
   },
   "devDependencies": {

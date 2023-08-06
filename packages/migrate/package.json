@@ -30,8 +30,8 @@
   },
   "homepage": "https://github.com/samchon/nestia#readme",
   "devDependencies": {
-    "@nestia/core": "^1.5.8",
-    "@nestia/fetcher": "^1.5.8",
+    "@nestia/core": "^1.6.0-dev.20230807",
+    "@nestia/fetcher": "^1.6.0-dev.20230807",
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@types/node": "^20.3.3",
     "prettier": "^2.8.8",
