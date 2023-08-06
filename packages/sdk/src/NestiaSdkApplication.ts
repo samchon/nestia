@@ -174,9 +174,8 @@ export class NestiaSdkApplication {
             for (const c of controllers)
                 for (const cPath of c.paths)
                     for (const f of c.functions)
-                        for (const method of f.methods)
-                            for (const fPath of f.paths)
-                                set.add(`${method}::${cPath}/${fPath}`);
+                        for (const fPath of f.paths)
+                            set.add(`${f.method}::${cPath}/${fPath}`);
             return set.size;
         })();
 

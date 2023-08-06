@@ -11,7 +11,7 @@ export interface IController {
 export namespace IController {
     export interface IFunction {
         name: string;
-        methods: string[];
+        method: string;
         paths: string[];
         encrypted: boolean;
         parameters: IParameter[];
