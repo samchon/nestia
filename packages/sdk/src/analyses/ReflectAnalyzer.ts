@@ -198,12 +198,7 @@ export namespace ReflectAnalyzer {
         // DO CONSTRUCT
         const meta: IController.IFunction = {
             name,
-            methods:
-                method === "ALL"
-                    ? body !== undefined
-                        ? ["GET", "POST", "PUT", "DELETE", "PATCH"]
-                        : ["POST", "PUT", "DELETE", "PATCH"]
-                    : [method],
+            method: method === "ALL" ? "POST" : method,
             paths: _Get_paths(
                 Reflect.getMetadata(Constants.PATH_METADATA, proto),
             ),
