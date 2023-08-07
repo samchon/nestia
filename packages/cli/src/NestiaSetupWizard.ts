@@ -20,23 +20,37 @@ export namespace NestiaSetupWizard {
         pack.install({ dev: true, modulo: "ts-node", version: "latest" });
         pack.install({ dev: true, modulo: "typescript", version: "latest" });
         args.project ??= (() => {
-            CommandExecutor.run("npx tsc --init");
+            const runner: string =
+                pack.manager === "npm" ? "npx" : pack.manager;
+            CommandExecutor.run(`${runner} tsc --init`);
             return (args.project = "tsconfig.json");
         })();
 
         // SETUP TRANSFORMER
         await pack.save((data) => {
+            // COMPOSE POSTINSTALL COMMAND
             data.scripts ??= {};
             if (
-                typeof data.scripts.prepare === "string" &&
-                data.scripts.prepare.length
+                typeof data.scripts.postinstall === "string" &&
+                data.scripts.postinstall.trim().length
             ) {
-                if (data.scripts.prepare.indexOf("ts-patch install") === -1)
-                    data.scripts.prepare =
-                        "ts-patch install && " + data.scripts.prepare;
-            } else data.scripts.prepare = "ts-patch install";
+                if (data.scripts.postinstall.indexOf("ts-patch install") === -1)
+                    data.scripts.postinstall =
+                        "ts-patch install && " + data.scripts.postinstall;
+            } else data.scripts.postinstall = "ts-patch install";
+
+            // FOR OLDER VERSIONS
+            if (typeof data.scripts.prepare === "string") {
+                data.scripts.prepare = data.scripts.prepare
+                    .split("&&")
+                    .map((str) => str.trim())
+                    .filter((str) => str.indexOf("ts-patch install") === -1)
+                    .join(" && ");
+                if (data.scripts.prepare.length === 0)
+                    delete data.scripts.prepare;
+            }
         });
-        CommandExecutor.run("npm run prepare");
+        CommandExecutor.run(`${pack.manager} run postinstall`);
 
         // INSTALL AND CONFIGURE TYPIA + NESTIA
         pack.install({ dev: false, modulo: "typia", version: "latest" });

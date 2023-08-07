@@ -12,7 +12,7 @@ export namespace ArgumentParser {
 
     export async function parse(pack: PackageManager): Promise<IArguments> {
         // PREPARE ASSETS
-        commander.program.option("--manager [manager", "package manager");
+        commander.program.option("--manager [manager]", "package manager");
         commander.program.option(
             "--project [project]",
             "tsconfig.json file location",
@@ -39,6 +39,7 @@ export namespace ArgumentParser {
             (message: string) =>
             async <Choice extends string>(
                 choices: Choice[],
+                filter?: (value: string) => Choice,
             ): Promise<Choice> => {
                 questioned.value = true;
                 return (
@@ -47,6 +48,7 @@ export namespace ArgumentParser {
                         name: name,
                         message: message,
                         choices: choices,
+                        filter,
                     })
                 )[name];
             };
@@ -78,11 +80,14 @@ export namespace ArgumentParser {
 
         // DO CONSTRUCT
         return action(async (options) => {
-            options.manager ??= await select("manager")("Package Manager")([
-                "npm" as const,
-                "pnpm" as const,
-                "yarn" as const,
-            ]);
+            options.manager ??= await select("manager")("Package Manager")(
+                [
+                    "npm" as const,
+                    "pnpm" as const,
+                    "yarn (berry is not supported)" as "yarn",
+                ],
+                (value) => value.split(" ")[0] as "yarn",
+            );
             pack.manager = options.manager;
             options.project ??= await configure();
 
