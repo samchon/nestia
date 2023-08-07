@@ -1,3 +1,5 @@
+import { Tabs, Tab } from 'nextra-theme-docs'
+
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Stack from '@mui/material/Stack';
@@ -19,10 +21,26 @@ Boilerplate would be automatically constructed in the `<directory>`.
 
 
 ## Setup Wizard
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+    <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npm install --save-dev nestia
 npx nestia setup
 ```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+pnpm install --save-dev nestia
+pnpm nestia setup --manager pnpm
+```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+yarn add -D nestia
+yarn nestia setup --manager yarn
+```
+    </Tab>
+</Tabs>
 
 When you want to setup `nestia` in exiting project, just run above `npx nestia setup` command.
 
@@ -32,6 +50,8 @@ Setup Wizard will install and configure everything automatically.
 
 
 ## Webpack
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+    <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # SETUP NESTIA
 npm install --save-dev nestia
@@ -41,6 +61,30 @@ npx nestia setup
 npm install --save-dev ts-loader
 npm install --save-dev webpack webpack-cli webpack-node-externals 
 ```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+# SETUP NESTIA
+pnpm install --save-dev nestia
+pnpm nestia setup --manager pnpm
+
+# INSTALL TS-LOADER & WEBPACK
+pnpm install --save-dev ts-loader
+pnpm install --save-dev webpack webpack-cli webpack-node-externals 
+```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+# SETUP NESTIA
+yarn add -D nestia
+yarn nestia setup --manager yarn
+
+# INSTALL TS-LOADER & WEBPACK
+yarn add -D ts-loader
+yarn add -D webpack webpack-cli webpack-node-externals 
+```
+    </Tab>
+</Tabs>
 
 When you want to bundle your NestJS project into a single file, you have to install `webpack` manually.  
 
@@ -84,9 +128,23 @@ After installing both `nestia` and `webpack`, configure `webpack.config.js` file
 
 If required, update `entry`, `output` or `optimization` properties as you want.
 
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+    <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npx webpack
 ```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+pnpm webpack
+```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+yarn webpack
+```
+    </Tab>
+</Tabs>
 
 At last, you can bundle your NestJS project into a single file, just by running `npx webpack` command.
 
@@ -94,6 +152,8 @@ At last, you can bundle your NestJS project into a single file, just by running 
 
 
 ## Manual Setup
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+    <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # COMPILERS
 npm install --save-dev typescript
@@ -105,7 +165,40 @@ npm install --save-dev nestia
 npm install --save-dev @nestia/sdk
 npm install --save @nestia/core
 npm install --save @nestia/e2e
+npm install --save typia
 ```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+# COMPILERS
+pnpm install --save-dev typescript
+pnpm install --save-dev ts-node
+pnpm install --save-dev ts-patch
+
+# NESTIA
+pnpm install --save-dev nestia
+pnpm install --save-dev @nestia/sdk
+pnpm install --save @nestia/core
+pnpm install --save @nestia/e2e
+pnpm install --save typia
+```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+# COMPILERS
+yarn add -D typescript
+yarn add -D ts-node
+yarn add -D ts-patch
+
+# NESTIA
+yarn add -D nestia
+yarn add -D @nestia/sdk
+yarn add @nestia/core
+yarn add @nestia/e2e
+yarn add typia
+```
+    </Tab>
+</Tabs>
 
 If you want to install `nestia` manually, you have to install `ts-node` and `ts-patch` modules as well as `typescript`. After installing those compilers, install `nestia` libraries like above.
 
@@ -139,18 +232,32 @@ Also, never forget to configure `strict` (or `strictNullChecks`) as `true`. It i
 ```json filename="package.json" showLineNumbers copy
 {
     "scripts": {
-        "prepare": "ts-patch install"
+        "postinstall": "ts-patch install"
     }
 }
 ```
 
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+    <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-npm run prepare
+npm run postinstall
 ```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+pnpm run postinstall
+```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+yarn run postinstall
+```
+    </Tab>
+</Tabs>
 
-At last, configure `npm run prepare` command like above. 
+At last, configure `npm run postinstall` command like above. 
 
-Of course, you've to run the `npm run prepare` command after configuration.
+Of course, you've to run the `npm run postinstall` command after configuration.
 
 For reference, [`ts-patch`](https://github.com/nonara/ts-patch) is an helper library of TypeScript compiler that supporting custom transformations by plugins. With the [`ts-patch`](https://github.com/nonara/ts-patch) setup and plugin configurations, whenever you run `tsc` command, your `@nestia/core` decorator function call statements would be transformed to the optimal operation codes in the compiled JavaScript files.
 
