@@ -24,8 +24,8 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "^1.6.1",
-    "typia": "^4.1.16"
+    "@nestia/core": "^1.6.2",
+    "typia": "^4.2.1"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
