@@ -151,6 +151,57 @@ At last, you can bundle your NestJS project into a single file, just by running 
 
 
 
+## NX
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+npm install --save-dev nestia
+npx nestia setup
+```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+pnpm install --save-dev nestia
+pnpm nestia setup --manager pnpm
+```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+yarn add -D nestia
+yarn nestia setup --manager yarn
+```
+    </Tab>
+</Tabs>
+
+After install nestia like above, you have to modify `project.json` on each app you use typia like below.
+
+```javascript filename="project.json" showLineNumbers copy
+ "targets": {
+    "build": {
+      ...
+      "options": {
+        ...
+        "target": "node",
+        "compiler": "tsc",
+        "transformers": [
+          "typia/lib/transform",
+          {
+            "name": "@nestia/core/lib/transform",
+            "options": {
+              "validate": "assert",
+              "stringify": "assert"
+            }
+          }
+        ]
+      }
+    },
+    ...
+ }
+```
+
+
+
+
 ## Manual Setup
 <Tabs items={['npm', 'pnpm', 'yarn']}>
     <Tab>
