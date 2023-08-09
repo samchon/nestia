@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Fireblocks API",
-    "version": "1.6.2",
+    "version": "1.6.3",
     "contact": {
       "email": "support@fireblocks.com"
     }
