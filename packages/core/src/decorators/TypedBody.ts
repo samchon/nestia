@@ -14,7 +14,7 @@ import { validate_request_body } from "./internal/validate_request_body";
 /**
  * Type safe body decorator.
  *
- * `TypedBody` is a decoratur function getting `application/json` typed data from
+ * `TypedBody` is a decorator function getting `application/json` typed data from
  * request body. Also, it validates the request body data type through
  * [typia](https://github.com/samchon/typia) and the validation speed is
  * maximum 20,000x times faster than `class-validator`.
