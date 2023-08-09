@@ -1,6 +1,5 @@
 import { HttpError } from "@nestia/fetcher";
 import { HttpException } from "@nestjs/common";
-import { TypeGuardError } from "typia";
 
 import { Creator } from "../typings/Creator";
 
@@ -99,19 +98,6 @@ export namespace ExceptionManager {
      */
     export const listeners: Set<(error: any) => any> = new Set();
 }
-
-ExceptionManager.insert(
-    TypeGuardError,
-    (error) =>
-        new HttpException(
-            {
-                path: error.path,
-                reason: error.message,
-                message: "Request message is not following the promised type.",
-            },
-            400,
-        ),
-);
 
 ExceptionManager.insert(
     HttpError,
