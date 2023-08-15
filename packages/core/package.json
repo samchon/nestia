@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "1.6.3",
+  "version": "1.6.4-dev.20230816",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -44,7 +44,7 @@
     "raw-body": ">= 2.0.0",
     "reflect-metadata": ">= 0.1.12",
     "rxjs": ">= 6.0.0",
-    "typia": "^4.2.1"
+    "typia": "^4.2.3"
   },
   "peerDependencies": {
     "@nestia/fetcher": ">= 1.6.3",
@@ -56,7 +56,7 @@
     "reflect-metadata": ">= 0.1.12",
     "rxjs": ">= 6.0.0",
     "typescript": ">= 4.8.0",
-    "typia": ">= 4.2.1"
+    "typia": ">= 4.2.3"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",

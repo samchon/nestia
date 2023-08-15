@@ -4,7 +4,7 @@ import ts from "typescript";
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
 import { TypedRouteProgrammer } from "../programmers/TypedRouteProgrammer";
 
-export namespace MethodDecoratorTransformer {
+export namespace TypedRouteTransformer {
     export const transform =
         (project: INestiaTransformProject) =>
         (type: ts.Type) =>

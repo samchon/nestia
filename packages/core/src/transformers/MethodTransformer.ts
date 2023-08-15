@@ -1,7 +1,7 @@
 import ts from "typescript";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
-import { MethodDecoratorTransformer } from "./MethodDecoratorTransformer";
+import { TypedRouteTransformer } from "./TypedRouteTransformer";
 
 export namespace MethodTransformer {
     export const transform =
@@ -23,15 +23,14 @@ export namespace MethodTransformer {
 
             if (escaped === undefined) return method;
 
+            const operator = (deco: ts.Decorator): ts.Decorator =>
+                TypedRouteTransformer.transform(project)(escaped)(deco);
+
             if (ts.getDecorators !== undefined)
                 return ts.factory.updateMethodDeclaration(
                     method,
                     (method.modifiers || []).map((mod) =>
-                        ts.isDecorator(mod)
-                            ? MethodDecoratorTransformer.transform(project)(
-                                  escaped,
-                              )(mod)
-                            : mod,
+                        ts.isDecorator(mod) ? operator(mod) : mod,
                     ),
                     method.asteriskToken,
                     method.name,
@@ -44,11 +43,7 @@ export namespace MethodTransformer {
             // eslint-disable-next-line
             return (ts.factory.updateMethodDeclaration as any)(
                 method,
-                decorators.map((deco) =>
-                    MethodDecoratorTransformer.transform(project)(escaped)(
-                        deco,
-                    ),
-                ),
+                decorators.map(operator),
                 (method as any).modifiers,
                 method.asteriskToken,
                 method.name,
