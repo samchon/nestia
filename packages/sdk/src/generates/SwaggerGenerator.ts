@@ -597,8 +597,15 @@ export namespace SwaggerGenerator {
             if (text === undefined) continue;
 
             const elements: string[] = text.split(" ").map((str) => str.trim());
-            const status: number = Number(elements[0]);
-            if (isNaN(status)) continue;
+            const status: string = elements[0];
+            if (
+                isNaN(Number(status)) &&
+                status !== "2XX" &&
+                status !== "3XX" &&
+                status !== "4XX" &&
+                status !== "5XX"
+            )
+                continue;
 
             const description: string | undefined =
                 elements.length === 1 ? undefined : elements.slice(1).join(" ");

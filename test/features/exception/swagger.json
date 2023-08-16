@@ -79,6 +79,16 @@
                 }
               }
             }
+          },
+          "5XX": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IInternalServerError"
+                }
+              }
+            }
           }
         },
         "x-nestia-namespace": "exception.typed.typed",
@@ -145,6 +155,14 @@
                 "schema": {}
               }
             }
+          },
+          "5XX": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           }
         },
         "x-nestia-namespace": "exception.tags.tags",
@@ -172,6 +190,15 @@
             "text": [
               {
                 "text": "428 unable to process the request",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "5XX internal server error",
                 "kind": "text"
               }
             ]
@@ -246,11 +273,13 @@
               }
             }
           },
-          "500": {
+          "5XX": {
             "description": "internal server error",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/IInternalServerError"
+                }
               }
             }
           }
@@ -288,7 +317,7 @@
             "name": "throw",
             "text": [
               {
-                "text": "500 internal server error",
+                "text": "5XX internal server error",
                 "kind": "text"
               }
             ]
@@ -590,6 +619,38 @@
         "nullable": false,
         "required": [
           "reason"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "IInternalServerError": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "message": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "stack": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "x-typia-required": true,
+              "x-typia-optional": false,
+              "type": "string"
+            }
+          }
+        },
+        "nullable": false,
+        "required": [
+          "name",
+          "message",
+          "stack"
         ],
         "x-typia-jsDocTags": []
       },

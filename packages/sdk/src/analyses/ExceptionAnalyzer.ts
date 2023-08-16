@@ -15,8 +15,13 @@ export namespace ExceptionAnalyzer {
             importDict: ImportAnalyzer.Dictionary,
         ) =>
         (func: IController.IFunction) =>
-        (declaration: ts.MethodDeclaration): Record<number, IRoute.IOutput> => {
-            const output: Record<number, IRoute.IOutput> = {};
+        (
+            declaration: ts.MethodDeclaration,
+        ): Record<number | "2XX" | "3XX" | "4XX" | "5XX", IRoute.IOutput> => {
+            const output: Record<
+                number | "2XX" | "3XX" | "4XX" | "5XX",
+                IRoute.IOutput
+            > = {} as any;
             for (const decorator of declaration.modifiers ?? [])
                 if (ts.isDecorator(decorator))
                     analyzeTyped(checker)(genericDict, importDict)(func)(
@@ -32,7 +37,12 @@ export namespace ExceptionAnalyzer {
             importDict: ImportAnalyzer.Dictionary,
         ) =>
         (func: IController.IFunction) =>
-        (output: Record<number, IRoute.IOutput>) =>
+        (
+            output: Record<
+                number | "2XX" | "3XX" | "4XX" | "5XX",
+                IRoute.IOutput
+            >,
+        ) =>
         (decorator: ts.Decorator): boolean => {
             // CHECK DECORATOR
             if (!ts.isCallExpression(decorator.expression)) return false;

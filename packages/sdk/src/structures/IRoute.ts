@@ -24,7 +24,7 @@ export interface IRoute {
         | { type: "assigner"; source: string }
     >;
     security: Record<string, string[]>[];
-    exceptions: Record<number, IRoute.IOutput>;
+    exceptions: Record<number | "2XX" | "3XX" | "4XX" | "5XX", IRoute.IOutput>;
 }
 
 export namespace IRoute {

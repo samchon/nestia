@@ -134,12 +134,15 @@ export namespace ReflectAnalyzer {
 
     function _Get_exceptions(
         value: any,
-    ): Record<number, IController.IException> {
+    ): Record<number | "2XX" | "3XX" | "4XX" | "5XX", IController.IException> {
         const entire: IController.IException[] | undefined =
             Reflect.getMetadata("swagger/TypedException", value);
         return Object.fromEntries(
             (entire ?? []).map((exp) => [exp.status, exp]),
-        );
+        ) as Record<
+            number | "2XX" | "3XX" | "4XX" | "5XX",
+            IController.IException
+        >;
     }
 
     /* ---------------------------------------------------------
