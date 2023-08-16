@@ -1,6 +1,7 @@
 import ts from "typescript";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
+import { TypedExceptionTransformer } from "./TypedExceptionTransformer";
 import { TypedRouteTransformer } from "./TypedRouteTransformer";
 
 export namespace MethodTransformer {
@@ -23,9 +24,11 @@ export namespace MethodTransformer {
 
             if (escaped === undefined) return method;
 
-            const operator = (deco: ts.Decorator): ts.Decorator =>
-                TypedRouteTransformer.transform(project)(escaped)(deco);
-
+            const operator = (deco: ts.Decorator): ts.Decorator => {
+                deco = TypedExceptionTransformer.transform(project)(deco);
+                deco = TypedRouteTransformer.transform(project)(escaped)(deco);
+                return deco;
+            };
             if (ts.getDecorators !== undefined)
                 return ts.factory.updateMethodDeclaration(
                     method,

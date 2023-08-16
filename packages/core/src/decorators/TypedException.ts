@@ -13,7 +13,7 @@ export function TypedException<T extends object>(
 /**
  * @internal
  */
-export function TypedException<T extends object>(
+export function TypedException(
     status: number,
     description?: string | undefined,
     type?: string | undefined,
@@ -23,25 +23,32 @@ export function TypedException<T extends object>(
         propertyKey: string | symbol,
         descriptor: TypedPropertyDescriptor<any>,
     ) {
-        Reflect.defineMetadata(
-            `swagger/TypedException`,
-            {
-                status,
-                description,
-                type,
-            },
-            (target as any)[propertyKey],
-        );
+        const array: IProps[] = (() => {
+            const oldbie: IProps[] | undefined = Reflect.getMetadata(
+                `swagger/TypedException`,
+                (target as any)[propertyKey],
+            );
+            if (oldbie !== undefined) return oldbie;
+
+            const newbie: IProps[] = [];
+            Reflect.defineMetadata(
+                `swagger/TypedException`,
+                newbie,
+                (target as any)[propertyKey],
+            );
+            return newbie;
+        })();
+        array.push({
+            status,
+            description,
+            type: type!,
+        });
         return descriptor;
     };
 }
-export namespace TypedException {
-    export interface IProps {
-        status: number;
-        description?: string | undefined;
-        /**
-         * @internal
-         */
-        type: string;
-    }
+
+interface IProps {
+    status: number;
+    description?: string | undefined;
+    type: string;
 }

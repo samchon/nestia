@@ -24,6 +24,7 @@ export interface IRoute {
         | { type: "assigner"; source: string }
     >;
     security: Record<string, string[]>[];
+    exceptions: Record<number, IRoute.IOutput>;
 }
 
 export namespace IRoute {
@@ -32,6 +33,7 @@ export namespace IRoute {
         type: ITypeTuple;
     };
     export interface IOutput extends ITypeTuple {
+        description?: string;
         contentType: "application/json" | "text/plain";
     }
 }

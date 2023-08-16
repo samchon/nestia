@@ -19,6 +19,7 @@ export namespace IController {
         type?: string;
         contentType: "application/json" | "text/plain";
         security: Record<string, string[]>[];
+        exceptions: Record<number, IController.IException>;
     }
 
     export type IParameter =
@@ -67,5 +68,11 @@ export namespace IController {
             type: string;
             nullable: boolean;
         };
+    }
+
+    export interface IException {
+        type: string;
+        status: number;
+        description: string | undefined;
     }
 }

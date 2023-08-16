@@ -53,7 +53,12 @@ export class HttpError extends Error {
      * @returns JSON object of the `HttpError`.
      */
     public toJSON<T>(): HttpError.IProps<T> {
-        if (this.body_ === NOT_YET) this.body_ = JSON.parse(this.message);
+        if (this.body_ === NOT_YET)
+            try {
+                this.body_ = JSON.parse(this.message);
+            } catch {
+                this.body_ = this.message;
+            }
         return {
             method: this.method,
             path: this.path,

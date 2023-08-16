@@ -25,7 +25,7 @@
   },
   "homepage": "https://nestia.io",
   "devDependencies": {
-    "@nestia/migrate": "../packages/migrate/nestia-migrate-0.2.9.tgz",
+    "@nestia/migrate": "../packages/migrate/nestia-migrate-0.2.10.tgz",
     "@nestjs/swagger": "^7.1.2",
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/express": "^4.17.17",
@@ -42,9 +42,9 @@
     "typia": "^4.2.1",
     "uuid": "^9.0.0",
     "nestia": "../packages/cli/nestia-4.4.0.tgz",
-    "@nestia/core": "../packages/core/nestia-core-1.6.3.tgz",
+    "@nestia/core": "../packages/core/nestia-core-1.6.4-dev.20230816.tgz",
     "@nestia/e2e": "../packages/e2e/nestia-e2e-0.3.6.tgz",
-    "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-1.6.3.tgz",
-    "@nestia/sdk": "../packages/sdk/nestia-sdk-1.6.3.tgz"
+    "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-1.6.4-dev.20230816.tgz",
+    "@nestia/sdk": "../packages/sdk/nestia-sdk-1.6.4-dev.20230816.tgz"
   }
 }

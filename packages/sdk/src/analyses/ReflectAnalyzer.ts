@@ -89,7 +89,7 @@ export namespace ReflectAnalyzer {
             name,
             paths,
             functions: [],
-            security: _Get_security(creator),
+            security: _Get_securities(creator),
         };
 
         // PARSE CHILDREN DATA
@@ -126,10 +126,20 @@ export namespace ReflectAnalyzer {
         else return value;
     }
 
-    function _Get_security(value: any): Record<string, string[]>[] {
+    function _Get_securities(value: any): Record<string, string[]>[] {
         const entire: Record<string, string[]>[] | undefined =
             Reflect.getMetadata("swagger/apiSecurity", value);
         return entire ? SecurityAnalyzer.merge(...entire) : [];
+    }
+
+    function _Get_exceptions(
+        value: any,
+    ): Record<number, IController.IException> {
+        const entire: IController.IException[] | undefined =
+            Reflect.getMetadata("swagger/TypedException", value);
+        return Object.fromEntries(
+            (entire ?? []).map((exp) => [exp.status, exp]),
+        );
     }
 
     /* ---------------------------------------------------------
@@ -213,7 +223,8 @@ export namespace ReflectAnalyzer {
                           typeof h?.value === "string" &&
                           h.name.toLowerCase() === "content-type",
                   )?.value ?? "application/json",
-            security: _Get_security(proto),
+            security: _Get_securities(proto),
+            exceptions: _Get_exceptions(proto),
         };
 
         // VALIDATE PATH ARGUMENTS
