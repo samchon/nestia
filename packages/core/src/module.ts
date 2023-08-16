@@ -6,6 +6,7 @@ export * from "./decorators/EncryptedRoute";
 export * from "./utils/ExceptionManager";
 export * from "./decorators/PlainBody";
 export * from "./decorators/TypedBody";
+export * from "./decorators/TypedException";
 export * from "./decorators/TypedHeaders";
 export * from "./decorators/TypedParam";
 export * from "./decorators/TypedRoute";

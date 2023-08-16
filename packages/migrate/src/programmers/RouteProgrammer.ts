@@ -17,10 +17,10 @@ export namespace RouteProgrammer {
             const body = emplaceBodySchema(emplaceReference(swagger)("body"))(
                 route.requestBody,
             );
-            const response = emplaceBodySchema(
+            const success = emplaceBodySchema(
                 emplaceReference(swagger)("response"),
             )(route.responses?.["201"] ?? route.responses?.["200"]);
-            if (body === false || response === false) {
+            if (body === false || success === false) {
                 console.log(
                     `Failed to migrate ${props.method.toUpperCase()} ${
                         props.path
@@ -203,7 +203,25 @@ export namespace RouteProgrammer {
                     })),
                 query,
                 body,
-                response,
+                success,
+                exceptions: Object.fromEntries(
+                    Object.entries(route.responses ?? {})
+                        .filter(
+                            ([key, value]) =>
+                                key !== "200" &&
+                                key !== "201" &&
+                                !!value.content?.["application/json"],
+                        )
+                        .map(([key, value]) => [
+                            key,
+                            {
+                                description: value.description,
+                                schema:
+                                    value.content?.["application/json"]
+                                        ?.schema ?? {},
+                            },
+                        ]),
+                ),
                 description: describe(route),
                 "x-nestia-jsDocTags": route["x-nestia-jsDocTags"],
             };
@@ -308,9 +326,9 @@ export namespace RouteProgrammer {
         (components: ISwaggerComponents) =>
         (references: ISwaggerSchema.IReference[]) =>
         (route: IMigrateRoute): string => {
-            const output: string = route.response
+            const output: string = route.success
                 ? SchemaProgrammer.write(components)(references)(
-                      route.response.schema,
+                      route.success.schema,
                   )
                 : "void";
 
@@ -319,13 +337,13 @@ export namespace RouteProgrammer {
                     StringUtil.capitalize(route.method),
                 )}(${JSON.stringify(route.path)})`;
             const decorator: string[] =
-                route.response?.["x-nestia-encrypted"] === true
+                route.success?.["x-nestia-encrypted"] === true
                     ? [
                           `@${importer("@nestia/core")(
                               "EncryptedRoute",
                           )}.${methoder((str) => str)}`,
                       ]
-                    : route.response?.type === "text/plain"
+                    : route.success?.type === "text/plain"
                     ? [
                           `@${importer("@nestjs/common")(
                               "Header",
@@ -345,6 +363,17 @@ export namespace RouteProgrammer {
                               "TypedRoute",
                           )}.${methoder((str) => str)}`,
                       ];
+            for (const [key, value] of Object.entries(route.exceptions ?? {}))
+                decorator.push(
+                    `@${importer("@nestia/core")(
+                        "TypedException",
+                    )}<${SchemaProgrammer.write(components)(references)(
+                        value.schema,
+                    )}>(${
+                        isNaN(Number(key)) ? JSON.stringify(key) : key
+                    }, ${JSON.stringify(value.description)})`,
+                );
+
             const content: string[] = [
                 ...(route.description
                     ? [

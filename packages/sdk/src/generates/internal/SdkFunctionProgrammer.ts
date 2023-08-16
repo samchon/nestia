@@ -198,6 +198,8 @@ export namespace SdkFunctionProgrammer {
             const comments: string[] = route.description
                 ? route.description.split("\n")
                 : [];
+
+            // COMMENT TAGS
             const tags: IJsDocTagInfo[] = route.tags.filter(
                 (tag) =>
                     tag.name !== "param" ||
@@ -214,7 +216,24 @@ export namespace SdkFunctionProgrammer {
                 comments.push("", ...new Set(content));
             }
 
-            // COMPLETE THE COMMENT
+            // EXCEPTIONS
+            for (const [key, value] of Object.entries(route.exceptions)) {
+                if (
+                    comments.some(
+                        (str) =>
+                            str.startsWith(`@throw ${key}`) ||
+                            str.startsWith(`@throws ${key}`),
+                    )
+                )
+                    continue;
+                comments.push(
+                    value.description
+                        ? `@throws ${key} ${value.description.split("\n")[0]}`
+                        : `@throws ${key}`,
+                );
+            }
+
+            // POSTFIX
             if (!!comments.length) comments.push("");
             comments.push(
                 `@controller ${route.symbol}`,

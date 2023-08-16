@@ -10,7 +10,8 @@ export interface IMigrateRoute {
     headers: ISwaggerSchema | null;
     query: ISwaggerSchema | null;
     body: IMigrateRoute.IBody | null;
-    response: IMigrateRoute.IBody | null;
+    success: IMigrateRoute.IBody | null;
+    exceptions: Record<string, IMigrateRoute.IException>;
     description?: string;
     "x-nestia-jsDocTags"?: IJsDocTagInfo[];
 }
@@ -24,5 +25,9 @@ export namespace IMigrateRoute {
         type: "text/plain" | "application/json";
         schema: ISwaggerSchema;
         "x-nestia-encrypted"?: boolean;
+    }
+    export interface IException {
+        description?: string;
+        schema: ISwaggerSchema;
     }
 }

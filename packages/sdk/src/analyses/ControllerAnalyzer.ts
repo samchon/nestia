@@ -8,6 +8,7 @@ import { IController } from "../structures/IController";
 import { IRoute } from "../structures/IRoute";
 import { ITypeTuple } from "../structures/ITypeTuple";
 import { PathUtil } from "../utils/PathUtil";
+import { ExceptionAnalyzer } from "./ExceptionAnalyzer";
 import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";
@@ -89,7 +90,7 @@ export namespace ControllerAnalyzer {
         controller: IController,
         genericDict: GenericAnalyzer.Dictionary,
         func: IController.IFunction,
-        declaration: ts.Declaration,
+        declaration: ts.MethodDeclaration,
         symbol: ts.Symbol,
     ): IRoute[] {
         // PREPARE ASSETS
@@ -101,7 +102,6 @@ export namespace ControllerAnalyzer {
             type,
             ts.SignatureKind.Call,
         )[0];
-
         if (signature === undefined)
             throw new Error(
                 `Error on ControllerAnalyzer.analyze(): unable to get the signature from the ${controller.name}.${func.name}().`,
@@ -206,6 +206,10 @@ export namespace ControllerAnalyzer {
                           },
                 ),
             security,
+            exceptions: ExceptionAnalyzer.analyze(checker)(
+                genericDict,
+                importDict,
+            )(func)(declaration),
         };
 
         // CONFIGURE PATHS
@@ -232,9 +236,6 @@ export namespace ControllerAnalyzer {
         }));
     }
 
-    /* ---------------------------------------------------------
-        PARAMETER
-    --------------------------------------------------------- */
     function _Analyze_parameter(
         checker: ts.TypeChecker,
         genericDict: GenericAnalyzer.Dictionary,

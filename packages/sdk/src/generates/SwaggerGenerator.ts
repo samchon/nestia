@@ -1,7 +1,6 @@
 import fs from "fs";
 import NodePath from "path";
 import { Singleton } from "tstl/thread/Singleton";
-import { VariadicSingleton } from "tstl/thread/VariadicSingleton";
 import ts from "typescript";
 
 import typia, { IJsonApplication, IJsonComponents, IJsonSchema } from "typia";
@@ -537,14 +536,19 @@ export namespace SwaggerGenerator {
         const contentType = parameter.custom
             ? parameter.contentType
             : "application/json";
+        const description = get_parametric_description(
+            route,
+            "param",
+            parameter.name,
+        );
 
         return {
             description:
-                warning
-                    .get(parameter.custom && parameter.encrypted)
-                    .get("request") +
-                (get_parametric_description(route, "param", parameter.name) ??
-                    ""),
+                parameter.custom && parameter.encrypted
+                    ? `${warning.get(!!description).get("request")}${
+                          description ?? ""
+                      }`
+                    : description,
             content: {
                 [contentType]: {
                     schema,
@@ -561,7 +565,68 @@ export namespace SwaggerGenerator {
         tupleList: Array<ISchemaTuple>,
         route: IRoute,
     ): ISwaggerRoute.IResponseBody {
-        // OUTPUT WITH SUCCESS STATUS
+        const output: ISwaggerRoute.IResponseBody = {};
+
+        //----
+        // EXCEPTION STATUSES
+        //----
+        // FROM DECORATOR
+        for (const [status, exp] of Object.entries(route.exceptions)) {
+            const schema = generate_schema(
+                checker,
+                collection,
+                tupleList,
+                exp.type,
+            );
+            if (schema !== null)
+                output[status] = {
+                    description: exp.description,
+                    content: {
+                        "application/json": { schema },
+                    },
+                };
+        }
+
+        // FROM COMMENT TAGS
+        for (const tag of route.tags) {
+            if (tag.name !== "throw" && tag.name !== "throws") continue;
+
+            const text: string | undefined = tag.text?.find(
+                (elem) => elem.kind === "text",
+            )?.text;
+            if (text === undefined) continue;
+
+            const elements: string[] = text.split(" ").map((str) => str.trim());
+            const status: string = elements[0];
+            if (
+                isNaN(Number(status)) &&
+                status !== "2XX" &&
+                status !== "3XX" &&
+                status !== "4XX" &&
+                status !== "5XX"
+            )
+                continue;
+
+            const description: string | undefined =
+                elements.length === 1 ? undefined : elements.slice(1).join(" ");
+            const oldbie = output[status];
+            if (oldbie !== undefined && oldbie.description === undefined)
+                oldbie.description = description;
+            else if (oldbie === undefined)
+                output[status] = {
+                    description,
+                    content: {
+                        "application/json": {
+                            schema: {},
+                        },
+                    },
+                };
+        }
+
+        //----
+        // SUCCESS
+        //----
+        // STATUS & SCHEMA
         const status: string =
             route.status !== undefined
                 ? String(route.status)
@@ -576,61 +641,28 @@ export namespace SwaggerGenerator {
             tupleList,
             route.output.type,
         );
-        const success: ISwaggerRoute.IResponseBody = {
-            [status]: {
-                description:
-                    warning.get(route.encrypted).get("response", route.method) +
-                    (get_parametric_description(route, "return") ??
-                        get_parametric_description(route, "returns") ??
-                        ""),
-                content:
-                    schema === null || route.output.name === "void"
-                        ? undefined
-                        : {
-                              [route.output.contentType]: {
-                                  schema,
-                              },
+
+        // DO ASSIGN
+        const description =
+            get_parametric_description(route, "return") ??
+            get_parametric_description(route, "returns");
+        output[status] = {
+            description: route.encrypted
+                ? `${warning.get(!!description).get("response", route.method)}${
+                      description ?? ""
+                  }`
+                : description,
+            content:
+                schema === null || route.output.name === "void"
+                    ? undefined
+                    : {
+                          [route.output.contentType]: {
+                              schema,
                           },
-                "x-nestia-encrypted": route.encrypted,
-            },
+                      },
+            "x-nestia-encrypted": route.encrypted,
         };
-
-        // EXCEPTION STATUSES
-        const exceptions: ISwaggerRoute.IResponseBody = Object.fromEntries(
-            route.tags
-                .filter(
-                    (tag) =>
-                        (tag.name === "throw" || tag.name === "throws") &&
-                        tag.text &&
-                        tag.text.find(
-                            (elem) =>
-                                elem.kind === "text" &&
-                                isNaN(
-                                    Number(
-                                        elem.text
-                                            .split(" ")
-                                            .map((str) => str.trim())[0],
-                                    ),
-                                ) === false,
-                        ) !== undefined,
-                )
-                .map((tag) => {
-                    const text: string = tag.text!.find(
-                        (elem) => elem.kind === "text",
-                    )!.text;
-                    const elements: string[] = text
-                        .split(" ")
-                        .map((str) => str.trim());
-
-                    return [
-                        elements[0],
-                        {
-                            description: elements.slice(1).join(" "),
-                        },
-                    ];
-                }),
-        );
-        return { ...exceptions, ...success };
+        return output;
     }
 
     /* ---------------------------------------------------------
@@ -692,35 +724,31 @@ const required = (type: ts.Type): boolean => {
     );
 };
 
-const warning = new VariadicSingleton((encrypted: boolean) => {
-    if (encrypted === false) return new Singleton(() => "");
+const warning = new Singleton((described: boolean) => {
+    return new Singleton((type: "request" | "response", method?: string) => {
+        const summary =
+            type === "request"
+                ? "Request body must be encrypted."
+                : "Response data have been encrypted.";
+        const component =
+            type === "request"
+                ? "[EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody)"
+                : `[EncryptedRoute.${method![0].toUpperCase()}.${method!
+                      .substring(1)
+                      .toLowerCase()}](https://github.com/samchon/@nestia/core#encryptedroute)`;
 
-    return new VariadicSingleton(
-        (type: "request" | "response", method?: string) => {
-            const summary =
-                type === "request"
-                    ? "Request body must be encrypted."
-                    : "Response data have been encrypted.";
-
-            const component =
-                type === "request"
-                    ? "[EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody)"
-                    : `[EncryptedRoute.${method![0].toUpperCase()}.${method!
-                          .substring(1)
-                          .toLowerCase()}](https://github.com/samchon/@nestia/core#encryptedroute)`;
-
-            return `## Warning
-${summary}
-
-The ${type} body data would be encrypted as "AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding", through the ${component} component.
-
-Therefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.
-
------------------
-
-`;
-        },
-    );
+        const content: string[] = [
+            "## Warning",
+            "",
+            summary,
+            "",
+            `The ${type} body data would be encrypted as "AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding", through the ${component} component.`,
+            "",
+            `Therefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.`,
+        ];
+        if (described === true) content.push("----------------", "");
+        return content.join("\n");
+    });
 });
 
 interface ISchemaTuple {

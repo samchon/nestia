@@ -15,10 +15,20 @@
     }
   },
   "paths": {
-    "/exception/typedBody": {
+    "/exception/{section}/typed": {
       "post": {
         "tags": [],
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "section",
+            "in": "path",
+            "description": "",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -40,95 +50,280 @@
               }
             },
             "x-nestia-encrypted": false
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TypeGuardError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "unable to find the matched section",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/INotFound"
+                }
+              }
+            }
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IUnprocessibleEntity"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IInternalServerError"
+                }
+              }
+            }
           }
         },
-        "x-nestia-namespace": "exception.typedBody.typedBody",
+        "x-nestia-namespace": "exception.typed.typed",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "POST"
       }
     },
-    "/exception/typedManual": {
-      "get": {
-        "tags": [],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "x-nestia-encrypted": false
-          }
-        },
-        "x-nestia-namespace": "exception.typedManual.typedManual",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "GET"
-      }
-    },
-    "/exception/{id}/typedParam": {
-      "get": {
+    "/exception/{section}/tags": {
+      "post": {
         "tags": [],
         "parameters": [
           {
-            "name": "id",
+            "name": "section",
             "in": "path",
             "description": "",
             "schema": {
-              "format": "uuid",
               "type": "string"
             },
             "required": true
           }
         ],
-        "responses": {
-          "200": {
-            "x-nestia-encrypted": false
-          }
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
         },
-        "x-nestia-namespace": "exception.typedParam.typedParam",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "GET"
-      }
-    },
-    "/exception/typedQuery": {
-      "get": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "file",
-            "in": "query",
-            "description": "",
-            "schema": {
-              "$ref": "#/components/schemas/IAttachmentFile"
-            },
-            "required": true
-          }
-        ],
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IAttachmentFile"
+                  "$ref": "#/components/schemas/IBbsArticle"
                 }
               }
             },
             "x-nestia-encrypted": false
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "unable to find the matched section",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "428": {
+            "description": "unable to process the request",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "5XX": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           }
         },
-        "x-nestia-namespace": "exception.typedQuery.typedQuery",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "GET"
+        "x-nestia-namespace": "exception.tags.tags",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "throws",
+            "text": [
+              {
+                "text": "400 invalid request",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throws",
+            "text": [
+              {
+                "text": "404 unable to find the matched section",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "428 unable to process the request",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "5XX internal server error",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
+        "x-nestia-method": "POST"
       }
     },
-    "/exception/internal": {
-      "get": {
+    "/exception/{section}/composite": {
+      "post": {
         "tags": [],
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "section",
+            "in": "path",
+            "description": "",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
         "responses": {
-          "200": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                }
+              }
+            },
             "x-nestia-encrypted": false
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TypeGuardError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "unable to find the matched section",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/INotFound"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "unable to process the request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IUnprocessibleEntity"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IInternalServerError"
+                }
+              }
+            }
           }
         },
-        "x-nestia-namespace": "exception.internal.internal",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "GET"
+        "x-nestia-namespace": "exception.composite.composite",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "throws",
+            "text": [
+              {
+                "text": "400 invalid request",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throws",
+            "text": [
+              {
+                "text": "404 unable to find the matched section",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "428 unable to process the request",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "throw",
+            "text": [
+              {
+                "text": "5XX internal server error",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/health": {
@@ -334,6 +529,128 @@
           "name",
           "extension",
           "url"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "TypeGuardError": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "path": {
+            "x-typia-required": false,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "expected": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "value": {
+            "x-typia-required": true,
+            "x-typia-optional": false
+          },
+          "name": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "message": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "stack": {
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "method",
+          "expected",
+          "value",
+          "name",
+          "message"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "INotFound": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "table": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "schema",
+          "table",
+          "id"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "IUnprocessibleEntity": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "reason"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "IInternalServerError": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "message": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "stack": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "x-typia-required": true,
+              "x-typia-optional": false,
+              "type": "string"
+            }
+          }
+        },
+        "nullable": false,
+        "required": [
+          "name",
+          "message",
+          "stack"
         ],
         "x-typia-jsDocTags": []
       },
