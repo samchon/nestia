@@ -227,7 +227,7 @@ export namespace SdkFunctionProgrammer {
                 )
                     continue;
                 comments.push(
-                    value.description
+                    value.description?.length
                         ? `@throws ${key} ${value.description.split("\n")[0]}`
                         : `@throws ${key}`,
                 );

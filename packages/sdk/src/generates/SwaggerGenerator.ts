@@ -580,7 +580,7 @@ export namespace SwaggerGenerator {
             );
             if (schema !== null)
                 output[status] = {
-                    description: exp.description,
+                    description: exp.description ?? "",
                     content: {
                         "application/json": { schema },
                     },
@@ -610,11 +610,11 @@ export namespace SwaggerGenerator {
             const description: string | undefined =
                 elements.length === 1 ? undefined : elements.slice(1).join(" ");
             const oldbie = output[status];
-            if (oldbie !== undefined && oldbie.description === undefined)
+            if (description && oldbie !== undefined)
                 oldbie.description = description;
             else if (oldbie === undefined)
                 output[status] = {
-                    description,
+                    description: description ?? "",
                     content: {
                         "application/json": {
                             schema: {},
@@ -651,7 +651,7 @@ export namespace SwaggerGenerator {
                 ? `${warning.get(!!description).get("response", route.method)}${
                       description ?? ""
                   }`
-                : description,
+                : description ?? "",
             content:
                 schema === null || route.output.name === "void"
                     ? undefined

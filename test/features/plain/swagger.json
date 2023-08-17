@@ -57,7 +57,6 @@
         "tags": [],
         "parameters": [],
         "requestBody": {
-          "description": "",
           "content": {
             "text/plain": {
               "schema": {
@@ -91,12 +90,11 @@
         "tags": [],
         "parameters": [],
         "requestBody": {
-          "description": "",
           "content": {
             "text/plain": {
               "schema": {
                 "type": "string",
-                "pattern": "^((something_-?\\d+\\.?\\d*_interesting_(.*)_is_not_false_it\\?)|(something_-?\\d+\\.?\\d*_interesting_(.*)_is_not_true_it\\?))$"
+                "pattern": "^((something_[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?_interesting_(.*)_is_not_false_it\\?)|(something_[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?_interesting_(.*)_is_not_true_it\\?))$"
               }
             }
           },
@@ -126,7 +124,6 @@
         "tags": [],
         "parameters": [],
         "requestBody": {
-          "description": "",
           "content": {
             "text/plain": {
               "schema": {

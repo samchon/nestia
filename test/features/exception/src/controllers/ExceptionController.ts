@@ -1,5 +1,4 @@
 import { Controller } from "@nestjs/common";
-import { ApiResponse } from "@nestjs/swagger";
 import typia, { TypeGuardError } from "typia";
 
 import {
@@ -16,11 +15,11 @@ import { IUnprocessibleEntity } from "@api/lib/structures/IUnprocessibleEntity";
 
 @Controller("exception")
 export class ExceptionController {
+    @TypedRoute.Post(":section/typed")
     @TypedException<TypeGuardError>(400, "invalid request")
     @TypedException<INotFound>(404, "unable to find the matched section")
     @TypedException<IUnprocessibleEntity>(428)
     @TypedException<IInternalServerError>("5XX", "internal server error")
-    @TypedRoute.Post(":section/typed")
     public async typed(
         @TypedParam("section") section: string,
         @TypedBody() input: IBbsArticle.IStore,
@@ -52,11 +51,11 @@ export class ExceptionController {
      * @throw 428 unable to process the request
      * @throw 5XX internal server error
      */
+    @TypedRoute.Post(":section/composite")
     @TypedException<TypeGuardError>(400, "invalid request")
     @TypedException<INotFound>(404)
     @TypedException<IUnprocessibleEntity>(428)
     @TypedException<IInternalServerError>("5XX")
-    @TypedRoute.Post(":section/composite")
     public async composite(
         @TypedParam("section") section: string,
         @TypedBody() input: IBbsArticle.IStore,

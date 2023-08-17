@@ -199,7 +199,7 @@
             "type": "string",
             "x-typia-required": false,
             "x-typia-optional": true,
-            "pattern": "^(-?\\d+\\.?\\d*)$"
+            "pattern": "^([+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)$"
           },
           "enforce": {
             "x-typia-required": true,
