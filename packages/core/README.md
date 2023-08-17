@@ -60,6 +60,8 @@ Check out the document in the [website](https://nestia.io/docs/):
     - [TypedBody](https://nestia.io/docs/core/TypedBody/)
     - [TypedParam](https://nestia.io/docs/core/TypedParam/)
     - [TypedQuery](https://nestia.io/docs/core/TypedRoute/)
+    - [TypedHeaders](https://nestia.io/docs/core/TypedHeaders/)
+    - [TypedException](https://nestia.io/docs/core/TypedException/)
   - Generators
     - [Swagger Documents](https://nestia.io/docs/sdk/swagger/)
     - [SDK Library](https://nestia.io/docs/sdk/sdk/)
