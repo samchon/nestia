@@ -42,6 +42,7 @@
         },
         "responses": {
           "201": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -72,6 +73,7 @@
             }
           },
           "428": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -123,6 +125,7 @@
         },
         "responses": {
           "201": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -234,6 +237,7 @@
         },
         "responses": {
           "201": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -332,6 +336,7 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": "",
             "x-nestia-encrypted": false
           }
         },
@@ -346,6 +351,7 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
