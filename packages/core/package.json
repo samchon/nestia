@@ -44,7 +44,7 @@
     "raw-body": ">= 2.0.0",
     "reflect-metadata": ">= 0.1.12",
     "rxjs": ">= 6.0.0",
-    "typia": "^4.2.3"
+    "typia": "^4.3.2"
   },
   "peerDependencies": {
     "@nestia/fetcher": ">= 1.6.5",
