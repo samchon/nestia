@@ -23,7 +23,7 @@ export namespace SwaggerGenerator {
         (checker: ts.TypeChecker) =>
             (config: INestiaConfig.ISwaggerConfig) =>
                 async (routeList: IRoute[]): Promise<void> => {
-                    console.log("Generating Swagger Documents a");
+                    console.log("Generating Swagger Documents");
 
                     // VALIDATE SECURITY
                     validate_security(config)(routeList);
