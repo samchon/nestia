@@ -18,6 +18,7 @@ export interface IRoute {
     location: string;
     symbol: string;
     description?: string;
+    operationId?: string;
     tags: ts.JSDocTagInfo[];
     setHeaders: Array<
         | { type: "setter"; source: string; target?: string }

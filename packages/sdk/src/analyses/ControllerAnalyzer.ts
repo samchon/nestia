@@ -185,6 +185,7 @@ export namespace ControllerAnalyzer {
                 }:${character + 1}`;
             })(),
             description: CommentFactory.description(symbol),
+            operationId: tags.find(({ name }) => name === 'operation')?.text![0].text.split(" ")[0].trim(),
             tags,
             setHeaders: tags
                 .filter(

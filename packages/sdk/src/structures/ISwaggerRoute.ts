@@ -4,6 +4,7 @@ import { IJsDocTagInfo } from "typia/lib/metadata/IJsDocTagInfo";
 export interface ISwaggerRoute {
     deprecated?: boolean;
     security?: Record<string, string[]>[];
+    operationId: string;
     tags: string[];
     parameters: ISwaggerRoute.IParameter[];
     requestBody?: ISwaggerRoute.IRequestBody;
