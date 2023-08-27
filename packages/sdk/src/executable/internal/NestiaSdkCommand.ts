@@ -79,7 +79,7 @@ export namespace NestiaSdkCommand {
                 parse_cli(props)(command)(include);
 
             const options: ts.CompilerOptions | null =
-                await get_typescript_options();
+                await get_typescript_options(config.project);
             config.compilerOptions = {
                 ...(options ?? {}),
                 ...(config.compilerOptions ?? {}),
@@ -90,11 +90,13 @@ export namespace NestiaSdkCommand {
             await task(app);
         };
 
-    async function get_typescript_options(): Promise<ts.CompilerOptions | null> {
+    async function get_typescript_options(
+        configPath?: string,
+    ): Promise<ts.CompilerOptions | null> {
         const configFileName = ts.findConfigFile(
-            process.cwd(),
+            path.dirname(configPath || process.cwd()),
             ts.sys.fileExists,
-            "tsconfig.json",
+            path.basename(configPath || "tsconfig.json"),
         );
         if (!configFileName) return null;
 

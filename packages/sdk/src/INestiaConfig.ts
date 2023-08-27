@@ -135,6 +135,13 @@ export interface INestiaConfig {
      * @default false
      */
     simulate?: boolean;
+
+    /**
+     * Project configuration
+     *
+     * Path to typescript configuration file, or to a folder with a 'tsconfig.json'
+     */
+    project?: string;
 }
 export namespace INestiaConfig {
     /**
