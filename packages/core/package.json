@@ -34,7 +34,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "^1.6.5",
+    "@nestia/fetcher": "^1.6.6",
     "@nestjs/common": ">= 7.0.1",
     "@nestjs/core": ">= 7.0.1",
     "@nestjs/platform-express": ">= 7.0.1",
