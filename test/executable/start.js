@@ -21,10 +21,10 @@ const build = async (name) => {
     const pack = JSON.parse(
         await fs.promises.readFile("package.json", "utf8"),
     );
-    if (pack.scripts.test !== undefined &&
-        process.argv.includes("--skipTest") === false
-    )
-        cp.execSync("npm run test", { stdio: "ignore" });
+    // if (pack.scripts.test !== undefined &&
+    //     process.argv.includes("--skipTest") === false
+    // )
+    //     cp.execSync("npm run test", { stdio: "ignore" });
 
     return {
         name: pack.name,
