@@ -35,11 +35,14 @@ export namespace DistributionComposer {
             await replace({ root, output })(file);
 
         // INSTALL PACKAGES
+        const versions: IDependencies = await dependencies();
         execute("npm install --save-dev rimraf");
-        execute("npm install --save @nestia/fetcher@latest");
+        execute(
+            `npm install --save @nestia/fetcher@${versions["@nestia/fetcher"]}`,
+        );
 
         if (typia) {
-            execute("npm install --save typia@latest");
+            execute(`npm install --save typia@${versions["typia"]}`);
             execute("npx typia setup --manager npm");
         } else execute("npm install --save-dev typescript");
 
@@ -93,6 +96,19 @@ export namespace DistributionComposer {
                 "utf8",
             );
         };
+
+    const dependencies = async () => {
+        const content: string = await fs.promises.readFile(
+            __dirname + "/../../../package.json",
+            "utf8",
+        );
+        const json: { dependencies: IDependencies } = JSON.parse(content);
+        return json.dependencies;
+    };
 }
 
+interface IDependencies {
+    "@nestia/fetcher": string;
+    typia: string;
+}
 const BUNDLE = __dirname + "/../../../assets/bundle/distribute";
