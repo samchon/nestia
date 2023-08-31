@@ -307,22 +307,10 @@ export namespace SwaggerGenerator {
         })();
         const deprecated = route.tags.find((tag) => tag.name === "deprecated");
 
-        const camelize = (s: string) =>
-            s.replace(/-./g, (x) => x[1].toUpperCase());
-        const operationId =
-            route.operationId ??
-            [
-                ...route.path
-                    .split("/")
-                    .map(camelize)
-                    .filter((str) => str.length && str[0] !== ":"),
-                route.name,
-            ].join("__");
-
         return {
             deprecated: deprecated ? true : undefined,
             tags: getTagTexts("tag"),
-            operationId,
+            operationId: route.operationId,
             parameters: route.parameters
                 .filter((param) => param.category !== "body")
                 .map((param) =>
