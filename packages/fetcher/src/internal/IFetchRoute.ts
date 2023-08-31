@@ -26,7 +26,7 @@ export interface IFetchRoute<
     /**
      * When special status code being used.
      */
-    status?: null | number;
+    status: number | null;
 }
 export namespace IRoute {
     export interface IBody {

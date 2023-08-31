@@ -5,7 +5,7 @@
   "description": "Test program of Nestia",
   "main": "index.js",
   "scripts": {
-    "clean": "rimraf ../packages/*/*.tgz && npm uninstall @nestia/core @nestia/e2e @nestia/fetcher @nestia/sdk nestia",
+    "clean": "npm uninstall @nestia/core @nestia/e2e @nestia/fetcher @nestia/sdk nestia",
     "generate": "node executable/generate",
     "start": "node executable/start",
     "prepare": "ts-patch install"
@@ -37,9 +37,9 @@
     "typia": "^4.2.3",
     "uuid": "^9.0.0",
     "nestia": "../packages/cli/nestia-4.5.0.tgz",
-    "@nestia/core": "../packages/core/nestia-core-2.0.0-dev.20230830-6.tgz",
+    "@nestia/core": "../packages/core/nestia-core-2.0.0-dev.20230831-5.tgz",
     "@nestia/e2e": "../packages/e2e/nestia-e2e-0.3.6.tgz",
-    "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-2.0.0-dev.20230830-6.tgz",
-    "@nestia/sdk": "../packages/sdk/nestia-sdk-2.0.0-dev.20230830-6.tgz"
+    "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-2.0.0-dev.20230831-5.tgz",
+    "@nestia/sdk": "../packages/sdk/nestia-sdk-2.0.0-dev.20230831-5.tgz"
   }
 }

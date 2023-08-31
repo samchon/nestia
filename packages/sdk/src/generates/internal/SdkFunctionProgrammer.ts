@@ -375,15 +375,15 @@ export namespace SdkFunctionProgrammer {
                               }`,
                               `},`,
                           ].map((str) => `    ${str}`)
-                        : ["request: null,"]),
-                    ...(route.output
+                        : ["    request: null,"]),
+                    ...(route.method !== "HEAD"
                         ? [
                               `response: {`,
                               `    type: "${route.output.contentType}",`,
                               `    encrypted: ${route.encrypted},`,
                               `},`,
                           ].map((str) => `    ${str}`)
-                        : ["response: null,"]),
+                        : ["    response: null,"]),
                     ...(route.status
                         ? [`    status: ${route.status},`]
                         : ["    status: null,"]),

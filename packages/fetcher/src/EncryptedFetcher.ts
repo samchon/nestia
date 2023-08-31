@@ -98,7 +98,11 @@ export namespace EncryptedFetcher {
                 route.request?.encrypted === true
                     ? (input, headers) => {
                           const p = closure("encode")(headers, input);
-                          return AesPkcs5.encrypt(input, p.key, p.iv);
+                          return AesPkcs5.encrypt(
+                              JSON.stringify(input),
+                              p.key,
+                              p.iv,
+                          );
                       }
                     : (input) => input,
             decode:

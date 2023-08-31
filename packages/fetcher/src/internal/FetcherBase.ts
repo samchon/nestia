@@ -9,7 +9,7 @@ export namespace FetcherBase {
     export interface IProps {
         className: string;
         encode: (
-            input: string,
+            input: any,
             headers: Record<string, IConnection.HeaderValue | undefined>,
         ) => string;
         decode: (
@@ -66,7 +66,7 @@ export namespace FetcherBase {
                     // BODY TRANSFORM
                     route.request?.type !== "text/plain"
                         ? (stringify ?? JSON.stringify)(input)
-                        : String(input),
+                        : input,
                     headers,
                 );
 
@@ -88,10 +88,8 @@ export namespace FetcherBase {
 
             // VALIDATE RESPONSE
             if (
-                (route.status !== undefined &&
-                    route.status !== null &&
-                    response.status !== route.status) ||
-                ((route.status === undefined || route.status === null) &&
+                (route.status !== null && response.status !== route.status) ||
+                (route.status === null &&
                     response.status !== 200 &&
                     response.status !== 201)
             )
