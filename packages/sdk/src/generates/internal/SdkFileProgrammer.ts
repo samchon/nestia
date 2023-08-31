@@ -62,74 +62,38 @@ export namespace SdkFileProgrammer {
             if (content.length && directory.routes.length) content.push("");
 
             // ITERATE ROUTES
-            const importDict: ImportDictionary = new ImportDictionary();
+            const importer: ImportDictionary = new ImportDictionary();
             if (
                 config.simulate === true &&
                 directory.routes.some((r) => !!r.parameters.length)
             )
-                importDict.emplace(
-                    `${config.output}/utils/NestiaSimulator.ts`,
-                    true,
-                    "NestiaSimulator",
-                );
-
+                importer.internal({
+                    file: `${config.output}/utils/NestiaSimulator.ts`,
+                    instance: "NestiaSimulator",
+                    type: false,
+                });
             directory.routes.forEach((route, i) => {
                 for (const tuple of route.imports)
                     for (const instance of tuple[1])
-                        importDict.emplace(tuple[0], false, instance);
+                        importer.internal({
+                            file: tuple[0],
+                            instance,
+                            type: true,
+                        });
 
-                content.push(SdkFunctionProgrammer.generate(config)(route));
+                content.push(
+                    SdkFunctionProgrammer.generate(config)(importer)(route),
+                );
                 if (i !== directory.routes.length - 1) content.push("");
             });
 
             // FINALIZE THE CONTENT
-            if (directory.routes.length !== 0) {
-                const primitived: boolean =
-                    config.primitive !== false &&
-                    directory.routes.some(
-                        (route) =>
-                            route.output.name !== "void" ||
-                            route.parameters.some(
-                                (param) => param.category !== "param",
-                            ),
-                    );
-                const asserted: boolean =
-                    config.assert === true &&
-                    directory.routes.some(
-                        (route) => route.parameters.length !== 0,
-                    );
-                const json: boolean =
-                    config.json === true &&
-                    directory.routes.some(
-                        (route) =>
-                            route.method === "POST" ||
-                            route.method === "PUT" ||
-                            route.method === "PATCH",
-                    );
-                const random: boolean =
-                    config.simulate === true &&
-                    directory.routes.some(
-                        (s) =>
-                            !!s.parameters.length || s.output.name !== "void",
-                    );
-
-                const classes: string[] = ["Fetcher"];
-                const typings: string[] = ["IConnection"];
-                if (primitived) typings.push("Primitive");
-
-                const head: string[] = [
-                    `import { ${classes.join(", ")} } from "@nestia/fetcher";`,
-                    `import type { ${typings.join(
-                        ", ",
-                    )} } from "@nestia/fetcher";`,
-                ];
-                if (asserted || json || random)
-                    head.push(`import typia from "typia";`);
-                if (!importDict.empty())
-                    head.push("", importDict.toScript(outDir));
-
-                content.push(...head, "", ...content.splice(0, content.length));
-            }
+            if (directory.routes.length !== 0)
+                content.push(
+                    importer.toScript(outDir),
+                    "",
+                    ...content.splice(0, content.length),
+                );
 
             const script: string =
                 "/**\n" +

@@ -1,4 +1,5 @@
-import { AesPkcs5, IEncryptionPassword } from "@nestia/fetcher";
+import { AesPkcs5 } from "@nestia/fetcher/lib/AesPkcs5";
+import { IEncryptionPassword } from "@nestia/fetcher/lib/IEncryptionPassword";
 import {
     CallHandler,
     Delete,
@@ -163,7 +164,11 @@ class EncryptedRouteInterceptor implements NestInterceptor {
                 const body: string | undefined = this.stringify(value);
                 const password: IEncryptionPassword =
                     typeof param === "function"
-                        ? param({ headers: headers.get(), body }, false)
+                        ? param({
+                              headers: headers.get(),
+                              body,
+                              direction: "encode",
+                          })
                         : param;
 
                 const response: express.Response = http.getResponse();

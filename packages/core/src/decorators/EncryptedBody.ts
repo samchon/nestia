@@ -1,4 +1,5 @@
-import { AesPkcs5, IEncryptionPassword } from "@nestia/fetcher";
+import { AesPkcs5 } from "@nestia/fetcher/lib/AesPkcs5";
+import { IEncryptionPassword } from "@nestia/fetcher/lib/IEncryptionPassword";
 import {
     BadRequestException,
     ExecutionContext,
@@ -72,7 +73,7 @@ export function EncryptedBody<T>(
         const body: string = await get_text_body(request);
         const password: IEncryptionPassword =
             typeof param === "function"
-                ? param({ headers: headers.get(), body }, false)
+                ? param({ headers: headers.get(), body, direction: "decode" })
                 : param;
 
         // PARSE AND VALIDATE DATA

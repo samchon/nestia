@@ -31,11 +31,6 @@ export interface IConnection<Headers extends object = {}> {
         IConnection.Headerify<Headers>;
 
     /**
-     * Encryption password of its closure function.
-     */
-    encryption?: IEncryptionPassword | IEncryptionPassword.Closure;
-
-    /**
      * Use simulation mode.
      *
      * If you configure this property to be `true` or assign an {@link IRandomGenerator}
@@ -56,6 +51,15 @@ export interface IConnection<Headers extends object = {}> {
      * Additional options for the `fetch` function.
      */
     options?: IConnection.IOptions;
+
+    /**
+     * Encryption password of its closure function.
+     *
+     * Define it only when target backend server is encrypting body data through
+     * `@EncryptedRoute` or `@EncryptedBody` decorators of `@nestia/core` for
+     * security reason.
+     */
+    encryption?: IEncryptionPassword | IEncryptionPassword.Closure;
 }
 export namespace IConnection {
     /**

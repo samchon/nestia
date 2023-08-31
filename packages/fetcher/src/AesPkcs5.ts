@@ -26,7 +26,6 @@ export namespace AesPkcs5 {
             key,
             iv,
         );
-
         return cipher.update(data, "utf8", "base64") + cipher.final("base64");
     }
 

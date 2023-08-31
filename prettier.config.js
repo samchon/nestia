@@ -6,7 +6,6 @@ module.exports = {
     trailingComma: "all",
     importOrder: [
         "<THIRD_PARTY_MODULES>",
-        "@nestia(.*)$",
         "@api(.*)$",
         "^[./]",
     ],

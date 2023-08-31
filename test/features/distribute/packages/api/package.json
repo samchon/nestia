@@ -27,9 +27,9 @@
   ],
   "devDependencies": {
     "rimraf": "^5.0.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@nestia/fetcher": "^1.6.4"
+    "@nestia/fetcher": "^2.0.0-dev.20230831-5"
   }
 }

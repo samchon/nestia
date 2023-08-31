@@ -1,7 +1,6 @@
+import core from "@nestia/core";
 import * as nest from "@nestjs/common";
 import typia from "typia";
-
-import core from "@nestia/core";
 
 import { ISeller } from "@api/lib/structures/ISeller";
 
