@@ -310,6 +310,7 @@ export namespace SwaggerGenerator {
         return {
             deprecated: deprecated ? true : undefined,
             tags: getTagTexts("tag"),
+            operationId: route.operationId,
             parameters: route.parameters
                 .filter((param) => param.category !== "body")
                 .map((param) =>
