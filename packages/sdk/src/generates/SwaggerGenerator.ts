@@ -21,157 +21,157 @@ import { MapUtil } from "../utils/MapUtil";
 export namespace SwaggerGenerator {
     export const generate =
         (checker: ts.TypeChecker) =>
-            (config: INestiaConfig.ISwaggerConfig) =>
-                async (routeList: IRoute[]): Promise<void> => {
-                    console.log("Generating Swagger Documents");
+        (config: INestiaConfig.ISwaggerConfig) =>
+        async (routeList: IRoute[]): Promise<void> => {
+            console.log("Generating Swagger Documents");
 
-                    // VALIDATE SECURITY
-                    validate_security(config)(routeList);
+            // VALIDATE SECURITY
+            validate_security(config)(routeList);
 
-                    // PREPARE ASSETS
-                    const parsed: NodePath.ParsedPath = NodePath.parse(config.output);
-                    const directory: string = NodePath.dirname(parsed.dir);
-                    if (fs.existsSync(directory) === false)
-                        try {
-                            await fs.promises.mkdir(directory);
-                        } catch { }
-                    if (fs.existsSync(directory) === false)
-                        throw new Error(
-                            `Error on NestiaApplication.swagger(): failed to create output directory: ${directory}`,
-                        );
+            // PREPARE ASSETS
+            const parsed: NodePath.ParsedPath = NodePath.parse(config.output);
+            const directory: string = NodePath.dirname(parsed.dir);
+            if (fs.existsSync(directory) === false)
+                try {
+                    await fs.promises.mkdir(directory);
+                } catch {}
+            if (fs.existsSync(directory) === false)
+                throw new Error(
+                    `Error on NestiaApplication.swagger(): failed to create output directory: ${directory}`,
+                );
 
-                    const location: string = !!parsed.ext
-                        ? NodePath.resolve(config.output)
-                        : NodePath.join(
-                            NodePath.resolve(config.output),
-                            "swagger.json",
-                        );
+            const location: string = !!parsed.ext
+                ? NodePath.resolve(config.output)
+                : NodePath.join(
+                      NodePath.resolve(config.output),
+                      "swagger.json",
+                  );
 
-                    const collection: MetadataCollection = new MetadataCollection({
-                        replace: MetadataCollection.replace,
-                    });
+            const collection: MetadataCollection = new MetadataCollection({
+                replace: MetadataCollection.replace,
+            });
 
-                    // CONSTRUCT SWAGGER DOCUMENTS
-                    const tupleList: Array<ISchemaTuple> = [];
-                    const swagger: ISwagger = await initialize(config);
-                    const pathDict: Map<
-                        string,
-                        Record<string, ISwaggerRoute>
-                    > = new Map();
+            // CONSTRUCT SWAGGER DOCUMENTS
+            const tupleList: Array<ISchemaTuple> = [];
+            const swagger: ISwagger = await initialize(config);
+            const pathDict: Map<
+                string,
+                Record<string, ISwaggerRoute>
+            > = new Map();
 
-                    for (const route of routeList) {
-                        if (route.tags.find((tag) => tag.name === "internal")) continue;
+            for (const route of routeList) {
+                if (route.tags.find((tag) => tag.name === "internal")) continue;
 
-                        const path: Record<string, ISwaggerRoute> = MapUtil.take(
-                            pathDict,
-                            get_path(route.path, route.parameters),
-                            () => ({}),
-                        );
-                        path[route.method.toLowerCase()] = generate_route(
-                            config,
-                            checker,
-                            collection,
-                            tupleList,
-                            route,
-                        );
-                    }
-                    swagger.paths = {};
-                    for (const [path, routes] of pathDict) {
-                        swagger.paths[path] = routes;
-                    }
+                const path: Record<string, ISwaggerRoute> = MapUtil.take(
+                    pathDict,
+                    get_path(route.path, route.parameters),
+                    () => ({}),
+                );
+                path[route.method.toLowerCase()] = generate_route(
+                    config,
+                    checker,
+                    collection,
+                    tupleList,
+                    route,
+                );
+            }
+            swagger.paths = {};
+            for (const [path, routes] of pathDict) {
+                swagger.paths[path] = routes;
+            }
 
-                    // FILL JSON-SCHEMAS
-                    const application: IJsonApplication = ApplicationProgrammer.write({
-                        purpose: "swagger",
-                    })(tupleList.map(({ metadata }) => metadata));
-                    swagger.components = {
-                        ...(swagger.components ?? {}),
-                        ...(application.components ?? {}),
-                    };
-                    tupleList.forEach(({ schema }, index) => {
-                        Object.assign(schema, application.schemas[index]!);
-                    });
+            // FILL JSON-SCHEMAS
+            const application: IJsonApplication = ApplicationProgrammer.write({
+                purpose: "swagger",
+            })(tupleList.map(({ metadata }) => metadata));
+            swagger.components = {
+                ...(swagger.components ?? {}),
+                ...(application.components ?? {}),
+            };
+            tupleList.forEach(({ schema }, index) => {
+                Object.assign(schema, application.schemas[index]!);
+            });
 
-                    // CONFIGURE SECURITY
-                    if (config.security) fill_security(config.security, swagger);
+            // CONFIGURE SECURITY
+            if (config.security) fill_security(config.security, swagger);
 
-                    // DO GENERATE
-                    await fs.promises.writeFile(
-                        location,
-                        JSON.stringify(swagger, null, 2),
-                        "utf8",
-                    );
-                };
+            // DO GENERATE
+            await fs.promises.writeFile(
+                location,
+                JSON.stringify(swagger, null, 2),
+                "utf8",
+            );
+        };
 
     const validate_security =
         (config: INestiaConfig.ISwaggerConfig) =>
-            (routeList: IRoute[]): void | never => {
-                const securityMap: Map<
-                    string,
-                    { scheme: ISwaggerSecurityScheme; scopes: Set<string> }
-                > = new Map();
-                for (const [key, value] of Object.entries(config.security ?? {}))
-                    securityMap.set(key, {
-                        scheme: emend_security(value),
-                        scopes:
-                            value.type === "oauth2"
-                                ? new Set([
-                                    ...Object.keys(
-                                        value.flows.authorizationCode?.scopes ??
-                                        {},
-                                    ),
-                                    ...Object.keys(
-                                        value.flows.implicit?.scopes ?? {},
-                                    ),
-                                    ...Object.keys(
-                                        value.flows.password?.scopes ?? {},
-                                    ),
-                                    ...Object.keys(
-                                        value.flows.clientCredentials?.scopes ??
-                                        {},
-                                    ),
-                                ])
-                                : new Set(),
-                    });
+        (routeList: IRoute[]): void | never => {
+            const securityMap: Map<
+                string,
+                { scheme: ISwaggerSecurityScheme; scopes: Set<string> }
+            > = new Map();
+            for (const [key, value] of Object.entries(config.security ?? {}))
+                securityMap.set(key, {
+                    scheme: emend_security(value),
+                    scopes:
+                        value.type === "oauth2"
+                            ? new Set([
+                                  ...Object.keys(
+                                      value.flows.authorizationCode?.scopes ??
+                                          {},
+                                  ),
+                                  ...Object.keys(
+                                      value.flows.implicit?.scopes ?? {},
+                                  ),
+                                  ...Object.keys(
+                                      value.flows.password?.scopes ?? {},
+                                  ),
+                                  ...Object.keys(
+                                      value.flows.clientCredentials?.scopes ??
+                                          {},
+                                  ),
+                              ])
+                            : new Set(),
+                });
 
-                const validate =
-                    (reporter: (str: string) => void) =>
-                        (key: string, scopes: string[]) => {
-                            const security = securityMap.get(key);
-                            if (security === undefined)
-                                return reporter(
-                                    `target security scheme "${key}" does not exists.`,
-                                );
-                            else if (scopes.length === 0) return;
-                            else if (security.scheme.type !== "oauth2")
-                                return reporter(
-                                    `target security scheme "${key}" is not "oauth2" type, but you've configured the scopes.`,
-                                );
-                            for (const s of scopes)
-                                if (security.scopes.has(s) === false)
-                                    reporter(
-                                        `target security scheme "${key}" does not have a specific scope "${s}".`,
-                                    );
-                        };
+            const validate =
+                (reporter: (str: string) => void) =>
+                (key: string, scopes: string[]) => {
+                    const security = securityMap.get(key);
+                    if (security === undefined)
+                        return reporter(
+                            `target security scheme "${key}" does not exists.`,
+                        );
+                    else if (scopes.length === 0) return;
+                    else if (security.scheme.type !== "oauth2")
+                        return reporter(
+                            `target security scheme "${key}" is not "oauth2" type, but you've configured the scopes.`,
+                        );
+                    for (const s of scopes)
+                        if (security.scopes.has(s) === false)
+                            reporter(
+                                `target security scheme "${key}" does not have a specific scope "${s}".`,
+                            );
+                };
 
-                const violations: string[] = [];
-                for (const route of routeList)
-                    for (const record of route.security)
-                        for (const [key, scopes] of Object.entries(record))
-                            validate((str) =>
-                                violations.push(
-                                    `  - ${str} (${route.symbol} at "${route.location}")`,
-                                ),
-                            )(key, scopes);
+            const violations: string[] = [];
+            for (const route of routeList)
+                for (const record of route.security)
+                    for (const [key, scopes] of Object.entries(record))
+                        validate((str) =>
+                            violations.push(
+                                `  - ${str} (${route.symbol} at "${route.location}")`,
+                            ),
+                        )(key, scopes);
 
-                if (violations.length)
-                    throw new Error(
-                        `Error on NestiaApplication.swagger(): invalid security specification. Check your "nestia.config.ts" file's "swagger.security" property, or each controller methods.\n` +
+            if (violations.length)
+                throw new Error(
+                    `Error on NestiaApplication.swagger(): invalid security specification. Check your "nestia.config.ts" file's "swagger.security" property, or each controller methods.\n` +
                         `\n` +
                         `List of violations:\n` +
                         violations.join("\n"),
-                    );
-            };
+                );
+        };
 
     /* ---------------------------------------------------------
         INITIALIZERS
@@ -196,14 +196,14 @@ export namespace SwaggerGenerator {
                         version?: string;
                         description?: string;
                         license?:
-                        | string
-                        | {
-                            type: string;
-                            /**
-                             * @format url
-                             */
-                            url: string;
-                        };
+                            | string
+                            | {
+                                  type: string;
+                                  /**
+                                   * @format url
+                                   */
+                                  url: string;
+                              };
                     }>(content);
                     return {
                         title: data.name,
@@ -213,11 +213,11 @@ export namespace SwaggerGenerator {
                             ? typeof data.license === "string"
                                 ? { name: data.license }
                                 : typeof data.license === "object"
-                                    ? {
-                                        name: data.license.type,
-                                        url: data.license.url,
-                                    }
-                                    : undefined
+                                ? {
+                                      name: data.license.type,
+                                      url: data.license.url,
+                                  }
+                                : undefined
                             : undefined,
                     };
                 } catch {
@@ -307,14 +307,17 @@ export namespace SwaggerGenerator {
         })();
         const deprecated = route.tags.find((tag) => tag.name === "deprecated");
 
-        const camelize = (s: string) => s.replace(/-./g, (x) => x[1].toUpperCase());
-        const operationId = route.operationId ?? [
-            ...route.path
-                .split("/")
-                .map(camelize)
-                .filter((str) => str.length && str[0] !== ":"),
-            route.name,
-        ].join("__")
+        const camelize = (s: string) =>
+            s.replace(/-./g, (x) => x[1].toUpperCase());
+        const operationId =
+            route.operationId ??
+            [
+                ...route.path
+                    .split("/")
+                    .map(camelize)
+                    .filter((str) => str.length && str[0] !== ":"),
+                route.name,
+            ].join("__");
 
         return {
             deprecated: deprecated ? true : undefined,
@@ -335,12 +338,12 @@ export namespace SwaggerGenerator {
                 .flat(),
             requestBody: bodyParam
                 ? generate_request_body(
-                    checker,
-                    collection,
-                    tupleList,
-                    route,
-                    bodyParam,
-                )
+                      checker,
+                      collection,
+                      tupleList,
+                      route,
+                      bodyParam,
+                  )
                 : undefined,
             responses: generate_response_body(
                 checker,
@@ -509,8 +512,8 @@ export namespace SwaggerGenerator {
                     parameter.category === "param"
                         ? "path"
                         : parameter.category === "headers"
-                            ? "header"
-                            : parameter.category,
+                        ? "header"
+                        : parameter.category,
                 description:
                     get_parametric_description(
                         route,
@@ -555,8 +558,9 @@ export namespace SwaggerGenerator {
         return {
             description:
                 parameter.custom && parameter.encrypted
-                    ? `${warning.get(!!description).get("request")}${description ?? ""
-                    }`
+                    ? `${warning.get(!!description).get("request")}${
+                          description ?? ""
+                      }`
                     : description,
             content: {
                 [contentType]: {
@@ -640,10 +644,10 @@ export namespace SwaggerGenerator {
             route.status !== undefined
                 ? String(route.status)
                 : route.method === "GET" ||
-                    route.method === "HEAD" ||
-                    route.method === "DELETE"
-                    ? "200"
-                    : "201";
+                  route.method === "HEAD" ||
+                  route.method === "DELETE"
+                ? "200"
+                : "201";
         const schema: IJsonSchema | null = generate_schema(
             checker,
             collection,
@@ -657,17 +661,18 @@ export namespace SwaggerGenerator {
             get_parametric_description(route, "returns");
         output[status] = {
             description: route.encrypted
-                ? `${warning.get(!!description).get("response", route.method)}${description ?? ""
-                }`
+                ? `${warning.get(!!description).get("response", route.method)}${
+                      description ?? ""
+                  }`
                 : description ?? "",
             content:
                 schema === null || route.output.name === "void"
                     ? undefined
                     : {
-                        [route.output.contentType]: {
-                            schema,
-                        },
-                    },
+                          [route.output.contentType]: {
+                              schema,
+                          },
+                      },
             "x-nestia-encrypted": route.encrypted,
         };
         return output;
@@ -705,11 +710,11 @@ export namespace SwaggerGenerator {
     ): string | undefined {
         const parametric: (elem: ts.JSDocTagInfo) => boolean = parameterName
             ? (tag) =>
-                tag.text!.find(
-                    (elem) =>
-                        elem.kind === "parameterName" &&
-                        elem.text === parameterName,
-                ) !== undefined
+                  tag.text!.find(
+                      (elem) =>
+                          elem.kind === "parameterName" &&
+                          elem.text === parameterName,
+                  ) !== undefined
             : () => true;
 
         const tag: ts.JSDocTagInfo | undefined = route.tags.find(
@@ -742,8 +747,8 @@ const warning = new Singleton((described: boolean) => {
             type === "request"
                 ? "[EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody)"
                 : `[EncryptedRoute.${method![0].toUpperCase()}.${method!
-                    .substring(1)
-                    .toLowerCase()}](https://github.com/samchon/@nestia/core#encryptedroute)`;
+                      .substring(1)
+                      .toLowerCase()}](https://github.com/samchon/@nestia/core#encryptedroute)`;
 
         const content: string[] = [
             "## Warning",
