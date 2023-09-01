@@ -8,7 +8,7 @@ import type { FastifyRequest } from "fastify";
 
 import typia, { TypeGuardError, assert } from "typia";
 
-import { TransformError } from "./internal/TransformError";
+import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
 
 /**
  * Type safe HTTP headers decorator.
@@ -54,7 +54,7 @@ import { TransformError } from "./internal/TransformError";
 export function TypedHeaders<T extends object>(
     decoder?: (headers: Record<string, string | string[] | undefined>) => T,
 ): ParameterDecorator {
-    if (decoder === undefined) throw TransformError("TypedHeaders");
+    if (decoder === undefined) throw NoTransformConfigureError("TypedHeaders");
 
     return createParamDecorator(function TypedHeaders(
         _unknown: any,

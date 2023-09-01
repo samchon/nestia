@@ -7,7 +7,7 @@
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 
-import type { IToken } from "./../structures/IToken";
+import type { IToken } from "../structures/IToken";
 
 /**
  * @controller SecurityController.basic()

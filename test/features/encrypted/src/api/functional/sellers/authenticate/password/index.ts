@@ -7,7 +7,7 @@
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
 
-import type { ISeller } from "./../../../../structures/ISeller";
+import type { ISeller } from "../../../../structures/ISeller";
 
 /**
  * Change password.

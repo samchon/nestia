@@ -67,10 +67,6 @@ export namespace IController {
         index: number;
         name: string;
         field: string | undefined;
-        meta?: {
-            type: string;
-            nullable: boolean;
-        };
     }
 
     export interface IException {

@@ -1,12 +1,12 @@
+import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import typia from "typia";
+import typia, { tags } from "typia";
 import { v4 } from "uuid";
 
-import core from "@nestia/core";
-
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
-import { Global } from "../Global";
 import { IPage } from "@api/lib/structures/IPage";
+
+import { Global } from "../Global";
 
 @Controller("bbs/:section/articles")
 export class BbsArticlesController {
@@ -56,7 +56,7 @@ export class BbsArticlesController {
     @core.TypedRoute.Get(":id")
     public async at(
         @core.TypedParam("section") section: string,
-        @core.TypedParam("id", "uuid") id: string | null,
+        @core.TypedParam("id") id: (string & tags.Format<"uuid">) | null,
     ): Promise<IBbsArticle> {
         Global.used = true;
         return {
@@ -68,7 +68,7 @@ export class BbsArticlesController {
 
     /**
      * Get first article of a day.
-     * 
+     *
      * @param section Section code
      * @param date Target data
      * @returns The first article info
@@ -76,7 +76,7 @@ export class BbsArticlesController {
     @core.TypedRoute.Get("first/:date")
     public async first(
         @core.TypedParam("section") section: string,
-        @core.TypedParam("date", "date") date: string,
+        @core.TypedParam("date") date: string & tags.Format<"date">,
     ): Promise<IBbsArticle> {
         Global.used = true;
         section;
@@ -115,7 +115,7 @@ export class BbsArticlesController {
     @core.TypedRoute.Put(":id")
     public async update(
         @core.TypedParam("section") section: string,
-        @core.TypedParam("id", "uuid") id: string,
+        @core.TypedParam("id") id: string & tags.Format<"uuid">,
         @core.TypedBody() input: IBbsArticle.IStore,
     ): Promise<IBbsArticle> {
         Global.used = true;

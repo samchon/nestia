@@ -28,7 +28,7 @@ export namespace get {
     export const METADATA = {
         method: "GET",
         path: "/health",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,

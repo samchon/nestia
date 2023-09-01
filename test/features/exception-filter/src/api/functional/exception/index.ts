@@ -6,8 +6,9 @@
 //================================================================
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
+import type { Format } from "typia/lib/tags/Format";
 
-import type { IAttachmentFile, IBbsArticle } from "./../../structures/IBbsArticle";
+import type { IAttachmentFile, IBbsArticle } from "../../structures/IBbsArticle";
 
 /**
  * @controller ExceptionController.typedBody()
@@ -77,7 +78,7 @@ export namespace typedManual {
     export const METADATA = {
         method: "GET",
         path: "/exception/typedManual",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,
@@ -97,7 +98,7 @@ export namespace typedManual {
  */
 export async function typedParam(
     connection: IConnection,
-    id: string,
+    id: string & Format<"uuid">,
 ): Promise<void> {
     return PlainFetcher.fetch(
         connection,
@@ -112,7 +113,7 @@ export namespace typedParam {
     export const METADATA = {
         method: "GET",
         path: "/exception/:id/typedParam",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,
@@ -120,7 +121,7 @@ export namespace typedParam {
         status: null,
     } as const;
 
-    export const path = (id: string): string => {
+    export const path = (id: string & Format<"uuid">): string => {
         return `/exception/${encodeURIComponent(id ?? "null")}/typedParam`;
     }
 }
@@ -149,7 +150,7 @@ export namespace typedQuery {
     export const METADATA = {
         method: "GET",
         path: "/exception/typedQuery",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,
@@ -192,7 +193,7 @@ export namespace internal {
     export const METADATA = {
         method: "GET",
         path: "/exception/internal",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,

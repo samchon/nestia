@@ -1,8 +1,7 @@
-import { Controller } from "@nestjs/common";
-import typia from "typia";
-import { v4 } from "uuid";
-
 import core from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import typia, { tags } from "typia";
+import { v4 } from "uuid";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 import { IPage } from "@api/lib/structures/IPage";
@@ -53,7 +52,8 @@ export class BbsPackageArticlesController {
     @core.TypedRoute.Get(":id")
     public async at(
         @core.TypedParam("section") section: string,
-        @core.TypedParam("id", "uuid") id: string | null,
+        @core.TypedParam("id")
+        id: (string & tags.Format<"uuid">) | null,
     ): Promise<IBbsArticle> {
         return {
             ...typia.random<IBbsArticle>(),
@@ -64,7 +64,7 @@ export class BbsPackageArticlesController {
 
     /**
      * Get new article of a day.
-     * 
+     *
      * @param section Section code
      * @param date Target data
      * @returns The new article info
@@ -72,7 +72,7 @@ export class BbsPackageArticlesController {
     @core.TypedRoute.Get("new/:date")
     public async new(
         @core.TypedParam("section") section: string,
-        @core.TypedParam("date", "date") date: string,
+        @core.TypedParam("date") date: string & tags.Format<"date">,
     ): Promise<IBbsArticle> {
         section;
         date;
@@ -109,7 +109,7 @@ export class BbsPackageArticlesController {
     @core.TypedRoute.Put(":id")
     public async update(
         @core.TypedParam("section") section: string,
-        @core.TypedParam("id", "uuid") id: string,
+        @core.TypedParam("id") id: string & tags.Format<"uuid">,
         @core.TypedBody() input: IBbsArticle.IStore,
     ): Promise<IBbsArticle> {
         return {
@@ -122,14 +122,14 @@ export class BbsPackageArticlesController {
 
     /**
      * Delete an article.
-     * 
+     *
      * @param section Section code
      * @param id Target article ID
      */
     @core.TypedRoute.Delete(":id")
     public async delete(
         @core.TypedParam("section") section: string,
-        @core.TypedParam("id", "uuid") id: string,
+        @core.TypedParam("id") id: string & tags.Format<"uuid">,
     ): Promise<void> {
         section;
         id;
@@ -137,7 +137,7 @@ export class BbsPackageArticlesController {
 
     /**
      * Remove every articles in a section.
-     * 
+     *
      * @param section Section code
      * @internal
      */

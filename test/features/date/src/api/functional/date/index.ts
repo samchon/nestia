@@ -7,7 +7,7 @@
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 
-import type { IDateDefined } from "./../../structures/IDateDefined";
+import type { IDateDefined } from "../../structures/IDateDefined";
 
 /**
  * @controller DateController.get()
@@ -31,7 +31,7 @@ export namespace get {
     export const METADATA = {
         method: "GET",
         path: "/date",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,

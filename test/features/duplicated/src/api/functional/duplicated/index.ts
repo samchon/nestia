@@ -7,7 +7,7 @@
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 
-import type { IBbsArticle } from "./../../structures/IBbsArticle";
+import type { IBbsArticle } from "../../structures/IBbsArticle";
 
 /**
  * @controller DuplicatedController.at()
@@ -31,7 +31,7 @@ export namespace at {
     export const METADATA = {
         method: "GET",
         path: "/duplicated/at",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,

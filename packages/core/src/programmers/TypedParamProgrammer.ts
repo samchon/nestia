@@ -1,101 +1,156 @@
 import ts from "typescript";
 
+import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
-import { Metadata } from "typia/lib/metadata/Metadata";
+import { IsProgrammer } from "typia/lib/programmers/IsProgrammer";
+import { Metadata } from "typia/lib/schemas/metadata/Metadata";
+import { TransformerError } from "typia/lib/transformers/TransformerError";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
+import { CoreMetadataUtil } from "./internal/CoreMetadataUtil";
 
 export namespace TypedParamProgrammer {
     export const generate =
-        ({ checker }: INestiaTransformProject) =>
+        (project: INestiaTransformProject) =>
+        (modulo: ts.LeftHandSideExpression) =>
         (parameters: readonly ts.Expression[]) =>
         (type: ts.Type): readonly ts.Expression[] => {
-            const metadata: Metadata = MetadataFactory.analyze(checker)({
-                resolve: false,
+            // ALREADY BEING TRANSFORMED
+            if (parameters.length !== 1) return parameters;
+
+            const result = MetadataFactory.analyze(project.checker)({
+                escape: false,
                 constant: true,
                 absorb: true,
+                validate,
             })(new MetadataCollection())(type);
-            validate(metadata);
-            const [atomic] = get_atomic_types(metadata);
-
-            // AUTO TYPE SPECIFICATION
-            if (parameters.length === 1)
-                return [
-                    parameters[0],
-                    ts.factory.createStringLiteral(atomic),
-                    metadata.nullable
-                        ? ts.factory.createTrue()
-                        : ts.factory.createFalse(),
-                ];
-
-            // TYPE HAS BEEN SPECIFIED IN DECORATOR
-            const specified: Metadata = MetadataFactory.analyze(checker)({
-                resolve: false,
-                constant: true,
-                absorb: true,
-            })(new MetadataCollection())(
-                checker.getTypeAtLocation(parameters[1]),
-            );
-            if (equals(atomic, specified) === false)
-                throw error("different type between parameter and variable");
-
-            if (parameters.length === 2)
-                return [
-                    parameters[0],
-                    parameters[1],
-                    metadata.nullable
-                        ? ts.factory.createTrue()
-                        : ts.factory.createFalse(),
-                ];
-
-            // NULLABLE HAS BEEN SPECIFIED
-            const nullable: Metadata = MetadataFactory.analyze(checker)({
-                resolve: false,
-                constant: true,
-                absorb: true,
-            })(new MetadataCollection())(
-                checker.getTypeAtLocation(parameters[2]),
-            );
-            if (nullable.getName() !== "true" && nullable.getName() !== "false")
-                throw error("nullable value must be literal type");
-            else if (metadata.nullable !== (nullable.getName() === "true"))
-                throw error(
-                    "different type (nullable) between parameter and variable",
+            if (result.success === false)
+                throw TransformerError.from("@core.nestia.TypedParam")(
+                    result.errors,
                 );
-            return parameters;
+            const [atomic] = [...CoreMetadataUtil.atomics(result.data)];
+            const name: string = result.data.getName();
+            const is: ts.ArrowFunction = IsProgrammer.write({
+                ...project,
+                options: {
+                    numeric: true,
+                },
+            })(modulo)(false)(type);
+            const cast: ts.ArrowFunction = CASTERS[atomic](
+                result.data.nullable,
+            );
+            return [
+                parameters[0],
+                ts.factory.createObjectLiteralExpression(
+                    [
+                        ts.factory.createPropertyAssignment(
+                            "name",
+                            ts.factory.createStringLiteral(name),
+                        ),
+                        ts.factory.createPropertyAssignment("is", is),
+                        ts.factory.createPropertyAssignment("cast", cast),
+                    ],
+                    true,
+                ),
+            ];
         };
+
+    export const validate = (meta: Metadata): string[] => {
+        const errors: string[] = [];
+        const insert = (msg: string) => errors.push(msg);
+
+        if (meta.any) insert("do not allow any type");
+        if (meta.isRequired() === false)
+            insert("do not allow undefindable type");
+
+        const atomics = CoreMetadataUtil.atomics(meta);
+        const expected: number =
+            meta.atomics.length +
+            meta.templates.length +
+            meta.constants
+                .map((c) => c.values.length)
+                .reduce((a, b) => a + b, 0);
+        if (meta.size() !== expected || atomics.size === 0)
+            insert("only atomic or constant types are allowed");
+        if (atomics.size > 1) insert("do not allow union type");
+
+        return errors;
+    };
 }
 
-const validate = (meta: Metadata) => {
-    if (meta.any) throw error("do not allow any type");
-    else if (meta.isRequired() === false)
-        throw error("do not allow undefindable type");
-
-    const atomics: string[] = get_atomic_types(meta);
-    const expected: number =
-        meta.atomics.length +
-        meta.templates.length +
-        meta.constants.map((c) => c.values.length).reduce((a, b) => a + b, 0);
-    if (meta.size() !== expected || atomics.length === 0)
-        throw error("only atomic or constant types is allowed");
-    else if (atomics.length > 1) throw error("do not allow union type");
+const CASTERS = {
+    boolean: (nullable: boolean) =>
+        createArrow(nullable)(
+            ts.factory.createConditionalExpression(
+                ts.factory.createLogicalOr(
+                    ts.factory.createStrictEquality(
+                        ts.factory.createStringLiteral("false"),
+                        ts.factory.createIdentifier("str"),
+                    ),
+                    ts.factory.createStrictEquality(
+                        ts.factory.createStringLiteral("0"),
+                        ts.factory.createIdentifier("str"),
+                    ),
+                ),
+                undefined,
+                ts.factory.createFalse(),
+                undefined,
+                ts.factory.createConditionalExpression(
+                    ts.factory.createLogicalOr(
+                        ts.factory.createStrictEquality(
+                            ts.factory.createStringLiteral("true"),
+                            ts.factory.createIdentifier("str"),
+                        ),
+                        ts.factory.createStrictEquality(
+                            ts.factory.createStringLiteral("1"),
+                            ts.factory.createIdentifier("str"),
+                        ),
+                    ),
+                    undefined,
+                    ts.factory.createTrue(),
+                    undefined,
+                    ts.factory.createIdentifier("str"),
+                ),
+            ),
+        ),
+    number: (nullable: boolean) =>
+        createArrow(nullable)(
+            ts.factory.createCallExpression(
+                ts.factory.createIdentifier("Number"),
+                undefined,
+                [ts.factory.createIdentifier("str")],
+            ),
+        ),
+    bigint: (nullable: boolean) =>
+        createArrow(nullable)(
+            ts.factory.createCallExpression(
+                ts.factory.createIdentifier("BigInt"),
+                undefined,
+                [ts.factory.createIdentifier("str")],
+            ),
+        ),
+    string: (nullable: boolean) =>
+        createArrow(nullable)(ts.factory.createIdentifier("str")),
 };
 
-const get_atomic_types = (meta: Metadata): string[] => [
-    ...new Set([
-        ...meta.atomics,
-        ...meta.constants.map((c) => c.type),
-        ...(meta.templates.length ? ["string"] : []),
-    ]),
-];
-
-const error = (message: string) =>
-    new Error(`Error on nestia.core.TypedParam(): ${message}.`);
-
-const equals = (atomic: string, p: Metadata) => {
-    const name: string = p.getName();
-    if (atomic === "string")
-        return name === `"string"` || name === `"uuid"` || name === `"date"`;
-    return `"${atomic}"` === name;
-};
+const createArrow = (nullable: boolean) => (expr: ts.Expression) =>
+    ts.factory.createArrowFunction(
+        undefined,
+        undefined,
+        [IdentifierFactory.parameter("str")],
+        undefined,
+        undefined,
+        nullable
+            ? ts.factory.createConditionalExpression(
+                  ts.factory.createStrictEquality(
+                      ts.factory.createStringLiteral("null"),
+                      ts.factory.createIdentifier("str"),
+                  ),
+                  undefined,
+                  ts.factory.createNull(),
+                  undefined,
+                  expr,
+              )
+            : expr,
+    );

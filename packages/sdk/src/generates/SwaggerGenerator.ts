@@ -1,24 +1,34 @@
 import fs from "fs";
 import NodePath from "path";
+import path from "path";
 import { Singleton } from "tstl/thread/Singleton";
 import ts from "typescript";
 
-import typia, { IJsonApplication, IJsonComponents, IJsonSchema } from "typia";
+import typia, { IJsonApplication } from "typia";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
-import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
-import { Metadata } from "typia/lib/metadata/Metadata";
-import { ApplicationProgrammer } from "typia/lib/programmers/ApplicationProgrammer";
+import { JsonApplicationProgrammer } from "typia/lib/programmers/json/JsonApplicationProgrammer";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
 import { ISwagger } from "../structures/ISwagger";
+import { ISwaggerError } from "../structures/ISwaggerError";
 import { ISwaggerInfo } from "../structures/ISwaggerInfo";
 import { ISwaggerRoute } from "../structures/ISwaggerRoute";
+import { ISwaggerSchemaTuple } from "../structures/ISwaggerSchemaTuple";
 import { ISwaggerSecurityScheme } from "../structures/ISwaggerSecurityScheme";
 import { FileRetriever } from "../utils/FileRetriever";
 import { MapUtil } from "../utils/MapUtil";
+import { SwaggerSchemaGenerator } from "./internal/SwaggerSchemaGenerator";
 
 export namespace SwaggerGenerator {
+    export interface IProps {
+        config: INestiaConfig.ISwaggerConfig;
+        checker: ts.TypeChecker;
+        collection: MetadataCollection;
+        tuples: Array<ISwaggerSchemaTuple>;
+        errors: ISwaggerError[];
+    }
+
     export const generate =
         (checker: ts.TypeChecker) =>
         (config: INestiaConfig.ISwaggerConfig) =>
@@ -52,7 +62,8 @@ export namespace SwaggerGenerator {
             });
 
             // CONSTRUCT SWAGGER DOCUMENTS
-            const tupleList: Array<ISchemaTuple> = [];
+            const errors: ISwaggerError[] = [];
+            const tuples: Array<ISwaggerSchemaTuple> = [];
             const swagger: ISwagger = await initialize(config);
             const pathDict: Map<
                 string,
@@ -67,13 +78,13 @@ export namespace SwaggerGenerator {
                     get_path(route.path, route.parameters),
                     () => ({}),
                 );
-                path[route.method.toLowerCase()] = generate_route(
+                path[route.method.toLowerCase()] = generate_route({
                     config,
                     checker,
                     collection,
-                    tupleList,
-                    route,
-                );
+                    tuples,
+                    errors,
+                })(route);
             }
             swagger.paths = {};
             for (const [path, routes] of pathDict) {
@@ -81,19 +92,35 @@ export namespace SwaggerGenerator {
             }
 
             // FILL JSON-SCHEMAS
-            const application: IJsonApplication = ApplicationProgrammer.write({
-                purpose: "swagger",
-            })(tupleList.map(({ metadata }) => metadata));
+            const application: IJsonApplication =
+                JsonApplicationProgrammer.write({
+                    purpose: "swagger",
+                })(tuples.map(({ metadata }) => metadata));
             swagger.components = {
                 ...(swagger.components ?? {}),
                 ...(application.components ?? {}),
             };
-            tupleList.forEach(({ schema }, index) => {
+            tuples.forEach(({ schema }, index) => {
                 Object.assign(schema, application.schemas[index]!);
             });
 
             // CONFIGURE SECURITY
             if (config.security) fill_security(config.security, swagger);
+
+            // REPORT ERRORS
+            if (errors.length) {
+                for (const e of errors)
+                    console.error(
+                        `${path.relative(location, process.cwd())}:${
+                            e.route.symbol
+                        }:${
+                            e.from
+                        } - error TS(@nestia/sdk): invalid type detected.\n\n` +
+                            e.messages.map((m) => `  - ${m}`).join("\n"),
+                        "\n\n",
+                    );
+                throw new TypeError("Invalid type detected");
+            }
 
             // DO GENERATE
             await fs.promises.writeFile(
@@ -191,7 +218,7 @@ export namespace SwaggerGenerator {
                         location,
                         "utf8",
                     );
-                    const data = typia.assertParse<{
+                    const data = typia.json.assertParse<{
                         name?: string;
                         version?: string;
                         description?: string;
@@ -264,94 +291,74 @@ export namespace SwaggerGenerator {
         return path;
     }
 
-    function generate_route(
-        config: INestiaConfig.ISwaggerConfig,
-        checker: ts.TypeChecker,
-        collection: MetadataCollection,
-        tupleList: Array<ISchemaTuple>,
-        route: IRoute,
-    ): ISwaggerRoute {
-        const bodyParam = route.parameters.find(
-            (param) => param.category === "body",
-        );
+    const generate_route =
+        (props: IProps) =>
+        (route: IRoute): ISwaggerRoute => {
+            const body = route.parameters.find(
+                (param) => param.category === "body",
+            );
+            const getTagTexts = (name: string) =>
+                route.tags
+                    .filter(
+                        (tag) =>
+                            tag.name === name &&
+                            tag.text &&
+                            tag.text.find(
+                                (elem) =>
+                                    elem.kind === "text" && elem.text.length,
+                            ) !== undefined,
+                    )
+                    .map(
+                        (tag) =>
+                            tag.text!.find((elem) => elem.kind === "text")!
+                                .text,
+                    );
 
-        const getTagTexts = (name: string) =>
-            route.tags
-                .filter(
-                    (tag) =>
-                        tag.name === name &&
-                        tag.text &&
-                        tag.text.find(
-                            (elem) => elem.kind === "text" && elem.text.length,
-                        ) !== undefined,
-                )
-                .map(
-                    (tag) =>
-                        tag.text!.find((elem) => elem.kind === "text")!.text,
-                );
+            const description: string | undefined = route.description?.length
+                ? route.description
+                : undefined;
+            const summary: string | undefined = (() => {
+                if (description === undefined) return undefined;
 
-        const description: string | undefined = route.description?.length
-            ? route.description
-            : undefined;
-        const summary: string | undefined = (() => {
-            if (description === undefined) return undefined;
+                const [explicit] = getTagTexts("summary");
+                if (explicit?.length) return explicit;
 
-            const [explicit] = getTagTexts("summary");
-            if (explicit?.length) return explicit;
+                const index: number = description.indexOf(".");
+                if (index <= 0) return undefined;
 
-            const index: number = description.indexOf(".");
-            if (index <= 0) return undefined;
+                const content: string = description.substring(0, index).trim();
+                return content.length ? content : undefined;
+            })();
+            const deprecated = route.tags.find(
+                (tag) => tag.name === "deprecated",
+            );
 
-            const content: string = description.substring(0, index).trim();
-            return content.length ? content : undefined;
-        })();
-        const deprecated = route.tags.find((tag) => tag.name === "deprecated");
-
-        return {
-            deprecated: deprecated ? true : undefined,
-            tags: getTagTexts("tag"),
-            operationId: route.operationId,
-            parameters: route.parameters
-                .filter((param) => param.category !== "body")
-                .map((param) =>
-                    generate_parameter(
-                        config,
-                        checker,
-                        collection,
-                        tupleList,
-                        route,
-                        param,
+            return {
+                deprecated: deprecated ? true : undefined,
+                tags: getTagTexts("tag"),
+                operationId: route.operationId,
+                parameters: route.parameters
+                    .filter((param) => param.category !== "body")
+                    .map((param) =>
+                        SwaggerSchemaGenerator.parameter(props)(route)(param),
                     ),
-                )
-                .flat(),
-            requestBody: bodyParam
-                ? generate_request_body(
-                      checker,
-                      collection,
-                      tupleList,
-                      route,
-                      bodyParam,
-                  )
-                : undefined,
-            responses: generate_response_body(
-                checker,
-                collection,
-                tupleList,
-                route,
-            ),
-            summary,
-            description,
-            security: route.security.length ? route.security : undefined,
-            "x-nestia-namespace": [
-                ...route.path
-                    .split("/")
-                    .filter((str) => str.length && str[0] !== ":"),
-                route.name,
-            ].join("."),
-            "x-nestia-jsDocTags": route.tags,
-            "x-nestia-method": route.method,
+                requestBody: body
+                    ? SwaggerSchemaGenerator.body(props)(route)(body)
+                    : undefined,
+                responses: SwaggerSchemaGenerator.response(props)(route),
+                summary,
+                description,
+                security: route.security.length ? route.security : undefined,
+                "x-nestia-namespace": [
+                    ...route.path
+                        .split("/")
+                        .filter((str) => str.length && str[0] !== ":"),
+                    route.name,
+                ].join("."),
+                "x-nestia-jsDocTags": route.tags,
+                "x-nestia-method": route.method,
+            };
         };
-    }
 
     function fill_security(
         security: Required<INestiaConfig.ISwaggerConfig>["security"],
@@ -373,388 +380,4 @@ export namespace SwaggerGenerator {
             };
         return input;
     }
-
-    /* ---------------------------------------------------------
-        REQUEST & RESPONSE
-    --------------------------------------------------------- */
-    function generate_parameter(
-        config: INestiaConfig.ISwaggerConfig,
-        checker: ts.TypeChecker,
-        collection: MetadataCollection,
-        tupleList: Array<ISchemaTuple>,
-        route: IRoute,
-        parameter: IRoute.IParameter,
-    ): ISwaggerRoute.IParameter[] {
-        const schema: IJsonSchema | null = generate_schema(
-            checker,
-            collection,
-            tupleList,
-            parameter.type.type,
-        );
-        if (schema === null)
-            throw new Error(
-                `Error on NestiaApplication.swagger(): invalid parameter type on ${route.symbol}#${parameter.name}`,
-            );
-        else if (
-            parameter.custom &&
-            parameter.category === "param" &&
-            !!parameter.meta &&
-            (parameter.meta.type === "date" ||
-                parameter.meta.type === "uuid") &&
-            schema !== null
-        ) {
-            const string: IJsonSchema.IString = schema as IJsonSchema.IString;
-            string.format = parameter.meta.type;
-        } else if (
-            config.decompose === true &&
-            parameter.category === "query"
-        ) {
-            const metadata: Metadata = MetadataFactory.analyze(checker)({
-                resolve: true,
-                constant: true,
-                absorb: true,
-                validate: (meta) => {
-                    if (meta.atomics.find((str) => str === "bigint"))
-                        throw new Error(NO_BIGIT);
-                },
-            })(collection)(parameter.type.type);
-            if (
-                metadata.size() === 1 &&
-                metadata.objects.length === 1 &&
-                metadata.objects[0].properties.every(
-                    (prop) =>
-                        prop.key.size() &&
-                        prop.key.constants.length === 1 &&
-                        prop.key.constants[0].type === "string" &&
-                        route.parameters.every(
-                            (param) =>
-                                param.name !== prop.key.constants[0].values[0],
-                        ),
-                )
-            ) {
-                const app: IJsonApplication = ApplicationProgrammer.write({
-                    purpose: "swagger",
-                })([metadata]);
-                const top = Object.values(app.components.schemas ?? {})[0];
-
-                if (typia.is<IJsonComponents.IObject>(top))
-                    return Object.entries(top.properties).map(
-                        ([key, value]) => ({
-                            name: key,
-                            in: "query",
-                            schema: value,
-                            required: top.required?.includes(key) ?? false,
-                            description: value.description,
-                        }),
-                    );
-            }
-        } else if (
-            config.decompose === true &&
-            parameter.category === "headers"
-        ) {
-            const metadata: Metadata = MetadataFactory.analyze(checker)({
-                resolve: true,
-                constant: true,
-                absorb: true,
-                validate: (meta) => {
-                    if (meta.atomics.find((str) => str === "bigint"))
-                        throw new Error(NO_BIGIT);
-                },
-            })(collection)(parameter.type.type);
-            if (
-                metadata.size() === 1 &&
-                metadata.objects.length === 1 &&
-                metadata.objects[0].properties.every(
-                    (prop) =>
-                        prop.key.size() &&
-                        prop.key.constants.length === 1 &&
-                        prop.key.constants[0].type === "string" &&
-                        route.parameters.every(
-                            (param) =>
-                                param.name !== prop.key.constants[0].values[0],
-                        ),
-                )
-            ) {
-                const app: IJsonApplication = ApplicationProgrammer.write({
-                    purpose: "swagger",
-                })([metadata]);
-                const top = Object.values(app.components.schemas ?? {})[0];
-
-                if (typia.is<IJsonComponents.IObject>(top))
-                    return Object.entries(top.properties).map(
-                        ([key, value]) => ({
-                            name: key,
-                            in: "header",
-                            schema: value,
-                            required: top.required?.includes(key) ?? false,
-                            description: value.description,
-                        }),
-                    );
-            }
-        }
-
-        return [
-            {
-                name: parameter.field ?? parameter.name,
-                in:
-                    parameter.category === "param"
-                        ? "path"
-                        : parameter.category === "headers"
-                        ? "header"
-                        : parameter.category,
-                description:
-                    get_parametric_description(
-                        route,
-                        "param",
-                        parameter.name,
-                    ) || "",
-                schema,
-                required: required(parameter.type.type),
-            },
-        ];
-    }
-
-    function generate_request_body(
-        checker: ts.TypeChecker,
-        collection: MetadataCollection,
-        tupleList: Array<ISchemaTuple>,
-        route: IRoute,
-        parameter: IRoute.IParameter,
-    ): ISwaggerRoute.IRequestBody {
-        const schema: IJsonSchema | null = generate_schema(
-            checker,
-            collection,
-            tupleList,
-            parameter.type.type,
-        );
-        if (schema === null)
-            throw new Error(
-                `Error on NestiaApplication.sdk(): invalid request body type on ${route.symbol}.`,
-            );
-        else if (parameter.category !== "body")
-            throw new Error("Unreachable code.");
-
-        const contentType = parameter.custom
-            ? parameter.contentType
-            : "application/json";
-        const description = get_parametric_description(
-            route,
-            "param",
-            parameter.name,
-        );
-
-        return {
-            description:
-                parameter.custom && parameter.encrypted
-                    ? `${warning.get(!!description).get("request")}${
-                          description ?? ""
-                      }`
-                    : description,
-            content: {
-                [contentType]: {
-                    schema,
-                },
-            },
-            required: true,
-            "x-nestia-encrypted": parameter.custom && parameter.encrypted,
-        };
-    }
-
-    function generate_response_body(
-        checker: ts.TypeChecker,
-        collection: MetadataCollection,
-        tupleList: Array<ISchemaTuple>,
-        route: IRoute,
-    ): ISwaggerRoute.IResponseBody {
-        const output: ISwaggerRoute.IResponseBody = {};
-
-        //----
-        // EXCEPTION STATUSES
-        //----
-        // FROM DECORATOR
-        for (const [status, exp] of Object.entries(route.exceptions)) {
-            const schema = generate_schema(
-                checker,
-                collection,
-                tupleList,
-                exp.type,
-            );
-            if (schema !== null)
-                output[status] = {
-                    description: exp.description ?? "",
-                    content: {
-                        "application/json": { schema },
-                    },
-                };
-        }
-
-        // FROM COMMENT TAGS
-        for (const tag of route.tags) {
-            if (tag.name !== "throw" && tag.name !== "throws") continue;
-
-            const text: string | undefined = tag.text?.find(
-                (elem) => elem.kind === "text",
-            )?.text;
-            if (text === undefined) continue;
-
-            const elements: string[] = text.split(" ").map((str) => str.trim());
-            const status: string = elements[0];
-            if (
-                isNaN(Number(status)) &&
-                status !== "2XX" &&
-                status !== "3XX" &&
-                status !== "4XX" &&
-                status !== "5XX"
-            )
-                continue;
-
-            const description: string | undefined =
-                elements.length === 1 ? undefined : elements.slice(1).join(" ");
-            const oldbie = output[status];
-            if (description && oldbie !== undefined)
-                oldbie.description = description;
-            else if (oldbie === undefined)
-                output[status] = {
-                    description: description ?? "",
-                    content: {
-                        "application/json": {
-                            schema: {},
-                        },
-                    },
-                };
-        }
-
-        //----
-        // SUCCESS
-        //----
-        // STATUS & SCHEMA
-        const status: string =
-            route.status !== undefined
-                ? String(route.status)
-                : route.method === "GET" ||
-                  route.method === "HEAD" ||
-                  route.method === "DELETE"
-                ? "200"
-                : "201";
-        const schema: IJsonSchema | null = generate_schema(
-            checker,
-            collection,
-            tupleList,
-            route.output.type,
-        );
-
-        // DO ASSIGN
-        const description =
-            get_parametric_description(route, "return") ??
-            get_parametric_description(route, "returns");
-        output[status] = {
-            description: route.encrypted
-                ? `${warning.get(!!description).get("response", route.method)}${
-                      description ?? ""
-                  }`
-                : description ?? "",
-            content:
-                schema === null || route.output.name === "void"
-                    ? undefined
-                    : {
-                          [route.output.contentType]: {
-                              schema,
-                          },
-                      },
-            "x-nestia-encrypted": route.encrypted,
-        };
-        return output;
-    }
-
-    /* ---------------------------------------------------------
-        UTILS
-    --------------------------------------------------------- */
-    function generate_schema(
-        checker: ts.TypeChecker,
-        collection: MetadataCollection,
-        tupleList: Array<ISchemaTuple>,
-        type: ts.Type,
-    ): IJsonSchema | null {
-        const metadata: Metadata = MetadataFactory.analyze(checker)({
-            resolve: true,
-            constant: true,
-            absorb: false,
-            validate: (meta) => {
-                if (meta.atomics.find((str) => str === "bigint"))
-                    throw new Error(NO_BIGIT);
-            },
-        })(collection)(type);
-        if (metadata.empty() && metadata.nullable === false) return null;
-
-        const schema: IJsonSchema = {} as IJsonSchema;
-        tupleList.push({ metadata, schema });
-        return schema;
-    }
-
-    function get_parametric_description(
-        route: IRoute,
-        tagName: string,
-        parameterName?: string,
-    ): string | undefined {
-        const parametric: (elem: ts.JSDocTagInfo) => boolean = parameterName
-            ? (tag) =>
-                  tag.text!.find(
-                      (elem) =>
-                          elem.kind === "parameterName" &&
-                          elem.text === parameterName,
-                  ) !== undefined
-            : () => true;
-
-        const tag: ts.JSDocTagInfo | undefined = route.tags.find(
-            (tag) => tag.name === tagName && tag.text && parametric(tag),
-        );
-        return tag && tag.text
-            ? tag.text.find((elem) => elem.kind === "text")?.text
-            : undefined;
-    }
 }
-
-const required = (type: ts.Type): boolean => {
-    if (type.isUnion()) return type.types.every((type) => required(type));
-    const obstacle = (other: ts.TypeFlags) => (type.getFlags() & other) === 0;
-    return (
-        obstacle(ts.TypeFlags.Undefined) &&
-        obstacle(ts.TypeFlags.Never) &&
-        obstacle(ts.TypeFlags.Void) &&
-        obstacle(ts.TypeFlags.VoidLike)
-    );
-};
-
-const warning = new Singleton((described: boolean) => {
-    return new Singleton((type: "request" | "response", method?: string) => {
-        const summary =
-            type === "request"
-                ? "Request body must be encrypted."
-                : "Response data have been encrypted.";
-        const component =
-            type === "request"
-                ? "[EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody)"
-                : `[EncryptedRoute.${method![0].toUpperCase()}.${method!
-                      .substring(1)
-                      .toLowerCase()}](https://github.com/samchon/@nestia/core#encryptedroute)`;
-
-        const content: string[] = [
-            "## Warning",
-            "",
-            summary,
-            "",
-            `The ${type} body data would be encrypted as "AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding", through the ${component} component.`,
-            "",
-            `Therefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.`,
-        ];
-        if (described === true) content.push("----------------", "");
-        return content.join("\n");
-    });
-});
-
-interface ISchemaTuple {
-    metadata: Metadata;
-    schema: IJsonSchema;
-}
-
-const NO_BIGIT = "Error on typia.application(): does not allow bigint type.";

@@ -1,6 +1,6 @@
 import { Pair } from "tstl/utility/Pair";
 
-import { IJsDocTagInfo } from "typia/lib/metadata/IJsDocTagInfo";
+import { IJsDocTagInfo } from "typia/lib/schemas/metadata/IJsDocTagInfo";
 import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaConfig } from "../../INestiaConfig";
@@ -283,7 +283,7 @@ export namespace SdkFunctionProgrammer {
                                 ? `${route.name}.${
                                       param === props.query ? "Query" : "Input"
                                   }`
-                                : param.type.name;
+                                : param.typeName;
                         return `${param.name}${
                             param.optional ? "?" : ""
                         }: ${type}`;
@@ -292,7 +292,9 @@ export namespace SdkFunctionProgrammer {
 
             // OUTPUT TYPE
             const output: string =
-                route.output.name === "void" ? "void" : `${route.name}.Output`;
+                route.output.typeName === "void"
+                    ? "void"
+                    : `${route.name}.Output`;
 
             // RETURNS WITH CONSTRUCTION
             return (
@@ -319,13 +321,13 @@ export namespace SdkFunctionProgrammer {
             // LIST UP TYPES
             const types: Pair<string, string>[] = [];
             if (props.headers !== undefined)
-                types.push(new Pair("Headers", props.headers.type.name));
+                types.push(new Pair("Headers", props.headers.typeName));
             if (props.query !== undefined)
-                types.push(new Pair("Query", props.query.type.name));
+                types.push(new Pair("Query", props.query.typeName));
             if (props.input !== undefined)
-                types.push(new Pair("Input", props.input.type.name));
-            if (route.output.name !== "void")
-                types.push(new Pair("Output", route.output.name));
+                types.push(new Pair("Input", props.input.typeName));
+            if (route.output.typeName !== "void")
+                types.push(new Pair("Output", route.output.typeName));
 
             // PATH WITH PARAMETERS
             const parameters: IRoute.IParameter[] = filter_path_parameters(
@@ -397,15 +399,15 @@ export namespace SdkFunctionProgrammer {
                         (param) =>
                             `${param.name}: ${
                                 param.category === "query" &&
-                                param.type.name === props.query?.type.name
+                                param.typeName === props.query?.typeName
                                     ? `${route.name}.Query`
-                                    : param.type.name
+                                    : param.typeName
                             }`,
                     )
                     .join(", ")}): string => {\n` +
                 `${path};\n` +
                 `    }\n` +
-                (config.simulate === true && route.output.name !== "void"
+                (config.simulate === true && route.output.typeName !== "void"
                     ? `    export const random = (g?: Partial<${SdkImportWizard.typia(
                           importer,
                       )}.IRandomGenerator>): Output =>\n` +
@@ -423,7 +425,7 @@ export namespace SdkFunctionProgrammer {
                     undefined
                     ? `    export const stringify = (input: Input) => ${SdkImportWizard.typia(
                           importer,
-                      )}.assertStringify(input);\n`
+                      )}.json.assertStringify(input);\n`
                     : "") +
                 "}"
             );

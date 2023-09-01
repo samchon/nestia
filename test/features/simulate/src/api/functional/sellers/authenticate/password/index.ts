@@ -8,8 +8,8 @@ import type { IConnection, Primitive } from "@nestia/fetcher";
 import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
 import typia from "typia";
 
-import type { ISeller } from "./../../../../structures/ISeller";
-import { NestiaSimulator } from "./../../../../utils/NestiaSimulator";
+import type { ISeller } from "../../../../structures/ISeller";
+import { NestiaSimulator } from "../../../../utils/NestiaSimulator";
 
 /**
  * Change password.

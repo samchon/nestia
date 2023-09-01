@@ -133,8 +133,8 @@ export namespace ControllerAnalyzer {
             );
         else if (
             func.method === "HEAD" &&
-            outputType.name !== "void" &&
-            outputType.name !== "undefined"
+            outputType.typeName !== "void" &&
+            outputType.typeName !== "undefined"
         )
             throw new Error(
                 `Error on ControllerAnalyzer.analyze(): HEAD method must return void type - ${controller.name}.${func.name}().`,
@@ -170,7 +170,11 @@ export namespace ControllerAnalyzer {
         const common: Omit<IRoute, "path" | "accessors"> = {
             ...func,
             parameters,
-            output: { ...outputType, contentType: func.contentType },
+            output: {
+                type: outputType.type,
+                typeName: outputType.typeName,
+                contentType: func.contentType,
+            },
             imports,
             status: func.status,
 
@@ -301,7 +305,8 @@ export namespace ControllerAnalyzer {
             ...param,
             name,
             optional,
-            type: tuple,
+            type: tuple.type,
+            typeName: tuple.typeName,
         };
     }
 }

@@ -7,10 +7,11 @@
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
+import type { Format } from "typia/lib/tags/Format";
 
-import type { IBbsArticle } from "./../../structures/IBbsArticle";
-import type { IHeaders } from "./../../structures/IHeaders";
-import { NestiaSimulator } from "./../../utils/NestiaSimulator";
+import type { IBbsArticle } from "../../structures/IBbsArticle";
+import type { IHeaders } from "../../structures/IHeaders";
+import { NestiaSimulator } from "../../utils/NestiaSimulator";
 
 /**
  * Store a new article.
@@ -47,7 +48,7 @@ export namespace emplace {
     export const METADATA = {
         method: "PATCH",
         path: "/headers/:section",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,
@@ -69,7 +70,7 @@ export namespace emplace {
             host: connection.host,
             path: path(section)
         });
-        assert.param("section")("string")(() => typia.assert(section));
+        assert.param("section")(() => typia.assert(section));
         return random(
             typeof connection.simulate === 'object' &&
                 connection.simulate !== null
@@ -144,7 +145,7 @@ export namespace store {
             host: connection.host,
             path: path(section)
         });
-        assert.param("section")("string")(() => typia.assert(section));
+        assert.param("section")(() => typia.assert(section));
         assert.body(() => typia.assert(input));
         return random(
             typeof connection.simulate === 'object' &&
@@ -170,7 +171,7 @@ export namespace store {
 export async function update(
     connection: IConnection,
     section: string,
-    id: string,
+    id: string & Format<"uuid">,
     input: update.Input,
 ): Promise<void> {
     return !!connection.simulate
@@ -212,13 +213,13 @@ export namespace update {
         status: null,
     } as const;
 
-    export const path = (section: string, id: string): string => {
+    export const path = (section: string, id: string & Format<"uuid">): string => {
         return `/headers/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
     }
     export const simulate = async (
         connection: IConnection,
         section: string,
-        id: string,
+        id: string & Format<"uuid">,
         input: update.Input,
     ): Promise<void> => {
         const assert = NestiaSimulator.assert({
@@ -226,8 +227,8 @@ export namespace update {
             host: connection.host,
             path: path(section, id)
         });
-        assert.param("section")("string")(() => typia.assert(section));
-        assert.param("id")("uuid")(() => typia.assert(id));
+        assert.param("section")(() => typia.assert(section));
+        assert.param("id")(() => typia.assert(id));
         assert.body(() => typia.assert(input));
     }
 }

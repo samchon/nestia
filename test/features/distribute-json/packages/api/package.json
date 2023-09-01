@@ -33,7 +33,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@nestia/fetcher": "^2.0.0-dev.20230831-5",
-    "typia": "^4.3.3"
+    "@nestia/fetcher": "^2.0.0-dev.20230901-2",
+    "typia": "^5.0.1"
   }
 }

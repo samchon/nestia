@@ -7,8 +7,8 @@
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 
-import type { INestQuery } from "./../../structures/INestQuery";
-import type { IQuery } from "./../../structures/IQuery";
+import type { INestQuery } from "../../structures/INestQuery";
+import type { IQuery } from "../../structures/IQuery";
 
 /**
  * @controller QueryController.typed()

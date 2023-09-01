@@ -14,12 +14,7 @@ import { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import express from "express";
 import { catchError, map } from "rxjs/operators";
 
-import {
-    assertStringify,
-    isStringify,
-    stringify,
-    validateStringify,
-} from "typia";
+import typia from "typia";
 
 import { IResponseBodyStringifier } from "../options/IResponseBodyStringifier";
 import { get_path_and_stringify } from "./internal/get_path_and_stringify";
@@ -107,10 +102,10 @@ export namespace TypedRoute {
     }
 }
 for (const method of [
-    stringify,
-    isStringify,
-    assertStringify,
-    validateStringify,
+    typia.json.stringify,
+    typia.json.isStringify,
+    typia.json.assertStringify,
+    typia.json.validateStringify,
 ])
     for (const [key, value] of Object.entries(method))
         for (const deco of [

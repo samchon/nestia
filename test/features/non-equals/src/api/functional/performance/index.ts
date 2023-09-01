@@ -7,7 +7,7 @@
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 
-import type { IPerformance } from "./../../structures/IPerformance";
+import type { IPerformance } from "../../structures/IPerformance";
 
 /**
  * @controller PerformanceController.get()

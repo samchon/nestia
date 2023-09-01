@@ -25,7 +25,7 @@ export namespace ImportAnalyzer {
         try {
             return {
                 type,
-                name: explore_escaped_name(
+                typeName: explore_escaped_name(
                     checker,
                     genericDict,
                     importDict,

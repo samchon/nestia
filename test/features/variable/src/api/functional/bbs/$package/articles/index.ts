@@ -6,9 +6,10 @@
 //================================================================
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
+import type { Format } from "typia/lib/tags/Format";
 
-import type { IBbsArticle } from "./../../../../structures/IBbsArticle";
-import type { IPage } from "./../../../../structures/IPage";
+import type { IBbsArticle } from "../../../../structures/IBbsArticle";
+import type { IPage } from "../../../../structures/IPage";
 
 /**
  * Paginate entire articles.
@@ -131,7 +132,7 @@ export namespace $catch {
 export async function at(
     connection: IConnection,
     section: string,
-    id: null | string,
+    id: null | string & Format<"uuid">,
 ): Promise<at.Output> {
     return PlainFetcher.fetch(
         connection,
@@ -155,7 +156,7 @@ export namespace at {
         status: null,
     } as const;
 
-    export const path = (section: string, id: null | string): string => {
+    export const path = (section: string, id: null | string & Format<"uuid">): string => {
         return `/bbs/package/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(id ?? "null")}`;
     }
 }
@@ -174,7 +175,7 @@ export namespace at {
 export async function $new(
     connection: IConnection,
     section: string,
-    date: string,
+    date: string & Format<"date">,
 ): Promise<$new.Output> {
     return PlainFetcher.fetch(
         connection,
@@ -198,7 +199,7 @@ export namespace $new {
         status: null,
     } as const;
 
-    export const path = (section: string, date: string): string => {
+    export const path = (section: string, date: string & Format<"date">): string => {
         return `/bbs/package/${encodeURIComponent(section ?? "null")}/articles/new/${encodeURIComponent(date ?? "null")}`;
     }
 }
@@ -272,7 +273,7 @@ export namespace store {
 export async function update(
     connection: IConnection,
     section: string,
-    id: string,
+    id: string & Format<"uuid">,
     input: update.Input,
 ): Promise<update.Output> {
     return PlainFetcher.fetch(
@@ -308,7 +309,7 @@ export namespace update {
         status: null,
     } as const;
 
-    export const path = (section: string, id: string): string => {
+    export const path = (section: string, id: string & Format<"uuid">): string => {
         return `/bbs/package/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(id ?? "null")}`;
     }
 }
@@ -326,7 +327,7 @@ export namespace update {
 export async function $$delete(
     connection: IConnection,
     section: string,
-    id: string,
+    id: string & Format<"uuid">,
 ): Promise<void> {
     return PlainFetcher.fetch(
         connection,
@@ -349,7 +350,7 @@ export namespace $$delete {
         status: null,
     } as const;
 
-    export const path = (section: string, id: string): string => {
+    export const path = (section: string, id: string & Format<"uuid">): string => {
         return `/bbs/package/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(id ?? "null")}`;
     }
 }

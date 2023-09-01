@@ -4,15 +4,18 @@ import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
-import { Metadata } from "typia/lib/metadata/Metadata";
-import { MetadataObject } from "typia/lib/metadata/MetadataObject";
-import { MetadataProperty } from "typia/lib/metadata/MetadataProperty";
 import { AssertProgrammer } from "typia/lib/programmers/AssertProgrammer";
 import { FunctionImporter } from "typia/lib/programmers/helpers/FunctionImporeter";
+import { Metadata } from "typia/lib/schemas/metadata/Metadata";
+import { MetadataArray } from "typia/lib/schemas/metadata/MetadataArray";
+import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
+import { MetadataProperty } from "typia/lib/schemas/metadata/MetadataProperty";
+import { TransformerError } from "typia/lib/transformers/TransformerError";
 import { Atomic } from "typia/lib/typings/Atomic";
 import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
+import { CoreMetadataUtil } from "./internal/CoreMetadataUtil";
 
 export namespace TypedHeadersProgrammer {
     export const generate =
@@ -23,113 +26,95 @@ export namespace TypedHeadersProgrammer {
             return decode(project, modulo)(type, object);
         };
 
+    export const validate = (
+        meta: Metadata,
+        explore: MetadataFactory.IExplore,
+    ): string[] => {
+        const errors: string[] = [];
+        const insert = (msg: string) => errors.push(msg);
+
+        if (explore.top === true) {
+            // TOP MUST BE ONLY OBJECT
+            if (meta.objects.length !== 1 || meta.bucket() !== 1)
+                insert("only one object type is allowed.");
+            if (meta.nullable === true) insert("headers cannot be null.");
+            if (meta.isRequired() === false) insert("headers cannot be null.");
+        } else if (
+            explore.nested !== null &&
+            explore.nested instanceof MetadataArray
+        ) {
+            const atomics = CoreMetadataUtil.atomics(meta);
+            const expected: number =
+                meta.atomics.length +
+                meta.templates.length +
+                meta.constants
+                    .map((c) => c.values.length)
+                    .reduce((a, b) => a + b, 0);
+            if (atomics.size > 1) insert("union type is not allowed in array.");
+            if (meta.nullable) insert("nullable type is not allowed in array.");
+            if (meta.isRequired() === false)
+                insert("optional type is not allowed.");
+            if (meta.size() !== expected)
+                insert("only atomic or constant types are allowed in array.");
+        } else if (explore.object && explore.property !== null) {
+            //----
+            // COMMON
+            //----
+            // PROPERTY MUST BE SOLE
+            if (typeof explore.property === "object")
+                insert("dynamic property is not allowed.");
+            // DO NOT ALLOW TUPLE TYPE
+            if (meta.tuples.length) insert("tuple type is not allowed.");
+            // DO NOT ALLOW UNION TYPE
+            if (CoreMetadataUtil.isUnion(meta))
+                insert("union type is not allowed.");
+            // DO NOT ALLOW NESTED OBJECT
+            if (
+                meta.objects.length ||
+                meta.sets.length ||
+                meta.maps.length ||
+                meta.natives.length
+            )
+                insert("nested object type is not allowed.");
+            // DO NOT ALLOW NULLABLE
+            if (meta.nullable) insert("nullable type is not allowed.");
+
+            //----
+            // ARRAY CASES
+            //----
+            const isArray: boolean = meta.arrays.length > 1;
+            // ARRAY TYPE MUST BE REQUIRED
+            if (isArray && meta.isRequired() === false)
+                insert("optional type is not allowed when array.");
+            // SET-COOKIE MUST BE ARRAY
+            if (explore.property === "set-cookie" && !isArray)
+                insert("set-cookie property must be array.");
+            // MUST BE SINGULAR CASE
+            if (
+                typeof explore.property === "string" &&
+                SINGULAR.has(explore.property) &&
+                isArray
+            )
+                insert("property cannot be array.");
+        }
+        return errors;
+    };
+
     const getObject =
         (checker: ts.TypeChecker) =>
         (type: ts.Type): MetadataObject => {
             const collection: MetadataCollection = new MetadataCollection();
-            const metadata: Metadata = MetadataFactory.analyze(checker)({
-                resolve: false,
+            const result = MetadataFactory.analyze(checker)({
+                escape: false,
                 constant: true,
                 absorb: true,
+                validate,
             })(collection)(type);
-            if (metadata.objects.length !== 1 || metadata.bucket() !== 1)
-                throw new Error(
-                    ErrorMessages.object(metadata)(
-                        "only one object type is allowed.",
-                    ),
+            if (result.success === false)
+                throw TransformerError.from("@core.nestia.TypedHeaders")(
+                    result.errors,
                 );
-            else if (metadata.nullable === true)
-                throw new Error(
-                    ErrorMessages.object(metadata)(
-                        "query parameter cannot be null.",
-                    ),
-                );
-            else if (metadata.isRequired() === false)
-                throw new Error(
-                    ErrorMessages.object(metadata)(
-                        "query parameter cannot be undefined.",
-                    ),
-                );
-
-            const object: MetadataObject = metadata.objects[0]!;
-            if (object.properties.some((p) => !(p.key as any).isSoleLiteral()))
-                throw new Error(
-                    ErrorMessages.object(metadata)(
-                        "dynamic property is not allowed.",
-                    ),
-                );
-
-            for (const property of object.properties) {
-                const key: string = property.key.constants[0]
-                    .values[0] as string;
-                const value: Metadata = property.value;
-                validate(object)(key)(value, 0);
-            }
-            return object;
-        };
-
-    const validate =
-        (obj: MetadataObject) =>
-        (key: string) =>
-        (value: Metadata, depth: number): string[] => {
-            if (depth === 1 && value.isRequired() === false)
-                throw new Error(
-                    ErrorMessages.property(obj)(key)(
-                        "optional type is not allowed in array.",
-                    ),
-                );
-            else if (value.nullable === true)
-                throw new Error(
-                    ErrorMessages.property(obj)(key)(
-                        "nullable type is not allowed.",
-                    ),
-                );
-            else if (
-                value.maps.length ||
-                value.sets.length ||
-                value.objects.length
-            )
-                throw new Error(
-                    ErrorMessages.property(obj)(key)(
-                        "object type is not allowed",
-                    ),
-                );
-
-            const atom: string[] = [];
-            for (const type of value.atomics) atom.push(type);
-            for (const { type } of value.constants) atom.push(type);
-
-            if (depth === 0 && (value.arrays.length || value.arrays.length)) {
-                if (atom.length)
-                    throw new Error(
-                        ErrorMessages.property(obj)(key)(
-                            "union type is not allowed",
-                        ),
-                    );
-                for (const array of value.arrays)
-                    atom.push(...validate(obj)(key)(array.value, depth + 1));
-                for (const tuple of value.tuples)
-                    for (const elem of tuple.elements)
-                        atom.push(...validate(obj)(key)(elem, depth + 1));
-            } else if (value.arrays.length || value.tuples.length)
-                throw new Error(
-                    ErrorMessages.property(obj)(key)(
-                        "double-array type is not allowed",
-                    ),
-                );
-
-            const size: number = new Set(atom).size;
-            if (size === 0)
-                throw new Error(
-                    ErrorMessages.property(obj)(key)("unknown type"),
-                );
-            else if (size > 1)
-                throw new Error(
-                    ErrorMessages.property(obj)(key)(
-                        "union type is not allowed",
-                    ),
-                );
-            return atom;
+            return result.data.objects[0]!;
         };
 
     const decode =
@@ -156,7 +141,9 @@ export namespace TypedHeadersProgrammer {
             })(modulo)(false)(type);
             const output: ts.Identifier = ts.factory.createIdentifier("output");
 
-            const importer: FunctionImporter = new FunctionImporter();
+            const importer: FunctionImporter = new FunctionImporter(
+                "TypedHeaders",
+            );
             const statements: ts.Statement[] = [
                 StatementFactory.constant(
                     "output",
@@ -189,14 +176,15 @@ export namespace TypedHeadersProgrammer {
 
             const [type, isArray]: [Atomic.Literal, boolean] = value.atomics
                 .length
-                ? [value.atomics[0], false]
+                ? [value.atomics[0].type, false]
                 : value.constants.length
                 ? [value.constants[0]!.type, false]
                 : (() => {
                       const meta =
-                          value.arrays[0]?.value ?? value.tuples[0].elements[0];
+                          value.arrays[0]?.type.value ??
+                          value.tuples[0].type.elements[0];
                       return meta.atomics.length
-                          ? [meta.atomics[0], true]
+                          ? [meta.atomics[0].type, true]
                           : [meta.constants[0]!.type, true];
                   })();
             if (isArray && SINGULAR.has(key))

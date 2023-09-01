@@ -4,5 +4,5 @@ export interface IHeaders {
     "x-name"?: string;
     "x-values": number[];
     "x-flags": boolean[];
-    "X-Descriptions": string[];
+    "X-descriptions": string[];
 }

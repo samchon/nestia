@@ -4,20 +4,18 @@ import { HashSet } from "tstl/container/HashSet";
 import { Pair } from "tstl/utility/Pair";
 
 export class ImportDictionary {
-    private readonly externals_: HashMap<Pair<string, boolean>, IComposition> =
-        new HashMap();
-    private readonly internals_: HashMap<Pair<string, boolean>, IComposition> =
+    private readonly components_: HashMap<Pair<string, boolean>, IComposition> =
         new HashMap();
 
     public empty(): boolean {
-        return this.internals_.empty() && this.externals_.empty();
+        return this.components_.empty();
     }
 
     public external(props: ImportDictionary.IExternalProps): string {
-        const composition: IComposition = this.externals_.take(
+        const composition: IComposition = this.components_.take(
             new Pair(props.library, props.type),
             () => ({
-                location: props.library,
+                location: `node_modules/${props.library}`,
                 elements: new HashSet(),
                 default: false,
                 type: props.type,
@@ -36,7 +34,7 @@ export class ImportDictionary {
                 return props.file.substring(0, props.file.length - 3);
             return props.file;
         })();
-        const composition: IComposition = this.internals_.take(
+        const composition: IComposition = this.components_.take(
             new Pair(file, props.type),
             () => ({
                 location: file,
@@ -53,12 +51,26 @@ export class ImportDictionary {
     }
 
     public toScript(outDir: string): string {
-        const statements: string[] = [];
+        const external: string[] = [];
+        const internal: string[] = [];
+
+        const locator = (str: string) => {
+            const location: string = path
+                .relative(outDir, str)
+                .split("\\")
+                .join("/");
+            const index: number = location.lastIndexOf(NODE_MODULES);
+            return index === -1
+                ? location.startsWith("..")
+                    ? location
+                    : `./${location}`
+                : location.substring(index + NODE_MODULES.length);
+        };
         const enroll =
-            (locator: (str: string) => string) =>
-            (dict: HashMap<Pair<string, boolean>, IComposition>) => {
-                const compositions: IComposition[] = dict
+            (filter: (str: string) => boolean) => (container: string[]) => {
+                const compositions: IComposition[] = this.components_
                     .toJSON()
+                    .filter((c) => filter(c.second.location))
                     .map((e) => ({
                         ...e.second,
                         location: locator(e.second.location),
@@ -74,7 +86,7 @@ export class ImportDictionary {
                                 .sort((a, b) => a.localeCompare(b))
                                 .join(", ")} }`,
                         );
-                    statements.push(
+                    container.push(
                         `import ${c.type ? "type " : ""}${brackets.join(
                             ", ",
                         )} from "${c.location}";`,
@@ -82,20 +94,11 @@ export class ImportDictionary {
                 }
             };
 
-        enroll((str) => str)(this.externals_);
-        if (!this.externals_.empty() && !this.internals_.empty())
-            statements.push("");
-        enroll((str) => {
-            const location: string = path
-                .relative(outDir, str)
-                .split("\\")
-                .join("/");
-            const index: number = location.lastIndexOf(NODE_MODULES);
-            return index === -1
-                ? `./${location}`
-                : location.substring(index + NODE_MODULES.length);
-        })(this.internals_);
-        return statements.join("\n");
+        enroll((str) => str.indexOf(NODE_MODULES) !== -1)(external);
+        enroll((str) => str.indexOf(NODE_MODULES) === -1)(internal);
+
+        if (external.length && internal.length) external.push("");
+        return [...external, ...internal].join("\n");
     }
 }
 export namespace ImportDictionary {
