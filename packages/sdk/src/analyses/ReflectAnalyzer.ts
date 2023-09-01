@@ -328,16 +328,6 @@ export namespace ReflectAnalyzer {
                 name: param.name,
                 index: param.index,
                 field: param.data,
-                meta: (() => {
-                    const type = (param.factory as any).type;
-                    const nullable = (param.factory as any).nullable;
-                    if (type !== undefined && nullable !== undefined)
-                        return {
-                            type,
-                            nullable,
-                        };
-                    return undefined;
-                })(),
             };
         else if (param.factory.name === "TypedQuery")
             return {

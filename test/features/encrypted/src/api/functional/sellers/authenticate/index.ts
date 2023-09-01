@@ -8,7 +8,7 @@ import type { IConnection, Primitive } from "@nestia/fetcher";
 import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 
-import type { ISeller } from "./../../../structures/ISeller";
+import type { ISeller } from "../../../structures/ISeller";
 
 export * as password from "./password";
 
@@ -153,7 +153,7 @@ export namespace exit {
     export const METADATA = {
         method: "DELETE",
         path: "/sellers/authenticate/exit",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,

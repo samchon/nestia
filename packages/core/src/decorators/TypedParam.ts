@@ -6,81 +6,60 @@ import {
 import type express from "express";
 import type { FastifyRequest } from "fastify";
 
+import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
+
 /**
  * Type safe URL parameter decorator.
  *
  * `TypedParam` is a decorator function getting specific typed parameter from the
  * HTTP request URL. It's almost same with the {@link nest.Param}, but `TypedParam`
- * automatically casts parameter value to be following its type. Beside, the
- * {@link nest.Param} always parses all of the parameters as `string` type.
- *
- * Note that, if you just omit the `type` and `nullable` parameters, then
- * `TypedParam` automatically determines the `type` and `nullable` values
- * just by analyzing the parameter type. Only when you need to specify them
- * are, you want to use the `uuid` type.
+ * automatically casts parameter value to be following its type, and validates it.
  *
  * ```typescript
+ * import { tags } from "typia";
+ *
  * \@TypedRoute.Get("shopping/sales/:id/:no/:paused")
  * public async pause
  *     (
- *         \@TypedParam("id", "uuid"), id: string, // uuid specification
- *         \@TypedParam("no") id: number, // auto casting
- *         \@TypedParam("paused") paused: boolean | null // auto casting
+ *         \@TypedParam("id", "uuid"), id: string & tags.Format<"uuid">,
+ *         \@TypedParam("no") id: number & tags.Type<"uint32">
+ *         \@TypedParam("paused") paused: boolean | null
  *     ): Promise<void>;
  * ```
  *
  * @param name URL Parameter name
- * @param type If omit, automatically determined by the parameter type.
- * @param nullable If omit, automatically determined by the parameter type.
  * @returns Parameter decorator
  *
  * @author Jeongho Nam - https://github.com/samchon
  */
-export function TypedParam(
+export function TypedParam<T>(
     name: string,
-    type?: "boolean" | "number" | "string" | "uuid" | "date",
-    nullable?: false | true,
+    props?: TypedParam.IProps<T>,
 ): ParameterDecorator {
-    function TypedParam({}: any, context: ExecutionContext) {
+    if (props === undefined) throw NoTransformConfigureError("TypedParam");
+
+    return createParamDecorator(function TypedParam(
+        {}: any,
+        context: ExecutionContext,
+    ) {
         const request: express.Request | FastifyRequest = context
             .switchToHttp()
             .getRequest();
         const str: string = (request.params as any)[name];
-
-        if (nullable === true && str === "null") return null;
-        else if (type === "boolean") {
-            if (str === "true" || str === "1") return true;
-            else if (str === "false" || str === "0") return false;
-            else
-                throw new BadRequestException(
-                    `Value of the URL parameter '${name}' is not a boolean.`,
-                );
-        } else if (type === "number") {
-            const value: number = Number(str);
-            if (isNaN(value))
-                throw new BadRequestException(
-                    `Value of the URL parameter "${name}" is not a number.`,
-                );
-            return value;
-        } else if (type === "uuid") {
-            if (UUID_PATTERN.test(str) === false)
-                throw new BadRequestException(
-                    `Value of the URL parameter "${name}" is not a valid UUID.`,
-                );
-            return str;
-        } else if (type === "date") {
-            if (DATE_PATTERN.test(str) === false)
-                throw new BadRequestException(
-                    `Value of the URL parameter "${name}" is not a valid date.`,
-                );
-            return str;
-        } else return str;
-    }
-    (TypedParam as any).nullable = !!nullable;
-    (TypedParam as any).type = type;
-    return createParamDecorator(TypedParam)(name);
+        const value: any = props!.cast(str);
+        if (props!.is(value) === false)
+            throw new BadRequestException(
+                `Value of the URL parameter "${name}" is not ${
+                    props!.type
+                } type.`,
+            );
+        return value;
+    })(name);
 }
-
-const UUID_PATTERN =
-    /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+export namespace TypedParam {
+    export interface IProps<T> {
+        type: string;
+        cast: (value: string) => T;
+        is: (value: T) => boolean;
+    }
+}

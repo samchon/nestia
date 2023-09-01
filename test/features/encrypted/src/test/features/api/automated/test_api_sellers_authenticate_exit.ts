@@ -1,4 +1,4 @@
-import api from "./../../../../api";
+import api from "../../../../api";
 
 export const test_api_sellers_authenticate_exit = async (
     connection: api.IConnection

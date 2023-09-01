@@ -7,7 +7,7 @@
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 
-import type { IRequestDto } from "./../structures/IRequestDto";
+import type { IRequestDto } from "../structures/IRequestDto";
 
 export * as health from "./health";
 export * as performance from "./performance";

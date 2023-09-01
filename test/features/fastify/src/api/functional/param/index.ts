@@ -30,7 +30,7 @@ export namespace boolean {
     export const METADATA = {
         method: "GET",
         path: "/param/:value/boolean",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,
@@ -66,7 +66,7 @@ export namespace number {
     export const METADATA = {
         method: "GET",
         path: "/param/:value/number",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,
@@ -102,7 +102,7 @@ export namespace string {
     export const METADATA = {
         method: "GET",
         path: "/param/:value/string",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,
@@ -138,7 +138,7 @@ export namespace nullable {
     export const METADATA = {
         method: "GET",
         path: "/param/:value/nullable",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,
@@ -174,7 +174,7 @@ export namespace literal {
     export const METADATA = {
         method: "GET",
         path: "/param/:value/literal",
-    request: null,
+        request: null,
         response: {
             type: "application/json",
             encrypted: false,

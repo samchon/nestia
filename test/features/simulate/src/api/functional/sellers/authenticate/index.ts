@@ -9,8 +9,8 @@ import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
-import type { ISeller } from "./../../../structures/ISeller";
-import { NestiaSimulator } from "./../../../utils/NestiaSimulator";
+import type { ISeller } from "../../../structures/ISeller";
+import { NestiaSimulator } from "../../../utils/NestiaSimulator";
 
 export * as password from "./password";
 

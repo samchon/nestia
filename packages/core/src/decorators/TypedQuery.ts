@@ -8,7 +8,7 @@ import type { FastifyRequest } from "fastify";
 
 import typia, { TypeGuardError, assert } from "typia";
 
-import { TransformError } from "./internal/TransformError";
+import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
 
 /**
  * Type safe URL query decorator.
@@ -23,9 +23,8 @@ import { TransformError } from "./internal/TransformError";
  *
  * 1. Type `T` must be an object type
  * 2. Do not allow dynamic property
- * 3. Prpoerty value cannot be `undefined`, but `null` is possible
- * 4. Only `boolean`, `bigint`, `number`, `string` or their array types are allowed
- * 5. By the way, union type never be not allowed
+ * 3. Only `boolean`, `bigint`, `number`, `string` or their array types are allowed
+ * 4. By the way, union type never be not allowed
  *
  * @returns Parameter decorator
  * @author Jeongho Nam - https://github.com/samchon
@@ -33,7 +32,7 @@ import { TransformError } from "./internal/TransformError";
 export function TypedQuery<T extends object>(
     decoder?: (params: URLSearchParams) => T,
 ): ParameterDecorator {
-    if (decoder === undefined) throw TransformError("TypedQuery");
+    if (decoder === undefined) throw NoTransformConfigureError("TypedQuery");
 
     return createParamDecorator(function TypedQuery(
         _unknown: any,

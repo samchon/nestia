@@ -7,10 +7,11 @@
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
+import type { Format } from "typia/lib/tags/Format";
 
-import type { IBbsArticle } from "./../../../structures/IBbsArticle";
-import type { IPage } from "./../../../structures/IPage";
-import { NestiaSimulator } from "./../../../utils/NestiaSimulator";
+import type { IBbsArticle } from "../../../structures/IBbsArticle";
+import type { IPage } from "../../../structures/IPage";
+import { NestiaSimulator } from "../../../utils/NestiaSimulator";
 
 /**
  * Paginate entire articles.
@@ -82,7 +83,7 @@ export namespace index {
             host: connection.host,
             path: path(section)
         });
-        assert.param("section")("string")(() => typia.assert(section));
+        assert.param("section")(() => typia.assert(section));
         assert.body(() => typia.assert(input));
         return random(
             typeof connection.simulate === 'object' &&
@@ -162,7 +163,7 @@ export namespace query {
             host: connection.host,
             path: path(section, input)
         });
-        assert.param("section")("string")(() => typia.assert(section));
+        assert.param("section")(() => typia.assert(section));
         assert.query(() => typia.assert(input));
         return random(
             typeof connection.simulate === 'object' &&
@@ -187,7 +188,7 @@ export namespace query {
 export async function at(
     connection: IConnection,
     section: string,
-    id: null | string,
+    id: null | string & Format<"uuid">,
 ): Promise<at.Output> {
     return !!connection.simulate
         ? at.simulate(
@@ -217,7 +218,7 @@ export namespace at {
         status: null,
     } as const;
 
-    export const path = (section: string, id: null | string): string => {
+    export const path = (section: string, id: null | string & Format<"uuid">): string => {
         return `/bbs/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(id ?? "null")}`;
     }
     export const random = (g?: Partial<typia.IRandomGenerator>): Output =>
@@ -225,15 +226,15 @@ export namespace at {
     export const simulate = async (
         connection: IConnection,
         section: string,
-        id: null | string,
+        id: null | string & Format<"uuid">,
     ): Promise<Output> => {
         const assert = NestiaSimulator.assert({
             method: METADATA.method,
             host: connection.host,
             path: path(section, id)
         });
-        assert.param("section")("string")(() => typia.assert(section));
-        assert.param("id")("uuid")(() => typia.assert(id));
+        assert.param("section")(() => typia.assert(section));
+        assert.param("id")(() => typia.assert(id));
         return random(
             typeof connection.simulate === 'object' &&
                 connection.simulate !== null
@@ -257,7 +258,7 @@ export namespace at {
 export async function first(
     connection: IConnection,
     section: string,
-    date: string,
+    date: string & Format<"date">,
 ): Promise<first.Output> {
     return !!connection.simulate
         ? first.simulate(
@@ -287,7 +288,7 @@ export namespace first {
         status: null,
     } as const;
 
-    export const path = (section: string, date: string): string => {
+    export const path = (section: string, date: string & Format<"date">): string => {
         return `/bbs/${encodeURIComponent(section ?? "null")}/articles/first/${encodeURIComponent(date ?? "null")}`;
     }
     export const random = (g?: Partial<typia.IRandomGenerator>): Output =>
@@ -295,15 +296,15 @@ export namespace first {
     export const simulate = async (
         connection: IConnection,
         section: string,
-        date: string,
+        date: string & Format<"date">,
     ): Promise<Output> => {
         const assert = NestiaSimulator.assert({
             method: METADATA.method,
             host: connection.host,
             path: path(section, date)
         });
-        assert.param("section")("string")(() => typia.assert(section));
-        assert.param("date")("date")(() => typia.assert(date));
+        assert.param("section")(() => typia.assert(section));
+        assert.param("date")(() => typia.assert(date));
         return random(
             typeof connection.simulate === 'object' &&
                 connection.simulate !== null
@@ -383,7 +384,7 @@ export namespace store {
             host: connection.host,
             path: path(section)
         });
-        assert.param("section")("string")(() => typia.assert(section));
+        assert.param("section")(() => typia.assert(section));
         assert.body(() => typia.assert(input));
         return random(
             typeof connection.simulate === 'object' &&
@@ -409,7 +410,7 @@ export namespace store {
 export async function update(
     connection: IConnection,
     section: string,
-    id: string,
+    id: string & Format<"uuid">,
     input: update.Input,
 ): Promise<update.Output> {
     return !!connection.simulate
@@ -452,7 +453,7 @@ export namespace update {
         status: null,
     } as const;
 
-    export const path = (section: string, id: string): string => {
+    export const path = (section: string, id: string & Format<"uuid">): string => {
         return `/bbs/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(id ?? "null")}`;
     }
     export const random = (g?: Partial<typia.IRandomGenerator>): Output =>
@@ -460,7 +461,7 @@ export namespace update {
     export const simulate = async (
         connection: IConnection,
         section: string,
-        id: string,
+        id: string & Format<"uuid">,
         input: update.Input,
     ): Promise<Output> => {
         const assert = NestiaSimulator.assert({
@@ -468,8 +469,8 @@ export namespace update {
             host: connection.host,
             path: path(section, id)
         });
-        assert.param("section")("string")(() => typia.assert(section));
-        assert.param("id")("uuid")(() => typia.assert(id));
+        assert.param("section")(() => typia.assert(section));
+        assert.param("id")(() => typia.assert(id));
         assert.body(() => typia.assert(input));
         return random(
             typeof connection.simulate === 'object' &&

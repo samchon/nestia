@@ -1,7 +1,6 @@
+import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import typia from "typia";
-
-import core from "@nestia/core";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
@@ -9,7 +8,7 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 export class ManualRouteController {
     @core.TypedRoute.Get("random", {
         type: "stringify",
-        stringify: typia.createStringify<IBbsArticle>(),
+        stringify: typia.json.createStringify<IBbsArticle>(),
     })
     public async random(): Promise<IBbsArticle> {
         return {

@@ -287,7 +287,7 @@ const title = (str: string): void => {
 };
 
 const is_implicit_return_typed = (route: IRoute): boolean => {
-    const name: string = route.output.name;
+    const name: string = route.output.typeName;
     if (name === "void") return false;
     else if (name.indexOf("readonly [") !== -1) return true;
 

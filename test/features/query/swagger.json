@@ -22,10 +22,10 @@
           {
             "name": "query",
             "in": "query",
-            "description": "",
             "schema": {
               "$ref": "#/components/schemas/IQuery"
             },
+            "description": "",
             "required": true
           }
         ],
@@ -54,10 +54,10 @@
           {
             "name": "query",
             "in": "query",
-            "description": "",
             "schema": {
               "$ref": "#/components/schemas/INestQuery"
             },
+            "description": "",
             "required": true
           }
         ],
@@ -86,10 +86,10 @@
           {
             "name": "id",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             },
+            "description": "",
             "required": true
           }
         ],
@@ -118,19 +118,19 @@
           {
             "name": "atomic",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             },
+            "description": "",
             "required": true
           },
           {
             "name": "query",
             "in": "query",
-            "description": "",
             "schema": {
               "$ref": "#/components/schemas/Omit_lt_IQuery_comma__space__doublequote_atomic_doublequote__gt_"
             },
+            "description": "",
             "required": true
           }
         ],

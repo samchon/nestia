@@ -83,13 +83,15 @@ const FUNCTORS: Record<string, Programmer> = {
         parameters.length
             ? parameters
             : [TypedHeadersProgrammer.generate(project)(modulo)(type)],
-    TypedParam: (project) => () => TypedParamProgrammer.generate(project),
+    TypedParam: (project) => TypedParamProgrammer.generate(project),
     TypedQuery: (project) => (modulo) => (parameters) => (type) =>
         parameters.length
             ? parameters
             : [TypedQueryProgrammer.generate(project)(modulo)(type)],
-    PlainBody: (project) => (modulo) => () => (type) =>
-        PlainBodyProgrammer.generate(project)(modulo)(type),
+    PlainBody: (project) => (modulo) => (parameters) => (type) =>
+        parameters.length
+            ? parameters
+            : [PlainBodyProgrammer.generate(project)(modulo)(type)],
 };
 
 const LIB_PATH = path.join(

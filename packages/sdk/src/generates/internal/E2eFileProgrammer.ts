@@ -19,15 +19,6 @@ export namespace E2eFileProgrammer {
                         instance,
                     });
 
-            const additional: string[] = [];
-            for (const param of route.parameters.filter(
-                (p) => p.category !== "headers",
-            )) {
-                const type = getAdditional(param);
-                if (type === "uuid") additional.push(UUID);
-                else if (type === "date") additional.push(DATE);
-            }
-
             importer.internal({
                 type: false,
                 file: props.api,
@@ -39,7 +30,6 @@ export namespace E2eFileProgrammer {
                 importer.toScript(props.current),
                 "",
                 body,
-                ...(additional.length ? ["", ...additional] : []),
             ].join("\n");
 
             await fs.promises.writeFile(
@@ -53,7 +43,7 @@ export namespace E2eFileProgrammer {
         (config: INestiaConfig) =>
         (importer: ImportDictionary) =>
         (route: IRoute): string => {
-            const tab: number = route.output.name === "void" ? 2 : 3;
+            const tab: number = route.output.typeName === "void" ? 2 : 3;
             const headers = route.parameters.find(
                 (p) => p.category === "headers" && p.field === undefined,
             );
@@ -67,7 +57,7 @@ export namespace E2eFileProgrammer {
                           "        ...(connection.headers ?? {}),",
                           `        ...${SdkImportWizard.typia(
                               importer,
-                          )}.random<${headers.type.name}>(),`,
+                          )}.random<${headers.typeName}>(),`,
                           "    },",
                           "},",
                       ]
@@ -83,11 +73,11 @@ export namespace E2eFileProgrammer {
                 `export const ${name(route)} = async (`,
                 `    connection: api.IConnection`,
                 `): Promise<void> => {`,
-                ...(route.output.name === "void"
+                ...(route.output.typeName === "void"
                     ? [`    ${output}`]
                     : [
                           `    const output: ${primitive(config)(importer)(
-                              route.output.name,
+                              route.output.typeName,
                           )} = `,
                           `        ${output}`,
                           `    ${SdkImportWizard.typia(
@@ -103,16 +93,9 @@ export namespace E2eFileProgrammer {
         (importer: ImportDictionary) =>
         (tab: number) =>
         (param: IRoute.IParameter): string => {
-            const middle: string =
-                param.category === "param" &&
-                param.custom &&
-                (param.meta?.type === "uuid" || param.meta?.type === "date")
-                    ? param.meta.nullable
-                        ? `Math.random() < .2 ? null : ${param.meta.type}()`
-                        : `${param.meta.type}()`
-                    : `${SdkImportWizard.typia(importer)}.random<${primitive(
-                          config,
-                      )(importer)(param.type.name)}>()`;
+            const middle: string = `${SdkImportWizard.typia(
+                importer,
+            )}.random<${primitive(config)(importer)(param.typeName)}>()`;
             return `${" ".repeat(4 * tab)}${middle},`;
         };
 
@@ -129,29 +112,4 @@ export namespace E2eFileProgrammer {
             config.primitive !== false
                 ? `${SdkImportWizard.Primitive(importer)}<${name}>`
                 : name;
-
-    const getAdditional = (
-        param: IRoute.IParameter,
-    ): "uuid" | "date" | null => {
-        if (param.custom === false || param.category !== "param" || !param.meta)
-            return null;
-        else if (param.meta.type === "uuid") return "uuid";
-        else if (param.meta.type === "date") return "date";
-        return null;
-    };
 }
-
-const UUID = `const uuid = (): string =>
-    "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-        const r = (Math.random() * 16) | 0;
-        const v = c === "x" ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });`;
-const DATE = `const date = (): string => {
-    const date: Date = new Date(Math.floor(Math.random() * Date.now() * 2));
-    return [
-        date.getFullYear(),
-        (date.getMonth() + 1).toString().padStart(2, "0"),
-        date.getDate().toString().padStart(2, "0"),
-    ].join("-");
-}`;

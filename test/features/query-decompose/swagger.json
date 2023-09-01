@@ -20,49 +20,12 @@
         "tags": [],
         "parameters": [
           {
-            "name": "limit",
+            "name": "query",
             "in": "query",
             "schema": {
-              "x-typia-required": false,
-              "x-typia-optional": true,
-              "type": "number"
+              "$ref": "#/components/schemas/IQuery"
             },
-            "required": false
-          },
-          {
-            "name": "enforce",
-            "in": "query",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "boolean"
-            },
-            "required": true
-          },
-          {
-            "name": "values",
-            "in": "query",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "array",
-              "items": {
-                "x-typia-required": true,
-                "x-typia-optional": false,
-                "type": "string"
-              }
-            },
-            "required": true
-          },
-          {
-            "name": "atomic",
-            "in": "query",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "string",
-              "nullable": true
-            },
+            "description": "",
             "required": true
           }
         ],
@@ -89,53 +52,12 @@
         "tags": [],
         "parameters": [
           {
-            "name": "limit",
+            "name": "query",
             "in": "query",
             "schema": {
-              "type": "string",
-              "x-typia-required": false,
-              "x-typia-optional": true,
-              "pattern": "^([+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)$"
+              "$ref": "#/components/schemas/INestQuery"
             },
-            "required": false
-          },
-          {
-            "name": "enforce",
-            "in": "query",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "string",
-              "enum": [
-                "false",
-                "true"
-              ]
-            },
-            "required": true
-          },
-          {
-            "name": "atomic",
-            "in": "query",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "string"
-            },
-            "required": true
-          },
-          {
-            "name": "values",
-            "in": "query",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "array",
-              "items": {
-                "x-typia-required": true,
-                "x-typia-optional": false,
-                "type": "string"
-              }
-            },
+            "description": "",
             "required": true
           }
         ],
@@ -164,10 +86,10 @@
           {
             "name": "id",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             },
+            "description": "",
             "required": true
           }
         ],
@@ -196,45 +118,19 @@
           {
             "name": "atomic",
             "in": "query",
-            "description": "",
             "schema": {
               "type": "string"
             },
+            "description": "",
             "required": true
           },
           {
-            "name": "limit",
+            "name": "query",
             "in": "query",
             "schema": {
-              "x-typia-required": false,
-              "x-typia-optional": true,
-              "type": "number"
+              "$ref": "#/components/schemas/Omit_lt_IQuery_comma__space__doublequote_atomic_doublequote__gt_"
             },
-            "required": false
-          },
-          {
-            "name": "enforce",
-            "in": "query",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "boolean"
-            },
-            "required": true
-          },
-          {
-            "name": "values",
-            "in": "query",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "array",
-              "items": {
-                "x-typia-required": true,
-                "x-typia-optional": false,
-                "type": "string"
-              }
-            },
+            "description": "",
             "required": true
           }
         ],

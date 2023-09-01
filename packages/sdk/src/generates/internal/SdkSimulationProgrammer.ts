@@ -8,7 +8,7 @@ export namespace SdkSimulationProgrammer {
         (config: INestiaConfig) =>
         (importer: ImportDictionary) =>
         (route: IRoute): string => {
-            const output: boolean = route.output.name !== "void";
+            const output: boolean = route.output.typeName !== "void";
             const returns = () => [
                 `return random(`,
                 `    typeof connection.simulate === 'object' &&`,
@@ -28,7 +28,7 @@ export namespace SdkSimulationProgrammer {
                 `export const simulate = async (`,
                 `    ${
                     route.parameters.filter((p) => p.category !== "headers")
-                        .length === 0 && route.output.name === "void"
+                        .length === 0 && route.output.typeName === "void"
                         ? "_connection"
                         : "connection"
                 }: ${
@@ -52,7 +52,7 @@ export namespace SdkSimulationProgrammer {
                                               ? "Query"
                                               : "Input"
                                       }`
-                                    : p.type.name
+                                    : p.typeName
                             },`,
                     ),
                 `): Promise<${output ? "Output" : "void"}> => {`,
@@ -97,8 +97,8 @@ export namespace SdkSimulationProgrammer {
                             ? `assert.headers(() => ${SdkImportWizard.typia(
                                   importer,
                               )}.assert(connection.headers);` // not reachable
-                            : `assert.param("${p.field}")("${
-                                  p.custom && p.meta ? p.meta.type : p.type.name
+                            : `assert.param("${
+                                  p.field
                               }")(() => ${SdkImportWizard.typia(
                                   importer,
                               )}.assert(${p.name}));`,

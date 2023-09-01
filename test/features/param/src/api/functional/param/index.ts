@@ -6,6 +6,7 @@
 //================================================================
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
+import type { Format } from "typia/lib/tags/Format";
 
 /**
  * @controller TypedParamController.boolean()
@@ -194,7 +195,7 @@ export namespace literal {
  */
 export async function uuid(
     connection: IConnection,
-    value: string,
+    value: string & Format<"uuid">,
 ): Promise<uuid.Output> {
     return PlainFetcher.fetch(
         connection,
@@ -218,7 +219,7 @@ export namespace uuid {
         status: null,
     } as const;
 
-    export const path = (value: string): string => {
+    export const path = (value: string & Format<"uuid">): string => {
         return `/param/${encodeURIComponent(value ?? "null")}/uuid`;
     }
 }
@@ -230,7 +231,7 @@ export namespace uuid {
  */
 export async function date(
     connection: IConnection,
-    value: string,
+    value: string & Format<"date">,
 ): Promise<date.Output> {
     return PlainFetcher.fetch(
         connection,
@@ -254,7 +255,7 @@ export namespace date {
         status: null,
     } as const;
 
-    export const path = (value: string): string => {
+    export const path = (value: string & Format<"date">): string => {
         return `/param/${encodeURIComponent(value ?? "null")}/date`;
     }
 }
@@ -266,7 +267,7 @@ export namespace date {
  */
 export async function uuid_nullable(
     connection: IConnection,
-    value: null | string,
+    value: null | string & Format<"uuid">,
 ): Promise<uuid_nullable.Output> {
     return PlainFetcher.fetch(
         connection,
@@ -290,7 +291,7 @@ export namespace uuid_nullable {
         status: null,
     } as const;
 
-    export const path = (value: null | string): string => {
+    export const path = (value: null | string & Format<"uuid">): string => {
         return `/param/${encodeURIComponent(value ?? "null")}/uuid_nullable`;
     }
 }
@@ -302,7 +303,7 @@ export namespace uuid_nullable {
  */
 export async function date_nullable(
     connection: IConnection,
-    value: null | string,
+    value: null | string & Format<"date">,
 ): Promise<date_nullable.Output> {
     return PlainFetcher.fetch(
         connection,
@@ -326,7 +327,7 @@ export namespace date_nullable {
         status: null,
     } as const;
 
-    export const path = (value: null | string): string => {
+    export const path = (value: null | string & Format<"date">): string => {
         return `/param/${encodeURIComponent(value ?? "null")}/date_nullable`;
     }
 }
