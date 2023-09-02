@@ -1,7 +1,6 @@
-import { Controller } from "@nestjs/common";
-import typia from "typia";
-
 import core from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import typia, { tags } from "typia";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
@@ -37,7 +36,7 @@ export class BbsArticlesController {
     @core.TypedRoute.Put(":id")
     public async update(
         @core.TypedParam("section") section: string,
-        @core.TypedParam("id", "uuid") id: string,
+        @core.TypedParam("id") id: string & tags.Format<"uuid">,
         @core.TypedBody() input: IBbsArticle.IStore,
     ): Promise<IBbsArticle> {
         return {

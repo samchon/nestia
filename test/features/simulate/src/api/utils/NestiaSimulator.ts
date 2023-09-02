@@ -19,17 +19,10 @@ export namespace NestiaSimulator {
     const param =
         (props: IProps) =>
         (name: string) =>
-        (type: string) =>
         <T>(task: () => T): void => {
             validate(
                 (exp) => `URL parameter "${name}" is not ${exp.expected} type.`,
-            )(props)(
-                type === "uuid"
-                    ? uuid(task)
-                    : type === "date"
-                    ? date(task)
-                    : task,
-            );
+            )(props)(task);
         };
 
     const query =
@@ -46,20 +39,6 @@ export namespace NestiaSimulator {
             validate(() => "Request body is not following the promised type.")(
                 props,
             )(task);
-
-    const uuid =
-        <T>(task: () => T) =>
-        () => {
-            const value = task();
-            return typia.assert<IUuid>({ value }).value as T;
-        };
-
-    const date =
-        <T>(task: () => T) =>
-        () => {
-            const value = task();
-            return typia.assert<IDate>({ value }).value as T;
-        };
 
     const validate =
         (message: (exp: typia.TypeGuardError) => string, path?: string) =>

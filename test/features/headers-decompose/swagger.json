@@ -20,92 +20,19 @@
         "tags": [],
         "parameters": [
           {
-            "name": "x-category",
+            "name": "headers",
             "in": "header",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "string",
-              "enum": [
-                "x",
-                "y",
-                "z"
-              ]
-            },
-            "required": true
-          },
-          {
-            "name": "x-memo",
-            "in": "header",
-            "schema": {
-              "x-typia-required": false,
-              "x-typia-optional": true,
-              "type": "string"
-            },
-            "required": false
-          },
-          {
-            "name": "x-name",
-            "in": "header",
-            "schema": {
-              "x-typia-required": false,
-              "x-typia-optional": true,
-              "type": "string"
-            },
-            "required": false
-          },
-          {
-            "name": "x-values",
-            "in": "header",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "array",
-              "items": {
-                "x-typia-required": true,
-                "x-typia-optional": false,
-                "type": "number"
-              }
-            },
-            "required": true
-          },
-          {
-            "name": "x-flags",
-            "in": "header",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "array",
-              "items": {
-                "x-typia-required": true,
-                "x-typia-optional": false,
-                "type": "boolean"
-              }
-            },
-            "required": true
-          },
-          {
-            "name": "X-Descriptions",
-            "in": "header",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "array",
-              "items": {
-                "x-typia-required": true,
-                "x-typia-optional": false,
-                "type": "string"
-              }
-            },
+            "schema": {},
+            "description": "",
             "required": true
           },
           {
             "name": "section",
             "in": "path",
-            "description": "",
             "schema": {
               "type": "string"
             },
+            "description": "",
             "required": true
           }
         ],
@@ -130,92 +57,19 @@
         "tags": [],
         "parameters": [
           {
-            "name": "x-category",
+            "name": "headers",
             "in": "header",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "string",
-              "enum": [
-                "x",
-                "y",
-                "z"
-              ]
-            },
-            "required": true
-          },
-          {
-            "name": "x-memo",
-            "in": "header",
-            "schema": {
-              "x-typia-required": false,
-              "x-typia-optional": true,
-              "type": "string"
-            },
-            "required": false
-          },
-          {
-            "name": "x-name",
-            "in": "header",
-            "schema": {
-              "x-typia-required": false,
-              "x-typia-optional": true,
-              "type": "string"
-            },
-            "required": false
-          },
-          {
-            "name": "x-values",
-            "in": "header",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "array",
-              "items": {
-                "x-typia-required": true,
-                "x-typia-optional": false,
-                "type": "number"
-              }
-            },
-            "required": true
-          },
-          {
-            "name": "x-flags",
-            "in": "header",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "array",
-              "items": {
-                "x-typia-required": true,
-                "x-typia-optional": false,
-                "type": "boolean"
-              }
-            },
-            "required": true
-          },
-          {
-            "name": "X-Descriptions",
-            "in": "header",
-            "schema": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "array",
-              "items": {
-                "x-typia-required": true,
-                "x-typia-optional": false,
-                "type": "string"
-              }
-            },
+            "schema": {},
+            "description": "",
             "required": true
           },
           {
             "name": "section",
             "in": "path",
-            "description": "",
             "schema": {
               "type": "string"
             },
+            "description": "",
             "required": true
           }
         ],
@@ -255,29 +109,29 @@
           {
             "name": "section",
             "in": "path",
-            "description": "",
             "schema": {
               "type": "string"
             },
+            "description": "",
             "required": true
           },
           {
             "name": "id",
             "in": "path",
-            "description": "",
             "schema": {
-              "format": "uuid",
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             },
+            "description": "",
             "required": true
           },
           {
             "name": "x-name",
             "in": "header",
-            "description": "",
             "schema": {
               "type": "string"
             },
+            "description": "",
             "required": true
           }
         ],
@@ -386,7 +240,7 @@
               "type": "boolean"
             }
           },
-          "X-Descriptions": {
+          "X-descriptions": {
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "array",
@@ -402,7 +256,7 @@
           "x-category",
           "x-values",
           "x-flags",
-          "X-Descriptions"
+          "X-descriptions"
         ],
         "x-typia-jsDocTags": []
       },
@@ -410,16 +264,6 @@
         "type": "object",
         "properties": {
           "title": {
-            "x-typia-metaTags": [
-              {
-                "kind": "minLength",
-                "value": 3
-              },
-              {
-                "kind": "maxLength",
-                "value": 50
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "minLength",
@@ -443,8 +287,8 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "minLength": 3,
-            "maxLength": 50
+            "maxLength": 50,
+            "minLength": 3
           },
           "body": {
             "x-typia-required": true,
@@ -472,12 +316,6 @@
         "type": "object",
         "properties": {
           "name": {
-            "x-typia-metaTags": [
-              {
-                "kind": "maxLength",
-                "value": 255
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "minLengt",
@@ -505,16 +343,6 @@
             "nullable": true
           },
           "extension": {
-            "x-typia-metaTags": [
-              {
-                "kind": "minLength",
-                "value": 1
-              },
-              {
-                "kind": "maxLength",
-                "value": 8
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "minLength",
@@ -538,17 +366,11 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "minLength": 1,
             "maxLength": 8,
+            "minLength": 1,
             "nullable": true
           },
           "url": {
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "url"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "format",
@@ -578,12 +400,6 @@
         "type": "object",
         "properties": {
           "id": {
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "uuid"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "format",
@@ -601,12 +417,6 @@
             "format": "uuid"
           },
           "created_at": {
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "format",
@@ -624,16 +434,6 @@
             "format": "date-time"
           },
           "title": {
-            "x-typia-metaTags": [
-              {
-                "kind": "minLength",
-                "value": 3
-              },
-              {
-                "kind": "maxLength",
-                "value": 50
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "minLength",
@@ -657,8 +457,8 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "minLength": 3,
-            "maxLength": 50
+            "maxLength": 50,
+            "minLength": 3
           },
           "body": {
             "x-typia-required": true,

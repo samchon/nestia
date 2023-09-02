@@ -22,11 +22,11 @@
           {
             "name": "section",
             "in": "path",
-            "description": "Section code",
             "schema": {
               "type": "string",
               "nullable": true
             },
+            "description": "Section code",
             "required": true
           }
         ],
@@ -111,20 +111,20 @@
           {
             "name": "section",
             "in": "path",
-            "description": "Section code",
             "schema": {
               "type": "string",
               "nullable": true
             },
+            "description": "Section code",
             "required": true
           },
           {
             "name": "input",
             "in": "query",
-            "description": "Page request info",
             "schema": {
               "$ref": "#/components/schemas/IPage.IRequest"
             },
+            "description": "Page request info",
             "required": true
           }
         ],
@@ -197,10 +197,10 @@
           {
             "name": "section",
             "in": "path",
-            "description": "Section code",
             "schema": {
               "type": "string"
             },
+            "description": "Section code",
             "required": true
           }
         ],
@@ -287,21 +287,21 @@
           {
             "name": "section",
             "in": "path",
-            "description": "Section code",
             "schema": {
               "type": "string"
             },
+            "description": "Section code",
             "required": true
           },
           {
             "name": "id",
             "in": "path",
-            "description": "Target article ID",
             "schema": {
-              "format": "uuid",
               "type": "string",
+              "format": "uuid",
               "nullable": true
             },
+            "description": "Target article ID",
             "required": true
           }
         ],
@@ -374,20 +374,20 @@
           {
             "name": "section",
             "in": "path",
-            "description": "Section code",
             "schema": {
               "type": "string"
             },
+            "description": "Section code",
             "required": true
           },
           {
             "name": "id",
             "in": "path",
-            "description": "Target article ID",
             "schema": {
-              "format": "uuid",
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             },
+            "description": "Target article ID",
             "required": true
           }
         ],
@@ -491,20 +491,20 @@
           {
             "name": "section",
             "in": "path",
-            "description": "Section code",
             "schema": {
               "type": "string"
             },
+            "description": "Section code",
             "required": true
           },
           {
             "name": "date",
             "in": "path",
-            "description": "Target data",
             "schema": {
-              "format": "date",
-              "type": "string"
+              "type": "string",
+              "format": "date"
             },
+            "description": "Target data",
             "required": true
           }
         ],
@@ -833,12 +833,6 @@
         "type": "object",
         "properties": {
           "page": {
-            "x-typia-metaTags": [
-              {
-                "kind": "type",
-                "value": "uint"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "type",
@@ -853,16 +847,9 @@
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
-            "minimum": 0,
             "nullable": true
           },
           "limit": {
-            "x-typia-metaTags": [
-              {
-                "kind": "type",
-                "value": "uint"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "type",
@@ -877,7 +864,6 @@
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
-            "minimum": 0,
             "nullable": true
           }
         },
@@ -911,12 +897,6 @@
         "type": "object",
         "properties": {
           "id": {
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "uuid"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "format",
@@ -944,16 +924,6 @@
             "type": "string"
           },
           "title": {
-            "x-typia-metaTags": [
-              {
-                "kind": "minLength",
-                "value": 3
-              },
-              {
-                "kind": "maxLength",
-                "value": 50
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "minLength",
@@ -977,16 +947,10 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "minLength": 3,
-            "maxLength": 50
+            "maxLength": 50,
+            "minLength": 3
           },
           "created_at": {
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "format",
@@ -1018,12 +982,6 @@
         "type": "object",
         "properties": {
           "current": {
-            "x-typia-metaTags": [
-              {
-                "kind": "type",
-                "value": "uint"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "type",
@@ -1037,16 +995,9 @@
             ],
             "x-typia-required": true,
             "x-typia-optional": false,
-            "type": "integer",
-            "minimum": 0
+            "type": "integer"
           },
           "limit": {
-            "x-typia-metaTags": [
-              {
-                "kind": "type",
-                "value": "uint"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "type",
@@ -1060,16 +1011,9 @@
             ],
             "x-typia-required": true,
             "x-typia-optional": false,
-            "type": "integer",
-            "minimum": 0
+            "type": "integer"
           },
           "records": {
-            "x-typia-metaTags": [
-              {
-                "kind": "type",
-                "value": "uint"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "type",
@@ -1083,16 +1027,9 @@
             ],
             "x-typia-required": true,
             "x-typia-optional": false,
-            "type": "integer",
-            "minimum": 0
+            "type": "integer"
           },
           "pages": {
-            "x-typia-metaTags": [
-              {
-                "kind": "type",
-                "value": "uint"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "type",
@@ -1106,8 +1043,7 @@
             ],
             "x-typia-required": true,
             "x-typia-optional": false,
-            "type": "integer",
-            "minimum": 0
+            "type": "integer"
           }
         },
         "nullable": false,
@@ -1124,12 +1060,6 @@
         "type": "object",
         "properties": {
           "id": {
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "uuid"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "format",
@@ -1152,12 +1082,6 @@
             "type": "string"
           },
           "created_at": {
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "format",
@@ -1175,16 +1099,6 @@
             "format": "date-time"
           },
           "title": {
-            "x-typia-metaTags": [
-              {
-                "kind": "minLength",
-                "value": 3
-              },
-              {
-                "kind": "maxLength",
-                "value": 50
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "minLength",
@@ -1208,8 +1122,8 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "minLength": 3,
-            "maxLength": 50
+            "maxLength": 50,
+            "minLength": 3
           },
           "body": {
             "x-typia-required": true,
@@ -1240,12 +1154,6 @@
         "type": "object",
         "properties": {
           "name": {
-            "x-typia-metaTags": [
-              {
-                "kind": "maxLength",
-                "value": 255
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "minLengt",
@@ -1273,16 +1181,6 @@
             "nullable": true
           },
           "extension": {
-            "x-typia-metaTags": [
-              {
-                "kind": "minLength",
-                "value": 1
-              },
-              {
-                "kind": "maxLength",
-                "value": 8
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "minLength",
@@ -1306,17 +1204,11 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "minLength": 1,
             "maxLength": 8,
+            "minLength": 1,
             "nullable": true
           },
           "url": {
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "url"
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "format",
@@ -1346,16 +1238,6 @@
         "type": "object",
         "properties": {
           "title": {
-            "x-typia-metaTags": [
-              {
-                "kind": "minLength",
-                "value": 3
-              },
-              {
-                "kind": "maxLength",
-                "value": 50
-              }
-            ],
             "x-typia-jsDocTags": [
               {
                 "name": "minLength",
@@ -1379,8 +1261,8 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "minLength": 3,
-            "maxLength": 50
+            "maxLength": 50,
+            "minLength": 3
           },
           "body": {
             "x-typia-required": true,

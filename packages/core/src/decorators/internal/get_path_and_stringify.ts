@@ -3,7 +3,7 @@ import { InternalServerErrorException } from "@nestjs/common";
 import typia, { IValidation, TypeGuardError } from "typia";
 
 import { IResponseBodyStringifier } from "../../options/IResponseBodyStringifier";
-import { TransformError } from "./TransformError";
+import { NoTransformConfigureError } from "./NoTransformConfigureError";
 
 export const get_path_and_stringify =
     (method: string) =>
@@ -24,7 +24,7 @@ export const get_path_and_stringify =
 const take =
     (method: string) =>
     <T>(functor?: IResponseBodyStringifier<T> | null) => {
-        if (functor === undefined) throw TransformError(method);
+        if (functor === undefined) throw NoTransformConfigureError(method);
         else if (functor === null) return JSON.stringify;
         else if (functor.type === "stringify") return functor.stringify;
         else if (functor.type === "assert") return assert(functor.assert);

@@ -1,7 +1,6 @@
 import ts from "typescript";
 
 import { IController } from "./IController";
-import { ITypeTuple } from "./ITypeTuple";
 
 export interface IRoute {
     name: string;
@@ -18,6 +17,7 @@ export interface IRoute {
     location: string;
     symbol: string;
     description?: string;
+    operationId?: string;
     tags: ts.JSDocTagInfo[];
     setHeaders: Array<
         | { type: "setter"; source: string; target?: string }
@@ -30,9 +30,12 @@ export interface IRoute {
 export namespace IRoute {
     export type IParameter = IController.IParameter & {
         optional: boolean;
-        type: ITypeTuple;
+        type: ts.Type;
+        typeName: string;
     };
-    export interface IOutput extends ITypeTuple {
+    export interface IOutput {
+        type: ts.Type;
+        typeName: string;
         description?: string;
         contentType: "application/json" | "text/plain";
     }

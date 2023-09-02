@@ -1,7 +1,6 @@
-import { Controller, Headers } from "@nestjs/common";
-import typia from "typia";
-
 import core from "@nestia/core";
+import { Controller, Headers } from "@nestjs/common";
+import typia, { tags } from "typia";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 import { IHeaders } from "@api/lib/structures/IHeaders";
@@ -11,7 +10,7 @@ export class HeadersController {
     @core.TypedRoute.Patch()
     public emplace(
         @core.TypedHeaders() headers: IHeaders,
-        @core.TypedParam("section", "string") section: string,
+        @core.TypedParam("section") section: string,
     ): IHeaders {
         section;
         return headers;
@@ -20,7 +19,7 @@ export class HeadersController {
     @core.TypedRoute.Post()
     public store(
         @Headers() headers: IHeaders,
-        @core.TypedParam("section", "string") section: string,
+        @core.TypedParam("section") section: string,
         @core.TypedBody() input: IBbsArticle.IStore,
     ): IBbsArticle {
         section;
@@ -31,8 +30,8 @@ export class HeadersController {
 
     @core.TypedRoute.Put(":id")
     public update(
-        @core.TypedParam("section", "string") section: string,
-        @core.TypedParam("id", "uuid") id: string,
+        @core.TypedParam("section") section: string,
+        @core.TypedParam("id") id: string & tags.Format<"uuid">,
         @Headers("x-name") name: string,
         @core.TypedBody() input: IBbsArticle.IStore,
     ): void {

@@ -59,10 +59,10 @@
           {
             "name": "value",
             "in": "path",
-            "description": "",
             "schema": {
               "type": "boolean"
             },
+            "description": "",
             "required": true
           }
         ],
@@ -91,10 +91,10 @@
           {
             "name": "value",
             "in": "path",
-            "description": "",
             "schema": {
               "type": "number"
             },
+            "description": "",
             "required": true
           }
         ],
@@ -123,10 +123,10 @@
           {
             "name": "value",
             "in": "path",
-            "description": "",
             "schema": {
               "type": "string"
             },
+            "description": "",
             "required": true
           }
         ],
@@ -155,11 +155,11 @@
           {
             "name": "value",
             "in": "path",
-            "description": "",
             "schema": {
               "type": "string",
               "nullable": true
             },
+            "description": "",
             "required": true
           }
         ],
@@ -189,7 +189,6 @@
           {
             "name": "value",
             "in": "path",
-            "description": "",
             "schema": {
               "type": "string",
               "enum": [
@@ -198,6 +197,7 @@
                 "C"
               ]
             },
+            "description": "",
             "required": true
           }
         ],
@@ -231,11 +231,11 @@
           {
             "name": "value",
             "in": "path",
-            "description": "",
             "schema": {
-              "format": "uuid",
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             },
+            "description": "",
             "required": true
           }
         ],
@@ -264,11 +264,11 @@
           {
             "name": "value",
             "in": "path",
-            "description": "",
             "schema": {
-              "format": "date",
-              "type": "string"
+              "type": "string",
+              "format": "date"
             },
+            "description": "",
             "required": true
           }
         ],
@@ -297,12 +297,12 @@
           {
             "name": "value",
             "in": "path",
-            "description": "",
             "schema": {
-              "format": "uuid",
               "type": "string",
+              "format": "uuid",
               "nullable": true
             },
+            "description": "",
             "required": true
           }
         ],
@@ -332,12 +332,12 @@
           {
             "name": "value",
             "in": "path",
-            "description": "",
             "schema": {
-              "format": "date",
               "type": "string",
+              "format": "date",
               "nullable": true
             },
+            "description": "",
             "required": true
           }
         ],

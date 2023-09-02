@@ -80,11 +80,12 @@ export namespace ExceptionAnalyzer {
             const matched: IController.IException[] = Object.entries(
                 func.exceptions,
             )
-                .filter(([_key, value]) => value.type === tuple.name)
+                .filter(([_key, value]) => value.type === tuple.typeName)
                 .map(([_key, value]) => value);
             for (const m of matched)
                 output[m.status] = {
-                    ...tuple,
+                    type: tuple.type,
+                    typeName: tuple.typeName,
                     contentType: "application/json",
                     description: m.description,
                 };

@@ -1,4 +1,4 @@
-import { IJsDocTagInfo } from "typia/lib/metadata/IJsDocTagInfo";
+import { IJsDocTagInfo } from "typia/lib/schemas/metadata/IJsDocTagInfo";
 
 import { ISwaggerSchema } from "./ISwaggeSchema";
 

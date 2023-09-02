@@ -1,4 +1,4 @@
-import { IEncryptionPassword } from "@nestia/fetcher";
+import { IEncryptionPassword } from "@nestia/fetcher/lib/IEncryptionPassword";
 import { Controller } from "@nestjs/common";
 
 import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";

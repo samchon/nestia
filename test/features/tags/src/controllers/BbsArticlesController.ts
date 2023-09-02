@@ -1,7 +1,6 @@
-import { Controller } from "@nestjs/common";
-import typia from "typia";
-
 import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import typia, { tags } from "typia";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
@@ -45,7 +44,7 @@ export class BbsArticlesController {
     @TypedRoute.Put(":id")
     public async update(
         @TypedParam("section") section: string,
-        @TypedParam("id", "uuid") id: string,
+        @TypedParam("id") id: string & tags.Format<"uuid">,
         @TypedBody() input: IBbsArticle.IStore,
     ): Promise<IBbsArticle> {
         return {
@@ -64,7 +63,7 @@ export class BbsArticlesController {
     @TypedRoute.Delete(":id")
     public erase(
         @TypedParam("section") section: string,
-        @TypedParam("id", "uuid") id: string,
+        @TypedParam("id") id: string & tags.Format<"uuid">,
     ): void {
         section;
         id;

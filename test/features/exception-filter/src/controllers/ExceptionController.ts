@@ -1,3 +1,4 @@
+import core from "@nestia/core";
 import {
     Controller,
     Get,
@@ -5,10 +6,8 @@ import {
     UnprocessableEntityException,
     UseFilters,
 } from "@nestjs/common";
-import typia from "typia";
+import { tags } from "typia";
 import { v4 } from "uuid";
-
-import core from "@nestia/core";
 
 import { IAttachmentFile, IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
@@ -34,7 +33,9 @@ export class ExceptionController {
 
     @UseFilters(HttpExceptionFilter)
     @core.TypedRoute.Get(":id/typedParam")
-    public typedParam(@core.TypedParam("id", "uuid") id: string): void {
+    public typedParam(
+        @core.TypedParam("id") id: string & tags.Format<"uuid">,
+    ): void {
         id;
     }
 

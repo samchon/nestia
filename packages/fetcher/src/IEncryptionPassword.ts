@@ -1,3 +1,5 @@
+import { IConnection } from "./IConnection";
+
 /**
  * Encryption password.
  *
@@ -31,18 +33,18 @@ export namespace IEncryptionPassword {
         /**
          * Encryption password getter.
          *
-         * @param param Request or response headers and body content
-         * @param encoded Be encoded or to be decoded
+         * @param props Properties for predication
          * @returns Encryption password
          */
-        (param: IParameter, encoded: boolean): IEncryptionPassword;
+        (props: IProps): IEncryptionPassword;
     }
 
     /**
-     * Parameter for the closure.
+     * Properties for the closure.
      */
-    export interface IParameter {
-        headers: Record<string, string>;
+    export interface IProps {
+        headers: Record<string, IConnection.HeaderValue | undefined>;
         body: string;
+        direction: "encode" | "decode";
     }
 }

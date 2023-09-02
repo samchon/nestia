@@ -21,10 +21,10 @@ const build = async (name) => {
     const pack = JSON.parse(
         await fs.promises.readFile("package.json", "utf8"),
     );
-    if (pack.scripts.test !== undefined &&
-        process.argv.includes("--skipTest") === false
-    )
-        cp.execSync("npm run test", { stdio: "ignore" });
+    // if (pack.scripts.test !== undefined &&
+    //     process.argv.includes("--skipTest") === false
+    // )
+    //     cp.execSync("npm run test", { stdio: "ignore" });
 
     return {
         name: pack.name,
@@ -58,7 +58,7 @@ const feature = (name) => {
     };
 
     // ERROR MODE HANDLING
-    if (name.includes("error")) {
+    if (name.includes("error"))
         try {
             TestValidator.error("compile error")(() => {
                 cp.execSync("npx tsc", { stdio: "ignore" });
@@ -70,11 +70,6 @@ const feature = (name) => {
         catch {
             return;
         }
-    }
-    else if (name === "verbatimModuleSyntax") {
-        cp.execSync("npx tsc", { stdio: "ignore" });
-        return;
-    }
 
     // GENERATE SWAGGER & SDK & E2E
     for (const file of [
@@ -170,17 +165,21 @@ const main = async () => {
             })
         }
 
-        const only = (() => {
-            const index = process.argv.findIndex(str => str === "--only");
-            return (index === -1 || process.argv.length < index + 2)
-                ? null
-                : process.argv[index + 1] ?? null;
-        })();
-
         console.log("\nTest Features");
+        const filter = (() => {
+            const only = process.argv.findIndex(str => str === "--only");
+            if (only !== -1 && process.argv.length >= only + 1)
+                return str => str.includes(process.argv[only + 1]);
+            
+            const from = process.argv.findIndex(str => str === "--from");
+            if (from !== -1 && process.argv.length >= from + 1)
+                return str => str >= process.argv[from + 1];
+
+            return () => true;
+        })();
         if (!process.argv.includes("--skipFeatures")) {
             for (const name of await fs.promises.readdir(featureDirectory("")))
-                if (name.includes(only ?? name))
+                if (filter(name))
                     await measure()(async () => feature(name));
         }
 

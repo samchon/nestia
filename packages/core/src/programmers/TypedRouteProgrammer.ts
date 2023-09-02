@@ -1,9 +1,9 @@
 import ts from "typescript";
 
-import { AssertStringifyProgrammer } from "typia/lib/programmers/AssertStringifyProgrammer";
-import { IsStringifyProgrammer } from "typia/lib/programmers/IsStringifyProgrammer";
-import { StringifyProgrammer } from "typia/lib/programmers/StringifyProgrammer";
-import { ValidateStringifyProgrammer } from "typia/lib/programmers/ValidateStringifyProgrammer";
+import { JsonAssertStringifyProgrammer } from "typia/lib/programmers/json/JsonAssertStringifyProgrammer";
+import { JsonIsStringifyProgrammer } from "typia/lib/programmers/json/JsonIsStringifyProgrammer";
+import { JsonStringifyProgrammer } from "typia/lib/programmers/json/JsonStringifyProgrammer";
+import { JsonValidateStringifyProgrammer } from "typia/lib/programmers/json/JsonValidateStringifyProgrammer";
 import { IProject } from "typia/lib/transformers/IProject";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
@@ -38,15 +38,18 @@ export namespace TypedRouteProgrammer {
 
             // RETURNS
             if (project.options.stringify === "is")
-                return parameter("is", IsStringifyProgrammer.write);
+                return parameter("is", JsonIsStringifyProgrammer.write);
             else if (project.options.stringify === "validate")
-                return parameter("validate", ValidateStringifyProgrammer.write);
+                return parameter(
+                    "validate",
+                    JsonValidateStringifyProgrammer.write,
+                );
             else if (project.options.stringify === "stringify")
-                return parameter("stringify", StringifyProgrammer.write);
+                return parameter("stringify", JsonStringifyProgrammer.write);
             else if (project.options.stringify === null)
                 return ts.factory.createNull();
 
             // ASSERT IS DEFAULT
-            return parameter("assert", AssertStringifyProgrammer.write);
+            return parameter("assert", JsonAssertStringifyProgrammer.write);
         };
 }

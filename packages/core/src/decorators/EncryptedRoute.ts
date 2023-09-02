@@ -1,4 +1,5 @@
-import { AesPkcs5, IEncryptionPassword } from "@nestia/fetcher";
+import { AesPkcs5 } from "@nestia/fetcher/lib/AesPkcs5";
+import { IEncryptionPassword } from "@nestia/fetcher/lib/IEncryptionPassword";
 import {
     CallHandler,
     Delete,
@@ -15,17 +16,12 @@ import { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import express from "express";
 import { catchError, map } from "rxjs/operators";
 
-import {
-    assertStringify,
-    isStringify,
-    stringify,
-    validateStringify,
-} from "typia";
+import typia from "typia";
 
 import { IResponseBodyStringifier } from "../options/IResponseBodyStringifier";
 import { Singleton } from "../utils/Singleton";
 import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
-import { TransformError } from "./internal/TransformError";
+import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
 import { get_path_and_stringify } from "./internal/get_path_and_stringify";
 import { headers_to_object } from "./internal/headers_to_object";
 import { route_error } from "./internal/route_error";
@@ -117,10 +113,10 @@ export namespace EncryptedRoute {
 }
 
 for (const method of [
-    isStringify,
-    assertStringify,
-    validateStringify,
-    stringify,
+    typia.json.isStringify,
+    typia.json.assertStringify,
+    typia.json.validateStringify,
+    typia.json.stringify,
 ])
     for (const [key, value] of Object.entries(method))
         for (const deco of [
@@ -153,7 +149,9 @@ class EncryptedRouteInterceptor implements NestInterceptor {
                     context.getClass(),
                 );
                 if (!param)
-                    throw TransformError(`EncryptedRoute.${this.method}`);
+                    throw NoTransformConfigureError(
+                        `EncryptedRoute.${this.method}`,
+                    );
 
                 const headers: Singleton<Record<string, string>> =
                     new Singleton(() => {
@@ -163,7 +161,11 @@ class EncryptedRouteInterceptor implements NestInterceptor {
                 const body: string | undefined = this.stringify(value);
                 const password: IEncryptionPassword =
                     typeof param === "function"
-                        ? param({ headers: headers.get(), body }, false)
+                        ? param({
+                              headers: headers.get(),
+                              body,
+                              direction: "encode",
+                          })
                         : param;
 
                 const response: express.Response = http.getResponse();

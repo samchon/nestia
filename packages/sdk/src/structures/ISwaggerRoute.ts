@@ -1,9 +1,10 @@
 import { IJsonSchema } from "typia";
-import { IJsDocTagInfo } from "typia/lib/metadata/IJsDocTagInfo";
+import { IJsDocTagInfo } from "typia/lib/schemas/metadata/IJsDocTagInfo";
 
 export interface ISwaggerRoute {
     deprecated?: boolean;
     security?: Record<string, string[]>[];
+    operationId?: string;
     tags: string[];
     parameters: ISwaggerRoute.IParameter[];
     requestBody?: ISwaggerRoute.IRequestBody;
