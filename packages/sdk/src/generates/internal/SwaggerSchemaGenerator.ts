@@ -57,7 +57,7 @@ export namespace SwaggerSchemaGenerator {
                     description: exp.description ?? "",
                     content: {
                         "application/json": {
-                            schema: coalesceSchema(props)(result),
+                            schema: coalesce(props)(result),
                         },
                     },
                 };
@@ -151,7 +151,7 @@ export namespace SwaggerSchemaGenerator {
                         ? undefined
                         : {
                               [route.output.contentType]: {
-                                  schema: coalesceSchema(props)(result),
+                                  schema: coalesce(props)(result),
                               },
                           },
                 "x-nestia-encrypted": route.encrypted,
@@ -198,7 +198,7 @@ export namespace SwaggerSchemaGenerator {
             );
 
             // RETURNS WITH LAZY CONSTRUCTION
-            const schema: IJsonSchema = coalesceSchema(props)(result);
+            const schema: IJsonSchema = coalesce(props)(result);
             return {
                 description: encrypted
                     ? `${warning.get(!!description).get("request")}${
@@ -218,48 +218,12 @@ export namespace SwaggerSchemaGenerator {
     export const parameter =
         (props: IProps) =>
         (route: IRoute) =>
-        (param: IRoute.IParameter): ISwaggerRoute.IParameter =>
+        (param: IRoute.IParameter): ISwaggerRoute.IParameter[] =>
             param.category === "headers"
                 ? headers(props)(route)(param)
                 : param.category === "param"
-                ? path(props)(route)(param)
+                ? [path(props)(route)(param)]
                 : query(props)(route)(param);
-
-    const headers =
-        (props: IProps) =>
-        (route: IRoute) =>
-        (param: IRoute.IParameter): ISwaggerRoute.IParameter => {
-            // ANALYZE TYPE WITH VALIDATIONS
-            const result = (() => {
-                const result = MetadataFactory.analyze(props.checker)({
-                    escape: false,
-                    constant: true,
-                    absorb: true,
-                })(props.collection)(param.type);
-                if (result.success === false)
-                    props.errors.push(
-                        ...result.errors.map((e) => ({
-                            ...e,
-                            route,
-                            from: param.name,
-                        })),
-                    );
-                else if (result.data.objects.length === 1) {
-                    // WHEN OBJECT CASE, VALIDATE IT MORE DETAILY
-                    const again = MetadataFactory.analyze(props.checker)({
-                        escape: false,
-                        constant: true,
-                        absorb: true,
-                        validate: SwaggerSchemaValidator.headers,
-                    })(new MetadataCollection())(param.type);
-                    if (again.success === false) return again;
-                }
-                return result;
-            })();
-
-            // RETURNS WITH LAZY CONSTRUCTION
-            return lazyParameterReturns(props)(route)("header")(param, result);
-        };
 
     const path =
         (props: IProps) =>
@@ -282,46 +246,97 @@ export namespace SwaggerSchemaGenerator {
                 );
 
             // RETURNS WITH LAZY CONSTRUCTION
-            return lazyParameterReturns(props)(route)("path")(param, result);
+            return lazy(props)(route)(param, result);
         };
+
+    const headers =
+        (props: IProps) =>
+        (route: IRoute) =>
+        (param: IRoute.IParameter): ISwaggerRoute.IParameter[] =>
+            decomposible(props)(route)(param)(
+                MetadataFactory.analyze(props.checker)({
+                    escape: false,
+                    constant: true,
+                    absorb: true,
+                    validate: param.custom
+                        ? SwaggerSchemaValidator.headers
+                        : undefined,
+                })(new MetadataCollection())(param.type),
+            );
 
     const query =
         (props: IProps) =>
         (route: IRoute) =>
-        (param: IRoute.IParameter): ISwaggerRoute.IParameter => {
-            // ANALYZE TYPE WITH VALIDATIONS
-            const result = (() => {
-                const result = MetadataFactory.analyze(props.checker)({
+        (param: IRoute.IParameter): ISwaggerRoute.IParameter[] =>
+            decomposible(props)(route)(param)(
+                MetadataFactory.analyze(props.checker)({
                     escape: false,
                     constant: true,
                     absorb: true,
-                })(props.collection)(param.type);
-                if (result.success === false) {
-                    props.errors.push(
-                        ...result.errors.map((e) => ({
-                            ...e,
-                            route,
-                            from: param.name,
-                        })),
-                    );
-                } else if (result.data.objects.length === 1) {
-                    // WHEN OBJECT CASE, VALIDATE IT MORE DETAILY
-                    const again = MetadataFactory.analyze(props.checker)({
-                        escape: false,
-                        constant: true,
-                        absorb: true,
-                        validate: SwaggerSchemaValidator.query,
-                    })(new MetadataCollection())(param.type);
-                    if (again.success === false) return again;
-                }
-                return result;
-            })();
+                    validate: param.custom
+                        ? SwaggerSchemaValidator.query
+                        : undefined,
+                })(new MetadataCollection())(param.type),
+            );
 
-            // RETURNS WITH LAZY CONSTRUCTION
-            return lazyParameterReturns(props)(route)("query")(param, result);
+    const decomposible =
+        (props: IProps) =>
+        (route: IRoute) =>
+        (param: IRoute.IParameter) =>
+        (
+            result: ValidationPipe<Metadata, MetadataFactory.IError>,
+        ): ISwaggerRoute.IParameter[] => {
+            if (result.success === false) {
+                props.errors.push(
+                    ...result.errors.map((e) => ({
+                        ...e,
+                        route,
+                        from: param.name,
+                    })),
+                );
+                return [lazy(props)(route)(param, result)];
+            } else if (
+                props.config.decompose !== true ||
+                result.data.objects.length === 0
+            )
+                return [lazy(props)(route)(param, result)];
+
+            return result.data.objects[0].properties.map((p) => {
+                const schema = coalesce(props)({
+                    success: true,
+                    data: p.value,
+                });
+                return {
+                    name: p.key.constants[0].values[0] as string,
+                    in:
+                        param.category === "headers"
+                            ? "header"
+                            : param.category,
+                    schema,
+                    description: p.description ?? undefined,
+                    required: p.value.isRequired(),
+                };
+            });
         };
 
-    const coalesceSchema =
+    const lazy =
+        (props: IProps) =>
+        (route: IRoute) =>
+        (
+            param: IRoute.IParameter,
+            result: ValidationPipe<Metadata, MetadataFactory.IError>,
+        ): ISwaggerRoute.IParameter => {
+            const schema: IJsonSchema = coalesce(props)(result);
+            return {
+                name: param.field ?? param.name,
+                in: param.category === "headers" ? "header" : param.category,
+                schema,
+                description: describe(route, "param", param.name) ?? "",
+                required: result.success ? result.data.isRequired() : true,
+            };
+        };
+
+    const coalesce =
         (props: IProps) =>
         (
             result: ValidationPipe<Metadata, MetadataFactory.IError>,
@@ -334,29 +349,11 @@ export namespace SwaggerSchemaGenerator {
             return schema;
         };
 
-    const lazyParameterReturns =
-        (props: IProps) =>
-        (route: IRoute) =>
-        (inKeyword: string) =>
-        (
-            param: IRoute.IParameter,
-            result: ValidationPipe<Metadata, MetadataFactory.IError>,
-        ) => {
-            const schema: IJsonSchema = coalesceSchema(props)(result);
-            return {
-                name: param.field ?? param.name,
-                in: inKeyword,
-                schema,
-                description: describe(route, "param", param.name) ?? "",
-                required: result.success ? result.data.isRequired() : true,
-            };
-        };
-
-    function describe(
+    const describe = (
         route: IRoute,
         tagName: string,
         parameterName?: string,
-    ): string | undefined {
+    ): string | undefined => {
         const parametric: (elem: ts.JSDocTagInfo) => boolean = parameterName
             ? (tag) =>
                   tag.text!.find(
@@ -372,7 +369,7 @@ export namespace SwaggerSchemaGenerator {
         return tag && tag.text
             ? tag.text.find((elem) => elem.kind === "text")?.text
             : undefined;
-    }
+    };
 }
 
 const warning = new Singleton((described: boolean) => {
