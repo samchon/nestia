@@ -177,8 +177,10 @@ export namespace ControllerAnalyzer {
             },
             imports,
             status: func.status,
-
-            symbol: `${controller.name}.${func.name}()`,
+            symbol: {
+                class: controller.name,
+                function: func.name,
+            },
             location: (() => {
                 const file = declaration.getSourceFile();
                 const { line, character } = file.getLineAndCharacterOfPosition(
@@ -190,7 +192,7 @@ export namespace ControllerAnalyzer {
             })(),
             description: CommentFactory.description(symbol),
             operationId: tags
-                .find(({ name }) => name === "operation")
+                .find(({ name }) => name === "operationId")
                 ?.text!?.[0].text.split(" ")[0]
                 .trim(),
             tags,

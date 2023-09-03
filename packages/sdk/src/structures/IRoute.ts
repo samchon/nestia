@@ -15,7 +15,10 @@ export interface IRoute {
     output: IRoute.IOutput;
 
     location: string;
-    symbol: string;
+    symbol: {
+        class: string;
+        function: string;
+    }
     description?: string;
     operationId?: string;
     tags: ts.JSDocTagInfo[];

@@ -1,9 +1,6 @@
-import type ts from "typescript";
-
 import type { ISwagger } from "./structures/ISwagger";
 import { ISwaggerInfo } from "./structures/ISwaggerInfo";
 import { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
-import type { StripEnums } from "./utils/StripEnums";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -54,28 +51,6 @@ export interface INestiaConfig {
      * If not configured, you can't run `npx nestia e2e` command.
      */
     e2e?: string;
-
-    /**
-     * Compiler options for the TypeScript.
-     *
-     * If you've omitted this property or the assigned property cannot fully cover the
-     * `tsconfig.json`, the properties from the `tsconfig.json` would be assigned to here.
-     * Otherwise, this property has been configured and it's detailed values are different
-     * with the `tsconfig.json`, this property values would be used instead.
-     *
-     * ```typescript
-     * import ts from "typescript";
-     *
-     * const tsconfig: ts.TsConfig;
-     * const nestiaConfig: IConfiguration;
-     *
-     * const compilerOptions: ts.CompilerOptions = {
-     *     ...tsconfig.compilerOptions,
-     *     ...(nestiaConfig.compilerOptions ?? {})
-     * }
-     * ```
-     */
-    compilerOptions?: StripEnums<ts.CompilerOptions>;
 
     /**
      * Whether to assert parameter types or not.
@@ -196,5 +171,12 @@ export namespace INestiaConfig {
          * @default false
          */
         decompose?: boolean;
+
+        operationId?(props: {
+            class: string;
+            function: string;
+            method: "HEAD" | "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+            path: string;
+        }): string;
     }
 }
