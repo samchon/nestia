@@ -111,9 +111,9 @@ export namespace SwaggerGenerator {
             if (errors.length) {
                 for (const e of errors)
                     console.error(
-                        `${path.relative(location, process.cwd())}:${
-                            e.route.symbol
-                        }:${
+                        `${path.relative(e.route.location, process.cwd())}:${
+                            e.route.symbol.class
+                        }.${e.route.symbol.function}:${
                             e.from
                         } - error TS(@nestia/sdk): invalid type detected.\n\n` +
                             e.messages.map((m) => `  - ${m}`).join("\n"),
@@ -348,7 +348,8 @@ export namespace SwaggerGenerator {
                     .filter((param) => param.category !== "body")
                     .map((param) =>
                         SwaggerSchemaGenerator.parameter(props)(route)(param),
-                    ),
+                    )
+                    .flat(),
                 requestBody: body
                     ? SwaggerSchemaGenerator.body(props)(route)(body)
                     : undefined,

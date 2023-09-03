@@ -20,15 +20,70 @@
         "tags": [],
         "parameters": [
           {
-            "name": "headers",
+            "name": "x-category",
             "in": "header",
-            "schema": {},
-            "description": "",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "x",
+                "y",
+                "z"
+              ]
+            },
+            "required": true
+          },
+          {
+            "name": "x-memo",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "x-name",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "x-values",
+            "in": "header",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "required": true
+          },
+          {
+            "name": "x-flags",
+            "in": "header",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "required": true
+          },
+          {
+            "name": "X-descriptions",
+            "in": "header",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "required": true
           },
           {
             "name": "section",
-            "in": "path",
+            "in": "param",
             "schema": {
               "type": "string"
             },
@@ -57,15 +112,70 @@
         "tags": [],
         "parameters": [
           {
-            "name": "headers",
+            "name": "x-category",
             "in": "header",
-            "schema": {},
-            "description": "",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "x",
+                "y",
+                "z"
+              ]
+            },
+            "required": true
+          },
+          {
+            "name": "x-memo",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "x-name",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "x-values",
+            "in": "header",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "required": true
+          },
+          {
+            "name": "x-flags",
+            "in": "header",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "required": true
+          },
+          {
+            "name": "X-descriptions",
+            "in": "header",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "required": true
           },
           {
             "name": "section",
-            "in": "path",
+            "in": "param",
             "schema": {
               "type": "string"
             },
@@ -108,7 +218,7 @@
         "parameters": [
           {
             "name": "section",
-            "in": "path",
+            "in": "param",
             "schema": {
               "type": "string"
             },
@@ -117,7 +227,7 @@
           },
           {
             "name": "id",
-            "in": "path",
+            "in": "param",
             "schema": {
               "type": "string",
               "format": "uuid"

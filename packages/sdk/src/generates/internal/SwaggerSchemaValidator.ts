@@ -130,12 +130,6 @@ export namespace SwaggerSchemaValidator {
             // PROPERTY MUST BE SOLE
             if (typeof explore.property === "object")
                 insert("dynamic property is not allowed.");
-            // MUST BE LOWER-CASE
-            if (
-                typeof explore.property === "string" &&
-                explore.property !== explore.property.toLowerCase()
-            )
-                insert("property name must be lower-case.");
             // DO NOT ALLOW TUPLE TYPE
             if (meta.tuples.length) insert("tuple type is not allowed.");
             // DO NOT ALLOW UNION TYPE

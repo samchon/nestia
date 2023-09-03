@@ -20,12 +20,39 @@
         "tags": [],
         "parameters": [
           {
-            "name": "query",
+            "name": "limit",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/IQuery"
+              "type": "number"
             },
-            "description": "",
+            "required": false
+          },
+          {
+            "name": "enforce",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": true
+          },
+          {
+            "name": "values",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "required": true
+          },
+          {
+            "name": "atomic",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
             "required": true
           }
         ],
@@ -52,12 +79,43 @@
         "tags": [],
         "parameters": [
           {
-            "name": "query",
+            "name": "limit",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/INestQuery"
+              "type": "string",
+              "pattern": "^([+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)$"
             },
-            "description": "",
+            "required": false
+          },
+          {
+            "name": "enforce",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "false",
+                "true"
+              ]
+            },
+            "required": true
+          },
+          {
+            "name": "atomic",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "values",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "required": true
           }
         ],
@@ -125,12 +183,30 @@
             "required": true
           },
           {
-            "name": "query",
+            "name": "limit",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/Omit_lt_IQuery_comma__space__doublequote_atomic_doublequote__gt_"
+              "type": "number"
             },
-            "description": "",
+            "required": false
+          },
+          {
+            "name": "enforce",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "required": true
+          },
+          {
+            "name": "values",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "required": true
           }
         ],
@@ -190,79 +266,6 @@
           "enforce",
           "values",
           "atomic"
-        ],
-        "x-typia-jsDocTags": []
-      },
-      "INestQuery": {
-        "type": "object",
-        "properties": {
-          "limit": {
-            "type": "string",
-            "x-typia-required": false,
-            "x-typia-optional": true,
-            "pattern": "^([+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)$"
-          },
-          "enforce": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "string",
-            "enum": [
-              "false",
-              "true"
-            ]
-          },
-          "atomic": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "string"
-          },
-          "values": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "array",
-            "items": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "string"
-            }
-          }
-        },
-        "nullable": false,
-        "required": [
-          "enforce",
-          "atomic",
-          "values"
-        ],
-        "x-typia-jsDocTags": []
-      },
-      "Omit_lt_IQuery_comma__space__doublequote_atomic_doublequote__gt_": {
-        "type": "object",
-        "properties": {
-          "limit": {
-            "x-typia-required": false,
-            "x-typia-optional": true,
-            "type": "number"
-          },
-          "enforce": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "boolean"
-          },
-          "values": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "array",
-            "items": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "string"
-            }
-          }
-        },
-        "nullable": false,
-        "required": [
-          "enforce",
-          "values"
         ],
         "x-typia-jsDocTags": []
       }
