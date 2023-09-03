@@ -17,7 +17,6 @@ import "reflect-metadata";
  * @returns Method decorator
  *
  * @author Jeongho Nam - https://github.com/samchon
- * @deprecated
  */
 export function TypedException(
     status: number | "2XX" | "3XX" | "4XX" | "5XX",
@@ -41,7 +40,7 @@ export function TypedException(
  *
  * @author Jeongho Nam - https://github.com/samchon
  */
-export function TypedException<T extends object>(
+export function TypedException<T>(
     status: number | "2XX" | "3XX" | "4XX" | "5XX",
     description?: string | undefined,
 ): MethodDecorator;
@@ -49,7 +48,7 @@ export function TypedException<T extends object>(
 /**
  * @internal
  */
-export function TypedException<T extends object>(
+export function TypedException<T>(
     status: number | "2XX" | "3XX" | "4XX" | "5XX",
     description?: string | undefined,
     type?: string | undefined,
