@@ -1,11 +1,7 @@
 import fs from "fs";
 import path from "path";
-import * as runner from "ts-node";
-import { parseNative } from "tsconfck";
 import { Pair, Singleton } from "tstl";
 import ts from "typescript";
-
-import typia from "typia";
 
 import { INestiaConfig } from "./INestiaConfig";
 import { AccessorAnalyzer } from "./analyses/AccessorAnalyzer";
@@ -54,77 +50,10 @@ export class NestiaSdkApplication {
             };
         });
 
-    private constructor(
+    public constructor(
         private readonly config: INestiaConfig,
         private readonly compilerOptions: ts.CompilerOptions,
-    ) {
-        this.checker_ = new Singleton(async () => {
-            const bundles: string[] = await fs.promises.readdir(
-                SdkGenerator.BUNDLE_PATH,
-            );
-            const tuples: Pair<string, boolean>[] = await ArrayUtil.asyncMap(
-                bundles,
-                async (file) => {
-                    const relative: string = path.join(
-                        this.config!.output!,
-                        file,
-                    );
-                    const location: string = path.join(
-                        SdkGenerator.BUNDLE_PATH,
-                        file,
-                    );
-                    const stats: fs.Stats = await fs.promises.stat(location);
-
-                    return new Pair(relative, stats.isDirectory());
-                },
-            );
-
-            return (file: string): boolean => {
-                for (const it of tuples)
-                    if (it.second === false && file === it.first) return true;
-                    else if (it.second === true && file.indexOf(it.first) === 0)
-                        return true;
-                return false;
-            };
-        });
-    }
-
-    public static async create(): Promise<NestiaSdkApplication> {
-        // GET TSCONFIG.JSON
-        const options: ts.CompilerOptions | null = await getCompilerOptions();
-        if (options === null)
-            throw new Error(
-                `Error on NestiaSdkApplication.create(): unable to find "tsconfig.json" file.`,
-            );
-
-        // CHECK STRICT OPTION
-        const strict: boolean =
-            options.strictNullChecks !== undefined
-                ? !!options.strictNullChecks
-                : !!options.strict;
-        if (strict === false)
-            throw new Error(
-                `Error on NestiaSdkApplication.create(): nestia requires "compilerOptions.strictNullChecks" to be true.`,
-            );
-
-        // MOUNT TS-NODE
-        runner.register({
-            emit: false,
-            compilerOptions: options,
-            require: options.baseUrl ? ["tsconfig-paths/register"] : undefined,
-        });
-
-        // LOAD NESTIA.CONFIG.TS FILE
-        const loaded: INestiaConfig & { default?: INestiaConfig } =
-            await import(path.resolve("nestia.config.ts"));
-        const config: INestiaConfig =
-            typeof loaded?.default === "object" && loaded.default !== null
-                ? loaded.default
-                : loaded;
-        typia.assert(config);
-
-        return new NestiaSdkApplication(config, options);
-    }
+    ) {}
 
     private async is_not_excluded(file: string): Promise<boolean> {
         if (this.config.output)
@@ -330,30 +259,5 @@ const is_implicit_return_typed = (route: IRoute): boolean => {
         else if (VARIABLE.test(name[i])) return false;
     return true;
 };
-
-async function getCompilerOptions(): Promise<ts.CompilerOptions | null> {
-    const configFileName = ts.findConfigFile(
-        process.cwd(),
-        ts.sys.fileExists,
-        "tsconfig.json",
-    );
-    if (!configFileName) return null;
-
-    const { tsconfig } = await parseNative(configFileName);
-    const configFileText = JSON.stringify(tsconfig);
-    const { config } = ts.parseConfigFileTextToJson(
-        configFileName,
-        configFileText,
-    );
-    const configParseResult = ts.parseJsonConfigFileContent(
-        config,
-        ts.sys,
-        path.dirname(configFileName),
-    );
-
-    const { moduleResolution, ...result } =
-        configParseResult.raw.compilerOptions;
-    return result;
-}
 
 const VARIABLE = /[a-zA-Z_$0-9]/;

@@ -74,7 +74,10 @@
     "skipLibCheck": true,                     /* Skip type checking of declaration files. */
     "forceConsistentCasingInFileNames": true,  /* Disallow inconsistently-cased references to the same file. */
     "plugins": [
-      { "transform": "typia/lib/transform" }
+      { 
+        "transform": "typia/lib/transform",
+        "functional": true, 
+      }
     ],
     "newLine": "LF",
   },

@@ -9,15 +9,6 @@ import { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
  */
 export interface INestiaConfig {
     /**
-     * Location of `tsconfig.json` file.
-     *
-     * If be configured, target file will replace the `tsconfig.json` file.
-     *
-     * @default tsconfig.json
-     */
-    project?: string;
-    
-    /**
      * Building `swagger.json` is also possible.
      *
      * If not specified, you can't build the `swagger.json`.
@@ -62,35 +53,6 @@ export interface INestiaConfig {
     e2e?: string;
 
     /**
-     * Whether to assert parameter types or not.
-     *
-     * If you configure this property to be `true`, all of the function
-     * parameters of SDK library would be checked through
-     * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
-     *
-     * This option would make your SDK library compilation time a little bit slower,
-     * but would enahcne the type safety even in the runtime level.
-     *
-     * @default false
-     */
-    assert?: boolean;
-
-    /**
-     * Whether to optimize JSON string conversion 10x faster or not.
-     *
-     * If you configure this property to be `true`, the SDK library would utilize the
-     * [`typia.assertStringify<T>() function`](https://github.com/samchon/typia#enhanced-json)
-     * to boost up JSON serialization speed and ensure type safety.
-     *
-     * This option would make your SDK library compilation time a little bit slower,
-     * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
-     * safety even in the rumtime level.
-     *
-     * @default false
-     */
-    json?: boolean;
-
-    /**
      * Whether to wrap DTO by primitive type.
      *
      * If you don't configure this property as `false`, all of DTOs in the
@@ -119,6 +81,44 @@ export interface INestiaConfig {
      * @default false
      */
     simulate?: boolean;
+
+    /**
+     * Location of `tsconfig.json` file.
+     *
+     * If be configured, target file will replace the `tsconfig.json` file.
+     *
+     * @default tsconfig.json
+     */
+    project?: string;
+
+    /**
+     * Whether to assert parameter types or not.
+     *
+     * If you configure this property to be `true`, all of the function
+     * parameters of SDK library would be checked through
+     * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
+     *
+     * This option would make your SDK library compilation time a little bit slower,
+     * but would enahcne the type safety even in the runtime level.
+     *
+     * @default false
+     */
+    assert?: boolean;
+
+    /**
+     * Whether to optimize JSON string conversion 10x faster or not.
+     *
+     * If you configure this property to be `true`, the SDK library would utilize the
+     * [`typia.assertStringify<T>() function`](https://github.com/samchon/typia#enhanced-json)
+     * to boost up JSON serialization speed and ensure type safety.
+     *
+     * This option would make your SDK library compilation time a little bit slower,
+     * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
+     * safety even in the rumtime level.
+     *
+     * @default false
+     */
+    json?: boolean;
 }
 export namespace INestiaConfig {
     /**
