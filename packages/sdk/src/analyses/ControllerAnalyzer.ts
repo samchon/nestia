@@ -51,6 +51,22 @@ export namespace ControllerAnalyzer {
             classNode,
         );
 
+        // READ TAG FROM CONTROLLER
+        const jDoc = (classNode as any).jsDoc ?? [];
+        let controllerTag;
+        if (Array.isArray(jDoc) && jDoc.length) {
+            controllerTag = jDoc[0].tags?.find(
+                (item: { [key: string]: any }) =>
+                    item?.tagName?.escapedText === "tag",
+            );
+            if (controllerTag) {
+                controllerTag = {
+                    name: controllerTag?.tagName?.escapedText,
+                    text: [{ text: controllerTag?.comment, kind: "text" }],
+                };
+            }
+        }
+
         const ret: IRoute[] = [];
         for (const property of classType.getProperties()) {
             // GET METHOD DECLARATION
@@ -77,6 +93,16 @@ export namespace ControllerAnalyzer {
                 declaration,
                 property,
             );
+
+            // ADD A CONTROLLER TAG TO A ROUTE IF THE ROUTE DOES NOT ALREADY HAVE A TAG
+            if (controllerTag) {
+                for (const route of routes) {
+                    if (!route.tags.some((rTag) => rTag.name === "tag")) {
+                        route.tags.push(controllerTag);
+                    }
+                }
+            }
+
             ret.push(...routes);
         }
         return ret;
