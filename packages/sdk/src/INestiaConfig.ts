@@ -12,6 +12,15 @@ import type { StripEnums } from "./utils/StripEnums";
  */
 export interface INestiaConfig {
     /**
+     * Location of `tsconfig.json` file.
+     *
+     * If be configured, target file will replace the `tsconfig.json` file.
+     *
+     * @default tsconfig.json
+     */
+    project?: string;
+    
+    /**
      * Building `swagger.json` is also possible.
      *
      * If not specified, you can't build the `swagger.json`.
@@ -135,13 +144,6 @@ export interface INestiaConfig {
      * @default false
      */
     simulate?: boolean;
-
-    /**
-     * Project configuration
-     *
-     * Path to typescript configuration file, or to a folder with a 'tsconfig.json'
-     */
-    project?: string;
 }
 export namespace INestiaConfig {
     /**
