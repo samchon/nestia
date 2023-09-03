@@ -40,7 +40,7 @@
     "glob": "^7.2.0",
     "path-to-regexp": "^6.2.1",
     "reflect-metadata": ">= 0.1.12",
-    "tgrid": "^0.8.7",
+    "tgrid": "^0.8.8",
     "tsconfck": "^2.0.1",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^2.5.13",
