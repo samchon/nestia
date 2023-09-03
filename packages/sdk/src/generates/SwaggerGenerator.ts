@@ -336,7 +336,14 @@ export namespace SwaggerGenerator {
             return {
                 deprecated: deprecated ? true : undefined,
                 tags: getTagTexts("tag"),
-                operationId: route.operationId,
+                operationId:
+                    route.operationId ??
+                    props.config.operationId?.({
+                        class: route.symbol.class,
+                        function: route.symbol.function,
+                        method: route.method as "GET",
+                        path: route.path,
+                    }),
                 parameters: route.parameters
                     .filter((param) => param.category !== "body")
                     .map((param) =>

@@ -59,9 +59,9 @@ async function main() {
 
     if (type === "dependencies") dependencies(argv);
     else if (type === "init") await initialize();
-    else if (type === "sdk") await execute((c) => c.sdk(argv));
-    else if (type === "swagger") await execute((c) => c.swagger(argv));
-    else if (type === "e2e") await execute((c) => c.e2e(argv));
+    else if (type === "sdk") await execute((c) => c.sdk());
+    else if (type === "swagger") await execute((c) => c.swagger());
+    else if (type === "e2e") await execute((c) => c.e2e());
     else halt(USAGE);
 }
 main().catch((exp) => {
