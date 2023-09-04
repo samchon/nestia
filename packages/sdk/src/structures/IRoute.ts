@@ -18,16 +18,17 @@ export interface IRoute {
     symbol: {
         class: string;
         function: string;
-    }
+    };
     description?: string;
     operationId?: string;
-    tags: ts.JSDocTagInfo[];
+    jsDocTags: ts.JSDocTagInfo[];
     setHeaders: Array<
         | { type: "setter"; source: string; target?: string }
         | { type: "assigner"; source: string }
     >;
     security: Record<string, string[]>[];
     exceptions: Record<number | "2XX" | "3XX" | "4XX" | "5XX", IRoute.IOutput>;
+    swaggerTags: string[];
 }
 
 export namespace IRoute {

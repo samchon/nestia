@@ -18,12 +18,14 @@
     "/bbs/articles/{section}": {
       "post": {
         "tags": [
+          "common",
+          "protected",
           "public"
         ],
         "parameters": [
           {
             "name": "section",
-            "in": "path",
+            "in": "param",
             "schema": {
               "type": "string"
             },
@@ -128,11 +130,13 @@
     "/bbs/articles/{section}/{id}": {
       "put": {
         "deprecated": true,
-        "tags": [],
+        "tags": [
+          "common"
+        ],
         "parameters": [
           {
             "name": "section",
-            "in": "path",
+            "in": "param",
             "schema": {
               "type": "string"
             },
@@ -141,7 +145,7 @@
           },
           {
             "name": "id",
-            "in": "path",
+            "in": "param",
             "schema": {
               "type": "string",
               "format": "uuid"

@@ -71,7 +71,8 @@ export namespace SwaggerGenerator {
             > = new Map();
 
             for (const route of routeList) {
-                if (route.tags.find((tag) => tag.name === "internal")) continue;
+                if (route.jsDocTags.find((tag) => tag.name === "internal"))
+                    continue;
 
                 const path: Record<string, ISwaggerRoute> = MapUtil.take(
                     pathDict,
@@ -297,8 +298,8 @@ export namespace SwaggerGenerator {
             const body = route.parameters.find(
                 (param) => param.category === "body",
             );
-            const getTagTexts = (name: string) =>
-                route.tags
+            const getJsDocTexts = (name: string) =>
+                route.jsDocTags
                     .filter(
                         (tag) =>
                             tag.name === name &&
@@ -320,7 +321,7 @@ export namespace SwaggerGenerator {
             const summary: string | undefined = (() => {
                 if (description === undefined) return undefined;
 
-                const [explicit] = getTagTexts("summary");
+                const [explicit] = getJsDocTexts("summary");
                 if (explicit?.length) return explicit;
 
                 const index: number = description.indexOf(".");
@@ -329,13 +330,16 @@ export namespace SwaggerGenerator {
                 const content: string = description.substring(0, index).trim();
                 return content.length ? content : undefined;
             })();
-            const deprecated = route.tags.find(
+            const deprecated = route.jsDocTags.find(
                 (tag) => tag.name === "deprecated",
             );
 
             return {
                 deprecated: deprecated ? true : undefined,
-                tags: getTagTexts("tag"),
+                tags: [
+                    ...route.swaggerTags,
+                    ...new Set([...getJsDocTexts("tag")]),
+                ],
                 operationId:
                     route.operationId ??
                     props.config.operationId?.({
@@ -363,7 +367,7 @@ export namespace SwaggerGenerator {
                         .filter((str) => str.length && str[0] !== ":"),
                     route.name,
                 ].join("."),
-                "x-nestia-jsDocTags": route.tags,
+                "x-nestia-jsDocTags": route.jsDocTags,
                 "x-nestia-method": route.method,
             };
         };

@@ -64,7 +64,7 @@ export namespace SwaggerSchemaGenerator {
             }
 
             // FROM COMMENT TAGS -> ANY
-            for (const tag of route.tags) {
+            for (const tag of route.jsDocTags) {
                 if (tag.name !== "throw" && tag.name !== "throws") continue;
 
                 const text: string | undefined = tag.text?.find(
@@ -363,7 +363,7 @@ export namespace SwaggerSchemaGenerator {
                   ) !== undefined
             : () => true;
 
-        const tag: ts.JSDocTagInfo | undefined = route.tags.find(
+        const tag: ts.JSDocTagInfo | undefined = route.jsDocTags.find(
             (tag) => tag.name === tagName && tag.text && parametric(tag),
         );
         return tag && tag.text

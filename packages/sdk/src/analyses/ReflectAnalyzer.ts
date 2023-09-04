@@ -90,6 +90,8 @@ export namespace ReflectAnalyzer {
             paths,
             functions: [],
             security: _Get_securities(creator),
+            swaggerTgas:
+                Reflect.getMetadata("swagger/apiUseTags", creator) ?? [],
         };
 
         // PARSE CHILDREN DATA
@@ -228,6 +230,12 @@ export namespace ReflectAnalyzer {
                   )?.value ?? "application/json",
             security: _Get_securities(proto),
             exceptions: _Get_exceptions(proto),
+            swaggerTags: [
+                ...new Set([
+                    ...controller.swaggerTgas,
+                    ...(Reflect.getMetadata("swagger/apiUseTags", proto) ?? []),
+                ]),
+            ],
         };
 
         // VALIDATE PATH ARGUMENTS

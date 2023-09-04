@@ -6,6 +6,7 @@ export interface IController {
     paths: string[];
     functions: IController.IFunction[];
     security: Record<string, string[]>[];
+    swaggerTgas: string[];
 }
 
 export namespace IController {
@@ -23,6 +24,7 @@ export namespace IController {
             number | "2XX" | "3XX" | "4XX" | "5XX",
             IController.IException
         >;
+        swaggerTags: string[];
     }
 
     export type IParameter =
