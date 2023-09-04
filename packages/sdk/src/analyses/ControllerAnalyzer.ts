@@ -195,7 +195,7 @@ export namespace ControllerAnalyzer {
                 .find(({ name }) => name === "operationId")
                 ?.text!?.[0].text.split(" ")[0]
                 .trim(),
-            tags,
+            jsDocTags: tags,
             setHeaders: tags
                 .filter(
                     (t) =>

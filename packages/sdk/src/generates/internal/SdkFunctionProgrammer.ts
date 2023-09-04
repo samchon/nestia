@@ -221,7 +221,7 @@ export namespace SdkFunctionProgrammer {
                 : [];
 
             // COMMENT TAGS
-            const tags: IJsDocTagInfo[] = route.tags.filter(
+            const tags: IJsDocTagInfo[] = route.jsDocTags.filter(
                 (tag) =>
                     tag.name !== "param" ||
                     route.parameters
