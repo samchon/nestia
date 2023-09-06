@@ -3,6 +3,7 @@ import fs from "fs";
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
+import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
 
 export namespace E2eFileProgrammer {
@@ -11,20 +12,21 @@ export namespace E2eFileProgrammer {
         (props: { api: string; current: string }) =>
         async (route: IRoute): Promise<void> => {
             const importer: ImportDictionary = new ImportDictionary();
-            for (const tuple of route.imports)
-                for (const instance of tuple[1])
-                    importer.internal({
-                        file: tuple[0],
-                        type: true,
-                        instance,
-                    });
-
+            if (config.clone !== true)
+                for (const tuple of route.imports)
+                    for (const instance of tuple[1])
+                        importer.internal({
+                            file: tuple[0],
+                            type: true,
+                            instance,
+                        });
             importer.internal({
                 type: false,
                 file: props.api,
                 instance: null,
                 name: "api",
             });
+
             const body: string = arrow(config)(importer)(route);
             const content: string = [
                 importer.toScript(props.current),
@@ -57,7 +59,9 @@ export namespace E2eFileProgrammer {
                           "        ...(connection.headers ?? {}),",
                           `        ...${SdkImportWizard.typia(
                               importer,
-                          )}.random<${headers.typeName}>(),`,
+                          )}.random<${getTypeName(config)(importer)(
+                              headers,
+                          )}>(),`,
                           "    },",
                           "},",
                       ]
@@ -77,7 +81,7 @@ export namespace E2eFileProgrammer {
                     ? [`    ${output}`]
                     : [
                           `    const output: ${primitive(config)(importer)(
-                              route.output.typeName,
+                              getTypeName(config)(importer)(route.output),
                           )} = `,
                           `        ${output}`,
                           `    ${SdkImportWizard.typia(
@@ -95,7 +99,9 @@ export namespace E2eFileProgrammer {
         (param: IRoute.IParameter): string => {
             const middle: string = `${SdkImportWizard.typia(
                 importer,
-            )}.random<${primitive(config)(importer)(param.typeName)}>()`;
+            )}.random<${primitive(config)(importer)(
+                getTypeName(config)(importer)(param),
+            )}>()`;
             return `${" ".repeat(4 * tab)}${middle},`;
         };
 
@@ -113,3 +119,10 @@ export namespace E2eFileProgrammer {
                 ? `${SdkImportWizard.Primitive(importer)}<${name}>`
                 : name;
 }
+const getTypeName =
+    (config: INestiaConfig) =>
+    (importer: ImportDictionary) =>
+    (p: IRoute.IParameter | IRoute.IOutput) =>
+        p.metadata
+            ? SdkDtoGenerator.decode(config)(importer)(p.metadata)
+            : p.typeName;

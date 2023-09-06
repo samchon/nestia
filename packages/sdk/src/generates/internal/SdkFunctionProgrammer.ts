@@ -7,6 +7,7 @@ import { INestiaConfig } from "../../INestiaConfig";
 import { IController } from "../../structures/IController";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
+import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkSimulationProgrammer } from "./SdkSimulationProgrammer";
 
@@ -283,7 +284,7 @@ export namespace SdkFunctionProgrammer {
                                 ? `${route.name}.${
                                       param === props.query ? "Query" : "Input"
                                   }`
-                                : param.typeName;
+                                : getTypeName(config)(importer)(param);
                         return `${param.name}${
                             param.optional ? "?" : ""
                         }: ${type}`;
@@ -321,13 +322,33 @@ export namespace SdkFunctionProgrammer {
             // LIST UP TYPES
             const types: Pair<string, string>[] = [];
             if (props.headers !== undefined)
-                types.push(new Pair("Headers", props.headers.typeName));
+                types.push(
+                    new Pair(
+                        "Headers",
+                        getTypeName(config)(importer)(props.headers),
+                    ),
+                );
             if (props.query !== undefined)
-                types.push(new Pair("Query", props.query.typeName));
+                types.push(
+                    new Pair(
+                        "Query",
+                        getTypeName(config)(importer)(props.query),
+                    ),
+                );
             if (props.input !== undefined)
-                types.push(new Pair("Input", props.input.typeName));
+                types.push(
+                    new Pair(
+                        "Input",
+                        getTypeName(config)(importer)(props.input),
+                    ),
+                );
             if (route.output.typeName !== "void")
-                types.push(new Pair("Output", route.output.typeName));
+                types.push(
+                    new Pair(
+                        "Output",
+                        getTypeName(config)(importer)(route.output),
+                    ),
+                );
 
             // PATH WITH PARAMETERS
             const parameters: IRoute.IParameter[] = filter_path_parameters(
@@ -401,7 +422,7 @@ export namespace SdkFunctionProgrammer {
                                 param.category === "query" &&
                                 param.typeName === props.query?.typeName
                                     ? `${route.name}.Query`
-                                    : param.typeName
+                                    : getTypeName(config)(importer)(param)
                             }`,
                     )
                     .join(", ")}): string => {\n` +
@@ -507,3 +528,10 @@ export namespace SdkFunctionProgrammer {
 }
 
 const space = (count: number) => " ".repeat(count);
+const getTypeName =
+    (config: INestiaConfig) =>
+    (importer: ImportDictionary) =>
+    (p: IRoute.IParameter | IRoute.IOutput) =>
+        p.metadata
+            ? SdkDtoGenerator.decode(config)(importer)(p.metadata)
+            : p.typeName;

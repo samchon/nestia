@@ -1,5 +1,7 @@
 import ts from "typescript";
 
+import { Metadata } from "typia/lib/schemas/metadata/Metadata";
+
 import { IController } from "./IController";
 
 export interface IRoute {
@@ -36,10 +38,12 @@ export namespace IRoute {
         optional: boolean;
         type: ts.Type;
         typeName: string;
+        metadata?: Metadata;
     };
     export interface IOutput {
         type: ts.Type;
         typeName: string;
+        metadata?: Metadata;
         description?: string;
         contentType: "application/json" | "text/plain";
     }
