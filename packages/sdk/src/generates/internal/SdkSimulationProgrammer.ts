@@ -1,6 +1,7 @@
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
+import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
 
 export namespace SdkSimulationProgrammer {
@@ -52,7 +53,7 @@ export namespace SdkSimulationProgrammer {
                                               ? "Query"
                                               : "Input"
                                       }`
-                                    : p.typeName
+                                    : getTypeName(config)(importer)(p)
                             },`,
                     ),
                 `): Promise<${output ? "Output" : "void"}> => {`,
@@ -106,3 +107,11 @@ export namespace SdkSimulationProgrammer {
             ];
         };
 }
+
+const getTypeName =
+    (config: INestiaConfig) =>
+    (importer: ImportDictionary) =>
+    (p: IRoute.IParameter | IRoute.IOutput) =>
+        p.metadata
+            ? SdkDtoGenerator.decode(config)(importer)(p.metadata)
+            : p.typeName;

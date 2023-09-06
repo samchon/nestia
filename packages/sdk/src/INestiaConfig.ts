@@ -53,6 +53,15 @@ export interface INestiaConfig {
     e2e?: string;
 
     /**
+     * Whether to clone DTO structures or not.
+     *
+     * If being configured, all of DTOs used in the backend server would be cloned
+     * into the `structures` directory, and the SDK library would be refer to the
+     * cloned DTOs instead of the original.
+     */
+    clone?: boolean;
+
+    /**
      * Whether to wrap DTO by primitive type.
      *
      * If you don't configure this property as `false`, all of DTOs in the

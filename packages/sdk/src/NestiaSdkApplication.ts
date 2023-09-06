@@ -17,7 +17,7 @@ import { NestiaConfigUtil } from "./utils/NestiaConfigUtil";
 import { SourceFinder } from "./utils/SourceFinder";
 
 export class NestiaSdkApplication {
-    private readonly checker_: Singleton<Promise<(str: string) => boolean>> =
+    private readonly bundler_: Singleton<Promise<(str: string) => boolean>> =
         new Singleton(async () => {
             if (!this.config) return () => false;
 
@@ -59,7 +59,7 @@ export class NestiaSdkApplication {
         if (this.config.output)
             return (
                 file.indexOf(path.join(this.config.output, "functional")) ===
-                    -1 && (await this.checker_.get())(file) === false
+                    -1 && (await this.bundler_.get())(file) === false
             );
 
         const content: string = await fs.promises.readFile(file, "utf8");
@@ -97,8 +97,8 @@ export class NestiaSdkApplication {
         await this.generate(
             "e2e",
             (config) => config,
-            () => (config) => async (routes) => {
-                await SdkGenerator.generate(config)(routes);
+            (checker) => (config) => async (routes) => {
+                await SdkGenerator.generate(checker)(config)(routes);
                 await E2eGenerator.generate(config)(routes);
             },
         );
@@ -118,11 +118,7 @@ export class NestiaSdkApplication {
             );
 
         title("Nestia SDK Generator");
-        await this.generate(
-            "sdk",
-            (config) => config,
-            () => SdkGenerator.generate,
-        );
+        await this.generate("sdk", (config) => config, SdkGenerator.generate);
     }
 
     public async swagger(): Promise<void> {
