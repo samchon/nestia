@@ -3,6 +3,7 @@ import { Primitive } from "./Primitive";
 
 import { IFetchRoute } from "./internal/IFetchRoute";
 import { FetcherBase } from "./internal/FetcherBase";
+import { IPropagation } from "./IPropagation";
 
 /**
  * Utility class for `fetch` functions used in `@nestia/sdk`.
@@ -78,5 +79,44 @@ export namespace PlainFetcher {
             encode: (input) => input,
             decode: (input) => input,
         })(connection, route, input, stringify);
+    }
+
+    export function propagate<
+        Output extends IPropagation<number, any, boolean>,
+    >(connection: IConnection, route: IFetchRoute<"HEAD">): Promise<Output>;
+
+    export function propagate<
+        Input,
+        Output extends IPropagation<number, any, boolean>,
+    >(
+        connection: IConnection,
+        route: IFetchRoute<"HEAD">,
+        input?: Input,
+        stringify?: (input: Input) => string,
+    ): Promise<Output>;
+
+    export async function propagate<
+        Input,
+        Output extends IPropagation<number, any, boolean>,
+    >(
+        connection: IConnection,
+        route: IFetchRoute<
+            "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
+        >,
+        input?: Input,
+        stringify?: (input: Input) => string,
+    ): Promise<Output> {
+        if (
+            route.request?.encrypted === true ||
+            route.response?.encrypted === true
+        )
+            throw new Error(
+                "Error on PlainFetcher.propagate(): PlainFetcher doesn't have encryption ability. Use EncryptedFetcher instead.",
+            );
+        return FetcherBase.propagate({
+            className: "PlainFetcher",
+            encode: (input) => input,
+            decode: (input) => input,
+        })(connection, route, input, stringify) as Promise<Output>;
     }
 }

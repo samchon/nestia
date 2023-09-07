@@ -64,17 +64,3 @@ export namespace NestiaSimulator {
             }
         };
 }
-
-interface IUuid {
-    /**
-     * @format uuid
-     */
-    value: string | null;
-}
-
-interface IDate {
-    /**
-     * @format date
-     */
-    value: string | null;
-}

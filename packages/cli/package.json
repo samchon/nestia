@@ -36,8 +36,8 @@
     "inquirer": "^8.2.5"
   },
   "devDependencies": {
-    "@nestia/core": "^2.0.0-dev.20230906",
-    "@nestia/sdk": "^2.0.0-dev.20230906",
+    "@nestia/core": "^2.0.0-dev.20230907",
+    "@nestia/sdk": "^2.0.0-dev.20230907",
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",

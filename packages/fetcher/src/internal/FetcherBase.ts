@@ -4,6 +4,7 @@ import { Primitive } from "../Primitive";
 import { IFetchRoute } from "./IFetchRoute";
 import { Singleton } from "./Singleton";
 import { HttpError } from "../HttpError";
+import { IPropagation } from "../IPropagation";
 
 export namespace FetcherBase {
     export interface IProps {
@@ -28,6 +29,49 @@ export namespace FetcherBase {
             input?: Input,
             stringify?: (input: Input) => string,
         ): Promise<Primitive<Output>> => {
+            const result = await _Propagate("fetch")(props)(
+                connection,
+                route,
+                input,
+                stringify,
+            );
+            if (result.success === false)
+                throw new HttpError(
+                    route.method,
+                    route.path,
+                    result.status,
+                    result.headers,
+                    result.data as string,
+                );
+            return result.data as Primitive<Output>;
+        };
+
+    export const propagate =
+        (props: IProps) =>
+        async <Input>(
+            connection: IConnection,
+            route: IFetchRoute<
+                "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
+            >,
+            input?: Input,
+            stringify?: (input: Input) => string,
+        ): Promise<IPropagation<any, any, any>> =>
+            _Propagate("propagate")(props)(connection, route, input, stringify);
+
+    /**
+     * @internal
+     */
+    const _Propagate =
+        (method: string) =>
+        (props: IProps) =>
+        async <Input>(
+            connection: IConnection,
+            route: IFetchRoute<
+                "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
+            >,
+            input?: Input,
+            stringify?: (input: Input) => string,
+        ): Promise<IPropagation<any, any, any>> => {
             //----
             // REQUEST MESSSAGE
             //----
@@ -86,46 +130,47 @@ export namespace FetcherBase {
                 await polyfill.get()
             )(url.href, init);
 
-            // VALIDATE RESPONSE
-            if (
-                (route.status !== null && response.status !== route.status) ||
-                (route.status === null &&
-                    response.status !== 200 &&
-                    response.status !== 201)
-            )
-                throw new HttpError(
-                    route.method,
-                    path,
-                    response.status,
-                    await response.text(),
-                );
-            else if (
-                route.response?.type &&
-                (
-                    response.headers.get("content-type") ?? route.response.type
-                )?.indexOf(route.response.type) === -1
-            )
-                throw new Error(
-                    `Error on ${
-                        props.className
-                    }.fetch(): response type mismatched - expected ${
-                        route.response.type
-                    }, but ${response.headers.get("content-type")}.`,
-                );
-
-            // RETURNS
-            if (route.method === "HEAD") return undefined!;
-            else if (route.response?.type === "application/json") {
-                const text: string = await response.text();
-                return text.length ? JSON.parse(text) : undefined;
+            // CONSTRUCT RESULT DATA
+            const result: IPropagation<any, any, any> = {
+                success:
+                    response.status === 200 ||
+                    response.status === 201 ||
+                    response.status == route.status,
+                status: route.status,
+                headers: response_headers_to_object(response.headers),
+                data: undefined!,
+            };
+            if (result.success === false) {
+                // WHEN FAILED
+                result.data = await response.text();
+                const type = response.headers.get("content-type");
+                if (
+                    method !== "fetch" &&
+                    type &&
+                    type.indexOf("application/json") !== -1
+                )
+                    try {
+                        result.data = JSON.parse(result.data);
+                    } catch {}
+            } else {
+                // WHEN SUCCESS
+                if (route.method === "HEAD") result.data = undefined!;
+                else if (route.response?.type === "application/json") {
+                    const text: string = await response.text();
+                    result.data = text.length ? JSON.parse(text) : undefined;
+                } else
+                    result.data = props.decode(
+                        await response.text(),
+                        result.headers,
+                    );
             }
-            return props.decode(
-                await response.text(),
-                response_headers_to_object(response.headers),
-            ) as Primitive<Output>;
+            return result;
         };
 }
 
+/**
+ * @internal
+ */
 const polyfill = new Singleton(async (): Promise<typeof fetch> => {
     if (
         typeof global === "object" &&
@@ -134,16 +179,19 @@ const polyfill = new Singleton(async (): Promise<typeof fetch> => {
         typeof global.process.versions.node !== undefined
     ) {
         if (global.fetch === undefined)
-            global.fetch = ((await import2("node-fetch")) as any).default;
+            global.fetch ??= ((await import2("node-fetch")) as any).default;
         return (global as any).fetch;
     }
     return window.fetch;
 });
 
+/**
+ * @internal
+ */
 const response_headers_to_object = (
     headers: Headers,
-): Record<string, IConnection.HeaderValue | undefined> => {
-    const output: Record<string, IConnection.HeaderValue> = {};
+): Record<string, string | string[]> => {
+    const output: Record<string, string | string[]> = {};
     headers.forEach((value, key) => {
         if (key === "set-cookie") {
             output[key] ??= [];

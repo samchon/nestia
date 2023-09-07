@@ -18,6 +18,13 @@ export namespace SdkImportWizard {
             instance: "Primitive",
         });
 
+    export const Resolved = (importer: ImportDictionary) =>
+        importer.external({
+            type: true,
+            library: "@nestia/fetcher",
+            instance: "Resolved",
+        });
+
     export const typia = (importer: ImportDictionary) =>
         importer.external({
             type: false,
