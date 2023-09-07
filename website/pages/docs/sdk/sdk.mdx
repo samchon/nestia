@@ -83,7 +83,6 @@ Isn't it look like much more convenient and safer than before when using [Swagge
 
 
 ## Configuration
-### `nestia.config.ts`
 <Tabs items={[
     <code>nestia.config.ts</code>, 
     <code>INestiaConfig.ts</code>
@@ -349,41 +348,6 @@ export default config;
 ```
     </Tab>
 </Tabs>
-
-### Manual CLI
-```bash filename="Terminal" copy showLineNumbers
-npx nestia sdk <[source_directories_or_patterns]> \
-    --exclude <exclude_directory_or_pattern>
-    --out <output_directory>
-```
-
-Instead of configuring [`nestia.config.ts`](#nestiaconfigts), you can use the CLI command instead.
-
-If your controller files are gathered into one directory, then write like below. About the `output` path, it must be a path of directory, not of file.
-
-```bash filename="Terminal" copy showLineNumbers
-npx nestia swagger "src/controllers" --out "./src/api"
-npx nestia swagger "src/controllers" --out "./src/api"
-```
-
-Otherwise, your controller files are separated in multiple directories, you can choose two options. The 1st is listing up every directories of the controller directories, and the other is using regex pattern like below.
-
-```bash filename="Terminal" copy showLineNumbers
-npx nestia swagger \
-    "src/controllers" \
-    "src/appendix/controllers" \
-    --out "./src/api"
-npx nestia swagger "src/**/*.controller.ts" --out "./src/api"
-```
-
-Also, you can exclude some controller classes by specifying `--exclude` argument:
-
-```bash filename="Terminal" copy showLineNumbers
-npx nestia swagger
-    "src/controllers" \
-    --exclude "src/**/*.fake.ts" \
-    --out "./dist/swagger.json"
-```
 
 
 

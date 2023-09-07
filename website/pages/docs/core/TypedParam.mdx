@@ -16,7 +16,7 @@ Type safe path parameter decorator.
 
 It's almost same with original `@Param()` function of `NestJS`, however, `@TypedParam()` is more type safe. 
 
-As `@TypedParam()` can anlayze source code in the compilation level, it can specify parameter type by itself. Also, while `NestJS` cannot distinguish `nullable` type and consider every parameter value as a `string` type, `@TypedParam()` can do it. Furthermore, `@TypedParam()` provides special type `"uuid"` and `"date"`.
+As `@TypedParam()` can anlayze source code in the compilation level, it can specify parameter type by itself. Also, while `NestJS` cannot distinguish `nullable` type and consider every parameter value as a `string` type, `@TypedParam()` can do it. Furthermore, `@TypedParam()` can validate special types like `"uuid"` or `"date"`.
 
 Let's read below example code, and see how `@TypedParam()` works.
 
@@ -33,6 +33,7 @@ Let's read below example code, and see how `@TypedParam()` works.
 ```typescript copy filename="ParametersController.ts" showLineNumbers {8, 15, 22}
 import { TypedParam } from "@nestia/core";
 import { Controller, Get } from "@nestjs/common";
+import { tags } from "typia";
  
 @Controller("parameters")
 export class ParametersController {
@@ -52,7 +53,7 @@ export class ParametersController {
  
     @Get("uuid/:value")
     public async uuid(
-        @TypedParam("value", "uuid") value: string
+        @TypedParam("value") value: string & tags.Format<"uuid">,
     ): Promise<string> {
         return value;
     }
@@ -148,8 +149,7 @@ When wrong typed value comes, 400 bad request error would be thrown.
   - `boolean`
   - `number`
   - `string`
-  - `uuid`
-  - `date`: YYYY-MM-DD
+  - `bigint`
 
 Also, `@TypedParam()` allows nullable like `number | null`, but undefindable type is not.
 
