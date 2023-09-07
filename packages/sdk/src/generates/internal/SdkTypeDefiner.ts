@@ -80,7 +80,9 @@ export namespace SdkTypeDefiner {
             });
             const branches: IBranch[] = [
                 {
-                    status: String(route.status ?? "[P in 200 | 201]"),
+                    status: String(
+                        route.status ?? route.method === "POST" ? 201 : 200,
+                    ),
                     type: name(config)(importer)(route.output),
                 },
                 ...Object.entries(route.exceptions).map(([status, value]) => ({
