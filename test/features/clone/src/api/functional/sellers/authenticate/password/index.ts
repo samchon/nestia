@@ -72,7 +72,8 @@ export namespace change {
         const assert = NestiaSimulator.assert({
             method: METADATA.method,
             host: connection.host,
-            path: path()
+            path: path(),
+            contentType: "application/json",
         });
         assert.body(() => typia.assert(input));
     }

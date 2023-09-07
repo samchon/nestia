@@ -45,7 +45,7 @@ export namespace E2eFileProgrammer {
         (config: INestiaConfig) =>
         (importer: ImportDictionary) =>
         (route: IRoute): string => {
-            const tab: number = route.output.typeName === "void" ? 2 : 3;
+            const tab: number = 2;
             const headers = route.parameters.find(
                 (p) => p.category === "headers" && p.field === undefined,
             );
@@ -80,10 +80,7 @@ export namespace E2eFileProgrammer {
                 ...(route.output.typeName === "void"
                     ? [`    ${output}`]
                     : [
-                          `    const output: ${primitive(config)(importer)(
-                              getTypeName(config)(importer)(route.output),
-                          )} = `,
-                          `        ${output}`,
+                          `    const output = ${output}`,
                           `    ${SdkImportWizard.typia(
                               importer,
                           )}.assert(output);`,
@@ -99,8 +96,9 @@ export namespace E2eFileProgrammer {
         (param: IRoute.IParameter): string => {
             const middle: string = `${SdkImportWizard.typia(
                 importer,
-            )}.random<${primitive(config)(importer)(
+            )}.random<${wrap(config)(importer)(
                 getTypeName(config)(importer)(param),
+                param.category === "body",
             )}>()`;
             return `${" ".repeat(4 * tab)}${middle},`;
         };
@@ -111,13 +109,15 @@ export namespace E2eFileProgrammer {
     const accessor = (route: IRoute): string =>
         ["api", "functional", ...route.accessors].join(".");
 
-    const primitive =
+    const wrap =
         (config: INestiaConfig) =>
         (importer: ImportDictionary) =>
-        (name: string): string =>
-            config.primitive !== false
-                ? `${SdkImportWizard.Primitive(importer)}<${name}>`
-                : name;
+        (name: string, body: boolean): string =>
+            config.primitive === false
+                ? name
+                : `${(body
+                      ? SdkImportWizard.Primitive
+                      : SdkImportWizard.Resolved)(importer)}<${name}>`;
 }
 const getTypeName =
     (config: INestiaConfig) =>

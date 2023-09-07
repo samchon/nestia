@@ -1,6 +1,7 @@
 import { AesPkcs5 } from "./AesPkcs5";
 import { IConnection } from "./IConnection";
 import { IEncryptionPassword } from "./IEncryptionPassword";
+import { IPropagation } from "./IPropagation";
 import { Primitive } from "./Primitive";
 import { FetcherBase } from "./internal/FetcherBase";
 import { IFetchRoute } from "./internal/IFetchRoute";
@@ -114,5 +115,80 @@ export namespace EncryptedFetcher {
                       }
                     : (input) => input,
         })(connection, route, input, stringify);
+    }
+
+    export function propagate<Output extends IPropagation<any, any>>(
+        connection: IConnection,
+        route: IFetchRoute<"GET" | "HEAD">,
+    ): Promise<Output>;
+
+    export function propagate<Input, Output extends IPropagation<any, any>>(
+        connection: IConnection,
+        route: IFetchRoute<
+            "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
+        >,
+        input?: Input,
+        stringify?: (input: Input) => string,
+    ): Promise<Output>;
+
+    export async function propagate<
+        Input,
+        Output extends IPropagation<any, any>,
+    >(
+        connection: IConnection,
+        route: IFetchRoute<
+            "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
+        >,
+        input?: Input,
+        stringify?: (input: Input) => string,
+    ): Promise<Output> {
+        if (
+            (route.request?.encrypted === true || route.response?.encrypted) &&
+            connection.encryption === undefined
+        )
+            throw new Error(
+                "Error on EncryptedFetcher.propagate(): the encryption password has not been configured.",
+            );
+        const closure =
+            typeof connection.encryption === "function"
+                ? (direction: "encode" | "decode") =>
+                      (
+                          headers: Record<
+                              string,
+                              IConnection.HeaderValue | undefined
+                          >,
+                          body: string,
+                      ) =>
+                          (
+                              connection.encryption as IEncryptionPassword.Closure
+                          )({
+                              headers,
+                              body,
+                              direction,
+                          })
+                : () => () => connection.encryption as IEncryptionPassword;
+
+        return FetcherBase.propagate({
+            className: "EncryptedFetcher",
+            encode:
+                route.request?.encrypted === true
+                    ? (input, headers) => {
+                          const p = closure("encode")(headers, input);
+                          return AesPkcs5.encrypt(
+                              JSON.stringify(input),
+                              p.key,
+                              p.iv,
+                          );
+                      }
+                    : (input) => input,
+            decode:
+                route.response?.encrypted === true
+                    ? (input, headers) => {
+                          const p = closure("decode")(headers, input);
+                          const str = AesPkcs5.decrypt(input, p.key, p.iv);
+                          return str.length ? JSON.parse(str) : str;
+                      }
+                    : (input) => input,
+        })(connection, route, input, stringify) as Promise<Output>;
     }
 }

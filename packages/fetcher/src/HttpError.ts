@@ -29,6 +29,7 @@ export class HttpError extends Error {
             | "HEAD",
         public readonly path: string,
         public readonly status: number,
+        public readonly headers: Record<string, string | string[]>,
         message: string,
     ) {
         super(message);
@@ -63,6 +64,7 @@ export class HttpError extends Error {
             method: this.method,
             path: this.path,
             status: this.status,
+            headers: this.headers,
             message: this.body_,
         };
     }
@@ -75,6 +77,7 @@ export namespace HttpError {
         method: "GET" | "DELETE" | "POST" | "PUT" | "PATCH" | "HEAD";
         path: string;
         status: number;
+        headers: Record<string, string | string[]>;
         message: T;
     }
 }

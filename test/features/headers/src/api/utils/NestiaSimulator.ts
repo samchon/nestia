@@ -7,6 +7,7 @@ export namespace NestiaSimulator {
         host: string;
         path: string;
         method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+        contentType: string;
     }
 
     export const assert = (props: IProps) => {
@@ -52,6 +53,9 @@ export namespace NestiaSimulator {
                         props.method,
                         props.host + props.path,
                         400,
+                        {
+                            "Content-Type": props.contentType,
+                        },
                         JSON.stringify({
                             method: exp.method,
                             path: path ?? exp.path,
@@ -63,18 +67,4 @@ export namespace NestiaSimulator {
                 throw exp;
             }
         };
-}
-
-interface IUuid {
-    /**
-     * @format uuid
-     */
-    value: string | null;
-}
-
-interface IDate {
-    /**
-     * @format date
-     */
-    value: string | null;
 }

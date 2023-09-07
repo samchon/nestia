@@ -10,6 +10,7 @@ import { ImportDictionary } from "../../utils/ImportDictionary";
 import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkSimulationProgrammer } from "./SdkSimulationProgrammer";
+import { SdkTypeDefiner } from "./SdkTypeDefiner";
 
 export namespace SdkFunctionProgrammer {
     export const generate =
@@ -133,7 +134,9 @@ export namespace SdkFunctionProgrammer {
                     [
                         `${awa ? "await " : ""}${SdkImportWizard.Fetcher(
                             encrypted,
-                        )(importer)}.fetch(`,
+                        )(importer)}.${
+                            config.propagate === true ? "propagate" : "fetch"
+                        }(`,
                         fetchArguments
                             .map((param) =>
                                 typeof param === "string"
@@ -164,23 +167,28 @@ export namespace SdkFunctionProgrammer {
                 `    // configure header(s)\n`,
                 `    connection.headers ??= {};\n`,
             ];
-
-            for (const header of route.setHeaders) {
-                if (header.type === "assigner")
-                    content.push(
-                        "    ",
-                        `Object.assign(connection.headers, ${access("output")(
-                            header.source,
-                        )});\n`,
-                    );
-                else
-                    content.push(
-                        "    ",
-                        `${access("connection.headers")(
-                            header.target ?? header.source,
-                        )} = ${access("output")(header.source)};\n`,
-                    );
-            }
+            const headerContents = (variable: string) =>
+                route.setHeaders.map((header) =>
+                    header.type === "assigner"
+                        ? `Object.assign(connection.headers, ${access(variable)(
+                              header.source,
+                          )});`
+                        : `${access("connection.headers")(
+                              header.target ?? header.source,
+                          )} = ${access(variable)(header.source)};`,
+                );
+            if (config.propagate === true) {
+                content.push(`    if (output.success) {\n`);
+                content.push(
+                    ...headerContents("output.data").map(
+                        (line) => `        ${line}\n`,
+                    ),
+                );
+                content.push(`    }\n`);
+            } else
+                content.push(
+                    ...headerContents("output").map((line) => `    ${line}\n`),
+                );
             content.push("\n", "    return output;\n", "}");
             return content.join("");
         };
@@ -293,7 +301,7 @@ export namespace SdkFunctionProgrammer {
 
             // OUTPUT TYPE
             const output: string =
-                route.output.typeName === "void"
+                config.propagate !== true && route.output.typeName === "void"
                     ? "void"
                     : `${route.name}.Output`;
 
@@ -325,28 +333,28 @@ export namespace SdkFunctionProgrammer {
                 types.push(
                     new Pair(
                         "Headers",
-                        getTypeName(config)(importer)(props.headers),
+                        SdkTypeDefiner.headers(config)(importer)(props.headers),
                     ),
                 );
             if (props.query !== undefined)
                 types.push(
                     new Pair(
                         "Query",
-                        getTypeName(config)(importer)(props.query),
+                        SdkTypeDefiner.query(config)(importer)(props.query),
                     ),
                 );
             if (props.input !== undefined)
                 types.push(
                     new Pair(
                         "Input",
-                        getTypeName(config)(importer)(props.input),
+                        SdkTypeDefiner.input(config)(importer)(props.input),
                     ),
                 );
-            if (route.output.typeName !== "void")
+            if (config.propagate === true || route.output.typeName !== "void")
                 types.push(
                     new Pair(
                         "Output",
-                        getTypeName(config)(importer)(route.output),
+                        SdkTypeDefiner.output(config)(importer)(route),
                     ),
                 );
 
@@ -365,13 +373,7 @@ export namespace SdkFunctionProgrammer {
                     ? types
                           .map(
                               (tuple) =>
-                                  `    export type ${tuple.first} = ${
-                                      config.primitive !== false
-                                          ? `${SdkImportWizard.Primitive(
-                                                importer,
-                                            )}<${tuple.second}>`
-                                          : tuple.second
-                                  };`,
+                                  `    export type ${tuple.first} = ${tuple.second};`,
                           )
                           .join("\n") + "\n"
                     : "") +
@@ -431,10 +433,14 @@ export namespace SdkFunctionProgrammer {
                 (config.simulate === true && route.output.typeName !== "void"
                     ? `    export const random = (g?: Partial<${SdkImportWizard.typia(
                           importer,
-                      )}.IRandomGenerator>): Output =>\n` +
+                      )}.IRandomGenerator>): ${SdkTypeDefiner.responseBody(
+                          config,
+                      )(importer)(route)} =>\n` +
                       `        ${SdkImportWizard.typia(
                           importer,
-                      )}.random<Output>(g);\n`
+                      )}.random<${SdkTypeDefiner.responseBody(config)(importer)(
+                          route,
+                      )}>(g);\n`
                     : "") +
                 (config.simulate === true
                     ? SdkSimulationProgrammer.generate(config)(importer)(
