@@ -60,7 +60,7 @@ export async function join(
 export namespace join {
     export type Input = Primitive<ISeller.IJoin>;
     export type Output = IPropagation<{
-        [P in 200 | 201]: ISeller.IAuthorized;
+        201: ISeller.IAuthorized;
     }>;
 
     export const METADATA = {
@@ -101,7 +101,7 @@ export namespace join {
                 status: exp.status,
                 headers: exp.headers,
                 data: exp.toJSON().message,
-            };
+            } as any;
         }
         return {
             success: true,
@@ -165,7 +165,7 @@ export async function login(
 export namespace login {
     export type Input = Primitive<ISeller.ILogin>;
     export type Output = IPropagation<{
-        [P in 200 | 201]: ISeller.IAuthorized;
+        201: ISeller.IAuthorized;
     }>;
 
     export const METADATA = {
@@ -206,7 +206,7 @@ export namespace login {
                 status: exp.status,
                 headers: exp.headers,
                 data: exp.toJSON().message,
-            };
+            } as any;
         }
         return {
             success: true,
@@ -248,7 +248,7 @@ export async function exit(
 }
 export namespace exit {
     export type Output = IPropagation<{
-        [P in 200 | 201]: undefined;
+        200: undefined;
     }>;
 
     export const METADATA = {

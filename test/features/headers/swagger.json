@@ -22,7 +22,9 @@
           {
             "name": "headers",
             "in": "header",
-            "schema": {},
+            "schema": {
+              "$ref": "#/components/schemas/IHeaders"
+            },
             "description": "Headers for authentication",
             "required": true
           },
@@ -131,7 +133,9 @@
           {
             "name": "headers",
             "in": "header",
-            "schema": {},
+            "schema": {
+              "$ref": "#/components/schemas/IHeaders"
+            },
             "description": "",
             "required": true
           },

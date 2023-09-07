@@ -48,7 +48,7 @@ export async function change(
 export namespace change {
     export type Input = Primitive<ISeller.IChangePassword>;
     export type Output = IPropagation<{
-        [P in 200 | 201]: undefined;
+        200: undefined;
     }>;
 
     export const METADATA = {
@@ -87,7 +87,7 @@ export namespace change {
                 status: exp.status,
                 headers: exp.headers,
                 data: exp.toJSON().message,
-            };
+            } as any;
         }
         return {
             success: true,

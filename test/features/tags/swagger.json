@@ -25,7 +25,7 @@
         "parameters": [
           {
             "name": "section",
-            "in": "param",
+            "in": "path",
             "schema": {
               "type": "string"
             },
@@ -136,7 +136,7 @@
         "parameters": [
           {
             "name": "section",
-            "in": "param",
+            "in": "path",
             "schema": {
               "type": "string"
             },
@@ -145,7 +145,7 @@
           },
           {
             "name": "id",
-            "in": "param",
+            "in": "path",
             "schema": {
               "type": "string",
               "format": "uuid"

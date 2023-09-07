@@ -105,7 +105,7 @@ export namespace SdkSimulationProgrammer {
                 `        status: exp.status,`,
                 `        headers: exp.headers,`,
                 `        data: exp.toJSON().message,`,
-                `    };`,
+                `    } as any;`,
                 `}`,
             ];
         };

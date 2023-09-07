@@ -47,7 +47,7 @@ export async function index(
 export namespace index {
     export type Query = Resolved<IPage.IRequest>;
     export type Output = IPropagation<{
-        [P in 200 | 201]: IPage_lt_IBbsArticle.ISummary_gt_;
+        200: IPage_lt_IBbsArticle.ISummary_gt_;
     }>;
 
     export const METADATA = {
@@ -96,7 +96,7 @@ export namespace index {
                 status: exp.status,
                 headers: exp.headers,
                 data: exp.toJSON().message,
-            };
+            } as any;
         }
         return {
             success: true,
@@ -154,7 +154,7 @@ export async function store(
 export namespace store {
     export type Input = Primitive<IBbsArticle.IStore>;
     export type Output = IPropagation<{
-        [P in 200 | 201]: IBbsArticle;
+        201: IBbsArticle;
     }>;
 
     export const METADATA = {
@@ -197,7 +197,7 @@ export namespace store {
                 status: exp.status,
                 headers: exp.headers,
                 data: exp.toJSON().message,
-            };
+            } as any;
         }
         return {
             success: true,
@@ -258,7 +258,7 @@ export async function update(
 export namespace update {
     export type Input = Primitive<IBbsArticle.IStore>;
     export type Output = IPropagation<{
-        [P in 200 | 201]: IBbsArticle;
+        200: IBbsArticle;
     }>;
 
     export const METADATA = {
@@ -303,7 +303,7 @@ export namespace update {
                 status: exp.status,
                 headers: exp.headers,
                 data: exp.toJSON().message,
-            };
+            } as any;
         }
         return {
             success: true,

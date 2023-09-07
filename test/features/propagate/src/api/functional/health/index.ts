@@ -29,7 +29,7 @@ export async function get(
 }
 export namespace get {
     export type Output = IPropagation<{
-        [P in 200 | 201]: undefined;
+        200: undefined;
     }>;
 
     export const METADATA = {

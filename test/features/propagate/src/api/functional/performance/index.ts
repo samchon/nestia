@@ -32,7 +32,7 @@ export async function cpu(
 }
 export namespace cpu {
     export type Output = IPropagation<{
-        [P in 200 | 201]: _singlequote_process_singlequote_.global.NodeJS.CpuUsage;
+        200: _singlequote_process_singlequote_.global.NodeJS.CpuUsage;
     }>;
 
     export const METADATA = {
@@ -92,7 +92,7 @@ export async function memory(
 }
 export namespace memory {
     export type Output = IPropagation<{
-        [P in 200 | 201]: _singlequote_process_singlequote_.global.NodeJS.MemoryUsage;
+        200: _singlequote_process_singlequote_.global.NodeJS.MemoryUsage;
     }>;
 
     export const METADATA = {
@@ -152,7 +152,7 @@ export async function resource(
 }
 export namespace resource {
     export type Output = IPropagation<{
-        [P in 200 | 201]: _singlequote_process_singlequote_.global.NodeJS.ResourceUsage;
+        200: _singlequote_process_singlequote_.global.NodeJS.ResourceUsage;
     }>;
 
     export const METADATA = {

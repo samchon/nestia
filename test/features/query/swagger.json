@@ -128,7 +128,7 @@
             "name": "query",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/Omit_lt_IQuery_comma__space__doublequote_atomic_doublequote__gt_"
+              "$ref": "#/components/schemas/Omit<IQuery, \"atomic\">"
             },
             "description": "",
             "required": true
@@ -234,7 +234,7 @@
         ],
         "x-typia-jsDocTags": []
       },
-      "Omit_lt_IQuery_comma__space__doublequote_atomic_doublequote__gt_": {
+      "Omit<IQuery, \"atomic\">": {
         "type": "object",
         "properties": {
           "limit": {

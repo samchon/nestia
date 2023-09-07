@@ -76,8 +76,8 @@ export namespace join {
     export const path = (): string => {
         return `/sellers/authenticate/join`;
     }
-    export const random = (g?: Partial<typia.IRandomGenerator>): Output =>
-        typia.random<Output>(g);
+    export const random = (g?: Partial<typia.IRandomGenerator>): Primitive<ISeller.IAuthorized> =>
+        typia.random<Primitive<ISeller.IAuthorized>>(g);
     export const simulate = async (
         connection: IConnection,
         input: join.Input,
@@ -85,7 +85,8 @@ export namespace join {
         const assert = NestiaSimulator.assert({
             method: METADATA.method,
             host: connection.host,
-            path: path()
+            path: path(),
+            contentType: "text/plain",
         });
         assert.body(() => typia.assert(input));
         return random(
@@ -159,8 +160,8 @@ export namespace login {
     export const path = (): string => {
         return `/sellers/authenticate/login`;
     }
-    export const random = (g?: Partial<typia.IRandomGenerator>): Output =>
-        typia.random<Output>(g);
+    export const random = (g?: Partial<typia.IRandomGenerator>): Primitive<ISeller.IAuthorized> =>
+        typia.random<Primitive<ISeller.IAuthorized>>(g);
     export const simulate = async (
         connection: IConnection,
         input: login.Input,
@@ -168,7 +169,8 @@ export namespace login {
         const assert = NestiaSimulator.assert({
             method: METADATA.method,
             host: connection.host,
-            path: path()
+            path: path(),
+            contentType: "text/plain",
         });
         assert.body(() => typia.assert(input));
         return random(

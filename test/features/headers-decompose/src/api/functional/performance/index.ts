@@ -47,8 +47,8 @@ export namespace get {
     export const path = (): string => {
         return `/performance`;
     }
-    export const random = (g?: Partial<typia.IRandomGenerator>): Output =>
-        typia.random<Output>(g);
+    export const random = (g?: Partial<typia.IRandomGenerator>): Primitive<IPerformance> =>
+        typia.random<Primitive<IPerformance>>(g);
     export const simulate = async (
         connection: IConnection,
     ): Promise<Output> => {
