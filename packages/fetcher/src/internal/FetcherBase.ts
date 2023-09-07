@@ -35,11 +35,11 @@ export namespace FetcherBase {
                 input,
                 stringify,
             );
-            if (result.success === false)
+            if ((result as any).success === false)
                 throw new HttpError(
                     route.method,
                     route.path,
-                    result.status,
+                    result.status as any as number,
                     result.headers,
                     result.data as string,
                 );
@@ -55,7 +55,7 @@ export namespace FetcherBase {
             >,
             input?: Input,
             stringify?: (input: Input) => string,
-        ): Promise<IPropagation<any, any, any>> =>
+        ): Promise<IPropagation<any, any>> =>
             _Propagate("propagate")(props)(connection, route, input, stringify);
 
     /**
@@ -71,7 +71,7 @@ export namespace FetcherBase {
             >,
             input?: Input,
             stringify?: (input: Input) => string,
-        ): Promise<IPropagation<any, any, any>> => {
+        ): Promise<IPropagation<any, any>> => {
             //----
             // REQUEST MESSSAGE
             //----
@@ -131,16 +131,16 @@ export namespace FetcherBase {
             )(url.href, init);
 
             // CONSTRUCT RESULT DATA
-            const result: IPropagation<any, any, any> = {
+            const result: IPropagation<any, any> = {
                 success:
                     response.status === 200 ||
                     response.status === 201 ||
                     response.status == route.status,
-                status: route.status,
+                status: response.status,
                 headers: response_headers_to_object(response.headers),
                 data: undefined!,
-            };
-            if (result.success === false) {
+            } as any;
+            if ((result as any).success === false) {
                 // WHEN FAILED
                 result.data = await response.text();
                 const type = response.headers.get("content-type");

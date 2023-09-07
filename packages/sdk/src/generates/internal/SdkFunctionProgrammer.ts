@@ -167,23 +167,28 @@ export namespace SdkFunctionProgrammer {
                 `    // configure header(s)\n`,
                 `    connection.headers ??= {};\n`,
             ];
-
-            for (const header of route.setHeaders) {
-                if (header.type === "assigner")
-                    content.push(
-                        "    ",
-                        `Object.assign(connection.headers, ${access("output")(
-                            header.source,
-                        )});\n`,
-                    );
-                else
-                    content.push(
-                        "    ",
-                        `${access("connection.headers")(
-                            header.target ?? header.source,
-                        )} = ${access("output")(header.source)};\n`,
-                    );
-            }
+            const headerContents = (variable: string) =>
+                route.setHeaders.map((header) =>
+                    header.type === "assigner"
+                        ? `Object.assign(connection.headers, ${access(variable)(
+                              header.source,
+                          )});`
+                        : `${access("connection.headers")(
+                              header.target ?? header.source,
+                          )} = ${access(variable)(header.source)};`,
+                );
+            if (config.propagate === true) {
+                content.push(`    if (output.success) {\n`);
+                content.push(
+                    ...headerContents("output.data").map(
+                        (line) => `        ${line}\n`,
+                    ),
+                );
+                content.push(`    }\n`);
+            } else
+                content.push(
+                    ...headerContents("output").map((line) => `    ${line}\n`),
+                );
             content.push("\n", "    return output;\n", "}");
             return content.join("");
         };
@@ -296,7 +301,7 @@ export namespace SdkFunctionProgrammer {
 
             // OUTPUT TYPE
             const output: string =
-                route.output.typeName === "void"
+                config.propagate !== true && route.output.typeName === "void"
                     ? "void"
                     : `${route.name}.Output`;
 
@@ -345,7 +350,7 @@ export namespace SdkFunctionProgrammer {
                         SdkTypeDefiner.input(config)(importer)(props.input),
                     ),
                 );
-            if (config.propagate !== true && route.output.typeName !== "void")
+            if (config.propagate === true || route.output.typeName !== "void")
                 types.push(
                     new Pair(
                         "Output",
@@ -428,10 +433,14 @@ export namespace SdkFunctionProgrammer {
                 (config.simulate === true && route.output.typeName !== "void"
                     ? `    export const random = (g?: Partial<${SdkImportWizard.typia(
                           importer,
-                      )}.IRandomGenerator>): Output =>\n` +
+                      )}.IRandomGenerator>): ${SdkTypeDefiner.responseBody(
+                          config,
+                      )(importer)(route)} =>\n` +
                       `        ${SdkImportWizard.typia(
                           importer,
-                      )}.random<Output>(g);\n`
+                      )}.random<${SdkTypeDefiner.responseBody(config)(importer)(
+                          route,
+                      )}>(g);\n`
                     : "") +
                 (config.simulate === true
                     ? SdkSimulationProgrammer.generate(config)(importer)(

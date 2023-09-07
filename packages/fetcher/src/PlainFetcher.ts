@@ -81,23 +81,23 @@ export namespace PlainFetcher {
         })(connection, route, input, stringify);
     }
 
-    export function propagate<
-        Output extends IPropagation<number, any, boolean>,
-    >(connection: IConnection, route: IFetchRoute<"HEAD">): Promise<Output>;
-
-    export function propagate<
-        Input,
-        Output extends IPropagation<number, any, boolean>,
-    >(
+    export function propagate<Output extends IPropagation<any, any>>(
         connection: IConnection,
-        route: IFetchRoute<"HEAD">,
+        route: IFetchRoute<"GET" | "HEAD">,
+    ): Promise<Output>;
+
+    export function propagate<Input, Output extends IPropagation<any, any>>(
+        connection: IConnection,
+        route: IFetchRoute<
+            "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
+        >,
         input?: Input,
         stringify?: (input: Input) => string,
     ): Promise<Output>;
 
     export async function propagate<
         Input,
-        Output extends IPropagation<number, any, boolean>,
+        Output extends IPropagation<any, any>,
     >(
         connection: IConnection,
         route: IFetchRoute<

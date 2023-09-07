@@ -45,7 +45,7 @@ export namespace E2eFileProgrammer {
         (config: INestiaConfig) =>
         (importer: ImportDictionary) =>
         (route: IRoute): string => {
-            const tab: number = route.output.typeName === "void" ? 2 : 3;
+            const tab: number = 2;
             const headers = route.parameters.find(
                 (p) => p.category === "headers" && p.field === undefined,
             );

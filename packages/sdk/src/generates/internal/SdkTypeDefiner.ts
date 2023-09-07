@@ -80,44 +80,39 @@ export namespace SdkTypeDefiner {
             });
             const branches: IBranch[] = [
                 {
-                    body: name(config)(importer)(route.output),
-                    status: route.status
-                        ? String(route.status)
-                        : route.method === "GET" ||
-                          route.method === "DELETE" ||
-                          route.method === "HEAD"
-                        ? "200"
-                        : "201",
-                    success: "true",
+                    status: String(route.status ?? "[P in 200 | 201]"),
+                    type: name(config)(importer)(route.output),
                 },
+                ...Object.entries(route.exceptions).map(([status, value]) => ({
+                    status,
+                    type: name(config)(importer)(value),
+                })),
             ];
-            for (const [key, value] of Object.entries(route.exceptions))
-                branches.push({
-                    body: name(config)(importer)(value),
-                    status: key.endsWith("XX")
-                        ? `${propagation}.StatusRange<${key}>`
-                        : key,
-                    success: "false",
-                });
-            branches.push({
-                status: "number",
-                body: "any",
-                success: "boolean",
-            });
             return (
-                "\n" +
+                `${propagation}<{\n` +
                 branches
                     .map(
                         (b) =>
-                            `    | ${propagation}<${b.status}, ${b.body}, ${b.success}>`,
+                            `        ${
+                                b.status.endsWith("XX")
+                                    ? `"${b.status}"`
+                                    : b.status
+                            }: ${b.type};`,
                     )
-                    .join("\n")
+                    .join("\n") +
+                "\n" +
+                `    }${route.status ? `, ${route.status}` : ""}>`
             );
         };
+
+    export const responseBody =
+        (config: INestiaConfig) =>
+        (importer: ImportDictionary) =>
+        (route: IRoute): string =>
+            output({ ...config, propagate: false })(importer)(route);
 }
 
 interface IBranch {
-    body: string;
     status: string;
-    success: string;
+    type: string;
 }
