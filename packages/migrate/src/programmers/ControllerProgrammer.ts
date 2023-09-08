@@ -122,20 +122,16 @@ export namespace ControllerProgrammer {
             const importer: ImportProgrammer = new ImportProgrammer();
             const references: ISwaggerSchema.IReference[] = [];
             const body: string = [
-                `@${importer.add({
+                `@${importer.external({
                     library: "@nestjs/common",
                     instance: "Controller",
                 })}(${JSON.stringify(controller.path)})`,
                 `export class ${controller.name} {`,
                 controller.routes
                     .map((r) =>
-                        RouteProgrammer.write(
-                            (library) => (instance) =>
-                                importer.add({
-                                    library,
-                                    instance,
-                                }),
-                        )(components)(references)(r)
+                        RouteProgrammer.write(components)(references)(importer)(
+                            r,
+                        )
                             .split("\n")
                             .map((l) => `    ${l}`)
                             .join("\n"),
@@ -143,28 +139,16 @@ export namespace ControllerProgrammer {
                     .join("\n\n"),
                 `}`,
             ].join("\n");
-
-            const dtoImports: string[] = [
-                ...new Set(
-                    references.map(
-                        (r) =>
-                            r.$ref
-                                .replace("#/components/schemas/", "")
-                                .split(".")[0],
-                    ),
-                ),
-            ].map(
-                (ref) =>
-                    `import { ${ref} } from "${"../".repeat(
-                        StringUtil.splitWithNormalization(controller.location)
-                            .length - 1,
-                    )}api/structures/${ref}"`,
-            );
-
             return [
-                importer.toScript(),
-                "",
-                ...(dtoImports.length ? [...dtoImports, ""] : []),
+                ...importer.toScript(
+                    (ref) =>
+                        `${"../".repeat(
+                            StringUtil.splitWithNormalization(
+                                controller.location,
+                            ).length - 1,
+                        )}api/structures/${ref}`,
+                ),
+                ...(importer.empty() ? [] : [""]),
                 body,
             ].join("\n");
         };

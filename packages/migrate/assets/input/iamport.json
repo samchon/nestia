@@ -13,7 +13,7 @@
   "info": {
     "title": "Iamport API",
     "description": "Built by [fake-iamport-server](https://github.com/samchon/fake-iamport-server) with [nestia](https://github.com/samchon/nestia)",
-    "version": "1.4.6",
+    "version": "2.0.1",
     "license": {
       "name": "MIT"
     }
@@ -26,10 +26,10 @@
           {
             "name": "imp_uid",
             "in": "path",
-            "description": "대상 본인인증 정보의 ",
             "schema": {
               "type": "string"
             },
+            "description": "대상 본인인증 정보의 ",
             "required": true
           }
         ],
@@ -47,7 +47,7 @@
           }
         },
         "summary": "본인인증 정보 열람하기",
-        "description": "본인인증 정보 열람하기.\n\n`certiciations.at` 은 본인인증 정보를 열람할 때 사용하는 API 함수이다.\n\n다만 이 API 함수를 통하여 열람한 본인인증 정보 {@link IIamportCertification } 이\n곧 OTP 인증까지 마쳐 본인인증을 모두 마친 레코드라는 보장은 없다. 본인인증의 완결\n여부는 오직, {@link IIamportCertification.certified } 값을 직접 검사해봐야만 알\n수 있기 때문이다.\n\n@param imp_uid 대상 본인인증 정보의 {@link IIamportCertification.imp_uid }\n@returns 본인인증 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "본인인증 정보 열람하기.\n\n`certiciations.at` 은 본인인증 정보를 열람할 때 사용하는 API 함수이다.\n\n다만 이 API 함수를 통하여 열람한 본인인증 정보 {@link IIamportCertification } 이\n곧 OTP 인증까지 마쳐 본인인증을 모두 마친 레코드라는 보장은 없다. 본인인증의 완결\n여부는 오직, {@link IIamportCertification.certified } 값을 직접 검사해봐야만 알\n수 있기 때문이다.",
         "security": [
           {
             "bearer": []
@@ -78,9 +78,9 @@
                 "text": "IIamportCertification.imp_uid",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-iamport-server/src/api/structures/IIamportCertification.ts",
+                  "fileName": "C:/github/samchon/fake-iamport-server/src/api/structures/IIamportCertification.ts",
                   "textSpan": {
-                    "start": 455,
+                    "start": 488,
                     "length": 16
                   }
                 }
@@ -127,10 +127,10 @@
           {
             "name": "imp_uid",
             "in": "path",
-            "description": "대상 본인인증 정보의 ",
             "schema": {
               "type": "string"
             },
+            "description": "대상 본인인증 정보의 ",
             "required": true
           }
         ],
@@ -148,7 +148,7 @@
           }
         },
         "summary": "본인인증 정보 삭제하기",
-        "description": "본인인증 정보 삭제하기.\n\n@param imp_uid 대상 본인인증 정보의 {@link IIamportCertification.imp_uid }\n@returns 삭제된 본인인증 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "본인인증 정보 삭제하기.",
         "security": [
           {
             "bearer": []
@@ -179,9 +179,9 @@
                 "text": "IIamportCertification.imp_uid",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-iamport-server/src/api/structures/IIamportCertification.ts",
+                  "fileName": "C:/github/samchon/fake-iamport-server/src/api/structures/IIamportCertification.ts",
                   "textSpan": {
-                    "start": 455,
+                    "start": 488,
                     "length": 16
                   }
                 }
@@ -253,7 +253,7 @@
           }
         },
         "summary": "본인인증 요청하기",
-        "description": "본인인증 요청하기.\n\n`certifications.otp.request` 는 아임포트 서버에 본인인증을 요청하는 API 함수이다.\n이 API 를 호출하면 본인인증 대상자의 핸드폰으로 OTP 문자가 전송되며, 본인인증\n대상자가 {@link certifications.otp.confirm } 을 통하여 이 OTP 번호를 정확히\n입력함으로써, 본인인증이 완결된다.\n\n또한 본인인증 대상자가 자신의 핸드폰으로 전송된 OTP 문자를 입력하기 전에도,\n여전히해당 본인인증 내역은 {@link certifications.at } 함수를 통하여 조회할 수 있다.\n다만, 이 때 리턴되는 {@link IIamportCertification } 에서 인증의 완결 여부를\n지칭하는 {@link IIamportCertification.certified } 값은 `false` 이다.\n\n@param input 본인인증 요청 정보\n@returns 진행 중인 본인인증의 식별자 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "본인인증 요청하기.\n\n`certifications.otp.request` 는 아임포트 서버에 본인인증을 요청하는 API 함수이다.\n이 API 를 호출하면 본인인증 대상자의 핸드폰으로 OTP 문자가 전송되며, 본인인증\n대상자가 {@link certifications.otp.confirm } 을 통하여 이 OTP 번호를 정확히\n입력함으로써, 본인인증이 완결된다.\n\n또한 본인인증 대상자가 자신의 핸드폰으로 전송된 OTP 문자를 입력하기 전에도,\n여전히해당 본인인증 내역은 {@link certifications.at } 함수를 통하여 조회할 수 있다.\n다만, 이 때 리턴되는 {@link IIamportCertification } 에서 인증의 완결 여부를\n지칭하는 {@link IIamportCertification.certified } 값은 `false` 이다.",
         "security": [
           {
             "bearer": []
@@ -316,10 +316,10 @@
           {
             "name": "imp_uid",
             "in": "path",
-            "description": "대상 본인인증 정보의 ",
             "schema": {
               "type": "string"
             },
+            "description": "대상 본인인증 정보의 ",
             "required": true
           }
         ],
@@ -349,7 +349,7 @@
           }
         },
         "summary": "본인인증 시 발급된 OTP 코드 입력하기",
-        "description": "본인인증 시 발급된 OTP 코드 입력하기.\n\n`certifications.otp.confirm` 는 {@link certifications.otp.request } 를 통하여\n발급된 본인인증 건에 대하여, 본인인증 대상자의 휴대폰으로 전송된 OTP 번호를\n검증하고, 입력한 OTP 번호가 맞거든 해당 본인인증 건을 승인하여 완료 처리해주는\nAPI 함수이다.\n\n이처럼 본인인증을 완료하거든, 해당 본인인증 건 {@link IIamportCertification } 의\n{@link IIamportCertification.certified } 값이 비로소 `true` 로 변경되어,\n비로소 완결된다.\n\n@param imp_uid 대상 본인인증 정보의 {@link IIamportCertification.imp_uid }\n@param input OTP 코드\n@returns 인증 완료된 본인인증 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "본인인증 시 발급된 OTP 코드 입력하기.\n\n`certifications.otp.confirm` 는 {@link certifications.otp.request } 를 통하여\n발급된 본인인증 건에 대하여, 본인인증 대상자의 휴대폰으로 전송된 OTP 번호를\n검증하고, 입력한 OTP 번호가 맞거든 해당 본인인증 건을 승인하여 완료 처리해주는\nAPI 함수이다.\n\n이처럼 본인인증을 완료하거든, 해당 본인인증 건 {@link IIamportCertification } 의\n{@link IIamportCertification.certified } 값이 비로소 `true` 로 변경되어,\n비로소 완결된다.",
         "security": [
           {
             "bearer": []
@@ -380,9 +380,9 @@
                 "text": "IIamportCertification.imp_uid",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-iamport-server/src/api/structures/IIamportCertification.ts",
+                  "fileName": "C:/github/samchon/fake-iamport-server/src/api/structures/IIamportCertification.ts",
                   "textSpan": {
-                    "start": 455,
+                    "start": 488,
                     "length": 16
                   }
                 }
@@ -464,7 +464,7 @@
           }
         },
         "summary": "웹훅 이벤트 더미 리스너",
-        "description": "웹훅 이벤트 더미 리스너.\n\n`internal.webhook` 은 실제 아임포트의 서버에는 존재하지 않는 API 로써,\n`fake-impoart-server` 의 {@link Configuration.WEBHOOK_URL } 에 아무런 URL 을 설정하지\n않으면, `fake-iamport-server` 로부터 발생하는 모든 종류의 웹훅 이벤트는 이 곳으로 전달되어\n무의미하게 사라진다.\n\n따라서 `fake-iamport-server` 를 사용하여 아임포트 서버와의 연동을 미리 검증코자 할 때는,\n반드시 {@link Configuration.WEBHOOK_URL } 를 설정하여 웹훅 이벤트가 귀하의 백엔드 서버로\n제대로 전달되도록 하자.\n\n@param input 웹훅 이벤트 정보\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "웹훅 이벤트 더미 리스너.\n\n`internal.webhook` 은 실제 아임포트의 서버에는 존재하지 않는 API 로써,\n`fake-impoart-server` 의 {@link Configuration.WEBHOOK_URL } 에 아무런 URL 을 설정하지\n않으면, `fake-iamport-server` 로부터 발생하는 모든 종류의 웹훅 이벤트는 이 곳으로 전달되어\n무의미하게 사라진다.\n\n따라서 `fake-iamport-server` 를 사용하여 아임포트 서버와의 연동을 미리 검증코자 할 때는,\n반드시 {@link Configuration.WEBHOOK_URL } 를 설정하여 웹훅 이벤트가 귀하의 백엔드 서버로\n제대로 전달되도록 하자.",
         "x-nestia-namespace": "internal.webhook.webhook",
         "x-nestia-jsDocTags": [
           {
@@ -504,10 +504,10 @@
           {
             "name": "imp_uid",
             "in": "path",
-            "description": "대상 결제의 ",
             "schema": {
               "type": "string"
             },
+            "description": "대상 결제의 ",
             "required": true
           }
         ],
@@ -518,7 +518,7 @@
           }
         },
         "summary": "가상 계좌에 입금하기",
-        "description": "가상 계좌에 입금하기.\n\n`internal.deposit` 은 실제 아임포트 결제 서버에는 존재하지 않는 API 로써, 가상 계좌\n결제를 신청한 고객이, 이후 가상 계좌에 목표 금액을 입금하는 상황을 시뮬레이션 할 수 있는\n함수이다.\n\n즉, `internal.deposit` 는 고객이 스스로에게 가상으로 발급된 계좌에 입금을 하고, 그에 따라\n아임포트 서버에서 webhook 이벤트가 발생, 이를 귀하의 백엔드 서버로 전송하는 일련의 상황을\n시뮬레이션하기 위하여 설계된 테스트 함수다.\n\n@param imp_uid 대상 결제의 {@link IIamportVBankPayment.imp_uid }\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "가상 계좌에 입금하기.\n\n`internal.deposit` 은 실제 아임포트 결제 서버에는 존재하지 않는 API 로써, 가상 계좌\n결제를 신청한 고객이, 이후 가상 계좌에 목표 금액을 입금하는 상황을 시뮬레이션 할 수 있는\n함수이다.\n\n즉, `internal.deposit` 는 고객이 스스로에게 가상으로 발급된 계좌에 입금을 하고, 그에 따라\n아임포트 서버에서 webhook 이벤트가 발생, 이를 귀하의 백엔드 서버로 전송하는 일련의 상황을\n시뮬레이션하기 위하여 설계된 테스트 함수다.",
         "security": [
           {
             "bearer": []
@@ -584,10 +584,19 @@
           {
             "name": "imp_uid",
             "in": "path",
-            "description": "대상 결제 기록의 ",
             "schema": {
               "type": "string"
             },
+            "description": "대상 결제 기록의 ",
+            "required": true
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/IIamportPayment.IQuery"
+            },
+            "description": "결제 수단이 페이팔인 경우에 사용",
             "required": true
           }
         ],
@@ -605,7 +614,7 @@
           }
         },
         "summary": "결제 기록 열람하기",
-        "description": "결제 기록 열람하기.\n\n아임포트를 통하여 발생한 결제 기록을 열람한다.\n\n@param imp_uid 대상 결제 기록의 {@link IIamportPayment.imp_uid }\n@returns 결제 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "결제 기록 열람하기.\n\n아임포트를 통하여 발생한 결제 기록을 열람한다.",
         "security": [
           {
             "bearer": []
@@ -636,9 +645,9 @@
                 "text": "IIamportPayment.imp_uid",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-iamport-server/src/api/structures/IIamportPayment.ts",
+                  "fileName": "C:/github/samchon/fake-iamport-server/src/api/structures/IIamportPayment.ts",
                   "textSpan": {
-                    "start": 1563,
+                    "start": 2339,
                     "length": 16
                   }
                 }
@@ -646,6 +655,23 @@
               {
                 "text": "}",
                 "kind": "link"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "query",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "결제 수단이 페이팔인 경우에 사용",
+                "kind": "text"
               }
             ]
           },
@@ -710,7 +736,7 @@
           }
         },
         "summary": "결제 취소하기",
-        "description": "결제 취소하기.\n\n만약 가상 계좌를 통한 결제였다면, 반드시 환불 계좌 정보를 입력해줘야 한다.\n\n@param input 결제 취소 입력 정보\n@returns 취소된 결제 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "결제 취소하기.\n\n만약 가상 계좌를 통한 결제였다면, 반드시 환불 계좌 정보를 입력해줘야 한다.",
         "security": [
           {
             "bearer": []
@@ -773,10 +799,10 @@
           {
             "name": "imp_uid",
             "in": "path",
-            "description": "귀속 결제의 ",
             "schema": {
               "type": "string"
             },
+            "description": "귀속 결제의 ",
             "required": true
           }
         ],
@@ -794,7 +820,7 @@
           }
         },
         "summary": "현금 영수증 조회하기",
-        "description": "현금 영수증 조회하기.\n\n@param imp_uid 귀속 결제의 {@link IIamportPayment.imp_uid }\n@returns 현금 영수증 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "현금 영수증 조회하기.",
         "security": [
           {
             "bearer": []
@@ -825,9 +851,9 @@
                 "text": "IIamportPayment.imp_uid",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-iamport-server/src/api/structures/IIamportPayment.ts",
+                  "fileName": "C:/github/samchon/fake-iamport-server/src/api/structures/IIamportPayment.ts",
                   "textSpan": {
-                    "start": 1563,
+                    "start": 2339,
                     "length": 16
                   }
                 }
@@ -874,10 +900,10 @@
           {
             "name": "imp_uid",
             "in": "path",
-            "description": "귀속 결제의 ",
             "schema": {
               "type": "string"
             },
+            "description": "귀속 결제의 ",
             "required": true
           }
         ],
@@ -907,7 +933,7 @@
           }
         },
         "summary": "현금 영수증 발행하기",
-        "description": "현금 영수증 발행하기.\n\n@param imp_uid 귀속 결제의 {@link IIamportPayment.imp_uid }\n@param input 현금 영수증 입력 정보\n@returns 현금 영수증 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "현금 영수증 발행하기.",
         "security": [
           {
             "bearer": []
@@ -938,9 +964,9 @@
                 "text": "IIamportPayment.imp_uid",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-iamport-server/src/api/structures/IIamportPayment.ts",
+                  "fileName": "C:/github/samchon/fake-iamport-server/src/api/structures/IIamportPayment.ts",
                   "textSpan": {
-                    "start": 1563,
+                    "start": 2339,
                     "length": 16
                   }
                 }
@@ -1004,10 +1030,10 @@
           {
             "name": "imp_uid",
             "in": "path",
-            "description": "귀속 결제의 ",
             "schema": {
               "type": "string"
             },
+            "description": "귀속 결제의 ",
             "required": true
           }
         ],
@@ -1025,7 +1051,7 @@
           }
         },
         "summary": "현금 영수증 취소하기",
-        "description": "현금 영수증 취소하기.\n\n@param imp_uid 귀속 결제의 {@link IIamportPayment.imp_uid }\n@returns 취소된 현금 영수증 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "현금 영수증 취소하기.",
         "security": [
           {
             "bearer": []
@@ -1056,9 +1082,9 @@
                 "text": "IIamportPayment.imp_uid",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-iamport-server/src/api/structures/IIamportPayment.ts",
+                  "fileName": "C:/github/samchon/fake-iamport-server/src/api/structures/IIamportPayment.ts",
                   "textSpan": {
-                    "start": 1563,
+                    "start": 2339,
                     "length": 16
                   }
                 }
@@ -1130,7 +1156,7 @@
           }
         },
         "summary": "유저 인증 토큰 발행하기",
-        "description": "유저 인증 토큰 발행하기.\n\n아임포트에 가입하여 부여받은 API 및 secret 키를 토대로, 유저 인증 토큰을 발행한다.\n\n단, 아임포트가 발급해주는 유저 인증 토큰에는 유효 시간 {@link IIamportUser.expired_at }\n이 있어, 해당 시간이 지나거든 기 발급 토큰이 만료되어 더 이상 쓸 수 없게 된다. 때문에\n아임포트의 이러한 시간 제한에 구애받지 않고 자유로이 아임포트의 API 를 이용하고 싶다면,\n`iamport-server-api` 에서 제공해주는 {@link IamportConnector } 를 활용하도록 하자.\n\n@param input 아임포트의 API 및 secret 키 정보\n@returns 유저 인증 토큰 정보\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "유저 인증 토큰 발행하기.\n\n아임포트에 가입하여 부여받은 API 및 secret 키를 토대로, 유저 인증 토큰을 발행한다.\n\n단, 아임포트가 발급해주는 유저 인증 토큰에는 유효 시간 {@link IIamportUser.expired_at }\n이 있어, 해당 시간이 지나거든 기 발급 토큰이 만료되어 더 이상 쓸 수 없게 된다. 때문에\n아임포트의 이러한 시간 제한에 구애받지 않고 자유로이 아임포트의 API 를 이용하고 싶다면,\n`iamport-server-api` 에서 제공해주는 {@link IamportConnector } 를 활용하도록 하자.",
         "x-nestia-namespace": "users.getToken.getToken",
         "x-nestia-jsDocTags": [
           {
@@ -1202,7 +1228,7 @@
           }
         },
         "summary": "가상 계좌 발급하기",
-        "description": "가상 계좌 발급하기.\n\n@param input 가상 계좌 입력 정보\n@returns 가상 계좌 결제 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "가상 계좌 발급하기.",
         "security": [
           {
             "bearer": []
@@ -1286,7 +1312,7 @@
           }
         },
         "summary": "가상 계좌 편집하기",
-        "description": "가상 계좌 편집하기.\n\n@param input 가상 계좌 편집 입력 정보\n@returns 편집된 가상 계좌 결제 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "가상 계좌 편집하기.",
         "security": [
           {
             "bearer": []
@@ -1349,10 +1375,10 @@
           {
             "name": "customer_uid",
             "in": "path",
-            "description": "고객 (간편 결제 카드) 식별자 키",
             "schema": {
               "type": "string"
             },
+            "description": "고객 (간편 결제 카드) 식별자 키",
             "required": true
           }
         ],
@@ -1370,7 +1396,7 @@
           }
         },
         "summary": "간편 결제 카드 정보 조회하기",
-        "description": "간편 결제 카드 정보 조회하기.\n\n`subscribe.customers.at` 은 고객이 {@link store } 나 혹은 아임포트가 제공하는\n간편 결제 카드 등록 창을 이용하여 저장한 간편 결제 카드 정보를 조회하는 API\n함수이다.\n\n@param customer_uid 고객 (간편 결제 카드) 식별자 키\n@returns 간편 결제 카드 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "간편 결제 카드 정보 조회하기.\n\n`subscribe.customers.at` 은 고객이 {@link store } 나 혹은 아임포트가 제공하는\n간편 결제 카드 등록 창을 이용하여 저장한 간편 결제 카드 정보를 조회하는 API\n함수이다.",
         "security": [
           {
             "bearer": []
@@ -1431,10 +1457,10 @@
           {
             "name": "customer_uid",
             "in": "path",
-            "description": "고객 (간편 결제 카드) 식별자 키",
             "schema": {
               "type": "string"
             },
+            "description": "고객 (간편 결제 카드) 식별자 키",
             "required": true
           }
         ],
@@ -1464,7 +1490,7 @@
           }
         },
         "summary": "간편 결제 카드 등록하기",
-        "description": "간편 결제 카드 등록하기.\n\n`subscribe.customers.stoer` 는 고객이 자신의 카드를 서버에 등록해두고, 매번 결제가\n필요할 때마다 카드 정보를 반복 입력하는 일 없이, 간편하게 결제를 진행하고자 할 때\n사용하는 API 함수이다.\n\n참고로 `subscribe.customers.store` 는 클라이언트 어플리케이션이 아임포트가 제공하는\n간편 결제 카드 등록 창을 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서 호출하는\n일은 없을 것이다. 다만, 고객이 간편 결제 카드를 등록하는 상황을 시뮬레이션하기 위하여,\n테스트 자동화 프로그램 수준에서 사용될 수는 있다.\n\n@param customer_uid 고객 (간편 결제 카드) 식별자 키\n@param input 카드 입력 정보\n@returns 간편 결제 카드 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "간편 결제 카드 등록하기.\n\n`subscribe.customers.stoer` 는 고객이 자신의 카드를 서버에 등록해두고, 매번 결제가\n필요할 때마다 카드 정보를 반복 입력하는 일 없이, 간편하게 결제를 진행하고자 할 때\n사용하는 API 함수이다.\n\n참고로 `subscribe.customers.store` 는 클라이언트 어플리케이션이 아임포트가 제공하는\n간편 결제 카드 등록 창을 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서 호출하는\n일은 없을 것이다. 다만, 고객이 간편 결제 카드를 등록하는 상황을 시뮬레이션하기 위하여,\n테스트 자동화 프로그램 수준에서 사용될 수는 있다.",
         "security": [
           {
             "bearer": []
@@ -1542,10 +1568,10 @@
           {
             "name": "customer_uid",
             "in": "path",
-            "description": "고객 (간편 결제 카드) 식별자 키",
             "schema": {
               "type": "string"
             },
+            "description": "고객 (간편 결제 카드) 식별자 키",
             "required": true
           }
         ],
@@ -1563,7 +1589,7 @@
           }
         },
         "summary": "간편 결제 카드 삭제하기",
-        "description": "간편 결제 카드 삭제하기.\n\n간편 결제를 위하여 등록한 카드를 제거한다.\n\n@param customer_uid 고객 (간편 결제 카드) 식별자 키\n@returns 삭제된 간편 결제 카드 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "간편 결제 카드 삭제하기.\n\n간편 결제를 위하여 등록한 카드를 제거한다.",
         "security": [
           {
             "bearer": []
@@ -1649,7 +1675,7 @@
           }
         },
         "summary": "카드로 결제하기, 더불어 간편 결제용으로 등록 가능",
-        "description": "카드로 결제하기, 더불어 간편 결제용으로 등록 가능.\n\n`subscribe.payments.onetime` 은 카드를 매개로 한 결제를 하고자 할 때 호출하는 API\n함수이다. 더하여 입력 값에 {@link IIamportSubscription.IOnetime.customer_uid } 를\n기입하는 경우, 결제에 사용한 카드를 그대로 간편 결제용 카드\n{@link IIamportSubscription } 로 등록해버린다.\n\n다만, 정히 간편 카드 등록과 결제를 동시에 하고 싶다면,\n`subscribe.payments.onetime` 에 {@link IIamportSubscription.IOnetime.customer_uid }\n를 더하기보다, {@link subscribe.customers.store } 와 {@link subscribe.payments.again }\n을 각각 호출하는 것을 권장한다. 그것이 예외적인 상황에 보다 안전하게 대처할 수 있기\n때문이다.\n\n더하여 `subscribe.payments.onetime` 은 클라이언트 어플리케이션이 아임포트가 제공하는\n결제 창을 그대로 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서 호출하는 일은\n없을 것이다. 다만, 고객이 카드를 통하여 결제하는 상황을 시뮬레이션하기 위하여, 테스트\n자동화 프로그램 수준에서 사용될 수는 있다.\n\n@param input 카드 결제 신청 정보\n@returns 카드 결제 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "카드로 결제하기, 더불어 간편 결제용으로 등록 가능.\n\n`subscribe.payments.onetime` 은 카드를 매개로 한 결제를 하고자 할 때 호출하는 API\n함수이다. 더하여 입력 값에 {@link IIamportSubscription.IOnetime.customer_uid } 를\n기입하는 경우, 결제에 사용한 카드를 그대로 간편 결제용 카드\n{@link IIamportSubscription } 로 등록해버린다.\n\n다만, 정히 간편 카드 등록과 결제를 동시에 하고 싶다면,\n`subscribe.payments.onetime` 에 {@link IIamportSubscription.IOnetime.customer_uid }\n를 더하기보다, {@link subscribe.customers.store } 와 {@link subscribe.payments.again }\n을 각각 호출하는 것을 권장한다. 그것이 예외적인 상황에 보다 안전하게 대처할 수 있기\n때문이다.\n\n더하여 `subscribe.payments.onetime` 은 클라이언트 어플리케이션이 아임포트가 제공하는\n결제 창을 그대로 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서 호출하는 일은\n없을 것이다. 다만, 고객이 카드를 통하여 결제하는 상황을 시뮬레이션하기 위하여, 테스트\n자동화 프로그램 수준에서 사용될 수는 있다.",
         "security": [
           {
             "bearer": []
@@ -1735,7 +1761,7 @@
           }
         },
         "summary": "간편 결제에 등록된 카드로 결제하기",
-        "description": "간편 결제에 등록된 카드로 결제하기.\n\n`subscribe.payments.again` 은 고객이 간편 결제에 등록한 카드로 결제를 진행하고자 할 때\n호출하는 API 함수이다. 이는 간편하고 불편하고를 떠나, 본질적으로 카드 결제의 일환이기에,\n리턴값은 일반적인 카드 결제 때와 동일한 {@link IIamportCardPayment } 이다.\n\n그리고 `subscribe.payments.again` 은 결제 수단 중 유일하게, 클라이언트 어플리케이션이\n아임포트가 제공하는 결체 창을 사용할 수 없어, 오직 귀하의 백엔드 서버가 아임포트의 API\n함수를 직접 호출해야하는 경우에 해당한다. 따라서 간편 결제에 관하여 아임포트 서버와\n연동하는 백엔드 서버 및 프론트 어플리케이션을 개발할 때, 반드시 이 상황에 대한 별도의\n설계 및 개발이 필요하니, 이 점을 염두에 두기 바란다.\n\n@param input 미리 등록한 카드를 이용한 결제 신청 정보\n@returns 카드 결제 정보\n@security bearer\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "간편 결제에 등록된 카드로 결제하기.\n\n`subscribe.payments.again` 은 고객이 간편 결제에 등록한 카드로 결제를 진행하고자 할 때\n호출하는 API 함수이다. 이는 간편하고 불편하고를 떠나, 본질적으로 카드 결제의 일환이기에,\n리턴값은 일반적인 카드 결제 때와 동일한 {@link IIamportCardPayment } 이다.\n\n그리고 `subscribe.payments.again` 은 결제 수단 중 유일하게, 클라이언트 어플리케이션이\n아임포트가 제공하는 결체 창을 사용할 수 없어, 오직 귀하의 백엔드 서버가 아임포트의 API\n함수를 직접 호출해야하는 경우에 해당한다. 따라서 간편 결제에 관하여 아임포트 서버와\n연동하는 백엔드 서버 및 프론트 어플리케이션을 개발할 때, 반드시 이 상황에 대한 별도의\n설계 및 개발이 필요하니, 이 점을 염두에 두기 바란다.",
         "security": [
           {
             "bearer": []
@@ -1819,7 +1845,7 @@
           "message",
           "response"
         ],
-        "description": "아임포트 고유의 응답 데이터.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "아임포트 고유의 응답 데이터.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -1867,24 +1893,7 @@
             "type": "number"
           },
           "birthday": {
-            "description": "생년월일, YYYYMMDD 형식.\n\n@pattern ^([0-9]{4})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^([0-9]{4})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^([0-9]{4})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "생년월일, YYYYMMDD 형식.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -1981,7 +1990,7 @@
           "pg_provider",
           "origin"
         ],
-        "description": "본인 인증 내역.\n\n`IIamportCertification` 은 아임포트의 본인인증 정보를 형상화한 자료구조 인터페이스이다.\n\n단, `IIamportCertification` 레코드의 존재가 곧 본인인증의 완결을 뜻하는 것은 아니다.\n{@link IIamportCertification.certified } 값이 `true` 여야만이 비로소, 본인인증\n대상자가 자신의 핸드폰 번호로 전송된 OTP 를 아임포트의 본인인증 팝업창에 정확히 적어,\n본인인증을 완료했음을 의미한다.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "본인 인증 내역.\n\n`IIamportCertification` 은 아임포트의 본인인증 정보를 형상화한 자료구조 인터페이스이다.\n\n단, `IIamportCertification` 레코드의 존재가 곧 본인인증의 완결을 뜻하는 것은 아니다.\n{@link IIamportCertification.certified } 값이 `true` 여야만이 비로소, 본인인증\n대상자가 자신의 핸드폰 번호로 전송된 OTP 를 아임포트의 본인인증 팝업창에 정확히 적어,\n본인인증을 완료했음을 의미한다.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -2010,24 +2019,7 @@
             "type": "string"
           },
           "birth": {
-            "description": "생년월일.\n\nYYYYMMDD 형식.\n\n@pattern ^([0-9]{4})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^([0-9]{4})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^([0-9]{4})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "생년월일.\n\nYYYYMMDD 형식.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2111,7 +2103,7 @@
           "message",
           "response"
         ],
-        "description": "아임포트 고유의 응답 데이터.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "아임포트 고유의 응답 데이터.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -2174,7 +2166,16 @@
             "type": "string"
           },
           "status": {
-            "$ref": "#/components/schemas/IIamportPayment.Status"
+            "description": "현재 상태.",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "paid",
+              "ready",
+              "failed",
+              "cancelled"
+            ]
           }
         },
         "nullable": false,
@@ -2186,13 +2187,37 @@
         "description": "웹훅 데이터.",
         "x-typia-jsDocTags": []
       },
-      "IIamportPayment.Status": {
-        "type": "string",
-        "enum": [
-          "paid",
-          "ready",
-          "failed",
-          "cancelled"
+      "IIamportPayment.IQuery": {
+        "type": "object",
+        "properties": {
+          "extension": {
+            "description": "페이팔의 경우, 이 값을 `true` 로 할 것.",
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "boolean"
+          }
+        },
+        "nullable": false,
+        "description": "결제 수단이 페이팔인 경우, 페이팔의 구매자 보호정책에 의해 결제 승인 시점에\nPending 상태를 만든 후, 내부 심사등을 통해 최종 결제 완료라고 변경함.\n\n`iamport` 의 기술적 이슈로 해당 상태를 status: failed 로 기록함. 추후\n페이팔에서 최종결제완료로 변경된 경우, `iamport` 에서 `paid` 로 변경 후,\n해당건에 대한 웹훅 발송. `iamport` 를 사용하는 고객사에서는, failed 로 이미\n처리된 결제건에 대한 paid 상태의 웹훅을 받는 문제점이 생김.\n\n이에, `iamport` 에서 제공하는 `/payment/{imp_uid}` 에 query-string 으로\n`extension=true` 옵션을 추가해야 함",
+        "x-typia-jsDocTags": [
+          {
+            "name": "issue",
+            "text": [
+              {
+                "text": "https://github.com/samchon/fake-iamport-server/issues/13",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Sangjin Han - https://github.com/ltnscp9028",
+                "kind": "text"
+              }
+            ]
+          }
         ]
       },
       "IIamportResponse_lt_IIamportPayment_gt_": {
@@ -2220,7 +2245,7 @@
           "message",
           "response"
         ],
-        "description": "아임포트 고유의 응답 데이터.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "아임포트 고유의 응답 데이터.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -2248,7 +2273,7 @@
             "$ref": "#/components/schemas/IIamportPayment.IBase_lt__doublequote_phone_doublequote__space__or__space__doublequote_kpay_doublequote__space__or__space__doublequote_kakaopay_doublequote__space__or__space__doublequote_payco_doublequote__space__or__space__doublequote_lpay_doublequote__space__or__space__doublequote_ssgpay_doublequote__space__or__space__doublequote_tosspay_doublequote__space__or__space__doublequote_cultureland_doublequote__space__or__space__doublequote_smartculture_doublequote__space__or__space__doublequote_happymoney_doublequote__space__or__space__doublequote_booknlife_doublequote__space__or__space__doublequote_point_doublequote__gt_"
           }
         ],
-        "description": "결제 정보.\n\n`IIamportPayment` 는 아임포트의 결제 정보를 형상화한 자료구조이자 유니언 타입의\n인터페이스로써, if condition 을 통하여 method 값을 특정하면, 파생 타입이 자동으로\n지정된다.\n\n```typescript\nif (payment.pay_method === \"card\")\n   payment.card_number; // payment be IIamportCardPayment\n```\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "결제 정보.\n\n`IIamportPayment` 는 아임포트의 결제 정보를 형상화한 자료구조이자 유니언 타입의\n인터페이스로써, if condition 을 통하여 method 값을 특정하면, 파생 타입이 자동으로\n지정된다.\n\n```typescript\nif (payment.pay_method === \"card\")\n   payment.card_number; // payment be IIamportCardPayment\n```",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -2277,52 +2302,17 @@
             "type": "string"
           },
           "card_number": {
-            "description": "카드 번호.\n\n@pattern ^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 번호.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "pattern": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$"
+            "pattern": "\\d{4}-\\d{4}-\\d{4}-\\d{4}"
           },
           "card_quota": {
-            "description": "할부 개월 수\n\n@type",
-            "x-typia-metaTags": [
-              {
-                "kind": "type",
-                "value": "uint"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "type",
-                "text": [
-                  {
-                    "text": "uint",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "할부 개월 수.",
             "x-typia-required": true,
             "x-typia-optional": false,
-            "type": "integer",
-            "minimum": 0
+            "type": "integer"
           },
           "apply_num": {
             "description": "카드사 승인번호.",
@@ -2374,24 +2364,7 @@
             "$ref": "#/components/schemas/IIamportPayment.Currency"
           },
           "receipt_url": {
-            "description": "영수증 URL\n\n@format url",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "url"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "url",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "영수증 URL.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2441,24 +2414,6 @@
             "nullable": true
           },
           "buyer_email": {
-            "description": "@format email",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "email"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "email",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2595,7 +2550,7 @@
           "cancel_reason",
           "cancel_history"
         ],
-        "description": "카드 결제 정보.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "카드 결제 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -2615,6 +2570,15 @@
           "USD",
           "EUR",
           "JPY"
+        ]
+      },
+      "IIamportPayment.Status": {
+        "type": "string",
+        "enum": [
+          "paid",
+          "ready",
+          "failed",
+          "cancelled"
         ]
       },
       "IIamportPaymentCancel": {
@@ -2646,24 +2610,6 @@
             "type": "string"
           },
           "receipt_url": {
-            "description": "@format url",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "url"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "url",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2679,7 +2625,7 @@
           "reason",
           "receipt_url"
         ],
-        "description": "결제 취소 정보.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "결제 취소 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -2750,24 +2696,7 @@
             "$ref": "#/components/schemas/IIamportPayment.Currency"
           },
           "receipt_url": {
-            "description": "영수증 URL\n\n@format url",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "url"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "url",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "영수증 URL.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2817,24 +2746,6 @@
             "nullable": true
           },
           "buyer_email": {
-            "description": "@format email",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "email"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "email",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2968,7 +2879,7 @@
           "cancel_reason",
           "cancel_history"
         ],
-        "description": "계좌 이체 결제 정보.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "계좌 이체 결제 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -3063,24 +2974,7 @@
             "$ref": "#/components/schemas/IIamportPayment.Currency"
           },
           "receipt_url": {
-            "description": "영수증 URL\n\n@format url",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "url"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "url",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "영수증 URL.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -3130,24 +3024,6 @@
             "nullable": true
           },
           "buyer_email": {
-            "description": "@format email",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "email"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "email",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -3285,7 +3161,7 @@
           "cancel_reason",
           "cancel_history"
         ],
-        "description": "가상 계좌 결제 정보.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "가상 계좌 결제 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -3355,24 +3231,7 @@
             "$ref": "#/components/schemas/IIamportPayment.Currency"
           },
           "receipt_url": {
-            "description": "영수증 URL\n\n@format url",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "url"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "url",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "영수증 URL.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -3422,24 +3281,6 @@
             "nullable": true
           },
           "buyer_email": {
-            "description": "@format email",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "email"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "email",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -3609,10 +3450,10 @@
             "type": "string"
           },
           "tax_free": {
-            "description": "취소요청금액 중 면세금액.\n\n@defualt 0",
+            "description": "취소요청금액 중 면세금액.",
             "x-typia-jsDocTags": [
               {
-                "name": "defualt",
+                "name": "default",
                 "text": [
                   {
                     "text": "0",
@@ -3623,7 +3464,8 @@
             ],
             "x-typia-required": false,
             "x-typia-optional": true,
-            "type": "number"
+            "type": "number",
+            "default": 0
           },
           "refund_holder": {
             "description": "환불계좌 예금주.",
@@ -3685,7 +3527,7 @@
           "message",
           "response"
         ],
-        "description": "아임포트 고유의 응답 데이터.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "아임포트 고유의 응답 데이터.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -3735,24 +3577,7 @@
             "type": "number"
           },
           "receipt_url": {
-            "description": "현금영수증 조회 URL.\n\n@format url",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "url"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "url",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "현금영수증 조회 URL.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -3783,7 +3608,7 @@
           "applied_at",
           "cancelled_at"
         ],
-        "description": "현금 영수증 정보.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "현금 영수증 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -3923,7 +3748,7 @@
           "message",
           "response"
         ],
-        "description": "아임포트 고유의 응답 데이터.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "아임포트 고유의 응답 데이터.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -3964,7 +3789,7 @@
           "expired_at",
           "access_token"
         ],
-        "description": "아임포트 유저 인증 정보.\n\n아임포트는 고객사에게 API 및 secret 키 정보, {@link IIamportUser.IAccessor } 를 발급해준다.\n\n하지만 이를 곧장 아임포트의 유저 인증에 사용할 수는 없고, 해당 API 및 secret 키를 토대로 유저\n인증 토큰을 발급받아야 하는데, 이 유저 인증 토큰에는 하필이면 만로 시간이라는 게 존재한다.\n`IIamportUser` 는 바로 이러한 유저 인증 토큰 및 그것의 만료 시간을 형상화한 자료구조\n인터페이스이다.\n\n더하여 이처럼 만료 시간이 존재하는 아임포트의 유저 인증 토큰의 특성상, 이것의 만료 시간이\n초과되지 않도록 관리하는 것은 매우 힘든 일이다. 이에 `iamport-server-api` 에서는 아임포트\n유저 인증 토큰이 만료될 때마다 자동 갱신해주는, {@link IamportConnector } 클래스를 제공한다.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "아임포트 유저 인증 정보.\n\n아임포트는 고객사에게 API 및 secret 키 정보, {@link IIamportUser.IAccessor } 를 발급해준다.\n\n하지만 이를 곧장 아임포트의 유저 인증에 사용할 수는 없고, 해당 API 및 secret 키를 토대로 유저\n인증 토큰을 발급받아야 하는데, 이 유저 인증 토큰에는 하필이면 만로 시간이라는 게 존재한다.\n`IIamportUser` 는 바로 이러한 유저 인증 토큰 및 그것의 만료 시간을 형상화한 자료구조\n인터페이스이다.\n\n더하여 이처럼 만료 시간이 존재하는 아임포트의 유저 인증 토큰의 특성상, 이것의 만료 시간이\n초과되지 않도록 관리하는 것은 매우 힘든 일이다. 이에 `iamport-server-api` 에서는 아임포트\n유저 인증 토큰이 만료될 때마다 자동 갱신해주는, {@link IamportConnector } 클래스를 제공한다.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -4100,7 +3925,7 @@
           "message",
           "response"
         ],
-        "description": "아임포트 고유의 응답 데이터.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "아임포트 고유의 응답 데이터.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -4167,7 +3992,7 @@
           "message",
           "response"
         ],
-        "description": "아임포트 고유의 응답 데이터.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "아임포트 고유의 응답 데이터.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -4277,7 +4102,7 @@
           "updated",
           "customer_uid"
         ],
-        "description": "간편 결제 카드 정보.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "간편 결제 카드 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -4294,124 +4119,39 @@
         "type": "object",
         "properties": {
           "card_number": {
-            "description": "카드 번호\n\n형식: XXXX-XXXX-XXXX-XXXX\n\n@pattern ^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 번호.\n\n형식: XXXX-XXXX-XXXX-XXXX",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "pattern": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$"
+            "pattern": "\\d{4}-\\d{4}-\\d{4}-\\d{4}"
           },
           "expiry": {
-            "description": "카드 유효기간\n\n형식: YYYY-MM\n\n@pattern ^([0-9]{4})-(0[1-9]|1[012])$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^([0-9]{4})-(0[1-9]|1[012])$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^([0-9]{4})-(0[1-9]|1[012])$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 유효기간.\n\n형식: YYYY-MM",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "pattern": "^([0-9]{4})-(0[1-9]|1[012])$"
           },
           "birth": {
-            "description": "생년월일 YYMMDD 또는 사업자등록번호 10자리\n\n@pattern ^(([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01]))|(\\d{10})$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^(([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01]))|(\\d{10})$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^(([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01]))|(\\d{10})$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "생년월일 YYMMDD 또는 사업자등록번호 10자리.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "pattern": "^(([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01]))|(\\d{10})$"
           },
           "pwd_2digit": {
-            "description": "카드 비밀번호 앞 두 자리\n\n@pattern \\d{2}",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "\\d{2}"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "\\d{2}",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 비밀번호 앞 두 자리.",
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
             "pattern": "\\d{2}"
           },
           "cvc": {
-            "description": "카드 인증번호 (카드 뒷면 3 자리).\n\n@pattern \\d{3}",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "\\d{3}"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "\\d{3}",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 인증번호 (카드 뒷면 3 자리).",
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
-            "pattern": "\\d{3}"
+            "pattern": "\\d{2}"
           },
           "customer_name": {
             "x-typia-required": false,
@@ -4424,24 +4164,6 @@
             "type": "string"
           },
           "customer_email": {
-            "description": "@format email",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "email"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "email",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
@@ -4484,124 +4206,39 @@
             "type": "string"
           },
           "card_number": {
-            "description": "카드 번호\n\n형식: XXXX-XXXX-XXXX-XXXX\n\n@pattern ^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 번호.\n\n형식: XXXX-XXXX-XXXX-XXXX",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "pattern": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}$"
+            "pattern": "\\d{4}-\\d{4}-\\d{4}-\\d{4}"
           },
           "expiry": {
-            "description": "카드 유효기간\n\n형식: YYYY-MM\n\n@pattern ^([0-9]{4})-(0[1-9]|1[012])$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^([0-9]{4})-(0[1-9]|1[012])$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^([0-9]{4})-(0[1-9]|1[012])$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 유효기간.\n\n형식: YYYY-MM",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "pattern": "^([0-9]{4})-(0[1-9]|1[012])$"
           },
           "birth": {
-            "description": "생년월일 YYMMDD 또는 사업자등록번호 10자리\n\n@pattern ^(([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01]))|(\\d{10})$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^(([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01]))|(\\d{10})$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^(([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01]))|(\\d{10})$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "생년월일 YYMMDD 또는 사업자등록번호 10자리.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "pattern": "^(([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01]))|(\\d{10})$"
           },
           "pwd_2digit": {
-            "description": "카드 비밀번호 앞 두 자리\n\n@pattern \\d{2}",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "\\d{2}"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "\\d{2}",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 비밀번호 앞 두 자리.",
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
             "pattern": "\\d{2}"
           },
           "cvc": {
-            "description": "카드 인증번호 (카드 뒷면 3 자리).\n\n@pattern \\d{3}",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "\\d{3}"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "\\d{3}",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 인증번호 (카드 뒷면 3 자리).",
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
-            "pattern": "\\d{3}"
+            "pattern": "\\d{2}"
           },
           "customer_name": {
             "x-typia-required": false,
@@ -4614,24 +4251,6 @@
             "type": "string"
           },
           "customer_email": {
-            "description": "@format email",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "email"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "email",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
@@ -4695,24 +4314,6 @@
             "type": "string"
           },
           "buyer_email": {
-            "description": "@format email",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "email"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "email",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
@@ -4752,24 +4353,7 @@
             "type": "string"
           },
           "notice_url": {
-            "description": "결제 성공시 통지될 Notification, 웹훅 URL.\n\n@format url",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "url"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "url",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "결제 성공시 통지될 Notification, 웹훅 URL.",
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
@@ -4813,7 +4397,7 @@
           "message",
           "response"
         ],
-        "description": "아임포트 고유의 응답 데이터.\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "아임포트 고유의 응답 데이터.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -4877,24 +4461,6 @@
             "type": "string"
           },
           "buyer_email": {
-            "description": "@format email",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "email"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "email",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
@@ -4934,24 +4500,7 @@
             "type": "string"
           },
           "notice_url": {
-            "description": "결제 성공시 통지될 Notification, 웹훅 URL.\n\n@format url",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "url"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "url",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "결제 성공시 통지될 Notification, 웹훅 URL.",
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
@@ -4982,10 +4531,5 @@
         "in": "header"
       }
     }
-  },
-  "security": [
-    {
-      "bearer": []
-    }
-  ]
+  }
 }
