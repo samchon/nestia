@@ -53,6 +53,30 @@ export interface INestiaConfig {
     e2e?: string;
 
     /**
+     * Whether to use propagation mode or not.
+     *
+     * If being configured, interaction functions of the SDK library would
+     * perform the propagation mode. The propagation mode means that never
+     * throwing exception even when status code is not 200 (or 201), but just
+     * returning the {@link IPropagation} typed instance, which can specify its body
+     * type through discriminated union determined by status code.
+     *
+     * @default false
+     */
+    propagate?: boolean;
+
+    /**
+     * Whether to clone DTO structures or not.
+     *
+     * If being configured, all of DTOs used in the backend server would be cloned
+     * into the `structures` directory, and the SDK library would be refer to the
+     * cloned DTOs instead of the original.
+     *
+     * @default false
+     */
+    clone?: boolean;
+
+    /**
      * Whether to wrap DTO by primitive type.
      *
      * If you don't configure this property as `false`, all of DTOs in the

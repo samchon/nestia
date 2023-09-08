@@ -145,11 +145,11 @@ export namespace ControllerAnalyzer {
             .map((pair) => [pair.first, pair.second.toJSON()]);
 
         // PARSE COMMENT TAGS
-        const tags = signature.getJsDocTags();
+        const jsDocTags = signature.getJsDocTags();
         const security: Record<string, string[]>[] = SecurityAnalyzer.merge(
             ...controller.security,
             ...func.security,
-            ...tags
+            ...jsDocTags
                 .filter((tag) => tag.name === "security")
                 .map((tag) =>
                     (tag.text ?? []).map((text) => {
@@ -191,12 +191,12 @@ export namespace ControllerAnalyzer {
                 }:${character + 1}`;
             })(),
             description: CommentFactory.description(symbol),
-            operationId: tags
+            operationId: jsDocTags
                 .find(({ name }) => name === "operationId")
                 ?.text!?.[0].text.split(" ")[0]
                 .trim(),
-            tags,
-            setHeaders: tags
+            jsDocTags: jsDocTags,
+            setHeaders: jsDocTags
                 .filter(
                     (t) =>
                         t.text?.length &&

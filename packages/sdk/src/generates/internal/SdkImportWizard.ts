@@ -4,6 +4,13 @@ export namespace SdkImportWizard {
     export const Fetcher = (encrypted: boolean) =>
         encrypted ? EncryptedFetcher : PlainFetcher;
 
+    export const HttpError = (importer: ImportDictionary) =>
+        importer.external({
+            type: true,
+            library: "@nestia/fetcher",
+            instance: "HttpError",
+        });
+
     export const IConnection = (importer: ImportDictionary) =>
         importer.external({
             type: true,
@@ -16,6 +23,13 @@ export namespace SdkImportWizard {
             type: true,
             library: "@nestia/fetcher",
             instance: "Primitive",
+        });
+
+    export const Resolved = (importer: ImportDictionary) =>
+        importer.external({
+            type: true,
+            library: "@nestia/fetcher",
+            instance: "Resolved",
         });
 
     export const typia = (importer: ImportDictionary) =>

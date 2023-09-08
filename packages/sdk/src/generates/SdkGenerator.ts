@@ -1,14 +1,17 @@
 import fs from "fs";
 import NodePath from "path";
 import { IPointer } from "tstl";
+import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
 import { DistributionComposer } from "./internal/DistributionComposer";
+import { SdkDtoGenerator } from "./internal/SdkDtoGenerator";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
 
 export namespace SdkGenerator {
     export const generate =
+        (checker: ts.TypeChecker) =>
         (config: INestiaConfig) =>
         async (routes: IRoute[]): Promise<void> => {
             console.log("Generating SDK Library");
@@ -54,6 +57,10 @@ export namespace SdkGenerator {
                     `${config.output}/utils/NestiaSimulator.ts`,
                 );
             }
+
+            // STRUCTURES
+            if (config.clone)
+                await SdkDtoGenerator.generate(checker)(config)(routes);
 
             // FUNCTIONAL
             await SdkFileProgrammer.generate(config)(routes);

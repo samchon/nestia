@@ -73,13 +73,14 @@ export namespace SdkFileProgrammer {
                     type: false,
                 });
             directory.routes.forEach((route, i) => {
-                for (const tuple of route.imports)
-                    for (const instance of tuple[1])
-                        importer.internal({
-                            file: tuple[0],
-                            instance,
-                            type: true,
-                        });
+                if (config.clone !== true)
+                    for (const tuple of route.imports)
+                        for (const instance of tuple[1])
+                            importer.internal({
+                                file: tuple[0],
+                                instance,
+                                type: true,
+                            });
 
                 content.push(
                     SdkFunctionProgrammer.generate(config)(importer)(route),

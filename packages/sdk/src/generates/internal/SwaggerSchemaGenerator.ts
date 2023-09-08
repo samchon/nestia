@@ -64,7 +64,7 @@ export namespace SwaggerSchemaGenerator {
             }
 
             // FROM COMMENT TAGS -> ANY
-            for (const tag of route.tags) {
+            for (const tag of route.jsDocTags) {
                 if (tag.name !== "throw" && tag.name !== "throws") continue;
 
                 const text: string | undefined = tag.text?.find(
@@ -329,7 +329,12 @@ export namespace SwaggerSchemaGenerator {
             const schema: IJsonSchema = coalesce(props)(result);
             return {
                 name: param.field ?? param.name,
-                in: param.category === "headers" ? "header" : param.category,
+                in:
+                    param.category === "headers"
+                        ? "header"
+                        : param.category === "param"
+                        ? "path"
+                        : param.category,
                 schema,
                 description: describe(route, "param", param.name) ?? "",
                 required: result.success ? result.data.isRequired() : true,
@@ -363,7 +368,7 @@ export namespace SwaggerSchemaGenerator {
                   ) !== undefined
             : () => true;
 
-        const tag: ts.JSDocTagInfo | undefined = route.tags.find(
+        const tag: ts.JSDocTagInfo | undefined = route.jsDocTags.find(
             (tag) => tag.name === tagName && tag.text && parametric(tag),
         );
         return tag && tag.text

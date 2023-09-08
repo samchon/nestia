@@ -3,6 +3,7 @@ import fs from "fs";
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
+import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
 
 export namespace E2eFileProgrammer {
@@ -11,20 +12,21 @@ export namespace E2eFileProgrammer {
         (props: { api: string; current: string }) =>
         async (route: IRoute): Promise<void> => {
             const importer: ImportDictionary = new ImportDictionary();
-            for (const tuple of route.imports)
-                for (const instance of tuple[1])
-                    importer.internal({
-                        file: tuple[0],
-                        type: true,
-                        instance,
-                    });
-
+            if (config.clone !== true)
+                for (const tuple of route.imports)
+                    for (const instance of tuple[1])
+                        importer.internal({
+                            file: tuple[0],
+                            type: true,
+                            instance,
+                        });
             importer.internal({
                 type: false,
                 file: props.api,
                 instance: null,
                 name: "api",
             });
+
             const body: string = arrow(config)(importer)(route);
             const content: string = [
                 importer.toScript(props.current),
@@ -43,7 +45,7 @@ export namespace E2eFileProgrammer {
         (config: INestiaConfig) =>
         (importer: ImportDictionary) =>
         (route: IRoute): string => {
-            const tab: number = route.output.typeName === "void" ? 2 : 3;
+            const tab: number = 2;
             const headers = route.parameters.find(
                 (p) => p.category === "headers" && p.field === undefined,
             );
@@ -57,7 +59,9 @@ export namespace E2eFileProgrammer {
                           "        ...(connection.headers ?? {}),",
                           `        ...${SdkImportWizard.typia(
                               importer,
-                          )}.random<${headers.typeName}>(),`,
+                          )}.random<${getTypeName(config)(importer)(
+                              headers,
+                          )}>(),`,
                           "    },",
                           "},",
                       ]
@@ -76,10 +80,7 @@ export namespace E2eFileProgrammer {
                 ...(route.output.typeName === "void"
                     ? [`    ${output}`]
                     : [
-                          `    const output: ${primitive(config)(importer)(
-                              route.output.typeName,
-                          )} = `,
-                          `        ${output}`,
+                          `    const output = ${output}`,
                           `    ${SdkImportWizard.typia(
                               importer,
                           )}.assert(output);`,
@@ -95,7 +96,10 @@ export namespace E2eFileProgrammer {
         (param: IRoute.IParameter): string => {
             const middle: string = `${SdkImportWizard.typia(
                 importer,
-            )}.random<${primitive(config)(importer)(param.typeName)}>()`;
+            )}.random<${wrap(config)(importer)(
+                getTypeName(config)(importer)(param),
+                param.category === "body",
+            )}>()`;
             return `${" ".repeat(4 * tab)}${middle},`;
         };
 
@@ -105,11 +109,20 @@ export namespace E2eFileProgrammer {
     const accessor = (route: IRoute): string =>
         ["api", "functional", ...route.accessors].join(".");
 
-    const primitive =
+    const wrap =
         (config: INestiaConfig) =>
         (importer: ImportDictionary) =>
-        (name: string): string =>
-            config.primitive !== false
-                ? `${SdkImportWizard.Primitive(importer)}<${name}>`
-                : name;
+        (name: string, body: boolean): string =>
+            config.primitive === false
+                ? name
+                : `${(body
+                      ? SdkImportWizard.Primitive
+                      : SdkImportWizard.Resolved)(importer)}<${name}>`;
 }
+const getTypeName =
+    (config: INestiaConfig) =>
+    (importer: ImportDictionary) =>
+    (p: IRoute.IParameter | IRoute.IOutput) =>
+        p.metadata
+            ? SdkDtoGenerator.decode(config)(importer)(p.metadata)
+            : p.typeName;

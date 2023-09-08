@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "2.0.0-dev.20230904-2",
+  "version": "2.0.0-dev.20230908-6",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -35,25 +35,25 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "^2.0.0-dev.20230904-2",
+    "@nestia/fetcher": ">=2.0.0-dev.20230908-6",
     "cli": "^1.0.1",
     "glob": "^7.2.0",
     "path-to-regexp": "^6.2.1",
-    "reflect-metadata": ">= 0.1.12",
+    "reflect-metadata": ">=0.1.12",
     "tgrid": "^0.8.8",
     "tsconfck": "^2.0.1",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^2.5.13",
-    "typia": "^5.0.1"
+    "typia": "^5.0.2"
   },
   "peerDependencies": {
-    "@nestia/fetcher": ">=2.0.0-dev.20230904-2",
+    "@nestia/fetcher": ">=2.0.0-dev.20230908-6",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
     "ts-node": ">=10.6.0",
     "typescript": ">=4.8.0",
-    "typia": ">=5.0.1 <6.0.0"
+    "typia": ">=5.0.2 <6.0.0"
   },
   "devDependencies": {
     "@nestjs/common": ">= 7.0.1",

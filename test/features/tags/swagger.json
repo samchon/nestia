@@ -18,6 +18,8 @@
     "/bbs/articles/{section}": {
       "post": {
         "tags": [
+          "common",
+          "protected",
           "public"
         ],
         "parameters": [
@@ -128,7 +130,9 @@
     "/bbs/articles/{section}/{id}": {
       "put": {
         "deprecated": true,
-        "tags": [],
+        "tags": [
+          "common"
+        ],
         "parameters": [
           {
             "name": "section",

@@ -7,8 +7,10 @@ import { INestiaConfig } from "../../INestiaConfig";
 import { IController } from "../../structures/IController";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
+import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkSimulationProgrammer } from "./SdkSimulationProgrammer";
+import { SdkTypeDefiner } from "./SdkTypeDefiner";
 
 export namespace SdkFunctionProgrammer {
     export const generate =
@@ -132,7 +134,9 @@ export namespace SdkFunctionProgrammer {
                     [
                         `${awa ? "await " : ""}${SdkImportWizard.Fetcher(
                             encrypted,
-                        )(importer)}.fetch(`,
+                        )(importer)}.${
+                            config.propagate === true ? "propagate" : "fetch"
+                        }(`,
                         fetchArguments
                             .map((param) =>
                                 typeof param === "string"
@@ -163,23 +167,28 @@ export namespace SdkFunctionProgrammer {
                 `    // configure header(s)\n`,
                 `    connection.headers ??= {};\n`,
             ];
-
-            for (const header of route.setHeaders) {
-                if (header.type === "assigner")
-                    content.push(
-                        "    ",
-                        `Object.assign(connection.headers, ${access("output")(
-                            header.source,
-                        )});\n`,
-                    );
-                else
-                    content.push(
-                        "    ",
-                        `${access("connection.headers")(
-                            header.target ?? header.source,
-                        )} = ${access("output")(header.source)};\n`,
-                    );
-            }
+            const headerContents = (variable: string) =>
+                route.setHeaders.map((header) =>
+                    header.type === "assigner"
+                        ? `Object.assign(connection.headers, ${access(variable)(
+                              header.source,
+                          )});`
+                        : `${access("connection.headers")(
+                              header.target ?? header.source,
+                          )} = ${access(variable)(header.source)};`,
+                );
+            if (config.propagate === true) {
+                content.push(`    if (output.success) {\n`);
+                content.push(
+                    ...headerContents("output.data").map(
+                        (line) => `        ${line}\n`,
+                    ),
+                );
+                content.push(`    }\n`);
+            } else
+                content.push(
+                    ...headerContents("output").map((line) => `    ${line}\n`),
+                );
             content.push("\n", "    return output;\n", "}");
             return content.join("");
         };
@@ -221,7 +230,7 @@ export namespace SdkFunctionProgrammer {
                 : [];
 
             // COMMENT TAGS
-            const tags: IJsDocTagInfo[] = route.tags.filter(
+            const tags: IJsDocTagInfo[] = route.jsDocTags.filter(
                 (tag) =>
                     tag.name !== "param" ||
                     route.parameters
@@ -283,7 +292,7 @@ export namespace SdkFunctionProgrammer {
                                 ? `${route.name}.${
                                       param === props.query ? "Query" : "Input"
                                   }`
-                                : param.typeName;
+                                : getTypeName(config)(importer)(param);
                         return `${param.name}${
                             param.optional ? "?" : ""
                         }: ${type}`;
@@ -292,7 +301,7 @@ export namespace SdkFunctionProgrammer {
 
             // OUTPUT TYPE
             const output: string =
-                route.output.typeName === "void"
+                config.propagate !== true && route.output.typeName === "void"
                     ? "void"
                     : `${route.name}.Output`;
 
@@ -321,13 +330,33 @@ export namespace SdkFunctionProgrammer {
             // LIST UP TYPES
             const types: Pair<string, string>[] = [];
             if (props.headers !== undefined)
-                types.push(new Pair("Headers", props.headers.typeName));
+                types.push(
+                    new Pair(
+                        "Headers",
+                        SdkTypeDefiner.headers(config)(importer)(props.headers),
+                    ),
+                );
             if (props.query !== undefined)
-                types.push(new Pair("Query", props.query.typeName));
+                types.push(
+                    new Pair(
+                        "Query",
+                        SdkTypeDefiner.query(config)(importer)(props.query),
+                    ),
+                );
             if (props.input !== undefined)
-                types.push(new Pair("Input", props.input.typeName));
-            if (route.output.typeName !== "void")
-                types.push(new Pair("Output", route.output.typeName));
+                types.push(
+                    new Pair(
+                        "Input",
+                        SdkTypeDefiner.input(config)(importer)(props.input),
+                    ),
+                );
+            if (config.propagate === true || route.output.typeName !== "void")
+                types.push(
+                    new Pair(
+                        "Output",
+                        SdkTypeDefiner.output(config)(importer)(route),
+                    ),
+                );
 
             // PATH WITH PARAMETERS
             const parameters: IRoute.IParameter[] = filter_path_parameters(
@@ -344,13 +373,7 @@ export namespace SdkFunctionProgrammer {
                     ? types
                           .map(
                               (tuple) =>
-                                  `    export type ${tuple.first} = ${
-                                      config.primitive !== false
-                                          ? `${SdkImportWizard.Primitive(
-                                                importer,
-                                            )}<${tuple.second}>`
-                                          : tuple.second
-                                  };`,
+                                  `    export type ${tuple.first} = ${tuple.second};`,
                           )
                           .join("\n") + "\n"
                     : "") +
@@ -401,7 +424,7 @@ export namespace SdkFunctionProgrammer {
                                 param.category === "query" &&
                                 param.typeName === props.query?.typeName
                                     ? `${route.name}.Query`
-                                    : param.typeName
+                                    : getTypeName(config)(importer)(param)
                             }`,
                     )
                     .join(", ")}): string => {\n` +
@@ -410,10 +433,14 @@ export namespace SdkFunctionProgrammer {
                 (config.simulate === true && route.output.typeName !== "void"
                     ? `    export const random = (g?: Partial<${SdkImportWizard.typia(
                           importer,
-                      )}.IRandomGenerator>): Output =>\n` +
+                      )}.IRandomGenerator>): ${SdkTypeDefiner.responseBody(
+                          config,
+                      )(importer)(route)} =>\n` +
                       `        ${SdkImportWizard.typia(
                           importer,
-                      )}.random<Output>(g);\n`
+                      )}.random<${SdkTypeDefiner.responseBody(config)(importer)(
+                          route,
+                      )}>(g);\n`
                     : "") +
                 (config.simulate === true
                     ? SdkSimulationProgrammer.generate(config)(importer)(
@@ -507,3 +534,10 @@ export namespace SdkFunctionProgrammer {
 }
 
 const space = (count: number) => " ".repeat(count);
+const getTypeName =
+    (config: INestiaConfig) =>
+    (importer: ImportDictionary) =>
+    (p: IRoute.IParameter | IRoute.IOutput) =>
+        p.metadata
+            ? SdkDtoGenerator.decode(config)(importer)(p.metadata)
+            : p.typeName;
