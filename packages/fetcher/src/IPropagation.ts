@@ -10,14 +10,19 @@ import { Primitive } from "./Primitive";
  * ```typescript
  * type Output = IPropagation<{
  *    200: ISeller.IAuthorized;
- *    403: TypeGuardError.IProps;
+ *    400: TypeGuardError.IProps;
  * >};
  *
  * const output: Output = await sdk.sellers.authenticate.join(input);
  * if (output.success) {
+ *     // automatically casted to "ISeller.IAuthorized" type
  *     const authorized: ISeller.IAuthorized = output.data;
+ * } else if (output.status === 400) {
+ *     // automatically casted to "TypeGuardError.IProps" type
+ *     const error: TypeGuardError.IProps = output.data;
  * } else {
- *    const error: TypeGuardError.IProps = output.data;
+ *     // unknown type when out of pre-defined status codes
+ *     const result: unknown = output.data;
  * }
  * ```
  *
