@@ -9,7 +9,7 @@ export function TypedException<T extends object>(
 
 Exception decorator only for swagger documents.
 
-`TypedException` is a decorator function describing HTTP exception and its type which could be occured in a controller method. For reference, this decorator function does not affect to the method's behavior, but only affects to the [swagger documents](./sdk/swagger) generation.
+`TypedException` is a decorator function describing HTTP exception and its type which could be occured in a controller method. For reference, this decorator function does not affect to the method's behavior, but affects to the [swagger documents](../sdk/swagger) generation, or SDK functions when [propagation mode](../sdk/sdk#propagation-mode) being used. 
 
 
 
