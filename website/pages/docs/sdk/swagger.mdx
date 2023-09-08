@@ -352,14 +352,14 @@ export namespace ISwaggerSecurityScheme {
 
 Make `nestia.config.ts` file and run `npx nestia swagger` command.
 
-At first, create `nestia.config.ts` file. It must be placed on the top level directory of your NestJS backend project. Of course, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
+At first, create `nestia.config.ts` file through `npx nestia init` command. It would be placed on the top level directory of your NestJS backend project. For reference, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
 
 At least, you've to configure those two properties:
 
   - `input`: Path of controller files
   - `swagger.output`: Path of `swagger.json` file
 
-When you've completed above configuration, just run `npx nestia swagger` command. Then, `swagger.json` file would be newly generated, and placed into the `$config.swagger.output` directory following your `nestia.config.ts` option.
+When you've completed above configuration, just run `npx nestia swagger` command. Then, `swagger.json` file would be newly generated, and placed into the `$config.swagger.output` directory following your `nestia.config.ts` configuration.
 
 By the way, if your controller files are separated into multiple directories, you can choose two options. First is listing up every directories, and second is using regex expression. Also, you can exclude some special directories or files using `exclude` option. Of course, you can mix all of these options like below:
 
@@ -454,7 +454,7 @@ export default config;
 
 
 
-## Comment Tags
+## Special Tags
 ### Controller Methods
 Swagger generator `@nestia/sdk` supports three type of comment tags for controller methods:
 
@@ -963,13 +963,13 @@ export namespace ISwaggerSecurityScheme {
 ### DTO Properties
 https://swagger.io/docs/specification/data-models/data-types/
 
-You can utilize comments and comment tags to construct special fields of JSON schema.
+You can utilize comments and tags to construct special fields of JSON schema.
 
-If you write any comment on a property, it would fill the `IJsonSchema.description` value. When you write some comment tags starting with `@` symbol, they would be placed into the proper properties of `IJsonSchema`. Below is the list of supported comment tags in the `@nestia/sdk`.
+If you write any comment on a property, it would fill the `IJsonSchema.description` value. When you utilize [Special tags of `typia`](https://typia.io/docs/typia/validators/tags), they would be placed into the proper properties of `IJsonSchema`. Below is the list of supported type and comment tags in the `@nestia/sdk`.
 
-Also, such comment tags of DTO properties can be used to enhance validation logic of `@nestia/core` library. Especially, [`@TypedBody.${method}()`](../core/TypedBody#comment-tags), [`@TypedRoute()`](../core/TypedRoute#comment-tags) and [`@TypedQuery()`](../core/TypedQuery#comment-tags) functions can use same comment tags for additional validation.
+Also, such type and comment tags of DTO properties can be used to enhance validation logic of `@nestia/core` library. Especially, [`@TypedBody.${method}()`](../core/TypedBody#tags), [`@TypedParam()`](../core/TypedParam#tags), [`@TypedRoute()`](../core/TypedRoute#tags) and [`@TypedQuery()`](../core/TypedQuery#tags) functions can use those tags for additional validation.
 
-Let's see how those comment tags work with example code.
+Let's see how those type and comment tags work with example code.
 
   - common
     - `@deprecated`
@@ -1010,10 +1010,9 @@ export interface CommentTag {
      * Deprecated tags are just used for marking.
      * 
      * @title Unsigned integer
-     * @type uint
      * @deprecated
      */
-    type: number;
+    type: number & tags.Format<"uint32">;
 
     /**
      * Internal tagged property never be shown in JSON schema.
@@ -1035,42 +1034,39 @@ export interface CommentTag {
 
     /**
      * You can limit the range of number.
+     *
+     * Also, you can configure `default` property by comment tag.
      * 
-     * @exclusiveMinimum 19
-     * @maximum 100
      * @default 30
      */
-    number?: number;
+    number?: number & tags.ExclusiveMinimum<19> & tags.Maximum<100>;
 
     /**
      * You can limit the length of string.
-     * 
-     * @minLength 3
      */
-    string: string;
+    string: string & tags.MinLength<3>;
 
     /**
      * You can limit the pattern of string.
-     * 
-     * @pattern ^[a-z]+$
      */
-    pattern: string;
+    pattern: string & tags.Pattern<"^[a-z]+$">;
 
     /**
      * You can limit the format of string.
-     * 
-     * @format date-time
      */
-    format: string | null;
+    format: null | (string & tags.Format<"date-time">);
+
+    /**
+     * You also can perform union type in type tags.
+     */
+    ip: string & (tags.Format<"ipv4"> | tags.Format<"ipv6">);
     
     /**
-     * In the Array case, possible to restrict its elements.
-     * 
-     * @minItems 3
-     * @maxItems 100
-     * @format uuid
+     * In the Array case, only type tags can limit elements' type.
      */
-    array: string[];
+    array: Array<string & tags.Format<"uuid">>
+        & tags.MinItems<3>
+        & tags.MaxItems<100>;
 }
 ```
     </Tab>

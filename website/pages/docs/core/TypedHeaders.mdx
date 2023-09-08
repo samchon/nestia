@@ -213,60 +213,36 @@ Such optimization is called AOT (Ahead of Time) compilation, and it is the secre
 
 
 
-## Comment Tags
+## Special Tags
 You can enhance validation logic, of `@TypedHeaders()`, through comment tags.
 
-You know what? `@TypedHeaders()` utilizes [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function for query data validation, and the [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function supports additional type checking logics through comment tags. For reference, the "Comment Tag" means a comment starting from `@` symbol. It follows `@${name} ${value}` format, and you can add multiple comment tags per each property.
+You know what? `@TypedHeaders()` utilizes [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function for query data validation, and the [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function supports additional type checking logics through comment tags. For reference, "Type Tag" means a intersection type with atomic type and special tag type of `typia` like `number & tags.Type<"uint32">`, and "Comment Tag" means a comment starting from `@` symbol following `@${name} ${value}` format.
 
-With those comment tags, you can add additional validation logics. If you want to add a custom validation logic, you also can do it. Read below Guide Docments of [typia](https://typia.io), and see the example code. You may understand how to utilize such comment tags, in a few minutes.
+With those type and comment tags, you can add additional validation logics. If you want to add a custom validation logic, you also can do it. Read below Guide Docments of [typia](https://typia.io), and see the example code. You may understand how to utilize such type and comment tags, in a few minutes.
 
-  - [**`typia` > Validators > Comment Tags**](https://typia.io/docs/validators/comment-tags/)
-    - [Outline](https://typia.io/docs/validators/comment-tags/#outline)
-    - [Supported Tags](https://typia.io/docs/validators/comment-tags/#supported-tags)
-    - [Customization](https://typia.io/docs/validators/comment-tags/#customization)
+  - [**`typia` > Validators > Custom Tags**](https://typia.io/docs/validators/tags/)
+    - [Outline](https://typia.io/docs/validators/tags/#outline)
+    - [Type Tags](https://typia.io/docs/validators/tags/#type-tags)
+    - [Comment Tags](https://typia.io/docs/validators/tags/#comment-tags)
+    - [Customization](https://typia.io/docs/validators/tags/#customization)
 
 <Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
     <Tab>
 ```typescript copy filename="examples/src/is-comment-tags.ts" showLineNumbers {3}
-import typia from "typia";
+import typia, { tags } from "typia";
 
-export const checkCommentTag = typia.createIs<CommentTag>();
+export const checkSpecialTag = typia.createIs<SpecialTag>();
 
-interface CommentTag {
-    /**
-     * @type int
-     */
-    type: number;
-
-    /**
-     * @exclusiveMinimum 19
-     * @maximum 100
-     */
-    number?: number;
-
-    /**
-     * @minLength 3
-     */
-    string: string;
-
-    /**
-     * @pattern ^[a-z]+$
-     */
-    pattern: string;
-
-    /**
-     * @format date-time
-     */
-    format: string;
-
-    /**
-     * In the Array case, possible to restrict its elements.
-     *
-     * @minItems 3
-     * @maxItems 100
-     * @format uuid
-     */
-    array: string[];
+interface SpecialTag {
+    int32: number & tags.Type<"int32">;
+    range?: number & tags.ExclusiveMinimum<19> & tags.Maximum<100>;
+    minLength: string & tags.MinLength<3>;
+    pattern: string & tags.Pattern<"^[a-z]+$">;
+    date: null | (string & tags.Format<"date">);
+    ip: string & (tags.Format<"ipv4"> | tags.Format<"ipv6">);
+    uuids: Array<string & tags.Format<"uuid">>
+        & tags.MinItems<3>
+        & tags.MaxItems<100>;
 }
 ```
     </Tab>
@@ -288,8 +264,8 @@ export const checkCommentTag = (input) => {
         3 <= input.string.length &&
         "string" === typeof input.pattern &&
         RegExp(/^[a-z]+$/).test(input.pattern) &&
-        "string" === typeof input.format && $
-        is_datetime(input.format) &&
+        (null === input.format ||
+            ("string" === typeof input.format && $is_datetime(input.format))) &&
         Array.isArray(input.array) &&
         3 <= input.array.length &&
         100 >= input.array.length &&

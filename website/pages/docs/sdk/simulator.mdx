@@ -103,7 +103,7 @@ export namespace update {
 
 Nestia SDK library supports Mockup simulator.
 
-When generating [SDK library](sdk), if you configure `simulate` property of `nestia.config.file` to be `true`, newly generated SDK library will support mockup simulation mode for frontend developers. With the mockup simulator, frontend developers can simulate NestJS backend server with internal mock functions, instead of connecting to the real backend server.
+When generating [SDK library](./sdk), if you configure `simulate` property of `nestia.config.file` to be `true`, newly generated SDK library will support mockup simulation mode for frontend developers. With the mockup simulator, frontend developers can simulate NestJS backend server with internal mock functions, instead of connecting to the real backend server.
 
 Therefore, with the mockup simulator, frontend development can be started even when the backend server is not ready yet. Mockup simulator of Nestia SDK will replace the real backend server, validating request data and returning mockup data as response.
 
@@ -325,7 +325,7 @@ export namespace INestiaConfig {
 
 Make `nestia.config.ts` file and run `npx nestia sdk` command.
 
-At first, create `nestia.config.ts` file. It must be placed on the top level directory of your NestJS backend project. Of course, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
+At first, create `nestia.config.ts` file through `npx nestia init` command. It would be placed on the top level directory of your NestJS backend project. For reference, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
 
 At least, you've to configure those three properties. Also, if you've decided to support mockup simulator for frontend developers, I recommend you to configure two properties more, for [automatic e2e functions generation](e2e) and [SDK library distribution](sdk#distribution).
 

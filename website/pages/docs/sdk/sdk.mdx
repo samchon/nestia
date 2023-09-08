@@ -37,7 +37,7 @@ npx nestia sdk
 export async function update(
     connection: IConnection,
     section: string,
-    id: string,
+    id: string & Format<"uuid">,
     input: update.Input,
 ): Promise<update.Output> {
     return Fetcher.fetch(
@@ -293,14 +293,14 @@ export namespace INestiaConfig {
 
 Make `nestia.config.ts` file and run `npx nestia sdk` command.
 
-At first, create `nestia.config.ts` file. It must be placed on the top level directory of your NestJS backend project. Of course, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
+At first, create `nestia.config.ts` file through `npx nestia init` command. It would be placed on the top level directory of your NestJS backend project. For reference, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
 
 At least, you've to configure those two properties:
 
   - `input`: Path of controller files
   - `output`: Path of output directory for SDK library
 
-When you've completed above configuration, just run `npx nestia sdk` command. Then, SDK library would be newly generated, and placed into the `$config.output` directory following your `nestia.config.ts` option.
+When you've completed above configuration, just run `npx nestia sdk` command. Then, SDK library would be newly generated, and placed into the `$config.output` directory following your `nestia.config.ts` configuration.
 
 By the way, if your controller files are separated into multiple directories, you can choose two options. First is listing up every directories, and second is using regex expression. Also, you can exclude some special directories or files using `exclude` option. Of course, you can mix all of these options like below:
 
@@ -512,10 +512,12 @@ Also, if your SDK library utilize special alias `paths`, you also need to custom
   "homepage": "https://nestia.io",
   "devDependencies": {
     "rimraf": "^5.0.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "ts-patch": "^3.0.2"
   },
   "dependencies": {
-    "@nestia/fetcher": "^1.2.0"
+    "@nestia/fetcher": "^2.0.0",
+    "typia:: "^5.0.4"
   },
   "files": [
     "lib",
