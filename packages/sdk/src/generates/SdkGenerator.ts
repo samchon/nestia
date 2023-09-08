@@ -5,7 +5,7 @@ import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
-import { DistributionComposer } from "./internal/DistributionComposer";
+import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
 import { SdkDtoGenerator } from "./internal/SdkDtoGenerator";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
 
@@ -67,7 +67,7 @@ export namespace SdkGenerator {
 
             // DISTRIBUTION
             if (config.distribute !== undefined)
-                await DistributionComposer.compose(config);
+                await SdkDistributionComposer.compose(config);
         };
 
     export const BUNDLE_PATH = NodePath.join(

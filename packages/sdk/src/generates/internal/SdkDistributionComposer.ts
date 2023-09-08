@@ -4,7 +4,7 @@ import path from "path";
 
 import { INestiaConfig } from "../../INestiaConfig";
 
-export namespace DistributionComposer {
+export namespace SdkDistributionComposer {
     export const compose = async (config: INestiaConfig): Promise<void> => {
         if (!fs.existsSync(config.distribute!))
             await fs.promises.mkdir(config.distribute!);
@@ -40,11 +40,8 @@ export namespace DistributionComposer {
         execute(
             `npm install --save @nestia/fetcher@${versions["@nestia/fetcher"]}`,
         );
-
-        if (typia) {
-            execute(`npm install --save typia@${versions["typia"]}`);
-            execute("npx typia setup --manager npm");
-        } else execute("npm install --save-dev typescript");
+        execute(`npm install --save typia@${versions["typia"]}`);
+        execute("npx typia setup --manager npm");
 
         exit();
     };

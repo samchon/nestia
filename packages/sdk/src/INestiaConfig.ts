@@ -1,6 +1,6 @@
 import type { ISwagger } from "./structures/ISwagger";
-import { ISwaggerInfo } from "./structures/ISwaggerInfo";
-import { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
+import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
+import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
 
 /**
  * Definition for the `nestia.config.ts` file.

@@ -100,13 +100,10 @@ export default config;
 ```
     </Tab>
     <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers {21-31}
-import type ts from "typescript";
-
+```typescript filename="INestiaConfig.ts" showLineNumbers {18-28}
 import type { ISwagger } from "./structures/ISwagger";
 import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
 import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
-import type { StripEnums } from "./utils/StripEnums";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -159,55 +156,28 @@ export interface INestiaConfig {
     e2e?: string;
 
     /**
-     * Compiler options for the TypeScript.
+     * Whether to use propagation mode or not.
      *
-     * If you've omitted this property or the assigned property cannot fully cover the
-     * `tsconfig.json`, the properties from the `tsconfig.json` would be assigned to here.
-     * Otherwise, this property has been configured and it's detailed values are different
-     * with the `tsconfig.json`, this property values would be used instead.
-     *
-     * ```typescript
-     * import ts from "typescript";
-     *
-     * const tsconfig: ts.TsConfig;
-     * const nestiaConfig: IConfiguration;
-     *
-     * const compilerOptions: ts.CompilerOptions = {
-     *     ...tsconfig.compilerOptions,
-     *     ...(nestiaConfig.compilerOptions ?? {})
-     * }
-     * ```
-     */
-    compilerOptions?: StripEnums<ts.CompilerOptions>;
-
-    /**
-     * Whether to assert parameter types or not.
-     *
-     * If you configure this property to be `true`, all of the function
-     * parameters of SDK library would be checked through
-     * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
-     *
-     * This option would make your SDK library compilation time a little bit slower,
-     * but would enahcne the type safety even in the runtime level.
+     * If being configured, interaction functions of the SDK library would
+     * perform the propagation mode. The propagation mode means that never
+     * throwing exception even when status code is not 200 (or 201), but just
+     * returning the {@link IPropagation} typed instance, which can specify its body
+     * type through discriminated union determined by status code.
      *
      * @default false
      */
-    assert?: boolean;
+    propagate?: boolean;
 
     /**
-     * Whether to optimize JSON string conversion 10x faster or not.
+     * Whether to clone DTO structures or not.
      *
-     * If you configure this property to be `true`, the SDK library would utilize the
-     * [`typia.assertStringify<T>() function`](https://github.com/samchon/typia#enhanced-json)
-     * to boost up JSON serialization speed and ensure type safety.
-     *
-     * This option would make your SDK library compilation time a little bit slower,
-     * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
-     * safety even in the rumtime level.
+     * If being configured, all of DTOs used in the backend server would be cloned
+     * into the `structures` directory, and the SDK library would be refer to the
+     * cloned DTOs instead of the original.
      *
      * @default false
      */
-    json?: boolean;
+    clone?: boolean;
 
     /**
      * Whether to wrap DTO by primitive type.
@@ -238,6 +208,44 @@ export interface INestiaConfig {
      * @default false
      */
     simulate?: boolean;
+
+    /**
+     * Location of `tsconfig.json` file.
+     *
+     * If be configured, target file will replace the `tsconfig.json` file.
+     *
+     * @default tsconfig.json
+     */
+    project?: string;
+
+    /**
+     * Whether to assert parameter types or not.
+     *
+     * If you configure this property to be `true`, all of the function
+     * parameters of SDK library would be checked through
+     * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
+     *
+     * This option would make your SDK library compilation time a little bit slower,
+     * but would enahcne the type safety even in the runtime level.
+     *
+     * @default false
+     */
+    assert?: boolean;
+
+    /**
+     * Whether to optimize JSON string conversion 10x faster or not.
+     *
+     * If you configure this property to be `true`, the SDK library would utilize the
+     * [`typia.assertStringify<T>() function`](https://github.com/samchon/typia#enhanced-json)
+     * to boost up JSON serialization speed and ensure type safety.
+     *
+     * This option would make your SDK library compilation time a little bit slower,
+     * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
+     * safety even in the rumtime level.
+     *
+     * @default false
+     */
+    json?: boolean;
 }
 export namespace INestiaConfig {
     /**
@@ -283,8 +291,29 @@ export namespace INestiaConfig {
 
         /**
          * Security schemes.
+         *
+         * When generating `swagger.json` file through `nestia`, if your controllers or
+         * theirs methods have a security key which is not enrolled in here property,
+         * it would be an error.
          */
         security?: Record<string, ISwaggerSecurityScheme>;
+
+        /**
+         * Decompose query DTO.
+         *
+         * If you configure this property to be `true`, the query DTO would be decomposed
+         * into individual query parameters per each property.
+         *
+         * @default false
+         */
+        decompose?: boolean;
+
+        operationId?(props: {
+            class: string;
+            function: string;
+            method: "HEAD" | "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+            path: string;
+        }): string;
     }
 }
 ```

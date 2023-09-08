@@ -37,10 +37,10 @@ import { tags } from "typia";
  
 @Controller("parameters")
 export class ParametersController {
-    @Get("number/:value")
-    public async number(
-        @TypedParam("value") value: number | null,
-    ): Promise<number | null> {
+    @Get("uint32/:value")
+    public async uint32(
+        @TypedParam("value") value: (number & tags.Type<"uint32">) | null,
+    ): Promise<(number & tags.Type<"uint32">) | null> {
         return value;
     }
  
@@ -61,7 +61,7 @@ export class ParametersController {
 ```
     </Tab>
     <Tab>
-```javascript filename="ParametersController.js" showLineNumbers {46, 53, 60}
+```javascript filename="ParametersController.js" showLineNumbers {46-53, 59-66, 72-79}
 "use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -89,7 +89,7 @@ exports.ParametersController = void 0;
 const core_1 = require("@nestia/core");
 const common_1 = require("@nestjs/common");
 let ParametersController = class ParametersController {
-    number(value) {
+    uint32(value) {
         return __awaiter(this, void 0, void 0, function* () {
             return value;
         });
@@ -105,38 +105,56 @@ let ParametersController = class ParametersController {
         });
     }
 };
+exports.ParametersController = ParametersController;
 __decorate([
-    (0, common_1.Get)("number/:value"),
-    __param(0, (0, core_1.TypedParam)("value", "number", true)),
+    (0, common_1.Get)("uint32/:value"),
+    __param(0, (0, core_1.TypedParam)("value", {
+        name: "((number & Type<\"uint32\">) | null)",
+        is: input => {
+            return null === input || "number" === typeof input && (Math.floor(input) === input && 0 <= input && input <= 4294967295);
+        },
+        cast: str => "null" === str ? null : Number(str)
+    })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], ParametersController.prototype, "number", null);
+], ParametersController.prototype, "uint32", null);
 __decorate([
     (0, common_1.Get)("string/:value"),
-    __param(0, (0, core_1.TypedParam)("value", "string", false)),
+    __param(0, (0, core_1.TypedParam)("value", {
+        name: "string",
+        is: input => {
+            return "string" === typeof input;
+        },
+        cast: str => str
+    })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ParametersController.prototype, "string", null);
 __decorate([
     (0, common_1.Get)("uuid/:value"),
-    __param(0, (0, core_1.TypedParam)("value", "uuid", false)),
+    __param(0, (0, core_1.TypedParam)("value", {
+        name: "(string & Format<\"uuid\">)",
+        is: input => {
+            return "string" === typeof input && /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test(input);
+        },
+        cast: str => str
+    })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], ParametersController.prototype, "uuid", null);
-ParametersController = __decorate([
+exports.ParametersController = ParametersController = __decorate([
     (0, common_1.Controller)("parameters")
 ], ParametersController);
-exports.ParametersController = ParametersController;
 ```
     </Tab>
 </Tabs>
 
 Just call `@TypedParam()` function on the path paremeter, that's all.
 
-If you want to special parameter type like `"uuid"` or `"date"`, utilize [type tag of `typia`](https://typia.io/docs/validators/tags).
+If you want to special parameter type like `"uint32"` or `"uuid"`, utilize [type tags of `typia`](https://typia.io/docs/validators/tags).
 
 When wrong typed value comes, 400 bad request error would be thrown.
 
