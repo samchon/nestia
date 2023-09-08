@@ -11,9 +11,12 @@
     }
   ],
   "info": {
-    "version": "1.3.2",
     "title": "Toss Payments API",
-    "description": "Built by [fake-toss-payments-server](https://github.com/samchon/fake-toss-payments-server) with [nestia](https://github.com/samchon/nestia)"
+    "description": "Built by [fake-toss-payments-server](https://github.com/samchon/fake-toss-payments-server) with [nestia](https://github.com/samchon/nestia)",
+    "version": "2.0.0",
+    "license": {
+      "name": "MIT"
+    }
   },
   "paths": {
     "/v1/billing/authorizations/card": {
@@ -46,7 +49,12 @@
           }
         },
         "summary": "간편 결제 카드 등록하기",
-        "description": "간편 결제 카드 등록하기.\n\n`billing.authorizations.card.store` 는 고객이 자신의 신록 카드를 서버에 등록해두고,\n매번 결제가 필요할 때마다 카드 정보를 반복 입력하는 일 없이 간편하게 결제를\n진행하고자 할 때, 호출되는 API 함수이다.\n\n참고로 `billing.authorizations.card.store` 는 클라이언트 어플리케이션이 토스\n페이먼츠가 제공하는 간편 결제 카드 등록 창을 사용하는 경우, 귀하의 백엔드 서버가 이를\n실 서비스에서 호출하는 일은 없을 것이다. 다만, 고객이 간편 결제 카드를 등록하는\n상황을 시뮬레이션하기 위하여, 테스트 자동화 프로그램 수준에서 사용될 수는 있다.\n\n@param input 간편 결제 카드 등록 정보\n@returns 간편 결제 카드 정보\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "간편 결제 카드 등록하기.\n\n`billing.authorizations.card.store` 는 고객이 자신의 신록 카드를 서버에 등록해두고,\n매번 결제가 필요할 때마다 카드 정보를 반복 입력하는 일 없이 간편하게 결제를\n진행하고자 할 때, 호출되는 API 함수이다.\n\n참고로 `billing.authorizations.card.store` 는 클라이언트 어플리케이션이 토스\n페이먼츠가 제공하는 간편 결제 카드 등록 창을 사용하는 경우, 귀하의 백엔드 서버가 이를\n실 서비스에서 호출하는 일은 없을 것이다. 다만, 고객이 간편 결제 카드를 등록하는\n상황을 시뮬레이션하기 위하여, 테스트 자동화 프로그램 수준에서 사용될 수는 있다.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
         "x-nestia-namespace": "v1.billing.authorizations.card.store",
         "x-nestia-jsDocTags": [
           {
@@ -76,6 +84,15 @@
             ]
           },
           {
+            "name": "security",
+            "text": [
+              {
+                "text": "basic",
+                "kind": "text"
+              }
+            ]
+          },
+          {
             "name": "author",
             "text": [
               {
@@ -84,7 +101,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/v1/billing/authorizations/{billingKey}": {
@@ -94,10 +112,10 @@
           {
             "name": "billingKey",
             "in": "path",
-            "description": "대상 정보의 ",
             "schema": {
               "type": "string"
             },
+            "description": "대상 정보의 ",
             "required": true
           }
         ],
@@ -127,7 +145,12 @@
           }
         },
         "summary": "간편 결제로 등록한 수단 조회하기",
-        "description": "간편 결제로 등록한 수단 조회하기.\n\n`billing.authorizations.at` 은 고객이 간편 결제를 위하여 토스 페이먼츠 서버에\n등록한 결제 수단을 조회하는 함수이다.\n\n주로 클라이언트 어플리케이션이 토스 페이먼츠가 자체적으로 제공하는 결제 창을 사용하는\n경우, 그래서 프론트 어플리케이션이 귀하의 백엔드 서버에 `billingKey` 와` customerKey`\n만을 전달해주어, 상세 간편 결제 수단 정보가 필요할 때 사용한다.\n\n@param billingKey 대상 정보의 {@link ITossBilling.billingKey}\n@param input 고객 식별자 키\n@returns 간편 결제 수단 정보\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "간편 결제로 등록한 수단 조회하기.\n\n`billing.authorizations.at` 은 고객이 간편 결제를 위하여 토스 페이먼츠 서버에\n등록한 결제 수단을 조회하는 함수이다.\n\n주로 클라이언트 어플리케이션이 토스 페이먼츠가 자체적으로 제공하는 결제 창을 사용하는\n경우, 그래서 프론트 어플리케이션이 귀하의 백엔드 서버에 `billingKey` 와` customerKey`\n만을 전달해주어, 상세 간편 결제 수단 정보가 필요할 때 사용한다.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
         "x-nestia-namespace": "v1.billing.authorizations.at",
         "x-nestia-jsDocTags": [
           {
@@ -153,9 +176,9 @@
                 "text": "ITossBilling.billingKey",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-toss-payments-server/src/api/structures/ITossBilling.ts",
+                  "fileName": "C:/github/samchon/fake-toss-payments-server/src/api/structures/ITossBilling.ts",
                   "textSpan": {
-                    "start": 467,
+                    "start": 500,
                     "length": 19
                   }
                 }
@@ -193,6 +216,15 @@
             ]
           },
           {
+            "name": "security",
+            "text": [
+              {
+                "text": "basic",
+                "kind": "text"
+              }
+            ]
+          },
+          {
             "name": "author",
             "text": [
               {
@@ -201,7 +233,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/v1/billing/{billingKey}": {
@@ -211,10 +244,10 @@
           {
             "name": "billingKey",
             "in": "path",
-            "description": "간편 결제에 등록한 수단의 ",
             "schema": {
               "type": "string"
             },
+            "description": "간편 결제에 등록한 수단의 ",
             "required": true
           }
         ],
@@ -244,7 +277,12 @@
           }
         },
         "summary": "간편 결제에 등록한 수단으로 결제하기",
-        "description": "간편 결제에 등록한 수단으로 결제하기.\n\n`billing.pay` 는 간편 결제에 등록한 수단으로 결제를 진행하고자 할 때 호출하는 API\n함수이다.\n\n그리고 `billing.pay` 는 결제 수단 중 유일하게, 클라이언트 어플리케이션이 토스\n페이먼츠가 제공하는 결제 창을 사용할 수 없어, 귀하의 백엔드 서버가 토스 페이먼츠의\nAPI 함수를 직접 호출해야 하는 경우에 해당한다. 따라서 간편 결제에 관련하여 토스\n페이먼츠와 연동하는 백엔드 서버 및 프론트 어플리케이션을 개발할 때, 반드시 이 상황에\n대한 별도의 설계 및 개발이 필요하니, 이 점을 염두에 두기 바란다.\n\n더하여 `billing.pay` 는 철저히 귀사 백엔드 서버의 판단 아래 호출되는 API 함수인지라,\n이를 통하여 이루어지는 결제는 일절 {@link payments.approve} 가 필요 없다. 다만\n`billing.pay` 는 이처럼 부차적인 승인 과정 필요없이 그 즉시로 결제가 완성되니, 이를\n호출하는 상황에 대하여 세심히 주의를 기울일 필요가 있다\n\n@param billingKey 간편 결제에 등록한 수단의 {@link ITossBilling.billingKey}\n@param input 주문 정보\n@returns 결제 정보\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "간편 결제에 등록한 수단으로 결제하기.\n\n`billing.pay` 는 간편 결제에 등록한 수단으로 결제를 진행하고자 할 때 호출하는 API\n함수이다.\n\n그리고 `billing.pay` 는 결제 수단 중 유일하게, 클라이언트 어플리케이션이 토스\n페이먼츠가 제공하는 결제 창을 사용할 수 없어, 귀하의 백엔드 서버가 토스 페이먼츠의\nAPI 함수를 직접 호출해야 하는 경우에 해당한다. 따라서 간편 결제에 관련하여 토스\n페이먼츠와 연동하는 백엔드 서버 및 프론트 어플리케이션을 개발할 때, 반드시 이 상황에\n대한 별도의 설계 및 개발이 필요하니, 이 점을 염두에 두기 바란다.\n\n더하여 `billing.pay` 는 철저히 귀사 백엔드 서버의 판단 아래 호출되는 API 함수인지라,\n이를 통하여 이루어지는 결제는 일절 {@link payments.approve } 가 필요 없다. 다만\n`billing.pay` 는 이처럼 부차적인 승인 과정 필요없이 그 즉시로 결제가 완성되니, 이를\n호출하는 상황에 대하여 세심히 주의를 기울일 필요가 있다",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
         "x-nestia-namespace": "v1.billing.pay",
         "x-nestia-jsDocTags": [
           {
@@ -270,9 +308,9 @@
                 "text": "ITossBilling.billingKey",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-toss-payments-server/src/api/structures/ITossBilling.ts",
+                  "fileName": "C:/github/samchon/fake-toss-payments-server/src/api/structures/ITossBilling.ts",
                   "textSpan": {
-                    "start": 467,
+                    "start": 500,
                     "length": 19
                   }
                 }
@@ -310,6 +348,15 @@
             ]
           },
           {
+            "name": "security",
+            "text": [
+              {
+                "text": "basic",
+                "kind": "text"
+              }
+            ]
+          },
+          {
             "name": "author",
             "text": [
               {
@@ -318,7 +365,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/v1/cash-receipts": {
@@ -351,7 +399,12 @@
           }
         },
         "summary": "현금 영수증 발행하기",
-        "description": "현금 영수증 발행하기.\n\n@param input 입력 정보\n@returns 현금 영수증 정보\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "현금 영수증 발행하기.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
         "x-nestia-namespace": "v1.cash-receipts.store",
         "x-nestia-jsDocTags": [
           {
@@ -381,6 +434,15 @@
             ]
           },
           {
+            "name": "security",
+            "text": [
+              {
+                "text": "basic",
+                "kind": "text"
+              }
+            ]
+          },
+          {
             "name": "author",
             "text": [
               {
@@ -389,7 +451,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/v1/cash-receipts/{receiptKey}/cancel": {
@@ -399,10 +462,10 @@
           {
             "name": "receiptKey",
             "in": "path",
-            "description": "현금 영수증의 ",
             "schema": {
               "type": "string"
             },
+            "description": "현금 영수증의 ",
             "required": true
           }
         ],
@@ -432,7 +495,12 @@
           }
         },
         "summary": "현금 영수증 취소하기",
-        "description": "현금 영수증 취소하기.\n\n@param receiptKey 현금 영수증의 {@link ITossCashReceipt.receiptKey}\n@param input 취소 입력 정보\n@returns 취소된 현금 영수증 정보\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "현금 영수증 취소하기.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
         "x-nestia-namespace": "v1.cash-receipts.cancel.cancel",
         "x-nestia-jsDocTags": [
           {
@@ -458,9 +526,9 @@
                 "text": "ITossCashReceipt.receiptKey",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-toss-payments-server/src/api/structures/ITossCashReceipt.ts",
+                  "fileName": "C:/github/samchon/fake-toss-payments-server/src/api/structures/ITossCashReceipt.ts",
                   "textSpan": {
-                    "start": 166,
+                    "start": 199,
                     "length": 19
                   }
                 }
@@ -498,6 +566,15 @@
             ]
           },
           {
+            "name": "security",
+            "text": [
+              {
+                "text": "basic",
+                "kind": "text"
+              }
+            ]
+          },
+          {
             "name": "author",
             "text": [
               {
@@ -506,7 +583,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/internal/webhook": {
@@ -532,7 +610,7 @@
           }
         },
         "summary": "웹훅 이벤트 더미 리스너",
-        "description": "웹훅 이벤트 더미 리스너.\n\n`internal.webhook` 은 실제 토스 페이먼츠의 결제 서버에는 존재하지 않는 API 로써,\n`fake-toss-payments-server` 의 {@link Configuration.WEBHOOK_URL} 에 아무런 URL 을\n설정하지 않으면, `fake-toss-payments-server` 로부터 발생하는 모든 종류의 웹훅\n이벤트는 이 곳으로 전달되어 무의미하게 사라진다.\n\n따라서 `fake-toss-payments-server` 를 사용하여 토스 페이먼츠 서버와의 연동을 미리\n검증코자 할 때는, 반드시 {@link Configuration.WEBHOOK_URL} 를 설정하여 웹훅\n이벤트가 귀하의 백엔드 서버로 제대로 전달되도록 하자.\n\n@param input 웹훅 이벤트 정보\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "웹훅 이벤트 더미 리스너.\n\n`internal.webhook` 은 실제 토스 페이먼츠의 결제 서버에는 존재하지 않는 API 로써,\n`fake-toss-payments-server` 의 {@link Configuration.WEBHOOK_URL } 에 아무런 URL 을\n설정하지 않으면, `fake-toss-payments-server` 로부터 발생하는 모든 종류의 웹훅\n이벤트는 이 곳으로 전달되어 무의미하게 사라진다.\n\n따라서 `fake-toss-payments-server` 를 사용하여 토스 페이먼츠 서버와의 연동을 미리\n검증코자 할 때는, 반드시 {@link Configuration.WEBHOOK_URL } 를 설정하여 웹훅\n이벤트가 귀하의 백엔드 서버로 제대로 전달되도록 하자.",
         "x-nestia-namespace": "internal.webhook.webhook",
         "x-nestia-jsDocTags": [
           {
@@ -561,7 +639,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/internal/{paymentKey}/deposit": {
@@ -571,10 +650,10 @@
           {
             "name": "paymentKey",
             "in": "path",
-            "description": "대상 가상 계좌 결제 정보의 ",
             "schema": {
               "type": "string"
             },
+            "description": "대상 가상 계좌 결제 정보의 ",
             "required": true
           }
         ],
@@ -592,7 +671,12 @@
           }
         },
         "summary": "가상 계좌에 입금하기",
-        "description": "가상 계좌에 입금하기.\n\n`internal.virtual_accounts.deposit` 은 실제 토스 페이먼츠의 결제 서버에는 존재하지\n않는 API 로써, 가상 계좌 결제를 신청한 고객이, 이후 가상 계좌에 목표 금액을 입금하는\n상황을 시뮬레이션할 수 있는 함수이다.\n\n즉 `internal.virtual_accounts.deposit` 는 고객이 스스로에게 가상으로 발급된 계좌에\n입금을 하고, 그에 따라 토스 페이먼츠 서버에서 webhook 이벤트가 발생하여 이를 귀하의\n백엔드 서버로 전송하는 일련의 상황을 테스트하기 위한 함수인 셈이다.\n\n@param paymentKey 대상 가상 계좌 결제 정보의 {@link ITossPayment.paymentKey}\n@returns 입금 완료된 가상 꼐좌 결제 정보\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "가상 계좌에 입금하기.\n\n`internal.virtual_accounts.deposit` 은 실제 토스 페이먼츠의 결제 서버에는 존재하지\n않는 API 로써, 가상 계좌 결제를 신청한 고객이, 이후 가상 계좌에 목표 금액을 입금하는\n상황을 시뮬레이션할 수 있는 함수이다.\n\n즉 `internal.virtual_accounts.deposit` 는 고객이 스스로에게 가상으로 발급된 계좌에\n입금을 하고, 그에 따라 토스 페이먼츠 서버에서 webhook 이벤트가 발생하여 이를 귀하의\n백엔드 서버로 전송하는 일련의 상황을 테스트하기 위한 함수인 셈이다.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
         "x-nestia-namespace": "internal.deposit.deposit",
         "x-nestia-jsDocTags": [
           {
@@ -618,9 +702,9 @@
                 "text": "ITossPayment.paymentKey",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-toss-payments-server/src/api/structures/ITossPayment.ts",
+                  "fileName": "C:/github/samchon/fake-toss-payments-server/src/api/structures/ITossPayment.ts",
                   "textSpan": {
-                    "start": 2449,
+                    "start": 2480,
                     "length": 19
                   }
                 }
@@ -641,6 +725,15 @@
             ]
           },
           {
+            "name": "security",
+            "text": [
+              {
+                "text": "basic",
+                "kind": "text"
+              }
+            ]
+          },
+          {
             "name": "author",
             "text": [
               {
@@ -649,7 +742,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "GET"
       }
     },
     "/v1/payments/{paymentKey}": {
@@ -659,10 +753,10 @@
           {
             "name": "paymentKey",
             "in": "path",
-            "description": "결제 정보의 ",
             "schema": {
               "type": "string"
             },
+            "description": "결제 정보의 ",
             "required": true
           }
         ],
@@ -680,7 +774,7 @@
           }
         },
         "summary": "결제 정보 조회하기",
-        "description": "결제 정보 조회하기.\n\n`payments.at` 은 결제 정보를 조회하는 함수이다.\n\n주로 클라이언트 어플리케이션이 토스 페이먼츠가 자체적으로 제공하는 결제 창을 사용하는\n경우, 그래서 프론트 어플리케이션이 귀하의 백엔드 서버에 `paymentKey` 등 극히 일부의\n식별자 정보만을 전달해주어, 상세 결제 정보가 필요할 때 사용한다.\n\n참고로 토스 페이먼츠는 다른 결제 PG 사들과 다르게, 클라이언트 어플리케이션에서 토스\n페이먼츠의 결제 창을 이용하여 진행한 결제가 바로 확정되는 것은 아니다. 귀사의 백엔드\n서버가 현재의 `payments.at` 을 통하여 해당 결제 정보를 확인하고, {@link approve} 를\n호출하여 직접 승인하기 전까지, 해당 결제는 확정되지 않으니, 이 점에 유의하기 바란다.\n\n@param paymentKey 결제 정보의 {@link ITossPayment.paymentKey}\n@returns 결제 정보\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "결제 정보 조회하기.\n\n`payments.at` 은 결제 정보를 조회하는 함수이다.\n\n주로 클라이언트 어플리케이션이 토스 페이먼츠가 자체적으로 제공하는 결제 창을 사용하는\n경우, 그래서 프론트 어플리케이션이 귀하의 백엔드 서버에 `paymentKey` 등 극히 일부의\n식별자 정보만을 전달해주어, 상세 결제 정보가 필요할 때 사용한다.\n\n참고로 토스 페이먼츠는 다른 결제 PG 사들과 다르게, 클라이언트 어플리케이션에서 토스\n페이먼츠의 결제 창을 이용하여 진행한 결제가 바로 확정되는 것은 아니다. 귀사의 백엔드\n서버가 현재의 `payments.at` 을 통하여 해당 결제 정보를 확인하고, {@link approve } 를\n호출하여 직접 승인하기 전까지, 해당 결제는 확정되지 않으니, 이 점에 유의하기 바란다.",
         "x-nestia-namespace": "v1.payments.at",
         "x-nestia-jsDocTags": [
           {
@@ -706,9 +800,9 @@
                 "text": "ITossPayment.paymentKey",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-toss-payments-server/src/api/structures/ITossPayment.ts",
+                  "fileName": "C:/github/samchon/fake-toss-payments-server/src/api/structures/ITossPayment.ts",
                   "textSpan": {
-                    "start": 2449,
+                    "start": 2480,
                     "length": 19
                   }
                 }
@@ -737,7 +831,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "GET"
       },
       "post": {
         "tags": [],
@@ -745,10 +840,10 @@
           {
             "name": "paymentKey",
             "in": "path",
-            "description": "대상 결제의 ",
             "schema": {
               "type": "string"
             },
+            "description": "대상 결제의 ",
             "required": true
           }
         ],
@@ -778,7 +873,12 @@
           }
         },
         "summary": "결제 승인하기",
-        "description": "결제 승인하기.\n\n토스 페이먼츠는 귀사의 백엔드에서 일어난 결제가 아닌 프론트 어플리케이션의 결제 창에서\n이루어진 결제의 경우, 해당 서비스으 백엔드 서버로부터 결제를 승인받기 전까지, 이를\n확정하지 않는다. `payments.approve` 는 바로 이러한 상황에서, 해당 결제를 승인해주는\n함수이다.\n\n만일 귀하가 `fake-toss-payments-server` 를 이용하여 결제를 시뮬레이션하는 경우라면,\n결제 관련 API 를 호출함에 있어 {@link ITossCardPayment.IStore.__approved} 내지\n{@link ITossVirtualAccountPayment.IStore.__approved} 를 `false` 로 함으로써, 별도\n승인이 필요한 이러한 상황을 시뮬레이션 할 수 있다.\n\n@param paymentKey 대상 결제의 {@link ITossPayment.paymentKey}\n@param input 주문 정보 확인\n@returns 승인된 결제 정보\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "결제 승인하기.\n\n토스 페이먼츠는 귀사의 백엔드에서 일어난 결제가 아닌 프론트 어플리케이션의 결제 창에서\n이루어진 결제의 경우, 해당 서비스으 백엔드 서버로부터 결제를 승인받기 전까지, 이를\n확정하지 않는다. `payments.approve` 는 바로 이러한 상황에서, 해당 결제를 승인해주는\n함수이다.\n\n만일 귀하가 `fake-toss-payments-server` 를 이용하여 결제를 시뮬레이션하는 경우라면,\n결제 관련 API 를 호출함에 있어 {@link ITossCardPayment.IStore.__approved } 내지\n{@link ITossVirtualAccountPayment.IStore.__approved } 를 `false` 로 함으로써, 별도\n승인이 필요한 이러한 상황을 시뮬레이션 할 수 있다.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
         "x-nestia-namespace": "v1.payments.approve",
         "x-nestia-jsDocTags": [
           {
@@ -804,9 +904,9 @@
                 "text": "ITossPayment.paymentKey",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-toss-payments-server/src/api/structures/ITossPayment.ts",
+                  "fileName": "C:/github/samchon/fake-toss-payments-server/src/api/structures/ITossPayment.ts",
                   "textSpan": {
-                    "start": 2449,
+                    "start": 2480,
                     "length": 19
                   }
                 }
@@ -844,6 +944,15 @@
             ]
           },
           {
+            "name": "security",
+            "text": [
+              {
+                "text": "basic",
+                "kind": "text"
+              }
+            ]
+          },
+          {
             "name": "author",
             "text": [
               {
@@ -852,7 +961,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/v1/payments/key-in": {
@@ -885,7 +995,12 @@
           }
         },
         "summary": "카드로 결제하기",
-        "description": "카드로 결제하기.\n\n`payments.key_in` 은 카드를 이용한 결제를 할 때 호출되는 API 함수이다.\n\n참고로 `payments.key_in` 는 클라이언트 어플리케이션이 토스 페이먼츠가 자체적으로\n제공하는 결제 창을 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서 호출하는\n일은 없을 것이다. 다만, 고객이 카드를 통하여 결제하는 상황을 시뮬레이션하기 위하여,\n테스트 자동화 프로그램 수준에서 사용될 수는 있다.\n\n그리고 귀하의 백엔드 서버가 `payments.key-in` 을 직접 호출하는 경우, 토스 페이먼츠\n서버는 이를 완전히 승인된 결제로 보고 바로 확정한다. 때문에 `payments.key-in` 을\n직접 호출하는 경우, 토스 페이먼츠의 결제 창을 이용하여 별도의 {@link approve} 가\n필요한 때 대비, 훨씬 더 세심한 주의가 요구된다.\n\n더하여 만약 귀하의 백엔드 서버가 `fake-toss-payments-server` 를 이용하여 고객의\n카드 결제를 시뮬레이션하는 경우, {@link ITossCardPayment.IStore.__approved} 값을\n`false` 로 하여 카드 결제의 확정을 고의로 회피할 수 있다. 이를 통하여 토스\n페이먼츠의 결제 창을 이용한 카드 결제의 경우, 별도의 {@link approve} 가 필요한\n상황을 시뮬레이션 할 수 있다.\n\n@param input 카드 결제 입력 정보\n@returns 카드 결제 정보\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "카드로 결제하기.\n\n`payments.key_in` 은 카드를 이용한 결제를 할 때 호출되는 API 함수이다.\n\n참고로 `payments.key_in` 는 클라이언트 어플리케이션이 토스 페이먼츠가 자체적으로\n제공하는 결제 창을 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서 호출하는\n일은 없을 것이다. 다만, 고객이 카드를 통하여 결제하는 상황을 시뮬레이션하기 위하여,\n테스트 자동화 프로그램 수준에서 사용될 수는 있다.\n\n그리고 귀하의 백엔드 서버가 `payments.key-in` 을 직접 호출하는 경우, 토스 페이먼츠\n서버는 이를 완전히 승인된 결제로 보고 바로 확정한다. 때문에 `payments.key-in` 을\n직접 호출하는 경우, 토스 페이먼츠의 결제 창을 이용하여 별도의 {@link approve } 가\n필요한 때 대비, 훨씬 더 세심한 주의가 요구된다.\n\n더하여 만약 귀하의 백엔드 서버가 `fake-toss-payments-server` 를 이용하여 고객의\n카드 결제를 시뮬레이션하는 경우, {@link ITossCardPayment.IStore.__approved } 값을\n`false` 로 하여 카드 결제의 확정을 고의로 회피할 수 있다. 이를 통하여 토스\n페이먼츠의 결제 창을 이용한 카드 결제의 경우, 별도의 {@link approve } 가 필요한\n상황을 시뮬레이션 할 수 있다.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
         "x-nestia-namespace": "v1.payments.key-in.key_in",
         "x-nestia-jsDocTags": [
           {
@@ -915,6 +1030,15 @@
             ]
           },
           {
+            "name": "security",
+            "text": [
+              {
+                "text": "basic",
+                "kind": "text"
+              }
+            ]
+          },
+          {
             "name": "author",
             "text": [
               {
@@ -923,7 +1047,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/v1/payments/{paymentKey}/cancel": {
@@ -933,10 +1058,10 @@
           {
             "name": "paymentKey",
             "in": "path",
-            "description": "결제 정보의 ",
             "schema": {
               "type": "string"
             },
+            "description": "결제 정보의 ",
             "required": true
           }
         ],
@@ -966,7 +1091,12 @@
           }
         },
         "summary": "결제 취소하기",
-        "description": "결제 취소하기.\n\n`payments.cancel` 은 결제를 취소하는 API 이다.\n\n결제 취소 입력 정보 {@link ITossPaymentCancel.IStore} 에는 취소 사유를 비롯하여,\n고객에게 환불해 줄 금액과 부가세 및 필요시 환불 계좌 정보 등을 입력하게 되어있다.\n\n@param paymentKey 결제 정보의 {@link ITossPayment.paymentKey}\n@param input 취소 입력 정보\n@returns 취소된 결제 정보\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "결제 취소하기.\n\n`payments.cancel` 은 결제를 취소하는 API 이다.\n\n결제 취소 입력 정보 {@link ITossPaymentCancel.IStore } 에는 취소 사유를 비롯하여,\n고객에게 환불해 줄 금액과 부가세 및 필요시 환불 계좌 정보 등을 입력하게 되어있다.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
         "x-nestia-namespace": "v1.payments.cancel.cancel",
         "x-nestia-jsDocTags": [
           {
@@ -992,9 +1122,9 @@
                 "text": "ITossPayment.paymentKey",
                 "kind": "linkName",
                 "target": {
-                  "fileName": "D:/github/samchon/fake-toss-payments-server/src/api/structures/ITossPayment.ts",
+                  "fileName": "C:/github/samchon/fake-toss-payments-server/src/api/structures/ITossPayment.ts",
                   "textSpan": {
-                    "start": 2449,
+                    "start": 2480,
                     "length": 19
                   }
                 }
@@ -1032,6 +1162,15 @@
             ]
           },
           {
+            "name": "security",
+            "text": [
+              {
+                "text": "basic",
+                "kind": "text"
+              }
+            ]
+          },
+          {
             "name": "author",
             "text": [
               {
@@ -1040,7 +1179,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     },
     "/v1/virtual-accounts": {
@@ -1073,7 +1213,12 @@
           }
         },
         "summary": "가상 계좌로 결제 신청하기",
-        "description": "가상 계좌로 결제 신청하기.\n\n`virtual_accounts.store` 는 고객이 결제 수단을 가상 계좌로 선택하는 경우에 호출되는\nAPI 함수이다. 물론 고객이 이처럼 가상 계좌를 선택한 경우, 고객이 지정된 계좌에 돈을\n입금하기 전까지는 결제가 마무리된 것이 아니기에, {@link ITossPayment.status} 값은\n`WAITING_FOR_DEPOSIT` 이 된다.\n\n참고로 `virtual_accounts.store` 는 클라이언트 어플리케이션이 토스 페이먼츠가\n자체적으로 제공하는 결제 창을 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서\n호출하는 일은 없을 것이다. 다만, 고객이 가상 계좌로 결제를 진행하는 상황을\n시뮬레이션하기 위하여, 테스트 자동화 프로그램 수준에서 사용될 수는 있다.\n\n그리고 `virtual_accounts.store` 이후에 고객이 지정된 계좌에 금액을 입금하거든, 토스\n페이먼츠 서버로부터 웹훅 이벤트가 발생되어 귀하의 백엔드 서버로 전송된다. 만약 연동\n대상 토스 페이먼츠 서버가 실제가 아닌 `fake-toss-payments-server` 라면,\n{@link internal.virtual_accounts.deposit} 를 호출하여, 고객이 가상 계좌에 입금하는\n상황을 시뮬레이션 할 수 있다.\n\n@param input 가상 결제 신청 정보.\n@returns 가상 계좌 결제 정보\n\n@author Jeongho Nam - https://github.com/samchon",
+        "description": "가상 계좌로 결제 신청하기.\n\n`virtual_accounts.store` 는 고객이 결제 수단을 가상 계좌로 선택하는 경우에 호출되는\nAPI 함수이다. 물론 고객이 이처럼 가상 계좌를 선택한 경우, 고객이 지정된 계좌에 돈을\n입금하기 전까지는 결제가 마무리된 것이 아니기에, {@link ITossPayment.status } 값은\n`WAITING_FOR_DEPOSIT` 이 된다.\n\n참고로 `virtual_accounts.store` 는 클라이언트 어플리케이션이 토스 페이먼츠가\n자체적으로 제공하는 결제 창을 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서\n호출하는 일은 없을 것이다. 다만, 고객이 가상 계좌로 결제를 진행하는 상황을\n시뮬레이션하기 위하여, 테스트 자동화 프로그램 수준에서 사용될 수는 있다.\n\n그리고 `virtual_accounts.store` 이후에 고객이 지정된 계좌에 금액을 입금하거든, 토스\n페이먼츠 서버로부터 웹훅 이벤트가 발생되어 귀하의 백엔드 서버로 전송된다. 만약 연동\n대상 토스 페이먼츠 서버가 실제가 아닌 `fake-toss-payments-server` 라면,\n{@link internal.virtual_accounts.deposit } 를 호출하여, 고객이 가상 계좌에 입금하는\n상황을 시뮬레이션 할 수 있다.",
+        "security": [
+          {
+            "basic": []
+          }
+        ],
         "x-nestia-namespace": "v1.virtual-accounts.store",
         "x-nestia-jsDocTags": [
           {
@@ -1103,6 +1248,15 @@
             ]
           },
           {
+            "name": "security",
+            "text": [
+              {
+                "text": "basic",
+                "kind": "text"
+              }
+            ]
+          },
+          {
             "name": "author",
             "text": [
               {
@@ -1111,7 +1265,8 @@
               }
             ]
           }
-        ]
+        ],
+        "x-nestia-method": "POST"
       }
     }
   },
@@ -1121,72 +1276,21 @@
         "type": "object",
         "properties": {
           "cardNumber": {
-            "description": "카드 번호.\n\n@pattern [0-9]{16}",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "[0-9]{16}"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "[0-9]{16}",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 번호.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "pattern": "[0-9]{16}"
           },
           "cardExpirationYear": {
-            "description": "카드 만료 년도 (2 자리).\n\n@pattern \\d{2}",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "\\d{2}"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "\\d{2}",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 만료 년도 (2 자리).",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "pattern": "\\d{2}"
           },
           "cardExpirationMonth": {
-            "description": "카드 만료 월 (2 자리).\n\n@pattern ^(0[1-9]|1[012])$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^(0[1-9]|1[012])$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^(0[1-9]|1[012])$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 만료 월 (2 자리).",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -1199,24 +1303,7 @@
             "type": "string"
           },
           "customerBirthday": {
-            "description": "고객의 생년월일.\n\n표기 형식 YYMMDD.\n\n@pattern ^([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "고객의 생년월일.\n\n표기 형식 YYMMDD.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -1229,24 +1316,7 @@
             "type": "string"
           },
           "customerEmail": {
-            "description": "고객의 이메일.\n\n@format email",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "email"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "email",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "고객의 이메일.",
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
@@ -1271,7 +1341,7 @@
           "customerBirthday",
           "customerKey"
         ],
-        "description": "3DS 인증 결과에 대한 코드 값.",
+        "description": "간편 결제 카드 등록 정보.",
         "x-typia-jsDocTags": []
       },
       "__type": {
@@ -1302,7 +1372,6 @@
           "xid",
           "eci"
         ],
-        "description": "3DS 인증 결과에 대한 코드 값.",
         "x-typia-jsDocTags": []
       },
       "ITossBilling": {
@@ -1315,7 +1384,7 @@
             "type": "string"
           },
           "billingKey": {
-            "description": "{@link ITossBilling} 의 식별자 키.",
+            "description": "{@link ITossBilling } 의 식별자 키.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string"
@@ -1336,48 +1405,14 @@
             "type": "string"
           },
           "cardNumber": {
-            "description": "카드 번호.\n\n@pattern [0-9]{16}",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "[0-9]{16}"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "[0-9]{16}",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 번호.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "pattern": "[0-9]{16}"
           },
           "authenticatedAt": {
-            "description": "인증 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "인증 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -1400,7 +1435,7 @@
           "authenticatedAt",
           "customerKey"
         ],
-        "description": "인증 일시.\n\n@format date-time",
+        "description": "간편 결제 등록 수단 정보.\n\n`ITossBilling` 은 간편 결제 등록 수단을 형상화한 자료구조 인터페이스로써, 고객이 자신의\n신용 카드를 서버에 등록해두고, 매번 결제가 필요할 때마다 카드 정보를 반복 입려하는 일\n없이 간편하게 결제를 진행하고자 할 때 사용한다.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -1427,7 +1462,7 @@
         "required": [
           "customerKey"
         ],
-        "description": "고객 식별자 키.\n\n토스 페이먼츠가 아닌, 이를 이용하는 서비스에서 자체적으로 관리하는 식별자 키.",
+        "description": "고객 식별자 정보.",
         "x-typia-jsDocTags": []
       },
       "ITossBilling.IPaymentStore": {
@@ -1443,7 +1478,7 @@
             ]
           },
           "billingKey": {
-            "description": "{@link IPaymentStore} 의 식별자 키.",
+            "description": "{@link IPaymentStore } 의 식별자 키.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string"
@@ -1475,7 +1510,7 @@
           "amount",
           "customerKey"
         ],
-        "description": "결제 총액.",
+        "description": "간편 결제를 이용한 결제 신청 정보.",
         "x-typia-jsDocTags": []
       },
       "ITossPayment": {
@@ -1494,6 +1529,18 @@
           },
           {
             "$ref": "#/components/schemas/ITossVirtualAccountPayment"
+          }
+        ],
+        "description": "결제 정보.\n\n`ITossPayment` 는 토스 페이먼츠의 결제 정보를 형상화한 자료구조이자 유니언 타입의 \n인터페이스로써, if condition 을 통하여 method 값을 특정하면, 파생 타입이 자동으로\n지정된다.\n\n```typescript\nif (payment.method === \"카드\")\n    payment.card; // payment be ITossCardPayment\n```",
+        "x-typia-jsDocTags": [
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Jeongho Nam - https://github.com/samchon",
+                "kind": "text"
+              }
+            ]
           }
         ]
       },
@@ -1528,7 +1575,7 @@
             ]
           },
           "type": {
-            "description": "결제 타입.\n\n- NORMAL: 일반 결제\n- BILLING: 미리 등록한 카드에 의한 간편 결제.",
+            "description": "결제 타입.\n\n  - NORMAL: 일반 결제\n  - BILLING: 미리 등록한 카드에 의한 간편 결제.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -1538,7 +1585,7 @@
             ]
           },
           "status": {
-            "description": "결제 상태.\n\n- READY\n- IN_PROGRESS\n- WAITING_FOR_DEPOSIT\n- DONE\n- CANCELED\n- PARTIAL_CANCELED\n- ABORTED\n- EXPIRED",
+            "description": "결제 상태.\n\n  - READY\n  - IN_PROGRESS\n  - WAITING_FOR_DEPOSIT\n  - DONE\n  - CANCELED\n  - PARTIAL_CANCELED\n  - ABORTED\n  - EXPIRED",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -1578,7 +1625,7 @@
             "type": "string"
           },
           "transactionKey": {
-            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey} 와 달리, 이를 사용할 일은 없더라.",
+            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey } 와 달리, 이를 사용할 일은 없더라.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string"
@@ -1638,48 +1685,14 @@
             "type": "boolean"
           },
           "requestedAt": {
-            "description": "결제 요청 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "결제 요청 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "format": "date-time"
           },
           "approvedAt": {
-            "description": "결제 승인 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "결제 승인 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -1727,7 +1740,7 @@
           "cancels",
           "cashReceipt"
         ],
-        "description": "간편결제로 결제한 경우 간편결제 타입 정보.",
+        "description": "카드 결제 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -1750,24 +1763,7 @@
             "type": "string"
           },
           "number": {
-            "description": "카드 번호.\n\n@pattern [0-9]{16}",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "[0-9]{16}"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "[0-9]{16}",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 번호.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -1822,7 +1818,7 @@
             ]
           },
           "acquireStatus": {
-            "description": "카드 결제의 매입 상태.\n\n- READY: 매입 대기\n- REQUESTED: 매입 요청됨\n- COMPLETED: 매입 완료\n- CANCEL_REQUESTED: 매입 취소 요청됨\n- CANCELD: 매입 취소됨",
+            "description": "카드 결제의 매입 상태.\n\n - READY: 매입 대기\n - REQUESTED: 매입 요청됨\n - COMPLETED: 매입 완료\n - CANCEL_REQUESTED: 매입 취소 요청됨\n - CANCELD: 매입 취소됨",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -1835,24 +1831,7 @@
             ]
           },
           "receiptUrl": {
-            "description": "영수증 URL.\n\n@format url",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "url"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "url",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "영수증 URL.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -1872,7 +1851,7 @@
           "acquireStatus",
           "receiptUrl"
         ],
-        "description": "영수증 URL.\n\n@format url",
+        "description": "카드 정보.",
         "x-typia-jsDocTags": []
       },
       "ITossCardPayment.IDiscount.Nullable": {
@@ -1889,7 +1868,7 @@
         "required": [
           "amount"
         ],
-        "description": "카드사의 즉시 할인 프로모션을 적용한 금액.",
+        "description": "카드사의 즉시 할인 프로모션 정보.",
         "x-typia-jsDocTags": []
       },
       "ITossPaymentCancel": {
@@ -1926,24 +1905,7 @@
             "type": "number"
           },
           "canceledAt": {
-            "description": "취소 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "취소 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -1959,7 +1921,7 @@
           "refundableAmount",
           "canceledAt"
         ],
-        "description": "취소 일시.\n\n@format date-time",
+        "description": "결제 취소 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -2011,10 +1973,11 @@
           "issueNumber",
           "receiptUrl"
         ],
-        "description": "현금영수증 조회 페이지 주소.",
+        "description": "현금 영수증 요약 정보.",
         "x-typia-jsDocTags": []
       },
       "ITossCashReceipt.Type": {
+        "description": "현금 영수증의 종류.",
         "type": "string",
         "enum": [
           "소득공제",
@@ -2037,7 +2000,7 @@
             ]
           },
           "type": {
-            "description": "결제 타입.\n\n- NORMAL: 일반 결제\n- BILLING: 미리 등록한 카드에 의한 간편 결제.",
+            "description": "결제 타입.\n\n  - NORMAL: 일반 결제\n  - BILLING: 미리 등록한 카드에 의한 간편 결제.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2046,7 +2009,7 @@
             ]
           },
           "status": {
-            "description": "결제 상태.\n\n- READY\n- IN_PROGRESS\n- WAITING_FOR_DEPOSIT\n- DONE\n- CANCELED\n- PARTIAL_CANCELED\n- ABORTED\n- EXPIRED",
+            "description": "결제 상태.\n\n  - READY\n  - IN_PROGRESS\n  - WAITING_FOR_DEPOSIT\n  - DONE\n  - CANCELED\n  - PARTIAL_CANCELED\n  - ABORTED\n  - EXPIRED",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2086,7 +2049,7 @@
             "type": "string"
           },
           "transactionKey": {
-            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey} 와 달리, 이를 사용할 일은 없더라.",
+            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey } 와 달리, 이를 사용할 일은 없더라.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string"
@@ -2146,48 +2109,14 @@
             "type": "boolean"
           },
           "requestedAt": {
-            "description": "결제 요청 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "결제 요청 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "format": "date-time"
           },
           "approvedAt": {
-            "description": "결제 승인 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "결제 승인 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2233,7 +2162,7 @@
           "cancels",
           "cashReceipt"
         ],
-        "description": "상품권 정보.",
+        "description": "상품권 결제 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -2271,7 +2200,7 @@
           "approveNo",
           "settlementStatus"
         ],
-        "description": "정산 상태.",
+        "description": "상품권 정보.",
         "x-typia-jsDocTags": []
       },
       "ITossMobilePhonePayment": {
@@ -2290,7 +2219,7 @@
             ]
           },
           "type": {
-            "description": "결제 타입.\n\n- NORMAL: 일반 결제\n- BILLING: 미리 등록한 카드에 의한 간편 결제.",
+            "description": "결제 타입.\n\n  - NORMAL: 일반 결제\n  - BILLING: 미리 등록한 카드에 의한 간편 결제.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2299,7 +2228,7 @@
             ]
           },
           "status": {
-            "description": "결제 상태.\n\n- READY\n- IN_PROGRESS\n- WAITING_FOR_DEPOSIT\n- DONE\n- CANCELED\n- PARTIAL_CANCELED\n- ABORTED\n- EXPIRED",
+            "description": "결제 상태.\n\n  - READY\n  - IN_PROGRESS\n  - WAITING_FOR_DEPOSIT\n  - DONE\n  - CANCELED\n  - PARTIAL_CANCELED\n  - ABORTED\n  - EXPIRED",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2339,7 +2268,7 @@
             "type": "string"
           },
           "transactionKey": {
-            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey} 와 달리, 이를 사용할 일은 없더라.",
+            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey } 와 달리, 이를 사용할 일은 없더라.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string"
@@ -2399,48 +2328,14 @@
             "type": "boolean"
           },
           "requestedAt": {
-            "description": "결제 요청 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "결제 요청 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "format": "date-time"
           },
           "approvedAt": {
-            "description": "결제 승인 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "결제 승인 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2486,7 +2381,7 @@
           "cancels",
           "cashReceipt"
         ],
-        "description": "휴대폰 정보.",
+        "description": "휴대폰 결제 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -2531,7 +2426,7 @@
           "customerMobilePhone",
           "settlementStatus"
         ],
-        "description": "정산 상태.",
+        "description": "휴대폰 정보.",
         "x-typia-jsDocTags": []
       },
       "ITossTransferPayment": {
@@ -2550,7 +2445,7 @@
             ]
           },
           "type": {
-            "description": "결제 타입.\n\n- NORMAL: 일반 결제\n- BILLING: 미리 등록한 카드에 의한 간편 결제.",
+            "description": "결제 타입.\n\n  - NORMAL: 일반 결제\n  - BILLING: 미리 등록한 카드에 의한 간편 결제.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2559,7 +2454,7 @@
             ]
           },
           "status": {
-            "description": "결제 상태.\n\n- READY\n- IN_PROGRESS\n- WAITING_FOR_DEPOSIT\n- DONE\n- CANCELED\n- PARTIAL_CANCELED\n- ABORTED\n- EXPIRED",
+            "description": "결제 상태.\n\n  - READY\n  - IN_PROGRESS\n  - WAITING_FOR_DEPOSIT\n  - DONE\n  - CANCELED\n  - PARTIAL_CANCELED\n  - ABORTED\n  - EXPIRED",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2599,7 +2494,7 @@
             "type": "string"
           },
           "transactionKey": {
-            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey} 와 달리, 이를 사용할 일은 없더라.",
+            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey } 와 달리, 이를 사용할 일은 없더라.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string"
@@ -2659,48 +2554,14 @@
             "type": "boolean"
           },
           "requestedAt": {
-            "description": "결제 요청 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "결제 요청 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "format": "date-time"
           },
           "approvedAt": {
-            "description": "결제 승인 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "결제 승인 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2746,7 +2607,7 @@
           "cancels",
           "cashReceipt"
         ],
-        "description": "계좌 이체 정보.",
+        "description": "계좌 이체 결제 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -2784,7 +2645,7 @@
           "bank",
           "settlementStatus"
         ],
-        "description": "이체 상태.",
+        "description": "계좌 이체 정보.",
         "x-typia-jsDocTags": []
       },
       "ITossVirtualAccountPayment": {
@@ -2809,7 +2670,7 @@
             ]
           },
           "type": {
-            "description": "결제 타입.\n\n- NORMAL: 일반 결제\n- BILLING: 미리 등록한 카드에 의한 간편 결제.",
+            "description": "결제 타입.\n\n  - NORMAL: 일반 결제\n  - BILLING: 미리 등록한 카드에 의한 간편 결제.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2818,7 +2679,7 @@
             ]
           },
           "status": {
-            "description": "결제 상태.\n\n- READY\n- IN_PROGRESS\n- WAITING_FOR_DEPOSIT\n- DONE\n- CANCELED\n- PARTIAL_CANCELED\n- ABORTED\n- EXPIRED",
+            "description": "결제 상태.\n\n  - READY\n  - IN_PROGRESS\n  - WAITING_FOR_DEPOSIT\n  - DONE\n  - CANCELED\n  - PARTIAL_CANCELED\n  - ABORTED\n  - EXPIRED",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -2858,7 +2719,7 @@
             "type": "string"
           },
           "transactionKey": {
-            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey} 와 달리, 이를 사용할 일은 없더라.",
+            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey } 와 달리, 이를 사용할 일은 없더라.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string"
@@ -2918,48 +2779,14 @@
             "type": "boolean"
           },
           "requestedAt": {
-            "description": "결제 요청 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "결제 요청 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "format": "date-time"
           },
           "approvedAt": {
-            "description": "결제 승인 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "결제 승인 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -3006,7 +2833,7 @@
           "cancels",
           "cashReceipt"
         ],
-        "description": "가상 계좌 정보.",
+        "description": "가상 계좌 결제 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -3051,24 +2878,7 @@
             "type": "string"
           },
           "dueDate": {
-            "description": "입금 기한.\n\n@format date",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "date"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "입금 기한.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -3091,7 +2901,7 @@
             ]
           },
           "refundStatus": {
-            "description": "환불 처리 상태.\n\n- NONE: 해당 없음\n- FAILED: 환불 실패\n- PENDING: 환불 처리중\n- PARTIAL_FAILED: 부분 환불 실패\n- COMPLETED: 환불 완료",
+            "description": "환불 처리 상태.\n\n - NONE: 해당 없음\n - FAILED: 환불 실패\n - PENDING: 환불 처리중\n - PARTIAL_FAILED: 부분 환불 실패\n - COMPLETED: 환불 완료",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -3115,17 +2925,24 @@
           "settlementStatus",
           "refundStatus"
         ],
-        "description": "환불 처리 상태.\n\n- NONE: 해당 없음\n- FAILED: 환불 실패\n- PENDING: 환불 처리중\n- PARTIAL_FAILED: 부분 환불 실패\n- COMPLETED: 환불 완료",
+        "description": "가상 계좌 정보.",
         "x-typia-jsDocTags": []
       },
       "ITossCashReceipt.IStore": {
         "type": "object",
         "properties": {
           "type": {
-            "$ref": "#/components/schemas/ITossCashReceipt.Type"
+            "description": "현금 영수증의 종류.",
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "소득공제",
+              "지출증빙"
+            ]
           },
           "paymentKey": {
-            "description": "귀속 결제의 {@link ITossPayment.paymentKey}.",
+            "description": "귀속 결제의 {@link ITossPayment.paymentKey }.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string"
@@ -3143,7 +2960,7 @@
             "type": "string"
           },
           "registrationNumber": {
-            "description": "현금 영수증 발급을 위한 개인 식별 번호.\n\n현금 영수증의 종류에 따라 휴대폰 번호나 주민등록번호 또는 사업자등록번호 및\n카드 번호를 입력할 수 있다.",
+            "description": "현금 영수증 발급을 위한 개인 식별 번호.\n\n현금 영수증의 종류에 따라 휴대폰 번호나 주민등록번호 또는 사업자등록번호 및 \n카드 번호를 입력할 수 있다.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string"
@@ -3176,7 +2993,7 @@
           "registrationNumber",
           "amount"
         ],
-        "description": "사업자 등록번호.",
+        "description": "현금 영수증 입력 정보.",
         "x-typia-jsDocTags": []
       },
       "ITossCashReceipt": {
@@ -3210,48 +3027,14 @@
             "type": "string"
           },
           "approvedAt": {
-            "description": "현금 영수증 승인 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "현금 영수증 승인 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "format": "date-time"
           },
           "canceledAt": {
-            "description": "현금 영수증 취소 일시.\n\n@format date-time",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "datetime"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "date-time",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "현금 영수증 취소 일시.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -3276,7 +3059,7 @@
           "canceledAt",
           "receiptUrl"
         ],
-        "description": "@internal",
+        "description": "현금 영수증 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -3300,7 +3083,7 @@
           }
         },
         "nullable": false,
-        "description": "취소 금액.\n\n미 입력시 현금 영수증에 기재된 {@link ITossCashReceipt.amount 총액}이 취소됨.",
+        "description": "현금 영수증 취소 입력 정보.",
         "x-typia-jsDocTags": []
       },
       "ITossPaymentWebhook": {
@@ -3324,7 +3107,7 @@
           "eventType",
           "data"
         ],
-        "description": "이벤트 데이터.",
+        "description": "웹훅 이벤트 정보.",
         "x-typia-jsDocTags": [
           {
             "name": "author",
@@ -3341,7 +3124,7 @@
         "type": "object",
         "properties": {
           "paymentKey": {
-            "description": "{@link ITossPayment} 의 식별자 키.",
+            "description": "{@link ITossPayment } 의 식별자 키.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string"
@@ -3353,7 +3136,7 @@
             "type": "string"
           },
           "status": {
-            "description": "결제 상태.\n\n- DONE: 결제 완료\n- CANCELED: 결제가 취소됨\n- PARTIAL_CANCELED: 결제가 부분 취소됨\n- WAITING_FOR_DEPOSIT: 입금 대기 중",
+            "description": "결제 상태.\n\n - DONE: 결제 완료\n - CANCELED: 결제가 취소됨\n - PARTIAL_CANCELED: 결제가 부분 취소됨\n - WAITING_FOR_DEPOSIT: 입금 대기 중",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -3371,7 +3154,7 @@
           "orderId",
           "status"
         ],
-        "description": "결제 상태.\n\n- DONE: 결제 완료\n- CANCELED: 결제가 취소됨\n- PARTIAL_CANCELED: 결제가 부분 취소됨\n- WAITING_FOR_DEPOSIT: 입금 대기 중",
+        "description": "웹훅 이벤트 데이터.",
         "x-typia-jsDocTags": []
       },
       "ITossCardPayment.IStore": {
@@ -3387,72 +3170,21 @@
             ]
           },
           "cardNumber": {
-            "description": "카드 번호.\n\n@pattern [0-9]{16}",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "[0-9]{16}"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "[0-9]{16}",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 번호.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "pattern": "[0-9]{16}"
           },
           "cardExpirationYear": {
-            "description": "카드 만료 년도 (2 자리).\n\n@pattern \\d{2}",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "\\d{2}"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "\\d{2}",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 만료 년도 (2 자리).",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "pattern": "\\d{2}"
           },
           "cardExpirationMonth": {
-            "description": "카드 만료 월 (2 자리).\n\n@pattern ^(0[1-9]|1[012])$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^(0[1-9]|1[012])$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^(0[1-9]|1[012])$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "카드 만료 월 (2 자리).",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -3495,48 +3227,14 @@
             "type": "string"
           },
           "customerBirthday": {
-            "description": "고객의 생년월일.\n\n표기 형식 YYMMDD.\n\n@pattern ^([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "고객의 생년월일.\n\n표기 형식 YYMMDD.",
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
             "pattern": "^([0-9]{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$"
           },
           "customerEmail": {
-            "description": "고객의 이메일.\n\n@format email",
-            "x-typia-metaTags": [
-              {
-                "kind": "format",
-                "value": "email"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "format",
-                "text": [
-                  {
-                    "text": "email",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "고객의 이메일.",
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string",
@@ -3546,7 +3244,7 @@
             "$ref": "#/components/schemas/__type.o1"
           },
           "__approved": {
-            "description": "결제 승인 여부.\n\n오직 가짜 페이먼츠 서버 `fake-toss-payments-server` 에서만 사용되는 값으로써,\n결제 승인을 고의로 지연시키거나 할 때 사용된다. 이 값을 `false` 로 하면, 프론트\n어플리케이션이 토스 페이먼츠가 제공해주는 결제 창을 사용하여 결제를 진행하는\n상황을 시뮬레이션할 수 있다.\n\n본디 토스 페이먼츠 서버는 프론트 어플리케이션에서 백엔드 서버를 거치지 않고,\n토스 페이먼츠가 제공해주는 결제 창을 이용하여 직접 결제를 요청하는 경우,\n백엔드에서 이를 별도 {@link functional.payments.approve 승인} 처리해주기 전까지\n정식 결제로 인청치 아니한다.\n\n반면 백엔드 서버에서 토스 페이먼츠 서버의 API 를 호출하는 경우, 토스 페이먼츠는\n이를 그 즉시로 승인해주기, `fake-toss-payments-server` 에서 별도의 승인 처리가\n필요한 상황을 시뮬레이션하기 위해서는 이러한 속성이 필요한 것.",
+            "description": "결제 승인 여부.\n\n오직 가짜 페이먼츠 서버 `fake-toss-payments-server` 에서만 사용되는 값으로써, \n결제 승인을 고의로 지연시키거나 할 때 사용된다. 이 값을 `false` 로 하면, 프론트 \n어플리케이션이 토스 페이먼츠가 제공해주는 결제 창을 사용하여 결제를 진행하는 \n상황을 시뮬레이션할 수 있다.\n\n본디 토스 페이먼츠 서버는 프론트 어플리케이션에서 백엔드 서버를 거치지 않고,\n토스 페이먼츠가 제공해주는 결제 창을 이용하여 직접 결제를 요청하는 경우, \n백엔드에서 이를 별도 {@link functional.payments.approve 승인} 처리해주기 전까지 \n정식 결제로 인청치 아니한다.\n\n반면 백엔드 서버에서 토스 페이먼츠 서버의 API 를 호출하는 경우, 토스 페이먼츠는\n이를 그 즉시로 승인해주기, `fake-toss-payments-server` 에서 별도의 승인 처리가\n필요한 상황을 시뮬레이션하기 위해서는 이러한 속성이 필요한 것.",
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
@@ -3561,7 +3259,7 @@
           "amount",
           "orderId"
         ],
-        "description": "결제 승인 여부.\n\n오직 가짜 페이먼츠 서버 `fake-toss-payments-server` 에서만 사용되는 값으로써,\n결제 승인을 고의로 지연시키거나 할 때 사용된다. 이 값을 `false` 로 하면, 프론트\n어플리케이션이 토스 페이먼츠가 제공해주는 결제 창을 사용하여 결제를 진행하는\n상황을 시뮬레이션할 수 있다.\n\n본디 토스 페이먼츠 서버는 프론트 어플리케이션에서 백엔드 서버를 거치지 않고,\n토스 페이먼츠가 제공해주는 결제 창을 이용하여 직접 결제를 요청하는 경우,\n백엔드에서 이를 별도 {@link functional.payments.approve 승인} 처리해주기 전까지\n정식 결제로 인청치 아니한다.\n\n반면 백엔드 서버에서 토스 페이먼츠 서버의 API 를 호출하는 경우, 토스 페이먼츠는\n이를 그 즉시로 승인해주기, `fake-toss-payments-server` 에서 별도의 승인 처리가\n필요한 상황을 시뮬레이션하기 위해서는 이러한 속성이 필요한 것.",
+        "description": "신용 카드를 이용한 결제 신청 정보.",
         "x-typia-jsDocTags": []
       },
       "__type.o1": {
@@ -3592,7 +3290,6 @@
           "xid",
           "eci"
         ],
-        "description": "3DS 인증 결과에 대한 코드 값.",
         "x-typia-jsDocTags": []
       },
       "ITossPayment.IApproval": {
@@ -3616,14 +3313,14 @@
           "orderId",
           "amount"
         ],
-        "description": "결제 총액.",
+        "description": "결제 승인 정보.",
         "x-typia-jsDocTags": []
       },
       "ITossPaymentCancel.IStore": {
         "type": "object",
         "properties": {
           "paymentKey": {
-            "description": "{@link ITossPayment} 의 식별자 키.",
+            "description": "{@link ITossPayment } 의 식별자 키.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string"
@@ -3667,7 +3364,7 @@
           "paymentKey",
           "cancelReason"
         ],
-        "description": "결제 취소 후 환불 가능 잔액.",
+        "description": "결제 취소 신청 정보.",
         "x-typia-jsDocTags": []
       },
       "__type.o2": {
@@ -3680,24 +3377,7 @@
             "type": "string"
           },
           "accountNumber": {
-            "description": "계좌 번호.\n\n@pattern ^[0-9]{0,20}$",
-            "x-typia-metaTags": [
-              {
-                "kind": "pattern",
-                "value": "^[0-9]{0,20}$"
-              }
-            ],
-            "x-typia-jsDocTags": [
-              {
-                "name": "pattern",
-                "text": [
-                  {
-                    "text": "^[0-9]{0,20}$",
-                    "kind": "text"
-                  }
-                ]
-              }
-            ],
+            "description": "계좌 번호.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
@@ -3716,7 +3396,6 @@
           "accountNumber",
           "holderName"
         ],
-        "description": "예금주.",
         "x-typia-jsDocTags": []
       },
       "ITossVirtualAccountPayment.IStore": {
@@ -3762,7 +3441,7 @@
             "type": "number"
           },
           "__approved": {
-            "description": "결제 승인 여부.\n\n오직 가짜 페이먼츠 서버 `fake-toss-payments-server` 에서만 사용되는 값으로써,\n결제 승인을 고의로 지연시키거나 할 때 사용된다. 이 값을 `false` 로 하면, 프론트\n어플리케이션이 토스 페이먼츠가 제공해주는 결제 창을 사용하여 결제를 진행하는\n상황을 시뮬레이션할 수 있다.\n\n본디 토스 페이먼츠 서버는 프론트 어플리케이션에서 백엔드 서버를 거치지 않고,\n토스 페이먼츠가 제공해주는 결제 창을 이용하여 직접 결제를 요청하는 경우,\n백엔드에서 이를 별도 {@link functional.payments.approve 승인} 처리해주기 전까지\n정식 결제로 인청치 아니한다.\n\n반면 백엔드 서버에서 토스 페이먼츠 서버의 API 를 호출하는 경우, 토스 페이먼츠는\n이를 그 즉시로 승인해주기, `fake-toss-payments-server` 에서 별도의 승인 처리가\n필요한 상황을 시뮬레이션하기 위해서는 이러한 속성이 필요한 것.",
+            "description": "결제 승인 여부.\n\n오직 가짜 페이먼츠 서버 `fake-toss-payments-server` 에서만 사용되는 값으로써, \n결제 승인을 고의로 지연시키거나 할 때 사용된다. 이 값을 `false` 로 하면, 프론트 \n어플리케이션이 토스 페이먼츠가 제공해주는 결제 창을 사용하여 결제를 진행하는 \n상황을 시뮬레이션할 수 있다.\n\n본디 토스 페이먼츠 서버는 프론트 어플리케이션에서 백엔드 서버를 거치지 않고,\n토스 페이먼츠가 제공해주는 결제 창을 이용하여 직접 결제를 요청하는 경우, \n백엔드에서 이를 별도 {@link functional.payments.approve 승인} 처리해주기 전까지 \n정식 결제로 인청치 아니한다.\n\n반면 백엔드 서버에서 토스 페이먼츠 서버의 API 를 호출하는 경우, 토스 페이먼츠는\n이를 그 즉시로 승인해주기, `fake-toss-payments-server` 에서 별도의 승인 처리가\n필요한 상황을 시뮬레이션하기 위해서는 이러한 속성이 필요한 것.",
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
@@ -3777,7 +3456,7 @@
           "customerName",
           "amount"
         ],
-        "description": "결제 승인 여부.\n\n오직 가짜 페이먼츠 서버 `fake-toss-payments-server` 에서만 사용되는 값으로써,\n결제 승인을 고의로 지연시키거나 할 때 사용된다. 이 값을 `false` 로 하면, 프론트\n어플리케이션이 토스 페이먼츠가 제공해주는 결제 창을 사용하여 결제를 진행하는\n상황을 시뮬레이션할 수 있다.\n\n본디 토스 페이먼츠 서버는 프론트 어플리케이션에서 백엔드 서버를 거치지 않고,\n토스 페이먼츠가 제공해주는 결제 창을 이용하여 직접 결제를 요청하는 경우,\n백엔드에서 이를 별도 {@link functional.payments.approve 승인} 처리해주기 전까지\n정식 결제로 인청치 아니한다.\n\n반면 백엔드 서버에서 토스 페이먼츠 서버의 API 를 호출하는 경우, 토스 페이먼츠는\n이를 그 즉시로 승인해주기, `fake-toss-payments-server` 에서 별도의 승인 처리가\n필요한 상황을 시뮬레이션하기 위해서는 이러한 속성이 필요한 것.",
+        "description": "가상 계좌를 이용한 결제 신청 정보.",
         "x-typia-jsDocTags": []
       }
     },
@@ -3788,10 +3467,5 @@
         "in": "header"
       }
     }
-  },
-  "security": [
-    {
-      "basic": []
-    }
-  ]
+  }
 }

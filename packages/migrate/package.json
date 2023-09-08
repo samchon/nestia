@@ -1,6 +1,6 @@
 {
   "name": "@nestia/migrate",
-  "version": "0.2.14",
+  "version": "0.3.0",
   "description": "Migration program from swagger to NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -30,8 +30,8 @@
   },
   "homepage": "https://github.com/samchon/nestia#readme",
   "devDependencies": {
-    "@nestia/core": "^2.0.0",
-    "@nestia/fetcher": "^2.0.0",
+    "@nestia/core": "^2.0.1",
+    "@nestia/fetcher": "^2.0.1",
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@types/node": "^20.3.3",
     "prettier": "^2.8.8",
@@ -41,7 +41,7 @@
     "ts-node": "^10.9.1",
     "ts-patch": "^3.0.2",
     "tstl": "^2.5.13",
-    "typescript": "^5.1.6",
+    "typescript": "^5.2.2",
     "typescript-transform-paths": "^3.4.6"
   },
   "dependencies": {

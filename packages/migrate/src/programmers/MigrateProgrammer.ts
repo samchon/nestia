@@ -19,15 +19,15 @@ export namespace MigrateProgrammer {
         (components: ISwaggerComponents) =>
         (program: IMigrateProgram): IMigrateFile[] => {
             return [
-                ...program.controllers.map((c) => ({
-                    location: c.location,
-                    file: `${c.name}.ts`,
-                    content: ControllerProgrammer.write(components)(c),
-                })),
                 ...program.structures.map((s) => ({
                     location: s.location,
                     file: `${s.name}.ts`,
                     content: DtoProgrammer.write(components)(s),
+                })),
+                ...program.controllers.map((c) => ({
+                    location: c.location,
+                    file: `${c.name}.ts`,
+                    content: ControllerProgrammer.write(components)(c),
                 })),
             ];
         };

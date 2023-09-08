@@ -3,6 +3,7 @@ import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { ISwagger } from "../structures/ISwagger";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { MapUtil } from "../utils/MapUtil";
+import { ImportProgrammer } from "./ImportProgrammer";
 import { SchemaProgrammer } from "./SchemaProgrammer";
 
 export namespace DtoProgrammer {
@@ -30,22 +31,12 @@ export namespace DtoProgrammer {
         (components: ISwaggerComponents) =>
         (dto: IMigrateDto): string => {
             const references: ISwaggerSchema.IReference[] = [];
-            const body: string = iterate(components)(references)(dto);
-            const imports: string[] = [
-                ...new Set(
-                    references
-                        .map(
-                            (s) =>
-                                s.$ref
-                                    .replace(`#/components/schemas/`, ``)
-                                    .split(".")[0],
-                        )
-                        .filter((str) => str !== dto.name),
-                ),
-            ];
+            const importer: ImportProgrammer = new ImportProgrammer();
+            const body: string = iterate(components)(references)(importer)(dto);
+
             const content: string[] = [
-                ...imports.map((i) => `import { ${i} } from "./${i}";`),
-                ...(imports.length ? [""] : []),
+                ...importer.toScript((name) => `./${name}`, dto.name),
+                ...(importer.empty() ? [] : [""]),
                 body,
             ];
             return content.join("\n");
@@ -54,6 +45,7 @@ export namespace DtoProgrammer {
     const iterate =
         (components: ISwaggerComponents) =>
         (references: ISwaggerSchema.IReference[]) =>
+        (importer: ImportProgrammer) =>
         (dto: IMigrateDto): string => {
             const content: string[] = [];
             if (dto.schema) {
@@ -68,14 +60,14 @@ export namespace DtoProgrammer {
                         : []),
                     `export type ${dto.name} = ${SchemaProgrammer.write(
                         components,
-                    )(references)(dto.schema)}`,
+                    )(references)(importer)(dto.schema)}`,
                 );
             }
             if (dto.children.length) {
                 content.push(
                     `export namespace ${dto.name} {`,
                     ...dto.children.map((c) =>
-                        iterate(components)(references)(c)
+                        iterate(components)(references)(importer)(c)
                             .split("\n")
                             .map((l) => `    ${l}`)
                             .join("\n"),
