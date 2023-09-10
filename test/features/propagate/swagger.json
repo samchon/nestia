@@ -208,7 +208,19 @@
             "in": "path",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "x-typia-typeTags": [
+                {
+                  "target": "string",
+                  "name": "Format<\"uuid\">",
+                  "kind": "format",
+                  "value": "uuid",
+                  "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
+                  "exclusive": [
+                    "pattern"
+                  ]
+                }
+              ]
             },
             "description": "Target article ID",
             "required": true
@@ -615,12 +627,32 @@
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
+            "x-typia-typeTags": [
+              {
+                "target": "number",
+                "name": "Type<\"uint32\">",
+                "kind": "type",
+                "value": "uint32",
+                "validate": "Math.floor($input) === $input && 0 <= $input && $input <= 4294967295",
+                "exclusive": true
+              }
+            ],
             "nullable": true
           },
           "limit": {
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
+            "x-typia-typeTags": [
+              {
+                "target": "number",
+                "name": "Type<\"uint32\">",
+                "kind": "type",
+                "value": "uint32",
+                "validate": "Math.floor($input) === $input && 0 <= $input && $input <= 4294967295",
+                "exclusive": true
+              }
+            ],
             "nullable": true
           }
         },
@@ -657,7 +689,19 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "Format<\"uuid\">",
+                "kind": "format",
+                "value": "uuid",
+                "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
+                "exclusive": [
+                  "pattern"
+                ]
+              }
+            ]
           },
           "section": {
             "x-typia-required": true,
@@ -674,13 +718,43 @@
             "x-typia-optional": false,
             "type": "string",
             "maxLength": 50,
-            "minLength": 3
+            "minLength": 3,
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "MinLength<3>",
+                "kind": "minLength",
+                "value": 3,
+                "validate": "3 <= $input.length",
+                "exclusive": true
+              },
+              {
+                "target": "string",
+                "name": "MaxLength<50>",
+                "kind": "maxLength",
+                "value": 50,
+                "validate": "$input.length <= 50",
+                "exclusive": true
+              }
+            ]
           },
           "created_at": {
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "Format<\"date-time\">",
+                "kind": "format",
+                "value": "date-time",
+                "validate": "!isNaN(new Date($input).getTime())",
+                "exclusive": [
+                  "pattern"
+                ]
+              }
+            ]
           }
         },
         "nullable": false,
@@ -699,22 +773,62 @@
           "current": {
             "x-typia-required": true,
             "x-typia-optional": false,
-            "type": "integer"
+            "type": "integer",
+            "x-typia-typeTags": [
+              {
+                "target": "number",
+                "name": "Type<\"uint32\">",
+                "kind": "type",
+                "value": "uint32",
+                "validate": "Math.floor($input) === $input && 0 <= $input && $input <= 4294967295",
+                "exclusive": true
+              }
+            ]
           },
           "limit": {
             "x-typia-required": true,
             "x-typia-optional": false,
-            "type": "integer"
+            "type": "integer",
+            "x-typia-typeTags": [
+              {
+                "target": "number",
+                "name": "Type<\"uint32\">",
+                "kind": "type",
+                "value": "uint32",
+                "validate": "Math.floor($input) === $input && 0 <= $input && $input <= 4294967295",
+                "exclusive": true
+              }
+            ]
           },
           "records": {
             "x-typia-required": true,
             "x-typia-optional": false,
-            "type": "integer"
+            "type": "integer",
+            "x-typia-typeTags": [
+              {
+                "target": "number",
+                "name": "Type<\"uint32\">",
+                "kind": "type",
+                "value": "uint32",
+                "validate": "Math.floor($input) === $input && 0 <= $input && $input <= 4294967295",
+                "exclusive": true
+              }
+            ]
           },
           "pages": {
             "x-typia-required": true,
             "x-typia-optional": false,
-            "type": "integer"
+            "type": "integer",
+            "x-typia-typeTags": [
+              {
+                "target": "number",
+                "name": "Type<\"uint32\">",
+                "kind": "type",
+                "value": "uint32",
+                "validate": "Math.floor($input) === $input && 0 <= $input && $input <= 4294967295",
+                "exclusive": true
+              }
+            ]
           }
         },
         "nullable": false,
@@ -735,7 +849,25 @@
             "x-typia-optional": false,
             "type": "string",
             "maxLength": 50,
-            "minLength": 3
+            "minLength": 3,
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "MinLength<3>",
+                "kind": "minLength",
+                "value": 3,
+                "validate": "3 <= $input.length",
+                "exclusive": true
+              },
+              {
+                "target": "string",
+                "name": "MaxLength<50>",
+                "kind": "maxLength",
+                "value": 50,
+                "validate": "$input.length <= 50",
+                "exclusive": true
+              }
+            ]
           },
           "body": {
             "x-typia-required": true,
@@ -768,6 +900,24 @@
             "type": "string",
             "maxLength": 255,
             "minLength": 1,
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "MinLength<1>",
+                "kind": "minLength",
+                "value": 1,
+                "validate": "1 <= $input.length",
+                "exclusive": true
+              },
+              {
+                "target": "string",
+                "name": "MaxLength<255>",
+                "kind": "maxLength",
+                "value": 255,
+                "validate": "$input.length <= 255",
+                "exclusive": true
+              }
+            ],
             "nullable": true
           },
           "extension": {
@@ -776,13 +926,43 @@
             "type": "string",
             "maxLength": 8,
             "minLength": 1,
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "MinLength<1>",
+                "kind": "minLength",
+                "value": 1,
+                "validate": "1 <= $input.length",
+                "exclusive": true
+              },
+              {
+                "target": "string",
+                "name": "MaxLength<8>",
+                "kind": "maxLength",
+                "value": 8,
+                "validate": "$input.length <= 8",
+                "exclusive": true
+              }
+            ],
             "nullable": true
           },
           "url": {
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "url"
+            "format": "url",
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "Format<\"url\">",
+                "kind": "format",
+                "value": "url",
+                "validate": "/^[a-zA-Z0-9]+:\\/\\/(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/.test($input)",
+                "exclusive": [
+                  "pattern"
+                ]
+              }
+            ]
           }
         },
         "nullable": false,
@@ -801,7 +981,19 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "Format<\"uuid\">",
+                "kind": "format",
+                "value": "uuid",
+                "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
+                "exclusive": [
+                  "pattern"
+                ]
+              }
+            ]
           },
           "section": {
             "x-typia-required": true,
@@ -812,14 +1004,44 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "Format<\"date-time\">",
+                "kind": "format",
+                "value": "date-time",
+                "validate": "!isNaN(new Date($input).getTime())",
+                "exclusive": [
+                  "pattern"
+                ]
+              }
+            ]
           },
           "title": {
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
             "maxLength": 50,
-            "minLength": 3
+            "minLength": 3,
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "MinLength<3>",
+                "kind": "minLength",
+                "value": 3,
+                "validate": "3 <= $input.length",
+                "exclusive": true
+              },
+              {
+                "target": "string",
+                "name": "MaxLength<50>",
+                "kind": "maxLength",
+                "value": 50,
+                "validate": "$input.length <= 50",
+                "exclusive": true
+              }
+            ]
           },
           "body": {
             "x-typia-required": true,
@@ -1019,7 +1241,19 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "email"
+            "format": "email",
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "Format<\"email\">",
+                "kind": "format",
+                "value": "email",
+                "validate": "/^(([^<>()[\\]\\.,;:\\s@\\\"]+(\\.[^<>()[\\]\\.,;:\\s@\\\"]+)*)|(\\\".+\\\"))@(([^<>()[\\]\\.,;:\\s@\\\"]+\\.)+[^<>()[\\]\\.,;:\\s@\\\"]{2,})$/i.test($input)",
+                "exclusive": [
+                  "pattern"
+                ]
+              }
+            ]
           },
           "password": {
             "x-typia-required": true,
@@ -1062,14 +1296,36 @@
             "description": "Primary key.",
             "x-typia-required": true,
             "x-typia-optional": false,
-            "type": "integer"
+            "type": "integer",
+            "x-typia-typeTags": [
+              {
+                "target": "number",
+                "name": "Type<\"uint32\">",
+                "kind": "type",
+                "value": "uint32",
+                "validate": "Math.floor($input) === $input && 0 <= $input && $input <= 4294967295",
+                "exclusive": true
+              }
+            ]
           },
           "email": {
             "description": "Email address.",
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "email"
+            "format": "email",
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "Format<\"email\">",
+                "kind": "format",
+                "value": "email",
+                "validate": "/^(([^<>()[\\]\\.,;:\\s@\\\"]+(\\.[^<>()[\\]\\.,;:\\s@\\\"]+)*)|(\\\".+\\\"))@(([^<>()[\\]\\.,;:\\s@\\\"]+\\.)+[^<>()[\\]\\.,;:\\s@\\\"]{2,})$/i.test($input)",
+                "exclusive": [
+                  "pattern"
+                ]
+              }
+            ]
           },
           "name": {
             "description": "Name of the seller.",
@@ -1094,7 +1350,19 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "Format<\"date-time\">",
+                "kind": "format",
+                "value": "date-time",
+                "validate": "!isNaN(new Date($input).getTime())",
+                "exclusive": [
+                  "pattern"
+                ]
+              }
+            ]
           }
         },
         "nullable": false,
@@ -1121,7 +1389,19 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "Format<\"date-time\">",
+                "kind": "format",
+                "value": "date-time",
+                "validate": "!isNaN(new Date($input).getTime())",
+                "exclusive": [
+                  "pattern"
+                ]
+              }
+            ]
           }
         },
         "nullable": false,
@@ -1138,7 +1418,19 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "email"
+            "format": "email",
+            "x-typia-typeTags": [
+              {
+                "target": "string",
+                "name": "Format<\"email\">",
+                "kind": "format",
+                "value": "email",
+                "validate": "/^(([^<>()[\\]\\.,;:\\s@\\\"]+(\\.[^<>()[\\]\\.,;:\\s@\\\"]+)*)|(\\\".+\\\"))@(([^<>()[\\]\\.,;:\\s@\\\"]+\\.)+[^<>()[\\]\\.,;:\\s@\\\"]{2,})$/i.test($input)",
+                "exclusive": [
+                  "pattern"
+                ]
+              }
+            ]
           },
           "password": {
             "x-typia-required": true,

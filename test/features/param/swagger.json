@@ -233,7 +233,19 @@
             "in": "path",
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "x-typia-typeTags": [
+                {
+                  "target": "string",
+                  "name": "Format<\"uuid\">",
+                  "kind": "format",
+                  "value": "uuid",
+                  "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
+                  "exclusive": [
+                    "pattern"
+                  ]
+                }
+              ]
             },
             "description": "",
             "required": true
@@ -266,7 +278,19 @@
             "in": "path",
             "schema": {
               "type": "string",
-              "format": "date"
+              "format": "date",
+              "x-typia-typeTags": [
+                {
+                  "target": "string",
+                  "name": "Format<\"date\">",
+                  "kind": "format",
+                  "value": "date",
+                  "validate": "/^(\\d{4})-(\\d{2})-(\\d{2})$/.test($input)",
+                  "exclusive": [
+                    "pattern"
+                  ]
+                }
+              ]
             },
             "description": "",
             "required": true
@@ -300,6 +324,18 @@
             "schema": {
               "type": "string",
               "format": "uuid",
+              "x-typia-typeTags": [
+                {
+                  "target": "string",
+                  "name": "Format<\"uuid\">",
+                  "kind": "format",
+                  "value": "uuid",
+                  "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
+                  "exclusive": [
+                    "pattern"
+                  ]
+                }
+              ],
               "nullable": true
             },
             "description": "",
@@ -335,6 +371,18 @@
             "schema": {
               "type": "string",
               "format": "date",
+              "x-typia-typeTags": [
+                {
+                  "target": "string",
+                  "name": "Format<\"date\">",
+                  "kind": "format",
+                  "value": "date",
+                  "validate": "/^(\\d{4})-(\\d{2})-(\\d{2})$/.test($input)",
+                  "exclusive": [
+                    "pattern"
+                  ]
+                }
+              ],
               "nullable": true
             },
             "description": "",

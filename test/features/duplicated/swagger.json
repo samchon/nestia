@@ -117,7 +117,17 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "x-typia-typeTags": [
+              {
+                "name": "Format<uuid>",
+                "target": "string",
+                "kind": "format",
+                "value": "uuid",
+                "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
+                "exclusive": true
+              }
+            ]
           },
           "title": {
             "x-typia-jsDocTags": [
@@ -144,7 +154,25 @@
             "x-typia-optional": false,
             "type": "string",
             "maxLength": 50,
-            "minLength": 3
+            "minLength": 3,
+            "x-typia-typeTags": [
+              {
+                "name": "MinLength<3>",
+                "target": "string",
+                "kind": "minLength",
+                "value": 3,
+                "validate": "3 <= $input.length",
+                "exclusive": true
+              },
+              {
+                "name": "MaxLength<50>",
+                "target": "string",
+                "kind": "maxLength",
+                "value": 50,
+                "validate": "$input.length <= 50",
+                "exclusive": true
+              }
+            ]
           },
           "body": {
             "x-typia-required": true,
@@ -174,7 +202,17 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "x-typia-typeTags": [
+              {
+                "name": "Format<date-time>",
+                "target": "string",
+                "kind": "format",
+                "value": "date-time",
+                "validate": "!isNaN(new Date($input).getTime())",
+                "exclusive": true
+              }
+            ]
           }
         },
         "nullable": false,
@@ -215,6 +253,16 @@
             "x-typia-optional": false,
             "type": "string",
             "maxLength": 255,
+            "x-typia-typeTags": [
+              {
+                "name": "MaxLength<255>",
+                "target": "string",
+                "kind": "maxLength",
+                "value": 255,
+                "validate": "$input.length <= 255",
+                "exclusive": true
+              }
+            ],
             "nullable": true
           },
           "extension": {
@@ -243,6 +291,24 @@
             "type": "string",
             "maxLength": 8,
             "minLength": 1,
+            "x-typia-typeTags": [
+              {
+                "name": "MinLength<1>",
+                "target": "string",
+                "kind": "minLength",
+                "value": 1,
+                "validate": "1 <= $input.length",
+                "exclusive": true
+              },
+              {
+                "name": "MaxLength<8>",
+                "target": "string",
+                "kind": "maxLength",
+                "value": 8,
+                "validate": "$input.length <= 8",
+                "exclusive": true
+              }
+            ],
             "nullable": true
           },
           "url": {
@@ -260,7 +326,17 @@
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "string",
-            "format": "url"
+            "format": "url",
+            "x-typia-typeTags": [
+              {
+                "name": "Format<url>",
+                "target": "string",
+                "kind": "format",
+                "value": "url",
+                "validate": "/^[a-zA-Z0-9]+:\\/\\/(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/.test($input)",
+                "exclusive": true
+              }
+            ]
           }
         },
         "nullable": false,
