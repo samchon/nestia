@@ -344,7 +344,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
+                  "$ref": "#/components/schemas/_singlequote_node:process_singlequote_.global.NodeJS.CpuUsage"
                 }
               }
             },
@@ -366,7 +366,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
+                  "$ref": "#/components/schemas/_singlequote_node:process_singlequote_.global.NodeJS.MemoryUsage"
                 }
               }
             },
@@ -388,7 +388,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
+                  "$ref": "#/components/schemas/_singlequote_node:process_singlequote_.global.NodeJS.ResourceUsage"
                 }
               }
             },
@@ -755,6 +755,33 @@
                 ]
               }
             ]
+          },
+          "updated_at": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "format",
+                "text": [
+                  {
+                    "text": "date-time",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time",
+            "x-typia-typeTags": [
+              {
+                "name": "Format<\"date-time\">",
+                "target": "string",
+                "kind": "format",
+                "value": "date-time",
+                "validate": "!isNaN(new Date($input).getTime())",
+                "exclusive": true
+              }
+            ]
           }
         },
         "nullable": false,
@@ -763,7 +790,8 @@
           "section",
           "writer",
           "title",
-          "created_at"
+          "created_at",
+          "updated_at"
         ],
         "x-typia-jsDocTags": []
       },
@@ -1018,6 +1046,33 @@
               }
             ]
           },
+          "updated_at": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "format",
+                "text": [
+                  {
+                    "text": "date-time",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time",
+            "x-typia-typeTags": [
+              {
+                "name": "Format<\"date-time\">",
+                "target": "string",
+                "kind": "format",
+                "value": "date-time",
+                "validate": "!isNaN(new Date($input).getTime())",
+                "exclusive": true
+              }
+            ]
+          },
           "title": {
             "x-typia-required": true,
             "x-typia-optional": false,
@@ -1062,6 +1117,7 @@
           "id",
           "section",
           "created_at",
+          "updated_at",
           "title",
           "body",
           "files"
@@ -1069,7 +1125,7 @@
         "description": "Article info.",
         "x-typia-jsDocTags": []
       },
-      "_singlequote_process_singlequote_.global.NodeJS.CpuUsage": {
+      "_singlequote_node:process_singlequote_.global.NodeJS.CpuUsage": {
         "type": "object",
         "properties": {
           "user": {
@@ -1090,7 +1146,7 @@
         ],
         "x-typia-jsDocTags": []
       },
-      "_singlequote_process_singlequote_.global.NodeJS.MemoryUsage": {
+      "_singlequote_node:process_singlequote_.global.NodeJS.MemoryUsage": {
         "type": "object",
         "properties": {
           "rss": {
@@ -1129,7 +1185,7 @@
         ],
         "x-typia-jsDocTags": []
       },
-      "_singlequote_process_singlequote_.global.NodeJS.ResourceUsage": {
+      "_singlequote_node:process_singlequote_.global.NodeJS.ResourceUsage": {
         "type": "object",
         "properties": {
           "fsRead": {

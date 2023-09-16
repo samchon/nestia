@@ -107,6 +107,10 @@ interface IBbsArticle extends IBbsArticle.IStore {
     id: string & tags.Format<"uuid">;
     section: string;
     created_at: string & tags.Format<"date-time">;
+    /**
+     * @format date-time
+     */
+    updated_at: string;
 }
 namespace IBbsArticle {
     export interface IStore {
@@ -121,6 +125,10 @@ namespace IBbsArticle {
         writer: string;
         title: string & tags.MinLength<3> & tags.MaxLength<50>;
         created_at: string & tags.Format<"date-time">;
+        /**
+         * @format date-time
+         */
+        updated_at: string;
     }
 }
 

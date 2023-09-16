@@ -885,7 +885,7 @@
             "type": "integer",
             "x-typia-typeTags": [
               {
-                "name": "Type<uint32>",
+                "name": "Type<\"uint32\">",
                 "target": "number",
                 "kind": "type",
                 "value": "uint32",
@@ -912,7 +912,7 @@
             "type": "integer",
             "x-typia-typeTags": [
               {
-                "name": "Type<uint32>",
+                "name": "Type<\"uint32\">",
                 "target": "number",
                 "kind": "type",
                 "value": "uint32",
@@ -970,7 +970,7 @@
             "format": "uuid",
             "x-typia-typeTags": [
               {
-                "name": "Format<uuid>",
+                "name": "Format<\"uuid\">",
                 "target": "string",
                 "kind": "format",
                 "value": "uuid",
@@ -1052,7 +1052,7 @@
             "format": "date-time",
             "x-typia-typeTags": [
               {
-                "name": "Format<date-time>",
+                "name": "Format<\"date-time\">",
                 "target": "string",
                 "kind": "format",
                 "value": "date-time",
@@ -1092,7 +1092,7 @@
             "type": "integer",
             "x-typia-typeTags": [
               {
-                "name": "Type<uint32>",
+                "name": "Type<\"uint32\">",
                 "target": "number",
                 "kind": "type",
                 "value": "uint32",
@@ -1118,7 +1118,7 @@
             "type": "integer",
             "x-typia-typeTags": [
               {
-                "name": "Type<uint32>",
+                "name": "Type<\"uint32\">",
                 "target": "number",
                 "kind": "type",
                 "value": "uint32",
@@ -1144,7 +1144,7 @@
             "type": "integer",
             "x-typia-typeTags": [
               {
-                "name": "Type<uint32>",
+                "name": "Type<\"uint32\">",
                 "target": "number",
                 "kind": "type",
                 "value": "uint32",
@@ -1170,7 +1170,7 @@
             "type": "integer",
             "x-typia-typeTags": [
               {
-                "name": "Type<uint32>",
+                "name": "Type<\"uint32\">",
                 "target": "number",
                 "kind": "type",
                 "value": "uint32",
@@ -1211,7 +1211,7 @@
             "format": "uuid",
             "x-typia-typeTags": [
               {
-                "name": "Format<uuid>",
+                "name": "Format<\"uuid\">",
                 "target": "string",
                 "kind": "format",
                 "value": "uuid",
@@ -1243,7 +1243,7 @@
             "format": "date-time",
             "x-typia-typeTags": [
               {
-                "name": "Format<date-time>",
+                "name": "Format<\"date-time\">",
                 "target": "string",
                 "kind": "format",
                 "value": "date-time",
@@ -1426,7 +1426,7 @@
             "format": "url",
             "x-typia-typeTags": [
               {
-                "name": "Format<url>",
+                "name": "Format<\"url\">",
                 "target": "string",
                 "kind": "format",
                 "value": "url",
