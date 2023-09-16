@@ -125,7 +125,10 @@ export namespace SdkDtoGenerator {
         (importer: ImportDictionary) =>
         (alias: MetadataAlias) =>
             [
-                ...writeComment(alias.description, alias.jsDocTags),
+                ...writeComment(alias.value.atomics)(
+                    alias.description,
+                    alias.jsDocTags,
+                ),
                 `export type ${alias.name.split(".").pop()!} = ${decode(config)(
                     importer,
                 )(alias.value)};`,
@@ -136,7 +139,10 @@ export namespace SdkDtoGenerator {
         (importer: ImportDictionary) =>
         (object: MetadataObject) => {
             const top: string = [
-                ...writeComment(object.description ?? null, object.jsDocTags),
+                ...writeComment([])(
+                    object.description ?? null,
+                    object.jsDocTags,
+                ),
                 `export type ${object.name.split(".").pop()!} = `,
             ].join("\n");
             if (object.properties.length === 0) return top + "{};";
@@ -157,9 +163,10 @@ export namespace SdkDtoGenerator {
                         ? key
                         : JSON.stringify(key);
                     row.push(
-                        ...writeComment(p.description, p.jsDocTags).map(
-                            (l) => `    ${l}`,
-                        ),
+                        ...writeComment(p.value.atomics)(
+                            p.description,
+                            p.jsDocTags,
+                        ).map((l) => `    ${l}`),
                         `    ${identifier}: ${decode(config)(importer)(
                             p.value,
                         )};`,
@@ -171,9 +178,10 @@ export namespace SdkDtoGenerator {
             for (const p of dynamic) {
                 const row: string[] = ["{"];
                 row.push(
-                    ...writeComment(p.description, p.jsDocTags).map(
-                        (l) => `    ${l}`,
-                    ),
+                    ...writeComment(p.value.atomics)(
+                        p.description,
+                        p.jsDocTags,
+                    ).map((l) => `    ${l}`),
                     `    [key: ${decode(config)(importer)(p.key)}]: ${decode(
                         config,
                     )(importer)(p.value)};`,
@@ -184,25 +192,37 @@ export namespace SdkDtoGenerator {
             return top + brackets.map((row) => row.join("\n")).join(" & ");
         };
 
-    const writeComment = (
-        description: string | null,
-        jsDocTags: IJsDocTagInfo[],
-    ): string[] => {
-        const lines: string[] = [];
-        if (description?.length)
-            lines.push(...description.split("\n").map((s) => `${s}`));
-        if (description?.length && jsDocTags?.length) lines.push("");
-        if (jsDocTags?.length)
-            lines.push(
-                ...jsDocTags.map((t) =>
-                    t.text?.length
-                        ? `@${t.name} ${t.text.map((e) => e.text).join("")}`
-                        : `@${t.name}`,
-                ),
-            );
-        if (lines.length === 0) return [];
-        return ["/**", ...lines.map((s) => ` * ${s}`), " */"];
-    };
+    const writeComment =
+        (atomics: MetadataAtomic[]) =>
+        (description: string | null, jsDocTags: IJsDocTagInfo[]): string[] => {
+            const lines: string[] = [];
+            if (description?.length)
+                lines.push(...description.split("\n").map((s) => `${s}`));
+
+            const filtered: IJsDocTagInfo[] =
+                !!atomics.length && !!jsDocTags?.length
+                    ? jsDocTags.filter(
+                          (tag) =>
+                              !atomics.some((a) =>
+                                  a.tags.some((r) =>
+                                      r.some((t) => t.kind === tag.name),
+                                  ),
+                              ),
+                      )
+                    : jsDocTags ?? [];
+
+            if (description?.length && filtered.length) lines.push("");
+            if (filtered.length)
+                lines.push(
+                    ...filtered.map((t) =>
+                        t.text?.length
+                            ? `@${t.name} ${t.text.map((e) => e.text).join("")}`
+                            : `@${t.name}`,
+                    ),
+                );
+            if (lines.length === 0) return [];
+            return ["/**", ...lines.map((s) => ` * ${s}`), " */"];
+        };
 
     export const decode =
         (config: INestiaConfig) =>

@@ -34,12 +34,12 @@
     "ts-patch": "v3.0.2",
     "typescript": "^5.1.6",
     "typescript-transform-paths": "^3.4.4",
-    "typia": "^5.0.3",
+    "typia": "^5.0.4",
     "uuid": "^9.0.0",
     "nestia": "../packages/cli/nestia-4.5.0.tgz",
-    "@nestia/core": "../packages/core/nestia-core-2.0.2.tgz",
+    "@nestia/core": "../packages/core/nestia-core-2.0.3-dev.20230916.tgz",
     "@nestia/e2e": "../packages/e2e/nestia-e2e-0.3.6.tgz",
-    "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-2.0.2.tgz",
-    "@nestia/sdk": "../packages/sdk/nestia-sdk-2.0.2.tgz"
+    "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-2.0.3-dev.20230916.tgz",
+    "@nestia/sdk": "../packages/sdk/nestia-sdk-2.0.3-dev.20230916.tgz"
   }
 }
