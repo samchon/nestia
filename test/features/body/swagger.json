@@ -617,7 +617,7 @@
             "format": "url",
             "x-typia-typeTags": [
               {
-                "name": "Format<url>",
+                "name": "Format<\"url\">",
                 "target": "string",
                 "kind": "format",
                 "value": "url",
@@ -656,7 +656,7 @@
             "format": "uuid",
             "x-typia-typeTags": [
               {
-                "name": "Format<uuid>",
+                "name": "Format<\"uuid\">",
                 "target": "string",
                 "kind": "format",
                 "value": "uuid",
@@ -683,7 +683,7 @@
             "format": "date-time",
             "x-typia-typeTags": [
               {
-                "name": "Format<date-time>",
+                "name": "Format<\"date-time\">",
                 "target": "string",
                 "kind": "format",
                 "value": "date-time",
