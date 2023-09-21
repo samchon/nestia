@@ -51,7 +51,7 @@ export namespace TypedBodyProgrammer {
             else if (category === "validate")
                 return parameter("validate")(false)(ValidateProgrammer.write);
             else if (category === "validateEquals")
-                return parameter("validate")(true)(AssertProgrammer.write);
+                return parameter("validate")(true)(ValidateProgrammer.write);
             else if (category === "equals")
                 return parameter("is")(true)(AssertProgrammer.write);
             else if (category === "assertEquals")
