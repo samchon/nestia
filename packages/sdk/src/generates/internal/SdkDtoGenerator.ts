@@ -75,7 +75,7 @@ export namespace SdkDtoGenerator {
                     name: accessors.slice(0, i + 1).join("."),
                     children: new Map(),
                 }));
-                module.programmer = programmer;
+                if (i === accessors.length - 1) module.programmer = programmer;
                 dict = module.children;
             });
             return module!;
@@ -129,7 +129,7 @@ export namespace SdkDtoGenerator {
                     alias.description,
                     alias.jsDocTags,
                 ),
-                `export type ${alias.name.split(".").pop()!} = ${decode(config)(
+                `export type ${alias.name.split(".").at(-1)} = ${decode(config)(
                     importer,
                 )(alias.value)};`,
             ].join("\n");
@@ -143,7 +143,7 @@ export namespace SdkDtoGenerator {
                     object.description ?? null,
                     object.jsDocTags,
                 ),
-                `export type ${object.name.split(".").pop()!} = `,
+                `export type ${object.name.split(".").at(-1)} = `,
             ].join("\n");
             if (object.properties.length === 0) return top + "{};";
 

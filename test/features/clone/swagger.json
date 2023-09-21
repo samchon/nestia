@@ -616,6 +616,47 @@
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "DELETE"
       }
+    },
+    "/users/normals/{normalId}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "normalId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "",
+            "required": true
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/INormal"
+            },
+            "description": "",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/INormal.IPublicProfile"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "x-nestia-namespace": "users.normals.getByNormalId",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
     }
   },
   "components": {
@@ -1519,6 +1560,78 @@
         "required": [
           "old_password",
           "new_password"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "INormal": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "normal"
+            ]
+          },
+          "id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "name": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "created_at": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "other_attr": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "boolean"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "type",
+          "id",
+          "name",
+          "created_at",
+          "other_attr"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "INormal.IPublicProfile": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "normal"
+            ]
+          },
+          "id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "name": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "type",
+          "id",
+          "name"
         ],
         "x-typia-jsDocTags": []
       }
