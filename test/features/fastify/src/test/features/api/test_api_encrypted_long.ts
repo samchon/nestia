@@ -1,9 +1,8 @@
+import { RandomGenerator } from "@nestia/e2e";
 import typia from "typia";
 
 import api from "@api";
 import { ISeller } from "@api/lib/structures/ISeller";
-
-import { RandomGenerator } from "../../../../../../../packages/e2e/src/RandomGenerator";
 
 export const test_api_encrypted_long = async (
     connection: api.IConnection,
