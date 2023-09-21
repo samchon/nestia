@@ -1,37 +1,8 @@
 const cp = require("child_process");
 const fs = require("fs");
-const path = require("path");
+const { publish } = require("../../deploy/publish");
 
-const libraryDirectory = (name) => `${__dirname}/../../packages/${name}`;
 const featureDirectory = (name) => `${__dirname}/../features/${name}`;
-
-const build = async (name) => {
-    process.chdir(libraryDirectory(name));
-    fs.writeFileSync(
-        "README.md", 
-        fs.readFileSync(__dirname + "/../../README.md", "utf8"),
-        "utf8"
-    );
-
-    process.stdout.write(`  - @nestia/${name}`);
-    cp.execSync("npm install", { stdio: "ignore" });
-    cp.execSync("npm run build", { stdio: "ignore" });
-    cp.execSync("npm pack", { stdio: "ignore" });
-
-    const pack = JSON.parse(
-        await fs.promises.readFile("package.json", "utf8"),
-    );
-    // if (pack.scripts.test !== undefined &&
-    //     process.argv.includes("--skipTest") === false
-    // )
-    //     cp.execSync("npm run test", { stdio: "ignore" });
-
-    return {
-        name: pack.name,
-        location: `../packages/${name}/${pack.name.replace("@", "").replace("/", "-")}-${pack.version}.tgz`
-    };
-};
-
 const feature = (name) => {
     // MOVE TO THE DIRECTORY
     process.chdir(featureDirectory(name));
@@ -44,15 +15,16 @@ const feature = (name) => {
     const input = configured
         ? null
         : fs.existsSync("src/controllers")
-            ? "src/controllers"
-            : "src/**/*.controller.ts";
+        ? "src/controllers"
+        : "src/**/*.controller.ts";
 
     const generate = (type) => {
-        const argv = input !== null
-            ? type === "swagger"
-                ? `${type} ${input} --out swagger.json`
-                : `${type} ${input} --out src/api`
-            : type;
+        const argv =
+            input !== null
+                ? type === "swagger"
+                    ? `${type} ${input} --out swagger.json`
+                    : `${type} ${input} --out src/api`
+                : type;
         const command = `npx nestia`;
         cp.execSync(`${command} ${argv}`, { stdio: "ignore" });
     };
@@ -66,21 +38,20 @@ const feature = (name) => {
                 generate("sdk");
             });
             throw new Error("compile error must be occured.");
-        }
-        catch {
+        } catch {
             return;
         }
 
     // GENERATE SWAGGER & SDK & E2E
     for (const file of [
-        "swagger.json", 
-        "src/api/functional", 
+        "swagger.json",
+        "src/api/functional",
         "src/api/HttpError.ts",
         "src/api/IConnection.ts",
         "src/api/index.ts",
         "src/api/module.ts",
         "src/api/Primitive.ts",
-        "src/test/features/api/automated"
+        "src/test/features/api/automated",
     ])
         cp.execSync(`npx rimraf ${file}`, { stdio: "ignore" });
 
@@ -91,8 +62,8 @@ const feature = (name) => {
     generate("sdk");
     if (input === null) {
         const config = fs.readFileSync(
-            `${featureDirectory(name)}/nestia.config.ts`, 
-            "utf8"
+            `${featureDirectory(name)}/nestia.config.ts`,
+            "utf8",
         );
         if (config.includes("e2e:")) generate("e2e");
     }
@@ -100,7 +71,8 @@ const feature = (name) => {
 
     // RUN TEST AUTOMATION PROGRAM
     if (fs.existsSync("src/test")) {
-        const test = () => cp.execSync("npx ts-node src/test", { stdio: "ignore" });
+        const test = () =>
+            cp.execSync("npx ts-node src/test", { stdio: "ignore" });
         for (let i = 0; i < 3; ++i)
             try {
                 test();
@@ -117,8 +89,8 @@ const feature = (name) => {
 
 //     process.stdout.write(`  - ${name}`);
 //     cp.execSync(
-//         `npx @nestia/migrate ${input} ${output}`, 
-//         { 
+//         `npx @nestia/migrate ${input} ${output}`,
+//         {
 //             stdio: "ignore",
 //             cwd,
 //         }
@@ -131,56 +103,27 @@ const main = async () => {
         await task();
         const elapsed = Date.now() - time;
         console.log(`${title ?? ""}: ${elapsed.toLocaleString()} ms`);
-    }
+    };
 
-    const library = (() => {
-        const index = process.argv.findIndex(str => str === "--library");
-        return (index === -1 || process.argv.length < index + 2)
-            ? null
-            : process.argv[index + 1] ?? null;
-    })();
     await measure("\nTotal Elapsed Time")(async () => {
-        if (!process.argv.find((str) => str === "--skipBuild")) {
-            console.log("Build Packages");
-            const modules = [];
-            for (const name of await fs.promises.readdir(libraryDirectory("")))
-                if (name === (library ?? name))
-                    await measure("")(async () => {
-                        modules.push(await build(name));
-                    });
-
-            const pack = JSON.parse(
-                await fs.promises.readFile(`${__dirname}/../package.json`, "utf8")
-            );
-            for (const { name, location } of modules)
-                pack.devDependencies[name] = location;
-            await fs.promises.writeFile(
-                `${__dirname}/../package.json`,
-                JSON.stringify(pack, null, 2),
-                "utf8"
-            );
-            cp.execSync("npm install", { 
-                cwd: __dirname + "/..", 
-                stdio: "ignore", 
-            })
-        }
+        if (!process.argv.find((str) => str === "--skipBuild"))
+            publish("tgz")("0.0.0-dev.20991231");
 
         console.log("\nTest Features");
         const filter = (() => {
-            const only = process.argv.findIndex(str => str === "--only");
+            const only = process.argv.findIndex((str) => str === "--only");
             if (only !== -1 && process.argv.length >= only + 1)
-                return str => str.includes(process.argv[only + 1]);
-            
-            const from = process.argv.findIndex(str => str === "--from");
+                return (str) => str.includes(process.argv[only + 1]);
+
+            const from = process.argv.findIndex((str) => str === "--from");
             if (from !== -1 && process.argv.length >= from + 1)
-                return str => str >= process.argv[from + 1];
+                return (str) => str >= process.argv[from + 1];
 
             return () => true;
         })();
         if (!process.argv.includes("--skipFeatures")) {
             for (const name of await fs.promises.readdir(featureDirectory("")))
-                if (filter(name))
-                    await measure()(async () => feature(name));
+                if (filter(name)) await measure()(async () => feature(name));
         }
 
         // console.log("\nMigration Tests");
@@ -188,7 +131,7 @@ const main = async () => {
         //     if (fs.existsSync(`${__dirname}/../migrated`))
         //         fs.rmSync(`${__dirname}/../migrated`, { recursive: true });
         //     fs.mkdirSync(`${__dirname}/../migrated`);
-            
+
         //     for (const name of ["body", "date", "head", "param", "plain", "query" ,"security"])
         //         if (name.includes(only ?? name))
         //             await measure()(async () => migrate(name));
