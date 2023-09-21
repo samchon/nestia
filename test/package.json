@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/test",
-  "version": "0.0.0",
+  "version": "0.0.0-dev.20991231",
   "description": "Test program of Nestia",
   "main": "index.js",
   "scripts": {
@@ -25,7 +25,6 @@
   },
   "homepage": "https://nestia.io",
   "devDependencies": {
-    "@nestia/migrate": "../packages/migrate/nestia-migrate-0.3.0.tgz",
     "@nestjs/swagger": "^7.1.2",
     "@types/express": "^4.17.17",
     "@types/node": "18.11.15",
@@ -36,10 +35,10 @@
     "typescript-transform-paths": "^3.4.4",
     "typia": "^5.0.5",
     "uuid": "^9.0.0",
-    "nestia": "../packages/cli/nestia-4.5.0.tgz",
-    "@nestia/core": "../packages/core/nestia-core-2.0.5-dev.20230921.tgz",
-    "@nestia/e2e": "../packages/e2e/nestia-e2e-0.3.6.tgz",
-    "@nestia/fetcher": "../packages/fetcher/nestia-fetcher-2.0.5-dev.20230921.tgz",
-    "@nestia/sdk": "../packages/sdk/nestia-sdk-2.0.5-dev.20230921.tgz"
+    "nestia": "^4.5.0",
+    "@nestia/core": "D:\\github\\samchon\\nestia\\packages\\core\\nestia-core-0.0.0-dev.20991231.tgz",
+    "@nestia/e2e": "^0.3.6",
+    "@nestia/fetcher": "D:\\github\\samchon\\nestia\\packages\\fetcher\\nestia-fetcher-0.0.0-dev.20991231.tgz",
+    "@nestia/sdk": "D:\\github\\samchon\\nestia\\packages\\sdk\\nestia-sdk-0.0.0-dev.20991231.tgz"
   }
 }
