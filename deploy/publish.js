@@ -50,6 +50,7 @@ const setup = (tag) => (version) => (directory) => {
 
     // SETUP UPDATED DEPENDENCIES
     fs.writeFileSync(file, JSON.stringify(info, null, 2), "utf8");
+    execute(directory)("npm cache clean --force");
     execute(directory)(`npm install`);
 };
 
@@ -78,7 +79,17 @@ const publish = (tag) => (version) => {
         throw new Error(`latest tag can only be used for non-dev versions.`);
 
     // DO DEPLOY
-    for (const pack of packages) deploy(tag)(version)(pack);
+    const skip = (() => {
+        const index = process.argv.indexOf("--skip");
+        if (index === -1) return [];
+
+        const targets = process.argv.slice(index + 1);
+        return targets.filter((t) => packages.includes(t));
+    })();
+    for (const pack of packages) {
+        if (skip.includes(pack)) continue;
+        deploy(tag)(version)(pack);
+    }
 
     // SETUP INTO TEST
     console.log("-----------------------------------------");

@@ -4,6 +4,7 @@ import typia from "typia";
 
 @nest.Controller("users/normals")
 export class UserNormalsController {
+    @core.TypedException<IAuthentication.OuathType>(404)
     @core.TypedRoute.Get(":normalId")
     public async getByNormalId(
         @core.TypedParam("normalId") normalId: string,
@@ -25,4 +26,8 @@ interface INormal {
 
 namespace INormal {
     export type IPublicProfile = Pick<INormal, "type" | "id" | "name">;
+}
+
+namespace IAuthentication {
+    export type OuathType = "kakao" | "github";
 }

@@ -41,6 +41,14 @@ export namespace SdkDtoGenerator {
                     })(collection)(p.type);
                     if (res.success) p.metadata = res.data;
                 }
+                for (const e of Object.values(r.exceptions)) {
+                    const res = MetadataFactory.analyze(checker)({
+                        escape: true,
+                        constant: true,
+                        absorb: false,
+                    })(collection)(e.type);
+                    if (res.success) e.metadata = res.data;
+                }
                 const res = MetadataFactory.analyze(checker)({
                     escape: true,
                     constant: true,

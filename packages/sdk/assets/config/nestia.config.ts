@@ -42,6 +42,19 @@ export const NESTIA_CONFIG: INestiaConfig = {
     // distribute: "packages/api",
 
     /**
+     * Whether to use propagation mode or not.
+     *
+     * If being configured, interaction functions of the SDK library would
+     * perform the propagation mode. The propagation mode means that never
+     * throwing exception even when status code is not 200 (or 201), but just
+     * returning the {@link IPropagation} typed instance, which can specify its body
+     * type through discriminated union determined by status code.
+     *
+     * @default false
+     */
+    // propagate: true,
+
+    /**
      * Allow simulation mode.
      *
      * If you configure this property to be `true`, the SDK library would be contain
