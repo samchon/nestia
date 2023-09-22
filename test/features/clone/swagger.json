@@ -651,6 +651,16 @@
               }
             },
             "x-nestia-encrypted": false
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IAuthentication.OuathType"
+                }
+              }
+            }
           }
         },
         "x-nestia-namespace": "users.normals.getByNormalId",
@@ -1604,6 +1614,13 @@
           "other_attr"
         ],
         "x-typia-jsDocTags": []
+      },
+      "IAuthentication.OuathType": {
+        "type": "string",
+        "enum": [
+          "kakao",
+          "github"
+        ]
       },
       "INormal.IPublicProfile": {
         "type": "object",

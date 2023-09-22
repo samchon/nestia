@@ -5,6 +5,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
     output: "src/api",
     e2e: "src/test",
     clone: true,
+    propagate: true,
     simulate: true,
     swagger: {
         output: "swagger.json",
