@@ -8,7 +8,7 @@ import type { IConnection, IPropagation, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
-import type { _singlequote_process_singlequote_ } from "../../structures/_singlequote_process_singlequote_";
+import type { process } from "../../structures/process";
 
 /**
  * @controller PerformanceController.cpu
@@ -32,7 +32,7 @@ export async function cpu(
 }
 export namespace cpu {
     export type Output = IPropagation<{
-        200: _singlequote_process_singlequote_.global.NodeJS.CpuUsage;
+        200: process.global.NodeJS.CpuUsage;
     }>;
 
     export const METADATA = {
@@ -49,8 +49,8 @@ export namespace cpu {
     export const path = (): string => {
         return `/performance/cpu`;
     }
-    export const random = (g?: Partial<typia.IRandomGenerator>): Primitive<_singlequote_process_singlequote_.global.NodeJS.CpuUsage> =>
-        typia.random<Primitive<_singlequote_process_singlequote_.global.NodeJS.CpuUsage>>(g);
+    export const random = (g?: Partial<typia.IRandomGenerator>): Primitive<process.global.NodeJS.CpuUsage> =>
+        typia.random<Primitive<process.global.NodeJS.CpuUsage>>(g);
     export const simulate = async (
         connection: IConnection,
     ): Promise<Output> => {
@@ -92,7 +92,7 @@ export async function memory(
 }
 export namespace memory {
     export type Output = IPropagation<{
-        200: _singlequote_process_singlequote_.global.NodeJS.MemoryUsage;
+        200: process.global.NodeJS.MemoryUsage;
     }>;
 
     export const METADATA = {
@@ -109,8 +109,8 @@ export namespace memory {
     export const path = (): string => {
         return `/performance/memory`;
     }
-    export const random = (g?: Partial<typia.IRandomGenerator>): Primitive<_singlequote_process_singlequote_.global.NodeJS.MemoryUsage> =>
-        typia.random<Primitive<_singlequote_process_singlequote_.global.NodeJS.MemoryUsage>>(g);
+    export const random = (g?: Partial<typia.IRandomGenerator>): Primitive<process.global.NodeJS.MemoryUsage> =>
+        typia.random<Primitive<process.global.NodeJS.MemoryUsage>>(g);
     export const simulate = async (
         connection: IConnection,
     ): Promise<Output> => {
@@ -152,7 +152,7 @@ export async function resource(
 }
 export namespace resource {
     export type Output = IPropagation<{
-        200: _singlequote_process_singlequote_.global.NodeJS.ResourceUsage;
+        200: process.global.NodeJS.ResourceUsage;
     }>;
 
     export const METADATA = {
@@ -169,8 +169,8 @@ export namespace resource {
     export const path = (): string => {
         return `/performance/resource`;
     }
-    export const random = (g?: Partial<typia.IRandomGenerator>): Primitive<_singlequote_process_singlequote_.global.NodeJS.ResourceUsage> =>
-        typia.random<Primitive<_singlequote_process_singlequote_.global.NodeJS.ResourceUsage>>(g);
+    export const random = (g?: Partial<typia.IRandomGenerator>): Primitive<process.global.NodeJS.ResourceUsage> =>
+        typia.random<Primitive<process.global.NodeJS.ResourceUsage>>(g);
     export const simulate = async (
         connection: IConnection,
     ): Promise<Output> => {

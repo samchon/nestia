@@ -11,7 +11,7 @@ import type { Format } from "typia/lib/tags/Format";
 
 import type { IBbsArticle } from "../../../structures/IBbsArticle";
 import type { IPage } from "../../../structures/IPage";
-import type { IPage_lt_IBbsArticle } from "../../../structures/IPage_lt_IBbsArticle";
+import type { IPageIBbsArticle } from "../../../structures/IPageIBbsArticle";
 import { NestiaSimulator } from "../../../utils/NestiaSimulator";
 
 /**
@@ -47,7 +47,7 @@ export async function index(
 export namespace index {
     export type Query = Resolved<IPage.IRequest>;
     export type Output = IPropagation<{
-        200: IPage_lt_IBbsArticle.ISummary_gt_;
+        200: IPageIBbsArticle.ISummary;
     }>;
 
     export const METADATA = {
@@ -73,8 +73,8 @@ export namespace index {
         const encoded: string = search.toString();
         return `/bbs/articles/${encodeURIComponent(section ?? "null")}${encoded.length ? `?${encoded}` : ""}`;;
     }
-    export const random = (g?: Partial<typia.IRandomGenerator>): Primitive<IPage_lt_IBbsArticle.ISummary_gt_> =>
-        typia.random<Primitive<IPage_lt_IBbsArticle.ISummary_gt_>>(g);
+    export const random = (g?: Partial<typia.IRandomGenerator>): Primitive<IPageIBbsArticle.ISummary> =>
+        typia.random<Primitive<IPageIBbsArticle.ISummary>>(g);
     export const simulate = async (
         connection: IConnection,
         section: string,

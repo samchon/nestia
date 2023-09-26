@@ -44,7 +44,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPage_lt_IBbsArticle.ISummary_gt_"
+                  "$ref": "#/components/schemas/IPageIBbsArticle.ISummary"
                 }
               }
             },
@@ -344,7 +344,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
+                  "$ref": "#/components/schemas/process.global.NodeJS.CpuUsage"
                 }
               }
             },
@@ -366,7 +366,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
+                  "$ref": "#/components/schemas/process.global.NodeJS.MemoryUsage"
                 }
               }
             },
@@ -388,7 +388,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
+                  "$ref": "#/components/schemas/process.global.NodeJS.ResourceUsage"
                 }
               }
             },
@@ -617,6 +617,38 @@
         "x-nestia-method": "DELETE"
       }
     },
+    "/users/normals": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/IAuthentication.IQuery"
+            },
+            "description": "",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/INormal.IPublicProfile"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "x-nestia-namespace": "users.normals.get",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
+    },
     "/users/normals/{normalId}": {
       "get": {
         "tags": [],
@@ -711,7 +743,7 @@
         "description": "Page request data",
         "x-typia-jsDocTags": []
       },
-      "IPage_lt_IBbsArticle.ISummary_gt_": {
+      "IPageIBbsArticle.ISummary": {
         "type": "object",
         "properties": {
           "data": {
@@ -1176,7 +1208,7 @@
         "description": "Article info.",
         "x-typia-jsDocTags": []
       },
-      "_singlequote_process_singlequote_.global.NodeJS.CpuUsage": {
+      "process.global.NodeJS.CpuUsage": {
         "type": "object",
         "properties": {
           "user": {
@@ -1197,7 +1229,7 @@
         ],
         "x-typia-jsDocTags": []
       },
-      "_singlequote_process_singlequote_.global.NodeJS.MemoryUsage": {
+      "process.global.NodeJS.MemoryUsage": {
         "type": "object",
         "properties": {
           "rss": {
@@ -1236,7 +1268,7 @@
         ],
         "x-typia-jsDocTags": []
       },
-      "_singlequote_process_singlequote_.global.NodeJS.ResourceUsage": {
+      "process.global.NodeJS.ResourceUsage": {
         "type": "object",
         "properties": {
           "fsRead": {
@@ -1573,6 +1605,55 @@
         ],
         "x-typia-jsDocTags": []
       },
+      "IAuthentication.IQuery": {
+        "type": "object",
+        "properties": {
+          "oauth": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "kakao",
+              "github"
+            ]
+          }
+        },
+        "nullable": false,
+        "required": [
+          "oauth"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "INormal.IPublicProfile": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "normal"
+            ]
+          },
+          "id": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "name": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "type",
+          "id",
+          "name"
+        ],
+        "x-typia-jsDocTags": []
+      },
       "INormal": {
         "type": "object",
         "properties": {
@@ -1621,36 +1702,6 @@
           "kakao",
           "github"
         ]
-      },
-      "INormal.IPublicProfile": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "string",
-            "enum": [
-              "normal"
-            ]
-          },
-          "id": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "string"
-          },
-          "name": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "string"
-          }
-        },
-        "nullable": false,
-        "required": [
-          "type",
-          "id",
-          "name"
-        ],
-        "x-typia-jsDocTags": []
       }
     },
     "securitySchemes": {

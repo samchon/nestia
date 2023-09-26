@@ -11,7 +11,9 @@ export namespace E2eFileProgrammer {
         (config: INestiaConfig) =>
         (props: { api: string; current: string }) =>
         async (route: IRoute): Promise<void> => {
-            const importer: ImportDictionary = new ImportDictionary();
+            const importer: ImportDictionary = new ImportDictionary(
+                `${props.current}/${name(route)}.ts`,
+            );
             if (config.clone !== true)
                 for (const tuple of route.imports)
                     for (const instance of tuple[1])
@@ -34,11 +36,7 @@ export namespace E2eFileProgrammer {
                 body,
             ].join("\n");
 
-            await fs.promises.writeFile(
-                `${props.current}/${name(route)}.ts`,
-                content,
-                "utf8",
-            );
+            await fs.promises.writeFile(importer.file, content, "utf8");
         };
 
     const arrow =

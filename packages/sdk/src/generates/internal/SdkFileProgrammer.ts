@@ -62,7 +62,9 @@ export namespace SdkFileProgrammer {
             if (content.length && directory.routes.length) content.push("");
 
             // ITERATE ROUTES
-            const importer: ImportDictionary = new ImportDictionary();
+            const importer: ImportDictionary = new ImportDictionary(
+                `${outDir}/index.ts`,
+            );
             if (
                 config.simulate === true &&
                 directory.routes.some((r) => !!r.parameters.length)
@@ -104,6 +106,6 @@ export namespace SdkFileProgrammer {
                 " */\n" +
                 "//================================================================\n" +
                 content.join("\n");
-            await fs.promises.writeFile(`${outDir}/index.ts`, script, "utf8");
+            await fs.promises.writeFile(importer.file, script, "utf8");
         };
 }

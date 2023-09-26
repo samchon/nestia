@@ -92,7 +92,9 @@ export namespace SdkDtoGenerator {
     const generateFile =
         (config: INestiaConfig) =>
         async (module: IModule): Promise<void> => {
-            const importer: ImportDictionary = new ImportDictionary();
+            const importer: ImportDictionary = new ImportDictionary(
+                `${config.output}/structures/${module.name}.ts`,
+            );
 
             const body: string = writeModule(importer)(module);
             const content: string[] = [];
@@ -103,8 +105,11 @@ export namespace SdkDtoGenerator {
                 );
             content.push(body);
 
-            const location: string = `${config.output}/structures/${module.name}.ts`;
-            await fs.promises.writeFile(location, content.join("\n"), "utf8");
+            await fs.promises.writeFile(
+                importer.file,
+                content.join("\n"),
+                "utf8",
+            );
         };
 
     const writeModule =
@@ -382,6 +387,8 @@ export namespace SdkDtoGenerator {
         (importer: ImportDictionary) =>
         (name: string) => {
             const top = name.split(".")[0];
+            if (importer.file === `${config.output}/structures/${top}.ts`)
+                return;
             importer.internal({
                 type: true,
                 file: `${config.output}/structures/${name.split(".")[0]}`,
