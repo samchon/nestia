@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "0.0.0",
+    "version": "0.0.0-dev.20991231",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -17,6 +17,45 @@
   "paths": {
     "/headers/{section}": {
       "patch": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "headers",
+            "in": "header",
+            "schema": {
+              "$ref": "#/components/schemas/IHeaders"
+            },
+            "description": "",
+            "required": true
+          },
+          {
+            "name": "section",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHeaders"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "x-nestia-namespace": "headers.emplace",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "PATCH"
+      },
+      "post": {
         "tags": [],
         "parameters": [
           {
@@ -38,13 +77,24 @@
             "required": true
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
         "responses": {
           "201": {
             "description": "Store article",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IHeaders"
+                  "$ref": "#/components/schemas/IBbsArticle"
                 }
               }
             },
@@ -53,7 +103,7 @@
         },
         "summary": "Store a new article",
         "description": "Store a new article.",
-        "x-nestia-namespace": "headers.emplace",
+        "x-nestia-namespace": "headers.store",
         "x-nestia-jsDocTags": [
           {
             "name": "param",
@@ -90,23 +140,6 @@
             ]
           },
           {
-            "name": "param",
-            "text": [
-              {
-                "text": "input",
-                "kind": "parameterName"
-              },
-              {
-                "text": " ",
-                "kind": "space"
-              },
-              {
-                "text": "Content to store",
-                "kind": "text"
-              }
-            ]
-          },
-          {
             "name": "returns",
             "text": [
               {
@@ -125,56 +158,6 @@
             ]
           }
         ],
-        "x-nestia-method": "PATCH"
-      },
-      "post": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "headers",
-            "in": "header",
-            "schema": {
-              "$ref": "#/components/schemas/IHeaders"
-            },
-            "description": "",
-            "required": true
-          },
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "description": "",
-            "required": true
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IBbsArticle.IStore"
-              }
-            }
-          },
-          "required": true,
-          "x-nestia-encrypted": false
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IBbsArticle"
-                }
-              }
-            },
-            "x-nestia-encrypted": false
-          }
-        },
-        "x-nestia-namespace": "headers.store",
-        "x-nestia-jsDocTags": [],
         "x-nestia-method": "POST"
       }
     },
@@ -384,10 +367,22 @@
             "x-typia-optional": true,
             "type": "string"
           },
-          "x-name": {
+          "x-nAme": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "default",
+                "text": [
+                  {
+                    "text": "Samchon",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
             "x-typia-required": false,
             "x-typia-optional": true,
-            "type": "string"
+            "type": "string",
+            "default": "Samchon"
           },
           "x-values": {
             "x-typia-required": true,
@@ -399,7 +394,7 @@
               "type": "number"
             }
           },
-          "x-flags": {
+          "x-fLags": {
             "x-typia-required": true,
             "x-typia-optional": false,
             "type": "array",
@@ -408,24 +403,13 @@
               "x-typia-optional": false,
               "type": "boolean"
             }
-          },
-          "X-descriptions": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "array",
-            "items": {
-              "x-typia-required": true,
-              "x-typia-optional": false,
-              "type": "string"
-            }
           }
         },
         "nullable": false,
         "required": [
           "x-category",
           "x-values",
-          "x-flags",
-          "X-descriptions"
+          "x-fLags"
         ],
         "x-typia-jsDocTags": []
       },
@@ -751,13 +735,13 @@
         "type": "object",
         "properties": {
           "cpu": {
-            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
+            "$ref": "#/components/schemas/process.global.NodeJS.CpuUsage"
           },
           "memory": {
-            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
+            "$ref": "#/components/schemas/process.global.NodeJS.MemoryUsage"
           },
           "resource": {
-            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
+            "$ref": "#/components/schemas/process.global.NodeJS.ResourceUsage"
           }
         },
         "nullable": false,
@@ -779,7 +763,7 @@
           }
         ]
       },
-      "_singlequote_process_singlequote_.global.NodeJS.CpuUsage": {
+      "process.global.NodeJS.CpuUsage": {
         "type": "object",
         "properties": {
           "user": {
@@ -800,7 +784,7 @@
         ],
         "x-typia-jsDocTags": []
       },
-      "_singlequote_process_singlequote_.global.NodeJS.MemoryUsage": {
+      "process.global.NodeJS.MemoryUsage": {
         "type": "object",
         "properties": {
           "rss": {
@@ -839,7 +823,7 @@
         ],
         "x-typia-jsDocTags": []
       },
-      "_singlequote_process_singlequote_.global.NodeJS.ResourceUsage": {
+      "process.global.NodeJS.ResourceUsage": {
         "type": "object",
         "properties": {
           "fsRead": {

@@ -1,14 +1,11 @@
-import {
-    BadRequestException,
-    ExecutionContext,
-    createParamDecorator,
-} from "@nestjs/common";
+import { ExecutionContext, createParamDecorator } from "@nestjs/common";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
 
-import typia, { TypeGuardError, assert } from "typia";
+import typia from "typia";
 
-import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
+import { IRequestHeadersValidator } from "../options/IRequestHeadersValidator";
+import { validate_request_headers } from "./internal/validate_request_headers";
 
 /**
  * Type safe HTTP headers decorator.
@@ -52,10 +49,9 @@ import { NoTransformConfigureError } from "./internal/NoTransformConfigureError"
  * @author Jeongho Nam - https://github.com/samchon
  */
 export function TypedHeaders<T extends object>(
-    decoder?: (headers: Record<string, string | string[] | undefined>) => T,
+    validator?: IRequestHeadersValidator<T>,
 ): ParameterDecorator {
-    if (decoder === undefined) throw NoTransformConfigureError("TypedHeaders");
-
+    const checker = validate_request_headers(validator);
     return createParamDecorator(function TypedHeaders(
         _unknown: any,
         context: ExecutionContext,
@@ -63,33 +59,12 @@ export function TypedHeaders<T extends object>(
         const request: express.Request | FastifyRequest = context
             .switchToHttp()
             .getRequest();
-        try {
-            return decoder(request.headers);
-        } catch (exp) {
-            if (typia.is<TypeGuardError>(exp))
-                throw new BadRequestException({
-                    path: exp.path,
-                    reason: exp.message,
-                    expected: exp.expected,
-                    value: exp.value,
-                    message:
-                        "Request query parameters are not following the promised type.",
-                });
-            throw exp;
-        }
+
+        const output: T | Error = checker(request.headers);
+        if (output instanceof Error) throw output;
+        return output;
     })();
 }
-
-/**
- * @internal
- */
-export namespace TypedHeaders {
-    export const boolean = (value: string | undefined) =>
-        value !== undefined ? value === "true" : undefined;
-    export const bigint = (value: string | undefined) =>
-        value !== undefined ? BigInt(value) : undefined;
-    export const number = (value: string | undefined) =>
-        value !== undefined ? Number(value) : undefined;
-    export const string = (value: string | undefined) => value;
-}
-Object.assign(TypedHeaders, assert);
+Object.assign(TypedHeaders, typia.http.assertHeaders);
+Object.assign(TypedHeaders, typia.http.isHeaders);
+Object.assign(TypedHeaders, typia.http.validateHeaders);

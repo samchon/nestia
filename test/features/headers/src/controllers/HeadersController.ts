@@ -1,5 +1,5 @@
 import core from "@nestia/core";
-import { Controller, Headers } from "@nestjs/common";
+import { Controller, Headers, Param } from "@nestjs/common";
 import typia, { tags } from "typia";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
@@ -7,25 +7,24 @@ import { IHeaders } from "@api/lib/structures/IHeaders";
 
 @Controller("headers/:section")
 export class HeadersController {
-    /**
-     * Store a new article.
-     *
-     * @param headers Headers for authentication
-     * @param section Target section code
-     * @param input Content to store
-     * @returns Store article
-     *
-     * @author Samchon
-     */
     @core.TypedRoute.Patch()
     public emplace(
         @core.TypedHeaders() headers: IHeaders,
-        @core.TypedParam("section") section: string,
+        @Param("section") section: string,
     ): IHeaders {
         section;
         return headers;
     }
 
+    /**
+     * Store a new article.
+     *
+     * @param headers Headers for authentication
+     * @param section Target section code
+     * @returns Store article
+     *
+     * @author Samchon
+     */
     @core.TypedRoute.Post()
     public store(
         @Headers() headers: IHeaders,

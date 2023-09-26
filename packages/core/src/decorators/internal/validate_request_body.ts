@@ -21,9 +21,9 @@ export const validate_request_body =
 
 const assert =
     <T>(closure: (data: T) => T) =>
-    (data: T) => {
+    (input: T) => {
         try {
-            closure(data);
+            closure(input);
             return null;
         } catch (exp) {
             if (typia.is<TypeGuardError>(exp)) {
@@ -41,15 +41,15 @@ const assert =
 
 const is =
     <T>(closure: (data: T) => boolean) =>
-    (data: T) => {
-        const success: boolean = closure(data);
+    (input: T) => {
+        const success: boolean = closure(input);
         return success ? null : new BadRequestException(MESSAGE);
     };
 
 const validate =
     <T>(closure: (data: T) => IValidation<T>) =>
-    (data: T) => {
-        const result: IValidation<T> = closure(data);
+    (input: T) => {
+        const result: IValidation<T> = closure(input);
         return result.success
             ? null
             : new BadRequestException({

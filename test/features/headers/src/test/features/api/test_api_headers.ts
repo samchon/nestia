@@ -10,8 +10,8 @@ export const test_api_headers = async (
     const headers: Required<IHeaders> = {
         ...typia.random<Required<IHeaders>>(),
         "x-values": [1, 2, 3],
-        "x-flags": [true, false, true],
-        "X-descriptions": ["a", "b", "c"],
+        "x-fLags": [true, false, true],
+        "X-Descriptions": ["a", "b", "c"],
     };
     const output: IHeaders = await api.functional.headers.emplace(
         {

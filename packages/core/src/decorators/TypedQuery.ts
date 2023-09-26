@@ -1,14 +1,11 @@
-import {
-    BadRequestException,
-    ExecutionContext,
-    createParamDecorator,
-} from "@nestjs/common";
+import { ExecutionContext, createParamDecorator } from "@nestjs/common";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
 
-import typia, { TypeGuardError, assert } from "typia";
+import typia from "typia";
 
-import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
+import { IRequestQueryValidator } from "../options/IRequestQueryValidator";
+import { validate_request_query } from "./internal/validate_request_query";
 
 /**
  * Type safe URL query decorator.
@@ -30,10 +27,9 @@ import { NoTransformConfigureError } from "./internal/NoTransformConfigureError"
  * @author Jeongho Nam - https://github.com/samchon
  */
 export function TypedQuery<T extends object>(
-    decoder?: (params: URLSearchParams) => T,
+    validator?: IRequestQueryValidator<T>,
 ): ParameterDecorator {
-    if (decoder === undefined) throw NoTransformConfigureError("TypedQuery");
-
+    const checker = validate_request_query(validator);
     return createParamDecorator(function TypedQuery(
         _unknown: any,
         context: ExecutionContext,
@@ -43,48 +39,14 @@ export function TypedQuery<T extends object>(
             .getRequest();
         const params: URLSearchParams = new URLSearchParams(tail(request.url));
 
-        try {
-            return decoder(params);
-        } catch (exp) {
-            if (typia.is<TypeGuardError>(exp))
-                throw new BadRequestException({
-                    path: exp.path,
-                    reason: exp.message,
-                    expected: exp.expected,
-                    value: exp.value,
-                    message:
-                        "Request query parameters are not following the promised type.",
-                });
-            throw exp;
-        }
+        const output: T | Error = checker(params);
+        if (output instanceof Error) throw output;
+        return output;
     })();
 }
-
-/**
- * @internal
- */
-export namespace TypedQuery {
-    export function boolean(str: string | null): boolean | null | undefined {
-        if (str === null) return undefined;
-        else if (str === "null") return null;
-        else if (str.length === 0) return true;
-        return str === "true" || str === "1"
-            ? true
-            : str === "false" || str === "0"
-            ? false
-            : (str as any); // wrong type
-    }
-    export function number(str: string | null): number | null | undefined {
-        return str?.length ? (str === "null" ? null : Number(str)) : undefined;
-    }
-    export function bigint(str: string | null): bigint | null | undefined {
-        return str?.length ? (str === "null" ? null : BigInt(str)) : undefined;
-    }
-    export function string(str: string | null): string | null | undefined {
-        return str === null ? undefined : str === "null" ? null : str;
-    }
-}
-Object.assign(TypedQuery, assert);
+Object.assign(TypedQuery, typia.http.assertQuery);
+Object.assign(TypedQuery, typia.http.isQuery);
+Object.assign(TypedQuery, typia.http.validateQuery);
 
 /**
  * @internal
