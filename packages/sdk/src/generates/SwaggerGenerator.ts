@@ -4,7 +4,7 @@ import path from "path";
 import { Singleton } from "tstl/thread/Singleton";
 import ts from "typescript";
 
-import typia, { IJsonApplication } from "typia";
+import typia, { IJsonApplication, IJsonComponents } from "typia";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { JsonApplicationProgrammer } from "typia/lib/programmers/json/JsonApplicationProgrammer";
 
@@ -13,8 +13,9 @@ import { IRoute } from "../structures/IRoute";
 import { ISwagger } from "../structures/ISwagger";
 import { ISwaggerError } from "../structures/ISwaggerError";
 import { ISwaggerInfo } from "../structures/ISwaggerInfo";
+import { ISwaggerLazyProperty } from "../structures/ISwaggerLazyProperty";
+import { ISwaggerLazySchema } from "../structures/ISwaggerLazySchema";
 import { ISwaggerRoute } from "../structures/ISwaggerRoute";
-import { ISwaggerSchemaTuple } from "../structures/ISwaggerSchemaTuple";
 import { ISwaggerSecurityScheme } from "../structures/ISwaggerSecurityScheme";
 import { FileRetriever } from "../utils/FileRetriever";
 import { MapUtil } from "../utils/MapUtil";
@@ -25,7 +26,8 @@ export namespace SwaggerGenerator {
         config: INestiaConfig.ISwaggerConfig;
         checker: ts.TypeChecker;
         collection: MetadataCollection;
-        tuples: Array<ISwaggerSchemaTuple>;
+        lazySchemas: Array<ISwaggerLazySchema>;
+        lazyProperties: Array<ISwaggerLazyProperty>;
         errors: ISwaggerError[];
     }
 
@@ -63,7 +65,8 @@ export namespace SwaggerGenerator {
 
             // CONSTRUCT SWAGGER DOCUMENTS
             const errors: ISwaggerError[] = [];
-            const tuples: Array<ISwaggerSchemaTuple> = [];
+            const lazySchemas: Array<ISwaggerLazySchema> = [];
+            const lazyProperties: Array<ISwaggerLazyProperty> = [];
             const swagger: ISwagger = await initialize(config);
             const pathDict: Map<
                 string,
@@ -83,27 +86,35 @@ export namespace SwaggerGenerator {
                     config,
                     checker,
                     collection,
-                    tuples,
+                    lazySchemas,
+                    lazyProperties,
                     errors,
                 })(route);
             }
             swagger.paths = {};
-            for (const [path, routes] of pathDict) {
-                swagger.paths[path] = routes;
-            }
+            for (const [path, routes] of pathDict) swagger.paths[path] = routes;
 
             // FILL JSON-SCHEMAS
             const application: IJsonApplication =
                 JsonApplicationProgrammer.write({
                     purpose: "swagger",
-                })(tuples.map(({ metadata }) => metadata));
+                })(lazySchemas.map(({ metadata }) => metadata));
             swagger.components = {
                 ...(swagger.components ?? {}),
                 ...(application.components ?? {}),
             };
-            tuples.forEach(({ schema }, index) => {
+            lazySchemas.forEach(({ schema }, index) => {
                 Object.assign(schema, application.schemas[index]!);
             });
+            for (const p of lazyProperties)
+                Object.assign(
+                    p.schema,
+                    (
+                        application.components.schemas?.[
+                            p.object
+                        ] as IJsonComponents.IObject
+                    )?.properties[p.property],
+                );
 
             // CONFIGURE SECURITY
             if (config.security) fill_security(config.security, swagger);

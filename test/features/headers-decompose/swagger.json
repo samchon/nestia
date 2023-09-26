@@ -23,6 +23,8 @@
             "name": "x-category",
             "in": "header",
             "schema": {
+              "x-typia-required": true,
+              "x-typia-optional": false,
               "type": "string",
               "enum": [
                 "x",
@@ -36,6 +38,8 @@
             "name": "x-memo",
             "in": "header",
             "schema": {
+              "x-typia-required": false,
+              "x-typia-optional": true,
               "type": "string"
             },
             "required": false
@@ -44,7 +48,21 @@
             "name": "x-name",
             "in": "header",
             "schema": {
-              "type": "string"
+              "x-typia-jsDocTags": [
+                {
+                  "name": "default",
+                  "text": [
+                    {
+                      "text": "Samchon",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              ],
+              "x-typia-required": false,
+              "x-typia-optional": true,
+              "type": "string",
+              "default": "Samchon"
             },
             "required": false
           },
@@ -52,8 +70,12 @@
             "name": "x-values",
             "in": "header",
             "schema": {
+              "x-typia-required": true,
+              "x-typia-optional": false,
               "type": "array",
               "items": {
+                "x-typia-required": true,
+                "x-typia-optional": false,
                 "type": "number"
               }
             },
@@ -63,20 +85,13 @@
             "name": "x-flags",
             "in": "header",
             "schema": {
+              "x-typia-required": true,
+              "x-typia-optional": false,
               "type": "array",
               "items": {
+                "x-typia-required": true,
+                "x-typia-optional": false,
                 "type": "boolean"
-              }
-            },
-            "required": true
-          },
-          {
-            "name": "X-descriptions",
-            "in": "header",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
               }
             },
             "required": true
@@ -115,6 +130,8 @@
             "name": "x-category",
             "in": "header",
             "schema": {
+              "x-typia-required": true,
+              "x-typia-optional": false,
               "type": "string",
               "enum": [
                 "x",
@@ -128,6 +145,8 @@
             "name": "x-memo",
             "in": "header",
             "schema": {
+              "x-typia-required": false,
+              "x-typia-optional": true,
               "type": "string"
             },
             "required": false
@@ -136,7 +155,21 @@
             "name": "x-name",
             "in": "header",
             "schema": {
-              "type": "string"
+              "x-typia-jsDocTags": [
+                {
+                  "name": "default",
+                  "text": [
+                    {
+                      "text": "Samchon",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              ],
+              "x-typia-required": false,
+              "x-typia-optional": true,
+              "type": "string",
+              "default": "Samchon"
             },
             "required": false
           },
@@ -144,8 +177,12 @@
             "name": "x-values",
             "in": "header",
             "schema": {
+              "x-typia-required": true,
+              "x-typia-optional": false,
               "type": "array",
               "items": {
+                "x-typia-required": true,
+                "x-typia-optional": false,
                 "type": "number"
               }
             },
@@ -155,20 +192,13 @@
             "name": "x-flags",
             "in": "header",
             "schema": {
+              "x-typia-required": true,
+              "x-typia-optional": false,
               "type": "array",
               "items": {
+                "x-typia-required": true,
+                "x-typia-optional": false,
                 "type": "boolean"
-              }
-            },
-            "required": true
-          },
-          {
-            "name": "X-descriptions",
-            "in": "header",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
               }
             },
             "required": true
