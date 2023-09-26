@@ -7,6 +7,8 @@ export class ImportDictionary {
     private readonly components_: HashMap<Pair<string, boolean>, IComposition> =
         new HashMap();
 
+    public constructor(public readonly file: string) {}
+
     public empty(): boolean {
         return this.components_.empty();
     }

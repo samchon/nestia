@@ -56,13 +56,13 @@
         "type": "object",
         "properties": {
           "cpu": {
-            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.CpuUsage"
+            "$ref": "#/components/schemas/process.global.NodeJS.CpuUsage"
           },
           "memory": {
-            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.MemoryUsage"
+            "$ref": "#/components/schemas/process.global.NodeJS.MemoryUsage"
           },
           "resource": {
-            "$ref": "#/components/schemas/_singlequote_process_singlequote_.global.NodeJS.ResourceUsage"
+            "$ref": "#/components/schemas/process.global.NodeJS.ResourceUsage"
           }
         },
         "nullable": false,
@@ -84,7 +84,7 @@
           }
         ]
       },
-      "_singlequote_process_singlequote_.global.NodeJS.CpuUsage": {
+      "process.global.NodeJS.CpuUsage": {
         "type": "object",
         "properties": {
           "user": {
@@ -105,7 +105,7 @@
         ],
         "x-typia-jsDocTags": []
       },
-      "_singlequote_process_singlequote_.global.NodeJS.MemoryUsage": {
+      "process.global.NodeJS.MemoryUsage": {
         "type": "object",
         "properties": {
           "rss": {
@@ -144,7 +144,7 @@
         ],
         "x-typia-jsDocTags": []
       },
-      "_singlequote_process_singlequote_.global.NodeJS.ResourceUsage": {
+      "process.global.NodeJS.ResourceUsage": {
         "type": "object",
         "properties": {
           "fsRead": {

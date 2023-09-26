@@ -3,10 +3,6 @@ import type { Type } from "typia/lib/tags/Type";
 
 import type { __type } from "./__type";
 
-export type IChangePassword = {
-    old_password: string;
-    new_password: string;
-}
 export namespace ISeller {
     export type IJoin = {
         email: (string & Format<"email">);

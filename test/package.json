@@ -33,7 +33,7 @@
     "ts-patch": "v3.0.2",
     "typescript": "^5.1.6",
     "typescript-transform-paths": "^3.4.4",
-    "typia": "^5.1.0-dev.20230926-3",
+    "typia": "^5.1.1",
     "uuid": "^9.0.0",
     "nestia": "^4.5.0",
     "@nestia/core": "D:\\github\\samchon\\nestia\\packages\\core\\nestia-core-0.0.0-dev.20991231.tgz",
