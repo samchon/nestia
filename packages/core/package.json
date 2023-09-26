@@ -44,7 +44,7 @@
     "raw-body": ">= 2.0.0",
     "reflect-metadata": ">= 0.1.12",
     "rxjs": ">= 6.0.0",
-    "typia": "^5.1.0-dev.20230926-2"
+    "typia": "^5.1.0-dev.20230926-3"
   },
   "peerDependencies": {
     "@nestia/fetcher": ">=0.0.0-dev.20991231",
@@ -56,7 +56,7 @@
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.0",
     "typescript": ">=4.8.0",
-    "typia": ">=5.1.0-dev.20230926-2 <6.0.0"
+    "typia": ">=5.1.0-dev.20230926-3 <6.0.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
