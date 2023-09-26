@@ -28,6 +28,7 @@ export function route_error(
         error.method = request.method;
         error.path =
             (request as express.Request).path ??
+            (request as FastifyRequest).routeOptions?.url ??
             (request as FastifyRequest).routerPath;
     } catch {}
 
