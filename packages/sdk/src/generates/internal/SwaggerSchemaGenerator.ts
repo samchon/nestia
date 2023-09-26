@@ -10,8 +10,9 @@ import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
 import { ISwaggerError } from "../../structures/ISwaggerError";
+import { ISwaggerLazyProperty } from "../../structures/ISwaggerLazyProperty";
+import { ISwaggerLazySchema } from "../../structures/ISwaggerLazySchema";
 import { ISwaggerRoute } from "../../structures/ISwaggerRoute";
-import { ISwaggerSchemaTuple } from "../../structures/ISwaggerSchemaTuple";
 import { SwaggerSchemaValidator } from "./SwaggerSchemaValidator";
 
 export namespace SwaggerSchemaGenerator {
@@ -19,7 +20,8 @@ export namespace SwaggerSchemaGenerator {
         config: INestiaConfig.ISwaggerConfig;
         checker: ts.TypeChecker;
         collection: MetadataCollection;
-        tuples: Array<ISwaggerSchemaTuple>;
+        lazySchemas: Array<ISwaggerLazySchema>;
+        lazyProperties: Array<ISwaggerLazyProperty>;
         errors: ISwaggerError[];
     }
 
@@ -286,6 +288,10 @@ export namespace SwaggerSchemaGenerator {
         (
             result: ValidationPipe<Metadata, MetadataFactory.IError>,
         ): ISwaggerRoute.IParameter[] => {
+            const decoded: ISwaggerRoute.IParameter = lazy(props)(route)(
+                param,
+                result,
+            );
             if (result.success === false) {
                 props.errors.push(
                     ...result.errors.map((e) => ({
@@ -294,29 +300,35 @@ export namespace SwaggerSchemaGenerator {
                         from: param.name,
                     })),
                 );
-                return [lazy(props)(route)(param, result)];
+                return [decoded];
             } else if (
                 props.config.decompose !== true ||
                 result.data.objects.length === 0
             )
-                return [lazy(props)(route)(param, result)];
+                return [decoded];
 
-            return result.data.objects[0].properties.map((p) => {
-                const schema = coalesce(props)({
-                    success: true,
-                    data: p.value,
+            return result.data.objects[0].properties
+                .filter((p) =>
+                    p.jsDocTags.every((tag) => tag.name !== "hidden"),
+                )
+                .map((p) => {
+                    const schema: IJsonSchema = {};
+                    props.lazyProperties.push({
+                        schema,
+                        object: result.data.objects[0].name,
+                        property: p.key.constants[0].values[0] as string,
+                    });
+                    return {
+                        name: p.key.constants[0].values[0] as string,
+                        in:
+                            param.category === "headers"
+                                ? "header"
+                                : param.category,
+                        schema,
+                        description: p.description ?? undefined,
+                        required: p.value.isRequired(),
+                    };
                 });
-                return {
-                    name: p.key.constants[0].values[0] as string,
-                    in:
-                        param.category === "headers"
-                            ? "header"
-                            : param.category,
-                    schema,
-                    description: p.description ?? undefined,
-                    required: p.value.isRequired(),
-                };
-            });
         };
 
     const lazy =
@@ -347,7 +359,7 @@ export namespace SwaggerSchemaGenerator {
             result: ValidationPipe<Metadata, MetadataFactory.IError>,
         ): IJsonSchema => {
             const schema: IJsonSchema = {} as any;
-            props.tuples.push({
+            props.lazySchemas.push({
                 metadata: result.success ? result.data : any.get(),
                 schema,
             });
