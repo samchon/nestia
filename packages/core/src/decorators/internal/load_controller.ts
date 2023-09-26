@@ -3,6 +3,9 @@ import is_ts_node from "detect-ts-node";
 import { Creator } from "../../typings/Creator";
 import { SourceFinder } from "../../utils/SourceFinder";
 
+/**
+ * @internal
+ */
 export const load_controllers = async (
     path: string | string[] | { include: string[]; exclude?: string[] },
 ): Promise<Creator<object>[]> => {
@@ -26,6 +29,9 @@ export const load_controllers = async (
     return mount(sources);
 };
 
+/**
+ * @internal
+ */
 async function mount(sources: string[]): Promise<any[]> {
     const controllers: any[] = [];
     for (const file of sources) {
@@ -39,4 +45,7 @@ async function mount(sources: string[]): Promise<any[]> {
     return controllers;
 }
 
+/**
+ * @internal
+ */
 const EXTENSION = is_ts_node ? "ts" : "js";

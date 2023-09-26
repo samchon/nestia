@@ -6,6 +6,8 @@ import {
 import type express from "express";
 import type { FastifyRequest } from "fastify";
 
+import typia, { TypeGuardError } from "typia";
+
 import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
 
 /**
@@ -32,11 +34,11 @@ import { NoTransformConfigureError } from "./internal/NoTransformConfigureError"
  *
  * @author Jeongho Nam - https://github.com/samchon
  */
-export function TypedParam<T>(
+export function TypedParam<T extends boolean | bigint | number | string | null>(
     name: string,
-    props?: TypedParam.IProps<T>,
+    assert?: (value: string) => T,
 ): ParameterDecorator {
-    if (props === undefined) throw NoTransformConfigureError("TypedParam");
+    if (assert === undefined) throw NoTransformConfigureError("TypedParam");
 
     return createParamDecorator(function TypedParam(
         {}: any,
@@ -46,20 +48,19 @@ export function TypedParam<T>(
             .switchToHttp()
             .getRequest();
         const str: string = (request.params as any)[name];
-        const value: any = props!.cast(str);
-        if (props!.is(value) === false)
-            throw new BadRequestException(
-                `Value of the URL parameter "${name}" is not ${
-                    props!.type
-                } type.`,
-            );
-        return value;
+        try {
+            return assert(str);
+        } catch (exp) {
+            if (typia.is<TypeGuardError>(exp))
+                throw new BadRequestException({
+                    path: exp.path,
+                    reason: exp.message,
+                    expected: exp.expected,
+                    value: exp.value,
+                    message: `Invalid URL parameter value on "${name}".`,
+                });
+            throw exp;
+        }
     })(name);
 }
-export namespace TypedParam {
-    export interface IProps<T> {
-        type: string;
-        cast: (value: string) => T;
-        is: (value: T) => boolean;
-    }
-}
+Object.assign(TypedParam, typia.http.parameter);

@@ -1,8 +1,16 @@
 export interface IHeaders {
     "x-category": "x" | "y" | "z";
     "x-memo"?: string;
-    "x-name"?: string;
+
+    /**
+     * @default Samchon
+     */
+    "x-nAme"?: string;
     "x-values": number[];
-    "x-flags": boolean[];
-    "X-descriptions": string[];
+    "x-fLags": boolean[];
+
+    /**
+     * @hidden
+     */
+    "X-Descriptions": string[];
 }
