@@ -263,7 +263,7 @@ export namespace SwaggerSchemaGenerator {
                     validate: param.custom
                         ? SwaggerSchemaValidator.headers
                         : undefined,
-                })(new MetadataCollection())(param.type),
+                })(props.collection)(param.type),
             );
 
     const query =
@@ -278,7 +278,7 @@ export namespace SwaggerSchemaGenerator {
                     validate: param.custom
                         ? SwaggerSchemaValidator.query
                         : undefined,
-                })(new MetadataCollection())(param.type),
+                })(props.collection)(param.type),
             );
 
     const decomposible =

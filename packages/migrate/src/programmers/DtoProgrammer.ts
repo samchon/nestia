@@ -31,7 +31,7 @@ export namespace DtoProgrammer {
         (components: ISwaggerComponents) =>
         (dto: IMigrateDto): string => {
             const references: ISwaggerSchema.IReference[] = [];
-            const importer: ImportProgrammer = new ImportProgrammer();
+            const importer: ImportProgrammer = new ImportProgrammer(dto.name);
             const body: string = iterate(components)(references)(importer)(dto);
 
             const content: string[] = [

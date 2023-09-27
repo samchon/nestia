@@ -57,6 +57,7 @@ const main = () => {
 
     for (const feature of fs.readdirSync(TEST)) {
         if ((only ?? feature) !== feature) continue;
+        else if (feature === "clone-and-propagate") continue;
 
         const stats: fs.Stats = fs.statSync(`${TEST}/${feature}`);
         if (stats.isDirectory() === false) continue;

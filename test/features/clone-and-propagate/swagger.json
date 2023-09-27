@@ -379,6 +379,7 @@
                   "value": "uuid",
                   "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
                   "exclusive": [
+                    "format",
                     "pattern"
                   ]
                 }
@@ -608,6 +609,7 @@
                   "value": "uuid",
                   "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
                   "exclusive": [
+                    "format",
                     "pattern"
                   ]
                 }
@@ -4245,6 +4247,7 @@
                 "value": "uuid",
                 "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
                 "exclusive": [
+                  "format",
                   "pattern"
                 ]
               }
@@ -4298,6 +4301,7 @@
                 "value": "date-time",
                 "validate": "!isNaN(new Date($input).getTime())",
                 "exclusive": [
+                  "format",
                   "pattern"
                 ]
               }
@@ -4534,6 +4538,7 @@
                 "value": "url",
                 "validate": "/^[a-zA-Z0-9]+:\\/\\/(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/.test($input)",
                 "exclusive": [
+                  "format",
                   "pattern"
                 ]
               }
@@ -4565,6 +4570,7 @@
                 "value": "uuid",
                 "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
                 "exclusive": [
+                  "format",
                   "pattern"
                 ]
               }
@@ -4588,6 +4594,7 @@
                 "value": "date-time",
                 "validate": "!isNaN(new Date($input).getTime())",
                 "exclusive": [
+                  "format",
                   "pattern"
                 ]
               }
@@ -5419,6 +5426,7 @@
                 "value": "email",
                 "validate": "/^(([^<>()[\\]\\.,;:\\s@\\\"]+(\\.[^<>()[\\]\\.,;:\\s@\\\"]+)*)|(\\\".+\\\"))@(([^<>()[\\]\\.,;:\\s@\\\"]+\\.)+[^<>()[\\]\\.,;:\\s@\\\"]{2,})$/i.test($input)",
                 "exclusive": [
+                  "format",
                   "pattern"
                 ]
               }
@@ -5491,6 +5499,7 @@
                 "value": "email",
                 "validate": "/^(([^<>()[\\]\\.,;:\\s@\\\"]+(\\.[^<>()[\\]\\.,;:\\s@\\\"]+)*)|(\\\".+\\\"))@(([^<>()[\\]\\.,;:\\s@\\\"]+\\.)+[^<>()[\\]\\.,;:\\s@\\\"]{2,})$/i.test($input)",
                 "exclusive": [
+                  "format",
                   "pattern"
                 ]
               }
@@ -5528,6 +5537,7 @@
                 "value": "date-time",
                 "validate": "!isNaN(new Date($input).getTime())",
                 "exclusive": [
+                  "format",
                   "pattern"
                 ]
               }
@@ -5567,6 +5577,7 @@
                 "value": "date-time",
                 "validate": "!isNaN(new Date($input).getTime())",
                 "exclusive": [
+                  "format",
                   "pattern"
                 ]
               }
@@ -5596,6 +5607,7 @@
                 "value": "email",
                 "validate": "/^(([^<>()[\\]\\.,;:\\s@\\\"]+(\\.[^<>()[\\]\\.,;:\\s@\\\"]+)*)|(\\\".+\\\"))@(([^<>()[\\]\\.,;:\\s@\\\"]+\\.)+[^<>()[\\]\\.,;:\\s@\\\"]{2,})$/i.test($input)",
                 "exclusive": [
+                  "format",
                   "pattern"
                 ]
               }
@@ -6413,6 +6425,14 @@
       "IJsonSchema.IBoolean": {
         "type": "object",
         "properties": {
+          "x-typia-typeTags": {
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IMetadataTypeTag"
+            }
+          },
           "default": {
             "x-typia-required": false,
             "x-typia-optional": true,
@@ -6474,6 +6494,72 @@
         "nullable": false,
         "required": [
           "type"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "IMetadataTypeTag": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "enum": [
+              "string",
+              "number",
+              "bigint",
+              "boolean",
+              "array"
+            ]
+          },
+          "name": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "kind": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "value": {
+            "x-typia-required": true,
+            "x-typia-optional": false
+          },
+          "validate": {
+            "x-typia-required": false,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "exclusive": {
+            "oneOf": [
+              {
+                "x-typia-required": true,
+                "x-typia-optional": false,
+                "type": "boolean"
+              },
+              {
+                "x-typia-required": true,
+                "x-typia-optional": false,
+                "type": "array",
+                "items": {
+                  "x-typia-required": true,
+                  "x-typia-optional": false,
+                  "type": "string"
+                }
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false
+          }
+        },
+        "nullable": false,
+        "required": [
+          "target",
+          "name",
+          "kind",
+          "value",
+          "exclusive"
         ],
         "x-typia-jsDocTags": []
       },
@@ -6604,72 +6690,6 @@
         "nullable": false,
         "required": [
           "type"
-        ],
-        "x-typia-jsDocTags": []
-      },
-      "IMetadataTypeTag": {
-        "type": "object",
-        "properties": {
-          "target": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "string",
-            "enum": [
-              "string",
-              "number",
-              "bigint",
-              "array"
-            ]
-          },
-          "name": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "string"
-          },
-          "kind": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "string"
-          },
-          "value": {
-            "x-typia-required": true,
-            "x-typia-optional": false
-          },
-          "validate": {
-            "x-typia-required": true,
-            "x-typia-optional": false,
-            "type": "string"
-          },
-          "exclusive": {
-            "oneOf": [
-              {
-                "x-typia-required": true,
-                "x-typia-optional": false,
-                "type": "boolean"
-              },
-              {
-                "x-typia-required": true,
-                "x-typia-optional": false,
-                "type": "array",
-                "items": {
-                  "x-typia-required": true,
-                  "x-typia-optional": false,
-                  "type": "string"
-                }
-              }
-            ],
-            "x-typia-required": true,
-            "x-typia-optional": false
-          }
-        },
-        "nullable": false,
-        "required": [
-          "target",
-          "name",
-          "kind",
-          "value",
-          "validate",
-          "exclusive"
         ],
         "x-typia-jsDocTags": []
       },
@@ -7963,6 +7983,14 @@
       "IBooleanIIdentified": {
         "type": "object",
         "properties": {
+          "x-typia-typeTags": {
+            "x-typia-required": false,
+            "x-typia-optional": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IMetadataTypeTag"
+            }
+          },
           "default": {
             "x-typia-required": false,
             "x-typia-optional": true,
@@ -11432,6 +11460,7 @@
                 "value": "email",
                 "validate": "/^(([^<>()[\\]\\.,;:\\s@\\\"]+(\\.[^<>()[\\]\\.,;:\\s@\\\"]+)*)|(\\\".+\\\"))@(([^<>()[\\]\\.,;:\\s@\\\"]+\\.)+[^<>()[\\]\\.,;:\\s@\\\"]{2,})$/i.test($input)",
                 "exclusive": [
+                  "format",
                   "pattern"
                 ]
               }
@@ -11498,6 +11527,7 @@
                 "value": "email",
                 "validate": "/^(([^<>()[\\]\\.,;:\\s@\\\"]+(\\.[^<>()[\\]\\.,;:\\s@\\\"]+)*)|(\\\".+\\\"))@(([^<>()[\\]\\.,;:\\s@\\\"]+\\.)+[^<>()[\\]\\.,;:\\s@\\\"]{2,})$/i.test($input)",
                 "exclusive": [
+                  "format",
                   "pattern"
                 ]
               }

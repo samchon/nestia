@@ -49,8 +49,9 @@ export namespace SchemaProgrammer {
                         )
                         .join(" | ");
                 // ATOMIC TYPES
+                if (JsonTypeChecker.isNullOnly(schema)) return writeNullOnly();
                 else if (JsonTypeChecker.isBoolean(schema))
-                    return writeBoolean(commentTagger)(schema);
+                    return writeBoolean(importer)(commentTagger)(schema);
                 else if (
                     JsonTypeChecker.isInteger(schema) ||
                     JsonTypeChecker.isNumber(schema)
@@ -95,22 +96,40 @@ export namespace SchemaProgrammer {
             return (schema as ISwaggerSchema.IString).nullable === true;
         };
 
+    const writeNullOnly = (): string => "null";
+
     const writeBoolean =
+        (importer: ImportProgrammer) =>
         (tagger: CommentTagger) =>
         (schema: ISwaggerSchema.IBoolean): string => {
-            if (schema.default) tagger("default")(schema.default.toString());
-            return schema.enum ? schema.enum.join(" | ") : "boolean";
+            if (schema.enum?.length) {
+                if (schema.default !== undefined)
+                    tagger("default")(schema.default.toString());
+                return schema.enum.join(" | ");
+            }
+            const intersection: string[] = ["boolean"];
+            if (schema.default !== undefined)
+                intersection.push(
+                    importer.tag("Default", String(schema.default)),
+                );
+            return intersection.length === 1
+                ? intersection[0]
+                : "(" + intersection.join(" & ") + ")";
         };
 
     const writeNumber =
         (importer: ImportProgrammer) =>
         (commentTagger: CommentTagger) =>
         (schema: ISwaggerSchema.IInteger | ISwaggerSchema.INumber): string => {
-            if (schema.default)
-                commentTagger("default")(schema.default.toString());
-            if (schema.enum?.length) return schema.enum.join(" | ");
+            if (schema.enum?.length) {
+                if (schema.default !== undefined)
+                    commentTagger("default")(schema.default.toString());
+                return schema.enum.join(" | ");
+            }
 
             const intersection: string[] = ["number"];
+            if (schema.default !== undefined)
+                intersection.push(importer.tag("Default", schema.default));
             if (schema.type === "integer")
                 intersection.push(importer.tag("Type", "int32"));
             if (schema.minimum !== undefined)
@@ -143,13 +162,17 @@ export namespace SchemaProgrammer {
         (importer: ImportProgrammer) =>
         (commentTagger: CommentTagger) =>
         (schema: ISwaggerSchema.IString): string => {
-            if (schema.default) commentTagger("default")(schema.default);
-            if (schema.enum?.length)
+            if (schema.enum?.length) {
+                if (schema.default !== undefined)
+                    commentTagger("default")(schema.default.toString());
                 return schema.enum
                     .map((str) => JSON.stringify(str))
                     .join(" | ");
+            }
 
             const intersection: string[] = ["string"];
+            if (schema.default !== undefined)
+                intersection.push(importer.tag("Default", schema.default));
             if (schema.format !== undefined && FORMATS.has(schema.format))
                 intersection.push(importer.tag("Format", schema.format));
             if (schema.pattern !== undefined)
@@ -198,7 +221,7 @@ export namespace SchemaProgrammer {
             return schema["x-typia-optional"]
                 ? `${name}?`
                 : schema["x-typia-rest"]
-                ? `...${name}`
+                ? `...${name}[]`
                 : name;
         };
 

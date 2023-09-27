@@ -4,6 +4,8 @@ export class ImportProgrammer {
     private external_: Map<string, Set<string>> = new Map();
     private dtos_: Set<string> = new Set();
 
+    public constructor(public readonly name: string | null) {}
+
     public empty(): boolean {
         return this.external_.size === 0 && this.dtos_.size === 0;
     }
@@ -24,7 +26,8 @@ export class ImportProgrammer {
     }
 
     public dto(name: string): string {
-        this.dtos_.add(name.split(".")[0]);
+        const file: string = name.split(".")[0];
+        if (this.name !== file) this.dtos_.add(file);
         return name;
     }
 

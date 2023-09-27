@@ -54,6 +54,7 @@ export namespace IJsonSchema {
         "x-typia-rest"?: undefined | boolean;
     }
     export type IBoolean = {
+        "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
         "default"?: undefined | boolean;
         type: ("boolean");
         /**

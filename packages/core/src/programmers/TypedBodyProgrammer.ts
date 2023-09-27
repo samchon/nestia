@@ -1,5 +1,6 @@
 import ts from "typescript";
 
+import { JsonMetadataFactory } from "typia/lib/factories/JsonMetadataFactory";
 import { AssertProgrammer } from "typia/lib/programmers/AssertProgrammer";
 import { IsProgrammer } from "typia/lib/programmers/IsProgrammer";
 import { ValidateProgrammer } from "typia/lib/programmers/ValidateProgrammer";
@@ -13,6 +14,11 @@ export namespace TypedBodyProgrammer {
         (project: INestiaTransformProject) =>
         (modulo: ts.LeftHandSideExpression) =>
         (type: ts.Type): ts.ObjectLiteralExpression => {
+            // VALIDATE TYPE
+            JsonMetadataFactory.analyze("@nestia.core.TypedBody")(
+                project.checker,
+            )(type);
+
             // GENERATE VALIDATION PLAN
             const parameter =
                 (key: IRequestBodyValidator<any>["type"]) =>
