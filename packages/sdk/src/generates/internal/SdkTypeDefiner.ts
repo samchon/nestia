@@ -81,7 +81,7 @@ export namespace SdkTypeDefiner {
             const branches: IBranch[] = [
                 {
                     status: String(
-                        route.status ?? route.method === "POST" ? 201 : 200,
+                        route.status ?? (route.method === "POST" ? 201 : 200),
                     ),
                     type: name(config)(importer)(route.output),
                 },
