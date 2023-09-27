@@ -13,3 +13,7 @@ jobs:
       - name: test
         working-directory: ./test
         run: npm run start
+
+      - name: migrate
+        working-directory: ./migrate
+        run: npm install && npm run build && npm run test

@@ -128,7 +128,7 @@
             "name": "query",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/Omit<IQuery, \"atomic\">"
+              "$ref": "#/components/schemas/OmitIQueryatomic"
             },
             "description": "",
             "required": true
@@ -234,7 +234,7 @@
         ],
         "x-typia-jsDocTags": []
       },
-      "Omit<IQuery, \"atomic\">": {
+      "OmitIQueryatomic": {
         "type": "object",
         "properties": {
           "limit": {

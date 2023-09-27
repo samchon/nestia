@@ -1,5 +1,6 @@
 export type ISwaggerSchema =
     | ISwaggerSchema.IUnknown
+    | ISwaggerSchema.INullOnly
     | ISwaggerSchema.IAnyOf
     | ISwaggerSchema.IOneOf
     | ISwaggerSchema.IBoolean
@@ -13,6 +14,10 @@ export namespace ISwaggerSchema {
     export interface IUnknown extends IAttribute {
         type?: undefined;
     }
+    export interface INullOnly extends IAttribute {
+        type: "null";
+    }
+
     export interface IAnyOf extends IAttribute {
         anyOf: ISwaggerSchema[];
     }

@@ -9,6 +9,10 @@ export namespace JsonTypeChecker {
         schema: ISwaggerSchema,
     ): schema is ISwaggerSchema.IOneOf => (schema as any).oneOf !== undefined;
 
+    export const isNullOnly = (
+        schema: ISwaggerSchema,
+    ): schema is ISwaggerSchema.INullOnly => (schema as any).type === "null";
+
     export const isBoolean = (
         schema: ISwaggerSchema,
     ): schema is ISwaggerSchema.IBoolean => (schema as any).type === "boolean";

@@ -119,7 +119,7 @@ export namespace ControllerProgrammer {
     export const write =
         (components: ISwaggerComponents) =>
         (controller: IMigrateController): string => {
-            const importer: ImportProgrammer = new ImportProgrammer();
+            const importer: ImportProgrammer = new ImportProgrammer(null);
             const references: ISwaggerSchema.IReference[] = [];
             const body: string = [
                 `@${importer.external({

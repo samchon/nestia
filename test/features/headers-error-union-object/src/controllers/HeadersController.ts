@@ -1,6 +1,7 @@
+import core from "@nestia/core";
 import { Controller, Get } from "@nestjs/common";
 
-import core from "@nestia/core";
+import { IHeaders } from "../api/structures/IHeaders";
 
 @Controller("headers")
 export class HeadersController {

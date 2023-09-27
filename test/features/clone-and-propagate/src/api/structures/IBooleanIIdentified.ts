@@ -1,6 +1,8 @@
 import type { IJsDocTagInfo } from "./IJsDocTagInfo";
+import type { IMetadataTypeTag } from "./IMetadataTypeTag";
 
 export type IBooleanIIdentified = {
+    "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
     "default"?: undefined | boolean;
     type: ("boolean");
     /**

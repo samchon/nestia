@@ -18,28 +18,33 @@ export namespace FileTransformer {
                           iterate_node({
                               ...project,
                               context,
-                          })(context)(node),
+                          })(context)(file)(node),
                       context,
                   );
 
     const iterate_node =
         (project: INestiaTransformProject) =>
         (context: ts.TransformationContext) =>
+        (file: ts.SourceFile) =>
         (node: ts.Node): ts.Node =>
             ts.visitEachChild(
-                try_transform_node(project)(node) ?? node,
-                (child) => iterate_node(project)(context)(child),
+                try_transform_node(project)(file)(node) ?? node,
+                (child) => iterate_node(project)(context)(file)(child),
                 context,
             );
 
     const try_transform_node =
         (project: INestiaTransformProject) =>
+        (file: ts.SourceFile) =>
         (node: ts.Node): ts.Node | null => {
             try {
                 return NodeTransformer.transform(project)(node);
             } catch (exp) {
                 // ONLY ACCEPT TRANSFORMER-ERROR
                 if (!isTransformerError(exp)) throw exp;
+
+                // AVOID SPECIAL BUG OF TYPESCRIPT COMPILER API
+                (node as any).parent ??= file;
 
                 // REPORT DIAGNOSTIC
                 const diagnostic = ts.createDiagnosticForNode(node, {

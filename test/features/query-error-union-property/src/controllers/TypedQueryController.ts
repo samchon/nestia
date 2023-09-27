@@ -1,9 +1,5 @@
+import { TypedQuery, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
-
-import {
-    TypedQuery,
-    TypedRoute,
-} from "../../../../../packages/core/src/module";
 
 @Controller("query")
 export class TypedQueryController {
