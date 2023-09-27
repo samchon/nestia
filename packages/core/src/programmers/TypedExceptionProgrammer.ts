@@ -1,5 +1,7 @@
 import ts from "typescript";
 
+import { TypeFactory } from "typia/lib/factories/TypeFactory";
+
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
 
 export namespace TypedExceptionProgrammer {
@@ -19,7 +21,7 @@ export namespace TypedExceptionProgrammer {
             if (expression.arguments.length === 3) return expression;
 
             // DO TRANSFORM
-            const name: string = node.getFullText().trim();
+            const name: string = TypeFactory.getFullName(checker)(type);
             return ts.factory.updateCallExpression(
                 expression,
                 expression.expression,

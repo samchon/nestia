@@ -10,15 +10,17 @@ export namespace FileTransformer {
         (project: Omit<INestiaTransformProject, "context">) =>
         (context: ts.TransformationContext) =>
         (file: ts.SourceFile): ts.SourceFile =>
-            ts.visitEachChild(
-                file,
-                (node) =>
-                    iterate_node({
-                        ...project,
-                        context,
-                    })(context)(node),
-                context,
-            );
+            file.isDeclarationFile
+                ? file
+                : ts.visitEachChild(
+                      file,
+                      (node) =>
+                          iterate_node({
+                              ...project,
+                              context,
+                          })(context)(node),
+                      context,
+                  );
 
     const iterate_node =
         (project: INestiaTransformProject) =>

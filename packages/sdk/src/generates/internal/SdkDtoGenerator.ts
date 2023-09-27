@@ -180,9 +180,9 @@ export namespace SdkDtoGenerator {
                             p.description,
                             p.jsDocTags,
                         ).map((l) => `    ${l}`),
-                        `    ${identifier}: ${decode(config)(importer)(
-                            p.value,
-                        )};`,
+                        `    ${identifier}${
+                            p.value.optional ? "?" : ""
+                        }: ${decode(config)(importer)(p.value)};`,
                     );
                 }
                 row.push("}");
@@ -244,6 +244,7 @@ export namespace SdkDtoGenerator {
             const union: string[] = [];
 
             // COALESCES
+            if (meta.any) union.push("any");
             if (meta.nullable) union.push("null");
             if (meta.required === false) union.push("undefined");
 
@@ -266,6 +267,17 @@ export namespace SdkDtoGenerator {
                 union.push(decodeObject(config)(importer)(obj));
             for (const alias of meta.aliases)
                 union.push(decodeAlias(config)(importer)(alias));
+
+            // NATIVES
+            for (const native of meta.natives) union.push(native);
+            for (const set of meta.sets)
+                union.push(`Set<${decode(config)(importer)(set)}>`);
+            for (const map of meta.maps)
+                union.push(
+                    `Map<${decode(config)(importer)(map.key)}, ${decode(config)(
+                        importer,
+                    )(map.value)}>`,
+                );
 
             return union.join(" | ");
         };
@@ -361,7 +373,7 @@ export namespace SdkDtoGenerator {
             "[" +
             tuple.type.elements.map((e) =>
                 e.rest
-                    ? `...${decode(config)(importer)(e.rest)}`
+                    ? `...${decode(config)(importer)(e.rest)}[]`
                     : decode(config)(importer)(e),
             ) +
             "]";

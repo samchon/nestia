@@ -130,7 +130,7 @@ export namespace SdkSimulationProgrammer {
                 `return {`,
                 `    success: true,`,
                 `    status: ${
-                    route.status ?? route.method === "POST" ? 201 : 200
+                    route.status ?? (route.method === "POST" ? 201 : 200)
                 },`,
                 `    headers: {`,
                 `        "Content-Type": "${route.output.contentType}",`,
