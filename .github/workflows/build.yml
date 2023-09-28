@@ -15,5 +15,5 @@ jobs:
         run: npm run start
 
       - name: migrate
-        working-directory: ./migrate
+        working-directory: ./packages/migrate
         run: npm install && npm run build && npm run test
