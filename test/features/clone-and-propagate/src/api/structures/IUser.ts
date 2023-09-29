@@ -5,6 +5,8 @@ export type IUser = {
     name: string;
     email: null | (string & Format<"email">);
     optional_attr?: undefined | string;
+    undefindable_attr?: undefined | string;
+    both_optional_and_undefindable?: undefined | string;
     nullable_attr: null | string;
     optional_and_nullable_attr?: null | undefined | number;
     user_type: IUser.Type;
@@ -12,6 +14,6 @@ export type IUser = {
 export namespace IUser {
     export type Type = ("default" | "admin" | "seller");
     export type ISearch = {
-        user_type?: undefined | ("default" | "admin" | "seller");
+        user_type?: undefined | IUser.Type;
     }
 }

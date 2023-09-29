@@ -181,7 +181,7 @@ export namespace SdkDtoGenerator {
                             p.jsDocTags,
                         ).map((l) => `    ${l}`),
                         `    ${identifier}${
-                            p.value.optional ? "?" : ""
+                            p.value.isRequired() === false ? "?" : ""
                         }: ${decode(config)(importer)(p.value)};`,
                     );
                 }
@@ -246,7 +246,7 @@ export namespace SdkDtoGenerator {
             // COALESCES
             if (meta.any) union.push("any");
             if (meta.nullable) union.push("null");
-            if (meta.required === false) union.push("undefined");
+            if (meta.isRequired() === false) union.push("undefined");
 
             // ATOMICS
             for (const atomic of meta.atomics)

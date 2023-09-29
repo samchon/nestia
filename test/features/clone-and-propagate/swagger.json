@@ -4173,7 +4173,7 @@
         "type": "object",
         "properties": {
           "page": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -4189,7 +4189,7 @@
             "nullable": true
           },
           "limit": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -5046,7 +5046,7 @@
             "type": "number"
           },
           "slope": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
@@ -5069,13 +5069,13 @@
             "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
           },
           "width": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
           },
           "distance": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
@@ -5101,19 +5101,19 @@
             "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
           },
           "width": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
           },
           "height": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
           },
           "area": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
@@ -5143,19 +5143,19 @@
             "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
           },
           "width": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
           },
           "height": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
           },
           "area": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
@@ -5182,7 +5182,7 @@
             }
           },
           "length": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
@@ -5201,7 +5201,7 @@
             "$ref": "#/components/schemas/ObjectUnionImplicit.IPolyline"
           },
           "inner": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -5209,7 +5209,7 @@
             }
           },
           "area": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
@@ -5233,7 +5233,7 @@
             "type": "number"
           },
           "area": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
@@ -5730,7 +5730,7 @@
           },
           "description": {
             "description": "An optional string describing the target server.",
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string"
           }
@@ -5753,7 +5753,7 @@
           },
           "description": {
             "description": "A short description of the API.",
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string"
           },
@@ -5770,7 +5770,7 @@
                 ]
               }
             ],
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string",
             "format": "url",
@@ -5821,7 +5821,7 @@
         "properties": {
           "name": {
             "description": "The identifying name of the contact person/organization.",
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string"
           },
@@ -5838,7 +5838,7 @@
                 ]
               }
             ],
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string",
             "format": "url",
@@ -5866,7 +5866,7 @@
                 ]
               }
             ],
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string",
             "format": "email",
@@ -5908,7 +5908,7 @@
                 ]
               }
             ],
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string",
             "format": "url",
@@ -5959,12 +5959,12 @@
         "type": "object",
         "properties": {
           "deprecated": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "security": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -5972,7 +5972,7 @@
             }
           },
           "operationId": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string"
           },
@@ -6001,12 +6001,12 @@
             "$ref": "#/components/schemas/ISwaggerRoute.IResponseBody"
           },
           "summary": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string"
           },
@@ -6021,7 +6021,7 @@
             "type": "string"
           },
           "x-nestia-jsDocTags": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6087,7 +6087,7 @@
             "type": "boolean"
           },
           "description": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string"
           }
@@ -6231,7 +6231,7 @@
             "type": "string"
           },
           "text": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -7323,7 +7323,7 @@
         "type": "object",
         "properties": {
           "description": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string"
           },
@@ -7415,7 +7415,7 @@
             "$ref": "#/components/schemas/ISwaggerRoute.IContent"
           },
           "x-nestia-encrypted": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -9010,7 +9010,7 @@
             ]
           },
           "bearerFormat": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string"
           }
@@ -9045,7 +9045,7 @@
                 ]
               }
             ],
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string",
             "enum": [
@@ -9067,7 +9067,7 @@
                 ]
               }
             ],
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string",
             "default": "Authorization"
@@ -9118,7 +9118,7 @@
             "$ref": "#/components/schemas/ISwaggerSecurityScheme.IOAuth2.IFlowSet"
           },
           "description": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string"
           }
@@ -11421,7 +11421,7 @@
         "type": "object",
         "properties": {
           "user_type": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string",
             "enum": [
@@ -11468,6 +11468,16 @@
             "nullable": true
           },
           "optional_attr": {
+            "x-typia-required": true,
+            "x-typia-optional": true,
+            "type": "string"
+          },
+          "undefindable_attr": {
+            "x-typia-required": false,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "both_optional_and_undefindable": {
             "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
@@ -11479,7 +11489,7 @@
             "nullable": true
           },
           "optional_and_nullable_attr": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "number",
             "nullable": true
@@ -11510,13 +11520,13 @@
         "type": "object",
         "properties": {
           "name": {
-            "x-typia-required": false,
-            "x-typia-optional": false,
+            "x-typia-required": true,
+            "x-typia-optional": true,
             "type": "string"
           },
           "email": {
-            "x-typia-required": false,
-            "x-typia-optional": false,
+            "x-typia-required": true,
+            "x-typia-optional": true,
             "type": "string",
             "format": "email",
             "x-typia-typeTags": [
@@ -11535,13 +11545,13 @@
             "nullable": true
           },
           "nullable_attr": {
-            "x-typia-required": false,
-            "x-typia-optional": false,
+            "x-typia-required": true,
+            "x-typia-optional": true,
             "type": "string",
             "nullable": true
           },
           "optional_attr": {
-            "x-typia-required": false,
+            "x-typia-required": true,
             "x-typia-optional": true,
             "type": "string"
           }

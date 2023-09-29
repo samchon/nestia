@@ -73,6 +73,8 @@ interface IUser {
     name: string;
     email: (string & typia.tags.Format<"email">) | null;
     optional_attr?: string;
+    undefindable_attr: string | undefined;
+    both_optional_and_undefindable?: string | undefined;
     nullable_attr: string | null;
     optional_and_nullable_attr?: number | null;
     user_type: IUser.Type;
