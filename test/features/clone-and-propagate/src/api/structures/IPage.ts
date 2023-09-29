@@ -5,8 +5,8 @@ export namespace IPage {
      * Page request data
      */
     export type IRequest = {
-        page?: null | (number & Type<"uint32">);
-        limit?: null | (number & Type<"uint32">);
+        page?: null | undefined | (number & Type<"uint32">);
+        limit?: null | undefined | (number & Type<"uint32">);
     }
     /**
      * Page information.

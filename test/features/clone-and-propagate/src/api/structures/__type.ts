@@ -16,7 +16,7 @@ export namespace __type {
     }
     export type o3 = {
         description: string;
-        content?: ISwaggerRoute.IContent;
-        "x-nestia-encrypted"?: boolean;
+        content?: undefined | ISwaggerRoute.IContent;
+        "x-nestia-encrypted"?: undefined | boolean;
     }
 }

@@ -3,6 +3,6 @@ export type IMetadataTypeTag = {
     name: string;
     kind: string;
     value: any;
-    validate: undefined | string;
+    validate?: undefined | string;
     exclusive: boolean | Array<string>;
 }

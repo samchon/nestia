@@ -6166,33 +6166,33 @@
             ]
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6200,17 +6200,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -6288,33 +6288,33 @@
             ]
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "number"
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6322,17 +6322,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -6366,33 +6366,33 @@
             ]
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6400,17 +6400,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -6426,7 +6426,7 @@
         "type": "object",
         "properties": {
           "x-typia-typeTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6434,7 +6434,7 @@
             }
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
@@ -6448,27 +6448,27 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6476,17 +6476,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -6567,7 +6567,7 @@
         "type": "object",
         "properties": {
           "minimum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -6582,7 +6582,7 @@
             ]
           },
           "maximum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -6597,17 +6597,17 @@
             ]
           },
           "exclusiveMinimum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "exclusiveMaximum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "multipleOf": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -6622,7 +6622,7 @@
             ]
           },
           "x-typia-typeTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6630,7 +6630,7 @@
             }
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "number"
           },
@@ -6644,27 +6644,27 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6672,17 +6672,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -6697,32 +6697,32 @@
         "type": "object",
         "properties": {
           "minimum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "number"
           },
           "maximum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "number"
           },
           "exclusiveMinimum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "exclusiveMaximum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "multipleOf": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "number"
           },
           "x-typia-typeTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6730,7 +6730,7 @@
             }
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "number"
           },
@@ -6744,27 +6744,27 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6772,17 +6772,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -6797,7 +6797,7 @@
         "type": "object",
         "properties": {
           "minLength": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -6812,7 +6812,7 @@
             ]
           },
           "maxLength": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -6827,17 +6827,17 @@
             ]
           },
           "pattern": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "format": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-typeTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6845,7 +6845,7 @@
             }
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
@@ -6859,27 +6859,27 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6887,17 +6887,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -6915,7 +6915,7 @@
             "$ref": "#/components/schemas/IJsonSchema"
           },
           "minItems": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -6930,7 +6930,7 @@
             ]
           },
           "maxItems": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -6957,27 +6957,27 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -6985,17 +6985,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -7034,7 +7034,7 @@
             ]
           },
           "maxItems": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -7058,27 +7058,27 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -7086,17 +7086,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -7121,22 +7121,22 @@
             }
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -7144,17 +7144,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -7174,22 +7174,22 @@
             "type": "string"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -7197,17 +7197,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -7230,22 +7230,22 @@
             ]
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -7253,17 +7253,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -7278,22 +7278,22 @@
         "type": "object",
         "properties": {
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -7301,17 +7301,17 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -7556,7 +7556,7 @@
         "type": "object",
         "properties": {
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
@@ -7570,7 +7570,7 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
@@ -7581,25 +7581,67 @@
             "$ref": "#/components/schemas/RecordstringIJsonSchema"
           },
           "additionalProperties": {
-            "$ref": "#/components/schemas/IJsonSchema"
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IEnumerationboolean"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IEnumerationnumber"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IEnumerationstring"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IBoolean"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IInteger"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.INumber"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IString"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IArray"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.ITuple"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IOneOf"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IReference"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.INullOnly"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IUnknown"
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true
           },
           "required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
-              "x-typia-required": true,
+              "x-typia-required": false,
               "x-typia-optional": true,
               "type": "string"
             }
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -7610,7 +7652,49 @@
             "$ref": "#/components/schemas/RecordstringIJsonSchema"
           },
           "x-typia-additionalProperties": {
-            "$ref": "#/components/schemas/IJsonSchema"
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IEnumerationboolean"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IEnumerationnumber"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IEnumerationstring"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IBoolean"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IInteger"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.INumber"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IString"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IArray"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.ITuple"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IOneOf"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IReference"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.INullOnly"
+              },
+              {
+                "$ref": "#/components/schemas/IJsonSchema.IUnknown"
+              }
+            ],
+            "x-typia-required": false,
+            "x-typia-optional": true
           }
         },
         "nullable": false,
@@ -7654,33 +7738,33 @@
             ]
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -7688,27 +7772,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -7742,33 +7826,33 @@
             ]
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "number"
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -7776,27 +7860,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -7830,33 +7914,33 @@
             ]
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -7864,27 +7948,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -7900,7 +7984,7 @@
         "type": "object",
         "properties": {
           "x-typia-typeTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -7908,7 +7992,7 @@
             }
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
@@ -7922,27 +8006,27 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -7950,27 +8034,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -7985,7 +8069,7 @@
         "type": "object",
         "properties": {
           "minimum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -8000,7 +8084,7 @@
             ]
           },
           "maximum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -8015,17 +8099,17 @@
             ]
           },
           "exclusiveMinimum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "exclusiveMaximum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "multipleOf": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -8040,7 +8124,7 @@
             ]
           },
           "x-typia-typeTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -8048,7 +8132,7 @@
             }
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "number"
           },
@@ -8062,27 +8146,27 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -8090,27 +8174,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -8125,32 +8209,32 @@
         "type": "object",
         "properties": {
           "minimum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "number"
           },
           "maximum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "number"
           },
           "exclusiveMinimum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "exclusiveMaximum": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "multipleOf": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "number"
           },
           "x-typia-typeTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -8158,7 +8242,7 @@
             }
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "number"
           },
@@ -8172,27 +8256,27 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -8200,27 +8284,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -8235,7 +8319,7 @@
         "type": "object",
         "properties": {
           "minLength": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -8250,7 +8334,7 @@
             ]
           },
           "maxLength": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -8265,17 +8349,17 @@
             ]
           },
           "pattern": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "format": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-typeTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -8283,7 +8367,7 @@
             }
           },
           "default": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
@@ -8297,27 +8381,27 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -8325,27 +8409,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -8363,7 +8447,7 @@
             "$ref": "#/components/schemas/IJsonSchema"
           },
           "minItems": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -8378,7 +8462,7 @@
             ]
           },
           "maxItems": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -8405,27 +8489,27 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -8433,27 +8517,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -8492,7 +8576,7 @@
             ]
           },
           "maxItems": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "integer",
             "x-typia-typeTags": [
@@ -8516,27 +8600,27 @@
           },
           "nullable": {
             "description": "Only when swagger mode.",
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -8544,27 +8628,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -8589,22 +8673,22 @@
             }
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -8612,27 +8696,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -8652,22 +8736,22 @@
             "type": "string"
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -8675,27 +8759,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -8718,22 +8802,22 @@
             ]
           },
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -8741,27 +8825,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -8776,22 +8860,22 @@
         "type": "object",
         "properties": {
           "deprecated": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "title": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "description": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "x-typia-jsDocTags": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "array",
             "items": {
@@ -8799,27 +8883,27 @@
             }
           },
           "x-typia-required": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-optional": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "x-typia-rest": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           },
           "$id": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "string"
           },
           "$recursiveAnchor": {
-            "x-typia-required": true,
+            "x-typia-required": false,
             "x-typia-optional": true,
             "type": "boolean"
           }
@@ -11437,12 +11521,12 @@
         "properties": {
           "name": {
             "x-typia-required": true,
-            "x-typia-optional": false,
+            "x-typia-optional": true,
             "type": "string"
           },
           "email": {
             "x-typia-required": true,
-            "x-typia-optional": false,
+            "x-typia-optional": true,
             "type": "string",
             "format": "email",
             "x-typia-typeTags": [
@@ -11462,7 +11546,7 @@
           },
           "nullable_attr": {
             "x-typia-required": true,
-            "x-typia-optional": false,
+            "x-typia-optional": true,
             "type": "string",
             "nullable": true
           },
@@ -11473,11 +11557,6 @@
           }
         },
         "nullable": false,
-        "required": [
-          "name",
-          "email",
-          "nullable_attr"
-        ],
         "x-typia-jsDocTags": []
       }
     },

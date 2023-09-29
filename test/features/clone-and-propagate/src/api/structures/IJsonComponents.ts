@@ -4,19 +4,19 @@ import type { RecordstringIJsonSchema } from "./RecordstringIJsonSchema";
 
 export namespace IJsonComponents {
     export type IObject = {
-        $id?: string;
+        $id?: undefined | string;
         type: ("object");
         /**
          * Only when swagger mode.
          */
-        nullable?: boolean;
+        nullable?: undefined | boolean;
         properties: RecordstringIJsonSchema;
-        patternProperties?: RecordstringIJsonSchema;
-        additionalProperties?: IJsonSchema;
-        required?: Array<string>;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-patternProperties"?: RecordstringIJsonSchema;
-        "x-typia-additionalProperties"?: IJsonSchema;
+        patternProperties?: undefined | RecordstringIJsonSchema;
+        additionalProperties?: undefined | IJsonSchema.IEnumerationboolean | IJsonSchema.IEnumerationnumber | IJsonSchema.IEnumerationstring | IJsonSchema.IBoolean | IJsonSchema.IInteger | IJsonSchema.INumber | IJsonSchema.IString | IJsonSchema.IArray | IJsonSchema.ITuple | IJsonSchema.IOneOf | IJsonSchema.IReference | IJsonSchema.INullOnly | IJsonSchema.IUnknown;
+        required?: undefined | Array<string>;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-patternProperties"?: undefined | RecordstringIJsonSchema;
+        "x-typia-additionalProperties"?: undefined | IJsonSchema.IEnumerationboolean | IJsonSchema.IEnumerationnumber | IJsonSchema.IEnumerationstring | IJsonSchema.IBoolean | IJsonSchema.IInteger | IJsonSchema.INumber | IJsonSchema.IString | IJsonSchema.IArray | IJsonSchema.ITuple | IJsonSchema.IOneOf | IJsonSchema.IReference | IJsonSchema.INullOnly | IJsonSchema.IUnknown;
     }
 }

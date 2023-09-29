@@ -3,43 +3,43 @@ export namespace ObjectUnionImplicit {
     export type IPoint = {
         x: number;
         y: number;
-        slope?: null | number;
+        slope?: null | undefined | number;
     }
     export type ILine = {
         p1: ObjectUnionImplicit.IPoint;
         p2: ObjectUnionImplicit.IPoint;
-        width?: null | number;
-        distance?: null | number;
+        width?: null | undefined | number;
+        distance?: null | undefined | number;
     }
     export type ITriangle = {
         p1: ObjectUnionImplicit.IPoint;
         p2: ObjectUnionImplicit.IPoint;
         p3: ObjectUnionImplicit.IPoint;
-        width?: null | number;
-        height?: null | number;
-        area?: null | number;
+        width?: null | undefined | number;
+        height?: null | undefined | number;
+        area?: null | undefined | number;
     }
     export type IRectangle = {
         p1: ObjectUnionImplicit.IPoint;
         p2: ObjectUnionImplicit.IPoint;
         p3: ObjectUnionImplicit.IPoint;
         p4: ObjectUnionImplicit.IPoint;
-        width?: null | number;
-        height?: null | number;
-        area?: null | number;
+        width?: null | undefined | number;
+        height?: null | undefined | number;
+        area?: null | undefined | number;
     }
     export type IPolyline = {
         points: Array<ObjectUnionImplicit.IPoint>;
-        length?: null | number;
+        length?: null | undefined | number;
     }
     export type IPolygon = {
         outer: ObjectUnionImplicit.IPolyline;
-        inner?: Array<ObjectUnionImplicit.IPolyline>;
-        area?: null | number;
+        inner?: undefined | Array<ObjectUnionImplicit.IPolyline>;
+        area?: null | undefined | number;
     }
     export type ICircle = {
-        centroid?: ObjectUnionImplicit.IPoint;
+        centroid?: undefined | ObjectUnionImplicit.IPoint;
         radius: number;
-        area?: null | number;
+        area?: null | undefined | number;
     }
 }

@@ -8,202 +8,202 @@ export namespace IJsonSchema {
     export type IEnumerationboolean = {
         "enum": Array<boolean>;
         type: ("boolean");
-        "default"?: boolean;
+        "default"?: undefined | boolean;
         /**
          * Only when swagger mode.
          */
-        nullable?: boolean;
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        nullable?: undefined | boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
     export type IEnumerationnumber = {
         "enum": Array<number>;
         type: ("number");
-        "default"?: number;
+        "default"?: undefined | number;
         /**
          * Only when swagger mode.
          */
-        nullable?: boolean;
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        nullable?: undefined | boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
     export type IEnumerationstring = {
         "enum": Array<string>;
         type: ("string");
-        "default"?: string;
+        "default"?: undefined | string;
         /**
          * Only when swagger mode.
          */
-        nullable?: boolean;
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        nullable?: undefined | boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
     export type IBoolean = {
-        "x-typia-typeTags"?: Array<IMetadataTypeTag>;
-        "default"?: boolean;
+        "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+        "default"?: undefined | boolean;
         type: ("boolean");
         /**
          * Only when swagger mode.
          */
-        nullable?: boolean;
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        nullable?: undefined | boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
     export type IInteger = {
-        minimum?: (number & Type<"int32">);
-        maximum?: (number & Type<"int32">);
-        exclusiveMinimum?: boolean;
-        exclusiveMaximum?: boolean;
-        multipleOf?: (number & Type<"int32">);
-        "x-typia-typeTags"?: Array<IMetadataTypeTag>;
-        "default"?: number;
+        minimum?: undefined | (number & Type<"int32">);
+        maximum?: undefined | (number & Type<"int32">);
+        exclusiveMinimum?: undefined | boolean;
+        exclusiveMaximum?: undefined | boolean;
+        multipleOf?: undefined | (number & Type<"int32">);
+        "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+        "default"?: undefined | number;
         type: ("integer");
         /**
          * Only when swagger mode.
          */
-        nullable?: boolean;
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        nullable?: undefined | boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
     export type INumber = {
-        minimum?: number;
-        maximum?: number;
-        exclusiveMinimum?: boolean;
-        exclusiveMaximum?: boolean;
-        multipleOf?: number;
-        "x-typia-typeTags"?: Array<IMetadataTypeTag>;
-        "default"?: number;
+        minimum?: undefined | number;
+        maximum?: undefined | number;
+        exclusiveMinimum?: undefined | boolean;
+        exclusiveMaximum?: undefined | boolean;
+        multipleOf?: undefined | number;
+        "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+        "default"?: undefined | number;
         type: ("number");
         /**
          * Only when swagger mode.
          */
-        nullable?: boolean;
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        nullable?: undefined | boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
     export type IString = {
-        minLength?: (number & Type<"uint32">);
-        maxLength?: (number & Type<"uint32">);
-        pattern?: string;
-        format?: string;
-        "x-typia-typeTags"?: Array<IMetadataTypeTag>;
-        "default"?: string;
+        minLength?: undefined | (number & Type<"uint32">);
+        maxLength?: undefined | (number & Type<"uint32">);
+        pattern?: undefined | string;
+        format?: undefined | string;
+        "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+        "default"?: undefined | string;
         type: ("string");
         /**
          * Only when swagger mode.
          */
-        nullable?: boolean;
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        nullable?: undefined | boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
     export type IArray = {
         items: IJsonSchema;
-        minItems?: (number & Type<"uint32">);
-        maxItems?: (number & Type<"uint32">);
-        "x-typia-tuple"?: IJsonSchema.ITuple;
+        minItems?: undefined | (number & Type<"uint32">);
+        maxItems?: undefined | (number & Type<"uint32">);
+        "x-typia-tuple"?: undefined | IJsonSchema.ITuple;
         type: ("array");
         /**
          * Only when swagger mode.
          */
-        nullable?: boolean;
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        nullable?: undefined | boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
     export type ITuple = {
         items: Array<IJsonSchema>;
         minItems: (number & Type<"uint32">);
-        maxItems?: (number & Type<"uint32">);
+        maxItems?: undefined | (number & Type<"uint32">);
         type: ("array");
         /**
          * Only when swagger mode.
          */
-        nullable?: boolean;
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        nullable?: undefined | boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
     export type IOneOf = {
         oneOf: Array<IJsonSchema>;
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
     export type IReference = {
         $ref: string;
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
     export type INullOnly = {
         type: ("null");
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
     export type IUnknown = {
         type?: undefined;
-        deprecated?: boolean;
-        title?: string;
-        description?: string;
-        "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-        "x-typia-required"?: boolean;
-        "x-typia-optional"?: boolean;
-        "x-typia-rest"?: boolean;
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
     }
 }

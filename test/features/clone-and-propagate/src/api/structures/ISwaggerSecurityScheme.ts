@@ -20,18 +20,18 @@ export namespace ISwaggerSecurityScheme {
     export type IHttpBearer = {
         type: ("http");
         scheme: ("bearer");
-        bearerFormat?: string;
+        bearerFormat?: undefined | string;
     }
     export type IApiKey = {
         type: ("apiKey");
         /**
          * @default header
          */
-        "in"?: ("header" | "query" | "cookie");
+        "in"?: undefined | ("header" | "query" | "cookie");
         /**
          * @default Authorization
          */
-        name?: string;
+        name?: undefined | string;
     }
     export type IOpenId = {
         type: ("openIdConnect");
@@ -40,20 +40,20 @@ export namespace ISwaggerSecurityScheme {
     export type IOAuth2 = {
         type: ("oauth2");
         flows: ISwaggerSecurityScheme.IOAuth2.IFlowSet;
-        description?: string;
+        description?: undefined | string;
     }
     export namespace IOAuth2 {
         export type IFlowSet = {
-            authorizationCode?: ISwaggerSecurityScheme.IOAuth2.IFlow;
-            implicit?: OmitISwaggerSecurityScheme.IOAuth2.IFlowtokenUrl;
-            password?: OmitISwaggerSecurityScheme.IOAuth2.IFlowauthorizationUrl;
-            clientCredentials?: OmitISwaggerSecurityScheme.IOAuth2.IFlowauthorizationUrl;
+            authorizationCode?: undefined | ISwaggerSecurityScheme.IOAuth2.IFlow;
+            implicit?: undefined | OmitISwaggerSecurityScheme.IOAuth2.IFlowtokenUrl;
+            password?: undefined | OmitISwaggerSecurityScheme.IOAuth2.IFlowauthorizationUrl;
+            clientCredentials?: undefined | OmitISwaggerSecurityScheme.IOAuth2.IFlowauthorizationUrl;
         }
         export type IFlow = {
             authorizationUrl: string;
             tokenUrl: string;
             refreshUrl: string;
-            scopes?: Recordstringstring;
+            scopes?: undefined | Recordstringstring;
         }
     }
 }

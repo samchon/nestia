@@ -5,12 +5,12 @@ export namespace OmitISwaggerSecurityScheme {
         export type IFlowtokenUrl = {
             authorizationUrl: string;
             refreshUrl: string;
-            scopes?: Recordstringstring;
+            scopes?: undefined | Recordstringstring;
         }
         export type IFlowauthorizationUrl = {
             tokenUrl: string;
             refreshUrl: string;
-            scopes?: Recordstringstring;
+            scopes?: undefined | Recordstringstring;
         }
     }
 }

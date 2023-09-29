@@ -2,25 +2,25 @@ import type { IJsDocTagInfo } from "./IJsDocTagInfo";
 import type { IMetadataTypeTag } from "./IMetadataTypeTag";
 
 export type INumberIIdentified = {
-    minimum?: number;
-    maximum?: number;
-    exclusiveMinimum?: boolean;
-    exclusiveMaximum?: boolean;
-    multipleOf?: number;
-    "x-typia-typeTags"?: Array<IMetadataTypeTag>;
-    "default"?: number;
+    minimum?: undefined | number;
+    maximum?: undefined | number;
+    exclusiveMinimum?: undefined | boolean;
+    exclusiveMaximum?: undefined | boolean;
+    multipleOf?: undefined | number;
+    "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+    "default"?: undefined | number;
     type: ("number");
     /**
      * Only when swagger mode.
      */
-    nullable?: boolean;
-    deprecated?: boolean;
-    title?: string;
-    description?: string;
-    "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
-    "x-typia-required"?: boolean;
-    "x-typia-optional"?: boolean;
-    "x-typia-rest"?: boolean;
-    $id?: string;
-    $recursiveAnchor?: boolean;
+    nullable?: undefined | boolean;
+    deprecated?: undefined | boolean;
+    title?: undefined | string;
+    description?: undefined | string;
+    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-required"?: undefined | boolean;
+    "x-typia-optional"?: undefined | boolean;
+    "x-typia-rest"?: undefined | boolean;
+    $id?: undefined | string;
+    $recursiveAnchor?: undefined | boolean;
 }
