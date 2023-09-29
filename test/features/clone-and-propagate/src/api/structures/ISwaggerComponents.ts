@@ -17,11 +17,11 @@ export type ISwaggerComponents = {
      * For reference, `nestia` stores every object and alias types as reusable DTO
      * schemas. The alias type means that defined by `type` keyword in TypeScript.
      */
-    schemas?: undefined | RecordstringIObjectIAlias;
+    schemas?: RecordstringIObjectIAlias;
     /**
      * An object to hold reusable security schemes.
      * 
      * This property be configured by user in `nestia.config.ts` file.
      */
-    securitySchemes?: undefined | RecordstringISwaggerSecurityScheme;
+    securitySchemes?: RecordstringISwaggerSecurityScheme;
 }

@@ -56,6 +56,6 @@ export namespace ISwagger {
         /**
          * An optional string describing the target server.
          */
-        description?: undefined | string;
+        description?: string;
     }
 }

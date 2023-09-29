@@ -5,21 +5,21 @@ import type { IJsonSchema } from "./IJsonSchema";
 
 export type IArrayIIdentified = {
     items: IJsonSchema;
-    minItems?: undefined | (number & Type<"uint32">);
-    maxItems?: undefined | (number & Type<"uint32">);
-    "x-typia-tuple"?: undefined | IJsonSchema.ITuple;
+    minItems?: (number & Type<"uint32">);
+    maxItems?: (number & Type<"uint32">);
+    "x-typia-tuple"?: IJsonSchema.ITuple;
     type: ("array");
     /**
      * Only when swagger mode.
      */
-    nullable?: undefined | boolean;
-    deprecated?: undefined | boolean;
-    title?: undefined | string;
-    description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
-    "x-typia-required"?: undefined | boolean;
-    "x-typia-optional"?: undefined | boolean;
-    "x-typia-rest"?: undefined | boolean;
-    $id?: undefined | string;
-    $recursiveAnchor?: undefined | boolean;
+    nullable?: boolean;
+    deprecated?: boolean;
+    title?: string;
+    description?: string;
+    "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
+    "x-typia-required"?: boolean;
+    "x-typia-optional"?: boolean;
+    "x-typia-rest"?: boolean;
+    $id?: string;
+    $recursiveAnchor?: boolean;
 }

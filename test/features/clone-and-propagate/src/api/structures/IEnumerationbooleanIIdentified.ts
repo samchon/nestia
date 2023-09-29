@@ -3,18 +3,18 @@ import type { IJsDocTagInfo } from "./IJsDocTagInfo";
 export type IEnumerationbooleanIIdentified = {
     "enum": Array<boolean>;
     type: ("boolean");
-    "default"?: undefined | boolean;
+    "default"?: boolean;
     /**
      * Only when swagger mode.
      */
-    nullable?: undefined | boolean;
-    deprecated?: undefined | boolean;
-    title?: undefined | string;
-    description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
-    "x-typia-required"?: undefined | boolean;
-    "x-typia-optional"?: undefined | boolean;
-    "x-typia-rest"?: undefined | boolean;
-    $id?: undefined | string;
-    $recursiveAnchor?: undefined | boolean;
+    nullable?: boolean;
+    deprecated?: boolean;
+    title?: string;
+    description?: string;
+    "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
+    "x-typia-required"?: boolean;
+    "x-typia-optional"?: boolean;
+    "x-typia-rest"?: boolean;
+    $id?: string;
+    $recursiveAnchor?: boolean;
 }

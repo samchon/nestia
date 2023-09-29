@@ -4,24 +4,24 @@ import type { IJsDocTagInfo } from "./IJsDocTagInfo";
 import type { IMetadataTypeTag } from "./IMetadataTypeTag";
 
 export type IStringIIdentified = {
-    minLength?: undefined | (number & Type<"uint32">);
-    maxLength?: undefined | (number & Type<"uint32">);
-    pattern?: undefined | string;
-    format?: undefined | string;
-    "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
-    "default"?: undefined | string;
+    minLength?: (number & Type<"uint32">);
+    maxLength?: (number & Type<"uint32">);
+    pattern?: string;
+    format?: string;
+    "x-typia-typeTags"?: Array<IMetadataTypeTag>;
+    "default"?: string;
     type: ("string");
     /**
      * Only when swagger mode.
      */
-    nullable?: undefined | boolean;
-    deprecated?: undefined | boolean;
-    title?: undefined | string;
-    description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
-    "x-typia-required"?: undefined | boolean;
-    "x-typia-optional"?: undefined | boolean;
-    "x-typia-rest"?: undefined | boolean;
-    $id?: undefined | string;
-    $recursiveAnchor?: undefined | boolean;
+    nullable?: boolean;
+    deprecated?: boolean;
+    title?: string;
+    description?: string;
+    "x-typia-jsDocTags"?: Array<IJsDocTagInfo>;
+    "x-typia-required"?: boolean;
+    "x-typia-optional"?: boolean;
+    "x-typia-rest"?: boolean;
+    $id?: string;
+    $recursiveAnchor?: boolean;
 }

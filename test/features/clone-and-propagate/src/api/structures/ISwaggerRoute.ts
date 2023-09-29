@@ -4,18 +4,18 @@ import type { IJsonSchema } from "./IJsonSchema";
 import type { RecordstringArraystring } from "./RecordstringArraystring";
 
 export type ISwaggerRoute = {
-    deprecated?: undefined | boolean;
-    security?: undefined | Array<RecordstringArraystring>;
-    operationId?: undefined | string;
+    deprecated?: boolean;
+    security?: Array<RecordstringArraystring>;
+    operationId?: string;
     tags: Array<string>;
     parameters: Array<ISwaggerRoute.IParameter>;
-    requestBody?: undefined | ISwaggerRoute.IRequestBody;
+    requestBody?: ISwaggerRoute.IRequestBody;
     responses: ISwaggerRoute.IResponseBody;
-    summary?: undefined | string;
-    description?: undefined | string;
+    summary?: string;
+    description?: string;
     "x-nestia-method": string;
     "x-nestia-namespace": string;
-    "x-nestia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-nestia-jsDocTags"?: Array<IJsDocTagInfo>;
 }
 export namespace ISwaggerRoute {
     export type IResponseBody = {
@@ -26,16 +26,16 @@ export namespace ISwaggerRoute {
         "in": string;
         schema: IJsonSchema;
         required: boolean;
-        description?: undefined | string;
+        description?: string;
     }
     export type IRequestBody = {
-        description?: undefined | string;
+        description?: string;
         content: ISwaggerRoute.IContent;
         required: (true);
         "x-nestia-encrypted": boolean;
     }
     export type IContent = {
-        "application/json"?: undefined | __type.o1;
-        "text/plain"?: undefined | __type.o2;
+        "application/json"?: __type.o1;
+        "text/plain"?: __type.o2;
     }
 }
