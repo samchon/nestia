@@ -324,7 +324,7 @@ export namespace SchemaProgrammer {
                 ensureVariable === false && Escaper.variable(key) === false
                     ? JSON.stringify(key)
                     : key
-            }${required ? "" : "?"}: ${type};`;
+            }${required ? "" : "?"}: ${required ? type : `undefined | ${type}`};`;
         };
 
     const tab =
