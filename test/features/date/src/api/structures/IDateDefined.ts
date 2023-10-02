@@ -1,13 +1,13 @@
 export interface IDateDefined {
     /**
-     * @formt date-time
+     * @format date-time
      */
     string: string;
 
     date: Date;
 
     /**
-     * @formt date-time
+     * @format date-time
      */
     date_with_tag: Date;
 
