@@ -20,7 +20,7 @@ export namespace SourceFinder {
         (input: string[]) =>
         async (closure: (location: string) => void): Promise<void> => {
             for (const pattern of input) {
-                for (const file of await _Glob(path.resolve(pattern))) {
+                for (const file of await _Glob(pattern)) {
                     const stats: fs.Stats = await fs.promises.stat(file);
                     if (stats.isDirectory() === true)
                         await iterate(filter)(closure)(file);
