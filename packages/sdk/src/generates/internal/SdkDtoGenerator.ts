@@ -10,6 +10,7 @@ import { MetadataAlias } from "typia/lib/schemas/metadata/MetadataAlias";
 import { MetadataArray } from "typia/lib/schemas/metadata/MetadataArray";
 import { MetadataAtomic } from "typia/lib/schemas/metadata/MetadataAtomic";
 import { MetadataConstant } from "typia/lib/schemas/metadata/MetadataConstant";
+import { MetadataEscaped } from "typia/lib/schemas/metadata/MetadataEscaped";
 import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
 import { MetadataProperty } from "typia/lib/schemas/metadata/MetadataProperty";
 import { MetadataTuple } from "typia/lib/schemas/metadata/MetadataTuple";
@@ -240,13 +241,15 @@ export namespace SdkDtoGenerator {
     export const decode =
         (config: INestiaConfig) =>
         (importer: ImportDictionary) =>
-        (meta: Metadata): string => {
+        (meta: Metadata, parentEscaped: boolean = false): string => {
             const union: string[] = [];
 
             // COALESCES
             if (meta.any) union.push("any");
             if (meta.nullable) union.push("null");
             if (meta.isRequired() === false) union.push("undefined");
+            if (parentEscaped === false && meta.escaped)
+                union.push(decodeEscaped(config)(importer)(meta.escaped));
 
             // ATOMICS
             for (const atomic of meta.atomics)
@@ -278,8 +281,24 @@ export namespace SdkDtoGenerator {
                         importer,
                     )(map.value)}>`,
                 );
-
             return union.join(" | ");
+        };
+
+    const decodeEscaped =
+        (config: INestiaConfig) =>
+        (importer: ImportDictionary) =>
+        (escaped: MetadataEscaped) => {
+            if (
+                escaped.original.size() === 1 &&
+                escaped.original.natives.length === 1 &&
+                escaped.original.natives[0] === "Date"
+            )
+                return `(string & ${importer.external({
+                    type: true,
+                    library: `typia/lib/tags/Format`,
+                    instance: "Format",
+                })}<"date-time">)`;
+            return `(${decode(config)(importer)(escaped.returns, true)})`;
         };
 
     const decodeTypeTag =
