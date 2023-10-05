@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/test",
-  "version": "2.1.7",
+  "version": "2.1.8",
   "description": "Test program of Nestia",
   "main": "index.js",
   "scripts": {
@@ -34,12 +34,12 @@
     "ts-patch": "v3.0.2",
     "typescript": "^5.1.6",
     "typescript-transform-paths": "^3.4.4",
-    "typia": "^5.1.5",
+    "typia": "^5.1.6",
     "uuid": "^9.0.0",
     "nestia": "^4.5.0",
-    "@nestia/core": "^2.1.7",
+    "@nestia/core": "^2.1.8",
     "@nestia/e2e": "^0.3.6",
-    "@nestia/fetcher": "^2.1.7",
-    "@nestia/sdk": "^2.1.7"
+    "@nestia/fetcher": "^2.1.8",
+    "@nestia/sdk": "^2.1.8"
   }
 }

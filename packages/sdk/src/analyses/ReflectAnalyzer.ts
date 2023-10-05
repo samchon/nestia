@@ -34,13 +34,14 @@ export namespace ReflectAnalyzer {
         })();
         const ret: IController[] = [];
 
-        for (const tuple of Object.entries(module)) {
-            if (unique.has(tuple[1])) continue;
-            else unique.add(tuple[1]);
+        for (const [key, value] of Object.entries(module)) {
+            if (typeof value !== "function" || unique.has(value)) continue;
+            else unique.add(value);
 
             const controller: IController | null = _Analyze_controller(
                 file,
-                ...tuple,
+                key,
+                value,
             );
             if (controller !== null) ret.push(controller);
         }
