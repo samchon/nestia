@@ -272,7 +272,7 @@
           },
           "undefinable_attr": {
             "x-typia-required": false,
-            "x-typia-optional": false,
+            "x-typia-optional": true,
             "type": "string"
           },
           "c": {
@@ -342,7 +342,7 @@
           },
           "undefinable_attr": {
             "x-typia-required": false,
-            "x-typia-optional": false,
+            "x-typia-optional": true,
             "type": "string"
           },
           "a": {
@@ -417,7 +417,7 @@
           },
           "undefinable_attr": {
             "x-typia-required": false,
-            "x-typia-optional": false,
+            "x-typia-optional": true,
             "type": "string"
           }
         },
@@ -482,7 +482,7 @@
           },
           "undefinable_attr": {
             "x-typia-required": false,
-            "x-typia-optional": false,
+            "x-typia-optional": true,
             "type": "string"
           },
           "b": {

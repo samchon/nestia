@@ -224,7 +224,10 @@ export class NestiaSdkApplication {
                     "\n" +
                     "List of implicit return typed routes:\n" +
                     implicit
-                        .map((it) => `  - ${it.symbol.class}.${it.symbol.function} at "${it.location}"`)
+                        .map(
+                            (it) =>
+                                `  - ${it.symbol.class}.${it.symbol.function} at "${it.location}"`,
+                        )
                         .join("\n"),
             );
 
