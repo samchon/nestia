@@ -45,6 +45,9 @@ export namespace IRoute {
         typeName: string;
         metadata?: Metadata;
         description?: string;
-        contentType: "application/json" | "text/plain";
+        contentType:
+            | "application/x-www-form-urlencoded"
+            | "application/json"
+            | "text/plain";
     }
 }

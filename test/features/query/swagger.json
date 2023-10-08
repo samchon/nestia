@@ -151,6 +151,39 @@
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "GET"
       }
+    },
+    "/query/body": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/IQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IQuery"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "x-nestia-namespace": "query.body.body",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "POST"
+      }
     }
   },
   "components": {

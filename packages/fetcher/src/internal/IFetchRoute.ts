@@ -30,7 +30,10 @@ export interface IFetchRoute<
 }
 export namespace IRoute {
     export interface IBody {
-        type: "application/json" | "text/plain";
+        type:
+            | "application/json"
+            | "application/x-www-form-urlencoded"
+            | "text/plain";
         encrypted?: boolean;
     }
 }

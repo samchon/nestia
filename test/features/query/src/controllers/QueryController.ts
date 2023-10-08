@@ -1,6 +1,5 @@
-import { Controller, Query } from "@nestjs/common";
-
 import { TypedQuery, TypedRoute } from "@nestia/core";
+import { Controller, Query } from "@nestjs/common";
 
 import { INestQuery } from "@api/lib/structures/INestQuery";
 import { IQuery } from "@api/lib/structures/IQuery";
@@ -36,5 +35,10 @@ export class QueryController {
             ...query,
             atomic,
         };
+    }
+
+    @TypedRoute.Post("body")
+    public async body(@TypedQuery.Body() query: IQuery): Promise<IQuery> {
+        return query;
     }
 }

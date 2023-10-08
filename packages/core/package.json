@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "2.1.8",
+  "version": "2.2.0-dev.20231008",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -34,7 +34,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "^2.1.8",
+    "@nestia/fetcher": "^2.2.0-dev.20231008",
     "@nestjs/common": ">= 7.0.1",
     "@nestjs/core": ">= 7.0.1",
     "@nestjs/platform-express": ">= 7.0.1",
@@ -44,10 +44,10 @@
     "raw-body": ">= 2.0.0",
     "reflect-metadata": ">= 0.1.12",
     "rxjs": ">= 6.0.0",
-    "typia": "^5.1.6"
+    "typia": "^5.2.0"
   },
   "peerDependencies": {
-    "@nestia/fetcher": ">=2.1.8",
+    "@nestia/fetcher": ">=2.2.0-dev.20231008",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "@nestjs/platform-express": ">=7.0.1",
@@ -56,14 +56,14 @@
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.0",
     "typescript": ">=4.8.0",
-    "typia": ">=5.1.6 <6.0.0"
+    "typia": ">=5.2.0 <6.0.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/express": "^4.17.15",
     "@types/glob": "^7.2.0",
     "@types/inquirer": "^9.0.3",
-    "@types/ts-expose-internals": "npm:ts-expose-internals@5.1.6",
+    "@types/ts-expose-internals": "npm:ts-expose-internals@5.2.2",
     "@typescript-eslint/eslint-plugin": "^5.46.1",
     "@typescript-eslint/parser": "^5.46.1",
     "commander": "^10.0.0",

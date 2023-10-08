@@ -61,7 +61,10 @@ export namespace IController {
         name: string;
         field: string | undefined;
         encrypted: boolean;
-        contentType: "application/json" | "text/plain";
+        contentType:
+            | "application/json"
+            | "application/x-www-form-urlencoded"
+            | "text/plain";
     }
     export interface IPathParameter {
         custom: true;
