@@ -1,4 +1,8 @@
-import { ExecutionContext, createParamDecorator } from "@nestjs/common";
+import {
+    BadRequestException,
+    ExecutionContext,
+    createParamDecorator,
+} from "@nestjs/common";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
 
@@ -44,6 +48,36 @@ export function TypedQuery<T extends object>(
         return output;
     })();
 }
+export namespace TypedQuery {
+    export function Body<T extends object>(
+        validator?: IRequestQueryValidator<T>,
+    ): ParameterDecorator {
+        const checker = validate_request_query(validator);
+        return createParamDecorator(function TypedQueryBody(
+            _unknown: any,
+            context: ExecutionContext,
+        ) {
+            const request: express.Request | FastifyRequest = context
+                .switchToHttp()
+                .getRequest();
+            if (isApplicationQuery(request.headers["content-type"]) === false)
+                throw new BadRequestException(
+                    `Request body type is not "application/x-www-form-urlencoded".`,
+                );
+            const params: URLSearchParams =
+                request.body instanceof URLSearchParams
+                    ? request.body
+                    : (new FakeURLSearchParams(request.body) as any);
+
+            const output: T | Error = checker(params);
+            if (output instanceof Error) throw output;
+            return output;
+        })();
+    }
+    Object.assign(Body, typia.http.assertQuery);
+    Object.assign(Body, typia.http.isQuery);
+    Object.assign(Body, typia.http.validateQuery);
+}
 Object.assign(TypedQuery, typia.http.assertQuery);
 Object.assign(TypedQuery, typia.http.isQuery);
 Object.assign(TypedQuery, typia.http.validateQuery);
@@ -54,4 +88,40 @@ Object.assign(TypedQuery, typia.http.validateQuery);
 function tail(url: string): string {
     const index: number = url.indexOf("?");
     return index === -1 ? "" : url.substring(index + 1);
+}
+
+function isApplicationQuery(text?: string): boolean {
+    return (
+        text !== undefined &&
+        text
+            .split(";")
+            .map((str) => str.trim())
+            .some((str) => str === "application/x-www-form-urlencoded")
+    );
+}
+
+class FakeURLSearchParams {
+    public constructor(private readonly target: Record<string, string[]>) {}
+
+    public has(key: string): boolean {
+        return this.target[key] !== undefined;
+    }
+
+    public get(key: string): string | null {
+        const value = this.target[key];
+        return value === undefined
+            ? null
+            : Array.isArray(value)
+            ? value[0] ?? null
+            : value;
+    }
+
+    public getAll(key: string): string[] {
+        const value = this.target[key];
+        return value === undefined
+            ? []
+            : Array.isArray(value)
+            ? value
+            : [value];
+    }
 }

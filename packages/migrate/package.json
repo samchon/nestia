@@ -45,7 +45,7 @@
     "typescript-transform-paths": "^3.4.6"
   },
   "dependencies": {
-    "typia": "^5.1.6"
+    "typia": "^5.2.0"
   },
   "files": [
     "lib",

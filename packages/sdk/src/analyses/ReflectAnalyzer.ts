@@ -305,9 +305,10 @@ export namespace ReflectAnalyzer {
     ): IController.IParameter | null {
         if (param.factory === undefined) return null;
         else if (
-            param.factory.name === "TypedBody" ||
             param.factory.name === "EncryptedBody" ||
-            param.factory.name === "PlainBody"
+            param.factory.name === "PlainBody" ||
+            param.factory.name === "TypedQueryBody" ||
+            param.factory.name === "TypedBody"
         )
             return {
                 custom: true,
@@ -320,6 +321,8 @@ export namespace ReflectAnalyzer {
                     param.factory.name === "PlainBody" ||
                     param.factory.name === "EncryptedBody"
                         ? "text/plain"
+                        : param.factory.name === "TypedQueryBody"
+                        ? "application/x-www-form-urlencoded"
                         : "application/json",
             };
         else if (param.factory.name === "TypedHeaders")

@@ -38,6 +38,9 @@ export namespace ISwaggerRoute {
         }
     >;
     export interface IContent {
+        "application/x-www-form-urlencoded"?: {
+            schema: IJsonSchema;
+        };
         "application/json"?: {
             schema: IJsonSchema;
         };

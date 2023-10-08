@@ -108,7 +108,9 @@ export namespace FetcherBase {
             if (input !== undefined)
                 init.body = props.encode(
                     // BODY TRANSFORM
-                    route.request?.type !== "text/plain"
+                    route.request?.type === "application/x-www-form-urlencoded"
+                        ? request_query_body(input)
+                        : route.request?.type !== "text/plain"
                         ? (stringify ?? JSON.stringify)(input)
                         : input,
                     headers,
@@ -184,6 +186,16 @@ const polyfill = new Singleton(async (): Promise<typeof fetch> => {
     }
     return window.fetch;
 });
+
+const request_query_body = (input: any): URLSearchParams => {
+    const q: URLSearchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(input))
+        if (value === undefined) continue;
+        else if (Array.isArray(value))
+            value.forEach((elem) => q.append(key, String(elem)));
+        else q.set(key, String(value));
+    return q;
+};
 
 /**
  * @internal
