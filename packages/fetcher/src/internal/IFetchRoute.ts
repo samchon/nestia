@@ -27,6 +27,18 @@ export interface IFetchRoute<
      * When special status code being used.
      */
     status: number | null;
+
+    /**
+     * Parser of the query string.
+     *
+     * If content type of response body is `application/x-www-form-urlencoded`,
+     * then this `query` function would be called.
+     *
+     * If you've forgotten to configuring this property about the
+     * `application/x-www-form-urlencoded` typed response body data,
+     * then `URLSearchParams` instance would be returned instead.
+     */
+    parseQuery?(input: URLSearchParams): any;
 }
 export namespace IRoute {
     export interface IBody {

@@ -65,12 +65,14 @@ export namespace SdkTypeDefiner {
                 const type: string = name(config)(importer)(route.output);
                 if (type === "void" || config.primitive === false) return type;
 
-                const primitive: string = importer.external({
+                const wrapper: string = importer.external({
                     type: true,
                     library: "@nestia/fetcher",
-                    instance: "Primitive",
+                    instance: route.output.contentType === "application/x-www-form-urlencoded"
+                        ? "Resolved"
+                        : "Primitive",
                 });
-                return `${primitive}<${type}>`;
+                return `${wrapper}<${type}>`;
             }
 
             const propagation: string = importer.external({

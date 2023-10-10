@@ -160,6 +160,15 @@ export namespace FetcherBase {
                 else if (route.response?.type === "application/json") {
                     const text: string = await response.text();
                     result.data = text.length ? JSON.parse(text) : undefined;
+                } else if (
+                    route.response?.type === "application/x-www-form-urlencoded"
+                ) {
+                    const query: URLSearchParams = new URLSearchParams(
+                        await response.text(),
+                    );
+                    result.data = route.parseQuery
+                        ? route.parseQuery(query)
+                        : query;
                 } else
                     result.data = props.decode(
                         await response.text(),

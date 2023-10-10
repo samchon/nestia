@@ -2,6 +2,7 @@ import path from "path";
 import ts from "typescript";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
+import { TypedQueryRouteProgrammer } from "../programmers/TypedQueryRouteProgrammer";
 import { TypedRouteProgrammer } from "../programmers/TypedRouteProgrammer";
 
 export namespace TypedRouteTransformer {
@@ -17,7 +18,7 @@ export namespace TypedRouteTransformer {
             if (!signature || !signature.declaration) return decorator;
 
             // CHECK TO BE TRANSFORMED
-            const done: boolean = (() => {
+            const modulo = (() => {
                 // CHECK FILENAME
                 const location: string = path.resolve(
                     signature.declaration.getSourceFile().fileName,
@@ -26,7 +27,7 @@ export namespace TypedRouteTransformer {
                     LIB_PATHS.every((str) => location.indexOf(str) === -1) &&
                     SRC_PATHS.every((str) => location !== str)
                 )
-                    return false;
+                    return null;
 
                 // CHECK DUPLICATE BOOSTER
                 if (decorator.expression.arguments.length >= 2) return false;
@@ -39,9 +40,12 @@ export namespace TypedRouteTransformer {
                         project.checker.getTypeAtLocation(last);
                     if (isObject(project.checker)(type)) return false;
                 }
-                return true;
+                return location.split(path.sep).at(-1)?.split(".")[0] ===
+                    "TypedQuery"
+                    ? "TypedQuery"
+                    : "TypedRoute";
             })();
-            if (done === false) return decorator;
+            if (modulo === null) return decorator;
 
             // CHECK TYPE NODE
             const typeNode: ts.TypeNode | undefined =
@@ -56,9 +60,12 @@ export namespace TypedRouteTransformer {
                     decorator.expression.typeArguments,
                     [
                         ...decorator.expression.arguments,
-                        TypedRouteProgrammer.generate(project)(
-                            decorator.expression.expression,
-                        )(type),
+                        (modulo === "TypedQuery"
+                            ? TypedQueryRouteProgrammer
+                            : TypedRouteProgrammer
+                        ).generate(project)(decorator.expression.expression)(
+                            type,
+                        ),
                     ],
                 ),
             );
@@ -72,7 +79,7 @@ export namespace TypedRouteTransformer {
             !(checker as any).isArrayType(type) &&
             !(checker as any).isArrayLikeType(type);
 
-    const CLASSES = ["EncryptedRoute", "TypedRoute"];
+    const CLASSES = ["EncryptedRoute", "TypedRoute", "TypedQuery"];
     const LIB_PATHS = CLASSES.map((cla) =>
         path.join(
             "node_modules",

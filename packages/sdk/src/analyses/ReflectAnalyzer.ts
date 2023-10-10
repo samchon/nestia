@@ -179,6 +179,9 @@ export namespace ReflectAnalyzer {
         const encrypted: boolean =
             Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
                 ?.constructor?.name === "EncryptedRouteInterceptor";
+        const query: boolean =
+            Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
+                ?.constructor?.name === "TypedQueryRouteInterceptor";
         const method: string =
             METHODS[Reflect.getMetadata(Constants.METHOD_METADATA, proto)];
         if (method === undefined || method === "OPTIONS") return null;
@@ -223,6 +226,8 @@ export namespace ReflectAnalyzer {
             encrypted,
             contentType: encrypted
                 ? "text/plain"
+                : query
+                ? "application/x-www-form-urlencoded"
                 : Reflect.getMetadata(Constants.HEADERS_METADATA, proto)?.find(
                       (h: Record<string, string>) =>
                           typeof h?.name === "string" &&
