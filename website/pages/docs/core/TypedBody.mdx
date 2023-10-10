@@ -1,4 +1,4 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
 
 # `TypedBody`
 ## Outline
@@ -13,6 +13,10 @@ Request body decorator **20,000x** faster, even **easy to use**.
 It is almost same with original `@Body()` function of `NestJS`, however, 20,000x faster. 
 
 Also, `@TypedBody()` is much more easier to use than `class-validator`, because it can use pure TypeScript type. If you can't understand the word "pure TypeScript type", then move to below [**#How to use**](#how-to-use) section and read the `IBbsArticle.IUpdate` interface type. You may understand what it means.
+
+<Callout>
+If you want `application/x-www-form-urlencoded` type, use [`@TypedQuery.Body()`](./TypedQuery#typedquerybody) instead.
+</Callout>
 
 
 
