@@ -1,7 +1,7 @@
 import { Callout, Tabs, Tab } from 'nextra-theme-docs'
 
-# `TypedQuery`
-## Outline
+
+## `@TypedQuery()`
 ```typescript filename="@nestia/core"
 export function TypedQuery(): ParameterDecorator;
 ```
@@ -22,11 +22,6 @@ This is the query parameter!
   - `name=Samchon&age=20&sex=male`
 </Callout>
 
-
-
-
-
-## How to use
 <Tabs 
     items={[
         <code>IBbsArticle.ts</code>, 
@@ -80,7 +75,7 @@ export namespace IPage {
 ```
     </Tab>
     <Tab>
-```typescript copy filename="BbsArticles.ts" showLineNumbers {11}
+```typescript copy filename="BbsArticlesController.ts" showLineNumbers {11}
 import { TypedQuery, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
@@ -107,7 +102,7 @@ export class BbsArticlesController {
 ```
     </Tab>
     <Tab>
-```javascript filename="BbsArticles.js" showLineNumbers {163-207}
+```javascript filename="BbsArticlesController.js" showLineNumbers {163-207}
 "use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -331,6 +326,448 @@ Just call `@TypedQuery()` function on the query parameter, that's all.
 `Nestia` will analyze your type (`IPage.IRequest`), and writes optimal code for the target type, in the compilation level. If you click the "Compiled JavaScript" file tab of above and fine enhanced lines by blue lines, you can see the optimal parsing and validation code.
 
 Such optimization is called AOT (Ahead of Time) compilation, and it is the secret of `@TypedQuery`.
+
+
+
+
+## `TypedQuery.Body()`
+Request body decorator of `application/x-www-form-urlencoded` format.
+
+If you call `@TypedQuery.Body()` decorator function on a specific parameter, the parameter will be parsed from the request body as `application/x-www-form-urlencoded` format. Otherwise, you want to declare a `application/json` format response body, use [`@TypedBody()`](./TypedBody) decorator function instead.
+
+<Tabs 
+    items={[
+        <code>IBbsArticle.ts</code>, 
+        <code>BbsArticlesController.ts</code>, 
+        'Compiled JavaScript File'
+    ]}
+    defaultIndex={1}
+>
+    <Tab>
+```typescript copy filename="IBbsArticle.ts" showLineNumbers
+import { tags } from "typia";
+
+export interface IBbsArticle {
+    id: string;
+    writer: string;
+    title: string & tags.MinLength<3> & tags.MaxLength<50>;
+    body: string;
+    created_at: string & tags.Format<"date-time">;
+}
+export namespace IBbsArticle {
+    export interface IStore {
+        title: string & tags.MinLength<3> & tags.MaxLength<50>;
+        body: string;
+    }
+}
+```
+    </Tab>
+    <Tab>
+```typescript copy filename="BbsArticlesController.ts" showLineNumbers
+import { TypedQuery } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+
+import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+
+@Controller("bbs/articles")
+export class BbsArticlesController {
+    @TypedQuery.Post()
+    public async store(
+        @TypedQuery.Body() body: IBbsArticle.IStore
+    ): Promise<IBbsArticle> {
+        return {
+            id: "00000000-0000-0000-0000-000000000000",
+            writer: "Samchon",
+            title: body.title,
+            body: body.body,
+            created_at: new Date().toISOString(),
+        };
+    }
+}
+```
+    </Tab>
+    <Tab>
+```javascript filename="BBsArticlesController.js"
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BbsArticlesController = void 0;
+const core_1 = require("@nestia/core");
+const common_1 = require("@nestjs/common");
+let BbsArticlesController = class BbsArticlesController {
+    store(body) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return {
+                id: "00000000-0000-0000-0000-000000000000",
+                writer: "Samchon",
+                title: body.title,
+                body: body.body,
+                created_at: new Date().toISOString(),
+            };
+        });
+    }
+};
+exports.BbsArticlesController = BbsArticlesController;
+__decorate([
+    core_1.TypedQuery.Post({ type: "assert", assert: input => { const assert = input => {
+            const __is = input => {
+                return "object" === typeof input && null !== input && ("string" === typeof input.id && "string" === typeof input.writer && ("string" === typeof input.title && (3 <= input.title.length && input.title.length <= 50)) && "string" === typeof input.body && ("string" === typeof input.created_at && !isNaN(new Date(input.created_at).getTime())));
+            };
+            if (false === __is(input))
+                ((input, _path, _exceptionable = true) => {
+                    const $guard = core_1.TypedQuery.Post.guard;
+                    const $ao0 = (input, _path, _exceptionable = true) => ("string" === typeof input.id || $guard(_exceptionable, {
+                        path: _path + ".id",
+                        expected: "string",
+                        value: input.id
+                    })) && ("string" === typeof input.writer || $guard(_exceptionable, {
+                        path: _path + ".writer",
+                        expected: "string",
+                        value: input.writer
+                    })) && ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string & MinLength<3>",
+                        value: input.title
+                    })) && (input.title.length <= 50 || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string & MaxLength<50>",
+                        value: input.title
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "(string & MinLength<3> & MaxLength<50>)",
+                        value: input.title
+                    })) && ("string" === typeof input.body || $guard(_exceptionable, {
+                        path: _path + ".body",
+                        expected: "string",
+                        value: input.body
+                    })) && ("string" === typeof input.created_at && (!isNaN(new Date(input.created_at).getTime()) || $guard(_exceptionable, {
+                        path: _path + ".created_at",
+                        expected: "string & Format<\"date-time\">",
+                        value: input.created_at
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".created_at",
+                        expected: "(string & Format<\"date-time\">)",
+                        value: input.created_at
+                    }));
+                    return ("object" === typeof input && null !== input || $guard(true, {
+                        path: _path + "",
+                        expected: "IBbsArticle",
+                        value: input
+                    })) && $ao0(input, _path + "", true) || $guard(true, {
+                        path: _path + "",
+                        expected: "IBbsArticle",
+                        value: input
+                    });
+                })(input, "$input", true);
+            return input;
+        }; const stringify = input => {
+            const output = new URLSearchParams();
+            output.append("id", input.id);
+            output.append("writer", input.writer);
+            output.append("title", input.title);
+            output.append("body", input.body);
+            output.append("created_at", input.created_at);
+            return output;
+        }; return stringify(assert(input)); } }),
+    __param(0, core_1.TypedQuery.Body({ type: "assert", assert: input => { const decode = input => {
+            const $params = core_1.TypedQuery.Body.params;
+            const $string = core_1.TypedQuery.Body.string;
+            input = $params(input);
+            const output = {
+                title: $string(input.get("title")),
+                body: $string(input.get("body"))
+            };
+            return output;
+        }; const assert = input => {
+            const __is = input => {
+                return "object" === typeof input && null !== input && ("string" === typeof input.title && (3 <= input.title.length && input.title.length <= 50) && "string" === typeof input.body);
+            };
+            if (false === __is(input))
+                ((input, _path, _exceptionable = true) => {
+                    const $guard = core_1.TypedQuery.Body.guard;
+                    const $ao0 = (input, _path, _exceptionable = true) => ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string & MinLength<3>",
+                        value: input.title
+                    })) && (input.title.length <= 50 || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string & MaxLength<50>",
+                        value: input.title
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "(string & MinLength<3> & MaxLength<50>)",
+                        value: input.title
+                    })) && ("string" === typeof input.body || $guard(_exceptionable, {
+                        path: _path + ".body",
+                        expected: "string",
+                        value: input.body
+                    }));
+                    return ("object" === typeof input && null !== input || $guard(true, {
+                        path: _path + "",
+                        expected: "IBbsArticle.IStore",
+                        value: input
+                    })) && $ao0(input, _path + "", true) || $guard(true, {
+                        path: _path + "",
+                        expected: "IBbsArticle.IStore",
+                        value: input
+                    });
+                })(input, "$input", true);
+            return input;
+        }; const output = decode(input); return assert(output); } })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], BbsArticlesController.prototype, "store", null);
+exports.BbsArticlesController = BbsArticlesController = __decorate([
+    (0, common_1.Controller)("bbs/articles")
+], BbsArticlesController);
+```
+    </Tab>
+</Tabs>
+
+
+
+
+## `TypedQuery.Post()`
+Route decorators of `application/x-www-form-urlencoded` format response body.
+
+If you call one of below decorator functions on a method, the method will return `application/x-www-form-urlencoded` format response body. Otherwise, you want to declare a `application/json` format response body, use [`@TypedRoute.Post()`](./TypedRoute) decorator function instead.
+
+  - `@TypedQuery.Get()`
+  - `@TypedQuery.Post()`
+  - `@TypedQuery.Put()`
+  - `@TypedQuery.Patch()`
+  - `@TypedQuery.Delete()`
+
+<Tabs 
+    items={[
+        <code>IBbsArticle.ts</code>, 
+        <code>BbsArticlesController.ts</code>, 
+        'Compiled JavaScript File'
+    ]}
+    defaultIndex={1}
+>
+    <Tab>
+```typescript copy filename="IBbsArticle.ts" showLineNumbers
+import { tags } from "typia";
+
+export interface IBbsArticle {
+    id: string;
+    writer: string;
+    title: string & tags.MinLength<3> & tags.MaxLength<50>;
+    body: string;
+    created_at: string & tags.Format<"date-time">;
+}
+export namespace IBbsArticle {
+    export interface IStore {
+        title: string & tags.MinLength<3> & tags.MaxLength<50>;
+        body: string;
+    }
+}
+```
+    </Tab>
+    <Tab>
+```typescript copy filename="BbsArticlesController.ts" showLineNumbers
+import { TypedQuery } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+
+import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+
+@Controller("bbs/articles")
+export class BbsArticlesController {
+    @TypedQuery.Post()
+    public async store(
+        @TypedQuery.Body() body: IBbsArticle.IStore
+    ): Promise<IBbsArticle> {
+        return {
+            id: "00000000-0000-0000-0000-000000000000",
+            writer: "Samchon",
+            title: body.title,
+            body: body.body,
+            created_at: new Date().toISOString(),
+        };
+    }
+}
+```
+    </Tab>
+    <Tab>
+```javascript filename="BBsArticlesController.js"
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BbsArticlesController = void 0;
+const core_1 = require("@nestia/core");
+const common_1 = require("@nestjs/common");
+let BbsArticlesController = class BbsArticlesController {
+    store(body) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return {
+                id: "00000000-0000-0000-0000-000000000000",
+                writer: "Samchon",
+                title: body.title,
+                body: body.body,
+                created_at: new Date().toISOString(),
+            };
+        });
+    }
+};
+exports.BbsArticlesController = BbsArticlesController;
+__decorate([
+    core_1.TypedQuery.Post({ type: "assert", assert: input => { const assert = input => {
+            const __is = input => {
+                return "object" === typeof input && null !== input && ("string" === typeof input.id && "string" === typeof input.writer && ("string" === typeof input.title && (3 <= input.title.length && input.title.length <= 50)) && "string" === typeof input.body && ("string" === typeof input.created_at && !isNaN(new Date(input.created_at).getTime())));
+            };
+            if (false === __is(input))
+                ((input, _path, _exceptionable = true) => {
+                    const $guard = core_1.TypedQuery.Post.guard;
+                    const $ao0 = (input, _path, _exceptionable = true) => ("string" === typeof input.id || $guard(_exceptionable, {
+                        path: _path + ".id",
+                        expected: "string",
+                        value: input.id
+                    })) && ("string" === typeof input.writer || $guard(_exceptionable, {
+                        path: _path + ".writer",
+                        expected: "string",
+                        value: input.writer
+                    })) && ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string & MinLength<3>",
+                        value: input.title
+                    })) && (input.title.length <= 50 || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string & MaxLength<50>",
+                        value: input.title
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "(string & MinLength<3> & MaxLength<50>)",
+                        value: input.title
+                    })) && ("string" === typeof input.body || $guard(_exceptionable, {
+                        path: _path + ".body",
+                        expected: "string",
+                        value: input.body
+                    })) && ("string" === typeof input.created_at && (!isNaN(new Date(input.created_at).getTime()) || $guard(_exceptionable, {
+                        path: _path + ".created_at",
+                        expected: "string & Format<\"date-time\">",
+                        value: input.created_at
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".created_at",
+                        expected: "(string & Format<\"date-time\">)",
+                        value: input.created_at
+                    }));
+                    return ("object" === typeof input && null !== input || $guard(true, {
+                        path: _path + "",
+                        expected: "IBbsArticle",
+                        value: input
+                    })) && $ao0(input, _path + "", true) || $guard(true, {
+                        path: _path + "",
+                        expected: "IBbsArticle",
+                        value: input
+                    });
+                })(input, "$input", true);
+            return input;
+        }; const stringify = input => {
+            const output = new URLSearchParams();
+            output.append("id", input.id);
+            output.append("writer", input.writer);
+            output.append("title", input.title);
+            output.append("body", input.body);
+            output.append("created_at", input.created_at);
+            return output;
+        }; return stringify(assert(input)); } }),
+    __param(0, core_1.TypedQuery.Body({ type: "assert", assert: input => { const decode = input => {
+            const $params = core_1.TypedQuery.Body.params;
+            const $string = core_1.TypedQuery.Body.string;
+            input = $params(input);
+            const output = {
+                title: $string(input.get("title")),
+                body: $string(input.get("body"))
+            };
+            return output;
+        }; const assert = input => {
+            const __is = input => {
+                return "object" === typeof input && null !== input && ("string" === typeof input.title && (3 <= input.title.length && input.title.length <= 50) && "string" === typeof input.body);
+            };
+            if (false === __is(input))
+                ((input, _path, _exceptionable = true) => {
+                    const $guard = core_1.TypedQuery.Body.guard;
+                    const $ao0 = (input, _path, _exceptionable = true) => ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string & MinLength<3>",
+                        value: input.title
+                    })) && (input.title.length <= 50 || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "string & MaxLength<50>",
+                        value: input.title
+                    })) || $guard(_exceptionable, {
+                        path: _path + ".title",
+                        expected: "(string & MinLength<3> & MaxLength<50>)",
+                        value: input.title
+                    })) && ("string" === typeof input.body || $guard(_exceptionable, {
+                        path: _path + ".body",
+                        expected: "string",
+                        value: input.body
+                    }));
+                    return ("object" === typeof input && null !== input || $guard(true, {
+                        path: _path + "",
+                        expected: "IBbsArticle.IStore",
+                        value: input
+                    })) && $ao0(input, _path + "", true) || $guard(true, {
+                        path: _path + "",
+                        expected: "IBbsArticle.IStore",
+                        value: input
+                    });
+                })(input, "$input", true);
+            return input;
+        }; const output = decode(input); return assert(output); } })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], BbsArticlesController.prototype, "store", null);
+exports.BbsArticlesController = BbsArticlesController = __decorate([
+    (0, common_1.Controller)("bbs/articles")
+], BbsArticlesController);
+```
+    </Tab>
+</Tabs>
 
 
 

@@ -1,4 +1,4 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
 
 # `TypedRoute`
 ## Outline
@@ -19,6 +19,10 @@ Route decorators **200x faster**, even **type safe** and **easy to use**.
 Furthermore, as `TypedRoute` utilizes [`typia.assertStringify<T>()`](https://typia.io/docs/json/stringify) function, it is even type safe. The [`typia.assertStringify<T>()`](https://typia.io/docs/json/stringify) function validates response data type, via [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function, before JSON serialization. Therefore, if you try to return wrong typed value, it would be blocked with 500 internal server error.
 
 Moreover, `TypedRoute` is much easier than `class-transformer`, because it just needs only pure TypeScript type definition. If you can't understand the word "pure TypeScript type", then move to below [**#How to use**](#how-to-use) section and read the `IBbsArticle` interface type. You may understand what it means.
+
+<Callout>
+If you want `application/x-www-form-urlencoded` type, use [`@TypedQuery.Post()`](./TypedQuery#typedquerypost) instead.
+</Callout>
 
 
 
