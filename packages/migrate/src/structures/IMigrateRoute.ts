@@ -22,7 +22,10 @@ export namespace IMigrateRoute {
         description?: string;
     }
     export interface IBody {
-        type: "text/plain" | "application/json";
+        type:
+            | "text/plain"
+            | "application/json"
+            | "application/x-www-form-urlencoded";
         schema: ISwaggerSchema;
         "x-nestia-encrypted"?: boolean;
     }
