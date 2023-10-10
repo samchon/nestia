@@ -1,13 +1,12 @@
 import { Callout, Tabs, Tab } from 'nextra-theme-docs'
 
-# `TypedRoute`
 ## Outline
 ```typescript filename="@nestia/core"
 export namespace TypedRoute {
     export function Get(path?: string): MethodDecorator;
     export function Post(path?: string): MethodDecorator;
-    export function Patch(path?: string): MethodDecorator;
     export function Put(path?: string): MethodDecorator;
+    export function Patch(path?: string): MethodDecorator;
     export function Delete(path?: string): MethodDecorator;
 }
 ```

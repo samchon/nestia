@@ -1,4 +1,29 @@
+## Outline
 import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+
+```typescript
+export function TypedQuery(): ParameterDecorator;
+export namespace TypedQuery {
+    export function Body(): ParameterDecorator;
+    export function Get(path?: string): MethodDecorator;
+    export function Post(path?: string): MethodDecorator;
+    export function Put(path?: string): MethodDecorator;
+    export function Patch(path?: string): MethodDecorator;
+    export function Delete(path?: string): MethodDecorator;
+}
+```
+
+Decorators for query parameters.
+
+<Callout type="warning">
+**What the query parameters are?**
+
+This is the query parameters!
+
+  - `name=Samchon&age=20&sex=male`
+</Callout>
+
+
 
 
 ## `@TypedQuery()`
@@ -13,14 +38,6 @@ Type safe URL query decorator.
 It's almost same with original `@Query()` function of `NestJS`, but `@TypedQuery()` is more stable and general. 
 
 While `NestJS` does not support query type validation, `@TypedQuery()` validates the request query type and throws 400 bad request error when mismatched. Also, while `NestJS` does not support property type (`@Query()` only supports `string` typed properties), `@TypedQuery()` can define variable property types like `bigint`, `number` or `boolean`.
-
-<Callout type="warning">
-**What the query parameter is?**
-
-This is the query parameter!
-
-  - `name=Samchon&age=20&sex=male`
-</Callout>
 
 <Tabs 
     items={[
@@ -331,6 +348,12 @@ Such optimization is called AOT (Ahead of Time) compilation, and it is the secre
 
 
 ## `TypedQuery.Body()`
+```typescript filename="@nestia/core"
+export namespace TypedQuery {
+    export function Body(): ParameterDecorator;
+}
+```
+
 Request body decorator of `application/x-www-form-urlencoded` format.
 
 If you call `@TypedQuery.Body()` decorator function on a specific parameter, the parameter will be parsed from the request body as `application/x-www-form-urlencoded` format. Otherwise, you want to declare a `application/json` format response body, use [`@TypedBody()`](./TypedBody) decorator function instead.
@@ -549,6 +572,16 @@ exports.BbsArticlesController = BbsArticlesController = __decorate([
 
 
 ## `TypedQuery.Post()`
+```typescript filename="@nestia/core"
+export namespace TypedQuery {
+    export function Get(path?: string): MethodDecorator;
+    export function Post(path?: string): MethodDecorator;
+    export function Put(path?: string): MethodDecorator;
+    export function Patch(path?: string): MethodDecorator;
+    export function Delete(path?: string): MethodDecorator;
+}
+```
+
 Route decorators of `application/x-www-form-urlencoded` format response body.
 
 If you call one of below decorator functions on a method, the method will return `application/x-www-form-urlencoded` format response body. Otherwise, you want to declare a `application/json` format response body, use [`@TypedRoute.Post()`](./TypedRoute) decorator function instead.
