@@ -412,6 +412,16 @@ export namespace SdkFunctionProgrammer {
                     ...(route.status
                         ? [`    status: ${route.status},`]
                         : ["    status: null,"]),
+                    ...(route.output.contentType ===
+                    "application/x-www-form-urlencoded"
+                        ? [
+                              `    parseQuery: (input: URLSearchParams) => ${SdkImportWizard.typia(
+                                  importer,
+                              )}.http.assertQuery<${
+                                  route.output.typeName
+                              }>(input),`,
+                          ]
+                        : []),
                     "} as const;",
                 ]
                     .map((line) => `    ${line}`)

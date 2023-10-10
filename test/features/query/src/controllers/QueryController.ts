@@ -37,7 +37,7 @@ export class QueryController {
         };
     }
 
-    @TypedRoute.Post("body")
+    @TypedQuery.Post("body")
     public async body(@TypedQuery.Body() query: IQuery): Promise<IQuery> {
         return query;
     }
