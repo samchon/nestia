@@ -42,5 +42,8 @@ export namespace ISwaggerRoute {
         "application/json"?: {
             schema: ISwaggerSchema;
         };
+        "application/x-www-form-urlencoded"?: {
+            schema: ISwaggerSchema;
+        };
     }
 }

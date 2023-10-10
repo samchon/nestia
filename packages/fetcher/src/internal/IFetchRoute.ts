@@ -1,3 +1,8 @@
+/**
+ * Properties of remote API route.
+ *
+ * @author Jeongho Nam - https://github.com/samchon
+ */
 export interface IFetchRoute<
     Method extends "HEAD" | "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
 > {
@@ -15,13 +20,13 @@ export interface IFetchRoute<
      * Request body data info.
      */
     request: Method extends "DELETE" | "POST" | "PUT" | "PATCH"
-        ? IRoute.IBody | null
+        ? IFetchRoute.IBody | null
         : null;
 
     /**
      * Response body data info.
      */
-    response: Method extends "HEAD" ? null : IRoute.IBody;
+    response: Method extends "HEAD" ? null : IFetchRoute.IBody;
 
     /**
      * When special status code being used.
@@ -32,15 +37,20 @@ export interface IFetchRoute<
      * Parser of the query string.
      *
      * If content type of response body is `application/x-www-form-urlencoded`,
-     * then this `query` function would be called.
+     * then this `parseQuery` function would be called.
      *
-     * If you've forgotten to configuring this property about the
-     * `application/x-www-form-urlencoded` typed response body data,
-     * then `URLSearchParams` instance would be returned instead.
+     * If you've forgotten to configuring this `parseQuery` property about the
+     * `application/x-www-form-urlencoded` typed response body data, then
+     * only the `URLSearchParams` typed instance would be returned instead.
      */
     parseQuery?(input: URLSearchParams): any;
 }
-export namespace IRoute {
+export namespace IFetchRoute {
+    /**
+     * Metadata of body.
+     *
+     * Describes how content-type being used in body, and whether encrypted or not.
+     */
     export interface IBody {
         type:
             | "application/json"

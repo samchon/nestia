@@ -25,7 +25,7 @@ export namespace RouteProgrammer {
                 console.log(
                     `Failed to migrate ${props.method.toUpperCase()} ${
                         props.path
-                    }: @nestia/migrate supports only application/json or text/plain format yet.`,
+                    }: @nestia/migrate supports only application/json, application/x-www-form-urlencoded or text/plain format yet.`,
                 );
                 return null;
             } else if (
@@ -296,7 +296,6 @@ export namespace RouteProgrammer {
                       e[0].includes("application/json")
                     : e[0].includes("application/json"),
             );
-
             if (json) {
                 const { schema } = json[1];
                 return {
@@ -305,6 +304,19 @@ export namespace RouteProgrammer {
                         ? schema
                         : emplacer(schema),
                     "x-nestia-encrypted": meta["x-nestia-encrypted"],
+                };
+            }
+
+            const query = entries.find((e) =>
+                e[0].includes("application/x-www-form-urlencoded"),
+            );
+            if (query) {
+                const { schema } = query[1];
+                return {
+                    type: "application/x-www-form-urlencoded",
+                    schema: isNotObjectLiteral(schema)
+                        ? schema
+                        : emplacer(schema),
                 };
             }
 
@@ -355,6 +367,13 @@ export namespace RouteProgrammer {
                           `@${methoder((str) =>
                               external("@nestjs/common")(str),
                           )}`,
+                      ]
+                    : route.success?.type ===
+                      "application/x-www-form-urlencoded"
+                    ? [
+                          `@${external("@nestia/core")(
+                              "TypedQuery",
+                          )}.${methoder((str) => str)}`,
                       ]
                     : route.method === "head"
                     ? [
@@ -428,6 +447,15 @@ export namespace RouteProgrammer {
                               )}() body: ${SchemaProgrammer.write(components)(
                                   references,
                               )(importer)(route.body.schema)},`,
+                          ]
+                        : route.body.type ===
+                          "application/x-www-form-urlencoded"
+                        ? [
+                              `    @${external("@nestia/core")(
+                                  "TypedQuery",
+                              )}.Body() body: ${SchemaProgrammer.write(
+                                  components,
+                              )(references)(importer)(route.body.schema)},`,
                           ]
                         : [
                               `    @${external("@nestia/core")(
