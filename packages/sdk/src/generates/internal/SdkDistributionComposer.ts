@@ -3,48 +3,56 @@ import fs from "fs";
 import path from "path";
 
 import { INestiaConfig } from "../../INestiaConfig";
+import { IRoute } from "../../structures/IRoute";
 
 export namespace SdkDistributionComposer {
-    export const compose = async (config: INestiaConfig): Promise<void> => {
-        if (!fs.existsSync(config.distribute!))
-            await fs.promises.mkdir(config.distribute!);
+    export const compose =
+        (config: INestiaConfig) =>
+        async (routes: IRoute[]): Promise<void> => {
+            if (!fs.existsSync(config.distribute!))
+                await fs.promises.mkdir(config.distribute!);
 
-        const root: string = process.cwd();
-        const output: string = path.resolve(config.output!);
-        process.chdir(config.distribute!);
+            const root: string = process.cwd();
+            const output: string = path.resolve(config.output!);
+            process.chdir(config.distribute!);
 
-        const exit = () => {
-            process.chdir(root);
+            const exit = () => process.chdir(root);
+
+            const typia: boolean =
+                !!config.assert ||
+                !!config.json ||
+                !!config.simulate ||
+                routes.some(
+                    (r) =>
+                        r.output.contentType ===
+                        "application/x-www-form-urlencoded",
+                );
+            const done: boolean = await configured({
+                typia,
+                distribute: config.distribute!,
+            });
+            if (done) return exit();
+
+            // COPY FILES
+            console.log("Composing SDK distribution environments...");
+            for (const file of await fs.promises.readdir(BUNDLE))
+                await fs.promises.copyFile(`${BUNDLE}/${file}`, file);
+
+            // CONFIGURE PATHS
+            for (const file of ["package.json", "tsconfig.json"])
+                await replace({ root, output })(file);
+
+            // INSTALL PACKAGES
+            const versions: IDependencies = await dependencies();
+            execute("npm install --save-dev rimraf");
+            execute(
+                `npm install --save @nestia/fetcher@${versions["@nestia/fetcher"]}`,
+            );
+            execute(`npm install --save typia@${versions["typia"]}`);
+            execute("npx typia setup --manager npm");
+
+            exit();
         };
-
-        const typia: boolean =
-            !!config.assert || !!config.json || !!config.simulate;
-        const done: boolean = await configured({
-            typia,
-            distribute: config.distribute!,
-        });
-        if (done) return exit();
-
-        // COPY FILES
-        console.log("Composing SDK distribution environments...");
-        for (const file of await fs.promises.readdir(BUNDLE))
-            await fs.promises.copyFile(`${BUNDLE}/${file}`, file);
-
-        // CONFIGURE PATHS
-        for (const file of ["package.json", "tsconfig.json"])
-            await replace({ root, output })(file);
-
-        // INSTALL PACKAGES
-        const versions: IDependencies = await dependencies();
-        execute("npm install --save-dev rimraf");
-        execute(
-            `npm install --save @nestia/fetcher@${versions["@nestia/fetcher"]}`,
-        );
-        execute(`npm install --save typia@${versions["typia"]}`);
-        execute("npx typia setup --manager npm");
-
-        exit();
-    };
 
     const configured = async (config: {
         typia: boolean;
@@ -57,6 +65,8 @@ export namespace SdkDistributionComposer {
             );
             return (
                 !!content.dependencies?.["@nestia/fetcher"] &&
+                (config.typia === false ||
+                    !!content.scripts?.prepare?.includes("ts-patch install")) &&
                 (config.typia === false || !!content.dependencies?.["typia"])
             );
         })()) &&

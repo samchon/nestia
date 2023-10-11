@@ -36,6 +36,7 @@ pnpm nestia setup --manager pnpm
     </Tab>
     <Tab>
 ```bash filename="Terminal" copy showLineNumbers
+# YARN BERRY IS NOT SUPPORTED
 yarn add -D nestia
 yarn nestia setup --manager yarn
 ```
@@ -283,7 +284,7 @@ Also, never forget to configure `strict` (or `strictNullChecks`) as `true`. It i
 ```json filename="package.json" showLineNumbers copy
 {
     "scripts": {
-        "postinstall": "ts-patch install"
+        "prepare": "ts-patch install"
     }
 }
 ```
@@ -291,24 +292,24 @@ Also, never forget to configure `strict` (or `strictNullChecks`) as `true`. It i
 <Tabs items={['npm', 'pnpm', 'yarn']}>
     <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-npm run postinstall
+npm run prepare
 ```
     </Tab>
     <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-pnpm run postinstall
+pnpm run prepare
 ```
     </Tab>
     <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-yarn run postinstall
+yarn run prepare
 ```
     </Tab>
 </Tabs>
 
-At last, configure `npm run postinstall` command like above. 
+At last, configure `npm run prepare` command like above. 
 
-Of course, you've to run the `npm run postinstall` command after configuration.
+Of course, you've to run the `npm run prepare` command after configuration.
 
 For reference, [`ts-patch`](https://github.com/nonara/ts-patch) is an helper library of TypeScript compiler that supporting custom transformations by plugins. With the [`ts-patch`](https://github.com/nonara/ts-patch) setup and plugin configurations, whenever you run `tsc` command, your `@nestia/core` decorator function call statements would be transformed to the optimal operation codes in the compiled JavaScript files.
 

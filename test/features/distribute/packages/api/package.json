@@ -9,7 +9,7 @@
     "build:sdk": "rimraf ../../src/api/functional && cd ../.. && npx nestia sdk && cd packages/api",
     "compile": "rimraf lib && tsc",
     "deploy": "npm run build && npm publish",
-    "postinstall": "ts-patch install"
+    "prepare": "ts-patch install"
   },
   "repository": {
     "type": "git",
@@ -34,6 +34,6 @@
   },
   "dependencies": {
     "@nestia/fetcher": "file:../../../../../packages/fetcher/nestia-fetcher-0.0.0-dev.20991231.tgz",
-    "typia": "^5.2.0"
+    "typia": "^5.2.1"
   }
 }

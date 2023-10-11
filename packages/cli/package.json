@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "4.5.0",
+  "version": "5.0.0",
   "description": "Nestia CLI tool",
   "main": "bin/index.js",
   "bin": {
@@ -9,6 +9,7 @@
   "scripts": {
     "build": "rimraf bin && tsc",
     "prettier": "prettier ./src/**/*.ts --write",
+    "package:latest": "npm run build && npm publish --access public --tag latest",
     "package:next": "npm run build && npm publish --access public --tag next"
   },
   "repository": {
@@ -43,7 +44,7 @@
     "@types/node": "^18.11.16",
     "prettier": "^2.8.7",
     "rimraf": "^3.0.2",
-    "typescript": "^5.2.0"
+    "typescript": "^5.2.1"
   },
   "files": [
     "bin",
