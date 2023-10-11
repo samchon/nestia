@@ -45,5 +45,8 @@ export namespace ISwaggerRoute {
         "application/x-www-form-urlencoded"?: {
             schema: ISwaggerSchema;
         };
+        "*/*"?: {
+            schema: ISwaggerSchema;
+        };
     }
 }

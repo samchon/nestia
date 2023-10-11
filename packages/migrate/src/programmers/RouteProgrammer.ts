@@ -294,7 +294,7 @@ export namespace RouteProgrammer {
                 meta["x-nestia-encrypted"] === true
                     ? e[0].includes("text/plain") ||
                       e[0].includes("application/json")
-                    : e[0].includes("application/json"),
+                    : e[0].includes("application/json") || e[0].includes("*/*"),
             );
             if (json) {
                 const { schema } = json[1];
