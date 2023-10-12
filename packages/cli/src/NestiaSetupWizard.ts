@@ -50,7 +50,7 @@ export namespace NestiaSetupWizard {
                     delete data.scripts.postinstall;
             }
         });
-        CommandExecutor.run(`${pack.manager} run postinstall`);
+        CommandExecutor.run(`${pack.manager} run prepare`);
 
         // INSTALL AND CONFIGURE NESTIA
         pack.install({ dev: false, modulo: "@nestia/core", version: "latest" });
