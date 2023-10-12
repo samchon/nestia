@@ -15,6 +15,9 @@ export namespace __type {
         schema: IJsonSchema;
     }
     export type o3 = {
+        schema: IJsonSchema;
+    }
+    export type o4 = {
         description: string;
         content?: undefined | ISwaggerRoute.IContent;
         "x-nestia-encrypted"?: undefined | boolean;

@@ -5935,6 +5935,7 @@
         "type": "object",
         "properties": {},
         "nullable": false,
+        "description": "Construct a type with a set of properties K of type T",
         "x-typia-jsDocTags": [],
         "x-typia-additionalProperties": {
           "$ref": "#/components/schemas/RecordstringISwaggerRoute"
@@ -5947,6 +5948,7 @@
         "type": "object",
         "properties": {},
         "nullable": false,
+        "description": "Construct a type with a set of properties K of type T",
         "x-typia-jsDocTags": [],
         "x-typia-additionalProperties": {
           "$ref": "#/components/schemas/ISwaggerRoute"
@@ -6043,6 +6045,7 @@
         "type": "object",
         "properties": {},
         "nullable": false,
+        "description": "Construct a type with a set of properties K of type T",
         "x-typia-jsDocTags": [],
         "x-typia-additionalProperties": {
           "x-typia-required": true,
@@ -7355,11 +7358,14 @@
       "ISwaggerRoute.IContent": {
         "type": "object",
         "properties": {
-          "application/json": {
+          "application/x-www-form-urlencoded": {
             "$ref": "#/components/schemas/__type.o1"
           },
-          "text/plain": {
+          "application/json": {
             "$ref": "#/components/schemas/__type.o2"
+          },
+          "text/plain": {
+            "$ref": "#/components/schemas/__type.o3"
           }
         },
         "nullable": false,
@@ -7391,19 +7397,32 @@
         ],
         "x-typia-jsDocTags": []
       },
+      "__type.o3": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "$ref": "#/components/schemas/IJsonSchema"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "schema"
+        ],
+        "x-typia-jsDocTags": []
+      },
       "ISwaggerRoute.IResponseBody": {
         "type": "object",
         "properties": {},
         "nullable": false,
         "x-typia-jsDocTags": [],
         "x-typia-additionalProperties": {
-          "$ref": "#/components/schemas/__type.o3"
+          "$ref": "#/components/schemas/__type.o4"
         },
         "additionalProperties": {
-          "$ref": "#/components/schemas/__type.o3"
+          "$ref": "#/components/schemas/__type.o4"
         }
       },
-      "__type.o3": {
+      "__type.o4": {
         "type": "object",
         "properties": {
           "description": {
@@ -7454,6 +7473,7 @@
         "type": "object",
         "properties": {},
         "nullable": false,
+        "description": "Construct a type with a set of properties K of type T",
         "x-typia-jsDocTags": [],
         "x-typia-additionalProperties": {
           "oneOf": [
@@ -7708,6 +7728,7 @@
         "type": "object",
         "properties": {},
         "nullable": false,
+        "description": "Construct a type with a set of properties K of type T",
         "x-typia-jsDocTags": [],
         "x-typia-additionalProperties": {
           "$ref": "#/components/schemas/IJsonSchema"
@@ -8915,6 +8936,7 @@
         "type": "object",
         "properties": {},
         "nullable": false,
+        "description": "Construct a type with a set of properties K of type T",
         "x-typia-jsDocTags": [],
         "x-typia-additionalProperties": {
           "$ref": "#/components/schemas/ISwaggerSecurityScheme"
@@ -9183,6 +9205,7 @@
         "type": "object",
         "properties": {},
         "nullable": false,
+        "description": "Construct a type with a set of properties K of type T",
         "x-typia-jsDocTags": [],
         "x-typia-additionalProperties": {
           "x-typia-required": true,
@@ -9217,6 +9240,7 @@
           "authorizationUrl",
           "refreshUrl"
         ],
+        "description": "Construct a type with the properties of T except for those in type K.",
         "x-typia-jsDocTags": []
       },
       "OmitISwaggerSecurityScheme.IOAuth2.IFlowauthorizationUrl": {
@@ -9241,6 +9265,7 @@
           "tokenUrl",
           "refreshUrl"
         ],
+        "description": "Construct a type with the properties of T except for those in type K.",
         "x-typia-jsDocTags": []
       },
       "TupleHierarchical": {
@@ -11557,6 +11582,7 @@
           }
         },
         "nullable": false,
+        "description": "Make all properties in T optional",
         "x-typia-jsDocTags": []
       }
     },
