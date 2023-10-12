@@ -295,6 +295,7 @@
         "required": [
           "enforce"
         ],
+        "description": "Construct a type with the properties of T except for those in type K.",
         "x-typia-jsDocTags": []
       }
     },

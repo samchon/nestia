@@ -422,6 +422,7 @@
           }
         },
         "nullable": false,
+        "description": "Make all properties in T optional",
         "x-typia-jsDocTags": []
       },
       "PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrb": {
@@ -492,6 +493,7 @@
           }
         },
         "nullable": false,
+        "description": "Make all properties in T optional",
         "x-typia-jsDocTags": []
       }
     },
