@@ -24,7 +24,7 @@
  * `String`                | `string`
  * `Class`                 | `object`
  * `Class` with `toJSON()` | `Primitive<ReturnType<Class.toJSON>>`
- * Native Class            | `{}`
+ * Native Class            | never
  * Others                  | No change
  *
  * @template Instance Target argument type.
@@ -49,7 +49,7 @@ type PrimitiveMain<Instance> = Instance extends [never]
     : ValueOf<Instance> extends object
     ? Instance extends object
         ? Instance extends NativeClass
-            ? {}
+            ? never
             : Instance extends IJsonable<infer Raw>
             ? ValueOf<Raw> extends object
                 ? Raw extends object

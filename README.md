@@ -59,7 +59,7 @@ Check out the document in the [website](https://nestia.io/docs/):
     - [TypedRoute](https://nestia.io/docs/core/TypedRoute/)
     - [TypedBody](https://nestia.io/docs/core/TypedBody/)
     - [TypedParam](https://nestia.io/docs/core/TypedParam/)
-    - [TypedQuery](https://nestia.io/docs/core/TypedRoute/)
+    - [TypedQuery](https://nestia.io/docs/core/TypedQuery/)
     - [TypedHeaders](https://nestia.io/docs/core/TypedHeaders/)
     - [TypedException](https://nestia.io/docs/core/TypedException/)
   - Generators
