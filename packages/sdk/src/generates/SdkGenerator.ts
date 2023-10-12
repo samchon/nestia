@@ -67,7 +67,7 @@ export namespace SdkGenerator {
 
             // DISTRIBUTION
             if (config.distribute !== undefined)
-                await SdkDistributionComposer.compose(config)(routes);
+                await SdkDistributionComposer.compose(config);
         };
 
     export const BUNDLE_PATH = NodePath.join(
