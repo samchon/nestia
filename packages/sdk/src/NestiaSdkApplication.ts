@@ -213,7 +213,9 @@ export class NestiaSdkApplication {
                 c.file,
             );
             if (file === undefined) continue;
-            routeList.push(...ControllerAnalyzer.analyze(checker, file, c));
+            routeList.push(
+                ...ControllerAnalyzer.analyze(this.config, checker, file, c),
+            );
         }
 
         // FIND IMPLICIT TYPES

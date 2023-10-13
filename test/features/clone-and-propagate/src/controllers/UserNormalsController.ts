@@ -2,6 +2,8 @@ import core from "@nestia/core";
 import * as nest from "@nestjs/common";
 import typia from "typia";
 
+import { ErrorCode } from "./ErrorCode";
+
 @nest.Controller("users")
 export class UsersController {
     /**
@@ -91,8 +93,4 @@ namespace IUser {
     export interface ISearch {
         user_type?: Type;
     }
-}
-
-namespace ErrorCode {
-    export type NotFound = "404 Not Found";
 }

@@ -4,6 +4,7 @@ import ts from "typescript";
 
 import { CommentFactory } from "typia/lib/factories/CommentFactory";
 
+import { INestiaConfig } from "../INestiaConfig";
 import { IController } from "../structures/IController";
 import { IRoute } from "../structures/IRoute";
 import { ITypeTuple } from "../structures/ITypeTuple";
@@ -16,6 +17,7 @@ import { SecurityAnalyzer } from "./SecurityAnalyzer";
 
 export namespace ControllerAnalyzer {
     export function analyze(
+        config: INestiaConfig,
         checker: ts.TypeChecker,
         sourceFile: ts.SourceFile,
         controller: IController,
@@ -28,7 +30,9 @@ export namespace ControllerAnalyzer {
                 node.name?.escapedText === controller.name
             ) {
                 // ANALYZE THE CONTROLLER
-                ret.push(..._Analyze_controller(checker, controller, node));
+                ret.push(
+                    ..._Analyze_controller(config, checker, controller, node),
+                );
                 return;
             }
         });
@@ -39,6 +43,7 @@ export namespace ControllerAnalyzer {
         CLASS
     --------------------------------------------------------- */
     function _Analyze_controller(
+        config: INestiaConfig,
         checker: ts.TypeChecker,
         controller: IController,
         classNode: ts.ClassDeclaration,
@@ -70,6 +75,7 @@ export namespace ControllerAnalyzer {
             if (runtime === undefined) continue;
 
             const routes: IRoute[] = _Analyze_function(
+                config,
                 checker,
                 controller,
                 genericDict,
@@ -86,6 +92,7 @@ export namespace ControllerAnalyzer {
         FUNCTION
     --------------------------------------------------------- */
     function _Analyze_function(
+        config: INestiaConfig,
         checker: ts.TypeChecker,
         controller: IController,
         genericDict: GenericAnalyzer.Dictionary,
@@ -140,6 +147,10 @@ export namespace ControllerAnalyzer {
                 `Error on ControllerAnalyzer.analyze(): HEAD method must return void type - ${controller.name}.${func.name}().`,
             );
 
+        const exceptions = ExceptionAnalyzer.analyze(checker)(
+            genericDict,
+            config.propagate === true ? importDict : new HashMap(),
+        )(func)(declaration);
         const imports: [string, string[]][] = importDict
             .toJSON()
             .map((pair) => [pair.first, pair.second.toJSON()]);
@@ -216,10 +227,7 @@ export namespace ControllerAnalyzer {
                           },
                 ),
             security,
-            exceptions: ExceptionAnalyzer.analyze(checker)(
-                genericDict,
-                importDict,
-            )(func)(declaration),
+            exceptions,
         };
 
         // CONFIGURE PATHS
