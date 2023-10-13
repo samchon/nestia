@@ -68,9 +68,11 @@ export namespace SdkTypeDefiner {
                 const wrapper: string = importer.external({
                     type: true,
                     library: "@nestia/fetcher",
-                    instance: route.output.contentType === "application/x-www-form-urlencoded"
-                        ? "Resolved"
-                        : "Primitive",
+                    instance:
+                        route.output.contentType ===
+                        "application/x-www-form-urlencoded"
+                            ? "Resolved"
+                            : "Primitive",
                 });
                 return `${wrapper}<${type}>`;
             }
