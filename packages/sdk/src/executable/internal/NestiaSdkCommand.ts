@@ -17,10 +17,12 @@ export namespace NestiaSdkCommand {
         task: (app: NestiaSdkApplication) => Promise<void>,
     ) => {
         // LOAD CONFIG INFO
-        const project: string = await NestiaConfigLoader.project();
+        const file: string = getConfigFile() ?? "nestia.config.ts";
+        const project: string = await NestiaConfigLoader.project(file);
         const compilerOptions: ts.CompilerOptions =
             await NestiaConfigLoader.compilerOptions(project);
         const config: INestiaConfig = await NestiaConfigLoader.config(
+            file,
             compilerOptions,
         );
 
@@ -30,5 +32,20 @@ export namespace NestiaSdkCommand {
             compilerOptions,
         );
         await task(app);
+    };
+
+    const getConfigFile = (): string | null => {
+        const argv: string[] = process.argv.slice(3);
+        if (argv.length < 1) return null;
+
+        const index: number = argv.findIndex((str) => str === "--config");
+        if (index === -1) return null;
+        else if (argv.length === 1)
+            throw new Error("Config file must be provided");
+
+        const file: string = argv[index + 1];
+        if (file.endsWith(".ts") === false)
+            throw new Error("Config file must be TypeScript file");
+        return file;
     };
 }
