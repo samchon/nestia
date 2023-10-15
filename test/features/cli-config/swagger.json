@@ -1,0 +1,773 @@
+{
+  "openapi": "3.0.1",
+  "servers": [
+    {
+      "url": "https://github.com/samchon/nestia",
+      "description": "insert your server url"
+    }
+  ],
+  "info": {
+    "version": "0.0.0-dev.20991231",
+    "title": "@nestia/test",
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "system",
+          "health"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "x-nestia-encrypted": false
+          }
+        },
+        "summary": "Health check API",
+        "description": "Health check API.\n\nJust for health checking API liveness.",
+        "x-nestia-namespace": "health.get",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "tag",
+            "text": [
+              {
+                "text": "system",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "tag",
+            "text": [
+              {
+                "text": "health",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/performance": {
+      "get": {
+        "tags": [
+          "system",
+          "performance"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Performance info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPerformance"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "summary": "Get server performance info",
+        "description": "Get server performance info.",
+        "x-nestia-namespace": "performance.get",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "returns",
+            "text": [
+              {
+                "text": "Performance info",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "warning",
+            "text": [
+              {
+                "text": "This route is only for testing purposes",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "reference",
+            "text": [
+              {
+                "text": "https://nodejs.org/api/process.html#processmemoryusage",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "tag",
+            "text": [
+              {
+                "text": "system",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "tag",
+            "text": [
+              {
+                "text": "performance",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/body": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "Content to store",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": false
+        },
+        "responses": {
+          "201": {
+            "description": "Newly archived article",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          }
+        },
+        "summary": "Store an article",
+        "description": "Store an article.",
+        "x-nestia-namespace": "body.store",
+        "x-nestia-jsDocTags": [
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "request",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Request object from express. Must be disappeared in SDK",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "param",
+            "text": [
+              {
+                "text": "input",
+                "kind": "parameterName"
+              },
+              {
+                "text": " ",
+                "kind": "space"
+              },
+              {
+                "text": "Content to store",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "returns",
+            "text": [
+              {
+                "text": "Newly archived article",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Samchon",
+                "kind": "text"
+              }
+            ]
+          },
+          {
+            "name": "warning",
+            "text": [
+              {
+                "text": "This is an fake API",
+                "kind": "text"
+              }
+            ]
+          }
+        ],
+        "x-nestia-method": "POST"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IPerformance": {
+        "type": "object",
+        "properties": {
+          "cpu": {
+            "$ref": "#/components/schemas/process.global.NodeJS.CpuUsage"
+          },
+          "memory": {
+            "$ref": "#/components/schemas/process.global.NodeJS.MemoryUsage"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/process.global.NodeJS.ResourceUsage"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "cpu",
+          "memory",
+          "resource"
+        ],
+        "description": "Performance info.",
+        "x-typia-jsDocTags": [
+          {
+            "name": "author",
+            "text": [
+              {
+                "text": "Samchon",
+                "kind": "text"
+              }
+            ]
+          }
+        ]
+      },
+      "process.global.NodeJS.CpuUsage": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "system": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "user",
+          "system"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "process.global.NodeJS.MemoryUsage": {
+        "type": "object",
+        "properties": {
+          "rss": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "heapTotal": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "heapUsed": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "external": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "arrayBuffers": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "rss",
+          "heapTotal",
+          "heapUsed",
+          "external",
+          "arrayBuffers"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "process.global.NodeJS.ResourceUsage": {
+        "type": "object",
+        "properties": {
+          "fsRead": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "fsWrite": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "involuntaryContextSwitches": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "ipcReceived": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "ipcSent": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "majorPageFault": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "maxRSS": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "minorPageFault": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "sharedMemorySize": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "signalsCount": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "swappedOut": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "systemCPUTime": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "unsharedDataSize": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "unsharedStackSize": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "userCPUTime": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          },
+          "voluntaryContextSwitches": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "number"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "fsRead",
+          "fsWrite",
+          "involuntaryContextSwitches",
+          "ipcReceived",
+          "ipcSent",
+          "majorPageFault",
+          "maxRSS",
+          "minorPageFault",
+          "sharedMemorySize",
+          "signalsCount",
+          "swappedOut",
+          "systemCPUTime",
+          "unsharedDataSize",
+          "unsharedStackSize",
+          "userCPUTime",
+          "voluntaryContextSwitches"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "IBbsArticle.IStore": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "minLength",
+                "text": [
+                  {
+                    "text": "3",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "maxLength",
+                "text": [
+                  {
+                    "text": "50",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 3,
+            "x-typia-typeTags": [
+              {
+                "name": "MinLength<3>",
+                "target": "string",
+                "kind": "minLength",
+                "value": 3,
+                "validate": "3 <= $input.length",
+                "exclusive": true
+              },
+              {
+                "name": "MaxLength<50>",
+                "target": "string",
+                "kind": "maxLength",
+                "value": 50,
+                "validate": "$input.length <= 50",
+                "exclusive": true
+              }
+            ]
+          },
+          "body": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "files": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "nullable": false,
+        "required": [
+          "title",
+          "body",
+          "files"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "IAttachmentFile": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "minLengt",
+                "text": [
+                  {
+                    "text": "1",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "maxLength",
+                "text": [
+                  {
+                    "text": "255",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "maxLength": 255,
+            "x-typia-typeTags": [
+              {
+                "name": "MaxLength<255>",
+                "target": "string",
+                "kind": "maxLength",
+                "value": 255,
+                "validate": "$input.length <= 255",
+                "exclusive": true
+              }
+            ],
+            "nullable": true
+          },
+          "extension": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "minLength",
+                "text": [
+                  {
+                    "text": "1",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "maxLength",
+                "text": [
+                  {
+                    "text": "8",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "maxLength": 8,
+            "minLength": 1,
+            "x-typia-typeTags": [
+              {
+                "name": "MinLength<1>",
+                "target": "string",
+                "kind": "minLength",
+                "value": 1,
+                "validate": "1 <= $input.length",
+                "exclusive": true
+              },
+              {
+                "name": "MaxLength<8>",
+                "target": "string",
+                "kind": "maxLength",
+                "value": 8,
+                "validate": "$input.length <= 8",
+                "exclusive": true
+              }
+            ],
+            "nullable": true
+          },
+          "url": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "format",
+                "text": [
+                  {
+                    "text": "url",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "url",
+            "x-typia-typeTags": [
+              {
+                "name": "Format<\"url\">",
+                "target": "string",
+                "kind": "format",
+                "value": "url",
+                "validate": "/^[a-zA-Z0-9]+:\\/\\/(?:www.)?[-a-zA-Z0-9@:%._+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/.test($input)",
+                "exclusive": true
+              }
+            ]
+          }
+        },
+        "nullable": false,
+        "required": [
+          "name",
+          "extension",
+          "url"
+        ],
+        "x-typia-jsDocTags": []
+      },
+      "IBbsArticle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "format",
+                "text": [
+                  {
+                    "text": "uuid",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "uuid",
+            "x-typia-typeTags": [
+              {
+                "name": "Format<\"uuid\">",
+                "target": "string",
+                "kind": "format",
+                "value": "uuid",
+                "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
+                "exclusive": true
+              }
+            ]
+          },
+          "created_at": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "format",
+                "text": [
+                  {
+                    "text": "date-time",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "format": "date-time",
+            "x-typia-typeTags": [
+              {
+                "name": "Format<\"date-time\">",
+                "target": "string",
+                "kind": "format",
+                "value": "date-time",
+                "validate": "!isNaN(new Date($input).getTime())",
+                "exclusive": true
+              }
+            ]
+          },
+          "title": {
+            "x-typia-jsDocTags": [
+              {
+                "name": "minLength",
+                "text": [
+                  {
+                    "text": "3",
+                    "kind": "text"
+                  }
+                ]
+              },
+              {
+                "name": "maxLength",
+                "text": [
+                  {
+                    "text": "50",
+                    "kind": "text"
+                  }
+                ]
+              }
+            ],
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 3,
+            "x-typia-typeTags": [
+              {
+                "name": "MinLength<3>",
+                "target": "string",
+                "kind": "minLength",
+                "value": 3,
+                "validate": "3 <= $input.length",
+                "exclusive": true
+              },
+              {
+                "name": "MaxLength<50>",
+                "target": "string",
+                "kind": "maxLength",
+                "value": 50,
+                "validate": "$input.length <= 50",
+                "exclusive": true
+              }
+            ]
+          },
+          "body": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "string"
+          },
+          "files": {
+            "x-typia-required": true,
+            "x-typia-optional": false,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "nullable": false,
+        "required": [
+          "id",
+          "created_at",
+          "title",
+          "body",
+          "files"
+        ],
+        "x-typia-jsDocTags": []
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization"
+      }
+    }
+  }
+}

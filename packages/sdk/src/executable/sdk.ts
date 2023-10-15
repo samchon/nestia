@@ -14,9 +14,9 @@ npx @nestia/sdk [command] [options?]
     - npx @nestia/sdk dependencies
     - npx @nestia/sdk dependencies --manager pnpm
   2. npx @nestia/sdk init
-  3. npx @nestia/sdk sdk
-  4. npx @nestia/sdk swagger
-  5. npx @nestia/sdk e2e
+  3. npx @nestia/sdk sdk --config? [config file]
+  4. npx @nestia/sdk swagger --config? [config file]
+  5. npx @nestia/sdk e2e --config? [config file]
 `;
 
 function halt(desc: string): never {

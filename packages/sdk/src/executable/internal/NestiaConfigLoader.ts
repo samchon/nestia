@@ -40,10 +40,11 @@ export namespace NestiaConfigLoader {
     };
 
     export const config = async (
+        file: string,
         options: ts.CompilerOptions,
     ): Promise<INestiaConfig> => {
-        if (fs.existsSync(path.resolve("nestia.config.ts")) === false)
-            throw new Error(`unable to find "nestia.config.ts" file.`);
+        if (fs.existsSync(path.resolve(file)) === false)
+            throw new Error(`unable to find "${file}" file.`);
 
         register({
             emit: false,
@@ -52,7 +53,7 @@ export namespace NestiaConfigLoader {
         });
 
         const loaded: INestiaConfig & { default?: INestiaConfig } =
-            await import(path.resolve("nestia.config.ts"));
+            await import(path.resolve(file));
         const config: INestiaConfig =
             typeof loaded?.default === "object" && loaded.default !== null
                 ? loaded.default
@@ -62,19 +63,19 @@ export namespace NestiaConfigLoader {
             return typia.assert(config);
         } catch (exp) {
             if (typia.is<typia.TypeGuardError>(exp))
-                exp.message = `invalid "nestia.config.ts" data.`;
+                exp.message = `invalid "${file}" data.`;
             throw exp;
         }
     };
 
-    export const project = async (): Promise<string> => {
+    export const project = async (file: string): Promise<string> => {
         const connector = new WorkerConnector(null, null, "process");
         await connector.connect(
             `${__dirname}/nestia.project.getter.${__filename.substr(-2)}`,
         );
 
         const driver = await connector.getDriver<typeof NestiaProjectGetter>();
-        const project: string = await driver.get();
+        const project: string = await driver.get(file);
         await connector.close();
 
         return project;

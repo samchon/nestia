@@ -9,24 +9,11 @@ const feature = (name) => {
     process.stdout.write(`  - ${name}`);
 
     // PREPARE ASSETS
-    const configured = fs.existsSync(
-        `${featureDirectory(name)}/nestia.config.ts`,
-    );
-    const input = configured
-        ? null
-        : fs.existsSync("src/controllers")
-        ? "src/controllers"
-        : "src/**/*.controller.ts";
-
+    const file =
+        name === "cli-config" ? "nestia.configuration.ts" : "nestia.config.ts";
     const generate = (type) => {
-        const argv =
-            input !== null
-                ? type === "swagger"
-                    ? `${type} ${input} --out swagger.json`
-                    : `${type} ${input} --out src/api`
-                : type;
-        const command = `npx nestia`;
-        cp.execSync(`${command} ${argv}`, { stdio: "ignore" });
+        const tail = file === "nestia.config.ts" ? "" : ` --config ${file}`;
+        cp.execSync(`npx nestia ${type}${tail}`, { stdio: "ignore" });
     };
 
     // ERROR MODE HANDLING
@@ -60,9 +47,9 @@ const feature = (name) => {
 
     generate("swagger");
     generate("sdk");
-    if (input === null) {
+    {
         const config = fs.readFileSync(
-            `${featureDirectory(name)}/nestia.config.ts`,
+            `${featureDirectory(name)}/${file}`,
             "utf8",
         );
         if (config.includes("e2e:")) generate("e2e");
@@ -81,21 +68,6 @@ const feature = (name) => {
         test();
     }
 };
-
-// const migrate = (name) => {
-//     const input = path.resolve(`${__dirname}/../features/${name}/swagger.json`);
-//     const output = path.resolve(`${__dirname}/../migrated/${name}`);
-//     const cwd = path.resolve(`${__dirname}/../migrated`);
-
-//     process.stdout.write(`  - ${name}`);
-//     cp.execSync(
-//         `npx @nestia/migrate ${input} ${output}`,
-//         {
-//             stdio: "ignore",
-//             cwd,
-//         }
-//     );
-// }
 
 const main = async () => {
     const measure = (title) => async (task) => {
