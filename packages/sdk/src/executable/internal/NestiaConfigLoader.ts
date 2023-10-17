@@ -44,7 +44,7 @@ export namespace NestiaConfigLoader {
         options: ts.CompilerOptions,
     ): Promise<INestiaConfig> => {
         if (fs.existsSync(path.resolve(file)) === false)
-            throw new Error(`unable to find "${file}" file.`);
+            throw new Error(`Unable to find "${file}" file.`);
 
         register({
             emit: false,

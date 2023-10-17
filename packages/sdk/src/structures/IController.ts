@@ -4,6 +4,7 @@ export interface IController {
     file: string;
     name: string;
     paths: string[];
+    versions: Array<string | null>;
     functions: IController.IFunction[];
     security: Record<string, string[]>[];
     swaggerTgas: string[];
@@ -14,6 +15,7 @@ export namespace IController {
         name: string;
         method: string;
         paths: string[];
+        versions: Array<string | null>;
         encrypted: boolean;
         parameters: IParameter[];
         status?: number;

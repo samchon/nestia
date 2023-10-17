@@ -20,6 +20,10 @@ export namespace SourceFinder {
         (input: string[]) =>
         async (closure: (location: string) => void): Promise<void> => {
             for (const pattern of input) {
+                if (_Is_file(pattern)) {
+                    closure(path.resolve(pattern));
+                    continue;
+                }
                 for (const file of await _Glob(pattern)) {
                     const stats: fs.Stats = await fs.promises.stat(file);
                     if (stats.isDirectory() === true)
@@ -51,6 +55,11 @@ export namespace SourceFinder {
                 else resolve(matches.map((str) => path.resolve(str)));
             });
         });
+
+    const _Is_file = (pattern: string): boolean =>
+        pattern.endsWith(".ts") &&
+        !pattern.endsWith(".d.ts") &&
+        fs.existsSync(pattern);
 }
 
 interface IProps {

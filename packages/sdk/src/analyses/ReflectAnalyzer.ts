@@ -1,4 +1,5 @@
 import * as Constants from "@nestjs/common/constants";
+import { VersionValue } from "@nestjs/common/interfaces";
 import "reflect-metadata";
 import { equal } from "tstl/ranges/module";
 
@@ -82,14 +83,12 @@ export namespace ReflectAnalyzer {
         // CONSTRUCTION
         //----
         // BASIC INFO
-        const paths: string[] = _Get_paths(
-            Reflect.getMetadata(Constants.PATH_METADATA, creator),
-        );
         const meta: IController = {
             file,
             name,
-            paths,
             functions: [],
+            paths: _Get_paths(creator),
+            versions: _Get_versions(creator),
             security: _Get_securities(creator),
             swaggerTgas:
                 Reflect.getMetadata("swagger/apiUseTags", creator) ?? [],
@@ -123,10 +122,29 @@ export namespace ReflectAnalyzer {
         return entries;
     }
 
-    function _Get_paths(value: string | string[]): string[] {
+    function _Get_paths(target: any): string[] {
+        const value: string | string[] = Reflect.getMetadata(
+            Constants.PATH_METADATA,
+            target,
+        );
         if (typeof value === "string") return [value];
         else if (value.length === 0) return [""];
         else return value;
+    }
+
+    function _Get_versions(target: any): Array<string | null> {
+        const value: VersionValue | undefined = Reflect.getMetadata(
+            Constants.VERSION_METADATA,
+            target,
+        );
+        if (value === undefined || typeof value === "symbol") return [null];
+        else if (Array.isArray(value))
+            if (value.length === 0) return [null];
+            else
+                return value.map((v) =>
+                    typeof value === "symbol" ? null : v,
+                ) as Array<string | null>;
+        return [String(value)];
     }
 
     function _Get_securities(value: any): Record<string, string[]>[] {
@@ -218,9 +236,8 @@ export namespace ReflectAnalyzer {
         const meta: IController.IFunction = {
             name,
             method: method === "ALL" ? "POST" : method,
-            paths: _Get_paths(
-                Reflect.getMetadata(Constants.PATH_METADATA, proto),
-            ),
+            paths: _Get_paths(proto),
+            versions: _Get_versions(proto),
             parameters,
             status: Reflect.getMetadata(Constants.HTTP_CODE_METADATA, proto),
             encrypted,

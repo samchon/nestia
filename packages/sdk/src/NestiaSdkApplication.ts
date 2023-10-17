@@ -5,6 +5,7 @@ import ts from "typescript";
 
 import { INestiaConfig } from "./INestiaConfig";
 import { AccessorAnalyzer } from "./analyses/AccessorAnalyzer";
+import { ConfigAnalyzer } from "./analyses/ConfigAnalyzer";
 import { ControllerAnalyzer } from "./analyses/ControllerAnalyzer";
 import { ReflectAnalyzer } from "./analyses/ReflectAnalyzer";
 import { E2eGenerator } from "./generates/E2eGenerator";
@@ -13,7 +14,6 @@ import { SwaggerGenerator } from "./generates/SwaggerGenerator";
 import { IController } from "./structures/IController";
 import { IRoute } from "./structures/IRoute";
 import { ArrayUtil } from "./utils/ArrayUtil";
-import { NestiaConfigUtil } from "./utils/NestiaConfigUtil";
 import { SourceFinder } from "./utils/SourceFinder";
 
 export class NestiaSdkApplication {
@@ -153,13 +153,11 @@ export class NestiaSdkApplication {
         ) => (config: Config) => (routes: IRoute[]) => Promise<void>,
     ): Promise<void> {
         // LOAD CONTROLLER FILES
-        const input: INestiaConfig.IInput = NestiaConfigUtil.input(
-            this.config.input,
-        );
+        this.config.input = await ConfigAnalyzer.input(this.config.input);
         const fileList: string[] = await ArrayUtil.asyncFilter(
             await SourceFinder.find({
-                include: input.include,
-                exclude: input.exclude,
+                include: this.config.input.include,
+                exclude: this.config.input.exclude,
                 filter: (file) =>
                     file.substring(file.length - 3) === ".ts" &&
                     file.substring(file.length - 5) !== ".d.ts",

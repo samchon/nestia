@@ -231,27 +231,46 @@ export namespace ControllerAnalyzer {
         };
 
         // CONFIGURE PATHS
-        const pathList: string[] = [];
-        for (const controllerPath of controller.paths)
-            for (const filePath of func.paths) {
-                const path: string = PathAnalyzer.join(
-                    controllerPath,
-                    filePath,
-                );
-                pathList.push(
-                    PathAnalyzer.espace(
-                        path,
-                        () => "ControllerAnalyzer.analyze()",
-                    ),
-                );
-            }
+        const input: INestiaConfig.IInput =
+            config.input as INestiaConfig.IInput;
+        const pathList: Set<string> = new Set();
+        const versions: Set<string | null> = new Set();
 
-        // RETURNS
-        return pathList.map((path) => ({
-            ...common,
-            path,
-            accessors: [...PathUtil.accessors(path), func.name],
-        }));
+        for (const cPath of controller.paths)
+            for (const filePath of func.paths)
+                pathList.add(PathAnalyzer.join(cPath, filePath));
+        if (input.versioning?.prefix.length) {
+            if (input.versioning.defaultVersion !== undefined) {
+                if (typeof input.versioning.defaultVersion === "symbol")
+                    versions.add(null);
+                else if (Array.isArray(input.versioning.defaultVersion))
+                    for (const v of input.versioning.defaultVersion)
+                        if (typeof v === "symbol") versions.add(null);
+                        else versions.add(String(v));
+                else versions.add(String(input.versioning.defaultVersion));
+            }
+            for (const cv of input.versioning.prefix) {
+                versions.add(cv);
+                for (const fv of func.versions) versions.add(fv);
+            }
+        } else versions.add(null);
+
+        return [...pathList]
+            .map((individual) =>
+                PathAnalyzer.combinate(input.globalPrefix)([...versions])({
+                    method: func.method,
+                    path: individual,
+                }),
+            )
+            .flat()
+            .map((path) => ({
+                ...common,
+                path: PathAnalyzer.escape(
+                    path,
+                    () => "ControllerAnalyzer.analyze()",
+                ),
+                accessors: [...PathUtil.accessors(path), func.name],
+            }));
     }
 
     function _Analyze_parameter(

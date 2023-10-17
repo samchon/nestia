@@ -1,3 +1,6 @@
+import type { INestApplication } from "@nestjs/common";
+import type { VersionValue } from "@nestjs/common/interfaces";
+
 import type { ISwagger } from "./structures/ISwagger";
 import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
 import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
@@ -16,9 +19,18 @@ export interface INestiaConfig {
     swagger?: INestiaConfig.ISwaggerConfig;
 
     /**
-     * List of files or directories containing the NestJS controller classes.
+     * Accessor of controller classes.
+     *
+     * You can specify it within two ways
+     *
+     *   - Assign `INestApplication` instance or its factory function
+     *   - Specify the path or directory of controller class files
      */
-    input: string | string[] | INestiaConfig.IInput;
+    input:
+        | string
+        | string[]
+        | INestiaConfig.IInput
+        | (() => Promise<INestApplication>);
 
     /**
      * Output directory that SDK would be placed in.
@@ -159,6 +171,22 @@ export namespace INestiaConfig {
          * List of files or directories to be excluded.
          */
         exclude?: string[];
+
+        /**
+         * @internal
+         */
+        globalPrefix?: {
+            prefix: string;
+            exclude?: Array<string | RouteInfo>;
+        };
+
+        /**
+         * @internal
+         */
+        versioning?: {
+            prefix: string;
+            defaultVersion?: VersionValue;
+        };
     }
 
     /**
@@ -212,4 +240,12 @@ export namespace INestiaConfig {
             path: string;
         }): string;
     }
+}
+
+/**
+ * @internal
+ */
+interface RouteInfo {
+    path: string;
+    method: string;
 }
