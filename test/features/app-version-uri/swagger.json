@@ -15,7 +15,7 @@
     }
   },
   "paths": {
-    "/v/health": {
+    "/v1/health": {
       "get": {
         "tags": [],
         "parameters": [],
@@ -25,27 +25,12 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "v.health.get",
+        "x-nestia-namespace": "v1.health.get",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "GET"
       }
     },
-    "/health": {
-      "get": {
-        "tags": [],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "x-nestia-encrypted": false
-          }
-        },
-        "x-nestia-namespace": "health.get",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "GET"
-      }
-    },
-    "/v/performance": {
+    "/v1/performance": {
       "get": {
         "tags": [],
         "parameters": [],
@@ -62,34 +47,12 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "v.performance.get",
+        "x-nestia-namespace": "v1.performance.get",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "GET"
       }
     },
-    "/1/performance": {
-      "get": {
-        "tags": [],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IPerformance"
-                }
-              }
-            },
-            "x-nestia-encrypted": false
-          }
-        },
-        "x-nestia-namespace": "1.performance.get",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "GET"
-      }
-    },
-    "/v/bbs/{section}/articles": {
+    "/v1/bbs/{section}/articles": {
       "get": {
         "tags": [],
         "parameters": [
@@ -125,100 +88,12 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "v.bbs.articles.index",
+        "x-nestia-namespace": "v1.bbs.articles.index",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "GET"
-      },
-      "post": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "description": "Section code",
-            "required": true
-          }
-        ],
-        "requestBody": {
-          "description": "Content to store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IBbsArticle.IStore"
-              }
-            }
-          },
-          "required": true,
-          "x-nestia-encrypted": false
-        },
-        "responses": {
-          "201": {
-            "description": "Newly archived article",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IBbsArticle"
-                }
-              }
-            },
-            "x-nestia-encrypted": false
-          }
-        },
-        "summary": "Store a new article",
-        "description": "Store a new article.",
-        "x-nestia-namespace": "v.bbs.articles.store",
-        "x-nestia-jsDocTags": [
-          {
-            "name": "param",
-            "text": [
-              {
-                "text": "section",
-                "kind": "parameterName"
-              },
-              {
-                "text": " ",
-                "kind": "space"
-              },
-              {
-                "text": "Section code",
-                "kind": "text"
-              }
-            ]
-          },
-          {
-            "name": "param",
-            "text": [
-              {
-                "text": "input",
-                "kind": "parameterName"
-              },
-              {
-                "text": " ",
-                "kind": "space"
-              },
-              {
-                "text": "Content to store",
-                "kind": "text"
-              }
-            ]
-          },
-          {
-            "name": "returns",
-            "text": [
-              {
-                "text": "Newly archived article",
-                "kind": "text"
-              }
-            ]
-          }
-        ],
-        "x-nestia-method": "POST"
       }
     },
-    "/1/bbs/{section}/articles": {
+    "/v2/bbs/{section}/articles": {
       "get": {
         "tags": [],
         "parameters": [
@@ -254,48 +129,7 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "1.bbs.articles.index",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "GET"
-      }
-    },
-    "/2/bbs/{section}/articles": {
-      "get": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "description": "",
-            "required": true
-          },
-          {
-            "name": "query",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/IPage.IRequest"
-            },
-            "description": "",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IPageIBbsArticle.ISummary"
-                }
-              }
-            },
-            "x-nestia-encrypted": false
-          }
-        },
-        "x-nestia-namespace": "2.bbs.articles.index",
+        "x-nestia-namespace": "v2.bbs.articles.index",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "GET"
       }
@@ -429,7 +263,7 @@
         "x-nestia-method": "POST"
       }
     },
-    "/v/bbs/{section}/articles/{id}": {
+    "/v1/bbs/{section}/articles/{id}": {
       "get": {
         "tags": [],
         "parameters": [
@@ -479,10 +313,12 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "v.bbs.articles.at",
+        "x-nestia-namespace": "v1.bbs.articles.at",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "GET"
-      },
+      }
+    },
+    "/v2/bbs/{section}/articles/{id}": {
       "put": {
         "tags": [],
         "parameters": [
@@ -546,7 +382,7 @@
         },
         "summary": "Update an article",
         "description": "Update an article.",
-        "x-nestia-namespace": "v.bbs.articles.update",
+        "x-nestia-namespace": "v2.bbs.articles.update",
         "x-nestia-jsDocTags": [
           {
             "name": "param",
@@ -610,319 +446,6 @@
           }
         ],
         "x-nestia-method": "PUT"
-      }
-    },
-    "/1/bbs/{section}/articles/{id}": {
-      "get": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "description": "",
-            "required": true
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "x-typia-typeTags": [
-                {
-                  "target": "string",
-                  "name": "Format<\"uuid\">",
-                  "kind": "format",
-                  "value": "uuid",
-                  "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
-                  "exclusive": [
-                    "format",
-                    "pattern"
-                  ]
-                }
-              ]
-            },
-            "description": "",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IBbsArticle"
-                }
-              }
-            },
-            "x-nestia-encrypted": false
-          }
-        },
-        "x-nestia-namespace": "1.bbs.articles.at",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "GET"
-      }
-    },
-    "/2/bbs/{section}/articles/{id}": {
-      "put": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "description": "Section code",
-            "required": true
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "x-typia-typeTags": [
-                {
-                  "target": "string",
-                  "name": "Format<\"uuid\">",
-                  "kind": "format",
-                  "value": "uuid",
-                  "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
-                  "exclusive": [
-                    "format",
-                    "pattern"
-                  ]
-                }
-              ]
-            },
-            "description": "Target article ID",
-            "required": true
-          }
-        ],
-        "requestBody": {
-          "description": "Content to update",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IBbsArticle.IStore"
-              }
-            }
-          },
-          "required": true,
-          "x-nestia-encrypted": false
-        },
-        "responses": {
-          "201": {
-            "description": "Updated content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IBbsArticle"
-                }
-              }
-            },
-            "x-nestia-encrypted": false
-          }
-        },
-        "summary": "Update an article",
-        "description": "Update an article.",
-        "x-nestia-namespace": "2.bbs.articles.update",
-        "x-nestia-jsDocTags": [
-          {
-            "name": "param",
-            "text": [
-              {
-                "text": "section",
-                "kind": "parameterName"
-              },
-              {
-                "text": " ",
-                "kind": "space"
-              },
-              {
-                "text": "Section code",
-                "kind": "text"
-              }
-            ]
-          },
-          {
-            "name": "param",
-            "text": [
-              {
-                "text": "id",
-                "kind": "parameterName"
-              },
-              {
-                "text": " ",
-                "kind": "space"
-              },
-              {
-                "text": "Target article ID",
-                "kind": "text"
-              }
-            ]
-          },
-          {
-            "name": "param",
-            "text": [
-              {
-                "text": "input",
-                "kind": "parameterName"
-              },
-              {
-                "text": " ",
-                "kind": "space"
-              },
-              {
-                "text": "Content to update",
-                "kind": "text"
-              }
-            ]
-          },
-          {
-            "name": "returns",
-            "text": [
-              {
-                "text": "Updated content",
-                "kind": "text"
-              }
-            ]
-          }
-        ],
-        "x-nestia-method": "PUT"
-      }
-    },
-    "/v/bbs/{section}/articles/{articleId}/comments": {
-      "get": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "description": "",
-            "required": true
-          },
-          {
-            "name": "articleId",
-            "in": "path",
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "x-typia-typeTags": [
-                {
-                  "target": "string",
-                  "name": "Format<\"uuid\">",
-                  "kind": "format",
-                  "value": "uuid",
-                  "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
-                  "exclusive": [
-                    "format",
-                    "pattern"
-                  ]
-                }
-              ]
-            },
-            "description": "",
-            "required": true
-          },
-          {
-            "name": "query",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/IPage.IRequest"
-            },
-            "description": "",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IPageIBbsComment"
-                }
-              }
-            },
-            "x-nestia-encrypted": false
-          }
-        },
-        "x-nestia-namespace": "v.bbs.articles.comments.index",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "GET"
-      },
-      "post": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "description": "",
-            "required": true
-          },
-          {
-            "name": "articleId",
-            "in": "path",
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "x-typia-typeTags": [
-                {
-                  "target": "string",
-                  "name": "Format<\"uuid\">",
-                  "kind": "format",
-                  "value": "uuid",
-                  "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
-                  "exclusive": [
-                    "format",
-                    "pattern"
-                  ]
-                }
-              ]
-            },
-            "description": "",
-            "required": true
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IBbsComment.IStore"
-              }
-            }
-          },
-          "required": true,
-          "x-nestia-encrypted": false
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IBbsComment"
-                }
-              }
-            },
-            "x-nestia-encrypted": false
-          }
-        },
-        "x-nestia-namespace": "v.bbs.articles.comments.store",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "POST"
       }
     },
     "/bbs/{section}/articles/{articleId}/comments": {
@@ -1051,171 +574,6 @@
         "x-nestia-namespace": "bbs.articles.comments.store",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "POST"
-      }
-    },
-    "/v/bbs/{section}/articles/{articleId}/comments/{id}": {
-      "get": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "description": "",
-            "required": true
-          },
-          {
-            "name": "articleId",
-            "in": "path",
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "x-typia-typeTags": [
-                {
-                  "target": "string",
-                  "name": "Format<\"uuid\">",
-                  "kind": "format",
-                  "value": "uuid",
-                  "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
-                  "exclusive": [
-                    "format",
-                    "pattern"
-                  ]
-                }
-              ]
-            },
-            "description": "",
-            "required": true
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "x-typia-typeTags": [
-                {
-                  "target": "string",
-                  "name": "Format<\"uuid\">",
-                  "kind": "format",
-                  "value": "uuid",
-                  "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
-                  "exclusive": [
-                    "format",
-                    "pattern"
-                  ]
-                }
-              ]
-            },
-            "description": "",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IBbsComment"
-                }
-              }
-            },
-            "x-nestia-encrypted": false
-          }
-        },
-        "x-nestia-namespace": "v.bbs.articles.comments.at",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "GET"
-      },
-      "put": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "description": "",
-            "required": true
-          },
-          {
-            "name": "articleId",
-            "in": "path",
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "x-typia-typeTags": [
-                {
-                  "target": "string",
-                  "name": "Format<\"uuid\">",
-                  "kind": "format",
-                  "value": "uuid",
-                  "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
-                  "exclusive": [
-                    "format",
-                    "pattern"
-                  ]
-                }
-              ]
-            },
-            "description": "",
-            "required": true
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "x-typia-typeTags": [
-                {
-                  "target": "string",
-                  "name": "Format<\"uuid\">",
-                  "kind": "format",
-                  "value": "uuid",
-                  "validate": "/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test($input)",
-                  "exclusive": [
-                    "format",
-                    "pattern"
-                  ]
-                }
-              ]
-            },
-            "description": "",
-            "required": true
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IBbsComment.IStore"
-              }
-            }
-          },
-          "required": true,
-          "x-nestia-encrypted": false
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IBbsComment"
-                }
-              }
-            },
-            "x-nestia-encrypted": false
-          }
-        },
-        "x-nestia-namespace": "v.bbs.articles.comments.update",
-        "x-nestia-jsDocTags": [],
-        "x-nestia-method": "PUT"
       }
     },
     "/bbs/{section}/articles/{articleId}/comments/{id}": {

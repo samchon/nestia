@@ -65,6 +65,6 @@ async function main() {
     else halt(USAGE);
 }
 main().catch((exp) => {
-    console.log(exp.message);
+    console.log(exp);
     process.exit(-1);
 });

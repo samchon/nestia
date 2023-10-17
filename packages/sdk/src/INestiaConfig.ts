@@ -23,7 +23,7 @@ export interface INestiaConfig {
      *
      * You can specify it within two ways
      *
-     *   - Assign `INestApplication` instance or its factory function
+     *   - Asynchronous function returning `INestApplication` instance
      *   - Specify the path or directory of controller class files
      */
     input:

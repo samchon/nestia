@@ -1,3 +1,4 @@
+import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
 import path from "path";
 import { HashMap } from "tstl/container/HashMap";
 import ts from "typescript";
@@ -234,30 +235,31 @@ export namespace ControllerAnalyzer {
         const input: INestiaConfig.IInput =
             config.input as INestiaConfig.IInput;
         const pathList: Set<string> = new Set();
-        const versions: Set<string | null> = new Set();
-
+        const versions: Array<string | null> = _Analyze_versions(
+            func.versions ??
+                controller.versions ??
+                (input.versioning?.defaultVersion !== undefined
+                    ? Array.isArray(input.versioning?.defaultVersion)
+                        ? input.versioning?.defaultVersion
+                        : [input.versioning?.defaultVersion]
+                    : undefined) ??
+                undefined,
+        );
         for (const cPath of controller.paths)
             for (const filePath of func.paths)
                 pathList.add(PathAnalyzer.join(cPath, filePath));
-        if (input.versioning?.prefix.length) {
-            if (input.versioning.defaultVersion !== undefined) {
-                if (typeof input.versioning.defaultVersion === "symbol")
-                    versions.add(null);
-                else if (Array.isArray(input.versioning.defaultVersion))
-                    for (const v of input.versioning.defaultVersion)
-                        if (typeof v === "symbol") versions.add(null);
-                        else versions.add(String(v));
-                else versions.add(String(input.versioning.defaultVersion));
-            }
-            for (const cv of input.versioning.prefix) {
-                versions.add(cv);
-                for (const fv of func.versions) versions.add(fv);
-            }
-        } else versions.add(null);
 
         return [...pathList]
             .map((individual) =>
-                PathAnalyzer.combinate(input.globalPrefix)([...versions])({
+                PathAnalyzer.combinate(input.globalPrefix)(
+                    [...versions].map((v) =>
+                        v === null
+                            ? null
+                            : input.versioning?.prefix?.length
+                            ? `${input.versioning.prefix}${v}`
+                            : v,
+                    ),
+                )({
                     method: func.method,
                     path: individual,
                 }),
@@ -337,5 +339,16 @@ export namespace ControllerAnalyzer {
             type: tuple.type,
             typeName: tuple.typeName,
         };
+    }
+
+    function _Analyze_versions(
+        value:
+            | Array<
+                  Exclude<VersionValue, Array<string | typeof VERSION_NEUTRAL>>
+              >
+            | undefined,
+    ): Array<string | null> {
+        if (value === undefined) return [null];
+        return value.map((v) => (typeof v === "symbol" ? null : v));
     }
 }

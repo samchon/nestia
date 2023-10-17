@@ -1,5 +1,5 @@
 import * as Constants from "@nestjs/common/constants";
-import { VersionValue } from "@nestjs/common/interfaces";
+import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
 import "reflect-metadata";
 import { equal } from "tstl/ranges/module";
 
@@ -132,19 +132,16 @@ export namespace ReflectAnalyzer {
         else return value;
     }
 
-    function _Get_versions(target: any): Array<string | null> {
+    function _Get_versions(
+        target: any,
+    ):
+        | Array<Exclude<VersionValue, Array<string | typeof VERSION_NEUTRAL>>>
+        | undefined {
         const value: VersionValue | undefined = Reflect.getMetadata(
             Constants.VERSION_METADATA,
             target,
         );
-        if (value === undefined || typeof value === "symbol") return [null];
-        else if (Array.isArray(value))
-            if (value.length === 0) return [null];
-            else
-                return value.map((v) =>
-                    typeof value === "symbol" ? null : v,
-                ) as Array<string | null>;
-        return [String(value)];
+        return value === undefined || Array.isArray(value) ? value : [value];
     }
 
     function _Get_securities(value: any): Record<string, string[]>[] {

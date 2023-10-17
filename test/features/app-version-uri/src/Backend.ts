@@ -7,9 +7,7 @@ import { ApplicationModule } from "./modules/ApplicationModule";
 export class Backend {
     public readonly application: Singleton<Promise<INestApplication>> =
         new Singleton(async () => {
-            const app = await NestFactory.create(ApplicationModule, {
-                logger: false,
-            });
+            const app = await NestFactory.create(ApplicationModule);
             app.enableVersioning({
                 type: VersioningType.URI,
                 prefix: "v",

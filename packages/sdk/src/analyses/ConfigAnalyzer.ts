@@ -27,6 +27,7 @@ export namespace ConfigAnalyzer {
     const application = async (
         app: INestApplication,
     ): Promise<INestiaConfig.IInput> => {
+        const cwd: string = process.cwd();
         const files: string[] = await (async () => {
             const functions = new Set<Function>();
             for (const module of (app as any).container.modules.values())
@@ -38,13 +39,20 @@ export namespace ConfigAnalyzer {
                     (await require("get-function-location")(f))?.source ?? "",
                 );
             return [...files]
-                .filter((str) => str.startsWith("file://"))
                 .map((str) =>
-                    str.substring(str.startsWith("file:///") ? 8 : 7),
-                );
+                    str.substring(
+                        str.startsWith("file:///")
+                            ? cwd[0] === "/"
+                                ? 7
+                                : 8
+                            : str.startsWith("file://")
+                            ? 7
+                            : 0,
+                    ),
+                )
+                .filter((str) => !!str.length);
         })();
         const versioning = (app as any).config?.versioningOptions;
-
         return {
             include: files,
             exclude: [],

@@ -1,6 +1,34 @@
 import { INestiaConfig } from "@nestia/sdk";
+import { Module } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
 
 export const NESTIA_CONFIG: INestiaConfig = {
+    /**
+     * Accessor of controller classes.
+     *
+     * You can specify it within two ways
+     *
+     *   - Asynchronous function returning `INestApplication` instance
+     *   - Specify the path or directory of controller class files
+     */
+    input: async () => {
+        // change this to your own module
+        @Module({
+            controllers: [],
+        })
+        class MyModule {}
+        const app = await NestFactory.create(MyModule);
+        return app;
+    },
+    // input: "src/controllers",
+
+    /**
+     * Output directory that SDK would be placed in.
+     *
+     * If not configured, you can't build the SDK library.
+     */
+    output: "src/api",
+
     /**
      * Building `swagger.json` is also possible.
      *
@@ -16,18 +44,6 @@ export const NESTIA_CONFIG: INestiaConfig = {
          */
         output: "dist/swagger.json",
     },
-
-    /**
-     * List of files or directories containing the NestJS controller classes.
-     */
-    input: "src/controllers",
-
-    /**
-     * Output directory that SDK would be placed in.
-     *
-     * If not configured, you can't build the SDK library.
-     */
-    output: "src/api",
 
     /**
      * Target directory that SDK distribution files would be placed in.
