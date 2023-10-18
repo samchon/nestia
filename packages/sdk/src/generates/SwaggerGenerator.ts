@@ -1,5 +1,4 @@
 import fs from "fs";
-import NodePath from "path";
 import path from "path";
 import { Singleton } from "tstl/thread/Singleton";
 import ts from "typescript";
@@ -41,8 +40,8 @@ export namespace SwaggerGenerator {
             validate_security(config)(routeList);
 
             // PREPARE ASSETS
-            const parsed: NodePath.ParsedPath = NodePath.parse(config.output);
-            const directory: string = NodePath.dirname(parsed.dir);
+            const parsed: path.ParsedPath = path.parse(config.output);
+            const directory: string = path.dirname(parsed.dir);
             if (fs.existsSync(directory) === false)
                 try {
                     await fs.promises.mkdir(directory);
@@ -53,11 +52,8 @@ export namespace SwaggerGenerator {
                 );
 
             const location: string = !!parsed.ext
-                ? NodePath.resolve(config.output)
-                : NodePath.join(
-                      NodePath.resolve(config.output),
-                      "swagger.json",
-                  );
+                ? path.resolve(config.output)
+                : path.join(path.resolve(config.output), "swagger.json");
 
             const collection: MetadataCollection = new MetadataCollection({
                 replace: MetadataCollection.replace,

@@ -2,8 +2,8 @@ import fs from "fs";
 import path from "path";
 
 import { INestiaConfig } from "../INestiaConfig";
+import { ConfigAnalyzer } from "../analyses/ConfigAnalyzer";
 import { IRoute } from "../structures/IRoute";
-import { NestiaConfigUtil } from "../utils/NestiaConfigUtil";
 import { E2eFileProgrammer } from "./internal/E2eFileProgrammer";
 
 export namespace E2eGenerator {
@@ -53,7 +53,7 @@ export namespace E2eGenerator {
                 output,
                 content.replace(
                     "${input}",
-                    JSON.stringify(NestiaConfigUtil.input(config.input)),
+                    JSON.stringify(await ConfigAnalyzer.input(config)),
                 ),
                 "utf8",
             );

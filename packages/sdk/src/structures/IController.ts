@@ -1,9 +1,15 @@
-import { ParamCategory } from "./ParamCategory";
+import type { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
+
+import type { ParamCategory } from "./ParamCategory";
 
 export interface IController {
     file: string;
     name: string;
+    prefixes: string[];
     paths: string[];
+    versions:
+        | Array<Exclude<VersionValue, Array<string | typeof VERSION_NEUTRAL>>>
+        | undefined;
     functions: IController.IFunction[];
     security: Record<string, string[]>[];
     swaggerTgas: string[];
@@ -14,6 +20,11 @@ export namespace IController {
         name: string;
         method: string;
         paths: string[];
+        versions:
+            | Array<
+                  Exclude<VersionValue, Array<string | typeof VERSION_NEUTRAL>>
+              >
+            | undefined;
         encrypted: boolean;
         parameters: IParameter[];
         status?: number;

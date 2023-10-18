@@ -1,3 +1,6 @@
+import type { INestApplication } from "@nestjs/common";
+
+import type { INormalizedInput } from "./structures/INormalizedInput";
 import type { ISwagger } from "./structures/ISwagger";
 import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
 import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
@@ -16,9 +19,18 @@ export interface INestiaConfig {
     swagger?: INestiaConfig.ISwaggerConfig;
 
     /**
-     * List of files or directories containing the NestJS controller classes.
+     * Accessor of controller classes.
+     *
+     * You can specify it within two ways
+     *
+     *   - Asynchronous function returning `INestApplication` instance
+     *   - Specify the path or directory of controller class files
      */
-    input: string | string[] | INestiaConfig.IInput;
+    input:
+        | string
+        | string[]
+        | INestiaConfig.IInput
+        | (() => Promise<INestApplication>);
 
     /**
      * Output directory that SDK would be placed in.
@@ -143,6 +155,11 @@ export interface INestiaConfig {
      * @default false
      */
     json?: boolean;
+
+    /**
+     * @internal
+     */
+    normalized?: INormalizedInput;
 }
 export namespace INestiaConfig {
     /**

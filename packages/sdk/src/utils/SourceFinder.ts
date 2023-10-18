@@ -3,6 +3,12 @@ import glob from "glob";
 import path from "path";
 
 export namespace SourceFinder {
+    interface IProps {
+        exclude?: string[];
+        include: string[];
+        filter: (location: string) => Promise<boolean>;
+    }
+
     export const find = async (props: IProps): Promise<string[]> => {
         const dict: Set<string> = new Set();
 
@@ -16,21 +22,26 @@ export namespace SourceFinder {
     };
 
     const emplace =
-        (filter: (file: string) => boolean) =>
+        (filter: (file: string) => Promise<boolean>) =>
         (input: string[]) =>
         async (closure: (location: string) => void): Promise<void> => {
             for (const pattern of input) {
+                if (_Is_file(pattern)) {
+                    closure(path.resolve(pattern));
+                    continue;
+                }
                 for (const file of await _Glob(pattern)) {
                     const stats: fs.Stats = await fs.promises.stat(file);
                     if (stats.isDirectory() === true)
                         await iterate(filter)(closure)(file);
-                    else if (stats.isFile() && filter(file)) closure(file);
+                    else if (stats.isFile() && (await filter(file)))
+                        closure(file);
                 }
             }
         };
 
     const iterate =
-        (filter: (location: string) => boolean) =>
+        (filter: (location: string) => Promise<boolean>) =>
         (closure: (location: string) => void) =>
         async (location: string): Promise<void> => {
             const directory: string[] = await fs.promises.readdir(location);
@@ -40,7 +51,7 @@ export namespace SourceFinder {
 
                 if (stats.isDirectory() === true)
                     await iterate(filter)(closure)(next);
-                else if (stats.isFile() && filter(next)) closure(next);
+                else if (stats.isFile() && (await filter(next))) closure(next);
             }
         };
 
@@ -51,10 +62,9 @@ export namespace SourceFinder {
                 else resolve(matches.map((str) => path.resolve(str)));
             });
         });
-}
 
-interface IProps {
-    exclude?: string[];
-    include: string[];
-    filter: (location: string) => boolean;
+    const _Is_file = (pattern: string): boolean =>
+        pattern.endsWith(".ts") &&
+        !pattern.endsWith(".d.ts") &&
+        fs.existsSync(pattern);
 }

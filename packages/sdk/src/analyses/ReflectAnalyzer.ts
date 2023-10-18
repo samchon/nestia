@@ -1,4 +1,5 @@
 import * as Constants from "@nestjs/common/constants";
+import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
 import "reflect-metadata";
 import { equal } from "tstl/ranges/module";
 
@@ -16,6 +17,8 @@ export namespace ReflectAnalyzer {
     export async function analyze(
         unique: WeakSet<any>,
         file: string,
+        prefixes: string[],
+        target?: Function,
     ): Promise<IController[]> {
         const module: IModule = await (async () => {
             try {
@@ -36,14 +39,16 @@ export namespace ReflectAnalyzer {
 
         for (const [key, value] of Object.entries(module)) {
             if (typeof value !== "function" || unique.has(value)) continue;
+            else if ((target ?? value) !== value) continue;
             else unique.add(value);
 
-            const controller: IController | null = _Analyze_controller(
+            const result: IController | null = _Analyze_controller(
                 file,
                 key,
                 value,
+                prefixes,
             );
-            if (controller !== null) ret.push(controller);
+            if (result !== null) ret.push(result);
         }
         return ret;
     }
@@ -55,6 +60,7 @@ export namespace ReflectAnalyzer {
         file: string,
         name: string,
         creator: any,
+        prefixes: string[],
     ): IController | null {
         //----
         // VALIDATIONS
@@ -82,14 +88,13 @@ export namespace ReflectAnalyzer {
         // CONSTRUCTION
         //----
         // BASIC INFO
-        const paths: string[] = _Get_paths(
-            Reflect.getMetadata(Constants.PATH_METADATA, creator),
-        );
         const meta: IController = {
             file,
             name,
-            paths,
             functions: [],
+            prefixes,
+            paths: _Get_paths(creator),
+            versions: _Get_versions(creator),
             security: _Get_securities(creator),
             swaggerTgas:
                 Reflect.getMetadata("swagger/apiUseTags", creator) ?? [],
@@ -123,10 +128,26 @@ export namespace ReflectAnalyzer {
         return entries;
     }
 
-    function _Get_paths(value: string | string[]): string[] {
+    function _Get_paths(target: any): string[] {
+        const value: string | string[] = Reflect.getMetadata(
+            Constants.PATH_METADATA,
+            target,
+        );
         if (typeof value === "string") return [value];
         else if (value.length === 0) return [""];
         else return value;
+    }
+
+    function _Get_versions(
+        target: any,
+    ):
+        | Array<Exclude<VersionValue, Array<string | typeof VERSION_NEUTRAL>>>
+        | undefined {
+        const value: VersionValue | undefined = Reflect.getMetadata(
+            Constants.VERSION_METADATA,
+            target,
+        );
+        return value === undefined || Array.isArray(value) ? value : [value];
     }
 
     function _Get_securities(value: any): Record<string, string[]>[] {
@@ -218,9 +239,8 @@ export namespace ReflectAnalyzer {
         const meta: IController.IFunction = {
             name,
             method: method === "ALL" ? "POST" : method,
-            paths: _Get_paths(
-                Reflect.getMetadata(Constants.PATH_METADATA, proto),
-            ),
+            paths: _Get_paths(proto),
+            versions: _Get_versions(proto),
             parameters,
             status: Reflect.getMetadata(Constants.HTTP_CODE_METADATA, proto),
             encrypted,
