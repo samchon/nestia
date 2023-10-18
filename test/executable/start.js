@@ -13,7 +13,7 @@ const feature = (name) => {
         name === "cli-config" ? "nestia.configuration.ts" : "nestia.config.ts";
     const generate = (type) => {
         const tail = file === "nestia.config.ts" ? "" : ` --config ${file}`;
-        cp.execSync(`npx nestia ${type}${tail}`, { stdio: "ignore" });
+        cp.execSync(`npx nestia ${type}${tail}`, { stdio: "inherit" });
     };
 
     // ERROR MODE HANDLING
