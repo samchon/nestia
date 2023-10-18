@@ -1,7 +1,10 @@
 import { INestApplication, VersioningType } from "@nestjs/common";
+import { MODULE_PATH } from "@nestjs/common/constants";
+import { NestContainer } from "@nestjs/core";
+import { Module } from "@nestjs/core/injector/module";
 import fs from "fs";
 import path from "path";
-import { HashMap, HashSet, Pair, Singleton } from "tstl";
+import { HashMap, Pair, Singleton } from "tstl";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { SdkGenerator } from "../generates/SdkGenerator";
@@ -9,7 +12,6 @@ import { INormalizedInput } from "../structures/INormalizedInput";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { MapUtil } from "../utils/MapUtil";
 import { SourceFinder } from "../utils/SourceFinder";
-import { PathAnalyzer } from "./PathAnalyzer";
 
 export namespace ConfigAnalyzer {
     export const input = (config: INestiaConfig): Promise<INormalizedInput> =>
@@ -38,18 +40,35 @@ export namespace ConfigAnalyzer {
             Pair<Function, string>,
             Set<string>
         > = new HashMap();
-        const visited: HashSet<Pair<string, Function>> = new HashSet();
+        const container: NestContainer = (app as any)
+            .container as NestContainer;
+        const modules: Module[] = [...container.getModules().values()].filter(
+            (m) => !!m.controllers.size,
+        );
+        for (const m of modules) {
+            const path: string =
+                Reflect.getMetadata(
+                    MODULE_PATH + container.getModules().applicationId,
+                    m.metatype,
+                ) ??
+                Reflect.getMetadata(MODULE_PATH, m.metatype) ??
+                "";
+            for (const controller of [...m.controllers.keys()]) {
+                const file: string | null =
+                    (await require("get-function-location")(controller))
+                        ?.source ?? null;
+                if (file === null) continue;
 
-        for (const module of (app as any).container.modules.values())
-            for (const controller of module._controllers.keys())
-                await analyze_controller(files)("")(controller);
-        const routers: IRouterModule[] = [
-            ...(app as any).container.dynamicModulesMetadata.values(),
-        ].filter(is_router_module);
-        for (const r of routers)
-            for (const p of r.providers)
-                for (const v of p.useValue)
-                    await analyze_router(files, visited)("")(v);
+                const location: string = normalize_file(file);
+                if (location.length === 0) continue;
+
+                const key: Pair<Function, string> = new Pair(
+                    controller as Function,
+                    location,
+                );
+                files.take(key, () => new Set([])).add(path);
+            }
+        }
 
         const versioning = (app as any).config?.versioningOptions;
         return {
@@ -77,80 +96,10 @@ export namespace ConfigAnalyzer {
                               versioning.prefix === false
                                   ? "v"
                                   : versioning.prefix,
+                          defaultVersion: versioning.defaultVersion,
                       },
         };
     };
-
-    const analyze_controller =
-        (files: HashMap<Pair<Function, string>, Set<string>>) =>
-        (parent: string) =>
-        async (controller: Function): Promise<void> => {
-            const file: string | null =
-                (await require("get-function-location")(controller))?.source ??
-                null;
-            if (file === null) return;
-
-            const location: string = normalize_file(file);
-            if (location.length === 0) return;
-
-            const key: Pair<Function, string> = new Pair(controller, location);
-            files.take(key, () => new Set([parent]));
-        };
-
-    const analyze_module =
-        (
-            files: HashMap<Pair<Function, string>, Set<string>>,
-            visited: HashSet<Pair<string, Function>>,
-        ) =>
-        (parent: string) =>
-        async (modulo: Function): Promise<void> => {
-            const address: Pair<string, Function> = new Pair(parent, modulo);
-            if (visited.has(address)) return;
-            visited.insert(address);
-
-            const controllers: Function[] =
-                Reflect.getMetadata("controllers", modulo) ?? [];
-            const imports: Function[] =
-                Reflect.getMetadata("imports", modulo) ?? [];
-
-            for (const c of controllers)
-                await analyze_controller(files)(parent)(c);
-            for (const i of imports)
-                await analyze_module(files, visited)(parent)(i);
-        };
-
-    const analyze_router =
-        (
-            files: HashMap<Pair<Function, string>, Set<string>>,
-            visited: HashSet<Pair<string, Function>>,
-        ) =>
-        (parent: string) =>
-        async (value: IRouterModuleValue): Promise<void> => {
-            if (value.module)
-                await analyze_module(
-                    files,
-                    visited,
-                )(PathAnalyzer.join(parent, value.path))(value.module);
-            if (value.children?.length)
-                for (const child of value.children)
-                    await analyze_router(
-                        files,
-                        visited,
-                    )(PathAnalyzer.join(parent, value.path))(child);
-        };
-
-    const is_router_module = (router: any): router is IRouterModule =>
-        Array.isArray(router.providers) &&
-        router.providers.every(
-            (p: any) =>
-                typeof p.provide === "symbol" &&
-                Array.isArray(p.useValue) &&
-                p.useValue.every(
-                    (u: any) =>
-                        typeof u.path === "string" &&
-                        typeof u.module === "function",
-                ),
-        );
 
     const normalize_file = (str: string) =>
         str.substring(
@@ -213,15 +162,3 @@ const bundler = new Singleton(async (output: string) => {
         return false;
     };
 });
-
-interface IRouterModule {
-    providers: {
-        provide: symbol;
-        useValue: IRouterModuleValue[];
-    }[];
-}
-interface IRouterModuleValue {
-    path: string;
-    module: Function;
-    children?: IRouterModuleValue[];
-}

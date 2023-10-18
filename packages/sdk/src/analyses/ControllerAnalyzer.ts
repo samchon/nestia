@@ -246,14 +246,16 @@ export namespace ControllerAnalyzer {
         // CONFIGURE PATHS
         const pathList: Set<string> = new Set();
         const versions: Array<string | null> = _Analyze_versions(
-            func.versions ??
-                controller.versions ??
-                (input.versioning?.defaultVersion !== undefined
-                    ? Array.isArray(input.versioning?.defaultVersion)
-                        ? input.versioning?.defaultVersion
-                        : [input.versioning?.defaultVersion]
-                    : undefined) ??
-                undefined,
+            input.versioning === undefined
+                ? undefined
+                : func.versions ??
+                      controller.versions ??
+                      (input.versioning?.defaultVersion !== undefined
+                          ? Array.isArray(input.versioning?.defaultVersion)
+                              ? input.versioning?.defaultVersion
+                              : [input.versioning?.defaultVersion]
+                          : undefined) ??
+                      undefined,
         );
         for (const prefix of controller.prefixes)
             for (const cPath of controller.paths)

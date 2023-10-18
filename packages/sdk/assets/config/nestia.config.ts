@@ -21,6 +21,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
         return app;
     },
     // input: "src/controllers",
+    // input: "src/**/*.controller.ts",
 
     /**
      * Output directory that SDK would be placed in.
