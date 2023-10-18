@@ -1,11 +1,12 @@
+import { RequestMethod } from "@nestjs/common";
 import path from "path";
 import { Token, parse } from "path-to-regexp";
 
-import { INestiaConfig } from "../INestiaConfig";
+import { INormalizedInput } from "../structures/INormalizedInput";
 
 export namespace PathAnalyzer {
     export const combinate =
-        (globalPrefix: INestiaConfig.IInput["globalPrefix"]) =>
+        (globalPrefix: INormalizedInput["globalPrefix"]) =>
         (versions: Array<string | null>) =>
         (props: { path: string; method: string }): string[] => {
             const out = (str: string) =>
@@ -18,7 +19,7 @@ export namespace PathAnalyzer {
             return globalPrefix.exclude.some((exclude) =>
                 typeof exclude === "string"
                     ? RegExp(exclude).test(props.path)
-                    : (exclude.method as string) === props.method &&
+                    : METHOD(exclude.method) === props.method &&
                       RegExp(exclude.path).test(props.path),
             )
                 ? out(props.path)
@@ -79,3 +80,21 @@ export namespace PathAnalyzer {
 }
 
 const ERROR_MESSAGE = "nestia supports only string typed parameter on path";
+const METHOD = (value: RequestMethod) =>
+    value === RequestMethod.ALL
+        ? "all"
+        : value === RequestMethod.DELETE
+        ? "delete"
+        : value === RequestMethod.GET
+        ? "get"
+        : value === RequestMethod.HEAD
+        ? "head"
+        : value === RequestMethod.OPTIONS
+        ? "options"
+        : value === RequestMethod.PATCH
+        ? "patch"
+        : value === RequestMethod.POST
+        ? "post"
+        : value === RequestMethod.PUT
+        ? "put"
+        : "unknown";

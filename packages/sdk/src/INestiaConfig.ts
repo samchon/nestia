@@ -1,6 +1,6 @@
 import type { INestApplication } from "@nestjs/common";
-import type { VersionValue } from "@nestjs/common/interfaces";
 
+import type { INormalizedInput } from "./structures/INormalizedInput";
 import type { ISwagger } from "./structures/ISwagger";
 import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
 import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
@@ -155,6 +155,11 @@ export interface INestiaConfig {
      * @default false
      */
     json?: boolean;
+
+    /**
+     * @internal
+     */
+    normalized?: INormalizedInput;
 }
 export namespace INestiaConfig {
     /**
@@ -171,22 +176,6 @@ export namespace INestiaConfig {
          * List of files or directories to be excluded.
          */
         exclude?: string[];
-
-        /**
-         * @internal
-         */
-        globalPrefix?: {
-            prefix: string;
-            exclude?: Array<string | RouteInfo>;
-        };
-
-        /**
-         * @internal
-         */
-        versioning?: {
-            prefix: string;
-            defaultVersion?: VersionValue;
-        };
     }
 
     /**
@@ -240,12 +229,4 @@ export namespace INestiaConfig {
             path: string;
         }): string;
     }
-}
-
-/**
- * @internal
- */
-interface RouteInfo {
-    path: string;
-    method: string;
 }

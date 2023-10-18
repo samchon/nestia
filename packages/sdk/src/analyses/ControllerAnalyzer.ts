@@ -7,9 +7,11 @@ import { CommentFactory } from "typia/lib/factories/CommentFactory";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IController } from "../structures/IController";
+import { INormalizedInput } from "../structures/INormalizedInput";
 import { IRoute } from "../structures/IRoute";
 import { ITypeTuple } from "../structures/ITypeTuple";
 import { PathUtil } from "../utils/PathUtil";
+import { ConfigAnalyzer } from "./ConfigAnalyzer";
 import { ExceptionAnalyzer } from "./ExceptionAnalyzer";
 import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ImportAnalyzer } from "./ImportAnalyzer";
@@ -17,14 +19,16 @@ import { PathAnalyzer } from "./PathAnalyzer";
 import { SecurityAnalyzer } from "./SecurityAnalyzer";
 
 export namespace ControllerAnalyzer {
-    export function analyze(
+    export async function analyze(
         config: INestiaConfig,
         checker: ts.TypeChecker,
         sourceFile: ts.SourceFile,
         controller: IController,
-    ): IRoute[] {
+    ): Promise<IRoute[]> {
         // FIND CONTROLLER CLASS
+        const input: INormalizedInput = await ConfigAnalyzer.input(config);
         const ret: IRoute[] = [];
+
         ts.forEachChild(sourceFile, (node) => {
             if (
                 ts.isClassDeclaration(node) &&
@@ -32,7 +36,13 @@ export namespace ControllerAnalyzer {
             ) {
                 // ANALYZE THE CONTROLLER
                 ret.push(
-                    ..._Analyze_controller(config, checker, controller, node),
+                    ..._Analyze_controller(
+                        config,
+                        input,
+                        checker,
+                        controller,
+                        node,
+                    ),
                 );
                 return;
             }
@@ -45,6 +55,7 @@ export namespace ControllerAnalyzer {
     --------------------------------------------------------- */
     function _Analyze_controller(
         config: INestiaConfig,
+        input: INormalizedInput,
         checker: ts.TypeChecker,
         controller: IController,
         classNode: ts.ClassDeclaration,
@@ -77,6 +88,7 @@ export namespace ControllerAnalyzer {
 
             const routes: IRoute[] = _Analyze_function(
                 config,
+                input,
                 checker,
                 controller,
                 genericDict,
@@ -94,6 +106,7 @@ export namespace ControllerAnalyzer {
     --------------------------------------------------------- */
     function _Analyze_function(
         config: INestiaConfig,
+        input: INormalizedInput,
         checker: ts.TypeChecker,
         controller: IController,
         genericDict: GenericAnalyzer.Dictionary,
@@ -115,9 +128,8 @@ export namespace ControllerAnalyzer {
                 `Error on ControllerAnalyzer.analyze(): unable to get the signature from the ${controller.name}.${func.name}().`,
             );
 
-        const importDict: ImportAnalyzer.Dictionary = new HashMap();
-
         // EXPLORE CHILDREN TYPES
+        const importDict: ImportAnalyzer.Dictionary = new HashMap();
         const parameters: IRoute.IParameter[] = func.parameters.map((param) =>
             _Analyze_parameter(
                 checker,
@@ -205,7 +217,7 @@ export namespace ControllerAnalyzer {
             description: CommentFactory.description(symbol),
             operationId: jsDocTags
                 .find(({ name }) => name === "operationId")
-                ?.text!?.[0].text.split(" ")[0]
+                ?.text?.[0].text.split(" ")[0]
                 .trim(),
             jsDocTags: jsDocTags,
             setHeaders: jsDocTags
@@ -232,8 +244,6 @@ export namespace ControllerAnalyzer {
         };
 
         // CONFIGURE PATHS
-        const input: INestiaConfig.IInput =
-            config.input as INestiaConfig.IInput;
         const pathList: Set<string> = new Set();
         const versions: Array<string | null> = _Analyze_versions(
             func.versions ??
@@ -245,9 +255,10 @@ export namespace ControllerAnalyzer {
                     : undefined) ??
                 undefined,
         );
-        for (const cPath of controller.paths)
-            for (const filePath of func.paths)
-                pathList.add(PathAnalyzer.join(cPath, filePath));
+        for (const prefix of controller.prefixes)
+            for (const cPath of controller.paths)
+                for (const filePath of func.paths)
+                    pathList.add(PathAnalyzer.join(prefix, cPath, filePath));
 
         return [...pathList]
             .map((individual) =>

@@ -71,7 +71,9 @@ export namespace NestiaConfigLoader {
     export const project = async (file: string): Promise<string> => {
         const connector = new WorkerConnector(null, null, "process");
         await connector.connect(
-            `${__dirname}/nestia.project.getter.${__filename.substr(-2)}`,
+            `${__dirname}/nestia.project.getter.${__filename.substring(
+                __filename.length - 2,
+            )}`,
         );
 
         const driver = await connector.getDriver<typeof NestiaProjectGetter>();

@@ -17,6 +17,8 @@ export namespace ReflectAnalyzer {
     export async function analyze(
         unique: WeakSet<any>,
         file: string,
+        prefixes: string[],
+        target?: Function,
     ): Promise<IController[]> {
         const module: IModule = await (async () => {
             try {
@@ -37,14 +39,16 @@ export namespace ReflectAnalyzer {
 
         for (const [key, value] of Object.entries(module)) {
             if (typeof value !== "function" || unique.has(value)) continue;
+            else if ((target ?? value) !== value) continue;
             else unique.add(value);
 
-            const controller: IController | null = _Analyze_controller(
+            const result: IController | null = _Analyze_controller(
                 file,
                 key,
                 value,
+                prefixes,
             );
-            if (controller !== null) ret.push(controller);
+            if (result !== null) ret.push(result);
         }
         return ret;
     }
@@ -56,6 +60,7 @@ export namespace ReflectAnalyzer {
         file: string,
         name: string,
         creator: any,
+        prefixes: string[],
     ): IController | null {
         //----
         // VALIDATIONS
@@ -87,6 +92,7 @@ export namespace ReflectAnalyzer {
             file,
             name,
             functions: [],
+            prefixes,
             paths: _Get_paths(creator),
             versions: _Get_versions(creator),
             security: _Get_securities(creator),

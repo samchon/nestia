@@ -364,7 +364,7 @@
         "x-nestia-method": "PUT"
       }
     },
-    "/bbs/{section}/articles/{articleId}/comments": {
+    "/{section}/articles/{articleId}/comments": {
       "get": {
         "tags": [],
         "parameters": [
@@ -423,7 +423,7 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "bbs.articles.comments.index",
+        "x-nestia-namespace": "articles.comments.index",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "GET"
       },
@@ -487,12 +487,12 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "bbs.articles.comments.store",
+        "x-nestia-namespace": "articles.comments.store",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "POST"
       }
     },
-    "/bbs/{section}/articles/{articleId}/comments/{id}": {
+    "/{section}/articles/{articleId}/comments/{id}": {
       "get": {
         "tags": [],
         "parameters": [
@@ -565,7 +565,7 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "bbs.articles.comments.at",
+        "x-nestia-namespace": "articles.comments.at",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "GET"
       },
@@ -652,7 +652,7 @@
             "x-nestia-encrypted": false
           }
         },
-        "x-nestia-namespace": "bbs.articles.comments.update",
+        "x-nestia-namespace": "articles.comments.update",
         "x-nestia-jsDocTags": [],
         "x-nestia-method": "PUT"
       }

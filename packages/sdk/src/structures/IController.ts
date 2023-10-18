@@ -5,6 +5,7 @@ import type { ParamCategory } from "./ParamCategory";
 export interface IController {
     file: string;
     name: string;
+    prefixes: string[];
     paths: string[];
     versions:
         | Array<Exclude<VersionValue, Array<string | typeof VERSION_NEUTRAL>>>

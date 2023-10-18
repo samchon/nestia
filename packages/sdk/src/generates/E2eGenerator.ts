@@ -53,7 +53,7 @@ export namespace E2eGenerator {
                 output,
                 content.replace(
                     "${input}",
-                    JSON.stringify(await ConfigAnalyzer.input(config.input)),
+                    JSON.stringify(await ConfigAnalyzer.input(config)),
                 ),
                 "utf8",
             );

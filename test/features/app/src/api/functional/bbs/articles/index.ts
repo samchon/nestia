@@ -11,8 +11,6 @@ import type { Format } from "typia/lib/tags/Format";
 import type { IBbsArticle } from "../../../structures/IBbsArticle";
 import type { IPage } from "../../../structures/IPage";
 
-export * as comments from "./comments";
-
 /**
  * @controller BbsArticlesController.index
  * @path GET /bbs/:section/articles
