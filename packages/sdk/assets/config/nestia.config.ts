@@ -18,17 +18,15 @@ export const NESTIA_CONFIG: INestiaConfig = {
         })
         class MyModule {}
         const app = await NestFactory.create(MyModule);
+        // app.setGlobalPrefix("api");
+        // app.enableVersioning({
+        //     type: VersioningType.URI,
+        //     prefix: "v",
+        // })
         return app;
     },
     // input: "src/controllers",
     // input: "src/**/*.controller.ts",
-
-    /**
-     * Output directory that SDK would be placed in.
-     *
-     * If not configured, you can't build the SDK library.
-     */
-    output: "src/api",
 
     /**
      * Building `swagger.json` is also possible.
@@ -45,6 +43,13 @@ export const NESTIA_CONFIG: INestiaConfig = {
          */
         output: "dist/swagger.json",
     },
+
+    /**
+     * Output directory that SDK would be placed in.
+     *
+     * If not configured, you can't build the SDK library.
+     */
+    output: "src/api",
 
     /**
      * Target directory that SDK distribution files would be placed in.

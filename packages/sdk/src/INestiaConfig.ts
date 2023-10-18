@@ -12,25 +12,25 @@ import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme
  */
 export interface INestiaConfig {
     /**
-     * Building `swagger.json` is also possible.
-     *
-     * If not specified, you can't build the `swagger.json`.
-     */
-    swagger?: INestiaConfig.ISwaggerConfig;
-
-    /**
      * Accessor of controller classes.
      *
-     * You can specify it within two ways
+     * You can specify target controller classes within two ways
      *
      *   - Asynchronous function returning `INestApplication` instance
      *   - Specify the path or directory of controller class files
      */
     input:
-        | string
-        | string[]
+        | (() => Promise<INestApplication>)
         | INestiaConfig.IInput
-        | (() => Promise<INestApplication>);
+        | string[]
+        | string;
+
+    /**
+     * Building `swagger.json` is also possible.
+     *
+     * If not specified, you can't build the `swagger.json`.
+     */
+    swagger?: INestiaConfig.ISwaggerConfig;
 
     /**
      * Output directory that SDK would be placed in.

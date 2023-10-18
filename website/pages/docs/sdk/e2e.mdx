@@ -3,21 +3,33 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 ## Outline
 <Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
     <Tab>
-```typescript filename="nestia.config.ts" copy showLineNumbers {7}
+```typescript filename="nestia.config.ts" copy showLineNumbers {18}
 import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
 
-const config: INestiaConfig = {
-    input: "src/controllers",
+import { YourModule } from "./src/YourModule";
+
+const NESTIA_CONFIG: INestiaConfig = {
+    input: async () => {
+        const app = await NestFactory.create(YourModule);
+        // app.setGlobalPrefix("api");
+        // app.enableVersioning({
+        //     type: VersioningType.URI,
+        //     prefix: "v", 
+        // })
+        return app;
+    },
     output: "src/api",
     distribute: "packages/api",
     e2e: "test",
 };
-export default config;
+export default NESTIA_CONFIG;
 ```
     </Tab>
     <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npx nestia e2e
+npx nestia e2e --config another.config.ts
 ```
     </Tab>
 </Tabs>
@@ -58,20 +70,33 @@ export const test_api_body_store = async (
     <code>INestiaConfig.ts</code>
 ]}>
     <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {7}
+```typescript copy filename="nestia.config.ts" showLineNumbers {18}
 import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
 
-const config: INestiaConfig = {
-    input: "src/controllers",
+import { YourModule } from "./src/YourModule";
+
+const NESTIA_CONFIG: INestiaConfig = {
+    input: async () => {
+        const app = await NestFactory.create(YourModule);
+        // app.setGlobalPrefix("api");
+        // app.enableVersioning({
+        //     type: VersioningType.URI,
+        //     prefix: "v", 
+        // })
+        return app;
+    },
     output: "src/api",
     distribute: "packages/api",
     e2e: "test",
 };
-export default config;
+export default NESTIA_CONFIG;
 ```
     </Tab>
     <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers {18-28, 59-68}
+```typescript copy filename="INestiaConfig.ts" showLineNumbers {70-79}
+import type { INestApplication } from "@nestjs/common";
+
 import type { ISwagger } from "./structures/ISwagger";
 import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
 import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
@@ -83,16 +108,18 @@ import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme
  */
 export interface INestiaConfig {
     /**
-     * Building `swagger.json` is also possible.
+     * Accessor of controller classes.
      *
-     * If not specified, you can't build the `swagger.json`.
+     * You can specify it within two ways
+     *
+     *   - Asynchronous function returning `INestApplication` instance
+     *   - Specify the path or directory of controller class files
      */
-    swagger?: INestiaConfig.ISwaggerConfig;
-
-    /**
-     * List of files or directories containing the NestJS controller classes.
-     */
-    input: string | string[] | INestiaConfig.IInput;
+    input:
+        | (() => Promise<INestApplication>)
+        | INestiaConfig.IInput
+        | string[]
+        | string;
 
     /**
      * Output directory that SDK would be placed in.
@@ -100,6 +127,13 @@ export interface INestiaConfig {
      * If not configured, you can't build the SDK library.
      */
     output?: string;
+
+    /**
+     * Building `swagger.json` is also possible.
+     *
+     * If not specified, you can't build the `swagger.json`.
+     */
+    swagger?: INestiaConfig.ISwaggerConfig;
 
     /**
      * Target directory that SDK distribution files would be placed in.
@@ -297,20 +331,50 @@ At first, create `nestia.config.ts` file through `npx nestia init` command. It w
 
 At least, you've to configure those three properties:
 
-  - `input`: Path of controller files
+  - `input`: Accessor of controller classes
   - `output`: Path of output directory for SDK library
   - `e2e`: Path of output directory for E2E test functions
 
 When you've completed above configuration, just run `npx nestia e2e` command. Then, [SDK library](./sdk) would be generated into the `$config.output` directory, and E2E test functions would be generated into the `$config.e2e` directory, following your `nestia.config.ts` option.
 
-By the way, if your controller files are separated into multiple directories, you can choose two options. First is listing up every directories, and second is using regex expression. Also, you can exclude some special directories or files using `exclude` option. Of course, you can mix all of these options like below:
+By the way, `nestia.config.ts` supports alternative options specifying the target controller classes instead of using the `Module` instance. If your backend application server does not have special configuration like `setGlobalPrefix`, `enableVersioning` and `RouterModule`, it is okay to specifying the target controller classes just by writing their file path like below.
 
-<Tabs items={['List up every directories', 'Use regex pattern', 'Exclude']} defaultIndex={2}>
+<Tabs items={[
+        'Module',
+        'Directory', 
+        'Pattern', 
+        'Exclude'
+    ]}
+    defaultIndex={1}>
+    <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+
+import { YourModule } from "./src/YourModule";
+
+const NESTIA_CONFIG: INestiaConfig = {
+    input: async () => {
+        const app = await NestFactory.create(YourModule);
+        // app.setGlobalPrefix("api");
+        // app.enableVersioning({
+        //     type: VersioningType.URI,
+        //     prefix: "v", 
+        // })
+        return app;
+    },
+    output: "src/api",
+    distribute: "packages/api",
+    e2e: "test",
+};
+export default NESTIA_CONFIG;
+```
+    </Tab>
     <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4-8}
 import { INestiaConfig } from "@nestia/sdk";
 
-const config: INestiaConfig = {
+const NESTIA_CONFIG: INestiaConfig = {
     input: [
         "src/controllers", 
         "src/fake/controllers", 
@@ -320,27 +384,27 @@ const config: INestiaConfig = {
     distribute: "packages/api",
     e2e: "test",
 };
-export default config;
+export default NESTIA_CONFIG;
 ```
     </Tab>
     <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4}
 import { INestiaConfig } from "@nestia/sdk";
 
-const config: INestiaConfig = {
+const NESTIA_CONFIG: INestiaConfig = {
     input: "src/**/*.controller.ts",
     output: "src/api",
     distribute: "packages/api",
     e2e: "test",
 };
-export default config;
+export default NESTIA_CONFIG;
 ```
     </Tab>
     <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4-7}
 import { INestiaConfig } from "@nestia/sdk";
 
-const config: INestiaConfig = {
+const NESTIA_CONFIG: INestiaConfig = {
     input: {
         include: ["src/controllers"],
         exclude: ["src/**/*.fake.ts"],
@@ -349,7 +413,7 @@ const config: INestiaConfig = {
     distribute: "packages/api",
     e2e: "test",
 };
-export default config;
+export default NESTIA_CONFIG;
 ```
     </Tab>
 </Tabs>
