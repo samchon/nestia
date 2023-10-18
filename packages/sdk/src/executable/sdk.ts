@@ -31,6 +31,7 @@ function dependencies(argv: string[]): void {
 
     for (const lib of ["@nestia/fetcher", "typia"]) {
         const command: string = `${prefix} ${lib}`;
+        console.log(`\n$ ${command}`);
         cp.execSync(command, { stdio: "inherit" });
     }
 }

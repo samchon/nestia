@@ -36,7 +36,7 @@ export namespace NestiaStarter {
         };
 
     function execute(command: string): void {
-        console.log(command);
+        console.log(`\n$ ${command}`);
         cp.execSync(command, { stdio: "inherit" });
     }
 }
