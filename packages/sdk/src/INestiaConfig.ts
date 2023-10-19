@@ -119,15 +119,6 @@ export interface INestiaConfig {
     primitive?: boolean;
 
     /**
-     * Location of `tsconfig.json` file.
-     *
-     * If be configured, target file will replace the `tsconfig.json` file.
-     *
-     * @default tsconfig.json
-     */
-    project?: string;
-
-    /**
      * Whether to assert parameter types or not.
      *
      * If you configure this property to be `true`, all of the function

@@ -17,12 +17,18 @@ export namespace NestiaSdkCommand {
         task: (app: NestiaSdkApplication) => Promise<void>,
     ) => {
         // LOAD CONFIG INFO
-        const file: string = getConfigFile() ?? "nestia.config.ts";
-        const project: string = await NestiaConfigLoader.project(file);
         const compilerOptions: ts.CompilerOptions =
-            await NestiaConfigLoader.compilerOptions(project);
+            await NestiaConfigLoader.compilerOptions(
+                getFileArgument({
+                    type: "project",
+                    extension: "json",
+                }) ?? "tsconfig.json",
+            );
         const config: INestiaConfig = await NestiaConfigLoader.config(
-            file,
+            getFileArgument({
+                type: "config",
+                extension: "ts",
+            }) ?? "nestia.config.ts",
             compilerOptions,
         );
 
@@ -34,18 +40,25 @@ export namespace NestiaSdkCommand {
         await task(app);
     };
 
-    const getConfigFile = (): string | null => {
+    const getFileArgument = (props: {
+        type: string;
+        extension: string;
+    }): string | null => {
         const argv: string[] = process.argv.slice(3);
-        if (argv.length < 1) return null;
+        if (argv.length === 0) return null;
 
-        const index: number = argv.findIndex((str) => str === "--config");
+        const index: number = argv.findIndex(
+            (str) => str === `--${props.type}`,
+        );
         if (index === -1) return null;
         else if (argv.length === 1)
-            throw new Error("Config file must be provided");
+            throw new Error(`${props.type} file must be provided`);
 
         const file: string = argv[index + 1];
-        if (file.endsWith(".ts") === false)
-            throw new Error("Config file must be TypeScript file");
+        if (file.endsWith(props.extension) === false)
+            throw new Error(
+                `${props.type} file must be ${props.extension} file`,
+            );
         return file;
     };
 }

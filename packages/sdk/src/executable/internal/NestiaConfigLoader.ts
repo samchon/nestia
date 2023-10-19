@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { WorkerConnector } from "tgrid/protocols/workers/WorkerConnector";
 import { register } from "ts-node";
 import { parseNative } from "tsconfck";
 import ts from "typescript";
@@ -8,7 +7,6 @@ import ts from "typescript";
 import typia from "typia";
 
 import { INestiaConfig } from "../../INestiaConfig";
-import { NestiaProjectGetter } from "./NestiaProjectGetter";
 
 export namespace NestiaConfigLoader {
     export const compilerOptions = async (
@@ -20,7 +18,7 @@ export namespace NestiaConfigLoader {
             project,
         );
         if (!configFileName)
-            throw new Error(`unable to find "tsconfig.json" file.`);
+            throw new Error(`unable to find "${project}" file.`);
 
         const { tsconfig } = await parseNative(configFileName);
         const configFileText = JSON.stringify(tsconfig);
@@ -66,20 +64,5 @@ export namespace NestiaConfigLoader {
                 exp.message = `invalid "${file}" data.`;
             throw exp;
         }
-    };
-
-    export const project = async (file: string): Promise<string> => {
-        const connector = new WorkerConnector(null, null, "process");
-        await connector.connect(
-            `${__dirname}/nestia.project.getter.${__filename.substring(
-                __filename.length - 2,
-            )}`,
-        );
-
-        const driver = await connector.getDriver<typeof NestiaProjectGetter>();
-        const project: string = await driver.get(file);
-        await connector.close();
-
-        return project;
     };
 }
