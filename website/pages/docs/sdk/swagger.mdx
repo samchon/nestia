@@ -42,7 +42,7 @@ export default NESTIA_CONFIG;
     <Tab>
 ```bash filename="Terminal" showLineNumbers {}
 npx nestia swagger
-npx nestia swagger --config another.config.ts
+npx nestia swagger --config nestia.config.ts --project tsconfig.json
 ```
     </Tab>
 </Tabs>
@@ -51,7 +51,8 @@ Configure [`nestia.config.ts`](#nestiaconfigts) file and run `npx nestia swagger
 
 Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate `swagger.json` file.
 
-If you have a special configuration file that does not have the `nestia.config.ts` file name, you can specify the configuration file name through `--config` option like `npx nestia swagger --config another.config.ts`.
+If you have a special configuration file that its file name is not `nestia.config.ts`, you can specify it with `--config` option like `npx nestia swagger --config another.config.ts`. Also, if you have a special `tsconfig.json` file, you can specify it with `--project` option like `npx nestia swagger --project another.tsconfig.json`, too.
+
 
 
 
@@ -218,15 +219,6 @@ export interface INestiaConfig {
      * @default true
      */
     primitive?: boolean;
-
-    /**
-     * Location of `tsconfig.json` file.
-     *
-     * If be configured, target file will replace the `tsconfig.json` file.
-     *
-     * @default tsconfig.json
-     */
-    project?: string;
 
     /**
      * Whether to assert parameter types or not.

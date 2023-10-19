@@ -10,9 +10,16 @@ const feature = (name) => {
 
     // PREPARE ASSETS
     const file =
-        name === "cli-config" ? "nestia.configuration.ts" : "nestia.config.ts";
+        name === "cli-config" || name === "cli-config-project"
+            ? "nestia.configuration.ts"
+            : "nestia.config.ts";
     const generate = (type) => {
-        const tail = file === "nestia.config.ts" ? "" : ` --config ${file}`;
+        const tail =
+            name === "cli-config" || name === "cli-config-project"
+                ? " --config nestia.configuration.ts"
+                : name === "cli-config-project" || name === "cli-project"
+                ? " --project tsconfig.nestia.json"
+                : "";
         cp.execSync(`npx nestia ${type}${tail}`, { stdio: "ignore" });
     };
 

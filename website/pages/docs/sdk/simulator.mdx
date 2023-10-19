@@ -30,7 +30,7 @@ export default NESTIA_CONFIG;
     <Tab>
 ```bash filename="Terminal" showLineNumbers {}
 npx nestia sdk
-npx nestia sdk --config another.config.ts
+npx nestia sdk --config nestia.config.ts --project tsconfig.json
 ```
     </Tab>
     <Tab>
@@ -287,15 +287,6 @@ export interface INestiaConfig {
      * @default true
      */
     primitive?: boolean;
-
-    /**
-     * Location of `tsconfig.json` file.
-     *
-     * If be configured, target file will replace the `tsconfig.json` file.
-     *
-     * @default tsconfig.json
-     */
-    project?: string;
 
     /**
      * Whether to assert parameter types or not.
