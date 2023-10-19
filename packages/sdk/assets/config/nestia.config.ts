@@ -6,11 +6,13 @@ export const NESTIA_CONFIG: INestiaConfig = {
     /**
      * Accessor of controller classes.
      *
-     * You can specify it within two ways
+     * You can specify it within two ways.
      *
      *   - Asynchronous function returning `INestApplication` instance
      *   - Specify the path or directory of controller class files
      */
+    // input: "src/controllers",
+    // input: "src/**/*.controller.ts",
     input: async () => {
         // change this to your own module
         @Module({
@@ -25,8 +27,6 @@ export const NESTIA_CONFIG: INestiaConfig = {
         // })
         return app;
     },
-    // input: "src/controllers",
-    // input: "src/**/*.controller.ts",
 
     /**
      * Building `swagger.json` is also possible.

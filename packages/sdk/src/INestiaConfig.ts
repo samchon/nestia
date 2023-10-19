@@ -14,7 +14,7 @@ export interface INestiaConfig {
     /**
      * Accessor of controller classes.
      *
-     * You can specify target controller classes within two ways
+     * You can specify target controller classes within two ways.
      *
      *   - Asynchronous function returning `INestApplication` instance
      *   - Specify the path or directory of controller class files

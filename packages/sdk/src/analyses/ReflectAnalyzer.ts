@@ -4,6 +4,8 @@ import "reflect-metadata";
 import { equal } from "tstl/ranges/module";
 
 import { IController } from "../structures/IController";
+import { IErrorReport } from "../structures/IErrorReport";
+import { INestiaProject } from "../structures/INestiaProject";
 import { ParamCategory } from "../structures/ParamCategory";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { PathAnalyzer } from "./PathAnalyzer";
@@ -14,105 +16,107 @@ type IModule = {
 };
 
 export namespace ReflectAnalyzer {
-    export async function analyze(
-        unique: WeakSet<any>,
-        file: string,
-        prefixes: string[],
-        target?: Function,
-    ): Promise<IController[]> {
-        const module: IModule = await (async () => {
-            try {
-                return await import(file);
-            } catch (exp) {
-                console.log(
-                    ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
+    export const analyze =
+        (project: INestiaProject) =>
+        async (
+            unique: WeakSet<any>,
+            file: string,
+            prefixes: string[],
+            target?: Function,
+        ): Promise<IController[]> => {
+            const module: IModule = await (async () => {
+                try {
+                    return await import(file);
+                } catch (exp) {
+                    console.log(
+                        ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
+                    );
+                    console.log(`Error on "${file}" file. Check your code.`);
+                    console.log(exp);
+                    console.log(
+                        ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
+                    );
+                    process.exit(-1);
+                }
+            })();
+            const ret: IController[] = [];
+
+            for (const [key, value] of Object.entries(module)) {
+                if (typeof value !== "function" || unique.has(value)) continue;
+                else if ((target ?? value) !== value) continue;
+                else unique.add(value);
+
+                const result: IController | null = _Analyze_controller(project)(
+                    file,
+                    key,
+                    value,
+                    prefixes,
                 );
-                console.log(`Error on "${file}" file. Check your code.`);
-                console.log(exp);
-                console.log(
-                    ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
-                );
-                process.exit(-1);
+                if (result !== null) ret.push(result);
             }
-        })();
-        const ret: IController[] = [];
-
-        for (const [key, value] of Object.entries(module)) {
-            if (typeof value !== "function" || unique.has(value)) continue;
-            else if ((target ?? value) !== value) continue;
-            else unique.add(value);
-
-            const result: IController | null = _Analyze_controller(
-                file,
-                key,
-                value,
-                prefixes,
-            );
-            if (result !== null) ret.push(result);
-        }
-        return ret;
-    }
+            return ret;
+        };
 
     /* ---------------------------------------------------------
         CONTROLLER
     --------------------------------------------------------- */
-    function _Analyze_controller(
-        file: string,
-        name: string,
-        creator: any,
-        prefixes: string[],
-    ): IController | null {
-        //----
-        // VALIDATIONS
-        //----
-        // MUST BE TYPE OF A CREATOR WHO HAS THE CONSTRUCTOR
-        if (
-            !(
-                creator instanceof Function &&
-                creator.constructor instanceof Function
+    const _Analyze_controller =
+        (project: INestiaProject) =>
+        (
+            file: string,
+            name: string,
+            creator: any,
+            prefixes: string[],
+        ): IController | null => {
+            //----
+            // VALIDATIONS
+            //----
+            // MUST BE TYPE OF A CREATOR WHO HAS THE CONSTRUCTOR
+            if (
+                !(
+                    creator instanceof Function &&
+                    creator.constructor instanceof Function
+                )
             )
-        )
-            return null;
-        // MUST HAVE THOSE MATADATA
-        else if (
-            ArrayUtil.has(
-                Reflect.getMetadataKeys(creator),
-                Constants.PATH_METADATA,
-                Constants.HOST_METADATA,
-                Constants.SCOPE_OPTIONS_METADATA,
-            ) === false
-        )
-            return null;
+                return null;
+            // MUST HAVE THOSE MATADATA
+            else if (
+                ArrayUtil.has(
+                    Reflect.getMetadataKeys(creator),
+                    Constants.PATH_METADATA,
+                    Constants.HOST_METADATA,
+                    Constants.SCOPE_OPTIONS_METADATA,
+                ) === false
+            )
+                return null;
 
-        //----
-        // CONSTRUCTION
-        //----
-        // BASIC INFO
-        const meta: IController = {
-            file,
-            name,
-            functions: [],
-            prefixes,
-            paths: _Get_paths(creator),
-            versions: _Get_versions(creator),
-            security: _Get_securities(creator),
-            swaggerTgas:
-                Reflect.getMetadata("swagger/apiUseTags", creator) ?? [],
+            //----
+            // CONSTRUCTION
+            //----
+            // BASIC INFO
+            const meta: IController = {
+                file,
+                name,
+                functions: [],
+                prefixes,
+                paths: _Get_paths(creator),
+                versions: _Get_versions(creator),
+                security: _Get_securities(creator),
+                swaggerTgas:
+                    Reflect.getMetadata("swagger/apiUseTags", creator) ?? [],
+            };
+
+            // PARSE CHILDREN DATA
+            for (const tuple of _Get_prototype_entries(creator)) {
+                const child: IController.IFunction | null = _Analyze_function(
+                    project,
+                )(creator.prototype, meta, ...tuple);
+                if (child !== null) meta.functions.push(child);
+            }
+
+            // RETURNS
+            return meta;
         };
-
-        // PARSE CHILDREN DATA
-        for (const tuple of _Get_prototype_entries(creator)) {
-            const child: IController.IFunction | null = _Analyze_function(
-                creator.prototype,
-                meta,
-                ...tuple,
-            );
-            if (child !== null) meta.functions.push(child);
-        }
-
-        // RETURNS
-        return meta;
-    }
 
     function _Get_prototype_entries(creator: any): Array<[string, unknown]> {
         const keyList = Object.getOwnPropertyNames(creator.prototype);
@@ -172,132 +176,152 @@ export namespace ReflectAnalyzer {
     /* ---------------------------------------------------------
         FUNCTION
     --------------------------------------------------------- */
-    function _Analyze_function(
-        classProto: any,
-        controller: IController,
-        name: string,
-        proto: any,
-    ): IController.IFunction | null {
-        //----
-        // VALIDATIONS
-        //----
-        // MUST BE TYPE OF A FUNCTION
-        if (!(proto instanceof Function)) return null;
-        // MUST HAVE THOSE METADATE
-        else if (
-            ArrayUtil.has(
-                Reflect.getMetadataKeys(proto),
-                Constants.PATH_METADATA,
-                Constants.METHOD_METADATA,
-            ) === false
-        )
-            return null;
+    const _Analyze_function =
+        (project: INestiaProject) =>
+        (
+            classProto: any,
+            controller: IController,
+            name: string,
+            proto: any,
+        ): IController.IFunction | null => {
+            //----
+            // VALIDATIONS
+            //----
+            // MUST BE TYPE OF A FUNCTION
+            if (!(proto instanceof Function)) return null;
+            // MUST HAVE THOSE METADATE
+            else if (
+                ArrayUtil.has(
+                    Reflect.getMetadataKeys(proto),
+                    Constants.PATH_METADATA,
+                    Constants.METHOD_METADATA,
+                ) === false
+            )
+                return null;
 
-        //----
-        // CONSTRUCTION
-        //----
-        // BASIC INFO
-        const encrypted: boolean =
-            Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
-                ?.constructor?.name === "EncryptedRouteInterceptor";
-        const query: boolean =
-            Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
-                ?.constructor?.name === "TypedQueryRouteInterceptor";
-        const method: string =
-            METHODS[Reflect.getMetadata(Constants.METHOD_METADATA, proto)];
-        if (method === undefined || method === "OPTIONS") return null;
+            const errors: IErrorReport[] = [];
 
-        const parameters: IController.IParameter[] = (() => {
-            const nestParameters: NestParameters | undefined =
-                Reflect.getMetadata(
-                    Constants.ROUTE_ARGS_METADATA,
-                    classProto.constructor,
-                    name,
-                );
-            if (nestParameters === undefined) return [];
+            //----
+            // CONSTRUCTION
+            //----
+            // BASIC INFO
+            const encrypted: boolean =
+                Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
+                    ?.constructor?.name === "EncryptedRouteInterceptor";
+            const query: boolean =
+                Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
+                    ?.constructor?.name === "TypedQueryRouteInterceptor";
+            const method: string =
+                METHODS[Reflect.getMetadata(Constants.METHOD_METADATA, proto)];
+            if (method === undefined || method === "OPTIONS") return null;
 
-            const output: IController.IParameter[] = [];
-            for (const tuple of Object.entries(nestParameters)) {
-                const child: IController.IParameter | null = _Analyze_parameter(
-                    ...tuple,
-                );
-                if (child !== null) output.push(child);
-            }
-            return output.sort((x, y) => x.index - y.index);
-        })();
-
-        // VALIDATE BODY
-        const body: IController.IParameter | undefined = parameters.find(
-            (param) => param.category === "body",
-        );
-        if (body !== undefined && (method === "GET" || method === "HEAD"))
-            throw new Error(
-                `Error on ${controller.name}.${name}(): "body" parameter cannot be used in the "GET" or "HEAD" method`,
-            );
-
-        // DO CONSTRUCT
-        const meta: IController.IFunction = {
-            name,
-            method: method === "ALL" ? "POST" : method,
-            paths: _Get_paths(proto),
-            versions: _Get_versions(proto),
-            parameters,
-            status: Reflect.getMetadata(Constants.HTTP_CODE_METADATA, proto),
-            encrypted,
-            contentType: encrypted
-                ? "text/plain"
-                : query
-                ? "application/x-www-form-urlencoded"
-                : Reflect.getMetadata(Constants.HEADERS_METADATA, proto)?.find(
-                      (h: Record<string, string>) =>
-                          typeof h?.name === "string" &&
-                          typeof h?.value === "string" &&
-                          h.name.toLowerCase() === "content-type",
-                  )?.value ?? "application/json",
-            security: _Get_securities(proto),
-            exceptions: _Get_exceptions(proto),
-            swaggerTags: [
-                ...new Set([
-                    ...controller.swaggerTgas,
-                    ...(Reflect.getMetadata("swagger/apiUseTags", proto) ?? []),
-                ]),
-            ],
-        };
-
-        // VALIDATE PATH ARGUMENTS
-        for (const controllerLocation of controller.paths)
-            for (const metaLocation of meta.paths) {
-                // NORMALIZE LOCATION
-                const location: string = PathAnalyzer.join(
-                    controllerLocation,
-                    metaLocation,
-                );
-
-                // LIST UP PARAMETERS
-                const binded: string[] = PathAnalyzer.parameters(
-                    location,
-                    () => `${controller.name}.${name}()`,
-                ).sort();
-
-                const parameters: string[] = meta.parameters
-                    .filter((param) => param.category === "param")
-                    .map((param) => param.field!)
-                    .sort();
-
-                // DO VALIDATE
-                if (equal(binded, parameters) === false)
-                    throw new Error(
-                        `Error on ${
-                            controller.name
-                        }.${name}(): binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${binded.join(
-                            ", ",
-                        )}], parameters: [${parameters.join(", ")}])`,
+            const parameters: IController.IParameter[] = (() => {
+                const nestParameters: NestParameters | undefined =
+                    Reflect.getMetadata(
+                        Constants.ROUTE_ARGS_METADATA,
+                        classProto.constructor,
+                        name,
                     );
+                if (nestParameters === undefined) return [];
+
+                const output: IController.IParameter[] = [];
+                for (const tuple of Object.entries(nestParameters)) {
+                    const child: IController.IParameter | null =
+                        _Analyze_parameter(...tuple);
+                    if (child !== null) output.push(child);
+                }
+                return output.sort((x, y) => x.index - y.index);
+            })();
+
+            // VALIDATE BODY
+            const body: IController.IParameter | undefined = parameters.find(
+                (param) => param.category === "body",
+            );
+            if (body !== undefined && (method === "GET" || method === "HEAD")) {
+                errors.push({
+                    file: controller.file,
+                    controller: controller.name,
+                    function: name,
+                    message: `"body" parameter cannot be used in the "${method}" method.`,
+                });
+                return null;
             }
 
-        // RETURNS
-        return meta;
-    }
+            // DO CONSTRUCT
+            const meta: IController.IFunction = {
+                name,
+                method: method === "ALL" ? "POST" : method,
+                paths: _Get_paths(proto),
+                versions: _Get_versions(proto),
+                parameters,
+                status: Reflect.getMetadata(
+                    Constants.HTTP_CODE_METADATA,
+                    proto,
+                ),
+                encrypted,
+                contentType: encrypted
+                    ? "text/plain"
+                    : query
+                    ? "application/x-www-form-urlencoded"
+                    : Reflect.getMetadata(
+                          Constants.HEADERS_METADATA,
+                          proto,
+                      )?.find(
+                          (h: Record<string, string>) =>
+                              typeof h?.name === "string" &&
+                              typeof h?.value === "string" &&
+                              h.name.toLowerCase() === "content-type",
+                      )?.value ?? "application/json",
+                security: _Get_securities(proto),
+                exceptions: _Get_exceptions(proto),
+                swaggerTags: [
+                    ...new Set([
+                        ...controller.swaggerTgas,
+                        ...(Reflect.getMetadata("swagger/apiUseTags", proto) ??
+                            []),
+                    ]),
+                ],
+            };
+
+            // VALIDATE PATH ARGUMENTS
+            for (const controllerLocation of controller.paths)
+                for (const metaLocation of meta.paths) {
+                    // NORMALIZE LOCATION
+                    const location: string = PathAnalyzer.join(
+                        controllerLocation,
+                        metaLocation,
+                    );
+
+                    // LIST UP PARAMETERS
+                    const binded: string[] = PathAnalyzer.parameters(
+                        location,
+                        () => `${controller.name}.${name}()`,
+                    ).sort();
+
+                    const parameters: string[] = meta.parameters
+                        .filter((param) => param.category === "param")
+                        .map((param) => param.field!)
+                        .sort();
+
+                    // DO VALIDATE
+                    if (equal(binded, parameters) === false)
+                        errors.push({
+                            file: controller.file,
+                            controller: controller.name,
+                            function: name,
+                            message: `binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${binded.join(
+                                ", ",
+                            )}], parameters: [${parameters.join(", ")}]).`,
+                        });
+                }
+
+            // RETURNS
+            if (errors.length) {
+                project.errors.push(...errors);
+                return null;
+            }
+            return meta;
+        };
 
     /* ---------------------------------------------------------
         PARAMETER
