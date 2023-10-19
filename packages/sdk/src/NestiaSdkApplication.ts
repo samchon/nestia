@@ -11,7 +11,10 @@ import { E2eGenerator } from "./generates/E2eGenerator";
 import { SdkGenerator } from "./generates/SdkGenerator";
 import { SwaggerGenerator } from "./generates/SwaggerGenerator";
 import { IController } from "./structures/IController";
+import { IErrorReport } from "./structures/IErrorReport";
+import { INestiaProject } from "./structures/INestiaProject";
 import { IRoute } from "./structures/IRoute";
+import { MapUtil } from "./utils/MapUtil";
 
 export class NestiaSdkApplication {
     public constructor(
@@ -104,11 +107,17 @@ export class NestiaSdkApplication {
         // ANALYZE REFLECTS
         const unique: WeakSet<any> = new WeakSet();
         const controllers: IController[] = [];
+        const project: INestiaProject = {
+            config: this.config,
+            input: await ConfigAnalyzer.input(this.config),
+            checker: null!,
+            errors: [],
+        };
 
         console.log("Analyzing reflections");
         for (const include of (await ConfigAnalyzer.input(this.config)).include)
             controllers.push(
-                ...(await ReflectAnalyzer.analyze(
+                ...(await ReflectAnalyzer.analyze(project)(
                     unique,
                     include.file,
                     include.paths,
@@ -146,7 +155,7 @@ export class NestiaSdkApplication {
             controllers.map((c) => c.file),
             this.compilerOptions,
         );
-        const checker: ts.TypeChecker = program.getTypeChecker();
+        project.checker = program.getTypeChecker();
 
         const routeList: IRoute[] = [];
         for (const c of controllers) {
@@ -155,13 +164,14 @@ export class NestiaSdkApplication {
             );
             if (file === undefined) continue;
             routeList.push(
-                ...(await ControllerAnalyzer.analyze(
-                    this.config,
-                    checker,
-                    file,
-                    c,
-                )),
+                ...(await ControllerAnalyzer.analyze(project)(file, c)),
             );
+        }
+
+        // REPORT ERRORS
+        if (project.errors.length) {
+            report_errors(project.errors);
+            process.exit(-1);
         }
 
         // FIND IMPLICIT TYPES
@@ -181,7 +191,7 @@ export class NestiaSdkApplication {
 
         // DO GENERATE
         AccessorAnalyzer.analyze(routeList);
-        await archiver(checker)(config(this.config))(routeList);
+        await archiver(project.checker)(config(this.config))(routeList);
     }
 }
 
@@ -205,6 +215,32 @@ const is_implicit_return_typed = (route: IRoute): boolean => {
         if (name[i] === undefined) continue;
         else if (VARIABLE.test(name[i])) return false;
     return true;
+};
+
+const report_errors = (errors: IErrorReport[]): void => {
+    // key: file
+    // key: controller
+    // key: function
+    // value: message
+    const map: Map<string, Map<string, Map<string, Set<string>>>> = new Map();
+    for (const e of errors) {
+        const file = MapUtil.take(map, e.file, () => new Map());
+        const controller = MapUtil.take(file, e.controller, () => new Map());
+        const func = MapUtil.take(controller, e.function, () => new Set());
+        func.add(e.message);
+    }
+
+    console.log("");
+    title("Nestia Error Report");
+    for (const [file, cMap] of map) {
+        for (const [controller, fMap] of cMap)
+            for (const [func, messages] of fMap) {
+                const location: string = path.relative(process.cwd(), file);
+                console.log(`${location} - error on ${controller}.${func}()`);
+                for (const msg of messages) console.log(`  - ${msg}`);
+                console.log("");
+            }
+    }
 };
 
 const VARIABLE = /[a-zA-Z_$0-9]/;

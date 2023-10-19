@@ -2,7 +2,7 @@ import core from "@nestia/core";
 import { Controller, Request } from "@nestjs/common";
 import typia, { tags } from "typia";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { IBbsArticle } from "../api/structures/IBbsArticle";
 
 @Controller("body")
 export class TypedBodyController {
@@ -32,7 +32,7 @@ export class TypedBodyController {
     @core.TypedRoute.Put(":id")
     public async update(
         @core.TypedParam("id") id: string & tags.Format<"uuid">,
-        @core.TypedBody() input: IBbsArticle.IUpdate,
+        @core.TypedBody() input?: IBbsArticle.IUpdate,
     ): Promise<void> {
         id;
         input;

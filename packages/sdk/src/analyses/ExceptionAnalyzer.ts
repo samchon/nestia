@@ -2,6 +2,7 @@ import path from "path";
 import ts from "typescript";
 
 import { IController } from "../structures/IController";
+import { INestiaProject } from "../structures/INestiaProject";
 import { IRoute } from "../structures/IRoute";
 import { ITypeTuple } from "../structures/ITypeTuple";
 import { GenericAnalyzer } from "./GenericAnalyzer";
@@ -9,12 +10,12 @@ import { ImportAnalyzer } from "./ImportAnalyzer";
 
 export namespace ExceptionAnalyzer {
     export const analyze =
-        (checker: ts.TypeChecker) =>
+        (project: INestiaProject) =>
         (
             genericDict: GenericAnalyzer.Dictionary,
             importDict: ImportAnalyzer.Dictionary,
         ) =>
-        (func: IController.IFunction) =>
+        (controller: IController, func: IController.IFunction) =>
         (
             declaration: ts.MethodDeclaration,
         ): Record<number | "2XX" | "3XX" | "4XX" | "5XX", IRoute.IOutput> => {
@@ -24,19 +25,20 @@ export namespace ExceptionAnalyzer {
             > = {} as any;
             for (const decorator of declaration.modifiers ?? [])
                 if (ts.isDecorator(decorator))
-                    analyzeTyped(checker)(genericDict, importDict)(func)(
-                        output,
-                    )(decorator);
+                    analyzeTyped(project)(genericDict, importDict)(
+                        controller,
+                        func,
+                    )(output)(decorator);
             return output;
         };
 
     const analyzeTyped =
-        (checker: ts.TypeChecker) =>
+        (project: INestiaProject) =>
         (
             genericDict: GenericAnalyzer.Dictionary,
             importDict: ImportAnalyzer.Dictionary,
         ) =>
-        (func: IController.IFunction) =>
+        (controller: IController, func: IController.IFunction) =>
         (
             output: Record<
                 number | "2XX" | "3XX" | "4XX" | "5XX",
@@ -51,7 +53,7 @@ export namespace ExceptionAnalyzer {
 
             // CHECK SIGNATURE
             const signature: ts.Signature | undefined =
-                checker.getResolvedSignature(decorator.expression);
+                project.checker.getResolvedSignature(decorator.expression);
             if (!signature || !signature.declaration) return false;
             else if (
                 path
@@ -62,19 +64,33 @@ export namespace ExceptionAnalyzer {
 
             // GET TYPE INFO
             const node: ts.TypeNode = decorator.expression.typeArguments![0];
-            const type: ts.Type = checker.getTypeFromTypeNode(node);
-            if (type.isTypeParameter())
-                throw new Error(
-                    "Error on @nestia.core.TypedException(): non-specified generic argument.",
-                );
+            const type: ts.Type = project.checker.getTypeFromTypeNode(node);
+            if (type.isTypeParameter()) {
+                project.errors.push({
+                    file: controller.file,
+                    controller: controller.name,
+                    function: func.name,
+                    message:
+                        "TypedException() without generic argument specification.",
+                });
+                return false;
+            }
 
             const tuple: ITypeTuple | null = ImportAnalyzer.analyze(
-                checker,
+                project.checker,
                 genericDict,
                 importDict,
                 type,
             );
-            if (tuple === null) return false;
+            if (tuple === null || tuple.typeName === "__type") {
+                project.errors.push({
+                    file: controller.file,
+                    controller: controller.name,
+                    function: func.name,
+                    message: "TypeException() with implicit (unnamed) type.",
+                });
+                return false;
+            }
 
             // DO ASSIGN
             const matched: IController.IException[] = Object.entries(
