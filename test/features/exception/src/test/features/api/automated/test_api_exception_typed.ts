@@ -7,7 +7,7 @@ import type { IBbsArticle } from "../../../../api/structures/IBbsArticle";
 export const test_api_exception_typed = async (
     connection: api.IConnection
 ): Promise<void> => {
-    const output = await api.functional.exception.typed(
+    const output: Primitive<IBbsArticle> = await api.functional.exception.typed(
         connection,
         typia.random<Resolved<string>>(),
         typia.random<Primitive<IBbsArticle.IStore>>(),

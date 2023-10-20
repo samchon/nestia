@@ -7,7 +7,7 @@ import type { IBbsArticle } from "../../../../api/structures/IBbsArticle";
 export const test_api_bbs_articles_store = async (
     connection: api.IConnection
 ): Promise<void> => {
-    const output = await api.functional.bbs.articles.store(
+    const output: Primitive<IBbsArticle> = await api.functional.bbs.articles.store(
         connection,
         typia.random<Resolved<string>>(),
         typia.random<Primitive<IBbsArticle.IStore>>(),

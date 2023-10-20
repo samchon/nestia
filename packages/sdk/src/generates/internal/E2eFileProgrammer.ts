@@ -5,6 +5,7 @@ import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
 import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
+import { SdkTypeDefiner } from "./SdkTypeDefiner";
 
 export namespace E2eFileProgrammer {
     export const generate =
@@ -78,7 +79,9 @@ export namespace E2eFileProgrammer {
                 ...(route.output.typeName === "void"
                     ? [`    ${output}`]
                     : [
-                          `    const output = ${output}`,
+                          `    const output: ${SdkTypeDefiner.output(config)(
+                              importer,
+                          )(route)} = ${output}`,
                           `    ${SdkImportWizard.typia(
                               importer,
                           )}.assert(output);`,

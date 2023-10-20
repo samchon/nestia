@@ -8,7 +8,7 @@ import type { IHeaders } from "../../../../api/structures/IHeaders";
 export const test_api_headers_store = async (
     connection: api.IConnection
 ): Promise<void> => {
-    const output = await api.functional.headers.store(
+    const output: Primitive<IBbsArticle> = await api.functional.headers.store(
         {
             ...connection,
             headers: {
