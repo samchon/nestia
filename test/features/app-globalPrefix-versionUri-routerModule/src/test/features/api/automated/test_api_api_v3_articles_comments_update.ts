@@ -8,7 +8,7 @@ import type { IBbsComment } from "../../../../api/structures/IBbsComment";
 export const test_api_api_v3_articles_comments_update = async (
     connection: api.IConnection
 ): Promise<void> => {
-    const output = await api.functional.api.v3.articles.comments.update(
+    const output: Primitive<IBbsComment> = await api.functional.api.v3.articles.comments.update(
         connection,
         typia.random<Resolved<string>>(),
         typia.random<Resolved<string & Format<"uuid">>>(),

@@ -1,4 +1,4 @@
-import type { Primitive } from "@nestia/fetcher";
+import type { IPropagation, Primitive } from "@nestia/fetcher";
 import typia from "typia";
 
 import api from "../../../../api";
@@ -7,7 +7,9 @@ import type { TupleHierarchical } from "../../../../api/structures/TupleHierarch
 export const test_api_tupleHierarchicalController_store = async (
     connection: api.IConnection
 ): Promise<void> => {
-    const output = await api.functional.tupleHierarchicalController.store(
+    const output: IPropagation<{
+        201: TupleHierarchical;
+    }> = await api.functional.tupleHierarchicalController.store(
         connection,
         typia.random<Primitive<TupleHierarchical>>(),
     );

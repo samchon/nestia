@@ -6,7 +6,7 @@ import api from "../../../../api";
 export const test_api_plain_string = async (
     connection: api.IConnection
 ): Promise<void> => {
-    const output = await api.functional.plain.string(
+    const output: Primitive<string> = await api.functional.plain.string(
         connection,
         typia.random<Primitive<string>>(),
     );

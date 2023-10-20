@@ -1,4 +1,4 @@
-import type { Resolved } from "@nestia/fetcher";
+import type { Primitive, Resolved } from "@nestia/fetcher";
 import typia from "typia";
 
 import api from "../../../../api";
@@ -6,7 +6,7 @@ import api from "../../../../api";
 export const test_api_param_nullable = async (
     connection: api.IConnection
 ): Promise<void> => {
-    const output = await api.functional.param.nullable(
+    const output: Primitive<null | string> = await api.functional.param.nullable(
         connection,
         typia.random<Resolved<null | string>>(),
     );

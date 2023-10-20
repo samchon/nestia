@@ -8,7 +8,7 @@ import type { IBbsArticle } from "../../../../api/structures/IBbsArticle";
 export const test_api_bbs_articles_update = async (
     connection: api.IConnection
 ): Promise<void> => {
-    const output = await api.functional.bbs.articles.update(
+    const output: Primitive<IBbsArticle> = await api.functional.bbs.articles.update(
         connection,
         typia.random<Resolved<string>>(),
         typia.random<Resolved<string & Format<"uuid">>>(),
