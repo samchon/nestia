@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "description": "Nestia CLI tool",
   "main": "bin/index.js",
   "bin": {
@@ -37,8 +37,8 @@
     "inquirer": "^8.2.5"
   },
   "devDependencies": {
-    "@nestia/core": "^2.0.0",
-    "@nestia/sdk": "^2.0.0",
+    "@nestia/core": "^2.3.4",
+    "@nestia/sdk": "^2.3.4",
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",

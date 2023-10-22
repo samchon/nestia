@@ -18,7 +18,7 @@ export namespace NestiaSetupWizard {
         // INSTALL TYPESCRIPT COMPILERS
         pack.install({ dev: true, modulo: "ts-patch", version: "latest" });
         pack.install({ dev: true, modulo: "ts-node", version: "latest" });
-        pack.install({ dev: true, modulo: "typescript", version: "latest" });
+        pack.install({ dev: true, modulo: "typescript", version: "5.2.2" });
         args.project ??= (() => {
             const runner: string =
                 pack.manager === "npm" ? "npx" : pack.manager;
