@@ -103,16 +103,16 @@ export namespace TestValidator {
 
     export const httpError =
         (title: string) =>
-        (status: number) =>
+        (...statuses: number[]) =>
         <T>(task: () => T): T extends Promise<any> ? Promise<void> : void => {
             const message = (actual?: number) =>
                 typeof actual === "number"
-                    ? `Bug on ${title}: status code must be ${status}, but ${actual}.`
-                    : `Bug on ${title}: status code must be ${status}, but succeeded.`;
+                    ? `Bug on ${title}: status code must be ${statuses.join(" or ")}, but ${actual}.`
+                    : `Bug on ${title}: status code must be ${statuses.join(" or ")}, but succeeded.`;
             const predicate = (exp: any): Error | null =>
                 typeof exp === "object" &&
                 exp.constructor.name === "HttpError" &&
-                exp.status === status
+                statuses.some(val => val === exp.status)
                     ? null
                     : new Error(
                           message(
