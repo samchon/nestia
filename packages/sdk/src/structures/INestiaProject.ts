@@ -9,4 +9,5 @@ export interface INestiaProject {
     input: INormalizedInput;
     checker: ts.TypeChecker;
     errors: IErrorReport[];
+    warnings: IErrorReport[];
 }
