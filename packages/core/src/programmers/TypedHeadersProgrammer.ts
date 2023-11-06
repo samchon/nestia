@@ -45,7 +45,12 @@ export namespace TypedHeadersProgrammer {
             const category = project.options.validate;
             if (category === "is" || category === "equals")
                 return parameter("is")(HttpIsHeadersProgrammer.write);
-            else if (category === "validate" || category === "validateEquals")
+            else if (
+                category === "validate" ||
+                category === "validateEquals" ||
+                category === "validateClone" ||
+                category === "validatePrune"
+            )
                 return parameter("validate")(
                     HttpValidateHeadersProgrammer.write,
                 );

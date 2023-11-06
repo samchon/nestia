@@ -45,7 +45,12 @@ export namespace TypedQueryProgrammer {
             const category = project.options.validate;
             if (category === "is" || category === "equals")
                 return parameter("is")(HttpIsQueryProgrammer.write);
-            else if (category === "validate" || category === "validateEquals")
+            else if (
+                category === "validate" ||
+                category === "validateEquals" ||
+                category === "validateClone" ||
+                category === "validatePrune"
+            )
                 return parameter("validate")(HttpValidateQueryProgrammer.write);
             return parameter("assert")(HttpAssertQueryProgrammer.write);
         };
