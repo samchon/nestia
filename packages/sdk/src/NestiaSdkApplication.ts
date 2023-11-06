@@ -45,7 +45,7 @@ export class NestiaSdkApplication {
         await validate("sdk")(this.config.output);
         await validate("e2e")(this.config.e2e);
 
-        title("Nestia E2E Generator");
+        print_title("Nestia E2E Generator");
         await this.generate(
             "e2e",
             (config) => config,
@@ -69,7 +69,7 @@ export class NestiaSdkApplication {
                 "Error on NestiaApplication.sdk(): output directory does not exists.",
             );
 
-        title("Nestia SDK Generator");
+        print_title("Nestia SDK Generator");
         await this.generate("sdk", (config) => config, SdkGenerator.generate);
     }
 
@@ -89,7 +89,7 @@ export class NestiaSdkApplication {
                 "Error on NestiaApplication.swagger(): output directory does not exists.",
             );
 
-        title("Nestia Swagger Generator");
+        print_title("Nestia Swagger Generator");
         await this.generate(
             "swagger",
             (config) => config.swagger!,
@@ -112,6 +112,7 @@ export class NestiaSdkApplication {
             input: await ConfigAnalyzer.input(this.config),
             checker: null!,
             errors: [],
+            warnings: [],
         };
 
         console.log("Analyzing reflections");
@@ -170,9 +171,10 @@ export class NestiaSdkApplication {
 
         // REPORT ERRORS
         if (project.errors.length) {
-            report_errors(project.errors);
+            report_errors("error")(project.errors);
             process.exit(-1);
         }
+        if (project.warnings.length) report_errors("warning")(project.warnings);
 
         // FIND IMPLICIT TYPES
         const implicit: IRoute[] = routeList.filter(is_implicit_return_typed);
@@ -195,7 +197,7 @@ export class NestiaSdkApplication {
     }
 }
 
-const title = (str: string): void => {
+const print_title = (str: string): void => {
     console.log("-----------------------------------------------------------");
     console.log(` ${str}`);
     console.log("-----------------------------------------------------------");
@@ -217,30 +219,45 @@ const is_implicit_return_typed = (route: IRoute): boolean => {
     return true;
 };
 
-const report_errors = (errors: IErrorReport[]): void => {
-    // key: file
-    // key: controller
-    // key: function
-    // value: message
-    const map: Map<string, Map<string, Map<string, Set<string>>>> = new Map();
-    for (const e of errors) {
-        const file = MapUtil.take(map, e.file, () => new Map());
-        const controller = MapUtil.take(file, e.controller, () => new Map());
-        const func = MapUtil.take(controller, e.function, () => new Set());
-        func.add(e.message);
-    }
+const report_errors =
+    (type: "error" | "warning") =>
+    (errors: IErrorReport[]): void => {
+        // key: file
+        // key: controller
+        // key: function
+        // value: message
+        const map: Map<
+            string,
+            Map<string, Map<string, Set<string>>>
+        > = new Map();
+        for (const e of errors) {
+            const file = MapUtil.take(map, e.file, () => new Map());
+            const controller = MapUtil.take(
+                file,
+                e.controller,
+                () => new Map(),
+            );
+            const func = MapUtil.take(controller, e.function, () => new Set());
+            func.add(e.message);
+        }
 
-    console.log("");
-    title("Nestia Error Report");
-    for (const [file, cMap] of map) {
-        for (const [controller, fMap] of cMap)
-            for (const [func, messages] of fMap) {
-                const location: string = path.relative(process.cwd(), file);
-                console.log(`${location} - error on ${controller}.${func}()`);
-                for (const msg of messages) console.log(`  - ${msg}`);
-                console.log("");
-            }
-    }
-};
+        console.log("");
+        print_title(`Nestia ${type[0].toUpperCase()}${type.slice(1)} Report`);
+        for (const [file, cMap] of map) {
+            for (const [controller, fMap] of cMap)
+                for (const [func, messages] of fMap) {
+                    const location: string = path.relative(process.cwd(), file);
+                    console.log(
+                        `${location} - ${
+                            func !== null
+                                ? `${controller}.${func}()`
+                                : controller
+                        }`,
+                    );
+                    for (const msg of messages) console.log(`  - ${msg}`);
+                    console.log("");
+                }
+        }
+    };
 
 const VARIABLE = /[a-zA-Z_$0-9]/;
