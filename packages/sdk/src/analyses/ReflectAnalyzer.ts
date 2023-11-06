@@ -99,7 +99,19 @@ export namespace ReflectAnalyzer {
                 name,
                 functions: [],
                 prefixes,
-                paths: _Get_paths(creator),
+                paths: _Get_paths(creator).filter((str) => {
+                    if (str.includes("*") === true) {
+                        project.warnings.push({
+                            file,
+                            controller: name,
+                            function: null,
+                            message:
+                                "@nestia/sdk does not compose wildcard controller.",
+                        });
+                        return false;
+                    }
+                    return true;
+                }),
                 versions: _Get_versions(creator),
                 security: _Get_securities(creator),
                 swaggerTgas:
@@ -251,7 +263,19 @@ export namespace ReflectAnalyzer {
             const meta: IController.IFunction = {
                 name,
                 method: method === "ALL" ? "POST" : method,
-                paths: _Get_paths(proto),
+                paths: _Get_paths(proto).filter((str) => {
+                    if (str.includes("*") === true) {
+                        project.warnings.push({
+                            file: controller.file,
+                            controller: controller.name,
+                            function: name,
+                            message:
+                                "@nestia/sdk does not compose wildcard method.",
+                        });
+                        return false;
+                    }
+                    return true;
+                }),
                 versions: _Get_versions(proto),
                 parameters,
                 status: Reflect.getMetadata(
@@ -291,6 +315,7 @@ export namespace ReflectAnalyzer {
                         controllerLocation,
                         metaLocation,
                     );
+                    if (location.includes("*")) continue;
 
                     // LIST UP PARAMETERS
                     const binded: string[] = PathAnalyzer.parameters(
