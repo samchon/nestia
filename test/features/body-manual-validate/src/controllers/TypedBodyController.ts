@@ -1,7 +1,7 @@
+import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import typia from "typia";
-
-import core from "@nestia/core";
+import { v4 } from "uuid";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
@@ -16,8 +16,9 @@ export class TypedBodyController {
         input: IBbsArticle.IStore,
     ): Promise<IBbsArticle> {
         return {
-            ...typia.random<IBbsArticle>(),
             ...input,
+            id: v4(),
+            created_at: new Date().toISOString(),
         };
     }
 }
