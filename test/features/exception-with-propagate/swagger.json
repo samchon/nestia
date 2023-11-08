@@ -129,6 +129,20 @@
               }
             },
             "x-nestia-encrypted": false
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "INVALID_PERMISSION",
+                    "EXPIRED_PERMISSION"
+                  ]
+                }
+              }
+            }
           }
         },
         "x-nestia-namespace": "fail.get",
@@ -166,6 +180,21 @@
               }
             },
             "x-nestia-encrypted": false
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "INVALID_PERMISSION",
+                    "EXPIRED_PERMISSION",
+                    "REQUIRED_PERMISSION"
+                  ]
+                }
+              }
+            }
           }
         },
         "x-nestia-namespace": "fail.composite.composite",

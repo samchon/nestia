@@ -1,8 +1,10 @@
 import core from "@nestia/core";
 import * as nest from "@nestjs/common";
 
+import { HttpExceptionFilter } from "../filters/HttpExceptionFilter";
 import { ErrorCode } from "../structures/ErrorCode";
 
+@nest.UseFilters(HttpExceptionFilter)
 @nest.Controller("success")
 export class SuccessController {
     @core.TypedException<ErrorCode.Permission.Invalid>(

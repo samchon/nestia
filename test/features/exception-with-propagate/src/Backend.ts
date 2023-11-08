@@ -1,7 +1,6 @@
+import core from "@nestia/core";
 import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-
-import core from "@nestia/core";
 
 export class Backend {
     private application_?: INestApplication;
