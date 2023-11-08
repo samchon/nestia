@@ -9,24 +9,25 @@ const execute = (command) => {
     cp.execSync(command, { stdio: "inherit" });
 };
 
-const main = () => fs.readdirSync(PACKAGES).forEach((lib) => {
-    const location = `${PACKAGES}/${lib}`;
-    if (fs.existsSync(`${location}/package.json`) === false)
-        return;
+const main = () =>
+    fs.readdirSync(PACKAGES).forEach((lib) => {
+        const location = `${PACKAGES}/${lib}`;
+        if (fs.existsSync(`${location}/package.json`) === false) return;
 
-    console.log("----------------------------------------");
-    console.log(`@nestia/${lib}`);
-    console.log("----------------------------------------");
-    process.chdir(location);
+        console.log("----------------------------------------");
+        console.log(`@nestia/${lib}`);
+        console.log("----------------------------------------");
+        process.chdir(location);
 
-    fs.copyFileSync(README, "README.md");
+        fs.copyFileSync(README, "README.md");
 
-    const test = !!JSON.parse(
-        fs.readFileSync("package.json", { encoding: "utf-8" })
-    ).scripts?.test;
+        const test = !!JSON.parse(
+            fs.readFileSync("package.json", { encoding: "utf-8" }),
+        ).scripts?.test;
 
-    execute("npm install");
-    execute("npm run build");
-    if (test) execute("npm run test");
-});
+        // @todo: REMOVE --FORCE KEYWORD AFTER TS 5.3 RELEASE
+        execute("npm install --force");
+        execute("npm run build");
+        if (test) execute("npm run test");
+    });
 main();
