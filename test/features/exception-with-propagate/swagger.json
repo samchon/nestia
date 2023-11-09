@@ -1,0 +1,215 @@
+{
+  "openapi": "3.0.1",
+  "servers": [
+    {
+      "url": "https://github.com/samchon/nestia",
+      "description": "insert your server url"
+    }
+  ],
+  "info": {
+    "version": "0.0.0-dev.20991231",
+    "title": "@nestia/test",
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/success": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "INVALID_PERMISSION"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-nestia-namespace": "success.get",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/success/{error_type}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "error_type",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EXPIRED_PERMISSION",
+                "REQUIRED_PERMISSION"
+              ]
+            },
+            "description": "",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "EXPIRED_PERMISSION",
+                    "REQUIRED_PERMISSION"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-nestia-namespace": "success.union",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/fail/{error_type}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "error_type",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INVALID_PERMISSION",
+                "EXPIRED_PERMISSION"
+              ]
+            },
+            "description": "",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "INVALID_PERMISSION",
+                    "EXPIRED_PERMISSION"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-nestia-namespace": "fail.get",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
+    },
+    "/fail/composite/{error_type}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "error_type",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INVALID_PERMISSION",
+                "EXPIRED_PERMISSION",
+                "REQUIRED_PERMISSION"
+              ]
+            },
+            "description": "",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number"
+                }
+              }
+            },
+            "x-nestia-encrypted": false
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "INVALID_PERMISSION",
+                    "EXPIRED_PERMISSION",
+                    "REQUIRED_PERMISSION"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-nestia-namespace": "fail.composite.composite",
+        "x-nestia-jsDocTags": [],
+        "x-nestia-method": "GET"
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

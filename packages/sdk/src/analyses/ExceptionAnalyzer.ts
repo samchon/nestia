@@ -96,7 +96,12 @@ export namespace ExceptionAnalyzer {
             const matched: IController.IException[] = Object.entries(
                 func.exceptions,
             )
-                .filter(([_key, value]) => value.type === tuple.typeName)
+                .filter(([_key, value]) =>
+                    value.type.includes(" | ") && tuple.typeName.includes(" | ")
+                        ? value.type.split(" | ").sort().join(" | ") ===
+                          tuple.typeName.split(" | ").sort().join(" | ")
+                        : value.type === tuple.typeName,
+                )
                 .map(([_key, value]) => value);
             for (const m of matched)
                 output[m.status] = {
