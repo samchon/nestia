@@ -25,10 +25,14 @@ export namespace GenericAnalyzer {
                 const expression: ts.Type = checker.getTypeAtLocation(
                     hType.expression,
                 );
-                const superNode: ts.Declaration =
-                    expression.symbol.getDeclarations()![0];
+                const superNode: ts.Declaration | undefined =
+                    expression.symbol.getDeclarations()?.[0];
 
-                if (!ts.isClassDeclaration(superNode)) continue;
+                if (
+                    superNode === undefined ||
+                    !ts.isClassDeclaration(superNode)
+                )
+                    continue;
 
                 // SPECIFY GENERICS
                 const usages: ReadonlyArray<ts.TypeNode> =

@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/test",
-  "version": "2.3.7",
+  "version": "2.3.8",
   "description": "Test program of Nestia",
   "main": "index.js",
   "scripts": {
@@ -37,9 +37,9 @@
     "typia": "^5.2.6",
     "uuid": "^9.0.0",
     "nestia": "^4.5.0",
-    "@nestia/core": "^2.3.7",
+    "@nestia/core": "^2.3.8",
     "@nestia/e2e": "^0.3.6",
-    "@nestia/fetcher": "^2.3.7",
-    "@nestia/sdk": "^2.3.7"
+    "@nestia/fetcher": "^2.3.8",
+    "@nestia/sdk": "^2.3.8"
   }
 }

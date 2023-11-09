@@ -61,7 +61,7 @@ export namespace ImportAnalyzer {
     function get_name(symbol: ts.Symbol): string {
         return explore_name(
             symbol.escapedName.toString(),
-            symbol.getDeclarations()![0].parent,
+            symbol.getDeclarations()?.[0]?.parent,
         );
     }
 
@@ -111,8 +111,9 @@ export namespace ImportAnalyzer {
         // SPECIALIZATION
         //----
         const name: string = get_name(symbol);
-        const sourceFile: ts.SourceFile =
-            symbol.declarations![0].getSourceFile();
+        const sourceFile: ts.SourceFile | undefined =
+            symbol.declarations?.[0]?.getSourceFile();
+        if (sourceFile === undefined) return name;
 
         if (sourceFile.fileName.indexOf("typescript/lib") === -1) {
             const set: HashSet<string> = importDict.take(
@@ -147,8 +148,8 @@ export namespace ImportAnalyzer {
             : name;
     }
 
-    function explore_name(name: string, decl: ts.Node): string {
-        return ts.isModuleBlock(decl)
+    function explore_name(name: string, decl?: ts.Node): string {
+        return decl && ts.isModuleBlock(decl)
             ? explore_name(
                   `${decl.parent.name.getFullText().trim()}.${name}`,
                   decl.parent.parent,
