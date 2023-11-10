@@ -1,11 +1,7 @@
 import { Tabs, Tab } from 'nextra-theme-docs'
 
 import Alert from '@mui/material/Alert';
-import AlertTitle from '@mui/material/AlertTitle';
 import Stack from '@mui/material/Stack';
-
-
-
 
 # Setup
 ## Boilerplate
@@ -275,9 +271,16 @@ After that, configure `tsconfig.json` file like above.
 
 As `@nestia/core` and `typia` are generating optimal validation and JSON serialization code through [transformation](https://typia.io/docs/setup/#transformation), you've to configure them as `plugins`. For reference, you can choose which [`typia`](https://github.com/samchon/typia) functions to be used in [validation](./core/TypedBody) and [JSON serialization](./core/TypedRoute).
 
-  - [`is`](https://typia.io/docs/validators/is/): check validation only, and do not reveal the reason why 
-  - [`assert`](https://typia.io/docs/validators/assert/): find the 1st type error with reason
-  - [`validate`](https://typia.io/docs/validators/validate/): find every type errors with detailed reasons
+  - Configurable values both on `validate` and `stringify`
+    - [`is`](https://typia.io/docs/validators/is/): check validation only, and do not reveal the reason why 
+    - [`assert`](https://typia.io/docs/validators/assert/): find the 1st type error with reason
+    - [`validate`](https://typia.io/docs/validators/validate/): find every type errors with detailed reasons
+  - Only for `validate`
+    - [`equals`](https://typia.io/docs/validators/is/#equals-function): do not allow extra properties
+    - [`assertEquals`](https://typia.io/docs/validators/assert/#assertequals-function)
+    - [`validateEquals`](https://typia.io/docs/validators/validate/#validateequals-function)
+    - [`assertPrune`](https://typia.io/docs/misc/#prune-functions) or [`validatePrune`](https://typia.io/docs/misc/#prune-functions): prune extra properties with type checking
+    - [`assertClone`](https://typia.io/docs/misc/#clone-functions) or [`validateClone`](https://typia.io/docs/misc/#clone-functions): deep clone with type checking for faster pruning
 
 Also, never forget to configure `strict` (or `strictNullChecks`) as `true`. It is essential option for modern TypeScript development.
 

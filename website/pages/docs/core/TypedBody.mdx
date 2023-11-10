@@ -415,6 +415,39 @@ exports.checkSpecialTag = checkSpecialTag;
 
 
 
+## Configuration
+```json filename="tsconfig.json" showLineNumbers {9} copy
+{
+    "strict": true,
+    "strictNullChecks": true,
+    "compilerOptions": {
+        "plugins": [
+            { "transform": "typia/lib/transform" },
+            { 
+                "transform": "@nestia/core/lib/transform",
+                "validate": "valiateEquals",
+                "stringify": "assert", 
+            },
+        ],
+    },
+}
+```
+
+Change type validation function to other one.
+
+If you configure `validate` property of plugin defined in the `tsconfig.json` file, you can change the `@TypedBody()` to use another validation function instead of using the default [`typia.assert<T>`](https://typia.io/docs/validators/assert) function. For example, if you want to use [`typia.validateEquals<T>()`](https://typia.io/docs/validators/validate/#validateequals-function) function instead, then set the `validate` property to `validateEquals`.
+
+Below is the list of available validation functions.
+
+  - [`is`](https://typia.io/docs/validators/is/) or [`equals`](https://typia.io/docs/validators/is/#equals-function): check validation only, and do not reveal the reason why 
+  - [`assert`](https://typia.io/docs/validators/assert/) or [`assertEquals`](https://typia.io/docs/validators/assert/#assertequals-function): find the 1st type error with reason
+  - [`validate`](https://typia.io/docs/validators/validate/) or [`validateEquals`](https://typia.io/docs/validators/validate/#validateequals-function): find every type errors with detailed reasons
+  - [`assertPrune`](https://typia.io/docs/misc/#prune-functions) or [`validatePrune`](https://typia.io/docs/misc/#prune-functions): prune extra properties with type checking
+  - [`assertClone`](https://typia.io/docs/misc/#clone-functions) or [`validateClone`](https://typia.io/docs/misc/#clone-functions): deep clone with type checking for faster pruning
+
+
+
+
 ## Benchmark
 Super-fast and super-safe.
 
