@@ -47,6 +47,7 @@ Setup Wizard will install and configure everything automatically.
 
 
 ## Webpack
+### With `node_modules`
 <Tabs items={['npm', 'pnpm', 'yarn']}>
     <Tab>
 ```bash filename="Terminal" copy showLineNumbers
@@ -72,7 +73,7 @@ pnpm install --save-dev webpack webpack-cli webpack-node-externals
     </Tab>
     <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-# SETUP NESTIA
+# SETUP NESTIA (YARN BERY IS NOT SUPPORTED)
 yarn add -D nestia
 yarn nestia setup --manager yarn
 
@@ -93,10 +94,12 @@ const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
     // CUSTOMIZE HERE
-    entry: ['./src/main.ts'],
+    entry: {
+        server: './src/executable/server.ts',
+    },
     output: {
         path: path.join(__dirname, 'dist'),
-        filename: 'main.js',
+        filename: '[name].js',
     },
     optimization: {
         minimize: false
@@ -123,27 +126,152 @@ module.exports = {
 
 After installing both `nestia` and `webpack`, configure `webpack.config.js` file like above. 
 
-If required, update `entry`, `output` or `optimization` properties as you want.
+From now on, you can build the single JS file just by running the `npx webpack` command. By the way, when removing `devDependencies` for `--production` install, never forget to add the `--ignore-scripts` option to prevent the `prepare` script.
 
 <Tabs items={['npm', 'pnpm', 'yarn']}>
     <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npx webpack
+npm ci --omit=dev --ignore-scripts
 ```
     </Tab>
     <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 pnpm webpack
+pnpm install --production --ignore-scripts
 ```
     </Tab>
     <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 yarn webpack
+rm -rf node_modules
+yarn install --production --ignore-scripts --immutable
 ```
     </Tab>
 </Tabs>
 
-At last, you can bundle your NestJS project into a single file, just by running `npx webpack` command.
+### Single JS file only
+If you can build your NestJS project into a singile JS file, and that JS file even does not require the `node_modules` directory, it would be useful for building a serverless environment. Also, as it does not need to perform the pruning process (represented by `pnpm install --production --ignore-scripts` command), it would be much convenient and faster than the above method.
+
+To accomplish the light JS bundling, install special dependencies like below.
+
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+# SETUP NESTIA
+npm install --save-dev nestia
+npx nestia setup
+
+# INSTALL SPECIAL DEPENDENCIES
+npm install --save-dev ts-loader
+npm install --save-dev webpack webpack-cli
+npm install --save-dev copy-webpack-plugin write-file-webpack-plugin
+```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+# SETUP NESTIA
+pnpm install --save-dev nestia
+pnpm nestia setup --manager pnpm
+
+# INSTALL SPECIAL DEPENDENCIES
+pnpm install --save-dev ts-loader
+pnpm install --save-dev webpack webpack-cli
+pnpm install --save-dev copy-webpack-plugin write-file-webpack-plugin
+```
+    </Tab>
+    <Tab>
+```bash filename="Terminal" copy showLineNumbers
+# SETUP NESTIA (YARN BERY IS NOT SUPPORTED)
+yarn add -D nestia
+yarn nestia setup --manager yarn
+
+# INSTALL SPECIAL DEPENDENCIES
+yarn add -D ts-loader
+yarn add -D webpack webpack-cli
+yarn add -D copy-webpack-plugin write-file-webpack-plugin
+```
+    </Tab>
+</Tabs>
+
+Also, configure `webpack.config.js` file like below, considering the `lazyImports` array.
+
+After that, just run `npx webpack` command. Then the light JS file(s) would be bundled into the `dist` directory, and you don't need to perform the pruning process (represented by `pnpm install --production --ignore-scripts` command) for the distribution. Just deploy the `dist` directory to the target server.
+
+```javascript filename="webpack.config.js" showLineNumbers copy
+const path = require("path");
+
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const WriteFilePlugin = require("write-file-webpack-plugin");
+const { IgnorePlugin } = require("webpack");
+
+const lazyImports = [
+  "@fastify/static",
+  "@fastify/view",
+  "@nestjs/microservices",
+  "@nestjs/websockets",
+  "class-transformer",
+  "class-validator",
+];
+
+// @reference https://tech-blog.s-yoshiki.com/entry/297
+module.exports = {
+  // CUSTOMIZE HERE
+  entry: {
+    server: "./src/executable/server.ts",
+  },
+  output: {
+    path: path.join(__dirname, "dist"),
+    filename: "[name].js",
+  },
+  optimization: {
+    minimize: true,
+  },
+
+  // JUST KEEP THEM
+  mode: "production",
+  target: "node",
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        loader: "ts-loader",
+      },
+    ],
+  },
+  resolve: {
+    extensions: [".tsx", ".ts", ".js"],
+  },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: ".env",
+          to: ".env",
+        },
+        // {
+        //   from: "./node_modules/.prisma/client/*.node",
+        //   to: () => Promise.resolve("[name][ext]"),
+        // },
+      ],
+    }),
+    new WriteFilePlugin(),
+    new IgnorePlugin({
+      checkResource(resource) {
+        if (lazyImports.some((modulo) => resource.startsWith(modulo))) {
+          try {
+            require.resolve(resource);
+          } catch (err) {
+            return true;
+          }
+        }
+        return false;
+      },
+    }),
+  ],
+};
+```
 
 
 
@@ -170,7 +298,7 @@ yarn nestia setup --manager yarn
     </Tab>
 </Tabs>
 
-After install nestia like above, you have to modify `project.json` on each app you use typia like below.
+After install `nestia` like above, you have to modify `project.json` on each app you use typia like below.
 
 ```javascript filename="project.json" showLineNumbers copy
  "targets": {
