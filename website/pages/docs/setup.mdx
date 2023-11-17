@@ -194,7 +194,9 @@ yarn add -D copy-webpack-plugin write-file-webpack-plugin
     </Tab>
 </Tabs>
 
-Also, configure `webpack.config.js` file like below, considering the `lazyImports` array.
+Also, configure `webpack.config.js` file like below, considering options. 
+
+For example, if your NestJS backend server is utilizing the [Prisma](https://prisma.io) ORM, uncomment the `CopyWebpackPlugin.patterns` block to copy the Prisma engine files (`node_modules/.prisma/client/*.node`) into the output `dist` directory.
 
 After that, just run `npx webpack` command. Then the light JS file(s) would be bundled into the `dist` directory, and you don't need to perform the pruning process (represented by `pnpm install --production --ignore-scripts` command) for the distribution. Just deploy the `dist` directory to the target server.
 
@@ -248,17 +250,17 @@ module.exports = {
       patterns: [
         {
           from: ".env",
-          to: ".env",
+          to: "[name][extension]",
         },
         // {
         //   from: "./node_modules/.prisma/client/*.node",
-        //   to: () => Promise.resolve("[name][ext]"),
+        //   to: () => Promise.resolve("[path][name][ext]"),
         // },
       ],
     }),
     new WriteFilePlugin(),
     new IgnorePlugin({
-      checkResource(resource) {
+      checkResource: (resource) => {
         if (lazyImports.some((modulo) => resource.startsWith(modulo))) {
           try {
             require.resolve(resource);
