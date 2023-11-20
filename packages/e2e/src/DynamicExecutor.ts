@@ -256,7 +256,7 @@ export namespace DynamicExecutor {
                         result.time = Date.now() - result.time;
                         console.log(`  - ${label}`);
                     } else {
-                        result.time = await StopWatch.measure(func);
+                        result.time = (await StopWatch.measure(func))[1];
                         console.log(
                             `  - ${label}: ${chalk.yellowBright(
                                 result.time.toLocaleString(),

@@ -7,17 +7,17 @@ export namespace StopWatch {
     /**
      * Type of task.
      */
-    export type Task = () => Promise<void>;
+    export type Task<T> = () => Promise<T>;
 
     /**
      *
      * @param task
      * @returns
      */
-    export const measure = async (task: Task): Promise<number> => {
+    export const measure = async <T>(task: Task<T>): Promise<[T, number]> => {
         const time: number = Date.now();
-        await task();
-        return Date.now() - time;
+        const output: T = await task();
+        return [output, Date.now() - time];
     };
 
     /**
@@ -28,11 +28,11 @@ export namespace StopWatch {
      */
     export const trace =
         (title: string) =>
-        async (task: Task): Promise<number> => {
+        async <T>(task: Task<T>): Promise<[T, number]> => {
             process.stdout.write(`  - ${title}: `);
-            const time: number = await measure(task);
+            const res: [T, number] = await measure(task);
 
-            console.log(`${time.toLocaleString()} ms`);
-            return time;
+            console.log(`${res[1].toLocaleString()} ms`);
+            return res;
         };
 }
