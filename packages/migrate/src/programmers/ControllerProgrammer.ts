@@ -68,6 +68,8 @@ export namespace ControllerProgrammer {
                     location: "src/controllers/" + location,
                     routes,
                 };
+                if (controller.name === "Controller")
+                    controller.name = "__Controller";
                 naming(controller);
                 return controller;
             });
