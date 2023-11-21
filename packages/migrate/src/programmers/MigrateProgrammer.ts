@@ -1,3 +1,5 @@
+import { IMigrateController } from "../structures/IMigrateController";
+import { IMigrateDto } from "../structures/IMigrateDto";
 import { IMigrateFile } from "../structures/IMigrateFile";
 import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { ISwagger } from "../structures/ISwagger";
@@ -7,8 +9,9 @@ import { DtoProgrammer } from "./DtoProgrammer";
 
 export namespace MigrateProgrammer {
     export const analyze = (swagger: ISwagger): IMigrateProgram => {
-        const controllers = ControllerProgrammer.analyze(swagger);
-        const structures = DtoProgrammer.analyze(swagger);
+        const controllers: IMigrateController[] =
+            ControllerProgrammer.analyze(swagger);
+        const structures: IMigrateDto[] = DtoProgrammer.analyze(swagger);
         return {
             controllers,
             structures,
@@ -29,6 +32,31 @@ export namespace MigrateProgrammer {
                     file: `${c.name}.ts`,
                     content: ControllerProgrammer.write(components)(c),
                 })),
+                {
+                    location: "src",
+                    file: "MyModule.ts",
+                    content: MyModule(program.controllers),
+                },
             ];
         };
 }
+
+const MyModule = (controllers: IMigrateController[]): string =>
+    [
+        `import { Module } from "@nestjs/common";`,
+        ``,
+        ...controllers.map(
+            (c) =>
+                `import { ${c.name} } from "${c.location.replace(
+                    "src/",
+                    "./",
+                )}/${c.name}";`,
+        ),
+        ``,
+        `@Module({`,
+        `    controllers: [`,
+        ...controllers.map((c) => `        ${c.name},`),
+        `    ],`,
+        `})`,
+        `export class MyModule {}`,
+    ].join("\n");

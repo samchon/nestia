@@ -157,15 +157,9 @@ export class NestiaSdkApplication {
         //----
         console.log("Analyzing source codes");
 
-        // FOR TS 5.3+ CASE: https://github.com/microsoft/TypeScript/pull/55739
-        const host: ts.CompilerHost = ts.createCompilerHost(
-            this.compilerOptions,
-        );
-        host.jsDocParsingMode = 0;
         const program: ts.Program = ts.createProgram(
             controllers.map((c) => c.file),
             this.compilerOptions,
-            host,
         );
         project.checker = program.getTypeChecker();
 
