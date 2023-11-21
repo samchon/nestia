@@ -60,6 +60,14 @@ export interface IConnection<Headers extends object = {}> {
      * security reason.
      */
     encryption?: IEncryptionPassword | IEncryptionPassword.Closure;
+
+    /**
+     * Custom fetch function.
+     *
+     * If you want to use custom `fetch` function instead of built-in function,
+     * assign your custom `fetch` function into this property.
+     */
+    fetch?: typeof fetch;
 }
 export namespace IConnection {
     /**

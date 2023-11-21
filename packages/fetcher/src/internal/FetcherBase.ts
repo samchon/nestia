@@ -129,7 +129,7 @@ export namespace FetcherBase {
 
             // DO FETCH
             const response: Response = await (
-                await polyfill.get()
+                connection.fetch ?? (await polyfill.get())
             )(url.href, init);
 
             // CONSTRUCT RESULT DATA
@@ -189,8 +189,7 @@ const polyfill = new Singleton(async (): Promise<typeof fetch> => {
         typeof global.process.versions === "object" &&
         typeof global.process.versions.node !== undefined
     ) {
-        if (global.fetch === undefined)
-            global.fetch ??= ((await import2("node-fetch")) as any).default;
+        global.fetch ??= ((await import2("node-fetch")) as any).default;
         return (global as any).fetch;
     }
     return window.fetch;

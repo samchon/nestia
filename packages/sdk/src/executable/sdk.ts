@@ -64,6 +64,8 @@ async function main() {
     else if (type === "swagger") await execute((c) => c.swagger());
     else if (type === "e2e") await execute((c) => c.e2e());
     else halt(USAGE);
+
+    process.exit(0);
 }
 main().catch((exp) => {
     console.log(exp);
