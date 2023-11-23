@@ -6,7 +6,7 @@ import {
 import type express from "express";
 import type { FastifyRequest } from "fastify";
 
-import { assert, is, validate } from "typia";
+import { assert, is, misc, validate } from "typia";
 
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
 import { validate_request_body } from "./internal/validate_request_body";
@@ -47,6 +47,7 @@ export function TypedBody<T>(
     })();
 }
 
+Object.assign(TypedBody, misc.clone);
 Object.assign(TypedBody, is);
 Object.assign(TypedBody, assert);
 Object.assign(TypedBody, validate);
