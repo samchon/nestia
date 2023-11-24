@@ -10,6 +10,7 @@ import { ParamCategory } from "../structures/ParamCategory";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { PathAnalyzer } from "./PathAnalyzer";
 import { SecurityAnalyzer } from "./SecurityAnalyzer";
+import { IGNORE_SDK_METADATA } from "../../../core/src/decorators/Exclude";
 
 type IModule = {
     [key: string]: any;
@@ -87,6 +88,12 @@ export namespace ReflectAnalyzer {
                     Constants.HOST_METADATA,
                     Constants.SCOPE_OPTIONS_METADATA,
                 ) === false
+            )
+                return null;
+
+            // CHECK WHETHER TO IGNORE THE CONTROLLER
+            else if (
+                !!Reflect.getMetadata(IGNORE_SDK_METADATA, creator)
             )
                 return null;
 
@@ -208,6 +215,12 @@ export namespace ReflectAnalyzer {
                     Constants.PATH_METADATA,
                     Constants.METHOD_METADATA,
                 ) === false
+            )
+                return null;
+
+            // CHECK WHETHER TO IGNORE THE ENDPOINT
+            else if (
+                !!Reflect.getMetadata(IGNORE_SDK_METADATA, proto)
             )
                 return null;
 
