@@ -115,6 +115,10 @@ export namespace ControllerAnalyzer {
                 return [];
             }
 
+            // SKIP @IGNORE TAG
+            const jsDocTags = signature.getJsDocTags();
+            if (jsDocTags.some((tag) => tag.name === "ignore")) return [];
+
             // EXPLORE CHILDREN TYPES
             const importDict: ImportAnalyzer.Dictionary = new HashMap();
             const parameters: Array<IRoute.IParameter | null> =
@@ -168,8 +172,7 @@ export namespace ControllerAnalyzer {
                 .toJSON()
                 .map((pair) => [pair.first, pair.second.toJSON()]);
 
-            // PARSE COMMENT TAGS
-            const jsDocTags = signature.getJsDocTags();
+            // CONSIDER SECURITY TAGS
             const security: Record<string, string[]>[] = SecurityAnalyzer.merge(
                 ...controller.security,
                 ...func.security,
