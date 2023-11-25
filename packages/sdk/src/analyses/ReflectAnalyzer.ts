@@ -10,7 +10,7 @@ import { ParamCategory } from "../structures/ParamCategory";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { PathAnalyzer } from "./PathAnalyzer";
 import { SecurityAnalyzer } from "./SecurityAnalyzer";
-import { IGNORE_SDK_METADATA } from "../../../core/src/decorators/Exclude";
+import { IGNORE_SDK_METADATA } from "../../../core/src/decorators/IgnoreSdk";
 
 type IModule = {
     [key: string]: any;

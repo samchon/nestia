@@ -4,7 +4,7 @@ export * from "./decorators/EncryptedController";
 export * from "./decorators/EncryptedModule";
 export * from "./decorators/EncryptedRoute";
 export * from "./utils/ExceptionManager";
-export * from "./decorators/Exclude";
+export * from "./decorators/IgnoreSdk";
 export * from "./decorators/PlainBody";
 export * from "./decorators/TypedBody";
 export * from "./decorators/TypedException";
