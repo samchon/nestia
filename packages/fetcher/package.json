@@ -1,6 +1,6 @@
 {
   "name": "@nestia/fetcher",
-  "version": "2.3.12",
+  "version": "2.4.0",
   "description": "Fetcher library of Nestia SDK",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -32,7 +32,7 @@
     "@typescript-eslint/parser": "^5.46.1",
     "prettier": "^2.8.1",
     "rimraf": "^3.0.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.2"
   },
   "peerDependencies": {
     "typescript": ">= 4.8.0"

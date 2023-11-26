@@ -1,6 +1,7 @@
 import { Tabs, Tab } from 'nextra-theme-docs'
 
 import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import Stack from '@mui/material/Stack';
 
 # Setup
@@ -417,7 +418,7 @@ Also, never forget to configure `strict` (or `strictNullChecks`) as `true`. It i
 ```json filename="package.json" showLineNumbers copy
 {
     "scripts": {
-        "prepare": "ts-patch install"
+        "prepare": "ts-patch install && typia patch"
     }
 }
 ```
@@ -447,11 +448,19 @@ Of course, you've to run the `npm run prepare` command after configuration.
 For reference, [`ts-patch`](https://github.com/nonara/ts-patch) is an helper library of TypeScript compiler that supporting custom transformations by plugins. With the [`ts-patch`](https://github.com/nonara/ts-patch) setup and plugin configurations, whenever you run `tsc` command, your `@nestia/core` decorator function call statements would be transformed to the optimal operation codes in the compiled JavaScript files.
 
 <br/>
-<Stack>
-    <Alert severity="warning">
-If manual setup is difficult, just use the [Setup Wizard](#setup-wizard) \o/.
-    </Alert>
-</Stack>
+<Alert severity="warning">
+
+    <AlertTitle>
+        **`npx typia patch`** 
+    </AlertTitle> 
+
+Since TypeScript v5.3 update, `tsc` no more parses `JSDocComment`s. Therefore, (`@nestia/core`) `typia` also cannot utilize those `JSDocComment` related features too, especially ["Comment Tags"](https://typia.io/docs/validators/tags/#comment-tags) and ["JSON schema generator"](https://typia.io/docs/json/schema). 
+
+The `npx typia patch` command has been developed to revive the `JSDocComment` parsing feature of `tsc`. It is temporary solution for the TypeScript v5.3 update instead of [`ts-patch`](https://github.com/nonara/ts-patch), and will be disabled after [`ts-patch`](https://github.com/nonara/ts-patch) starts supporting such TypeScript v5.3 update.
+
+Of course, if you don't use any ["Comment Tags"](https://typia.io/docs/validators/tags/#comment-tags) and ["JSON schema generator"](https://typia.io/docs/json/schema), you don't need to run `npx typia patch` command. This is not mandatory command, but just optional command.
+
+</Alert>
 
 
 

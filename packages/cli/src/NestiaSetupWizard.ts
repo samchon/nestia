@@ -18,7 +18,7 @@ export namespace NestiaSetupWizard {
         // INSTALL TYPESCRIPT COMPILERS
         pack.install({ dev: true, modulo: "ts-patch", version: "latest" });
         pack.install({ dev: true, modulo: "ts-node", version: "latest" });
-        pack.install({ dev: true, modulo: "typescript", version: "5.2.2" });
+        pack.install({ dev: true, modulo: "typescript", version: "5.3.2" });
         args.project ??= (() => {
             const runner: string =
                 pack.manager === "npm" ? "npx" : pack.manager;
@@ -34,10 +34,24 @@ export namespace NestiaSetupWizard {
                 typeof data.scripts.prepare === "string" &&
                 data.scripts.prepare.trim().length
             ) {
-                if (data.scripts.prepare.indexOf("ts-patch install") === -1)
+                if (
+                    data.scripts.prepare.indexOf("ts-patch install") === -1 &&
+                    data.scripts.prepare.indexOf("typia patch") === -1
+                )
+                    data.scripts.prepare =
+                        "ts-patch install && typia patch && " +
+                        data.scripts.prepare;
+                else if (
+                    data.scripts.prepare.indexOf("ts-patch install") === -1
+                )
                     data.scripts.prepare =
                         "ts-patch install && " + data.scripts.prepare;
-            } else data.scripts.prepare = "ts-patch install";
+                else if (data.scripts.prepare.indexOf("typia patch") === -1)
+                    data.scripts.prepare = data.scripts.prepare.replace(
+                        "ts-patch install",
+                        "ts-patch install && typia patch",
+                    );
+            } else data.scripts.prepare = "ts-patch install && typia patch";
 
             // FOR OLDER VERSIONS
             if (typeof data.scripts.postinstall === "string") {
@@ -50,13 +64,15 @@ export namespace NestiaSetupWizard {
                     delete data.scripts.postinstall;
             }
         });
-        CommandExecutor.run(`${pack.manager} run prepare`);
 
         // INSTALL AND CONFIGURE NESTIA
         pack.install({ dev: false, modulo: "@nestia/core", version: "latest" });
         pack.install({ dev: true, modulo: "@nestia/e2e", version: "latest" });
         pack.install({ dev: true, modulo: "@nestia/sdk", version: "latest" });
         pack.install({ dev: true, modulo: "nestia", version: "latest" });
+        pack.install({ dev: false, modulo: "typia" });
+
         await PluginConfigurator.configure(args);
+        CommandExecutor.run(`${pack.manager} run prepare`);
     }
 }
