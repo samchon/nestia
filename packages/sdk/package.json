@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "2.3.12",
+  "version": "2.4.0",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -13,7 +13,7 @@
     "eslint": "eslint ./**/*.ts",
     "package:latest": "npm run build && npm publish --access public",
     "package:next": "npm run package:latest -- --tag next",
-    "prepare": "ts-patch install",
+    "prepare": "ts-patch install && typia patch",
     "prettier": "prettier --write ./**/*.ts"
   },
   "repository": {
@@ -35,7 +35,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "^2.3.12",
+    "@nestia/fetcher": "^2.4.0",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",
@@ -44,16 +44,16 @@
     "tsconfck": "^2.0.1",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^2.5.13",
-    "typia": "^5.2.6"
+    "typia": "^5.3.0"
   },
   "peerDependencies": {
-    "@nestia/fetcher": ">=2.3.12",
+    "@nestia/fetcher": ">=2.4.0",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
     "ts-node": ">=10.6.0",
-    "typescript": ">=4.8.0 <5.3.0",
-    "typia": ">=5.2.6 <6.0.0"
+    "typescript": ">=4.8.0 <5.4.0",
+    "typia": ">=5.3.0 <6.0.0"
   },
   "devDependencies": {
     "@nestia/e2e": "^0.3.7",
