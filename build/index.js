@@ -25,8 +25,7 @@ const main = () =>
             fs.readFileSync("package.json", { encoding: "utf-8" }),
         ).scripts?.test;
 
-        // @todo: REMOVE --FORCE KEYWORD AFTER TS 5.3 RELEASE
-        execute("npm install --force");
+        execute("npm install");
         execute("npm run build");
         if (test) execute("npm run test");
     });
