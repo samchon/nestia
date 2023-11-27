@@ -39,15 +39,16 @@ export class PackageManager {
         dev: boolean;
         modulo: string;
         version?: `latest` | `next` | `${number}.${number}.${number}`;
+        force?: boolean;
     }): boolean {
-        const middle: string =
+        const symbol: string =
             this.manager === "yarn"
                 ? `add${props.dev ? " -D" : ""}`
                 : `install ${props.dev ? "--save-dev" : "--save"}`;
         CommandExecutor.run(
-            `${this.manager} ${middle} ${props.modulo}${
-                props.version ? `@${props.version}` : ""
-            }`,
+            `${this.manager} ${symbol}${
+                props.force === true ? " --force" : ""
+            } ${props.modulo}${props.version ? `@${props.version}` : ""}`,
         );
         return true;
     }

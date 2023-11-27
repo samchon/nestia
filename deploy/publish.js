@@ -53,7 +53,7 @@ const setup = (tag) => (version) => (directory) => {
     // SETUP UPDATED DEPENDENCIES
     fs.writeFileSync(file, JSON.stringify(info, null, 2), "utf8");
     execute(directory)("npm cache clean --force");
-    execute(directory)(`npm install --force`); // @todo: REMOVE AFTER TS 5.3 RELEASE
+    execute(directory)(`npm install`);
 };
 
 const deploy = (tag) => (version) => (name) => {
