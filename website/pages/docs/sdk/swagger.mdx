@@ -81,6 +81,7 @@ const NESTIA_CONFIG: INestiaConfig = {
     },
     swagger: {
         output: "dist/swagger.json",
+        beautify: true,
         security: {
             bearer: {
                 type: "apiKey",
@@ -100,7 +101,7 @@ export default NESTIA_CONFIG;
 ```
     </Tab>
     <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers {13-18, 164-214}
+```typescript filename="INestiaConfig.ts" showLineNumbers {13-18, 166-227}
 import type { INestApplication } from "@nestjs/common";
 
 import type { ISwagger } from "./structures/ISwagger";
@@ -280,6 +281,17 @@ export namespace INestiaConfig {
         output: string;
 
         /**
+         * Whether to beautify JSON content or not.
+         * 
+         * If you configure this property to be `true`, the `swagger.json` file would 
+         * be beautified with indentation (2 spaces) and line breaks. If you configure
+         * numeric value instead, the indentation would be specified by the number. 
+         * 
+         * @default false
+         */
+        beautify?: boolean | number;
+
+        /**
          * API information.
          *
          * If omitted, `package.json` content would be used instead.
@@ -430,6 +442,7 @@ const NESTIA_CONFIG: INestiaConfig = {
     },
     swagger: {
         output: "dist/swagger.json",
+        beautify: true,
         security: {
             bearer: {
                 type: "apiKey",
@@ -460,6 +473,7 @@ const NESTIA_CONFIG: INestiaConfig = {
     ],
     swagger: {
         output: "dist/swagger.json",
+        beautify: true,
         security: {
             bearer: {
                 type: "apiKey",
@@ -486,6 +500,7 @@ const NESTIA_CONFIG: INestiaConfig = {
     input: "src/**/*.controller.ts",
     swagger: {
         output: "dist/swagger.json",
+        beautify: true,
         security: {
             bearer: {
                 type: "apiKey",
@@ -515,6 +530,7 @@ const NESTIA_CONFIG: INestiaConfig = {
     },
     swagger: {
         output: "dist/swagger.json",
+        beautify: true,
         security: {
             bearer: {
                 type: "apiKey",
@@ -569,7 +585,7 @@ For reference, target security schemes must be configured in the `nestia.config.
     <code>ISwaggerSecurityScheme</code>,
 ]}>
     <Tab>
-```typescript filename="Controller" showLineNumbers {17-20, 35, 46-48, 67, 69}
+```typescript filename="Controller" showLineNumbers {17-20, 35, 46-49, 66, 68}
 import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { ApiSecurity } from "@nestjs/swagger";
@@ -914,7 +930,7 @@ export class BbsArticlesController {
 ```
     </Tab>
     <Tab>
-```typescript filename="nestia.config.ts" showLineNumbers {8-48}
+```typescript filename="nestia.config.ts" showLineNumbers {6-51}
 import type { INestiaConfig } from "@nestia/sdk";
 
 export const NESTIA_CONFIG: INestiaConfig = {
@@ -922,6 +938,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
     output: "src/api",
     swagger: {
         output: "swagger.json",
+        beautify: true,
         operationId: (props) => `${props.class}.${props.function}`,
         security: {
             //----
@@ -1317,9 +1334,8 @@ You can choose two options for `swagger.json` file distribution.
 
 The 1st is publishing the `swagger.json` file in a public repo, and showing it through Swagger Editor like below:
 
-  - `samchon/nestia-template`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia-template%2Fmaster%2Fpackages%2Fapi%2Fswagger.json)
-  - `samchon/fake-iamport-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Ffake-iamport-server%2Fmaster%2Fpackages%2Fapi%2Fswagger.json)
-  - `samchon/fake-toss-payments-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Ffake-toss-payments-server%2Fmaster%2Fpackages%2Fapi%2Fswagger.json)
+  - `samchon/fake-iamport-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fpayments%2Fmaster%2Fpackages%2Fiamport-server-api%2Fswagger.json)
+  - `samchon/fake-toss-payments-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fpayments%2Fmaster%2Fpackages%2Ftoss-payments-server-api%2Fswagger.json)
 
 The 2nd way is to hosting the `swagger.json` file in the NestJS backend server.
 
