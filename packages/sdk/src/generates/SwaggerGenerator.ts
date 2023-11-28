@@ -133,7 +133,15 @@ export namespace SwaggerGenerator {
             // DO GENERATE
             await fs.promises.writeFile(
                 location,
-                JSON.stringify(swagger, null, 2),
+                !config.beautify
+                    ? JSON.stringify(swagger)
+                    : JSON.stringify(
+                          swagger,
+                          null,
+                          typeof config.beautify === "number"
+                              ? config.beautify
+                              : 2,
+                      ),
                 "utf8",
             );
         };

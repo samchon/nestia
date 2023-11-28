@@ -136,6 +136,7 @@ export namespace IJsonSchema {
         minItems?: undefined | (number & Type<"uint32">);
         maxItems?: undefined | (number & Type<"uint32">);
         "x-typia-tuple"?: undefined | IJsonSchema.ITuple;
+        "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
         type: ("array");
         /**
          * Only when swagger mode.

@@ -2,12 +2,14 @@ import type { Type } from "typia/lib/tags/Type";
 
 import type { IJsDocTagInfo } from "./IJsDocTagInfo";
 import type { IJsonSchema } from "./IJsonSchema";
+import type { IMetadataTypeTag } from "./IMetadataTypeTag";
 
 export type IArrayIIdentified = {
     items: IJsonSchema;
     minItems?: undefined | (number & Type<"uint32">);
     maxItems?: undefined | (number & Type<"uint32">);
     "x-typia-tuple"?: undefined | IJsonSchema.ITuple;
+    "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
     type: ("array");
     /**
      * Only when swagger mode.

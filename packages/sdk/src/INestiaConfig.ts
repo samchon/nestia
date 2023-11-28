@@ -183,6 +183,17 @@ export namespace INestiaConfig {
         output: string;
 
         /**
+         * Whether to beautify JSON content or not.
+         * 
+         * If you configure this property to be `true`, the `swagger.json` file would 
+         * be beautified with indentation (2 spaces) and line breaks. If you configure
+         * numeric value instead, the indentation would be specified by the number. 
+         * 
+         * @default false
+         */
+        beautify?: boolean | number;
+
+        /**
          * API information.
          *
          * If omitted, `package.json` content would be used instead.
