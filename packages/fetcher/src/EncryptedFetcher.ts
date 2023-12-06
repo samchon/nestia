@@ -21,174 +21,147 @@ import { IFetchRoute } from "./internal/IFetchRoute";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace EncryptedFetcher {
-    /**
-     * Fetch function only for `HEAD` method.
-     *
-     * @param connection Connection information for the remote HTTP server
-     * @param route Route information about the target API
-     * @return Nothing because of `HEAD` method
-     */
-    export function fetch(
-        connection: IConnection,
-        route: IFetchRoute<"HEAD">,
-    ): Promise<void>;
+  /**
+   * Fetch function only for `HEAD` method.
+   *
+   * @param connection Connection information for the remote HTTP server
+   * @param route Route information about the target API
+   * @return Nothing because of `HEAD` method
+   */
+  export function fetch(
+    connection: IConnection,
+    route: IFetchRoute<"HEAD">,
+  ): Promise<void>;
 
-    /**
-     * Fetch function only for `GET` method.
-     *
-     * @param connection Connection information for the remote HTTP server
-     * @param route Route information about the target API
-     * @return Response body data from the remote API
-     */
-    export function fetch<Output>(
-        connection: IConnection,
-        route: IFetchRoute<"GET">,
-    ): Promise<Primitive<Output>>;
+  /**
+   * Fetch function only for `GET` method.
+   *
+   * @param connection Connection information for the remote HTTP server
+   * @param route Route information about the target API
+   * @return Response body data from the remote API
+   */
+  export function fetch<Output>(
+    connection: IConnection,
+    route: IFetchRoute<"GET">,
+  ): Promise<Primitive<Output>>;
 
-    /**
-     * Fetch function for the `POST`, `PUT`, `PATCH` and `DELETE` methods.
-     *
-     * @param connection Connection information for the remote HTTP server
-     * @param route Route information about the target API
-     * @return Response body data from the remote API
-     */
-    export function fetch<Input, Output>(
-        connection: IConnection,
-        route: IFetchRoute<"POST" | "PUT" | "PATCH" | "DELETE">,
-        input?: Input,
-        stringify?: (input: Input) => string,
-    ): Promise<Primitive<Output>>;
+  /**
+   * Fetch function for the `POST`, `PUT`, `PATCH` and `DELETE` methods.
+   *
+   * @param connection Connection information for the remote HTTP server
+   * @param route Route information about the target API
+   * @return Response body data from the remote API
+   */
+  export function fetch<Input, Output>(
+    connection: IConnection,
+    route: IFetchRoute<"POST" | "PUT" | "PATCH" | "DELETE">,
+    input?: Input,
+    stringify?: (input: Input) => string,
+  ): Promise<Primitive<Output>>;
 
-    export async function fetch<Input, Output>(
-        connection: IConnection,
-        route: IFetchRoute<
-            "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
-        >,
-        input?: Input,
-        stringify?: (input: Input) => string,
-    ): Promise<Primitive<Output>> {
-        if (
-            (route.request?.encrypted === true || route.response?.encrypted) &&
-            connection.encryption === undefined
-        )
-            throw new Error(
-                "Error on EncryptedFetcher.fetch(): the encryption password has not been configured.",
-            );
-        const closure =
-            typeof connection.encryption === "function"
-                ? (direction: "encode" | "decode") =>
-                      (
-                          headers: Record<
-                              string,
-                              IConnection.HeaderValue | undefined
-                          >,
-                          body: string,
-                      ) =>
-                          (
-                              connection.encryption as IEncryptionPassword.Closure
-                          )({
-                              headers,
-                              body,
-                              direction,
-                          })
-                : () => () => connection.encryption as IEncryptionPassword;
+  export async function fetch<Input, Output>(
+    connection: IConnection,
+    route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
+    input?: Input,
+    stringify?: (input: Input) => string,
+  ): Promise<Primitive<Output>> {
+    if (
+      (route.request?.encrypted === true || route.response?.encrypted) &&
+      connection.encryption === undefined
+    )
+      throw new Error(
+        "Error on EncryptedFetcher.fetch(): the encryption password has not been configured.",
+      );
+    const closure =
+      typeof connection.encryption === "function"
+        ? (direction: "encode" | "decode") =>
+            (
+              headers: Record<string, IConnection.HeaderValue | undefined>,
+              body: string,
+            ) =>
+              (connection.encryption as IEncryptionPassword.Closure)({
+                headers,
+                body,
+                direction,
+              })
+        : () => () => connection.encryption as IEncryptionPassword;
 
-        return FetcherBase.fetch({
-            className: "EncryptedFetcher",
-            encode:
-                route.request?.encrypted === true
-                    ? (input, headers) => {
-                          const p = closure("encode")(headers, input);
-                          return AesPkcs5.encrypt(
-                              JSON.stringify(input),
-                              p.key,
-                              p.iv,
-                          );
-                      }
-                    : (input) => input,
-            decode:
-                route.response?.encrypted === true
-                    ? (input, headers) => {
-                          const p = closure("decode")(headers, input);
-                          const str = AesPkcs5.decrypt(input, p.key, p.iv);
-                          return str.length ? JSON.parse(str) : str;
-                      }
-                    : (input) => input,
-        })(connection, route, input, stringify);
-    }
+    return FetcherBase.fetch({
+      className: "EncryptedFetcher",
+      encode:
+        route.request?.encrypted === true
+          ? (input, headers) => {
+              const p = closure("encode")(headers, input);
+              return AesPkcs5.encrypt(JSON.stringify(input), p.key, p.iv);
+            }
+          : (input) => input,
+      decode:
+        route.response?.encrypted === true
+          ? (input, headers) => {
+              const p = closure("decode")(headers, input);
+              const str = AesPkcs5.decrypt(input, p.key, p.iv);
+              return str.length ? JSON.parse(str) : str;
+            }
+          : (input) => input,
+    })(connection, route, input, stringify);
+  }
 
-    export function propagate<Output extends IPropagation<any, any>>(
-        connection: IConnection,
-        route: IFetchRoute<"GET" | "HEAD">,
-    ): Promise<Output>;
+  export function propagate<Output extends IPropagation<any, any>>(
+    connection: IConnection,
+    route: IFetchRoute<"GET" | "HEAD">,
+  ): Promise<Output>;
 
-    export function propagate<Input, Output extends IPropagation<any, any>>(
-        connection: IConnection,
-        route: IFetchRoute<
-            "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
-        >,
-        input?: Input,
-        stringify?: (input: Input) => string,
-    ): Promise<Output>;
+  export function propagate<Input, Output extends IPropagation<any, any>>(
+    connection: IConnection,
+    route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
+    input?: Input,
+    stringify?: (input: Input) => string,
+  ): Promise<Output>;
 
-    export async function propagate<
-        Input,
-        Output extends IPropagation<any, any>,
-    >(
-        connection: IConnection,
-        route: IFetchRoute<
-            "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
-        >,
-        input?: Input,
-        stringify?: (input: Input) => string,
-    ): Promise<Output> {
-        if (
-            (route.request?.encrypted === true || route.response?.encrypted) &&
-            connection.encryption === undefined
-        )
-            throw new Error(
-                "Error on EncryptedFetcher.propagate(): the encryption password has not been configured.",
-            );
-        const closure =
-            typeof connection.encryption === "function"
-                ? (direction: "encode" | "decode") =>
-                      (
-                          headers: Record<
-                              string,
-                              IConnection.HeaderValue | undefined
-                          >,
-                          body: string,
-                      ) =>
-                          (
-                              connection.encryption as IEncryptionPassword.Closure
-                          )({
-                              headers,
-                              body,
-                              direction,
-                          })
-                : () => () => connection.encryption as IEncryptionPassword;
+  export async function propagate<Input, Output extends IPropagation<any, any>>(
+    connection: IConnection,
+    route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
+    input?: Input,
+    stringify?: (input: Input) => string,
+  ): Promise<Output> {
+    if (
+      (route.request?.encrypted === true || route.response?.encrypted) &&
+      connection.encryption === undefined
+    )
+      throw new Error(
+        "Error on EncryptedFetcher.propagate(): the encryption password has not been configured.",
+      );
+    const closure =
+      typeof connection.encryption === "function"
+        ? (direction: "encode" | "decode") =>
+            (
+              headers: Record<string, IConnection.HeaderValue | undefined>,
+              body: string,
+            ) =>
+              (connection.encryption as IEncryptionPassword.Closure)({
+                headers,
+                body,
+                direction,
+              })
+        : () => () => connection.encryption as IEncryptionPassword;
 
-        return FetcherBase.propagate({
-            className: "EncryptedFetcher",
-            encode:
-                route.request?.encrypted === true
-                    ? (input, headers) => {
-                          const p = closure("encode")(headers, input);
-                          return AesPkcs5.encrypt(
-                              JSON.stringify(input),
-                              p.key,
-                              p.iv,
-                          );
-                      }
-                    : (input) => input,
-            decode:
-                route.response?.encrypted === true
-                    ? (input, headers) => {
-                          const p = closure("decode")(headers, input);
-                          const str = AesPkcs5.decrypt(input, p.key, p.iv);
-                          return str.length ? JSON.parse(str) : str;
-                      }
-                    : (input) => input,
-        })(connection, route, input, stringify) as Promise<Output>;
-    }
+    return FetcherBase.propagate({
+      className: "EncryptedFetcher",
+      encode:
+        route.request?.encrypted === true
+          ? (input, headers) => {
+              const p = closure("encode")(headers, input);
+              return AesPkcs5.encrypt(JSON.stringify(input), p.key, p.iv);
+            }
+          : (input) => input,
+      decode:
+        route.response?.encrypted === true
+          ? (input, headers) => {
+              const p = closure("decode")(headers, input);
+              const str = AesPkcs5.decrypt(input, p.key, p.iv);
+              return str.length ? JSON.parse(str) : str;
+            }
+          : (input) => input,
+    })(connection, route, input, stringify) as Promise<Output>;
+  }
 }

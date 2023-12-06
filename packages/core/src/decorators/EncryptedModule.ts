@@ -36,44 +36,44 @@ import { load_controllers } from "./internal/load_controller";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export function EncryptedModule(
-    metadata: Parameters<typeof Module>[0],
-    password: IEncryptionPassword | IEncryptionPassword.Closure,
+  metadata: Parameters<typeof Module>[0],
+  password: IEncryptionPassword | IEncryptionPassword.Closure,
 ): ClassDecorator {
-    return function (target: any) {
-        Module(metadata)(target);
-        if (metadata.controllers === undefined) return;
+  return function (target: any) {
+    Module(metadata)(target);
+    if (metadata.controllers === undefined) return;
 
-        for (const c of metadata.controllers)
-            if (Reflect.hasMetadata(ENCRYPTION_METADATA_KEY, c) === false)
-                Reflect.defineMetadata(ENCRYPTION_METADATA_KEY, password, c);
-    };
+    for (const c of metadata.controllers)
+      if (Reflect.hasMetadata(ENCRYPTION_METADATA_KEY, c) === false)
+        Reflect.defineMetadata(ENCRYPTION_METADATA_KEY, password, c);
+  };
 }
 
 export namespace EncryptedModule {
-    /**
-     * Dynamic encrypted module.
-     *
-     * `EncryptedModule.dynamic` is an extension of the {@link EncryptedModule} function
-     * who configures controller classes by the dynamic importing. By specifying directory
-     * path of the controller classes, those controllers would be automatically imported
-     * and configured.
-     *
-     * @param path Directory path of the controller classes
-     * @param password Encryption password or its getter function
-     * @param options Additional options except controller
-     * @returns Class decorated module instance
-     */
-    export async function dynamic(
-        path: string | string[] | { include: string[]; exclude?: string[] },
-        password: IEncryptionPassword | IEncryptionPassword.Closure,
-        options: Omit<Parameters<typeof Module>[0], "controllers"> = {},
-    ): Promise<object> {
-        // LOAD CONTROLLERS
-        const controllers: Creator<object>[] = await load_controllers(path);
+  /**
+   * Dynamic encrypted module.
+   *
+   * `EncryptedModule.dynamic` is an extension of the {@link EncryptedModule} function
+   * who configures controller classes by the dynamic importing. By specifying directory
+   * path of the controller classes, those controllers would be automatically imported
+   * and configured.
+   *
+   * @param path Directory path of the controller classes
+   * @param password Encryption password or its getter function
+   * @param options Additional options except controller
+   * @returns Class decorated module instance
+   */
+  export async function dynamic(
+    path: string | string[] | { include: string[]; exclude?: string[] },
+    password: IEncryptionPassword | IEncryptionPassword.Closure,
+    options: Omit<Parameters<typeof Module>[0], "controllers"> = {},
+  ): Promise<object> {
+    // LOAD CONTROLLERS
+    const controllers: Creator<object>[] = await load_controllers(path);
 
-        // RETURNS WITH DECORATING
-        @EncryptedModule({ ...options, controllers }, password)
-        class NestiaModule {}
-        return NestiaModule;
-    }
+    // RETURNS WITH DECORATING
+    @EncryptedModule({ ...options, controllers }, password)
+    class NestiaModule {}
+    return NestiaModule;
+  }
 }

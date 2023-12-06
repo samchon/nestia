@@ -13,47 +13,45 @@ npx nestia [command] [options?]
 `;
 
 function halt(desc: string): never {
-    console.error(desc);
-    process.exit(-1);
+  console.error(desc);
+  process.exit(-1);
 }
 
 async function main(): Promise<void> {
-    const type: string | undefined = process.argv[2];
-    const argv: string[] = process.argv.slice(3);
+  const type: string | undefined = process.argv[2];
+  const argv: string[] = process.argv.slice(3);
 
-    if (type === "start") {
-        await (
-            await import("./NestiaStarter")
-        ).NestiaStarter.start((msg) => halt(msg ?? USAGE))(argv);
-    } else if (type === "setup") {
-        try {
-            await import("comment-json");
-            await import("inquirer");
-            await import("commander");
-        } catch {
-            halt(
-                `nestia has not been installed. Run "npm i -D nestia" before.`,
-            );
-        }
-        await (await import("./NestiaSetupWizard")).NestiaSetupWizard.setup();
-    } else if (
-        type === "dependencies" ||
-        type === "init" ||
-        type === "sdk" ||
-        type === "swagger" ||
-        type === "e2e"
-    ) {
-        try {
-            require.resolve("@nestia/sdk/lib/executable/sdk");
-        } catch {
-            halt(
-                `@nestia/sdk has not been installed. Run "npx nestia setup" before.`,
-            );
-        }
-        await import("@nestia/sdk/lib/executable/sdk");
-    } else halt(USAGE);
+  if (type === "start") {
+    await (
+      await import("./NestiaStarter")
+    ).NestiaStarter.start((msg) => halt(msg ?? USAGE))(argv);
+  } else if (type === "setup") {
+    try {
+      await import("comment-json");
+      await import("inquirer");
+      await import("commander");
+    } catch {
+      halt(`nestia has not been installed. Run "npm i -D nestia" before.`);
+    }
+    await (await import("./NestiaSetupWizard")).NestiaSetupWizard.setup();
+  } else if (
+    type === "dependencies" ||
+    type === "init" ||
+    type === "sdk" ||
+    type === "swagger" ||
+    type === "e2e"
+  ) {
+    try {
+      require.resolve("@nestia/sdk/lib/executable/sdk");
+    } catch {
+      halt(
+        `@nestia/sdk has not been installed. Run "npx nestia setup" before.`,
+      );
+    }
+    await import("@nestia/sdk/lib/executable/sdk");
+  } else halt(USAGE);
 }
 main().catch((exp) => {
-    console.log(exp.message);
-    process.exit(-1);
+  console.log(exp.message);
+  process.exit(-1);
 });

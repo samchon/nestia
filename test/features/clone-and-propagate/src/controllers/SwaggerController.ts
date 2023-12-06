@@ -5,8 +5,8 @@ import typia from "typia";
 
 @nest.Controller("swagger")
 export class SwaggerController {
-    @core.TypedRoute.Get()
-    public get(): ISwagger {
-        return typia.random<ISwagger>();
-    }
+  @core.TypedRoute.Get()
+  public get(): ISwagger {
+    return typia.random<ISwagger>();
+  }
 }

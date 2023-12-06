@@ -7,18 +7,18 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 @Controller("body")
 export class TypedBodyController {
-    @core.TypedRoute.Post()
-    public async store(
-        @core.TypedBody({
-            type: "validate",
-            validate: typia.createValidate<IBbsArticle.IStore>(),
-        })
-        input: IBbsArticle.IStore,
-    ): Promise<IBbsArticle> {
-        return {
-            ...input,
-            id: v4(),
-            created_at: new Date().toISOString(),
-        };
-    }
+  @core.TypedRoute.Post()
+  public async store(
+    @core.TypedBody({
+      type: "validate",
+      validate: typia.createValidate<IBbsArticle.IStore>(),
+    })
+    input: IBbsArticle.IStore,
+  ): Promise<IBbsArticle> {
+    return {
+      ...input,
+      id: v4(),
+      created_at: new Date().toISOString(),
+    };
+  }
 }

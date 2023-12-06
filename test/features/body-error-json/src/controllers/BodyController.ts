@@ -6,12 +6,12 @@ import { IBbsArticle } from "../api/structures/IBbsArticle";
 
 @Controller("bbs/articles")
 export class BbsArticlesController {
-    @core.TypedRoute.Post(":id")
-    public update(
-        @core.TypedParam("id") id: string & tags.Format<"uuid">,
-        @core.TypedBody() input: IBbsArticle.IUpdate,
-    ): void {
-        id;
-        input;
-    }
+  @core.TypedRoute.Post(":id")
+  public update(
+    @core.TypedParam("id") id: string & tags.Format<"uuid">,
+    @core.TypedBody() input: IBbsArticle.IUpdate,
+  ): void {
+    id;
+    input;
+  }
 }

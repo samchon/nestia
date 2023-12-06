@@ -17,5 +17,19 @@ import type { IUnknownIIdentified } from "./IUnknownIIdentified";
  * Construct a type with a set of properties K of type T
  */
 export type RecordstringIObjectIAlias = {
-    [key: string]: IJsonComponents.IObject | IEnumerationbooleanIIdentified | IEnumerationnumberIIdentified | IEnumerationstringIIdentified | IBooleanIIdentified | IIntegerIIdentified | INumberIIdentified | IStringIIdentified | IArrayIIdentified | ITupleIIdentified | IOneOfIIdentified | IReferenceIIdentified | INullOnlyIIdentified | IUnknownIIdentified;
-}
+  [key: string]:
+    | IJsonComponents.IObject
+    | IEnumerationbooleanIIdentified
+    | IEnumerationnumberIIdentified
+    | IEnumerationstringIIdentified
+    | IBooleanIIdentified
+    | IIntegerIIdentified
+    | INumberIIdentified
+    | IStringIIdentified
+    | IArrayIIdentified
+    | ITupleIIdentified
+    | IOneOfIIdentified
+    | IReferenceIIdentified
+    | INullOnlyIIdentified
+    | IUnknownIIdentified;
+};

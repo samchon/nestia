@@ -32,12 +32,10 @@
   "devDependencies": {
     "@nestia/core": "^2.4.0",
     "@nestia/fetcher": "^2.4.0",
-    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@types/express": "^4.17.21",
     "@types/node": "^20.3.3",
     "dotenv": "^16.3.1",
     "dotenv-expand": "^10.0.0",
-    "prettier": "^2.8.8",
     "rimraf": "^5.0.1",
     "serialize-error": "^4.1.0",
     "source-map-support": "^0.5.21",

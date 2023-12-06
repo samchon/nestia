@@ -3,18 +3,18 @@ import { ISwaggerInfo } from "./ISwaggerInfo";
 import { ISwaggerRoute } from "./ISwaggerRoute";
 
 export interface ISwagger {
-    openapi: `3.0.${number}`;
-    info: ISwaggerInfo;
-    servers: ISwagger.IServer[];
+  openapi: `3.0.${number}`;
+  info: ISwaggerInfo;
+  servers: ISwagger.IServer[];
 
-    components: ISwaggerComponents;
-    paths: Record<string, ISwagger.IPath>;
-    security?: Record<string, string[]>[];
+  components: ISwaggerComponents;
+  paths: Record<string, ISwagger.IPath>;
+  security?: Record<string, string[]>[];
 }
 export namespace ISwagger {
-    export interface IServer {
-        url: string;
-        description?: string;
-    }
-    export type IPath = Record<string, ISwaggerRoute>;
+  export interface IServer {
+    url: string;
+    description?: string;
+  }
+  export type IPath = Record<string, ISwaggerRoute>;
 }

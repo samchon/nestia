@@ -6,13 +6,14 @@ import api from "../../../../api";
 import type { IBbsArticle } from "../../../../api/structures/IBbsArticle";
 
 export const test_api_bbs_$package_articles_update = async (
-    connection: api.IConnection
+  connection: api.IConnection,
 ): Promise<void> => {
-    const output: Primitive<IBbsArticle> = await api.functional.bbs.$package.articles.update(
-        connection,
-        typia.random<Resolved<string>>(),
-        typia.random<Resolved<string & Format<"uuid">>>(),
-        typia.random<Primitive<IBbsArticle.IStore>>(),
+  const output: Primitive<IBbsArticle> =
+    await api.functional.bbs.$package.articles.update(
+      connection,
+      typia.random<Resolved<string>>(),
+      typia.random<Resolved<string & Format<"uuid">>>(),
+      typia.random<Primitive<IBbsArticle.IStore>>(),
     );
-    typia.assert(output);
+  typia.assert(output);
 };

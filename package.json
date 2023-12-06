@@ -9,6 +9,7 @@
     "package:latest": "node deploy latest",
     "package:next": "node deploy next",
     "package:tgz": "node deploy tgz",
+    "prettier": "prettier packages/*/src/**/*.ts --write && prettier test/**/*.ts --write",
     "test": "cd test && npm run start"
   },
   "repository": {

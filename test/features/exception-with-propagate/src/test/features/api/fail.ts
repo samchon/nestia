@@ -6,14 +6,14 @@ import api from "@api";
 const test = api.functional.fail.get;
 
 export const test_expired = async (connection: IConnection) => {
-    const response = await test(connection, "EXPIRED_PERMISSION");
-    if (response.status === 401)
-        TestValidator.equals("response")(response.data)("EXPIRED_PERMISSION");
-    else throw Error("unexpected response");
+  const response = await test(connection, "EXPIRED_PERMISSION");
+  if (response.status === 401)
+    TestValidator.equals("response")(response.data)("EXPIRED_PERMISSION");
+  else throw Error("unexpected response");
 };
 export const test_invalid = async (connection: IConnection) => {
-    const response = await test(connection, "INVALID_PERMISSION");
-    if (response.status === 401)
-        TestValidator.equals("response")(response.data)("INVALID_PERMISSION");
-    else throw Error("unexpected response");
+  const response = await test(connection, "INVALID_PERMISSION");
+  if (response.status === 401)
+    TestValidator.equals("response")(response.data)("INVALID_PERMISSION");
+  else throw Error("unexpected response");
 };

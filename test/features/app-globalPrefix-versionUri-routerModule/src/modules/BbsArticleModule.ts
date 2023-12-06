@@ -3,6 +3,6 @@ import { Module } from "@nestjs/common";
 import { BbsArticlesController } from "../controllers/BbsArticlesController";
 
 @Module({
-    controllers: [BbsArticlesController],
+  controllers: [BbsArticlesController],
 })
 export class BbsArticleModule {}

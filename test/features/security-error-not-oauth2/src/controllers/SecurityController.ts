@@ -7,9 +7,9 @@ import { IToken } from "@api/lib/structures/IToken";
 
 @Controller()
 export class SecurityController {
-    @ApiSecurity("bearer", ["x1", "x2"])
-    @core.TypedRoute.Get("bearer")
-    public bearer(): IToken {
-        return typia.random<IToken>()
-    }
+  @ApiSecurity("bearer", ["x1", "x2"])
+  @core.TypedRoute.Get("bearer")
+  public bearer(): IToken {
+    return typia.random<IToken>();
+  }
 }

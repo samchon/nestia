@@ -5,15 +5,15 @@ import api from "@api";
 import { IPage } from "@api/lib/structures/IPage";
 
 export const test_api_simulate_invalid_query = (
-    connection: api.IConnection
-): Promise<void> => 
-    TestValidator.httpError("invalid query")(400)(() =>
-        api.functional.bbs.articles.query(
-            connection,
-            typia.random<Primitive<string>>(),
-            {
-                ...typia.random<Primitive<IPage.IRequest>>(),
-                page: "one" as any as number,
-            },
-        ),
-    );
+  connection: api.IConnection,
+): Promise<void> =>
+  TestValidator.httpError("invalid query")(400)(() =>
+    api.functional.bbs.articles.query(
+      connection,
+      typia.random<Primitive<string>>(),
+      {
+        ...typia.random<Primitive<IPage.IRequest>>(),
+        page: "one" as any as number,
+      },
+    ),
+  );

@@ -1,13 +1,12 @@
 import { AesPkcs5 } from "@nestia/fetcher/lib/AesPkcs5";
 import { IEncryptionPassword } from "@nestia/fetcher/lib/IEncryptionPassword";
 import {
-    BadRequestException,
-    ExecutionContext,
-    createParamDecorator,
+  BadRequestException,
+  ExecutionContext,
+  createParamDecorator,
 } from "@nestjs/common";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
-
 import { assert, is, validate } from "typia";
 
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
@@ -39,49 +38,42 @@ import { validate_request_body } from "./internal/validate_request_body";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export function EncryptedBody<T>(
-    validator?: IRequestBodyValidator<T>,
+  validator?: IRequestBodyValidator<T>,
 ): ParameterDecorator {
-    const checker = validate_request_body("EncryptedBody")(validator);
-    return createParamDecorator(async function EncryptedBody(
-        _unknown: any,
-        context: ExecutionContext,
-    ) {
-        const request: express.Request | FastifyRequest = context
-            .switchToHttp()
-            .getRequest();
-        if (isTextPlain(request.headers["content-type"]) === false)
-            throw new BadRequestException(
-                `Request body type is not "text/plain".`,
-            );
+  const checker = validate_request_body("EncryptedBody")(validator);
+  return createParamDecorator(async function EncryptedBody(
+    _unknown: any,
+    context: ExecutionContext,
+  ) {
+    const request: express.Request | FastifyRequest = context
+      .switchToHttp()
+      .getRequest();
+    if (isTextPlain(request.headers["content-type"]) === false)
+      throw new BadRequestException(`Request body type is not "text/plain".`);
 
-        const param:
-            | IEncryptionPassword
-            | IEncryptionPassword.Closure
-            | undefined = Reflect.getMetadata(
-            ENCRYPTION_METADATA_KEY,
-            context.getClass(),
-        );
-        if (!param)
-            throw new Error(
-                "Error on nestia.core.EncryptedBody(): no encryption password is given.",
-            );
+    const param: IEncryptionPassword | IEncryptionPassword.Closure | undefined =
+      Reflect.getMetadata(ENCRYPTION_METADATA_KEY, context.getClass());
+    if (!param)
+      throw new Error(
+        "Error on nestia.core.EncryptedBody(): no encryption password is given.",
+      );
 
-        // GET BODY DATA
-        const headers: Singleton<Record<string, string>> = new Singleton(() =>
-            headers_to_object(request.headers),
-        );
-        const body: string = await get_text_body(request);
-        const password: IEncryptionPassword =
-            typeof param === "function"
-                ? param({ headers: headers.get(), body, direction: "decode" })
-                : param;
+    // GET BODY DATA
+    const headers: Singleton<Record<string, string>> = new Singleton(() =>
+      headers_to_object(request.headers),
+    );
+    const body: string = await get_text_body(request);
+    const password: IEncryptionPassword =
+      typeof param === "function"
+        ? param({ headers: headers.get(), body, direction: "decode" })
+        : param;
 
-        // PARSE AND VALIDATE DATA
-        const data: any = JSON.parse(decrypt(body, password.key, password.iv));
-        const error: Error | null = checker(data);
-        if (error !== null) throw error;
-        return data;
-    })();
+    // PARSE AND VALIDATE DATA
+    const data: any = JSON.parse(decrypt(body, password.key, password.iv));
+    const error: Error | null = checker(data);
+    if (error !== null) throw error;
+    return data;
+  })();
 }
 Object.assign(EncryptedBody, is);
 Object.assign(EncryptedBody, assert);
@@ -91,20 +83,20 @@ Object.assign(EncryptedBody, validate);
  * @internal
  */
 const decrypt = (body: string, key: string, iv: string): string => {
-    try {
-        return AesPkcs5.decrypt(body, key, iv);
-    } catch (exp) {
-        if (exp instanceof Error)
-            throw new BadRequestException(
-                "Failed to decrypt the request body. Check your body content or encryption password.",
-            );
-        else throw exp;
-    }
+  try {
+    return AesPkcs5.decrypt(body, key, iv);
+  } catch (exp) {
+    if (exp instanceof Error)
+      throw new BadRequestException(
+        "Failed to decrypt the request body. Check your body content or encryption password.",
+      );
+    else throw exp;
+  }
 };
 
 const isTextPlain = (text?: string): boolean =>
-    text !== undefined &&
-    text
-        .split(";")
-        .map((str) => str.trim())
-        .some((str) => str === "text/plain");
+  text !== undefined &&
+  text
+    .split(";")
+    .map((str) => str.trim())
+    .some((str) => str === "text/plain");

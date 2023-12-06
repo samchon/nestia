@@ -1,3 +1,3 @@
 export namespace Global {
-    export let used: boolean = false;
+  export let used: boolean = false;
 }

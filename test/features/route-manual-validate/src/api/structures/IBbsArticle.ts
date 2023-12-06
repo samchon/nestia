@@ -1,40 +1,40 @@
 export interface IBbsArticle {
-    /**
-     * @format uuid
-     */
-    id: string;
+  /**
+   * @format uuid
+   */
+  id: string;
 
-    /**
-     * @minLength 3
-     * @maxLength 50
-     */
-    title: string;
+  /**
+   * @minLength 3
+   * @maxLength 50
+   */
+  title: string;
 
-    body: string;
+  body: string;
 
-    files: IAttachmentFile[];
+  files: IAttachmentFile[];
 
-    /**
-     * @format date-time
-     */
-    created_at: string;
+  /**
+   * @format date-time
+   */
+  created_at: string;
 }
 
 export interface IAttachmentFile {
-    /**
-     * @minLengt 1
-     * @maxLength 255
-     */
-    name: string | null;
+  /**
+   * @minLengt 1
+   * @maxLength 255
+   */
+  name: string | null;
 
-    /**
-     * @minLength 1
-     * @maxLength 8
-     */
-    extension: string | null;
+  /**
+   * @minLength 1
+   * @maxLength 8
+   */
+  extension: string | null;
 
-    /**
-     * @format url
-     */
-    url: string;
+  /**
+   * @format url
+   */
+  url: string;
 }

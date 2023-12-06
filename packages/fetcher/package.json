@@ -8,8 +8,7 @@
     "build": "rimraf lib && tsc",
     "dev": "npm run build -- --watch",
     "eslint": "eslint src",
-    "eslint:fix": "eslint src --fix",
-    "prettier": "prettier src --write"
+    "eslint:fix": "eslint src --fix"
   },
   "repository": {
     "type": "git",
@@ -30,7 +29,6 @@
     "@types/node": "^18.11.14",
     "@typescript-eslint/eslint-plugin": "^5.46.1",
     "@typescript-eslint/parser": "^5.46.1",
-    "prettier": "^2.8.1",
     "rimraf": "^3.0.2",
     "typescript": "^5.3.2"
   },

@@ -28,11 +28,11 @@ import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export function EncryptedController(
-    path: string,
-    password: IEncryptionPassword | IEncryptionPassword.Closure,
+  path: string,
+  password: IEncryptionPassword | IEncryptionPassword.Closure,
 ): ClassDecorator {
-    return function (target: any) {
-        Reflect.defineMetadata(ENCRYPTION_METADATA_KEY, password, target);
-        Controller(path)(target);
-    };
+  return function (target: any) {
+    Reflect.defineMetadata(ENCRYPTION_METADATA_KEY, password, target);
+    Controller(path)(target);
+  };
 }

@@ -1,11 +1,10 @@
 import {
-    BadRequestException,
-    ExecutionContext,
-    createParamDecorator,
+  BadRequestException,
+  ExecutionContext,
+  createParamDecorator,
 } from "@nestjs/common";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
-
 import typia, { TypeGuardError } from "typia";
 
 import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
@@ -35,32 +34,32 @@ import { NoTransformConfigureError } from "./internal/NoTransformConfigureError"
  * @author Jeongho Nam - https://github.com/samchon
  */
 export function TypedParam<T extends boolean | bigint | number | string | null>(
-    name: string,
-    assert?: (value: string) => T,
+  name: string,
+  assert?: (value: string) => T,
 ): ParameterDecorator {
-    if (assert === undefined) throw NoTransformConfigureError("TypedParam");
+  if (assert === undefined) throw NoTransformConfigureError("TypedParam");
 
-    return createParamDecorator(function TypedParam(
-        {}: any,
-        context: ExecutionContext,
-    ) {
-        const request: express.Request | FastifyRequest = context
-            .switchToHttp()
-            .getRequest();
-        const str: string = (request.params as any)[name];
-        try {
-            return assert(str);
-        } catch (exp) {
-            if (typia.is<TypeGuardError>(exp))
-                throw new BadRequestException({
-                    path: exp.path,
-                    reason: exp.message,
-                    expected: exp.expected,
-                    value: exp.value,
-                    message: `Invalid URL parameter value on "${name}".`,
-                });
-            throw exp;
-        }
-    })(name);
+  return createParamDecorator(function TypedParam(
+    {}: any,
+    context: ExecutionContext,
+  ) {
+    const request: express.Request | FastifyRequest = context
+      .switchToHttp()
+      .getRequest();
+    const str: string = (request.params as any)[name];
+    try {
+      return assert(str);
+    } catch (exp) {
+      if (typia.is<TypeGuardError>(exp))
+        throw new BadRequestException({
+          path: exp.path,
+          reason: exp.message,
+          expected: exp.expected,
+          value: exp.value,
+          message: `Invalid URL parameter value on "${name}".`,
+        });
+      throw exp;
+    }
+  })(name);
 }
 Object.assign(TypedParam, typia.http.parameter);

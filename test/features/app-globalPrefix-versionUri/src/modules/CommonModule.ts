@@ -4,6 +4,6 @@ import { HealthModule } from "./HealthModule";
 import { PerformanceModule } from "./PerformanceModule";
 
 @Module({
-    imports: [HealthModule, PerformanceModule],
+  imports: [HealthModule, PerformanceModule],
 })
 export class CommonModule {}

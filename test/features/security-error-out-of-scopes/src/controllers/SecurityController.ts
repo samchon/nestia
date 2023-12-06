@@ -7,9 +7,9 @@ import { IToken } from "@api/lib/structures/IToken";
 
 @Controller()
 export class SecurityController {
-    @ApiOAuth2(["write:pets", "read:pets"])
-    @core.TypedRoute.Get("oauth2")
-    public oauth2(): IToken {
-        return typia.random<IToken>()
-    }
+  @ApiOAuth2(["write:pets", "read:pets"])
+  @core.TypedRoute.Get("oauth2")
+  public oauth2(): IToken {
+    return typia.random<IToken>();
+  }
 }

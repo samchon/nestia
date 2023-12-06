@@ -1,45 +1,45 @@
 export interface IPage<T> {
-    data: T[];
-    pagination: IPage.IPagination;
+  data: T[];
+  pagination: IPage.IPagination;
 }
 export namespace IPage {
+  /**
+   * Page request data
+   */
+  export interface IRequest {
     /**
-     * Page request data
+     * @type uint
      */
-    export interface IRequest {
-        /**
-         * @type uint
-         */
-        page?: number | null;
-
-        /**
-         * @type uint
-         */
-        limit?: number | null;
-    }
+    page?: number | null;
 
     /**
-     * Page information.
+     * @type uint
      */
-    export interface IPagination {
-        /**
-         * @type uint
-         */
-        current: number;
+    limit?: number | null;
+  }
 
-        /**
-         * @type uint
-         */
-        limit: number;
+  /**
+   * Page information.
+   */
+  export interface IPagination {
+    /**
+     * @type uint
+     */
+    current: number;
 
-        /**
-         * @type uint
-         */
-        records: number;
+    /**
+     * @type uint
+     */
+    limit: number;
 
-        /**
-         * @type uint
-         */
-        pages: number;
-    }
+    /**
+     * @type uint
+     */
+    records: number;
+
+    /**
+     * @type uint
+     */
+    pages: number;
+  }
 }

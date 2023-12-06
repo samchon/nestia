@@ -2,21 +2,21 @@ import { hash } from "tstl/functional/hash";
 import ts from "typescript";
 
 export class TypeEntry {
-    public constructor(
-        public readonly type: ts.Type,
-        public readonly nullable: boolean,
-        public readonly required: boolean,
-    ) {}
+  public constructor(
+    public readonly type: ts.Type,
+    public readonly nullable: boolean,
+    public readonly required: boolean,
+  ) {}
 
-    public equals(obj: TypeEntry): boolean {
-        return (
-            this.type === obj.type &&
-            this.nullable === obj.nullable &&
-            this.required === obj.required
-        );
-    }
+  public equals(obj: TypeEntry): boolean {
+    return (
+      this.type === obj.type &&
+      this.nullable === obj.nullable &&
+      this.required === obj.required
+    );
+  }
 
-    public hashCode(): number {
-        return hash(this.type, this.nullable, this.required);
-    }
+  public hashCode(): number {
+    return hash(this.type, this.nullable, this.required);
+  }
 }

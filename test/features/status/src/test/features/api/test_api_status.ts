@@ -5,12 +5,12 @@ import api from "@api";
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 export const test_api_status = async (
-    connection: api.IConnection,
+  connection: api.IConnection,
 ): Promise<void> => {
-    TestValidator.equals("status")(300)(
-        api.functional.status.random.METADATA.status!,
-    );
+  TestValidator.equals("status")(300)(
+    api.functional.status.random.METADATA.status!,
+  );
 
-    const article: IBbsArticle = await api.functional.status.random(connection);
-    typia.assertEquals(article);
+  const article: IBbsArticle = await api.functional.status.random(connection);
+  typia.assertEquals(article);
 };

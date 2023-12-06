@@ -1,15 +1,15 @@
 export interface IDateDefined {
-    /**
-     * @format date-time
-     */
-    string: string;
+  /**
+   * @format date-time
+   */
+  string: string;
 
-    date: Date;
+  date: Date;
 
-    /**
-     * @format date-time
-     */
-    date_with_tag: Date;
+  /**
+   * @format date-time
+   */
+  date_with_tag: Date;
 
-    date_but_union: Date | Buffer;
+  date_but_union: Date | Buffer;
 }

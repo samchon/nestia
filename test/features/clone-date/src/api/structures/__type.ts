@@ -1,4 +1,4 @@
 export type __type = {
-    type: ("Buffer");
-    data: Array<number>;
-}
+  type: "Buffer";
+  data: Array<number>;
+};

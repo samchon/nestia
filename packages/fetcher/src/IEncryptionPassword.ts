@@ -11,40 +11,40 @@ import { IConnection } from "./IConnection";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export interface IEncryptionPassword {
-    /**
-     * Secret key.
-     */
-    key: string;
+  /**
+   * Secret key.
+   */
+  key: string;
 
-    /**
-     * Initialization Vector.
-     */
-    iv: string;
+  /**
+   * Initialization Vector.
+   */
+  iv: string;
 }
 export namespace IEncryptionPassword {
+  /**
+   * Type of a closure function returning the {@link IEncryptionPassword} object.
+   *
+   * `IEncryptionPassword.Closure` is a type of closure function who are returning the
+   * {@link IEncryptionPassword} object. It would be used when your encryption password
+   * be changed according to the input content.
+   */
+  export interface Closure {
     /**
-     * Type of a closure function returning the {@link IEncryptionPassword} object.
+     * Encryption password getter.
      *
-     * `IEncryptionPassword.Closure` is a type of closure function who are returning the
-     * {@link IEncryptionPassword} object. It would be used when your encryption password
-     * be changed according to the input content.
+     * @param props Properties for predication
+     * @returns Encryption password
      */
-    export interface Closure {
-        /**
-         * Encryption password getter.
-         *
-         * @param props Properties for predication
-         * @returns Encryption password
-         */
-        (props: IProps): IEncryptionPassword;
-    }
+    (props: IProps): IEncryptionPassword;
+  }
 
-    /**
-     * Properties for the closure.
-     */
-    export interface IProps {
-        headers: Record<string, IConnection.HeaderValue | undefined>;
-        body: string;
-        direction: "encode" | "decode";
-    }
+  /**
+   * Properties for the closure.
+   */
+  export interface IProps {
+    headers: Record<string, IConnection.HeaderValue | undefined>;
+    body: string;
+    direction: "encode" | "decode";
+  }
 }

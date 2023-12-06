@@ -13,8 +13,7 @@
     "eslint": "eslint ./**/*.ts",
     "package:latest": "npm run build && npm publish --access public",
     "package:next": "npm run package:latest -- --tag next",
-    "prepare": "ts-patch install && typia patch",
-    "prettier": "prettier --write ./**/*.ts"
+    "prepare": "ts-patch install && typia patch"
   },
   "repository": {
     "type": "git",
@@ -59,7 +58,6 @@
     "@nestia/e2e": "^0.3.7",
     "@nestjs/common": ">= 7.0.1",
     "@nestjs/core": ">= 7.0.1",
-    "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/cli": "^0.11.21",
     "@types/express": "^4.17.15",
     "@types/glob": "^7.2.0",
@@ -70,7 +68,6 @@
     "@typescript-eslint/parser": "^5.46.1",
     "eslint": "^8.29.0",
     "eslint-plugin-deprecation": "^1.4.1",
-    "prettier": "^2.8.1",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
     "ts-patch": "v3.0.2",

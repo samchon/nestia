@@ -7,7 +7,6 @@
     "build": "rimraf lib && tsc",
     "dev": "npm run build -- --watch",
     "eslint": "eslint src",
-    "prettier": "prettier --write ./src/**/*.ts",
     "prepare": "ts-patch install && typia patch",
     "test": "node lib/test"
   },
@@ -35,7 +34,6 @@
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.57.0",
-    "prettier": "^2.8.3",
     "rimraf": "^4.1.2",
     "ts-node": "^10.9.1",
     "ts-patch": "^3.1.0",

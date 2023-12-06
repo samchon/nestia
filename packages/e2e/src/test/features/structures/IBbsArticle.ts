@@ -1,45 +1,45 @@
 import { IPage } from "./IPage";
 
 export namespace IBbsArticle {
+  /**
+   * Page request info with some options.
+   */
+  export interface IRequest extends IPage.IRequest {
     /**
-     * Page request info with some options.
+     * Sorting options.
+     *
+     * The plus sign means ASC and minus sign means DESC.
      */
-    export interface IRequest extends IPage.IRequest {
-        /**
-         * Sorting options.
-         *
-         * The plus sign means ASC and minus sign means DESC.
-         */
-        sort?: IPage.IRequest.Sort<IRequest.SortableColumns>;
-
-        /**
-         * Search options.
-         */
-        search?: IRequest.ISearch;
-    }
-    export namespace IRequest {
-        export interface ISearch {
-            writer?: string;
-            title?: string;
-        }
-        /**
-         * List of sortable columns.
-         */
-        export type SortableColumns =
-            | "writer"
-            | "title"
-            | "created_at"
-            | "updated_at";
-    }
+    sort?: IPage.IRequest.Sort<IRequest.SortableColumns>;
 
     /**
-     * Summarized info.
+     * Search options.
      */
-    export interface ISummary {
-        id: string;
-        writer: string;
-        title: string;
-        created_at: string;
-        updated_at: string;
+    search?: IRequest.ISearch;
+  }
+  export namespace IRequest {
+    export interface ISearch {
+      writer?: string;
+      title?: string;
     }
+    /**
+     * List of sortable columns.
+     */
+    export type SortableColumns =
+      | "writer"
+      | "title"
+      | "created_at"
+      | "updated_at";
+  }
+
+  /**
+   * Summarized info.
+   */
+  export interface ISummary {
+    id: string;
+    writer: string;
+    title: string;
+    created_at: string;
+    updated_at: string;
+  }
 }

@@ -4,60 +4,60 @@
  * @author Jeongho Nam - https://github.com/samchon
  */
 export interface ISeller {
-    /**
-     * Primary key.
-     */
-    id: number;
+  /**
+   * Primary key.
+   */
+  id: number;
 
-    /**
-     * Email address.
-     */
-    email: string;
+  /**
+   * Email address.
+   */
+  email: string;
 
-    /**
-     * Name of the seller.
-     */
-    name: string;
+  /**
+   * Name of the seller.
+   */
+  name: string;
 
-    /**
-     * Mobile number of the seller.
-     */
-    mobile: string;
+  /**
+   * Mobile number of the seller.
+   */
+  mobile: string;
 
-    /**
-     * Belonged company name.
-     */
-    company: string;
+  /**
+   * Belonged company name.
+   */
+  company: string;
 
-    /**
-     * Joined time.
-     */
-    created_at: string;
+  /**
+   * Joined time.
+   */
+  created_at: string;
 }
 
 export namespace ISeller {
-    export interface ILogin {
-        email: string;
-        password: string;
-    }
+  export interface ILogin {
+    email: string;
+    password: string;
+  }
 
-    export interface IJoin {
-        email: string;
-        password: string;
-        name: string;
-        mobile: string;
-        company: string;
-    }
+  export interface IJoin {
+    email: string;
+    password: string;
+    name: string;
+    mobile: string;
+    company: string;
+  }
 
-    export interface IChangePassword {
-        old_password: string;
-        new_password: string;
-    }
+  export interface IChangePassword {
+    old_password: string;
+    new_password: string;
+  }
 
-    export interface IAuthorized extends ISeller {
-        authorization: {
-            token: string;
-            expires_at: string;
-        };
-    }
+  export interface IAuthorized extends ISeller {
+    authorization: {
+      token: string;
+      expires_at: string;
+    };
+  }
 }

@@ -5,13 +5,13 @@ import api from "../../../../api";
 import type { ArrayRecursiveUnionExplicit } from "../../../../api/structures/ArrayRecursiveUnionExplicit";
 
 export const test_api_arrayRecursiveUnionExplicit_at = async (
-    connection: api.IConnection
+  connection: api.IConnection,
 ): Promise<void> => {
-    const output: IPropagation<{
-        200: ArrayRecursiveUnionExplicit.IBucket;
-    }> = await api.functional.arrayRecursiveUnionExplicit.at(
-        connection,
-        typia.random<Resolved<number>>(),
-    );
-    typia.assert(output);
+  const output: IPropagation<{
+    200: ArrayRecursiveUnionExplicit.IBucket;
+  }> = await api.functional.arrayRecursiveUnionExplicit.at(
+    connection,
+    typia.random<Resolved<number>>(),
+  );
+  typia.assert(output);
 };

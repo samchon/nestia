@@ -4,10 +4,10 @@ import typia, { Primitive, Resolved } from "typia";
 
 @nest.Controller("tupleRestController")
 export class TupleRestController {
-    @core.TypedRoute.Get()
-    public get(): TupleRest {
-        return [false, 1, "two", "three"];
-    }
+  @core.TypedRoute.Get()
+  public get(): TupleRest {
+    return [false, 1, "two", "three"];
+  }
 }
 
 type TupleRest = [boolean, number, ...string[]];

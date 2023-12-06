@@ -6,11 +6,11 @@ import api from "../../../../api";
 import type { IBbsArticle } from "../../../../api/structures/IBbsArticle";
 
 export const test_api_body_update = async (
-    connection: api.IConnection
+  connection: api.IConnection,
 ): Promise<void> => {
-    await api.functional.body.update(
-        connection,
-        typia.random<Resolved<string & Format<"uuid">>>(),
-        typia.random<Primitive<Partial<IBbsArticle.IStore>>>(),
-    );
+  await api.functional.body.update(
+    connection,
+    typia.random<Resolved<string & Format<"uuid">>>(),
+    typia.random<Primitive<Partial<IBbsArticle.IStore>>>(),
+  );
 };

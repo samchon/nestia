@@ -3,12 +3,12 @@ import { Controller } from "@nestjs/common";
 
 @Controller("query")
 export class TypedQueryController {
-    @TypedRoute.Get()
-    public query<T>(@TypedQuery() query: IUnionGeneric<T>): void {
-        query;
-    }
+  @TypedRoute.Get()
+  public query<T>(@TypedQuery() query: IUnionGeneric<T>): void {
+    query;
+  }
 }
 
 interface IUnionGeneric<T> {
-    value: T;
+  value: T;
 }

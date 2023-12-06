@@ -5,8 +5,8 @@ import { IHeaders } from "../api/structures/IHeaders";
 
 @Controller("headers")
 export class HeadersController {
-    @Get()
-    public headers(@core.TypedHeaders() headers: IHeaders): IHeaders {
-        return headers;
-    }
+  @Get()
+  public headers(@core.TypedHeaders() headers: IHeaders): IHeaders {
+    return headers;
+  }
 }

@@ -1,11 +1,10 @@
 import {
-    BadRequestException,
-    ExecutionContext,
-    createParamDecorator,
+  BadRequestException,
+  ExecutionContext,
+  createParamDecorator,
 } from "@nestjs/common";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
-
 import { assert } from "typia";
 
 import { get_text_body } from "./internal/get_text_body";
@@ -38,38 +37,36 @@ export function PlainBody(): ParameterDecorator;
  * @internal
  */
 export function PlainBody(
-    assert?: (input: unknown) => string,
+  assert?: (input: unknown) => string,
 ): ParameterDecorator {
-    const checker = assert
-        ? validate_request_body("PlainBody")({
-              type: "assert",
-              assert,
-          })
-        : null;
-    return createParamDecorator(async function PlainBody(
-        _data: any,
-        context: ExecutionContext,
-    ) {
-        const request: express.Request | FastifyRequest = context
-            .switchToHttp()
-            .getRequest();
-        if (!isTextPlain(request.headers["content-type"]))
-            throw new BadRequestException(
-                `Request body type is not "text/plain".`,
-            );
-        const value: string = await get_text_body(request);
-        if (checker) {
-            const error: Error | null = checker(value);
-            if (error !== null) throw error;
-        }
-        return value;
-    })();
+  const checker = assert
+    ? validate_request_body("PlainBody")({
+        type: "assert",
+        assert,
+      })
+    : null;
+  return createParamDecorator(async function PlainBody(
+    _data: any,
+    context: ExecutionContext,
+  ) {
+    const request: express.Request | FastifyRequest = context
+      .switchToHttp()
+      .getRequest();
+    if (!isTextPlain(request.headers["content-type"]))
+      throw new BadRequestException(`Request body type is not "text/plain".`);
+    const value: string = await get_text_body(request);
+    if (checker) {
+      const error: Error | null = checker(value);
+      if (error !== null) throw error;
+    }
+    return value;
+  })();
 }
 Object.assign(PlainBody, assert);
 
 const isTextPlain = (text?: string): boolean =>
-    text !== undefined &&
-    text
-        .split(";")
-        .map((str) => str.trim())
-        .some((str) => str === "text/plain");
+  text !== undefined &&
+  text
+    .split(";")
+    .map((str) => str.trim())
+    .some((str) => str === "text/plain");

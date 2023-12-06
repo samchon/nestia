@@ -1,3 +1,3 @@
 export interface IUnprocessibleEntity {
-    reason: string;
+  reason: string;
 }

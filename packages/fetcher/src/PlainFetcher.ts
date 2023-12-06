@@ -1,9 +1,8 @@
 import { IConnection } from "./IConnection";
-import { Primitive } from "./Primitive";
-
-import { IFetchRoute } from "./internal/IFetchRoute";
-import { FetcherBase } from "./internal/FetcherBase";
 import { IPropagation } from "./IPropagation";
+import { Primitive } from "./Primitive";
+import { FetcherBase } from "./internal/FetcherBase";
+import { IFetchRoute } from "./internal/IFetchRoute";
 
 /**
  * Utility class for `fetch` functions used in `@nestia/sdk`.
@@ -21,102 +20,87 @@ import { IPropagation } from "./IPropagation";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace PlainFetcher {
-    /**
-     * Fetch function only for `HEAD` method.
-     *
-     * @param connection Connection information for the remote HTTP server
-     * @param route Route information about the target API
-     * @return Nothing because of `HEAD` method
-     */
-    export function fetch(
-        connection: IConnection,
-        route: IFetchRoute<"HEAD">,
-    ): Promise<void>;
+  /**
+   * Fetch function only for `HEAD` method.
+   *
+   * @param connection Connection information for the remote HTTP server
+   * @param route Route information about the target API
+   * @return Nothing because of `HEAD` method
+   */
+  export function fetch(
+    connection: IConnection,
+    route: IFetchRoute<"HEAD">,
+  ): Promise<void>;
 
-    /**
-     * Fetch function only for `GET` method.
-     *
-     * @param connection Connection information for the remote HTTP server
-     * @param route Route information about the target API
-     * @return Response body data from the remote API
-     */
-    export function fetch<Output>(
-        connection: IConnection,
-        route: IFetchRoute<"GET">,
-    ): Promise<Primitive<Output>>;
+  /**
+   * Fetch function only for `GET` method.
+   *
+   * @param connection Connection information for the remote HTTP server
+   * @param route Route information about the target API
+   * @return Response body data from the remote API
+   */
+  export function fetch<Output>(
+    connection: IConnection,
+    route: IFetchRoute<"GET">,
+  ): Promise<Primitive<Output>>;
 
-    /**
-     * Fetch function for the `POST`, `PUT`, `PATCH` and `DELETE` methods.
-     *
-     * @param connection Connection information for the remote HTTP server
-     * @param route Route information about the target API
-     * @return Response body data from the remote API
-     */
-    export function fetch<Input, Output>(
-        connection: IConnection,
-        route: IFetchRoute<"POST" | "PUT" | "PATCH" | "DELETE">,
-        input?: Input,
-        stringify?: (input: Input) => string,
-    ): Promise<Primitive<Output>>;
+  /**
+   * Fetch function for the `POST`, `PUT`, `PATCH` and `DELETE` methods.
+   *
+   * @param connection Connection information for the remote HTTP server
+   * @param route Route information about the target API
+   * @return Response body data from the remote API
+   */
+  export function fetch<Input, Output>(
+    connection: IConnection,
+    route: IFetchRoute<"POST" | "PUT" | "PATCH" | "DELETE">,
+    input?: Input,
+    stringify?: (input: Input) => string,
+  ): Promise<Primitive<Output>>;
 
-    export async function fetch<Input, Output>(
-        connection: IConnection,
-        route: IFetchRoute<
-            "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
-        >,
-        input?: Input,
-        stringify?: (input: Input) => string,
-    ): Promise<Primitive<Output>> {
-        if (
-            route.request?.encrypted === true ||
-            route.response?.encrypted === true
-        )
-            throw new Error(
-                "Error on PlainFetcher.fetch(): PlainFetcher doesn't have encryption ability. Use EncryptedFetcher instead.",
-            );
-        return FetcherBase.fetch({
-            className: "PlainFetcher",
-            encode: (input) => input,
-            decode: (input) => input,
-        })(connection, route, input, stringify);
-    }
+  export async function fetch<Input, Output>(
+    connection: IConnection,
+    route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
+    input?: Input,
+    stringify?: (input: Input) => string,
+  ): Promise<Primitive<Output>> {
+    if (route.request?.encrypted === true || route.response?.encrypted === true)
+      throw new Error(
+        "Error on PlainFetcher.fetch(): PlainFetcher doesn't have encryption ability. Use EncryptedFetcher instead.",
+      );
+    return FetcherBase.fetch({
+      className: "PlainFetcher",
+      encode: (input) => input,
+      decode: (input) => input,
+    })(connection, route, input, stringify);
+  }
 
-    export function propagate<Output extends IPropagation<any, any>>(
-        connection: IConnection,
-        route: IFetchRoute<"GET" | "HEAD">,
-    ): Promise<Output>;
+  export function propagate<Output extends IPropagation<any, any>>(
+    connection: IConnection,
+    route: IFetchRoute<"GET" | "HEAD">,
+  ): Promise<Output>;
 
-    export function propagate<Input, Output extends IPropagation<any, any>>(
-        connection: IConnection,
-        route: IFetchRoute<
-            "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
-        >,
-        input?: Input,
-        stringify?: (input: Input) => string,
-    ): Promise<Output>;
+  export function propagate<Input, Output extends IPropagation<any, any>>(
+    connection: IConnection,
+    route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
+    input?: Input,
+    stringify?: (input: Input) => string,
+  ): Promise<Output>;
 
-    export async function propagate<
-        Input,
-        Output extends IPropagation<any, any>,
-    >(
-        connection: IConnection,
-        route: IFetchRoute<
-            "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
-        >,
-        input?: Input,
-        stringify?: (input: Input) => string,
-    ): Promise<Output> {
-        if (
-            route.request?.encrypted === true ||
-            route.response?.encrypted === true
-        )
-            throw new Error(
-                "Error on PlainFetcher.propagate(): PlainFetcher doesn't have encryption ability. Use EncryptedFetcher instead.",
-            );
-        return FetcherBase.propagate({
-            className: "PlainFetcher",
-            encode: (input) => input,
-            decode: (input) => input,
-        })(connection, route, input, stringify) as Promise<Output>;
-    }
+  export async function propagate<Input, Output extends IPropagation<any, any>>(
+    connection: IConnection,
+    route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
+    input?: Input,
+    stringify?: (input: Input) => string,
+  ): Promise<Output> {
+    if (route.request?.encrypted === true || route.response?.encrypted === true)
+      throw new Error(
+        "Error on PlainFetcher.propagate(): PlainFetcher doesn't have encryption ability. Use EncryptedFetcher instead.",
+      );
+    return FetcherBase.propagate({
+      className: "PlainFetcher",
+      encode: (input) => input,
+      decode: (input) => input,
+    })(connection, route, input, stringify) as Promise<Output>;
+  }
 }

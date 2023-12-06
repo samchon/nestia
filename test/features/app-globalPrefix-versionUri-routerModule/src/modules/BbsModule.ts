@@ -4,6 +4,6 @@ import { BbsArticleCommentModule } from "./BbsArticleCommentModule";
 import { BbsArticleModule } from "./BbsArticleModule";
 
 @Module({
-    imports: [BbsArticleModule, BbsArticleCommentModule],
+  imports: [BbsArticleModule, BbsArticleCommentModule],
 })
 export class BbsModule {}

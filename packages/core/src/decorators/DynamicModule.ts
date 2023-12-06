@@ -13,27 +13,27 @@ import { load_controllers } from "./internal/load_controller";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace DynamicModule {
-    /**
-     * Mount dynamic module.
-     *
-     * Constructs a module instance with directory path of controller classes.
-     *
-     * Every controller classes in the target directory would be dynamically mounted.
-     *
-     * @param path Path of controllers
-     * @param metadata Addtional metadata except controllers
-     * @returns module instance
-     */
-    export async function mount(
-        path: string | string[] | { include: string[]; exclude?: string[] },
-        metadata: Omit<ModuleMetadata, "controllers"> = {},
-    ): Promise<object> {
-        // LOAD CONTROLLERS
-        const controllers: Creator<object>[] = await load_controllers(path);
+  /**
+   * Mount dynamic module.
+   *
+   * Constructs a module instance with directory path of controller classes.
+   *
+   * Every controller classes in the target directory would be dynamically mounted.
+   *
+   * @param path Path of controllers
+   * @param metadata Addtional metadata except controllers
+   * @returns module instance
+   */
+  export async function mount(
+    path: string | string[] | { include: string[]; exclude?: string[] },
+    metadata: Omit<ModuleMetadata, "controllers"> = {},
+  ): Promise<object> {
+    // LOAD CONTROLLERS
+    const controllers: Creator<object>[] = await load_controllers(path);
 
-        // RETURN WITH DECORATING
-        @Module({ ...metadata, controllers })
-        class NestiaModule {}
-        return NestiaModule;
-    }
+    // RETURN WITH DECORATING
+    @Module({ ...metadata, controllers })
+    class NestiaModule {}
+    return NestiaModule;
+  }
 }

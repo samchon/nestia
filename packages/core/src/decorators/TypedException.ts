@@ -19,8 +19,8 @@ import "reflect-metadata";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export function TypedException(
-    status: number | "2XX" | "3XX" | "4XX" | "5XX",
-    description?: string | undefined,
+  status: number | "2XX" | "3XX" | "4XX" | "5XX",
+  description?: string | undefined,
 ): never;
 
 /**
@@ -41,49 +41,49 @@ export function TypedException(
  * @author Jeongho Nam - https://github.com/samchon
  */
 export function TypedException<T>(
-    status: number | "2XX" | "3XX" | "4XX" | "5XX",
-    description?: string | undefined,
+  status: number | "2XX" | "3XX" | "4XX" | "5XX",
+  description?: string | undefined,
 ): MethodDecorator;
 
 /**
  * @internal
  */
 export function TypedException<T>(
-    status: number | "2XX" | "3XX" | "4XX" | "5XX",
-    description?: string | undefined,
-    type?: string | undefined,
+  status: number | "2XX" | "3XX" | "4XX" | "5XX",
+  description?: string | undefined,
+  type?: string | undefined,
 ): MethodDecorator {
-    return function TypedException(
-        target: Object | T,
-        propertyKey: string | symbol,
-        descriptor: TypedPropertyDescriptor<any>,
-    ) {
-        const array: IProps[] = (() => {
-            const oldbie: IProps[] | undefined = Reflect.getMetadata(
-                `nestia/TypedException`,
-                (target as any)[propertyKey],
-            );
-            if (oldbie !== undefined) return oldbie;
+  return function TypedException(
+    target: Object | T,
+    propertyKey: string | symbol,
+    descriptor: TypedPropertyDescriptor<any>,
+  ) {
+    const array: IProps[] = (() => {
+      const oldbie: IProps[] | undefined = Reflect.getMetadata(
+        `nestia/TypedException`,
+        (target as any)[propertyKey],
+      );
+      if (oldbie !== undefined) return oldbie;
 
-            const newbie: IProps[] = [];
-            Reflect.defineMetadata(
-                `nestia/TypedException`,
-                newbie,
-                (target as any)[propertyKey],
-            );
-            return newbie;
-        })();
-        array.push({
-            status,
-            description,
-            type: type!,
-        });
-        return descriptor;
-    };
+      const newbie: IProps[] = [];
+      Reflect.defineMetadata(
+        `nestia/TypedException`,
+        newbie,
+        (target as any)[propertyKey],
+      );
+      return newbie;
+    })();
+    array.push({
+      status,
+      description,
+      type: type!,
+    });
+    return descriptor;
+  };
 }
 
 interface IProps {
-    status: number | "2XX" | "3XX" | "4XX" | "5XX";
-    description?: string | undefined;
-    type: string;
+  status: number | "2XX" | "3XX" | "4XX" | "5XX";
+  description?: string | undefined;
+  type: string;
 }

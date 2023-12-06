@@ -5,10 +5,8 @@ import api from "../../../../api";
 import type { IToken } from "../../../../api/structures/IToken";
 
 export const test_api_oauth2 = async (
-    connection: api.IConnection
+  connection: api.IConnection,
 ): Promise<void> => {
-    const output: Primitive<IToken> = await api.functional.oauth2(
-        connection,
-    );
-    typia.assert(output);
+  const output: Primitive<IToken> = await api.functional.oauth2(connection);
+  typia.assert(output);
 };

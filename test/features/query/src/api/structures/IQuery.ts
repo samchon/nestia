@@ -1,6 +1,6 @@
 export interface IQuery {
-    limit?: number;
-    enforce: boolean;
-    values?: string[];
-    atomic: string | null;
+  limit?: number;
+  enforce: boolean;
+  values?: string[];
+  atomic: string | null;
 }

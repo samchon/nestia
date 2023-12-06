@@ -1,3 +1,3 @@
 export interface IToken {
-    value: string;
+  value: string;
 }

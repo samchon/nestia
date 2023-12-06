@@ -1,21 +1,20 @@
 import { AesPkcs5 } from "@nestia/fetcher/lib/AesPkcs5";
 import { IEncryptionPassword } from "@nestia/fetcher/lib/IEncryptionPassword";
 import {
-    CallHandler,
-    Delete,
-    ExecutionContext,
-    Get,
-    NestInterceptor,
-    Patch,
-    Post,
-    Put,
-    UseInterceptors,
-    applyDecorators,
+  CallHandler,
+  Delete,
+  ExecutionContext,
+  Get,
+  NestInterceptor,
+  Patch,
+  Post,
+  Put,
+  UseInterceptors,
+  applyDecorators,
 } from "@nestjs/common";
 import { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import express from "express";
 import { catchError, map } from "rxjs/operators";
-
 import typia from "typia";
 
 import { IResponseBodyStringifier } from "../options/IResponseBodyStringifier";
@@ -47,145 +46,140 @@ import { route_error } from "./internal/route_error";
  * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace EncryptedRoute {
-    /**
-     * Encrypted router decorator function for the GET method.
-     *
-     * @param paths Path(s) of the HTTP request
-     * @returns Method decorator
-     */
-    export const Get = Generator("Get");
+  /**
+   * Encrypted router decorator function for the GET method.
+   *
+   * @param paths Path(s) of the HTTP request
+   * @returns Method decorator
+   */
+  export const Get = Generator("Get");
 
-    /**
-     * Encrypted router decorator function for the GET method.
-     *
-     * @param paths Path(s) of the HTTP request
-     * @returns Method decorator
-     */
-    export const Post = Generator("Post");
+  /**
+   * Encrypted router decorator function for the GET method.
+   *
+   * @param paths Path(s) of the HTTP request
+   * @returns Method decorator
+   */
+  export const Post = Generator("Post");
 
-    /**
-     * Encrypted router decorator function for the PATCH method.
-     *
-     * @param path Path of the HTTP request
-     * @returns Method decorator
-     */
-    export const Patch = Generator("Patch");
+  /**
+   * Encrypted router decorator function for the PATCH method.
+   *
+   * @param path Path of the HTTP request
+   * @returns Method decorator
+   */
+  export const Patch = Generator("Patch");
 
-    /**
-     * Encrypted router decorator function for the PUT method.
-     *
-     * @param path Path of the HTTP request
-     * @returns Method decorator
-     */
-    export const Put = Generator("Put");
+  /**
+   * Encrypted router decorator function for the PUT method.
+   *
+   * @param path Path of the HTTP request
+   * @returns Method decorator
+   */
+  export const Put = Generator("Put");
 
-    /**
-     * Encrypted router decorator function for the DELETE method.
-     *
-     * @param path Path of the HTTP request
-     * @returns Method decorator
-     */
-    export const Delete = Generator("Delete");
+  /**
+   * Encrypted router decorator function for the DELETE method.
+   *
+   * @param path Path of the HTTP request
+   * @returns Method decorator
+   */
+  export const Delete = Generator("Delete");
 
-    function Generator(method: "Get" | "Post" | "Put" | "Patch" | "Delete") {
-        function route(path?: string | string[]): MethodDecorator;
-        function route<T>(
-            stringify?: IResponseBodyStringifier<T> | null,
-        ): MethodDecorator;
-        function route<T>(
-            path: string | string[],
-            stringify?: IResponseBodyStringifier<T> | null,
-        ): MethodDecorator;
+  function Generator(method: "Get" | "Post" | "Put" | "Patch" | "Delete") {
+    function route(path?: string | string[]): MethodDecorator;
+    function route<T>(
+      stringify?: IResponseBodyStringifier<T> | null,
+    ): MethodDecorator;
+    function route<T>(
+      path: string | string[],
+      stringify?: IResponseBodyStringifier<T> | null,
+    ): MethodDecorator;
 
-        function route(...args: any[]): MethodDecorator {
-            const [path, stringify] = get_path_and_stringify(
-                `EncryptedRoute.${method}`,
-            )(...args);
-            return applyDecorators(
-                ROUTERS[method](path),
-                UseInterceptors(
-                    new EncryptedRouteInterceptor(method, stringify),
-                ),
-            );
-        }
-        return route;
+    function route(...args: any[]): MethodDecorator {
+      const [path, stringify] = get_path_and_stringify(
+        `EncryptedRoute.${method}`,
+      )(...args);
+      return applyDecorators(
+        ROUTERS[method](path),
+        UseInterceptors(new EncryptedRouteInterceptor(method, stringify)),
+      );
     }
+    return route;
+  }
 }
 
 for (const method of [
-    typia.json.isStringify,
-    typia.json.assertStringify,
-    typia.json.validateStringify,
-    typia.json.stringify,
+  typia.json.isStringify,
+  typia.json.assertStringify,
+  typia.json.validateStringify,
+  typia.json.stringify,
 ])
-    for (const [key, value] of Object.entries(method))
-        for (const deco of [
-            EncryptedRoute.Get,
-            EncryptedRoute.Delete,
-            EncryptedRoute.Post,
-            EncryptedRoute.Put,
-            EncryptedRoute.Patch,
-        ])
-            (deco as any)[key] = value;
+  for (const [key, value] of Object.entries(method))
+    for (const deco of [
+      EncryptedRoute.Get,
+      EncryptedRoute.Delete,
+      EncryptedRoute.Post,
+      EncryptedRoute.Put,
+      EncryptedRoute.Patch,
+    ])
+      (deco as any)[key] = value;
 
 /**
  * @internal
  */
 class EncryptedRouteInterceptor implements NestInterceptor {
-    public constructor(
-        private readonly method: string,
-        private readonly stringify: (input: any) => string,
-    ) {}
+  public constructor(
+    private readonly method: string,
+    private readonly stringify: (input: any) => string,
+  ) {}
 
-    public intercept(context: ExecutionContext, next: CallHandler) {
-        const http: HttpArgumentsHost = context.switchToHttp();
-        return next.handle().pipe(
-            map((value) => {
-                const param:
-                    | IEncryptionPassword
-                    | IEncryptionPassword.Closure
-                    | undefined = Reflect.getMetadata(
-                    ENCRYPTION_METADATA_KEY,
-                    context.getClass(),
-                );
-                if (!param)
-                    throw NoTransformConfigureError(
-                        `EncryptedRoute.${this.method}`,
-                    );
-
-                const headers: Singleton<Record<string, string>> =
-                    new Singleton(() => {
-                        const request: express.Request = http.getRequest();
-                        return headers_to_object(request.headers);
-                    });
-                const body: string | undefined = this.stringify(value);
-                const password: IEncryptionPassword =
-                    typeof param === "function"
-                        ? param({
-                              headers: headers.get(),
-                              body,
-                              direction: "encode",
-                          })
-                        : param;
-
-                const response: express.Response = http.getResponse();
-                response.header("Content-Type", "text/plain");
-
-                if (body === undefined) return body;
-                return AesPkcs5.encrypt(body, password.key, password.iv);
-            }),
-            catchError((err) => route_error(http.getRequest(), err)),
+  public intercept(context: ExecutionContext, next: CallHandler) {
+    const http: HttpArgumentsHost = context.switchToHttp();
+    return next.handle().pipe(
+      map((value) => {
+        const param:
+          | IEncryptionPassword
+          | IEncryptionPassword.Closure
+          | undefined = Reflect.getMetadata(
+          ENCRYPTION_METADATA_KEY,
+          context.getClass(),
         );
-    }
+        if (!param)
+          throw NoTransformConfigureError(`EncryptedRoute.${this.method}`);
+
+        const headers: Singleton<Record<string, string>> = new Singleton(() => {
+          const request: express.Request = http.getRequest();
+          return headers_to_object(request.headers);
+        });
+        const body: string | undefined = this.stringify(value);
+        const password: IEncryptionPassword =
+          typeof param === "function"
+            ? param({
+                headers: headers.get(),
+                body,
+                direction: "encode",
+              })
+            : param;
+
+        const response: express.Response = http.getResponse();
+        response.header("Content-Type", "text/plain");
+
+        if (body === undefined) return body;
+        return AesPkcs5.encrypt(body, password.key, password.iv);
+      }),
+      catchError((err) => route_error(http.getRequest(), err)),
+    );
+  }
 }
 
 /**
  * @internal
  */
 const ROUTERS = {
-    Get,
-    Post,
-    Put,
-    Patch,
-    Delete,
+  Get,
+  Post,
+  Put,
+  Patch,
+  Delete,
 };

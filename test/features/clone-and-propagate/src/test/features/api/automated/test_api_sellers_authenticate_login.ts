@@ -5,13 +5,13 @@ import api from "../../../../api";
 import type { ISeller } from "../../../../api/structures/ISeller";
 
 export const test_api_sellers_authenticate_login = async (
-    connection: api.IConnection
+  connection: api.IConnection,
 ): Promise<void> => {
-    const output: IPropagation<{
-        201: ISeller.IAuthorized;
-    }> = await api.functional.sellers.authenticate.login(
-        connection,
-        typia.random<Primitive<ISeller.ILogin>>(),
-    );
-    typia.assert(output);
+  const output: IPropagation<{
+    201: ISeller.IAuthorized;
+  }> = await api.functional.sellers.authenticate.login(
+    connection,
+    typia.random<Primitive<ISeller.ILogin>>(),
+  );
+  typia.assert(output);
 };

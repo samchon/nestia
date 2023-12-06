@@ -1,5 +1,5 @@
 export interface INotFound {
-    schema: string;
-    table: string;
-    id: string;
+  schema: string;
+  table: string;
+  id: string;
 }

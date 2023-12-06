@@ -6,13 +6,14 @@ import api from "../../../../api";
 import type { IBbsComment } from "../../../../api/structures/IBbsComment";
 
 export const test_api_bbs_articles_comments_at = async (
-    connection: api.IConnection
+  connection: api.IConnection,
 ): Promise<void> => {
-    const output: Primitive<IBbsComment> = await api.functional.bbs.articles.comments.at(
-        connection,
-        typia.random<Resolved<string>>(),
-        typia.random<Resolved<string & Format<"uuid">>>(),
-        typia.random<Resolved<string & Format<"uuid">>>(),
+  const output: Primitive<IBbsComment> =
+    await api.functional.bbs.articles.comments.at(
+      connection,
+      typia.random<Resolved<string>>(),
+      typia.random<Resolved<string & Format<"uuid">>>(),
+      typia.random<Resolved<string & Format<"uuid">>>(),
     );
-    typia.assert(output);
+  typia.assert(output);
 };

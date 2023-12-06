@@ -5,9 +5,9 @@ import { IErrorReport } from "./IErrorReport";
 import { INormalizedInput } from "./INormalizedInput";
 
 export interface INestiaProject {
-    config: INestiaConfig;
-    input: INormalizedInput;
-    checker: ts.TypeChecker;
-    errors: IErrorReport[];
-    warnings: IErrorReport[];
+  config: INestiaConfig;
+  input: INormalizedInput;
+  checker: ts.TypeChecker;
+  errors: IErrorReport[];
+  warnings: IErrorReport[];
 }

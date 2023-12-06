@@ -4,6 +4,6 @@ import { BbsModule } from "./BbsModule";
 import { CommonModule } from "./CommonModule";
 
 @Module({
-    imports: [CommonModule, BbsModule],
+  imports: [CommonModule, BbsModule],
 })
 export class ApplicationModule {}

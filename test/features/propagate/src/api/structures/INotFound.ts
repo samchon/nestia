@@ -1,4 +1,4 @@
 export interface INotFound {
-    status: 404;
-    message: string;
+  status: 404;
+  message: string;
 }

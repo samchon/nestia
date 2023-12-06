@@ -9,57 +9,57 @@
  * @author Jeongho Nam - https://github.com/samchon
  */
 export type ISwaggerSecurityScheme =
-    | ISwaggerSecurityScheme.IHttpBasic
-    | ISwaggerSecurityScheme.IHttpBearer
-    | ISwaggerSecurityScheme.IApiKey
-    | ISwaggerSecurityScheme.IOpenId
-    | ISwaggerSecurityScheme.IOAuth2;
+  | ISwaggerSecurityScheme.IHttpBasic
+  | ISwaggerSecurityScheme.IHttpBearer
+  | ISwaggerSecurityScheme.IApiKey
+  | ISwaggerSecurityScheme.IOpenId
+  | ISwaggerSecurityScheme.IOAuth2;
 export namespace ISwaggerSecurityScheme {
-    export interface IHttpBasic {
-        type: "http";
-        scheme: "basic";
-    }
-    export interface IHttpBearer {
-        type: "http";
-        scheme: "bearer";
-        bearerFormat?: string;
-    }
-    export interface IApiKey {
-        type: "apiKey";
+  export interface IHttpBasic {
+    type: "http";
+    scheme: "basic";
+  }
+  export interface IHttpBearer {
+    type: "http";
+    scheme: "bearer";
+    bearerFormat?: string;
+  }
+  export interface IApiKey {
+    type: "apiKey";
 
-        /**
-         * @default header
-         */
-        in?: "header" | "query" | "cookie";
+    /**
+     * @default header
+     */
+    in?: "header" | "query" | "cookie";
 
-        /**
-         * @default Authorization
-         */
-        name?: string;
-    }
+    /**
+     * @default Authorization
+     */
+    name?: string;
+  }
 
-    export interface IOpenId {
-        type: "openIdConnect";
-        openIdConnectUrl: string;
-    }
+  export interface IOpenId {
+    type: "openIdConnect";
+    openIdConnectUrl: string;
+  }
 
-    export interface IOAuth2 {
-        type: "oauth2";
-        flows: IOAuth2.IFlowSet;
-        description?: string;
+  export interface IOAuth2 {
+    type: "oauth2";
+    flows: IOAuth2.IFlowSet;
+    description?: string;
+  }
+  export namespace IOAuth2 {
+    export interface IFlowSet {
+      authorizationCode?: IFlow;
+      implicit?: Omit<IFlow, "tokenUrl">;
+      password?: Omit<IFlow, "authorizationUrl">;
+      clientCredentials?: Omit<IFlow, "authorizationUrl">;
     }
-    export namespace IOAuth2 {
-        export interface IFlowSet {
-            authorizationCode?: IFlow;
-            implicit?: Omit<IFlow, "tokenUrl">;
-            password?: Omit<IFlow, "authorizationUrl">;
-            clientCredentials?: Omit<IFlow, "authorizationUrl">;
-        }
-        export interface IFlow {
-            authorizationUrl: string;
-            tokenUrl: string;
-            refreshUrl: string;
-            scopes?: Record<string, string>;
-        }
+    export interface IFlow {
+      authorizationUrl: string;
+      tokenUrl: string;
+      refreshUrl: string;
+      scopes?: Record<string, string>;
     }
+  }
 }

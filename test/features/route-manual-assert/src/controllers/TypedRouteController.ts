@@ -6,16 +6,16 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 @Controller("route")
 export class TypedRouteController {
-    @core.TypedRoute.Get("random", {
-        type: "assert",
-        assert: typia.json.createAssertStringify<IBbsArticle>(),
-    })
-    public async random(): Promise<IBbsArticle> {
-        return {
-            ...typia.random<IBbsArticle>(),
-            ...{
-                dummy: 1,
-            },
-        };
-    }
+  @core.TypedRoute.Get("random", {
+    type: "assert",
+    assert: typia.json.createAssertStringify<IBbsArticle>(),
+  })
+  public async random(): Promise<IBbsArticle> {
+    return {
+      ...typia.random<IBbsArticle>(),
+      ...{
+        dummy: 1,
+      },
+    };
+  }
 }
