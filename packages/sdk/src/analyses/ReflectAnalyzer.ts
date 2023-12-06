@@ -250,7 +250,7 @@ export namespace ReflectAnalyzer {
                 (param) => param.category === "body",
             );
             if (body !== undefined && (method === "GET" || method === "HEAD")) {
-                errors.push({
+                project.errors.push({
                     file: controller.file,
                     controller: controller.name,
                     function: name,
