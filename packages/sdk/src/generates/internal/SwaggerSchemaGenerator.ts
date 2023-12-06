@@ -438,10 +438,10 @@ const any = new Singleton(() =>
             maps: [],
         },
         {
-            aliases: [],
-            arrays: [],
-            tuples: [],
-            objects: [],
+            aliases: new Map(),
+            arrays: new Map(),
+            tuples: new Map(),
+            objects: new Map(),
         },
     ),
 );
