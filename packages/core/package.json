@@ -1,9 +1,14 @@
 {
   "name": "@nestia/core",
-  "version": "2.4.1",
+  "version": "0.0.0-dev.20991231",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "tsp": {
+    "tscOptions": {
+      "parseAllJsDoc": true
+    }
+  },
   "scripts": {
     "build": "rimraf lib && tsc",
     "dev": "npm run build -- --watch",
@@ -34,7 +39,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "^2.4.1",
+    "@nestia/fetcher": "D:\\github\\samchon\\nestia\\packages\\fetcher\\nestia-fetcher-0.0.0-dev.20991231.tgz",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "@nestjs/platform-express": ">=7.0.1",
@@ -44,10 +49,10 @@
     "raw-body": ">=2.0.0",
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.0",
-    "typia": "^5.3.1"
+    "typia": "^5.3.4"
   },
   "peerDependencies": {
-    "@nestia/fetcher": ">=2.4.1",
+    "@nestia/fetcher": ">=0.0.0-dev.20991231",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "@nestjs/platform-express": ">=7.0.1",
@@ -56,7 +61,7 @@
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.0",
     "typescript": ">=4.8.0 <5.4.0",
-    "typia": ">=5.3.1 <6.0.0"
+    "typia": ">=5.3.4 <6.0.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
