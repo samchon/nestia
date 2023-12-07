@@ -91,16 +91,20 @@ export namespace EncryptedFetcher {
       encode:
         route.request?.encrypted === true
           ? (input, headers) => {
-              const p = closure("encode")(headers, input);
-              return AesPkcs5.encrypt(JSON.stringify(input), p.key, p.iv);
+              const p: IEncryptionPassword = closure("encode")(headers, input);
+              return AesPkcs5.encrypt(
+                (stringify ?? JSON.stringify)(input),
+                p.key,
+                p.iv,
+              );
             }
           : (input) => input,
       decode:
         route.response?.encrypted === true
           ? (input, headers) => {
-              const p = closure("decode")(headers, input);
-              const str = AesPkcs5.decrypt(input, p.key, p.iv);
-              return str.length ? JSON.parse(str) : str;
+              const p: IEncryptionPassword = closure("decode")(headers, input);
+              const s: string = AesPkcs5.decrypt(input, p.key, p.iv);
+              return s.length ? JSON.parse(s) : s;
             }
           : (input) => input,
     })(connection, route, input, stringify);
@@ -150,16 +154,20 @@ export namespace EncryptedFetcher {
       encode:
         route.request?.encrypted === true
           ? (input, headers) => {
-              const p = closure("encode")(headers, input);
-              return AesPkcs5.encrypt(JSON.stringify(input), p.key, p.iv);
+              const p: IEncryptionPassword = closure("encode")(headers, input);
+              return AesPkcs5.encrypt(
+                (stringify ?? JSON.stringify)(input),
+                p.key,
+                p.iv,
+              );
             }
           : (input) => input,
       decode:
         route.response?.encrypted === true
           ? (input, headers) => {
-              const p = closure("decode")(headers, input);
-              const str = AesPkcs5.decrypt(input, p.key, p.iv);
-              return str.length ? JSON.parse(str) : str;
+              const p: IEncryptionPassword = closure("decode")(headers, input);
+              const s: string = AesPkcs5.decrypt(input, p.key, p.iv);
+              return s.length ? JSON.parse(s) : s;
             }
           : (input) => input,
     })(connection, route, input, stringify) as Promise<Output>;

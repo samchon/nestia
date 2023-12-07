@@ -162,9 +162,6 @@ class EncryptedRouteInterceptor implements NestInterceptor {
               })
             : param;
 
-        const response: express.Response = http.getResponse();
-        response.header("Content-Type", "text/plain");
-
         if (body === undefined) return body;
         return AesPkcs5.encrypt(body, password.key, password.iv);
       }),

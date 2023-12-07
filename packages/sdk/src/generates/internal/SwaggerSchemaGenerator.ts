@@ -1,4 +1,4 @@
-import { Singleton } from "tstl";
+import { Singleton, VariadicSingleton } from "tstl";
 import ts from "typescript";
 import { IJsonSchema } from "typia";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
@@ -139,7 +139,7 @@ export namespace SwaggerSchemaGenerator {
         describe(route, "return") ?? describe(route, "returns");
       output[status] = {
         description: route.encrypted
-          ? `${warning.get(!!description).get("response", route.method)}${
+          ? `${warning.get(!!description, "response", route.method)}${
               description ?? ""
             }`
           : description ?? "",
@@ -198,7 +198,7 @@ export namespace SwaggerSchemaGenerator {
       const schema: IJsonSchema = coalesce(props)(result);
       return {
         description: encrypted
-          ? `${warning.get(!!description).get("request")}${description ?? ""}`
+          ? `${warning.get(!!description, "request")}${description ?? ""}`
           : description,
         content: {
           [contentType]: {
@@ -370,8 +370,8 @@ export namespace SwaggerSchemaGenerator {
   };
 }
 
-const warning = new Singleton((described: boolean) => {
-  return new Singleton((type: "request" | "response", method?: string) => {
+const warning = new VariadicSingleton(
+  (described: boolean, type: "request" | "response", method?: string) => {
     const summary =
       type === "request"
         ? "Request body must be encrypted."
@@ -392,10 +392,10 @@ const warning = new Singleton((described: boolean) => {
       "",
       `Therefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.`,
     ];
-    if (described === true) content.push("----------------", "");
+    if (described === true) content.push("", "----------------", "", "");
     return content.join("\n");
-  });
-});
+  },
+);
 
 const any = new Singleton(() =>
   Metadata.from(
