@@ -5,23 +5,23 @@ import type { IJsonSchema } from "./IJsonSchema";
 import type { IMetadataTypeTag } from "./IMetadataTypeTag";
 
 export type IArrayIIdentified = {
-  items: IJsonSchema;
-  minItems?: undefined | (number & Type<"uint32">);
-  maxItems?: undefined | (number & Type<"uint32">);
-  "x-typia-tuple"?: undefined | IJsonSchema.ITuple;
-  "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
-  type: "array";
-  /**
-   * Only when swagger mode.
-   */
-  nullable?: undefined | boolean;
-  deprecated?: undefined | boolean;
-  title?: undefined | string;
-  description?: undefined | string;
-  "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
-  "x-typia-required"?: undefined | boolean;
-  "x-typia-optional"?: undefined | boolean;
-  "x-typia-rest"?: undefined | boolean;
-  $id?: undefined | string;
-  $recursiveAnchor?: undefined | boolean;
-};
+    items: IJsonSchema;
+    minItems?: undefined | (number & Type<"uint32">);
+    maxItems?: undefined | (number & Type<"uint32">);
+    "x-typia-tuple"?: undefined | IJsonSchema.ITuple;
+    "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+    type: ("array");
+    /**
+     * Only when swagger mode.
+     */
+    nullable?: undefined | boolean;
+    deprecated?: undefined | boolean;
+    title?: undefined | string;
+    description?: undefined | string;
+    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-required"?: undefined | boolean;
+    "x-typia-optional"?: undefined | boolean;
+    "x-typia-rest"?: undefined | boolean;
+    $id?: undefined | string;
+    $recursiveAnchor?: undefined | boolean;
+}

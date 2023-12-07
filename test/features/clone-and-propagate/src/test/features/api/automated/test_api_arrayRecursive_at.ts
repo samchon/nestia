@@ -5,13 +5,13 @@ import api from "../../../../api";
 import type { ArrayRecursive } from "../../../../api/structures/ArrayRecursive";
 
 export const test_api_arrayRecursive_at = async (
-  connection: api.IConnection,
+    connection: api.IConnection
 ): Promise<void> => {
-  const output: IPropagation<{
-    200: ArrayRecursive.ICategory;
-  }> = await api.functional.arrayRecursive.at(
-    connection,
-    typia.random<Resolved<number>>(),
-  );
-  typia.assert(output);
+    const output: IPropagation<{
+        200: ArrayRecursive.ICategory;
+    }> = await api.functional.arrayRecursive.at(
+        connection,
+        typia.random<Resolved<number>>(),
+    );
+    typia.assert(output);
 };

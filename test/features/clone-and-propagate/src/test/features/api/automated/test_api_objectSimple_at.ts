@@ -5,13 +5,13 @@ import api from "../../../../api";
 import type { ObjectSimple } from "../../../../api/structures/ObjectSimple";
 
 export const test_api_objectSimple_at = async (
-  connection: api.IConnection,
+    connection: api.IConnection
 ): Promise<void> => {
-  const output: IPropagation<{
-    200: ObjectSimple.IBox3D;
-  }> = await api.functional.objectSimple.at(
-    connection,
-    typia.random<Resolved<number>>(),
-  );
-  typia.assert(output);
+    const output: IPropagation<{
+        200: ObjectSimple.IBox3D;
+    }> = await api.functional.objectSimple.at(
+        connection,
+        typia.random<Resolved<number>>(),
+    );
+    typia.assert(output);
 };
