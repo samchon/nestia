@@ -12,11 +12,11 @@ const FEATURES: string[] = [
 ];
 
 const CLIENTS: BenchmarkProgrammer.ILibrary[] = [
-    "nestia (express)",
-    "nestia (fastify)",
+    "Nestia (express)",
+    "Nestia (fastify)",
     "NestJS (express)",
     "NestJS (fastify)",
-    "fastify",
+    "Fastify",
 ].map((name) => ({
     name,
     body: (type: string) =>
@@ -67,7 +67,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
         },
     })),
     ...["express", "fastify"].map((lib) => ({
-        name: `nestia (${lib})`,
+        name: `Nestia (${lib})`,
         body: (type: string) => {
             const program: string = `createNest${lib[0].toUpperCase()}${lib.substring(
                 1,
@@ -77,7 +77,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
             return [
                 `import { Controller } from "@nestjs/common";`,
                 ``,
-                `import core from "@nestia/core";`,
+                `import core from "@Nestia/core";`,
                 ``,
                 `import { Collection } from "../../../../structures/pure/Collection";`,
                 `import { ${type} } from "../../../../structures/pure/${type}";`,
@@ -99,7 +99,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
         },
     })),
     {
-        name: "fastify",
+        name: "Fastify",
         body: (type: string) => {
             const program = "createAjvPerformanceProgram";
             return [

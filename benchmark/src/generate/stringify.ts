@@ -12,8 +12,9 @@ const FEATURES: string[] = [
 ];
 
 const CLIENTS: BenchmarkProgrammer.ILibrary[] = [
-    "nestia (express)",
-    "nestia (fastify)",
+    "Nestia (express)",
+    "Nestia (fastify)",
+    "Nestia (encrypt)",
     "NestJS (express)",
     "NestJS (fastify)",
     "fastify",
@@ -69,7 +70,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
         },
     })),
     ...["express", "fastify"].map((lib) => ({
-        name: `nestia (${lib})`,
+        name: `Nestia (${lib})`,
         body: (type: string) => {
             const program: string = `createNest${lib[0].toUpperCase()}${lib.substring(
                 1,
@@ -79,7 +80,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
             return [
                 `import { Controller } from "@nestjs/common";`,
                 ``,
-                `import core from "@nestia/core";`,
+                `import core from "@Nestia/core";`,
                 ``,
                 `import { Collection } from "../../../../structures/pure/Collection";`,
                 `import { ${type} } from "../../../../structures/pure/${type}";`,
@@ -98,6 +99,32 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
             ].join("\n");
         },
     })),
+    {
+        name: `Nestia (encrypt)`,
+        body: (type: string) => {
+            const program: string = `createNestFastifyStringifyProgram`;
+            return [
+                `import { Controller } from "@nestjs/common";`,
+                ``,
+                `import core from "@Nestia/core";`,
+                ``,
+                `import { Collection } from "../../../../structures/pure/Collection";`,
+                `import { ${type} } from "../../../../structures/pure/${type}";`,
+                `import { ${program} } from "../${program}";`,
+                ``,
+                `${program}(false)(37_032)((input: Collection<${type}>) => {`,
+                `    @Controller()`,
+                `    class NestiaController {`,
+                `        @core.EncryptedRoute.Get("stringify")`,
+                `        public stringify(): Collection<${type}> {`,
+                `            return input;`,
+                `        }`,
+                `    }`,
+                `    return NestiaController;`,
+                `});`,
+            ].join("\n");
+        },
+    },
     {
         name: "fastify",
         body: (type: string) => {

@@ -1,6 +1,6 @@
 import { Controller } from "@nestjs/common";
 
-import core from "@nestia/core";
+import core from "@Nestia/core";
 
 import { Collection } from "../../../../structures/pure/Collection";
 import { ObjectRecursive } from "../../../../structures/pure/ObjectRecursive";

@@ -1,5 +1,5 @@
 import { createAssertBenchmarkProgram } from "../createAssertBenchmarkProgram";
 
 createAssertBenchmarkProgram(
-    __dirname + "/../servers/nestia-express/benchmark-assert-nestia-express-ObjectRecursive" + __filename.substr(-3)
+    __dirname + "/../servers/Nestia-express/benchmark-assert-Nestia-express-ObjectRecursive" + __filename.substr(-3)
 );

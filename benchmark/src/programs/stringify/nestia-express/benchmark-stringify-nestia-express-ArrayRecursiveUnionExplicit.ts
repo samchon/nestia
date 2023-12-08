@@ -1,5 +1,5 @@
 import { createStringifyBenchmarkProgram } from "../createStringifyBenchmarkProgram";
 
 createStringifyBenchmarkProgram(
-    __dirname + "/../servers/nestia-express/benchmark-stringify-nestia-express-ArrayRecursiveUnionExplicit" + __filename.substr(-3)
+    __dirname + "/../servers/Nestia-express/benchmark-stringify-Nestia-express-ArrayRecursiveUnionExplicit" + __filename.substr(-3)
 );
