@@ -5,5 +5,5 @@ import { ObjectRecursive } from "../../../../structures/pure/ObjectRecursive";
 import { createAjvPerformanceProgram } from "../createAjvPerformanceProgram";
 
 createAjvPerformanceProgram(37_002)(
-    typia.application<[Collection<ObjectRecursive>], "ajv">()
+    typia.json.application<[Collection<ObjectRecursive>], "ajv">()
 );

@@ -99,5 +99,6 @@
         "stringify": "stringify" 
       },
     ],
-  }
+  },
+  "include": ["./src"],
 }

@@ -24,7 +24,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "^2.4.0",
+    "@nestia/core": "^2.4.3",
     "typia": "^5.3.4"
   },
   "devDependencies": {
@@ -43,8 +43,8 @@
     "rimraf": "^5.0.1",
     "tgrid": "^0.8.7",
     "ts-node": "^10.9.1",
-    "ts-patch": "^3.1.0",
+    "ts-patch": "^3.1.1",
     "tstl": "^2.5.13",
-    "typescript": "^5.3.2"
+    "typescript": "^5.3.3"
   }
 }

@@ -113,7 +113,7 @@ export namespace BenchmarkReporter {
         await stream.write(`> - OS: ${stream.environments.os}`);
         await stream.write(`> - NodeJS version: ${stream.environments.node}`);
         await stream.write(
-            `> - Nestia version: v${stream.environments.nestia}`,
+            `> - nestia version: v${stream.environments.nestia}`,
         );
         await stream.write("\n");
         return stream;

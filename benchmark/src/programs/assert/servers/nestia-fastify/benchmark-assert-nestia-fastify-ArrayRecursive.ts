@@ -1,6 +1,6 @@
 import { Controller, Post } from "@nestjs/common";
 
-import core from "@Nestia/core";
+import core from "@nestia/core";
 
 import { Collection } from "../../../../structures/pure/Collection";
 import { ArrayRecursive } from "../../../../structures/pure/ArrayRecursive";

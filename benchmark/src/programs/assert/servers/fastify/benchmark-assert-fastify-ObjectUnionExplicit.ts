@@ -5,5 +5,5 @@ import { ObjectUnionExplicit } from "../../../../structures/pure/ObjectUnionExpl
 import { createAjvAssertProgram } from "../createAjvAssertProgram";
 
 createAjvAssertProgram(37_002)(
-    typia.application<[Collection<ObjectUnionExplicit>], "ajv">()
+    typia.json.application<[Collection<ObjectUnionExplicit>], "ajv">()
 );

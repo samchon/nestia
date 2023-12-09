@@ -12,9 +12,8 @@ const FEATURES: string[] = [
 ];
 
 const CLIENTS: BenchmarkProgrammer.ILibrary[] = [
-    "Nestia (express)",
-    "Nestia (fastify)",
-    "Nestia (encrypt)",
+    "nestia (express)",
+    "nestia (fastify)",
     "NestJS (express)",
     "NestJS (fastify)",
     "fastify",
@@ -70,7 +69,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
         },
     })),
     ...["express", "fastify"].map((lib) => ({
-        name: `Nestia (${lib})`,
+        name: `nestia (${lib})`,
         body: (type: string) => {
             const program: string = `createNest${lib[0].toUpperCase()}${lib.substring(
                 1,
@@ -80,7 +79,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
             return [
                 `import { Controller } from "@nestjs/common";`,
                 ``,
-                `import core from "@Nestia/core";`,
+                `import core from "@nestia/core";`,
                 ``,
                 `import { Collection } from "../../../../structures/pure/Collection";`,
                 `import { ${type} } from "../../../../structures/pure/${type}";`,
@@ -100,32 +99,6 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
         },
     })),
     {
-        name: `Nestia (encrypt)`,
-        body: (type: string) => {
-            const program: string = `createNestFastifyStringifyProgram`;
-            return [
-                `import { Controller } from "@nestjs/common";`,
-                ``,
-                `import core from "@Nestia/core";`,
-                ``,
-                `import { Collection } from "../../../../structures/pure/Collection";`,
-                `import { ${type} } from "../../../../structures/pure/${type}";`,
-                `import { ${program} } from "../${program}";`,
-                ``,
-                `${program}(false)(37_032)((input: Collection<${type}>) => {`,
-                `    @Controller()`,
-                `    class NestiaController {`,
-                `        @core.EncryptedRoute.Get("stringify")`,
-                `        public stringify(): Collection<${type}> {`,
-                `            return input;`,
-                `        }`,
-                `    }`,
-                `    return NestiaController;`,
-                `});`,
-            ].join("\n");
-        },
-    },
-    {
         name: "fastify",
         body: (type: string) => {
             const program = "createAjvStringifyProgram";
@@ -137,7 +110,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
                 `import { ${program} } from "../${program}";`,
                 ``,
                 `${program}(37_002)(`,
-                `    typia.application<[Collection<${type}>], "ajv">()`,
+                `    typia.json.application<[Collection<${type}>], "ajv">()`,
                 `);`,
             ].join("\n");
         },

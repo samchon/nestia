@@ -1,6 +1,6 @@
 import { Controller } from "@nestjs/common";
 
-import core from "@Nestia/core";
+import core from "@nestia/core";
 
 import { Collection } from "../../../../structures/pure/Collection";
 import { ArrayRecursiveUnionExplicit } from "../../../../structures/pure/ArrayRecursiveUnionExplicit";

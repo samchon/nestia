@@ -1,5 +1,5 @@
 import { createPerformanceBenchmarkProgram } from "../createPerformanceBenchmarkProgram";
 
 createPerformanceBenchmarkProgram(
-    __dirname + "/../servers/Nestia-express/benchmark-performance-Nestia-express-ObjectHierarchical" + __filename.substr(-3)
+    __dirname + "/../servers/nestia-express/benchmark-performance-nestia-express-ObjectHierarchical" + __filename.substr(-3)
 );

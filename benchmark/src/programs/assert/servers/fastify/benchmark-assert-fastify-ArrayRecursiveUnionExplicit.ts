@@ -5,5 +5,5 @@ import { ArrayRecursiveUnionExplicit } from "../../../../structures/pure/ArrayRe
 import { createAjvAssertProgram } from "../createAjvAssertProgram";
 
 createAjvAssertProgram(37_002)(
-    typia.application<[Collection<ArrayRecursiveUnionExplicit>], "ajv">()
+    typia.json.application<[Collection<ArrayRecursiveUnionExplicit>], "ajv">()
 );
