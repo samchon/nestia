@@ -5,5 +5,5 @@ import { ArrayHierarchical } from "../../../../structures/pure/ArrayHierarchical
 import { createAjvAssertProgram } from "../createAjvAssertProgram";
 
 createAjvAssertProgram(37_002)(
-    typia.application<[Collection<ArrayHierarchical>], "ajv">()
+    typia.json.application<[Collection<ArrayHierarchical>], "ajv">()
 );

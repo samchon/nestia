@@ -110,7 +110,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
                 `import { ${program} } from "../${program}";`,
                 ``,
                 `${program}(37_002)(`,
-                `    typia.application<[Collection<${type}>], "ajv">()`,
+                `    typia.json.application<[Collection<${type}>], "ajv">()`,
                 `);`,
             ].join("\n");
         },

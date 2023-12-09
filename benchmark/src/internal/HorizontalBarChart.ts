@@ -27,7 +27,7 @@ export namespace HorizontalBarChart {
                     env.memory / 1024 / 1024 / 1024,
                 ).toLocaleString()} GB`,
                 `NodeJS version: ${env.node}`,
-                `Nestia version: v${env.nestia}`,
+                `nestia version: v${env.nestia}`,
             ];
 
             // COMPUTATIONS

@@ -357,7 +357,7 @@ export namespace EncrypedRoute {
 
 Encrypted router decorator functions.
 
-`EncryptedRoute` is a namespaced module similar with `TypedRoute`, but it encrypts response body data through AES-128/256 CBC algorithm like below. Therefore, it would be a little bit slower than `TypedRoute` (still much faster than `class-transformer`), but it guarantees the security of response body data.
+`EncryptedRoute` is a namespaced module similar with `TypedRoute`, but it encrypts response body data through AES-128/256 CBC algorithm like below. Therefore, it would be slower than `TypedRoute`, but it guarantees the security of response body data.
 
   - AES-128/256
   - CBC mode

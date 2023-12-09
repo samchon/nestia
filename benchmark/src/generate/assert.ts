@@ -16,7 +16,7 @@ const CLIENTS: BenchmarkProgrammer.ILibrary[] = [
     "nestia (fastify)",
     "NestJS (express)",
     "NestJS (fastify)",
-    "fastify",
+    "Fastify",
 ].map((name) => ({
     name,
     body: (type: string) =>
@@ -91,7 +91,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
         },
     })),
     {
-        name: "fastify",
+        name: "Fastify",
         body: (type: string) => {
             const program = "createAjvAssertProgram";
             return [
@@ -102,7 +102,7 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
                 `import { ${program} } from "../${program}";`,
                 ``,
                 `${program}(37_002)(`,
-                `    typia.application<[Collection<${type}>], "ajv">()`,
+                `    typia.json.application<[Collection<${type}>], "ajv">()`,
                 `);`,
             ].join("\n");
         },

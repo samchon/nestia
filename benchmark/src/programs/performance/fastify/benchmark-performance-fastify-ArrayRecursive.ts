@@ -1,5 +1,5 @@
 import { createPerformanceBenchmarkProgram } from "../createPerformanceBenchmarkProgram";
 
 createPerformanceBenchmarkProgram(
-    __dirname + "/../servers/fastify/benchmark-performance-fastify-ArrayRecursive" + __filename.substr(-3)
+    __dirname + "/../servers/Fastify/benchmark-performance-Fastify-ArrayRecursive" + __filename.substr(-3)
 );

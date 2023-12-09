@@ -5,5 +5,5 @@ import { ObjectUnionExplicit } from "../../../../structures/pure/ObjectUnionExpl
 import { createAjvStringifyProgram } from "../createAjvStringifyProgram";
 
 createAjvStringifyProgram(37_002)(
-    typia.application<[Collection<ObjectUnionExplicit>], "ajv">()
+    typia.json.application<[Collection<ObjectUnionExplicit>], "ajv">()
 );

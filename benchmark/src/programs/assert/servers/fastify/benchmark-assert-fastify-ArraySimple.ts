@@ -5,5 +5,5 @@ import { ArraySimple } from "../../../../structures/pure/ArraySimple";
 import { createAjvAssertProgram } from "../createAjvAssertProgram";
 
 createAjvAssertProgram(37_002)(
-    typia.application<[Collection<ArraySimple>], "ajv">()
+    typia.json.application<[Collection<ArraySimple>], "ajv">()
 );

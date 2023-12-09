@@ -451,7 +451,7 @@ Below is the list of available validation functions.
 ## `EncryptedBody`
 Encrypted request body decorator function.
 
-`@EncryptedBody()` is a decorator function similar with `@TypedBody()`, but it encrypts the request body through AES-128/256-CBC algorithm like below. Therefore, it would be a little bit slower than `@TypedBody()` (still much faster than `class-validator`), but it guarantees the security of request body data.
+`@EncryptedBody()` is a decorator function similar with `@TypedBody()`, but it encrypts the request body through AES-128/256-CBC algorithm like below. Therefore, it would be slower than `@TypedBody()`, but it guarantees the security of request body data.
 
   - AES-128/256
   - CBC mode
