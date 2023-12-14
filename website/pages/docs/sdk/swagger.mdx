@@ -655,7 +655,7 @@ export class BbsArticlesController {
      *
      * @internal
      */
-    @ApiSecurity("custom") // LEGACY DECRATOR ALSO CAN BE USED
+    @ApiSecurity("custom") // LEGACY DECORATOR ALSO CAN BE USED
     @TypedRoute.Delete(":id")
     public erase(
         @TypedParam("section") section: string,
