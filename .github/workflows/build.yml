@@ -11,8 +11,7 @@ jobs:
           node-version: 16.x
 
       - name: test
-        working-directory: ./test
-        run: npm run start
+        run: npm install && cd test && npm run start
 
       - name: migrate
         working-directory: ./packages/migrate
