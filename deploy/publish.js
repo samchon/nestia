@@ -1,7 +1,6 @@
 const cp = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const std = require("tstl");
 
 const packages = ["fetcher", "core", "sdk"];
 
@@ -86,7 +85,7 @@ const publish = (tag) => async (version) => {
   for (const pack of packages) {
     if (skip.includes(pack)) continue;
     deploy(tag)(version)(pack);
-    await std.sleep_for(1_000);
+    await new Promise(resolve => setTimeout(resolve, 1_000));
   }
 
   // SETUP INTO TEST

@@ -26,7 +26,6 @@
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "prettier": "^2.8.8",
     "rimraf": "^5.0.1",
-    "sloc": "^0.3.0",
-    "tstl": "^2.5.13"
+    "sloc": "^0.3.0"
   }
 }

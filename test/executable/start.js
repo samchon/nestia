@@ -82,7 +82,7 @@ const main = async () => {
 
   await measure("\nTotal Elapsed Time")(async () => {
     if (!process.argv.find((str) => str === "--skipBuild"))
-      publish("tgz")("0.0.0-dev.20991231");
+      await publish("tgz")("0.0.0-dev.20991231");
 
     console.log("\nTest Features");
     const filter = (() => {
