@@ -1,4 +1,4 @@
-import type { RecordstringIObjectIAlias } from "./RecordstringIObjectIAlias";
+import type { RecordstringIJsonComponents } from "./RecordstringIJsonComponents";
 import type { RecordstringISwaggerSecurityScheme } from "./RecordstringISwaggerSecurityScheme";
 
 /**
@@ -17,7 +17,7 @@ export type ISwaggerComponents = {
      * For reference, `nestia` stores every object and alias types as reusable DTO
      * schemas. The alias type means that defined by `type` keyword in TypeScript.
      */
-    schemas?: undefined | RecordstringIObjectIAlias;
+    schemas?: undefined | RecordstringIJsonComponents.IAlias;
     /**
      * An object to hold reusable security schemes.
      * 

@@ -151,7 +151,15 @@ export namespace SwaggerSchemaGenerator {
                   schema: coalesce(props)(result),
                 },
               },
-        "x-nestia-encrypted": route.encrypted,
+        ...(props.config.additional === true
+          ? {
+              "x-nestia-encrypted": route.encrypted,
+            }
+          : route.encrypted === true
+          ? {
+              "x-nestia-encrypted": true,
+            }
+          : {}),
       };
       return output;
     };
@@ -206,7 +214,15 @@ export namespace SwaggerSchemaGenerator {
           },
         },
         required: true,
-        "x-nestia-encrypted": encrypted,
+        ...(props.config.additional === true
+          ? {
+              "x-nestia-encrypted": encrypted,
+            }
+          : encrypted === true
+          ? {
+              "x-nestia-encrypted": true,
+            }
+          : {}),
       };
     };
 

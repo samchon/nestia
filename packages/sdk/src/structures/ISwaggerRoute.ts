@@ -11,8 +11,8 @@ export interface ISwaggerRoute {
   responses: ISwaggerRoute.IResponseBody;
   summary?: string;
   description?: string;
-  "x-nestia-method": string;
-  "x-nestia-namespace": string;
+  "x-nestia-method"?: string;
+  "x-nestia-namespace"?: string;
   "x-nestia-jsDocTags"?: IJsDocTagInfo[];
 }
 export namespace ISwaggerRoute {
@@ -27,7 +27,7 @@ export namespace ISwaggerRoute {
     description?: string;
     content: IContent;
     required: true;
-    "x-nestia-encrypted": boolean;
+    "x-nestia-encrypted"?: boolean;
   }
   export type IResponseBody = Record<
     string,

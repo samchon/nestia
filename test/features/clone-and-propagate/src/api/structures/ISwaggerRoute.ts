@@ -13,8 +13,8 @@ export type ISwaggerRoute = {
     responses: ISwaggerRoute.IResponseBody;
     summary?: undefined | string;
     description?: undefined | string;
-    "x-nestia-method": string;
-    "x-nestia-namespace": string;
+    "x-nestia-method"?: undefined | string;
+    "x-nestia-namespace"?: undefined | string;
     "x-nestia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
 }
 export namespace ISwaggerRoute {

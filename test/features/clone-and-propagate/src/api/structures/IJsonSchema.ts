@@ -2,8 +2,9 @@ import type { Type } from "typia/lib/tags/Type";
 
 import type { IJsDocTagInfo } from "./IJsDocTagInfo";
 import type { IMetadataTypeTag } from "./IMetadataTypeTag";
+import type { RecordstringIJsonSchema } from "./RecordstringIJsonSchema";
 
-export type IJsonSchema = IJsonSchema.IEnumerationboolean | IJsonSchema.IEnumerationnumber | IJsonSchema.IEnumerationstring | IJsonSchema.IBoolean | IJsonSchema.IInteger | IJsonSchema.INumber | IJsonSchema.IString | IJsonSchema.IArray | IJsonSchema.ITuple | IJsonSchema.IOneOf | IJsonSchema.IReference | IJsonSchema.INullOnly | IJsonSchema.IUnknown;
+export type IJsonSchema = IJsonSchema.IEnumerationboolean | IJsonSchema.IEnumerationnumber | IJsonSchema.IEnumerationstring | IJsonSchema.IBoolean | IJsonSchema.IInteger | IJsonSchema.INumber | IJsonSchema.IString | IJsonSchema.IArray | IJsonSchema.ITuple | IJsonSchema.IObject | IJsonSchema.IReference | IJsonSchema.INullOnly | IJsonSchema.IOneOf | IJsonSchema.IUnknown;
 export namespace IJsonSchema {
     export type IEnumerationboolean = {
         "enum": Array<boolean>;
@@ -167,8 +168,18 @@ export namespace IJsonSchema {
         "x-typia-optional"?: undefined | boolean;
         "x-typia-rest"?: undefined | boolean;
     }
-    export type IOneOf = {
-        oneOf: Array<IJsonSchema>;
+    export type IObject = {
+        properties: RecordstringIJsonSchema;
+        required?: undefined | Array<string>;
+        patternProperties?: undefined | RecordstringIJsonSchema;
+        additionalProperties?: undefined | IJsonSchema.IEnumerationboolean | IJsonSchema.IEnumerationnumber | IJsonSchema.IEnumerationstring | IJsonSchema.IBoolean | IJsonSchema.IInteger | IJsonSchema.INumber | IJsonSchema.IString | IJsonSchema.IArray | IJsonSchema.ITuple | IJsonSchema.IObject | IJsonSchema.IReference | IJsonSchema.INullOnly | IJsonSchema.IOneOf | IJsonSchema.IUnknown;
+        "x-typia-patternProperties"?: undefined | RecordstringIJsonSchema;
+        "x-typia-additionalProperties"?: undefined | IJsonSchema.IEnumerationboolean | IJsonSchema.IEnumerationnumber | IJsonSchema.IEnumerationstring | IJsonSchema.IBoolean | IJsonSchema.IInteger | IJsonSchema.INumber | IJsonSchema.IString | IJsonSchema.IArray | IJsonSchema.ITuple | IJsonSchema.IObject | IJsonSchema.IReference | IJsonSchema.INullOnly | IJsonSchema.IOneOf | IJsonSchema.IUnknown;
+        type: ("object");
+        /**
+         * Only when swagger mode.
+         */
+        nullable?: undefined | boolean;
         deprecated?: undefined | boolean;
         title?: undefined | string;
         description?: undefined | string;
@@ -189,6 +200,16 @@ export namespace IJsonSchema {
     }
     export type INullOnly = {
         type: ("null");
+        deprecated?: undefined | boolean;
+        title?: undefined | string;
+        description?: undefined | string;
+        "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+        "x-typia-required"?: undefined | boolean;
+        "x-typia-optional"?: undefined | boolean;
+        "x-typia-rest"?: undefined | boolean;
+    }
+    export type IOneOf = {
+        oneOf: Array<IJsonSchema>;
         deprecated?: undefined | boolean;
         title?: undefined | string;
         description?: undefined | string;

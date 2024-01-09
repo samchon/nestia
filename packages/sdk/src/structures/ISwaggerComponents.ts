@@ -18,7 +18,7 @@ export interface ISwaggerComponents {
    * For reference, `nestia` stores every object and alias types as reusable DTO
    * schemas. The alias type means that defined by `type` keyword in TypeScript.
    */
-  schemas?: Record<string, IJsonComponents.IObject | IJsonComponents.IAlias>;
+  schemas?: Record<string, IJsonComponents.IAlias>;
 
   /**
    * An object to hold reusable security schemes.
