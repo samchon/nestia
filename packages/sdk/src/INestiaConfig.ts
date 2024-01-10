@@ -194,6 +194,20 @@ export namespace INestiaConfig {
     beautify?: boolean | number;
 
     /**
+     * Whether to include additional information or not.
+     *
+     * If configured to be `true`, those properties would be added into each
+     * API endpoinnt.
+     *
+     * - `x-nestia-method`
+     * - `x-nestia-namespace`
+     * ` `x-nestia-jsDocTags`
+     *
+     * @default false
+     */
+    additional?: boolean;
+
+    /**
      * API information.
      *
      * If omitted, `package.json` content would be used instead.

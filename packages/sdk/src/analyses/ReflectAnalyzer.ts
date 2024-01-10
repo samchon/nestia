@@ -310,18 +310,23 @@ export namespace ReflectAnalyzer {
           if (location.includes("*")) continue;
 
           // LIST UP PARAMETERS
-          const binded: string[] = PathAnalyzer.parameters(
-            location,
-            () => `${controller.name}.${name}()`,
-          ).sort();
-
+          const binded: string[] | null = PathAnalyzer.parameters(location);
+          if (binded === null) {
+            project.errors.push({
+              file: controller.file,
+              controller: controller.name,
+              function: name,
+              message: `invalid path ("${location}")`,
+            });
+            continue;
+          }
           const parameters: string[] = meta.parameters
             .filter((param) => param.category === "param")
             .map((param) => param.field!)
             .sort();
 
           // DO VALIDATE
-          if (equal(binded, parameters) === false)
+          if (equal(binded.sort(), parameters) === false)
             errors.push({
               file: controller.file,
               controller: controller.name,

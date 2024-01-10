@@ -274,9 +274,20 @@ export namespace ControllerAnalyzer {
           }),
         )
         .flat()
+        .filter((path) => {
+          const escaped: string | null = PathAnalyzer.escape(path);
+          if (escaped === null)
+            project.errors.push({
+              file: controller.file,
+              controller: controller.name,
+              function: func.name,
+              message: `unable to escape the path "${path}".`,
+            });
+          return escaped !== null;
+        })
         .map((path) => ({
           ...common,
-          path: PathAnalyzer.escape(path, () => "ControllerAnalyzer.analyze()"),
+          path: PathAnalyzer.escape(path)!,
           accessors: [...PathUtil.accessors(path), func.name],
         }));
     };

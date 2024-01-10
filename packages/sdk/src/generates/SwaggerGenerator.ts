@@ -338,14 +338,18 @@ export namespace SwaggerGenerator {
         summary,
         description,
         security: route.security.length ? route.security : undefined,
-        "x-nestia-namespace": [
-          ...route.path
-            .split("/")
-            .filter((str) => str.length && str[0] !== ":"),
-          route.name,
-        ].join("."),
-        "x-nestia-jsDocTags": route.jsDocTags,
-        "x-nestia-method": route.method,
+        ...(props.config.additional === true
+          ? {
+              "x-nestia-namespace": [
+                ...route.path
+                  .split("/")
+                  .filter((str) => str.length && str[0] !== ":"),
+                route.name,
+              ].join("."),
+              "x-nestia-jsDocTags": route.jsDocTags,
+              "x-nestia-method": route.method,
+            }
+          : {}),
       };
     };
 

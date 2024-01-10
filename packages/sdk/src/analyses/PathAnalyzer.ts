@@ -33,21 +33,34 @@ export namespace PathAnalyzer {
         .join("/"),
     );
 
-  export const escape = (str: string, method: () => string) =>
-    "/" +
-    _Parse(str, method)
-      .map((arg) => (arg.type === "param" ? `:${arg.value}` : arg.value))
-      .join("/");
+  export const escape = (str: string): string | null => {
+    const args = _Parse(str);
+    if (args === null) return null;
+    return (
+      "/" +
+      args
+        .map((arg) => (arg.type === "param" ? `:${arg.value}` : arg.value))
+        .join("/")
+    );
+  };
 
-  export const parameters = (str: string, method: () => string) =>
-    _Parse(str, method)
-      .filter((arg) => arg.type === "param")
-      .map((arg) => arg.value);
+  export const parameters = (str: string): string[] | null => {
+    const args = _Parse(str);
+    if (args === null) return null;
+    return args.filter((arg) => arg.type === "param").map((arg) => arg.value);
+  };
 
-  function _Parse(str: string, method: () => string): IArgument[] {
-    const tokens: Token[] = parse(path.join(str).split("\\").join("/"));
+  function _Parse(str: string): IArgument[] | null {
+    const tokens: Token[] | null = (() => {
+      try {
+        return parse(path.join(str).split("\\").join("/"));
+      } catch {
+        return null;
+      }
+    })();
+    if (tokens === null) return null;
+
     const output: IArgument[] = [];
-
     for (const key of tokens) {
       if (typeof key === "string")
         output.push({
@@ -55,7 +68,7 @@ export namespace PathAnalyzer {
           value: _Trim(key),
         });
       else if (typeof key.name === "number" || _Trim(key.name) === "")
-        throw new Error(`Error on ${method}: ${ERROR_MESSAGE}.`);
+        return null;
       else
         output.push({
           type: "param",
@@ -77,7 +90,6 @@ export namespace PathAnalyzer {
   }
 }
 
-const ERROR_MESSAGE = "nestia supports only string typed parameter on path";
 const METHOD = (value: RequestMethod) =>
   value === RequestMethod.ALL
     ? "all"

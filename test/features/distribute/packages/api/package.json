@@ -28,12 +28,12 @@
   ],
   "devDependencies": {
     "rimraf": "^5.0.5",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "ts-patch": "^3.1.1",
     "typescript": "^5.3.2"
   },
   "dependencies": {
-    "@nestia/fetcher": "file:../../../../../packages/fetcher/nestia-fetcher-0.0.0-dev.20991231.tgz",
-    "typia": "^5.3.4"
+    "@nestia/fetcher": "^2.4.4-dev.20240109-3",
+    "typia": "^5.3.9"
   }
 }
