@@ -5,7 +5,7 @@ import { IPerformance } from "@api/lib/structures/IPerformance";
 
 @Controller("performance")
 export class PerformanceController {
-  @core.TypedRoute.Get()
+  @core.EncryptedRoute.Get()
   public async get(): Promise<IPerformance> {
     return {
       cpu: process.cpuUsage(),

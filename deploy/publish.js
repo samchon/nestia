@@ -66,7 +66,14 @@ const deploy = (tag) => (version) => (name) => {
   console.log("");
 };
 
-const publish = (tag) => async (version) => {
+const publish = async (tag) => {
+  // GET VERSION
+  const version = (() => {
+    const content = fs.readFileSync(`${__dirname}/../package.json`, "utf8");
+    const info = JSON.parse(content);
+    return info.version;
+  })();
+
   // VALIDATE TAG
   const dev = version.includes("-dev.") === true;
   if (tag !== "latest" && dev === false)
@@ -85,7 +92,7 @@ const publish = (tag) => async (version) => {
   for (const pack of packages) {
     if (skip.includes(pack)) continue;
     deploy(tag)(version)(pack);
-    await new Promise(resolve => setTimeout(resolve, 1_000));
+    await new Promise((resolve) => setTimeout(resolve, 1_000));
   }
 
   // SETUP INTO TEST

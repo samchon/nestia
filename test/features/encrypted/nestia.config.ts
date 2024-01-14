@@ -1,7 +1,10 @@
 import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+
+import { MyModule } from "./src/controllers/MyModule";
 
 export const NESTIA_CONFIG: INestiaConfig = {
-  input: ["src/controllers"],
+  input: () => NestFactory.create(MyModule),
   output: "src/api",
   e2e: "src/test",
   swagger: {

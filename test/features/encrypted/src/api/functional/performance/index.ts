@@ -5,7 +5,7 @@
  */
 //================================================================
 import type { IConnection, Primitive } from "@nestia/fetcher";
-import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
+import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
 
 import type { IPerformance } from "../../structures/IPerformance";
 
@@ -17,7 +17,7 @@ import type { IPerformance } from "../../structures/IPerformance";
 export async function get(
     connection: IConnection,
 ): Promise<get.Output> {
-    return PlainFetcher.fetch(
+    return EncryptedFetcher.fetch(
         connection,
         {
             ...get.METADATA,
@@ -33,8 +33,8 @@ export namespace get {
         path: "/performance",
         request: null,
         response: {
-            type: "application/json",
-            encrypted: false,
+            type: "text/plain",
+            encrypted: true,
         },
         status: null,
     } as const;
