@@ -37,15 +37,11 @@ import { load_controllers } from "./internal/load_controller";
  */
 export function EncryptedModule(
   metadata: Parameters<typeof Module>[0],
-  password: IEncryptionPassword | IEncryptionPassword.Closure,
+  password: IEncryptionPassword.Closure,
 ): ClassDecorator {
   return function (target: any) {
     Module(metadata)(target);
-    if (metadata.controllers === undefined) return;
-
-    for (const c of metadata.controllers)
-      if (Reflect.hasMetadata(ENCRYPTION_METADATA_KEY, c) === false)
-        Reflect.defineMetadata(ENCRYPTION_METADATA_KEY, password, c);
+    iterate(password)(target);
   };
 }
 
@@ -72,8 +68,26 @@ export namespace EncryptedModule {
     const controllers: Creator<object>[] = await load_controllers(path);
 
     // RETURNS WITH DECORATING
-    @EncryptedModule({ ...options, controllers }, password)
+    @EncryptedModule(
+      { ...options, controllers },
+      typeof password === "object" ? () => password : password,
+    )
     class NestiaModule {}
     return NestiaModule;
   }
 }
+
+const iterate =
+  (password: IEncryptionPassword.Closure) =>
+  (modulo: any): void => {
+    const imports = Reflect.getMetadata("imports", modulo);
+    if (Array.isArray(imports))
+      for (const imp of imports)
+        if (typeof imp === "function") iterate(password)(imp);
+
+    const controllers = Reflect.getMetadata("controllers", modulo);
+    if (Array.isArray(controllers))
+      for (const c of controllers)
+        if (typeof c === "function")
+          Reflect.defineMetadata(ENCRYPTION_METADATA_KEY, password, c);
+  };

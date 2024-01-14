@@ -7,7 +7,7 @@
         }
     ],
     "info": {
-        "version": "2.4.4-dev.20240109-3",
+        "version": "2.4.5-dev.20240114-2",
         "title": "@nestia/test",
         "description": "Test program of Nestia",
         "license": {
@@ -24,8 +24,7 @@
                 "parameters": [],
                 "responses": {
                     "200": {
-                        "description": "",
-                        "x-nestia-encrypted": false
+                        "description": ""
                     }
                 },
                 "summary": "Health check API",
@@ -48,8 +47,7 @@
                                     "$ref": "#/components/schemas/IPerformance"
                                 }
                             }
-                        },
-                        "x-nestia-encrypted": false
+                        }
                     }
                 },
                 "summary": "Get server performance info",
@@ -69,8 +67,7 @@
                             }
                         }
                     },
-                    "required": true,
-                    "x-nestia-encrypted": false
+                    "required": true
                 },
                 "responses": {
                     "201": {
@@ -81,8 +78,7 @@
                                     "$ref": "#/components/schemas/IBbsArticle"
                                 }
                             }
-                        },
-                        "x-nestia-encrypted": false
+                        }
                     }
                 },
                 "summary": "Store an article",
@@ -112,13 +108,11 @@
                             }
                         }
                     },
-                    "required": true,
-                    "x-nestia-encrypted": false
+                    "required": true
                 },
                 "responses": {
                     "201": {
-                        "description": "",
-                        "x-nestia-encrypted": false
+                        "description": ""
                     }
                 }
             }

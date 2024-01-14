@@ -1,18 +1,13 @@
-import core from "@nestia/core";
 import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+
+import { MyModule } from "./controllers/MyModule";
 
 export class Backend {
   private application_?: INestApplication;
 
   public async open(): Promise<void> {
-    this.application_ = await NestFactory.create(
-      await core.EncryptedModule.dynamic(__dirname + "/controllers", {
-        key: "A".repeat(32),
-        iv: "B".repeat(16),
-      }),
-      { logger: false },
-    );
+    this.application_ = await NestFactory.create(MyModule, { logger: false });
     await this.application_.listen(37_000);
   }
 
