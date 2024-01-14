@@ -76,7 +76,7 @@ const publish = async (tag) => {
 
   // VALIDATE TAG
   const dev = version.includes("-dev.") === true;
-  if (tag !== "latest" && dev === false)
+  if (tag === "next" && dev === false)
     throw new Error(`${tag} tag can only be used for dev versions.`);
   else if (tag === "latest" && dev === true)
     throw new Error(`latest tag can only be used for non-dev versions.`);
