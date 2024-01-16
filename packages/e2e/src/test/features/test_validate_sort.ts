@@ -5,14 +5,15 @@ import { IBbsArticle } from "./structures/IBbsArticle";
 import { IPage } from "./structures/IPage";
 
 export async function test_validate_sort(): Promise<void> {
-  const validator = TestValidator.sort("sort")(
-    async (sort: IPage.IRequest.Sort<IBbsArticle.IRequest.SortableColumns>) => {
-      const page = await generate({
-        sort,
-      });
-      return page.data;
-    },
-  );
+  const validator = TestValidator.sort("sort")<
+    IBbsArticle.ISummary,
+    IBbsArticle.IRequest.SortableColumns
+  >(async (sort) => {
+    const page = await generate({
+      sort,
+    });
+    return page.data;
+  });
   const components = [
     validator("created_at")(GaffComparator.dates((x) => x.created_at)),
     validator("updated_at")(GaffComparator.dates((x) => x.updated_at)),

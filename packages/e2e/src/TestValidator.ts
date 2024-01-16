@@ -274,7 +274,9 @@ export namespace TestValidator {
     <
       T extends object,
       Fields extends string,
-      Sortable extends Array<`-${Fields}` | `+${Fields}`>,
+      Sortable extends Array<`-${Fields}` | `+${Fields}`> = Array<
+        `-${Fields}` | `+${Fields}`
+      >,
     >(
       getter: (sortable: Sortable) => Promise<T[]>,
     ) =>
