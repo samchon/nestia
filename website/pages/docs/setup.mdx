@@ -197,7 +197,7 @@ yarn add -D copy-webpack-plugin write-file-webpack-plugin
 
 Also, configure `webpack.config.js` file like below, considering options. 
 
-For example, if your NestJS backend server is utilizing the [Prisma](https://prisma.io) ORM, uncomment the `CopyWebpackPlugin.patterns` block to copy the Prisma engine files (`node_modules/.prisma/client/*.node`) into the output `dist` directory.
+For example, if your NestJS backend server is utilizing the [Prisma](https://prisma.io) ORM, uncomment the `CopyWebpackPlugin.patterns` block to copy the Prisma engine files (`node_modules/**/.prisma/client/*.node`) into the output `dist` directory.
 
 After that, just run `npx webpack` command. Then the light JS file(s) would be bundled into the `dist` directory, and you don't need to perform the pruning process (represented by `pnpm install --production --ignore-scripts` command) for the distribution. Just deploy the `dist` directory to the target server.
 
@@ -253,9 +253,15 @@ module.exports = {
           from: ".env",
           to: "[name][ext]",
         },
+        {
+          from: "package.json",
+          to: "[name][ext]",
+        },
         // {
-        //   from: "./node_modules/.prisma/client/*.node",
+        //   from: "node_modules/**/.prisma/client/*.node",
         //   to: () => Promise.resolve("[path][name][ext]"),
+        //   globOptions: {
+        //     dot: true,
         // },
       ],
     }),
