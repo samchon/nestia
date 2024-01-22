@@ -34,7 +34,7 @@
     "ts-patch": "v3.0.2",
     "typescript": "^5.3.2",
     "typescript-transform-paths": "^3.4.4",
-    "typia": "^5.3.10",
+    "typia": "^5.3.12",
     "uuid": "^9.0.0",
     "nestia": "^4.5.0",
     "@nestia/core": "^2.4.5",
