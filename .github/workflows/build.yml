@@ -7,8 +7,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v2
         with:
-          node-version: 16.x
+          version: 8
 
       - name: test
         working-directory: ./test
@@ -16,4 +17,4 @@ jobs:
 
       - name: migrate
         working-directory: ./packages/migrate
-        run: npm install && npm run build && npm run test
+        run: pnpm install && npm run build && npm run test

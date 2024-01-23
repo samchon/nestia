@@ -104,8 +104,8 @@ export namespace FetcherBase {
           route.request?.type === "application/x-www-form-urlencoded"
             ? request_query_body(input)
             : route.request?.type !== "text/plain"
-            ? (stringify ?? JSON.stringify)(input)
-            : input,
+              ? (stringify ?? JSON.stringify)(input)
+              : input,
           headers,
         );
 

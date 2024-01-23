@@ -265,8 +265,8 @@ export namespace ControllerAnalyzer {
               v === null
                 ? null
                 : project.input.versioning?.prefix?.length
-                ? `${project.input.versioning.prefix}${v}`
-                : v,
+                  ? `${project.input.versioning.prefix}${v}`
+                  : v,
             ),
           )({
             method: func.method,

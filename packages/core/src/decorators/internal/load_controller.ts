@@ -13,8 +13,8 @@ export const load_controllers = async (
     include: Array.isArray(path)
       ? path
       : typeof path === "object"
-      ? path.include
-      : [path],
+        ? path.include
+        : [path],
     exclude:
       typeof path === "object" && !Array.isArray(path)
         ? path.exclude ?? []

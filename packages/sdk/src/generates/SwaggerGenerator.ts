@@ -233,11 +233,11 @@ export namespace SwaggerGenerator {
               ? typeof data.license === "string"
                 ? { name: data.license }
                 : typeof data.license === "object"
-                ? {
-                    name: data.license.type,
-                    url: data.license.url,
-                  }
-                : undefined
+                  ? {
+                      name: data.license.type,
+                      url: data.license.url,
+                    }
+                  : undefined
               : undefined,
           };
         } catch {

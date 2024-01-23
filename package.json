@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/station",
-  "version": "2.4.5",
+  "version": "2.4.6-dev.20240123",
   "description": "Nestia station",
   "main": "prettier.config.js",
   "scripts": {
@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/samchon/nestia#readme",
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
-    "prettier": "^2.8.8",
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "prettier": "^3.2.4",
     "rimraf": "^5.0.1",
     "sloc": "^0.3.0"
   }

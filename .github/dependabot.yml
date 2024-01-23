@@ -5,7 +5,7 @@ updates:
     directory: '/packages/core'
     schedule:
       interval: 'daily'
-    versioning-strategy: increase
+    # versioning-strategy: increase
     open-pull-requests-limit: 25
     allow:
       - dependency-name: "@nestia/fetcher"
@@ -15,7 +15,7 @@ updates:
     directory: '/packages/e2e'
     schedule:
       interval: 'daily'
-    versioning-strategy: increase
+    # versioning-strategy: increase
     open-pull-requests-limit: 25
     allow:
       - dependency-name: "typia"
@@ -24,7 +24,7 @@ updates:
     directory: '/packages/sdk'
     schedule:
       interval: 'daily'
-    versioning-strategy: increase
+    # versioning-strategy: increase
     open-pull-requests-limit: 25
     allow:
       - dependency-name: "@nestia/fetcher"
@@ -36,7 +36,7 @@ updates:
     directory: '/test'
     schedule:
       interval: 'daily'
-    versioning-strategy: increase
+    # versioning-strategy: increase
     open-pull-requests-limit: 25
     allow:
       - dependency-name: "typia"

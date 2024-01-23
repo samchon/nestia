@@ -11,6 +11,6 @@ export namespace NodeTransformer {
       ts.isMethodDeclaration(node)
         ? MethodTransformer.transform(project)(node)
         : ts.isParameter(node)
-        ? ParameterTransformer.transform(project)(node)
-        : node;
+          ? ParameterTransformer.transform(project)(node)
+          : node;
 }

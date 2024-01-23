@@ -95,8 +95,8 @@ export namespace ConfigAnalyzer {
           ? 7
           : 8
         : str.startsWith("file://")
-        ? 7
-        : 0,
+          ? 7
+          : 0,
     );
 
   const transform_input =

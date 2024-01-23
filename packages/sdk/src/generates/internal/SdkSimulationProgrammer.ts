@@ -78,10 +78,10 @@ export namespace SdkSimulationProgrammer {
           p.category === "body"
             ? `assert.body(() => ${typia}.assert(${p.name}));`
             : p.category === "query"
-            ? `assert.query(() => ${typia}.assert(${p.name}));`
-            : p.category === "headers"
-            ? `assert.headers(() => ${typia}.assert(connection.headers);`
-            : `assert.param("${p.field}")(() => ${typia}.assert(${p.name}));`,
+              ? `assert.query(() => ${typia}.assert(${p.name}));`
+              : p.category === "headers"
+                ? `assert.headers(() => ${typia}.assert(connection.headers);`
+                : `assert.param("${p.field}")(() => ${typia}.assert(${p.name}));`,
         );
       if (config.propagate !== true) return [...func, ...individual];
 

@@ -1,5 +1,7 @@
 bin/
 lib/
 node_modules/
+
 packages/*/*.tgz
 package-lock.json
+pnpm-lock.yaml

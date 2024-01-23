@@ -94,17 +94,17 @@ const METHOD = (value: RequestMethod) =>
   value === RequestMethod.ALL
     ? "all"
     : value === RequestMethod.DELETE
-    ? "delete"
-    : value === RequestMethod.GET
-    ? "get"
-    : value === RequestMethod.HEAD
-    ? "head"
-    : value === RequestMethod.OPTIONS
-    ? "options"
-    : value === RequestMethod.PATCH
-    ? "patch"
-    : value === RequestMethod.POST
-    ? "post"
-    : value === RequestMethod.PUT
-    ? "put"
-    : "unknown";
+      ? "delete"
+      : value === RequestMethod.GET
+        ? "get"
+        : value === RequestMethod.HEAD
+          ? "head"
+          : value === RequestMethod.OPTIONS
+            ? "options"
+            : value === RequestMethod.PATCH
+              ? "patch"
+              : value === RequestMethod.POST
+                ? "post"
+                : value === RequestMethod.PUT
+                  ? "put"
+                  : "unknown";

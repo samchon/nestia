@@ -204,8 +204,8 @@ class FakeURLSearchParams {
     return value === undefined
       ? null
       : Array.isArray(value)
-      ? value[0] ?? null
-      : value;
+        ? value[0] ?? null
+        : value;
   }
 
   public getAll(key: string): string[] {

@@ -108,10 +108,10 @@ export namespace SwaggerSchemaGenerator {
         route.status !== undefined
           ? String(route.status)
           : route.method === "GET" ||
-            route.method === "HEAD" ||
-            route.method === "DELETE"
-          ? "200"
-          : "201";
+              route.method === "HEAD" ||
+              route.method === "DELETE"
+            ? "200"
+            : "201";
 
       // SCHEMA
       const result = MetadataFactory.analyze(props.checker)({
@@ -156,10 +156,10 @@ export namespace SwaggerSchemaGenerator {
               "x-nestia-encrypted": route.encrypted,
             }
           : route.encrypted === true
-          ? {
-              "x-nestia-encrypted": true,
-            }
-          : {}),
+            ? {
+                "x-nestia-encrypted": true,
+              }
+            : {}),
       };
       return output;
     };
@@ -219,10 +219,10 @@ export namespace SwaggerSchemaGenerator {
               "x-nestia-encrypted": encrypted,
             }
           : encrypted === true
-          ? {
-              "x-nestia-encrypted": true,
-            }
-          : {}),
+            ? {
+                "x-nestia-encrypted": true,
+              }
+            : {}),
       };
     };
 
@@ -233,8 +233,8 @@ export namespace SwaggerSchemaGenerator {
       param.category === "headers"
         ? headers(props)(route)(param)
         : param.category === "param"
-        ? [path(props)(route)(param)]
-        : query(props)(route)(param);
+          ? [path(props)(route)(param)]
+          : query(props)(route)(param);
 
   const path =
     (props: IProps) =>
@@ -345,8 +345,8 @@ export namespace SwaggerSchemaGenerator {
           param.category === "headers"
             ? "header"
             : param.category === "param"
-            ? "path"
-            : param.category,
+              ? "path"
+              : param.category,
         schema,
         description: describe(route, "param", param.name) ?? "",
         required: result.success ? result.data.isRequired() : true,
