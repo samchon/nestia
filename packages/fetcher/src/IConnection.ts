@@ -209,28 +209,28 @@ export namespace IConnection {
             ? T[P] | undefined
             : never
           : Lowercase<P> extends
-              | "age"
-              | "authorization"
-              | "content-length"
-              | "content-type"
-              | "etag"
-              | "expires"
-              | "from"
-              | "host"
-              | "if-modified-since"
-              | "if-unmodified-since"
-              | "last-modified"
-              | "location"
-              | "max-forwards"
-              | "proxy-authorization"
-              | "referer"
-              | "retry-after"
-              | "server"
-              | "user-agent"
-          ? T[P] extends Array<HeaderValue>
-            ? never
+                | "age"
+                | "authorization"
+                | "content-length"
+                | "content-type"
+                | "etag"
+                | "expires"
+                | "from"
+                | "host"
+                | "if-modified-since"
+                | "if-unmodified-since"
+                | "last-modified"
+                | "location"
+                | "max-forwards"
+                | "proxy-authorization"
+                | "referer"
+                | "retry-after"
+                | "server"
+                | "user-agent"
+            ? T[P] extends Array<HeaderValue>
+              ? never
+              : T[P] | undefined
             : T[P] | undefined
-          : T[P] | undefined
         : never
       : never;
   };

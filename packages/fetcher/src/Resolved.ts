@@ -26,82 +26,83 @@
  * @author Jeongho Nam - https://github.com/samchon
  * @author Kyungsu Kang - https://github.com/kakasoo
  */
-export type Resolved<T> = Equal<T, ResolvedMain<T>> extends true
-  ? T
-  : ResolvedMain<T>;
+export type Resolved<T> =
+  Equal<T, ResolvedMain<T>> extends true ? T : ResolvedMain<T>;
 
 type Equal<X, Y> = X extends Y ? (Y extends X ? true : false) : false;
 
 type ResolvedMain<Instance> = Instance extends [never]
   ? never // (special trick for jsonable | null) type
   : ValueOf<Instance> extends boolean | number | bigint | string
-  ? ValueOf<Instance>
-  : Instance extends Function
-  ? never
-  : Instance extends object
-  ? ResolvedObject<Instance>
-  : ValueOf<Instance>;
+    ? ValueOf<Instance>
+    : Instance extends Function
+      ? never
+      : Instance extends object
+        ? ResolvedObject<Instance>
+        : ValueOf<Instance>;
 
-type ResolvedObject<Instance extends object> = Instance extends Array<infer T>
-  ? IsTuple<Instance> extends true
-    ? ResolvedTuple<Instance>
-    : ResolvedMain<T>[]
-  : Instance extends Set<infer U>
-  ? Set<ResolvedMain<U>>
-  : Instance extends Map<infer K, infer V>
-  ? Map<ResolvedMain<K>, ResolvedMain<V>>
-  : Instance extends WeakSet<any> | WeakMap<any, any>
-  ? never
-  : Instance extends
-      | Date
-      | Uint8Array
-      | Uint8ClampedArray
-      | Uint16Array
-      | Uint32Array
-      | BigUint64Array
-      | Int8Array
-      | Int16Array
-      | Int32Array
-      | BigInt64Array
-      | Float32Array
-      | Float64Array
-      | ArrayBuffer
-      | SharedArrayBuffer
-      | DataView
-  ? Instance
-  : {
-      [P in keyof Instance]: ResolvedMain<Instance[P]>;
-    };
+type ResolvedObject<Instance extends object> =
+  Instance extends Array<infer T>
+    ? IsTuple<Instance> extends true
+      ? ResolvedTuple<Instance>
+      : ResolvedMain<T>[]
+    : Instance extends Set<infer U>
+      ? Set<ResolvedMain<U>>
+      : Instance extends Map<infer K, infer V>
+        ? Map<ResolvedMain<K>, ResolvedMain<V>>
+        : Instance extends WeakSet<any> | WeakMap<any, any>
+          ? never
+          : Instance extends
+                | Date
+                | Uint8Array
+                | Uint8ClampedArray
+                | Uint16Array
+                | Uint32Array
+                | BigUint64Array
+                | Int8Array
+                | Int16Array
+                | Int32Array
+                | BigInt64Array
+                | Float32Array
+                | Float64Array
+                | ArrayBuffer
+                | SharedArrayBuffer
+                | DataView
+            ? Instance
+            : {
+                [P in keyof Instance]: ResolvedMain<Instance[P]>;
+              };
 
 type ResolvedTuple<T extends readonly any[]> = T extends []
   ? []
   : T extends [infer F]
-  ? [ResolvedMain<F>]
-  : T extends [infer F, ...infer Rest extends readonly any[]]
-  ? [ResolvedMain<F>, ...ResolvedTuple<Rest>]
-  : T extends [(infer F)?]
-  ? [ResolvedMain<F>?]
-  : T extends [(infer F)?, ...infer Rest extends readonly any[]]
-  ? [ResolvedMain<F>?, ...ResolvedTuple<Rest>]
-  : [];
+    ? [ResolvedMain<F>]
+    : T extends [infer F, ...infer Rest extends readonly any[]]
+      ? [ResolvedMain<F>, ...ResolvedTuple<Rest>]
+      : T extends [(infer F)?]
+        ? [ResolvedMain<F>?]
+        : T extends [(infer F)?, ...infer Rest extends readonly any[]]
+          ? [ResolvedMain<F>?, ...ResolvedTuple<Rest>]
+          : [];
 
-type ValueOf<Instance> = IsValueOf<Instance, Boolean> extends true
-  ? boolean
-  : IsValueOf<Instance, Number> extends true
-  ? number
-  : IsValueOf<Instance, String> extends true
-  ? string
-  : Instance;
+type ValueOf<Instance> =
+  IsValueOf<Instance, Boolean> extends true
+    ? boolean
+    : IsValueOf<Instance, Number> extends true
+      ? number
+      : IsValueOf<Instance, String> extends true
+        ? string
+        : Instance;
 
 type IsTuple<T extends readonly any[] | { length: number }> = [T] extends [
   never,
 ]
   ? false
   : T extends readonly any[]
-  ? number extends T["length"]
-    ? false
-    : true
-  : false;
+    ? number extends T["length"]
+      ? false
+      : true
+    : false;
 
 type IsValueOf<Instance, Object extends IValueOf<any>> = Instance extends Object
   ? Object extends IValueOf<infer Primitive>

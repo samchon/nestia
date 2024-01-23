@@ -45,5 +45,8 @@
     "typescript-transform-paths": "^3.4.4",
     "typia": "^5.3.10",
     "uuid": "^9.0.0"
+  },
+  "dependencies": {
+    "tstl": "^2.5.13"
   }
 }

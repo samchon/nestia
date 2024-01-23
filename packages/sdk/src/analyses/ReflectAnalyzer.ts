@@ -282,13 +282,13 @@ export namespace ReflectAnalyzer {
         contentType: encrypted
           ? "text/plain"
           : query
-          ? "application/x-www-form-urlencoded"
-          : Reflect.getMetadata(Constants.HEADERS_METADATA, proto)?.find(
-              (h: Record<string, string>) =>
-                typeof h?.name === "string" &&
-                typeof h?.value === "string" &&
-                h.name.toLowerCase() === "content-type",
-            )?.value ?? "application/json",
+            ? "application/x-www-form-urlencoded"
+            : Reflect.getMetadata(Constants.HEADERS_METADATA, proto)?.find(
+                (h: Record<string, string>) =>
+                  typeof h?.name === "string" &&
+                  typeof h?.value === "string" &&
+                  h.name.toLowerCase() === "content-type",
+              )?.value ?? "application/json",
         security: _Get_securities(proto),
         exceptions: _Get_exceptions(proto),
         swaggerTags: [
@@ -393,8 +393,8 @@ export namespace ReflectAnalyzer {
           param.factory.name === "EncryptedBody"
             ? "text/plain"
             : param.factory.name === "TypedQueryBody"
-            ? "application/x-www-form-urlencoded"
-            : "application/json",
+              ? "application/x-www-form-urlencoded"
+              : "application/json",
       };
     else if (param.factory.name === "TypedHeaders")
       return {

@@ -205,8 +205,8 @@ export namespace SchemaProgrammer {
       return schema["x-typia-optional"]
         ? `${name}?`
         : schema["x-typia-rest"]
-        ? `...${name}[]`
-        : name;
+          ? `...${name}[]`
+          : name;
     };
 
   const writeObject =

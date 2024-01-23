@@ -71,8 +71,8 @@ export namespace IPropagation {
     status: StatusValue extends "2XX" | "3XX" | "4XX" | "5XX"
       ? StatusRange<StatusValue>
       : StatusValue extends number
-      ? StatusValue
-      : never;
+        ? StatusValue
+        : never;
     data: Primitive<BodyData>;
     headers: Record<string, string | string[]>;
   }
@@ -83,10 +83,10 @@ export namespace IPropagation {
   export type StatusRange<T extends "2XX" | "3XX" | "4XX" | "5XX"> = T extends 0
     ? IntRange<200, 299>
     : T extends 3
-    ? IntRange<300, 399>
-    : T extends 4
-    ? IntRange<400, 499>
-    : IntRange<500, 599>;
+      ? IntRange<300, 399>
+      : T extends 4
+        ? IntRange<400, 499>
+        : IntRange<500, 599>;
 
   type IntRange<F extends number, T extends number> = Exclude<
     Enumerate<T>,

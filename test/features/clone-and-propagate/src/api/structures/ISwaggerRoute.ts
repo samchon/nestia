@@ -32,7 +32,7 @@ export namespace ISwaggerRoute {
         description?: undefined | string;
         content: ISwaggerRoute.IContent;
         required: (true);
-        "x-nestia-encrypted": boolean;
+        "x-nestia-encrypted"?: undefined | boolean;
     }
     export type IContent = {
         "application/x-www-form-urlencoded"?: undefined | __type.o1;

@@ -48,13 +48,13 @@ export namespace RouteProgrammer {
             JsonTypeChecker.isObject(p.schema)
               ? p.schema
               : JsonTypeChecker.isReference(p.schema) &&
-                JsonTypeChecker.isObject(
-                  (swagger.components.schemas ?? {})[
-                    p.schema.$ref.replace(`#/components/schemas/`, ``)
-                  ] ?? {},
-                )
-              ? p.schema
-              : null!,
+                  JsonTypeChecker.isObject(
+                    (swagger.components.schemas ?? {})[
+                      p.schema.$ref.replace(`#/components/schemas/`, ``)
+                    ] ?? {},
+                  )
+                ? p.schema
+                : null!,
           )
           .filter((s) => !!s);
         const primitives = parameters.filter(
@@ -333,25 +333,27 @@ export namespace RouteProgrammer {
               )}`,
             ]
           : route.success?.type === "text/plain"
-          ? [
-              `@${external("@nestjs/common")(
-                "Header",
-              )}("Content-Type", "text/plain")`,
-              `@${methoder((str) => external("@nestjs/common")(str))}`,
-            ]
-          : route.success?.type === "application/x-www-form-urlencoded"
-          ? [
-              `@${external("@nestia/core")("TypedQuery")}.${methoder(
-                (str) => str,
-              )}`,
-            ]
-          : route.method === "head"
-          ? [`@${external("@nestjs/common")("Head")}${methoder(() => "")}`]
-          : [
-              `@${external("@nestia/core")("TypedRoute")}.${methoder(
-                (str) => str,
-              )}`,
-            ];
+            ? [
+                `@${external("@nestjs/common")(
+                  "Header",
+                )}("Content-Type", "text/plain")`,
+                `@${methoder((str) => external("@nestjs/common")(str))}`,
+              ]
+            : route.success?.type === "application/x-www-form-urlencoded"
+              ? [
+                  `@${external("@nestia/core")("TypedQuery")}.${methoder(
+                    (str) => str,
+                  )}`,
+                ]
+              : route.method === "head"
+                ? [
+                    `@${external("@nestjs/common")("Head")}${methoder(() => "")}`,
+                  ]
+                : [
+                    `@${external("@nestia/core")("TypedRoute")}.${methoder(
+                      (str) => str,
+                    )}`,
+                  ];
       for (const [key, value] of Object.entries(route.exceptions ?? {}))
         decorator.push(
           `@${external("@nestia/core")(
@@ -404,22 +406,24 @@ export namespace RouteProgrammer {
                 )(route.body.schema)},`,
               ]
             : route.body.type === "application/json"
-            ? [
-                `    @${external("@nestia/core")(
-                  "TypedBody",
-                )}() body: ${SchemaProgrammer.write(components)(references)(
-                  importer,
-                )(route.body.schema)},`,
-              ]
-            : route.body.type === "application/x-www-form-urlencoded"
-            ? [
-                `    @${external("@nestia/core")(
-                  "TypedQuery",
-                )}.Body() body: ${SchemaProgrammer.write(components)(
-                  references,
-                )(importer)(route.body.schema)},`,
-              ]
-            : [`    @${external("@nestia/core")("PlainBody")}() body: string,`]
+              ? [
+                  `    @${external("@nestia/core")(
+                    "TypedBody",
+                  )}() body: ${SchemaProgrammer.write(components)(references)(
+                    importer,
+                  )(route.body.schema)},`,
+                ]
+              : route.body.type === "application/x-www-form-urlencoded"
+                ? [
+                    `    @${external("@nestia/core")(
+                      "TypedQuery",
+                    )}.Body() body: ${SchemaProgrammer.write(components)(
+                      references,
+                    )(importer)(route.body.schema)},`,
+                  ]
+                : [
+                    `    @${external("@nestia/core")("PlainBody")}() body: string,`,
+                  ]
           : []),
         `): Promise<${output}> {`,
         ...route.parameters.map((p) => `    ${StringUtil.normalize(p.key)};`),
