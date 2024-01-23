@@ -4,12 +4,13 @@ const USAGE = `Wrong command has been detected. Use like below:
 npx nestia [command] [options?]
 
   1. npx nestia start <directory>
-  2. npx nestia setup
-  3. npx nestia dependencies
-  4. npx nestia init
-  5. npx nestia sdk
-  6. npx nestia swagger
-  7. npx nestia e2e
+  2. npx nestia template <directory>
+  3. npx nestia setup
+  4. npx nestia dependencies
+  5. npx nestia init
+  6. npx nestia sdk
+  7. npx nestia swagger
+  8. npx nestia e2e
 `;
 
 function halt(desc: string): never {
@@ -24,7 +25,11 @@ async function main(): Promise<void> {
   if (type === "start") {
     await (
       await import("./NestiaStarter")
-    ).NestiaStarter.start((msg) => halt(msg ?? USAGE))(argv);
+    ).NestiaStarter.clone((msg) => halt(msg ?? USAGE))(argv);
+  } else if (type === "template") {
+    await (
+      await import("./NestiaTemplate")
+    ).NestiaTemplate.clone((msg) => halt(msg ?? USAGE))(argv);
   } else if (type === "setup") {
     try {
       await import("comment-json");

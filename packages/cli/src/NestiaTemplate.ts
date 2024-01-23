@@ -1,7 +1,7 @@
 import cp from "child_process";
 import fs from "fs";
 
-export namespace NestiaStarter {
+export namespace NestiaTemplate {
   export const clone =
     (halter: (msg?: string) => never) =>
     async (argv: string[]): Promise<void> => {
@@ -12,11 +12,11 @@ export namespace NestiaStarter {
         halter("The target directory already exists.");
 
       console.log("-----------------------------------------");
-      console.log(" Nestia Starter Kit");
+      console.log(" Nestia Template Kit");
       console.log("-----------------------------------------");
 
       // COPY PROJECTS
-      execute(`git clone https://github.com/samchon/nestia-template ${dest}`);
+      execute(`git clone https://github.com/samchon/backend ${dest}`);
       console.log(`cd "${dest}"`);
       process.chdir(dest);
 
@@ -25,9 +25,6 @@ export namespace NestiaStarter {
 
       // BUILD TYPESCRIPT
       execute("npm run build");
-
-      // DO TEST
-      execute("npm run test");
 
       // REMOVE .GIT DIRECTORY
       cp.execSync("npx rimraf .git");

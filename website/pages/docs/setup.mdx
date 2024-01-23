@@ -10,9 +10,15 @@ import Stack from '@mui/material/Stack';
 npx nestia start <directory>
 ```
 
-Just run above `npx nestia start <directory>` command.
+Just run above `npx nestia start <directory>` command. 
 
-Boilerplate would be automatically constructed in the `<directory>`.
+Boilerplate would be automatically constructed in the `<directory>`. For reference, this is a minimal boilerplate project concentrating only on the SDK generation from the NestJS server. It does not contain the database connection.
+
+If you want to construct much detailed boilerplate project, visit [`@samchon/backend`](https://github.com/samchon/backend) or run below command. Below boilerplate project is using Prisma ORM and PostgresSQL database. Also, it guides how to utilize FP (Functional Programming) and TDD (Test Driven Development) in the NestJS backend development.
+
+```bash filename="Terminal" copy showLineNumbers
+npx nestia template <directory>
+```
 
 
 
