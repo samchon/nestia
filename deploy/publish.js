@@ -25,7 +25,7 @@ const setup = (tag) => (version) => (directory) => {
       ) {
         if (tag === "tgz" && fs.existsSync(`${directory}/node_modules/${key}`))
           try {
-            execute(directory)(`npm uninstall ${key}`);
+            execute(directory)(`pnpm uninstall ${key}`);
           } catch {}
         record[key] =
           tag === "tgz"
@@ -46,8 +46,8 @@ const setup = (tag) => (version) => (directory) => {
 
   // SETUP UPDATED DEPENDENCIES
   fs.writeFileSync(file, JSON.stringify(info, null, 2), "utf8");
-  execute(directory)("npm cache clean --force");
-  execute(directory)(`npm install`);
+  // execute(directory)("npm cache clean --force");
+  execute(directory)(`pnpm install`);
 };
 
 const deploy = (tag) => (version) => (name) => {
