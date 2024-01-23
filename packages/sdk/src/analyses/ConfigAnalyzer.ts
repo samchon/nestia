@@ -65,7 +65,7 @@ export namespace ConfigAnalyzer {
     return {
       include: files.toJSON().map((pair) => ({
         controller: pair.first.first,
-        file: pair.first.second,
+        file: decodeURIComponent(pair.first.second),
         paths: [...pair.second.values()],
       })),
       globalPrefix:

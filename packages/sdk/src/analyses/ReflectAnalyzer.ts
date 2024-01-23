@@ -26,7 +26,7 @@ export namespace ReflectAnalyzer {
     ): Promise<IController[]> => {
       const module: IModule = await (async () => {
         try {
-          return await import(decodeURIComponent(file));
+          return await import(file);
         } catch (exp) {
           console.log(
             ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
