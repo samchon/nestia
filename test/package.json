@@ -26,10 +26,10 @@
   },
   "homepage": "https://nestia.io",
   "devDependencies": {
-    "@nestia/core": "^2.4.6",
+    "@nestia/core": "D:\\github\\samchon\\nestia\\packages\\core\\nestia-core-2.4.6.tgz",
     "@nestia/e2e": "^0.3.6",
-    "@nestia/fetcher": "^2.4.6",
-    "@nestia/sdk": "^2.4.6",
+    "@nestia/fetcher": "D:\\github\\samchon\\nestia\\packages\\fetcher\\nestia-fetcher-2.4.6.tgz",
+    "@nestia/sdk": "D:\\github\\samchon\\nestia\\packages\\sdk\\nestia-sdk-2.4.6.tgz",
     "@nestjs/common": "^10.3.0",
     "@nestjs/core": "^10.3.0",
     "@nestjs/platform-express": "^10.3.0",
