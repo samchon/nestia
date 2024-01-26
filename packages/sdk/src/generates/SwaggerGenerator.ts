@@ -220,7 +220,7 @@ export namespace SwaggerGenerator {
               | {
                   type: string;
                   /**
-                   * @format url
+                   * @format uri
                    */
                   url: string;
                 };

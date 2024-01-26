@@ -8,5 +8,5 @@ import type { MinLength } from "typia/lib/tags/MinLength";
 export type IAttachmentFile = {
     name: null | (string & MinLength<1> & MaxLength<255>);
     extension: null | (string & MinLength<1> & MaxLength<8>);
-    url: (string & Format<"url">);
+    url: (string & Format<"uri">);
 }

@@ -59,7 +59,7 @@ export interface IAttachmentFile {
   extension: string | null;
 
   /**
-   * @format url
+   * @format uri
    */
   url: string;
 }

@@ -65,7 +65,7 @@ export namespace ISwagger {
     /**
      * A URL to the target host.
      *
-     * @format url
+     * @format uri
      */
     url: string;
 
@@ -79,7 +79,7 @@ export namespace ISwagger {
     /**
      * The URL for target documentation.
      *
-     * @format url
+     * @format uri
      */
     url: string;
 
