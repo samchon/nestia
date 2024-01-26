@@ -17,7 +17,7 @@ export interface ISwaggerInfo {
   /**
    * A URL to the Terms of Service for the API.
    *
-   * @format url
+   * @format uri
    */
   termsOfService?: string;
 
@@ -49,7 +49,7 @@ export namespace ISwaggerInfo {
     /**
      * The URL pointing to the contact information.
      *
-     * @format url
+     * @format uri
      */
     url?: string;
 
@@ -73,7 +73,7 @@ export namespace ISwaggerInfo {
     /**
      * A URL to the license used for the API.
      *
-     * @format url
+     * @format uri
      */
     url?: string;
   }

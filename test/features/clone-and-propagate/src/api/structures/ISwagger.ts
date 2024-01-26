@@ -52,7 +52,7 @@ export namespace ISwagger {
         /**
          * A URL to the target host.
          */
-        url: (string & Format<"url">);
+        url: (string & Format<"uri">);
         /**
          * An optional string describing the target server.
          */

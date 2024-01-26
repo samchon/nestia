@@ -17,7 +17,7 @@ export type ISwaggerInfo = {
     /**
      * A URL to the Terms of Service for the API.
      */
-    termsOfService?: undefined | (string & Format<"url">);
+    termsOfService?: undefined | (string & Format<"uri">);
     /**
      * The contact information for the exposed API.
      */
@@ -43,7 +43,7 @@ export namespace ISwaggerInfo {
         /**
          * The URL pointing to the contact information.
          */
-        url?: undefined | (string & Format<"url">);
+        url?: undefined | (string & Format<"uri">);
         /**
          * The email address of the contact person/organization.
          */
@@ -60,6 +60,6 @@ export namespace ISwaggerInfo {
         /**
          * A URL to the license used for the API.
          */
-        url?: undefined | (string & Format<"url">);
+        url?: undefined | (string & Format<"uri">);
     }
 }

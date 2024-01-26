@@ -298,7 +298,7 @@
           },
           "url": {
             "type": "string",
-            "format": "url"
+            "format": "uri"
           }
         },
         "nullable": false,
