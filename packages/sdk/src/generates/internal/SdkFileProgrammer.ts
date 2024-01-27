@@ -1,11 +1,12 @@
 import fs from "fs";
+import ts from "typescript";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
 import { MapUtil } from "../../utils/MapUtil";
-import { SdkFunctionProgrammer } from "./SdkFunctionProgrammer";
 import { SdkRouteDirectory } from "./SdkRouteDirectory";
+import { SdkRouteProgrammer } from "./SdkRouteProgrammer";
 
 export namespace SdkFileProgrammer {
   /* ---------------------------------------------------------
@@ -80,8 +81,17 @@ export namespace SdkFileProgrammer {
                 instance,
                 type: true,
               });
-
-        content.push(SdkFunctionProgrammer.generate(config)(importer)(route));
+        content.push(
+          ts
+            .createPrinter()
+            .printFile(
+              ts.factory.createSourceFile(
+                SdkRouteProgrammer.generate(config)(importer)(route),
+                ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
+                ts.NodeFlags.None,
+              ),
+            ),
+        );
         if (i !== directory.routes.length - 1) content.push("");
       });
 

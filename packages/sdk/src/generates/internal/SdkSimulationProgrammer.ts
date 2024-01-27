@@ -1,3 +1,8 @@
+import ts from "typescript";
+import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
+import { StatementFactory } from "typia/lib/factories/StatementFactory";
+import { TypeFactory } from "typia/lib/factories/TypeFactory";
+
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
@@ -5,129 +10,271 @@ import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkTypeDefiner } from "./SdkTypeDefiner";
 
 export namespace SdkSimulationProgrammer {
-  export const generate =
+  export const random =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
-    (route: IRoute): string => {
+    (route: IRoute): ts.VariableStatement =>
+      StatementFactory.constant(
+        "random",
+        ts.factory.createArrowFunction(
+          undefined,
+          undefined,
+          [
+            ts.factory.createParameterDeclaration(
+              undefined,
+              undefined,
+              "g",
+              ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+              ts.factory.createTypeReferenceNode(
+                ts.factory.createIdentifier("Partial"),
+                [
+                  ts.factory.createTypeReferenceNode(
+                    `${SdkImportWizard.typia(importer)}.IRandomGenerator`,
+                  ),
+                ],
+              ),
+            ),
+          ],
+          undefined,
+          undefined,
+          ts.factory.createCallExpression(
+            IdentifierFactory.access(
+              ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
+            )("random"),
+            [
+              ts.factory.createTypeReferenceNode(
+                SdkTypeDefiner.responseBody(config)(importer)(route),
+              ),
+            ],
+            [ts.factory.createIdentifier("g")],
+          ),
+        ),
+      );
+
+  export const simulate =
+    (config: INestiaConfig) =>
+    (importer: ImportDictionary) =>
+    (route: IRoute): ts.VariableStatement => {
       const output: boolean =
         config.propagate === true || route.output.typeName !== "void";
-      const body: string[] = [
-        ...(route.parameters.filter((p) => p.category !== "headers").length !==
-        0
-          ? assert(config)(importer)(route)
-          : []),
-        ...(output ? returns(config)(route) : []),
-      ];
-      return [
-        `export const simulate = async (`,
-        `    ${
-          route.parameters.filter((p) => p.category !== "headers").length ===
-            0 && route.output.typeName === "void"
-            ? "_connection"
-            : "connection"
-        }: ${
-          route.parameters.some(
-            (p) => p.category === "headers" && p.field === undefined,
-          )
-            ? `${SdkImportWizard.IConnection(importer)}<${route.name}.Headers>`
-            : SdkImportWizard.IConnection(importer)
-        },`,
-        ...route.parameters
-          .filter((p) => p.category !== "headers")
-          .map(
-            (p) =>
-              `    ${p.name}: ${
-                p.category === "query" || p.category === "body"
-                  ? `${route.name}.${
-                      p.category === "query" ? "Query" : "Input"
-                    }`
-                  : SdkTypeDefiner.name(config)(importer)(p)
-              },`,
+      return StatementFactory.constant(
+        "simulate",
+        ts.factory.createArrowFunction(
+          undefined,
+          undefined,
+          [
+            IdentifierFactory.parameter(
+              route.parameters.filter((p) => p.category !== "headers")
+                .length === 0 && route.output.typeName === "void"
+                ? "_connection"
+                : "connection",
+              ts.factory.createTypeReferenceNode(
+                SdkImportWizard.IConnection(importer),
+                route.parameters.some(
+                  (p) => p.category === "headers" && p.field === undefined,
+                )
+                  ? [
+                      ts.factory.createTypeReferenceNode(
+                        `${route.name}.Headers`,
+                      ),
+                    ]
+                  : [],
+              ),
+            ),
+          ],
+          ts.factory.createTypeReferenceNode(output ? "Output" : "void"),
+          undefined,
+          ts.factory.createBlock(
+            [
+              ...assert(config)(importer)(route),
+              ts.factory.createReturnStatement(
+                ts.factory.createCallExpression(
+                  ts.factory.createIdentifier("random"),
+                  undefined,
+                  [
+                    ts.factory.createConditionalExpression(
+                      ts.factory.createLogicalAnd(
+                        ts.factory.createStrictEquality(
+                          ts.factory.createStringLiteral("object"),
+                          ts.factory.createTypeOfExpression(
+                            ts.factory.createIdentifier("connection.simulate"),
+                          ),
+                        ),
+                        ts.factory.createStrictInequality(
+                          ts.factory.createNull(),
+                          ts.factory.createIdentifier("connection.simulate"),
+                        ),
+                      ),
+                      undefined,
+                      ts.factory.createIdentifier("connection.simulate"),
+                      undefined,
+                      ts.factory.createIdentifier("undefined"),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            true,
           ),
-        `): Promise<${output ? "Output" : "void"}> => {`,
-        ...body.map((l) => `    ${l}`),
-        `}`,
-      ]
-        .map((line) => `    ${line}`)
-        .join("\n");
+        ),
+      );
     };
 
   const assert =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
-    (route: IRoute): string[] => {
+    (route: IRoute): ts.Statement[] => {
+      const parameters = route.parameters.filter(
+        (p) => p.category !== "headers",
+      );
+      if (parameters.length === 0) return [];
+
       const typia = SdkImportWizard.typia(importer);
-      const func: string[] = [
-        `const assert = ${importer.internal({
-          file: `${config.output}/utils/NestiaSimulator.ts`,
-          instance: "NestiaSimulator",
-          type: false,
-        })}.assert({`,
-        `    method: METADATA.method,`,
-        `    host: connection.host,`,
-        `    path: path(${route.parameters
-          .filter((p) => p.category === "param" || p.category === "query")
-          .map((p) => p.name)
-          .join(", ")}),`,
-        `    contentType: ${JSON.stringify(route.output.contentType)},`,
-        `});`,
-      ];
-      const individual: string[] = route.parameters
-        .filter((p) => p.category !== "headers")
+      const validator = StatementFactory.constant(
+        "assert",
+        ts.factory.createCallExpression(
+          IdentifierFactory.access(
+            ts.factory.createIdentifier(
+              importer.internal({
+                file: `${config.output}/utils/NestiaSimulator.ts`,
+                instance: "NestiaSimulator",
+                type: false,
+              }),
+            ),
+          )("assert"),
+          undefined,
+          [
+            ts.factory.createObjectLiteralExpression(
+              [
+                ts.factory.createPropertyAssignment(
+                  "method",
+                  ts.factory.createIdentifier("METADATA.method"),
+                ),
+                ts.factory.createPropertyAssignment(
+                  "host",
+                  ts.factory.createIdentifier("connection.host"),
+                ),
+                ts.factory.createPropertyAssignment(
+                  "path",
+                  ts.factory.createCallExpression(
+                    ts.factory.createIdentifier("path"),
+                    undefined,
+                    route.parameters
+                      .filter(
+                        (p) => p.category === "param" || p.category === "query",
+                      )
+                      .map((p) => ts.factory.createIdentifier(p.name)),
+                  ),
+                ),
+                ts.factory.createPropertyAssignment(
+                  "contentType",
+                  ts.factory.createIdentifier(
+                    JSON.stringify(route.output.contentType),
+                  ),
+                ),
+              ],
+              true,
+            ),
+          ],
+        ),
+      );
+      const individual = parameters
         .map((p) =>
-          p.category === "body"
-            ? `assert.body(() => ${typia}.assert(${p.name}));`
-            : p.category === "query"
-              ? `assert.query(() => ${typia}.assert(${p.name}));`
-              : p.category === "headers"
-                ? `assert.headers(() => ${typia}.assert(connection.headers);`
-                : `assert.param("${p.field}")(() => ${typia}.assert(${p.name}));`,
-        );
-      if (config.propagate !== true) return [...func, ...individual];
+          ts.factory.createCallExpression(
+            IdentifierFactory.access(ts.factory.createIdentifier("assert"))(
+              p.category,
+            ),
+            undefined,
+            [
+              ts.factory.createArrowFunction(
+                undefined,
+                undefined,
+                [],
+                undefined,
+                undefined,
+                ts.factory.createCallExpression(
+                  (() => {
+                    const base = IdentifierFactory.access(
+                      ts.factory.createIdentifier(typia),
+                    )("assert");
+                    if (p.category !== "param") return base;
+                    return ts.factory.createCallExpression(base, undefined, [
+                      ts.factory.createStringLiteral(p.name),
+                    ]);
+                  })(),
+                  undefined,
+                  [
+                    ts.factory.createIdentifier(
+                      p.category === "headers" ? "connection.headers" : p.name,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        )
+        .map(ts.factory.createExpressionStatement);
 
       return [
-        ...func,
-        `try {`,
-        ...individual.map((l) => `    ${l}`),
-        `} catch (exp) {`,
-        `    if (!${typia}.is<${SdkImportWizard.HttpError(
-          importer,
-        )}>(exp)) throw exp;`,
-        `    return {`,
-        `        success: false,`,
-        `        status: exp.status,`,
-        `        headers: exp.headers,`,
-        `        data: exp.toJSON().message,`,
-        `    } as any;`,
-        `}`,
+        validator,
+        ...(config.propagate !== true
+          ? individual
+          : [tryAndCatch(importer)(individual)]),
       ];
     };
 
-  const returns =
-    (config: INestiaConfig) =>
-    (route: IRoute): string[] => {
-      const random = (prefix: string, postfix: string) =>
-        route.output.typeName === "void"
-          ? [`${prefix} undefined${postfix}`]
-          : [
-              `${prefix} random(`,
-              `    typeof connection.simulate === 'object' &&`,
-              `        connection.simulate !== null`,
-              `        ? connection.simulate`,
-              `        : undefined`,
-              `)${postfix}`,
-            ];
-      if (config.propagate !== true) return random("return", ";");
-
-      return [
-        `return {`,
-        `    success: true,`,
-        `    status: ${route.status ?? (route.method === "POST" ? 201 : 200)},`,
-        `    headers: {`,
-        `        "Content-Type": "${route.output.contentType}",`,
-        `    },`,
-        ...random("data:", ",").map((r) => `    ${r}`),
-        `}`,
-      ];
-    };
+  const tryAndCatch =
+    (importer: ImportDictionary) => (individual: ts.Statement[]) =>
+      ts.factory.createTryStatement(
+        ts.factory.createBlock(individual, true),
+        ts.factory.createCatchClause(
+          "exp",
+          ts.factory.createBlock(
+            [
+              ts.factory.createIfStatement(
+                ts.factory.createCallExpression(
+                  IdentifierFactory.access(
+                    ts.factory.createIdentifier(
+                      SdkImportWizard.typia(importer),
+                    ),
+                  )("isNestiaError"),
+                  [],
+                  [],
+                ),
+                ts.factory.createThrowStatement(
+                  ts.factory.createIdentifier("exp"),
+                ),
+              ),
+              ts.factory.createReturnStatement(
+                ts.factory.createAsExpression(
+                  ts.factory.createObjectLiteralExpression(
+                    [
+                      ts.factory.createPropertyAssignment(
+                        "success",
+                        ts.factory.createFalse(),
+                      ),
+                      ts.factory.createPropertyAssignment(
+                        "status",
+                        ts.factory.createIdentifier("exp.status"),
+                      ),
+                      ts.factory.createPropertyAssignment(
+                        "headers",
+                        ts.factory.createIdentifier("exp.headers"),
+                      ),
+                      ts.factory.createPropertyAssignment(
+                        "data",
+                        ts.factory.createIdentifier("exp.toJSON().message"),
+                      ),
+                    ],
+                    true,
+                  ),
+                  TypeFactory.keyword("any"),
+                ),
+              ),
+            ],
+            true,
+          ),
+        ),
+        undefined,
+      );
 }
