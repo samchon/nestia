@@ -1,5 +1,6 @@
 import fs from "fs";
 import ts from "typescript";
+import { format } from "prettier";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
@@ -111,6 +112,10 @@ export namespace SdkFileProgrammer {
         " */\n" +
         "//================================================================\n" +
         content.join("\n");
-      await fs.promises.writeFile(importer.file, script, "utf8");
+      await fs.promises.writeFile(
+        importer.file, 
+        await format(script, { parser: "typescript" }), 
+        "utf8"
+      );
     };
 }

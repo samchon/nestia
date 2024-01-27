@@ -37,7 +37,10 @@ export namespace SdkNamespaceProgrammer {
           ...(config.simulate
             ? [
                 SdkSimulationProgrammer.random(config)(importer)(route),
-                SdkSimulationProgrammer.simulate(config)(importer)(route),
+                SdkSimulationProgrammer.simulate(config)(importer)(
+                  route, 
+                  props,
+                ),
               ]
             : []),
         ]),

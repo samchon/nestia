@@ -8,14 +8,14 @@ import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkTypeDefiner } from "./SdkTypeDefiner";
+import { SdkDtoGenerator } from "./SdkDtoGenerator";
 
 export namespace SdkSimulationProgrammer {
   export const random =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (route: IRoute): ts.VariableStatement =>
-      StatementFactory.constant(
-        "random",
+      constant("random")(
         ts.factory.createArrowFunction(
           undefined,
           undefined,
@@ -54,20 +54,23 @@ export namespace SdkSimulationProgrammer {
   export const simulate =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
-    (route: IRoute): ts.VariableStatement => {
+    (
+      route: IRoute,
+      props: {
+        headers: IRoute.IParameter | undefined;
+        query: IRoute.IParameter | undefined;
+        input: IRoute.IParameter | undefined;
+      },
+    ): ts.VariableStatement => {
       const output: boolean =
         config.propagate === true || route.output.typeName !== "void";
-      return StatementFactory.constant(
-        "simulate",
+      return constant("simulate")(
         ts.factory.createArrowFunction(
           undefined,
           undefined,
           [
             IdentifierFactory.parameter(
-              route.parameters.filter((p) => p.category !== "headers")
-                .length === 0 && route.output.typeName === "void"
-                ? "_connection"
-                : "connection",
+              "connection",
               ts.factory.createTypeReferenceNode(
                 SdkImportWizard.IConnection(importer),
                 route.parameters.some(
@@ -81,6 +84,24 @@ export namespace SdkSimulationProgrammer {
                   : [],
               ),
             ),
+            ...route.parameters
+              .filter(p => p.category !== "headers")
+              .map(p =>
+                ts.factory.createParameterDeclaration(
+                  [],
+                  undefined,
+                  p.name,
+                  p.optional
+                    ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
+                    : undefined,
+                  ts.factory.createTypeReferenceNode(
+                    config.primitive !== false &&
+                      (p === props.query || p === props.input)
+                      ? `${route.name}.${p === props.query ? "Query" : "Input"}`
+                      : getTypeName(config)(importer)(p),
+                  ),
+                ),
+              ),
           ],
           ts.factory.createTypeReferenceNode(output ? "Output" : "void"),
           undefined,
@@ -278,3 +299,27 @@ export namespace SdkSimulationProgrammer {
         undefined,
       );
 }
+
+const constant = (name: string) => (expression: ts.Expression) =>
+  ts.factory.createVariableStatement(
+    [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+    ts.factory.createVariableDeclarationList(
+      [
+        ts.factory.createVariableDeclaration(
+          ts.factory.createIdentifier(name),
+          undefined,
+          undefined,
+          expression,
+        ),
+      ],
+      ts.NodeFlags.Const,
+    ),
+  );
+
+const getTypeName =
+  (config: INestiaConfig) =>
+  (importer: ImportDictionary) =>
+  (p: IRoute.IParameter | IRoute.IOutput) =>
+    p.metadata
+      ? SdkDtoGenerator.decode(config)(importer)(p.metadata)
+      : p.typeName;

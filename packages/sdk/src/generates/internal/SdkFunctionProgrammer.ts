@@ -8,7 +8,6 @@ import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
 import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
-import { CommentUtil } from "../../utils/CommentUtil";
 
 export namespace SdkFunctionProgrammer {
   export const generate =
@@ -108,7 +107,7 @@ export namespace SdkFunctionProgrammer {
             ),
           )(config.propagate ? "propagate" : "fetch"),
           undefined,
-          CommentUtil.parameters([
+          [
             contentType
               ? ts.factory.createObjectLiteralExpression([
                 ts.factory.createSpreadAssignment(
@@ -147,13 +146,11 @@ export namespace SdkFunctionProgrammer {
                       ts.factory.createIdentifier(route.name),
                     )("path"),
                     undefined,
-                    CommentUtil.parameters(
-                      route.parameters
-                        .filter(
-                          (p) => p.category === "param" || p.category === "query",
-                        )
-                        .map((p) => ts.factory.createIdentifier(p.name))
-                    ),
+                    route.parameters
+                      .filter(
+                        (p) => p.category === "param" || p.category === "query",
+                      )
+                      .map((p) => ts.factory.createIdentifier(p.name)),
                   ),
                 ),
               ],
@@ -162,7 +159,7 @@ export namespace SdkFunctionProgrammer {
             ...(props.input
               ? [ts.factory.createIdentifier(props.input.name)]
               : []),
-          ]),
+          ],
         );
       return [
         ts.factory.createReturnStatement(
@@ -173,11 +170,12 @@ export namespace SdkFunctionProgrammer {
                 ts.factory.createCallExpression(
                   ts.factory.createIdentifier(`${route.name}.simulate`),
                   [],
-                  CommentUtil.parameters(
-                    route.parameters
+                  [
+                    ts.factory.createIdentifier("connection"),
+                    ...route.parameters
                       .filter((p) => p.category !== "headers")
-                      .map((p) => ts.factory.createIdentifier(p.name))
-                  ),
+                      .map((p) => ts.factory.createIdentifier(p.name)),
+                  ],
                 ),
                 undefined,
                 caller(),

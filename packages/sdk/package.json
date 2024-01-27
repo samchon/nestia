@@ -49,6 +49,7 @@
     "@nestia/fetcher": ">=2.5.0-dev.20240127",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
+    "prettier": ">=2.0.0",
     "reflect-metadata": ">=0.1.12",
     "ts-node": ">=10.6.0",
     "typia": ">=5.4.1 <6.0.0"
@@ -67,6 +68,7 @@
     "@typescript-eslint/parser": "^5.46.1",
     "eslint": "^8.29.0",
     "eslint-plugin-deprecation": "^1.4.1",
+    "prettier": "^3.2.4",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
     "ts-patch": "v3.0.2",
