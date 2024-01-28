@@ -1,14 +1,15 @@
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
+import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
+import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkTypeDefiner } from "./SdkTypeDefiner";
-import { SdkDtoGenerator } from "./SdkDtoGenerator";
 
 export namespace SdkSimulationProgrammer {
   export const random =
@@ -64,6 +65,32 @@ export namespace SdkSimulationProgrammer {
     ): ts.VariableStatement => {
       const output: boolean =
         config.propagate === true || route.output.typeName !== "void";
+      const caller = () =>
+        ts.factory.createCallExpression(
+          ts.factory.createIdentifier("random"),
+          undefined,
+          [
+            ts.factory.createConditionalExpression(
+              ts.factory.createLogicalAnd(
+                ts.factory.createStrictEquality(
+                  ts.factory.createStringLiteral("object"),
+                  ts.factory.createTypeOfExpression(
+                    ts.factory.createIdentifier("connection.simulate"),
+                  ),
+                ),
+                ts.factory.createStrictInequality(
+                  ts.factory.createNull(),
+                  ts.factory.createIdentifier("connection.simulate"),
+                ),
+              ),
+              undefined,
+              ts.factory.createIdentifier("connection.simulate"),
+              undefined,
+              ts.factory.createIdentifier("undefined"),
+            ),
+          ],
+        );
+
       return constant("simulate")(
         ts.factory.createArrowFunction(
           undefined,
@@ -85,8 +112,8 @@ export namespace SdkSimulationProgrammer {
               ),
             ),
             ...route.parameters
-              .filter(p => p.category !== "headers")
-              .map(p =>
+              .filter((p) => p.category !== "headers")
+              .map((p) =>
                 ts.factory.createParameterDeclaration(
                   [],
                   undefined,
@@ -109,30 +136,31 @@ export namespace SdkSimulationProgrammer {
             [
               ...assert(config)(importer)(route),
               ts.factory.createReturnStatement(
-                ts.factory.createCallExpression(
-                  ts.factory.createIdentifier("random"),
-                  undefined,
-                  [
-                    ts.factory.createConditionalExpression(
-                      ts.factory.createLogicalAnd(
-                        ts.factory.createStrictEquality(
-                          ts.factory.createStringLiteral("object"),
-                          ts.factory.createTypeOfExpression(
-                            ts.factory.createIdentifier("connection.simulate"),
+                config.propagate
+                  ? ts.factory.createObjectLiteralExpression(
+                      [
+                        ts.factory.createPropertyAssignment(
+                          "success",
+                          ts.factory.createTrue(),
+                        ),
+                        ts.factory.createPropertyAssignment(
+                          "status",
+                          ts.factory.createNumericLiteral(
+                            route.status ??
+                              (route.method === "POST" ? 201 : 200),
                           ),
                         ),
-                        ts.factory.createStrictInequality(
-                          ts.factory.createNull(),
-                          ts.factory.createIdentifier("connection.simulate"),
+                        ts.factory.createPropertyAssignment(
+                          "headers",
+                          LiteralFactory.generate({
+                            "Content-Type": route.output.contentType,
+                          }),
                         ),
-                      ),
-                      undefined,
-                      ts.factory.createIdentifier("connection.simulate"),
-                      undefined,
-                      ts.factory.createIdentifier("undefined"),
-                    ),
-                  ],
-                ),
+                        ts.factory.createPropertyAssignment("data", caller()),
+                      ],
+                      true,
+                    )
+                  : caller(),
               ),
             ],
             true,
@@ -202,9 +230,15 @@ export namespace SdkSimulationProgrammer {
       const individual = parameters
         .map((p) =>
           ts.factory.createCallExpression(
-            IdentifierFactory.access(ts.factory.createIdentifier("assert"))(
-              p.category,
-            ),
+            (() => {
+              const base = IdentifierFactory.access(
+                ts.factory.createIdentifier("assert"),
+              )(p.category);
+              if (p.category !== "param") return base;
+              return ts.factory.createCallExpression(base, undefined, [
+                ts.factory.createStringLiteral(p.name),
+              ]);
+            })(),
             undefined,
             [
               ts.factory.createArrowFunction(
@@ -214,15 +248,9 @@ export namespace SdkSimulationProgrammer {
                 undefined,
                 undefined,
                 ts.factory.createCallExpression(
-                  (() => {
-                    const base = IdentifierFactory.access(
-                      ts.factory.createIdentifier(typia),
-                    )("assert");
-                    if (p.category !== "param") return base;
-                    return ts.factory.createCallExpression(base, undefined, [
-                      ts.factory.createStringLiteral(p.name),
-                    ]);
-                  })(),
+                  IdentifierFactory.access(ts.factory.createIdentifier(typia))(
+                    "assert",
+                  ),
                   undefined,
                   [
                     ts.factory.createIdentifier(
@@ -253,14 +281,20 @@ export namespace SdkSimulationProgrammer {
           ts.factory.createBlock(
             [
               ts.factory.createIfStatement(
-                ts.factory.createCallExpression(
-                  IdentifierFactory.access(
-                    ts.factory.createIdentifier(
-                      SdkImportWizard.typia(importer),
-                    ),
-                  )("isNestiaError"),
-                  [],
-                  [],
+                ts.factory.createLogicalNot(
+                  ts.factory.createCallExpression(
+                    IdentifierFactory.access(
+                      ts.factory.createIdentifier(
+                        SdkImportWizard.typia(importer),
+                      ),
+                    )("is"),
+                    [
+                      ts.factory.createTypeReferenceNode(
+                        SdkImportWizard.HttpError(importer),
+                      ),
+                    ],
+                    [ts.factory.createIdentifier("exp")],
+                  ),
                 ),
                 ts.factory.createThrowStatement(
                   ts.factory.createIdentifier("exp"),

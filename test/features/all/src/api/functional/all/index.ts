@@ -43,6 +43,7 @@ export async function store(
 export namespace store {
   export type Input = Primitive<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
+
   export const METADATA = {
     method: "POST",
     path: "/all",
@@ -56,5 +57,6 @@ export namespace store {
     },
     status: null,
   } as const;
+
   export const path = () => "/all";
 }

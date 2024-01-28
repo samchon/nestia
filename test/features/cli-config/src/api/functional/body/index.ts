@@ -47,6 +47,7 @@ export async function store(
 export namespace store {
   export type Input = Primitive<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
+
   export const METADATA = {
     method: "POST",
     path: "/body",
@@ -60,6 +61,7 @@ export namespace store {
     },
     status: null,
   } as const;
+
   export const path = () => "/body";
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
     typia.random<Primitive<IBbsArticle>>(g);

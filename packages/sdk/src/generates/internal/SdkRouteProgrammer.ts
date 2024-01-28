@@ -4,9 +4,9 @@ import { IJsDocTagInfo } from "typia";
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
+import { NodeUtil } from "../../utils/NodeUtil";
 import { SdkFunctionProgrammer } from "./SdkFunctionProgrammer";
 import { SdkNamespaceProgrammer } from "./SdkNamespaceProgrammer";
-import { CommentUtil } from "../../utils/CommentUtil";
 
 export namespace SdkRouteProgrammer {
   export const generate =
@@ -14,16 +14,18 @@ export namespace SdkRouteProgrammer {
     (importer: ImportDictionary) =>
     (route: IRoute): ts.Statement[] => {
       const props = {
-        headers: route.parameters.find((p) => p.category === "headers"),
+        headers: route.parameters.find(
+          (p) => p.category === "headers" && p.field === undefined,
+        ),
         query: route.parameters.find(
           (p) => p.category === "query" && p.field === undefined,
         ),
         input: route.parameters.find((p) => p.category === "body"),
       };
       return [
-        CommentUtil.description(
+        NodeUtil.description(
           SdkFunctionProgrammer.generate(config)(importer)(route, props),
-          describe(route)
+          describe(route),
         ),
         SdkNamespaceProgrammer.generate(config)(importer)(route, props),
       ];

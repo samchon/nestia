@@ -22,6 +22,7 @@ export async function get(connection: IConnection): Promise<get.Output> {
 }
 export namespace get {
   export type Output = Primitive<IPerformance>;
+
   export const METADATA = {
     method: "GET",
     path: "/performance",
@@ -32,5 +33,6 @@ export namespace get {
     },
     status: null,
   } as const;
+
   export const path = () => "/performance";
 }

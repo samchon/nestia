@@ -40,6 +40,7 @@ export namespace get {
     },
     status: null,
   } as const;
+
   export const path = () => "/health";
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
     typia.random<void>(g);

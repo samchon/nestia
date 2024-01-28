@@ -9,6 +9,7 @@ import { INestiaConfig } from "../../INestiaConfig";
 import { IController } from "../../structures/IController";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
+import { NodeUtil } from "../../utils/NodeUtil";
 import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkSimulationProgrammer } from "./SdkSimulationProgrammer";
@@ -32,16 +33,21 @@ export namespace SdkNamespaceProgrammer {
         ts.factory.createIdentifier(route.name),
         ts.factory.createModuleBlock([
           ...types,
+          ...(types.length ? [NodeUtil.enter()] : []),
           generate_metadata(importer)(route, props),
-          generate_path(config)(importer)(route, props.query),
+          NodeUtil.enter(),
+          generate_path(config)(importer)(route, props),
           ...(config.simulate
             ? [
                 SdkSimulationProgrammer.random(config)(importer)(route),
                 SdkSimulationProgrammer.simulate(config)(importer)(
-                  route, 
+                  route,
                   props,
                 ),
               ]
+            : []),
+          ...(config.json && props.input?.category === "body"
+            ? [generate_stringify(config)(importer)]
             : []),
         ]),
         ts.NodeFlags.Namespace,
@@ -51,11 +57,14 @@ export namespace SdkNamespaceProgrammer {
   const generate_types =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
-    (route: IRoute, props: {
-      headers: IRoute.IParameter | undefined;
-      query: IRoute.IParameter | undefined;
-      input: IRoute.IParameter | undefined;
-    }): ts.TypeAliasDeclaration[] => {
+    (
+      route: IRoute,
+      props: {
+        headers: IRoute.IParameter | undefined;
+        query: IRoute.IParameter | undefined;
+        input: IRoute.IParameter | undefined;
+      },
+    ): ts.TypeAliasDeclaration[] => {
       const array: ts.TypeAliasDeclaration[] = [];
       const declare = (name: string, type: string) =>
         array.push(
@@ -76,10 +85,7 @@ export namespace SdkNamespaceProgrammer {
       if (props.input !== undefined)
         declare("Input", SdkTypeDefiner.input(config)(importer)(props.input));
       if (config.propagate === true || route.output.typeName !== "void")
-        declare(
-          "Output",
-          SdkTypeDefiner.output(config)(importer)(route),
-        );
+        declare("Output", SdkTypeDefiner.output(config)(importer)(route));
       return array;
     };
 
@@ -142,19 +148,12 @@ export namespace SdkNamespaceProgrammer {
                     ts.factory.createPropertyAssignment(
                       "parseQuery",
                       ts.factory.createCallExpression(
-                        null!,
+                        ts.factory.createIdentifier(
+                          `${SdkImportWizard.typia(importer)}.http.createAssertQuery`,
+                        ),
                         [
                           ts.factory.createTypeReferenceNode(
-                            ts.factory.createIdentifier(
-                              `${SdkImportWizard.typia(importer)}.http.createAssertQuery`,
-                            ),
-                            [
-                              ts.factory.createTypeReferenceNode(
-                                ts.factory.createIdentifier(
-                                  route.output.typeName,
-                                ),
-                              ),
-                            ],
+                            route.output.typeName,
                           ),
                         ],
                         undefined,
@@ -176,7 +175,9 @@ export namespace SdkNamespaceProgrammer {
     (importer: ImportDictionary) =>
     (
       route: IRoute,
-      query: IRoute.IParameter | undefined,
+      props: {
+        query: IRoute.IParameter | undefined;
+      },
     ): ts.VariableStatement => {
       const g = {
         total: [
@@ -198,7 +199,7 @@ export namespace SdkNamespaceProgrammer {
               IdentifierFactory.parameter(
                 p.name,
                 ts.factory.createTypeReferenceNode(
-                  p === query
+                  p === props.query
                     ? `${route.name}.Query`
                     : getType(config)(importer)(p),
                 ),
@@ -214,24 +215,35 @@ export namespace SdkNamespaceProgrammer {
 
       const template = () => {
         const splitted: string[] = route.path.split(":");
+        if (splitted.length === 1)
+          return ts.factory.createStringLiteral(route.path);
         return ts.factory.createTemplateExpression(
           ts.factory.createTemplateHead(splitted[0]),
           splitted.slice(1).map((s, i, arr) => {
             const name: string = s.split("/")[0];
             return ts.factory.createTemplateSpan(
-              ts.factory.createIdentifier(
-                g.path.find((p) => p.field === name)!.name,
+              ts.factory.createCallExpression(
+                ts.factory.createIdentifier("encodeURIComponent"),
+                undefined,
+                [
+                  ts.factory.createBinaryExpression(
+                    ts.factory.createIdentifier(
+                      g.path.find((p) => p.field === name)!.name,
+                    ),
+                    ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
+                    ts.factory.createStringLiteral("null"),
+                  ),
+                ],
               ),
-              (
-                i !== arr.length - 1
-                  ? ts.factory.createTemplateMiddle 
-                  : ts.factory.createTemplateTail
-              )(s.substring(name.length))
+              (i !== arr.length - 1
+                ? ts.factory.createTemplateMiddle
+                : ts.factory.createTemplateTail)(s.substring(name.length)),
             );
           }),
         );
       };
-      if (query === undefined && g.query.length === 0) return out(template());
+      if (props.query === undefined && g.query.length === 0)
+        return out(template());
 
       const block = (expr: ts.Expression) => {
         const computeName = (str: string): string =>
@@ -241,14 +253,9 @@ export namespace SdkNamespaceProgrammer {
             ? computeName("_" + str)
             : str;
         const variables: string = computeName("variables");
-        const search: string = computeName("search");
-        const encoded: string = computeName("encoded");
         return ts.factory.createBlock(
           [
-            local(variables)("Record<any, any>")(
-              ts.factory.createAsExpression(expr, TypeFactory.keyword("any")),
-            ),
-            local(search)("URLSearchParams")(
+            local(variables)("URLSearchParams")(
               ts.factory.createNewExpression(
                 ts.factory.createIdentifier("URLSearchParams"),
                 [],
@@ -279,12 +286,17 @@ export namespace SdkNamespaceProgrammer {
                     undefined,
                   ),
                 ],
-                ts.NodeFlags.Const
+                ts.NodeFlags.Const,
               ),
               ts.factory.createCallExpression(
                 ts.factory.createIdentifier("Object.entries"),
                 undefined,
-                [ts.factory.createIdentifier(variables)],
+                [
+                  ts.factory.createAsExpression(
+                    expr,
+                    TypeFactory.keyword("any"),
+                  ),
+                ],
               ),
               ts.factory.createIfStatement(
                 ts.factory.createStrictEquality(
@@ -314,7 +326,7 @@ export namespace SdkNamespaceProgrammer {
                           undefined,
                           ts.factory.createCallExpression(
                             IdentifierFactory.access(
-                              ts.factory.createIdentifier(search),
+                              ts.factory.createIdentifier(variables),
                             )("append"),
                             undefined,
                             [
@@ -333,7 +345,7 @@ export namespace SdkNamespaceProgrammer {
                   ts.factory.createExpressionStatement(
                     ts.factory.createCallExpression(
                       IdentifierFactory.access(
-                        ts.factory.createIdentifier(search),
+                        ts.factory.createIdentifier(variables),
                       )("set"),
                       undefined,
                       [
@@ -350,22 +362,13 @@ export namespace SdkNamespaceProgrammer {
               ),
             ),
             local("location")("string")(template()),
-            local(encoded)("string")(
-              ts.factory.createCallExpression(
-                IdentifierFactory.access(ts.factory.createIdentifier(search))(
-                  "toString",
-                ),
-                undefined,
-                [],
-              ),
-            ),
             ts.factory.createReturnStatement(
               ts.factory.createConditionalExpression(
                 ts.factory.createStrictEquality(
                   ts.factory.createNumericLiteral(0),
                   IdentifierFactory.access(
-                    ts.factory.createIdentifier(encoded),
-                  )("length"),
+                    ts.factory.createIdentifier(variables),
+                  )("size"),
                 ),
                 undefined,
                 ts.factory.createIdentifier("location"),
@@ -378,7 +381,13 @@ export namespace SdkNamespaceProgrammer {
                       ts.factory.createTemplateMiddle("?"),
                     ),
                     ts.factory.createTemplateSpan(
-                      ts.factory.createIdentifier("encoded"),
+                      ts.factory.createCallExpression(
+                        IdentifierFactory.access(
+                          ts.factory.createIdentifier(variables),
+                        )("toString"),
+                        undefined,
+                        undefined,
+                      ),
                       ts.factory.createTemplateTail(""),
                     ),
                   ],
@@ -389,16 +398,16 @@ export namespace SdkNamespaceProgrammer {
           true,
         );
       };
-      if (query !== undefined && g.query.length === 0)
-        return out(block(ts.factory.createIdentifier(query.name)));
+      if (props.query !== undefined && g.query.length === 0)
+        return out(block(ts.factory.createIdentifier(props.query.name)));
       return out(
         block(
           ts.factory.createObjectLiteralExpression(
             [
-              ...(query
+              ...(props.query
                 ? [
                     ts.factory.createSpreadAssignment(
-                      ts.factory.createIdentifier(query.name),
+                      ts.factory.createIdentifier(props.query.name),
                     ),
                   ]
                 : []),
@@ -418,6 +427,33 @@ export namespace SdkNamespaceProgrammer {
         ),
       );
     };
+
+  const generate_stringify =
+    (config: INestiaConfig) =>
+    (importer: ImportDictionary): ts.VariableStatement =>
+      constant("stringify")(
+        ts.factory.createArrowFunction(
+          [],
+          undefined,
+          [
+            IdentifierFactory.parameter(
+              "input",
+              ts.factory.createTypeReferenceNode("Input"),
+            ),
+          ],
+          undefined,
+          undefined,
+          ts.factory.createCallExpression(
+            IdentifierFactory.access(
+              IdentifierFactory.access(
+                ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
+              )("json"),
+            )(config.assert ? "stringify" : "assertStringify"),
+            undefined,
+            [ts.factory.createIdentifier("input")],
+          ),
+        ),
+      );
 }
 
 const local = (name: string) => (type: string) => (expression: ts.Expression) =>

@@ -29,5 +29,6 @@ export namespace get {
     },
     status: null,
   } as const;
+
   export const path = () => "/health";
 }

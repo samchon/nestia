@@ -58,16 +58,13 @@ export namespace SdkFunctionProgrammer {
               ),
             ),
         ],
-        ts.factory.createTypeReferenceNode(
-          "Promise",
-          [
-            ts.factory.createTypeReferenceNode(
-              config.propagate !== true && route.output.typeName === "void"
-                ? "void"
-                : `${route.name}.Output`,
-            ),
-          ]
-        ),
+        ts.factory.createTypeReferenceNode("Promise", [
+          ts.factory.createTypeReferenceNode(
+            config.propagate !== true && route.output.typeName === "void"
+              ? "void"
+              : `${route.name}.Output`,
+          ),
+        ]),
         ts.factory.createBlock(
           generate_body(config)(importer)(route, props),
           true,
@@ -109,34 +106,37 @@ export namespace SdkFunctionProgrammer {
           undefined,
           [
             contentType
-              ? ts.factory.createObjectLiteralExpression([
-                ts.factory.createSpreadAssignment(
-                  ts.factory.createIdentifier("connection"),
-                ),
-                ts.factory.createPropertyAssignment(
-                  "headers",
-                  ts.factory.createObjectLiteralExpression(
-                    [
-                      ts.factory.createSpreadAssignment(
-                        IdentifierFactory.access(
-                          ts.factory.createIdentifier("connection"),
-                        )("headers"),
+              ? ts.factory.createObjectLiteralExpression(
+                  [
+                    ts.factory.createSpreadAssignment(
+                      ts.factory.createIdentifier("connection"),
+                    ),
+                    ts.factory.createPropertyAssignment(
+                      "headers",
+                      ts.factory.createObjectLiteralExpression(
+                        [
+                          ts.factory.createSpreadAssignment(
+                            IdentifierFactory.access(
+                              ts.factory.createIdentifier("connection"),
+                            )("headers"),
+                          ),
+                          ts.factory.createPropertyAssignment(
+                            ts.factory.createStringLiteral("Content-Type"),
+                            ts.factory.createStringLiteral(contentType),
+                          ),
+                        ],
+                        true,
                       ),
-                      ts.factory.createPropertyAssignment(
-                        ts.factory.createStringLiteral("Content-Type"),
-                        ts.factory.createStringLiteral(contentType),
-                      ),
-                    ],
-                    true,
-                  ),
-                ),
-              ], true)
+                    ),
+                  ],
+                  true,
+                )
               : ts.factory.createIdentifier("connection"),
             ts.factory.createObjectLiteralExpression(
               [
                 ts.factory.createSpreadAssignment(
                   IdentifierFactory.access(
-                    ts.factory.createIdentifier(route.name)
+                    ts.factory.createIdentifier(route.name),
                   )("METADATA"),
                 ),
                 ts.factory.createPropertyAssignment(
@@ -159,9 +159,33 @@ export namespace SdkFunctionProgrammer {
             ...(props.input
               ? [ts.factory.createIdentifier(props.input.name)]
               : []),
+            ...(config.json && props.input?.category === "body"
+              ? [ts.factory.createIdentifier(`${route.name}.stringify`)]
+              : []),
           ],
         );
       return [
+        ...(config.assert
+          ? route.parameters
+              .filter((p) => p.category !== "headers")
+              .map((p) =>
+                ts.factory.createExpressionStatement(
+                  ts.factory.createCallExpression(
+                    IdentifierFactory.access(
+                      ts.factory.createIdentifier(
+                        SdkImportWizard.typia(importer),
+                      ),
+                    )("assert"),
+                    [
+                      ts.factory.createTypeQueryNode(
+                        ts.factory.createIdentifier(p.name),
+                      ),
+                    ],
+                    [ts.factory.createIdentifier(p.name)],
+                  ),
+                ),
+              )
+          : []),
         ts.factory.createReturnStatement(
           config.simulate
             ? ts.factory.createConditionalExpression(

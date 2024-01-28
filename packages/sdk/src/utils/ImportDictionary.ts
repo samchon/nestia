@@ -2,6 +2,9 @@ import path from "path";
 import { HashMap } from "tstl/container/HashMap";
 import { HashSet } from "tstl/container/HashSet";
 import { Pair } from "tstl/utility/Pair";
+import ts from "typescript";
+
+import { NodeUtil } from "./NodeUtil";
 
 export class ImportDictionary {
   private readonly components_: HashMap<Pair<string, boolean>, IComposition> =
@@ -50,6 +53,75 @@ export class ImportDictionary {
       if (props.name) composition.name = props.name;
     } else composition.elements.insert(props.instance);
     return props.instance ?? file;
+  }
+
+  public toStatements(outDir: string): ts.Statement[] {
+    const external: ts.ImportDeclaration[] = [];
+    const internal: ts.ImportDeclaration[] = [];
+
+    const locator = (str: string) => {
+      const location: string = path.relative(outDir, str).split("\\").join("/");
+      const index: number = location.lastIndexOf(NODE_MODULES);
+      return index === -1
+        ? location.startsWith("..")
+          ? location
+          : `./${location}`
+        : location.substring(index + NODE_MODULES.length);
+    };
+    const enroll =
+      (filter: (str: string) => boolean) =>
+      (container: ts.ImportDeclaration[]) => {
+        const compositions: IComposition[] = this.components_
+          .toJSON()
+          .filter((c) => filter(c.second.location))
+          .map((e) => ({
+            ...e.second,
+            location: locator(e.second.location),
+          }))
+          .sort((a, b) => a.location.localeCompare(b.location));
+        for (const c of compositions) {
+          const brackets: string[] = [];
+          if (c.default) brackets.push(c.name ?? c.location);
+          if (c.elements.empty() === false)
+            brackets.push(
+              `{ ${c.elements
+                .toJSON()
+                .sort((a, b) => a.localeCompare(b))
+                .join(", ")} }`,
+            );
+          container.push(
+            ts.factory.createImportDeclaration(
+              undefined,
+              ts.factory.createImportClause(
+                c.type,
+                c.default
+                  ? ts.factory.createIdentifier(c.name ?? c.location)
+                  : undefined,
+                c.elements.empty() === false
+                  ? ts.factory.createNamedImports(
+                      [...c.elements].map((elem) =>
+                        ts.factory.createImportSpecifier(
+                          false,
+                          undefined,
+                          ts.factory.createIdentifier(elem),
+                        ),
+                      ),
+                    )
+                  : undefined,
+              ),
+              ts.factory.createStringLiteral(c.location),
+            ),
+          );
+        }
+      };
+
+    enroll((str) => str.indexOf(NODE_MODULES) !== -1)(external);
+    enroll((str) => str.indexOf(NODE_MODULES) === -1)(internal);
+    return [
+      ...external,
+      ...(external.length && internal.length ? [NodeUtil.enter()] : []),
+      ...internal,
+    ];
   }
 
   public toScript(outDir: string): string {

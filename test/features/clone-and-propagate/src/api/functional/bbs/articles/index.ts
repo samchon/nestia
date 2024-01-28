@@ -5,11 +5,11 @@
  */
 //================================================================
 import type {
-  HttpError,
   IConnection,
+  Resolved,
   IPropagation,
   Primitive,
-  Resolved,
+  HttpError,
 } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
@@ -41,7 +41,7 @@ export async function index(
     : PlainFetcher.propagate(connection, {
         ...index.METADATA,
         path: index.path(section, query),
-      } as const);
+      });
 }
 export namespace index {
   export type Query = Resolved<IPage.IRequest>;
@@ -60,26 +60,25 @@ export namespace index {
     status: null,
   } as const;
 
-  export const path = (section: string, query: index.Query): string => {
-    const variables: Record<any, any> = query as any;
-    const search: URLSearchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(variables))
-      if (value === undefined) continue;
+  export const path = (section: string, query: index.Query) => {
+    const variables: URLSearchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(query as any))
+      if (undefined === value) continue;
       else if (Array.isArray(value))
-        value.forEach((elem) => search.append(key, String(elem)));
-      else search.set(key, String(value));
-    const encoded: string = search.toString();
-    return `/bbs/articles/${encodeURIComponent(section ?? "null")}${encoded.length ? `?${encoded}` : ""}`;
+        value.forEach((elem: any) => variables.append(key, String(elem)));
+      else variables.set(key, String(value));
+    const location: string = `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
+    return 0 === variables.size
+      ? location
+      : `${location}?${variables.toString()}`;
   };
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Primitive<IPageIBbsArticle.ISummary> =>
+  export const random = (g?: Partial<typia.IRandomGenerator>) =>
     typia.random<Primitive<IPageIBbsArticle.ISummary>>(g);
-  export const simulate = async (
+  export const simulate = (
     connection: IConnection,
     section: string,
     query: index.Query,
-  ): Promise<Output> => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -105,7 +104,7 @@ export namespace index {
         "Content-Type": "application/json",
       },
       data: random(
-        typeof connection.simulate === "object" && connection.simulate !== null
+        "object" === typeof connection.simulate && null !== connection.simulate
           ? connection.simulate
           : undefined,
       ),
@@ -135,14 +134,14 @@ export async function store(
         {
           ...connection,
           headers: {
-            ...(connection.headers ?? {}),
+            ...connection.headers,
             "Content-Type": "application/json",
           },
         },
         {
           ...store.METADATA,
           path: store.path(section),
-        } as const,
+        },
         input,
       );
 }
@@ -166,17 +165,15 @@ export namespace store {
     status: null,
   } as const;
 
-  export const path = (section: string): string => {
-    return `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
-  };
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Primitive<IBbsArticle> => typia.random<Primitive<IBbsArticle>>(g);
-  export const simulate = async (
+  export const path = (section: string) =>
+    `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
+  export const random = (g?: Partial<typia.IRandomGenerator>) =>
+    typia.random<Primitive<IBbsArticle>>(g);
+  export const simulate = (
     connection: IConnection,
     section: string,
     input: store.Input,
-  ): Promise<Output> => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -202,7 +199,7 @@ export namespace store {
         "Content-Type": "application/json",
       },
       data: random(
-        typeof connection.simulate === "object" && connection.simulate !== null
+        "object" === typeof connection.simulate && null !== connection.simulate
           ? connection.simulate
           : undefined,
       ),
@@ -234,14 +231,14 @@ export async function update(
         {
           ...connection,
           headers: {
-            ...(connection.headers ?? {}),
+            ...connection.headers,
             "Content-Type": "application/json",
           },
         },
         {
           ...update.METADATA,
           path: update.path(section, id),
-        } as const,
+        },
         input,
       );
 }
@@ -265,21 +262,16 @@ export namespace update {
     status: null,
   } as const;
 
-  export const path = (
-    section: string,
-    id: string & Format<"uuid">,
-  ): string => {
-    return `/bbs/articles/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
-  };
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Primitive<IBbsArticle> => typia.random<Primitive<IBbsArticle>>(g);
-  export const simulate = async (
+  export const path = (section: string, id: string & Format<"uuid">) =>
+    `/bbs/articles/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
+  export const random = (g?: Partial<typia.IRandomGenerator>) =>
+    typia.random<Primitive<IBbsArticle>>(g);
+  export const simulate = (
     connection: IConnection,
     section: string,
     id: string & Format<"uuid">,
     input: update.Input,
-  ): Promise<Output> => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -306,7 +298,7 @@ export namespace update {
         "Content-Type": "application/json",
       },
       data: random(
-        typeof connection.simulate === "object" && connection.simulate !== null
+        "object" === typeof connection.simulate && null !== connection.simulate
           ? connection.simulate
           : undefined,
       ),
