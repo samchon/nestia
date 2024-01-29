@@ -4,7 +4,7 @@ import type { RecordstringIJsonSchema } from "./RecordstringIJsonSchema";
 
 export type IObjectIIdentified = {
   properties: RecordstringIJsonSchema;
-  required?: undefined | Array<string>;
+  required?: undefined | string[];
   patternProperties?: undefined | RecordstringIJsonSchema;
   additionalProperties?:
     | undefined
@@ -47,7 +47,7 @@ export type IObjectIIdentified = {
   deprecated?: undefined | boolean;
   title?: undefined | string;
   description?: undefined | string;
-  "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+  "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
   "x-typia-required"?: undefined | boolean;
   "x-typia-optional"?: undefined | boolean;
   "x-typia-rest"?: undefined | boolean;

@@ -5,8 +5,8 @@ import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
+import { CloneGenerator } from "./CloneGenerator";
 import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
-import { SdkDtoGenerator } from "./internal/SdkDtoGenerator";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
 
 export namespace SdkGenerator {
@@ -56,10 +56,10 @@ export namespace SdkGenerator {
       }
 
       // STRUCTURES
-      if (config.clone) await SdkDtoGenerator.generate(checker)(config)(routes);
+      if (config.clone) await CloneGenerator.generate(checker)(config)(routes);
 
       // FUNCTIONAL
-      await SdkFileProgrammer.generate(config)(routes);
+      await SdkFileProgrammer.generate(checker)(config)(routes);
 
       // DISTRIBUTION
       if (config.distribute !== undefined)

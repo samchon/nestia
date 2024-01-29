@@ -9,7 +9,7 @@ export type IArrayIIdentified = {
   minItems?: undefined | (number & Type<"uint32">);
   maxItems?: undefined | (number & Type<"uint32">);
   "x-typia-tuple"?: undefined | IJsonSchema.ITuple;
-  "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+  "x-typia-typeTags"?: undefined | IMetadataTypeTag[];
   type: "array";
   /**
    * Only when swagger mode.
@@ -18,7 +18,7 @@ export type IArrayIIdentified = {
   deprecated?: undefined | boolean;
   title?: undefined | string;
   description?: undefined | string;
-  "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+  "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
   "x-typia-required"?: undefined | boolean;
   "x-typia-optional"?: undefined | boolean;
   "x-typia-rest"?: undefined | boolean;

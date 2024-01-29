@@ -32,7 +32,7 @@ export namespace ISwaggerSecurityScheme {
     /**
      * @default header
      */
-    in?: undefined | ("header" | "query" | "cookie");
+    in?: undefined | "header" | "query" | "cookie";
     /**
      * @default Authorization
      */

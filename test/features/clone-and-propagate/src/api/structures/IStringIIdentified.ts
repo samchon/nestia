@@ -8,7 +8,7 @@ export type IStringIIdentified = {
   maxLength?: undefined | (number & Type<"uint32">);
   pattern?: undefined | string;
   format?: undefined | string;
-  "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+  "x-typia-typeTags"?: undefined | IMetadataTypeTag[];
   default?: undefined | string;
   type: "string";
   /**
@@ -18,7 +18,7 @@ export type IStringIIdentified = {
   deprecated?: undefined | boolean;
   title?: undefined | string;
   description?: undefined | string;
-  "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+  "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
   "x-typia-required"?: undefined | boolean;
   "x-typia-optional"?: undefined | boolean;
   "x-typia-rest"?: undefined | boolean;

@@ -1,7 +1,7 @@
 import type { IJsDocTagInfo } from "./IJsDocTagInfo";
 
 export type IEnumerationnumberIIdentified = {
-  enum: Array<number>;
+  enum: number[];
   type: "number";
   default?: undefined | number;
   /**
@@ -11,7 +11,7 @@ export type IEnumerationnumberIIdentified = {
   deprecated?: undefined | boolean;
   title?: undefined | string;
   description?: undefined | string;
-  "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+  "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
   "x-typia-required"?: undefined | boolean;
   "x-typia-optional"?: undefined | boolean;
   "x-typia-rest"?: undefined | boolean;

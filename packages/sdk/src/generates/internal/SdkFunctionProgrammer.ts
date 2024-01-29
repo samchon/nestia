@@ -6,8 +6,8 @@ import { INestiaConfig } from "../../INestiaConfig";
 import { IController } from "../../structures/IController";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
-import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
+import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkFunctionProgrammer {
   export const generate =
@@ -49,12 +49,12 @@ export namespace SdkFunctionProgrammer {
                 p.optional
                   ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
                   : undefined,
-                ts.factory.createTypeReferenceNode(
-                  config.primitive !== false &&
-                    (p === props.query || p === props.input)
-                    ? `${route.name}.${p === props.query ? "Query" : "Input"}`
-                    : getTypeName(config)(importer)(p),
-                ),
+                config.primitive !== false &&
+                  (p === props.query || p === props.input)
+                  ? ts.factory.createTypeReferenceNode(
+                      `${route.name}.${p === props.query ? "Query" : "Input"}`,
+                    )
+                  : getTypeName(config)(importer)(p),
               ),
             ),
         ],
@@ -215,5 +215,5 @@ const getTypeName =
   (importer: ImportDictionary) =>
   (p: IRoute.IParameter | IRoute.IOutput) =>
     p.metadata
-      ? SdkDtoGenerator.decode(config)(importer)(p.metadata)
-      : p.typeName;
+      ? SdkTypeProgrammer.decode(config)(importer)(p.metadata)
+      : ts.factory.createTypeReferenceNode(p.typeName);

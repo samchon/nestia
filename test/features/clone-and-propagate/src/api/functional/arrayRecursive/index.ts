@@ -31,7 +31,7 @@ export async function index(connection: IConnection): Promise<index.Output> {
 }
 export namespace index {
   export type Output = IPropagation<{
-    200: Array<ArrayRecursive.ICategory>;
+    200: ArrayRecursive.ICategory[];
   }>;
 
   export const METADATA = {
@@ -47,7 +47,7 @@ export namespace index {
 
   export const path = () => "/arrayRecursive";
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<Array<ArrayRecursive.ICategory>>>(g);
+    typia.random<Primitive<ArrayRecursive.ICategory[]>>(g);
   export const simulate = (connection: IConnection): Output => {
     return {
       success: true,

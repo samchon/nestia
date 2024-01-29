@@ -8,7 +8,7 @@ export const test_api_arrayRecursive_index = async (
   connection: api.IConnection,
 ) => {
   const output: IPropagation<{
-    200: Array<ArrayRecursive.ICategory>;
+    200: ArrayRecursive.ICategory[];
   }> = await api.functional.arrayRecursive.index(connection);
   typia.assert(output);
 };

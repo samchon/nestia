@@ -1,9 +1,9 @@
-export type ArraySimple = Array<ArraySimple.IPerson>;
+export type ArraySimple = ArraySimple.IPerson[];
 export namespace ArraySimple {
   export type IPerson = {
     name: string;
     email: string;
-    hobbies: Array<ArraySimple.IHobby>;
+    hobbies: ArraySimple.IHobby[];
   };
   export type IHobby = {
     name: string;

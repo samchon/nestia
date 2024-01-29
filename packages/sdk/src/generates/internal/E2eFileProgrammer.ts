@@ -6,12 +6,13 @@ import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
 import { FormatUtil } from "../../utils/FormatUtil";
 import { ImportDictionary } from "../../utils/ImportDictionary";
-import { SdkDtoGenerator } from "./SdkDtoGenerator";
+import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkImportWizard } from "./SdkImportWizard";
-import { SdkTypeDefiner } from "./SdkTypeDefiner";
+import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace E2eFileProgrammer {
   export const generate =
+    (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (props: { api: string; current: string }) =>
     async (route: IRoute): Promise<void> => {
@@ -33,7 +34,7 @@ export namespace E2eFileProgrammer {
         name: "api",
       });
 
-      const functor = generate_function(config)(importer)(route);
+      const functor = generate_function(checker)(config)(importer)(route);
 
       await fs.promises.writeFile(
         importer.file,
@@ -57,6 +58,7 @@ export namespace E2eFileProgrammer {
     };
 
   const generate_function =
+    (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (route: IRoute): ts.Statement =>
@@ -68,7 +70,7 @@ export namespace E2eFileProgrammer {
               ts.factory.createIdentifier(getFunctionName(route)),
               undefined,
               undefined,
-              generate_arrow(config)(importer)(route),
+              generate_arrow(checker)(config)(importer)(route),
             ),
           ],
           ts.NodeFlags.Const,
@@ -76,6 +78,7 @@ export namespace E2eFileProgrammer {
       );
 
   const generate_arrow =
+    (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (route: IRoute) => {
@@ -104,11 +107,7 @@ export namespace E2eFileProgrammer {
                             SdkImportWizard.typia(importer),
                           ),
                         )("random"),
-                        [
-                          ts.factory.createTypeReferenceNode(
-                            getTypeName(config)(importer)(headers),
-                          ),
-                        ],
+                        [getTypeName(config)(importer)(headers)],
                         undefined,
                       ),
                     ),
@@ -134,11 +133,7 @@ export namespace E2eFileProgrammer {
                 IdentifierFactory.access(
                   ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
                 )("random"),
-                [
-                  ts.factory.createTypeReferenceNode(
-                    getTypeName(config)(importer)(p),
-                  ),
-                ],
+                [getTypeName(config)(importer)(p)],
                 undefined,
               ),
             ),
@@ -171,9 +166,7 @@ export namespace E2eFileProgrammer {
                 ts.factory.createVariableDeclaration(
                   "output",
                   undefined,
-                  ts.factory.createTypeReferenceNode(
-                    SdkTypeDefiner.output(config)(importer)(route),
-                  ),
+                  SdkAliasCollection.output(checker)(config)(importer)(route),
                   ts.factory.createAwaitExpression(caller),
                 ),
               ],
@@ -194,5 +187,5 @@ const getTypeName =
   (importer: ImportDictionary) =>
   (p: IRoute.IParameter | IRoute.IOutput) =>
     p.metadata
-      ? SdkDtoGenerator.decode(config)(importer)(p.metadata)
-      : p.typeName;
+      ? SdkTypeProgrammer.decode(config)(importer)(p.metadata)
+      : ts.factory.createTypeReferenceNode(p.typeName);

@@ -10,6 +10,7 @@ import { SdkNamespaceProgrammer } from "./SdkNamespaceProgrammer";
 
 export namespace SdkRouteProgrammer {
   export const generate =
+    (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (route: IRoute): ts.Statement[] => {
@@ -27,7 +28,10 @@ export namespace SdkRouteProgrammer {
           SdkFunctionProgrammer.generate(config)(importer)(route, props),
           describe(route),
         ),
-        SdkNamespaceProgrammer.generate(config)(importer)(route, props),
+        SdkNamespaceProgrammer.generate(checker)(config)(importer)(
+          route,
+          props,
+        ),
       ];
     };
 

@@ -1,4 +1,4 @@
-export type ObjectUnionExplicit = Array<
+export type ObjectUnionExplicit = (
   | ObjectUnionExplicit.DiscriminatorpointObjectUnionExplicit.IPoint
   | ObjectUnionExplicit.DiscriminatorlineObjectUnionExplicit.ILine
   | ObjectUnionExplicit.DiscriminatortriangleObjectUnionExplicit.ITriangle
@@ -6,7 +6,7 @@ export type ObjectUnionExplicit = Array<
   | ObjectUnionExplicit.DiscriminatorpolylineObjectUnionExplicit.IPolyline
   | ObjectUnionExplicit.DiscriminatorpolygonObjectUnionExplicit.IPolygon
   | ObjectUnionExplicit.DiscriminatorcircleObjectUnionExplicit.ICircle
->;
+)[];
 export namespace ObjectUnionExplicit {
   export namespace DiscriminatorpointObjectUnionExplicit {
     export type IPoint = {
@@ -41,14 +41,14 @@ export namespace ObjectUnionExplicit {
   }
   export namespace DiscriminatorpolylineObjectUnionExplicit {
     export type IPolyline = {
-      points: Array<ObjectUnionExplicit.IPoint>;
+      points: ObjectUnionExplicit.IPoint[];
       type: "polyline";
     };
   }
   export namespace DiscriminatorpolygonObjectUnionExplicit {
     export type IPolygon = {
       outer: ObjectUnionExplicit.IPolyline;
-      inner: Array<ObjectUnionExplicit.IPolyline>;
+      inner: ObjectUnionExplicit.IPolyline[];
       type: "polygon";
     };
   }
@@ -64,6 +64,6 @@ export namespace ObjectUnionExplicit {
     y: number;
   };
   export type IPolyline = {
-    points: Array<ObjectUnionExplicit.IPoint>;
+    points: ObjectUnionExplicit.IPoint[];
   };
 }

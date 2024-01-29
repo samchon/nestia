@@ -14,6 +14,7 @@ export namespace SdkFileProgrammer {
         CONSTRUCTOR
     --------------------------------------------------------- */
   export const generate =
+    (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     async (routeList: IRoute[]): Promise<void> => {
       // CONSTRUCT FOLDER TREE
@@ -21,7 +22,7 @@ export namespace SdkFileProgrammer {
       for (const route of routeList) emplace(root)(route);
 
       // ITERATE FILES
-      await iterate(config)(root)(config.output + "/functional");
+      await iterate(checker)(config)(root)(config.output + "/functional");
     };
 
   const emplace =
@@ -44,6 +45,7 @@ export namespace SdkFileProgrammer {
         FILE ITERATOR
     --------------------------------------------------------- */
   const iterate =
+    (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (directory: SdkRouteDirectory) =>
     async (outDir: string): Promise<void> => {
@@ -55,7 +57,7 @@ export namespace SdkFileProgrammer {
       // ITERATE CHILDREN
       const statements: ts.Statement[] = [];
       for (const [key, value] of directory.children) {
-        await iterate(config)(value)(`${outDir}/${key}`);
+        await iterate(checker)(config)(value)(`${outDir}/${key}`);
         statements.push(
           ts.factory.createExportDeclaration(
             undefined,
@@ -92,7 +94,7 @@ export namespace SdkFileProgrammer {
                 type: true,
               });
         statements.push(
-          ...SdkRouteProgrammer.generate(config)(importer)(route),
+          ...SdkRouteProgrammer.generate(checker)(config)(importer)(route),
         );
         if (i !== directory.routes.length - 1)
           statements.push(FormatUtil.enter());

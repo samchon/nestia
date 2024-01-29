@@ -31,7 +31,7 @@ export async function index(connection: IConnection): Promise<index.Output> {
 }
 export namespace index {
   export type Output = IPropagation<{
-    200: Array<TupleHierarchical>;
+    200: TupleHierarchical[];
   }>;
 
   export const METADATA = {
@@ -47,7 +47,7 @@ export namespace index {
 
   export const path = () => "/tupleHierarchicalController";
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<Array<TupleHierarchical>>>(g);
+    typia.random<Primitive<TupleHierarchical[]>>(g);
   export const simulate = (connection: IConnection): Output => {
     return {
       success: true,

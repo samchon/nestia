@@ -1,5 +1,4 @@
-export type ArrayRecursiveUnionImplicit =
-  Array<ArrayRecursiveUnionImplicit.IBucket>;
+export type ArrayRecursiveUnionImplicit = ArrayRecursiveUnionImplicit.IBucket[];
 export namespace ArrayRecursiveUnionImplicit {
   export type IBucket =
     | ArrayRecursiveUnionImplicit.IDirectory
@@ -12,14 +11,14 @@ export namespace ArrayRecursiveUnionImplicit {
     id: number;
     name: string;
     path: string;
-    children: Array<ArrayRecursiveUnionImplicit.IBucket>;
+    children: ArrayRecursiveUnionImplicit.IBucket[];
   };
   export type ISharedDirectory = {
     access: "read" | "write";
     id: number;
     name: string;
     path: string;
-    children: Array<ArrayRecursiveUnionImplicit.IBucket>;
+    children: ArrayRecursiveUnionImplicit.IBucket[];
   };
   export type IImageFile = {
     id: number;

@@ -1,4 +1,5 @@
 import ts from "typescript";
+import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
@@ -7,12 +8,13 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "../../utils/ImportDictionary";
-import { SdkDtoGenerator } from "./SdkDtoGenerator";
+import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkImportWizard } from "./SdkImportWizard";
-import { SdkTypeDefiner } from "./SdkTypeDefiner";
+import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkSimulationProgrammer {
   export const random =
+    (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (route: IRoute): ts.VariableStatement =>
@@ -42,11 +44,7 @@ export namespace SdkSimulationProgrammer {
             IdentifierFactory.access(
               ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
             )("random"),
-            [
-              ts.factory.createTypeReferenceNode(
-                SdkTypeDefiner.responseBody(config)(importer)(route),
-              ),
-            ],
+            [SdkAliasCollection.responseBody(checker)(config)(importer)(route)],
             [ts.factory.createIdentifier("g")],
           ),
         ),
@@ -121,12 +119,12 @@ export namespace SdkSimulationProgrammer {
                   p.optional
                     ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
                     : undefined,
-                  ts.factory.createTypeReferenceNode(
-                    config.primitive !== false &&
-                      (p === props.query || p === props.input)
-                      ? `${route.name}.${p === props.query ? "Query" : "Input"}`
-                      : getTypeName(config)(importer)(p),
-                  ),
+                  config.primitive !== false &&
+                    (p === props.query || p === props.input)
+                    ? ts.factory.createTypeReferenceNode(
+                        `${route.name}.${p === props.query ? "Query" : "Input"}`,
+                      )
+                    : getTypeName(config)(importer)(p),
                 ),
               ),
           ],
@@ -145,7 +143,7 @@ export namespace SdkSimulationProgrammer {
                         ),
                         ts.factory.createPropertyAssignment(
                           "status",
-                          ts.factory.createNumericLiteral(
+                          ExpressionFactory.number(
                             route.status ??
                               (route.method === "POST" ? 201 : 200),
                           ),
@@ -355,5 +353,5 @@ const getTypeName =
   (importer: ImportDictionary) =>
   (p: IRoute.IParameter | IRoute.IOutput) =>
     p.metadata
-      ? SdkDtoGenerator.decode(config)(importer)(p.metadata)
-      : p.typeName;
+      ? SdkTypeProgrammer.decode(config)(importer)(p.metadata)
+      : ts.factory.createTypeReferenceNode(p.typeName);

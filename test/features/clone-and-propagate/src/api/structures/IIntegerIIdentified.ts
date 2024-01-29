@@ -9,7 +9,7 @@ export type IIntegerIIdentified = {
   exclusiveMinimum?: undefined | boolean;
   exclusiveMaximum?: undefined | boolean;
   multipleOf?: undefined | (number & Type<"int32">);
-  "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+  "x-typia-typeTags"?: undefined | IMetadataTypeTag[];
   default?: undefined | number;
   type: "integer";
   /**
@@ -19,7 +19,7 @@ export type IIntegerIIdentified = {
   deprecated?: undefined | boolean;
   title?: undefined | string;
   description?: undefined | string;
-  "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+  "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
   "x-typia-required"?: undefined | boolean;
   "x-typia-optional"?: undefined | boolean;
   "x-typia-rest"?: undefined | boolean;

@@ -6,6 +6,7 @@ export namespace FormatUtil {
     node: Node,
     comment: string,
   ): Node => {
+    if (comment.length === 0) return node;
     ts.addSyntheticLeadingComment(
       node,
       ts.SyntaxKind.MultiLineCommentTrivia,
@@ -20,7 +21,7 @@ export namespace FormatUtil {
 
   export const beautify = async (script: string): Promise<string> => {
     try {
-      return format(script, {
+      return await format(script, {
         parser: "typescript",
       });
     } catch {

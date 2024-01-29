@@ -8,7 +8,7 @@ export const test_api_tupleHierarchicalController_index = async (
   connection: api.IConnection,
 ) => {
   const output: IPropagation<{
-    200: Array<TupleHierarchical>;
+    200: TupleHierarchical[];
   }> = await api.functional.tupleHierarchicalController.index(connection);
   typia.assert(output);
 };

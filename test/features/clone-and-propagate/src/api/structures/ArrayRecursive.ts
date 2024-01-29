@@ -1,6 +1,6 @@
 export namespace ArrayRecursive {
   export type ICategory = {
-    children: Array<ArrayRecursive.ICategory>;
+    children: ArrayRecursive.ICategory[];
     id: number;
     code: string;
     sequence: number;

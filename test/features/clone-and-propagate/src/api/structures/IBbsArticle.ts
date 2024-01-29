@@ -14,7 +14,7 @@ export type IBbsArticle = {
   updated_at: string & Format<"date-time">;
   title: string & MinLength<3> & MaxLength<50>;
   body: string;
-  files: Array<IAttachmentFile>;
+  files: IAttachmentFile[];
 };
 export namespace IBbsArticle {
   export type ISummary = {
@@ -28,6 +28,6 @@ export namespace IBbsArticle {
   export type IStore = {
     title: string & MinLength<3> & MaxLength<50>;
     body: string;
-    files: Array<IAttachmentFile>;
+    files: IAttachmentFile[];
   };
 }

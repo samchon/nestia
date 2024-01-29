@@ -1,5 +1,4 @@
-export type ArrayRecursiveUnionExplicit =
-  Array<ArrayRecursiveUnionExplicit.IBucket>;
+export type ArrayRecursiveUnionExplicit = ArrayRecursiveUnionExplicit.IBucket[];
 export namespace ArrayRecursiveUnionExplicit {
   export type IBucket =
     | ArrayRecursiveUnionExplicit.IDirectory
@@ -11,7 +10,7 @@ export namespace ArrayRecursiveUnionExplicit {
     id: number;
     name: string;
     path: string;
-    children: Array<ArrayRecursiveUnionExplicit.IBucket>;
+    children: ArrayRecursiveUnionExplicit.IBucket[];
     type: "directory";
   };
   export type IImageFile = {

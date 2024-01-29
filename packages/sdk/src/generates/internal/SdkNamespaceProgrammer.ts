@@ -1,5 +1,6 @@
 import ts from "typescript";
 import typia from "typia";
+import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
@@ -10,13 +11,14 @@ import { IController } from "../../structures/IController";
 import { IRoute } from "../../structures/IRoute";
 import { FormatUtil } from "../../utils/FormatUtil";
 import { ImportDictionary } from "../../utils/ImportDictionary";
-import { SdkDtoGenerator } from "./SdkDtoGenerator";
+import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkSimulationProgrammer } from "./SdkSimulationProgrammer";
-import { SdkTypeDefiner } from "./SdkTypeDefiner";
+import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkNamespaceProgrammer {
   export const generate =
+    (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (
@@ -27,7 +29,7 @@ export namespace SdkNamespaceProgrammer {
         input: IRoute.IParameter | undefined;
       },
     ): ts.ModuleDeclaration => {
-      const types = generate_types(config)(importer)(route, props);
+      const types = generate_types(checker)(config)(importer)(route, props);
       return ts.factory.createModuleDeclaration(
         [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
         ts.factory.createIdentifier(route.name),
@@ -39,7 +41,9 @@ export namespace SdkNamespaceProgrammer {
           generate_path(config)(importer)(route, props),
           ...(config.simulate
             ? [
-                SdkSimulationProgrammer.random(config)(importer)(route),
+                SdkSimulationProgrammer.random(checker)(config)(importer)(
+                  route,
+                ),
                 SdkSimulationProgrammer.simulate(config)(importer)(
                   route,
                   props,
@@ -55,6 +59,7 @@ export namespace SdkNamespaceProgrammer {
     };
 
   const generate_types =
+    (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (
@@ -66,26 +71,35 @@ export namespace SdkNamespaceProgrammer {
       },
     ): ts.TypeAliasDeclaration[] => {
       const array: ts.TypeAliasDeclaration[] = [];
-      const declare = (name: string, type: string) =>
+      const declare = (name: string, type: ts.TypeNode) =>
         array.push(
           ts.factory.createTypeAliasDeclaration(
             [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
             name,
             undefined,
-            ts.factory.createTypeReferenceNode(type),
+            type,
           ),
         );
       if (props.headers !== undefined)
         declare(
           "Headers",
-          SdkTypeDefiner.headers(config)(importer)(props.headers),
+          SdkAliasCollection.headers(config)(importer)(props.headers),
         );
       if (props.query !== undefined)
-        declare("Query", SdkTypeDefiner.query(config)(importer)(props.query));
+        declare(
+          "Query",
+          SdkAliasCollection.query(config)(importer)(props.query),
+        );
       if (props.input !== undefined)
-        declare("Input", SdkTypeDefiner.input(config)(importer)(props.input));
+        declare(
+          "Input",
+          SdkAliasCollection.input(config)(importer)(props.input),
+        );
       if (config.propagate === true || route.output.typeName !== "void")
-        declare("Output", SdkTypeDefiner.output(config)(importer)(route));
+        declare(
+          "Output",
+          SdkAliasCollection.output(checker)(config)(importer)(route),
+        );
       return array;
     };
 
@@ -139,7 +153,7 @@ export namespace SdkNamespaceProgrammer {
               ts.factory.createPropertyAssignment(
                 "status",
                 route.status !== undefined
-                  ? ts.factory.createNumericLiteral(route.status)
+                  ? ExpressionFactory.number(route.status)
                   : ts.factory.createNull(),
               ),
               ...(route.output.contentType ===
@@ -198,11 +212,9 @@ export namespace SdkNamespaceProgrammer {
             g.total.map((p) =>
               IdentifierFactory.parameter(
                 p.name,
-                ts.factory.createTypeReferenceNode(
-                  p === props.query
-                    ? `${route.name}.Query`
-                    : getType(config)(importer)(p),
-                ),
+                p === props.query
+                  ? ts.factory.createTypeReferenceNode(`${route.name}.Query`)
+                  : getType(config)(importer)(p),
               ),
             ),
             undefined,
@@ -365,7 +377,7 @@ export namespace SdkNamespaceProgrammer {
             ts.factory.createReturnStatement(
               ts.factory.createConditionalExpression(
                 ts.factory.createStrictEquality(
-                  ts.factory.createNumericLiteral(0),
+                  ExpressionFactory.number(0),
                   IdentifierFactory.access(
                     ts.factory.createIdentifier(variables),
                   )("size"),
@@ -491,5 +503,5 @@ const getType =
   (importer: ImportDictionary) =>
   (p: IRoute.IParameter | IRoute.IOutput) =>
     p.metadata
-      ? SdkDtoGenerator.decode(config)(importer)(p.metadata)
-      : p.typeName;
+      ? SdkTypeProgrammer.decode(config)(importer)(p.metadata)
+      : ts.factory.createTypeReferenceNode(p.typeName);

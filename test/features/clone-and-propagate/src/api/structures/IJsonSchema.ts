@@ -21,7 +21,7 @@ export type IJsonSchema =
   | IJsonSchema.IUnknown;
 export namespace IJsonSchema {
   export type IEnumerationboolean = {
-    enum: Array<boolean>;
+    enum: boolean[];
     type: "boolean";
     default?: undefined | boolean;
     /**
@@ -31,13 +31,13 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
   };
   export type IEnumerationnumber = {
-    enum: Array<number>;
+    enum: number[];
     type: "number";
     default?: undefined | number;
     /**
@@ -47,13 +47,13 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
   };
   export type IEnumerationstring = {
-    enum: Array<string>;
+    enum: string[];
     type: "string";
     default?: undefined | string;
     /**
@@ -63,13 +63,13 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
   };
   export type IBoolean = {
-    "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+    "x-typia-typeTags"?: undefined | IMetadataTypeTag[];
     default?: undefined | boolean;
     type: "boolean";
     /**
@@ -79,7 +79,7 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
@@ -90,7 +90,7 @@ export namespace IJsonSchema {
     exclusiveMinimum?: undefined | boolean;
     exclusiveMaximum?: undefined | boolean;
     multipleOf?: undefined | (number & Type<"int32">);
-    "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+    "x-typia-typeTags"?: undefined | IMetadataTypeTag[];
     default?: undefined | number;
     type: "integer";
     /**
@@ -100,7 +100,7 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
@@ -111,7 +111,7 @@ export namespace IJsonSchema {
     exclusiveMinimum?: undefined | boolean;
     exclusiveMaximum?: undefined | boolean;
     multipleOf?: undefined | number;
-    "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+    "x-typia-typeTags"?: undefined | IMetadataTypeTag[];
     default?: undefined | number;
     type: "number";
     /**
@@ -121,7 +121,7 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
@@ -131,7 +131,7 @@ export namespace IJsonSchema {
     maxLength?: undefined | (number & Type<"uint32">);
     pattern?: undefined | string;
     format?: undefined | string;
-    "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+    "x-typia-typeTags"?: undefined | IMetadataTypeTag[];
     default?: undefined | string;
     type: "string";
     /**
@@ -141,7 +141,7 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
@@ -151,7 +151,7 @@ export namespace IJsonSchema {
     minItems?: undefined | (number & Type<"uint32">);
     maxItems?: undefined | (number & Type<"uint32">);
     "x-typia-tuple"?: undefined | IJsonSchema.ITuple;
-    "x-typia-typeTags"?: undefined | Array<IMetadataTypeTag>;
+    "x-typia-typeTags"?: undefined | IMetadataTypeTag[];
     type: "array";
     /**
      * Only when swagger mode.
@@ -160,13 +160,13 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
   };
   export type ITuple = {
-    items: Array<IJsonSchema>;
+    items: IJsonSchema[];
     minItems: number & Type<"uint32">;
     maxItems?: undefined | (number & Type<"uint32">);
     type: "array";
@@ -177,14 +177,14 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
   };
   export type IObject = {
     properties: RecordstringIJsonSchema;
-    required?: undefined | Array<string>;
+    required?: undefined | string[];
     patternProperties?: undefined | RecordstringIJsonSchema;
     additionalProperties?:
       | undefined
@@ -227,7 +227,7 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
@@ -237,7 +237,7 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
@@ -247,17 +247,17 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
   };
   export type IOneOf = {
-    oneOf: Array<IJsonSchema>;
+    oneOf: IJsonSchema[];
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;
@@ -267,7 +267,7 @@ export namespace IJsonSchema {
     deprecated?: undefined | boolean;
     title?: undefined | string;
     description?: undefined | string;
-    "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+    "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
     "x-typia-required"?: undefined | boolean;
     "x-typia-optional"?: undefined | boolean;
     "x-typia-rest"?: undefined | boolean;

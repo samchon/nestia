@@ -4,7 +4,7 @@ import type { IJsDocTagInfo } from "./IJsDocTagInfo";
 import type { IJsonSchema } from "./IJsonSchema";
 
 export type ITupleIIdentified = {
-  items: Array<IJsonSchema>;
+  items: IJsonSchema[];
   minItems: number & Type<"uint32">;
   maxItems?: undefined | (number & Type<"uint32">);
   type: "array";
@@ -15,7 +15,7 @@ export type ITupleIIdentified = {
   deprecated?: undefined | boolean;
   title?: undefined | string;
   description?: undefined | string;
-  "x-typia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+  "x-typia-jsDocTags"?: undefined | IJsDocTagInfo[];
   "x-typia-required"?: undefined | boolean;
   "x-typia-optional"?: undefined | boolean;
   "x-typia-rest"?: undefined | boolean;

@@ -1,4 +1,4 @@
-export type ObjectUnionImplicit = Array<
+export type ObjectUnionImplicit = (
   | ObjectUnionImplicit.IPoint
   | ObjectUnionImplicit.ILine
   | ObjectUnionImplicit.ITriangle
@@ -6,7 +6,7 @@ export type ObjectUnionImplicit = Array<
   | ObjectUnionImplicit.IPolyline
   | ObjectUnionImplicit.IPolygon
   | ObjectUnionImplicit.ICircle
->;
+)[];
 export namespace ObjectUnionImplicit {
   export type IPoint = {
     x: number;
@@ -37,12 +37,12 @@ export namespace ObjectUnionImplicit {
     area?: null | undefined | number;
   };
   export type IPolyline = {
-    points: Array<ObjectUnionImplicit.IPoint>;
+    points: ObjectUnionImplicit.IPoint[];
     length?: null | undefined | number;
   };
   export type IPolygon = {
     outer: ObjectUnionImplicit.IPolyline;
-    inner?: undefined | Array<ObjectUnionImplicit.IPolyline>;
+    inner?: undefined | ObjectUnionImplicit.IPolyline[];
     area?: null | undefined | number;
   };
   export type ICircle = {

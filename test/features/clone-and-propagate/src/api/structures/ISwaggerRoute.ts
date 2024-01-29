@@ -5,17 +5,17 @@ import type { RecordstringArraystring } from "./RecordstringArraystring";
 
 export type ISwaggerRoute = {
   deprecated?: undefined | boolean;
-  security?: undefined | Array<RecordstringArraystring>;
+  security?: undefined | RecordstringArraystring[];
   operationId?: undefined | string;
-  tags: Array<string>;
-  parameters: Array<ISwaggerRoute.IParameter>;
+  tags: string[];
+  parameters: ISwaggerRoute.IParameter[];
   requestBody?: undefined | ISwaggerRoute.IRequestBody;
   responses: ISwaggerRoute.IResponseBody;
   summary?: undefined | string;
   description?: undefined | string;
   "x-nestia-method"?: undefined | string;
   "x-nestia-namespace"?: undefined | string;
-  "x-nestia-jsDocTags"?: undefined | Array<IJsDocTagInfo>;
+  "x-nestia-jsDocTags"?: undefined | IJsDocTagInfo[];
 };
 export namespace ISwaggerRoute {
   export type IResponseBody = {

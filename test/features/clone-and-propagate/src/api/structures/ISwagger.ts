@@ -23,7 +23,7 @@ export type ISwagger = {
   /**
    * List of servers that provide the API.
    */
-  servers: Array<ISwagger.IServer>;
+  servers: ISwagger.IServer[];
   /**
    * Information about the API.
    */

@@ -3,7 +3,7 @@ import type { IPage } from "./IPage";
 
 export namespace IPageIBbsArticle {
   export type ISummary = {
-    data: Array<IBbsArticle.ISummary>;
+    data: IBbsArticle.ISummary[];
     pagination: IPage.IPagination;
   };
 }

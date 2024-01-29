@@ -31,7 +31,7 @@ export async function index(connection: IConnection): Promise<index.Output> {
 }
 export namespace index {
   export type Output = IPropagation<{
-    200: Array<ObjectSimple.IBox3D>;
+    200: ObjectSimple.IBox3D[];
   }>;
 
   export const METADATA = {
@@ -47,7 +47,7 @@ export namespace index {
 
   export const path = () => "/objectSimple";
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<Array<ObjectSimple.IBox3D>>>(g);
+    typia.random<Primitive<ObjectSimple.IBox3D[]>>(g);
   export const simulate = (connection: IConnection): Output => {
     return {
       success: true,
