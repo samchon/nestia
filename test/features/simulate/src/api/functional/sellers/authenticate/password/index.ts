@@ -61,7 +61,7 @@ export namespace change {
 
   export const path = () => "/sellers/authenticate/password/change";
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<void>(g);
+    typia.random<Primitive<void>>(g);
   export const simulate = (
     connection: IConnection,
     input: change.Input,

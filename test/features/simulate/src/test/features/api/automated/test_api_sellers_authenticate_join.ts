@@ -5,11 +5,12 @@ import api from "../../../../api";
 import type { ISeller } from "../../../../api/structures/ISeller";
 
 export const test_api_sellers_authenticate_join = async (
-    connection: api.IConnection
-): Promise<void> => {
-    const output: Primitive<ISeller.IAuthorized> = await api.functional.sellers.authenticate.join(
-        connection,
-        typia.random<Primitive<ISeller.IJoin>>(),
+  connection: api.IConnection,
+) => {
+  const output: Primitive<ISeller.IAuthorized> =
+    await api.functional.sellers.authenticate.join(
+      connection,
+      typia.random<ISeller.IJoin>(),
     );
-    typia.assert(output);
+  typia.assert(output);
 };
