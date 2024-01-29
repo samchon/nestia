@@ -19,7 +19,7 @@ export type ISwagger = {
    *
    * Nestia always generate OpenAPI 3.0.x document.
    */
-  openapi: `3.0.${number}`;
+  openapi: `3.0.${number}` | `3.1.${number}`;
   /**
    * List of servers that provide the API.
    */

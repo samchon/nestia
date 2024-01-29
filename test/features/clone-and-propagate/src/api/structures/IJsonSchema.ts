@@ -188,12 +188,12 @@ export namespace IJsonSchema {
     patternProperties?: undefined | RecordstringIJsonSchema;
     additionalProperties?:
       | undefined
-      | IJsonSchema.IEnumerationboolean
-      | IJsonSchema.IEnumerationnumber
       | IJsonSchema.IEnumerationstring
+      | IJsonSchema.IEnumerationnumber
+      | IJsonSchema.IEnumerationboolean
       | IJsonSchema.IBoolean
-      | IJsonSchema.IInteger
       | IJsonSchema.INumber
+      | IJsonSchema.IInteger
       | IJsonSchema.IString
       | IJsonSchema.IArray
       | IJsonSchema.ITuple
@@ -205,12 +205,12 @@ export namespace IJsonSchema {
     "x-typia-patternProperties"?: undefined | RecordstringIJsonSchema;
     "x-typia-additionalProperties"?:
       | undefined
-      | IJsonSchema.IEnumerationboolean
-      | IJsonSchema.IEnumerationnumber
       | IJsonSchema.IEnumerationstring
+      | IJsonSchema.IEnumerationnumber
+      | IJsonSchema.IEnumerationboolean
       | IJsonSchema.IBoolean
-      | IJsonSchema.IInteger
       | IJsonSchema.INumber
+      | IJsonSchema.IInteger
       | IJsonSchema.IString
       | IJsonSchema.IArray
       | IJsonSchema.ITuple

@@ -174,6 +174,13 @@ export namespace INestiaConfig {
    */
   export interface ISwaggerConfig {
     /**
+     * Version of the OpenAPI specification.
+     *
+     * @default "3.0"
+     */
+    openapi?: "3.0" | "3.1";
+
+    /**
      * Output path of the `swagger.json`.
      *
      * If you've configured only directory, the file name would be the `swagger.json`.

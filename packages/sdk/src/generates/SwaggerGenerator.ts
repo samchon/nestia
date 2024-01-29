@@ -87,7 +87,7 @@ export namespace SwaggerGenerator {
 
       // FILL JSON-SCHEMAS
       const application: IJsonApplication = JsonApplicationProgrammer.write({
-        purpose: "swagger",
+        purpose: config.openapi === "3.1" ? "ajv" : "swagger",
       })(lazySchemas.map(({ metadata }) => metadata));
       swagger.components = {
         ...(swagger.components ?? {}),
@@ -105,6 +105,8 @@ export namespace SwaggerGenerator {
             ] as IJsonComponents.IObject
           )?.properties[p.property],
         );
+      for (const obj of Object.values(swagger.components.schemas ?? {}))
+        if (obj.$id) delete obj.$id;
 
       // CONFIGURE SECURITY
       if (config.security) fill_security(config.security, swagger);
@@ -247,7 +249,7 @@ export namespace SwaggerGenerator {
     );
 
     return {
-      openapi: "3.0.1",
+      openapi: config.openapi === "3.1" ? "3.1.0" : "3.0.1",
       servers: config.servers ?? [
         {
           url: "https://github.com/samchon/nestia",
