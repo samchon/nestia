@@ -4,7 +4,7 @@ import { HashSet } from "tstl/container/HashSet";
 import { Pair } from "tstl/utility/Pair";
 import ts from "typescript";
 
-import { NodeUtil } from "./NodeUtil";
+import { FormatUtil } from "./FormatUtil";
 
 export class ImportDictionary {
   private readonly components_: HashMap<Pair<string, boolean>, IComposition> =
@@ -119,7 +119,7 @@ export class ImportDictionary {
     enroll((str) => str.indexOf(NODE_MODULES) === -1)(internal);
     return [
       ...external,
-      ...(external.length && internal.length ? [NodeUtil.enter()] : []),
+      ...(external.length && internal.length ? [FormatUtil.enter()] : []),
       ...internal,
     ];
   }

@@ -1,7 +1,10 @@
 import fs from "fs";
+import ts from "typescript";
+import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
+import { FormatUtil } from "../../utils/FormatUtil";
 import { ImportDictionary } from "../../utils/ImportDictionary";
 import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
@@ -13,7 +16,7 @@ export namespace E2eFileProgrammer {
     (props: { api: string; current: string }) =>
     async (route: IRoute): Promise<void> => {
       const importer: ImportDictionary = new ImportDictionary(
-        `${props.current}/${name(route)}.ts`,
+        `${props.current}/${getFunctionName(route)}.ts`,
       );
       if (config.clone !== true)
         for (const tuple of route.imports)
@@ -30,90 +33,162 @@ export namespace E2eFileProgrammer {
         name: "api",
       });
 
-      const body: string = arrow(config)(importer)(route);
-      const content: string = [importer.toScript(props.current), "", body].join(
-        "\n",
-      );
+      const functor = generate_function(config)(importer)(route);
 
-      await fs.promises.writeFile(importer.file, content, "utf8");
+      await fs.promises.writeFile(
+        importer.file,
+        await FormatUtil.beautify(
+          ts
+            .createPrinter()
+            .printFile(
+              ts.factory.createSourceFile(
+                [
+                  ...importer.toStatements(props.current),
+                  FormatUtil.enter(),
+                  functor,
+                ],
+                ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
+                ts.NodeFlags.None,
+              ),
+            ),
+        ),
+        "utf8",
+      );
     };
 
-  const arrow =
+  const generate_function =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
-    (route: IRoute): string => {
-      const tab: number = 2;
+    (route: IRoute): ts.Statement =>
+      ts.factory.createVariableStatement(
+        [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+        ts.factory.createVariableDeclarationList(
+          [
+            ts.factory.createVariableDeclaration(
+              ts.factory.createIdentifier(getFunctionName(route)),
+              undefined,
+              undefined,
+              generate_arrow(config)(importer)(route),
+            ),
+          ],
+          ts.NodeFlags.Const,
+        ),
+      );
+
+  const generate_arrow =
+    (config: INestiaConfig) =>
+    (importer: ImportDictionary) =>
+    (route: IRoute) => {
       const headers = route.parameters.find(
         (p) => p.category === "headers" && p.field === undefined,
       );
-      const output = [
-        `await ${accessor(route)}(`,
-        headers !== undefined
-          ? [
-              "{",
-              "    ...connection,",
-              "    headers: {",
-              "        ...(connection.headers ?? {}),",
-              `        ...${SdkImportWizard.typia(
-                importer,
-              )}.random<${getTypeName(config)(importer)(headers)}>(),`,
-              "    },",
-              "},",
-            ]
-              .map((line) => `${" ".repeat(tab * 4)}${line}`)
-              .join("\n")
-          : `${" ".repeat(tab * 4)}connection,`,
-        ...route.parameters
-          .filter((param) => param.category !== "headers")
-          .map(parameter(config)(importer)(tab)),
-        `${" ".repeat((tab - 1) * 4)});`,
-      ].join("\n");
-      return [
-        `export const ${name(route)} = async (`,
-        `    connection: api.IConnection`,
-        `): Promise<void> => {`,
-        ...(route.output.typeName === "void"
-          ? [`    ${output}`]
-          : [
-              `    const output: ${SdkTypeDefiner.output(config)(importer)(
-                route,
-              )} = ${output}`,
-              `    ${SdkImportWizard.typia(importer)}.assert(output);`,
-            ]),
-        `};`,
-      ].join("\n");
+      const connection = headers
+        ? ts.factory.createObjectLiteralExpression(
+            [
+              ts.factory.createSpreadAssignment(
+                ts.factory.createIdentifier("connection"),
+              ),
+              ts.factory.createPropertyAssignment(
+                "headers",
+                ts.factory.createObjectLiteralExpression(
+                  [
+                    ts.factory.createSpreadAssignment(
+                      IdentifierFactory.access(
+                        ts.factory.createIdentifier("connection"),
+                      )("headers"),
+                    ),
+                    ts.factory.createSpreadAssignment(
+                      ts.factory.createCallExpression(
+                        IdentifierFactory.access(
+                          ts.factory.createIdentifier(
+                            SdkImportWizard.typia(importer),
+                          ),
+                        )("random"),
+                        [
+                          ts.factory.createTypeReferenceNode(
+                            getTypeName(config)(importer)(headers),
+                          ),
+                        ],
+                        undefined,
+                      ),
+                    ),
+                  ],
+                  true,
+                ),
+              ),
+            ],
+            true,
+          )
+        : ts.factory.createIdentifier("connection");
+      const caller = ts.factory.createCallExpression(
+        ts.factory.createIdentifier(
+          ["api", "functional", ...route.accessors].join("."),
+        ),
+        undefined,
+        [
+          connection,
+          ...route.parameters
+            .filter((p) => p.category !== "headers")
+            .map((p) =>
+              ts.factory.createCallExpression(
+                IdentifierFactory.access(
+                  ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
+                )("random"),
+                [
+                  ts.factory.createTypeReferenceNode(
+                    getTypeName(config)(importer)(p),
+                  ),
+                ],
+                undefined,
+              ),
+            ),
+        ],
+      );
+      const assert = ts.factory.createCallExpression(
+        IdentifierFactory.access(
+          ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
+        )("assert"),
+        undefined,
+        [ts.factory.createIdentifier("output")],
+      );
+
+      return ts.factory.createArrowFunction(
+        [ts.factory.createModifier(ts.SyntaxKind.AsyncKeyword)],
+        undefined,
+        [
+          IdentifierFactory.parameter(
+            "connection",
+            ts.factory.createTypeReferenceNode("api.IConnection"),
+          ),
+        ],
+        undefined,
+        undefined,
+        ts.factory.createBlock([
+          ts.factory.createVariableStatement(
+            [],
+            ts.factory.createVariableDeclarationList(
+              [
+                ts.factory.createVariableDeclaration(
+                  "output",
+                  undefined,
+                  ts.factory.createTypeReferenceNode(
+                    SdkTypeDefiner.output(config)(importer)(route),
+                  ),
+                  ts.factory.createAwaitExpression(caller),
+                ),
+              ],
+              ts.NodeFlags.Const,
+            ),
+          ),
+          ts.factory.createExpressionStatement(assert),
+        ]),
+      );
     };
-
-  const parameter =
-    (config: INestiaConfig) =>
-    (importer: ImportDictionary) =>
-    (tab: number) =>
-    (param: IRoute.IParameter): string => {
-      const middle: string = `${SdkImportWizard.typia(importer)}.random<${wrap(
-        config,
-      )(importer)(
-        getTypeName(config)(importer)(param),
-        param.category === "body",
-      )}>()`;
-      return `${" ".repeat(4 * tab)}${middle},`;
-    };
-
-  const name = (route: IRoute): string =>
-    ["test", "api", ...route.accessors].join("_");
-
-  const accessor = (route: IRoute): string =>
-    ["api", "functional", ...route.accessors].join(".");
-
-  const wrap =
-    (config: INestiaConfig) =>
-    (importer: ImportDictionary) =>
-    (name: string, body: boolean): string =>
-      config.primitive === false
-        ? name
-        : `${(body ? SdkImportWizard.Primitive : SdkImportWizard.Resolved)(
-            importer,
-          )}<${name}>`;
 }
+
+const getFunctionName = (route: IRoute): string =>
+  ["test", "api", ...route.accessors].join("_");
+
 const getTypeName =
   (config: INestiaConfig) =>
   (importer: ImportDictionary) =>

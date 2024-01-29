@@ -8,8 +8,8 @@ import { Escaper } from "typia/lib/utils/Escaper";
 import { INestiaConfig } from "../../INestiaConfig";
 import { IController } from "../../structures/IController";
 import { IRoute } from "../../structures/IRoute";
+import { FormatUtil } from "../../utils/FormatUtil";
 import { ImportDictionary } from "../../utils/ImportDictionary";
-import { NodeUtil } from "../../utils/NodeUtil";
 import { SdkDtoGenerator } from "./SdkDtoGenerator";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkSimulationProgrammer } from "./SdkSimulationProgrammer";
@@ -33,9 +33,9 @@ export namespace SdkNamespaceProgrammer {
         ts.factory.createIdentifier(route.name),
         ts.factory.createModuleBlock([
           ...types,
-          ...(types.length ? [NodeUtil.enter()] : []),
+          ...(types.length ? [FormatUtil.enter()] : []),
           generate_metadata(importer)(route, props),
-          NodeUtil.enter(),
+          FormatUtil.enter(),
           generate_path(config)(importer)(route, props),
           ...(config.simulate
             ? [
@@ -462,7 +462,7 @@ const local = (name: string) => (type: string) => (expression: ts.Expression) =>
     ts.factory.createVariableDeclarationList(
       [
         ts.factory.createVariableDeclaration(
-          ts.factory.createIdentifier(name),
+          name,
           undefined,
           ts.factory.createTypeReferenceNode(type),
           expression,
@@ -477,7 +477,7 @@ const constant = (name: string) => (expression: ts.Expression) =>
     ts.factory.createVariableDeclarationList(
       [
         ts.factory.createVariableDeclaration(
-          ts.factory.createIdentifier(name),
+          name,
           undefined,
           undefined,
           expression,

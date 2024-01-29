@@ -17,6 +17,7 @@ import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
+import { FormatUtil } from "../../utils/FormatUtil";
 import { ImportDictionary } from "../../utils/ImportDictionary";
 import { MapUtil } from "../../utils/MapUtil";
 
@@ -101,7 +102,11 @@ export namespace SdkDtoGenerator {
         content.push(importer.toScript(`${config.output}/structures`), "");
       content.push(body);
 
-      await fs.promises.writeFile(importer.file, content.join("\n"), "utf8");
+      await fs.promises.writeFile(
+        importer.file,
+        await FormatUtil.beautify(content.join("\n")),
+        "utf8",
+      );
     };
 
   const writeModule =

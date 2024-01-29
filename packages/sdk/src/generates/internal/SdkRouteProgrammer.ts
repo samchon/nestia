@@ -3,8 +3,8 @@ import { IJsDocTagInfo } from "typia";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
+import { FormatUtil } from "../../utils/FormatUtil";
 import { ImportDictionary } from "../../utils/ImportDictionary";
-import { NodeUtil } from "../../utils/NodeUtil";
 import { SdkFunctionProgrammer } from "./SdkFunctionProgrammer";
 import { SdkNamespaceProgrammer } from "./SdkNamespaceProgrammer";
 
@@ -23,7 +23,7 @@ export namespace SdkRouteProgrammer {
         input: route.parameters.find((p) => p.category === "body"),
       };
       return [
-        NodeUtil.description(
+        FormatUtil.description(
           SdkFunctionProgrammer.generate(config)(importer)(route, props),
           describe(route),
         ),

@@ -14,5 +14,19 @@ import type { ITupleIIdentified } from "./ITupleIIdentified";
 import type { IUnknownIIdentified } from "./IUnknownIIdentified";
 
 export namespace IJsonComponents {
-    export type IAlias = IEnumerationbooleanIIdentified | IEnumerationnumberIIdentified | IEnumerationstringIIdentified | IBooleanIIdentified | IIntegerIIdentified | INumberIIdentified | IStringIIdentified | IArrayIIdentified | ITupleIIdentified | IObjectIIdentified | IReferenceIIdentified | INullOnlyIIdentified | IOneOfIIdentified | IUnknownIIdentified;
+  export type IAlias =
+    | IEnumerationbooleanIIdentified
+    | IEnumerationnumberIIdentified
+    | IEnumerationstringIIdentified
+    | IBooleanIIdentified
+    | IIntegerIIdentified
+    | INumberIIdentified
+    | IStringIIdentified
+    | IArrayIIdentified
+    | ITupleIIdentified
+    | IObjectIIdentified
+    | IReferenceIIdentified
+    | INullOnlyIIdentified
+    | IOneOfIIdentified
+    | IUnknownIIdentified;
 }

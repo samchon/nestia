@@ -1,12 +1,11 @@
 import fs from "fs";
-import { format } from "prettier";
 import ts from "typescript";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
+import { FormatUtil } from "../../utils/FormatUtil";
 import { ImportDictionary } from "../../utils/ImportDictionary";
 import { MapUtil } from "../../utils/MapUtil";
-import { NodeUtil } from "../../utils/NodeUtil";
 import { SdkRouteDirectory } from "./SdkRouteDirectory";
 import { SdkRouteProgrammer } from "./SdkRouteProgrammer";
 
@@ -68,7 +67,7 @@ export namespace SdkFileProgrammer {
         );
       }
       if (statements.length && directory.routes.length)
-        statements.push(NodeUtil.enter());
+        statements.push(FormatUtil.enter());
 
       // ITERATE ROUTES
       const importer: ImportDictionary = new ImportDictionary(
@@ -96,14 +95,16 @@ export namespace SdkFileProgrammer {
           ...SdkRouteProgrammer.generate(config)(importer)(route),
         );
         if (i !== directory.routes.length - 1)
-          statements.push(NodeUtil.enter());
+          statements.push(FormatUtil.enter());
       });
 
       // FINALIZE THE CONTENT
       if (directory.routes.length !== 0)
         statements.push(
           ...importer.toStatements(outDir),
-          ...(!importer.empty() && statements.length ? [NodeUtil.enter()] : []),
+          ...(!importer.empty() && statements.length
+            ? [FormatUtil.enter()]
+            : []),
           ...statements.splice(0, statements.length),
         );
 
@@ -123,13 +124,10 @@ export namespace SdkFileProgrammer {
               ts.NodeFlags.None,
             ),
           );
-      const beautify = async () => {
-        try {
-          return await format(script, { parser: "typescript" });
-        } catch {
-          return script;
-        }
-      };
-      await fs.promises.writeFile(importer.file, await beautify(), "utf8");
+      await fs.promises.writeFile(
+        importer.file,
+        await FormatUtil.beautify(script),
+        "utf8",
+      );
     };
 }

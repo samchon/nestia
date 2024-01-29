@@ -1,6 +1,7 @@
+import { format } from "prettier";
 import ts from "typescript";
 
-export namespace NodeUtil {
+export namespace FormatUtil {
   export const description = <Node extends ts.Node>(
     node: Node,
     comment: string,
@@ -16,4 +17,14 @@ export namespace NodeUtil {
 
   export const enter = () =>
     ts.factory.createExpressionStatement(ts.factory.createIdentifier("\n"));
+
+  export const beautify = async (script: string): Promise<string> => {
+    try {
+      return format(script, {
+        parser: "typescript",
+      });
+    } catch {
+      return script;
+    }
+  };
 }
