@@ -1,1 +1,1 @@
-export type TupleRest = [boolean,number,...string[]];
+export type TupleRest = [boolean, number, ...string[]];

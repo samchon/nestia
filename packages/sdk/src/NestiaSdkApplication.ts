@@ -51,7 +51,7 @@ export class NestiaSdkApplication {
       (config) => config,
       (checker) => (config) => async (routes) => {
         await SdkGenerator.generate(checker)(config)(routes);
-        await E2eGenerator.generate(config)(routes);
+        await E2eGenerator.generate(checker)(config)(routes);
       },
     );
   }

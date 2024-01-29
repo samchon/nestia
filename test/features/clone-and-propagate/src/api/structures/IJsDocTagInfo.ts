@@ -1,10 +1,10 @@
 export type IJsDocTagInfo = {
-    name: string;
-    text?: undefined | Array<IJsDocTagInfo.IText>;
-}
+  name: string;
+  text?: undefined | IJsDocTagInfo.IText[];
+};
 export namespace IJsDocTagInfo {
-    export type IText = {
-        text: string;
-        kind: string;
-    }
+  export type IText = {
+    text: string;
+    kind: string;
+  };
 }

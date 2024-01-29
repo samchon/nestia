@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { ConfigAnalyzer } from "../analyses/ConfigAnalyzer";
@@ -8,6 +9,7 @@ import { E2eFileProgrammer } from "./internal/E2eFileProgrammer";
 
 export namespace E2eGenerator {
   export const generate =
+    (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     async (routeList: IRoute[]): Promise<void> => {
       console.log("Generating E2E Test Functions");
@@ -24,7 +26,7 @@ export namespace E2eGenerator {
 
       // GENERATE EACH TEST FILES
       for (const route of routeList)
-        await E2eFileProgrammer.generate(config)({
+        await E2eFileProgrammer.generate(checker)(config)({
           api: path.resolve(config.output!),
           current: path.join(output, "features", "api", "automated"),
         })(route);
