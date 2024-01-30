@@ -3,18 +3,17 @@ import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
-import { FormatUtil } from "../utils/FormatUtil";
-import { ImportDictionary } from "../utils/ImportDictionary";
-import { SdkInterfaceProgrammer } from "./internal/SdkInterfaceProgrammer";
+import { FilePrinter } from "./internal/FilePrinter";
+import { ImportDictionary } from "./internal/ImportDictionary";
+import { SdkInterfaceProgrammer } from "./internal/SdkCloneProgrammer";
 
-export namespace CloneGenerator {
-  export const generate =
+export namespace SdkCloneProgrammer {
+  export const write =
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     async (routes: IRoute[]): Promise<void> => {
       const dict: Map<string, SdkInterfaceProgrammer.IModule> =
-        SdkInterfaceProgrammer.generate(checker)(config)(routes);
-
+        SdkInterfaceProgrammer.write(checker)(config)(routes);
       try {
         await fs.promises.mkdir(`${config.output}/structures`);
       } catch {}
@@ -32,24 +31,14 @@ export namespace CloneGenerator {
       const statements: ts.Statement[] = iterate(importer)(value);
       if (statements.length === 0) return;
 
-      const script: string = ts
-        .createPrinter()
-        .printFile(
-          ts.factory.createSourceFile(
-            [
-              ...importer.toStatements(`${config.output}/structures`),
-              ...(importer.empty() ? [] : [FormatUtil.enter()]),
-              ...statements,
-            ],
-            ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
-            ts.NodeFlags.None,
-          ),
-        );
-      await fs.promises.writeFile(
+      await FilePrinter.write({
         location,
-        await FormatUtil.beautify(script),
-        "utf8",
-      );
+        statements: [
+          ...importer.toStatements(`${config.output}/structures`),
+          ...(importer.empty() ? [] : [FilePrinter.enter()]),
+          ...statements,
+        ],
+      });
     };
 
   const iterate =

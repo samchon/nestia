@@ -1,4 +1,5 @@
 import ts from "typescript";
+import { IJsDocTagInfo } from "typia";
 import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { IMetadataTypeTag } from "typia/lib/schemas/metadata/IMetadataTypeTag";
@@ -8,13 +9,19 @@ import { MetadataArray } from "typia/lib/schemas/metadata/MetadataArray";
 import { MetadataAtomic } from "typia/lib/schemas/metadata/MetadataAtomic";
 import { MetadataEscaped } from "typia/lib/schemas/metadata/MetadataEscaped";
 import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
+import { MetadataProperty } from "typia/lib/schemas/metadata/MetadataProperty";
 import { MetadataTuple } from "typia/lib/schemas/metadata/MetadataTuple";
+import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaConfig } from "../../INestiaConfig";
-import { ImportDictionary } from "../../utils/ImportDictionary";
+import { FilePrinter } from "./FilePrinter";
+import { ImportDictionary } from "./ImportDictionary";
 
 export namespace SdkTypeProgrammer {
-  export const decode =
+  /* -----------------------------------------------------------
+    FACADE
+  ----------------------------------------------------------- */
+  export const write =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (meta: Metadata, parentEscaped: boolean = false): ts.TypeNode => {
@@ -22,35 +29,57 @@ export namespace SdkTypeProgrammer {
 
       // COALESCES
       if (meta.any) union.push(TypeFactory.keyword("any"));
-      if (meta.nullable) union.push(node("null"));
-      if (meta.isRequired() === false) union.push(node("undefined"));
+      if (meta.nullable) union.push(writeNode("null"));
+      if (meta.isRequired() === false) union.push(writeNode("undefined"));
       if (parentEscaped === false && meta.escaped)
-        union.push(decode_escaped(config)(importer)(meta.escaped));
+        union.push(write_escaped(config)(importer)(meta.escaped));
 
       // ATOMIC TYPES
       for (const c of meta.constants)
-        for (const value of c.values) union.push(decode_constant(value));
+        for (const value of c.values) union.push(write_constant(value));
       for (const tpl of meta.templates)
-        union.push(decode_template(config)(importer)(tpl));
-      for (const atom of meta.atomics)
-        union.push(decode_atomic(importer)(atom));
+        union.push(write_template(config)(importer)(tpl));
+      for (const atom of meta.atomics) union.push(write_atomic(importer)(atom));
 
       // OBJECT TYPES
       for (const tuple of meta.tuples)
-        union.push(decode_tuple(config)(importer)(tuple));
+        union.push(write_tuple(config)(importer)(tuple));
       for (const array of meta.arrays)
-        union.push(decode_array(config)(importer)(array));
+        union.push(write_array(config)(importer)(array));
       for (const object of meta.objects)
-        union.push(decode_alias(config)(importer)(object));
+        if (object.name === "__type" || object.name.startsWith("__type."))
+          union.push(write_object(config)(importer)(object));
+        else union.push(write_alias(config)(importer)(object));
       for (const alias of meta.aliases)
-        union.push(decode_alias(config)(importer)(alias));
+        union.push(write_alias(config)(importer)(alias));
 
       return union.length === 1
         ? union[0]
         : ts.factory.createUnionTypeNode(union);
     };
 
-  const decode_escaped =
+  export const write_object =
+    (config: INestiaConfig) =>
+    (importer: ImportDictionary) =>
+    (object: MetadataObject): ts.TypeNode => {
+      const regular = object.properties.filter((p) => p.key.isSoleLiteral());
+      const dynamic = object.properties.filter((p) => !p.key.isSoleLiteral());
+      return FilePrinter.description(
+        regular.length && dynamic.length
+          ? ts.factory.createIntersectionTypeNode([
+              write_regular_property(config)(importer)(regular),
+              ...dynamic.map(write_dynamic_property(config)(importer)),
+            ])
+          : dynamic.length
+            ? ts.factory.createIntersectionTypeNode(
+                dynamic.map(write_dynamic_property(config)(importer)),
+              )
+            : write_regular_property(config)(importer)(regular),
+        writeComment([])(object.description ?? null, object.jsDocTags),
+      );
+    };
+
+  const write_escaped =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (meta: MetadataEscaped): ts.TypeNode => {
@@ -61,15 +90,18 @@ export namespace SdkTypeProgrammer {
       )
         return ts.factory.createIntersectionTypeNode([
           TypeFactory.keyword("string"),
-          decodeTag(importer)({
+          writeTag(importer)({
             name: "Format",
             value: "date-time",
           } as IMetadataTypeTag),
         ]);
-      return decode(config)(importer)(meta.returns, true);
+      return write(config)(importer)(meta.returns, true);
     };
 
-  const decode_constant = (value: boolean | bigint | number | string) => {
+  /* -----------------------------------------------------------
+    ATOMICS
+  ----------------------------------------------------------- */
+  const write_constant = (value: boolean | bigint | number | string) => {
     if (typeof value === "boolean")
       return ts.factory.createLiteralTypeNode(
         value ? ts.factory.createTrue() : ts.factory.createFalse(),
@@ -90,7 +122,7 @@ export namespace SdkTypeProgrammer {
     );
   };
 
-  const decode_template =
+  const write_template =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (meta: Metadata[]): ts.TypeNode => {
@@ -115,8 +147,8 @@ export namespace SdkTypeProgrammer {
               ),
               null,
             ]);
-        else if (last[0] === null) last[0] = decode(config)(importer)(elem);
-        else spans.push([decode(config)(importer)(elem), null]);
+        else if (last[0] === null) last[0] = write(config)(importer)(elem);
+        else spans.push([write(config)(importer)(elem), null]);
       }
       return ts.factory.createTemplateLiteralType(
         ts.factory.createTemplateHead(
@@ -135,10 +167,10 @@ export namespace SdkTypeProgrammer {
       );
     };
 
-  const decode_atomic =
+  const write_atomic =
     (importer: ImportDictionary) =>
     (meta: MetadataAtomic): ts.TypeNode =>
-      decode_type_tag_matrix(importer)(
+      write_type_tag_matrix(importer)(
         ts.factory.createKeywordTypeNode(
           meta.type === "boolean"
             ? ts.SyntaxKind.BooleanKeyword
@@ -151,18 +183,21 @@ export namespace SdkTypeProgrammer {
         meta.tags,
       );
 
-  const decode_array =
+  /* -----------------------------------------------------------
+    INSTANCES
+  ----------------------------------------------------------- */
+  const write_array =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (meta: MetadataArray): ts.TypeNode =>
-      decode_type_tag_matrix(importer)(
+      write_type_tag_matrix(importer)(
         ts.factory.createArrayTypeNode(
-          decode(config)(importer)(meta.type.value),
+          write(config)(importer)(meta.type.value),
         ),
         meta.tags,
       );
 
-  const decode_tuple =
+  const write_tuple =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (meta: MetadataTuple): ts.TypeNode =>
@@ -171,18 +206,68 @@ export namespace SdkTypeProgrammer {
           elem.rest
             ? ts.factory.createRestTypeNode(
                 ts.factory.createArrayTypeNode(
-                  decode(config)(importer)(elem.rest),
+                  write(config)(importer)(elem.rest),
                 ),
               )
             : elem.optional
-              ? ts.factory.createOptionalTypeNode(
-                  decode(config)(importer)(elem),
-                )
-              : decode(config)(importer)(elem),
+              ? ts.factory.createOptionalTypeNode(write(config)(importer)(elem))
+              : write(config)(importer)(elem),
         ),
       );
 
-  const decode_alias =
+  const write_regular_property =
+    (config: INestiaConfig) =>
+    (importer: ImportDictionary) =>
+    (properties: MetadataProperty[]): ts.TypeLiteralNode =>
+      ts.factory.createTypeLiteralNode(
+        properties.map((p) =>
+          FilePrinter.description(
+            ts.factory.createPropertySignature(
+              undefined,
+              Escaper.variable(String(p.key.constants[0].values[0]))
+                ? ts.factory.createIdentifier(
+                    String(p.key.constants[0].values[0]),
+                  )
+                : ts.factory.createStringLiteral(
+                    String(p.key.constants[0].values[0]),
+                  ),
+              p.value.isRequired() === false
+                ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
+                : undefined,
+              SdkTypeProgrammer.write(config)(importer)(p.value),
+            ),
+            writeComment(p.value.atomics)(p.description, p.jsDocTags),
+          ),
+        ),
+      );
+
+  const write_dynamic_property =
+    (config: INestiaConfig) =>
+    (importer: ImportDictionary) =>
+    (property: MetadataProperty): ts.TypeLiteralNode =>
+      ts.factory.createTypeLiteralNode([
+        FilePrinter.description(
+          ts.factory.createIndexSignature(
+            undefined,
+            [
+              ts.factory.createParameterDeclaration(
+                undefined,
+                undefined,
+                ts.factory.createIdentifier("key"),
+                undefined,
+                SdkTypeProgrammer.write(config)(importer)(property.key),
+              ),
+            ],
+            SdkTypeProgrammer.write(config)(importer)(property.value),
+          ),
+          writeComment(property.value.atomics)(
+            property.description,
+            property.jsDocTags,
+          ),
+        ),
+      ]);
+
+  const write_alias =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (meta: MetadataAlias | MetadataObject): ts.TypeNode => {
@@ -190,7 +275,10 @@ export namespace SdkTypeProgrammer {
       return ts.factory.createTypeReferenceNode(meta.name);
     };
 
-  const decode_type_tag_matrix =
+  /* -----------------------------------------------------------
+    MISCELLANEOUS
+  ----------------------------------------------------------- */
+  const write_type_tag_matrix =
     (importer: ImportDictionary) =>
     (base: ts.TypeNode, matrix: IMetadataTypeTag[][]): ts.TypeNode => {
       matrix = matrix.filter((row) => row.length !== 0);
@@ -198,16 +286,16 @@ export namespace SdkTypeProgrammer {
       else if (matrix.length === 1)
         return ts.factory.createIntersectionTypeNode([
           base,
-          ...matrix[0].map((tag) => decodeTag(importer)(tag)),
+          ...matrix[0].map((tag) => writeTag(importer)(tag)),
         ]);
       return ts.factory.createIntersectionTypeNode([
         base,
         ts.factory.createUnionTypeNode(
           matrix.map((row) =>
             row.length === 1
-              ? decodeTag(importer)(row[0])
+              ? writeTag(importer)(row[0])
               : ts.factory.createIntersectionTypeNode(
-                  row.map((tag) => decodeTag(importer)(tag)),
+                  row.map((tag) => writeTag(importer)(tag)),
                 ),
           ),
         ),
@@ -215,8 +303,8 @@ export namespace SdkTypeProgrammer {
     };
 }
 
-const node = (text: string) => ts.factory.createTypeReferenceNode(text);
-const decodeTag = (importer: ImportDictionary) => (tag: IMetadataTypeTag) => {
+const writeNode = (text: string) => ts.factory.createTypeReferenceNode(text);
+const writeTag = (importer: ImportDictionary) => (tag: IMetadataTypeTag) => {
   const instance: string = tag.name.split("<")[0];
   return ts.factory.createTypeReferenceNode(
     importer.external({
@@ -244,6 +332,35 @@ const decodeTag = (importer: ImportDictionary) => (tag: IMetadataTypeTag) => {
     ],
   );
 };
+const writeComment =
+  (atomics: MetadataAtomic[]) =>
+  (description: string | null, jsDocTags: IJsDocTagInfo[]): string => {
+    const lines: string[] = [];
+    if (description?.length)
+      lines.push(...description.split("\n").map((s) => `${s}`));
+
+    const filtered: IJsDocTagInfo[] =
+      !!atomics.length && !!jsDocTags?.length
+        ? jsDocTags.filter(
+            (tag) =>
+              !atomics.some((a) =>
+                a.tags.some((r) => r.some((t) => t.kind === tag.name)),
+              ),
+          )
+        : jsDocTags ?? [];
+
+    if (description?.length && filtered.length) lines.push("");
+    if (filtered.length)
+      lines.push(
+        ...filtered.map((t) =>
+          t.text?.length
+            ? `@${t.name} ${t.text.map((e) => e.text).join("")}`
+            : `@${t.name}`,
+        ),
+      );
+    return lines.join("\n");
+  };
+
 const importInternalFile =
   (config: INestiaConfig) => (importer: ImportDictionary) => (name: string) => {
     const top = name.split(".")[0];

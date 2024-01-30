@@ -4,7 +4,7 @@ import { HashSet } from "tstl/container/HashSet";
 import { Pair } from "tstl/utility/Pair";
 import ts from "typescript";
 
-import { FormatUtil } from "./FormatUtil";
+import { FilePrinter } from "./FilePrinter";
 
 export class ImportDictionary {
   private readonly components_: HashMap<Pair<string, boolean>, IComposition> =
@@ -119,57 +119,9 @@ export class ImportDictionary {
     enroll((str) => str.indexOf(NODE_MODULES) === -1)(internal);
     return [
       ...external,
-      ...(external.length && internal.length ? [FormatUtil.enter()] : []),
+      ...(external.length && internal.length ? [FilePrinter.enter()] : []),
       ...internal,
     ];
-  }
-
-  public toScript(outDir: string): string {
-    const external: string[] = [];
-    const internal: string[] = [];
-
-    const locator = (str: string) => {
-      const location: string = path.relative(outDir, str).split("\\").join("/");
-      const index: number = location.lastIndexOf(NODE_MODULES);
-      return index === -1
-        ? location.startsWith("..")
-          ? location
-          : `./${location}`
-        : location.substring(index + NODE_MODULES.length);
-    };
-    const enroll =
-      (filter: (str: string) => boolean) => (container: string[]) => {
-        const compositions: IComposition[] = this.components_
-          .toJSON()
-          .filter((c) => filter(c.second.location))
-          .map((e) => ({
-            ...e.second,
-            location: locator(e.second.location),
-          }))
-          .sort((a, b) => a.location.localeCompare(b.location));
-        for (const c of compositions) {
-          const brackets: string[] = [];
-          if (c.default) brackets.push(c.name ?? c.location);
-          if (c.elements.empty() === false)
-            brackets.push(
-              `{ ${c.elements
-                .toJSON()
-                .sort((a, b) => a.localeCompare(b))
-                .join(", ")} }`,
-            );
-          container.push(
-            `import ${c.type ? "type " : ""}${brackets.join(", ")} from "${
-              c.location
-            }";`,
-          );
-        }
-      };
-
-    enroll((str) => str.indexOf(NODE_MODULES) !== -1)(external);
-    enroll((str) => str.indexOf(NODE_MODULES) === -1)(internal);
-
-    if (external.length && internal.length) external.push("");
-    return [...external, ...internal].join("\n");
   }
 }
 export namespace ImportDictionary {

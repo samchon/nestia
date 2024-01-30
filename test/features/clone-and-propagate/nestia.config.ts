@@ -14,6 +14,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
         type: "apiKey",
       },
     },
+    beautify: true,
   },
 };
 export default NESTIA_CONFIG;

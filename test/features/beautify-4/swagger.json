@@ -7,7 +7,7 @@
         }
     ],
     "info": {
-        "version": "2.5.0-dev.20240129-2",
+        "version": "2.5.0-dev.20240130-5",
         "title": "@nestia/test",
         "description": "Test program of Nestia",
         "license": {

@@ -1,4 +1,4 @@
-import { ImportDictionary } from "../../utils/ImportDictionary";
+import { ImportDictionary } from "./ImportDictionary";
 
 export namespace SdkImportWizard {
   export const Fetcher = (encrypted: boolean) =>

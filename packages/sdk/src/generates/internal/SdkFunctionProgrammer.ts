@@ -5,7 +5,7 @@ import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { INestiaConfig } from "../../INestiaConfig";
 import { IController } from "../../structures/IController";
 import { IRoute } from "../../structures/IRoute";
-import { ImportDictionary } from "../../utils/ImportDictionary";
+import { ImportDictionary } from "./ImportDictionary";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
@@ -215,5 +215,5 @@ const getTypeName =
   (importer: ImportDictionary) =>
   (p: IRoute.IParameter | IRoute.IOutput) =>
     p.metadata
-      ? SdkTypeProgrammer.decode(config)(importer)(p.metadata)
+      ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
       : ts.factory.createTypeReferenceNode(p.typeName);

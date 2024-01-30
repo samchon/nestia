@@ -1,11 +1,10 @@
-import fs from "fs";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
-import { FormatUtil } from "../../utils/FormatUtil";
-import { ImportDictionary } from "../../utils/ImportDictionary";
+import { FilePrinter } from "./FilePrinter";
+import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
@@ -35,26 +34,14 @@ export namespace E2eFileProgrammer {
       });
 
       const functor = generate_function(checker)(config)(importer)(route);
-
-      await fs.promises.writeFile(
-        importer.file,
-        await FormatUtil.beautify(
-          ts
-            .createPrinter()
-            .printFile(
-              ts.factory.createSourceFile(
-                [
-                  ...importer.toStatements(props.current),
-                  FormatUtil.enter(),
-                  functor,
-                ],
-                ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
-                ts.NodeFlags.None,
-              ),
-            ),
-        ),
-        "utf8",
-      );
+      await FilePrinter.write({
+        location: importer.file,
+        statements: [
+          ...importer.toStatements(props.current),
+          FilePrinter.enter(),
+          functor,
+        ],
+      });
     };
 
   const generate_function =
@@ -187,5 +174,5 @@ const getTypeName =
   (importer: ImportDictionary) =>
   (p: IRoute.IParameter | IRoute.IOutput) =>
     p.metadata
-      ? SdkTypeProgrammer.decode(config)(importer)(p.metadata)
+      ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
       : ts.factory.createTypeReferenceNode(p.typeName);

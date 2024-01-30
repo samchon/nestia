@@ -1,8 +1,6 @@
 import type { Format } from "typia/lib/tags/Format";
 import type { Type } from "typia/lib/tags/Type";
 
-import type { __type } from "./__type";
-
 export namespace ISeller {
   export type IJoin = {
     email: string & Format<"email">;
@@ -12,7 +10,10 @@ export namespace ISeller {
     company: string;
   };
   export type IAuthorized = {
-    authorization: __type;
+    authorization: {
+      token: string;
+      expires_at: string & Format<"date-time">;
+    };
     /**
      * Primary key.
      */

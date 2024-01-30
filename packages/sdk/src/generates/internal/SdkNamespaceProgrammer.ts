@@ -9,15 +9,15 @@ import { Escaper } from "typia/lib/utils/Escaper";
 import { INestiaConfig } from "../../INestiaConfig";
 import { IController } from "../../structures/IController";
 import { IRoute } from "../../structures/IRoute";
-import { FormatUtil } from "../../utils/FormatUtil";
-import { ImportDictionary } from "../../utils/ImportDictionary";
+import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkSimulationProgrammer } from "./SdkSimulationProgrammer";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
+import { FilePrinter } from "./FilePrinter";
 
 export namespace SdkNamespaceProgrammer {
-  export const generate =
+  export const write =
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
@@ -29,16 +29,16 @@ export namespace SdkNamespaceProgrammer {
         input: IRoute.IParameter | undefined;
       },
     ): ts.ModuleDeclaration => {
-      const types = generate_types(checker)(config)(importer)(route, props);
+      const types = write_types(checker)(config)(importer)(route, props);
       return ts.factory.createModuleDeclaration(
         [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
         ts.factory.createIdentifier(route.name),
         ts.factory.createModuleBlock([
           ...types,
-          ...(types.length ? [FormatUtil.enter()] : []),
-          generate_metadata(importer)(route, props),
-          FormatUtil.enter(),
-          generate_path(config)(importer)(route, props),
+          ...(types.length ? [FilePrinter.enter()] : []),
+          write_metadata(importer)(route, props),
+          FilePrinter.enter(),
+          write_path(config)(importer)(route, props),
           ...(config.simulate
             ? [
                 SdkSimulationProgrammer.random(checker)(config)(importer)(
@@ -51,14 +51,14 @@ export namespace SdkNamespaceProgrammer {
               ]
             : []),
           ...(config.json && props.input?.category === "body"
-            ? [generate_stringify(config)(importer)]
+            ? [write_stringify(config)(importer)]
             : []),
         ]),
         ts.NodeFlags.Namespace,
       );
     };
 
-  const generate_types =
+  const write_types =
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
@@ -103,7 +103,7 @@ export namespace SdkNamespaceProgrammer {
       return array;
     };
 
-  const generate_metadata =
+  const write_metadata =
     (importer: ImportDictionary) =>
     (
       route: IRoute,
@@ -184,7 +184,7 @@ export namespace SdkNamespaceProgrammer {
         ),
       );
 
-  const generate_path =
+  const write_path =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (
@@ -440,7 +440,7 @@ export namespace SdkNamespaceProgrammer {
       );
     };
 
-  const generate_stringify =
+  const write_stringify =
     (config: INestiaConfig) =>
     (importer: ImportDictionary): ts.VariableStatement =>
       constant("stringify")(
@@ -503,5 +503,5 @@ const getType =
   (importer: ImportDictionary) =>
   (p: IRoute.IParameter | IRoute.IOutput) =>
     p.metadata
-      ? SdkTypeProgrammer.decode(config)(importer)(p.metadata)
+      ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
       : ts.factory.createTypeReferenceNode(p.typeName);

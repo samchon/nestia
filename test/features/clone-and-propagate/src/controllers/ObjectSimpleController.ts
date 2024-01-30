@@ -21,8 +21,8 @@ export class ObjectSimpleController {
   }
 }
 
-export type ObjectSimple = ObjectSimple.IBox3D;
-export namespace ObjectSimple {
+type ObjectSimple = ObjectSimple.IBox3D;
+namespace ObjectSimple {
   export interface IBox3D {
     scale: IPoint3D;
     position: IPoint3D;
