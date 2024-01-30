@@ -186,7 +186,7 @@ export namespace update {
   export const path = (section: string, id: string & Format<"uuid">) =>
     `/headers/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<void>(g);
+    typia.random<Primitive<void>>(g);
   export const simulate = (
     connection: IConnection,
     section: string,

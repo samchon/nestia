@@ -187,7 +187,7 @@ export namespace exit {
 
   export const path = () => "/sellers/authenticate/exit";
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<void>(g);
+    typia.random<Primitive<void>>(g);
   export const simulate = (connection: IConnection): void => {
     return random(
       "object" === typeof connection.simulate && null !== connection.simulate

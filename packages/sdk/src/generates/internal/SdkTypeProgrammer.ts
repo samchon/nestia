@@ -174,7 +174,11 @@ export namespace SdkTypeProgrammer {
                   decode(config)(importer)(elem.rest),
                 ),
               )
-            : decode(config)(importer)(elem),
+            : elem.optional
+              ? ts.factory.createOptionalTypeNode(
+                  decode(config)(importer)(elem),
+                )
+              : decode(config)(importer)(elem),
         ),
       );
 
