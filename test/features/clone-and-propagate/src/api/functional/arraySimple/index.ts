@@ -15,6 +15,7 @@ import typia from "typia";
 import type { Format } from "typia/lib/tags/Format";
 
 import type { ArraySimple } from "../../structures/ArraySimple";
+import type { IPerson } from "../../structures/IPerson";
 import { NestiaSimulator } from "../../utils/NestiaSimulator";
 
 /**
@@ -83,7 +84,7 @@ export async function at(
 }
 export namespace at {
   export type Output = IPropagation<{
-    200: ArraySimple.IPerson;
+    200: IPerson;
   }>;
 
   export const METADATA = {
@@ -100,7 +101,7 @@ export namespace at {
   export const path = (id: string & Format<"uuid">) =>
     `/arraySimple/${encodeURIComponent(id ?? "null")}`;
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<ArraySimple.IPerson>>(g);
+    typia.random<Primitive<IPerson>>(g);
   export const simulate = (
     connection: IConnection,
     id: string & Format<"uuid">,
@@ -164,9 +165,9 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input = Primitive<ArraySimple.IPerson>;
+  export type Input = Primitive<IPerson>;
   export type Output = IPropagation<{
-    201: ArraySimple.IPerson;
+    201: IPerson;
   }>;
 
   export const METADATA = {
@@ -185,7 +186,7 @@ export namespace store {
 
   export const path = () => "/arraySimple";
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<ArraySimple.IPerson>>(g);
+    typia.random<Primitive<IPerson>>(g);
   export const simulate = (
     connection: IConnection,
     body: store.Input,

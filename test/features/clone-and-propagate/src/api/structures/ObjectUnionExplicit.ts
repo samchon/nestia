@@ -1,69 +1,17 @@
+import type { DiscriminatorcircleICircle } from "./DiscriminatorcircleICircle";
+import type { DiscriminatorlineILine } from "./DiscriminatorlineILine";
+import type { DiscriminatorpointIPoint } from "./DiscriminatorpointIPoint";
+import type { DiscriminatorpolygonIPolygon } from "./DiscriminatorpolygonIPolygon";
+import type { DiscriminatorpolylineIPolyline } from "./DiscriminatorpolylineIPolyline";
+import type { DiscriminatorrectangleIRectangle } from "./DiscriminatorrectangleIRectangle";
+import type { DiscriminatortriangleITriangle } from "./DiscriminatortriangleITriangle";
+
 export type ObjectUnionExplicit = (
-  | ObjectUnionExplicit.DiscriminatorpointObjectUnionExplicit.IPoint
-  | ObjectUnionExplicit.DiscriminatorlineObjectUnionExplicit.ILine
-  | ObjectUnionExplicit.DiscriminatortriangleObjectUnionExplicit.ITriangle
-  | ObjectUnionExplicit.DiscriminatorrectangleObjectUnionExplicit.IRectangle
-  | ObjectUnionExplicit.DiscriminatorpolylineObjectUnionExplicit.IPolyline
-  | ObjectUnionExplicit.DiscriminatorpolygonObjectUnionExplicit.IPolygon
-  | ObjectUnionExplicit.DiscriminatorcircleObjectUnionExplicit.ICircle
+  | DiscriminatorpointIPoint
+  | DiscriminatorlineILine
+  | DiscriminatortriangleITriangle
+  | DiscriminatorrectangleIRectangle
+  | DiscriminatorpolylineIPolyline
+  | DiscriminatorpolygonIPolygon
+  | DiscriminatorcircleICircle
 )[];
-export namespace ObjectUnionExplicit {
-  export namespace DiscriminatorpointObjectUnionExplicit {
-    export type IPoint = {
-      x: number;
-      y: number;
-      type: "point";
-    };
-  }
-  export namespace DiscriminatorlineObjectUnionExplicit {
-    export type ILine = {
-      p1: ObjectUnionExplicit.IPoint;
-      p2: ObjectUnionExplicit.IPoint;
-      type: "line";
-    };
-  }
-  export namespace DiscriminatortriangleObjectUnionExplicit {
-    export type ITriangle = {
-      p1: ObjectUnionExplicit.IPoint;
-      p2: ObjectUnionExplicit.IPoint;
-      p3: ObjectUnionExplicit.IPoint;
-      type: "triangle";
-    };
-  }
-  export namespace DiscriminatorrectangleObjectUnionExplicit {
-    export type IRectangle = {
-      p1: ObjectUnionExplicit.IPoint;
-      p2: ObjectUnionExplicit.IPoint;
-      p3: ObjectUnionExplicit.IPoint;
-      p4: ObjectUnionExplicit.IPoint;
-      type: "rectangle";
-    };
-  }
-  export namespace DiscriminatorpolylineObjectUnionExplicit {
-    export type IPolyline = {
-      points: ObjectUnionExplicit.IPoint[];
-      type: "polyline";
-    };
-  }
-  export namespace DiscriminatorpolygonObjectUnionExplicit {
-    export type IPolygon = {
-      outer: ObjectUnionExplicit.IPolyline;
-      inner: ObjectUnionExplicit.IPolyline[];
-      type: "polygon";
-    };
-  }
-  export namespace DiscriminatorcircleObjectUnionExplicit {
-    export type ICircle = {
-      centroid: ObjectUnionExplicit.IPoint;
-      radius: number;
-      type: "circle";
-    };
-  }
-  export type IPoint = {
-    x: number;
-    y: number;
-  };
-  export type IPolyline = {
-    points: ObjectUnionExplicit.IPoint[];
-  };
-}

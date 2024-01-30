@@ -1,7 +1,7 @@
 import { IMigrateController } from "./IMigrateController";
-import { IMigrateDto } from "./IMigrateDto";
+import { ISwagger } from "./ISwagger";
 
 export interface IMigrateProgram {
   controllers: IMigrateController[];
-  structures: IMigrateDto[];
+  swagger: ISwagger;
 }

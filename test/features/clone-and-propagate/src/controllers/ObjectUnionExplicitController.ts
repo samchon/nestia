@@ -10,50 +10,45 @@ export class ObjectUnionExplicitController {
   }
 }
 
-export type ObjectUnionExplicit = Array<
-  | ObjectUnionExplicit.Discriminator<"point", ObjectUnionExplicit.IPoint>
-  | ObjectUnionExplicit.Discriminator<"line", ObjectUnionExplicit.ILine>
-  | ObjectUnionExplicit.Discriminator<"triangle", ObjectUnionExplicit.ITriangle>
-  | ObjectUnionExplicit.Discriminator<
-      "rectangle",
-      ObjectUnionExplicit.IRectangle
-    >
-  | ObjectUnionExplicit.Discriminator<"polyline", ObjectUnionExplicit.IPolyline>
-  | ObjectUnionExplicit.Discriminator<"polygon", ObjectUnionExplicit.IPolygon>
-  | ObjectUnionExplicit.Discriminator<"circle", ObjectUnionExplicit.ICircle>
+type ObjectUnionExplicit = Array<
+  | Discriminator<"point", IPoint>
+  | Discriminator<"line", ILine>
+  | Discriminator<"triangle", ITriangle>
+  | Discriminator<"rectangle", IRectangle>
+  | Discriminator<"polyline", IPolyline>
+  | Discriminator<"polygon", IPolygon>
+  | Discriminator<"circle", ICircle>
 >;
-export namespace ObjectUnionExplicit {
-  export type Discriminator<Type extends string, T extends object> = T & {
-    type: Type;
-  };
-  export interface IPoint {
-    x: number;
-    y: number;
-  }
-  export interface ILine {
-    p1: IPoint;
-    p2: IPoint;
-  }
-  export interface ITriangle {
-    p1: IPoint;
-    p2: IPoint;
-    p3: IPoint;
-  }
-  export interface IRectangle {
-    p1: IPoint;
-    p2: IPoint;
-    p3: IPoint;
-    p4: IPoint;
-  }
-  export interface IPolyline {
-    points: IPoint[];
-  }
-  export interface IPolygon {
-    outer: IPolyline;
-    inner: IPolyline[];
-  }
-  export interface ICircle {
-    centroid: IPoint;
-    radius: number;
-  }
+type Discriminator<Type extends string, T extends object> = T & {
+  type: Type;
+};
+interface IPoint {
+  x: number;
+  y: number;
+}
+interface ILine {
+  p1: IPoint;
+  p2: IPoint;
+}
+interface ITriangle {
+  p1: IPoint;
+  p2: IPoint;
+  p3: IPoint;
+}
+interface IRectangle {
+  p1: IPoint;
+  p2: IPoint;
+  p3: IPoint;
+  p4: IPoint;
+}
+interface IPolyline {
+  points: IPoint[];
+}
+interface IPolygon {
+  outer: IPolyline;
+  inner: IPolyline[];
+}
+interface ICircle {
+  centroid: IPoint;
+  radius: number;
 }

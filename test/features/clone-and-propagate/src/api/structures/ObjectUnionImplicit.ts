@@ -1,53 +1,17 @@
+import type { ICircle } from "./ICircle";
+import type { ILine } from "./ILine";
+import type { IPoint } from "./IPoint";
+import type { IPolygon } from "./IPolygon";
+import type { IPolyline } from "./IPolyline";
+import type { IRectangle } from "./IRectangle";
+import type { ITriangle } from "./ITriangle";
+
 export type ObjectUnionImplicit = (
-  | ObjectUnionImplicit.IPoint
-  | ObjectUnionImplicit.ILine
-  | ObjectUnionImplicit.ITriangle
-  | ObjectUnionImplicit.IRectangle
-  | ObjectUnionImplicit.IPolyline
-  | ObjectUnionImplicit.IPolygon
-  | ObjectUnionImplicit.ICircle
+  | IPoint.o1
+  | ILine
+  | ITriangle
+  | IRectangle
+  | IPolyline.o1
+  | IPolygon
+  | ICircle
 )[];
-export namespace ObjectUnionImplicit {
-  export type IPoint = {
-    x: number;
-    y: number;
-    slope?: null | undefined | number;
-  };
-  export type ILine = {
-    p1: ObjectUnionImplicit.IPoint;
-    p2: ObjectUnionImplicit.IPoint;
-    width?: null | undefined | number;
-    distance?: null | undefined | number;
-  };
-  export type ITriangle = {
-    p1: ObjectUnionImplicit.IPoint;
-    p2: ObjectUnionImplicit.IPoint;
-    p3: ObjectUnionImplicit.IPoint;
-    width?: null | undefined | number;
-    height?: null | undefined | number;
-    area?: null | undefined | number;
-  };
-  export type IRectangle = {
-    p1: ObjectUnionImplicit.IPoint;
-    p2: ObjectUnionImplicit.IPoint;
-    p3: ObjectUnionImplicit.IPoint;
-    p4: ObjectUnionImplicit.IPoint;
-    width?: null | undefined | number;
-    height?: null | undefined | number;
-    area?: null | undefined | number;
-  };
-  export type IPolyline = {
-    points: ObjectUnionImplicit.IPoint[];
-    length?: null | undefined | number;
-  };
-  export type IPolygon = {
-    outer: ObjectUnionImplicit.IPolyline;
-    inner?: undefined | ObjectUnionImplicit.IPolyline[];
-    area?: null | undefined | number;
-  };
-  export type ICircle = {
-    centroid?: undefined | ObjectUnionImplicit.IPoint;
-    radius: number;
-    area?: null | undefined | number;
-  };
-}

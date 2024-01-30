@@ -10,75 +10,61 @@ export class ArrayRecursiveUnionExplicitController {
   }
 
   @core.TypedRoute.Get(":id")
-  public at(
-    @core.TypedParam("id") id: number,
-  ): ArrayRecursiveUnionExplicit.IBucket {
+  public at(@core.TypedParam("id") id: number): IBucket {
     id;
-    return typia.random<ArrayRecursiveUnionExplicit.IBucket>();
+    return typia.random<IBucket>();
   }
 
   @core.TypedRoute.Post()
-  public store(
-    @core.TypedBody() body: ArrayRecursiveUnionExplicit.IBucket,
-  ): ArrayRecursiveUnionExplicit.IBucket {
+  public store(@core.TypedBody() body: IBucket): IBucket {
     return body;
   }
 }
 
-export type ArrayRecursiveUnionExplicit = ArrayRecursiveUnionExplicit.IBucket[];
-export namespace ArrayRecursiveUnionExplicit {
-  export type IBucket =
-    | IDirectory
-    | IImageFile
-    | ITextFile
-    | IZipFile
-    | IShortcut;
-  export type IFile = IImageFile | ITextFile | IZipFile;
+type ArrayRecursiveUnionExplicit = IBucket[];
+type IBucket = IDirectory | IImageFile | ITextFile | IZipFile | IShortcut;
+interface IDirectory {
+  id: number;
+  name: string;
+  path: string;
+  children: IBucket[];
+  type: "directory";
+}
 
-  export interface IDirectory {
-    id: number;
-    name: string;
-    path: string;
-    children: IBucket[];
-    type: "directory";
-  }
-
-  export interface IImageFile {
-    id: number;
-    name: string;
-    path: string;
-    width: number;
-    height: number;
-    url: string;
-    size: number;
-    type: "file";
-    extension: "jpg";
-  }
-  export interface ITextFile {
-    id: number;
-    name: string;
-    path: string;
-    size: number;
-    content: string;
-    type: "file";
-    extension: "txt";
-  }
-  export interface IZipFile {
-    id: number;
-    name: string;
-    path: string;
-    size: number;
-    count: number;
-    type: "file";
-    extension: "zip";
-  }
-
-  export interface IShortcut {
-    id: number;
-    name: string;
-    path: string;
-    target: IBucket;
-    type: "file";
-    extension: "lnk";
-  }
+interface IImageFile {
+  id: number;
+  name: string;
+  path: string;
+  width: number;
+  height: number;
+  url: string;
+  size: number;
+  type: "file";
+  extension: "jpg";
+}
+interface ITextFile {
+  id: number;
+  name: string;
+  path: string;
+  size: number;
+  content: string;
+  type: "file";
+  extension: "txt";
+}
+interface IZipFile {
+  id: number;
+  name: string;
+  path: string;
+  size: number;
+  count: number;
+  type: "file";
+  extension: "zip";
+}
+interface IShortcut {
+  id: number;
+  name: string;
+  path: string;
+  target: IBucket;
+  type: "file";
+  extension: "lnk";
 }

@@ -14,6 +14,7 @@ import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
 import type { ArrayRecursiveUnionExplicit } from "../../structures/ArrayRecursiveUnionExplicit";
+import type { IBucket } from "../../structures/IBucket";
 import { NestiaSimulator } from "../../utils/NestiaSimulator";
 
 /**
@@ -82,7 +83,7 @@ export async function at(
 }
 export namespace at {
   export type Output = IPropagation<{
-    200: ArrayRecursiveUnionExplicit.IBucket;
+    200: IBucket;
   }>;
 
   export const METADATA = {
@@ -99,7 +100,7 @@ export namespace at {
   export const path = (id: number) =>
     `/arrayRecursiveUnionExplicit/${encodeURIComponent(id ?? "null")}`;
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<ArrayRecursiveUnionExplicit.IBucket>>(g);
+    typia.random<Primitive<IBucket>>(g);
   export const simulate = (connection: IConnection, id: number): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -160,9 +161,9 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input = Primitive<ArrayRecursiveUnionExplicit.IBucket>;
+  export type Input = Primitive<IBucket>;
   export type Output = IPropagation<{
-    201: ArrayRecursiveUnionExplicit.IBucket;
+    201: IBucket;
   }>;
 
   export const METADATA = {
@@ -181,7 +182,7 @@ export namespace store {
 
   export const path = () => "/arrayRecursiveUnionExplicit";
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<ArrayRecursiveUnionExplicit.IBucket>>(g);
+    typia.random<Primitive<IBucket>>(g);
   export const simulate = (
     connection: IConnection,
     body: store.Input,

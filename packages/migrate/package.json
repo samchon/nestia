@@ -1,6 +1,6 @@
 {
   "name": "@nestia/migrate",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Migration program from swagger to NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -46,11 +46,11 @@
     "ts-node": "^10.9.1",
     "ts-patch": "^3.1.0",
     "tstl": "^2.5.13",
-    "typescript": "^5.3.2",
     "typescript-transform-paths": "^3.4.6"
   },
   "dependencies": {
-    "typia": "^5.4.1"
+    "typia": "^5.4.1",
+    "typescript": "^5.3.3"
   },
   "files": [
     "lib",

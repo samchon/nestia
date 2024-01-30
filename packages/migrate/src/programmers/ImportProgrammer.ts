@@ -1,10 +1,14 @@
+import ts from "typescript";
+import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
+
+import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 
 export class ImportProgrammer {
   private external_: Map<string, Set<string>> = new Map();
   private dtos_: Set<string> = new Set();
 
-  public constructor(public readonly name: string | null) {}
+  public constructor() {}
 
   public empty(): boolean {
     return this.external_.size === 0 && this.dtos_.size === 0;
@@ -17,37 +21,73 @@ export class ImportProgrammer {
     return props.instance;
   }
 
-  public tag(type: string, arg: number | string): string {
+  public dto(name: string): ts.TypeReferenceNode {
+    const file: string = name.split(".")[0];
+    this.dtos_.add(file);
+    return ts.factory.createTypeReferenceNode(name);
+  }
+
+  public tag(type: string, arg: number | string): ts.TypeReferenceNode {
     this.external({
       library: "typia",
       instance: "tags",
     });
-    return `tags.${type}<${JSON.stringify(arg)}>`;
+    return ts.factory.createTypeReferenceNode(`tags.${type}`, [
+      ts.factory.createLiteralTypeNode(
+        typeof arg === "string"
+          ? ts.factory.createStringLiteral(arg)
+          : ExpressionFactory.number(arg),
+      ),
+    ]);
   }
 
-  public dto(name: string): string {
-    const file: string = name.split(".")[0];
-    if (this.name !== file) this.dtos_.add(file);
-    return name;
-  }
-
-  public toScript(
+  public toStatements(
     dtoPath: (name: string) => string,
     current?: string,
-  ): string[] {
-    const content: string[] = [...this.external_.entries()].map(
-      ([library, properties]) =>
-        `import { ${[...properties].join(", ")} } from "${library}";`,
-    );
-    if (this.external_.size && this.dtos_.size) content.push("");
-    content.push(
+  ): ts.Statement[] {
+    return [
+      ...[...this.external_.entries()].map(([library, properties]) =>
+        ts.factory.createImportDeclaration(
+          undefined,
+          ts.factory.createImportClause(
+            false,
+            undefined,
+            ts.factory.createNamedImports(
+              [...properties].map((i) =>
+                ts.factory.createImportSpecifier(
+                  false,
+                  undefined,
+                  ts.factory.createIdentifier(i),
+                ),
+              ),
+            ),
+          ),
+          ts.factory.createStringLiteral(library),
+        ),
+      ),
+      ...(this.external_.size && this.dtos_.size ? [FilePrinter.enter()] : []),
       ...[...this.dtos_]
         .filter(
           current ? (name) => name !== current!.split(".")[0] : () => true,
         )
-        .map((i) => `import { ${i} } from "${dtoPath(i)}";`),
-    );
-    return content;
+        .map((i) =>
+          ts.factory.createImportDeclaration(
+            undefined,
+            ts.factory.createImportClause(
+              false,
+              undefined,
+              ts.factory.createNamedImports([
+                ts.factory.createImportSpecifier(
+                  false,
+                  undefined,
+                  ts.factory.createIdentifier(i),
+                ),
+              ]),
+            ),
+            ts.factory.createStringLiteral(dtoPath(i)),
+          ),
+        ),
+    ];
   }
 }
 export namespace ImportProgrammer {
