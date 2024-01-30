@@ -1,114 +1,74 @@
-import { IMigrateDto } from "../structures/IMigrateDto";
+import { IPointer } from "tstl";
+import ts from "typescript";
+
 import { ISwaggerSchema } from "../structures/ISwaggeSchema";
-import { ISwagger } from "../structures/ISwagger";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
+import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 import { ImportProgrammer } from "./ImportProgrammer";
 import { SchemaProgrammer } from "./SchemaProgrammer";
 
 export namespace DtoProgrammer {
-  export const analyze = (swagger: ISwagger): IMigrateDto[] => {
-    const root: Modulo = new Modulo("");
+  export interface IModule {
+    name: string;
+    children: Map<string, IModule>;
+    programmer:
+      | null
+      | ((importer: ImportProgrammer) => ts.TypeAliasDeclaration);
+  }
 
-    // COMPONENTS
-    for (const [id, schema] of Object.entries(
-      swagger.components.schemas ?? {},
-    )) {
-      const modulo = emplace(root)(id);
-      modulo.dto.schema = schema;
-    }
-    return root.toDto().children;
+  export const write = (
+    components: ISwaggerComponents,
+  ): Map<string, IModule> => {
+    const dict: Map<string, IModule> = new Map();
+    for (const [key, value] of Object.entries(components.schemas ?? {}))
+      prepare(dict)(key)((importer) =>
+        writeAlias(importer)(components)(key, value),
+      );
+    return dict;
   };
 
-  const emplace = (modulo: Modulo) => (name: string) => {
-    const identifiers: string[] = name.split(".");
-    for (const key of identifiers)
-      modulo = MapUtil.take(modulo.children)(key)(() => new Modulo(key));
-    return modulo;
-  };
+  const prepare =
+    (dict: Map<string, IModule>) =>
+    (name: string) =>
+    (programmer: (importer: ImportProgrammer) => ts.TypeAliasDeclaration) => {
+      const accessors: string[] = name.split(".");
+      const modulo: IPointer<IModule> = { value: null! };
 
-  export const write =
-    (components: ISwaggerComponents) =>
-    (dto: IMigrateDto): string => {
-      const references: ISwaggerSchema.IReference[] = [];
-      const importer: ImportProgrammer = new ImportProgrammer(dto.name);
-      const body: string = iterate(components)(references)(importer)(dto);
-
-      const content: string[] = [
-        ...importer.toScript((name) => `./${name}`, dto.name),
-        ...(importer.empty() ? [] : [""]),
-        body,
-      ];
-      return content.join("\n");
+      accessors.forEach((acc, i) => {
+        modulo.value = MapUtil.take(dict)(acc)(() => ({
+          name: acc,
+          children: new Map(),
+          programmer: null,
+        }));
+        if (i === accessors.length - 1) modulo.value.programmer = programmer;
+        dict = modulo.value.children;
+      });
+      return modulo!;
     };
 
-  const iterate =
-    (components: ISwaggerComponents) =>
-    (references: ISwaggerSchema.IReference[]) =>
+  const writeAlias =
     (importer: ImportProgrammer) =>
-    (dto: IMigrateDto): string => {
-      const content: string[] = [];
-      if (dto.schema) {
-        const description: string | undefined = describe(dto.schema);
-        content.push(
-          ...(description
-            ? ["/**", ...description.split("\n").map((l) => ` * ${l}`), " */"]
-            : []),
-          `export type ${dto.name} = ${SchemaProgrammer.write(components)(
-            references,
-          )(importer)(dto.schema)}`,
-        );
-      }
-      if (dto.children.length) {
-        content.push(
-          `export namespace ${dto.name} {`,
-          ...dto.children.map((c) =>
-            iterate(components)(references)(importer)(c)
-              .split("\n")
-              .map((l) => `    ${l}`)
-              .join("\n"),
-          ),
-          `}`,
-        );
-      }
-      return content.join("\n");
-    };
-
-  const describe = (schema: ISwaggerSchema): string | undefined => {
-    const content: string[] = [];
-    const add = (text: string) => {
-      if (schema.description && !schema.description.includes(text))
-        content.push(text);
-    };
-    if (schema.description) {
-      content.push(...schema.description.split("\n"));
-      if (!schema.description.split("\n").at(-1)?.startsWith("@"))
-        content.push("");
-    }
-    if (schema.deprecated) add("@deprecated");
-    if (schema.title) add(`@title ${schema.title}`);
-    return content.length ? content.join("\n") : undefined;
-  };
+    (components: ISwaggerComponents) =>
+    (key: string, value: ISwaggerSchema) =>
+      FilePrinter.description(
+        ts.factory.createTypeAliasDeclaration(
+          [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
+          key.split(".").at(-1)!,
+          [],
+          SchemaProgrammer.write(importer)(components)(value),
+        ),
+        writeComment(value),
+      );
 }
 
-class Modulo {
-  public readonly dto: IMigrateDto;
-  public readonly children: Map<string, Modulo>;
-
-  public constructor(name: string) {
-    this.dto = {
-      name,
-      location: "src/api/structures",
-      schema: null,
-      children: [],
-    };
-    this.children = new Map();
-  }
-
-  public toDto(): IMigrateDto {
-    this.dto.children = Array.from(this.children.values()).map((modulo) =>
-      modulo.toDto(),
-    );
-    return this.dto;
-  }
-}
+const writeComment = (schema: ISwaggerSchema): string =>
+  [
+    ...(schema.description?.length ? [schema.description] : []),
+    ...(schema.description?.length &&
+    (schema.title !== undefined || schema.deprecated === true)
+      ? [""]
+      : []),
+    ...(schema.title !== undefined ? [`@title ${schema.title}`] : []),
+    ...(schema.deprecated === true ? [`@deprecated`] : []),
+  ].join("\n");

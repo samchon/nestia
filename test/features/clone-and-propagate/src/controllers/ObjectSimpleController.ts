@@ -21,17 +21,15 @@ export class ObjectSimpleController {
   }
 }
 
-type ObjectSimple = ObjectSimple.IBox3D;
-namespace ObjectSimple {
-  export interface IBox3D {
-    scale: IPoint3D;
-    position: IPoint3D;
-    rotate: IPoint3D;
-    pivot: IPoint3D;
-  }
-  export interface IPoint3D {
-    x: number;
-    y: number;
-    z: number;
-  }
+type ObjectSimple = IBox3D;
+interface IBox3D {
+  scale: IPoint3D;
+  position: IPoint3D;
+  rotate: IPoint3D;
+  pivot: IPoint3D;
+}
+interface IPoint3D {
+  x: number;
+  y: number;
+  z: number;
 }

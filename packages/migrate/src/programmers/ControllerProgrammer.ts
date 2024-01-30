@@ -1,14 +1,19 @@
+import ts from "typescript";
+
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { ISwagger } from "../structures/ISwagger";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
+import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
 import { ImportProgrammer } from "./ImportProgrammer";
 import { RouteProgrammer } from "./RouteProgrammer";
 
 export namespace ControllerProgrammer {
+  /* -----------------------------------------------------------
+    ANALYZERS
+  ----------------------------------------------------------- */
   export const analyze = (swagger: ISwagger): IMigrateController[] => {
     const dict: Map<string, IMigrateRoute[]> = new Map();
 
@@ -108,36 +113,43 @@ export namespace ControllerProgrammer {
     }
   };
 
+  /* -----------------------------------------------------------
+    WRITERS
+  ----------------------------------------------------------- */
   export const write =
     (components: ISwaggerComponents) =>
-    (controller: IMigrateController): string => {
-      const importer: ImportProgrammer = new ImportProgrammer(null);
-      const references: ISwaggerSchema.IReference[] = [];
-      const body: string = [
-        `@${importer.external({
-          library: "@nestjs/common",
-          instance: "Controller",
-        })}(${JSON.stringify(controller.path)})`,
-        `export class ${controller.name} {`,
-        controller.routes
-          .map((r) =>
-            RouteProgrammer.write(components)(references)(importer)(r)
-              .split("\n")
-              .map((l) => `    ${l}`)
-              .join("\n"),
-          )
-          .join("\n\n"),
-        `}`,
-      ].join("\n");
+    (controller: IMigrateController): ts.Statement[] => {
+      const importer: ImportProgrammer = new ImportProgrammer();
+      const $class = ts.factory.createClassDeclaration(
+        [
+          ts.factory.createDecorator(
+            ts.factory.createCallExpression(
+              ts.factory.createIdentifier(
+                importer.external({
+                  library: "@nestjs/common",
+                  instance: "Controller",
+                }),
+              ),
+              [],
+              [ts.factory.createStringLiteral(controller.path)],
+            ),
+          ),
+          ts.factory.createToken(ts.SyntaxKind.ExportKeyword),
+        ],
+        controller.name,
+        [],
+        [],
+        controller.routes.map(RouteProgrammer.write(components)(importer)),
+      );
       return [
-        ...importer.toScript(
+        ...importer.toStatements(
           (ref) =>
             `${"../".repeat(
               StringUtil.splitWithNormalization(controller.location).length - 1,
             )}api/structures/${ref}`,
         ),
-        ...(importer.empty() ? [] : [""]),
-        body,
-      ].join("\n");
+        ...(importer.empty() ? [] : [FilePrinter.enter()]),
+        $class,
+      ];
     };
 }

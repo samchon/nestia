@@ -5,33 +5,30 @@ import typia from "typia";
 @nest.Controller("arrayRecursive")
 export class ArrayRecursiveController {
   @core.TypedRoute.Get()
-  public index(): ArrayRecursive[] {
-    return typia.random<ArrayRecursive[]>();
+  public index(): ICategory[] {
+    return typia.random<ICategory[]>();
   }
 
   @core.TypedRoute.Get(":id")
-  public at(@core.TypedParam("id") id: number): ArrayRecursive {
+  public at(@core.TypedParam("id") id: number): ICategory {
     id;
-    return typia.random<ArrayRecursive>();
+    return typia.random<ICategory>();
   }
 
   @core.TypedRoute.Post()
-  public store(@core.TypedBody() body: ArrayRecursive): ArrayRecursive {
+  public store(@core.TypedBody() body: ICategory): ICategory {
     return body;
   }
 }
 
-type ArrayRecursive = ArrayRecursive.ICategory;
-namespace ArrayRecursive {
-  export interface ICategory {
-    children: ICategory[];
-    id: number;
-    code: string;
-    sequence: number;
-    created_at: ITimestamp;
-  }
-  export interface ITimestamp {
-    time: number;
-    zone: number;
-  }
+interface ICategory {
+  children: ICategory[];
+  id: number;
+  code: string;
+  sequence: number;
+  created_at: ITimestamp;
+}
+interface ITimestamp {
+  time: number;
+  zone: number;
 }

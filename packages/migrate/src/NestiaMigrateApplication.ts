@@ -28,7 +28,7 @@ export class NestiaMigrateApplication {
   public write(): IMigrateFile[] {
     if (this.files === null) {
       const program: IMigrateProgram = this.analyze();
-      this.files = MigrateProgrammer.write(this.swagger.components)(program);
+      this.files = MigrateProgrammer.write(program);
     }
     return this.files;
   }
@@ -37,9 +37,7 @@ export class NestiaMigrateApplication {
     (archiver: NestiaMigrateApplication.IArchiver) =>
     (output: string): void => {
       const program: IMigrateProgram = this.analyze();
-      const files: IMigrateFile[] = MigrateProgrammer.write(
-        this.swagger.components,
-      )(program);
+      const files: IMigrateFile[] = MigrateProgrammer.write(program);
 
       try {
         cp.execSync(

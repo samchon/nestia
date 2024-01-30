@@ -1,129 +1,97 @@
+import ts from "typescript";
+import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
+import { TypeFactory } from "typia/lib/factories/TypeFactory";
+import { FormatCheatSheet } from "typia/lib/tags/internal/FormatCheatSheet";
 import { Escaper } from "typia/lib/utils/Escaper";
 
 import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
-import { JsonTypeChecker } from "../utils/JsonTypeChecker";
+import { FilePrinter } from "../utils/FilePrinter";
+import { SwaggerTypeChecker } from "../utils/JsonTypeChecker";
 import { ImportProgrammer } from "./ImportProgrammer";
 
 export namespace SchemaProgrammer {
+  /* -----------------------------------------------------------
+    FACADE
+  ----------------------------------------------------------- */
   export const write =
-    (components: ISwaggerComponents) =>
-    (references: ISwaggerSchema.IReference[]) =>
     (importer: ImportProgrammer) =>
-    (schema: ISwaggerSchema): string =>
-      writeSchema(components)(references)(importer)(() => () => {})(true)(
-        schema,
-      );
-
-  type CommentTagger = (tag: string) => (value?: string) => void;
-
-  const writeSchema =
     (components: ISwaggerComponents) =>
-    (references: ISwaggerSchema.IReference[]) =>
-    (importer: ImportProgrammer) =>
-    (commentTagger: CommentTagger) =>
-    (final: boolean) =>
-    (schema: ISwaggerSchema): string => {
-      // SPECIAL TYPES
-      if (JsonTypeChecker.isUnknown(schema)) return "any";
+    (schema: ISwaggerSchema): ts.TypeNode => {
+      const union: ts.TypeNode[] = [];
+      if (SwaggerTypeChecker.isUnknown(schema))
+        return TypeFactory.keyword("any");
+      else if (SwaggerTypeChecker.isNullOnly(schema)) return createNode("null");
+      else if (SwaggerTypeChecker.isNullable(components)(schema))
+        union.push(createNode("null"));
 
-      const type: string = (() => {
-        if (JsonTypeChecker.isAnyOf(schema))
-          return (
-            "(" +
-            schema.anyOf
-              .map(
-                writeSchema(components)(references)(importer)(commentTagger)(
-                  false,
-                ),
-              )
-              .join(" | ") +
-            ")"
-          );
-        else if (JsonTypeChecker.isOneOf(schema))
-          return schema.oneOf
-            .map(
-              writeSchema(components)(references)(importer)(commentTagger)(
-                false,
-              ),
-            )
-            .join(" | ");
-        // ATOMIC TYPES
-        if (JsonTypeChecker.isNullOnly(schema)) return writeNullOnly();
-        else if (JsonTypeChecker.isBoolean(schema))
-          return writeBoolean(importer)(commentTagger)(schema);
-        else if (
-          JsonTypeChecker.isInteger(schema) ||
-          JsonTypeChecker.isNumber(schema)
-        )
-          return writeNumber(importer)(commentTagger)(schema);
-        else if (JsonTypeChecker.isString(schema))
-          return writeString(importer)(commentTagger)(schema);
-        // INSTANCE TYPES
-        else if (JsonTypeChecker.isArray(schema))
-          return writeArray(components)(references)(importer)(commentTagger)(
-            schema,
-          );
-        else if (JsonTypeChecker.isObject(schema))
-          return writeObject(components)(references)(importer)(schema);
-        else if (JsonTypeChecker.isReference(schema)) {
-          references.push(schema);
-          return importer.dto(schema.$ref.replace(`#/components/schemas/`, ``));
-        } else return "any";
+      const type: ts.TypeNode = (() => {
+        // ATOMIC
+        if (SwaggerTypeChecker.isBoolean(schema)) return writeBoolean(schema);
+        else if (SwaggerTypeChecker.isInteger(schema))
+          return writeInteger(importer)(schema);
+        else if (SwaggerTypeChecker.isNumber(schema))
+          return writeNumber(importer)(schema);
+        // INSTANCES
+        else if (SwaggerTypeChecker.isString(schema))
+          return writeString(importer)(schema);
+        else if (SwaggerTypeChecker.isArray(schema))
+          return writeArray(importer)(components)(schema);
+        else if (SwaggerTypeChecker.isObject(schema))
+          return writeObject(importer)(components)(schema);
+        else if (SwaggerTypeChecker.isReference(schema))
+          return writeReference(importer)(schema);
+        // NESTED UNION
+        else if (SwaggerTypeChecker.isAnyOf(schema))
+          return writeUnion(importer)(components)(schema.anyOf);
+        else if (SwaggerTypeChecker.isOneOf(schema))
+          return writeUnion(importer)(components)(schema.oneOf);
+        else return TypeFactory.keyword("any");
       })();
-      if (type === "any" || final === false) return type;
-      return isNullable(components)(schema) ? `null | ${type}` : type;
+      union.push(type);
+
+      if (union.length === 0) return TypeFactory.keyword("any");
+      else if (union.length === 1) return union[0];
+      return ts.factory.createUnionTypeNode(union);
     };
 
-  const isNullable =
-    (components: ISwaggerComponents) =>
-    (schema: ISwaggerSchema): boolean => {
-      if (JsonTypeChecker.isAnyOf(schema))
-        return schema.anyOf.some(isNullable(components));
-      else if (JsonTypeChecker.isOneOf(schema))
-        return schema.oneOf.some(isNullable(components));
-      else if (JsonTypeChecker.isReference(schema)) {
-        const $id = schema.$ref.replace("#/components/schemas/", "");
-        const target = (components.schemas ?? {})[$id];
-        return target === undefined ? false : isNullable(components)(target);
-      }
-      return (schema as ISwaggerSchema.IString).nullable === true;
-    };
+  /* -----------------------------------------------------------
+    ATOMICS
+  ----------------------------------------------------------- */
+  const writeBoolean = (schema: ISwaggerSchema.IBoolean): ts.TypeNode => {
+    if (schema.enum?.length)
+      return ts.factory.createLiteralTypeNode(
+        schema.enum[0] ? ts.factory.createTrue() : ts.factory.createFalse(),
+      );
+    return TypeFactory.keyword("boolean");
+  };
 
-  const writeNullOnly = (): string => "null";
-
-  const writeBoolean =
+  const writeInteger =
     (importer: ImportProgrammer) =>
-    (tagger: CommentTagger) =>
-    (schema: ISwaggerSchema.IBoolean): string => {
-      if (schema.enum?.length) {
-        if (schema.default !== undefined)
-          tagger("default")(schema.default.toString());
-        return schema.enum.join(" | ");
-      }
-      const intersection: string[] = ["boolean"];
-      if (schema.default !== undefined)
-        intersection.push(importer.tag("Default", String(schema.default)));
-      return intersection.length === 1
-        ? intersection[0]
-        : "(" + intersection.join(" & ") + ")";
-    };
+    (schema: ISwaggerSchema.IInteger): ts.TypeNode =>
+      writeNumeric(() => [
+        TypeFactory.keyword("number"),
+        importer.tag("Type", "int32"),
+      ])(importer)(schema);
 
   const writeNumber =
     (importer: ImportProgrammer) =>
-    (commentTagger: CommentTagger) =>
-    (schema: ISwaggerSchema.IInteger | ISwaggerSchema.INumber): string => {
-      if (schema.enum?.length) {
-        if (schema.default !== undefined)
-          commentTagger("default")(schema.default.toString());
-        return schema.enum.join(" | ");
-      }
+    (schema: ISwaggerSchema.INumber): ts.TypeNode =>
+      writeNumeric(() => [TypeFactory.keyword("number")])(importer)(schema);
 
-      const intersection: string[] = ["number"];
+  const writeNumeric =
+    (factory: () => ts.TypeNode[]) =>
+    (importer: ImportProgrammer) =>
+    (schema: ISwaggerSchema.IInteger | ISwaggerSchema.INumber): ts.TypeNode => {
+      if (schema.enum?.length)
+        return ts.factory.createUnionTypeNode(
+          schema.enum.map((i) =>
+            ts.factory.createLiteralTypeNode(ExpressionFactory.number(i)),
+          ),
+        );
+      const intersection: ts.TypeNode[] = factory();
       if (schema.default !== undefined)
         intersection.push(importer.tag("Default", schema.default));
-      if (schema.type === "integer")
-        intersection.push(importer.tag("Type", "int32"));
       if (schema.minimum !== undefined)
         intersection.push(
           importer.tag(
@@ -140,189 +108,148 @@ export namespace SchemaProgrammer {
         );
       if (schema.multipleOf !== undefined)
         intersection.push(importer.tag("MultipleOf", schema.multipleOf));
+
       return intersection.length === 1
         ? intersection[0]
-        : "(" + intersection.join(" & ") + ")";
+        : ts.factory.createIntersectionTypeNode(intersection);
     };
+
   const writeString =
     (importer: ImportProgrammer) =>
-    (commentTagger: CommentTagger) =>
-    (schema: ISwaggerSchema.IString): string => {
-      if (schema.enum?.length) {
-        if (schema.default !== undefined)
-          commentTagger("default")(schema.default.toString());
-        return schema.enum.map((str) => JSON.stringify(str)).join(" | ");
-      }
-
-      const intersection: string[] = ["string"];
+    (schema: ISwaggerSchema.IString): ts.TypeNode => {
+      const intersection: ts.TypeNode[] = [TypeFactory.keyword("string")];
       if (schema.default !== undefined)
         intersection.push(importer.tag("Default", schema.default));
-      if (schema.format !== undefined && FORMATS.has(schema.format))
-        intersection.push(importer.tag("Format", schema.format));
-      if (schema.pattern !== undefined)
-        intersection.push(importer.tag("Pattern", schema.pattern));
       if (schema.minLength !== undefined)
         intersection.push(importer.tag("MinLength", schema.minLength));
       if (schema.maxLength !== undefined)
         intersection.push(importer.tag("MaxLength", schema.maxLength));
+      if (schema.pattern !== undefined)
+        intersection.push(importer.tag("Pattern", schema.pattern));
+      if (
+        schema.format !== undefined &&
+        (FormatCheatSheet as Record<string, string>)[schema.format] !==
+          undefined
+      )
+        intersection.push(importer.tag("Format", schema.format));
       return intersection.length === 1
         ? intersection[0]
-        : "(" + intersection.join(" & ") + ")";
+        : ts.factory.createIntersectionTypeNode(intersection);
     };
 
+  /* -----------------------------------------------------------
+    INSTANCES
+  ----------------------------------------------------------- */
   const writeArray =
-    (components: ISwaggerComponents) =>
-    (references: ISwaggerSchema.IReference[]) =>
     (importer: ImportProgrammer) =>
-    (commentTagger: CommentTagger) =>
-    (schema: ISwaggerSchema.IArray): string => {
-      if (schema["x-typia-tuple"])
-        return `[${schema["x-typia-tuple"].items
-          .map(writeTupleElement(components)(references)(importer))
-          .join(", ")}]`;
-      const intersection: string[] = [
-        `Array<${writeSchema(components)(references)(importer)(commentTagger)(
-          true,
-        )(schema.items)}>`,
+    (components: ISwaggerComponents) =>
+    (schema: ISwaggerSchema.IArray): ts.TypeNode => {
+      const intersection: ts.TypeNode[] = [
+        ts.factory.createArrayTypeNode(
+          write(importer)(components)(schema.items),
+        ),
       ];
       if (schema.minItems !== undefined)
         intersection.push(importer.tag("MinItems", schema.minItems));
       if (schema.maxItems !== undefined)
         intersection.push(importer.tag("MaxItems", schema.maxItems));
-
       return intersection.length === 1
         ? intersection[0]
-        : "(" + intersection.join(" & ") + ")";
-    };
-  const writeTupleElement =
-    (components: ISwaggerComponents) =>
-    (references: ISwaggerSchema.IReference[]) =>
-    (importer: ImportProgrammer) =>
-    (schema: ISwaggerSchema): string => {
-      const name: string = writeSchema(components)(references)(importer)(
-        () => () => {},
-      )(true)(schema);
-      return schema["x-typia-optional"]
-        ? `${name}?`
-        : schema["x-typia-rest"]
-          ? `...${name}[]`
-          : name;
+        : ts.factory.createIntersectionTypeNode(intersection);
     };
 
   const writeObject =
-    (components: ISwaggerComponents) =>
-    (references: ISwaggerSchema.IReference[]) =>
     (importer: ImportProgrammer) =>
-    (schema: ISwaggerSchema.IObject): string => {
-      const entries = Object.entries(schema.properties ?? {});
-      return typeof schema.additionalProperties === "object"
-        ? entries.length
-          ? `${writeStaticObject(components)(references)(importer)(
-              schema,
-            )} & ${writeDynamicObject(components)(references)(importer)(
-              schema.additionalProperties,
-            )}`
-          : writeDynamicObject(components)(references)(importer)(
-              schema.additionalProperties,
-            )
-        : writeStaticObject(components)(references)(importer)(schema);
-    };
-  const writeStaticObject =
     (components: ISwaggerComponents) =>
-    (references: ISwaggerSchema.IReference[]) =>
-    (importer: ImportProgrammer) =>
-    (schema: ISwaggerSchema.IObject): string =>
-      [
-        "{",
-        ...Object.entries(schema.properties ?? {})
-          .map(([key, value]) =>
-            writeProperty(components)(references)(importer)(key)(
-              (schema.required ?? []).some((r) => r === key),
-            )(value),
-          )
-          .map(tab(4)),
-        "}",
-      ].join("\n");
-  const writeDynamicObject =
-    (components: ISwaggerComponents) =>
-    (references: ISwaggerSchema.IReference[]) =>
-    (importer: ImportProgrammer) =>
-    (additional: ISwaggerSchema): string => {
-      return [
-        "{",
-        tab(4)(
-          writeProperty(components)(references)(importer)(
-            "[key: string]",
-            true,
-          )(true)(additional),
-        ),
-        "}",
-      ].join("\n");
-    };
-
-  const writeProperty =
-    (components: ISwaggerComponents) =>
-    (references: ISwaggerSchema.IReference[]) =>
-    (importer: ImportProgrammer) =>
-    (key: string, ensureVariable: boolean = false) =>
-    (required: boolean) =>
-    (schema: ISwaggerSchema): string => {
-      const content: string[] = [];
-      const commentTagger = (tag: string) => (value?: string) => {
-        const exists: boolean =
-          (!!schema.description?.length &&
-            schema.description.includes(`@${tag}`)) ||
-          content.some((line) => line.includes(`@${tag}`));
-        if (exists === false)
-          if (value?.length) content.push(`@${tag} ${value}`);
-          else content.push(`@${tag}`);
-      };
-      if (schema.description) {
-        content.push(...schema.description.split("\n"));
-        if (!schema.description.split("\n").at(-1)?.startsWith("@"))
-          content.push("");
-      }
-
-      // STARTS FROM TITLE
-      if (schema.title) commentTagger("@title")(schema.title);
-
-      // GET TYPE WITH SPECIAL TAGS
-      const type: string =
-        writeSchema(components)(references)(importer)(commentTagger)(true)(
-          schema,
+    (schema: ISwaggerSchema.IObject): ts.TypeNode => {
+      const regular = () =>
+        ts.factory.createTypeLiteralNode(
+          Object.entries(schema.properties ?? []).map(([key, value]) =>
+            writeRegularProperty(importer)(components)(schema.required ?? [])(
+              key,
+              value,
+            ),
+          ),
         );
-
-      // ENDS WITH DEPRECATED TAG
-      if (schema.deprecated) commentTagger("@deprecated")();
-
-      const description: string =
-        content.length === 0
-          ? ""
-          : ["/**", ...content.map((line) => ` * ${line}`), " */", ""].join(
-              "\n",
-            );
-      return `${description}${
-        ensureVariable === false && Escaper.variable(key) === false
-          ? JSON.stringify(key)
-          : key
-      }${required ? "" : "?"}: ${required ? type : `undefined | ${type}`};`;
+      const dynamic = () =>
+        ts.factory.createTypeLiteralNode([
+          writeDynamicProperty(importer)(components)(
+            schema.additionalProperties as ISwaggerSchema,
+          ),
+        ]);
+      return FilePrinter.description(
+        !!schema.properties?.length &&
+          typeof schema.additionalProperties === "object"
+          ? ts.factory.createIntersectionTypeNode([regular(), dynamic()])
+          : typeof schema.additionalProperties === "object"
+            ? dynamic()
+            : regular(),
+        writeComment(schema),
+      );
     };
 
-  const tab =
-    (size: number) =>
-    (str: string): string =>
-      str
-        .split("\n")
-        .map((l) => `${" ".repeat(size)}${l}`)
-        .join("\n");
-}
+  const writeRegularProperty =
+    (importer: ImportProgrammer) =>
+    (components: ISwaggerComponents) =>
+    (required: string[]) =>
+    (key: string, value: ISwaggerSchema) =>
+      FilePrinter.description(
+        ts.factory.createPropertySignature(
+          undefined,
+          Escaper.variable(key)
+            ? ts.factory.createIdentifier(key)
+            : ts.factory.createStringLiteral(key),
+          required.includes(key)
+            ? undefined
+            : ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+          write(importer)(components)(value),
+        ),
+        writeComment(value),
+      );
 
-const FORMATS = new Set([
-  "email",
-  "uuid",
-  "ipv4",
-  "ipv6",
-  "url",
-  "date",
-  "date-time",
-]);
+  const writeDynamicProperty =
+    (importer: ImportProgrammer) =>
+    (components: ISwaggerComponents) =>
+    (value: ISwaggerSchema) =>
+      FilePrinter.description(
+        ts.factory.createIndexSignature(
+          undefined,
+          [
+            ts.factory.createParameterDeclaration(
+              undefined,
+              undefined,
+              ts.factory.createIdentifier("key"),
+              undefined,
+              TypeFactory.keyword("string"),
+            ),
+          ],
+          write(importer)(components)(value),
+        ),
+        writeComment(value),
+      );
+
+  const writeReference =
+    (importer: ImportProgrammer) =>
+    (schema: ISwaggerSchema.IReference): ts.TypeReferenceNode =>
+      importer.dto(schema.$ref.split("/").at(-1)!);
+
+  /* -----------------------------------------------------------
+    UNIONS
+  ----------------------------------------------------------- */
+  const writeUnion =
+    (importer: ImportProgrammer) =>
+    (components: ISwaggerComponents) =>
+    (elements: ISwaggerSchema[]): ts.UnionTypeNode =>
+      ts.factory.createUnionTypeNode(elements.map(write(importer)(components)));
+}
+const createNode = (text: string) => ts.factory.createTypeReferenceNode(text);
+const writeComment = (schema: ISwaggerSchema): string =>
+  [
+    ...(schema.description?.length ? [schema.description] : []),
+    ...(schema.description?.length &&
+    (schema.title !== undefined || schema.deprecated === true)
+      ? [""]
+      : []),
+    ...(schema.title !== undefined ? [`@title ${schema.title}`] : []),
+    ...(schema.deprecated === true ? [`@deprecated`] : []),
+  ].join("\n");

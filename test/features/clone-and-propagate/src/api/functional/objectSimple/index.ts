@@ -13,7 +13,7 @@ import type {
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
-import type { ObjectSimple } from "../../structures/ObjectSimple";
+import type { IBox3D } from "../../structures/IBox3D";
 import { NestiaSimulator } from "../../utils/NestiaSimulator";
 
 /**
@@ -31,7 +31,7 @@ export async function index(connection: IConnection): Promise<index.Output> {
 }
 export namespace index {
   export type Output = IPropagation<{
-    200: ObjectSimple.IBox3D[];
+    200: IBox3D[];
   }>;
 
   export const METADATA = {
@@ -47,7 +47,7 @@ export namespace index {
 
   export const path = () => "/objectSimple";
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<ObjectSimple.IBox3D[]>>(g);
+    typia.random<Primitive<IBox3D[]>>(g);
   export const simulate = (connection: IConnection): Output => {
     return {
       success: true,
@@ -82,7 +82,7 @@ export async function at(
 }
 export namespace at {
   export type Output = IPropagation<{
-    200: ObjectSimple.IBox3D;
+    200: IBox3D;
   }>;
 
   export const METADATA = {
@@ -99,7 +99,7 @@ export namespace at {
   export const path = (id: number) =>
     `/objectSimple/${encodeURIComponent(id ?? "null")}`;
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<ObjectSimple.IBox3D>>(g);
+    typia.random<Primitive<IBox3D>>(g);
   export const simulate = (connection: IConnection, id: number): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -160,9 +160,9 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input = Primitive<ObjectSimple.IBox3D>;
+  export type Input = Primitive<IBox3D>;
   export type Output = IPropagation<{
-    201: ObjectSimple.IBox3D;
+    201: IBox3D;
   }>;
 
   export const METADATA = {
@@ -181,7 +181,7 @@ export namespace store {
 
   export const path = () => "/objectSimple";
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<ObjectSimple.IBox3D>>(g);
+    typia.random<Primitive<IBox3D>>(g);
   export const simulate = (
     connection: IConnection,
     body: store.Input,

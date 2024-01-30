@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "2.5.0-dev.20240130-5",
+    "version": "2.5.0-dev.20240130-7",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -27,7 +27,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ArrayRecursive.ICategory"
+                    "$ref": "#/components/schemas/ICategory"
                   }
                 }
               }
@@ -42,7 +42,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ArrayRecursive.ICategory"
+                "$ref": "#/components/schemas/ICategory"
               }
             }
           },
@@ -54,7 +54,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ArrayRecursive.ICategory"
+                  "$ref": "#/components/schemas/ICategory"
                 }
               }
             }
@@ -82,7 +82,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ArrayRecursive.ICategory"
+                  "$ref": "#/components/schemas/ICategory"
                 }
               }
             }
@@ -116,19 +116,19 @@
               "schema": {
                 "oneOf": [
                   {
-                    "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IDirectory"
+                    "$ref": "#/components/schemas/IDirectory"
                   },
                   {
-                    "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IImageFile"
+                    "$ref": "#/components/schemas/IImageFile"
                   },
                   {
-                    "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.ITextFile"
+                    "$ref": "#/components/schemas/ITextFile"
                   },
                   {
-                    "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IZipFile"
+                    "$ref": "#/components/schemas/IZipFile"
                   },
                   {
-                    "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IShortcut"
+                    "$ref": "#/components/schemas/IShortcut"
                   }
                 ]
               }
@@ -142,7 +142,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IBucket"
+                  "$ref": "#/components/schemas/IBucket"
                 }
               }
             }
@@ -170,7 +170,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IBucket"
+                  "$ref": "#/components/schemas/IBucket"
                 }
               }
             }
@@ -204,22 +204,22 @@
               "schema": {
                 "oneOf": [
                   {
-                    "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IDirectory"
+                    "$ref": "#/components/schemas/IDirectory.o1"
                   },
                   {
-                    "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.ISharedDirectory"
+                    "$ref": "#/components/schemas/ISharedDirectory"
                   },
                   {
-                    "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IImageFile"
+                    "$ref": "#/components/schemas/IImageFile.o1"
                   },
                   {
-                    "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.ITextFile"
+                    "$ref": "#/components/schemas/ITextFile.o1"
                   },
                   {
-                    "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IZipFile"
+                    "$ref": "#/components/schemas/IZipFile.o1"
                   },
                   {
-                    "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IShortcut"
+                    "$ref": "#/components/schemas/IShortcut.o1"
                   }
                 ]
               }
@@ -233,7 +233,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IBucket"
+                  "$ref": "#/components/schemas/IBucket.o1"
                 }
               }
             }
@@ -261,7 +261,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IBucket"
+                  "$ref": "#/components/schemas/IBucket.o1"
                 }
               }
             }
@@ -293,7 +293,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ArraySimple.IPerson"
+                "$ref": "#/components/schemas/IPerson"
               }
             }
           },
@@ -305,7 +305,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ArraySimple.IPerson"
+                  "$ref": "#/components/schemas/IPerson"
                 }
               }
             }
@@ -334,7 +334,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ArraySimple.IPerson"
+                  "$ref": "#/components/schemas/IPerson"
                 }
               }
             }
@@ -573,7 +573,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ObjectSimple.IBox3D"
+                    "$ref": "#/components/schemas/IBox3D"
                   }
                 }
               }
@@ -588,7 +588,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ObjectSimple.IBox3D"
+                "$ref": "#/components/schemas/IBox3D"
               }
             }
           },
@@ -600,7 +600,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ObjectSimple.IBox3D"
+                  "$ref": "#/components/schemas/IBox3D"
                 }
               }
             }
@@ -628,7 +628,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ObjectSimple.IBox3D"
+                  "$ref": "#/components/schemas/IBox3D"
                 }
               }
             }
@@ -2851,13 +2851,13 @@
   },
   "components": {
     "schemas": {
-      "ArrayRecursive.ICategory": {
+      "ICategory": {
         "type": "object",
         "properties": {
           "children": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ArrayRecursive.ICategory"
+              "$ref": "#/components/schemas/ICategory"
             }
           },
           "id": {
@@ -2870,7 +2870,7 @@
             "type": "number"
           },
           "created_at": {
-            "$ref": "#/components/schemas/ArrayRecursive.ITimestamp"
+            "$ref": "#/components/schemas/ITimestamp"
           }
         },
         "nullable": false,
@@ -2882,7 +2882,7 @@
           "created_at"
         ]
       },
-      "ArrayRecursive.ITimestamp": {
+      "ITimestamp": {
         "type": "object",
         "properties": {
           "time": {
@@ -2901,29 +2901,29 @@
       "ArrayRecursiveUnionExplicit": {
         "type": "array",
         "items": {
-          "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IBucket"
+          "$ref": "#/components/schemas/IBucket"
         }
       },
-      "ArrayRecursiveUnionExplicit.IBucket": {
+      "IBucket": {
         "oneOf": [
           {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IDirectory"
+            "$ref": "#/components/schemas/IDirectory"
           },
           {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IImageFile"
+            "$ref": "#/components/schemas/IImageFile"
           },
           {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.ITextFile"
+            "$ref": "#/components/schemas/ITextFile"
           },
           {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IZipFile"
+            "$ref": "#/components/schemas/IZipFile"
           },
           {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IShortcut"
+            "$ref": "#/components/schemas/IShortcut"
           }
         ]
       },
-      "ArrayRecursiveUnionExplicit.IDirectory": {
+      "IDirectory": {
         "type": "object",
         "properties": {
           "id": {
@@ -2938,7 +2938,7 @@
           "children": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IBucket"
+              "$ref": "#/components/schemas/IBucket"
             }
           },
           "type": {
@@ -2957,7 +2957,7 @@
           "type"
         ]
       },
-      "ArrayRecursiveUnionExplicit.IImageFile": {
+      "IImageFile": {
         "type": "object",
         "properties": {
           "id": {
@@ -3007,7 +3007,7 @@
           "extension"
         ]
       },
-      "ArrayRecursiveUnionExplicit.ITextFile": {
+      "ITextFile": {
         "type": "object",
         "properties": {
           "id": {
@@ -3049,7 +3049,7 @@
           "extension"
         ]
       },
-      "ArrayRecursiveUnionExplicit.IZipFile": {
+      "IZipFile": {
         "type": "object",
         "properties": {
           "id": {
@@ -3091,7 +3091,7 @@
           "extension"
         ]
       },
-      "ArrayRecursiveUnionExplicit.IShortcut": {
+      "IShortcut": {
         "type": "object",
         "properties": {
           "id": {
@@ -3104,7 +3104,7 @@
             "type": "string"
           },
           "target": {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit.IBucket"
+            "$ref": "#/components/schemas/IBucket"
           },
           "type": {
             "type": "string",
@@ -3132,32 +3132,32 @@
       "ArrayRecursiveUnionImplicit": {
         "type": "array",
         "items": {
-          "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IBucket"
+          "$ref": "#/components/schemas/IBucket.o1"
         }
       },
-      "ArrayRecursiveUnionImplicit.IBucket": {
+      "IBucket.o1": {
         "oneOf": [
           {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IDirectory"
+            "$ref": "#/components/schemas/IDirectory.o1"
           },
           {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.ISharedDirectory"
+            "$ref": "#/components/schemas/ISharedDirectory"
           },
           {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IImageFile"
+            "$ref": "#/components/schemas/IImageFile.o1"
           },
           {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.ITextFile"
+            "$ref": "#/components/schemas/ITextFile.o1"
           },
           {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IZipFile"
+            "$ref": "#/components/schemas/IZipFile.o1"
           },
           {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IShortcut"
+            "$ref": "#/components/schemas/IShortcut.o1"
           }
         ]
       },
-      "ArrayRecursiveUnionImplicit.IDirectory": {
+      "IDirectory.o1": {
         "type": "object",
         "properties": {
           "id": {
@@ -3172,7 +3172,7 @@
           "children": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IBucket"
+              "$ref": "#/components/schemas/IBucket.o1"
             }
           }
         },
@@ -3184,7 +3184,7 @@
           "children"
         ]
       },
-      "ArrayRecursiveUnionImplicit.ISharedDirectory": {
+      "ISharedDirectory": {
         "type": "object",
         "properties": {
           "access": {
@@ -3206,7 +3206,7 @@
           "children": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IBucket"
+              "$ref": "#/components/schemas/IBucket.o1"
             }
           }
         },
@@ -3219,7 +3219,7 @@
           "children"
         ]
       },
-      "ArrayRecursiveUnionImplicit.IImageFile": {
+      "IImageFile.o1": {
         "type": "object",
         "properties": {
           "id": {
@@ -3255,7 +3255,7 @@
           "size"
         ]
       },
-      "ArrayRecursiveUnionImplicit.ITextFile": {
+      "ITextFile.o1": {
         "type": "object",
         "properties": {
           "id": {
@@ -3283,7 +3283,7 @@
           "content"
         ]
       },
-      "ArrayRecursiveUnionImplicit.IZipFile": {
+      "IZipFile.o1": {
         "type": "object",
         "properties": {
           "id": {
@@ -3311,7 +3311,7 @@
           "count"
         ]
       },
-      "ArrayRecursiveUnionImplicit.IShortcut": {
+      "IShortcut.o1": {
         "type": "object",
         "properties": {
           "id": {
@@ -3324,7 +3324,7 @@
             "type": "string"
           },
           "target": {
-            "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit.IBucket"
+            "$ref": "#/components/schemas/IBucket.o1"
           }
         },
         "nullable": false,
@@ -3338,10 +3338,10 @@
       "ArraySimple": {
         "type": "array",
         "items": {
-          "$ref": "#/components/schemas/ArraySimple.IPerson"
+          "$ref": "#/components/schemas/IPerson"
         }
       },
-      "ArraySimple.IPerson": {
+      "IPerson": {
         "type": "object",
         "properties": {
           "name": {
@@ -3353,7 +3353,7 @@
           "hobbies": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ArraySimple.IHobby"
+              "$ref": "#/components/schemas/IHobby"
             }
           }
         },
@@ -3364,7 +3364,7 @@
           "hobbies"
         ]
       },
-      "ArraySimple.IHobby": {
+      "IHobby": {
         "type": "object",
         "properties": {
           "name": {
@@ -3618,20 +3618,20 @@
           "created_at"
         ]
       },
-      "ObjectSimple.IBox3D": {
+      "IBox3D": {
         "type": "object",
         "properties": {
           "scale": {
-            "$ref": "#/components/schemas/ObjectSimple.IPoint3D"
+            "$ref": "#/components/schemas/IPoint3D"
           },
           "position": {
-            "$ref": "#/components/schemas/ObjectSimple.IPoint3D"
+            "$ref": "#/components/schemas/IPoint3D"
           },
           "rotate": {
-            "$ref": "#/components/schemas/ObjectSimple.IPoint3D"
+            "$ref": "#/components/schemas/IPoint3D"
           },
           "pivot": {
-            "$ref": "#/components/schemas/ObjectSimple.IPoint3D"
+            "$ref": "#/components/schemas/IPoint3D"
           }
         },
         "nullable": false,
@@ -3642,7 +3642,7 @@
           "pivot"
         ]
       },
-      "ObjectSimple.IPoint3D": {
+      "IPoint3D": {
         "type": "object",
         "properties": {
           "x": {
@@ -3667,30 +3667,30 @@
         "items": {
           "oneOf": [
             {
-              "$ref": "#/components/schemas/ObjectUnionExplicit.DiscriminatorpointObjectUnionExplicit.IPoint"
+              "$ref": "#/components/schemas/DiscriminatorpointIPoint"
             },
             {
-              "$ref": "#/components/schemas/ObjectUnionExplicit.DiscriminatorlineObjectUnionExplicit.ILine"
+              "$ref": "#/components/schemas/DiscriminatorlineILine"
             },
             {
-              "$ref": "#/components/schemas/ObjectUnionExplicit.DiscriminatortriangleObjectUnionExplicit.ITriangle"
+              "$ref": "#/components/schemas/DiscriminatortriangleITriangle"
             },
             {
-              "$ref": "#/components/schemas/ObjectUnionExplicit.DiscriminatorrectangleObjectUnionExplicit.IRectangle"
+              "$ref": "#/components/schemas/DiscriminatorrectangleIRectangle"
             },
             {
-              "$ref": "#/components/schemas/ObjectUnionExplicit.DiscriminatorpolylineObjectUnionExplicit.IPolyline"
+              "$ref": "#/components/schemas/DiscriminatorpolylineIPolyline"
             },
             {
-              "$ref": "#/components/schemas/ObjectUnionExplicit.DiscriminatorpolygonObjectUnionExplicit.IPolygon"
+              "$ref": "#/components/schemas/DiscriminatorpolygonIPolygon"
             },
             {
-              "$ref": "#/components/schemas/ObjectUnionExplicit.DiscriminatorcircleObjectUnionExplicit.ICircle"
+              "$ref": "#/components/schemas/DiscriminatorcircleICircle"
             }
           ]
         }
       },
-      "ObjectUnionExplicit.DiscriminatorpointObjectUnionExplicit.IPoint": {
+      "DiscriminatorpointIPoint": {
         "type": "object",
         "properties": {
           "x": {
@@ -3713,14 +3713,14 @@
           "type"
         ]
       },
-      "ObjectUnionExplicit.DiscriminatorlineObjectUnionExplicit.ILine": {
+      "DiscriminatorlineILine": {
         "type": "object",
         "properties": {
           "p1": {
-            "$ref": "#/components/schemas/ObjectUnionExplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint"
           },
           "p2": {
-            "$ref": "#/components/schemas/ObjectUnionExplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint"
           },
           "type": {
             "type": "string",
@@ -3736,7 +3736,7 @@
           "type"
         ]
       },
-      "ObjectUnionExplicit.IPoint": {
+      "IPoint": {
         "type": "object",
         "properties": {
           "x": {
@@ -3752,17 +3752,17 @@
           "y"
         ]
       },
-      "ObjectUnionExplicit.DiscriminatortriangleObjectUnionExplicit.ITriangle": {
+      "DiscriminatortriangleITriangle": {
         "type": "object",
         "properties": {
           "p1": {
-            "$ref": "#/components/schemas/ObjectUnionExplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint"
           },
           "p2": {
-            "$ref": "#/components/schemas/ObjectUnionExplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint"
           },
           "p3": {
-            "$ref": "#/components/schemas/ObjectUnionExplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint"
           },
           "type": {
             "type": "string",
@@ -3779,20 +3779,20 @@
           "type"
         ]
       },
-      "ObjectUnionExplicit.DiscriminatorrectangleObjectUnionExplicit.IRectangle": {
+      "DiscriminatorrectangleIRectangle": {
         "type": "object",
         "properties": {
           "p1": {
-            "$ref": "#/components/schemas/ObjectUnionExplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint"
           },
           "p2": {
-            "$ref": "#/components/schemas/ObjectUnionExplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint"
           },
           "p3": {
-            "$ref": "#/components/schemas/ObjectUnionExplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint"
           },
           "p4": {
-            "$ref": "#/components/schemas/ObjectUnionExplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint"
           },
           "type": {
             "type": "string",
@@ -3810,13 +3810,13 @@
           "type"
         ]
       },
-      "ObjectUnionExplicit.DiscriminatorpolylineObjectUnionExplicit.IPolyline": {
+      "DiscriminatorpolylineIPolyline": {
         "type": "object",
         "properties": {
           "points": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ObjectUnionExplicit.IPoint"
+              "$ref": "#/components/schemas/IPoint"
             }
           },
           "type": {
@@ -3832,16 +3832,16 @@
           "type"
         ]
       },
-      "ObjectUnionExplicit.DiscriminatorpolygonObjectUnionExplicit.IPolygon": {
+      "DiscriminatorpolygonIPolygon": {
         "type": "object",
         "properties": {
           "outer": {
-            "$ref": "#/components/schemas/ObjectUnionExplicit.IPolyline"
+            "$ref": "#/components/schemas/IPolyline"
           },
           "inner": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ObjectUnionExplicit.IPolyline"
+              "$ref": "#/components/schemas/IPolyline"
             }
           },
           "type": {
@@ -3858,13 +3858,13 @@
           "type"
         ]
       },
-      "ObjectUnionExplicit.IPolyline": {
+      "IPolyline": {
         "type": "object",
         "properties": {
           "points": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ObjectUnionExplicit.IPoint"
+              "$ref": "#/components/schemas/IPoint"
             }
           }
         },
@@ -3873,11 +3873,11 @@
           "points"
         ]
       },
-      "ObjectUnionExplicit.DiscriminatorcircleObjectUnionExplicit.ICircle": {
+      "DiscriminatorcircleICircle": {
         "type": "object",
         "properties": {
           "centroid": {
-            "$ref": "#/components/schemas/ObjectUnionExplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint"
           },
           "radius": {
             "type": "number"
@@ -3901,30 +3901,30 @@
         "items": {
           "oneOf": [
             {
-              "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
+              "$ref": "#/components/schemas/IPoint.o1"
             },
             {
-              "$ref": "#/components/schemas/ObjectUnionImplicit.ILine"
+              "$ref": "#/components/schemas/ILine"
             },
             {
-              "$ref": "#/components/schemas/ObjectUnionImplicit.ITriangle"
+              "$ref": "#/components/schemas/ITriangle"
             },
             {
-              "$ref": "#/components/schemas/ObjectUnionImplicit.IRectangle"
+              "$ref": "#/components/schemas/IRectangle"
             },
             {
-              "$ref": "#/components/schemas/ObjectUnionImplicit.IPolyline"
+              "$ref": "#/components/schemas/IPolyline.o1"
             },
             {
-              "$ref": "#/components/schemas/ObjectUnionImplicit.IPolygon"
+              "$ref": "#/components/schemas/IPolygon"
             },
             {
-              "$ref": "#/components/schemas/ObjectUnionImplicit.ICircle"
+              "$ref": "#/components/schemas/ICircle"
             }
           ]
         }
       },
-      "ObjectUnionImplicit.IPoint": {
+      "IPoint.o1": {
         "type": "object",
         "properties": {
           "x": {
@@ -3944,14 +3944,14 @@
           "y"
         ]
       },
-      "ObjectUnionImplicit.ILine": {
+      "ILine": {
         "type": "object",
         "properties": {
           "p1": {
-            "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "p2": {
-            "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "width": {
             "type": "number",
@@ -3968,17 +3968,17 @@
           "p2"
         ]
       },
-      "ObjectUnionImplicit.ITriangle": {
+      "ITriangle": {
         "type": "object",
         "properties": {
           "p1": {
-            "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "p2": {
-            "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "p3": {
-            "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "width": {
             "type": "number",
@@ -4000,20 +4000,20 @@
           "p3"
         ]
       },
-      "ObjectUnionImplicit.IRectangle": {
+      "IRectangle": {
         "type": "object",
         "properties": {
           "p1": {
-            "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "p2": {
-            "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "p3": {
-            "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "p4": {
-            "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "width": {
             "type": "number",
@@ -4036,13 +4036,13 @@
           "p4"
         ]
       },
-      "ObjectUnionImplicit.IPolyline": {
+      "IPolyline.o1": {
         "type": "object",
         "properties": {
           "points": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
+              "$ref": "#/components/schemas/IPoint.o1"
             }
           },
           "length": {
@@ -4055,16 +4055,16 @@
           "points"
         ]
       },
-      "ObjectUnionImplicit.IPolygon": {
+      "IPolygon": {
         "type": "object",
         "properties": {
           "outer": {
-            "$ref": "#/components/schemas/ObjectUnionImplicit.IPolyline"
+            "$ref": "#/components/schemas/IPolyline.o1"
           },
           "inner": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ObjectUnionImplicit.IPolyline"
+              "$ref": "#/components/schemas/IPolyline.o1"
             }
           },
           "area": {
@@ -4077,11 +4077,11 @@
           "outer"
         ]
       },
-      "ObjectUnionImplicit.ICircle": {
+      "ICircle": {
         "type": "object",
         "properties": {
           "centroid": {
-            "$ref": "#/components/schemas/ObjectUnionImplicit.IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "radius": {
             "type": "number"

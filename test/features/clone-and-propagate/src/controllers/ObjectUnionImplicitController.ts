@@ -10,56 +10,48 @@ export class ObjectUnionImplicitController {
   }
 }
 
-export type ObjectUnionImplicit = Array<
-  | ObjectUnionImplicit.IPoint
-  | ObjectUnionImplicit.ILine
-  | ObjectUnionImplicit.ITriangle
-  | ObjectUnionImplicit.IRectangle
-  | ObjectUnionImplicit.IPolyline
-  | ObjectUnionImplicit.IPolygon
-  | ObjectUnionImplicit.ICircle
+type ObjectUnionImplicit = Array<
+  IPoint | ILine | ITriangle | IRectangle | IPolyline | IPolygon | ICircle
 >;
-export namespace ObjectUnionImplicit {
-  export interface IPoint {
-    x: number;
-    y: number;
-    slope?: number | null;
-  }
-  export interface ILine {
-    p1: IPoint;
-    p2: IPoint;
-    width?: number | null;
-    distance?: number | null;
-  }
-  export interface ITriangle {
-    p1: IPoint;
-    p2: IPoint;
-    p3: IPoint;
-    width?: number | null;
-    height?: number | null;
-    area?: number | null;
-  }
-  export interface IRectangle {
-    p1: IPoint;
-    p2: IPoint;
-    p3: IPoint;
-    p4: IPoint;
-    width?: number | null;
-    height?: number | null;
-    area?: number | null;
-  }
-  export interface IPolyline {
-    points: IPoint[];
-    length?: number | null;
-  }
-  export interface IPolygon {
-    outer: IPolyline;
-    inner?: IPolyline[];
-    area?: number | null;
-  }
-  export interface ICircle {
-    centroid?: IPoint;
-    radius: number;
-    area?: number | null;
-  }
+interface IPoint {
+  x: number;
+  y: number;
+  slope?: number | null;
+}
+interface ILine {
+  p1: IPoint;
+  p2: IPoint;
+  width?: number | null;
+  distance?: number | null;
+}
+interface ITriangle {
+  p1: IPoint;
+  p2: IPoint;
+  p3: IPoint;
+  width?: number | null;
+  height?: number | null;
+  area?: number | null;
+}
+interface IRectangle {
+  p1: IPoint;
+  p2: IPoint;
+  p3: IPoint;
+  p4: IPoint;
+  width?: number | null;
+  height?: number | null;
+  area?: number | null;
+}
+interface IPolyline {
+  points: IPoint[];
+  length?: number | null;
+}
+interface IPolygon {
+  outer: IPolyline;
+  inner?: IPolyline[];
+  area?: number | null;
+}
+interface ICircle {
+  centroid?: IPoint;
+  radius: number;
+  area?: number | null;
 }
