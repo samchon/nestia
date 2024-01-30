@@ -5,18 +5,26 @@ export namespace OmitISwaggerSecurityScheme {
     /**
      * Construct a type with the properties of T except for those in type K.
      */
-    export type IFlowtokenUrl = {
-      authorizationUrl: string;
-      refreshUrl: string;
-      scopes?: undefined | Recordstringstring;
-    };
+    export type IFlowtokenUrl =
+      /**
+       * Construct a type with the properties of T except for those in type K.
+       */
+      {
+        authorizationUrl: string;
+        refreshUrl: string;
+        scopes?: undefined | Recordstringstring;
+      };
     /**
      * Construct a type with the properties of T except for those in type K.
      */
-    export type IFlowauthorizationUrl = {
-      tokenUrl: string;
-      refreshUrl: string;
-      scopes?: undefined | Recordstringstring;
-    };
+    export type IFlowauthorizationUrl =
+      /**
+       * Construct a type with the properties of T except for those in type K.
+       */
+      {
+        tokenUrl: string;
+        refreshUrl: string;
+        scopes?: undefined | Recordstringstring;
+      };
   }
 }

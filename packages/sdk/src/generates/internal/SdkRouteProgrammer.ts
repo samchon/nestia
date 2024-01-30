@@ -3,10 +3,10 @@ import { IJsDocTagInfo } from "typia";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
-import { FormatUtil } from "../../utils/FormatUtil";
-import { ImportDictionary } from "../../utils/ImportDictionary";
+import { ImportDictionary } from "./ImportDictionary";
 import { SdkFunctionProgrammer } from "./SdkFunctionProgrammer";
 import { SdkNamespaceProgrammer } from "./SdkNamespaceProgrammer";
+import { FilePrinter } from "./FilePrinter";
 
 export namespace SdkRouteProgrammer {
   export const generate =
@@ -24,14 +24,11 @@ export namespace SdkRouteProgrammer {
         input: route.parameters.find((p) => p.category === "body"),
       };
       return [
-        FormatUtil.description(
+        FilePrinter.description(
           SdkFunctionProgrammer.generate(config)(importer)(route, props),
           describe(route),
         ),
-        SdkNamespaceProgrammer.generate(checker)(config)(importer)(
-          route,
-          props,
-        ),
+        SdkNamespaceProgrammer.write(checker)(config)(importer)(route, props),
       ];
     };
 

@@ -6,14 +6,12 @@ import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { MetadataAlias } from "typia/lib/schemas/metadata/MetadataAlias";
 import { MetadataAtomic } from "typia/lib/schemas/metadata/MetadataAtomic";
 import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
-import { MetadataProperty } from "typia/lib/schemas/metadata/MetadataProperty";
-import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
-import { FormatUtil } from "../../utils/FormatUtil";
-import { ImportDictionary } from "../../utils/ImportDictionary";
 import { MapUtil } from "../../utils/MapUtil";
+import { FilePrinter } from "./FilePrinter";
+import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkInterfaceProgrammer {
@@ -25,7 +23,7 @@ export namespace SdkInterfaceProgrammer {
       | ((importer: ImportDictionary) => ts.TypeAliasDeclaration);
   }
 
-  export const generate =
+  export const write =
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (routes: IRoute[]): Map<string, IModule> => {
@@ -60,12 +58,13 @@ export namespace SdkInterfaceProgrammer {
       const dict: Map<string, IModule> = new Map();
       for (const alias of collection.aliases())
         prepare(dict)(alias.name)((importer) =>
-          define_alias(config)(importer)(alias),
+          write_alias(config)(importer)(alias),
         );
       for (const object of collection.objects())
-        prepare(dict)(object.name)((importer) =>
-          define_object(config)(importer)(object),
-        );
+        if (object.name !== "__type" && !object.name.startsWith("__type."))
+          prepare(dict)(object.name)((importer) =>
+            write_object(config)(importer)(object),
+          );
       return dict;
     };
 
@@ -88,97 +87,34 @@ export namespace SdkInterfaceProgrammer {
       return modulo!;
     };
 
-  const define_alias =
+  const write_alias =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (alias: MetadataAlias): ts.TypeAliasDeclaration =>
-      FormatUtil.description(
+      FilePrinter.description(
         ts.factory.createTypeAliasDeclaration(
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
           alias.name.split(".").at(-1)!,
           [],
-          SdkTypeProgrammer.decode(config)(importer)(alias.value),
+          SdkTypeProgrammer.write(config)(importer)(alias.value),
         ),
         writeComment([])(alias.description, alias.jsDocTags),
       );
 
-  const define_object =
+  const write_object =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (object: MetadataObject): ts.TypeAliasDeclaration => {
-      const regular = object.properties.filter((p) => p.key.isSoleLiteral());
-      const dynamic = object.properties.filter((p) => !p.key.isSoleLiteral());
-      return FormatUtil.description(
+      return FilePrinter.description(
         ts.factory.createTypeAliasDeclaration(
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
           object.name.split(".").at(-1)!,
           [],
-          regular.length && dynamic.length
-            ? ts.factory.createIntersectionTypeNode([
-                define_regular(config)(importer)(regular),
-                ...dynamic.map(define_dynamic(config)(importer)),
-              ])
-            : dynamic.length
-              ? ts.factory.createIntersectionTypeNode(
-                  dynamic.map(define_dynamic(config)(importer)),
-                )
-              : define_regular(config)(importer)(regular),
+          SdkTypeProgrammer.write_object(config)(importer)(object),
         ),
         writeComment([])(object.description ?? null, object.jsDocTags),
       );
     };
-
-  const define_regular =
-    (config: INestiaConfig) =>
-    (importer: ImportDictionary) =>
-    (properties: MetadataProperty[]): ts.TypeLiteralNode =>
-      ts.factory.createTypeLiteralNode(
-        properties.map((p) =>
-          FormatUtil.description(
-            ts.factory.createPropertySignature(
-              undefined,
-              Escaper.variable(String(p.key.constants[0].values[0]))
-                ? ts.factory.createIdentifier(
-                    String(p.key.constants[0].values[0]),
-                  )
-                : ts.factory.createStringLiteral(
-                    String(p.key.constants[0].values[0]),
-                  ),
-              p.value.isRequired() === false
-                ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
-                : undefined,
-              SdkTypeProgrammer.decode(config)(importer)(p.value),
-            ),
-            writeComment(p.value.atomics)(p.description, p.jsDocTags),
-          ),
-        ),
-      );
-
-  const define_dynamic =
-    (config: INestiaConfig) =>
-    (importer: ImportDictionary) =>
-    (property: MetadataProperty): ts.TypeLiteralNode =>
-      ts.factory.createTypeLiteralNode([
-        FormatUtil.description(
-          ts.factory.createIndexSignature(
-            undefined,
-            [
-              ts.factory.createParameterDeclaration(
-                undefined,
-                undefined,
-                ts.factory.createIdentifier("key"),
-                undefined,
-                SdkTypeProgrammer.decode(config)(importer)(property.key),
-              ),
-            ],
-            SdkTypeProgrammer.decode(config)(importer)(property.value),
-          ),
-          writeComment(property.value.atomics)(
-            property.description,
-            property.jsDocTags,
-          ),
-        ),
-      ]);
 }
 
 const writeComment =

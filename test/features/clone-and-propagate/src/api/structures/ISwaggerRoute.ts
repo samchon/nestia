@@ -1,4 +1,3 @@
-import type { __type } from "./__type";
 import type { IJsDocTagInfo } from "./IJsDocTagInfo";
 import type { IJsonSchema } from "./IJsonSchema";
 import type { RecordstringArraystring } from "./RecordstringArraystring";
@@ -19,7 +18,11 @@ export type ISwaggerRoute = {
 };
 export namespace ISwaggerRoute {
   export type IResponseBody = {
-    [key: string]: __type.o4;
+    [key: string]: {
+      description: string;
+      content?: undefined | ISwaggerRoute.IContent;
+      "x-nestia-encrypted"?: undefined | boolean;
+    };
   };
   export type IParameter = {
     name: string;
@@ -35,8 +38,20 @@ export namespace ISwaggerRoute {
     "x-nestia-encrypted"?: undefined | boolean;
   };
   export type IContent = {
-    "application/x-www-form-urlencoded"?: undefined | __type.o1;
-    "application/json"?: undefined | __type.o2;
-    "text/plain"?: undefined | __type.o3;
+    "application/x-www-form-urlencoded"?:
+      | undefined
+      | {
+          schema: IJsonSchema;
+        };
+    "application/json"?:
+      | undefined
+      | {
+          schema: IJsonSchema;
+        };
+    "text/plain"?:
+      | undefined
+      | {
+          schema: IJsonSchema;
+        };
   };
 }

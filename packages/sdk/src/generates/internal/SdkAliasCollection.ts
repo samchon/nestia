@@ -2,7 +2,7 @@ import ts from "typescript";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { IRoute } from "../../structures/IRoute";
-import { ImportDictionary } from "../../utils/ImportDictionary";
+import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkAliasCollection {
@@ -11,7 +11,7 @@ export namespace SdkAliasCollection {
     (importer: ImportDictionary) =>
     (p: IRoute.IParameter | IRoute.IOutput): ts.TypeNode =>
       p.metadata
-        ? SdkTypeProgrammer.decode(config)(importer)(p.metadata)
+        ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
         : ts.factory.createTypeReferenceNode(p.typeName);
 
   export const headers =
