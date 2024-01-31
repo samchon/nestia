@@ -132,7 +132,12 @@ export namespace ControllerAnalyzer {
         importDict,
         signature.getReturnType(),
       );
-      if (outputType === null || outputType.typeName === "__type") {
+      if (
+        outputType === null ||
+        (project.config.clone !== true &&
+          (outputType.typeName === "__type" ||
+            outputType.typeName === "__object"))
+      ) {
         project.errors.push({
           file: controller.file,
           controller: controller.name,
@@ -359,7 +364,11 @@ export namespace ControllerAnalyzer {
         importDict,
         type,
       );
-      if (tuple === null || tuple.typeName === "__type")
+      if (
+        tuple === null ||
+        (project.config.clone !== true &&
+          (tuple.typeName === "__type" || tuple.typeName === "__object"))
+      )
         errors.push({
           file: controller.file,
           controller: controller.name,
