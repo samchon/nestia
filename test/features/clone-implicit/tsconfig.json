@@ -1,0 +1,116 @@
+{
+    "compilerOptions": {
+        /* Type Checking */
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        // "alwaysStrict": true, // strict mode family
+        "exactOptionalPropertyTypes": true,
+        "noFallthroughCasesInSwitch": false,
+        //  "noImplicitAny": true, // strict mode family
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        // "noImplicitThis": true, // strict mode family
+        "noPropertyAccessFromIndexSignature": true,
+        "noUncheckedIndexedAccess": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "strict": true,
+        // "strictBindCallApply": true, // strict mode family
+        // "strictFunctionTypes": true, // strict mode family
+        // "strictNullChecks": true, // strict mode family
+        // "strictPropertyInitialization": true, // strict mode family
+        // "useUnknownInCatchVariables": true // strict mode family
+
+        /* Modules */
+        "allowArbitraryExtensions": false, // v5
+        "allowImportingTsExtensions": false,
+        "allowUmdGlobalAccess": false,
+        // "baseUrl": "./",
+        // "customConditions": [],
+        "module": "CommonJS",
+        "moduleResolution": "Node10",
+        // "moduleSuffix": [],
+        // "noResolve": false,
+        "paths": {
+            "@api": ["./src/api"],
+            "@api/lib/*": ["./src/api/*"],
+        },
+        "resolveJsonModule": true,
+        // "resolvePackageJsonExports": false,
+        // "resolvePackageJsonImports": false,
+        // "rootDir": ".",
+        // "rootDirs": [],
+        // "typeRoots": [],
+        // "types": [],
+
+        /* Emit */
+        "declaration": true,
+        // "declarationDir": "./types",
+        // "declarationMap": false,
+        // "downlevelIteration": false
+        // "emitBOM": false,
+        // "emitDeclarationOnly": false,
+        // "importHelpers": false
+        // "inlineSourceMap": false,
+        // "inlineSources": false,
+        // "mapRoot": "",
+        "newLine": "lf",
+        // "noEmit": false,
+        // "noEmitHelpers": false,
+        "noEmitOnError": true,
+        "outDir": "./bin",
+        // "outFile": "",
+        // "preserveConstEnums": false,
+        "removeComments": false,
+        "sourceMap": true,
+        // "sourceRoot": "",
+        "stripInternal": true,
+
+        /* JavaScript Support */
+        "allowJs": false,
+        // "checkJs": true,
+        // "maxNodeModuleJsDepth": 0,
+
+        /* Editor Support */
+        // "disableSizeLimit": false,
+        "plugins": [
+            { "transform": "typescript-transform-paths" },
+            {
+                "transform": "typescript-transform-paths",
+                "afterDeclarations": true
+            },
+            { "transform": "typia/lib/transform" },
+            { "transform": "@nestia/core/lib/transform" }
+        ],
+
+        /* Interop Constraints */
+        // "allowSyntheticDefaultImports": true, // true if esModuleInterop is true
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "isolatedModules": true,
+        // "preserveSymlinks": false,
+        "verbatimModuleSyntax": false, // v5
+
+        /* Language and Environment */
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        // "lib": [],
+        // "moduleDetection": "force",
+        "target": "ES2022",
+        "useDefineForClassFields": true,
+
+        /* Projects */
+        // "composite": true,
+        // "disableReferencedProjectLoad": true,
+        // "disableSolutionSearching": true,
+        // "disableSourceOfProjectReferenceRedirect": true,
+        "incremental": false,
+
+        /* Output Formatting */
+        "noErrorTruncation": true,
+        "pretty": true,
+
+        /* Completeness */
+        "skipLibCheck": true
+    }
+}

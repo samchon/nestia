@@ -153,7 +153,11 @@ export namespace E2eFileProgrammer {
                 ts.factory.createVariableDeclaration(
                   "output",
                   undefined,
-                  SdkAliasCollection.output(checker)(config)(importer)(route),
+                  config.propagate !== true && route.output.typeName === "void"
+                    ? undefined
+                    : SdkAliasCollection.output(checker)(config)(importer)(
+                        route,
+                      ),
                   ts.factory.createAwaitExpression(caller),
                 ),
               ],

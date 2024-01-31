@@ -75,7 +75,11 @@ export namespace ExceptionAnalyzer {
         importDict,
         type,
       );
-      if (tuple === null || tuple.typeName === "__type") {
+      if (
+        tuple === null ||
+        (project.config.clone !== true &&
+          (tuple.typeName === "__type" || tuple.typeName === "__object"))
+      ) {
         project.errors.push({
           file: controller.file,
           controller: controller.name,

@@ -176,19 +176,21 @@ export class NestiaSdkApplication {
     if (project.warnings.length) report_errors("warning")(project.warnings);
 
     // FIND IMPLICIT TYPES
-    const implicit: IRoute[] = routeList.filter(is_implicit_return_typed);
-    if (implicit.length > 0)
-      throw new Error(
-        `NestiaApplication.${method}(): implicit return type is not allowed.\n` +
-          "\n" +
-          "List of implicit return typed routes:\n" +
-          implicit
-            .map(
-              (it) =>
-                `  - ${it.symbol.class}.${it.symbol.function} at "${it.location}"`,
-            )
-            .join("\n"),
-      );
+    if (this.config.clone !== true) {
+      const implicit: IRoute[] = routeList.filter(is_implicit_return_typed);
+      if (implicit.length > 0)
+        throw new Error(
+          `NestiaApplication.${method}(): implicit return type is not allowed.\n` +
+            "\n" +
+            "List of implicit return typed routes:\n" +
+            implicit
+              .map(
+                (it) =>
+                  `  - ${it.symbol.class}.${it.symbol.function} at "${it.location}"`,
+              )
+              .join("\n"),
+        );
+    }
 
     // DO GENERATE
     AccessorAnalyzer.analyze(routeList);

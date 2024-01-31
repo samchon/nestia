@@ -8,7 +8,6 @@ import type {
   IConnection,
   Resolved,
   IPropagation,
-  Primitive,
   HttpError,
 } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
@@ -76,7 +75,7 @@ export namespace getUserProfile {
       : `${location}?${variables.toString()}`;
   };
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<IUser>>(g);
+    typia.random<IUser>(g);
   export const simulate = (
     connection: IConnection,
     user_id: string,
@@ -145,8 +144,7 @@ export async function updateUserProfile(
       );
 }
 export namespace updateUserProfile {
-  export type Input =
-    Primitive<PartialPickIUsernameemailnullable_attroptional_attr>;
+  export type Input = PartialPickIUsernameemailnullable_attroptional_attr;
   export type Output = IPropagation<{
     201: IUser;
   }>;
@@ -168,7 +166,7 @@ export namespace updateUserProfile {
   export const path = (user_id: string) =>
     `/users/${encodeURIComponent(user_id ?? "null")}/user`;
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<IUser>>(g);
+    typia.random<IUser>(g);
   export const simulate = (
     connection: IConnection,
     user_id: string,

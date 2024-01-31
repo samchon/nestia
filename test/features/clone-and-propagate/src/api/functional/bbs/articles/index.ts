@@ -8,7 +8,6 @@ import type {
   IConnection,
   Resolved,
   IPropagation,
-  Primitive,
   HttpError,
 } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
@@ -73,7 +72,7 @@ export namespace index {
       : `${location}?${variables.toString()}`;
   };
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<IPageIBbsArticle.ISummary>>(g);
+    typia.random<IPageIBbsArticle.ISummary>(g);
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -146,7 +145,7 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input = Primitive<IBbsArticle.IStore>;
+  export type Input = IBbsArticle.IStore;
   export type Output = IPropagation<{
     201: IBbsArticle;
   }>;
@@ -168,7 +167,7 @@ export namespace store {
   export const path = (section: string) =>
     `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<IBbsArticle>>(g);
+    typia.random<IBbsArticle>(g);
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -243,7 +242,7 @@ export async function update(
       );
 }
 export namespace update {
-  export type Input = Primitive<IBbsArticle.IStore>;
+  export type Input = IBbsArticle.IStore;
   export type Output = IPropagation<{
     200: IBbsArticle;
   }>;
@@ -265,7 +264,7 @@ export namespace update {
   export const path = (section: string, id: string & Format<"uuid">) =>
     `/bbs/articles/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<IBbsArticle>>(g);
+    typia.random<IBbsArticle>(g);
   export const simulate = (
     connection: IConnection,
     section: string,

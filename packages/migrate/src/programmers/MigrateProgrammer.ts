@@ -40,7 +40,10 @@ export namespace MigrateProgrammer {
       content: FilePrinter.write({ statements: o.statements }),
     }));
 
-  const writeDtoFile = (key: string, modulo: DtoProgrammer.IModule): ts.Statement[] => {
+  const writeDtoFile = (
+    key: string,
+    modulo: DtoProgrammer.IModule,
+  ): ts.Statement[] => {
     const importer = new ImportProgrammer();
     const statements: ts.Statement[] = iterate(importer)(modulo);
     if (statements.length === 0) return [];

@@ -1,4 +1,3 @@
-import type { Primitive } from "@nestia/fetcher";
 import typia from "typia";
 
 import api from "../../../../api";
@@ -7,10 +6,9 @@ import type { ISeller } from "../../../../api/structures/ISeller";
 export const test_api_sellers_authenticate_password_change = async (
   connection: api.IConnection,
 ) => {
-  const output: Primitive<void> =
-    await api.functional.sellers.authenticate.password.change(
-      connection,
-      typia.random<ISeller.IChangePassword>(),
-    );
+  const output = await api.functional.sellers.authenticate.password.change(
+    connection,
+    typia.random<ISeller.IChangePassword>(),
+  );
   typia.assert(output);
 };

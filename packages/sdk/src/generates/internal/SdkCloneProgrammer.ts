@@ -61,7 +61,12 @@ export namespace SdkInterfaceProgrammer {
           write_alias(config)(importer)(alias),
         );
       for (const object of collection.objects())
-        if (object.name !== "__type" && !object.name.startsWith("__type."))
+        if (
+          object.name !== "__type" &&
+          !object.name.startsWith("__type.") &&
+          object.name !== "__object" &&
+          !object.name.startsWith("__object.")
+        )
           prepare(dict)(object.name)((importer) =>
             write_object(config)(importer)(object),
           );
