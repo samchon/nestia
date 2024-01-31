@@ -47,7 +47,12 @@ export namespace SdkTypeProgrammer {
       for (const array of meta.arrays)
         union.push(write_array(config)(importer)(array));
       for (const object of meta.objects)
-        if (object.name === "__type" || object.name.startsWith("__type."))
+        if (
+          object.name === "__type" ||
+          object.name.startsWith("__type.") ||
+          object.name === "__object" ||
+          object.name.startsWith("__object.")
+        )
           union.push(write_object(config)(importer)(object));
         else union.push(write_alias(config)(importer)(object));
       for (const alias of meta.aliases)

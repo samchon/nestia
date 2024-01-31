@@ -51,7 +51,7 @@ export namespace SdkAliasCollection {
     (importer: ImportDictionary) =>
     (param: IRoute.IParameter): ts.TypeNode => {
       const type: ts.TypeNode = name(config)(importer)(param);
-      if (config.primitive === false) return type;
+      if (config.clone === true || config.primitive === false) return type;
       return ts.factory.createTypeReferenceNode(
         importer.external({
           type: true,
@@ -73,11 +73,12 @@ export namespace SdkAliasCollection {
         const filter = (flag: ts.TypeFlags) => (type.getFlags() & flag) !== 0;
 
         if (
+          config.clone === true ||
+          config.primitive === false ||
           filter(ts.TypeFlags.Undefined) ||
           filter(ts.TypeFlags.Never) ||
           filter(ts.TypeFlags.Void) ||
-          filter(ts.TypeFlags.VoidLike) ||
-          config.primitive === false
+          filter(ts.TypeFlags.VoidLike)
         )
           return node;
         return ts.factory.createTypeReferenceNode(

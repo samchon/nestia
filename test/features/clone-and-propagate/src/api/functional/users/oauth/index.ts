@@ -8,7 +8,6 @@ import type {
   IConnection,
   Resolved,
   IPropagation,
-  Primitive,
   HttpError,
 } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
@@ -69,7 +68,7 @@ export namespace getOauthProfile {
       : `${location}?${variables.toString()}`;
   };
   export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<IAuthentication.IProfile>>(g);
+    typia.random<IAuthentication.IProfile>(g);
   export const simulate = (
     connection: IConnection,
     user_id: string,

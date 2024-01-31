@@ -14,6 +14,7 @@ export namespace SdkCloneProgrammer {
     async (routes: IRoute[]): Promise<void> => {
       const dict: Map<string, SdkInterfaceProgrammer.IModule> =
         SdkInterfaceProgrammer.write(checker)(config)(routes);
+      if (dict.size === 0) return;
       try {
         await fs.promises.mkdir(`${config.output}/structures`);
       } catch {}
