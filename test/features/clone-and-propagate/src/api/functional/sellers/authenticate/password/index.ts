@@ -6,10 +6,10 @@
 //================================================================
 import type { IConnection, IPropagation, HttpError } from "@nestia/fetcher";
 import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
+import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import typia from "typia";
 
 import type { ISeller } from "../../../../structures/ISeller";
-import { NestiaSimulator } from "../../../../utils/NestiaSimulator";
 
 /**
  * Change password.

@@ -4,10 +4,12 @@ import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
+import { IMigrateConfig } from "../IMigrateConfig";
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
+import { ApiSimulatationProgrammer } from "./ApiSimulatationProgrammer";
 import { ImportProgrammer } from "./ImportProgrammer";
 import { SchemaProgrammer } from "./SchemaProgrammer";
 
@@ -19,6 +21,7 @@ export namespace ApiNamespaceProgrammer {
   }
 
   export const write =
+    (config: IMigrateConfig) =>
     (components: ISwaggerComponents) =>
     (importer: ImportProgrammer) =>
     (props: IProps): ts.ModuleDeclaration => {
@@ -32,10 +35,30 @@ export namespace ApiNamespaceProgrammer {
           writeMetadata(components)(importer)(props),
           FilePrinter.enter(),
           writePath(components)(importer)(props),
+          ...(config.simulate
+            ? [
+                ApiSimulatationProgrammer.random(components)(importer)(props),
+                ApiSimulatationProgrammer.simulate(components)(importer)(props),
+              ]
+            : []),
         ]),
         ts.NodeFlags.Namespace,
       );
     };
+
+  export const writePathCallExpression = (props: IProps) =>
+    ts.factory.createCallExpression(
+      ts.factory.createIdentifier(`${props.alias}.path`),
+      undefined,
+      [
+        ...props.route.parameters.map((p) =>
+          ts.factory.createIdentifier(p.key),
+        ),
+        ...(props.route.query
+          ? [ts.factory.createIdentifier(props.route.query.key)]
+          : []),
+      ],
+    );
 
   const writeTypes =
     (components: ISwaggerComponents) =>
@@ -251,7 +274,7 @@ export namespace ApiNamespaceProgrammer {
                 undefined,
                 [
                   ts.factory.createAsExpression(
-                    ts.factory.createIdentifier("query"),
+                    ts.factory.createIdentifier(props.route.query.key),
                     TypeFactory.keyword("any"),
                   ),
                 ],

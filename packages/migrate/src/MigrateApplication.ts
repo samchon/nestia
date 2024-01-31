@@ -2,6 +2,7 @@ import cp from "child_process";
 import fs from "fs";
 import typia from "typia";
 
+import { IMigrateConfig } from "./IMigrateConfig";
 import { MigrateAnalyzer } from "./analyzers/MigrateAnalyzer";
 import { FileArchiver } from "./archivers/FileArchiver";
 import { TEMPLATE } from "./bundles/TEMPLATE";
@@ -16,7 +17,10 @@ export class MigrateApplication {
   private program: IMigrateProgram | null;
   private files: IMigrateFile[] | null;
 
-  public constructor(swagger: ISwagger) {
+  public constructor(
+    public readonly config: IMigrateConfig,
+    swagger: ISwagger,
+  ) {
     this.swagger = typia.assert(swagger);
     this.program = null;
     this.files = null;
@@ -24,7 +28,7 @@ export class MigrateApplication {
 
   public analyze(): IMigrateProgram {
     if (this.program === null)
-      this.program = MigrateAnalyzer.analyze(this.swagger);
+      this.program = MigrateAnalyzer.analyze(this.config)(this.swagger);
     return this.program;
   }
 
@@ -32,8 +36,8 @@ export class MigrateApplication {
     if (this.files === null) {
       this.program ??= this.analyze();
       this.files = [
-        ...NestProgrammer.write(this.program),
         ...ApiProgrammer.write(this.program),
+        ...NestProgrammer.write(this.program),
       ];
     }
     return this.files;
@@ -64,7 +68,7 @@ export class MigrateApplication {
             force: true,
           });
       } catch {}
-    } catch {
+    } catch (exp) {
       await archiver(TEMPLATE);
     }
     await archiver(files);

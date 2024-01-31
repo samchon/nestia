@@ -8,9 +8,10 @@ import { SetupWizard } from "../utils/SetupWizard";
 
 const USAGE = `Wrong command has been detected. Use like below:
 
-npx @nestia/migrate [input] [output]
+npx @nestia/migrate <nest|sdk> --input <swagger.json> --output <directory>
 
-  ex) npx @nestia/migrate swagger.json my-new-project
+  ex) npx @nestia/migrate nest --input swagger.json --output my-nest-project
+  ex) npx @nestia/migrate sdk --input swagger.json --output my-sdk-library
 `;
 
 function halt(desc: string): never {
@@ -47,7 +48,12 @@ const main = async (argv: string[]): Promise<void> => {
   })();
 
   // DO GENERATE
-  const app: MigrateApplication = new MigrateApplication(swagger);
+  const app: MigrateApplication = new MigrateApplication(
+    {
+      simulate: false,
+    },
+    swagger,
+  );
   await app.generate(output);
 
   // RUN SCRIPTS

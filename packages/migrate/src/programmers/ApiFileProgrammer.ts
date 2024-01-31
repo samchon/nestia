@@ -1,5 +1,6 @@
 import ts from "typescript";
 
+import { IMigrateConfig } from "../IMigrateConfig";
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
@@ -20,13 +21,14 @@ export namespace ApiFileProgrammer {
   }
 
   export const write =
+    (config: IMigrateConfig) =>
     (components: ISwaggerComponents) =>
     (props: IProps): ts.Statement[] => {
       const importer: ImportProgrammer = new ImportProgrammer();
       const statements: ts.Statement[] = props.entries
         .map((p) => [
-          ApiFunctionProgrammer.write(components)(importer)(p),
-          ApiNamespaceProgrammer.write(components)(importer)(p),
+          ApiFunctionProgrammer.write(config)(components)(importer)(p),
+          ApiNamespaceProgrammer.write(config)(components)(importer)(p),
         ])
         .flat();
       return [

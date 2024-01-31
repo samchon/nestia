@@ -42,18 +42,6 @@ export namespace SdkGenerator {
           }
         }
       }
-      if (
-        config.simulate === true &&
-        routes.some((r) => !!r.parameters.length)
-      ) {
-        try {
-          await fs.promises.mkdir(`${config.output}/utils`);
-        } catch {}
-        await fs.promises.copyFile(
-          `${BUNDLE_PATH}/utils/NestiaSimulator.ts`,
-          `${config.output}/utils/NestiaSimulator.ts`,
-        );
-      }
 
       // STRUCTURES
       if (config.clone) await SdkCloneProgrammer.write(checker)(config)(routes);

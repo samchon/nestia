@@ -61,7 +61,9 @@ export namespace ApiProgrammer {
       location: `src/api/functional/${props.namespace.join("/")}`,
       file: "index.ts",
       content: FilePrinter.write({
-        statements: ApiFileProgrammer.write(program.swagger.components)(props),
+        statements: ApiFileProgrammer.write(program.config)(
+          program.swagger.components,
+        )(props),
       }),
     }));
   };

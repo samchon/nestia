@@ -5,13 +5,13 @@
  */
 //================================================================
 import type { IConnection, Resolved, Primitive } from "@nestia/fetcher";
+import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 import type { Format } from "typia/lib/tags/Format";
 
 import type { IBbsArticle } from "../../structures/IBbsArticle";
 import type { IHeaders } from "../../structures/IHeaders";
-import { NestiaSimulator } from "../../utils/NestiaSimulator";
 
 /**
  * @controller HeadersController.emplace

@@ -5,12 +5,12 @@
  */
 //================================================================
 import type { IConnection, IPropagation, HttpError } from "@nestia/fetcher";
+import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
 import type { PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr } from "../../../structures/PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr";
 import type { PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrb } from "../../../structures/PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrb";
-import { NestiaSimulator } from "../../../utils/NestiaSimulator";
 
 /**
  * @controller PartialDTOTestController.partialType

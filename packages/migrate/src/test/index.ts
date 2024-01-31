@@ -8,17 +8,20 @@ const SAMPLE = __dirname + "/../../assets/input";
 const TEST = __dirname + "/../../../../test/features";
 const OUTPUT = __dirname + "/../../assets/output";
 
-const measure = (title: string) => (task: () => Promise<void>) => {
+const measure = (title: string) => async (task: () => Promise<void>) => {
   process.stdout.write(`  - ${title}: `);
   const time: number = Date.now();
-  task();
+  await task();
   console.log(`${(Date.now() - time).toLocaleString()} ms`);
   return time;
 };
 
 const execute = (project: string) => (swagger: ISwagger) =>
   measure(project)(async () => {
-    const app: MigrateApplication = new MigrateApplication(swagger);
+    const app: MigrateApplication = new MigrateApplication(
+      { simulate: true },
+      swagger,
+    );
     app.analyze();
     await app.generate(`${OUTPUT}/${project}`);
 

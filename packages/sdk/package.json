@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "2.5.0-dev.20240131",
+  "version": "2.5.0-dev.20240201",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -34,7 +34,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "D:\\github\\samchon\\nestia@website\\packages\\fetcher\\nestia-fetcher-2.5.0-dev.20240131.tgz",
+    "@nestia/fetcher": "D:\\github\\samchon\\nestia\\packages\\fetcher\\nestia-fetcher-2.5.0-dev.20240201.tgz",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",
@@ -46,7 +46,7 @@
     "typia": "^5.4.1"
   },
   "peerDependencies": {
-    "@nestia/fetcher": ">=2.5.0-dev.20240131",
+    "@nestia/fetcher": ">=2.5.0-dev.20240201",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "prettier": ">=2.0.0",

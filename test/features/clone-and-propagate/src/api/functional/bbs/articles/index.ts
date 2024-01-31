@@ -10,6 +10,7 @@ import type {
   IPropagation,
   HttpError,
 } from "@nestia/fetcher";
+import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 import type { Format } from "typia/lib/tags/Format";
@@ -17,7 +18,6 @@ import type { Format } from "typia/lib/tags/Format";
 import type { IBbsArticle } from "../../../structures/IBbsArticle";
 import type { IPage } from "../../../structures/IPage";
 import type { IPageIBbsArticle } from "../../../structures/IPageIBbsArticle";
-import { NestiaSimulator } from "../../../utils/NestiaSimulator";
 
 /**
  * List up summarized articles.
