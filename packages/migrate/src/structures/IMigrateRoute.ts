@@ -1,5 +1,3 @@
-import { IJsDocTagInfo } from "typia/lib/schemas/metadata/IJsDocTagInfo";
-
 import { ISwaggerSchema } from "./ISwaggeSchema";
 
 export interface IMigrateRoute {
@@ -7,13 +5,14 @@ export interface IMigrateRoute {
   path: string;
   method: string;
   parameters: IMigrateRoute.IParameter[];
-  headers: ISwaggerSchema | null;
-  query: ISwaggerSchema | null;
+  headers: IMigrateRoute.IHeaders | null;
+  query: IMigrateRoute.IQuery | null;
   body: IMigrateRoute.IBody | null;
   success: IMigrateRoute.IBody | null;
   exceptions: Record<string, IMigrateRoute.IException>;
   description?: string;
-  "x-nestia-jsDocTags"?: IJsDocTagInfo[];
+  tags: string[];
+  deprecated: boolean;
 }
 export namespace IMigrateRoute {
   export interface IParameter {
@@ -21,7 +20,16 @@ export namespace IMigrateRoute {
     schema: ISwaggerSchema;
     description?: string;
   }
+  export interface IHeaders {
+    key: string;
+    schema: ISwaggerSchema;
+  }
+  export interface IQuery {
+    key: string;
+    schema: ISwaggerSchema;
+  }
   export interface IBody {
+    key: string;
     type:
       | "text/plain"
       | "application/json"

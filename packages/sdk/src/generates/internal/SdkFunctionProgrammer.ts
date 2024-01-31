@@ -10,7 +10,7 @@ import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkFunctionProgrammer {
-  export const generate =
+  export const write =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (
@@ -66,13 +66,13 @@ export namespace SdkFunctionProgrammer {
           ),
         ]),
         ts.factory.createBlock(
-          generate_body(config)(importer)(route, props),
+          write_body(config)(importer)(route, props),
           true,
         ),
       );
     };
 
-  const generate_body =
+  const write_body =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (

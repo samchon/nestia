@@ -2,7 +2,7 @@
 import fs from "fs";
 import path from "path";
 
-import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
+import { MigrateApplication } from "../MigrateApplication";
 import { ISwagger } from "../structures/ISwagger";
 import { SetupWizard } from "../utils/SetupWizard";
 
@@ -18,7 +18,7 @@ function halt(desc: string): never {
   process.exit(-1);
 }
 
-const main = (argv: string[]) => {
+const main = async (argv: string[]): Promise<void> => {
   const resolve = (str: string | undefined) =>
     str ? path.resolve(str).split("\\").join("/") : undefined;
   const input: string | undefined = resolve(argv[0]);
@@ -47,13 +47,13 @@ const main = (argv: string[]) => {
   })();
 
   // DO GENERATE
-  const app = new NestiaMigrateApplication(swagger);
-  app.generate({
-    mkdir: fs.mkdirSync,
-    writeFile: (path, content) => fs.writeFileSync(path, content, "utf8"),
-  })(output);
+  const app: MigrateApplication = new MigrateApplication(swagger);
+  await app.generate(output);
 
   // RUN SCRIPTS
   SetupWizard.setup(output);
 };
-main(process.argv.slice(2));
+main(process.argv.slice(2)).catch((exp) => {
+  console.error(exp);
+  process.exit(-1);
+});

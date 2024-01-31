@@ -1,14 +1,14 @@
 import cp from "child_process";
 import fs from "fs";
 
-import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
+import { MigrateApplication } from "../MigrateApplication";
 import { ISwagger } from "../structures/ISwagger";
 
 const SAMPLE = __dirname + "/../../assets/input";
 const TEST = __dirname + "/../../../../test/features";
 const OUTPUT = __dirname + "/../../assets/output";
 
-const measure = (title: string) => (task: () => void) => {
+const measure = (title: string) => (task: () => Promise<void>) => {
   process.stdout.write(`  - ${title}: `);
   const time: number = Date.now();
   task();
@@ -17,13 +17,10 @@ const measure = (title: string) => (task: () => void) => {
 };
 
 const execute = (project: string) => (swagger: ISwagger) =>
-  measure(project)(() => {
-    const app: NestiaMigrateApplication = new NestiaMigrateApplication(swagger);
+  measure(project)(async () => {
+    const app: MigrateApplication = new MigrateApplication(swagger);
     app.analyze();
-    app.generate({
-      mkdir: fs.mkdirSync,
-      writeFile: (path, content) => fs.writeFileSync(path, content, "utf8"),
-    })(`${OUTPUT}/${project}`);
+    await app.generate(`${OUTPUT}/${project}`);
 
     cp.execSync(`npx tsc -p ${OUTPUT}/${project}/tsconfig.json`, {
       stdio: "inherit",
@@ -31,9 +28,9 @@ const execute = (project: string) => (swagger: ISwagger) =>
     });
   });
 
-const main = () => {
-  if (fs.existsSync(OUTPUT)) fs.rmSync(OUTPUT, { recursive: true });
-  fs.mkdirSync(OUTPUT);
+const main = async () => {
+  if (fs.existsSync(OUTPUT)) await fs.promises.rm(OUTPUT, { recursive: true });
+  await fs.promises.mkdir(OUTPUT);
 
   const only = (() => {
     const index: number = process.argv.indexOf("--only");
@@ -41,7 +38,7 @@ const main = () => {
     return undefined;
   })();
 
-  for (const file of fs.readdirSync(SAMPLE)) {
+  for (const file of await fs.promises.readdir(SAMPLE)) {
     const location: string = `${SAMPLE}/${file}`;
     if (!location.endsWith(".json")) continue;
 
@@ -49,7 +46,7 @@ const main = () => {
     if ((only ?? project) !== project) continue;
 
     const swagger: ISwagger = JSON.parse(fs.readFileSync(location, "utf8"));
-    execute(project)(swagger);
+    await execute(project)(swagger);
   }
 
   for (const feature of fs.readdirSync(TEST)) {
@@ -64,7 +61,7 @@ const main = () => {
     if (fs.existsSync(location) === false) continue;
 
     const swagger: ISwagger = JSON.parse(fs.readFileSync(location, "utf8"));
-    execute(feature)(swagger);
+    await execute(feature)(swagger);
   }
 };
 main();

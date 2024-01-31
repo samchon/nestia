@@ -1,19 +1,13 @@
-import ts from "typescript";
+import { Escaper } from "typia/lib/utils/Escaper";
 
+import { ISwagger } from "../module";
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwagger } from "../structures/ISwagger";
-import { ISwaggerComponents } from "../structures/ISwaggerComponents";
-import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
-import { ImportProgrammer } from "./ImportProgrammer";
-import { RouteProgrammer } from "./RouteProgrammer";
+import { MethodAnalzyer } from "./MethodAnalyzer";
 
-export namespace ControllerProgrammer {
-  /* -----------------------------------------------------------
-    ANALYZERS
-  ----------------------------------------------------------- */
+export namespace ControllerAnalyzer {
   export const analyze = (swagger: ISwagger): IMigrateController[] => {
     const dict: Map<string, IMigrateRoute[]> = new Map();
 
@@ -28,7 +22,7 @@ export namespace ControllerProgrammer {
       // INSERT ROUTES TO THE LAST DIRECTORY
       const routes: IMigrateRoute[] = MapUtil.take(dict)(location)(() => []);
       for (const [method, value] of Object.entries(collection)) {
-        const r: IMigrateRoute | null = RouteProgrammer.analyze(swagger)({
+        const r: IMigrateRoute | null = MethodAnalzyer.analyze(swagger)({
           path,
           method,
         })(value);
@@ -70,7 +64,7 @@ export namespace ControllerProgrammer {
           routes,
         };
         if (controller.name === "Controller") controller.name = "__Controller";
-        naming(controller);
+        emend(controller);
         return controller;
       });
   };
@@ -81,7 +75,7 @@ export namespace ControllerProgrammer {
       .slice(0, -1)
       .reverse();
 
-  const naming = (controller: IMigrateController): void => {
+  const emend = (controller: IMigrateController): void => {
     interface IRouteCapsule {
       variables: string[];
       route: IMigrateRoute;
@@ -101,7 +95,6 @@ export namespace ControllerProgrammer {
           route,
         });
     }
-
     for (const [method, capsules] of dict) {
       const emended: string = method === "delete" ? "erase" : method;
       for (const c of capsules) {
@@ -111,45 +104,20 @@ export namespace ControllerProgrammer {
           : StringUtil.camel(`${emended}By/${c.variables.join("/and/")}`);
       }
     }
+    for (const method of controller.routes) {
+      if (Escaper.variable(method.name) === false)
+        method.name = "_" + method.name;
+      for (const spec of [method.headers, method.query, method.body])
+        if (spec)
+          spec.key = StringUtil.escapeDuplicate(
+            method.parameters.map((p) => p.key),
+          )(spec.key);
+    }
+    controller.routes.forEach(
+      (r, i) =>
+        (r.name = StringUtil.escapeDuplicate(
+          controller.routes.filter((_r, j) => i !== j).map((x) => x.name),
+        )(r.name)),
+    );
   };
-
-  /* -----------------------------------------------------------
-    WRITERS
-  ----------------------------------------------------------- */
-  export const write =
-    (components: ISwaggerComponents) =>
-    (controller: IMigrateController): ts.Statement[] => {
-      const importer: ImportProgrammer = new ImportProgrammer();
-      const $class = ts.factory.createClassDeclaration(
-        [
-          ts.factory.createDecorator(
-            ts.factory.createCallExpression(
-              ts.factory.createIdentifier(
-                importer.external({
-                  library: "@nestjs/common",
-                  instance: "Controller",
-                }),
-              ),
-              [],
-              [ts.factory.createStringLiteral(controller.path)],
-            ),
-          ),
-          ts.factory.createToken(ts.SyntaxKind.ExportKeyword),
-        ],
-        controller.name,
-        [],
-        [],
-        controller.routes.map(RouteProgrammer.write(components)(importer)),
-      );
-      return [
-        ...importer.toStatements(
-          (ref) =>
-            `${"../".repeat(
-              StringUtil.splitWithNormalization(controller.location).length - 1,
-            )}api/structures/${ref}`,
-        ),
-        ...(importer.empty() ? [] : [FilePrinter.enter()]),
-        $class,
-      ];
-    };
 }
