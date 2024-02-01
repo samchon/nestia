@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -14,8 +14,6 @@
     "dev": "npm run build -- --watch",
     "eslint": "eslint ./**/*.ts",
     "eslint:fix": "eslint ./**/*.ts --fix",
-    "package:latest": "npm run build && npm publish --access public",
-    "package:next": "npm run package:latest -- --tag next",
     "prepare": "ts-patch install && typia patch"
   },
   "repository": {
@@ -38,7 +36,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "^2.5.0",
+    "@nestia/fetcher": "^2.5.1",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "@nestjs/platform-express": ">=7.0.1",
@@ -51,7 +49,7 @@
     "typia": "^5.4.1"
   },
   "peerDependencies": {
-    "@nestia/fetcher": ">=2.5.0",
+    "@nestia/fetcher": ">=2.5.1",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "@nestjs/platform-express": ">=7.0.1",

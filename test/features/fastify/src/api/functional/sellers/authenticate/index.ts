@@ -27,7 +27,7 @@ export async function join(
   connection: IConnection,
   input: join.Input,
 ): Promise<join.Output> {
-  return EncryptedFetcher.fetch(
+  const output: join.Output = await EncryptedFetcher.fetch(
     {
       ...connection,
       headers: {
@@ -41,6 +41,9 @@ export async function join(
     },
     input,
   );
+  connection.headers ??= {};
+  connection.headers.Authorization = output.authorization.token;
+  return output;
 }
 export namespace join {
   export type Input = Primitive<ISeller.IJoin>;
@@ -78,7 +81,7 @@ export async function login(
   connection: IConnection,
   input: login.Input,
 ): Promise<login.Output> {
-  return EncryptedFetcher.fetch(
+  const output: login.Output = await EncryptedFetcher.fetch(
     {
       ...connection,
       headers: {
@@ -92,6 +95,9 @@ export async function login(
     },
     input,
   );
+  connection.headers ??= {};
+  Object.assign(connection.headers, output.authorization);
+  return output;
 }
 export namespace login {
   export type Input = Primitive<ISeller.ILogin>;
