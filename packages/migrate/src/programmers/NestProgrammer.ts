@@ -2,30 +2,26 @@ import ts from "typescript";
 
 import { IMigrateFile } from "../structures/IMigrateFile";
 import { IMigrateProgram } from "../structures/IMigrateProgram";
-import { ISwagger } from "../structures/ISwagger";
 import { FilePrinter } from "../utils/FilePrinter";
-import { ControllerProgrammer } from "./ControllerProgrammer";
 import { DtoProgrammer } from "./DtoProgrammer";
 import { ImportProgrammer } from "./ImportProgrammer";
-import { ModuleProgrammer } from "./ModuleProgrammer";
+import { NestControllerProgrammer } from "./NestControllerProgrammer";
+import { NestModuleProgrammer } from "./NestModuleProgrammer";
 
-export namespace MigrateProgrammer {
-  export const analyze = (swagger: ISwagger): IMigrateProgram => ({
-    swagger,
-    controllers: ControllerProgrammer.analyze(swagger),
-  });
-
+export namespace NestProgrammer {
   export const write = (program: IMigrateProgram): IMigrateFile[] =>
     [
       {
         location: "src",
         file: "MyModule.ts",
-        statements: ModuleProgrammer.write(program.controllers),
+        statements: NestModuleProgrammer.write(program.controllers),
       },
       ...program.controllers.map((c) => ({
         location: c.location,
         file: `${c.name}.ts`,
-        statements: ControllerProgrammer.write(program.swagger.components)(c),
+        statements: NestControllerProgrammer.write(program.swagger.components)(
+          c,
+        ),
       })),
       ...[...DtoProgrammer.write(program.swagger.components).entries()].map(
         ([key, value]) => ({

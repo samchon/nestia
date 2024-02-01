@@ -3,7 +3,7 @@ import ts from "typescript";
 import { IMigrateController } from "../structures/IMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
 
-export namespace ModuleProgrammer {
+export namespace NestModuleProgrammer {
   export const write = (controllers: IMigrateController[]): ts.Statement[] => [
     $import("@nestjs/common")("Module"),
     ...(controllers.length ? [FilePrinter.enter()] : []),

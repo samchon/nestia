@@ -10,12 +10,12 @@ import type {
   IPropagation,
   HttpError,
 } from "@nestia/fetcher";
+import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
 import type { IUser } from "../../../structures/IUser";
 import type { PartialPickIUsernameemailnullable_attroptional_attr } from "../../../structures/PartialPickIUsernameemailnullable_attroptional_attr";
-import { NestiaSimulator } from "../../../utils/NestiaSimulator";
 
 /**
  * - When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.

@@ -1,24 +1,13 @@
-import ts from "typescript";
-import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
-import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
-import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { Escaper } from "typia/lib/utils/Escaper";
 
+import { ISwagger } from "../module";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerSchema } from "../structures/ISwaggeSchema";
-import { ISwagger } from "../structures/ISwagger";
-import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { ISwaggerRoute } from "../structures/ISwaggerRoute";
-import { FilePrinter } from "../utils/FilePrinter";
 import { SwaggerTypeChecker } from "../utils/JsonTypeChecker";
 import { StringUtil } from "../utils/StringUtil";
-import { ImportProgrammer } from "./ImportProgrammer";
-import { SchemaProgrammer } from "./SchemaProgrammer";
 
-export namespace RouteProgrammer {
-  /* -----------------------------------------------------------
-    ANALYZERS
-  ----------------------------------------------------------- */
+export namespace MethodAnalzyer {
   export const analyze =
     (swagger: ISwagger) =>
     (props: { path: string; method: string }) =>
@@ -172,14 +161,18 @@ export namespace RouteProgrammer {
         name: "@lazy",
         path: props.path,
         method: props.method,
-        headers,
+        headers: headers
+          ? {
+              key: "headers",
+              schema: headers,
+            }
+          : null,
         parameters: (route.parameters ?? [])
           .filter((p) => p.in === "path")
           .map((p, i) => ({
             key: (() => {
               let key: string = StringUtil.normalize(parameterNames[i]);
               if (Escaper.variable(key)) return key;
-
               while (true) {
                 key = "_" + key;
                 if (!parameterNames.some((s) => s === key)) return key;
@@ -190,7 +183,12 @@ export namespace RouteProgrammer {
               description: p.schema.description ?? p.description,
             },
           })),
-        query,
+        query: query
+          ? {
+              key: "query",
+              schema: query,
+            }
+          : null,
         body,
         success,
         exceptions: Object.fromEntries(
@@ -209,8 +207,9 @@ export namespace RouteProgrammer {
               },
             ]),
         ),
+        deprecated: route.deprecated ?? false,
         description: describe(route),
-        "x-nestia-jsDocTags": route["x-nestia-jsDocTags"],
+        tags: route.tags ?? [],
       };
     };
 
@@ -285,6 +284,7 @@ export namespace RouteProgrammer {
         const { schema } = json[1];
         return {
           type: "application/json",
+          key: "body",
           schema: isNotObjectLiteral(schema) ? schema : emplacer(schema),
           "x-nestia-encrypted": meta["x-nestia-encrypted"],
         };
@@ -297,12 +297,14 @@ export namespace RouteProgrammer {
         const { schema } = query[1];
         return {
           type: "application/x-www-form-urlencoded",
+          key: "body",
           schema: isNotObjectLiteral(schema) ? schema : emplacer(schema),
         };
       }
 
       const text = entries.find((e) => e[0].includes("text/plain"));
-      if (text) return { type: "text/plain", schema: { type: "string" } };
+      if (text)
+        return { type: "text/plain", key: "body", schema: { type: "string" } };
       return false;
     };
 
@@ -314,206 +316,6 @@ export namespace RouteProgrammer {
       swagger.components.schemas[name] = schema;
       return { $ref: `#/components/schemas/${name}` };
     };
-
-  /* -----------------------------------------------------------
-    WRITERS
-  ----------------------------------------------------------- */
-  export const write =
-    (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
-    (route: IMigrateRoute): ts.MethodDeclaration => {
-      const output: ts.TypeNode = route.success
-        ? SchemaProgrammer.write(importer)(components)(route.success.schema)
-        : TypeFactory.keyword("void");
-
-      const method: ts.MethodDeclaration = ts.factory.createMethodDeclaration(
-        [
-          ...writeMethodDecorators(components)(importer)(route),
-          ts.factory.createToken(ts.SyntaxKind.PublicKeyword),
-          ts.factory.createToken(ts.SyntaxKind.AsyncKeyword),
-        ],
-        undefined,
-        route.name,
-        undefined,
-        undefined,
-        writeParameters(importer)(components)(route),
-        ts.factory.createTypeReferenceNode("Promise", [output]),
-        ts.factory.createBlock(
-          [
-            ...[
-              ...route.parameters.map((p) => StringUtil.normalize(p.key)),
-              ...(route.headers ? ["headers"] : []),
-              ...(route.query ? ["query"] : []),
-              ...(route.body ? ["body"] : []),
-            ].map((str) =>
-              ts.factory.createExpressionStatement(
-                ts.factory.createIdentifier(str),
-              ),
-            ),
-            ts.factory.createReturnStatement(
-              ts.factory.createCallExpression(
-                ts.factory.createIdentifier(
-                  importer.external({
-                    library: "typia",
-                    instance: "random",
-                  }),
-                ),
-                [output],
-                undefined,
-              ),
-            ),
-          ],
-          true,
-        ),
-      );
-      return FilePrinter.description(method, route.description ?? "");
-    };
-
-  const writeMethodDecorators =
-    (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
-    (route: IMigrateRoute): ts.Decorator[] => {
-      const external =
-        (lib: string) =>
-        (instance: string): ts.Identifier =>
-          ts.factory.createIdentifier(
-            importer.external({ library: lib, instance }),
-          );
-      const router = (instance: string) =>
-        ts.factory.createDecorator(
-          ts.factory.createCallExpression(
-            IdentifierFactory.access(external("@nestia/core")(instance))(
-              StringUtil.capitalize(route.method),
-            ),
-            [],
-            [ts.factory.createStringLiteral(route.path)],
-          ),
-        );
-
-      const decorators: ts.Decorator[] = [];
-      if (route.success?.["x-nestia-encrypted"])
-        decorators.push(router("EncryptedRoute"));
-      else if (route.success?.type === "text/plain")
-        decorators.push(
-          ts.factory.createDecorator(
-            ts.factory.createCallExpression(
-              external("@nestjs/common")(StringUtil.capitalize(route.method)),
-              [],
-              [ts.factory.createStringLiteral(route.path)],
-            ),
-          ),
-        );
-      else if (route.success?.type === "application/x-www-form-urlencoded")
-        decorators.push(router("TypedQuery"));
-      else if (route.success?.type === "application/json")
-        decorators.push(router("TypedRoute"));
-      else if (route.method === "head")
-        decorators.push(
-          ts.factory.createDecorator(
-            ts.factory.createCallExpression(
-              external("@nestjs/common")("Head"),
-              [],
-              [ts.factory.createStringLiteral(route.path)],
-            ),
-          ),
-        );
-      for (const [key, value] of Object.entries(route.exceptions ?? {}))
-        decorators.push(
-          ts.factory.createDecorator(
-            ts.factory.createCallExpression(
-              external("@nestia/core")("TypedException"),
-              [SchemaProgrammer.write(importer)(components)(value.schema)],
-              [
-                isNaN(Number(key))
-                  ? ts.factory.createStringLiteral(key)
-                  : ExpressionFactory.number(Number(key)),
-                ...(value.description?.length
-                  ? [ts.factory.createStringLiteral(value.description)]
-                  : []),
-              ],
-            ),
-          ),
-        );
-      return decorators;
-    };
-
-  const writeParameters =
-    (importer: ImportProgrammer) =>
-    (components: ISwaggerComponents) =>
-    (route: IMigrateRoute): ts.ParameterDeclaration[] => [
-      ...route.parameters.map(({ key, schema: value }) =>
-        ts.factory.createParameterDeclaration(
-          [
-            ts.factory.createDecorator(
-              ts.factory.createCallExpression(
-                ts.factory.createIdentifier(
-                  importer.external({
-                    library: "@nestia/core",
-                    instance: "TypedParam",
-                  }),
-                ),
-                undefined,
-                [ts.factory.createStringLiteral(key)],
-              ),
-            ),
-          ],
-          undefined,
-          StringUtil.normalize(key),
-          undefined,
-          SchemaProgrammer.write(importer)(components)(value),
-        ),
-      ),
-      ...(route.headers
-        ? [
-            writeDtoParameter({ method: "TypedHeaders", variable: "headers" })(
-              importer,
-            )(components)(route.headers),
-          ]
-        : []),
-      ...(route.query
-        ? [
-            writeDtoParameter({ method: "TypedQuery", variable: "query" })(
-              importer,
-            )(components)(route.query),
-          ]
-        : []),
-      ...(route.body
-        ? [
-            writeDtoParameter({
-              method: route.body?.["x-nestia-encrypted"]
-                ? "EncryptedBody"
-                : "TypedBody",
-              variable: "body",
-            })(importer)(components)(route.body.schema),
-          ]
-        : []),
-    ];
-
-  const writeDtoParameter =
-    (accessor: { method: string; variable: string }) =>
-    (importer: ImportProgrammer) =>
-    (components: ISwaggerComponents) =>
-    (schema: ISwaggerSchema): ts.ParameterDeclaration =>
-      ts.factory.createParameterDeclaration(
-        [
-          ts.factory.createDecorator(
-            ts.factory.createCallExpression(
-              ts.factory.createIdentifier(
-                importer.external({
-                  library: "@nestia/core",
-                  instance: accessor.method,
-                }),
-              ),
-              undefined,
-              undefined,
-            ),
-          ),
-        ],
-        undefined,
-        StringUtil.normalize(accessor.variable),
-        undefined,
-        SchemaProgrammer.write(importer)(components)(schema),
-      );
 }
 
 const SUPPORTED_METHODS: Set<string> = new Set([

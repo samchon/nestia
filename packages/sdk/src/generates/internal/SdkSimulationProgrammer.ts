@@ -182,10 +182,10 @@ export namespace SdkSimulationProgrammer {
         ts.factory.createCallExpression(
           IdentifierFactory.access(
             ts.factory.createIdentifier(
-              importer.internal({
-                file: `${config.output}/utils/NestiaSimulator.ts`,
-                instance: "NestiaSimulator",
+              importer.external({
                 type: false,
+                library: `@nestia/fetcher/lib/NestiaSimulator`,
+                instance: "NestiaSimulator",
               }),
             ),
           )("assert"),

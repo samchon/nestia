@@ -75,15 +75,6 @@ export namespace SdkFileProgrammer {
       const importer: ImportDictionary = new ImportDictionary(
         `${outDir}/index.ts`,
       );
-      if (
-        config.simulate === true &&
-        directory.routes.some((r) => !!r.parameters.length)
-      )
-        importer.internal({
-          file: `${config.output}/utils/NestiaSimulator.ts`,
-          instance: "NestiaSimulator",
-          type: false,
-        });
       directory.routes.forEach((route, i) => {
         if (config.clone !== true)
           for (const tuple of route.imports)

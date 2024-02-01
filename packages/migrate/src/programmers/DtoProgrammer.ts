@@ -23,7 +23,7 @@ export namespace DtoProgrammer {
     const dict: Map<string, IModule> = new Map();
     for (const [key, value] of Object.entries(components.schemas ?? {}))
       prepare(dict)(key)((importer) =>
-        writeAlias(importer)(components)(key, value),
+        writeAlias(components)(importer)(key, value),
       );
     return dict;
   };
@@ -48,15 +48,15 @@ export namespace DtoProgrammer {
     };
 
   const writeAlias =
-    (importer: ImportProgrammer) =>
     (components: ISwaggerComponents) =>
+    (importer: ImportProgrammer) =>
     (key: string, value: ISwaggerSchema) =>
       FilePrinter.description(
         ts.factory.createTypeAliasDeclaration(
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
           key.split(".").at(-1)!,
           [],
-          SchemaProgrammer.write(importer)(components)(value),
+          SchemaProgrammer.write(components)(importer)(value),
         ),
         writeComment(value),
       );

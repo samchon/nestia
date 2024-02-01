@@ -3,68 +3,98 @@ import fs from "fs";
 
 import { IMigrateFile } from "../structures/IMigrateFile";
 
-const ROOT = __dirname + "/../..";
-const ASSETS = ROOT + "/assets";
-const TEMPLATE = ASSETS + "/template";
+const ROOT: string = `${__dirname}/../..`;
+const ASSETS: string = `${ROOT}/assets`;
 
-const clone = async (): Promise<void> => {
-  console.log("Preparing bundles...");
+const bundle = async (props: {
+  mode: "nest" | "sdk";
+  repository: string;
+  exceptions?: string[];
+}): Promise<void> => {
+  const root: string = `${__dirname}/../..`;
+  const assets: string = `${root}/assets`;
+  const template: string = `${assets}/${props.mode}`;
 
-  // CLONE REPOSITORY
-  if (fs.existsSync(TEMPLATE))
-    await fs.promises.rm(TEMPLATE, { recursive: true });
-  else
-    try {
-      await fs.promises.mkdir(ASSETS);
-    } catch {}
+  const clone = async () => {
+    // CLONE REPOSITORY
+    if (fs.existsSync(template))
+      await fs.promises.rm(template, { recursive: true });
+    else
+      try {
+        await fs.promises.mkdir(ASSETS);
+      } catch {}
 
-  cp.execSync("git clone https://github.com/samchon/nestia-template template", {
-    cwd: __dirname + "/../../assets",
-  });
+    cp.execSync(
+      `git clone https://github.com/samchon/${props.repository} ${props.mode}`,
+      {
+        cwd: ASSETS,
+      },
+    );
 
-  // REMOVE VUNLERABLE FILES
-  for (const path of [
-    `${TEMPLATE}/.git`,
-    `${TEMPLATE}/src/api`,
-    `${TEMPLATE}/src/controllers`,
-    `${TEMPLATE}/src/providers`,
-    `${TEMPLATE}/test/features`,
-  ])
-    await fs.promises.rm(path, { recursive: true });
-};
+    // REMOVE VUNLERABLE FILES
+    for (const location of props.exceptions ?? [])
+      await fs.promises.rm(`${template}/${location}`, { recursive: true });
+  };
 
-const iterate = (collection: IMigrateFile[]) => async (location: string) => {
-  const directory: string[] = await fs.promises.readdir(location);
-  for (const file of directory) {
-    const absolute: string = location + "/" + file;
-    const stats: fs.Stats = await fs.promises.stat(absolute);
-    if (stats.isDirectory()) await iterate(collection)(absolute);
-    else {
-      const content: string = await fs.promises.readFile(absolute, "utf-8");
-      collection.push({
-        location: location.replace(TEMPLATE, ""),
-        file,
-        content,
-      });
+  const iterate = (collection: IMigrateFile[]) => async (location: string) => {
+    const directory: string[] = await fs.promises.readdir(location);
+    for (const file of directory) {
+      const absolute: string = location + "/" + file;
+      const stats: fs.Stats = await fs.promises.stat(absolute);
+      if (stats.isDirectory()) await iterate(collection)(absolute);
+      else {
+        const content: string = await fs.promises.readFile(absolute, "utf-8");
+        collection.push({
+          location: (() => {
+            const str: string = location.replace(template, "");
+            return str[0] === "/" ? str.substring(1) : str;
+          })(),
+          file,
+          content,
+        });
+      }
     }
-  }
-};
+  };
 
-const archive = async (collection: IMigrateFile[]): Promise<void> => {
-  const body: string = JSON.stringify(collection, null, 4);
-  const content: string = `export const TEMPLATE = ${body}`;
+  const archive = async (collection: IMigrateFile[]): Promise<void> => {
+    const name: string = `${props.mode.toUpperCase()}_TEMPLATE`;
+    const body: string = JSON.stringify(collection, null, 2);
+    const content: string = `export const ${name} = ${body}`;
 
-  try {
-    await fs.promises.mkdir(`${ROOT}/src/bundles`);
-  } catch {}
-  await fs.promises.writeFile(`${ROOT}/src/bundles/TEMPLATE.ts`, content);
+    try {
+      await fs.promises.mkdir(`${ROOT}/src/bundles`);
+    } catch {}
+    await fs.promises.writeFile(
+      `${ROOT}/src/bundles/${name}.ts`,
+      content,
+      "utf8",
+    );
+  };
+
+  const collection: IMigrateFile[] = [];
+  await clone();
+  await iterate(collection)(template);
+  await archive(collection);
 };
 
 const main = async (): Promise<void> => {
-  const collection: IMigrateFile[] = [];
-  await clone();
-  await iterate(collection)(TEMPLATE);
-  await archive(collection);
+  await bundle({
+    mode: "nest",
+    repository: "nestia-start",
+    exceptions: [
+      ".git",
+      "src/api/functional",
+      "src/controllers",
+      "src/MyModule.ts",
+      "src/providers",
+      "test/features",
+    ],
+  });
+  await bundle({
+    mode: "sdk",
+    repository: "nestia-sdk-template",
+    exceptions: [".git", "src/functional", "src/structures"],
+  });
 };
 main().catch((exp) => {
   console.error(exp);

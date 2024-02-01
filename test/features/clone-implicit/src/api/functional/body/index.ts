@@ -5,11 +5,10 @@
  */
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
+import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 import type { Format } from "typia/lib/tags/Format";
-
-import { NestiaSimulator } from "../../utils/NestiaSimulator";
 
 /**
  * Store an article.

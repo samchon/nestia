@@ -15,8 +15,8 @@ export namespace SchemaProgrammer {
     FACADE
   ----------------------------------------------------------- */
   export const write =
-    (importer: ImportProgrammer) =>
     (components: ISwaggerComponents) =>
+    (importer: ImportProgrammer) =>
     (schema: ISwaggerSchema): ts.TypeNode => {
       const union: ts.TypeNode[] = [];
       if (SwaggerTypeChecker.isUnknown(schema))
@@ -36,16 +36,16 @@ export namespace SchemaProgrammer {
         else if (SwaggerTypeChecker.isString(schema))
           return writeString(importer)(schema);
         else if (SwaggerTypeChecker.isArray(schema))
-          return writeArray(importer)(components)(schema);
+          return writeArray(components)(importer)(schema);
         else if (SwaggerTypeChecker.isObject(schema))
-          return writeObject(importer)(components)(schema);
+          return writeObject(components)(importer)(schema);
         else if (SwaggerTypeChecker.isReference(schema))
           return writeReference(importer)(schema);
         // NESTED UNION
         else if (SwaggerTypeChecker.isAnyOf(schema))
-          return writeUnion(importer)(components)(schema.anyOf);
+          return writeUnion(components)(importer)(schema.anyOf);
         else if (SwaggerTypeChecker.isOneOf(schema))
-          return writeUnion(importer)(components)(schema.oneOf);
+          return writeUnion(components)(importer)(schema.oneOf);
         else return TypeFactory.keyword("any");
       })();
       union.push(type);
@@ -141,12 +141,12 @@ export namespace SchemaProgrammer {
     INSTANCES
   ----------------------------------------------------------- */
   const writeArray =
-    (importer: ImportProgrammer) =>
     (components: ISwaggerComponents) =>
+    (importer: ImportProgrammer) =>
     (schema: ISwaggerSchema.IArray): ts.TypeNode => {
       const intersection: ts.TypeNode[] = [
         ts.factory.createArrayTypeNode(
-          write(importer)(components)(schema.items),
+          write(components)(importer)(schema.items),
         ),
       ];
       if (schema.minItems !== undefined)
@@ -159,13 +159,13 @@ export namespace SchemaProgrammer {
     };
 
   const writeObject =
-    (importer: ImportProgrammer) =>
     (components: ISwaggerComponents) =>
+    (importer: ImportProgrammer) =>
     (schema: ISwaggerSchema.IObject): ts.TypeNode => {
       const regular = () =>
         ts.factory.createTypeLiteralNode(
           Object.entries(schema.properties ?? []).map(([key, value]) =>
-            writeRegularProperty(importer)(components)(schema.required ?? [])(
+            writeRegularProperty(components)(importer)(schema.required ?? [])(
               key,
               value,
             ),
@@ -173,24 +173,21 @@ export namespace SchemaProgrammer {
         );
       const dynamic = () =>
         ts.factory.createTypeLiteralNode([
-          writeDynamicProperty(importer)(components)(
+          writeDynamicProperty(components)(importer)(
             schema.additionalProperties as ISwaggerSchema,
           ),
         ]);
-      return FilePrinter.description(
-        !!schema.properties?.length &&
-          typeof schema.additionalProperties === "object"
-          ? ts.factory.createIntersectionTypeNode([regular(), dynamic()])
-          : typeof schema.additionalProperties === "object"
-            ? dynamic()
-            : regular(),
-        writeComment(schema),
-      );
+      return !!schema.properties?.length &&
+        typeof schema.additionalProperties === "object"
+        ? ts.factory.createIntersectionTypeNode([regular(), dynamic()])
+        : typeof schema.additionalProperties === "object"
+          ? dynamic()
+          : regular();
     };
 
   const writeRegularProperty =
-    (importer: ImportProgrammer) =>
     (components: ISwaggerComponents) =>
+    (importer: ImportProgrammer) =>
     (required: string[]) =>
     (key: string, value: ISwaggerSchema) =>
       FilePrinter.description(
@@ -202,14 +199,14 @@ export namespace SchemaProgrammer {
           required.includes(key)
             ? undefined
             : ts.factory.createToken(ts.SyntaxKind.QuestionToken),
-          write(importer)(components)(value),
+          write(components)(importer)(value),
         ),
         writeComment(value),
       );
 
   const writeDynamicProperty =
-    (importer: ImportProgrammer) =>
     (components: ISwaggerComponents) =>
+    (importer: ImportProgrammer) =>
     (value: ISwaggerSchema) =>
       FilePrinter.description(
         ts.factory.createIndexSignature(
@@ -223,7 +220,7 @@ export namespace SchemaProgrammer {
               TypeFactory.keyword("string"),
             ),
           ],
-          write(importer)(components)(value),
+          write(components)(importer)(value),
         ),
         writeComment(value),
       );
@@ -237,10 +234,10 @@ export namespace SchemaProgrammer {
     UNIONS
   ----------------------------------------------------------- */
   const writeUnion =
-    (importer: ImportProgrammer) =>
     (components: ISwaggerComponents) =>
+    (importer: ImportProgrammer) =>
     (elements: ISwaggerSchema[]): ts.UnionTypeNode =>
-      ts.factory.createUnionTypeNode(elements.map(write(importer)(components)));
+      ts.factory.createUnionTypeNode(elements.map(write(components)(importer)));
 }
 const createNode = (text: string) => ts.factory.createTypeReferenceNode(text);
 const writeComment = (schema: ISwaggerSchema): string =>

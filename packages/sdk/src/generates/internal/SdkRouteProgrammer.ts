@@ -25,7 +25,7 @@ export namespace SdkRouteProgrammer {
       };
       return [
         FilePrinter.description(
-          SdkFunctionProgrammer.generate(config)(importer)(route, props),
+          SdkFunctionProgrammer.write(config)(importer)(route, props),
           describe(route),
         ),
         SdkNamespaceProgrammer.write(checker)(config)(importer)(route, props),

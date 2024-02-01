@@ -1,3 +1,5 @@
+import { NamingConvention } from "typia/lib/utils/NamingConvention";
+
 export namespace StringUtil {
   export const capitalize = (str: string) =>
     str[0].toUpperCase() + str.slice(1).toLowerCase();
@@ -5,12 +7,14 @@ export namespace StringUtil {
   export const pascal = (path: string) =>
     splitWithNormalization(path)
       .filter((str) => str[0] !== "{")
-      .map(capitalize)
+      .map(NamingConvention.pascal)
       .join("");
 
   export const camel = (path: string) =>
     splitWithNormalization(path)
-      .map((str, i) => (i === 0 ? str : capitalize(str)))
+      .map((str, i) =>
+        i === 0 ? NamingConvention.camel(str) : NamingConvention.pascal(str),
+      )
       .join("");
 
   export const splitWithNormalization = (path: string) =>
@@ -48,4 +52,9 @@ export namespace StringUtil {
       .filter((str) => str[0] !== "{" || str[str.length - 1] === "}")
       .join("/");
   };
+
+  export const escapeDuplicate =
+    (keep: string[]) =>
+    (change: string): string =>
+      keep.includes(change) ? escapeDuplicate(keep)(`_${change}`) : change;
 }

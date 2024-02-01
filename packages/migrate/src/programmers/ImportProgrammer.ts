@@ -5,7 +5,13 @@ import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 
 export class ImportProgrammer {
-  private external_: Map<string, Set<string>> = new Map();
+  private external_: Map<
+    string,
+    {
+      default: string | null;
+      instances: Set<string>;
+    }
+  > = new Map();
   private dtos_: Set<string> = new Set();
 
   public constructor() {}
@@ -15,10 +21,14 @@ export class ImportProgrammer {
   }
 
   public external(props: ImportProgrammer.IProps): string {
-    MapUtil.take(this.external_)(props.library)(() => new Set()).add(
-      props.instance.split(".")[0],
-    );
-    return props.instance;
+    const element = MapUtil.take(this.external_)(props.library)(() => ({
+      default: null,
+      instances: new Set(),
+    }));
+    const name: string = props.name.split(".")[0];
+    if (props.type === "default") element.default = props.name;
+    else element.instances.add(name);
+    return name;
   }
 
   public dto(name: string): ts.TypeReferenceNode {
@@ -29,8 +39,9 @@ export class ImportProgrammer {
 
   public tag(type: string, arg: number | string): ts.TypeReferenceNode {
     this.external({
+      type: "instance",
       library: "typia",
-      instance: "tags",
+      name: "tags",
     });
     return ts.factory.createTypeReferenceNode(`tags.${type}`, [
       ts.factory.createLiteralTypeNode(
@@ -46,25 +57,29 @@ export class ImportProgrammer {
     current?: string,
   ): ts.Statement[] {
     return [
-      ...[...this.external_.entries()].map(([library, properties]) =>
-        ts.factory.createImportDeclaration(
+      ...[...this.external_.entries()].map(([library, props]) => {
+        return ts.factory.createImportDeclaration(
           undefined,
           ts.factory.createImportClause(
             false,
-            undefined,
-            ts.factory.createNamedImports(
-              [...properties].map((i) =>
-                ts.factory.createImportSpecifier(
-                  false,
-                  undefined,
-                  ts.factory.createIdentifier(i),
-                ),
-              ),
-            ),
+            props.default !== null
+              ? ts.factory.createIdentifier(props.default)
+              : undefined,
+            props.instances.size
+              ? ts.factory.createNamedImports(
+                  [...props.instances].map((i) =>
+                    ts.factory.createImportSpecifier(
+                      false,
+                      undefined,
+                      ts.factory.createIdentifier(i),
+                    ),
+                  ),
+                )
+              : undefined,
           ),
           ts.factory.createStringLiteral(library),
-        ),
-      ),
+        );
+      }),
       ...(this.external_.size && this.dtos_.size ? [FilePrinter.enter()] : []),
       ...[...this.dtos_]
         .filter(
@@ -92,7 +107,8 @@ export class ImportProgrammer {
 }
 export namespace ImportProgrammer {
   export interface IProps {
+    type: "default" | "instance";
     library: string;
-    instance: string;
+    name: string;
   }
 }
