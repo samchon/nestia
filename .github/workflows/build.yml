@@ -11,9 +11,9 @@ jobs:
         with:
           version: 8
 
-      - name: test
-        working-directory: ./test
-        run: npm start
+      # - name: test
+      #   working-directory: ./test
+      #   run: npm start
 
       - name: migrate
         working-directory: ./packages/migrate

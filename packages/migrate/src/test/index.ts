@@ -35,6 +35,7 @@ const execute =
           fs.promises.writeFile(file, content, "utf-8"),
       })(directory)(files);
 
+      await fs.promises.rm(`${directory}/package.json`);
       cp.execSync(`npx tsc -p ${directory}/tsconfig.json`, {
         stdio: "inherit",
         cwd: directory,
