@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -11,8 +11,6 @@
     "build": "rimraf lib && tsc",
     "dev": "rimraf lib && tsc --watch",
     "eslint": "eslint ./**/*.ts",
-    "package:latest": "npm run build && npm publish --access public",
-    "package:next": "npm run package:latest -- --tag next",
     "prepare": "ts-patch install && typia patch"
   },
   "repository": {
@@ -34,7 +32,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "^2.5.0",
+    "@nestia/fetcher": "^2.5.1",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",
@@ -46,7 +44,7 @@
     "typia": "^5.4.1"
   },
   "peerDependencies": {
-    "@nestia/fetcher": ">=2.5.0",
+    "@nestia/fetcher": ">=2.5.1",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "prettier": ">=2.0.0",

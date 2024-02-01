@@ -5,6 +5,7 @@ import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { INestiaConfig } from "../../INestiaConfig";
 import { IController } from "../../structures/IController";
 import { IRoute } from "../../structures/IRoute";
+import { StringUtil } from "../../utils/StringUtil";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
@@ -59,11 +60,7 @@ export namespace SdkFunctionProgrammer {
             ),
         ],
         ts.factory.createTypeReferenceNode("Promise", [
-          ts.factory.createTypeReferenceNode(
-            config.propagate !== true && route.output.typeName === "void"
-              ? "void"
-              : `${route.name}.Output`,
-          ),
+          getReturnType(config)(route),
         ]),
         ts.factory.createBlock(
           write_body(config)(importer)(route, props),
@@ -164,6 +161,27 @@ export namespace SdkFunctionProgrammer {
               : []),
           ],
         );
+      const output = (awaiter: boolean) =>
+        config.simulate
+          ? ts.factory.createConditionalExpression(
+              ts.factory.createIdentifier("!!connection.simulate"),
+              undefined,
+              ts.factory.createCallExpression(
+                ts.factory.createIdentifier(`${route.name}.simulate`),
+                [],
+                [
+                  ts.factory.createIdentifier("connection"),
+                  ...route.parameters
+                    .filter((p) => p.category !== "headers")
+                    .map((p) => ts.factory.createIdentifier(p.name)),
+                ],
+              ),
+              undefined,
+              awaiter ? ts.factory.createAwaitExpression(caller()) : caller(),
+            )
+          : awaiter
+            ? ts.factory.createAwaitExpression(caller())
+            : caller();
       return [
         ...(config.assert
           ? route.parameters
@@ -186,26 +204,77 @@ export namespace SdkFunctionProgrammer {
                 ),
               )
           : []),
-        ts.factory.createReturnStatement(
-          config.simulate
-            ? ts.factory.createConditionalExpression(
-                ts.factory.createIdentifier("!!connection.simulate"),
-                undefined,
-                ts.factory.createCallExpression(
-                  ts.factory.createIdentifier(`${route.name}.simulate`),
-                  [],
-                  [
-                    ts.factory.createIdentifier("connection"),
-                    ...route.parameters
-                      .filter((p) => p.category !== "headers")
-                      .map((p) => ts.factory.createIdentifier(p.name)),
-                  ],
-                ),
-                undefined,
-                caller(),
-              )
-            : caller(),
+        ...(route.setHeaders.length === 0
+          ? [ts.factory.createReturnStatement(output(false))]
+          : write_set_headers(config)(route)(output(true))),
+      ];
+    };
+
+  const write_set_headers =
+    (config: INestiaConfig) =>
+    (route: IRoute) =>
+    (condition: ts.Expression): ts.Statement[] => {
+      const accessor = (x: string) => (y: string) =>
+        x[0] === "[" ? `${x}${y}` : `${x}.${y}`;
+      const output: string = StringUtil.escapeDuplicate([
+        "connection",
+        ...route.parameters.map((p) => p.name),
+      ])("output");
+      const headers: string = accessor("connection")("headers");
+      const data: string = config.propagate ? accessor(output)("data") : output;
+
+      const assigners: ts.ExpressionStatement[] = [
+        ts.factory.createBinaryExpression(
+          ts.factory.createIdentifier(headers),
+          ts.factory.createToken(ts.SyntaxKind.QuestionQuestionEqualsToken),
+          ts.factory.createObjectLiteralExpression([]),
         ),
+        ...route.setHeaders.map((tuple) =>
+          tuple.type === "assigner"
+            ? ts.factory.createCallExpression(
+                ts.factory.createIdentifier("Object.assign"),
+                [],
+                [
+                  ts.factory.createIdentifier(headers),
+                  ts.factory.createIdentifier(accessor(data)(tuple.source)),
+                ],
+              )
+            : ts.factory.createBinaryExpression(
+                ts.factory.createIdentifier(
+                  accessor(headers)(tuple.target ?? tuple.source),
+                ),
+                ts.factory.createToken(ts.SyntaxKind.EqualsToken),
+                ts.factory.createIdentifier(accessor(data)(tuple.source)),
+              ),
+        ),
+      ].map(ts.factory.createExpressionStatement);
+      return [
+        ts.factory.createVariableStatement(
+          [],
+          ts.factory.createVariableDeclarationList(
+            [
+              ts.factory.createVariableDeclaration(
+                output,
+                undefined,
+                getReturnType(config)(route),
+                condition,
+              ),
+            ],
+            ts.NodeFlags.Const,
+          ),
+        ),
+        ...(config.propagate
+          ? [
+              ts.factory.createIfStatement(
+                ts.factory.createIdentifier(accessor(output)("success")),
+                assigners.length === 1
+                  ? assigners[0]
+                  : ts.factory.createBlock(assigners, true),
+                undefined,
+              ),
+            ]
+          : assigners),
+        ts.factory.createReturnStatement(ts.factory.createIdentifier(output)),
       ];
     };
 }
@@ -217,3 +286,10 @@ const getTypeName =
     p.metadata
       ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
       : ts.factory.createTypeReferenceNode(p.typeName);
+
+const getReturnType = (config: INestiaConfig) => (route: IRoute) =>
+  ts.factory.createTypeReferenceNode(
+    config.propagate !== true && route.output.typeName === "void"
+      ? "void"
+      : `${route.name}.Output`,
+  );
