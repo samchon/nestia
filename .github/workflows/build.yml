@@ -17,4 +17,4 @@ jobs:
 
       - name: migrate
         working-directory: ./packages/migrate
-        run: pnpm install && npm run build && npm run test
+        run: npm install && npm run build && npm run test
