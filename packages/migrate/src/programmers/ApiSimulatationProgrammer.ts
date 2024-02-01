@@ -265,7 +265,7 @@ export namespace ApiSimulatationProgrammer {
                       ts.factory.createTypeReferenceNode(
                         importer.external({
                           type: "instance",
-                          library: "@nestia/Fetcher",
+                          library: "@nestia/fetcher",
                           name: "HttpError",
                         }),
                       ),

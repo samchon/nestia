@@ -50,7 +50,7 @@ export namespace ApiFunctionProgrammer {
         ts.factory.createTypeReferenceNode(
           importer.external({
             type: "instance",
-            library: "@nestia/Fetcher",
+            library: "@nestia/fetcher",
             name: "IConnection",
           }),
           props.route.headers
