@@ -11,20 +11,17 @@ Supports OpenAPI v3.0 only.
 npm install -g @nestia/migrate
 
 # DO MIGRATE
-npx @nestia/migrate swagger.json output_directory
+npx @nestia/migrate
 ```
 
 `@nestia/migrate` converts `swagger.json` file to a NestJS project.
 
-When you run `npx @nestia/migrate swagger.json <output>` command, `@nestia/migrate` will analyze your `swagger.json` file, and generate a NestJS project into the `<output>` direcory. If you're considering to migrate your backend project to NestJS, `@nestia/migrate` will be a good starting point.
+When you run `npx @nestia/migrate` command, `@nestia/migrate` will analyze your `swagger.json` file, and generate a NestJS project or standalone SDK library into the `<output>` direcory. If you're considering to migrate your backend project to NestJS, `@nestia/migrate` will be a good starting point. 
 
-Also, `@nestia/sdk` can generate below things from NestJS project. 
-
-It means that, with `@nestia/migrate`, you can generate [SDK Library](./sdk/sdk) or [Mockup Simulator](./sdk/simulator) from every backend projects. If you don't have plan to migrate to NestJS, but hope to take advantages of it, `@nestia/migrate` will be a good choice. Languages and frameworks, they're no longer matter in backend development. Let's enjoy the new world with `@nestia/migrate`.
+Also, if you're a frontend developer and got delivered `swagger.json` file from the backend developer, `@nestia/migrate` will be the best choice. Even the backend project is on a development, you can simulate the backend server through Mockup Simulator.
 
   - [SDK (Software Development Kit)](./sdk/sdk)
   - [Mockup Simulator](./sdk/simulator)
-  - [Automated e2e test functions](./sdk/e2e)
 
 ![SDK](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
 
@@ -40,12 +37,20 @@ It means that, with `@nestia/migrate`, you can generate [SDK Library](./sdk/sdk)
 npm install -g @nestia/migrate
 
 # DO MIGRATE
-npx @nestia/migrate swagger.json output_directory
+npx @nestia/migrate
+npx @nestia/migrate --mode nest --input swagger.json --output directory --simulate true
 ```
 
 At first, install `@nestia/migrate` globally.
 
-After that, run `npx @nestia/migrate <input> <output>` command. The first `<input>` argument must be target `swagger.json` file, and the second `<output>` argument must be output directory to be a NestJS project. When you run that command, `@nestia/migrate` will analyze your `swagger.json` file, and generate a NestJS project into the `<output>` direcory.
+After that, run `npx @nestia/migrate` command. Then, prompt would ask you which mode do you want, NestJS or standalone SDK library. Also, the prompt may ask you the location of the target`swagger.json`, output directory to migarte, and whether to turn on mockup simulator or not. 
+
+If you want to skip the prompt inquiry steps, then specify arugment like below:
+
+  - `--mode [nest|sdk]`: NestJS or standalone SDK library
+  - `--input [swagger.json]`: Location of the target `swagger.json`
+  - `--output [directory]`: Output directory to migrate
+  - `--simulate [true|false]`: Whether to turn on mockup simulator or not
 
 By the way, `@nestia/migrate` supports only OpenAPI v3.0 specification. If you have a `swagger.json` file with OpenAPI v1 or v2 specification, you can't convert it to a NestJS project. In that case, rebuild the `swagger.json` file from your backend project, specifying OpenAPI v3.0 specification.
 

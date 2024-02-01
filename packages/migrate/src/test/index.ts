@@ -1,7 +1,10 @@
 import cp from "child_process";
 import fs from "fs";
 
+import { IMigrateConfig } from "../IMigrateConfig";
 import { MigrateApplication } from "../MigrateApplication";
+import { FileArchiver } from "../archivers/FileArchiver";
+import { IMigrateFile } from "../structures/IMigrateFile";
 import { ISwagger } from "../structures/ISwagger";
 
 const SAMPLE = __dirname + "/../../assets/input";
@@ -16,20 +19,27 @@ const measure = (title: string) => async (task: () => Promise<void>) => {
   return time;
 };
 
-const execute = (project: string) => (swagger: ISwagger) =>
-  measure(project)(async () => {
-    const app: MigrateApplication = new MigrateApplication(
-      { simulate: true },
-      swagger,
-    );
-    app.analyze();
-    await app.generate(`${OUTPUT}/${project}`);
+const execute =
+  (config: IMigrateConfig) => (project: string) => (swagger: ISwagger) =>
+    measure(`${project}-${config.mode}-${config.simulate}`)(async () => {
+      const directory = `${OUTPUT}/${project}-${config.mode}-${config.simulate}`;
+      const app: MigrateApplication = new MigrateApplication(swagger);
+      const files: IMigrateFile[] =
+        config.mode === "nest"
+          ? app.nest(config.simulate)
+          : app.sdk(config.simulate);
 
-    cp.execSync(`npx tsc -p ${OUTPUT}/${project}/tsconfig.json`, {
-      stdio: "inherit",
-      cwd: `${OUTPUT}/${project}`,
+      await FileArchiver.archive({
+        mkdir: fs.promises.mkdir,
+        writeFile: (file, content) =>
+          fs.promises.writeFile(file, content, "utf-8"),
+      })(directory)(files);
+
+      cp.execSync(`npx tsc -p ${directory}/tsconfig.json`, {
+        stdio: "inherit",
+        cwd: directory,
+      });
     });
-  });
 
 const main = async () => {
   if (fs.existsSync(OUTPUT)) await fs.promises.rm(OUTPUT, { recursive: true });
@@ -49,7 +59,9 @@ const main = async () => {
     if ((only ?? project) !== project) continue;
 
     const swagger: ISwagger = JSON.parse(fs.readFileSync(location, "utf8"));
-    await execute(project)(swagger);
+    for (const mode of ["nest", "sdk"] as const)
+      for (const simulate of [true, false])
+        await execute({ mode, simulate })(project)(swagger);
   }
 
   for (const feature of fs.readdirSync(TEST)) {
@@ -64,7 +76,9 @@ const main = async () => {
     if (fs.existsSync(location) === false) continue;
 
     const swagger: ISwagger = JSON.parse(fs.readFileSync(location, "utf8"));
-    await execute(feature)(swagger);
+    for (const mode of ["nest", "sdk"] as const)
+      for (const simulate of [true, false])
+        await execute({ mode, simulate })(feature)(swagger);
   }
 };
 main();
