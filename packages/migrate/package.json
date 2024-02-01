@@ -1,6 +1,6 @@
 {
   "name": "@nestia/migrate",
-  "version": "0.7.0-dev.20240201",
+  "version": "0.7.0",
   "description": "Migration program from swagger to NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -31,8 +31,8 @@
   },
   "homepage": "https://github.com/samchon/nestia#readme",
   "devDependencies": {
-    "@nestia/core": "2.5.0-dev.20240201",
-    "@nestia/fetcher": "2.5.0-dev.20240201",
+    "@nestia/core": "2.5.0",
+    "@nestia/fetcher": "2.5.0",
     "@nestjs/common": "^10.3.1",
     "@nestjs/core": "^10.3.1",
     "@nestjs/platform-express": "^10.3.1",
