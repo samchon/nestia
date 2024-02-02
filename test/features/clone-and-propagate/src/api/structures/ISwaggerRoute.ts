@@ -53,5 +53,10 @@ export namespace ISwaggerRoute {
       | {
           schema: IJsonSchema;
         };
+    "multipart/form-data"?:
+      | undefined
+      | {
+          schema: IJsonSchema;
+        };
   };
 }

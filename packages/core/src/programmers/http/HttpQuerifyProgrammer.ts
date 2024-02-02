@@ -26,7 +26,7 @@ export namespace HttpQuerifyProgrammer {
       })(collection)(type);
       if (result.success === false)
         throw TransformerError.from(
-          `@nestia.core.TypedQuery.${importer.method}`,
+          `nestia.core.TypedQuery.${importer.method}`,
         )(result.errors);
 
       const object: MetadataObject = result.data.objects[0]!;

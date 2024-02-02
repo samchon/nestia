@@ -102,7 +102,7 @@ export namespace SdkFunctionProgrammer {
           )(config.propagate ? "propagate" : "fetch"),
           undefined,
           [
-            contentType
+            contentType && contentType !== "multipart/form-data"
               ? ts.factory.createObjectLiteralExpression(
                   [
                     ts.factory.createSpreadAssignment(

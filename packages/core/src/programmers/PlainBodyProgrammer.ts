@@ -19,7 +19,7 @@ export namespace PlainBodyProgrammer {
         validate,
       })(new MetadataCollection())(type);
       if (result.success === false)
-        throw TransformerError.from("@core.nestia.TypedParam")(result.errors);
+        throw TransformerError.from("nestia.core.TypedParam")(result.errors);
       return AssertProgrammer.write({
         ...project,
         options: {

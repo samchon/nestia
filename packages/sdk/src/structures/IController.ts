@@ -73,6 +73,7 @@ export namespace IController {
     contentType:
       | "application/json"
       | "application/x-www-form-urlencoded"
+      | "multipart/form-data"
       | "text/plain";
   }
   export interface IPathParameter {

@@ -13,6 +13,7 @@ import { ISwaggerLazyProperty } from "../../structures/ISwaggerLazyProperty";
 import { ISwaggerLazySchema } from "../../structures/ISwaggerLazySchema";
 import { ISwaggerRoute } from "../../structures/ISwaggerRoute";
 import { SwaggerSchemaValidator } from "./SwaggerSchemaValidator";
+import { JsonApplicationProgrammer } from "typia/lib/programmers/json/JsonApplicationProgrammer";
 
 export namespace SwaggerSchemaGenerator {
   export interface IProps {
@@ -38,12 +39,7 @@ export namespace SwaggerSchemaGenerator {
           escape: true,
           constant: true,
           absorb: false,
-          validate: (meta) => {
-            const bigint: boolean =
-              meta.atomics.some((a) => a.type === "bigint") ||
-              meta.constants.some((a) => a.type === "bigint");
-            return bigint ? ["bigint type is not allowed."] : [];
-          },
+          validate: JsonApplicationProgrammer.validate,
         })(props.collection)(exp.type);
         if (result.success === false)
           props.errors.push(

@@ -482,6 +482,27 @@
         }
       }
     },
+    "/multipart": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/IMultipart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/objectLiteral": {
       "get": {
         "tags": [],
@@ -3578,6 +3599,67 @@
         ],
         "description": "Article info."
       },
+      "IMultipart": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "strings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "number": {
+            "type": "number"
+          },
+          "integers": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "blob": {
+            "type": "string",
+            "format": "binary",
+            "nullable": false
+          },
+          "blobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary",
+              "nullable": false
+            }
+          },
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "nullable": false
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary",
+              "nullable": false
+            }
+          }
+        },
+        "nullable": false,
+        "required": [
+          "id",
+          "strings",
+          "number",
+          "integers",
+          "blob",
+          "blobs",
+          "file",
+          "files"
+        ]
+      },
       "ObjectLietral": {
         "type": "object",
         "properties": {
@@ -5576,6 +5658,18 @@
             ]
           },
           "text/plain": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "$ref": "#/components/schemas/IJsonSchema"
+              }
+            },
+            "nullable": false,
+            "required": [
+              "schema"
+            ]
+          },
+          "multipart/form-data": {
             "type": "object",
             "properties": {
               "schema": {

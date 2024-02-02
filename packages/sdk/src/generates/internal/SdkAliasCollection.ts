@@ -1,6 +1,8 @@
 import ts from "typescript";
+import typia from "typia";
 
 import { INestiaConfig } from "../../INestiaConfig";
+import { IController } from "../../structures/IController";
 import { IRoute } from "../../structures/IRoute";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
@@ -56,7 +58,11 @@ export namespace SdkAliasCollection {
         importer.external({
           type: true,
           library: "@nestia/fetcher",
-          instance: "Primitive",
+          instance:
+            typia.is<IController.IBodyParameter>(param) &&
+            param.contentType === "multipart/form-data"
+              ? "Resolved"
+              : "Primitive",
         }),
         [type],
       );
