@@ -1,11 +1,11 @@
-import core from "@nestia/core";
+import { TypedMultipart, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { tags } from "typia";
 
 @Controller("multipart")
 export class MultipartController {
-  @core.TypedRoute.Post()
-  public post(@core.TypedMultipart.Body() body: IMultipart): void {
+  @TypedRoute.Post()
+  public post(@TypedMultipart.Body() body: IMultipart): void {
     body;
   }
 }

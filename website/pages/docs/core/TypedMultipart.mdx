@@ -1,0 +1,144 @@
+import { Tabs, Tab } from 'nextra-theme-docs'
+
+## Outline
+```typescript filename="@nestia/core"
+export namespace TypedMultipart {
+    export function Body(): ParameterDecorator;
+}
+```
+
+Request body decorator of `multipart/form-data`.
+
+`@TypedMultipart.Body()` is a request body decorator function for the `multipart/form-data` content type. It automatically casts property type following its DTO definition, and performs the type validation too.
+
+As you can see from the below code, `@TypedMultipart.Body()` function is much easier and type safer than `@UploadFile()` of NestJS. Also, if you're considering the [SDK library](../sdk/sdk) generation, only `@TypedMultipart.Body()` is supported. Therefore, I recommend you to utilize `@TypedMultipart.Body()` instead of the `@UploadFile()` function.
+
+Of course, as every features of `nestia` does, you don't need to define extra schema definitions for the [Swagger Documents](../sdk/swagger) generation. `@TypedMultipart.Body()` will do everything just by analyzing your TypeScript types.
+
+<Tabs items={[
+  <code>@TypedMultipart.Body()</code>, 
+  <code>@UploadFile()</code>
+]}>
+  <Tab>
+```typescript filename="nestia/MultipartController.ts" showLineNumbers 
+import { TypedMultipart, TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import { tags } from "typia";
+
+@Controller("multipart")
+export class MultipartController {
+  @TypedRoute.Post()
+  public post(
+    @TypedMultipart.Body() body: IMultipart
+  ): void {
+    body;
+  }
+}
+
+export interface IMultipart {
+  id: string & tags.Format<"uuid">;
+  strings: string[];
+  number: number;
+  integers: Array<number & tags.Type<"int32">>;
+  file: File;
+  files: File[];
+}
+
+```
+  </Tab>
+  <Tab>
+```typescript filename="nestjs/multipart.controller.ts" showLineNumbers
+import { 
+  Body, 
+  Controller, 
+  Post, 
+  UploadedFile, 
+  UploadedFiles, 
+  UseInterceptors 
+} from "@nestjs/common";
+import { ApiBody, ApiConsumes } from "@nestjs/swagger";
+import { FileFieldsInterceptor } from "@nestjs/platform-express";
+
+@Controller("multipart")
+export class MultipartController {
+  @Post()
+  @ApiConsumes("multipart/form-data")
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: "file", maxCount: 1 },
+      { name: "files" },
+    ]),
+  )
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+          format: "uuid",
+        },
+        strings: {
+          type: "array",
+          items: {
+            type: "string",
+          },
+        },
+        number: {
+          type: "number",
+        },
+        integers: {
+          type: "array",
+          items: {
+            type: "integer",
+          },
+        },
+        file: {
+          type: "string",
+          format: "binary",
+        },
+        files: {
+          type: "array",
+          items: {
+            type: "string",
+            format: "binary",
+          },
+        },
+      },
+    },
+  })
+  public async post(
+    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body() others: MultipartOthers,
+  ): Promise<void> {
+    file;
+    files;
+    others;
+  }
+}
+
+class MultipartOthers { ... }
+```
+  </Tab>
+</Tabs>
+
+
+
+
+## How to use
+
+
+
+
+
+## Special Tags
+
+
+
+
+
+## Restriction
+
+
+
+
