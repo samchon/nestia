@@ -1,0 +1,148 @@
+{
+  "openapi": "3.0.1",
+  "servers": [
+    {
+      "url": "https://github.com/samchon/nestia",
+      "description": "insert your server url"
+    }
+  ],
+  "info": {
+    "version": "2.5.2-dev.20240204",
+    "title": "@nestia/test",
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/date": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IDateDefined"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/multipart": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/IMultipart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IDateDefined": {
+        "type": "object",
+        "properties": {
+          "string": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "nullable": false,
+        "required": [
+          "string",
+          "date"
+        ]
+      },
+      "IMultipart": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "strings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "number": {
+            "type": "number"
+          },
+          "integers": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "blob": {
+            "type": "string",
+            "format": "binary",
+            "nullable": false
+          },
+          "blobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary",
+              "nullable": false
+            }
+          },
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "nullable": false
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary",
+              "nullable": false
+            }
+          }
+        },
+        "nullable": false,
+        "required": [
+          "id",
+          "strings",
+          "number",
+          "integers",
+          "blob",
+          "blobs",
+          "file",
+          "files"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization"
+      }
+    }
+  }
+}

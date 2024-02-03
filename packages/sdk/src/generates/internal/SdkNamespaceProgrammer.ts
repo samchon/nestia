@@ -50,7 +50,10 @@ export namespace SdkNamespaceProgrammer {
                 ),
               ]
             : []),
-          ...(config.json && props.input?.category === "body"
+          ...(config.json &&
+          typia.is<IController.IBodyParameter>(props.input) &&
+          (props.input.contentType === "application/json" ||
+            props.input.encrypted === true)
             ? [write_stringify(config)(importer)]
             : []),
         ]),

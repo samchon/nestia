@@ -11,7 +11,7 @@ export namespace TypedExceptionProgrammer {
     (expression: ts.CallExpression): ts.CallExpression => {
       // CHECK GENERIC ARGUMENT EXISTENCE
       if (!expression.typeArguments?.[0])
-        throw TransformerError.from("@nestia.core.TypedException")([
+        throw TransformerError.from("nestia.core.TypedException")([
           {
             name: "uknown",
             messages: [NOT_SPECIFIED],
@@ -32,7 +32,7 @@ export namespace TypedExceptionProgrammer {
 
       // VALIDATE TYPE
       if (type.isTypeParameter())
-        throw TransformerError.from("@nestia.core.TypedException")([
+        throw TransformerError.from("nestia.core.TypedException")([
           {
             name: TypeFactory.getFullName(checker)(type),
             messages: [NO_GENERIC_ARGUMENT],

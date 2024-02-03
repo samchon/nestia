@@ -99,8 +99,7 @@ export namespace ApiFunctionProgrammer {
     (importer: ImportProgrammer) =>
     (props: IProps): ts.Statement[] => {
       const encrypted: boolean = !!props.route.success?.["x-nestia-encrypted"];
-      const contentType: string =
-        props.route.success?.type ?? "application/json";
+      const contentType: string = props.route.body?.type ?? "application/json";
 
       const caller = () =>
         ts.factory.createCallExpression(
@@ -115,7 +114,7 @@ export namespace ApiFunctionProgrammer {
           )("fetch"),
           undefined,
           [
-            contentType
+            contentType && contentType !== "multipart/form-data"
               ? ts.factory.createObjectLiteralExpression(
                   [
                     ts.factory.createSpreadAssignment(

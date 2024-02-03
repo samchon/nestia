@@ -1,15 +1,15 @@
 ## Outline
 import { Callout, Tabs, Tab } from 'nextra-theme-docs'
 
-```typescript
+```typescript filename="@nestia/core"
 export function TypedQuery(): ParameterDecorator;
 export namespace TypedQuery {
-    export function Body(): ParameterDecorator;
-    export function Get(path?: string): MethodDecorator;
-    export function Post(path?: string): MethodDecorator;
-    export function Put(path?: string): MethodDecorator;
-    export function Patch(path?: string): MethodDecorator;
-    export function Delete(path?: string): MethodDecorator;
+  export function Body(): ParameterDecorator;
+  export function Get(path?: string): MethodDecorator;
+  export function Post(path?: string): MethodDecorator;
+  export function Put(path?: string): MethodDecorator;
+  export function Patch(path?: string): MethodDecorator;
+  export function Delete(path?: string): MethodDecorator;
 }
 ```
 
@@ -40,302 +40,547 @@ It's almost same with original `@Query()` function of `NestJS`, but `@TypedQuery
 While `NestJS` does not support query type validation, `@TypedQuery()` validates the request query type and throws 400 bad request error when mismatched. Also, while `NestJS` does not support property type (`@Query()` only supports `string` typed properties), `@TypedQuery()` can define variable property types like `bigint`, `number` or `boolean`.
 
 <Tabs 
-    items={[
-        <code>IBbsArticle.ts</code>, 
-        <code>IPage.ts</code>, 
-        <code>BbsArticlesController.ts</code>, 
-        'Compiled JavaScript File'
-    ]}
-    defaultIndex={2}
+  items={[
+    <code>IBbsArticle.ts</code>, 
+    <code>IPage.ts</code>, 
+    <code>BbsArticlesController.ts</code>, 
+    'Compiled JavaScript File',
+  ]}
+  defaultIndex={2}
 >
-    <Tab>
+  <Tab>
 ```typescript copy filename="IBbsArticle.ts" showLineNumbers
 import { tags } from "typia";
 
 export namespace IBbsArticle {
-    export interface ISummary {
-        id: string & tags.Format<"uuid">;
-        writer: string;
-        title: string & tags.MinLength<3> & tags.MaxLength<50>;
-        created_at: string & tags.Format<"date-time">;
-    }
+  export interface ISummary {
+    id: string & tags.Format<"uuid">;
+    writer: string;
+    title: string & tags.MinLength<3> & tags.MaxLength<50>;
+    created_at: string & tags.Format<"date-time">;
+  }
 }
 ```
-    </Tab>
-    <Tab>
-```typescript copy filename="IPage.ts" showLineNumbers {6-19}
+  </Tab>
+  <Tab>
+```typescript copy filename="IPage.ts" showLineNumbers
 import { tags } from "typia";
 
 export interface IPage<T> {
-    data: T[];
-    pagination: IPage.IPagination;
+  data: T[];
+  pagination: IPage.IPagination;
 }
 export namespace IPage {
-    /**
-     * Page request data
-     */
-    export interface IRequest {
-        page?: number & tags.Type<"uint32">;
-        limit?: number & tags.Type<"uint32">;
-    }
-
-    /**
-     * Page information.
-     */
-    export interface IPagination {
-        current: number & tags.Type<"uint32">;
-        limit: number & tags.Type<"uint32">;
-        records: number & tags.Type<"uint32">;
-        pages: number & tags.Type<"uint32">;
-    }
+  /**
+   * Page request data
+   */
+  export interface IRequest {
+    page?: number & tags.Type<"uint32">;
+    limit?: number & tags.Type<"uint32">;
+  }
+  /**
+   * Page information.
+   */
+  export interface IPagination {
+    current: number & tags.Type<"uint32">;
+    limit: number & tags.Type<"uint32">;
+    records: number & tags.Type<"uint32">;
+    pages: number & tags.Type<"uint32">;
+  }
 }
 ```
-    </Tab>
-    <Tab>
-```typescript copy filename="BbsArticlesController.ts" showLineNumbers {11}
+  </Tab>
+  <Tab>
+```typescript copy filename="BbsArticlesController.ts" showLineNumbers {10}
 import { TypedQuery, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
+import { tags } from "typia";
 
 import { IBbsArticle } from "./IBbsArticle";
 import { IPage } from "./IPage";
 
 @Controller("bbs/articles")
 export class BbsArticlesController {
-    @TypedRoute.Get()
-    public async index(
-        @TypedQuery() query: IPage.IRequest
-    ): Promise<IPage<IBbsArticle.ISummary>> {
-        return {
-            pagination: {
-                current: query.page ?? 1,
-                limit: query.limit ?? 100,
-                records: 0,
-                pages: 0,
-            },
-            data: [],
-        };
-    }
+  @TypedRoute.Get()
+  public async index(
+    @TypedQuery() query: IPage.IRequest
+  ): Promise<IPage<IBbsArticle.ISummary>> {
+    return {
+      pagination: {
+        current: query.page ?? 1,
+        limit: query.limit ?? 100,
+        records: 0,
+        pages: 0,
+      },
+      data: [],
+    };
+  }
 }
 ```
-    </Tab>
-    <Tab>
-```javascript filename="BbsArticlesController.js" showLineNumbers {163-207}
+  </Tab>
+  <Tab>
+```javascript filename="BbsArticlesController.js" showLineNumbers {356-447}
 "use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+var __decorate =
+  (this && this.__decorate) ||
+  function (decorators, target, key, desc) {
+    var c = arguments.length,
+      r =
+        c < 3
+          ? target
+          : desc === null
+          ? (desc = Object.getOwnPropertyDescriptor(target, key))
+          : desc,
+      d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+      r = Reflect.decorate(decorators, target, key, desc);
+    else
+      for (var i = decorators.length - 1; i >= 0; i--)
+        if ((d = decorators[i]))
+          r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+  };
+var __metadata =
+  (this && this.__metadata) ||
+  function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
+      return Reflect.metadata(k, v);
+  };
+var __param =
+  (this && this.__param) ||
+  function (paramIndex, decorator) {
+    return function (target, key) {
+      decorator(target, key, paramIndex);
+    };
+  };
+var __awaiter =
+  (this && this.__awaiter) ||
+  function (thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P
+        ? value
+        : new P(function (resolve) {
+            resolve(value);
+          });
+    }
     return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done
+          ? resolve(result.value)
+          : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-};
+  };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BbsArticlesController = void 0;
 const core_1 = require("@nestia/core");
 const common_1 = require("@nestjs/common");
 let BbsArticlesController = class BbsArticlesController {
-    index(query) {
-        var _a, _b;
-        return __awaiter(this, void 0, void 0, function* () {
-            return {
-                pagination: {
-                    current: (_a = query.page) !== null && _a !== void 0 ? _a : 1,
-                    limit: (_b = query.limit) !== null && _b !== void 0 ? _b : 100,
-                    records: 0,
-                    pages: 0,
-                },
-                data: [],
-            };
-        });
-    }
+  index(query) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+      return {
+        pagination: {
+          current: (_a = query.page) !== null && _a !== void 0 ? _a : 1,
+          limit: (_b = query.limit) !== null && _b !== void 0 ? _b : 100,
+          records: 0,
+          pages: 0,
+        },
+        data: [],
+      };
+    });
+  }
 };
 exports.BbsArticlesController = BbsArticlesController;
-__decorate([
-    core_1.TypedRoute.Get({ type: "assert", assert: input => { const assert = input => {
-            const __is = input => {
-                const $io0 = input => Array.isArray(input.data) && input.data.every(elem => "object" === typeof elem && null !== elem && $io1(elem)) && ("object" === typeof input.pagination && null !== input.pagination && ("number" === typeof input.pagination.current && (Math.floor(input.pagination.current) === input.pagination.current && 0 <= input.pagination.current && input.pagination.current <= 4294967295) && ("number" === typeof input.pagination.limit && (Math.floor(input.pagination.limit) === input.pagination.limit && 0 <= input.pagination.limit && input.pagination.limit <= 4294967295)) && ("number" === typeof input.pagination.records && (Math.floor(input.pagination.records) === input.pagination.records && 0 <= input.pagination.records && input.pagination.records <= 4294967295)) && ("number" === typeof input.pagination.pages && (Math.floor(input.pagination.pages) === input.pagination.pages && 0 <= input.pagination.pages && input.pagination.pages <= 4294967295))));
-                const $io1 = input => "string" === typeof input.id && /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test(input.id) && "string" === typeof input.writer && ("string" === typeof input.title && (3 <= input.title.length && input.title.length <= 50)) && ("string" === typeof input.created_at && !isNaN(new Date(input.created_at).getTime()));
-                return "object" === typeof input && null !== input && $io0(input);
-            };
-            if (false === __is(input))
-                ((input, _path, _exceptionable = true) => {
-                    const $guard = core_1.TypedRoute.Get.guard;
-                    const $ao0 = (input, _path, _exceptionable = true) => ((Array.isArray(input.data) || $guard(_exceptionable, {
-                        path: _path + ".data",
-                        expected: "Array<IBbsArticle.ISummary>",
-                        value: input.data
-                    })) && input.data.every((elem, _index1) => ("object" === typeof elem && null !== elem || $guard(_exceptionable, {
+__decorate(
+  [
+    core_1.TypedRoute.Get({
+      type: "assert",
+      assert: (input) => {
+        const assert = (input) => {
+          const __is = (input) => {
+            const $io0 = (input) =>
+              Array.isArray(input.data) &&
+              input.data.every(
+                (elem) =>
+                  "object" === typeof elem && null !== elem && $io1(elem),
+              ) &&
+              "object" === typeof input.pagination &&
+              null !== input.pagination &&
+              "number" === typeof input.pagination.current &&
+              Math.floor(input.pagination.current) ===
+                input.pagination.current &&
+              0 <= input.pagination.current &&
+              input.pagination.current <= 4294967295 &&
+              "number" === typeof input.pagination.limit &&
+              Math.floor(input.pagination.limit) === input.pagination.limit &&
+              0 <= input.pagination.limit &&
+              input.pagination.limit <= 4294967295 &&
+              "number" === typeof input.pagination.records &&
+              Math.floor(input.pagination.records) ===
+                input.pagination.records &&
+              0 <= input.pagination.records &&
+              input.pagination.records <= 4294967295 &&
+              "number" === typeof input.pagination.pages &&
+              Math.floor(input.pagination.pages) === input.pagination.pages &&
+              0 <= input.pagination.pages &&
+              input.pagination.pages <= 4294967295;
+            const $io1 = (input) =>
+              "string" === typeof input.id &&
+              /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test(
+                input.id,
+              ) &&
+              "string" === typeof input.writer &&
+              "string" === typeof input.title &&
+              3 <= input.title.length &&
+              input.title.length <= 50 &&
+              "string" === typeof input.created_at &&
+              !isNaN(new Date(input.created_at).getTime());
+            return "object" === typeof input && null !== input && $io0(input);
+          };
+          if (false === __is(input))
+            ((input, _path, _exceptionable = true) => {
+              const $guard = core_1.TypedRoute.Get.guard;
+              const $ao0 = (input, _path, _exceptionable = true) =>
+                (((Array.isArray(input.data) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".data",
+                    expected: "Array<IBbsArticle.ISummary>",
+                    value: input.data,
+                  })) &&
+                  input.data.every(
+                    (elem, _index1) =>
+                      ((("object" === typeof elem && null !== elem) ||
+                        $guard(_exceptionable, {
+                          path: _path + ".data[" + _index1 + "]",
+                          expected: "IBbsArticle.ISummary",
+                          value: elem,
+                        })) &&
+                        $ao1(
+                          elem,
+                          _path + ".data[" + _index1 + "]",
+                          true && _exceptionable,
+                        )) ||
+                      $guard(_exceptionable, {
                         path: _path + ".data[" + _index1 + "]",
                         expected: "IBbsArticle.ISummary",
-                        value: elem
-                    })) && $ao1(elem, _path + ".data[" + _index1 + "]", true && _exceptionable) || $guard(_exceptionable, {
-                        path: _path + ".data[" + _index1 + "]",
-                        expected: "IBbsArticle.ISummary",
-                        value: elem
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".data",
-                        expected: "Array<IBbsArticle.ISummary>",
-                        value: input.data
-                    })) && (("object" === typeof input.pagination && null !== input.pagination || $guard(_exceptionable, {
-                        path: _path + ".pagination",
-                        expected: "IPage.IPagination",
-                        value: input.pagination
-                    })) && $ao2(input.pagination, _path + ".pagination", true && _exceptionable) || $guard(_exceptionable, {
-                        path: _path + ".pagination",
-                        expected: "IPage.IPagination",
-                        value: input.pagination
-                    }));
-                    const $ao1 = (input, _path, _exceptionable = true) => ("string" === typeof input.id && (/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test(input.id) || $guard(_exceptionable, {
-                        path: _path + ".id",
-                        expected: "string & Format<\"uuid\">",
-                        value: input.id
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".id",
-                        expected: "(string & Format<\"uuid\">)",
-                        value: input.id
-                    })) && ("string" === typeof input.writer || $guard(_exceptionable, {
-                        path: _path + ".writer",
-                        expected: "string",
-                        value: input.writer
-                    })) && ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
-                        path: _path + ".title",
-                        expected: "string & MinLength<3>",
-                        value: input.title
-                    })) && (input.title.length <= 50 || $guard(_exceptionable, {
-                        path: _path + ".title",
-                        expected: "string & MaxLength<50>",
-                        value: input.title
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".title",
-                        expected: "(string & MinLength<3> & MaxLength<50>)",
-                        value: input.title
-                    })) && ("string" === typeof input.created_at && (!isNaN(new Date(input.created_at).getTime()) || $guard(_exceptionable, {
-                        path: _path + ".created_at",
-                        expected: "string & Format<\"date-time\">",
-                        value: input.created_at
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".created_at",
-                        expected: "(string & Format<\"date-time\">)",
-                        value: input.created_at
-                    }));
-                    const $ao2 = (input, _path, _exceptionable = true) => ("number" === typeof input.current && (Math.floor(input.current) === input.current && 0 <= input.current && input.current <= 4294967295 || $guard(_exceptionable, {
-                        path: _path + ".current",
-                        expected: "number & Type<\"uint32\">",
-                        value: input.current
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".current",
-                        expected: "(number & Type<\"uint32\">)",
-                        value: input.current
-                    })) && ("number" === typeof input.limit && (Math.floor(input.limit) === input.limit && 0 <= input.limit && input.limit <= 4294967295 || $guard(_exceptionable, {
-                        path: _path + ".limit",
-                        expected: "number & Type<\"uint32\">",
-                        value: input.limit
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".limit",
-                        expected: "(number & Type<\"uint32\">)",
-                        value: input.limit
-                    })) && ("number" === typeof input.records && (Math.floor(input.records) === input.records && 0 <= input.records && input.records <= 4294967295 || $guard(_exceptionable, {
-                        path: _path + ".records",
-                        expected: "number & Type<\"uint32\">",
-                        value: input.records
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".records",
-                        expected: "(number & Type<\"uint32\">)",
-                        value: input.records
-                    })) && ("number" === typeof input.pages && (Math.floor(input.pages) === input.pages && 0 <= input.pages && input.pages <= 4294967295 || $guard(_exceptionable, {
-                        path: _path + ".pages",
-                        expected: "number & Type<\"uint32\">",
-                        value: input.pages
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".pages",
-                        expected: "(number & Type<\"uint32\">)",
-                        value: input.pages
-                    }));
-                    return ("object" === typeof input && null !== input || $guard(true, {
-                        path: _path + "",
-                        expected: "IPage<IBbsArticle.ISummary>",
-                        value: input
-                    })) && $ao0(input, _path + "", true) || $guard(true, {
-                        path: _path + "",
-                        expected: "IPage<IBbsArticle.ISummary>",
-                        value: input
-                    });
-                })(input, "$input", true);
-            return input;
-        }; const stringify = input => {
-            const $io1 = input => "string" === typeof input.id && /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test(input.id) && "string" === typeof input.writer && ("string" === typeof input.title && (3 <= input.title.length && input.title.length <= 50)) && ("string" === typeof input.created_at && !isNaN(new Date(input.created_at).getTime()));
-            const $io2 = input => "number" === typeof input.current && (Math.floor(input.current) === input.current && 0 <= input.current && input.current <= 4294967295) && ("number" === typeof input.limit && (Math.floor(input.limit) === input.limit && 0 <= input.limit && input.limit <= 4294967295)) && ("number" === typeof input.records && (Math.floor(input.records) === input.records && 0 <= input.records && input.records <= 4294967295)) && ("number" === typeof input.pages && (Math.floor(input.pages) === input.pages && 0 <= input.pages && input.pages <= 4294967295));
-            const $string = core_1.TypedRoute.Get.string;
-            const $so0 = input => `{"data":${`[${input.data.map(elem => `{"id":${$string(elem.id)},"writer":${$string(elem.writer)},"title":${$string(elem.title)},"created_at":${$string(elem.created_at)}}`).join(",")}]`},"pagination":${`{"current":${input.pagination.current},"limit":${input.pagination.limit},"records":${input.pagination.records},"pages":${input.pagination.pages}}`}}`;
-            return $so0(input);
-        }; return stringify(assert(input)); } }),
-    __param(0, (0, core_1.TypedQuery)(input => {
+                        value: elem,
+                      }),
+                  )) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".data",
+                    expected: "Array<IBbsArticle.ISummary>",
+                    value: input.data,
+                  })) &&
+                (((("object" === typeof input.pagination &&
+                  null !== input.pagination) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".pagination",
+                    expected: "IPage.IPagination",
+                    value: input.pagination,
+                  })) &&
+                  $ao2(
+                    input.pagination,
+                    _path + ".pagination",
+                    true && _exceptionable,
+                  )) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".pagination",
+                    expected: "IPage.IPagination",
+                    value: input.pagination,
+                  }));
+              const $ao1 = (input, _path, _exceptionable = true) =>
+                (("string" === typeof input.id &&
+                  (/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test(
+                    input.id,
+                  ) ||
+                    $guard(_exceptionable, {
+                      path: _path + ".id",
+                      expected: 'string & Format<"uuid">',
+                      value: input.id,
+                    }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".id",
+                    expected: '(string & Format<"uuid">)',
+                    value: input.id,
+                  })) &&
+                ("string" === typeof input.writer ||
+                  $guard(_exceptionable, {
+                    path: _path + ".writer",
+                    expected: "string",
+                    value: input.writer,
+                  })) &&
+                (("string" === typeof input.title &&
+                  (3 <= input.title.length ||
+                    $guard(_exceptionable, {
+                      path: _path + ".title",
+                      expected: "string & MinLength<3>",
+                      value: input.title,
+                    })) &&
+                  (input.title.length <= 50 ||
+                    $guard(_exceptionable, {
+                      path: _path + ".title",
+                      expected: "string & MaxLength<50>",
+                      value: input.title,
+                    }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".title",
+                    expected: "(string & MinLength<3> & MaxLength<50>)",
+                    value: input.title,
+                  })) &&
+                (("string" === typeof input.created_at &&
+                  (!isNaN(new Date(input.created_at).getTime()) ||
+                    $guard(_exceptionable, {
+                      path: _path + ".created_at",
+                      expected: 'string & Format<"date-time">',
+                      value: input.created_at,
+                    }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".created_at",
+                    expected: '(string & Format<"date-time">)',
+                    value: input.created_at,
+                  }));
+              const $ao2 = (input, _path, _exceptionable = true) =>
+                (("number" === typeof input.current &&
+                  ((Math.floor(input.current) === input.current &&
+                    0 <= input.current &&
+                    input.current <= 4294967295) ||
+                    $guard(_exceptionable, {
+                      path: _path + ".current",
+                      expected: 'number & Type<"uint32">',
+                      value: input.current,
+                    }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".current",
+                    expected: '(number & Type<"uint32">)',
+                    value: input.current,
+                  })) &&
+                (("number" === typeof input.limit &&
+                  ((Math.floor(input.limit) === input.limit &&
+                    0 <= input.limit &&
+                    input.limit <= 4294967295) ||
+                    $guard(_exceptionable, {
+                      path: _path + ".limit",
+                      expected: 'number & Type<"uint32">',
+                      value: input.limit,
+                    }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".limit",
+                    expected: '(number & Type<"uint32">)',
+                    value: input.limit,
+                  })) &&
+                (("number" === typeof input.records &&
+                  ((Math.floor(input.records) === input.records &&
+                    0 <= input.records &&
+                    input.records <= 4294967295) ||
+                    $guard(_exceptionable, {
+                      path: _path + ".records",
+                      expected: 'number & Type<"uint32">',
+                      value: input.records,
+                    }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".records",
+                    expected: '(number & Type<"uint32">)',
+                    value: input.records,
+                  })) &&
+                (("number" === typeof input.pages &&
+                  ((Math.floor(input.pages) === input.pages &&
+                    0 <= input.pages &&
+                    input.pages <= 4294967295) ||
+                    $guard(_exceptionable, {
+                      path: _path + ".pages",
+                      expected: 'number & Type<"uint32">',
+                      value: input.pages,
+                    }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".pages",
+                    expected: '(number & Type<"uint32">)',
+                    value: input.pages,
+                  }));
+              return (
+                ((("object" === typeof input && null !== input) ||
+                  $guard(true, {
+                    path: _path + "",
+                    expected: "IPage<IBbsArticle.ISummary>",
+                    value: input,
+                  })) &&
+                  $ao0(input, _path + "", true)) ||
+                $guard(true, {
+                  path: _path + "",
+                  expected: "IPage<IBbsArticle.ISummary>",
+                  value: input,
+                })
+              );
+            })(input, "$input", true);
+          return input;
+        };
+        const stringify = (input) => {
+          const $io1 = (input) =>
+            "string" === typeof input.id &&
+            /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test(
+              input.id,
+            ) &&
+            "string" === typeof input.writer &&
+            "string" === typeof input.title &&
+            3 <= input.title.length &&
+            input.title.length <= 50 &&
+            "string" === typeof input.created_at &&
+            !isNaN(new Date(input.created_at).getTime());
+          const $io2 = (input) =>
+            "number" === typeof input.current &&
+            Math.floor(input.current) === input.current &&
+            0 <= input.current &&
+            input.current <= 4294967295 &&
+            "number" === typeof input.limit &&
+            Math.floor(input.limit) === input.limit &&
+            0 <= input.limit &&
+            input.limit <= 4294967295 &&
+            "number" === typeof input.records &&
+            Math.floor(input.records) === input.records &&
+            0 <= input.records &&
+            input.records <= 4294967295 &&
+            "number" === typeof input.pages &&
+            Math.floor(input.pages) === input.pages &&
+            0 <= input.pages &&
+            input.pages <= 4294967295;
+          const $string = core_1.TypedRoute.Get.string;
+          const $so0 = (input) =>
+            `{"data":${`[${input.data
+              .map(
+                (elem) =>
+                  `{"id":${$string(elem.id)},"writer":${$string(
+                    elem.writer,
+                  )},"title":${$string(elem.title)},"created_at":${$string(
+                    elem.created_at,
+                  )}}`,
+              )
+              .join(
+                ",",
+              )}]`},"pagination":${`{"current":${input.pagination.current},"limit":${input.pagination.limit},"records":${input.pagination.records},"pages":${input.pagination.pages}}`}}`;
+          return $so0(input);
+        };
+        return stringify(assert(input));
+      },
+    }),
+    __param(
+      0,
+      (0, core_1.TypedQuery)((input) => {
         var _a, _b;
         const $number = core_1.TypedQuery.number;
         const output = {
-            page: (_a = $number(input.get("page"))) !== null && _a !== void 0 ? _a : undefined,
-            limit: (_b = $number(input.get("limit"))) !== null && _b !== void 0 ? _b : undefined
+          page:
+            (_a = $number(input.get("page"))) !== null && _a !== void 0
+              ? _a
+              : undefined,
+          limit:
+            (_b = $number(input.get("limit"))) !== null && _b !== void 0
+              ? _b
+              : undefined,
         };
-        return (input => {
-            const __is = input => {
-                const $io0 = input => (undefined === input.page || "number" === typeof input.page && (Math.floor(input.page) === input.page && 0 <= input.page && input.page <= 4294967295)) && (undefined === input.limit || "number" === typeof input.limit && (Math.floor(input.limit) === input.limit && 0 <= input.limit && input.limit <= 4294967295));
-                return "object" === typeof input && null !== input && false === Array.isArray(input) && $io0(input);
-            };
-            if (false === __is(input))
-                ((input, _path, _exceptionable = true) => {
-                    const $guard = core_1.TypedQuery.guard;
-                    const $ao0 = (input, _path, _exceptionable = true) => (undefined === input.page || "number" === typeof input.page && (Math.floor(input.page) === input.page && 0 <= input.page && input.page <= 4294967295 || $guard(_exceptionable, {
+        return ((input) => {
+          const __is = (input) => {
+            const $io0 = (input) =>
+              (undefined === input.page ||
+                ("number" === typeof input.page &&
+                  Math.floor(input.page) === input.page &&
+                  0 <= input.page &&
+                  input.page <= 4294967295)) &&
+              (undefined === input.limit ||
+                ("number" === typeof input.limit &&
+                  Math.floor(input.limit) === input.limit &&
+                  0 <= input.limit &&
+                  input.limit <= 4294967295));
+            return (
+              "object" === typeof input &&
+              null !== input &&
+              false === Array.isArray(input) &&
+              $io0(input)
+            );
+          };
+          if (false === __is(input))
+            ((input, _path, _exceptionable = true) => {
+              const $guard = core_1.TypedQuery.guard;
+              const $ao0 = (input, _path, _exceptionable = true) =>
+                (undefined === input.page ||
+                  ("number" === typeof input.page &&
+                    ((Math.floor(input.page) === input.page &&
+                      0 <= input.page &&
+                      input.page <= 4294967295) ||
+                      $guard(_exceptionable, {
                         path: _path + ".page",
-                        expected: "number & Type<\"uint32\">",
-                        value: input.page
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".page",
-                        expected: "((number & Type<\"uint32\">) | undefined)",
-                        value: input.page
-                    })) && (undefined === input.limit || "number" === typeof input.limit && (Math.floor(input.limit) === input.limit && 0 <= input.limit && input.limit <= 4294967295 || $guard(_exceptionable, {
+                        expected: 'number & Type<"uint32">',
+                        value: input.page,
+                      }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".page",
+                    expected: '((number & Type<"uint32">) | undefined)',
+                    value: input.page,
+                  })) &&
+                (undefined === input.limit ||
+                  ("number" === typeof input.limit &&
+                    ((Math.floor(input.limit) === input.limit &&
+                      0 <= input.limit &&
+                      input.limit <= 4294967295) ||
+                      $guard(_exceptionable, {
                         path: _path + ".limit",
-                        expected: "number & Type<\"uint32\">",
-                        value: input.limit
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".limit",
-                        expected: "((number & Type<\"uint32\">) | undefined)",
-                        value: input.limit
-                    }));
-                    return ("object" === typeof input && null !== input && false === Array.isArray(input) || $guard(true, {
-                        path: _path + "",
-                        expected: "IPage.IRequest",
-                        value: input
-                    })) && $ao0(input, _path + "", true) || $guard(true, {
-                        path: _path + "",
-                        expected: "IPage.IRequest",
-                        value: input
-                    });
-                })(input, "$input", true);
-            return input;
+                        expected: 'number & Type<"uint32">',
+                        value: input.limit,
+                      }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".limit",
+                    expected: '((number & Type<"uint32">) | undefined)',
+                    value: input.limit,
+                  }));
+              return (
+                ((("object" === typeof input &&
+                  null !== input &&
+                  false === Array.isArray(input)) ||
+                  $guard(true, {
+                    path: _path + "",
+                    expected: "IPage.IRequest",
+                    value: input,
+                  })) &&
+                  $ao0(input, _path + "", true)) ||
+                $guard(true, {
+                  path: _path + "",
+                  expected: "IPage.IRequest",
+                  value: input,
+                })
+              );
+            })(input, "$input", true);
+          return input;
         })(output);
-    })),
+      }),
+    ),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], BbsArticlesController.prototype, "index", null);
-exports.BbsArticlesController = BbsArticlesController = __decorate([
-    (0, common_1.Controller)("bbs/articles")
-], BbsArticlesController);
+    __metadata("design:returntype", Promise),
+  ],
+  BbsArticlesController.prototype,
+  "index",
+  null,
+);
+exports.BbsArticlesController = BbsArticlesController = __decorate(
+  [(0, common_1.Controller)("bbs/articles")],
+  BbsArticlesController,
+);
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 Just call `@TypedQuery()` function on the query parameter, that's all.
@@ -350,7 +595,7 @@ Such optimization is called AOT (Ahead of Time) compilation, and it is the secre
 ## `TypedQuery.Body()`
 ```typescript filename="@nestia/core"
 export namespace TypedQuery {
-    export function Body(): ParameterDecorator;
+  export function Body(): ParameterDecorator;
 }
 ```
 
@@ -359,34 +604,34 @@ Request body decorator of `application/x-www-form-urlencoded` format.
 If you call `@TypedQuery.Body()` decorator function on a specific parameter, the parameter will be parsed from the request body as `application/x-www-form-urlencoded` format. Otherwise, you want to declare a `application/json` format response body, use [`@TypedBody()`](./TypedBody) decorator function instead.
 
 <Tabs 
-    items={[
-        <code>IBbsArticle.ts</code>, 
-        <code>BbsArticlesController.ts</code>, 
-        'Compiled JavaScript File'
-    ]}
-    defaultIndex={1}
+  items={[
+    <code>IBbsArticle.ts</code>, 
+    <code>BbsArticlesController.ts</code>, 
+    'Compiled JavaScript File',
+  ]}
+  defaultIndex={1}
 >
-    <Tab>
+  <Tab>
 ```typescript copy filename="IBbsArticle.ts" showLineNumbers
 import { tags } from "typia";
 
 export interface IBbsArticle {
-    id: string;
-    writer: string;
-    title: string & tags.MinLength<3> & tags.MaxLength<50>;
-    body: string;
-    created_at: string & tags.Format<"date-time">;
+  id: string;
+  writer: string;
+  title: string & tags.MinLength<3> & tags.MaxLength<50>;
+  body: string;
+  created_at: string & tags.Format<"date-time">;
 }
 export namespace IBbsArticle {
-    export interface IStore {
-        title: string & tags.MinLength<3> & tags.MaxLength<50>;
-        body: string;
-    }
+  export interface IStore {
+    title: string & tags.MinLength<3> & tags.MaxLength<50>;
+    body: string;
+  }
 }
 ```
-    </Tab>
-    <Tab>
-```typescript copy filename="BbsArticlesController.ts" showLineNumbers
+  </Tab>
+  <Tab>
+```typescript copy filename="BbsArticlesController.ts" showLineNumbers {10}
 import { TypedQuery } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
@@ -394,178 +639,298 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 @Controller("bbs/articles")
 export class BbsArticlesController {
-    @TypedQuery.Post()
-    public async store(
-        @TypedQuery.Body() body: IBbsArticle.IStore
-    ): Promise<IBbsArticle> {
-        return {
-            id: "00000000-0000-0000-0000-000000000000",
-            writer: "Samchon",
-            title: body.title,
-            body: body.body,
-            created_at: new Date().toISOString(),
-        };
-    }
+  @TypedQuery.Post()
+  public async store(
+    @TypedQuery.Body() body: IBbsArticle.IStore,
+  ): Promise<IBbsArticle> {
+    return {
+      id: "00000000-0000-0000-0000-000000000000",
+      writer: "Samchon",
+      title: body.title,
+      body: body.body,
+      created_at: new Date().toISOString(),
+    };
+  }
 }
 ```
-    </Tab>
-    <Tab>
-```javascript filename="BBsArticlesController.js"
+  </Tab>
+  <Tab>
+```javascript filename="BBsArticlesController.js" showLineNumbers {186-261}
 "use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+var __decorate =
+  (this && this.__decorate) ||
+  function (decorators, target, key, desc) {
+    var c = arguments.length,
+      r =
+        c < 3
+          ? target
+          : desc === null
+          ? (desc = Object.getOwnPropertyDescriptor(target, key))
+          : desc,
+      d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+      r = Reflect.decorate(decorators, target, key, desc);
+    else
+      for (var i = decorators.length - 1; i >= 0; i--)
+        if ((d = decorators[i]))
+          r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+  };
+var __metadata =
+  (this && this.__metadata) ||
+  function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
+      return Reflect.metadata(k, v);
+  };
+var __param =
+  (this && this.__param) ||
+  function (paramIndex, decorator) {
+    return function (target, key) {
+      decorator(target, key, paramIndex);
+    };
+  };
+var __awaiter =
+  (this && this.__awaiter) ||
+  function (thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P
+        ? value
+        : new P(function (resolve) {
+            resolve(value);
+          });
+    }
     return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done
+          ? resolve(result.value)
+          : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-};
+  };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BbsArticlesController = void 0;
 const core_1 = require("@nestia/core");
 const common_1 = require("@nestjs/common");
 let BbsArticlesController = class BbsArticlesController {
-    store(body) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return {
-                id: "00000000-0000-0000-0000-000000000000",
-                writer: "Samchon",
-                title: body.title,
-                body: body.body,
-                created_at: new Date().toISOString(),
-            };
-        });
-    }
+  store(body) {
+    return __awaiter(this, void 0, void 0, function* () {
+      return {
+        id: "00000000-0000-0000-0000-000000000000",
+        writer: "Samchon",
+        title: body.title,
+        body: body.body,
+        created_at: new Date().toISOString(),
+      };
+    });
+  }
 };
 exports.BbsArticlesController = BbsArticlesController;
-__decorate([
-    core_1.TypedQuery.Post({ type: "assert", assert: input => { const assert = input => {
-            const __is = input => {
-                return "object" === typeof input && null !== input && ("string" === typeof input.id && "string" === typeof input.writer && ("string" === typeof input.title && (3 <= input.title.length && input.title.length <= 50)) && "string" === typeof input.body && ("string" === typeof input.created_at && !isNaN(new Date(input.created_at).getTime())));
-            };
-            if (false === __is(input))
-                ((input, _path, _exceptionable = true) => {
-                    const $guard = core_1.TypedQuery.Post.guard;
-                    const $ao0 = (input, _path, _exceptionable = true) => ("string" === typeof input.id || $guard(_exceptionable, {
-                        path: _path + ".id",
-                        expected: "string",
-                        value: input.id
-                    })) && ("string" === typeof input.writer || $guard(_exceptionable, {
-                        path: _path + ".writer",
-                        expected: "string",
-                        value: input.writer
-                    })) && ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
-                        path: _path + ".title",
-                        expected: "string & MinLength<3>",
-                        value: input.title
-                    })) && (input.title.length <= 50 || $guard(_exceptionable, {
-                        path: _path + ".title",
-                        expected: "string & MaxLength<50>",
-                        value: input.title
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".title",
-                        expected: "(string & MinLength<3> & MaxLength<50>)",
-                        value: input.title
-                    })) && ("string" === typeof input.body || $guard(_exceptionable, {
-                        path: _path + ".body",
-                        expected: "string",
-                        value: input.body
-                    })) && ("string" === typeof input.created_at && (!isNaN(new Date(input.created_at).getTime()) || $guard(_exceptionable, {
-                        path: _path + ".created_at",
-                        expected: "string & Format<\"date-time\">",
-                        value: input.created_at
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".created_at",
-                        expected: "(string & Format<\"date-time\">)",
-                        value: input.created_at
-                    }));
-                    return ("object" === typeof input && null !== input || $guard(true, {
-                        path: _path + "",
-                        expected: "IBbsArticle",
-                        value: input
-                    })) && $ao0(input, _path + "", true) || $guard(true, {
-                        path: _path + "",
-                        expected: "IBbsArticle",
-                        value: input
-                    });
-                })(input, "$input", true);
-            return input;
-        }; const stringify = input => {
-            const output = new URLSearchParams();
-            output.append("id", input.id);
-            output.append("writer", input.writer);
-            output.append("title", input.title);
-            output.append("body", input.body);
-            output.append("created_at", input.created_at);
-            return output;
-        }; return stringify(assert(input)); } }),
-    __param(0, core_1.TypedQuery.Body({ type: "assert", assert: input => { const decode = input => {
+__decorate(
+  [
+    core_1.TypedQuery.Post({
+      type: "assert",
+      assert: (input) => {
+        const assert = (input) => {
+          const __is = (input) => {
+            return (
+              "object" === typeof input &&
+              null !== input &&
+              "string" === typeof input.id &&
+              "string" === typeof input.writer &&
+              "string" === typeof input.title &&
+              3 <= input.title.length &&
+              input.title.length <= 50 &&
+              "string" === typeof input.body &&
+              "string" === typeof input.created_at &&
+              !isNaN(new Date(input.created_at).getTime())
+            );
+          };
+          if (false === __is(input))
+            ((input, _path, _exceptionable = true) => {
+              const $guard = core_1.TypedQuery.Post.guard;
+              const $ao0 = (input, _path, _exceptionable = true) =>
+                ("string" === typeof input.id ||
+                  $guard(_exceptionable, {
+                    path: _path + ".id",
+                    expected: "string",
+                    value: input.id,
+                  })) &&
+                ("string" === typeof input.writer ||
+                  $guard(_exceptionable, {
+                    path: _path + ".writer",
+                    expected: "string",
+                    value: input.writer,
+                  })) &&
+                (("string" === typeof input.title &&
+                  (3 <= input.title.length ||
+                    $guard(_exceptionable, {
+                      path: _path + ".title",
+                      expected: "string & MinLength<3>",
+                      value: input.title,
+                    })) &&
+                  (input.title.length <= 50 ||
+                    $guard(_exceptionable, {
+                      path: _path + ".title",
+                      expected: "string & MaxLength<50>",
+                      value: input.title,
+                    }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".title",
+                    expected: "(string & MinLength<3> & MaxLength<50>)",
+                    value: input.title,
+                  })) &&
+                ("string" === typeof input.body ||
+                  $guard(_exceptionable, {
+                    path: _path + ".body",
+                    expected: "string",
+                    value: input.body,
+                  })) &&
+                (("string" === typeof input.created_at &&
+                  (!isNaN(new Date(input.created_at).getTime()) ||
+                    $guard(_exceptionable, {
+                      path: _path + ".created_at",
+                      expected: 'string & Format<"date-time">',
+                      value: input.created_at,
+                    }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".created_at",
+                    expected: '(string & Format<"date-time">)',
+                    value: input.created_at,
+                  }));
+              return (
+                ((("object" === typeof input && null !== input) ||
+                  $guard(true, {
+                    path: _path + "",
+                    expected: "IBbsArticle",
+                    value: input,
+                  })) &&
+                  $ao0(input, _path + "", true)) ||
+                $guard(true, {
+                  path: _path + "",
+                  expected: "IBbsArticle",
+                  value: input,
+                })
+              );
+            })(input, "$input", true);
+          return input;
+        };
+        const stringify = (input) => {
+          const output = new URLSearchParams();
+          output.append("id", input.id);
+          output.append("writer", input.writer);
+          output.append("title", input.title);
+          output.append("body", input.body);
+          output.append("created_at", input.created_at);
+          return output;
+        };
+        return stringify(assert(input));
+      },
+    }),
+    __param(
+      0,
+      core_1.TypedQuery.Body({
+        type: "assert",
+        assert: (input) => {
+          const decode = (input) => {
             const $params = core_1.TypedQuery.Body.params;
             const $string = core_1.TypedQuery.Body.string;
             input = $params(input);
             const output = {
-                title: $string(input.get("title")),
-                body: $string(input.get("body"))
+              title: $string(input.get("title")),
+              body: $string(input.get("body")),
             };
             return output;
-        }; const assert = input => {
-            const __is = input => {
-                return "object" === typeof input && null !== input && ("string" === typeof input.title && (3 <= input.title.length && input.title.length <= 50) && "string" === typeof input.body);
+          };
+          const assert = (input) => {
+            const __is = (input) => {
+              return (
+                "object" === typeof input &&
+                null !== input &&
+                "string" === typeof input.title &&
+                3 <= input.title.length &&
+                input.title.length <= 50 &&
+                "string" === typeof input.body
+              );
             };
             if (false === __is(input))
-                ((input, _path, _exceptionable = true) => {
-                    const $guard = core_1.TypedQuery.Body.guard;
-                    const $ao0 = (input, _path, _exceptionable = true) => ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
+              ((input, _path, _exceptionable = true) => {
+                const $guard = core_1.TypedQuery.Body.guard;
+                const $ao0 = (input, _path, _exceptionable = true) =>
+                  (("string" === typeof input.title &&
+                    (3 <= input.title.length ||
+                      $guard(_exceptionable, {
                         path: _path + ".title",
                         expected: "string & MinLength<3>",
-                        value: input.title
-                    })) && (input.title.length <= 50 || $guard(_exceptionable, {
+                        value: input.title,
+                      })) &&
+                    (input.title.length <= 50 ||
+                      $guard(_exceptionable, {
                         path: _path + ".title",
                         expected: "string & MaxLength<50>",
-                        value: input.title
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".title",
-                        expected: "(string & MinLength<3> & MaxLength<50>)",
-                        value: input.title
-                    })) && ("string" === typeof input.body || $guard(_exceptionable, {
-                        path: _path + ".body",
-                        expected: "string",
-                        value: input.body
+                        value: input.title,
+                      }))) ||
+                    $guard(_exceptionable, {
+                      path: _path + ".title",
+                      expected: "(string & MinLength<3> & MaxLength<50>)",
+                      value: input.title,
+                    })) &&
+                  ("string" === typeof input.body ||
+                    $guard(_exceptionable, {
+                      path: _path + ".body",
+                      expected: "string",
+                      value: input.body,
                     }));
-                    return ("object" === typeof input && null !== input || $guard(true, {
-                        path: _path + "",
-                        expected: "IBbsArticle.IStore",
-                        value: input
-                    })) && $ao0(input, _path + "", true) || $guard(true, {
-                        path: _path + "",
-                        expected: "IBbsArticle.IStore",
-                        value: input
-                    });
-                })(input, "$input", true);
+                return (
+                  ((("object" === typeof input && null !== input) ||
+                    $guard(true, {
+                      path: _path + "",
+                      expected: "IBbsArticle.IStore",
+                      value: input,
+                    })) &&
+                    $ao0(input, _path + "", true)) ||
+                  $guard(true, {
+                    path: _path + "",
+                    expected: "IBbsArticle.IStore",
+                    value: input,
+                  })
+                );
+              })(input, "$input", true);
             return input;
-        }; const output = decode(input); return assert(output); } })),
+          };
+          const output = decode(input);
+          return assert(output);
+        },
+      }),
+    ),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], BbsArticlesController.prototype, "store", null);
-exports.BbsArticlesController = BbsArticlesController = __decorate([
-    (0, common_1.Controller)("bbs/articles")
-], BbsArticlesController);
+    __metadata("design:returntype", Promise),
+  ],
+  BbsArticlesController.prototype,
+  "store",
+  null,
+);
+exports.BbsArticlesController = BbsArticlesController = __decorate(
+  [(0, common_1.Controller)("bbs/articles")],
+  BbsArticlesController,
+);
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 
@@ -574,11 +939,11 @@ exports.BbsArticlesController = BbsArticlesController = __decorate([
 ## `TypedQuery.Post()`
 ```typescript filename="@nestia/core"
 export namespace TypedQuery {
-    export function Get(path?: string): MethodDecorator;
-    export function Post(path?: string): MethodDecorator;
-    export function Put(path?: string): MethodDecorator;
-    export function Patch(path?: string): MethodDecorator;
-    export function Delete(path?: string): MethodDecorator;
+  export function Get(path?: string): MethodDecorator;
+  export function Post(path?: string): MethodDecorator;
+  export function Put(path?: string): MethodDecorator;
+  export function Patch(path?: string): MethodDecorator;
+  export function Delete(path?: string): MethodDecorator;
 }
 ```
 
@@ -593,34 +958,34 @@ If you call one of below decorator functions on a method, the method will return
   - `@TypedQuery.Delete()`
 
 <Tabs 
-    items={[
-        <code>IBbsArticle.ts</code>, 
-        <code>BbsArticlesController.ts</code>, 
-        'Compiled JavaScript File'
-    ]}
-    defaultIndex={1}
+  items={[
+    <code>IBbsArticle.ts</code>, 
+    <code>BbsArticlesController.ts</code>, 
+    'Compiled JavaScript File',
+  ]}
+  defaultIndex={1}
 >
-    <Tab>
+  <Tab>
 ```typescript copy filename="IBbsArticle.ts" showLineNumbers
 import { tags } from "typia";
 
 export interface IBbsArticle {
-    id: string;
-    writer: string;
-    title: string & tags.MinLength<3> & tags.MaxLength<50>;
-    body: string;
-    created_at: string & tags.Format<"date-time">;
+  id: string;
+  writer: string;
+  title: string & tags.MinLength<3> & tags.MaxLength<50>;
+  body: string;
+  created_at: string & tags.Format<"date-time">;
 }
 export namespace IBbsArticle {
-    export interface IStore {
-        title: string & tags.MinLength<3> & tags.MaxLength<50>;
-        body: string;
-    }
+  export interface IStore {
+    title: string & tags.MinLength<3> & tags.MaxLength<50>;
+    body: string;
+  }
 }
 ```
-    </Tab>
-    <Tab>
-```typescript copy filename="BbsArticlesController.ts" showLineNumbers
+  </Tab>
+  <Tab>
+```typescript copy filename="BbsArticlesController.ts" showLineNumbers {8}
 import { TypedQuery } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
@@ -628,178 +993,298 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 @Controller("bbs/articles")
 export class BbsArticlesController {
-    @TypedQuery.Post()
-    public async store(
-        @TypedQuery.Body() body: IBbsArticle.IStore
-    ): Promise<IBbsArticle> {
-        return {
-            id: "00000000-0000-0000-0000-000000000000",
-            writer: "Samchon",
-            title: body.title,
-            body: body.body,
-            created_at: new Date().toISOString(),
-        };
-    }
+  @TypedQuery.Post()
+  public async store(
+    @TypedQuery.Body() body: IBbsArticle.IStore,
+  ): Promise<IBbsArticle> {
+    return {
+      id: "00000000-0000-0000-0000-000000000000",
+      writer: "Samchon",
+      title: body.title,
+      body: body.body,
+      created_at: new Date().toISOString(),
+    };
+  }
 }
 ```
-    </Tab>
-    <Tab>
-```javascript filename="BBsArticlesController.js"
+  </Tab>
+  <Tab>
+```javascript filename="BBsArticlesController.js" showLineNumbers {87-156}
 "use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+var __decorate =
+  (this && this.__decorate) ||
+  function (decorators, target, key, desc) {
+    var c = arguments.length,
+      r =
+        c < 3
+          ? target
+          : desc === null
+          ? (desc = Object.getOwnPropertyDescriptor(target, key))
+          : desc,
+      d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+      r = Reflect.decorate(decorators, target, key, desc);
+    else
+      for (var i = decorators.length - 1; i >= 0; i--)
+        if ((d = decorators[i]))
+          r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+  };
+var __metadata =
+  (this && this.__metadata) ||
+  function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
+      return Reflect.metadata(k, v);
+  };
+var __param =
+  (this && this.__param) ||
+  function (paramIndex, decorator) {
+    return function (target, key) {
+      decorator(target, key, paramIndex);
+    };
+  };
+var __awaiter =
+  (this && this.__awaiter) ||
+  function (thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P
+        ? value
+        : new P(function (resolve) {
+            resolve(value);
+          });
+    }
     return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done
+          ? resolve(result.value)
+          : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-};
+  };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BbsArticlesController = void 0;
 const core_1 = require("@nestia/core");
 const common_1 = require("@nestjs/common");
 let BbsArticlesController = class BbsArticlesController {
-    store(body) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return {
-                id: "00000000-0000-0000-0000-000000000000",
-                writer: "Samchon",
-                title: body.title,
-                body: body.body,
-                created_at: new Date().toISOString(),
-            };
-        });
-    }
+  store(body) {
+    return __awaiter(this, void 0, void 0, function* () {
+      return {
+        id: "00000000-0000-0000-0000-000000000000",
+        writer: "Samchon",
+        title: body.title,
+        body: body.body,
+        created_at: new Date().toISOString(),
+      };
+    });
+  }
 };
 exports.BbsArticlesController = BbsArticlesController;
-__decorate([
-    core_1.TypedQuery.Post({ type: "assert", assert: input => { const assert = input => {
-            const __is = input => {
-                return "object" === typeof input && null !== input && ("string" === typeof input.id && "string" === typeof input.writer && ("string" === typeof input.title && (3 <= input.title.length && input.title.length <= 50)) && "string" === typeof input.body && ("string" === typeof input.created_at && !isNaN(new Date(input.created_at).getTime())));
-            };
-            if (false === __is(input))
-                ((input, _path, _exceptionable = true) => {
-                    const $guard = core_1.TypedQuery.Post.guard;
-                    const $ao0 = (input, _path, _exceptionable = true) => ("string" === typeof input.id || $guard(_exceptionable, {
-                        path: _path + ".id",
-                        expected: "string",
-                        value: input.id
-                    })) && ("string" === typeof input.writer || $guard(_exceptionable, {
-                        path: _path + ".writer",
-                        expected: "string",
-                        value: input.writer
-                    })) && ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
-                        path: _path + ".title",
-                        expected: "string & MinLength<3>",
-                        value: input.title
-                    })) && (input.title.length <= 50 || $guard(_exceptionable, {
-                        path: _path + ".title",
-                        expected: "string & MaxLength<50>",
-                        value: input.title
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".title",
-                        expected: "(string & MinLength<3> & MaxLength<50>)",
-                        value: input.title
-                    })) && ("string" === typeof input.body || $guard(_exceptionable, {
-                        path: _path + ".body",
-                        expected: "string",
-                        value: input.body
-                    })) && ("string" === typeof input.created_at && (!isNaN(new Date(input.created_at).getTime()) || $guard(_exceptionable, {
-                        path: _path + ".created_at",
-                        expected: "string & Format<\"date-time\">",
-                        value: input.created_at
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".created_at",
-                        expected: "(string & Format<\"date-time\">)",
-                        value: input.created_at
-                    }));
-                    return ("object" === typeof input && null !== input || $guard(true, {
-                        path: _path + "",
-                        expected: "IBbsArticle",
-                        value: input
-                    })) && $ao0(input, _path + "", true) || $guard(true, {
-                        path: _path + "",
-                        expected: "IBbsArticle",
-                        value: input
-                    });
-                })(input, "$input", true);
-            return input;
-        }; const stringify = input => {
-            const output = new URLSearchParams();
-            output.append("id", input.id);
-            output.append("writer", input.writer);
-            output.append("title", input.title);
-            output.append("body", input.body);
-            output.append("created_at", input.created_at);
-            return output;
-        }; return stringify(assert(input)); } }),
-    __param(0, core_1.TypedQuery.Body({ type: "assert", assert: input => { const decode = input => {
+__decorate(
+  [
+    core_1.TypedQuery.Post({
+      type: "assert",
+      assert: (input) => {
+        const assert = (input) => {
+          const __is = (input) => {
+            return (
+              "object" === typeof input &&
+              null !== input &&
+              "string" === typeof input.id &&
+              "string" === typeof input.writer &&
+              "string" === typeof input.title &&
+              3 <= input.title.length &&
+              input.title.length <= 50 &&
+              "string" === typeof input.body &&
+              "string" === typeof input.created_at &&
+              !isNaN(new Date(input.created_at).getTime())
+            );
+          };
+          if (false === __is(input))
+            ((input, _path, _exceptionable = true) => {
+              const $guard = core_1.TypedQuery.Post.guard;
+              const $ao0 = (input, _path, _exceptionable = true) =>
+                ("string" === typeof input.id ||
+                  $guard(_exceptionable, {
+                    path: _path + ".id",
+                    expected: "string",
+                    value: input.id,
+                  })) &&
+                ("string" === typeof input.writer ||
+                  $guard(_exceptionable, {
+                    path: _path + ".writer",
+                    expected: "string",
+                    value: input.writer,
+                  })) &&
+                (("string" === typeof input.title &&
+                  (3 <= input.title.length ||
+                    $guard(_exceptionable, {
+                      path: _path + ".title",
+                      expected: "string & MinLength<3>",
+                      value: input.title,
+                    })) &&
+                  (input.title.length <= 50 ||
+                    $guard(_exceptionable, {
+                      path: _path + ".title",
+                      expected: "string & MaxLength<50>",
+                      value: input.title,
+                    }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".title",
+                    expected: "(string & MinLength<3> & MaxLength<50>)",
+                    value: input.title,
+                  })) &&
+                ("string" === typeof input.body ||
+                  $guard(_exceptionable, {
+                    path: _path + ".body",
+                    expected: "string",
+                    value: input.body,
+                  })) &&
+                (("string" === typeof input.created_at &&
+                  (!isNaN(new Date(input.created_at).getTime()) ||
+                    $guard(_exceptionable, {
+                      path: _path + ".created_at",
+                      expected: 'string & Format<"date-time">',
+                      value: input.created_at,
+                    }))) ||
+                  $guard(_exceptionable, {
+                    path: _path + ".created_at",
+                    expected: '(string & Format<"date-time">)',
+                    value: input.created_at,
+                  }));
+              return (
+                ((("object" === typeof input && null !== input) ||
+                  $guard(true, {
+                    path: _path + "",
+                    expected: "IBbsArticle",
+                    value: input,
+                  })) &&
+                  $ao0(input, _path + "", true)) ||
+                $guard(true, {
+                  path: _path + "",
+                  expected: "IBbsArticle",
+                  value: input,
+                })
+              );
+            })(input, "$input", true);
+          return input;
+        };
+        const stringify = (input) => {
+          const output = new URLSearchParams();
+          output.append("id", input.id);
+          output.append("writer", input.writer);
+          output.append("title", input.title);
+          output.append("body", input.body);
+          output.append("created_at", input.created_at);
+          return output;
+        };
+        return stringify(assert(input));
+      },
+    }),
+    __param(
+      0,
+      core_1.TypedQuery.Body({
+        type: "assert",
+        assert: (input) => {
+          const decode = (input) => {
             const $params = core_1.TypedQuery.Body.params;
             const $string = core_1.TypedQuery.Body.string;
             input = $params(input);
             const output = {
-                title: $string(input.get("title")),
-                body: $string(input.get("body"))
+              title: $string(input.get("title")),
+              body: $string(input.get("body")),
             };
             return output;
-        }; const assert = input => {
-            const __is = input => {
-                return "object" === typeof input && null !== input && ("string" === typeof input.title && (3 <= input.title.length && input.title.length <= 50) && "string" === typeof input.body);
+          };
+          const assert = (input) => {
+            const __is = (input) => {
+              return (
+                "object" === typeof input &&
+                null !== input &&
+                "string" === typeof input.title &&
+                3 <= input.title.length &&
+                input.title.length <= 50 &&
+                "string" === typeof input.body
+              );
             };
             if (false === __is(input))
-                ((input, _path, _exceptionable = true) => {
-                    const $guard = core_1.TypedQuery.Body.guard;
-                    const $ao0 = (input, _path, _exceptionable = true) => ("string" === typeof input.title && (3 <= input.title.length || $guard(_exceptionable, {
+              ((input, _path, _exceptionable = true) => {
+                const $guard = core_1.TypedQuery.Body.guard;
+                const $ao0 = (input, _path, _exceptionable = true) =>
+                  (("string" === typeof input.title &&
+                    (3 <= input.title.length ||
+                      $guard(_exceptionable, {
                         path: _path + ".title",
                         expected: "string & MinLength<3>",
-                        value: input.title
-                    })) && (input.title.length <= 50 || $guard(_exceptionable, {
+                        value: input.title,
+                      })) &&
+                    (input.title.length <= 50 ||
+                      $guard(_exceptionable, {
                         path: _path + ".title",
                         expected: "string & MaxLength<50>",
-                        value: input.title
-                    })) || $guard(_exceptionable, {
-                        path: _path + ".title",
-                        expected: "(string & MinLength<3> & MaxLength<50>)",
-                        value: input.title
-                    })) && ("string" === typeof input.body || $guard(_exceptionable, {
-                        path: _path + ".body",
-                        expected: "string",
-                        value: input.body
+                        value: input.title,
+                      }))) ||
+                    $guard(_exceptionable, {
+                      path: _path + ".title",
+                      expected: "(string & MinLength<3> & MaxLength<50>)",
+                      value: input.title,
+                    })) &&
+                  ("string" === typeof input.body ||
+                    $guard(_exceptionable, {
+                      path: _path + ".body",
+                      expected: "string",
+                      value: input.body,
                     }));
-                    return ("object" === typeof input && null !== input || $guard(true, {
-                        path: _path + "",
-                        expected: "IBbsArticle.IStore",
-                        value: input
-                    })) && $ao0(input, _path + "", true) || $guard(true, {
-                        path: _path + "",
-                        expected: "IBbsArticle.IStore",
-                        value: input
-                    });
-                })(input, "$input", true);
+                return (
+                  ((("object" === typeof input && null !== input) ||
+                    $guard(true, {
+                      path: _path + "",
+                      expected: "IBbsArticle.IStore",
+                      value: input,
+                    })) &&
+                    $ao0(input, _path + "", true)) ||
+                  $guard(true, {
+                    path: _path + "",
+                    expected: "IBbsArticle.IStore",
+                    value: input,
+                  })
+                );
+              })(input, "$input", true);
             return input;
-        }; const output = decode(input); return assert(output); } })),
+          };
+          const output = decode(input);
+          return assert(output);
+        },
+      }),
+    ),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], BbsArticlesController.prototype, "store", null);
-exports.BbsArticlesController = BbsArticlesController = __decorate([
-    (0, common_1.Controller)("bbs/articles")
-], BbsArticlesController);
+    __metadata("design:returntype", Promise),
+  ],
+  BbsArticlesController.prototype,
+  "store",
+  null,
+);
+exports.BbsArticlesController = BbsArticlesController = __decorate(
+  [(0, common_1.Controller)("bbs/articles")],
+  BbsArticlesController,
+);
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 
@@ -819,76 +1304,75 @@ With those type and comment tags, you can add additional validation logics. If y
     - [Customization](https://typia.io/docs/validators/tags/#customization)
 
 <Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
-    <Tab>
+  <Tab>
 ```typescript copy filename="examples/src/is-special-tags.ts" showLineNumbers {3}
 import typia, { tags } from "typia";
 
 export const checkSpecialTag = typia.createIs<SpecialTag>();
 
 interface SpecialTag {
-    int32: number & tags.Type<"int32">;
-    range?: number & tags.ExclusiveMinimum<19> & tags.Maximum<100>;
-    minLength: string & tags.MinLength<3>;
-    pattern: string & tags.Pattern<"^[a-z]+$">;
-    date: null | (string & tags.Format<"date">);
-    ip: string & (tags.Format<"ipv4"> | tags.Format<"ipv6">);
-    uuids: Array<string & tags.Format<"uuid">>
-        & tags.MinItems<3>
-        & tags.MaxItems<100>;
+  int32: number & tags.Type<"int32">;
+  range?: number & tags.ExclusiveMinimum<19> & tags.Maximum<100>;
+  minLength: string & tags.MinLength<3>;
+  pattern: string & tags.Pattern<"^[a-z]+$">;
+  date: null | (string & tags.Format<"date">);
+  ip: string & (tags.Format<"ipv4"> | tags.Format<"ipv6">);
+  uuids: Array<string & tags.Format<"uuid">> &
+    tags.MinItems<3> &
+    tags.MaxItems<100>;
 }
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```javascript filename="examples/bin/is-special-tags.js" showLineNumbers {10-45}
 "use strict";
 var __importDefault =
-    (this && this.__importDefault) ||
-    function (mod) {
-        return mod && mod.__esModule ? mod : { default: mod };
-    };
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkSpecialTag = void 0;
 const typia_1 = __importDefault(require("typia"));
 const checkSpecialTag = (input) => {
-    const $io0 = (input) =>
-        "number" === typeof input.int32 &&
-        Math.floor(input.int32) === input.int32 &&
-        -2147483648 <= input.int32 &&
-        input.int32 <= 2147483647 &&
-        (undefined === input.range ||
-            ("number" === typeof input.range &&
-                19 < input.range &&
-                input.range <= 100)) &&
-        "string" === typeof input.minLength &&
-        3 <= input.minLength.length &&
-        "string" === typeof input.pattern &&
-        /^[a-z]+$/.test(input.pattern) &&
-        (null === input.date ||
-            ("string" === typeof input.date &&
-                /^(d{4})-(d{2})-(d{2})$/.test(input.date))) &&
-        "string" === typeof input.ip &&
-        (/^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
-            input.ip,
-        ) ||
-            /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/.test(
-                input.ip,
-            )) &&
-        Array.isArray(input.uuids) &&
-        3 <= input.uuids.length &&
-        input.uuids.length <= 100 &&
-        input.uuids.every(
-            (elem) =>
-                "string" === typeof elem &&
-                /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test(
-                    elem,
-                ),
-        );
-    return "object" === typeof input && null !== input && $io0(input);
+  const $io0 = (input) =>
+    "number" === typeof input.int32 &&
+    Math.floor(input.int32) === input.int32 &&
+    -2147483648 <= input.int32 &&
+    input.int32 <= 2147483647 &&
+    (undefined === input.range ||
+      ("number" === typeof input.range &&
+        19 < input.range &&
+        input.range <= 100)) &&
+    "string" === typeof input.minLength &&
+    3 <= input.minLength.length &&
+    "string" === typeof input.pattern &&
+    /^[a-z]+$/.test(input.pattern) &&
+    (null === input.date ||
+      ("string" === typeof input.date &&
+        /^(d{4})-(d{2})-(d{2})$/.test(input.date))) &&
+    "string" === typeof input.ip &&
+    (/^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
+      input.ip,
+    ) ||
+      /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/.test(
+        input.ip,
+      )) &&
+    Array.isArray(input.uuids) &&
+    3 <= input.uuids.length &&
+    input.uuids.length <= 100 &&
+    input.uuids.every(
+      (elem) =>
+        "string" === typeof elem &&
+        /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test(
+          elem,
+        ),
+    );
+  return "object" === typeof input && null !== input && $io0(input);
 };
 exports.checkSpecialTag = checkSpecialTag;
-
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 
@@ -909,38 +1393,38 @@ At next, type of properties must be **atomic**, or array of atomic type. In the 
 
 ```typescript filename="SomeQueryDto.ts" showLineNumbers
 export interface SomeQueryDto {
-    //----
-    // ATOMIC TYPES
-    //----
-    // ALLOWED
-    boolean: boolean;
-    number: number;
-    string: string;
-    bigint: bigint;
-    optional_number?: number;
-    nullable_string: string | null;
-    literal_union: "A" | "B" | "C" | "D";
+  //----
+  // ATOMIC TYPES
+  //----
+  // ALLOWED
+  boolean: boolean;
+  number: number;
+  string: string;
+  bigint: bigint;
+  optional_number?: number;
+  nullable_string: string | null;
+  literal_union: "A" | "B" | "C" | "D";
 
-    // NOT ALLOWED
-    mixed_union: string | number | boolean;
-    mixed_literal: "A" | "B" | 3;
+  // NOT ALLOWED
+  mixed_union: string | number | boolean;
+  mixed_literal: "A" | "B" | 3;
 
-    //----
-    // ARRAY TYPES
-    //----
-    // ALLOWED
-    nullable_element_array: (string | null)[];
-    string_array: string[];
-    number_array: number[];
-    literal_union_array: ("A" | "B" | "C")[];
-    literal_tuple: ["A", "B", "C"];
+  //----
+  // ARRAY TYPES
+  //----
+  // ALLOWED
+  nullable_element_array: (string | null)[];
+  string_array: string[];
+  number_array: number[];
+  literal_union_array: ("A" | "B" | "C")[];
+  literal_tuple: ["A", "B", "C"];
 
-    // NOT ALLOWED
-    optional_element_array: (string | undefined)[];
-    optional_array: string[] | undefined;
-    nullable_array: string[] | null;
-    union_atomic_array: (string | number)[];
-    mixed_literal_array: ("A", "B", 3)[];
-    mixed_tuple: ["A", "B", 3];
+  // NOT ALLOWED
+  optional_element_array: (string | undefined)[];
+  optional_array: string[] | undefined;
+  nullable_array: string[] | null;
+  union_atomic_array: (string | number)[];
+  mixed_literal_array: ("A", "B", 3)[];
+  mixed_tuple: ["A", "B", 3];
 }
 ```

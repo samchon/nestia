@@ -12,24 +12,28 @@ export namespace MethodAnalzyer {
     (swagger: ISwagger) =>
     (props: { path: string; method: string }) =>
     (route: ISwaggerRoute): IMigrateRoute | null => {
-      const body = emplaceBodySchema(emplaceReference(swagger)("body"))(
-        route.requestBody,
-      );
-      const success = emplaceBodySchema(emplaceReference(swagger)("response"))(
-        route.responses?.["201"] ?? route.responses?.["200"],
-      );
-      if (body === false || success === false) {
-        console.log(
-          `Failed to migrate ${props.method.toUpperCase()} ${
-            props.path
-          }: @nestia/migrate supports only application/json, application/x-www-form-urlencoded or text/plain format yet.`,
+      const body = emplaceBodySchema("request")(
+        emplaceReference(swagger)("body"),
+      )(route.requestBody);
+      const success = emplaceBodySchema("response")(
+        emplaceReference(swagger)("response"),
+      )(route.responses?.["201"] ?? route.responses?.["200"]);
+
+      const failures: string[] = [];
+      if (body === false)
+        failures.push(
+          `supports only "application/json", "application/x-www-form-urlencoded", "multipart/form-data" and "text/plain" content type in the request body.`,
         );
-        return null;
-      } else if (SUPPORTED_METHODS.has(props.method.toUpperCase()) === false) {
+      if (success === false)
+        failures.push(
+          `supports only "application/json", "application/x-www-form-urlencoded" and "text/plain" content type in the response body.`,
+        );
+      if (SUPPORTED_METHODS.has(props.method.toUpperCase()) === false)
+        failures.push(`does not support ${props.method.toUpperCase()} method.`);
+      if (failures.length) {
         console.log(
-          `Failed to migrate ${props.method.toUpperCase()} ${
-            props.path
-          }: @nestia/migrate does not support ${props.method.toUpperCase()} method.`,
+          `Failed to migrate ${props.method.toUpperCase()} ${props.path}`,
+          ...failures.map((f) => `  - ${f}`),
         );
         return null;
       }
@@ -189,8 +193,8 @@ export namespace MethodAnalzyer {
               schema: query,
             }
           : null,
-        body,
-        success,
+        body: body as IMigrateRoute.IBody,
+        success: success as IMigrateRoute.IBody,
         exceptions: Object.fromEntries(
           Object.entries(route.responses ?? {})
             .filter(
@@ -264,6 +268,7 @@ export namespace MethodAnalzyer {
     (SwaggerTypeChecker.isArray(schema) && isNotObjectLiteral(schema.items));
 
   const emplaceBodySchema =
+    (from: "request" | "response") =>
     (emplacer: (schema: ISwaggerSchema) => ISwaggerSchema.IReference) =>
     (meta?: {
       description?: string;
@@ -305,6 +310,20 @@ export namespace MethodAnalzyer {
       const text = entries.find((e) => e[0].includes("text/plain"));
       if (text)
         return { type: "text/plain", key: "body", schema: { type: "string" } };
+
+      if (from === "request") {
+        const multipart = entries.find((e) =>
+          e[0].includes("multipart/form-data"),
+        );
+        if (multipart) {
+          const { schema } = multipart[1];
+          return {
+            type: "multipart/form-data",
+            key: "body",
+            schema: isNotObjectLiteral(schema) ? schema : emplacer(schema),
+          };
+        }
+      }
       return false;
     };
 

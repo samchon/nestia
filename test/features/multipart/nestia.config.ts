@@ -3,8 +3,6 @@ import { INestiaConfig } from "@nestia/sdk";
 export const NESTIA_CONFIG: INestiaConfig = {
   input: ["src/controllers"],
   output: "src/api",
-  e2e: "src/test",
-  clone: true,
   swagger: {
     output: "swagger.json",
     security: {
@@ -12,6 +10,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
         type: "apiKey",
       },
     },
+    beautify: true,
   },
 };
 export default NESTIA_CONFIG;

@@ -379,7 +379,8 @@ export namespace ReflectAnalyzer {
       param.factory.name === "EncryptedBody" ||
       param.factory.name === "PlainBody" ||
       param.factory.name === "TypedQueryBody" ||
-      param.factory.name === "TypedBody"
+      param.factory.name === "TypedBody" ||
+      param.factory.name === "TypedMultipartBody"
     )
       return {
         custom: true,
@@ -394,7 +395,9 @@ export namespace ReflectAnalyzer {
             ? "text/plain"
             : param.factory.name === "TypedQueryBody"
               ? "application/x-www-form-urlencoded"
-              : "application/json",
+              : param.factory.name === "TypedMultipartBody"
+                ? "multipart/form-data"
+                : "application/json",
       };
     else if (param.factory.name === "TypedHeaders")
       return {

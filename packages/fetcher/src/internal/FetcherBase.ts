@@ -79,7 +79,8 @@ export namespace FetcherBase {
           throw new Error(
             `Error on ${props.className}.fetch(): no content-type being configured.`,
           );
-        headers["Content-Type"] = route.request.type;
+        else if (route.request.type !== "multipart/form-data")
+          headers["Content-Type"] = route.request.type;
       }
 
       // INIT REQUEST DATA
@@ -103,9 +104,11 @@ export namespace FetcherBase {
           // BODY TRANSFORM
           route.request?.type === "application/x-www-form-urlencoded"
             ? request_query_body(input)
-            : route.request?.type !== "text/plain"
-              ? (stringify ?? JSON.stringify)(input)
-              : input,
+            : route.request?.type === "multipart/form-data"
+              ? request_form_data_body(input as any)
+              : route.request?.type !== "text/plain"
+                ? (stringify ?? JSON.stringify)(input)
+                : input,
           headers,
         );
 
@@ -183,6 +186,9 @@ const polyfill = new Singleton(async (): Promise<typeof fetch> => {
   return window.fetch;
 });
 
+/**
+ * @internal
+ */
 const request_query_body = (input: any): URLSearchParams => {
   const q: URLSearchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(input))
@@ -191,6 +197,24 @@ const request_query_body = (input: any): URLSearchParams => {
       value.forEach((elem) => q.append(key, String(elem)));
     else q.set(key, String(value));
   return q;
+};
+
+/**
+ * @internal
+ */
+const request_form_data_body = (input: Record<string, any>): FormData => {
+  const encoded: FormData = new FormData();
+  const append = (key: string) => (value: any) => {
+    if (value === undefined) return;
+    else if (value instanceof Blob)
+      if (value instanceof File) encoded.append(key, value, value.name);
+      else encoded.append(key, value);
+    else encoded.append(key, String(value));
+  };
+  for (const [key, value] of Object.entries(input))
+    if (Array.isArray(value)) value.map(append(key));
+    else append(key)(value);
+  return encoded;
 };
 
 /**

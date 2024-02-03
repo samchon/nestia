@@ -57,6 +57,9 @@ export namespace SdkTypeProgrammer {
         else union.push(write_alias(config)(importer)(object));
       for (const alias of meta.aliases)
         union.push(write_alias(config)(importer)(alias));
+      for (const native of meta.natives)
+        if (native === "Blob" || native === "File")
+          union.push(write_native(native));
 
       return union.length === 1
         ? union[0]
@@ -279,6 +282,9 @@ export namespace SdkTypeProgrammer {
       importInternalFile(config)(importer)(meta.name);
       return ts.factory.createTypeReferenceNode(meta.name);
     };
+
+  const write_native = (name: string): ts.TypeNode =>
+    ts.factory.createTypeReferenceNode(name);
 
   /* -----------------------------------------------------------
     MISCELLANEOUS

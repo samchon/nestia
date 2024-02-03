@@ -3,10 +3,6 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 ## Outline
 ```typescript filename="@nestia/core"
 export function TypedParam(name: string): ParameterDecorator;
-export function TypedParam(
-    name: string, 
-    type: "uuid" | "date"
-): ParameterDecorator;
 ```
 
 Type safe path parameter decorator.
@@ -24,131 +20,211 @@ Let's read below example code, and see how `@TypedParam()` works.
 
 ## How to use
 <Tabs 
-    items={[
-        <code>ParametersController.ts</code>, 
-        'Compiled JavaScript File']}
->
-    <Tab>
-```typescript copy filename="ParametersController.ts" showLineNumbers {8, 15, 22}
+  items={[
+    <code>ParametersController.ts</code>, 
+    'Compiled JavaScript File',
+  ]}>
+  <Tab>
+```typescript copy filename="ParametersController.ts" showLineNumbers {9, 16, 23}
 import { TypedParam } from "@nestia/core";
 import { Controller, Get } from "@nestjs/common";
 import { tags } from "typia";
- 
+
 @Controller("parameters")
 export class ParametersController {
-    @Get("uint32/:value")
-    public async uint32(
-        @TypedParam("value") value: (number & tags.Type<"uint32">) | null,
-    ): Promise<(number & tags.Type<"uint32">) | null> {
-        return value;
-    }
- 
-    @Get("string/:value")
-    public async string(
-        @TypedParam("value") value: string,
-    ): Promise<string> {
-        return value;
-    }
- 
-    @Get("uuid/:value")
-    public async uuid(
-        @TypedParam("value") value: string & tags.Format<"uuid">,
-    ): Promise<string> {
-        return value;
-    }
+  @Get("uint32/:value")
+  public async uint32(
+    @TypedParam("value") value: (number & tags.Type<"uint32">) | null,
+  ): Promise<(number & tags.Type<"uint32">) | null> {
+    return value;
+  }
+
+  @Get("string/:value")
+  public async string(
+    @TypedParam("value") value: string
+  ): Promise<string> {
+    return value;
+  }
+
+  @Get("uuid/:value")
+  public async uuid(
+    @TypedParam("value") value: string & tags.Format<"uuid">,
+  ): Promise<string> {
+    return value;
+  }
 }
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```javascript filename="ParametersController.js" showLineNumbers {46-53, 59-66, 72-79}
 "use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+var __decorate =
+  (this && this.__decorate) ||
+  function (decorators, target, key, desc) {
+    var c = arguments.length,
+      r =
+        c < 3
+          ? target
+          : desc === null
+          ? (desc = Object.getOwnPropertyDescriptor(target, key))
+          : desc,
+      d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+      r = Reflect.decorate(decorators, target, key, desc);
+    else
+      for (var i = decorators.length - 1; i >= 0; i--)
+        if ((d = decorators[i]))
+          r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+  };
+var __metadata =
+  (this && this.__metadata) ||
+  function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
+      return Reflect.metadata(k, v);
+  };
+var __param =
+  (this && this.__param) ||
+  function (paramIndex, decorator) {
+    return function (target, key) {
+      decorator(target, key, paramIndex);
+    };
+  };
+var __awaiter =
+  (this && this.__awaiter) ||
+  function (thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P
+        ? value
+        : new P(function (resolve) {
+            resolve(value);
+          });
+    }
     return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done
+          ? resolve(result.value)
+          : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-};
+  };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParametersController = void 0;
 const core_1 = require("@nestia/core");
 const common_1 = require("@nestjs/common");
 let ParametersController = class ParametersController {
-    uint32(value) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return value;
-        });
-    }
-    string(value) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return value;
-        });
-    }
-    uuid(value) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return value;
-        });
-    }
+  uint32(value) {
+    return __awaiter(this, void 0, void 0, function* () {
+      return value;
+    });
+  }
+  string(value) {
+    return __awaiter(this, void 0, void 0, function* () {
+      return value;
+    });
+  }
+  uuid(value) {
+    return __awaiter(this, void 0, void 0, function* () {
+      return value;
+    });
+  }
 };
 exports.ParametersController = ParametersController;
-__decorate([
+__decorate(
+  [
     (0, common_1.Get)("uint32/:value"),
-    __param(0, (0, core_1.TypedParam)("value", {
-        name: "((number & Type<\"uint32\">) | null)",
-        is: input => {
-            return null === input || "number" === typeof input && (Math.floor(input) === input && 0 <= input && input <= 4294967295);
+    __param(
+      0,
+      (0, core_1.TypedParam)("value", {
+        name: '((number & Type<"uint32">) | null)',
+        is: (input) => {
+          return (
+            null === input ||
+            ("number" === typeof input &&
+              Math.floor(input) === input &&
+              0 <= input &&
+              input <= 4294967295)
+          );
         },
-        cast: str => "null" === str ? null : Number(str)
-    })),
+        cast: (str) => ("null" === str ? null : Number(str)),
+      }),
+    ),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], ParametersController.prototype, "uint32", null);
-__decorate([
+    __metadata("design:returntype", Promise),
+  ],
+  ParametersController.prototype,
+  "uint32",
+  null,
+);
+__decorate(
+  [
     (0, common_1.Get)("string/:value"),
-    __param(0, (0, core_1.TypedParam)("value", {
+    __param(
+      0,
+      (0, core_1.TypedParam)("value", {
         name: "string",
-        is: input => {
-            return "string" === typeof input;
+        is: (input) => {
+          return "string" === typeof input;
         },
-        cast: str => str
-    })),
+        cast: (str) => str,
+      }),
+    ),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], ParametersController.prototype, "string", null);
-__decorate([
+    __metadata("design:returntype", Promise),
+  ],
+  ParametersController.prototype,
+  "string",
+  null,
+);
+__decorate(
+  [
     (0, common_1.Get)("uuid/:value"),
-    __param(0, (0, core_1.TypedParam)("value", {
-        name: "(string & Format<\"uuid\">)",
-        is: input => {
-            return "string" === typeof input && /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test(input);
+    __param(
+      0,
+      (0, core_1.TypedParam)("value", {
+        name: '(string & Format<"uuid">)',
+        is: (input) => {
+          return (
+            "string" === typeof input &&
+            /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i.test(
+              input,
+            )
+          );
         },
-        cast: str => str
-    })),
+        cast: (str) => str,
+      }),
+    ),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], ParametersController.prototype, "uuid", null);
-exports.ParametersController = ParametersController = __decorate([
-    (0, common_1.Controller)("parameters")
-], ParametersController);
+    __metadata("design:returntype", Promise),
+  ],
+  ParametersController.prototype,
+  "uuid",
+  null,
+);
+exports.ParametersController = ParametersController = __decorate(
+  [(0, common_1.Controller)("parameters")],
+  ParametersController,
+);
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 Just call `@TypedParam()` function on the path paremeter, that's all.

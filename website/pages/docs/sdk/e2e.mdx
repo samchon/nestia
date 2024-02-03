@@ -2,7 +2,7 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 
 ## Outline
 <Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
-    <Tab>
+  <Tab>
 ```typescript filename="nestia.config.ts" copy showLineNumbers {18}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -10,28 +10,28 @@ import { NestFactory } from "@nestjs/core";
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
-    input: async () => {
-        const app = await NestFactory.create(YourModule);
-        // app.setGlobalPrefix("api");
-        // app.enableVersioning({
-        //     type: VersioningType.URI,
-        //     prefix: "v", 
-        // })
-        return app;
-    },
-    output: "src/api",
-    distribute: "packages/api",
-    e2e: "test",
+  input: async () => {
+    const app = await NestFactory.create(YourModule);
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  output: "src/api",
+  distribute: "packages/api",
+  e2e: "test",
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npx nestia e2e
 npx nestia e2e --config nestia.config.ts --project tsconfig.json
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 Configure [`nestia.config.ts`](#configuration) file and run `npx nestia e2e` command.
@@ -47,13 +47,13 @@ import api from "../../../../src/api";
 import type { IBbsArticle } from "../../../../src/api/structures/IBbsArticle";
 
 export const test_api_body_store = async (
-    connection: api.IConnection
+  connection: api.IConnection,
 ): Promise<void> => {
-    const output = await api.functional.body.store(
-        connection,
-        typia.random<Primitive<IBbsArticle.IStore>>(),
-    );
-    typia.assert(output);
+  const output = await api.functional.body.store(
+    connection,
+    typia.random<Primitive<IBbsArticle.IStore>>(),
+  );
+  typia.assert(output);
 };
 ```
 
@@ -66,10 +66,10 @@ export const test_api_body_store = async (
 
 ## Configuration
 <Tabs items={[
-    <code>nestia.config.ts</code>, 
-    <code>INestiaConfig.ts</code>
+  <code>nestia.config.ts</code>,
+  <code>INestiaConfig.ts</code>,
 ]}>
-    <Tab>
+  <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {18}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -77,23 +77,23 @@ import { NestFactory } from "@nestjs/core";
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
-    input: async () => {
-        const app = await NestFactory.create(YourModule);
-        // app.setGlobalPrefix("api");
-        // app.enableVersioning({
-        //     type: VersioningType.URI,
-        //     prefix: "v", 
-        // })
-        return app;
-    },
-    output: "src/api",
-    distribute: "packages/api",
-    e2e: "test",
+  input: async () => {
+    const app = await NestFactory.create(YourModule);
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  output: "src/api",
+  distribute: "packages/api",
+  e2e: "test",
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript copy filename="INestiaConfig.ts" showLineNumbers {70-79}
 import type { INestApplication } from "@nestjs/common";
 
@@ -107,213 +107,213 @@ import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme
  * @author Jeongho Nam - https://github.com/samchon
  */
 export interface INestiaConfig {
-    /**
-     * Accessor of controller classes.
-     *
-     * You can specify it within two ways
-     *
-     *   - Asynchronous function returning `INestApplication` instance
-     *   - Specify the path or directory of controller class files
-     */
-    input:
-        | (() => Promise<INestApplication>)
-        | INestiaConfig.IInput
-        | string[]
-        | string;
+  /**
+   * Accessor of controller classes.
+   *
+   * You can specify it within two ways
+   *
+   *   - Asynchronous function returning `INestApplication` instance
+   *   - Specify the path or directory of controller class files
+   */
+  input:
+    | (() => Promise<INestApplication>)
+    | INestiaConfig.IInput
+    | string[]
+    | string;
 
-    /**
-     * Output directory that SDK would be placed in.
-     *
-     * If not configured, you can't build the SDK library.
-     */
-    output?: string;
+  /**
+   * Output directory that SDK would be placed in.
+   *
+   * If not configured, you can't build the SDK library.
+   */
+  output?: string;
 
-    /**
-     * Building `swagger.json` is also possible.
-     *
-     * If not specified, you can't build the `swagger.json`.
-     */
-    swagger?: INestiaConfig.ISwaggerConfig;
+  /**
+   * Building `swagger.json` is also possible.
+   *
+   * If not specified, you can't build the `swagger.json`.
+   */
+  swagger?: INestiaConfig.ISwaggerConfig;
 
-    /**
-     * Target directory that SDK distribution files would be placed in.
-     *
-     * If you configure this property and runs `npx nestia sdk` command,
-     * distribution environments for the SDK library would be generated.
-     *
-     * After the SDK library generation, move to the `distribute` directory,
-     * and runs `npm publish` command, then you can share SDK library with
-     * other client (frontend) developers.
-     *
-     * Recommend to use `"packages/api"` value.
-     */
-    distribute?: string;
+  /**
+   * Target directory that SDK distribution files would be placed in.
+   *
+   * If you configure this property and runs `npx nestia sdk` command,
+   * distribution environments for the SDK library would be generated.
+   *
+   * After the SDK library generation, move to the `distribute` directory,
+   * and runs `npm publish` command, then you can share SDK library with
+   * other client (frontend) developers.
+   *
+   * Recommend to use `"packages/api"` value.
+   */
+  distribute?: string;
 
-    /**
-     * Allow simulation mode.
-     *
-     * If you configure this property to be `true`, the SDK library would be contain
-     * simulation mode. In the simulation mode, the SDK library would not communicate
-     * with the real backend server, but just returns random mock-up data
-     * with requestion data validation.
-     *
-     * For reference, random mock-up data would be generated by `typia.random<T>()`
-     * function.
-     *
-     * @default false
-     */
-    simulate?: boolean;
+  /**
+   * Allow simulation mode.
+   *
+   * If you configure this property to be `true`, the SDK library would be contain
+   * simulation mode. In the simulation mode, the SDK library would not communicate
+   * with the real backend server, but just returns random mock-up data
+   * with requestion data validation.
+   *
+   * For reference, random mock-up data would be generated by `typia.random<T>()`
+   * function.
+   *
+   * @default false
+   */
+  simulate?: boolean;
 
-    /**
-     * Target directory that e2e test functions would be placed in.
-     *
-     * If you configure this property and runs `npx nestia e2e` command,
-     * `@nestia/sdk` will analyze your NestJS backend server code, and
-     * generates e2e test functions for every API endpoints.
-     *
-     * If not configured, you can't run `npx nestia e2e` command.
-     */
-    e2e?: string;
+  /**
+   * Target directory that e2e test functions would be placed in.
+   *
+   * If you configure this property and runs `npx nestia e2e` command,
+   * `@nestia/sdk` will analyze your NestJS backend server code, and
+   * generates e2e test functions for every API endpoints.
+   *
+   * If not configured, you can't run `npx nestia e2e` command.
+   */
+  e2e?: string;
 
-    /**
-     * Whether to use propagation mode or not.
-     *
-     * If being configured, interaction functions of the SDK library would
-     * perform the propagation mode. The propagation mode means that never
-     * throwing exception even when status code is not 200 (or 201), but just
-     * returning the {@link IPropagation} typed instance, which can specify its body
-     * type through discriminated union determined by status code.
-     *
-     * @default false
-     */
-    propagate?: boolean;
+  /**
+   * Whether to use propagation mode or not.
+   *
+   * If being configured, interaction functions of the SDK library would
+   * perform the propagation mode. The propagation mode means that never
+   * throwing exception even when status code is not 200 (or 201), but just
+   * returning the {@link IPropagation} typed instance, which can specify its body
+   * type through discriminated union determined by status code.
+   *
+   * @default false
+   */
+  propagate?: boolean;
 
-    /**
-     * Whether to clone DTO structures or not.
-     *
-     * If being configured, all of DTOs used in the backend server would be cloned
-     * into the `structures` directory, and the SDK library would be refer to the
-     * cloned DTOs instead of the original.
-     *
-     * @default false
-     */
-    clone?: boolean;
+  /**
+   * Whether to clone DTO structures or not.
+   *
+   * If being configured, all of DTOs used in the backend server would be cloned
+   * into the `structures` directory, and the SDK library would be refer to the
+   * cloned DTOs instead of the original.
+   *
+   * @default false
+   */
+  clone?: boolean;
 
-    /**
-     * Whether to wrap DTO by primitive type.
-     *
-     * If you don't configure this property as `false`, all of DTOs in the
-     * SDK library would be automatically wrapped by {@link Primitive} type.
-     *
-     * For refenrece, if a DTO type be capsuled by the {@link Primitive} type,
-     * all of methods in the DTO type would be automatically erased. Also, if
-     * the DTO has a `toJSON()` method, the DTO type would be automatically
-     * converted to return type of the `toJSON()` method.
-     *
-     * @default true
-     */
-    primitive?: boolean;
+  /**
+   * Whether to wrap DTO by primitive type.
+   *
+   * If you don't configure this property as `false`, all of DTOs in the
+   * SDK library would be automatically wrapped by {@link Primitive} type.
+   *
+   * For refenrece, if a DTO type be capsuled by the {@link Primitive} type,
+   * all of methods in the DTO type would be automatically erased. Also, if
+   * the DTO has a `toJSON()` method, the DTO type would be automatically
+   * converted to return type of the `toJSON()` method.
+   *
+   * @default true
+   */
+  primitive?: boolean;
 
-    /**
-     * Whether to assert parameter types or not.
-     *
-     * If you configure this property to be `true`, all of the function
-     * parameters of SDK library would be checked through
-     * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
-     *
-     * This option would make your SDK library compilation time a little bit slower,
-     * but would enahcne the type safety even in the runtime level.
-     *
-     * @default false
-     */
-    assert?: boolean;
+  /**
+   * Whether to assert parameter types or not.
+   *
+   * If you configure this property to be `true`, all of the function
+   * parameters of SDK library would be checked through
+   * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
+   *
+   * This option would make your SDK library compilation time a little bit slower,
+   * but would enahcne the type safety even in the runtime level.
+   *
+   * @default false
+   */
+  assert?: boolean;
 
-    /**
-     * Whether to optimize JSON string conversion 10x faster or not.
-     *
-     * If you configure this property to be `true`, the SDK library would utilize the
-     * [`typia.assertStringify<T>() function`](https://github.com/samchon/typia#enhanced-json)
-     * to boost up JSON serialization speed and ensure type safety.
-     *
-     * This option would make your SDK library compilation time a little bit slower,
-     * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
-     * safety even in the rumtime level.
-     *
-     * @default false
-     */
-    json?: boolean;
+  /**
+   * Whether to optimize JSON string conversion 10x faster or not.
+   *
+   * If you configure this property to be `true`, the SDK library would utilize the
+   * [`typia.assertStringify<T>() function`](https://github.com/samchon/typia#enhanced-json)
+   * to boost up JSON serialization speed and ensure type safety.
+   *
+   * This option would make your SDK library compilation time a little bit slower,
+   * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
+   * safety even in the rumtime level.
+   *
+   * @default false
+   */
+  json?: boolean;
 }
 export namespace INestiaConfig {
+  /**
+   * List of files or directories to include or exclude to specifying the NestJS
+   * controllers.
+   */
+  export interface IInput {
     /**
-     * List of files or directories to include or exclude to specifying the NestJS
-     * controllers.
+     * List of files or directories containing the NestJS controller classes.
      */
-    export interface IInput {
-        /**
-         * List of files or directories containing the NestJS controller classes.
-         */
-        include: string[];
-
-        /**
-         * List of files or directories to be excluded.
-         */
-        exclude?: string[];
-    }
+    include: string[];
 
     /**
-     * Building `swagger.json` is also possible.
+     * List of files or directories to be excluded.
      */
-    export interface ISwaggerConfig {
-        /**
-         * Output path of the `swagger.json`.
-         *
-         * If you've configured only directory, the file name would be the `swagger.json`.
-         * Otherwise you've configured the full path with file name and extension, the
-         * `swagger.json` file would be renamed to it.
-         */
-        output: string;
+    exclude?: string[];
+  }
 
-        /**
-         * API information.
-         *
-         * If omitted, `package.json` content would be used instead.
-         */
-        info?: Partial<ISwaggerInfo>;
+  /**
+   * Building `swagger.json` is also possible.
+   */
+  export interface ISwaggerConfig {
+    /**
+     * Output path of the `swagger.json`.
+     *
+     * If you've configured only directory, the file name would be the `swagger.json`.
+     * Otherwise you've configured the full path with file name and extension, the
+     * `swagger.json` file would be renamed to it.
+     */
+    output: string;
 
-        /**
-         * List of server addresses.
-         */
-        servers?: ISwagger.IServer[];
+    /**
+     * API information.
+     *
+     * If omitted, `package.json` content would be used instead.
+     */
+    info?: Partial<ISwaggerInfo>;
 
-        /**
-         * Security schemes.
-         *
-         * When generating `swagger.json` file through `nestia`, if your controllers or
-         * theirs methods have a security key which is not enrolled in here property,
-         * it would be an error.
-         */
-        security?: Record<string, ISwaggerSecurityScheme>;
+    /**
+     * List of server addresses.
+     */
+    servers?: ISwagger.IServer[];
 
-        /**
-         * Decompose query DTO.
-         *
-         * If you configure this property to be `true`, the query DTO would be decomposed
-         * into individual query parameters per each property.
-         *
-         * @default false
-         */
-        decompose?: boolean;
+    /**
+     * Security schemes.
+     *
+     * When generating `swagger.json` file through `nestia`, if your controllers or
+     * theirs methods have a security key which is not enrolled in here property,
+     * it would be an error.
+     */
+    security?: Record<string, ISwaggerSecurityScheme>;
 
-        operationId?(props: {
-            class: string;
-            function: string;
-            method: "HEAD" | "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-            path: string;
-        }): string;
-    }
+    /**
+     * Decompose query DTO.
+     *
+     * If you configure this property to be `true`, the query DTO would be decomposed
+     * into individual query parameters per each property.
+     *
+     * @default false
+     */
+    decompose?: boolean;
+
+    operationId?(props: {
+      class: string;
+      function: string;
+      method: "HEAD" | "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+      path: string;
+    }): string;
+  }
 }
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 Make `nestia.config.ts` file and run `npx nestia sdk` command.
@@ -330,14 +330,15 @@ When you've completed above configuration, just run `npx nestia e2e` command. Th
 
 By the way, `nestia.config.ts` supports alternative options specifying the target controller classes instead of using the `Module` instance. If your backend application server does not have special configuration like `setGlobalPrefix`, `enableVersioning` and `RouterModule`, it is okay to specifying the target controller classes just by writing their file path like below.
 
-<Tabs items={[
-        'Module',
-        'Directory', 
-        'Pattern', 
-        'Exclude'
-    ]}
-    defaultIndex={1}>
-    <Tab>
+<Tabs 
+  items={[
+    'Module',
+    'Directory', 
+    'Pattern', 
+    'Exclude',
+  ]}
+  defaultIndex={1}>
+  <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -345,68 +346,64 @@ import { NestFactory } from "@nestjs/core";
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
-    input: async () => {
-        const app = await NestFactory.create(YourModule);
-        // app.setGlobalPrefix("api");
-        // app.enableVersioning({
-        //     type: VersioningType.URI,
-        //     prefix: "v", 
-        // })
-        return app;
-    },
-    output: "src/api",
-    distribute: "packages/api",
-    e2e: "test",
+  input: async () => {
+    const app = await NestFactory.create(YourModule);
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  output: "src/api",
+  distribute: "packages/api",
+  e2e: "test",
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4-8}
 import { INestiaConfig } from "@nestia/sdk";
 
 const NESTIA_CONFIG: INestiaConfig = {
-    input: [
-        "src/controllers", 
-        "src/fake/controllers", 
-        "src/test/controllers",
-    ],
-    output: "src/api",
-    distribute: "packages/api",
-    e2e: "test",
+  input: ["src/controllers", "src/fake/controllers", "src/test/controllers"],
+  output: "src/api",
+  distribute: "packages/api",
+  e2e: "test",
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4}
 import { INestiaConfig } from "@nestia/sdk";
 
 const NESTIA_CONFIG: INestiaConfig = {
-    input: "src/**/*.controller.ts",
-    output: "src/api",
-    distribute: "packages/api",
-    e2e: "test",
+  input: "src/**/*.controller.ts",
+  output: "src/api",
+  distribute: "packages/api",
+  e2e: "test",
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4-7}
 import { INestiaConfig } from "@nestia/sdk";
 
 const NESTIA_CONFIG: INestiaConfig = {
-    input: {
-        include: ["src/controllers"],
-        exclude: ["src/**/*.fake.ts"],
-    },
-    output: "src/api",
-    distribute: "packages/api",
-    e2e: "test",
+  input: {
+    include: ["src/controllers"],
+    exclude: ["src/**/*.fake.ts"],
+  },
+  output: "src/api",
+  distribute: "packages/api",
+  e2e: "test",
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 
@@ -421,43 +418,43 @@ import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 
 async function main(): Promise<void> {
-    const server: INestApplication = await NestFactory.create(
-        await core.DynamicModule.mount({
-            // follows your nestia.config.ts setting
-            controllers: {
-                input: ["src/controllers"],
-                exclude: ["src/**/*.fake.ts"],
-            },
-        }),
-    );
-    await server.listen(37_000);
+  const server: INestApplication = await NestFactory.create(
+    await core.DynamicModule.mount({
+      // follows your nestia.config.ts setting
+      controllers: {
+        input: ["src/controllers"],
+        exclude: ["src/**/*.fake.ts"],
+      },
+    }),
+  );
+  await server.listen(37_000);
 
-    const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
-        prefix: "test",
-        parameters: () => [
-            {
-                host: "http://127.0.0.1:37000",
-            },
-        ],
-    })(`${__dirname}/features`);
-    await server.close();
+  const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
+    prefix: "test",
+    parameters: () => [
+      {
+        host: "http://127.0.0.1:37000",
+      },
+    ],
+  })(`${__dirname}/features`);
+  await server.close();
 
-    const exceptions: Error[] = report.executions
-        .filter((exec) => exec.error !== null)
-        .map((exec) => exec.error!);
-    if (exceptions.length === 0) {
-        console.log("Success");
-        console.log("Elapsed time", report.time.toLocaleString(), `ms`);
-    } else {
-        for (const exp of exceptions) console.log(exp);
-        console.log("Failed");
-        console.log("Elapsed time", report.time.toLocaleString(), `ms`);
-        process.exit(-1);
-    }
+  const exceptions: Error[] = report.executions
+    .filter((exec) => exec.error !== null)
+    .map((exec) => exec.error!);
+  if (exceptions.length === 0) {
+    console.log("Success");
+    console.log("Elapsed time", report.time.toLocaleString(), `ms`);
+  } else {
+    for (const exp of exceptions) console.log(exp);
+    console.log("Failed");
+    console.log("Elapsed time", report.time.toLocaleString(), `ms`);
+    process.exit(-1);
+  }
 }
 main().catch((exp) => {
-    console.log(exp);
-    process.exit(-1);
+  console.log(exp);
+  process.exit(-1);
 });
 ```
 
@@ -467,12 +464,14 @@ When you generate e2e test functions through `npx nestia e2e` command, such `ind
 
 However, it may not fully meet your requirements. For example, you may connect to a database server, and also need to configure DI (Dependency Injection) classes, too. You've to configure those things by yourself. `@nestia/sdk` can analyzes your backend server in the compilation level, but unable to reproduce such customizations.
 
-<Tabs defaultIndex={2} items={[
+<Tabs 
+  items={[
     'Original Controller',
     'SDK Function', 
     'E2E Test Function', 
-]}>
-    <Tab>
+  ]}
+  defaultIndex={2}>
+  <Tab>
 ```typescript filename="src/controllers/BbsArticlesController.ts" showLineNumbers
 import { Controller } from "@nestjs/common";
 import typia, { tags } from "typia";
@@ -483,55 +482,55 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 @Controller("bbs/articles/:section")
 export class BbsArticlesController {
-    /**
-     * Store a new article.
-     *
-     * @param section Section code
-     * @param input Content to store
-     * @returns Newly archived article
-     */
-    @core.TypedRoute.Post()
-    public async store(
-        @core.TypedParam("section") section: string,
-        @core.TypedBody() input: IBbsArticle.IStore,
-    ): Promise<IBbsArticle> {
-        return {
-            ...typia.random<IBbsArticle>(),
-            section,
-            ...input,
-        };
-    }
+  /**
+   * Store a new article.
+   *
+   * @param section Section code
+   * @param input Content to store
+   * @returns Newly archived article
+   */
+  @core.TypedRoute.Post()
+  public async store(
+    @core.TypedParam("section") section: string,
+    @core.TypedBody() input: IBbsArticle.IStore,
+  ): Promise<IBbsArticle> {
+    return {
+      ...typia.random<IBbsArticle>(),
+      section,
+      ...input,
+    };
+  }
 
-    /**
-     * Update an article.
-     *
-     * @param section Section code
-     * @param id Target article ID
-     * @param input Content to update
-     * @returns Updated content
-     */
-    @core.TypedRoute.Put(":id")
-    public async update(
-        @core.TypedParam("section") section: string,
-        @core.TypedParam("id") id: string & tags.Format<"uuid">,
-        @core.TypedBody() input: IBbsArticle.IStore,
-    ): Promise<IBbsArticle> {
-        return {
-            ...typia.random<IBbsArticle>(),
-            id,
-            section,
-            ...input,
-        };
-    }
+  /**
+   * Update an article.
+   *
+   * @param section Section code
+   * @param id Target article ID
+   * @param input Content to update
+   * @returns Updated content
+   */
+  @core.TypedRoute.Put(":id")
+  public async update(
+    @core.TypedParam("section") section: string,
+    @core.TypedParam("id") id: string & tags.Format<"uuid">,
+    @core.TypedBody() input: IBbsArticle.IStore,
+  ): Promise<IBbsArticle> {
+    return {
+      ...typia.random<IBbsArticle>(),
+      id,
+      section,
+      ...input,
+    };
+  }
 }
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript filename="src/api/functional/bbs/articles/index.ts" showLineNumbers
 /**
  * @packageDocumentation
  * @module api.functional.bbs.articles
- * @nestia Generated by Nestia - https://github.com/samchon/nestia 
+ * @nestia Generated by Nestia - https://github.com/samchon/nestia
  */
 //================================================================
 import type { IConnection, Primitive } from "@nestia/fetcher";
@@ -542,116 +541,121 @@ import type { IBbsArticle } from "../../../structures/IBbsArticle";
 
 /**
  * Store a new article.
- * 
+ *
  * @param section Section code
  * @param input Content to store
  * @returns Newly archived article
- * 
+ *
  * @controller [object Object]
  * @path POST /bbs/articles/:section
  * @nestia Generated by Nestia - https://github.com/samchon/nestia
  */
 export async function store(
-    connection: IConnection,
-    section: string,
-    input: store.Input,
+  connection: IConnection,
+  section: string,
+  input: store.Input,
 ): Promise<store.Output> {
-    return PlainFetcher.fetch(
-        {
-            ...connection,
-            headers: {
-                ...(connection.headers ?? {}),
-                "Content-Type": "application/json",
-            },
-        },
-        {
-            ...store.METADATA,
-            path: store.path(section),
-        } as const,
-        input,
-    );
+  return PlainFetcher.fetch(
+    {
+      ...connection,
+      headers: {
+        ...connection.headers,
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      ...store.METADATA,
+      path: store.path(section),
+    } as const,
+    input,
+  );
 }
 export namespace store {
-    export type Input = Primitive<IBbsArticle.IStore>;
-    export type Output = Primitive<IBbsArticle>;
+  export type Input = Primitive<IBbsArticle.IStore>;
+  export type Output = Primitive<IBbsArticle>;
 
-    export const METADATA = {
-        method: "POST",
-        path: "/bbs/articles/:section",
-        request: {
-            type: "application/json",
-            encrypted: false
-        },
-        response: {
-            type: "application/json",
-            encrypted: false,
-        },
-        status: null,
-    } as const;
+  export const METADATA = {
+    method: "POST",
+    path: "/bbs/articles/:section",
+    request: {
+      type: "application/json",
+      encrypted: false,
+    },
+    response: {
+      type: "application/json",
+      encrypted: false,
+    },
+    status: null,
+  } as const;
 
-    export const path = (section: string): string => {
-        return `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
-    }
+  export const path = (section: string): string => {
+    return `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
+  };
 }
 
 /**
  * Update an article.
- * 
+ *
  * @param section Section code
  * @param id Target article ID
  * @param input Content to update
  * @returns Updated content
- * 
+ *
  * @controller [object Object]
  * @path PUT /bbs/articles/:section/:id
  * @nestia Generated by Nestia - https://github.com/samchon/nestia
  */
 export async function update(
-    connection: IConnection,
-    section: string,
-    id: string & Format<"uuid">,
-    input: update.Input,
+  connection: IConnection,
+  section: string,
+  id: string & Format<"uuid">,
+  input: update.Input,
 ): Promise<update.Output> {
-    return PlainFetcher.fetch(
-        {
-            ...connection,
-            headers: {
-                ...(connection.headers ?? {}),
-                "Content-Type": "application/json",
-            },
-        },
-        {
-            ...update.METADATA,
-            path: update.path(section, id),
-        } as const,
-        input,
-    );
+  return PlainFetcher.fetch(
+    {
+      ...connection,
+      headers: {
+        ...connection.headers,
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      ...update.METADATA,
+      path: update.path(section, id),
+    } as const,
+    input,
+  );
 }
 export namespace update {
-    export type Input = Primitive<IBbsArticle.IStore>;
-    export type Output = Primitive<IBbsArticle>;
+  export type Input = Primitive<IBbsArticle.IStore>;
+  export type Output = Primitive<IBbsArticle>;
 
-    export const METADATA = {
-        method: "PUT",
-        path: "/bbs/articles/:section/:id",
-        request: {
-            type: "application/json",
-            encrypted: false
-        },
-        response: {
-            type: "application/json",
-            encrypted: false,
-        },
-        status: null,
-    } as const;
+  export const METADATA = {
+    method: "PUT",
+    path: "/bbs/articles/:section/:id",
+    request: {
+      type: "application/json",
+      encrypted: false,
+    },
+    response: {
+      type: "application/json",
+      encrypted: false,
+    },
+    status: null,
+  } as const;
 
-    export const path = (section: string, id: string & Format<"uuid">): string => {
-        return `/bbs/articles/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
-    }
+  export const path = (
+    section: string,
+    id: string & Format<"uuid">,
+  ): string => {
+    return `/bbs/articles/${encodeURIComponent(
+      section ?? "null",
+    )}/${encodeURIComponent(id ?? "null")}`;
+  };
 }
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript filename="test/features/api/automated/test_api_bbs_articles_update.ts" showLineNumbers
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
@@ -661,18 +665,18 @@ import api from "../../../../src/api";
 import type { IBbsArticle } from "../../../../src/api/structures/IBbsArticle";
 
 export const test_api_bbs_articles_update = async (
-    connection: api.IConnection,
+  connection: api.IConnection,
 ): Promise<void> => {
-    const output = await api.functional.bbs.articles.update(
-        connection,
-        typia.random<string>(),
-        typia.random<string & Format<"uuid">>(),
-        typia.random<Primitive<IBbsArticle.IStore>>(),
-    );
-    typia.assert(output);
+  const output = await api.functional.bbs.articles.update(
+    connection,
+    typia.random<string>(),
+    typia.random<string & Format<"uuid">>(),
+    typia.random<Primitive<IBbsArticle.IStore>>(),
+  );
+  typia.assert(output);
 };
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 You also need to customize each e2e test functions.
