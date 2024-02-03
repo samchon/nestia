@@ -15,14 +15,14 @@ import { validate_request_multipart } from "./internal/validate_request_multipar
 /**
  * Type safe multipart/form-data decorator.
  *
- * `TypedMultipart.Body()` is a request body decorator function for the
+ * `TypedFormData.Body()` is a request body decorator function for the
  * `multipart/form-data` content type. It automatically casts property type
  * following its DTO definition, and performs the type validation too.
  *
- * Also, `TypedMultipart.Body()` is much easier and type safer than `@nest.UploadFile()`.
+ * Also, `TypedFormData.Body()` is much easier and type safer than `@nest.UploadFile()`.
  * If you're considering the [SDK library](https://nestia.io/docs/sdk/sdk) generation,
- * only `TypedMultipart.Body()` can do it. Therefore, I recommend you to use
- * `TypedMultipart.Body()` instead of the `@nest.UploadFile()` function.
+ * only `TypedFormData.Body()` can do it. Therefore, I recommend you to use
+ * `TypedFormData.Body()` instead of the `@nest.UploadFile()` function.
  *
  * For reference, target type `T` must follow such restriction. Of course, if actual
  * form-data values are different with their promised type `T`,
@@ -37,7 +37,7 @@ import { validate_request_multipart } from "./internal/validate_request_multipar
  * @todo Change to ReadableStream through configuring storage engine of multer
  * @author Jeongho Nam - https://github.com/samchon
  */
-export namespace TypedMultipart {
+export namespace TypedFormData {
   /**
    * Request body decorator.
    *
@@ -67,7 +67,7 @@ export namespace TypedMultipart {
           else resolve();
         }),
       );
-    return createParamDecorator(async function TypedMultipartBody(
+    return createParamDecorator(async function TypedFormDataBody(
       _unknown: any,
       context: ExecutionContext,
     ) {

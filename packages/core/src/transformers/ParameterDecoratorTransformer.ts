@@ -4,8 +4,8 @@ import ts from "typescript";
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
 import { PlainBodyProgrammer } from "../programmers/PlainBodyProgrammer";
 import { TypedBodyProgrammer } from "../programmers/TypedBodyProgrammer";
+import { TypedFormDataBodyProgrammer } from "../programmers/TypedFormDataBodyProgrammer";
 import { TypedHeadersProgrammer } from "../programmers/TypedHeadersProgrammer";
-import { TypedMultipartBodyProgrammer } from "../programmers/TypedMultipartBodyProgrammer";
 import { TypedParamProgrammer } from "../programmers/TypedParamProgrammer";
 import { TypedQueryBodyProgrammer } from "../programmers/TypedQueryBodyProgrammer";
 import { TypedQueryProgrammer } from "../programmers/TypedQueryProgrammer";
@@ -93,10 +93,10 @@ const FUNCTORS: Record<string, Programmer> = {
     parameters.length
       ? parameters
       : [TypedQueryBodyProgrammer.generate(project)(modulo)(type)],
-  "TypedMultipart.Body": (project) => (modulo) => (parameters) => (type) =>
+  "TypedFormData.Body": (project) => (modulo) => (parameters) => (type) =>
     parameters.length
       ? parameters
-      : [TypedMultipartBodyProgrammer.generate(project)(modulo)(type)],
+      : [TypedFormDataBodyProgrammer.generate(project)(modulo)(type)],
   PlainBody: (project) => (modulo) => (parameters) => (type) =>
     parameters.length
       ? parameters

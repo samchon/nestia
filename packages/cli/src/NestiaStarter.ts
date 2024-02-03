@@ -31,6 +31,7 @@ export namespace NestiaStarter {
 
       // REMOVE .GIT DIRECTORY
       cp.execSync("npx rimraf .git");
+      cp.execSync("npx rimraf .github/dependabot.yml");
     };
 
   function execute(command: string): void {

@@ -8,7 +8,7 @@ export * from "./decorators/PlainBody";
 export * from "./decorators/TypedBody";
 export * from "./decorators/TypedException";
 export * from "./decorators/TypedHeaders";
-export * from "./decorators/TypedMultipart";
+export * from "./decorators/TypedFormData";
 export * from "./decorators/TypedParam";
 export * from "./decorators/TypedRoute";
 export * from "./decorators/TypedQuery";

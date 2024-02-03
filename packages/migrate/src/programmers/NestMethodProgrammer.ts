@@ -199,7 +199,7 @@ export namespace NestMethodProgrammer {
                     : route.body.type === "text/plain"
                       ? "PlainBody"
                       : route.body.type === "multipart/form-data"
-                        ? ["TypedMultipart", "Body"]
+                        ? ["TypedFormData", "Body"]
                         : "TypedBody",
               variable: "body",
             })(components)(importer)(route.body.schema),

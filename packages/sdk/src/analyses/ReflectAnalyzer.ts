@@ -380,7 +380,7 @@ export namespace ReflectAnalyzer {
       param.factory.name === "PlainBody" ||
       param.factory.name === "TypedQueryBody" ||
       param.factory.name === "TypedBody" ||
-      param.factory.name === "TypedMultipartBody"
+      param.factory.name === "TypedFormDataBody"
     )
       return {
         custom: true,
@@ -395,7 +395,7 @@ export namespace ReflectAnalyzer {
             ? "text/plain"
             : param.factory.name === "TypedQueryBody"
               ? "application/x-www-form-urlencoded"
-              : param.factory.name === "TypedMultipartBody"
+              : param.factory.name === "TypedFormDataBody"
                 ? "multipart/form-data"
                 : "application/json",
       };

@@ -5,7 +5,7 @@ import { tags } from "typia";
 @Controller("multipart")
 export class MultipartController {
   @core.TypedRoute.Post()
-  public post(@core.TypedMultipart.Body() body: IMultipart): void {
+  public post(@core.TypedFormData.Body() body: IMultipart): void {
     body;
   }
 }
