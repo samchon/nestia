@@ -2,7 +2,7 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 
 ## Outline
 <Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
-    <Tab>
+  <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -10,41 +10,42 @@ import { NestFactory } from "@nestjs/core";
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
-    input: async () => {
-        const app = await NestFactory.create(YourModule);
-        // app.setGlobalPrefix("api");
-        // app.enableVersioning({
-        //     type: VersioningType.URI,
-        //     prefix: "v", 
-        // })
-        return app;
+  input: async () => {
+    const app = await NestFactory.create(YourModule);
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  swagger: {
+    output: "dist/swagger.json",
+    beautify: true,
+    security: {
+      bearer: {
+        type: "apiKey",
+        name: "Authorization",
+        in: "header",
+      },
     },
-    swagger: {
-        output: "dist/swagger.json",
-        security: {
-            bearer: {
-                type: "apiKey",
-                name: "Authorization",
-                in: "header",
-            },
-        },
-        servers: [
-            {
-                url: "http://localhost:3000",
-                description: "Local Server"
-            }
-        ],
-    }
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Local Server",
+      },
+    ],
+  },
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```bash filename="Terminal" showLineNumbers {}
 npx nestia swagger
 npx nestia swagger --config nestia.config.ts --project tsconfig.json
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 Configure [`nestia.config.ts`](#nestiaconfigts) file and run `npx nestia swagger` command.
@@ -58,11 +59,11 @@ If you have a special configuration file that its file name is not `nestia.confi
 
 ## Configuration
 <Tabs items={[
-    <code>nestia.config.ts</code>, 
-    <code>INestiaConfig.ts</code>,
-    <code>ISwaggerSecurityScheme.ts</code>
+  <code>nestia.config.ts</code>, 
+  <code>INestiaConfig.ts</code>,
+  <code>ISwaggerSecurityScheme.ts</code>,
 ]}>
-    <Tab>
+  <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -70,37 +71,37 @@ import { NestFactory } from "@nestjs/core";
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
-    input: async () => {
-        const app = await NestFactory.create(YourModule);
-        // app.setGlobalPrefix("api");
-        // app.enableVersioning({
-        //     type: VersioningType.URI,
-        //     prefix: "v", 
-        // })
-        return app;
+  input: async () => {
+    const app = await NestFactory.create(YourModule);
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  swagger: {
+    output: "dist/swagger.json",
+    beautify: true,
+    security: {
+      bearer: {
+        type: "apiKey",
+        name: "Authorization",
+        in: "header",
+      },
     },
-    swagger: {
-        output: "dist/swagger.json",
-        beautify: true,
-        security: {
-            bearer: {
-                type: "apiKey",
-                name: "Authorization",
-                in: "header",
-            },
-        },
-        servers: [
-            {
-                url: "http://localhost:3000",
-                description: "Local Server"
-            }
-        ],
-    }
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Local Server",
+      },
+    ],
+  },
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript filename="INestiaConfig.ts" showLineNumbers {13-18, 166-227}
 import type { INestApplication } from "@nestjs/common";
 
@@ -114,225 +115,225 @@ import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme
  * @author Jeongho Nam - https://github.com/samchon
  */
 export interface INestiaConfig {
-    /**
-     * Building `swagger.json` is also possible.
-     *
-     * If not specified, you can't build the `swagger.json`.
-     */
-    swagger?: INestiaConfig.ISwaggerConfig;
+  /**
+   * Building `swagger.json` is also possible.
+   *
+   * If not specified, you can't build the `swagger.json`.
+   */
+  swagger?: INestiaConfig.ISwaggerConfig;
 
-    /**
-     * Accessor of controller classes.
-     *
-     * You can specify it within two ways
-     *
-     *   - Asynchronous function returning `INestApplication` instance
-     *   - Specify the path or directory of controller class files
-     */
-    input:
-        | (() => Promise<INestApplication>)
-        | INestiaConfig.IInput
-        | string[]
-        | string;
+  /**
+   * Accessor of controller classes.
+   *
+   * You can specify it within two ways
+   *
+   *   - Asynchronous function returning `INestApplication` instance
+   *   - Specify the path or directory of controller class files
+   */
+  input:
+    | (() => Promise<INestApplication>)
+    | INestiaConfig.IInput
+    | string[]
+    | string;
 
-    /**
-     * Output directory that SDK would be placed in.
-     *
-     * If not configured, you can't build the SDK library.
-     */
-    output?: string;
+  /**
+   * Output directory that SDK would be placed in.
+   *
+   * If not configured, you can't build the SDK library.
+   */
+  output?: string;
 
-    /**
-     * Target directory that SDK distribution files would be placed in.
-     *
-     * If you configure this property and runs `npx nestia sdk` command,
-     * distribution environments for the SDK library would be generated.
-     *
-     * After the SDK library generation, move to the `distribute` directory,
-     * and runs `npm publish` command, then you can share SDK library with
-     * other client (frontend) developers.
-     *
-     * Recommend to use `"packages/api"` value.
-     */
-    distribute?: string;
+  /**
+   * Target directory that SDK distribution files would be placed in.
+   *
+   * If you configure this property and runs `npx nestia sdk` command,
+   * distribution environments for the SDK library would be generated.
+   *
+   * After the SDK library generation, move to the `distribute` directory,
+   * and runs `npm publish` command, then you can share SDK library with
+   * other client (frontend) developers.
+   *
+   * Recommend to use `"packages/api"` value.
+   */
+  distribute?: string;
 
-    /**
-     * Allow simulation mode.
-     *
-     * If you configure this property to be `true`, the SDK library would be contain
-     * simulation mode. In the simulation mode, the SDK library would not communicate
-     * with the real backend server, but just returns random mock-up data
-     * with requestion data validation.
-     *
-     * For reference, random mock-up data would be generated by `typia.random<T>()`
-     * function.
-     *
-     * @default false
-     */
-    simulate?: boolean;
+  /**
+   * Allow simulation mode.
+   *
+   * If you configure this property to be `true`, the SDK library would be contain
+   * simulation mode. In the simulation mode, the SDK library would not communicate
+   * with the real backend server, but just returns random mock-up data
+   * with requestion data validation.
+   *
+   * For reference, random mock-up data would be generated by `typia.random<T>()`
+   * function.
+   *
+   * @default false
+   */
+  simulate?: boolean;
 
-    /**
-     * Target directory that e2e test functions would be placed in.
-     *
-     * If you configure this property and runs `npx nestia e2e` command,
-     * `@nestia/sdk` will analyze your NestJS backend server code, and
-     * generates e2e test functions for every API endpoints.
-     *
-     * If not configured, you can't run `npx nestia e2e` command.
-     */
-    e2e?: string;
+  /**
+   * Target directory that e2e test functions would be placed in.
+   *
+   * If you configure this property and runs `npx nestia e2e` command,
+   * `@nestia/sdk` will analyze your NestJS backend server code, and
+   * generates e2e test functions for every API endpoints.
+   *
+   * If not configured, you can't run `npx nestia e2e` command.
+   */
+  e2e?: string;
 
-    /**
-     * Whether to use propagation mode or not.
-     *
-     * If being configured, interaction functions of the SDK library would
-     * perform the propagation mode. The propagation mode means that never
-     * throwing exception even when status code is not 200 (or 201), but just
-     * returning the {@link IPropagation} typed instance, which can specify its body
-     * type through discriminated union determined by status code.
-     *
-     * @default false
-     */
-    propagate?: boolean;
+  /**
+   * Whether to use propagation mode or not.
+   *
+   * If being configured, interaction functions of the SDK library would
+   * perform the propagation mode. The propagation mode means that never
+   * throwing exception even when status code is not 200 (or 201), but just
+   * returning the {@link IPropagation} typed instance, which can specify its body
+   * type through discriminated union determined by status code.
+   *
+   * @default false
+   */
+  propagate?: boolean;
 
-    /**
-     * Whether to clone DTO structures or not.
-     *
-     * If being configured, all of DTOs used in the backend server would be cloned
-     * into the `structures` directory, and the SDK library would be refer to the
-     * cloned DTOs instead of the original.
-     *
-     * @default false
-     */
-    clone?: boolean;
+  /**
+   * Whether to clone DTO structures or not.
+   *
+   * If being configured, all of DTOs used in the backend server would be cloned
+   * into the `structures` directory, and the SDK library would be refer to the
+   * cloned DTOs instead of the original.
+   *
+   * @default false
+   */
+  clone?: boolean;
 
-    /**
-     * Whether to wrap DTO by primitive type.
-     *
-     * If you don't configure this property as `false`, all of DTOs in the
-     * SDK library would be automatically wrapped by {@link Primitive} type.
-     *
-     * For refenrece, if a DTO type be capsuled by the {@link Primitive} type,
-     * all of methods in the DTO type would be automatically erased. Also, if
-     * the DTO has a `toJSON()` method, the DTO type would be automatically
-     * converted to return type of the `toJSON()` method.
-     *
-     * @default true
-     */
-    primitive?: boolean;
+  /**
+   * Whether to wrap DTO by primitive type.
+   *
+   * If you don't configure this property as `false`, all of DTOs in the
+   * SDK library would be automatically wrapped by {@link Primitive} type.
+   *
+   * For refenrece, if a DTO type be capsuled by the {@link Primitive} type,
+   * all of methods in the DTO type would be automatically erased. Also, if
+   * the DTO has a `toJSON()` method, the DTO type would be automatically
+   * converted to return type of the `toJSON()` method.
+   *
+   * @default true
+   */
+  primitive?: boolean;
 
-    /**
-     * Whether to assert parameter types or not.
-     *
-     * If you configure this property to be `true`, all of the function
-     * parameters of SDK library would be checked through
-     * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
-     *
-     * This option would make your SDK library compilation time a little bit slower,
-     * but would enahcne the type safety even in the runtime level.
-     *
-     * @default false
-     */
-    assert?: boolean;
+  /**
+   * Whether to assert parameter types or not.
+   *
+   * If you configure this property to be `true`, all of the function
+   * parameters of SDK library would be checked through
+   * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
+   *
+   * This option would make your SDK library compilation time a little bit slower,
+   * but would enahcne the type safety even in the runtime level.
+   *
+   * @default false
+   */
+  assert?: boolean;
 
-    /**
-     * Whether to optimize JSON string conversion 10x faster or not.
-     *
-     * If you configure this property to be `true`, the SDK library would utilize the
-     * [`typia.assertStringify<T>() function`](https://github.com/samchon/typia#enhanced-json)
-     * to boost up JSON serialization speed and ensure type safety.
-     *
-     * This option would make your SDK library compilation time a little bit slower,
-     * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
-     * safety even in the rumtime level.
-     *
-     * @default false
-     */
-    json?: boolean;
+  /**
+   * Whether to optimize JSON string conversion 10x faster or not.
+   *
+   * If you configure this property to be `true`, the SDK library would utilize the
+   * [`typia.assertStringify<T>() function`](https://github.com/samchon/typia#enhanced-json)
+   * to boost up JSON serialization speed and ensure type safety.
+   *
+   * This option would make your SDK library compilation time a little bit slower,
+   * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
+   * safety even in the rumtime level.
+   *
+   * @default false
+   */
+  json?: boolean;
 }
 export namespace INestiaConfig {
+  /**
+   * List of files or directories to include or exclude to specifying the NestJS
+   * controllers.
+   */
+  export interface IInput {
     /**
-     * List of files or directories to include or exclude to specifying the NestJS
-     * controllers.
+     * List of files or directories containing the NestJS controller classes.
      */
-    export interface IInput {
-        /**
-         * List of files or directories containing the NestJS controller classes.
-         */
-        include: string[];
-
-        /**
-         * List of files or directories to be excluded.
-         */
-        exclude?: string[];
-    }
+    include: string[];
 
     /**
-     * Building `swagger.json` is also possible.
+     * List of files or directories to be excluded.
      */
-    export interface ISwaggerConfig {
-        /**
-         * Output path of the `swagger.json`.
-         *
-         * If you've configured only directory, the file name would be the `swagger.json`.
-         * Otherwise you've configured the full path with file name and extension, the
-         * `swagger.json` file would be renamed to it.
-         */
-        output: string;
+    exclude?: string[];
+  }
 
-        /**
-         * Whether to beautify JSON content or not.
-         * 
-         * If you configure this property to be `true`, the `swagger.json` file would 
-         * be beautified with indentation (2 spaces) and line breaks. If you configure
-         * numeric value instead, the indentation would be specified by the number. 
-         * 
-         * @default false
-         */
-        beautify?: boolean | number;
+  /**
+   * Building `swagger.json` is also possible.
+   */
+  export interface ISwaggerConfig {
+    /**
+     * Output path of the `swagger.json`.
+     *
+     * If you've configured only directory, the file name would be the `swagger.json`.
+     * Otherwise you've configured the full path with file name and extension, the
+     * `swagger.json` file would be renamed to it.
+     */
+    output: string;
 
-        /**
-         * API information.
-         *
-         * If omitted, `package.json` content would be used instead.
-         */
-        info?: Partial<ISwaggerInfo>;
+    /**
+     * Whether to beautify JSON content or not.
+     *
+     * If you configure this property to be `true`, the `swagger.json` file would
+     * be beautified with indentation (2 spaces) and line breaks. If you configure
+     * numeric value instead, the indentation would be specified by the number.
+     *
+     * @default false
+     */
+    beautify?: boolean | number;
 
-        /**
-         * List of server addresses.
-         */
-        servers?: ISwagger.IServer[];
+    /**
+     * API information.
+     *
+     * If omitted, `package.json` content would be used instead.
+     */
+    info?: Partial<ISwaggerInfo>;
 
-        /**
-         * Security schemes.
-         *
-         * When generating `swagger.json` file through `nestia`, if your controllers or
-         * theirs methods have a security key which is not enrolled in here property,
-         * it would be an error.
-         */
-        security?: Record<string, ISwaggerSecurityScheme>;
+    /**
+     * List of server addresses.
+     */
+    servers?: ISwagger.IServer[];
 
-        /**
-         * Decompose query DTO.
-         *
-         * If you configure this property to be `true`, the query DTO would be decomposed
-         * into individual query parameters per each property.
-         *
-         * @default false
-         */
-        decompose?: boolean;
+    /**
+     * Security schemes.
+     *
+     * When generating `swagger.json` file through `nestia`, if your controllers or
+     * theirs methods have a security key which is not enrolled in here property,
+     * it would be an error.
+     */
+    security?: Record<string, ISwaggerSecurityScheme>;
 
-        operationId?(props: {
-            class: string;
-            function: string;
-            method: "HEAD" | "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-            path: string;
-        }): string;
-    }
+    /**
+     * Decompose query DTO.
+     *
+     * If you configure this property to be `true`, the query DTO would be decomposed
+     * into individual query parameters per each property.
+     *
+     * @default false
+     */
+    decompose?: boolean;
+
+    operationId?(props: {
+      class: string;
+      function: string;
+      method: "HEAD" | "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+      path: string;
+    }): string;
+  }
 }
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript filename="ISwaggerSecurityScheme.ts" showLineNumbers
 /**
  * Security scheme of Swagger Documents.
@@ -345,62 +346,62 @@ export namespace INestiaConfig {
  * @author Jeongho Nam - https://github.com/samchon
  */
 export type ISwaggerSecurityScheme =
-    | ISwaggerSecurityScheme.IHttpBasic
-    | ISwaggerSecurityScheme.IHttpBearer
-    | ISwaggerSecurityScheme.IApiKey
-    | ISwaggerSecurityScheme.IOpenId
-    | ISwaggerSecurityScheme.IOAuth2;
+  | ISwaggerSecurityScheme.IHttpBasic
+  | ISwaggerSecurityScheme.IHttpBearer
+  | ISwaggerSecurityScheme.IApiKey
+  | ISwaggerSecurityScheme.IOpenId
+  | ISwaggerSecurityScheme.IOAuth2;
 export namespace ISwaggerSecurityScheme {
-    export interface IHttpBasic {
-        type: "http";
-        scheme: "basic";
-    }
-    export interface IHttpBearer {
-        type: "http";
-        scheme: "bearer";
-        bearerFormat?: string;
-    }
-    export interface IApiKey {
-        type: "apiKey";
+  export interface IHttpBasic {
+    type: "http";
+    scheme: "basic";
+  }
+  export interface IHttpBearer {
+    type: "http";
+    scheme: "bearer";
+    bearerFormat?: string;
+  }
+  export interface IApiKey {
+    type: "apiKey";
 
-        /**
-         * @default header
-         */
-        in?: "header" | "query" | "cookie";
+    /**
+     * @default header
+     */
+    in?: "header" | "query" | "cookie";
 
-        /**
-         * @default Authorization
-         */
-        name?: string;
-    }
+    /**
+     * @default Authorization
+     */
+    name?: string;
+  }
 
-    export interface IOpenId {
-        type: "openIdConnect";
-        openIdConnectUrl: string;
-    }
+  export interface IOpenId {
+    type: "openIdConnect";
+    openIdConnectUrl: string;
+  }
 
-    export interface IOAuth2 {
-        type: "oauth2";
-        flows: IOAuth2.IFlowSet;
-        description?: string;
+  export interface IOAuth2 {
+    type: "oauth2";
+    flows: IOAuth2.IFlowSet;
+    description?: string;
+  }
+  export namespace IOAuth2 {
+    export interface IFlowSet {
+      authorizationCode?: IFlow;
+      implicit?: Omit<IFlow, "tokenUrl">;
+      password?: Omit<IFlow, "authorizationUrl">;
+      clientCredentials?: Omit<IFlow, "authorizationUrl">;
     }
-    export namespace IOAuth2 {
-        export interface IFlowSet {
-            authorizationCode?: IFlow;
-            implicit?: Omit<IFlow, "tokenUrl">;
-            password?: Omit<IFlow, "authorizationUrl">;
-            clientCredentials?: Omit<IFlow, "authorizationUrl">;
-        }
-        export interface IFlow {
-            authorizationUrl: string;
-            tokenUrl: string;
-            refreshUrl: string;
-            scopes?: Record<string, string>;
-        }
+    export interface IFlow {
+      authorizationUrl: string;
+      tokenUrl: string;
+      refreshUrl: string;
+      scopes?: Record<string, string>;
     }
+  }
 }
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 Make `nestia.config.ts` file and run `npx nestia swagger` command.
@@ -417,13 +418,13 @@ When you've completed above configuration, just run `npx nestia swagger` command
 By the way, `nestia.config.ts` supports alternative options specifying the target controller classes instead of using the `Module` instance. If your backend application server does not have special configuration like `setGlobalPrefix`, `enableVersioning` and `RouterModule`, it is okay to specifying the target controller classes just by writing their file path like below.
 
 <Tabs items={[
-        'Module',
-        'Directory', 
-        'Pattern', 
-        'Exclude'
-    ]}
-    defaultIndex={1}>
-    <Tab>
+    'Module',
+    'Directory', 
+    'Pattern', 
+    'Exclude'
+  ]}
+  defaultIndex={1}>
+  <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -431,124 +432,124 @@ import { NestFactory } from "@nestjs/core";
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
-    input: async () => {
-        const app = await NestFactory.create(YourModule);
-        // app.setGlobalPrefix("api");
-        // app.enableVersioning({
-        //     type: VersioningType.URI,
-        //     prefix: "v", 
-        // })
-        return app;
+  input: async () => {
+    const app = await NestFactory.create(YourModule);
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  swagger: {
+    output: "dist/swagger.json",
+    beautify: true,
+    security: {
+      bearer: {
+        type: "apiKey",
+        name: "Authorization",
+        in: "header",
+      },
     },
-    swagger: {
-        output: "dist/swagger.json",
-        beautify: true,
-        security: {
-            bearer: {
-                type: "apiKey",
-                name: "Authorization",
-                in: "header",
-            },
-        },
-        servers: [
-            {
-                url: "http://localhost:3000",
-                description: "Local Server"
-            }
-        ],
-    }
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Local Server",
+      },
+    ],
+  },
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4-8}
 import { INestiaConfig } from "@nestia/sdk";
 
 const NESTIA_CONFIG: INestiaConfig = {
-    input: [
-        "src/controllers", 
-        "src/fake/controllers", 
-        "src/test/controllers",
+  input: [
+    "src/controllers", 
+    "src/fake/controllers", 
+    "src/test/controllers"
+  ],
+  swagger: {
+    output: "dist/swagger.json",
+    beautify: true,
+    security: {
+      bearer: {
+        type: "apiKey",
+        name: "Authorization",
+        in: "header",
+      },
+    },
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Local Server",
+      },
     ],
-    swagger: {
-        output: "dist/swagger.json",
-        beautify: true,
-        security: {
-            bearer: {
-                type: "apiKey",
-                name: "Authorization",
-                in: "header",
-            },
-        },
-        servers: [
-            {
-                url: "http://localhost:3000",
-                description: "Local Server"
-            }
-        ],
-    }
+  },
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4}
 import { INestiaConfig } from "@nestia/sdk";
 
 const NESTIA_CONFIG: INestiaConfig = {
-    input: "src/**/*.controller.ts",
-    swagger: {
-        output: "dist/swagger.json",
-        beautify: true,
-        security: {
-            bearer: {
-                type: "apiKey",
-                name: "Authorization",
-                in: "header",
-            },
-        },
-        servers: [
-            {
-                url: "http://localhost:3000",
-                description: "Local Server"
-            }
-        ],
-    }
+  input: "src/**/*.controller.ts",
+  swagger: {
+    output: "dist/swagger.json",
+    beautify: true,
+    security: {
+      bearer: {
+        type: "apiKey",
+        name: "Authorization",
+        in: "header",
+      },
+    },
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Local Server",
+      },
+    ],
+  },
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4-7}
 import { INestiaConfig } from "@nestia/sdk";
 
 const NESTIA_CONFIG: INestiaConfig = {
-    input: {
-        include: ["src/controllers"],
-        exclude: ["src/**/*.fake.ts"],
+  input: {
+    include: ["src/controllers"],
+    exclude: ["src/**/*.fake.ts"],
+  },
+  swagger: {
+    output: "dist/swagger.json",
+    beautify: true,
+    security: {
+      bearer: {
+        type: "apiKey",
+        name: "Authorization",
+        in: "header",
+      },
     },
-    swagger: {
-        output: "dist/swagger.json",
-        beautify: true,
-        security: {
-            bearer: {
-                type: "apiKey",
-                name: "Authorization",
-                in: "header",
-            },
-        },
-        servers: [
-            {
-                url: "http://localhost:3000",
-                description: "Local Server"
-            }
-        ],
-    }
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Local Server",
+      },
+    ],
+  },
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 
@@ -579,12 +580,12 @@ The last one, `@security` is a tag for security scheme. It specifies target secu
 For reference, target security schemes must be configured in the `nestia.config.ts` file. If you use `@security` tag that is not configured in the `nestia.config.ts` file, it would be an error. Also, if you've configured `@nestia/swagger` security decorator like `@ApiSecurity`, `@nestia/sdk` also can recognize it too.
 
 <Tabs items={[
-    'Controller', 
-    'Swagger Documents', 
-    <code>nestia.config.ts</code>,
-    <code>ISwaggerSecurityScheme</code>,
+  'Controller', 
+  'Swagger Documents', 
+  <code>nestia.config.ts</code>,
+  <code>ISwaggerSecurityScheme</code>,
 ]}>
-    <Tab>
+  <Tab>
 ```typescript filename="Controller" showLineNumbers {17-20, 35, 46-49, 66, 68}
 import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -595,79 +596,79 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 @Controller("bbs/articles/:section")
 export class BbsArticlesController {
-    /**
-     * Would be shown without any mark.
-     *
-     * @param section Section code
-     * @param input Content to store
-     * @returns Newly archived article
-     * 
-     * @tag public
-     * @summary Public API
-     * @security bearer
-     * @security oauth2 read write
-     */
-    @TypedRoute.Post()
-    public async store(
-        @TypedParam("section") section: string,
-        @TypedBody() input: IBbsArticle.IStore,
-    ): Promise<IBbsArticle> {
-        return {
-            ...typia.random<IBbsArticle>(),
-            ...input,
-            section,
-        };
-    }
+  /**
+   * Would be shown without any mark.
+   *
+   * @param section Section code
+   * @param input Content to store
+   * @returns Newly archived article
+   *
+   * @tag public
+   * @summary Public API
+   * @security bearer
+   * @security oauth2 read write
+   */
+  @TypedRoute.Post()
+  public async store(
+    @TypedParam("section") section: string,
+    @TypedBody() input: IBbsArticle.IStore,
+  ): Promise<IBbsArticle> {
+    return {
+      ...typia.random<IBbsArticle>(),
+      ...input,
+      section,
+    };
+  }
 
-    /**
-     * Deprecated API.
-     *
-     * Would be marked as "deprecated".
-     *
-     * For reference, top sentence "Deprecated API." can replace the `@summary` tag.
-     *
-     * @param section Section code
-     * @param id Target article ID
-     * @param input Content to update
-     * @returns Updated content
-     *
-     * @deprecated
-     * @operationId updateArticle
-     * @security basic
-     * @security bearer
-     */
-    @TypedRoute.Put(":id")
-    public async update(
-        @TypedParam("section") section: string,
-        @TypedParam("id") id: string & tags.Format<"uuid">,
-        @TypedBody() input: IBbsArticle.IStore,
-    ): Promise<IBbsArticle> {
-        return {
-            ...typia.random<IBbsArticle>(),
-            ...input,
-            id,
-            section,
-        };
-    }
+  /**
+   * Deprecated API.
+   *
+   * Would be marked as "deprecated".
+   *
+   * For reference, top sentence "Deprecated API." can replace the `@summary` tag.
+   *
+   * @param section Section code
+   * @param id Target article ID
+   * @param input Content to update
+   * @returns Updated content
+   *
+   * @deprecated
+   * @operationId updateArticle
+   * @security basic
+   * @security bearer
+   */
+  @TypedRoute.Put(":id")
+  public async update(
+    @TypedParam("section") section: string,
+    @TypedParam("id") id: string & tags.Format<"uuid">,
+    @TypedBody() input: IBbsArticle.IStore,
+  ): Promise<IBbsArticle> {
+    return {
+      ...typia.random<IBbsArticle>(),
+      ...input,
+      id,
+      section,
+    };
+  }
 
-    /**
-     * Would not be shown.
-     *
-     * @internal
-     */
-    @ApiSecurity("custom") // LEGACY DECORATOR ALSO CAN BE USED
-    @TypedRoute.Delete(":id")
-    public erase(
-        @TypedParam("section") section: string,
-        @TypedParam("id") id: string & tags.Format<"uuid">,
-    ): void {
-        section;
-        id;
-    }
+  /**
+   * Would not be shown.
+   *
+   * @internal
+   */
+  @ApiSecurity("custom") // LEGACY DECORATOR ALSO CAN BE USED
+  @TypedRoute.Delete(":id")
+  public erase(
+    @TypedParam("section") section: string,
+    @TypedParam("id") id: string & tags.Format<"uuid">,
+  ): void {
+    section;
+    id;
+  }
 }
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```json filename="swagger.json" showLineNumbers {20-22, 60-70, 75, 77, 122, 124-131}
 {
   "openapi": "3.0.1",
@@ -928,65 +929,65 @@ export class BbsArticlesController {
   }
 }
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript filename="nestia.config.ts" showLineNumbers {6-51}
 import type { INestiaConfig } from "@nestia/sdk";
 
 export const NESTIA_CONFIG: INestiaConfig = {
-    input: ["src/controllers"],
-    output: "src/api",
-    swagger: {
-        output: "swagger.json",
-        beautify: true,
-        operationId: (props) => `${props.class}.${props.function}`,
-        security: {
-            //----
-            // YOU CAN CHOOSE ANY SECURITY SCHEMES LIKE
-            //----
-            // @security basic
-            // @security bearer
-            // @security oauth2 read write
-            // @security custom
-            basic: {
-                type: "http",
-                scheme: "basic",
+  input: ["src/controllers"],
+  output: "src/api",
+  swagger: {
+    output: "swagger.json",
+    beautify: true,
+    operationId: (props) => `${props.class}.${props.function}`,
+    security: {
+      //----
+      // YOU CAN CHOOSE ANY SECURITY SCHEMES LIKE
+      //----
+      // @security basic
+      // @security bearer
+      // @security oauth2 read write
+      // @security custom
+      basic: {
+        type: "http",
+        scheme: "basic",
+      },
+      bearer: {
+        type: "http",
+        scheme: "bearer",
+      },
+      oauth2: {
+        type: "oauth2",
+        flows: {
+          implicit: {
+            authorizationUrl: "https://example.com/api/oauth/dialog",
+            refreshUrl: "https://example.com/api/oauth/refresh",
+            scopes: {
+              //----
+              // YOU CAN CHOOSE ANY SCOPES
+              //----
+              // (@security oauth2 read write) -> BOTH OF THEM
+              // (@security oauth2 read) -> ONE OF THEM
+              // (@security oauth) -> NOTHING
+              read: "read authority",
+              write: "write authority",
             },
-            bearer: {
-                type: "http",
-                scheme: "bearer",
-            },
-            oauth2: {
-                type: "oauth2",
-                flows: {
-                    implicit: {
-                        authorizationUrl: "https://example.com/api/oauth/dialog",
-                        refreshUrl: "https://example.com/api/oauth/refresh",
-                        scopes: {
-                            //----
-                            // YOU CAN CHOOSE ANY SCOPES
-                            //----
-                            // (@security oauth2 read write) -> BOTH OF THEM
-                            // (@security oauth2 read) -> ONE OF THEM
-                            // (@security oauth) -> NOTHING
-                            "read": "read authority",
-                            "write": "write authority",
-                        },
-                    },
-                },
-            },
-            custom: {
-                type: "apiKey",
-                in: "header",
-                name: "Authorization",
-            },
+          },
         },
+      },
+      custom: {
+        type: "apiKey",
+        in: "header",
+        name: "Authorization",
+      },
     },
+  },
 };
 export default NESTIA_CONFIG;
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript filename="ISwaggerSecurityScheme.ts" showLineNumbers
 /**
  * Security scheme of Swagger Documents.
@@ -999,62 +1000,62 @@ export default NESTIA_CONFIG;
  * @author Jeongho Nam - https://github.com/samchon
  */
 export type ISwaggerSecurityScheme =
-    | ISwaggerSecurityScheme.IHttpBasic
-    | ISwaggerSecurityScheme.IHttpBearer
-    | ISwaggerSecurityScheme.IApiKey
-    | ISwaggerSecurityScheme.IOpenId
-    | ISwaggerSecurityScheme.IOAuth2;
+  | ISwaggerSecurityScheme.IHttpBasic
+  | ISwaggerSecurityScheme.IHttpBearer
+  | ISwaggerSecurityScheme.IApiKey
+  | ISwaggerSecurityScheme.IOpenId
+  | ISwaggerSecurityScheme.IOAuth2;
 export namespace ISwaggerSecurityScheme {
-    export interface IHttpBasic {
-        type: "http";
-        scheme: "basic";
-    }
-    export interface IHttpBearer {
-        type: "http";
-        scheme: "bearer";
-        bearerFormat?: string;
-    }
-    export interface IApiKey {
-        type: "apiKey";
+  export interface IHttpBasic {
+    type: "http";
+    scheme: "basic";
+  }
+  export interface IHttpBearer {
+    type: "http";
+    scheme: "bearer";
+    bearerFormat?: string;
+  }
+  export interface IApiKey {
+    type: "apiKey";
 
-        /**
-         * @default header
-         */
-        in?: "header" | "query" | "cookie";
+    /**
+     * @default header
+     */
+    in?: "header" | "query" | "cookie";
 
-        /**
-         * @default Authorization
-         */
-        name?: string;
-    }
+    /**
+     * @default Authorization
+     */
+    name?: string;
+  }
 
-    export interface IOpenId {
-        type: "openIdConnect";
-        openIdConnectUrl: string;
-    }
+  export interface IOpenId {
+    type: "openIdConnect";
+    openIdConnectUrl: string;
+  }
 
-    export interface IOAuth2 {
-        type: "oauth2";
-        flows: IOAuth2.IFlowSet;
-        description?: string;
+  export interface IOAuth2 {
+    type: "oauth2";
+    flows: IOAuth2.IFlowSet;
+    description?: string;
+  }
+  export namespace IOAuth2 {
+    export interface IFlowSet {
+      authorizationCode?: IFlow;
+      implicit?: Omit<IFlow, "tokenUrl">;
+      password?: Omit<IFlow, "authorizationUrl">;
+      clientCredentials?: Omit<IFlow, "authorizationUrl">;
     }
-    export namespace IOAuth2 {
-        export interface IFlowSet {
-            authorizationCode?: IFlow;
-            implicit?: Omit<IFlow, "tokenUrl">;
-            password?: Omit<IFlow, "authorizationUrl">;
-            clientCredentials?: Omit<IFlow, "authorizationUrl">;
-        }
-        export interface IFlow {
-            authorizationUrl: string;
-            tokenUrl: string;
-            refreshUrl: string;
-            scopes?: Record<string, string>;
-        }
+    export interface IFlow {
+      authorizationUrl: string;
+      tokenUrl: string;
+      refreshUrl: string;
+      scopes?: Record<string, string>;
     }
+  }
 }
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 ![Swagger Editor](/images/swagger-tags.png)
@@ -1109,153 +1110,153 @@ Let's see how those type and comment tags work with example code.
       - `date-time`: `Date.toISOString()`
 
 <Tabs items={[
-    <code>IBbsArticle.ts</code>, 
-    <code>swagger.json</code>
+  <code>IBbsArticle.ts</code>, 
+  <code>swagger.json</code>
 ]}>
-    <Tab>
+  <Tab>
 ```typescript copy filename="SpecialTag.ts" showLineNumbers
 export interface SpecialTag {
-    /**
-     * Deprecated tags are just used for marking.
-     * 
-     * @title Unsigned integer
-     * @deprecated
-     */
-    type: number & tags.Type<"uint32">;
+  /**
+   * Deprecated tags are just used for marking.
+   *
+   * @title Unsigned integer
+   * @deprecated
+   */
+  type: number & tags.Type<"uint32">;
 
-    /**
-     * Internal tagged property never be shown in JSON schema.
-     * 
-     * It even doesn't be shown in other `typia` functions like `assert<T>()`.
-     * 
-     * @internal
-     */
-    internal: number[];
+  /**
+   * Internal tagged property never be shown in JSON schema.
+   *
+   * It even doesn't be shown in other `typia` functions like `assert<T>()`.
+   *
+   * @internal
+   */
+  internal: number[];
 
-    /**
-     * Hidden tagged property never be shown in JSON schema.
-     * 
-     * However, it would be shown in other `typia` functions like `stringify<T>()`.
-     * 
-     * @hidden
-     */
-    hidden: boolean;
+  /**
+   * Hidden tagged property never be shown in JSON schema.
+   *
+   * However, it would be shown in other `typia` functions like `stringify<T>()`.
+   *
+   * @hidden
+   */
+  hidden: boolean;
 
-    /**
-     * You can limit the range of number.
-     *
-     * Also, you can configure `default` property by comment tag.
-     * 
-     * @default 30
-     */
-    number?: number & tags.ExclusiveMinimum<19> & tags.Maximum<100>;
+  /**
+   * You can limit the range of number.
+   *
+   * Also, you can configure `default` property by comment tag.
+   *
+   * @default 30
+   */
+  number?: number & tags.ExclusiveMinimum<19> & tags.Maximum<100>;
 
-    /**
-     * You can limit the length of string.
-     */
-    string: string & tags.MinLength<3>;
+  /**
+   * You can limit the length of string.
+   */
+  string: string & tags.MinLength<3>;
 
-    /**
-     * You can limit the pattern of string.
-     */
-    pattern: string & tags.Pattern<"^[a-z]+$">;
+  /**
+   * You can limit the pattern of string.
+   */
+  pattern: string & tags.Pattern<"^[a-z]+$">;
 
-    /**
-     * You can limit the format of string.
-     */
-    format: null | (string & tags.Format<"date-time">);
+  /**
+   * You can limit the format of string.
+   */
+  format: null | (string & tags.Format<"date-time">);
 
-    /**
-     * You also can perform union type in type tags.
-     */
-    ip: string & (tags.Format<"ipv4"> | tags.Format<"ipv6">);
-    
-    /**
-     * In the Array case, only type tags can limit elements' type.
-     */
-    array: Array<string & tags.Format<"uuid">>
-        & tags.MinItems<3>
-        & tags.MaxItems<100>;
+  /**
+   * You also can perform union type in type tags.
+   */
+  ip: string & (tags.Format<"ipv4"> | tags.Format<"ipv6">);
+
+  /**
+   * In the Array case, only type tags can limit elements' type.
+   */
+  array: Array<string & tags.Format<"uuid">> &
+    tags.MinItems<3> &
+    tags.MaxItems<100>;
 }
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```json filename="swagger.json" showLineNumbers {6, 9, 14-17, 22, 27, 32, 36-47, 56, 58-59}
 {
-    "SpecialTag": {
-        "type": "object",
-        "properties": {
-            "type": {
-                "deprecated": true,
-                "title": "Unsigned integer",
-                "description": "Deprecated tags are just used for marking.",
-                "type": "integer"
-            },
-            "number": {
-                "description": "You can limit the range of number.\n\nAlso, you can configure `default` property by comment tag.",
-                "type": "number",
-                "minimum": 19,
-                "exclusiveMinimum": true,
-                "maximum": 100,
-                "default": 30
-            },
-            "string": {
-                "description": "You can limit the length of string.",
-                "type": "string",
-                "minLength": 3
-            },
-            "pattern": {
-                "description": "You can limit the pattern of string.",
-                "type": "string",
-                "pattern": "^[a-z]+$"
-            },
-            "format": {
-                "description": "You can limit the format of string.",
-                "type": "string",
-                "format": "date-time",
-                "nullable": true
-            },
-            "ip": {
-                "oneOf": [
-                    {
-                        "description": "You also can perform union type in type tags.",
-                        "type": "string",
-                        "format": "ipv4"
-                    },
-                    {
-                        "description": "You also can perform union type in type tags.",
-                        "type": "string",
-                        "format": "ipv6"
-                    }
-                ],
-                "description": "You also can perform union type in type tags."
-            },
-            "array": {
-                "description": "In the Array case, only type tags can limit elements' type.",
-                "type": "array",
-                "items": {
-                    "description": "In the Array case, only type tags can limit elements' type.",
-                    "type": "string",
-                    "format": "uuid"
-                },
-                "maxItems": 100,
-                "minItems": 3
-            }
-        },
-        "nullable": false,
-        "required": [
-            "type",
-            "string",
-            "pattern",
-            "format",
-            "ip",
-            "array"
+  "SpecialTag": {
+    "type": "object",
+    "properties": {
+      "type": {
+        "deprecated": true,
+        "title": "Unsigned integer",
+        "description": "Deprecated tags are just used for marking.",
+        "type": "integer"
+      },
+      "number": {
+        "description": "You can limit the range of number.\n\nAlso, you can configure `default` property by comment tag.",
+        "type": "number",
+        "minimum": 19,
+        "exclusiveMinimum": true,
+        "maximum": 100,
+        "default": 30
+      },
+      "string": {
+        "description": "You can limit the length of string.",
+        "type": "string",
+        "minLength": 3
+      },
+      "pattern": {
+        "description": "You can limit the pattern of string.",
+        "type": "string",
+        "pattern": "^[a-z]+$"
+      },
+      "format": {
+        "description": "You can limit the format of string.",
+        "type": "string",
+        "format": "date-time",
+        "nullable": true
+      },
+      "ip": {
+        "oneOf": [
+          {
+            "description": "You also can perform union type in type tags.",
+            "type": "string",
+            "format": "ipv4"
+          },
+          {
+            "description": "You also can perform union type in type tags.",
+            "type": "string",
+            "format": "ipv6"
+          }
         ],
-    }
+        "description": "You also can perform union type in type tags."
+      },
+      "array": {
+        "description": "In the Array case, only type tags can limit elements' type.",
+        "type": "array",
+        "items": {
+          "description": "In the Array case, only type tags can limit elements' type.",
+          "type": "string",
+          "format": "uuid"
+        },
+        "maxItems": 100,
+        "minItems": 3
+      }
+    },
+    "nullable": false,
+    "required": [
+      "type",
+      "string",
+      "pattern",
+      "format",
+      "ip",
+      "array"
+    ]
+  }
 }
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript filename="nestia.config.ts" showLineNumbers
 /**
  * Security schema of Swagger Documents.
@@ -1268,62 +1269,62 @@ export interface SpecialTag {
  * @author Jeongho Nam - https://github.com/samchon
  */
 export type ISwaggerSecurityScheme =
-    | ISwaggerSecurityScheme.IHttpBasic
-    | ISwaggerSecurityScheme.IHttpBearer
-    | ISwaggerSecurityScheme.IApiKey
-    | ISwaggerSecurityScheme.IOpenId
-    | ISwaggerSecurityScheme.IOAuth2;
+  | ISwaggerSecurityScheme.IHttpBasic
+  | ISwaggerSecurityScheme.IHttpBearer
+  | ISwaggerSecurityScheme.IApiKey
+  | ISwaggerSecurityScheme.IOpenId
+  | ISwaggerSecurityScheme.IOAuth2;
 export namespace ISwaggerSecurityScheme {
-    export interface IHttpBasic {
-        type: "http";
-        scheme: "basic";
-    }
-    export interface IHttpBearer {
-        type: "http";
-        scheme: "bearer";
-        bearerFormat?: string;
-    }
-    export interface IApiKey {
-        type: "apiKey";
+  export interface IHttpBasic {
+    type: "http";
+    scheme: "basic";
+  }
+  export interface IHttpBearer {
+    type: "http";
+    scheme: "bearer";
+    bearerFormat?: string;
+  }
+  export interface IApiKey {
+    type: "apiKey";
 
-        /**
-         * @default header
-         */
-        in?: "header" | "query" | "cookie";
+    /**
+     * @default header
+     */
+    in?: "header" | "query" | "cookie";
 
-        /**
-         * @default Authorization
-         */
-        name?: string;
-    }
+    /**
+     * @default Authorization
+     */
+    name?: string;
+  }
 
-    export interface IOpenId {
-        type: "openIdConnect";
-        openIdConnectUrl: string;
-    }
+  export interface IOpenId {
+    type: "openIdConnect";
+    openIdConnectUrl: string;
+  }
 
-    export interface IOAuth2 {
-        type: "oauth2";
-        flows: IOAuth2.IFlowSet;
-        description?: string;
+  export interface IOAuth2 {
+    type: "oauth2";
+    flows: IOAuth2.IFlowSet;
+    description?: string;
+  }
+  export namespace IOAuth2 {
+    export interface IFlowSet {
+      authorizationCode?: IFlow;
+      implicit?: Omit<IFlow, "tokenUrl">;
+      password?: Omit<IFlow, "authorizationUrl">;
+      clientCredentials?: Omit<IFlow, "authorizationUrl">;
     }
-    export namespace IOAuth2 {
-        export interface IFlowSet {
-            authorizationCode?: IFlow;
-            implicit?: Omit<IFlow, "tokenUrl">;
-            password?: Omit<IFlow, "authorizationUrl">;
-            clientCredentials?: Omit<IFlow, "authorizationUrl">;
-        }
-        export interface IFlow {
-            authorizationUrl: string;
-            tokenUrl: string;
-            refreshUrl: string;
-            scopes?: Record<string, string>;
-        }
+    export interface IFlow {
+      authorizationUrl: string;
+      tokenUrl: string;
+      refreshUrl: string;
+      scopes?: Record<string, string>;
     }
+  }
 }
 ```
-    </Tab>
+  </Tab>
 </Tabs>
 
 
@@ -1343,19 +1344,17 @@ The 2nd way is to hosting the `swagger.json` file in the NestJS backend server.
 Read below example code, and follow it on yours:
 
 ```typescript copy showLineNumbers
+import { NestFactory } from "@nestjs/core";
+import { SwaggerModule } from "@nestjs/swagger";
 import fs from "fs";
-import { NestFactory } from '@nestjs/core';
-import { SwaggerModule } from '@nestjs/swagger';
 
 async function open(): Promise<void> {
-    const app = await NestFactory.create(...);
+  const app = await NestFactory.create({...});
 
-    const docs = require("...write swagger.json path");
-    docs.servers = [
-        { url: "write your server URL" }
-    ];
-    SwaggerModule.setup("swagger", app, docs);
+  const docs = require("...write swagger.json path");
+  docs.servers = [{ url: "write your server URL" }];
+  SwaggerModule.setup("swagger", app, docs);
 
-    await app.listen(8080);
+  await app.listen(8080);
 }
 ```

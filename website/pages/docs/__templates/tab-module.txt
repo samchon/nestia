@@ -3,11 +3,11 @@
     <code>TypeGuardError.ts</code>, 
     <code>IValidation.ts</code>
 ]}>
-    <Tab>
+  <Tab>
 ```typescript copy
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript copy
 export class TypeGuardError extends Error {
     public readonly method: string;
@@ -16,8 +16,8 @@ export class TypeGuardError extends Error {
     public readonly value: any;
 }
 ```
-    </Tab>
-    <Tab>
+  </Tab>
+  <Tab>
 ```typescript copy
 export type IValidation<T> =
     | IValidation.ISuccess<T>
@@ -38,5 +38,5 @@ export namespace IValidation {
     }
 }
 ```
-    </Tab>
+  </Tab>
 </Tabs>
