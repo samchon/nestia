@@ -190,9 +190,17 @@ export namespace NestMethodProgrammer {
       ...(route.body
         ? [
             writeDtoParameter({
-              method: route.body?.["x-nestia-encrypted"]
+              method: route.body["x-nestia-encrypted"]
                 ? "EncryptedBody"
-                : "TypedBody",
+                : route.body.type === "application/json"
+                  ? "TypedBody"
+                  : route.body.type === "application/x-www-form-urlencoded"
+                    ? ["TypedQuery", "Body"]
+                    : route.body.type === "text/plain"
+                      ? "PlainBody"
+                      : route.body.type === "multipart/form-data"
+                        ? ["TypedMultipart", "Body"]
+                        : "TypedBody",
               variable: "body",
             })(components)(importer)(route.body.schema),
           ]
@@ -200,21 +208,27 @@ export namespace NestMethodProgrammer {
     ];
 
   const writeDtoParameter =
-    (accessor: { method: string; variable: string }) =>
+    (accessor: { method: string | [string, string]; variable: string }) =>
     (components: ISwaggerComponents) =>
     (importer: ImportProgrammer) =>
-    (schema: ISwaggerSchema): ts.ParameterDeclaration =>
-      ts.factory.createParameterDeclaration(
+    (schema: ISwaggerSchema): ts.ParameterDeclaration => {
+      const instance = ts.factory.createIdentifier(
+        importer.external({
+          type: "instance",
+          library: "@nestia/core",
+          name:
+            typeof accessor.method === "string"
+              ? accessor.method
+              : accessor.method[0],
+        }),
+      );
+      return ts.factory.createParameterDeclaration(
         [
           ts.factory.createDecorator(
             ts.factory.createCallExpression(
-              ts.factory.createIdentifier(
-                importer.external({
-                  type: "instance",
-                  library: "@nestia/core",
-                  name: accessor.method,
-                }),
-              ),
+              typeof accessor.method === "string"
+                ? instance
+                : IdentifierFactory.access(instance)(accessor.method[1]),
               undefined,
               undefined,
             ),
@@ -225,4 +239,5 @@ export namespace NestMethodProgrammer {
         undefined,
         SchemaProgrammer.write(components)(importer)(schema),
       );
+    };
 }

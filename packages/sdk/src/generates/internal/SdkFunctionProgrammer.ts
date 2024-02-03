@@ -156,7 +156,10 @@ export namespace SdkFunctionProgrammer {
             ...(props.input
               ? [ts.factory.createIdentifier(props.input.name)]
               : []),
-            ...(config.json && props.input?.category === "body"
+            ...(config.json &&
+            typia.is<IController.IBodyParameter>(props.input) &&
+            (props.input.contentType === "application/json" ||
+              props.input.encrypted === true)
               ? [ts.factory.createIdentifier(`${route.name}.stringify`)]
               : []),
           ],

@@ -119,7 +119,7 @@ export namespace ApiNamespaceProgrammer {
                 "request",
                 props.route.body
                   ? LiteralFactory.generate({
-                      type: "application/json",
+                      type: props.route.body.type,
                       encrypted: !!props.route.body["x-nestia-encrypted"],
                     })
                   : ts.factory.createNull(),

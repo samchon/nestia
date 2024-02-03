@@ -117,6 +117,9 @@ export namespace SchemaProgrammer {
   const writeString =
     (importer: ImportProgrammer) =>
     (schema: ISwaggerSchema.IString): ts.TypeNode => {
+      if (schema.format === "binary")
+        return ts.factory.createTypeReferenceNode("File");
+
       const intersection: ts.TypeNode[] = [TypeFactory.keyword("string")];
       if (schema.default !== undefined)
         intersection.push(importer.tag("Default", schema.default));
