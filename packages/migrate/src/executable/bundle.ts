@@ -83,6 +83,7 @@ const main = async (): Promise<void> => {
     repository: "nestia-start",
     exceptions: [
       ".git",
+      ".github/dependabot.yml",
       "src/api/functional",
       "src/controllers",
       "src/MyModule.ts",
@@ -93,7 +94,12 @@ const main = async (): Promise<void> => {
   await bundle({
     mode: "sdk",
     repository: "nestia-sdk-template",
-    exceptions: [".git", "src/functional", "src/structures"],
+    exceptions: [
+      ".git",
+      ".github/dependabot.yml",
+      "src/functional",
+      "src/structures",
+    ],
   });
 };
 main().catch((exp) => {

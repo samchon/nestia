@@ -7,7 +7,7 @@ import { NoTransformConfigureError } from "./NoTransformConfigureError";
 export const validate_request_multipart = <T>(
   props?: IRequestMultipartProps<T>,
 ) => {
-  if (!props) return () => NoTransformConfigureError("TypedMultipart.Bpdu");
+  if (!props) return () => NoTransformConfigureError("TypedFormData.Bpdu");
   else if (props.validator.type === "assert")
     return assert(props.validator.assert);
   else if (props.validator.type === "is") return is(props.validator.is);
@@ -15,7 +15,7 @@ export const validate_request_multipart = <T>(
     return validate(props.validator.validate);
   return () =>
     new Error(
-      `Error on nestia.core.TypedMultipart.Body(): invalid typed validator.`,
+      `Error on nestia.core.TypedFormData.Body(): invalid typed validator.`,
     );
 };
 

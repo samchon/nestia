@@ -3,7 +3,7 @@
     "TypedBody": "TypedBody",
     "TypedParam": "TypedParam",
     "TypedQuery": "TypedQuery",
-    "TypedMultipart": "TypedMultipart",
+    "TypedFormData": "TypedFormData",
     "TypedHeaders": "TypedHeaders",
     "TypedException": "TypedException"
 }

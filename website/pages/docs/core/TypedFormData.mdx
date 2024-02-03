@@ -2,33 +2,33 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 
 ## Outline
 ```typescript filename="@nestia/core"
-export namespace TypedMultipart {
+export namespace TypedFormData {
   export function Body(): ParameterDecorator;
 }
 ```
 
 Request body decorator of `multipart/form-data`.
 
-`@TypedMultipart.Body()` is a request body decorator function, for the `multipart/form-data` content type. It is useful for file uploading with additional data, and automatically casts property type following its DTO definition, performing the type validation.
+`@TypedFormData.Body()` is a request body decorator function, for the `multipart/form-data` content type. It is useful for file uploading with additional data, and automatically casts property type following its DTO definition, performing the type validation.
 
-As you can see from the below code, `@TypedMultipart.Body()` function is much easier and type safer than `@UploadFile()` of NestJS. Also, if you're considering the [SDK library](../sdk/sdk) generation, only `@TypedMultipart.Body()` is supported. Therefore, I recommend you to utilize `@TypedMultipart.Body()` instead of the `@UploadFile()` function.
+As you can see from the below code, `@TypedFormData.Body()` function is much easier and type safer than `@UploadFile()` of NestJS. Also, if you're considering the [SDK library](../sdk/sdk) generation, only `@TypedFormData.Body()` is supported. Therefore, I recommend you to utilize `@TypedFormData.Body()` instead of the `@UploadFile()` function.
 
-Of course, as every features of `nestia` does, you don't need to define any extra schema definition for the [Swagger Documents](../sdk/swagger) generation. `@nestia/sdk` and `@TypedMultipart.Body()` will do everything just by analyzing your TypeScript types and codes.
+Of course, as every features of `nestia` does, you don't need to define any extra schema definition for the [Swagger Documents](../sdk/swagger) generation. `@nestia/sdk` and `@TypedFormData.Body()` will do everything just by analyzing your TypeScript types and codes.
 
 <Tabs items={[
-  <code>@TypedMultipart.Body()</code>, 
+  <code>@TypedFormData.Body()</code>, 
   <code>@UploadFile()</code>
 ]}>
   <Tab>
 ```typescript filename="nestia/MultipartController.ts" showLineNumbers {8}
-import { TypedMultipart, TypedRoute } from "@nestia/core";
+import { TypedFormData, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
 @Controller("bbs/articles")
 export class BbsArticlesController {
   @TypedRoute.Post()
   public async create(
-    @TypedMultipart.Body() input: IBbsArticleCreate,
+    @TypedFormData.Body() input: IBbsArticleCreate,
   ): Promise<void> {
     input;
   }
@@ -152,7 +152,7 @@ export interface IBbsArticleCreate {
   </Tab>
   <Tab>
 ```typescript copy filename="BbsArticlesController.ts" showLineNumbers {10}
-import { TypedMultipart, TypedRoute } from "@nestia/core";
+import { TypedFormData, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 
 import { IBbsArticleCreate } from "./IBbsArticleCreate";
@@ -161,7 +161,7 @@ import { IBbsArticleCreate } from "./IBbsArticleCreate";
 export class BbsArticlesController {
   @TypedRoute.Post()
   public async create(
-    @TypedMultipart.Body() input: IBbsArticleCreate,
+    @TypedFormData.Body() input: IBbsArticleCreate,
   ): Promise<void> {
     input;
   }
@@ -285,7 +285,7 @@ __decorate(
     }),
     __param(
       0,
-      core_1.TypedMultipart.Body({
+      core_1.TypedFormData.Body({
         files: [
           {
             name: "thumbnail",
@@ -301,8 +301,8 @@ __decorate(
           assert: (input) => {
             const decode = (input) => {
               var _a;
-              const $string = core_1.TypedMultipart.Body.string;
-              const $file = core_1.TypedMultipart.Body.file;
+              const $string = core_1.TypedFormData.Body.string;
+              const $file = core_1.TypedFormData.Body.file;
               const output = {
                 title: $string(input.get("title")),
                 body: $string(input.get("body")),
@@ -332,7 +332,7 @@ __decorate(
               };
               if (false === __is(input))
                 ((input, _path, _exceptionable = true) => {
-                  const $guard = core_1.TypedMultipart.Body.guard;
+                  const $guard = core_1.TypedFormData.Body.guard;
                   const $ao0 = (input, _path, _exceptionable = true) =>
                     ("string" === typeof input.title ||
                       $guard(_exceptionable, {
@@ -434,19 +434,19 @@ exports.BbsArticlesController = BbsArticlesController = __decorate(
   </Tab>
 </Tabs>
 
-Just call `@TypedMultipart.Body()` function on the request body parameter, that's all.
+Just call `@TypedFormData.Body()` function on the request body parameter, that's all.
 
 `Nestia` will analyze your type (`IBbsArticleCreate`), and writes optimal code for the target type, in the compilation level. If you click the "Complied JavaScript File" tab of above, you can see the optimal validation code. 
 
-Such optimization is called AOT (Ahead of Time) compilation, and it is the secret of `@TypedMultipart.Body`.
+Such optimization is called AOT (Ahead of Time) compilation, and it is the secret of `@TypedFormData.Body`.
 
 
 
 
 ## Special Tags
-You can enhance validation logic, of `@TypedMultipart.Body()`, through comment tags.
+You can enhance validation logic, of `@TypedFormData.Body()`, through comment tags.
 
-You know what? `@TypedMultipart.Body()` utilizes [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function for form data validation, and the [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function supports additional type checking logics through comment tags. For reference, "Type Tag" means a intersection type with atomic type and special tag type of `typia` like `number & tags.Type<"uint32">`, and "Comment Tag" means a comment starting from `@` symbol following `@${name} ${value}` format.
+You know what? `@TypedFormData.Body()` utilizes [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function for form data validation, and the [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function supports additional type checking logics through comment tags. For reference, "Type Tag" means a intersection type with atomic type and special tag type of `typia` like `number & tags.Type<"uint32">`, and "Comment Tag" means a comment starting from `@` symbol following `@${name} ${value}` format.
 
 With those type and comment tags, you can add additional validation logics. If you want to add a custom validation logic, you also can do it. Read below Guide Docments of [typia](https://typia.io), and see the example code. You may understand how to utilize such type and comment tags, in a few minutes.
 
@@ -532,9 +532,9 @@ exports.checkSpecialTag = checkSpecialTag;
 
 
 ## Restriction
-When using `@TypedMultipart.Body()`, you've to follow such restrction.
+When using `@TypedFormData.Body()`, you've to follow such restrction.
 
-At first, type of `@TypedMultipart.Body()` must be a pure **object type**. It does not allow union type. Also, nullable and undefindable types are not allowed, either. Note that, query parameter type must be a sole **object type** without any extra definition.
+At first, type of `@TypedFormData.Body()` must be a pure **object type**. It does not allow union type. Also, nullable and undefindable types are not allowed, either. Note that, query parameter type must be a sole **object type** without any extra definition.
 
 At next, type of properties must be **atomic**, `Blob`, `File` or array of them. In the atomic type case, the atomic type allows both nullable and undefindable types. However, mixed union atomic type like `string | number` or `"1" | "2" | 3` are not allowed. Also, the array type does not allow both nullable and undefindable types, either.
 

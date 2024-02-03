@@ -8,7 +8,7 @@ import { IMultipart } from "@api/lib/structures/IMultipart";
 export class MultipartController {
   @core.TypedRoute.Post()
   public async post(
-    @core.TypedMultipart.Body() body: IMultipart,
+    @core.TypedFormData.Body() body: IMultipart,
   ): Promise<void> {
     await validateBlob(0)(body.blob);
     await ArrayUtil.asyncForEach(body.blobs)((blob, i) =>

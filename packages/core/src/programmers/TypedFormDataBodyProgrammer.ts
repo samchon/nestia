@@ -13,7 +13,7 @@ import { TransformerError } from "typia/lib/transformers/TransformerError";
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
 import { IRequestMultipartProps } from "../options/IRequestMulltipartProps";
 
-export namespace TypedMultipartBodyProgrammer {
+export namespace TypedFormDataBodyProgrammer {
   export const generate =
     (project: INestiaTransformProject) =>
     (modulo: ts.LeftHandSideExpression) =>
@@ -30,7 +30,7 @@ export namespace TypedMultipartBodyProgrammer {
         validate: HttpFormDataProgrammer.validate,
       })(collection)(type);
       if (result.success === false)
-        throw TransformerError.from("nestia.core.TypedMultipart.Body")(
+        throw TransformerError.from("nestia.core.TypedFormData.Body")(
           result.errors,
         );
 
