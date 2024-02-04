@@ -1,11 +1,11 @@
 import { BadRequestException } from "@nestjs/common";
 import typia, { IValidation, TypeGuardError } from "typia";
 
-import { IRequestMultipartProps } from "../../options/IRequestMulltipartProps";
+import { IRequestFormDataProps } from "../../options/IRequestFormDataProps";
 import { NoTransformConfigureError } from "./NoTransformConfigureError";
 
-export const validate_request_multipart = <T>(
-  props?: IRequestMultipartProps<T>,
+export const validate_request_form_data = <T>(
+  props?: IRequestFormDataProps<T>,
 ) => {
   if (!props) return () => NoTransformConfigureError("TypedFormData.Bpdu");
   else if (props.validator.type === "assert")

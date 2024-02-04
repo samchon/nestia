@@ -436,12 +436,29 @@ exports.BbsArticlesController = BbsArticlesController = __decorate(
 
 Just call `@TypedFormData.Body()` function on the request body parameter, that's all.
 
-`Nestia` will analyze your type (`IBbsArticleCreate`), and writes optimal code for the target type, in the compilation level. If you click the "Complied JavaScript File" tab of above, you can see the optimal validation code. 
+`Nestia` will analyze your type (`IBbsArticleCreate`), and writes optimal code for the target type, in the compilation level. If you click the "Complied JavaScript File" tab of above, you can see the optimal transformation and validation code. 
 
 Such optimization is called AOT (Ahead of Time) compilation, and it is the secret of `@TypedFormData.Body`.
 
+By the way, if you're using `fastify`, you have to setup `@fastify/multipart` and configure like below when composing the NestJS application. If you don't do it, `@TypedFormData.Body()` will not work properly, and throw 500 internal server error when `Blob` or `File` type being utilized.
 
+```typescript filename="main.ts" showLineNumbers {1, 11}
+import multipart from "fastify-multipart";
+import { NestFactory } from "@nestjs/core";
+import { 
+  FastifyAdapter, 
+  NestFastifyApplication 
+} from "@nestjs/platform-fastify";
 
+export async function main() {
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
+  );
+  app.register(multipart);
+  await app.listen(3000);
+}
+```
 
 ## Special Tags
 You can enhance validation logic, of `@TypedFormData.Body()`, through comment tags.
