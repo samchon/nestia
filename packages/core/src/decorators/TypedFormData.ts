@@ -1,16 +1,19 @@
+import type { MultipartFile } from "@fastify/multipart";
 import {
   BadRequestException,
   ExecutionContext,
+  InternalServerErrorException,
   createParamDecorator,
 } from "@nestjs/common";
-import { HttpArgumentsHost } from "@nestjs/common/interfaces";
-import express from "express";
+import type { HttpArgumentsHost } from "@nestjs/common/interfaces";
+import type express from "express";
+import type { FastifyReply, FastifyRequest } from "fastify";
 import multer from "multer";
 import typia from "typia";
 
-import { IRequestMultipartProps } from "../options/IRequestMulltipartProps";
+import type { IRequestFormDataProps } from "../options/IRequestFormDataProps";
 import { Singleton } from "../utils/Singleton";
-import { validate_request_multipart } from "./internal/validate_request_multipart";
+import { validate_request_form_data } from "./internal/validate_request_form_data";
 
 /**
  * Type safe multipart/form-data decorator.
@@ -32,7 +35,29 @@ import { validate_request_multipart } from "./internal/validate_request_multipar
  * 2. Do not allow dynamic property
  * 3. Only `boolean`, `bigint`, `number`, `string`, `Blob`, `File` or their array types are allowed
  * 4. By the way, union type never be not allowed
- * 5. Supports only Express, not Fastify
+ * 
+ * By the way, if you're using `fastify`, you have to setup `@fastify/multipart`
+ * and configure like below when composing the NestJS application. If you don't do
+ * that, `@TypedFormData.Body()` will not work properly, and throw 500 internal
+ * server error when `Blob` or `File` type being utilized.
+ * 
+ * ```typescript
+ * import multipart from "fastify-multipart";
+ * import { NestFactory } from "@nestjs/core";
+ * import { 
+ *   FastifyAdapter, 
+ *   NestFastifyApplication 
+ * } from "@nestjs/platform-fastify";
+ * 
+ * export async function main() {
+ *   const app = await NestFactory.create<NestFastifyApplication>(
+ *     AppModule,
+ *     new FastifyAdapter(),
+ *   );
+ *   app.register(multipart);
+ *   await app.listen(3000);
+ * }
+ * ```
  *
  * @todo Change to ReadableStream through configuring storage engine of multer
  * @author Jeongho Nam - https://github.com/samchon
@@ -48,24 +73,12 @@ export namespace TypedFormData {
    * @param props Automatically filled by transformer
    */
   export function Body<T extends object>(
-    props?: IRequestMultipartProps<T>,
+    props?: IRequestFormDataProps<T>,
   ): ParameterDecorator {
-    const checker = validate_request_multipart(props);
-    const upload = app.get().fields(
-      props!.files.map((file) => ({
-        name: file.name,
-        ...(file.limit === 1 ? { maxCount: 1 } : {}),
-      })),
-    );
-    const interceptor = (
-      request: express.Request,
-      response: express.Response,
-    ) =>
-      new Promise<void>((resolve, reject) =>
-        upload(request, response, (error) => {
-          if (error) reject(error);
-          else resolve();
-        }),
+    const checker = validate_request_form_data(props);
+    const predicator = (type: "express" | "fastify") =>
+      new Singleton(() =>
+        type === "express" ? decodeExpress(props!) : decodeFastify(props!),
       );
     return createParamDecorator(async function TypedFormDataBody(
       _unknown: any,
@@ -75,15 +88,16 @@ export namespace TypedFormData {
       const request: express.Request = http.getRequest();
       if (isMultipartFormData(request.headers["content-type"]) === false)
         throw new BadRequestException(
-          `Request body type is not "application/x-www-form-urlencoded".`,
+          `Request body type is not "multipart/form-data".`,
         );
-      await interceptor(request, http.getResponse());
 
-      const data: FormData = new FormData();
-      for (const [key, value] of Object.entries(request.body))
-        for (const elem of String(value).split(",")) data.append(key, elem);
-      if (request.files) parseFiles(data)(request.files);
-
+      const decoder = isExpressRequest(request)
+        ? predicator("express").get()
+        : predicator("fastify").get();
+      const data: FormData = await decoder({
+        request: request as any,
+        response: http.getResponse(),
+      });
       const output: T | Error = checker(data);
       if (output instanceof Error) throw output;
       return output;
@@ -92,15 +106,64 @@ export namespace TypedFormData {
   Object.assign(Body, typia.http.assertFormData);
   Object.assign(Body, typia.http.isFormData);
   Object.assign(Body, typia.http.validateFormData);
-
-  export interface IProps<T> {
-    files: Array<{
-      name: string;
-      limit: number | null;
-    }>;
-    validator: IRequestMultipartProps<T>;
-  }
 }
+
+const decodeExpress = <T>(props: IRequestFormDataProps<T>) => {
+  const upload = multerApplication.get().fields(
+    props!.files.map((file) => ({
+      name: file.name,
+      ...(file.limit === 1 ? { maxCount: 1 } : {}),
+    })),
+  );
+  const interceptor = (request: express.Request, response: express.Response) =>
+    new Promise<void>((resolve, reject) =>
+      upload(request, response, (error) => {
+        if (error) reject(error);
+        else resolve();
+      }),
+    );
+  return async (socket: {
+    request: express.Request;
+    response: express.Response;
+  }): Promise<FormData> => {
+    await interceptor(socket.request, socket.response);
+
+    const data: FormData = new FormData();
+    for (const [key, value] of Object.entries(socket.request.body))
+      for (const elem of String(value).split(",")) data.append(key, elem);
+
+    if (socket.request.files) parseFiles(data)(socket.request.files);
+    return data;
+  };
+};
+
+const decodeFastify =
+  <T>(_props: IRequestFormDataProps<T>) =>
+  async (socket: {
+    request: FastifyRequest & {
+      files?(): AsyncIterableIterator<MultipartFile>;
+    };
+    response: FastifyReply;
+  }): Promise<FormData> => {
+    if (
+      socket.request.files === undefined ||
+      typeof socket.request.files !== "function"
+    )
+      throw new InternalServerErrorException(
+        "Have not configured the `fastify-multipart` plugin yet. Inquiry to the backend developer.",
+      );
+    const data: FormData = new FormData();
+    for (const [key, value] of Object.entries(socket.request.body ?? {}))
+      for (const elem of String(value).split(",")) data.append(key, elem);
+    for await (const file of socket.request.files())
+      data.append(
+        file.fieldname,
+        new File([await file.toBuffer()], file.filename, {
+          type: file.mimetype,
+        }),
+      );
+    return data;
+  };
 
 /**
  * @internal
@@ -130,17 +193,18 @@ const parseFiles =
 /**
  * @internal
  */
-function isMultipartFormData(text?: string): boolean {
-  return (
-    text !== undefined &&
-    text
-      .split(";")
-      .map((str) => str.trim())
-      .some((str) => str === "multipart/form-data")
-  );
-}
+const isMultipartFormData = (text?: string): boolean =>
+  text !== undefined &&
+  text
+    .split(";")
+    .map((str) => str.trim())
+    .some((str) => str === "multipart/form-data");
+
+const isExpressRequest = (
+  request: express.Request | FastifyRequest,
+): request is express.Request => (request as express.Request).app !== undefined;
 
 /**
  * @internal
  */
-const app = new Singleton(() => multer());
+const multerApplication = new Singleton(() => multer());

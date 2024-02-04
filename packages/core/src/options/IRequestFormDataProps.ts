@@ -1,13 +1,13 @@
 import { IValidation } from "typia";
 
-export interface IRequestMultipartProps<T> {
-  files: Array<IRequestMultipartProps.IFile>;
+export interface IRequestFormDataProps<T> {
+  files: Array<IRequestFormDataProps.IFile>;
   validator:
-    | IRequestMultipartProps.IAssert<T>
-    | IRequestMultipartProps.IIs<T>
-    | IRequestMultipartProps.IValidate<T>;
+    | IRequestFormDataProps.IAssert<T>
+    | IRequestFormDataProps.IIs<T>
+    | IRequestFormDataProps.IValidate<T>;
 }
-export namespace IRequestMultipartProps {
+export namespace IRequestFormDataProps {
   export interface IAssert<T> {
     type: "assert";
     assert: (input: FormData) => T;

@@ -11,7 +11,7 @@ import { IProject } from "typia/lib/transformers/IProject";
 import { TransformerError } from "typia/lib/transformers/TransformerError";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
-import { IRequestMultipartProps } from "../options/IRequestMulltipartProps";
+import { IRequestFormDataProps } from "../options/IRequestFormDataProps";
 
 export namespace TypedFormDataBodyProgrammer {
   export const generate =
@@ -34,7 +34,7 @@ export namespace TypedFormDataBodyProgrammer {
           result.errors,
         );
 
-      const files: IRequestMultipartProps.IFile[] =
+      const files: IRequestFormDataProps.IFile[] =
         result.data.objects[0].properties
           .filter(
             (p) =>
@@ -48,7 +48,7 @@ export namespace TypedFormDataBodyProgrammer {
 
       // GENERATE VALIDATION PLAN
       const parameter =
-        (key: IRequestMultipartProps<any>["validator"]["type"]) =>
+        (key: IRequestFormDataProps<any>["validator"]["type"]) =>
         (
           programmer: (
             project: IProject,
