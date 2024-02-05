@@ -1,4 +1,4 @@
-import { ISwaggerSchema } from "./ISwaggeSchema";
+import { ISwaggerSchema } from "./ISwaggerSchema";
 import { ISwaggerSecurity } from "./ISwaggerSecurity";
 
 export interface ISwaggerComponents {

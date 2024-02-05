@@ -4,7 +4,7 @@ import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwaggerSchema } from "../structures/ISwaggeSchema";
+import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";

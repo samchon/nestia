@@ -1,7 +1,7 @@
 import { IPointer } from "tstl";
 import ts from "typescript";
 
-import { ISwaggerSchema } from "../structures/ISwaggeSchema";
+import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";

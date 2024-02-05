@@ -1,6 +1,6 @@
 import ts from "typescript";
 
-import { IMigrateConfig } from "../IMigrateConfig";
+import { IMigrateProgram } from "../module";
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
@@ -21,7 +21,7 @@ export namespace MigrateApiFileProgrammer {
   }
 
   export const write =
-    (config: IMigrateConfig) =>
+    (config: IMigrateProgram.IConfig) =>
     (components: ISwaggerComponents) =>
     (props: IProps): ts.Statement[] => {
       const importer: MigrateImportProgrammer = new MigrateImportProgrammer();

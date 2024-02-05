@@ -1,38 +1,49 @@
 import { Escaper } from "typia/lib/utils/Escaper";
 
-import { ISwagger } from "../module";
 import { IMigrateController } from "../structures/IMigrateController";
+import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
+import { ISwaggerRoute } from "../structures/ISwaggerRoute";
 import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
 import { MigrateMethodAnalzyer } from "./MigrateMethodAnalyzer";
 
 export namespace MigrateControllerAnalyzer {
-  export const analyze = (swagger: ISwagger): IMigrateController[] => {
-    const dict: Map<string, IMigrateRoute[]> = new Map();
+  export const analyze = (
+    props: IMigrateProgram.IProps,
+  ): IMigrateController[] => {
+    interface IEntry {
+      endpoint: ISwaggerRoute;
+      route: IMigrateRoute;
+    }
+    const endpoints: Map<string, IEntry[]> = new Map();
 
     // GATHER ROUTES
-    for (const [path, collection] of Object.entries(swagger.paths)) {
+    for (const [path, collection] of Object.entries(props.swagger.paths)) {
       // PREPARE DIRECTORIES
       const location: string = StringUtil.splitWithNormalization(path)
         .filter((str) => str[0] !== "{" && str[0] !== ":")
         .join("/");
-      for (const s of sequence(location)) MapUtil.take(dict)(s)(() => []);
+      for (const s of sequence(location)) MapUtil.take(endpoints)(s)(() => []);
 
       // INSERT ROUTES TO THE LAST DIRECTORY
-      const routes: IMigrateRoute[] = MapUtil.take(dict)(location)(() => []);
+      const routes: IEntry[] = MapUtil.take(endpoints)(location)(() => []);
       for (const [method, value] of Object.entries(collection)) {
-        const r: IMigrateRoute | null = MigrateMethodAnalzyer.analyze(swagger)({
+        const r: IMigrateRoute | null = MigrateMethodAnalzyer.analyze(props)({
           path,
           method,
         })(value);
-        if (r !== null) routes.push(r);
+        if (r === null) continue;
+        routes.push({
+          endpoint: value,
+          route: r,
+        });
       }
     }
 
     // ABSORB STANDALONE ROUTES
-    const emended: Map<string, IMigrateRoute[]> = new Map(
-      [...dict.entries()].sort((a, b) => a[0].localeCompare(b[0])),
+    const emended: Map<string, IEntry[]> = new Map(
+      [...endpoints.entries()].sort((a, b) => a[0].localeCompare(b[0])),
     );
     for (const [location, routes] of emended) {
       if (routes.length !== 1) continue;
@@ -51,20 +62,26 @@ export namespace MigrateControllerAnalyzer {
       .filter(([_l, routes]) => !!routes.length)
       .map(([location, routes]) => {
         const prefix: string = StringUtil.commonPrefix(
-          routes.map((r) => r.path),
+          routes.map((e) => e.route.path),
         );
-        for (const r of routes)
-          r.path = StringUtil.reJoinWithDecimalParameters(
-            r.path.replace(prefix, ""),
+        for (const e of routes)
+          e.route.path = StringUtil.reJoinWithDecimalParameters(
+            e.route.path.replace(prefix, ""),
           );
         const controller: IMigrateController = {
           name: StringUtil.pascal(location) + "Controller",
           path: StringUtil.reJoinWithDecimalParameters(prefix),
           location: "src/controllers/" + location,
-          routes,
+          routes: routes.map((e) => e.route),
         };
         if (controller.name === "Controller") controller.name = "__Controller";
         emend(controller);
+
+        for (const e of routes)
+          props.dictionary.set(e.endpoint, {
+            controller,
+            route: e.route,
+          });
         return controller;
       });
   };

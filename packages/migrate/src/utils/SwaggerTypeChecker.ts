@@ -1,4 +1,4 @@
-import { ISwaggerSchema } from "../structures/ISwaggeSchema";
+import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 
 export namespace SwaggerSwaggerChecker {

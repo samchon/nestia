@@ -1,22 +1,22 @@
 import { Escaper } from "typia/lib/utils/Escaper";
 
-import { ISwagger } from "../module";
+import { IMigrateProgram, ISwagger } from "../module";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwaggerSchema } from "../structures/ISwaggeSchema";
+import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { ISwaggerRoute } from "../structures/ISwaggerRoute";
 import { StringUtil } from "../utils/StringUtil";
 import { SwaggerSwaggerChecker } from "../utils/SwaggerTypeChecker";
 
 export namespace MigrateMethodAnalzyer {
   export const analyze =
-    (swagger: ISwagger) =>
-    (props: { path: string; method: string }) =>
+    (props: Omit<IMigrateProgram.IProps, "dictionary">) =>
+    (endpoint: { path: string; method: string }) =>
     (route: ISwaggerRoute): IMigrateRoute | null => {
       const body = emplaceBodySchema("request")(
-        emplaceReference(swagger)("body"),
+        emplaceReference(props.swagger)("body"),
       )(route.requestBody);
       const success = emplaceBodySchema("response")(
-        emplaceReference(swagger)("response"),
+        emplaceReference(props.swagger)("response"),
       )(route.responses?.["201"] ?? route.responses?.["200"]);
 
       const failures: string[] = [];
@@ -28,11 +28,13 @@ export namespace MigrateMethodAnalzyer {
         failures.push(
           `supports only "application/json", "application/x-www-form-urlencoded" and "text/plain" content type in the response body.`,
         );
-      if (SUPPORTED_METHODS.has(props.method.toUpperCase()) === false)
-        failures.push(`does not support ${props.method.toUpperCase()} method.`);
+      if (SUPPORTED_METHODS.has(endpoint.method.toUpperCase()) === false)
+        failures.push(
+          `does not support ${endpoint.method.toUpperCase()} method.`,
+        );
       if (failures.length) {
         console.log(
-          `Failed to migrate ${props.method.toUpperCase()} ${props.path}`,
+          `Failed to migrate ${endpoint.method.toUpperCase()} ${endpoint.path}`,
           ...failures.map((f) => `  - ${f}`),
         );
         return null;
@@ -50,7 +52,7 @@ export namespace MigrateMethodAnalzyer {
               ? p.schema
               : SwaggerSwaggerChecker.isReference(p.schema) &&
                   SwaggerSwaggerChecker.isObject(
-                    (swagger.components.schemas ?? {})[
+                    (props.swagger.components.schemas ?? {})[
                       p.schema.$ref.replace(`#/components/schemas/`, ``)
                     ] ?? {},
                   )
@@ -70,14 +72,14 @@ export namespace MigrateMethodAnalzyer {
         else if (objects.length > 1)
           throw new Error(
             `Error on nestia.migrate.RouteProgrammer.analze(): ${type} typed parameters must be only one object type - ${StringUtil.capitalize(
-              props.method,
-            )} "${props.path}".`,
+              endpoint.method,
+            )} "${endpoint.path}".`,
           );
 
         const dto: ISwaggerSchema.IObject | null = objects[0]
           ? SwaggerSwaggerChecker.isObject(objects[0])
             ? objects[0]
-            : ((swagger.components.schemas ?? {})[
+            : ((props.swagger.components.schemas ?? {})[
                 (objects[0] as ISwaggerSchema.IReference).$ref.replace(
                   `#/components/schemas/`,
                   ``,
@@ -88,7 +90,7 @@ export namespace MigrateMethodAnalzyer {
           ...objects.map((o) =>
             SwaggerSwaggerChecker.isObject(o)
               ? o
-              : (swagger.components.schemas?.[
+              : (props.swagger.components.schemas?.[
                   o.$ref.replace(`#/components/schemas/`, ``)
                 ]! as ISwaggerSchema.IObject),
           ),
@@ -112,10 +114,10 @@ export namespace MigrateMethodAnalzyer {
         ];
         return parameters.length === 0
           ? null
-          : emplaceReference(swagger)(
-              StringUtil.pascal(`I/Api/${props.path}`) +
+          : emplaceReference(props.swagger)(
+              StringUtil.pascal(`I/Api/${endpoint.path}`) +
                 "." +
-                StringUtil.pascal(`${props.method}/${type}`),
+                StringUtil.pascal(`${endpoint.method}/${type}`),
             )({
               type: "object",
               properties: Object.fromEntries([
@@ -144,7 +146,7 @@ export namespace MigrateMethodAnalzyer {
       });
 
       const parameterNames: string[] = StringUtil.splitWithNormalization(
-        props.path,
+        endpoint.path,
       )
         .filter((str) => str[0] === "{" || str[0] === ":")
         .map((str) =>
@@ -155,16 +157,16 @@ export namespace MigrateMethodAnalzyer {
         (route.parameters ?? []).filter((p) => p.in === "path").length
       ) {
         console.log(
-          `Failed to migrate ${props.method.toUpperCase()} ${
-            props.path
+          `Failed to migrate ${endpoint.method.toUpperCase()} ${
+            endpoint.path
           }: number of path parameters are not matched with its full path.`,
         );
         return null;
       }
       return {
         name: "@lazy",
-        path: props.path,
-        method: props.method,
+        path: endpoint.path,
+        method: endpoint.method,
         accessor: ["@lazy"],
         headers: headers
           ? {

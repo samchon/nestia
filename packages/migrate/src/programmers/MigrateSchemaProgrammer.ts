@@ -4,7 +4,7 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { FormatCheatSheet } from "typia/lib/tags/internal/FormatCheatSheet";
 import { Escaper } from "typia/lib/utils/Escaper";
 
-import { ISwaggerSchema } from "../structures/ISwaggeSchema";
+import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
 import { SwaggerSwaggerChecker } from "../utils/SwaggerTypeChecker";

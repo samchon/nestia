@@ -1,4 +1,4 @@
-import { ISwaggerSchema } from "./ISwaggeSchema";
+import { ISwaggerSchema } from "./ISwaggerSchema";
 
 export interface IMigrateRoute {
   name: string;
