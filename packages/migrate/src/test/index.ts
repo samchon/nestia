@@ -3,8 +3,7 @@ import fs from "fs";
 
 import { IMigrateConfig } from "../IMigrateConfig";
 import { MigrateApplication } from "../MigrateApplication";
-import { FileArchiver } from "../archivers/FileArchiver";
-import { IMigrateFile } from "../structures/IMigrateFile";
+import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
 import { ISwagger } from "../structures/ISwagger";
 
 const SAMPLE = __dirname + "/../../assets/input";
@@ -24,12 +23,12 @@ const execute =
     measure(`${project}-${config.mode}-${config.simulate}`)(async () => {
       const directory = `${OUTPUT}/${project}-${config.mode}-${config.simulate}`;
       const app: MigrateApplication = new MigrateApplication(swagger);
-      const files: IMigrateFile[] =
+      const { files } =
         config.mode === "nest"
           ? app.nest(config.simulate)
           : app.sdk(config.simulate);
 
-      await FileArchiver.archive({
+      await MigrateFileArchiver.archive({
         mkdir: fs.promises.mkdir,
         writeFile: (file, content) =>
           fs.promises.writeFile(file, content, "utf-8"),

@@ -4,11 +4,11 @@ import { IMigrateConfig } from "../IMigrateConfig";
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
-import { ApiFunctionProgrammer } from "./ApiFunctionProgrammer";
-import { ApiNamespaceProgrammer } from "./ApiNamespaceProgrammer";
-import { ImportProgrammer } from "./ImportProgrammer";
+import { MigrateApiFunctionProgrammer } from "./MigrateApiFunctionProgrammer";
+import { MigrateApiNamespaceProgrammer } from "./MigrateApiNamespaceProgrammer";
+import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
-export namespace ApiFileProgrammer {
+export namespace MigrateApiFileProgrammer {
   export interface IProps {
     namespace: string[];
     entries: IEntry[];
@@ -24,11 +24,11 @@ export namespace ApiFileProgrammer {
     (config: IMigrateConfig) =>
     (components: ISwaggerComponents) =>
     (props: IProps): ts.Statement[] => {
-      const importer: ImportProgrammer = new ImportProgrammer();
+      const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
       const statements: ts.Statement[] = props.entries
         .map((p) => [
-          ApiFunctionProgrammer.write(config)(components)(importer)(p),
-          ApiNamespaceProgrammer.write(config)(components)(importer)(p),
+          MigrateApiFunctionProgrammer.write(config)(components)(importer)(p),
+          MigrateApiNamespaceProgrammer.write(config)(components)(importer)(p),
         ])
         .flat();
       return [

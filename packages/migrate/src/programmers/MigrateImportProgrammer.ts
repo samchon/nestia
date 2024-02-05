@@ -4,7 +4,7 @@ import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 
-export class ImportProgrammer {
+export class MigrateImportProgrammer {
   private external_: Map<
     string,
     {
@@ -20,7 +20,7 @@ export class ImportProgrammer {
     return this.external_.size === 0 && this.dtos_.size === 0;
   }
 
-  public external(props: ImportProgrammer.IProps): string {
+  public external(props: MigrateImportProgrammer.IProps): string {
     const element = MapUtil.take(this.external_)(props.library)(() => ({
       default: null,
       instances: new Set(),
@@ -80,7 +80,9 @@ export class ImportProgrammer {
           ts.factory.createStringLiteral(library),
         );
       }),
-      ...(this.external_.size && this.dtos_.size ? [FilePrinter.enter()] : []),
+      ...(this.external_.size && this.dtos_.size
+        ? [FilePrinter.newLine()]
+        : []),
       ...[...this.dtos_]
         .filter(
           current ? (name) => name !== current!.split(".")[0] : () => true,
@@ -105,7 +107,7 @@ export class ImportProgrammer {
     ];
   }
 }
-export namespace ImportProgrammer {
+export namespace MigrateImportProgrammer {
   export interface IProps {
     type: "default" | "instance";
     library: string;

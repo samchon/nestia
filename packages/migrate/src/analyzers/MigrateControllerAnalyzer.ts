@@ -5,9 +5,9 @@ import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
-import { MethodAnalzyer } from "./MethodAnalyzer";
+import { MigrateMethodAnalzyer } from "./MigrateMethodAnalyzer";
 
-export namespace ControllerAnalyzer {
+export namespace MigrateControllerAnalyzer {
   export const analyze = (swagger: ISwagger): IMigrateController[] => {
     const dict: Map<string, IMigrateRoute[]> = new Map();
 
@@ -22,7 +22,7 @@ export namespace ControllerAnalyzer {
       // INSERT ROUTES TO THE LAST DIRECTORY
       const routes: IMigrateRoute[] = MapUtil.take(dict)(location)(() => []);
       for (const [method, value] of Object.entries(collection)) {
-        const r: IMigrateRoute | null = MethodAnalzyer.analyze(swagger)({
+        const r: IMigrateRoute | null = MigrateMethodAnalzyer.analyze(swagger)({
           path,
           method,
         })(value);
@@ -113,11 +113,10 @@ export namespace ControllerAnalyzer {
             method.parameters.map((p) => p.key),
           )(spec.key);
     }
-    controller.routes.forEach(
-      (r, i) =>
-        (r.name = StringUtil.escapeDuplicate(
-          controller.routes.filter((_r, j) => i !== j).map((x) => x.name),
-        )(r.name)),
-    );
+    controller.routes.forEach((r, i) => {
+      r.name = StringUtil.escapeDuplicate(
+        controller.routes.filter((_r, j) => i !== j).map((x) => x.name),
+      )(r.name);
+    });
   };
 }

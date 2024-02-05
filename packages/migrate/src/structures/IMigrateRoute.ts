@@ -4,6 +4,7 @@ export interface IMigrateRoute {
   name: string;
   path: string;
   method: string;
+  accessor: string[];
   parameters: IMigrateRoute.IParameter[];
   headers: IMigrateRoute.IHeaders | null;
   query: IMigrateRoute.IQuery | null;

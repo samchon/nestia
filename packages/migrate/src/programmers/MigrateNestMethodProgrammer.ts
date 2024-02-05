@@ -8,16 +8,18 @@ import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
-import { ImportProgrammer } from "./ImportProgrammer";
-import { SchemaProgrammer } from "./SchemaProgrammer";
+import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
+import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
-export namespace NestMethodProgrammer {
+export namespace MigrateNestMethodProgrammer {
   export const write =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.MethodDeclaration => {
       const output: ts.TypeNode = route.success
-        ? SchemaProgrammer.write(components)(importer)(route.success.schema)
+        ? MigrateSchemaProgrammer.write(components)(importer)(
+            route.success.schema,
+          )
         : TypeFactory.keyword("void");
 
       const method: ts.MethodDeclaration = ts.factory.createMethodDeclaration(
@@ -76,7 +78,7 @@ export namespace NestMethodProgrammer {
 
   const writeMethodDecorators =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.Decorator[] => {
       const external =
         (lib: string) =>
@@ -131,7 +133,11 @@ export namespace NestMethodProgrammer {
           ts.factory.createDecorator(
             ts.factory.createCallExpression(
               external("@nestia/core")("TypedException"),
-              [SchemaProgrammer.write(components)(importer)(value.schema)],
+              [
+                MigrateSchemaProgrammer.write(components)(importer)(
+                  value.schema,
+                ),
+              ],
               [
                 isNaN(Number(key))
                   ? ts.factory.createStringLiteral(key)
@@ -148,7 +154,7 @@ export namespace NestMethodProgrammer {
 
   const writeParameters =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.ParameterDeclaration[] => [
       ...route.parameters.map(({ key, schema: value }) =>
         ts.factory.createParameterDeclaration(
@@ -170,7 +176,7 @@ export namespace NestMethodProgrammer {
           undefined,
           StringUtil.normalize(key),
           undefined,
-          SchemaProgrammer.write(components)(importer)(value),
+          MigrateSchemaProgrammer.write(components)(importer)(value),
         ),
       ),
       ...(route.headers
@@ -210,7 +216,7 @@ export namespace NestMethodProgrammer {
   const writeDtoParameter =
     (accessor: { method: string | [string, string]; variable: string }) =>
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (schema: ISwaggerSchema): ts.ParameterDeclaration => {
       const instance = ts.factory.createIdentifier(
         importer.external({
@@ -237,7 +243,7 @@ export namespace NestMethodProgrammer {
         undefined,
         StringUtil.normalize(accessor.variable),
         undefined,
-        SchemaProgrammer.write(components)(importer)(schema),
+        MigrateSchemaProgrammer.write(components)(importer)(schema),
       );
     };
 }

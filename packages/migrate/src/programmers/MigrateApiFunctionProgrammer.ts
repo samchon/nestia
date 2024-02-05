@@ -6,10 +6,10 @@ import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
-import { ImportProgrammer } from "./ImportProgrammer";
-import { SchemaProgrammer } from "./SchemaProgrammer";
+import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
+import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
-export namespace ApiFunctionProgrammer {
+export namespace MigrateApiFunctionProgrammer {
   export interface IProps {
     controller: IMigrateController;
     route: IMigrateRoute;
@@ -19,7 +19,7 @@ export namespace ApiFunctionProgrammer {
   export const write =
     (config: IMigrateConfig) =>
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.FunctionDeclaration =>
       FilePrinter.description(
         ts.factory.createFunctionDeclaration(
@@ -43,7 +43,7 @@ export namespace ApiFunctionProgrammer {
 
   export const writeParameterDeclarations =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.ParameterDeclaration[] => [
       IdentifierFactory.parameter(
         "connection",
@@ -61,7 +61,7 @@ export namespace ApiFunctionProgrammer {
       ...props.route.parameters.map((p) =>
         IdentifierFactory.parameter(
           p.key,
-          SchemaProgrammer.write(components)(importer)(p.schema),
+          MigrateSchemaProgrammer.write(components)(importer)(p.schema),
         ),
       ),
       ...(props.route.query
@@ -96,7 +96,7 @@ export namespace ApiFunctionProgrammer {
 
   const writeBody =
     (config: IMigrateConfig) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.Statement[] => {
       const encrypted: boolean = !!props.route.success?.["x-nestia-encrypted"];
       const contentType: string = props.route.body?.type ?? "application/json";
