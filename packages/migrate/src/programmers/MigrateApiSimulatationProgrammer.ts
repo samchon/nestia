@@ -6,12 +6,12 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
-import { ApiFunctionProgrammer } from "./ApiFunctionProgrammer";
-import { ApiNamespaceProgrammer } from "./ApiNamespaceProgrammer";
-import { ImportProgrammer } from "./ImportProgrammer";
-import { SchemaProgrammer } from "./SchemaProgrammer";
+import { MigrateApiFunctionProgrammer } from "./MigrateApiFunctionProgrammer";
+import { MigrateApiNamespaceProgrammer } from "./MigrateApiNamespaceProgrammer";
+import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
+import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
-export namespace ApiSimulatationProgrammer {
+export namespace MigrateApiSimulatationProgrammer {
   export interface IProps {
     controller: IMigrateController;
     route: IMigrateRoute;
@@ -19,7 +19,7 @@ export namespace ApiSimulatationProgrammer {
   }
   export const random =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (props: IProps) =>
       constant("random")(
         ts.factory.createArrowFunction(
@@ -59,7 +59,7 @@ export namespace ApiSimulatationProgrammer {
             )("random"),
             [
               props.route.success
-                ? SchemaProgrammer.write(components)(importer)(
+                ? MigrateSchemaProgrammer.write(components)(importer)(
                     props.route.success.schema,
                   )
                 : TypeFactory.keyword("void"),
@@ -71,7 +71,7 @@ export namespace ApiSimulatationProgrammer {
 
   export const simulate =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.VariableStatement => {
       const caller = () =>
         ts.factory.createCallExpression(
@@ -103,7 +103,7 @@ export namespace ApiSimulatationProgrammer {
         ts.factory.createArrowFunction(
           undefined,
           undefined,
-          ApiFunctionProgrammer.writeParameterDeclarations(components)(
+          MigrateApiFunctionProgrammer.writeParameterDeclarations(components)(
             importer,
           )(props),
           ts.factory.createTypeReferenceNode(
@@ -123,20 +123,20 @@ export namespace ApiSimulatationProgrammer {
 
   const assert =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.Statement[] => {
       const parameters = [
         ...props.route.parameters.map((p) => ({
           category: "param",
           name: p.key,
-          schema: SchemaProgrammer.write(components)(importer)(p.schema),
+          schema: MigrateSchemaProgrammer.write(components)(importer)(p.schema),
         })),
         ...(props.route.query
           ? [
               {
                 category: "query",
                 name: props.route.query.key,
-                schema: SchemaProgrammer.write(components)(importer)(
+                schema: MigrateSchemaProgrammer.write(components)(importer)(
                   props.route.query.schema,
                 ),
               },
@@ -147,7 +147,7 @@ export namespace ApiSimulatationProgrammer {
               {
                 category: "body",
                 name: props.route.body.key,
-                schema: SchemaProgrammer.write(components)(importer)(
+                schema: MigrateSchemaProgrammer.write(components)(importer)(
                   props.route.body.schema,
                 ),
               },
@@ -182,7 +182,7 @@ export namespace ApiSimulatationProgrammer {
                 ),
                 ts.factory.createPropertyAssignment(
                   "path",
-                  ApiNamespaceProgrammer.writePathCallExpression(props),
+                  MigrateApiNamespaceProgrammer.writePathCallExpression(props),
                 ),
                 ts.factory.createPropertyAssignment(
                   "contentType",
@@ -242,7 +242,7 @@ export namespace ApiSimulatationProgrammer {
     };
 
   const tryAndCatch =
-    (importer: ImportProgrammer) => (individual: ts.Statement[]) =>
+    (importer: MigrateImportProgrammer) => (individual: ts.Statement[]) =>
       ts.factory.createTryStatement(
         ts.factory.createBlock(individual, true),
         ts.factory.createCatchClause(

@@ -9,11 +9,11 @@ import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
-import { ApiSimulatationProgrammer } from "./ApiSimulatationProgrammer";
-import { ImportProgrammer } from "./ImportProgrammer";
-import { SchemaProgrammer } from "./SchemaProgrammer";
+import { MigrateApiSimulatationProgrammer } from "./MigrateApiSimulatationProgrammer";
+import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
+import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
-export namespace ApiNamespaceProgrammer {
+export namespace MigrateApiNamespaceProgrammer {
   export interface IProps {
     controller: IMigrateController;
     route: IMigrateRoute;
@@ -23,7 +23,7 @@ export namespace ApiNamespaceProgrammer {
   export const write =
     (config: IMigrateConfig) =>
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.ModuleDeclaration => {
       const types = writeTypes(components)(importer)(props.route);
       return ts.factory.createModuleDeclaration(
@@ -31,14 +31,18 @@ export namespace ApiNamespaceProgrammer {
         ts.factory.createIdentifier(props.alias),
         ts.factory.createModuleBlock([
           ...types,
-          ...(types.length ? [FilePrinter.enter()] : []),
+          ...(types.length ? [FilePrinter.newLine()] : []),
           writeMetadata(components)(importer)(props),
-          FilePrinter.enter(),
+          FilePrinter.newLine(),
           writePath(components)(importer)(props),
           ...(config.simulate
             ? [
-                ApiSimulatationProgrammer.random(components)(importer)(props),
-                ApiSimulatationProgrammer.simulate(components)(importer)(props),
+                MigrateApiSimulatationProgrammer.random(components)(importer)(
+                  props,
+                ),
+                MigrateApiSimulatationProgrammer.simulate(components)(importer)(
+                  props,
+                ),
               ]
             : []),
         ]),
@@ -62,7 +66,7 @@ export namespace ApiNamespaceProgrammer {
 
   const writeTypes =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.TypeAliasDeclaration[] => {
       const array: ts.TypeAliasDeclaration[] = [];
       const declare = (name: string, type: ts.TypeNode) =>
@@ -77,29 +81,37 @@ export namespace ApiNamespaceProgrammer {
       if (route.headers)
         declare(
           "Headers",
-          SchemaProgrammer.write(components)(importer)(route.headers.schema),
+          MigrateSchemaProgrammer.write(components)(importer)(
+            route.headers.schema,
+          ),
         );
       if (route.query)
         declare(
           "Query",
-          SchemaProgrammer.write(components)(importer)(route.query.schema),
+          MigrateSchemaProgrammer.write(components)(importer)(
+            route.query.schema,
+          ),
         );
       if (route.body)
         declare(
           "Input",
-          SchemaProgrammer.write(components)(importer)(route.body.schema),
+          MigrateSchemaProgrammer.write(components)(importer)(
+            route.body.schema,
+          ),
         );
       if (route.success)
         declare(
           "Output",
-          SchemaProgrammer.write(components)(importer)(route.success.schema),
+          MigrateSchemaProgrammer.write(components)(importer)(
+            route.success.schema,
+          ),
         );
       return array;
     };
 
   const writeMetadata =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.VariableStatement =>
       constant("METADATA")(
         ts.factory.createAsExpression(
@@ -147,7 +159,7 @@ export namespace ApiNamespaceProgrammer {
                           })}.http.createAssertQuery`,
                         ),
                         [
-                          SchemaProgrammer.write(components)(importer)(
+                          MigrateSchemaProgrammer.write(components)(importer)(
                             props.route.success.schema,
                           ),
                         ],
@@ -167,7 +179,7 @@ export namespace ApiNamespaceProgrammer {
 
   const writePath =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.VariableStatement => {
       const out = (body: ts.ConciseBody) =>
         constant("path")(
@@ -178,7 +190,7 @@ export namespace ApiNamespaceProgrammer {
               ...props.route.parameters.map((p) =>
                 IdentifierFactory.parameter(
                   p.key,
-                  SchemaProgrammer.write(components)(importer)(p.schema),
+                  MigrateSchemaProgrammer.write(components)(importer)(p.schema),
                 ),
               ),
               ...(props.route.query
@@ -397,7 +409,7 @@ const constant = (name: string) => (expression: ts.Expression) =>
       ts.NodeFlags.Const,
     ),
   );
-const getPath = (props: ApiNamespaceProgrammer.IProps) =>
+const getPath = (props: MigrateApiNamespaceProgrammer.IProps) =>
   [...props.controller.path.split("/"), ...props.route.path.split("/")]
     .filter((str) => !!str.length)
     .join("/");

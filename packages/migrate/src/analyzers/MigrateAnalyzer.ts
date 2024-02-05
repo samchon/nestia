@@ -1,6 +1,6 @@
 import { IMigrateConfig } from "../IMigrateConfig";
 import { IMigrateProgram, ISwagger } from "../module";
-import { ControllerAnalyzer } from "./ControllerAnalyzer";
+import { MigrateControllerAnalyzer } from "./MigrateControllerAnalyzer";
 
 export namespace MigrateAnalyzer {
   export const analyze =
@@ -8,6 +8,6 @@ export namespace MigrateAnalyzer {
     (swagger: ISwagger): IMigrateProgram => ({
       config,
       swagger,
-      controllers: ControllerAnalyzer.analyze(swagger),
+      controllers: MigrateControllerAnalyzer.analyze(swagger),
     });
 }

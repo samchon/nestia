@@ -4,14 +4,14 @@ import { IMigrateController } from "../structures/IMigrateController";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
-import { ImportProgrammer } from "./ImportProgrammer";
-import { NestMethodProgrammer } from "./NestMethodProgrammer";
+import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
+import { MigrateNestMethodProgrammer } from "./MigrateNestMethodProgrammer";
 
-export namespace NestControllerProgrammer {
+export namespace MigrateNestControllerProgrammer {
   export const write =
     (components: ISwaggerComponents) =>
     (controller: IMigrateController): ts.Statement[] => {
-      const importer: ImportProgrammer = new ImportProgrammer();
+      const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
       const $class = ts.factory.createClassDeclaration(
         [
           ts.factory.createDecorator(
@@ -32,7 +32,9 @@ export namespace NestControllerProgrammer {
         controller.name,
         [],
         [],
-        controller.routes.map(NestMethodProgrammer.write(components)(importer)),
+        controller.routes.map(
+          MigrateNestMethodProgrammer.write(components)(importer),
+        ),
       );
       return [
         ...importer.toStatements(
@@ -41,7 +43,7 @@ export namespace NestControllerProgrammer {
               StringUtil.splitWithNormalization(controller.location).length - 1,
             )}api/structures/${ref}`,
         ),
-        ...(importer.empty() ? [] : [FilePrinter.enter()]),
+        ...(importer.empty() ? [] : [FilePrinter.newLine()]),
         $class,
       ];
     };

@@ -7,44 +7,46 @@ import { Escaper } from "typia/lib/utils/Escaper";
 import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
-import { SwaggerTypeChecker } from "../utils/JsonTypeChecker";
-import { ImportProgrammer } from "./ImportProgrammer";
+import { SwaggerSwaggerChecker } from "../utils/SwaggerTypeChecker";
+import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
-export namespace SchemaProgrammer {
+export namespace MigrateSchemaProgrammer {
   /* -----------------------------------------------------------
     FACADE
   ----------------------------------------------------------- */
   export const write =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (schema: ISwaggerSchema): ts.TypeNode => {
       const union: ts.TypeNode[] = [];
-      if (SwaggerTypeChecker.isUnknown(schema))
+      if (SwaggerSwaggerChecker.isUnknown(schema))
         return TypeFactory.keyword("any");
-      else if (SwaggerTypeChecker.isNullOnly(schema)) return createNode("null");
-      else if (SwaggerTypeChecker.isNullable(components)(schema))
+      else if (SwaggerSwaggerChecker.isNullOnly(schema))
+        return createNode("null");
+      else if (SwaggerSwaggerChecker.isNullable(components)(schema))
         union.push(createNode("null"));
 
       const type: ts.TypeNode = (() => {
         // ATOMIC
-        if (SwaggerTypeChecker.isBoolean(schema)) return writeBoolean(schema);
-        else if (SwaggerTypeChecker.isInteger(schema))
+        if (SwaggerSwaggerChecker.isBoolean(schema))
+          return writeBoolean(schema);
+        else if (SwaggerSwaggerChecker.isInteger(schema))
           return writeInteger(importer)(schema);
-        else if (SwaggerTypeChecker.isNumber(schema))
+        else if (SwaggerSwaggerChecker.isNumber(schema))
           return writeNumber(importer)(schema);
         // INSTANCES
-        else if (SwaggerTypeChecker.isString(schema))
+        else if (SwaggerSwaggerChecker.isString(schema))
           return writeString(importer)(schema);
-        else if (SwaggerTypeChecker.isArray(schema))
+        else if (SwaggerSwaggerChecker.isArray(schema))
           return writeArray(components)(importer)(schema);
-        else if (SwaggerTypeChecker.isObject(schema))
+        else if (SwaggerSwaggerChecker.isObject(schema))
           return writeObject(components)(importer)(schema);
-        else if (SwaggerTypeChecker.isReference(schema))
+        else if (SwaggerSwaggerChecker.isReference(schema))
           return writeReference(importer)(schema);
         // NESTED UNION
-        else if (SwaggerTypeChecker.isAnyOf(schema))
+        else if (SwaggerSwaggerChecker.isAnyOf(schema))
           return writeUnion(components)(importer)(schema.anyOf);
-        else if (SwaggerTypeChecker.isOneOf(schema))
+        else if (SwaggerSwaggerChecker.isOneOf(schema))
           return writeUnion(components)(importer)(schema.oneOf);
         else return TypeFactory.keyword("any");
       })();
@@ -67,7 +69,7 @@ export namespace SchemaProgrammer {
   };
 
   const writeInteger =
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (schema: ISwaggerSchema.IInteger): ts.TypeNode =>
       writeNumeric(() => [
         TypeFactory.keyword("number"),
@@ -75,13 +77,13 @@ export namespace SchemaProgrammer {
       ])(importer)(schema);
 
   const writeNumber =
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (schema: ISwaggerSchema.INumber): ts.TypeNode =>
       writeNumeric(() => [TypeFactory.keyword("number")])(importer)(schema);
 
   const writeNumeric =
     (factory: () => ts.TypeNode[]) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (schema: ISwaggerSchema.IInteger | ISwaggerSchema.INumber): ts.TypeNode => {
       if (schema.enum?.length)
         return ts.factory.createUnionTypeNode(
@@ -115,7 +117,7 @@ export namespace SchemaProgrammer {
     };
 
   const writeString =
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (schema: ISwaggerSchema.IString): ts.TypeNode => {
       if (schema.format === "binary")
         return ts.factory.createTypeReferenceNode("File");
@@ -145,7 +147,7 @@ export namespace SchemaProgrammer {
   ----------------------------------------------------------- */
   const writeArray =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (schema: ISwaggerSchema.IArray): ts.TypeNode => {
       const intersection: ts.TypeNode[] = [
         ts.factory.createArrayTypeNode(
@@ -163,7 +165,7 @@ export namespace SchemaProgrammer {
 
   const writeObject =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (schema: ISwaggerSchema.IObject): ts.TypeNode => {
       const regular = () =>
         ts.factory.createTypeLiteralNode(
@@ -190,7 +192,7 @@ export namespace SchemaProgrammer {
 
   const writeRegularProperty =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (required: string[]) =>
     (key: string, value: ISwaggerSchema) =>
       FilePrinter.description(
@@ -209,7 +211,7 @@ export namespace SchemaProgrammer {
 
   const writeDynamicProperty =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (value: ISwaggerSchema) =>
       FilePrinter.description(
         ts.factory.createIndexSignature(
@@ -229,7 +231,7 @@ export namespace SchemaProgrammer {
       );
 
   const writeReference =
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (schema: ISwaggerSchema.IReference): ts.TypeReferenceNode =>
       importer.dto(schema.$ref.split("/").at(-1)!);
 
@@ -238,7 +240,7 @@ export namespace SchemaProgrammer {
   ----------------------------------------------------------- */
   const writeUnion =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (elements: ISwaggerSchema[]): ts.UnionTypeNode =>
       ts.factory.createUnionTypeNode(elements.map(write(components)(importer)));
 }

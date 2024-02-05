@@ -1,7 +1,7 @@
 import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 
-export namespace SwaggerTypeChecker {
+export namespace SwaggerSwaggerChecker {
   export const isAnyOf = (
     schema: ISwaggerSchema,
   ): schema is ISwaggerSchema.IAnyOf => (schema as any).anyOf !== undefined;
@@ -53,11 +53,11 @@ export namespace SwaggerTypeChecker {
   export const isNullable =
     (components: ISwaggerComponents) =>
     (schema: ISwaggerSchema): boolean => {
-      if (SwaggerTypeChecker.isAnyOf(schema))
+      if (SwaggerSwaggerChecker.isAnyOf(schema))
         return schema.anyOf.some(isNullable(components));
-      else if (SwaggerTypeChecker.isOneOf(schema))
+      else if (SwaggerSwaggerChecker.isOneOf(schema))
         return schema.oneOf.some(isNullable(components));
-      else if (SwaggerTypeChecker.isReference(schema)) {
+      else if (SwaggerSwaggerChecker.isReference(schema)) {
         const $id = schema.$ref.replace("#/components/schemas/", "");
         const target = (components.schemas ?? {})[$id];
         return target === undefined ? false : isNullable(components)(target);

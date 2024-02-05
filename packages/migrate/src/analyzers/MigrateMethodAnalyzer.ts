@@ -4,10 +4,10 @@ import { ISwagger } from "../module";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { ISwaggerRoute } from "../structures/ISwaggerRoute";
-import { SwaggerTypeChecker } from "../utils/JsonTypeChecker";
 import { StringUtil } from "../utils/StringUtil";
+import { SwaggerSwaggerChecker } from "../utils/SwaggerTypeChecker";
 
-export namespace MethodAnalzyer {
+export namespace MigrateMethodAnalzyer {
   export const analyze =
     (swagger: ISwagger) =>
     (props: { path: string; method: string }) =>
@@ -46,10 +46,10 @@ export namespace MethodAnalzyer {
 
         const objects = parameters
           .map((p) =>
-            SwaggerTypeChecker.isObject(p.schema)
+            SwaggerSwaggerChecker.isObject(p.schema)
               ? p.schema
-              : SwaggerTypeChecker.isReference(p.schema) &&
-                  SwaggerTypeChecker.isObject(
+              : SwaggerSwaggerChecker.isReference(p.schema) &&
+                  SwaggerSwaggerChecker.isObject(
                     (swagger.components.schemas ?? {})[
                       p.schema.$ref.replace(`#/components/schemas/`, ``)
                     ] ?? {},
@@ -60,11 +60,11 @@ export namespace MethodAnalzyer {
           .filter((s) => !!s);
         const primitives = parameters.filter(
           (p) =>
-            SwaggerTypeChecker.isBoolean(p.schema) ||
-            SwaggerTypeChecker.isNumber(p.schema) ||
-            SwaggerTypeChecker.isInteger(p.schema) ||
-            SwaggerTypeChecker.isString(p.schema) ||
-            SwaggerTypeChecker.isArray(p.schema),
+            SwaggerSwaggerChecker.isBoolean(p.schema) ||
+            SwaggerSwaggerChecker.isNumber(p.schema) ||
+            SwaggerSwaggerChecker.isInteger(p.schema) ||
+            SwaggerSwaggerChecker.isString(p.schema) ||
+            SwaggerSwaggerChecker.isArray(p.schema),
         );
         if (objects.length === 1 && primitives.length === 0) return objects[0];
         else if (objects.length > 1)
@@ -75,7 +75,7 @@ export namespace MethodAnalzyer {
           );
 
         const dto: ISwaggerSchema.IObject | null = objects[0]
-          ? SwaggerTypeChecker.isObject(objects[0])
+          ? SwaggerSwaggerChecker.isObject(objects[0])
             ? objects[0]
             : ((swagger.components.schemas ?? {})[
                 (objects[0] as ISwaggerSchema.IReference).$ref.replace(
@@ -86,7 +86,7 @@ export namespace MethodAnalzyer {
           : null;
         const entire: ISwaggerSchema.IObject[] = [
           ...objects.map((o) =>
-            SwaggerTypeChecker.isObject(o)
+            SwaggerSwaggerChecker.isObject(o)
               ? o
               : (swagger.components.schemas?.[
                   o.$ref.replace(`#/components/schemas/`, ``)
@@ -165,6 +165,7 @@ export namespace MethodAnalzyer {
         name: "@lazy",
         path: props.path,
         method: props.method,
+        accessor: ["@lazy"],
         headers: headers
           ? {
               key: "headers",
@@ -256,16 +257,16 @@ export namespace MethodAnalzyer {
   };
 
   const isNotObjectLiteral = (schema: ISwaggerSchema): boolean =>
-    SwaggerTypeChecker.isReference(schema) ||
-    SwaggerTypeChecker.isBoolean(schema) ||
-    SwaggerTypeChecker.isNumber(schema) ||
-    SwaggerTypeChecker.isString(schema) ||
-    SwaggerTypeChecker.isUnknown(schema) ||
-    (SwaggerTypeChecker.isAnyOf(schema) &&
+    SwaggerSwaggerChecker.isReference(schema) ||
+    SwaggerSwaggerChecker.isBoolean(schema) ||
+    SwaggerSwaggerChecker.isNumber(schema) ||
+    SwaggerSwaggerChecker.isString(schema) ||
+    SwaggerSwaggerChecker.isUnknown(schema) ||
+    (SwaggerSwaggerChecker.isAnyOf(schema) &&
       schema.anyOf.every(isNotObjectLiteral)) ||
-    (SwaggerTypeChecker.isOneOf(schema) &&
+    (SwaggerSwaggerChecker.isOneOf(schema) &&
       schema.oneOf.every(isNotObjectLiteral)) ||
-    (SwaggerTypeChecker.isArray(schema) && isNotObjectLiteral(schema.items));
+    (SwaggerSwaggerChecker.isArray(schema) && isNotObjectLiteral(schema.items));
 
   const emplaceBodySchema =
     (from: "request" | "response") =>

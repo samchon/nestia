@@ -3,33 +3,33 @@ import ts from "typescript";
 import { IMigrateFile } from "../structures/IMigrateFile";
 import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { FilePrinter } from "../utils/FilePrinter";
-import { DtoProgrammer } from "./DtoProgrammer";
-import { ImportProgrammer } from "./ImportProgrammer";
-import { NestControllerProgrammer } from "./NestControllerProgrammer";
-import { NestModuleProgrammer } from "./NestModuleProgrammer";
+import { MigrateDtoProgrammer } from "./MigrateDtoProgrammer";
+import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
+import { MigrateNestControllerProgrammer } from "./MigrateNestControllerProgrammer";
+import { MigrateNestModuleProgrammer } from "./MigrateNestModuleProgrammer";
 
-export namespace NestProgrammer {
+export namespace MigrateNestProgrammer {
   export const write = (program: IMigrateProgram): IMigrateFile[] =>
     [
       {
         location: "src",
         file: "MyModule.ts",
-        statements: NestModuleProgrammer.write(program.controllers),
+        statements: MigrateNestModuleProgrammer.write(program.controllers),
       },
       ...program.controllers.map((c) => ({
         location: c.location,
         file: `${c.name}.ts`,
-        statements: NestControllerProgrammer.write(program.swagger.components)(
-          c,
-        ),
+        statements: MigrateNestControllerProgrammer.write(
+          program.swagger.components,
+        )(c),
       })),
-      ...[...DtoProgrammer.write(program.swagger.components).entries()].map(
-        ([key, value]) => ({
-          location: "src/api/structures",
-          file: `${key}.ts`,
-          statements: writeDtoFile(key, value),
-        }),
-      ),
+      ...[
+        ...MigrateDtoProgrammer.write(program.swagger.components).entries(),
+      ].map(([key, value]) => ({
+        location: "src/api/structures",
+        file: `${key}.ts`,
+        statements: writeDtoFile(key, value),
+      })),
     ].map((o) => ({
       location: o.location,
       file: o.file,
@@ -38,22 +38,22 @@ export namespace NestProgrammer {
 
   const writeDtoFile = (
     key: string,
-    modulo: DtoProgrammer.IModule,
+    modulo: MigrateDtoProgrammer.IModule,
   ): ts.Statement[] => {
-    const importer = new ImportProgrammer();
+    const importer = new MigrateImportProgrammer();
     const statements: ts.Statement[] = iterate(importer)(modulo);
     if (statements.length === 0) return [];
 
     return [
       ...importer.toStatements((name) => `./${name}`, key),
-      ...(importer.empty() ? [] : [FilePrinter.enter()]),
+      ...(importer.empty() ? [] : [FilePrinter.newLine()]),
       ...statements,
     ];
   };
 
   const iterate =
-    (importer: ImportProgrammer) =>
-    (modulo: DtoProgrammer.IModule): ts.Statement[] => {
+    (importer: MigrateImportProgrammer) =>
+    (modulo: MigrateDtoProgrammer.IModule): ts.Statement[] => {
       const output: ts.Statement[] = [];
       if (modulo.programmer !== null) output.push(modulo.programmer(importer));
       if (modulo.children.size) {

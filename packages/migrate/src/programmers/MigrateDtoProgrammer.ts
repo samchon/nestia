@@ -5,16 +5,16 @@ import { ISwaggerSchema } from "../structures/ISwaggeSchema";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
-import { ImportProgrammer } from "./ImportProgrammer";
-import { SchemaProgrammer } from "./SchemaProgrammer";
+import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
+import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
-export namespace DtoProgrammer {
+export namespace MigrateDtoProgrammer {
   export interface IModule {
     name: string;
     children: Map<string, IModule>;
     programmer:
       | null
-      | ((importer: ImportProgrammer) => ts.TypeAliasDeclaration);
+      | ((importer: MigrateImportProgrammer) => ts.TypeAliasDeclaration);
   }
 
   export const write = (
@@ -31,7 +31,11 @@ export namespace DtoProgrammer {
   const prepare =
     (dict: Map<string, IModule>) =>
     (name: string) =>
-    (programmer: (importer: ImportProgrammer) => ts.TypeAliasDeclaration) => {
+    (
+      programmer: (
+        importer: MigrateImportProgrammer,
+      ) => ts.TypeAliasDeclaration,
+    ) => {
       const accessors: string[] = name.split(".");
       const modulo: IPointer<IModule> = { value: null! };
 
@@ -49,14 +53,14 @@ export namespace DtoProgrammer {
 
   const writeAlias =
     (components: ISwaggerComponents) =>
-    (importer: ImportProgrammer) =>
+    (importer: MigrateImportProgrammer) =>
     (key: string, value: ISwaggerSchema) =>
       FilePrinter.description(
         ts.factory.createTypeAliasDeclaration(
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
           key.split(".").at(-1)!,
           [],
-          SchemaProgrammer.write(components)(importer)(value),
+          MigrateSchemaProgrammer.write(components)(importer)(value),
         ),
         writeComment(value),
       );

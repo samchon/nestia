@@ -15,7 +15,7 @@ export namespace FilePrinter {
     return node;
   };
 
-  export const enter = () =>
+  export const newLine = () =>
     ts.factory.createExpressionStatement(ts.factory.createIdentifier("\n"));
 
   export const write = (props: {

@@ -1,6 +1,6 @@
 import { IMigrateFile } from "../structures/IMigrateFile";
 
-export namespace FileArchiver {
+export namespace MigrateFileArchiver {
   export interface IOperator {
     mkdir(path: string): Promise<void>;
     writeFile(path: string, content: string): Promise<void>;

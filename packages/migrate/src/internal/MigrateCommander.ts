@@ -1,9 +1,8 @@
 import fs from "fs";
 import path from "path";
 
-import { FileArchiver } from "../archivers/FileArchiver";
+import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
 import { MigrateApplication } from "../module";
-import { IMigrateFile } from "../structures/IMigrateFile";
 import { ISwagger } from "../structures/ISwagger";
 import { MigrateInquirer } from "./MigrateInquirer";
 
@@ -34,11 +33,11 @@ export namespace MigrateCommander {
     })();
 
     const app: MigrateApplication = new MigrateApplication(swagger);
-    const files: IMigrateFile[] =
+    const { files } =
       options.mode === "nest"
         ? app.nest(options.simulate)
         : app.sdk(options.simulate);
-    await FileArchiver.archive({
+    await MigrateFileArchiver.archive({
       mkdir: fs.promises.mkdir,
       writeFile: (file, content) =>
         fs.promises.writeFile(file, content, "utf-8"),

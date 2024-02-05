@@ -3,14 +3,14 @@ import ts from "typescript";
 import { IMigrateController } from "../structures/IMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
 
-export namespace NestModuleProgrammer {
+export namespace MigrateNestModuleProgrammer {
   export const write = (controllers: IMigrateController[]): ts.Statement[] => [
     $import("@nestjs/common")("Module"),
-    ...(controllers.length ? [FilePrinter.enter()] : []),
+    ...(controllers.length ? [FilePrinter.newLine()] : []),
     ...controllers.map((c) =>
       $import(`${c.location.replace("src/", "./")}/${c.name}`)(c.name),
     ),
-    ...(controllers.length ? [FilePrinter.enter()] : []),
+    ...(controllers.length ? [FilePrinter.newLine()] : []),
     ts.factory.createClassDeclaration(
       [
         ts.factory.createDecorator(

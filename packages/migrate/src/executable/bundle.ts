@@ -97,6 +97,7 @@ const main = async (): Promise<void> => {
     exceptions: [
       ".git",
       ".github/dependabot.yml",
+      ".github/workflows/build.yml",
       "src/functional",
       "src/structures",
     ],

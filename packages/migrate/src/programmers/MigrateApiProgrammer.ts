@@ -6,16 +6,17 @@ import { IMigrateProgram } from "../module";
 import { IMigrateFile } from "../structures/IMigrateFile";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
-import { ApiFileProgrammer } from "./ApiFileProgrammer";
-import { DtoProgrammer } from "./DtoProgrammer";
-import { ImportProgrammer } from "./ImportProgrammer";
+import { MigrateApiFileProgrammer } from "./MigrateApiFileProgrammer";
+import { MigrateDtoProgrammer } from "./MigrateDtoProgrammer";
+import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
-export namespace ApiProgrammer {
+export namespace MigrateApiProgrammer {
   export const write = (program: IMigrateProgram): IMigrateFile[] => {
-    const dict: HashMap<string[], ApiFileProgrammer.IProps> = new HashMap(
-      (x) => hash(x.join(".")),
-      (a, b) => a.join(".") === b.join("."),
-    );
+    const dict: HashMap<string[], MigrateApiFileProgrammer.IProps> =
+      new HashMap(
+        (x) => hash(x.join(".")),
+        (a, b) => a.join(".") === b.join("."),
+      );
     for (const controller of program.controllers)
       for (const route of controller.routes) {
         const namespace: string[] = [
@@ -25,7 +26,7 @@ export namespace ApiProgrammer {
           .filter((str) => !!str.length && str[0] !== ":")
           .map(StringUtil.normalize)
           .map((str) => (Escaper.variable(str) ? str : `_${str}`));
-        const last: IPointer<ApiFileProgrammer.IProps> = {
+        const last: IPointer<MigrateApiFileProgrammer.IProps> = {
           value: dict.take(namespace, () => ({
             namespace,
             children: new Set(),
@@ -39,11 +40,14 @@ export namespace ApiProgrammer {
         });
         namespace.slice(0, -1).forEach((_i, i, array) => {
           const partial: string[] = namespace.slice(0, array.length - i);
-          const props: ApiFileProgrammer.IProps = dict.take(partial, () => ({
-            namespace: partial,
-            children: new Set(),
-            entries: [],
-          }));
+          const props: MigrateApiFileProgrammer.IProps = dict.take(
+            partial,
+            () => ({
+              namespace: partial,
+              children: new Set(),
+              entries: [],
+            }),
+          );
           props.children.add(last.value.namespace.at(-1)!);
           last.value = props;
         });
@@ -55,59 +59,59 @@ export namespace ApiProgrammer {
         if (namespace.length) top.children.add(namespace[0]);
       }
     for (const { second: props } of dict)
-      props.entries.forEach(
-        (entry, i) =>
-          (entry.alias = StringUtil.escapeDuplicate([
-            ...props.children,
-            ...entry.route.parameters.map((p) => p.key),
-            ...(entry.route.body ? [entry.route.body.key] : []),
-            ...(entry.route.query ? [entry.route.query.key] : []),
-            ...props.entries.filter((_, j) => i !== j).map((e) => e.alias),
-          ])(entry.alias)),
-      );
+      props.entries.forEach((entry, i) => {
+        entry.alias = StringUtil.escapeDuplicate([
+          ...props.children,
+          ...entry.route.parameters.map((p) => p.key),
+          ...(entry.route.body ? [entry.route.body.key] : []),
+          ...(entry.route.query ? [entry.route.query.key] : []),
+          ...props.entries.filter((_, j) => i !== j).map((e) => e.alias),
+        ])(entry.alias);
+        entry.route.accessor = [...props.namespace, entry.alias];
+      });
 
     const output: IMigrateFile[] = [...dict].map(({ second: props }) => ({
       location: `src/${program.config.mode === "nest" ? "api/" : ""}functional/${props.namespace.join("/")}`,
       file: "index.ts",
       content: FilePrinter.write({
-        statements: ApiFileProgrammer.write(program.config)(
+        statements: MigrateApiFileProgrammer.write(program.config)(
           program.swagger.components,
         )(props),
       }),
     }));
     if (program.config.mode === "sdk")
       output.push(
-        ...[...DtoProgrammer.write(program.swagger.components).entries()].map(
-          ([key, value]) => ({
-            location: "src/structures",
-            file: `${key}.ts`,
-            content: FilePrinter.write({
-              statements: writeDtoFile(key, value),
-            }),
+        ...[
+          ...MigrateDtoProgrammer.write(program.swagger.components).entries(),
+        ].map(([key, value]) => ({
+          location: "src/structures",
+          file: `${key}.ts`,
+          content: FilePrinter.write({
+            statements: writeDtoFile(key, value),
           }),
-        ),
+        })),
       );
     return output;
   };
 
   const writeDtoFile = (
     key: string,
-    modulo: DtoProgrammer.IModule,
+    modulo: MigrateDtoProgrammer.IModule,
   ): ts.Statement[] => {
-    const importer = new ImportProgrammer();
+    const importer = new MigrateImportProgrammer();
     const statements: ts.Statement[] = iterate(importer)(modulo);
     if (statements.length === 0) return [];
 
     return [
       ...importer.toStatements((name) => `./${name}`, key),
-      ...(importer.empty() ? [] : [FilePrinter.enter()]),
+      ...(importer.empty() ? [] : [FilePrinter.newLine()]),
       ...statements,
     ];
   };
 
   const iterate =
-    (importer: ImportProgrammer) =>
-    (modulo: DtoProgrammer.IModule): ts.Statement[] => {
+    (importer: MigrateImportProgrammer) =>
+    (modulo: MigrateDtoProgrammer.IModule): ts.Statement[] => {
       const output: ts.Statement[] = [];
       if (modulo.programmer !== null) output.push(modulo.programmer(importer));
       if (modulo.children.size) {
