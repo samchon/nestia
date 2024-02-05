@@ -1,6 +1,6 @@
 import { IJsDocTagInfo } from "typia/lib/schemas/metadata/IJsDocTagInfo";
 
-import { ISwaggerSchema } from "./ISwaggeSchema";
+import { ISwaggerSchema } from "./ISwaggerSchema";
 
 export interface ISwaggerRoute {
   parameters?: ISwaggerRoute.IParameter[];

@@ -1,4 +1,4 @@
-import { ISwaggerSchema } from "./ISwaggeSchema";
+import { ISwaggerSchema } from "./ISwaggerSchema";
 
 export interface IMigrateDto {
   name: string;

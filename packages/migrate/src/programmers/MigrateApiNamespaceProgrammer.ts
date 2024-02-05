@@ -4,8 +4,8 @@ import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
-import { IMigrateConfig } from "../IMigrateConfig";
 import { IMigrateController } from "../structures/IMigrateController";
+import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
@@ -21,7 +21,7 @@ export namespace MigrateApiNamespaceProgrammer {
   }
 
   export const write =
-    (config: IMigrateConfig) =>
+    (config: IMigrateProgram.IConfig) =>
     (components: ISwaggerComponents) =>
     (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.ModuleDeclaration => {

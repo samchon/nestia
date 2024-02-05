@@ -5,13 +5,7 @@ import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 
 export class MigrateImportProgrammer {
-  private external_: Map<
-    string,
-    {
-      default: string | null;
-      instances: Set<string>;
-    }
-  > = new Map();
+  private external_: Map<string, IClause> = new Map();
   private dtos_: Set<string> = new Set();
 
   public constructor() {}
@@ -21,13 +15,13 @@ export class MigrateImportProgrammer {
   }
 
   public external(props: MigrateImportProgrammer.IProps): string {
-    const element = MapUtil.take(this.external_)(props.library)(() => ({
+    const clause: IClause = MapUtil.take(this.external_)(props.library)(() => ({
       default: null,
       instances: new Set(),
     }));
     const name: string = props.name.split(".")[0];
-    if (props.type === "default") element.default = props.name;
-    else element.instances.add(name);
+    if (props.type === "default") clause.default = props.name;
+    else clause.instances.add(name);
     return name;
   }
 
@@ -38,12 +32,12 @@ export class MigrateImportProgrammer {
   }
 
   public tag(type: string, arg: number | string): ts.TypeReferenceNode {
-    this.external({
+    const instance: string = this.external({
       type: "instance",
       library: "typia",
       name: "tags",
     });
-    return ts.factory.createTypeReferenceNode(`tags.${type}`, [
+    return ts.factory.createTypeReferenceNode(`${instance}.${type}`, [
       ts.factory.createLiteralTypeNode(
         typeof arg === "string"
           ? ts.factory.createStringLiteral(arg)
@@ -113,4 +107,8 @@ export namespace MigrateImportProgrammer {
     library: string;
     name: string;
   }
+}
+interface IClause {
+  default: string | null;
+  instances: Set<string>;
 }

@@ -1,9 +1,9 @@
 import cp from "child_process";
 import fs from "fs";
 
-import { IMigrateConfig } from "../IMigrateConfig";
 import { MigrateApplication } from "../MigrateApplication";
 import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
+import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { ISwagger } from "../structures/ISwagger";
 
 const SAMPLE = __dirname + "/../../assets/input";
@@ -19,7 +19,9 @@ const measure = (title: string) => async (task: () => Promise<void>) => {
 };
 
 const execute =
-  (config: IMigrateConfig) => (project: string) => (swagger: ISwagger) =>
+  (config: IMigrateProgram.IConfig) =>
+  (project: string) =>
+  (swagger: ISwagger) =>
     measure(`${project}-${config.mode}-${config.simulate}`)(async () => {
       const directory = `${OUTPUT}/${project}-${config.mode}-${config.simulate}`;
       const app: MigrateApplication = new MigrateApplication(swagger);

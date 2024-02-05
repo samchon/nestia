@@ -1,7 +1,7 @@
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
-import { IMigrateConfig } from "../IMigrateConfig";
+import { IMigrateProgram } from "../module";
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
@@ -17,7 +17,7 @@ export namespace MigrateApiFunctionProgrammer {
   }
 
   export const write =
-    (config: IMigrateConfig) =>
+    (config: IMigrateProgram.IConfig) =>
     (components: ISwaggerComponents) =>
     (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.FunctionDeclaration =>
@@ -95,7 +95,7 @@ export namespace MigrateApiFunctionProgrammer {
     ].join("\n");
 
   const writeBody =
-    (config: IMigrateConfig) =>
+    (config: IMigrateProgram.IConfig) =>
     (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.Statement[] => {
       const encrypted: boolean = !!props.route.success?.["x-nestia-encrypted"];

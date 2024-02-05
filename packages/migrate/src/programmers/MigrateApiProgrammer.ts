@@ -71,15 +71,15 @@ export namespace MigrateApiProgrammer {
       });
 
     const output: IMigrateFile[] = [...dict].map(({ second: props }) => ({
-      location: `src/${program.config.mode === "nest" ? "api/" : ""}functional/${props.namespace.join("/")}`,
+      location: `src/${program.mode === "nest" ? "api/" : ""}functional/${props.namespace.join("/")}`,
       file: "index.ts",
       content: FilePrinter.write({
-        statements: MigrateApiFileProgrammer.write(program.config)(
+        statements: MigrateApiFileProgrammer.write(program)(
           program.swagger.components,
         )(props),
       }),
     }));
-    if (program.config.mode === "sdk")
+    if (program.mode === "sdk")
       output.push(
         ...[
           ...MigrateDtoProgrammer.write(program.swagger.components).entries(),
