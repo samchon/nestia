@@ -1,5 +1,6 @@
 import cp from "child_process";
 import fs from "fs";
+import { format } from "prettier";
 
 import { MigrateApplication } from "../MigrateApplication";
 import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
@@ -9,6 +10,16 @@ import { ISwagger } from "../structures/ISwagger";
 const SAMPLE = __dirname + "/../../assets/input";
 const TEST = __dirname + "/../../../../test/features";
 const OUTPUT = __dirname + "/../../assets/output";
+
+const beautify = async (script: string): Promise<string> => {
+  try {
+    return await format(script, {
+      parser: "typescript",
+    });
+  } catch {
+    return script;
+  }
+};
 
 const measure = (title: string) => async (task: () => Promise<void>) => {
   process.stdout.write(`  - ${title}: `);
@@ -32,8 +43,8 @@ const execute =
 
       await MigrateFileArchiver.archive({
         mkdir: fs.promises.mkdir,
-        writeFile: (file, content) =>
-          fs.promises.writeFile(file, content, "utf-8"),
+        writeFile: async (file, content) =>
+          fs.promises.writeFile(file, await beautify(content), "utf-8"),
       })(directory)(files);
       cp.execSync(`npx tsc -p ${directory}/tsconfig.json`, {
         stdio: "inherit",

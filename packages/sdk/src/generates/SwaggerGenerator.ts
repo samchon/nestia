@@ -309,8 +309,8 @@ export namespace SwaggerGenerator {
         const index: number = description.indexOf(".");
         if (index <= 0) return undefined;
 
-        const content: string = description.substring(0, index).trim();
-        return content.length ? content : undefined;
+        const str: string = description.substring(0, index).trim();
+        return str.length && str.includes("\n") === false ? str : undefined;
       })();
       const deprecated = route.jsDocTags.find(
         (tag) => tag.name === "deprecated",
