@@ -23,7 +23,7 @@
     "@mui/icons-material": "5.15.6",
     "@mui/material": "5.15.6",
     "@mui/system": "5.15.6",
-    "next": "13.0.6",
+    "next": "13.5.1",
     "nextra": "latest",
     "nextra-theme-docs": "latest",
     "react": "18.2.0",
