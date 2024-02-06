@@ -1,23 +1,26 @@
 {
-    "index": {
-        "title": "Introduction",
-        "type": "page",
-        "hidden": true,
-        "display": "hidden"
-    },
-    "docs": {
-        "title": "📖 Guide Documents",
-        "type": "page"
-    },
-    "playground": {
-        "title": "💻 Playground",
-        "type": "page",
-        "href": "https://stackblitz.com/github/samchon/nestia-template?file=src%2Fcontrollers%2FBbsArticlesController.ts&file=src%2Fapi%2Ffunctional%2Fbbs%2Farticles%2Findex.ts,test%2Ffeatures%2Fapi%2Fbbs%2Ftest_api_bbs_article_store.ts&view=editor",
-        "newWindow": true
-    },
-    "contact": {
-        "title": "✉ Contact Me",
-        "type": "page",
-        "href": "mailto:samchon.github@gmail.com"
+  "index": {
+    "title": "Introduction",
+    "type": "page",
+    "hidden": true,
+    "display": "hidden",
+    "theme": {
+      "layout": "full"
     }
+  },
+  "docs": {
+    "title": "📖 Guide Documents",
+    "type": "page"
+  },
+  "playground": {
+    "title": "💻 Playground",
+    "type": "page",
+    "href": "https://stackblitz.com/github/samchon/nestia-template?file=src%2Fcontrollers%2FBbsArticlesController.ts&file=src%2Fapi%2Ffunctional%2Fbbs%2Farticles%2Findex.ts,test%2Ffeatures%2Fapi%2Fbbs%2Ftest_api_bbs_article_store.ts&view=editor",
+    "newWindow": true
+  },
+  "contact": {
+    "title": "✉ Contact Me",
+    "type": "page",
+    "href": "mailto:samchon.github@gmail.com"
+  }
 }
