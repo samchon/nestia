@@ -26,6 +26,7 @@ export namespace MigrateNestModuleProgrammer {
                       controllers.map((c) =>
                         ts.factory.createIdentifier(c.name),
                       ),
+                      true,
                     ),
                   ),
                 ],

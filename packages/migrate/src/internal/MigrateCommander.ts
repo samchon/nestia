@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { format } from "prettier";
 
 import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
 import { MigrateApplication } from "../module";
@@ -39,9 +40,19 @@ export namespace MigrateCommander {
         : app.sdk(options.simulate);
     await MigrateFileArchiver.archive({
       mkdir: fs.promises.mkdir,
-      writeFile: (file, content) =>
-        fs.promises.writeFile(file, content, "utf-8"),
+      writeFile: async (file, content) =>
+        fs.promises.writeFile(file, await beautify(content), "utf-8"),
     })(options.output)(files);
+  };
+
+  const beautify = async (script: string): Promise<string> => {
+    try {
+      return await format(script, {
+        parser: "typescript",
+      });
+    } catch {
+      return script;
+    }
   };
 
   const halt = (desc: string): never => {
