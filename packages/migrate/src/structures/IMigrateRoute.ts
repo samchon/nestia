@@ -2,6 +2,7 @@ import { ISwaggerSchema } from "./ISwaggerSchema";
 
 export interface IMigrateRoute {
   name: string;
+  originalPath: string;
   path: string;
   method: string;
   accessor: string[];

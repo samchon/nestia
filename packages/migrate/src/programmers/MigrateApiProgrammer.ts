@@ -82,7 +82,7 @@ export namespace MigrateApiProgrammer {
     if (program.mode === "sdk")
       output.push(
         ...[
-          ...MigrateDtoProgrammer.write(program.swagger.components).entries(),
+          ...MigrateDtoProgrammer.compose(program.swagger.components).entries(),
         ].map(([key, value]) => ({
           location: "src/structures",
           file: `${key}.ts`,

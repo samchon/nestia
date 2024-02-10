@@ -51,8 +51,8 @@ export class MigrateImportProgrammer {
     current?: string,
   ): ts.Statement[] {
     return [
-      ...[...this.external_.entries()].map(([library, props]) => {
-        return ts.factory.createImportDeclaration(
+      ...[...this.external_.entries()].map(([library, props]) =>
+        ts.factory.createImportDeclaration(
           undefined,
           ts.factory.createImportClause(
             false,
@@ -72,8 +72,8 @@ export class MigrateImportProgrammer {
               : undefined,
           ),
           ts.factory.createStringLiteral(library),
-        );
-      }),
+        ),
+      ),
       ...(this.external_.size && this.dtos_.size
         ? [FilePrinter.newLine()]
         : []),
