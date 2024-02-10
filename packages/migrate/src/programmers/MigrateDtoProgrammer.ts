@@ -1,8 +1,8 @@
 import { IPointer } from "tstl";
 import ts from "typescript";
 
-import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
+import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -17,7 +17,7 @@ export namespace MigrateDtoProgrammer {
       | ((importer: MigrateImportProgrammer) => ts.TypeAliasDeclaration);
   }
 
-  export const write = (
+  export const compose = (
     components: ISwaggerComponents,
   ): Map<string, IModule> => {
     const dict: Map<string, IModule> = new Map();

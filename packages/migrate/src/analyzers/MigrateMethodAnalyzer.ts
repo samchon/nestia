@@ -2,8 +2,8 @@ import { Escaper } from "typia/lib/utils/Escaper";
 
 import { IMigrateProgram, ISwagger } from "../module";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { ISwaggerRoute } from "../structures/ISwaggerRoute";
+import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { StringUtil } from "../utils/StringUtil";
 import { SwaggerSwaggerChecker } from "../utils/SwaggerTypeChecker";
 
@@ -165,6 +165,7 @@ export namespace MigrateMethodAnalzyer {
       }
       return {
         name: "@lazy",
+        originalPath: endpoint.path,
         path: endpoint.path,
         method: endpoint.method,
         accessor: ["@lazy"],

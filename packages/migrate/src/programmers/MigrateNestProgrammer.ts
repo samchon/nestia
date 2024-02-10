@@ -24,7 +24,7 @@ export namespace MigrateNestProgrammer {
         )(c),
       })),
       ...[
-        ...MigrateDtoProgrammer.write(program.swagger.components).entries(),
+        ...MigrateDtoProgrammer.compose(program.swagger.components).entries(),
       ].map(([key, value]) => ({
         location: "src/api/structures",
         file: `${key}.ts`,
