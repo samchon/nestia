@@ -1,4 +1,4 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
 
 ## Outline
 ```typescript filename="@nestia/core"
@@ -10,6 +10,14 @@ Request headers decorator, type safe.
 `@TypedHeaders()` is a decorator function parsing request headers to a typed object. It validates the request header values through [`typia.assert<T>()`](https://typia.io/docs/validators/assert). If the request header values are invalid, it will throw 400 bad request exception.
 
 It is almost same with original `@Headers()` of `NestJS`, but much type safe.
+
+<Callout type="warning">
+
+`@TypedHeaders()` is not essential for [Swagger Documents](./sdk/swagger) or [SDK Library](./sdk/sdk) building.
+
+Therefore, it is not a matter to use `@TypedHeaders()` or `@Headers()` of the original NestJS.
+
+</Callout>
 
 
 

@@ -25,8 +25,8 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
 >   - Runtime validator is **20,000x faster** than `class-validator`
 >   - JSON serialization is **200x faster** than `class-transformer`
 > - Software Development Kit
->   - SDK is a collection of `fetch` functions with type definitions like [tRPC](https://trpc.io/)
->   - Mockup simulator means embedded backend simulator in SDK
+>   - Collection of typed `fetch` functions with DTO structures like [tRPC](https://trpc.io/)
+>   - Mockup simulator means embedded backend simulator in the SDK
 >     - similar with [msw](https://mswjs.io/), but fully automated
 
 ![nestia-sdk-demo](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)

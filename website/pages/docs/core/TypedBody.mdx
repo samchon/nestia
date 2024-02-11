@@ -13,12 +13,20 @@ It is almost same with original `@Body()` function of `NestJS`, however, 20,000x
 
 Also, `@TypedBody()` is much more easier to use than `class-validator`, because it can use pure TypeScript type. If you can't understand the word "pure TypeScript type", then move to below [**#How to use**](#how-to-use) section and read the `IBbsArticle.IUpdate` interface type. You may understand what it means.
 
-<Callout>
+<Callout type="info">
 
 If you want other `Content-Type`, use one of below:
 
   - `application/x-www-form-urlencoded`: [`@TypedQuery.Body()`](./TypedQuery#typedquerybody).
   - `multipart/form-data`: [`@TypedFormData.Body()`](./TypedFormData#TypedFormDatabody)
+
+</Callout>
+
+<Callout type="warning">
+
+`@TypedBody()` is not essential for [Swagger Documents](./sdk/swagger) or [SDK Library](./sdk/sdk) building.
+
+Therefore, it is not a matter to use `@TypedBody()` or `@Body()` of the original NestJS.
 
 </Callout>
 

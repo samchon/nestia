@@ -1,4 +1,4 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
 
 ## Outline
 ```typescript filename="@nestia/core"
@@ -14,6 +14,14 @@ It's almost same with original `@Param()` function of `NestJS`, however, `@Typed
 As `@TypedParam()` can anlayze source code in the compilation level, it can specify parameter type by itself. Also, while `NestJS` cannot distinguish `nullable` type and consider every parameter value as a `string` type, `@TypedParam()` can do it. Furthermore, `@TypedParam()` can validate special types like `"uuid"` or `"date"`.
 
 Let's read below example code, and see how `@TypedParam()` works.
+
+<Callout type="warning">
+
+`@TypedParam()` is not essential for [Swagger Documents](./sdk/swagger) or [SDK Library](./sdk/sdk) building.
+
+Therefore, it is not a matter to use `@TypedParam()` or `@Param()` of the original NestJS.
+
+</Callout>
 
 
 

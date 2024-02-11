@@ -1,6 +1,6 @@
 import { Callout, Tabs, Tab } from 'nextra-theme-docs'
 
-# Swagger to NestJS
+# Migration from Swagger
 ## Outline
 <Callout type="warning">
 Supports OpenAPI v3.0 only.
@@ -20,9 +20,9 @@ npx @nestia/migrate
   - Standalone [SDK Library](./sdk/sdk)
   - Standalone [Mockup Simulator](./sdk/simulator)
 
-When you run npx `@nestia/migrate` command, `@nestia/migrate` will analyze your `swagger.json` file, and generate a NestJS project into the `output` direcory. If you're considering to migrate your backend project to NestJS, @nestia/migrate will be a good starting point.
+When you run `npx @nestia/migrate` command, `@nestia/migrate` will analyze your `swagger.json` file, and generate a NestJS project into the `output` direcory. If you're considering to migrate your backend project to NestJS, @nestia/migrate will be a good starting point.
 
-Of course, even if you're not considering to adapt NestJS, you can generate standalone [SDK library](./sdk/sdk) and [Mockup Simulator](./sdk/simulator) from the `swagger.json` file. Just run the `@nestia/migrate` command and build the SDK library and Mockup Simulator, then frontend (client) developers may get satisfied.
+Of course, even if you're not considering to adapt NestJS, you can generate standalone [SDK library](./sdk/sdk) and [Mockup Simulator](./sdk/simulator) from the `swagger.json` file instead. Just run the `npx @nestia/migrate` command and build the SDK library and Mockup Simulator, then frontend (client) developers may get satisfied.
 
 ![SDK](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
 
