@@ -71,7 +71,9 @@ export namespace index {
       ? location
       : `${location}?${variables.toString()}`;
   };
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<IPageIBbsArticle.ISummary> =>
     typia.random<IPageIBbsArticle.ISummary>(g);
   export const simulate = (
     connection: IConnection,
@@ -166,8 +168,9 @@ export namespace store {
 
   export const path = (section: string) =>
     `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<IBbsArticle>(g);
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -263,8 +266,9 @@ export namespace update {
 
   export const path = (section: string, id: string & Format<"uuid">) =>
     `/bbs/articles/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<IBbsArticle>(g);
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
   export const simulate = (
     connection: IConnection,
     section: string,

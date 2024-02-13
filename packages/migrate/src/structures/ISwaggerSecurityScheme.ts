@@ -1,10 +1,10 @@
-export type ISwaggerSecurity =
-  | ISwaggerSecurity.IHttpBasic
-  | ISwaggerSecurity.IHttpBearer
-  | ISwaggerSecurity.IApiKey
-  | ISwaggerSecurity.IOpenId
-  | ISwaggerSecurity.IOAuth2;
-export namespace ISwaggerSecurity {
+export type ISwaggerSecurityScheme =
+  | ISwaggerSecurityScheme.IHttpBasic
+  | ISwaggerSecurityScheme.IHttpBearer
+  | ISwaggerSecurityScheme.IApiKey
+  | ISwaggerSecurityScheme.IOpenId
+  | ISwaggerSecurityScheme.IOAuth2;
+export namespace ISwaggerSecurityScheme {
   export interface IHttpBasic {
     type: "http";
     scheme: "basic";
@@ -16,8 +16,8 @@ export namespace ISwaggerSecurity {
   }
   export interface IApiKey {
     type: "apiKey";
-    in: "header" | "query" | "cookie";
-    name: string;
+    in?: "header" | "query" | "cookie";
+    name?: string;
   }
 
   export interface IOpenId {

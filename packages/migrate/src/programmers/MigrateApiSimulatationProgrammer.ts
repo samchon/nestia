@@ -20,8 +20,13 @@ export namespace MigrateApiSimulatationProgrammer {
   export const random =
     (components: ISwaggerComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (props: IProps) =>
-      constant("random")(
+    (props: IProps) => {
+      const output = props.route.success
+        ? MigrateSchemaProgrammer.write(components)(importer)(
+            props.route.success.schema,
+          )
+        : TypeFactory.keyword("void");
+      return constant("random")(
         ts.factory.createArrowFunction(
           undefined,
           undefined,
@@ -45,7 +50,7 @@ export namespace MigrateApiSimulatationProgrammer {
               ),
             ),
           ],
-          undefined,
+          output,
           undefined,
           ts.factory.createCallExpression(
             IdentifierFactory.access(
@@ -57,17 +62,12 @@ export namespace MigrateApiSimulatationProgrammer {
                 }),
               ),
             )("random"),
-            [
-              props.route.success
-                ? MigrateSchemaProgrammer.write(components)(importer)(
-                    props.route.success.schema,
-                  )
-                : TypeFactory.keyword("void"),
-            ],
+            [output],
             [ts.factory.createIdentifier("g")],
           ),
         ),
       );
+    };
 
   export const simulate =
     (components: ISwaggerComponents) =>
@@ -98,7 +98,6 @@ export namespace MigrateApiSimulatationProgrammer {
             ),
           ],
         );
-      assert;
       return constant("simulate")(
         ts.factory.createArrowFunction(
           undefined,
