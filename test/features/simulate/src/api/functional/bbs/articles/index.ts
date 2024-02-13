@@ -66,7 +66,9 @@ export namespace index {
 
   export const path = (section: null | string) =>
     `/bbs/${encodeURIComponent(section ?? "null")}/articles`;
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<Primitive<IPage<IBbsArticle.ISummary>>> =>
     typia.random<Primitive<IPage<IBbsArticle.ISummary>>>(g);
   export const simulate = (
     connection: IConnection,
@@ -139,7 +141,9 @@ export namespace query {
       ? location
       : `${location}?${variables.toString()}`;
   };
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<Primitive<IPage<IBbsArticle.ISummary>>> =>
     typia.random<Primitive<IPage<IBbsArticle.ISummary>>>(g);
   export const simulate = (
     connection: IConnection,
@@ -201,7 +205,9 @@ export namespace at {
 
   export const path = (section: string, id: null | (string & Format<"uuid">)) =>
     `/bbs/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(id ?? "null")}`;
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<Primitive<IBbsArticle>> =>
     typia.random<Primitive<IBbsArticle>>(g);
   export const simulate = (
     connection: IConnection,
@@ -263,7 +269,9 @@ export namespace first {
 
   export const path = (section: string, date: string & Format<"date">) =>
     `/bbs/${encodeURIComponent(section ?? "null")}/articles/first/${encodeURIComponent(date ?? "null")}`;
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<Primitive<IBbsArticle>> =>
     typia.random<Primitive<IBbsArticle>>(g);
   export const simulate = (
     connection: IConnection,
@@ -339,7 +347,9 @@ export namespace store {
 
   export const path = (section: string) =>
     `/bbs/${encodeURIComponent(section ?? "null")}/articles`;
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<Primitive<IBbsArticle>> =>
     typia.random<Primitive<IBbsArticle>>(g);
   export const simulate = (
     connection: IConnection,
@@ -417,7 +427,9 @@ export namespace update {
 
   export const path = (section: string, id: string & Format<"uuid">) =>
     `/bbs/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(id ?? "null")}`;
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<Primitive<IBbsArticle>> =>
     typia.random<Primitive<IBbsArticle>>(g);
   export const simulate = (
     connection: IConnection,

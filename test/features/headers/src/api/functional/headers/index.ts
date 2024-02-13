@@ -46,8 +46,9 @@ export namespace emplace {
 
   export const path = (section: string) =>
     `/headers/${encodeURIComponent(section ?? "null")}`;
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<IHeaders>>(g);
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<Primitive<IHeaders>> => typia.random<Primitive<IHeaders>>(g);
   export const simulate = (
     connection: IConnection<emplace.Headers>,
     section: string,
@@ -121,7 +122,9 @@ export namespace store {
 
   export const path = (section: string) =>
     `/headers/${encodeURIComponent(section ?? "null")}`;
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<Primitive<IBbsArticle>> =>
     typia.random<Primitive<IBbsArticle>>(g);
   export const simulate = (
     connection: IConnection<store.Headers>,
@@ -198,8 +201,9 @@ export namespace update {
 
   export const path = (section: string, id: string & Format<"uuid">) =>
     `/headers/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<Primitive<void>>(g);
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<Primitive<void>> => typia.random<Primitive<void>>(g);
   export const simulate = (
     connection: IConnection,
     section: string,

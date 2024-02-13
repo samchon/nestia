@@ -67,7 +67,9 @@ export namespace getOauthProfile {
       ? location
       : `${location}?${variables.toString()}`;
   };
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<IAuthentication.IProfile> =>
     typia.random<IAuthentication.IProfile>(g);
   export const simulate = (
     connection: IConnection,

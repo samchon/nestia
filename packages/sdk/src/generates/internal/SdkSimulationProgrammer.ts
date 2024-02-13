@@ -17,8 +17,10 @@ export namespace SdkSimulationProgrammer {
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
-    (route: IRoute): ts.VariableStatement =>
-      constant("random")(
+    (route: IRoute): ts.VariableStatement => {
+      const output =
+        SdkAliasCollection.responseBody(checker)(config)(importer)(route);
+      return constant("random")(
         ts.factory.createArrowFunction(
           undefined,
           undefined,
@@ -38,17 +40,23 @@ export namespace SdkSimulationProgrammer {
               ),
             ),
           ],
-          undefined,
+          config.primitive === false
+            ? output
+            : ts.factory.createTypeReferenceNode(
+                SdkImportWizard.Resolved(importer),
+                [output],
+              ),
           undefined,
           ts.factory.createCallExpression(
             IdentifierFactory.access(
               ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
             )("random"),
-            [SdkAliasCollection.responseBody(checker)(config)(importer)(route)],
+            [output],
             [ts.factory.createIdentifier("g")],
           ),
         ),
       );
+    };
 
   export const simulate =
     (config: INestiaConfig) =>

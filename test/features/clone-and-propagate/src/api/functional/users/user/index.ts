@@ -74,8 +74,9 @@ export namespace getUserProfile {
       ? location
       : `${location}?${variables.toString()}`;
   };
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<IUser>(g);
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<IUser> => typia.random<IUser>(g);
   export const simulate = (
     connection: IConnection,
     user_id: string,
@@ -165,8 +166,9 @@ export namespace updateUserProfile {
 
   export const path = (user_id: string) =>
     `/users/${encodeURIComponent(user_id ?? "null")}/user`;
-  export const random = (g?: Partial<typia.IRandomGenerator>) =>
-    typia.random<IUser>(g);
+  export const random = (
+    g?: Partial<typia.IRandomGenerator>,
+  ): Resolved<IUser> => typia.random<IUser>(g);
   export const simulate = (
     connection: IConnection,
     user_id: string,

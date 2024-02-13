@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "2.5.4",
+  "version": "2.5.5",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -36,7 +36,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "D:\\github\\samchon\\nestia\\packages\\fetcher\\nestia-fetcher-2.5.4.tgz",
+    "@nestia/fetcher": "^2.5.5",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "@nestjs/platform-express": ">=7.0.1",
@@ -50,7 +50,7 @@
     "typia": "^5.4.5"
   },
   "peerDependencies": {
-    "@nestia/fetcher": ">=2.5.4",
+    "@nestia/fetcher": ">=2.5.5",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "@nestjs/platform-express": ">=7.0.1",

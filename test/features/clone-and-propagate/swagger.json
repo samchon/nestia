@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "2.5.4-dev.20240204",
+    "version": "2.5.5-dev.20240213",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -4345,28 +4345,34 @@
           },
           "id": {
             "type": "integer",
+            "title": "Primary key",
             "description": "Primary key."
           },
           "email": {
             "type": "string",
             "format": "email",
+            "title": "Email address",
             "description": "Email address."
           },
           "name": {
             "type": "string",
+            "title": "Name of the seller",
             "description": "Name of the seller."
           },
           "mobile": {
             "type": "string",
+            "title": "Mobile number of the seller",
             "description": "Mobile number of the seller."
           },
           "company": {
             "type": "string",
+            "title": "Belonged company name",
             "description": "Belonged company name."
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
+            "title": "Joined time",
             "description": "Joined time."
           }
         },
@@ -4420,6 +4426,7 @@
           "openapi": {
             "type": "string",
             "pattern": "^(3\\.0\\.[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)$",
+            "title": "The version of the OpenAPI document",
             "description": "The version of the OpenAPI document.\n\nNestia always generate OpenAPI 3.0.x document."
           },
           "servers": {
@@ -4427,18 +4434,22 @@
             "items": {
               "$ref": "#/components/schemas/ISwagger.IServer"
             },
+            "title": "List of servers that provide the API",
             "description": "List of servers that provide the API."
           },
           "info": {
             "$ref": "#/components/schemas/ISwaggerInfo",
+            "title": "Information about the API",
             "description": "Information about the API."
           },
           "paths": {
             "$ref": "#/components/schemas/RecordstringRecordstringISwaggerRoute",
+            "title": "The available paths and operations for the API",
             "description": "The available paths and operations for the API.\n\nThe 1st key is the path, and the 2nd key is the HTTP method."
           },
           "components": {
             "$ref": "#/components/schemas/ISwaggerComponents",
+            "title": "An object to hold reusable data structures",
             "description": "An object to hold reusable data structures.\n\nIt stores both DTO schemas and security schemes.\n\nFor reference, `nestia` defines every object and alias types as reusable DTO\nschemas. The alias type means that defined by `type` keyword in TypeScript."
           }
         },
@@ -4458,10 +4469,12 @@
           "url": {
             "type": "string",
             "format": "uri",
+            "title": "A URL to the target host",
             "description": "A URL to the target host."
           },
           "description": {
             "type": "string",
+            "title": "An optional string describing the target server",
             "description": "An optional string describing the target server."
           }
         },
@@ -4476,27 +4489,33 @@
         "properties": {
           "title": {
             "type": "string",
+            "title": "The title of the API",
             "description": "The title of the API."
           },
           "description": {
             "type": "string",
+            "title": "A short description of the API",
             "description": "A short description of the API."
           },
           "termsOfService": {
             "type": "string",
             "format": "uri",
+            "title": "A URL to the Terms of Service for the API",
             "description": "A URL to the Terms of Service for the API."
           },
           "contact": {
             "$ref": "#/components/schemas/ISwaggerInfo.IContact",
+            "title": "The contact information for the exposed API",
             "description": "The contact information for the exposed API."
           },
           "license": {
             "$ref": "#/components/schemas/ISwaggerInfo.ILicense",
+            "title": "The license information for the exposed API",
             "description": "The license information for the exposed API."
           },
           "version": {
             "type": "string",
+            "title": "Version of the API",
             "description": "Version of the API."
           }
         },
@@ -4512,16 +4531,19 @@
         "properties": {
           "name": {
             "type": "string",
+            "title": "The identifying name of the contact person/organization",
             "description": "The identifying name of the contact person/organization."
           },
           "url": {
             "type": "string",
             "format": "uri",
+            "title": "The URL pointing to the contact information",
             "description": "The URL pointing to the contact information."
           },
           "email": {
             "type": "string",
             "format": "email",
+            "title": "The email address of the contact person/organization",
             "description": "The email address of the contact person/organization."
           }
         },
@@ -4533,11 +4555,13 @@
         "properties": {
           "name": {
             "type": "string",
+            "title": "The license name used for the API",
             "description": "The license name used for the API."
           },
           "url": {
             "type": "string",
             "format": "uri",
+            "title": "A URL to the license used for the API",
             "description": "A URL to the license used for the API."
           }
         },
@@ -4717,6 +4741,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -4804,6 +4829,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -4857,6 +4883,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -4910,6 +4937,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -5022,6 +5050,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -5089,6 +5118,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -5153,6 +5183,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -5214,6 +5245,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -5270,6 +5302,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -5422,6 +5455,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -5694,10 +5728,12 @@
         "properties": {
           "schemas": {
             "$ref": "#/components/schemas/RecordstringIJsonComponents.IAlias",
+            "title": "An object to hold reusable DTO schemas",
             "description": "An object to hold reusable DTO schemas.\n\nFor reference, `nestia` stores every object and alias types as reusable DTO\nschemas. The alias type means that defined by `type` keyword in TypeScript."
           },
           "securitySchemes": {
             "$ref": "#/components/schemas/RecordstringISwaggerSecurityScheme",
+            "title": "An object to hold reusable security schemes",
             "description": "An object to hold reusable security schemes.\n\nThis property be configured by user in `nestia.config.ts` file."
           }
         },
@@ -5776,6 +5812,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -5835,6 +5872,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -5894,6 +5932,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -5953,6 +5992,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -6026,6 +6066,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -6099,6 +6140,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -6169,6 +6211,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -6236,6 +6279,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -6298,6 +6342,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
@@ -6456,6 +6501,7 @@
           },
           "nullable": {
             "type": "boolean",
+            "title": "Only when swagger mode",
             "description": "Only when swagger mode."
           },
           "deprecated": {
