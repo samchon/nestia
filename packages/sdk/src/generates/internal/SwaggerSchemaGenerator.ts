@@ -3,6 +3,7 @@ import ts from "typescript";
 import { IJsonSchema } from "typia";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
+import { JsonApplicationProgrammer } from "typia/lib/programmers/json/JsonApplicationProgrammer";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
 
@@ -13,7 +14,6 @@ import { ISwaggerLazyProperty } from "../../structures/ISwaggerLazyProperty";
 import { ISwaggerLazySchema } from "../../structures/ISwaggerLazySchema";
 import { ISwaggerRoute } from "../../structures/ISwaggerRoute";
 import { SwaggerSchemaValidator } from "./SwaggerSchemaValidator";
-import { JsonApplicationProgrammer } from "typia/lib/programmers/json/JsonApplicationProgrammer";
 
 export namespace SwaggerSchemaGenerator {
   export interface IProps {
@@ -103,11 +103,9 @@ export namespace SwaggerSchemaGenerator {
       const status: string =
         route.status !== undefined
           ? String(route.status)
-          : route.method === "GET" ||
-              route.method === "HEAD" ||
-              route.method === "DELETE"
-            ? "200"
-            : "201";
+          : route.method === "POST"
+            ? "201"
+            : "200";
 
       // SCHEMA
       const result = MetadataFactory.analyze(props.checker)({
