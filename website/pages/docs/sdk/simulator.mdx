@@ -3,26 +3,28 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 ## Outline
 <Tabs items={['Configuration', 'Build Script', 'Generated SDK Library']}>
   <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {7}
+```typescript copy filename="nestia.config.ts" showLineNumbers {19}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
+// import { FastifyAdaptor } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
-  simulate: true, // supports simulation mode
   input: async () => {
     const app = await NestFactory.create(YourModule);
+    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
-    //     type: VersioningType.URI,
+      //     type: VersioningType.URI,
     //     prefix: "v",
     // })
     return app;
   },
   output: "src/api",
-  e2e: "test",
+  simulate: true, // supports simulation mode
   distribute: "packages/api",
+  e2e: "test",
 };
 export default NESTIA_CONFIG;
 ```
@@ -142,16 +144,17 @@ Within framework of backend developers, they also do not need to be suffered fro
   <code>INestiaConfig.ts</code>,
 ]}>
   <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {7}
+```typescript copy filename="nestia.config.ts" showLineNumbers {19}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
+// import { FastifyAdaptor } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
-  simulate: true, // supports simulation mode
   input: async () => {
     const app = await NestFactory.create(YourModule);
+    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -160,8 +163,9 @@ const NESTIA_CONFIG: INestiaConfig = {
     return app;
   },
   output: "src/api",
-  e2e: "test",
+  simulate: true, // supports simulation mode
   distribute: "packages/api",
+  e2e: "test",
 };
 export default NESTIA_CONFIG;
 ```
@@ -409,12 +413,13 @@ By the way, `nestia.config.ts` supports alternative options specifying the targe
 
 <Tabs 
   items={[
-    'Module',
+    'Module (express)',
+    'Module (fastify)',
     'Directory', 
     'Pattern', 
     'Exclude'
   ]}
-  defaultIndex={1}>
+  defaultIndex={2}>
   <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
 import { INestiaConfig } from "@nestia/sdk";
@@ -425,6 +430,32 @@ import { YourModule } from "./src/YourModule";
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  output: "src/api",
+  simulate: true,
+  distribute: "packages/api",
+  e2e: "test",
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {8-16}
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+import { FastifyAdaptor } from "@nestjs/platform-fastify";
+
+import { YourModule } from "./src/YourModule";
+
+const NESTIA_CONFIG: INestiaConfig = {
+  input: async () => {
+    const app = await NestFactory.create(YourModule, new FastifyAdpator());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,

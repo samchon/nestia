@@ -3,15 +3,17 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 ## Outline
 <Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
   <Tab>
-```typescript filename="nestia.config.ts" copy showLineNumbers {18}
+```typescript filename="nestia.config.ts" copy showLineNumbers {20}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
+// import { FastifyAdaptor } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
+    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -70,15 +72,17 @@ export const test_api_body_store = async (
   <code>INestiaConfig.ts</code>,
 ]}>
   <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {18}
+```typescript copy filename="nestia.config.ts" showLineNumbers {20}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
+// import { FastifyAdaptor } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
+    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -316,7 +320,7 @@ export namespace INestiaConfig {
   </Tab>
 </Tabs>
 
-Make `nestia.config.ts` file and run `npx nestia sdk` command.
+Make `nestia.config.ts` file and run `npx nestia e2e` command.
 
 At first, create `nestia.config.ts` file through `npx nestia init` command. It would be placed on the top level directory of your NestJS backend project. For reference, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
 
@@ -332,12 +336,13 @@ By the way, `nestia.config.ts` supports alternative options specifying the targe
 
 <Tabs 
   items={[
-    'Module',
+    'Module (express)',
+    'Module (fastify)',
     'Directory', 
     'Pattern', 
     'Exclude',
   ]}
-  defaultIndex={1}>
+  defaultIndex={2}>
   <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
 import { INestiaConfig } from "@nestia/sdk";
@@ -363,7 +368,32 @@ export default NESTIA_CONFIG;
 ```
   </Tab>
   <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {4-8}
+```typescript copy filename="nestia.config.ts" showLineNumbers {8-16}
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+import { FastifyAdaptor } from "@nestjs/platform-fastify";
+
+import { YourModule } from "./src/YourModule";
+
+const NESTIA_CONFIG: INestiaConfig = {
+  input: async () => {
+    const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  output: "src/api",
+  distribute: "packages/api",
+  e2e: "test",
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {4}
 import { INestiaConfig } from "@nestia/sdk";
 
 const NESTIA_CONFIG: INestiaConfig = {
