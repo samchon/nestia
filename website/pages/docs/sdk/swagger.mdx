@@ -6,12 +6,14 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 ```typescript copy filename="nestia.config.ts" showLineNumbers
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
+// import { FastifyAdaptor } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
+    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -64,15 +66,17 @@ If you have a special configuration file that its file name is not `nestia.confi
   <code>ISwaggerSecurityScheme.ts</code>,
 ]}>
   <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
+```typescript copy filename="nestia.config.ts" showLineNumbers {18-34}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
+// import { FastifyAdaptor } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
+    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -82,7 +86,6 @@ const NESTIA_CONFIG: INestiaConfig = {
   },
   swagger: {
     output: "dist/swagger.json",
-    beautify: true,
     security: {
       bearer: {
         type: "apiKey",
@@ -96,6 +99,7 @@ const NESTIA_CONFIG: INestiaConfig = {
         description: "Local Server",
       },
     ],
+    beautify: true,
   },
 };
 export default NESTIA_CONFIG;
@@ -418,12 +422,12 @@ When you've completed above configuration, just run `npx nestia swagger` command
 By the way, `nestia.config.ts` supports alternative options specifying the target controller classes instead of using the `Module` instance. If your backend application server does not have special configuration like `setGlobalPrefix`, `enableVersioning` and `RouterModule`, it is okay to specifying the target controller classes just by writing their file path like below.
 
 <Tabs items={[
-    'Module',
-    'Directory', 
+    'Module (express)',
+    'Directory (fastify)', 
     'Pattern', 
     'Exclude'
   ]}
-  defaultIndex={1}>
+  defaultIndex={2}>
   <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
 import { INestiaConfig } from "@nestia/sdk";
@@ -434,6 +438,45 @@ import { YourModule } from "./src/YourModule";
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  swagger: {
+    output: "dist/swagger.json",
+    beautify: true,
+    security: {
+      bearer: {
+        type: "apiKey",
+        name: "Authorization",
+        in: "header",
+      },
+    },
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Local Server",
+      },
+    ],
+  },
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {8-16}
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+import { FastifyAdaptor } from "@nestjs/platform-fastify";
+
+import { YourModule } from "./src/YourModule";
+
+const NESTIA_CONFIG: INestiaConfig = {
+  input: async () => {
+    const app = await NestFactory.create(YourModule, new FastifyAdaptor());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
