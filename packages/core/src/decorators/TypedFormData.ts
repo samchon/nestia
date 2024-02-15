@@ -35,20 +35,20 @@ import { validate_request_form_data } from "./internal/validate_request_form_dat
  * 2. Do not allow dynamic property
  * 3. Only `boolean`, `bigint`, `number`, `string`, `Blob`, `File` or their array types are allowed
  * 4. By the way, union type never be not allowed
- * 
+ *
  * By the way, if you're using `fastify`, you have to setup `@fastify/multipart`
  * and configure like below when composing the NestJS application. If you don't do
  * that, `@TypedFormData.Body()` will not work properly, and throw 500 internal
  * server error when `Blob` or `File` type being utilized.
- * 
+ *
  * ```typescript
  * import multipart from "fastify-multipart";
  * import { NestFactory } from "@nestjs/core";
- * import { 
- *   FastifyAdapter, 
- *   NestFastifyApplication 
+ * import {
+ *   FastifyAdapter,
+ *   NestFastifyApplication
  * } from "@nestjs/platform-fastify";
- * 
+ *
  * export async function main() {
  *   const app = await NestFactory.create<NestFastifyApplication>(
  *     AppModule,
@@ -108,6 +108,9 @@ export namespace TypedFormData {
   Object.assign(Body, typia.http.validateFormData);
 }
 
+/**
+ * @internal
+ */
 const decodeExpress = <T>(props: IRequestFormDataProps<T>) => {
   const upload = multerApplication.get().fields(
     props!.files.map((file) => ({
@@ -137,6 +140,9 @@ const decodeExpress = <T>(props: IRequestFormDataProps<T>) => {
   };
 };
 
+/**
+ * @internal
+ */
 const decodeFastify =
   <T>(_props: IRequestFormDataProps<T>) =>
   async (socket: {
@@ -200,6 +206,9 @@ const isMultipartFormData = (text?: string): boolean =>
     .map((str) => str.trim())
     .some((str) => str === "multipart/form-data");
 
+/**
+ * @internal
+ */
 const isExpressRequest = (
   request: express.Request | FastifyRequest,
 ): request is express.Request => (request as express.Request).app !== undefined;

@@ -51,6 +51,9 @@ Object.assign(TypedBody, is);
 Object.assign(TypedBody, assert);
 Object.assign(TypedBody, validate);
 
+/**
+ * @internal
+ */
 const isApplicationJson = (text?: string): boolean =>
   text !== undefined &&
   text

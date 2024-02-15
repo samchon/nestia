@@ -40,6 +40,9 @@ const take =
     );
   };
 
+/**
+ * @internal
+ */
 const querify = (input: Record<string, any>): URLSearchParams => {
   const output: URLSearchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(input))

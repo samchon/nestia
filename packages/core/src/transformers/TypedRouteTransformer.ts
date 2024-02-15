@@ -80,14 +80,7 @@ export namespace TypedRouteTransformer {
 
   const CLASSES = ["EncryptedRoute", "TypedRoute", "TypedQuery"];
   const LIB_PATHS = CLASSES.map((cla) =>
-    path.join(
-      "node_modules",
-      "@nestia",
-      "core",
-      "lib",
-      "decorators",
-      `${cla}.d.ts`,
-    ),
+    path.join("@nestia", "core", "lib", "decorators", `${cla}.d.ts`),
   );
   const SRC_PATHS = CLASSES.map((cla) =>
     path.resolve(path.join(__dirname, "..", "decorators", `${cla}.ts`)),

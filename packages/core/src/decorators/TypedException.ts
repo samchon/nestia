@@ -1,5 +1,3 @@
-import "reflect-metadata";
-
 /**
  * > You must configure the generic argument `T`
  *
@@ -82,6 +80,9 @@ export function TypedException<T>(
   };
 }
 
+/**
+ * @internal
+ */
 interface IProps {
   status: number | "2XX" | "3XX" | "4XX" | "5XX";
   description?: string | undefined;

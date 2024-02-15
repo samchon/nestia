@@ -94,6 +94,9 @@ const decrypt = (body: string, key: string, iv: string): string => {
   }
 };
 
+/**
+ * @internal
+ */
 const isTextPlain = (text?: string): boolean =>
   text !== undefined &&
   text
