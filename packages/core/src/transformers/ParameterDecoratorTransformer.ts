@@ -103,13 +103,7 @@ const FUNCTORS: Record<string, Programmer> = {
       : [PlainBodyProgrammer.generate(project)(modulo)(type)],
 };
 
-const LIB_PATH = path.join(
-  "node_modules",
-  "@nestia",
-  "core",
-  "lib",
-  "decorators",
-);
+const LIB_PATH = path.join("@nestia", "core", "lib", "decorators");
 const SRC_PATH = path.resolve(path.join(__dirname, "..", "decorators"));
 
 const getName = (symbol: ts.Symbol): string => {

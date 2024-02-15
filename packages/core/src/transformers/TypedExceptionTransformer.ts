@@ -36,7 +36,6 @@ export namespace TypedExceptionTransformer {
     };
 
   const LIB_PATH = path.join(
-    "node_modules",
     "@nestia",
     "core",
     "lib",

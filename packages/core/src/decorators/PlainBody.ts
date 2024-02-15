@@ -64,6 +64,9 @@ export function PlainBody(
 }
 Object.assign(PlainBody, assert);
 
+/**
+ * @internal
+ */
 const isTextPlain = (text?: string): boolean =>
   text !== undefined &&
   text

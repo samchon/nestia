@@ -77,6 +77,9 @@ export namespace EncryptedModule {
   }
 }
 
+/**
+ * @internal
+ */
 const iterate =
   (password: IEncryptionPassword.Closure) =>
   (modulo: any): void => {
