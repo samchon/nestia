@@ -15,11 +15,13 @@ export namespace IMigrateProgram {
   export interface IProps {
     mode: "nest" | "sdk";
     simulate: boolean;
+    e2e: boolean;
     swagger: ISwagger;
     dictionary: Dictionary;
   }
   export interface IConfig {
     mode: "nest" | "sdk";
     simulate: boolean;
+    e2e: boolean;
   }
 }
