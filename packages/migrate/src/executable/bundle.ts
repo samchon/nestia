@@ -100,6 +100,7 @@ const main = async (): Promise<void> => {
       ".github/workflows/build.yml",
       "src/functional",
       "src/structures",
+      "test/features",
     ],
   });
 };

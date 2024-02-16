@@ -4,9 +4,10 @@ import inquirer from "inquirer";
 export namespace MigrateInquirer {
   export interface IOutput {
     mode: "nest" | "sdk";
-    simulate: boolean;
     input: string;
     output: string;
+    simulate: boolean;
+    e2e: boolean;
   }
 
   export const parse = async (): Promise<IOutput> => {
@@ -18,6 +19,7 @@ export namespace MigrateInquirer {
     );
     commander.program.option("--output [directory]", "output directory path");
     commander.program.option("--simulate", "Mockup simulator");
+    commander.program.option("--e2e [boolean]", "Generate E2E tests");
 
     // INTERNAL PROCEDURES
     const questioned = { value: false };
@@ -72,6 +74,11 @@ export namespace MigrateInquirer {
       else
         partial.simulate =
           (await select("simulate")("Mokup Simulator")(["true", "false"])) ===
+          "true";
+      if (partial.e2e) partial.e2e = (partial.e2e as any) === "true";
+      else
+        partial.e2e =
+          (await select("e2e")("Generate E2E tests")(["true", "false"])) ===
           "true";
       return partial as IOutput;
     });

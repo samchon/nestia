@@ -35,9 +35,7 @@ export namespace MigrateCommander {
 
     const app: MigrateApplication = new MigrateApplication(swagger);
     const { files } =
-      options.mode === "nest"
-        ? app.nest(options.simulate)
-        : app.sdk(options.simulate);
+      options.mode === "nest" ? app.nest(options) : app.sdk(options);
     await MigrateFileArchiver.archive({
       mkdir: fs.promises.mkdir,
       writeFile: async (file, content) =>

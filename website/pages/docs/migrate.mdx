@@ -34,11 +34,16 @@ Of course, even if you're not considering to adapt NestJS, you can generate stan
 ## Arguments
 ```bash filename="Terminal" copy showLineNumbers {}
 # GRAMMER
-npx @nestia/migrate --mode [nest|sdk] --input [input] --output [output] --simulate [true|false]
+npx @nestia/migrate 
+  --mode [nest|sdk] 
+  --input [input] 
+  --output [output] 
+  --simulate [true|false]
+  --e2e [true|false]
 
 # EXAMPLES
-npx @nestia/migrate --mode nest --input swagger.json --output directory --simulate false
-npx @nestia/migrate --mode sdk --input swagger.json --output directory --simulate true
+npx @nestia/migrate --mode nest --input swagger.json --output directory --simulate false --e2e false
+npx @nestia/migrate --mode sdk --input swagger.json --output directory --simulate true --e2e true
 ```
 
 You can specify migration options like above. 
@@ -46,11 +51,13 @@ You can specify migration options like above.
 However, don't worry anything. If you omit something, prompt inquiries will help you. 
 
 ```bash
-npx ts-node src/executable/migrate
+npm install -g @nestia/migrate
+npx @nestia/migrate
 ? Migration mode (Use arrow keys):
   > NestJS
     SDK
 ? Swagger file location: assets/input/clickhouse.json
 ? Output directory path: assets/output/clickhouse-sdk-manual
 ? Mokup Simulator: true
+? E2E Test Functions: true
 ```
