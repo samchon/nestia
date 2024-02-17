@@ -1,7 +1,8 @@
 import { Escaper } from "typia/lib/utils/Escaper";
 
-import { IMigrateProgram, ISwagger } from "../module";
+import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
+import { ISwagger } from "../structures/ISwagger";
 import { ISwaggerRoute } from "../structures/ISwaggerRoute";
 import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { StringUtil } from "../utils/StringUtil";
@@ -171,6 +172,7 @@ export namespace MigrateMethodAnalzyer {
         accessor: ["@lazy"],
         headers: headers
           ? {
+              name: "headers",
               key: "headers",
               schema: headers,
             }
@@ -178,6 +180,7 @@ export namespace MigrateMethodAnalzyer {
         parameters: (route.parameters ?? [])
           .filter((p) => p.in === "path")
           .map((p, i) => ({
+            name: parameterNames[i],
             key: (() => {
               let key: string = StringUtil.normalize(parameterNames[i]);
               if (Escaper.variable(key)) return key;
@@ -193,6 +196,7 @@ export namespace MigrateMethodAnalzyer {
           })),
         query: query
           ? {
+              name: "query",
               key: "query",
               schema: query,
             }
@@ -216,43 +220,39 @@ export namespace MigrateMethodAnalzyer {
             ]),
         ),
         deprecated: route.deprecated ?? false,
-        description: describe(route),
+        comment: () => describe(route),
         tags: route.tags ?? [],
       };
     };
 
-  const describe = (route: ISwaggerRoute): string | undefined => {
+  const describe = (route: ISwaggerRoute): string => {
     const commentTags: string[] = [];
     const add = (text: string) => {
       if (commentTags.every((line) => line !== text)) commentTags.push(text);
     };
 
-    let description: string | undefined = route.description;
+    let description: string = route.description ?? "";
     if (route.summary) {
       const emended: string = route.summary.endsWith(".")
         ? route.summary
         : route.summary + ".";
       if (
-        description !== undefined &&
-        !description?.startsWith(route.summary) &&
+        !!description.length &&
+        !description.startsWith(route.summary) &&
         !route["x-nestia-jsDocTags"]?.some((t) => t.name === "summary")
       )
         description = `${emended}\n${description}`;
     }
-    if (route.tags) route.tags.forEach((name) => add(`@tag ${name}`));
-    if (route.deprecated) add("@deprecated");
+    for (const p of route.parameters ?? [])
+      if (p.description) add(`@param ${p.name} ${p.description}`);
+    if (route.requestBody?.description)
+      add(`@param body ${route.requestBody.description}`);
     for (const security of route.security ?? [])
       for (const [name, scopes] of Object.entries(security))
         add(`@security ${[name, ...scopes].join("")}`);
-    for (const jsDocTag of route["x-nestia-jsDocTags"] ?? [])
-      if (jsDocTag.text?.length)
-        add(
-          `@${jsDocTag.name} ${jsDocTag.text
-            .map((text) => text.text)
-            .join("")}`,
-        );
-      else add(`@${jsDocTag.name}`);
-    return description?.length
+    if (route.tags) route.tags.forEach((name) => add(`@tag ${name}`));
+    if (route.deprecated) add("@deprecated");
+    return description.length
       ? commentTags.length
         ? `${description}\n\n${commentTags.join("\n")}`
         : description
@@ -293,6 +293,7 @@ export namespace MigrateMethodAnalzyer {
         const { schema } = json[1];
         return {
           type: "application/json",
+          name: "body",
           key: "body",
           schema: isNotObjectLiteral(schema) ? schema : emplacer(schema),
           "x-nestia-encrypted": meta["x-nestia-encrypted"],
@@ -306,6 +307,7 @@ export namespace MigrateMethodAnalzyer {
         const { schema } = query[1];
         return {
           type: "application/x-www-form-urlencoded",
+          name: "body",
           key: "body",
           schema: isNotObjectLiteral(schema) ? schema : emplacer(schema),
         };
@@ -313,7 +315,12 @@ export namespace MigrateMethodAnalzyer {
 
       const text = entries.find((e) => e[0].includes("text/plain"));
       if (text)
-        return { type: "text/plain", key: "body", schema: { type: "string" } };
+        return {
+          type: "text/plain",
+          name: "body",
+          key: "body",
+          schema: { type: "string" },
+        };
 
       if (from === "request") {
         const multipart = entries.find((e) =>
@@ -323,6 +330,7 @@ export namespace MigrateMethodAnalzyer {
           const { schema } = multipart[1];
           return {
             type: "multipart/form-data",
+            name: "body",
             key: "body",
             schema: isNotObjectLiteral(schema) ? schema : emplacer(schema),
           };

@@ -41,24 +41,8 @@ export namespace MigrateControllerAnalyzer {
       }
     }
 
-    // ABSORB STANDALONE ROUTES
-    const emended: Map<string, IEntry[]> = new Map(
-      [...endpoints.entries()].sort((a, b) => a[0].localeCompare(b[0])),
-    );
-    for (const [location, routes] of emended) {
-      if (routes.length !== 1) continue;
-      for (const s of sequence(location).slice(0, 1)) {
-        const parent = emended.get(s);
-        if (parent) {
-          parent.push(...routes);
-          emended.delete(location);
-          break;
-        }
-      }
-    }
-
     // GENERATE CONTROLLERS
-    return [...emended.entries()]
+    const total: IMigrateController[] = [...endpoints.entries()]
       .filter(([_l, routes]) => !!routes.length)
       .map(([location, routes]) => {
         const prefix: string = StringUtil.commonPrefix(
@@ -74,7 +58,6 @@ export namespace MigrateControllerAnalyzer {
           location: "src/controllers/" + location,
           routes: routes.map((e) => e.route),
         };
-        if (controller.name === "Controller") controller.name = "__Controller";
         emend(controller);
 
         for (const e of routes)
@@ -84,6 +67,12 @@ export namespace MigrateControllerAnalyzer {
           });
         return controller;
       });
+    for (const c of total)
+      if (c.name === "Controller")
+        c.name = StringUtil.escapeDuplicate([...total.map((c) => c.name)])(
+          "AppController",
+        );
+    return total;
   };
 
   const sequence = (location: string): string[] =>

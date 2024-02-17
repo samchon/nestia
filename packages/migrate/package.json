@@ -1,6 +1,6 @@
 {
   "name": "@nestia/migrate",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Migration program from swagger to NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -11,6 +11,7 @@
     "build": "rimraf lib && tsc",
     "bundle": "ts-node src/executable/bundle.ts",
     "dev": "npm run build -- --watch",
+    "package:next": "npm publish --access public --tag next",
     "prepare": "ts-patch install && typia patch && npm run bundle",
     "test": "node lib/test"
   },
@@ -22,7 +23,9 @@
     "migration",
     "swagger",
     "NestJS",
-    "nestia"
+    "nestia",
+    "SDK",
+    "Mockup Simulator"
   ],
   "author": "Jeongho Nam",
   "license": "MIT",

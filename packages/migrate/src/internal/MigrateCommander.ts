@@ -2,8 +2,8 @@ import fs from "fs";
 import path from "path";
 import { format } from "prettier";
 
+import { MigrateApplication } from "../MigrateApplication";
 import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
-import { MigrateApplication } from "../module";
 import { ISwagger } from "../structures/ISwagger";
 import { MigrateInquirer } from "./MigrateInquirer";
 

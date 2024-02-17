@@ -59,6 +59,7 @@ const deploy = (tag) => (version) => (name) => {
   const directory = `${__dirname}/../packages/${name}`;
   setup(tag)(version)(directory);
   execute(directory)(`npm run build`);
+  fs.copyFileSync(`${__dirname}/../README.md`, `${directory}/README.md`);
 
   // PUBLISH (OR PACK)
   if (tag === "tgz") execute(directory)(`npm pack`);

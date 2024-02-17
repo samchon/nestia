@@ -224,7 +224,7 @@ export namespace MigrateApiNamespaceProgrammer {
                 [
                   ts.factory.createBinaryExpression(
                     ts.factory.createIdentifier(
-                      props.route.parameters.find((p) => p.key === name)!.key,
+                      props.route.parameters.find((p) => p.name === name)!.key,
                     ),
                     ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
                     ts.factory.createStringLiteral("null"),
