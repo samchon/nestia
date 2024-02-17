@@ -1,8 +1,8 @@
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
-import { ISwaggerComponents } from "../module";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
+import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 

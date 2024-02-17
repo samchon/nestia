@@ -10,6 +10,7 @@
   "core": "Core Library",
   "sdk": "Generators",
   "migrate": "Migration from Swagger",
+  "editor": "TypeScript Swagger Editor",
 
   "-- appendix": {
     "type": "separator",

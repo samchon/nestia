@@ -1,7 +1,7 @@
 import ts from "typescript";
 
-import { IMigrateProgram } from "../module";
 import { IMigrateController } from "../structures/IMigrateController";
+import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { MigrateApiFunctionProgrammer } from "./MigrateApiFunctionProgrammer";

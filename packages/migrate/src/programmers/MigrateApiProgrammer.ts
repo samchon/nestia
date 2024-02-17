@@ -2,8 +2,10 @@ import { HashMap, IPointer, hash } from "tstl";
 import ts from "typescript";
 import { Escaper } from "typia/lib/utils/Escaper";
 
-import { IMigrateProgram } from "../module";
+import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateFile } from "../structures/IMigrateFile";
+import { IMigrateProgram } from "../structures/IMigrateProgram";
+import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
 import { MigrateApiFileProgrammer } from "./MigrateApiFileProgrammer";
@@ -12,64 +14,45 @@ import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateApiProgrammer {
   export const write = (program: IMigrateProgram): IMigrateFile[] => {
-    const dict: HashMap<string[], MigrateApiFileProgrammer.IProps> =
-      new HashMap(
-        (x) => hash(x.join(".")),
-        (a, b) => a.join(".") === b.join("."),
-      );
-    for (const controller of program.controllers)
-      for (const route of controller.routes) {
-        const namespace: string[] = [
-          ...controller.path.split("/"),
-          ...route.path.split("/"),
-        ]
+    // GROUP BY NAMESPACES
+    const dict: HashMap<string[], MigrateApiFileProgrammer.IProps> = collect(
+      ({ controller, route }) =>
+        [...controller.path.split("/"), ...route.path.split("/")]
           .filter((str) => !!str.length && str[0] !== ":")
           .map(StringUtil.normalize)
-          .map((str) => (Escaper.variable(str) ? str : `_${str}`));
-        const last: IPointer<MigrateApiFileProgrammer.IProps> = {
-          value: dict.take(namespace, () => ({
-            namespace,
-            children: new Set(),
-            entries: [],
-          })),
-        };
-        last.value.entries.push({
-          controller,
-          route,
-          alias: route.name,
-        });
-        namespace.slice(0, -1).forEach((_i, i, array) => {
-          const partial: string[] = namespace.slice(0, array.length - i);
-          const props: MigrateApiFileProgrammer.IProps = dict.take(
-            partial,
-            () => ({
-              namespace: partial,
-              children: new Set(),
-              entries: [],
-            }),
-          );
-          props.children.add(last.value.namespace.at(-1)!);
-          last.value = props;
-        });
-        const top = dict.take([], () => ({
-          namespace: [],
-          children: new Set(),
-          entries: [],
-        }));
-        if (namespace.length) top.children.add(namespace[0]);
-      }
+          .map((str) => (Escaper.variable(str) ? str : `_${str}`)),
+    )(program);
+
+    // EMEND NAMES
     for (const { second: props } of dict)
       props.entries.forEach((entry, i) => {
         entry.alias = StringUtil.escapeDuplicate([
           ...props.children,
-          ...entry.route.parameters.map((p) => p.key),
-          ...(entry.route.body ? [entry.route.body.key] : []),
-          ...(entry.route.query ? [entry.route.query.key] : []),
           ...props.entries.filter((_, j) => i !== j).map((e) => e.alias),
         ])(entry.alias);
         entry.route.accessor = [...props.namespace, entry.alias];
+
+        const parameters: { name: string; key: string }[] = [
+          ...entry.route.parameters,
+          ...(entry.route.body ? [entry.route.body] : []),
+          ...(entry.route.headers ? [entry.route.headers] : []),
+          ...(entry.route.query ? [entry.route.query] : []),
+        ];
+        parameters.forEach(
+          (p, i) =>
+            (p.key = StringUtil.escapeDuplicate([
+              "connection",
+              entry.alias,
+              ...parameters.filter((_, j) => i !== j).map((y) => y.key),
+            ])(p.key)),
+        );
       });
 
+    // // GROUP BY NAMESPACES AGAIN
+    // const refined: HashMap<string[], MigrateApiFileProgrammer.IProps> =
+    //   collect(({ route }) => route.accessor.slice(0, -1))(program);
+
+    // DO GENERATE
     const output: IMigrateFile[] = [...dict].map(({ second: props }) => ({
       location: `src/${program.mode === "nest" ? "api/" : ""}functional/${props.namespace.join("/")}`,
       file: "index.ts",
@@ -129,4 +112,59 @@ export namespace MigrateApiProgrammer {
       }
       return output;
     };
+
+  const collect =
+    (
+      getter: (props: {
+        controller: IMigrateController;
+        route: IMigrateRoute;
+      }) => string[],
+    ) =>
+    (
+      program: IMigrateProgram,
+    ): HashMap<string[], MigrateApiFileProgrammer.IProps> => {
+      const dict: HashMap<string[], MigrateApiFileProgrammer.IProps> =
+        new HashMap(Functional.hashCode, Functional.equals);
+      for (const controller of program.controllers)
+        for (const route of controller.routes) {
+          const namespace: string[] = getter({ controller, route });
+          const last: IPointer<MigrateApiFileProgrammer.IProps> = {
+            value: dict.take(namespace, () => ({
+              namespace,
+              children: new Set(),
+              entries: [],
+            })),
+          };
+          last.value.entries.push({
+            controller,
+            route,
+            alias: route.name,
+          });
+          namespace.slice(0, -1).forEach((_i, i, array) => {
+            const partial: string[] = namespace.slice(0, array.length - i);
+            const props: MigrateApiFileProgrammer.IProps = dict.take(
+              partial,
+              () => ({
+                namespace: partial,
+                children: new Set(),
+                entries: [],
+              }),
+            );
+            props.children.add(last.value.namespace.at(-1)!);
+            last.value = props;
+          });
+          const top = dict.take([], () => ({
+            namespace: [],
+            children: new Set(),
+            entries: [],
+          }));
+          if (namespace.length) top.children.add(namespace[0]);
+        }
+      return dict;
+    };
 }
+
+const Functional = {
+  hashCode: (x: string[]) => hash(x.join(".")),
+  equals: (a: string[], b: string[]) => a.join(".") === b.join("."),
+};

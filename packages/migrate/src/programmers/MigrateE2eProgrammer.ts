@@ -1,8 +1,9 @@
 import ts from "typescript";
 
-import { IMigrateProgram, ISwaggerComponents } from "../module";
 import { IMigrateFile } from "../structures/IMigrateFile";
+import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
+import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateE2eFunctionProgrammer } from "./MigrateE2eFileProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";

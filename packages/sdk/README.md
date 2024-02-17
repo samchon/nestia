@@ -9,14 +9,15 @@
 
 Nestia is a set of helper libraries for NestJS, supporting below features:
 
-  - `@nestia/core`: super-fast decorators
+  - `@nestia/core`: Super-fast decorators
   - `@nestia/sdk`:
     - Swagger generator evolved than ever
     - SDK library generator for clients
     - Mockup Simulator for client applications
     - Automatic E2E test functions generator
-  - `@nestia/migrate`: migration from Swagger to NestJS
-  - `nestia`: just CLI (command line interface) tool
+  - `@nestia/migrate`: Migration from Swagger to NestJS
+  - `@nestia/editor`: Online TypeScript Swagger Editor
+  - `nestia`: Just CLI (command line interface) tool
 
 > **Note**
 > 
@@ -25,8 +26,8 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
 >   - Runtime validator is **20,000x faster** than `class-validator`
 >   - JSON serialization is **200x faster** than `class-transformer`
 > - Software Development Kit
->   - SDK is a collection of `fetch` functions with type definitions like [tRPC](https://trpc.io/)
->   - Mockup simulator means embedded backend simulator in SDK
+>   - Collection of typed `fetch` functions with DTO structures like [tRPC](https://trpc.io/)
+>   - Mockup simulator means embedded backend simulator in the SDK
 >     - similar with [msw](https://mswjs.io/), but fully automated
 
 ![nestia-sdk-demo](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
@@ -59,7 +60,7 @@ Check out the document in the [website](https://nestia.io/docs/):
     - [TypedRoute](https://nestia.io/docs/core/TypedRoute/)
     - [TypedBody](https://nestia.io/docs/core/TypedBody/)
     - [TypedParam](https://nestia.io/docs/core/TypedParam/)
-    - [TypedQuery](https://nestia.io/docs/core/TypedRoute/)
+    - [TypedQuery](https://nestia.io/docs/core/TypedQuery/)
     - [TypedHeaders](https://nestia.io/docs/core/TypedHeaders/)
     - [TypedException](https://nestia.io/docs/core/TypedException/)
   - Generators
@@ -68,6 +69,7 @@ Check out the document in the [website](https://nestia.io/docs/):
     - [E2E Functions](https://nestia.io/docs/sdk/e2e/)
     - [Mockup Simulator](https://nestia.io/docs/sdk/simulator/)
   - [Swagger to NestJS](https://nestia.io/docs/migrate/)
+  - [TypeScript Swagger Editor](https://nestia.io/docs/editor/)
 
 ### 🔗 Appendix
   - [⇲ Benchmark Result](https://github.com/samchon/nestia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz)

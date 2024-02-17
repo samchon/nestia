@@ -11,5 +11,5 @@ module.exports = {
   importOrder: ["<THIRD_PARTY_MODULES>", "@api(.*)$", "^[./]"],
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
-  importOrderParserPlugins: ["decorators-legacy", "typescript"],
+  importOrderParserPlugins: ["decorators-legacy", "typescript", "jsx"],
 };

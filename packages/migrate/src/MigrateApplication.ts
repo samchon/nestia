@@ -3,12 +3,12 @@ import typia from "typia";
 import { MigrateAnalyzer } from "./analyzers/MigrateAnalyzer";
 import { NEST_TEMPLATE } from "./bundles/NEST_TEMPLATE";
 import { SDK_TEMPLATE } from "./bundles/SDK_TEMPLATE";
-import { IMigrateProgram } from "./module";
 import { MigrateApiProgrammer } from "./programmers/MigrateApiProgrammer";
 import { MigrateApiStartProgrammer } from "./programmers/MigrateApiStartProgrammer";
 import { MigrateE2eProgrammer } from "./programmers/MigrateE2eProgrammer";
 import { MigrateNestProgrammer } from "./programmers/MigrateNestProgrammer";
 import { IMigrateFile } from "./structures/IMigrateFile";
+import { IMigrateProgram } from "./structures/IMigrateProgram";
 import { ISwagger } from "./structures/ISwagger";
 
 export class MigrateApplication {

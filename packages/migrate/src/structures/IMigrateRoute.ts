@@ -12,25 +12,29 @@ export interface IMigrateRoute {
   body: IMigrateRoute.IBody | null;
   success: IMigrateRoute.IBody | null;
   exceptions: Record<string, IMigrateRoute.IException>;
-  description?: string;
+  comment: () => string;
   tags: string[];
   deprecated: boolean;
 }
 export namespace IMigrateRoute {
   export interface IParameter {
+    name: string;
     key: string;
     schema: ISwaggerSchema;
     description?: string;
   }
   export interface IHeaders {
+    name: string;
     key: string;
     schema: ISwaggerSchema;
   }
   export interface IQuery {
+    name: string;
     key: string;
     schema: ISwaggerSchema;
   }
   export interface IBody {
+    name: string;
     key: string;
     type:
       | "text/plain"
