@@ -14,7 +14,6 @@ export namespace NestiaSetupWizard {
     const args: ArgumentParser.IArguments = await ArgumentParser.parse(pack);
 
     // INSTALL NESTIA
-    pack.install({ dev: true, modulo: "nestia", version: "latest" });
     pack.install({ dev: false, modulo: "@nestia/core", version: "latest" });
     pack.install({ dev: false, modulo: "@nestia/e2e", version: "latest" });
     pack.install({ dev: false, modulo: "@nestia/fetcher", version: "latest" });
@@ -51,7 +50,7 @@ export namespace NestiaSetupWizard {
         else if (data.scripts.prepare.indexOf("typia patch") === -1)
           data.scripts.prepare = data.scripts.prepare.replace(
             "ts-patch install",
-            "ts-patch install && typia patch",
+            "ts-patch install && typia patch"
           );
       } else data.scripts.prepare = "ts-patch install && typia patch";
 
