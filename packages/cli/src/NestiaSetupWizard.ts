@@ -14,6 +14,7 @@ export namespace NestiaSetupWizard {
     const args: ArgumentParser.IArguments = await ArgumentParser.parse(pack);
 
     // INSTALL NESTIA
+    pack.install({ dev: true, modulo: "nestia", version: "latest" });
     pack.install({ dev: false, modulo: "@nestia/core", version: "latest" });
     pack.install({ dev: false, modulo: "@nestia/e2e", version: "latest" });
     pack.install({ dev: false, modulo: "@nestia/fetcher", version: "latest" });
