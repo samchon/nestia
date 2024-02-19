@@ -50,7 +50,7 @@ export namespace NestiaSetupWizard {
         else if (data.scripts.prepare.indexOf("typia patch") === -1)
           data.scripts.prepare = data.scripts.prepare.replace(
             "ts-patch install",
-            "ts-patch install && typia patch"
+            "ts-patch install && typia patch",
           );
       } else data.scripts.prepare = "ts-patch install && typia patch";
 
