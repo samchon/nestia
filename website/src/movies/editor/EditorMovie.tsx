@@ -2,7 +2,10 @@ import {
   Button,
   FormControl,
   FormControlLabel,
+  FormLabel,
   Paper,
+  Radio,
+  RadioGroup,
   Switch,
 } from "@mui/material";
 import { ISwagger, MigrateApplication } from "@nestia/migrate";
@@ -16,11 +19,15 @@ import { IValidation } from "typia";
 
 import EditorUploader from "../../components/editor/EditorUploader";
 
-const EditorMovie = () => {
-  const [swagger, setSwagger] = useState<ISwagger | null>(null);
-  const [error, setError] = useState<string | null>(null);
+const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
+  // PARAMETERS
+  const [mode, setMode] = useState<"nest" | "sdk">(props.mode);
   const [simulate, setSimulate] = useState(true);
   const [e2e, setE2e] = useState(true);
+
+  // RESULT
+  const [swagger, setSwagger] = useState<ISwagger | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(false);
 
   const createFiles = async (
@@ -39,7 +46,7 @@ const EditorMovie = () => {
       }
 
       const app: MigrateApplication = result.data;
-      const { files }: MigrateApplication.IOutput = app.sdk(config);
+      const { files }: MigrateApplication.IOutput = app[mode](config);
       for (const f of files)
         if (f.file.substring(f.file.length - 3) === ".ts")
           f.content = await format(f.content, {
@@ -88,7 +95,12 @@ const EditorMovie = () => {
       {
         newWindow: true,
         openFile: "README.md,test/start.ts",
-        startScript: simulate ? "test:simulate" : "test",
+        startScript:
+          mode === "sdk"
+            ? simulate
+              ? "test:simulate"
+              : "test"
+            : "build:test,test",
       },
     );
     setProgress(false);
@@ -99,8 +111,27 @@ const EditorMovie = () => {
       <EditorUploader onChange={handleSwagger} />
       <br />
       <FormControl fullWidth style={{ paddingLeft: 15 }}>
+        <FormLabel> Mode </FormLabel>
+        <RadioGroup
+          defaultValue={mode}
+          onChange={(evt) => setMode(evt.target.value as "nest" | "sdk")}
+          style={{ paddingLeft: 15 }}
+        >
+          <FormControlLabel
+            value="sdk"
+            control={<Radio />}
+            label="Software Development Kit"
+          />
+          <FormControlLabel
+            value="nest"
+            control={<Radio />}
+            label="NestJS Project"
+          />
+        </RadioGroup>
+        <FormLabel style={{ paddingTop: 20 }}> Options </FormLabel>
         <FormControlLabel
           label="Mockup Simulator"
+          style={{ paddingTop: 5, paddingLeft: 15 }}
           control={
             <Switch
               checked={simulate}
@@ -110,6 +141,7 @@ const EditorMovie = () => {
         />
         <FormControlLabel
           label="E2E Test Functions"
+          style={{ paddingLeft: 15 }}
           control={<Switch checked={e2e} onChange={() => setE2e(!e2e)} />}
         />
       </FormControl>
