@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { format } from "prettier";
+import { IValidation } from "typia";
 
 import { MigrateApplication } from "../MigrateApplication";
 import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
@@ -33,7 +34,16 @@ export namespace MigrateCommander {
       return swagger;
     })();
 
-    const app: MigrateApplication = new MigrateApplication(swagger);
+    const result: IValidation<MigrateApplication> =
+      MigrateApplication.create(swagger);
+    if (result.success === false) {
+      console.log(result.errors);
+      throw new Error(
+        `Invalid swagger file (must follow the OpenAPI 3.0 spec).`,
+      );
+    }
+
+    const app: MigrateApplication = result.data;
     const { files } =
       options.mode === "nest" ? app.nest(options) : app.sdk(options);
     await MigrateFileArchiver.archive({

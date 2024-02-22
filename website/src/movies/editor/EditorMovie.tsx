@@ -12,27 +12,9 @@ import prettierEsTreePlugin from "prettier/plugins/estree";
 import prettierTsPlugin from "prettier/plugins/typescript";
 import { format } from "prettier/standalone";
 import { useState } from "react";
+import { IValidation } from "typia";
 
 import EditorUploader from "../../components/editor/EditorUploader";
-
-const createFiles = async (
-  swagger: ISwagger,
-  config: MigrateApplication.IConfig,
-): Promise<null | IMigrateFile[]> => {
-  try {
-    const app: MigrateApplication = new MigrateApplication(swagger);
-    const { files }: MigrateApplication.IOutput = app.sdk(config);
-    for (const f of files)
-      if (f.file.substring(f.file.length - 3) === ".ts")
-        f.content = await format(f.content, {
-          parser: "typescript",
-          plugins: [prettierEsTreePlugin, prettierTsPlugin],
-        });
-    return files;
-  } catch {
-    return null;
-  }
-};
 
 const EditorMovie = () => {
   const [swagger, setSwagger] = useState<ISwagger | null>(null);
@@ -40,6 +22,36 @@ const EditorMovie = () => {
   const [simulate, setSimulate] = useState(true);
   const [e2e, setE2e] = useState(true);
   const [progress, setProgress] = useState(false);
+
+  const createFiles = async (
+    swagger: ISwagger,
+    config: MigrateApplication.IConfig,
+  ): Promise<null | IMigrateFile[]> => {
+    try {
+      const result: IValidation<MigrateApplication> =
+        MigrateApplication.create(swagger);
+      if (result.success === false) {
+        alert(
+          "Invalid swagger file (must follow OpenAPI 3.0 spec).\n\n" +
+            JSON.stringify(result.errors, null, 2),
+        );
+        return null;
+      }
+
+      const app: MigrateApplication = result.data;
+      const { files }: MigrateApplication.IOutput = app.sdk(config);
+      for (const f of files)
+        if (f.file.substring(f.file.length - 3) === ".ts")
+          f.content = await format(f.content, {
+            parser: "typescript",
+            plugins: [prettierEsTreePlugin, prettierTsPlugin],
+          });
+      return files;
+    } catch (exp) {
+      alert(exp instanceof Error ? exp.message : "unkown error");
+      return null;
+    }
+  };
 
   const handleSwagger = (swagger: ISwagger | null, error: string | null) => {
     setSwagger(swagger);
@@ -56,7 +68,7 @@ const EditorMovie = () => {
     });
     if (files === null) {
       setProgress(false);
-      return alert("Invalid swagger file (must follow OpenAPI 3.0 spec).");
+      return;
     }
 
     sdk.openProject(

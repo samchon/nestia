@@ -1,4 +1,4 @@
-import typia from "typia";
+import typia, { IValidation } from "typia";
 
 import { MigrateAnalyzer } from "./analyzers/MigrateAnalyzer";
 import { NEST_TEMPLATE } from "./bundles/NEST_TEMPLATE";
@@ -12,10 +12,17 @@ import { IMigrateProgram } from "./structures/IMigrateProgram";
 import { ISwagger } from "./structures/ISwagger";
 
 export class MigrateApplication {
-  public readonly swagger: ISwagger;
+  private constructor(public readonly swagger: ISwagger) {}
 
-  public constructor(swagger: ISwagger) {
-    this.swagger = typia.assert(swagger);
+  public static create(swagger: ISwagger): IValidation<MigrateApplication> {
+    const result = typia.validate<ISwagger>(swagger);
+    if (result.success)
+      return {
+        success: true,
+        data: new MigrateApplication(swagger),
+        errors: [],
+      };
+    return result;
   }
 
   public nest(config: MigrateApplication.IConfig): MigrateApplication.IOutput {

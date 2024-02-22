@@ -4,8 +4,8 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { FormatCheatSheet } from "typia/lib/tags/internal/FormatCheatSheet";
 import { Escaper } from "typia/lib/utils/Escaper";
 
-import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
+import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { FilePrinter } from "../utils/FilePrinter";
 import { SwaggerSwaggerChecker } from "../utils/SwaggerTypeChecker";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -232,8 +232,14 @@ export namespace MigrateSchemaProgrammer {
 
   const writeReference =
     (importer: MigrateImportProgrammer) =>
-    (schema: ISwaggerSchema.IReference): ts.TypeReferenceNode =>
-      importer.dto(schema.$ref.split("/").at(-1)!);
+    (
+      schema: ISwaggerSchema.IReference,
+    ): ts.TypeReferenceNode | ts.KeywordTypeNode => {
+      const name: string = schema.$ref.split("/").at(-1)!;
+      return name === ""
+        ? TypeFactory.keyword("any")
+        : importer.dto(schema.$ref.split("/").at(-1)!);
+    };
 
   /* -----------------------------------------------------------
     UNIONS
