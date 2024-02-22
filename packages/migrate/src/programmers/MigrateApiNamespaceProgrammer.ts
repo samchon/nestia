@@ -410,6 +410,7 @@ const constant = (name: string) => (expression: ts.Expression) =>
     ),
   );
 const getPath = (props: MigrateApiNamespaceProgrammer.IProps) =>
+  "/" +
   [...props.controller.path.split("/"), ...props.route.path.split("/")]
     .filter((str) => !!str.length)
     .join("/");

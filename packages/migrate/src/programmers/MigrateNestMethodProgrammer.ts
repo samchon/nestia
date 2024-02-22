@@ -114,8 +114,6 @@ export namespace MigrateNestMethodProgrammer {
         );
       else if (route.success?.type === "application/x-www-form-urlencoded")
         decorators.push(router("TypedQuery"));
-      else if (route.success?.type === "application/json")
-        decorators.push(router("TypedRoute"));
       else if (route.method === "head")
         decorators.push(
           ts.factory.createDecorator(
@@ -126,6 +124,11 @@ export namespace MigrateNestMethodProgrammer {
             ),
           ),
         );
+      else if (
+        route.success === null ||
+        route.success?.type === "application/json"
+      )
+        decorators.push(router("TypedRoute"));
       for (const [key, value] of Object.entries(route.exceptions ?? {}))
         decorators.push(
           ts.factory.createDecorator(
