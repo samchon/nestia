@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "2.0.3",
+    "version": "2.1.0",
     "title": "@samchon/bbs-backend",
     "description": "Backend for bbs",
     "license": {
@@ -471,19 +471,18 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.G.et](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nPerformance info",
+            "description": "Performance info",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/IPerformance"
                 }
               }
-            },
-            "x-nestia-encrypted": true
+            }
           }
         },
         "summary": "Get performance information",
-        "description": "Get performance information.\n\nGet perofmration information composed with CPU, memory and resource usage.\n\nAs such information is a type of sensitive, response be encrypted."
+        "description": "Get performance information.\n\nGet perofmration information composed with CPU, memory and resource usage."
       }
     },
     "/monitors/system": {
@@ -494,19 +493,18 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.G.et](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nSystem info",
+            "description": "System info",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ISystem"
                 }
               }
-            },
-            "x-nestia-encrypted": true
+            }
           }
         },
         "summary": "Get system information",
-        "description": "Get system information.\n\nGet system information with commit and package information.\n\nAs such information is a type of sensitive, response be encrypted."
+        "description": "Get system information.\n\nGet system information with commit and package information."
       }
     }
   },
