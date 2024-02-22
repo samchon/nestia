@@ -2,11 +2,11 @@ name: build
 on: 
   push:
     paths:
-      - 'src/**'
+      - 'packages/*/src/**'
       - 'test/**'
   pull_request:
     paths:
-      - 'src/**'
+      - 'packages/*/src/**'
       - 'test/**'
 
 jobs:
