@@ -27,21 +27,20 @@ npx nestia template <directory>
 <Tabs items={['npm', 'pnpm', 'yarn']}>
   <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-npm install --save-dev nestia
 npx nestia setup
 ```
   </Tab>
   <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-pnpm install --save-dev nestia
-pnpm nestia setup --manager pnpm
+npx nestia setup --manager pnpm
 ```
   </Tab>
   <Tab>
+     <Alert severity="warning">
+       Yarn berry is not supported.
+     </Alert>
 ```bash filename="Terminal" copy showLineNumbers
-# YARN BERRY IS NOT SUPPORTED
-yarn add -D nestia
-yarn nestia setup --manager yarn
+npx nestia setup --manager yarn
 ```
   </Tab>
 </Tabs>
@@ -59,7 +58,6 @@ Setup Wizard will install and configure everything automatically.
   <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # SETUP NESTIA
-npm install --save-dev nestia
 npx nestia setup
 
 # INSTALL TS-LOADER & WEBPACK
@@ -70,8 +68,7 @@ npm install --save-dev webpack webpack-cli webpack-node-externals
   <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # SETUP NESTIA
-pnpm install --save-dev nestia
-pnpm nestia setup --manager pnpm
+npx nestia setup --manager pnpm
 
 # INSTALL TS-LOADER & WEBPACK
 pnpm install --save-dev ts-loader
@@ -79,10 +76,12 @@ pnpm install --save-dev webpack webpack-cli webpack-node-externals
 ```
   </Tab>
   <Tab>
+     <Alert severity="warning">
+       Yarn berry is not supported.
+     </Alert>
 ```bash filename="Terminal" copy showLineNumbers
-# SETUP NESTIA (YARN BERY IS NOT SUPPORTED)
-yarn add -D nestia
-yarn nestia setup --manager yarn
+# SETUP NESTIA
+npx nestia setup --manager yarn
 
 # INSTALL TS-LOADER & WEBPACK
 yarn add -D ts-loader
@@ -166,7 +165,6 @@ To accomplish the light JS bundling, install special dependencies like below.
   <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # SETUP NESTIA
-npm install --save-dev nestia
 npx nestia setup
 
 # INSTALL SPECIAL DEPENDENCIES
@@ -178,8 +176,7 @@ npm install --save-dev copy-webpack-plugin write-file-webpack-plugin
   <Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # SETUP NESTIA
-pnpm install --save-dev nestia
-pnpm nestia setup --manager pnpm
+npx nestia setup --manager pnpm
 
 # INSTALL SPECIAL DEPENDENCIES
 pnpm install --save-dev ts-loader
@@ -188,10 +185,12 @@ pnpm install --save-dev copy-webpack-plugin write-file-webpack-plugin
 ```
   </Tab>
   <Tab>
+     <Alert severity="warning">
+       Yarn berry is not supported.
+     </Alert>
 ```bash filename="Terminal" copy showLineNumbers
-# SETUP NESTIA (YARN BERY IS NOT SUPPORTED)
-yarn add -D nestia
-yarn nestia setup --manager yarn
+# SETUP NESTIA
+npx nestia setup --manager yarn
 
 # INSTALL SPECIAL DEPENDENCIES
 yarn add -D ts-loader
@@ -295,20 +294,17 @@ module.exports = {
 <Tabs items={['npm', 'pnpm', 'yarn']}>
   <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-npm install --save-dev nestia
 npx nestia setup
 ```
   </Tab>
   <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-pnpm install --save-dev nestia
-pnpm nestia setup --manager pnpm
+npx nestia setup --manager pnpm
 ```
   </Tab>
   <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-yarn add -D nestia
-yarn nestia setup --manager yarn
+npx nestia setup --manager yarn
 ```
   </Tab>
 </Tabs>
