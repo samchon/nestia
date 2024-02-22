@@ -33,13 +33,6 @@ export namespace MigrateMethodAnalzyer {
         failures.push(
           `does not support ${endpoint.method.toUpperCase()} method.`,
         );
-      if (failures.length) {
-        console.log(
-          `Failed to migrate ${endpoint.method.toUpperCase()} ${endpoint.path}`,
-          ...failures.map((f) => `  - ${f}`),
-        );
-        return null;
-      }
 
       const [headers, query] = ["header", "query"].map((type) => {
         const parameters = (route.parameters ?? []).filter(
@@ -70,12 +63,12 @@ export namespace MigrateMethodAnalzyer {
             SwaggerSwaggerChecker.isArray(p.schema),
         );
         if (objects.length === 1 && primitives.length === 0) return objects[0];
-        else if (objects.length > 1)
-          throw new Error(
-            `Error on nestia.migrate.RouteProgrammer.analze(): ${type} typed parameters must be only one object type - ${StringUtil.capitalize(
-              endpoint.method,
-            )} "${endpoint.path}".`,
+        else if (objects.length > 1) {
+          failures.push(
+            `${type} typed parameters must be only one object type`,
           );
+          return false;
+        }
 
         const dto: ISwaggerSchema.IObject | null = objects[0]
           ? SwaggerSwaggerChecker.isObject(objects[0])
@@ -156,11 +149,15 @@ export namespace MigrateMethodAnalzyer {
       if (
         parameterNames.length !==
         (route.parameters ?? []).filter((p) => p.in === "path").length
-      ) {
+      )
+        failures.push(
+          "number of path parameters are not matched with its full path.",
+        );
+
+      if (failures.length) {
         console.log(
-          `Failed to migrate ${endpoint.method.toUpperCase()} ${
-            endpoint.path
-          }: number of path parameters are not matched with its full path.`,
+          `Failed to migrate ${endpoint.method.toUpperCase()} ${endpoint.path}`,
+          ...failures.map((f) => `  - ${f}`),
         );
         return null;
       }
@@ -201,8 +198,8 @@ export namespace MigrateMethodAnalzyer {
               schema: query,
             }
           : null,
-        body: body as IMigrateRoute.IBody,
-        success: success as IMigrateRoute.IBody,
+        body: body as IMigrateRoute.IBody | null,
+        success: success as IMigrateRoute.IBody | null,
         exceptions: Object.fromEntries(
           Object.entries(route.responses ?? {})
             .filter(

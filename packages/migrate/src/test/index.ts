@@ -1,6 +1,7 @@
 import cp from "child_process";
 import fs from "fs";
 import { format } from "prettier";
+import { IValidation } from "typia";
 
 import { MigrateApplication } from "../MigrateApplication";
 import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
@@ -36,7 +37,14 @@ const execute =
     measure(`${project}-${config.mode}-${config.simulate}-${config.e2e}`)(
       async () => {
         const directory = `${OUTPUT}/${project}-${config.mode}-${config.simulate}-${config.e2e}`;
-        const app: MigrateApplication = new MigrateApplication(swagger);
+        const result: IValidation<MigrateApplication> =
+          MigrateApplication.create(swagger);
+        if (result.success === false)
+          throw new Error(
+            `Invalid swagger file (must follow the OpenAPI 3.0 spec).`,
+          );
+
+        const app: MigrateApplication = result.data;
         const { files } =
           config.mode === "nest" ? app.nest(config) : app.sdk(config);
 
