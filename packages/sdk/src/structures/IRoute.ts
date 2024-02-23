@@ -4,6 +4,7 @@ import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 import { IController } from "./IController";
 
 export interface IRoute {
+  controller: Function;
   name: string;
   method: string;
   path: string;

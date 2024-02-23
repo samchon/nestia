@@ -194,6 +194,7 @@ export namespace ControllerAnalyzer {
       // CONSTRUCT COMMON DATA
       const common: Omit<IRoute, "path" | "accessors"> = {
         ...func,
+        controller: controller.target,
         parameters: parameters.filter((p) => p !== null) as IRoute.IParameter[],
         output: {
           type: outputType.type,

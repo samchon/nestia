@@ -5,6 +5,7 @@ export * from "./decorators/EncryptedModule";
 export * from "./decorators/EncryptedRoute";
 export * from "./utils/ExceptionManager";
 export * from "./decorators/PlainBody";
+export * from "./decorators/SwaggerCustomizer";
 export * from "./decorators/TypedBody";
 export * from "./decorators/TypedException";
 export * from "./decorators/TypedHeaders";
