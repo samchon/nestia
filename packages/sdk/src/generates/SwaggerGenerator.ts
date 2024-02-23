@@ -354,11 +354,11 @@ export namespace SwaggerGenerator {
         const [explicit] = getJsDocTexts("summary");
         if (explicit?.length) return explicit;
 
-        const index: number = description.indexOf(".");
-        if (index <= 0) return undefined;
-
-        const str: string = description.substring(0, index).trim();
-        return str.length && str.includes("\n") === false ? str : undefined;
+        const index: number = description.indexOf("\n");
+        const top: string = (
+          index === -1 ? description : description.substring(0, index)
+        ).trim();
+        return top.endsWith(".") ? top.substring(0, top.length - 1) : undefined;
       })();
       const deprecated = route.jsDocTags.find(
         (tag) => tag.name === "deprecated",

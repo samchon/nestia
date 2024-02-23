@@ -12,6 +12,8 @@ import type { IBbsArticle } from "../../structures/IBbsArticle";
 /**
  * Store an article.
  *
+ * Create an article, and returns it.
+ *
  * @param input Content to store
  * @returns Newly archived article
  * @author Samchon

@@ -9,6 +9,8 @@ export class AllController {
   /**
    * Store an article.
    *
+   * Create an article, and returns it.
+   *
    * @param request Request object from express. Must be disappeared in SDK
    * @param input Content to store
    * @returns Newly archived article
