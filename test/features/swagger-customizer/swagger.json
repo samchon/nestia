@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "2.5.8",
+    "version": "2.5.9-dev.20240223",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -15,7 +15,7 @@
     }
   },
   "paths": {
-    "/swagger/{key}/customize": {
+    "/custom/{key}/customize": {
       "get": {
         "tags": [],
         "parameters": [
@@ -41,10 +41,11 @@
             }
           }
         },
-        "description": "This is a custom description"
+        "description": "This is a custom description",
+        "x-special-symbol": "Something Special"
       }
     },
-    "/swagger/{id}/normal": {
+    "/custom/{id}/normal": {
       "get": {
         "tags": [],
         "parameters": [
@@ -71,7 +72,8 @@
             }
           }
         },
-        "description": "That is the normal description"
+        "description": "That is the normal description",
+        "x-special-symbol": "Something Normal"
       }
     }
   },
