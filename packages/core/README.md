@@ -66,7 +66,7 @@ Check out the document in the [website](https://nestia.io/docs/):
     - [TypedException](https://nestia.io/docs/core/TypedException/)
   - Generators
     - [Swagger Documents](https://nestia.io/docs/sdk/swagger/)
-    - [SDK Library](https://nestia.io/docs/sdk/sdk/)
+    - [Software Development Kit](https://nestia.io/docs/sdk/sdk/)
     - [E2E Functions](https://nestia.io/docs/sdk/e2e/)
     - [Mockup Simulator](https://nestia.io/docs/sdk/simulator/)
   - [Swagger to NestJS](https://nestia.io/docs/migrate/)
