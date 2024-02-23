@@ -94,6 +94,7 @@ export namespace ReflectAnalyzer {
       //----
       // BASIC INFO
       const meta: IController = {
+        target: creator,
         file,
         name,
         functions: [],

@@ -3,6 +3,7 @@ import type { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
 import type { ParamCategory } from "./ParamCategory";
 
 export interface IController {
+  target: Function;
   file: string;
   name: string;
   prefixes: string[];

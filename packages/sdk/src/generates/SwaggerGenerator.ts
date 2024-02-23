@@ -124,6 +124,54 @@ export namespace SwaggerGenerator {
         throw new TypeError("Invalid type detected");
       }
 
+      // SWAGGER CUSTOMIZER
+      const routeGetter = new Singleton(
+        () =>
+          (accessor: {
+            method: string;
+            path: string;
+          }): ISwaggerRoute | undefined => {
+            const method: string = accessor.method.toLowerCase();
+            const path: string =
+              "/" +
+              accessor.path
+                .split("/")
+                .filter((str) => !!str.length)
+                .map((str) =>
+                  str.startsWith(":") ? `{${str.substring(1)}}` : str,
+                )
+                .join("/");
+            console.log({ path, method });
+            return swagger.paths[path]?.[method];
+          },
+      );
+      for (const route of routeList) {
+        if (
+          false ===
+          Reflect.hasMetadata(
+            "nestia/SwaggerCustomizer",
+            route.controller.prototype,
+            route.symbol.function,
+          )
+        )
+          continue;
+        const path: string = get_path(route.path, route.parameters);
+        const method: string = route.method.toLowerCase();
+        const target: ISwaggerRoute = swagger.paths[path][method];
+        const closure: Function = Reflect.getMetadata(
+          "nestia/SwaggerCustomizer",
+          route.controller.prototype,
+          route.symbol.function,
+        );
+        closure({
+          route: target,
+          method,
+          path,
+          swagger,
+          get: routeGetter.get(),
+        });
+      }
+
       // DO GENERATE
       await fs.promises.writeFile(
         location,
