@@ -1384,38 +1384,28 @@ export namespace ISwaggerSecurityScheme {
 ```typescript
 export function SwaggerCustomizer(
   closure: (props: SwaggerCustomizer.IProps) => unknown,
-): MethodDecorator {
-  return function SwaggerCustomizer(
-    target: Object,
-    propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<any>,
-  ) {
-    Reflect.defineMetadata(
-      "nestia/SwaggerCustomizer",
-      closure,
-      target,
-      propertyKey,
-    );
-    return descriptor;
-  };
-}
+): MethodDecorator;
 export namespace SwaggerCustomizer {
   export interface IProps {
     swagger: ISwagger;
     method: string;
     path: string;
     route: ISwaggerRoute;
+    at(func: Function): ISwaggerEndpoint | undefined;
     get(accessor: IAccessor): ISwaggerRoute | undefined;
   }
   export interface IAccessor {
     path: string;
     method: string;
   }
+  export interface ISwaggerEndpoint extends IAccessor {
+    route: ISwaggerRoute;
+  }
 }
 ```
   </Tab>
   <Tab>
-```typescript showLineNumbers {7-20}
+```typescript showLineNumbers {7-18}
 import { SwaggerCustomizer, TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { tags } from "typia";
@@ -1427,13 +1417,10 @@ export class CustomController {
     props.route.description = "This is a custom description";
     (props.route as any)["x-special-symbol"] = "Something Special";
 
-    const neighbor = props.get({
-      method: "get",
-      path: "custom/:id/normal",
-    });
+    const neighbor = props.at(CustomController.prototype.normal);
     if (neighbor) {
       neighbor.description = "That is the normal description";
-      (neighbor as any)["x-special-symbol"] = "Something Normal";
+      (neighbor.route as any)["x-special-symbol"] = "Something Normal";
     }
   })
   @TypedRoute.Get(":key/customize")

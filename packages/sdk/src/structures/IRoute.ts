@@ -17,9 +17,9 @@ export interface IRoute {
   output: IRoute.IOutput;
 
   location: string;
-  symbol: {
-    class: string;
-    function: string;
+  target: {
+    class: Function;
+    function: Function;
   };
   description?: string;
   operationId?: string;

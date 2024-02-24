@@ -114,8 +114,8 @@ export namespace SwaggerGenerator {
         for (const e of errors)
           console.error(
             `${path.relative(e.route.location, process.cwd())}:${
-              e.route.symbol.class
-            }.${e.route.symbol.function}:${
+              e.route.target.class.name
+            }.${e.route.target.function.name}:${
               e.from
             } - error TS(@nestia/sdk): invalid type detected.\n\n` +
               e.messages.map((m) => `  - ${m}`).join("\n"),
@@ -125,51 +125,63 @@ export namespace SwaggerGenerator {
       }
 
       // SWAGGER CUSTOMIZER
-      const routeGetter = new Singleton(
-        () =>
-          (accessor: {
-            method: string;
-            path: string;
-          }): ISwaggerRoute | undefined => {
-            const method: string = accessor.method.toLowerCase();
-            const path: string =
-              "/" +
-              accessor.path
-                .split("/")
-                .filter((str) => !!str.length)
-                .map((str) =>
-                  str.startsWith(":") ? `{${str.substring(1)}}` : str,
-                )
-                .join("/");
-            console.log({ path, method });
-            return swagger.paths[path]?.[method];
-          },
-      );
+      const customizer = {
+        at: new Singleton(() => {
+          const functor: Map<Function, Endpoint> = new Map();
+          for (const route of routeList) {
+            const method = route.method.toLowerCase();
+            const path = get_path(route.path, route.parameters);
+            functor.set(route.target.function, {
+              method,
+              path,
+              route: swagger.paths[path][method],
+            });
+          }
+          return functor;
+        }),
+        get: new Singleton(() => (key: Accessor): ISwaggerRoute | undefined => {
+          const method: string = key.method.toLowerCase();
+          const path: string =
+            "/" +
+            key.path
+              .split("/")
+              .filter((str) => !!str.length)
+              .map((str) =>
+                str.startsWith(":") ? `{${str.substring(1)}}` : str,
+              )
+              .join("/");
+          return swagger.paths[path]?.[method];
+        }),
+      };
       for (const route of routeList) {
         if (
           false ===
           Reflect.hasMetadata(
             "nestia/SwaggerCustomizer",
             route.controller.prototype,
-            route.symbol.function,
+            route.target.function.name,
           )
         )
           continue;
+
         const path: string = get_path(route.path, route.parameters);
         const method: string = route.method.toLowerCase();
         const target: ISwaggerRoute = swagger.paths[path][method];
-        const closure: Function = Reflect.getMetadata(
+        const closure: Function | Function[] = Reflect.getMetadata(
           "nestia/SwaggerCustomizer",
           route.controller.prototype,
-          route.symbol.function,
+          route.target.function.name,
         );
-        closure({
-          route: target,
-          method,
-          path,
-          swagger,
-          get: routeGetter.get(),
-        });
+        const array: Function[] = Array.isArray(closure) ? closure : [closure];
+        for (const fn of array)
+          fn({
+            route: target,
+            method,
+            path,
+            swagger,
+            at: (func: Function) => customizer.at.get().get(func),
+            get: (accessor: Accessor) => customizer.get.get()(accessor),
+          });
       }
 
       // DO GENERATE
@@ -231,7 +243,7 @@ export namespace SwaggerGenerator {
           for (const [key, scopes] of Object.entries(record))
             validate((str) =>
               violations.push(
-                `  - ${str} (${route.symbol} at "${route.location}")`,
+                `  - ${str} (${route.target.class.name}.${route.target.function.name}() at "${route.location}")`,
               ),
             )(key, scopes);
 
@@ -370,8 +382,8 @@ export namespace SwaggerGenerator {
         operationId:
           route.operationId ??
           props.config.operationId?.({
-            class: route.symbol.class,
-            function: route.symbol.function,
+            class: route.target.class.name,
+            function: route.target.function.name,
             method: route.method as "GET",
             path: route.path,
           }),
@@ -421,4 +433,14 @@ export namespace SwaggerGenerator {
       };
     return input;
   }
+}
+
+interface Accessor {
+  method: string;
+  path: string;
+}
+interface Endpoint {
+  method: string;
+  path: string;
+  route: ISwaggerRoute;
 }

@@ -18,6 +18,7 @@ export interface IController {
 
 export namespace IController {
   export interface IFunction {
+    target: Function;
     name: string;
     method: string;
     paths: string[];
