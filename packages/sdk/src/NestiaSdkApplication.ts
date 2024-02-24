@@ -186,7 +186,7 @@ export class NestiaSdkApplication {
             implicit
               .map(
                 (it) =>
-                  `  - ${it.symbol.class}.${it.symbol.function} at "${it.location}"`,
+                  `  - ${it.target.class.name}.${it.target.function.name} at "${it.location}"`,
               )
               .join("\n"),
         );

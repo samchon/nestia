@@ -203,9 +203,9 @@ export namespace ControllerAnalyzer {
         },
         imports,
         status: func.status,
-        symbol: {
-          class: controller.name,
-          function: func.name,
+        target: {
+          class: controller.target,
+          function: func.target,
         },
         location: (() => {
           const file = declaration.getSourceFile();

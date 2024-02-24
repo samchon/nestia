@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "2.5.9-dev.20240223",
+    "version": "2.5.10",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -15,7 +15,7 @@
     }
   },
   "paths": {
-    "/custom/{key}/customize": {
+    "/custom/{key}/{value}/customize": {
       "get": {
         "tags": [],
         "parameters": [
@@ -24,6 +24,15 @@
             "in": "path",
             "schema": {
               "type": "number"
+            },
+            "description": "",
+            "required": true
+          },
+          {
+            "name": "value",
+            "in": "path",
+            "schema": {
+              "type": "string"
             },
             "description": "",
             "required": true
@@ -42,6 +51,10 @@
           }
         },
         "description": "This is a custom description",
+        "x-selector": {
+          "method": "get",
+          "path": "/custom/{id}/normal"
+        },
         "x-special-symbol": "Something Special"
       }
     },
@@ -72,7 +85,6 @@
             }
           }
         },
-        "description": "That is the normal description",
         "x-special-symbol": "Something Normal"
       }
     }

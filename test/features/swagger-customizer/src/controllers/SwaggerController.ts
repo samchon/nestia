@@ -1,6 +1,8 @@
 import { SwaggerCustomizer, TypedParam, TypedRoute } from "@nestia/core";
-import { Controller } from "@nestjs/common";
+import { Controller, Param } from "@nestjs/common";
 import { tags } from "typia";
+
+import { SelectorParam } from "../decorators/SelectorParam";
 
 @Controller("custom")
 export class CustomController {
@@ -13,14 +15,17 @@ export class CustomController {
       method: "get",
       path: "custom/:id/normal",
     });
-    if (neighbor) {
-      neighbor.description = "That is the normal description";
-      (neighbor as any)["x-special-symbol"] = "Something Normal";
-    }
+    if (neighbor) (neighbor as any)["x-special-symbol"] = "Something Normal";
   })
-  @TypedRoute.Get(":key/customize")
-  public customize(@TypedParam("key") key: number): string {
-    return key.toString();
+  @TypedRoute.Get(":key/:value/customize")
+  public customize(
+    @TypedParam("key")
+    __key: number,
+    @SelectorParam(() => CustomController.prototype.normal)
+    @Param("value")
+    __value: string,
+  ): string {
+    return `{ ${__key}: ${__value} }`;
   }
 
   @TypedRoute.Get(":id/normal")

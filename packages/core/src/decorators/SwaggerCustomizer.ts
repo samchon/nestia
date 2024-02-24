@@ -23,12 +23,23 @@ export function SwaggerCustomizer(
     propertyKey: string | symbol,
     descriptor: TypedPropertyDescriptor<any>,
   ) {
-    Reflect.defineMetadata(
-      "nestia/SwaggerCustomizer",
-      closure,
-      target,
-      propertyKey,
-    );
+    const array: Array<(props: SwaggerCustomizer.IProps) => unknown> = (() => {
+      if (Reflect.hasMetadata("nestia/SwaggerCustomizer", target, propertyKey))
+        return Reflect.getMetadata(
+          "nestia/SwaggerCustomizer",
+          target,
+          propertyKey,
+        );
+      const array: Array<(props: SwaggerCustomizer.IProps) => unknown> = [];
+      Reflect.defineMetadata(
+        "nestia/SwaggerCustomizer",
+        array,
+        target,
+        propertyKey,
+      );
+      return array;
+    })();
+    array.push(closure);
     return descriptor;
   };
 }
@@ -62,6 +73,14 @@ export namespace SwaggerCustomizer {
     route: ISwaggerRoute;
 
     /**
+     * Get neighbor endpoint data through the controller method.
+     *
+     * @param func Controller method to find the neighbor endpoint
+     * @returns Neighbor endpoint data
+     */
+    at(func: Function): ISwaggerEndpoint | undefined;
+
+    /**
      * Get neighbor route data.
      *
      * @param accessor Accessor for getting neighbor route data
@@ -83,5 +102,15 @@ export namespace SwaggerCustomizer {
      * Method of the neighbor route.
      */
     method: string;
+  }
+
+  /**
+   * Endpoint info of the route.
+   */
+  export interface ISwaggerEndpoint extends IAccessor {
+    /**
+     * Route data.
+     */
+    route: ISwaggerRoute;
   }
 }

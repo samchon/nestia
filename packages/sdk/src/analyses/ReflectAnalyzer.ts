@@ -262,6 +262,7 @@ export namespace ReflectAnalyzer {
 
       // DO CONSTRUCT
       const meta: IController.IFunction = {
+        target: proto,
         name,
         method: method === "ALL" ? "POST" : method,
         paths: _Get_paths(proto).filter((str) => {
