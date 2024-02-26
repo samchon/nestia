@@ -25,10 +25,17 @@ export class MigrateImportProgrammer {
     return name;
   }
 
-  public dto(name: string): ts.TypeReferenceNode {
+  public dto(name: string, namespace?: string): ts.TypeReferenceNode {
     const file: string = name.split(".")[0];
     this.dtos_.add(file);
-    return ts.factory.createTypeReferenceNode(name);
+    return ts.factory.createTypeReferenceNode(
+      namespace?.length
+        ? ts.factory.createQualifiedName(
+            ts.factory.createIdentifier(namespace),
+            ts.factory.createIdentifier(file),
+          )
+        : name,
+    );
   }
 
   public tag(type: string, arg: number | string): ts.TypeReferenceNode {
