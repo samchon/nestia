@@ -3,10 +3,12 @@ on:
   push:
     paths:
       - 'packages/*/src/**'
+      - 'packages/*/package.json'
       - 'test/**'
   pull_request:
     paths:
       - 'packages/*/src/**'
+      - 'packages/*/package.json'
       - 'test/**'
 
 jobs:
