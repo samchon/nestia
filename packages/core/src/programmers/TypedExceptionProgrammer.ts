@@ -25,6 +25,8 @@ export namespace TypedExceptionProgrammer {
             },
           },
         ]);
+      // CHECK DUPLICATED TRNASFORMATION
+      else if (expression.arguments.length === 3) return expression;
 
       // GET TYPE INFO
       const node: ts.TypeNode = expression.typeArguments[0];
@@ -47,9 +49,6 @@ export namespace TypedExceptionProgrammer {
           },
         ]);
       JsonMetadataFactory.analyze("@nestia.core.TypedException")(checker)(type);
-
-      // CHECK DUPLICATED TRNASFORMATION
-      if (expression.arguments.length === 3) return expression;
 
       // DO TRANSFORM
       const name: string = TypeFactory.getFullName(checker)(type);
