@@ -8,6 +8,7 @@ import { Controller } from "@nestjs/common";
 import typia, { TypeGuardError } from "typia";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
+import { IExceptional } from "@api/lib/structures/IExceptional";
 import { IInternalServerError } from "@api/lib/structures/IInternalServerError";
 import { INotFound } from "@api/lib/structures/INotFound";
 import { IUnprocessibleEntity } from "@api/lib/structures/IUnprocessibleEntity";
@@ -26,6 +27,17 @@ export class ExceptionController {
     section;
     input;
     return typia.random<IBbsArticle>();
+  }
+
+  @TypedRoute.Get(":section/union")
+  @TypedException<
+    IExceptional.Something | IExceptional.Nothing | IExceptional.Everything
+  >(428, "unable to process the request")
+  public async union(
+    @TypedParam("section") section: string,
+  ): Promise<IBbsArticle | INotFound | IUnprocessibleEntity> {
+    section;
+    return typia.random<IBbsArticle | INotFound | IUnprocessibleEntity>();
   }
 
   /**

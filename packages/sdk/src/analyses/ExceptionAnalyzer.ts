@@ -1,5 +1,8 @@
 import path from "path";
 import ts from "typescript";
+import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
+import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
+import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 import { IController } from "../structures/IController";
 import { INestiaProject } from "../structures/INestiaProject";
@@ -57,6 +60,11 @@ export namespace ExceptionAnalyzer {
         return false;
 
       // GET TYPE INFO
+      const status: string | null = getStatus(project.checker)(
+        decorator.expression.arguments[0] ?? null,
+      );
+      if (status === null) return false;
+
       const node: ts.TypeNode = decorator.expression.typeArguments![0];
       const type: ts.Type = project.checker.getTypeFromTypeNode(node);
       if (type.isTypeParameter()) {
@@ -91,12 +99,7 @@ export namespace ExceptionAnalyzer {
 
       // DO ASSIGN
       const matched: IController.IException[] = Object.entries(func.exceptions)
-        .filter(([_key, value]) =>
-          value.type.includes(" | ") && tuple.typeName.includes(" | ")
-            ? value.type.split(" | ").sort().join(" | ") ===
-              tuple.typeName.split(" | ").sort().join(" | ")
-            : value.type === tuple.typeName,
-        )
+        .filter(([key]) => status === key)
         .map(([_key, value]) => value);
       for (const m of matched)
         output[m.status] = {
@@ -106,6 +109,32 @@ export namespace ExceptionAnalyzer {
           description: m.description,
         };
       return true;
+    };
+
+  const getStatus =
+    (checker: ts.TypeChecker) =>
+    (expression: ts.Expression | null): string | null => {
+      if (expression === null) return null;
+
+      const type: ts.Type = checker.getTypeAtLocation(expression);
+      const result = MetadataFactory.analyze(checker)({
+        escape: true,
+        constant: true,
+        absorb: true,
+      })(new MetadataCollection())(type);
+      if (false === result.success) return null;
+
+      const meta: Metadata = result.data;
+      if (meta.constants.length === 1)
+        return meta.constants[0].values[0].toString();
+      else if (meta.escaped && meta.escaped.returns.constants.length === 1)
+        return meta.escaped.returns.constants[0].values[0].toString();
+      else if (ts.isStringLiteral(expression)) return expression.text;
+      else if (ts.isNumericLiteral(expression)) {
+        const value: number = Number(expression.text.split("_").join(""));
+        if (false === isNaN(value)) return value.toString();
+      }
+      return null;
     };
 }
 

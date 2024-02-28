@@ -58,14 +58,14 @@ export function TypedException<T>(
   ) {
     const array: IProps[] = (() => {
       const oldbie: IProps[] | undefined = Reflect.getMetadata(
-        `nestia/TypedException`,
+        "nestia/TypedException",
         (target as any)[propertyKey],
       );
       if (oldbie !== undefined) return oldbie;
 
       const newbie: IProps[] = [];
       Reflect.defineMetadata(
-        `nestia/TypedException`,
+        "nestia/TypedException",
         newbie,
         (target as any)[propertyKey],
       );
