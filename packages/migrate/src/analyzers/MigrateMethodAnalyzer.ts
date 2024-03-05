@@ -18,7 +18,11 @@ export namespace MigrateMethodAnalzyer {
       )(route.requestBody);
       const success = emplaceBodySchema("response")(
         emplaceReference(props.swagger)("response"),
-      )(route.responses?.["201"] ?? route.responses?.["200"]);
+      )(
+        route.responses?.["201"] ??
+          route.responses?.["200"] ??
+          route.responses?.default,
+      );
 
       const failures: string[] = [];
       if (body === false)
@@ -206,6 +210,7 @@ export namespace MigrateMethodAnalzyer {
               ([key, value]) =>
                 key !== "200" &&
                 key !== "201" &&
+                key !== "default" &&
                 !!value.content?.["application/json"],
             )
             .map(([key, value]) => [

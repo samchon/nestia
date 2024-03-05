@@ -57,8 +57,8 @@ export namespace ISwaggerSecurityScheme {
     }
     export interface IFlow {
       authorizationUrl: string;
-      tokenUrl: string;
-      refreshUrl: string;
+      tokenUrl?: string;
+      refreshUrl?: string;
       scopes?: Record<string, string>;
     }
   }
