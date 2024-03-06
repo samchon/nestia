@@ -3,7 +3,6 @@ import import2 from "import2";
 import { HttpError } from "../HttpError";
 import { IConnection } from "../IConnection";
 import { IPropagation } from "../IPropagation";
-import { Primitive } from "../Primitive";
 import { IFetchRoute } from "./IFetchRoute";
 import { Singleton } from "./Singleton";
 
@@ -27,7 +26,7 @@ export namespace FetcherBase {
       route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
       input?: Input,
       stringify?: (input: Input) => string,
-    ): Promise<Primitive<Output>> => {
+    ): Promise<Output> => {
       const result = await _Propagate("fetch")(props)(
         connection,
         route,
@@ -42,7 +41,7 @@ export namespace FetcherBase {
           result.headers,
           result.data as string,
         );
-      return result.data as Primitive<Output>;
+      return result.data as Output;
     };
 
   export const propagate =
