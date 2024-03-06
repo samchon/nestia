@@ -1,6 +1,5 @@
 import { IConnection } from "./IConnection";
 import { IPropagation } from "./IPropagation";
-import { Primitive } from "./Primitive";
 import { FetcherBase } from "./internal/FetcherBase";
 import { IFetchRoute } from "./internal/IFetchRoute";
 
@@ -42,7 +41,7 @@ export namespace PlainFetcher {
   export function fetch<Output>(
     connection: IConnection,
     route: IFetchRoute<"GET">,
-  ): Promise<Primitive<Output>>;
+  ): Promise<Output>;
 
   /**
    * Fetch function for the `POST`, `PUT`, `PATCH` and `DELETE` methods.
@@ -56,14 +55,14 @@ export namespace PlainFetcher {
     route: IFetchRoute<"POST" | "PUT" | "PATCH" | "DELETE">,
     input?: Input,
     stringify?: (input: Input) => string,
-  ): Promise<Primitive<Output>>;
+  ): Promise<Output>;
 
   export async function fetch<Input, Output>(
     connection: IConnection,
     route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
     input?: Input,
     stringify?: (input: Input) => string,
-  ): Promise<Primitive<Output>> {
+  ): Promise<Output> {
     if (route.request?.encrypted === true || route.response?.encrypted === true)
       throw new Error(
         "Error on PlainFetcher.fetch(): PlainFetcher doesn't have encryption ability. Use EncryptedFetcher instead.",

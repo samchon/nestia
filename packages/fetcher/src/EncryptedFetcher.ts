@@ -2,7 +2,6 @@ import { AesPkcs5 } from "./AesPkcs5";
 import { IConnection } from "./IConnection";
 import { IEncryptionPassword } from "./IEncryptionPassword";
 import { IPropagation } from "./IPropagation";
-import { Primitive } from "./Primitive";
 import { FetcherBase } from "./internal/FetcherBase";
 import { IFetchRoute } from "./internal/IFetchRoute";
 
@@ -43,7 +42,7 @@ export namespace EncryptedFetcher {
   export function fetch<Output>(
     connection: IConnection,
     route: IFetchRoute<"GET">,
-  ): Promise<Primitive<Output>>;
+  ): Promise<Output>;
 
   /**
    * Fetch function for the `POST`, `PUT`, `PATCH` and `DELETE` methods.
@@ -57,14 +56,14 @@ export namespace EncryptedFetcher {
     route: IFetchRoute<"POST" | "PUT" | "PATCH" | "DELETE">,
     input?: Input,
     stringify?: (input: Input) => string,
-  ): Promise<Primitive<Output>>;
+  ): Promise<Output>;
 
   export async function fetch<Input, Output>(
     connection: IConnection,
     route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
     input?: Input,
     stringify?: (input: Input) => string,
-  ): Promise<Primitive<Output>> {
+  ): Promise<Output> {
     if (
       (route.request?.encrypted === true || route.response?.encrypted) &&
       connection.encryption === undefined
