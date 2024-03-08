@@ -32,7 +32,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "^2.5.15",
+    "@nestia/fetcher": "D:\\github\\samchon\\nestia\\packages\\fetcher\\nestia-fetcher-2.5.15.tgz",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",
