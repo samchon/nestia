@@ -66,7 +66,7 @@ export namespace DynamicExecutor {
      *
      * @param name Function name
      * @param closure Function to be executed
-     * @param parameters Parameters that get from options.parameters function.
+     * @param parameters Parameters, result of options.parameters function.
      * @returns Wrapper function
      */
     wrapper?: (
