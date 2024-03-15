@@ -68,7 +68,11 @@ export namespace DynamicExecutor {
      * @param closure Function to be executed
      * @returns Wrapper function
      */
-    wrapper?: (name: string, closure: Closure<Parameters, Ret>) => Promise<any>;
+    wrapper?: (
+      name: string,
+      closure: Closure<Parameters, Ret>,
+      paramters: Parameters,
+    ) => Promise<any>;
 
     /**
      * Whether to show elapsed time on `console` or not.
@@ -228,7 +232,7 @@ export namespace DynamicExecutor {
 
         const func = async () => {
           if (options.wrapper !== undefined)
-            await options.wrapper(key, closure);
+            await options.wrapper(key, closure, options.parameters(key));
           else await closure(...options.parameters(key));
         };
         const label: string = chalk.greenBright(key);
