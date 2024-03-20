@@ -1,6 +1,7 @@
 import * as Constants from "@nestjs/common/constants";
 import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
 import "reflect-metadata";
+import { Singleton } from "tstl";
 import { equal } from "tstl/ranges";
 
 import { IController } from "../structures/IController";
@@ -361,7 +362,7 @@ export namespace ReflectAnalyzer {
     const typeIndex: number = Number(symbol[0]);
     if (isNaN(typeIndex) === true) return null;
 
-    const type: ParamCategory | undefined = NEST_PARAMETER_TYPES[typeIndex];
+    const type: ParamCategory | undefined = nestParameterType.get()[typeIndex];
     if (type === undefined) return null;
 
     return {
@@ -452,18 +453,49 @@ const METHODS = [
   "HEAD",
 ];
 
-// node_modules/@nestjs/common/lib/route-paramtypes.enum.ts
-const NEST_PARAMETER_TYPES = [
-  undefined,
-  undefined,
-  undefined,
-  "body",
-  "query",
-  "param",
-  "headers",
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-] as const;
+// https://github.com/nestjs/nest/blob/master/packages/common/enums/route-paramtypes.enum.ts
+const nestParameterType = new Singleton<Array<ParamCategory | undefined>>(
+  () => {
+    const { version } = require("@nestjs/common/package.json");
+    const [major, minor, patch] = version.split(".").map(Number);
+    const rawBody: boolean = [
+      major >= 10,
+      major > 10 || minor >= 3,
+      major > 10 ||
+        (major === 10 && minor > 3) ||
+        (major === 10 &&
+          minor === 3 &&
+          ((isNaN(patch) && version.split(".")[2] >= "4") || patch >= 4)),
+    ].every((b) => b);
+    return rawBody
+      ? [
+          undefined,
+          undefined,
+          undefined,
+          "body",
+          undefined, // rawBody
+          "query",
+          "param",
+          "headers",
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+        ]
+      : [
+          undefined,
+          undefined,
+          undefined,
+          "body",
+          "query",
+          "param",
+          "headers",
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+        ];
+  },
+);
