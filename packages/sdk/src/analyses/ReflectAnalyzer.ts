@@ -453,7 +453,7 @@ const METHODS = [
   "HEAD",
 ];
 
-// node_modules/@nestjs/common/enums/route-paramtypes.enum.ts
+// https://github.com/nestjs/nest/blob/master/packages/common/enums/route-paramtypes.enum.ts
 const nestParameterType = new Singleton<Array<ParamCategory | undefined>>(
   () => {
     const { version } = require("@nestjs/common/package.json");
@@ -473,7 +473,7 @@ const nestParameterType = new Singleton<Array<ParamCategory | undefined>>(
           undefined,
           undefined,
           "body",
-          "rawBody",
+          undefined, // rawBody
           "query",
           "param",
           "headers",

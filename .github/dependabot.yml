@@ -1,43 +1,28 @@
 version: 2
 updates:
-#######################################################
   - package-ecosystem: 'npm'
     directory: '/packages/test'
     schedule:
       interval: 'daily'
-    # versioning-strategy: increase
+    versioning-strategy: increase
     open-pull-requests-limit: 25
     allow:
-      - dependency-name: "@nestia/fetcher"
-      - dependency-name: "typia"
-#######################################################
-  - package-ecosystem: 'npm'
-    directory: '/packages/e2e'
-    schedule:
-      interval: 'daily'
-    # versioning-strategy: increase
-    open-pull-requests-limit: 25
-    allow:
-      - dependency-name: "typia"
-#######################################################
-  - package-ecosystem: 'npm'
-    directory: '/packages/sdk'
-    schedule:
-      interval: 'daily'
-    # versioning-strategy: increase
-    open-pull-requests-limit: 25
-    allow:
-      - dependency-name: "@nestia/fetcher"
-      - dependency-name: "tgrid"
       - dependency-name: "tstl"
       - dependency-name: "typia"
-#######################################################
-  - package-ecosystem: 'npm'
-    directory: '/test'
-    schedule:
-      interval: 'daily'
-    # versioning-strategy: increase
-    open-pull-requests-limit: 25
-    allow:
-      - dependency-name: "typia"
-#######################################################
+      - dependency-name: "@nestjs/*"
+      - dependency-name: ts-node
+      - dependency-name: ts-patch
+      - dependency-name: typescript
+    groups:
+      NestJS:
+        patterns:
+          - "@nestjs/*"
+      Samchon:
+        patterns:
+          - "tstl"
+          - "typia"
+      TypeScript:
+        patterns:
+          - "ts-node"
+          - "ts-patch"
+          - "typescript"
