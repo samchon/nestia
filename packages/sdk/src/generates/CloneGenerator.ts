@@ -5,15 +5,15 @@ import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
 import { FilePrinter } from "./internal/FilePrinter";
 import { ImportDictionary } from "./internal/ImportDictionary";
-import { SdkInterfaceProgrammer } from "./internal/SdkCloneProgrammer";
+import { SdkCloneProgrammer } from "./internal/SdkCloneProgrammer";
 
-export namespace SdkCloneProgrammer {
+export namespace CloneGenerator {
   export const write =
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     async (routes: IRoute[]): Promise<void> => {
-      const dict: Map<string, SdkInterfaceProgrammer.IModule> =
-        SdkInterfaceProgrammer.write(checker)(config)(routes);
+      const dict: Map<string, SdkCloneProgrammer.IModule> =
+        SdkCloneProgrammer.write(checker)(config)(routes);
       if (dict.size === 0) return;
       try {
         await fs.promises.mkdir(`${config.output}/structures`);
@@ -23,10 +23,7 @@ export namespace SdkCloneProgrammer {
 
   const writeDtoFile =
     (config: INestiaConfig) =>
-    async (
-      key: string,
-      value: SdkInterfaceProgrammer.IModule,
-    ): Promise<void> => {
+    async (key: string, value: SdkCloneProgrammer.IModule): Promise<void> => {
       const location: string = `${config.output}/structures/${key}.ts`;
       const importer: ImportDictionary = new ImportDictionary(location);
       const statements: ts.Statement[] = iterate(importer)(value);
@@ -44,7 +41,7 @@ export namespace SdkCloneProgrammer {
 
   const iterate =
     (importer: ImportDictionary) =>
-    (modulo: SdkInterfaceProgrammer.IModule): ts.Statement[] => {
+    (modulo: SdkCloneProgrammer.IModule): ts.Statement[] => {
       const output: ts.Statement[] = [];
       if (modulo.programmer !== null) output.push(modulo.programmer(importer));
       if (modulo.children.size) {

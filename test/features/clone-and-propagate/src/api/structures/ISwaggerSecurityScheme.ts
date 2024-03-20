@@ -32,7 +32,7 @@ export namespace ISwaggerSecurityScheme {
     /**
      * @default header
      */
-    in?: undefined | "header" | "query" | "cookie";
+    in?: undefined | "cookie" | "header" | "query";
     /**
      * @default Authorization
      */
@@ -60,8 +60,8 @@ export namespace ISwaggerSecurityScheme {
     };
     export type IFlow = {
       authorizationUrl: string;
-      tokenUrl: string;
-      refreshUrl: string;
+      tokenUrl?: undefined | string;
+      refreshUrl?: undefined | string;
       scopes?: undefined | Recordstringstring;
     };
   }

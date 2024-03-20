@@ -5,7 +5,7 @@ import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
-import { SdkCloneProgrammer } from "./CloneGenerator";
+import { CloneGenerator } from "./CloneGenerator";
 import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
 
@@ -44,7 +44,7 @@ export namespace SdkGenerator {
       }
 
       // STRUCTURES
-      if (config.clone) await SdkCloneProgrammer.write(checker)(config)(routes);
+      if (config.clone) await CloneGenerator.write(checker)(config)(routes);
 
       // FUNCTIONAL
       await SdkFileProgrammer.generate(checker)(config)(routes);

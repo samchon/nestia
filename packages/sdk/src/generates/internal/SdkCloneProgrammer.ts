@@ -14,7 +14,7 @@ import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
-export namespace SdkInterfaceProgrammer {
+export namespace SdkCloneProgrammer {
   export interface IModule {
     name: string;
     children: Map<string, IModule>;
@@ -57,16 +57,12 @@ export namespace SdkInterfaceProgrammer {
 
       const dict: Map<string, IModule> = new Map();
       for (const alias of collection.aliases())
-        prepare(dict)(alias.name)((importer) =>
-          write_alias(config)(importer)(alias),
-        );
+        if (isNamedDeclaration(alias.name))
+          prepare(dict)(alias.name)((importer) =>
+            write_alias(config)(importer)(alias),
+          );
       for (const object of collection.objects())
-        if (
-          object.name !== "__type" &&
-          !object.name.startsWith("__type.") &&
-          object.name !== "__object" &&
-          !object.name.startsWith("__object.")
-        )
+        if (isNamedDeclaration(object.name))
           prepare(dict)(object.name)((importer) =>
             write_object(config)(importer)(object),
           );
@@ -121,6 +117,13 @@ export namespace SdkInterfaceProgrammer {
       );
     };
 }
+
+const isNamedDeclaration = (name: string) =>
+  name !== "object" &&
+  name !== "__type" &&
+  !name.startsWith("__type.") &&
+  name !== "__object" &&
+  !name.startsWith("__object.");
 
 const writeComment =
   (atomics: MetadataAtomic[]) =>

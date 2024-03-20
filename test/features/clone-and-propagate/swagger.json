@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "2.5.8",
+    "version": "2.5.16",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -4976,11 +4976,11 @@
           "target": {
             "type": "string",
             "enum": [
-              "string",
-              "number",
+              "array",
               "bigint",
               "boolean",
-              "array"
+              "number",
+              "string"
             ]
           },
           "name": {
@@ -5005,6 +5005,9 @@
           "value": {},
           "validate": {
             "type": "string"
+          },
+          "schema": {
+            "$ref": "#/components/schemas/object"
           }
         },
         "nullable": false,
@@ -5014,6 +5017,11 @@
           "kind",
           "exclusive"
         ]
+      },
+      "object": {
+        "type": "object",
+        "properties": {},
+        "nullable": false
       },
       "IJsonSchema.IInteger": {
         "type": "object",
@@ -6794,9 +6802,9 @@
           "in": {
             "type": "string",
             "enum": [
+              "cookie",
               "header",
-              "query",
-              "cookie"
+              "query"
             ],
             "default": "header"
           },
@@ -6887,9 +6895,7 @@
         },
         "nullable": false,
         "required": [
-          "authorizationUrl",
-          "tokenUrl",
-          "refreshUrl"
+          "authorizationUrl"
         ]
       },
       "Recordstringstring": {
@@ -6913,8 +6919,7 @@
         },
         "nullable": false,
         "required": [
-          "authorizationUrl",
-          "refreshUrl"
+          "authorizationUrl"
         ],
         "description": "Construct a type with the properties of T except for those in type K."
       },
@@ -6932,10 +6937,6 @@
           }
         },
         "nullable": false,
-        "required": [
-          "tokenUrl",
-          "refreshUrl"
-        ],
         "description": "Construct a type with the properties of T except for those in type K."
       },
       "Template": {
@@ -8745,8 +8746,8 @@
           "oauth_type": {
             "type": "string",
             "enum": [
-              "google",
               "github",
+              "google",
               "kakao"
             ]
           }
@@ -8797,8 +8798,8 @@
           "user_type": {
             "type": "string",
             "enum": [
-              "default",
               "admin",
+              "default",
               "seller"
             ]
           }
