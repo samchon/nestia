@@ -48,6 +48,7 @@ export namespace SdkTypeProgrammer {
         union.push(write_array(config)(importer)(array));
       for (const object of meta.objects)
         if (
+          object.name === "object" ||
           object.name === "__type" ||
           object.name.startsWith("__type.") ||
           object.name === "__object" ||

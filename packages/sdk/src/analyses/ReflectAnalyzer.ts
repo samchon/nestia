@@ -1,7 +1,7 @@
 import * as Constants from "@nestjs/common/constants";
 import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
 import "reflect-metadata";
-import { equal } from "tstl/ranges/module";
+import { equal } from "tstl/ranges";
 
 import { IController } from "../structures/IController";
 import { IErrorReport } from "../structures/IErrorReport";

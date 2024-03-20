@@ -11,7 +11,7 @@ export namespace OmitISwaggerSecurityScheme {
        */
       {
         authorizationUrl: string;
-        refreshUrl: string;
+        refreshUrl?: undefined | string;
         scopes?: undefined | Recordstringstring;
       };
     /**
@@ -22,8 +22,8 @@ export namespace OmitISwaggerSecurityScheme {
        * Construct a type with the properties of T except for those in type K.
        */
       {
-        tokenUrl: string;
-        refreshUrl: string;
+        tokenUrl?: undefined | string;
+        refreshUrl?: undefined | string;
         scopes?: undefined | Recordstringstring;
       };
   }

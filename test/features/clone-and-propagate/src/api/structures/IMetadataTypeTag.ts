@@ -1,8 +1,9 @@
 export type IMetadataTypeTag = {
-  target: "string" | "number" | "bigint" | "boolean" | "array";
+  target: "array" | "bigint" | "boolean" | "number" | "string";
   name: string;
   kind: string;
   exclusive: boolean | string[];
   value?: any | undefined;
   validate?: undefined | string;
+  schema?: undefined | {};
 };
