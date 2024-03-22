@@ -1,55 +1,20 @@
 import { IJsDocTagInfo } from "typia/lib/schemas/metadata/IJsDocTagInfo";
 
-import { ISwaggerSchema } from "./ISwaggerSchema";
+import { ISwaggerRouteParameter } from "./ISwaggerRouteParameter";
+import { ISwaggerRouteRequestBody } from "./ISwaggerRouteRequestBody";
+import { ISwaggerRouteResponse } from "./ISwaggerRouteResponse";
 
 export interface ISwaggerRoute {
-  parameters?: ISwaggerRoute.IParameter[];
-  requestBody?: ISwaggerRoute.IRequestBody;
-  responses?: ISwaggerRoute.IResponseBody;
+  parameters?: (ISwaggerRouteParameter | ISwaggerRouteParameter.IReference)[];
+  requestBody?: ISwaggerRouteRequestBody;
+  responses?: Record<
+    string,
+    ISwaggerRouteResponse | ISwaggerRouteResponse.IReference
+  >;
   summary?: string;
   description?: string;
   deprecated?: boolean;
   security?: Record<string, string[]>[];
   tags?: string[];
   "x-nestia-jsDocTags"?: IJsDocTagInfo[];
-}
-export namespace ISwaggerRoute {
-  export interface IParameter {
-    name?: string;
-    in: "path" | "query" | "header" | "cookie";
-    schema: ISwaggerSchema;
-    required?: boolean;
-    description?: string;
-  }
-  export interface IRequestBody {
-    description?: string;
-    content: IContent;
-    required?: boolean;
-    "x-nestia-encrypted"?: boolean;
-  }
-  export type IResponseBody = Record<
-    string,
-    {
-      description?: string;
-      content?: IContent;
-      "x-nestia-encrypted"?: boolean;
-    }
-  >;
-  export interface IContent {
-    "text/plain"?: {
-      schema: ISwaggerSchema;
-    };
-    "application/json"?: {
-      schema: ISwaggerSchema;
-    };
-    "application/x-www-form-urlencoded"?: {
-      schema: ISwaggerSchema;
-    };
-    "multipart/form-data"?: {
-      schema: ISwaggerSchema;
-    };
-    "*/*"?: {
-      schema: ISwaggerSchema;
-    };
-  }
 }

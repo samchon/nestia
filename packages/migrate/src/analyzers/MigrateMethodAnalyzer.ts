@@ -1,12 +1,17 @@
+import typia from "typia";
 import { Escaper } from "typia/lib/utils/Escaper";
 
 import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { ISwagger } from "../structures/ISwagger";
 import { ISwaggerRoute } from "../structures/ISwaggerRoute";
+import { ISwaggerRouteBodyContent } from "../structures/ISwaggerRouteBodyContent";
+import { ISwaggerRouteParameter } from "../structures/ISwaggerRouteParameter";
+import { ISwaggerRouteResponse } from "../structures/ISwaggerRouteResponse";
 import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { StringUtil } from "../utils/StringUtil";
-import { SwaggerSwaggerChecker } from "../utils/SwaggerTypeChecker";
+import { SwaggerComponentsExplorer } from "../utils/SwaggerComponentsExplorer";
+import { SwaggerTypeChecker } from "../utils/SwaggerTypeChecker";
 
 export namespace MigrateMethodAnalzyer {
   export const analyze =
@@ -19,12 +24,46 @@ export namespace MigrateMethodAnalzyer {
       const success = emplaceBodySchema("response")(
         emplaceReference(props.swagger)("response"),
       )(
-        route.responses?.["201"] ??
-          route.responses?.["200"] ??
-          route.responses?.default,
+        (() => {
+          const response =
+            route.responses?.["201"] ??
+            route.responses?.["200"] ??
+            route.responses?.default;
+          if (response === undefined) return undefined;
+          SwaggerComponentsExplorer.getResponse(props.swagger.components)(
+            response,
+          ) ?? undefined;
+        })(),
       );
 
       const failures: string[] = [];
+      for (const p of route.parameters ?? [])
+        if (
+          SwaggerComponentsExplorer.getParameter(props.swagger.components)(
+            p,
+          ) === null
+        )
+          failures.push(
+            `parameter "${(p as ISwaggerRouteParameter.IReference).$ref}" is not defined in "components.parameters".`,
+          );
+      for (const value of Object.values(route.responses ?? {}))
+        if (
+          SwaggerComponentsExplorer.getResponse(props.swagger.components)(
+            value,
+          ) === null
+        )
+          failures.push(
+            `response "${(value as ISwaggerRouteResponse.IReference).$ref}" is not defined in "components.responses".`,
+          );
+      if (
+        route.requestBody &&
+        SwaggerComponentsExplorer.getRequestBody(props.swagger.components)(
+          route.requestBody,
+        ) === null
+      )
+        failures.push(
+          `requestBody "${(route.requestBody as ISwaggerRouteParameter.IReference).$ref}" is not defined in "components.requestBodies".`,
+        );
       if (body === false)
         failures.push(
           `supports only "application/json", "application/x-www-form-urlencoded", "multipart/form-data" and "text/plain" content type in the request body.`,
@@ -39,17 +78,27 @@ export namespace MigrateMethodAnalzyer {
         );
 
       const [headers, query] = ["header", "query"].map((type) => {
-        const parameters = (route.parameters ?? []).filter(
-          (p) => p.in === type,
-        );
+        const parameters: ISwaggerRouteParameter[] = (route.parameters ?? [])
+          .filter(
+            (p) =>
+              SwaggerComponentsExplorer.getParameter(props.swagger.components)(
+                p,
+              )?.in === type,
+          )
+          .map(
+            (p) =>
+              SwaggerComponentsExplorer.getParameter(props.swagger.components)(
+                p,
+              )!,
+          );
         if (parameters.length === 0) return null;
 
         const objects = parameters
           .map((p) =>
-            SwaggerSwaggerChecker.isObject(p.schema)
+            SwaggerTypeChecker.isObject(p.schema)
               ? p.schema
-              : SwaggerSwaggerChecker.isReference(p.schema) &&
-                  SwaggerSwaggerChecker.isObject(
+              : SwaggerTypeChecker.isReference(p.schema) &&
+                  SwaggerTypeChecker.isObject(
                     (props.swagger.components.schemas ?? {})[
                       p.schema.$ref.replace(`#/components/schemas/`, ``)
                     ] ?? {},
@@ -60,11 +109,11 @@ export namespace MigrateMethodAnalzyer {
           .filter((s) => !!s);
         const primitives = parameters.filter(
           (p) =>
-            SwaggerSwaggerChecker.isBoolean(p.schema) ||
-            SwaggerSwaggerChecker.isNumber(p.schema) ||
-            SwaggerSwaggerChecker.isInteger(p.schema) ||
-            SwaggerSwaggerChecker.isString(p.schema) ||
-            SwaggerSwaggerChecker.isArray(p.schema),
+            SwaggerTypeChecker.isBoolean(p.schema) ||
+            SwaggerTypeChecker.isNumber(p.schema) ||
+            SwaggerTypeChecker.isInteger(p.schema) ||
+            SwaggerTypeChecker.isString(p.schema) ||
+            SwaggerTypeChecker.isArray(p.schema),
         );
         if (objects.length === 1 && primitives.length === 0) return objects[0];
         else if (objects.length > 1) {
@@ -75,7 +124,7 @@ export namespace MigrateMethodAnalzyer {
         }
 
         const dto: ISwaggerSchema.IObject | null = objects[0]
-          ? SwaggerSwaggerChecker.isObject(objects[0])
+          ? SwaggerTypeChecker.isObject(objects[0])
             ? objects[0]
             : ((props.swagger.components.schemas ?? {})[
                 (objects[0] as ISwaggerSchema.IReference).$ref.replace(
@@ -86,7 +135,7 @@ export namespace MigrateMethodAnalzyer {
           : null;
         const entire: ISwaggerSchema.IObject[] = [
           ...objects.map((o) =>
-            SwaggerSwaggerChecker.isObject(o)
+            SwaggerTypeChecker.isObject(o)
               ? o
               : (props.swagger.components.schemas?.[
                   o.$ref.replace(`#/components/schemas/`, ``)
@@ -152,7 +201,11 @@ export namespace MigrateMethodAnalzyer {
         );
       if (
         parameterNames.length !==
-        (route.parameters ?? []).filter((p) => p.in === "path").length
+        (route.parameters ?? []).filter(
+          (p) =>
+            SwaggerComponentsExplorer.getParameter(props.swagger.components)(p)
+              ?.in === "path",
+        ).length
       )
         failures.push(
           "number of path parameters are not matched with its full path.",
@@ -179,7 +232,10 @@ export namespace MigrateMethodAnalzyer {
             }
           : null,
         parameters: (route.parameters ?? [])
-          .filter((p) => p.in === "path")
+          .map((p) =>
+            SwaggerComponentsExplorer.getParameter(props.swagger.components)(p),
+          )
+          .filter((p) => p !== null && p.in === "path")
           .map((p, i) => ({
             name: parameterNames[i],
             key: (() => {
@@ -191,8 +247,8 @@ export namespace MigrateMethodAnalzyer {
               }
             })(),
             schema: {
-              ...p.schema,
-              description: p.schema.description ?? p.description,
+              ...p!.schema,
+              description: p!.schema.description ?? p!.description,
             },
           })),
         query: query
@@ -211,74 +267,94 @@ export namespace MigrateMethodAnalzyer {
                 key !== "200" &&
                 key !== "201" &&
                 key !== "default" &&
-                !!value.content?.["application/json"],
+                !!SwaggerComponentsExplorer.getResponse(
+                  props.swagger.components,
+                )(value)?.content?.["application/json"],
             )
-            .map(([key, value]) => [
-              key,
-              {
-                description: value.description,
-                schema: value.content?.["application/json"]?.schema ?? {},
-              },
-            ]),
+            .map(([key, value]) => {
+              const r = SwaggerComponentsExplorer.getResponse(
+                props.swagger.components,
+              )(value)!;
+              return [
+                key,
+                {
+                  description: r.description,
+                  schema: r.content?.["application/json"]?.schema ?? {},
+                },
+              ];
+            }),
         ),
         deprecated: route.deprecated ?? false,
-        comment: () => describe(route),
+        comment: () => describe(props.swagger)(route),
         tags: route.tags ?? [],
       };
     };
 
-  const describe = (route: ISwaggerRoute): string => {
-    const commentTags: string[] = [];
-    const add = (text: string) => {
-      if (commentTags.every((line) => line !== text)) commentTags.push(text);
+  const describe =
+    (swagger: ISwagger) =>
+    (route: ISwaggerRoute): string => {
+      const commentTags: string[] = [];
+      const add = (text: string) => {
+        if (commentTags.every((line) => line !== text)) commentTags.push(text);
+      };
+
+      let description: string = route.description ?? "";
+      if (route.summary) {
+        const emended: string = route.summary.endsWith(".")
+          ? route.summary
+          : route.summary + ".";
+        if (
+          !!description.length &&
+          !description.startsWith(route.summary) &&
+          !route["x-nestia-jsDocTags"]?.some((t) => t.name === "summary")
+        )
+          description = `${emended}\n${description}`;
+      }
+      for (const p of route.parameters ?? []) {
+        const param: ISwaggerRouteParameter | null = (() => {
+          if (!typia.is<ISwaggerRouteParameter.IReference>(p))
+            return typia.is<ISwaggerRouteParameter>(p) ? p : null;
+          return (
+            swagger.components.parameters?.[
+              p.$ref.replace(`#/components/parameters/`, ``)
+            ] ?? null
+          );
+        })();
+        if (param !== null && param.description)
+          add(`@param ${param.name} ${param.description}`);
+      }
+      if (route.requestBody?.description)
+        add(`@param body ${route.requestBody.description}`);
+      for (const security of route.security ?? [])
+        for (const [name, scopes] of Object.entries(security))
+          add(`@security ${[name, ...scopes].join("")}`);
+      if (route.tags) route.tags.forEach((name) => add(`@tag ${name}`));
+      if (route.deprecated) add("@deprecated");
+      return description.length
+        ? commentTags.length
+          ? `${description}\n\n${commentTags.join("\n")}`
+          : description
+        : commentTags.join("\n");
     };
 
-    let description: string = route.description ?? "";
-    if (route.summary) {
-      const emended: string = route.summary.endsWith(".")
-        ? route.summary
-        : route.summary + ".";
-      if (
-        !!description.length &&
-        !description.startsWith(route.summary) &&
-        !route["x-nestia-jsDocTags"]?.some((t) => t.name === "summary")
-      )
-        description = `${emended}\n${description}`;
-    }
-    for (const p of route.parameters ?? [])
-      if (p.description) add(`@param ${p.name} ${p.description}`);
-    if (route.requestBody?.description)
-      add(`@param body ${route.requestBody.description}`);
-    for (const security of route.security ?? [])
-      for (const [name, scopes] of Object.entries(security))
-        add(`@security ${[name, ...scopes].join("")}`);
-    if (route.tags) route.tags.forEach((name) => add(`@tag ${name}`));
-    if (route.deprecated) add("@deprecated");
-    return description.length
-      ? commentTags.length
-        ? `${description}\n\n${commentTags.join("\n")}`
-        : description
-      : commentTags.join("\n");
-  };
-
   const isNotObjectLiteral = (schema: ISwaggerSchema): boolean =>
-    SwaggerSwaggerChecker.isReference(schema) ||
-    SwaggerSwaggerChecker.isBoolean(schema) ||
-    SwaggerSwaggerChecker.isNumber(schema) ||
-    SwaggerSwaggerChecker.isString(schema) ||
-    SwaggerSwaggerChecker.isUnknown(schema) ||
-    (SwaggerSwaggerChecker.isAnyOf(schema) &&
+    SwaggerTypeChecker.isReference(schema) ||
+    SwaggerTypeChecker.isBoolean(schema) ||
+    SwaggerTypeChecker.isNumber(schema) ||
+    SwaggerTypeChecker.isString(schema) ||
+    SwaggerTypeChecker.isUnknown(schema) ||
+    (SwaggerTypeChecker.isAnyOf(schema) &&
       schema.anyOf.every(isNotObjectLiteral)) ||
-    (SwaggerSwaggerChecker.isOneOf(schema) &&
+    (SwaggerTypeChecker.isOneOf(schema) &&
       schema.oneOf.every(isNotObjectLiteral)) ||
-    (SwaggerSwaggerChecker.isArray(schema) && isNotObjectLiteral(schema.items));
+    (SwaggerTypeChecker.isArray(schema) && isNotObjectLiteral(schema.items));
 
   const emplaceBodySchema =
     (from: "request" | "response") =>
     (emplacer: (schema: ISwaggerSchema) => ISwaggerSchema.IReference) =>
     (meta?: {
       description?: string;
-      content?: ISwaggerRoute.IContent;
+      content?: ISwaggerRouteBodyContent;
       "x-nestia-encrypted"?: boolean;
     }): false | null | IMigrateRoute.IBody => {
       if (!meta?.content) return null;
