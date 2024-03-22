@@ -16,5 +16,8 @@ export namespace ISwagger {
     url: string;
     description?: string;
   }
-  export type IPath = Record<string, ISwaggerRoute>;
+  export type IPath = Record<
+    "get" | "post" | "patch" | "put" | "delete",
+    ISwaggerRoute | undefined
+  >;
 }

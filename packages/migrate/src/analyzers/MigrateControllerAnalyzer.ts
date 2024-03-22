@@ -20,6 +20,8 @@ export namespace MigrateControllerAnalyzer {
 
     // GATHER ROUTES
     for (const [path, collection] of Object.entries(props.swagger.paths)) {
+      if (collection === undefined) continue;
+
       // PREPARE DIRECTORIES
       const location: string = StringUtil.splitWithNormalization(path)
         .filter((str) => str[0] !== "{" && str[0] !== ":")
@@ -29,6 +31,11 @@ export namespace MigrateControllerAnalyzer {
       // INSERT ROUTES TO THE LAST DIRECTORY
       const routes: IEntry[] = MapUtil.take(endpoints)(location)(() => []);
       for (const [method, value] of Object.entries(collection)) {
+        if (
+          value === undefined ||
+          ["get", "post", "patch", "put", "delete"].includes(method) === false
+        )
+          continue;
         const r: IMigrateRoute | null = MigrateMethodAnalzyer.analyze(props)({
           path,
           method,

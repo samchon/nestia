@@ -7,7 +7,7 @@ import { Escaper } from "typia/lib/utils/Escaper";
 import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { FilePrinter } from "../utils/FilePrinter";
-import { SwaggerSwaggerChecker } from "../utils/SwaggerTypeChecker";
+import { SwaggerTypeChecker } from "../utils/SwaggerTypeChecker";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateSchemaProgrammer {
@@ -19,34 +19,32 @@ export namespace MigrateSchemaProgrammer {
     (importer: MigrateImportProgrammer) =>
     (schema: ISwaggerSchema): ts.TypeNode => {
       const union: ts.TypeNode[] = [];
-      if (SwaggerSwaggerChecker.isUnknown(schema))
+      if (SwaggerTypeChecker.isUnknown(schema))
         return TypeFactory.keyword("any");
-      else if (SwaggerSwaggerChecker.isNullOnly(schema))
-        return createNode("null");
-      else if (SwaggerSwaggerChecker.isNullable(components)(schema))
+      else if (SwaggerTypeChecker.isNullOnly(schema)) return createNode("null");
+      else if (SwaggerTypeChecker.isNullable(components)(schema))
         union.push(createNode("null"));
 
       const type: ts.TypeNode = (() => {
         // ATOMIC
-        if (SwaggerSwaggerChecker.isBoolean(schema))
-          return writeBoolean(schema);
-        else if (SwaggerSwaggerChecker.isInteger(schema))
+        if (SwaggerTypeChecker.isBoolean(schema)) return writeBoolean(schema);
+        else if (SwaggerTypeChecker.isInteger(schema))
           return writeInteger(importer)(schema);
-        else if (SwaggerSwaggerChecker.isNumber(schema))
+        else if (SwaggerTypeChecker.isNumber(schema))
           return writeNumber(importer)(schema);
         // INSTANCES
-        else if (SwaggerSwaggerChecker.isString(schema))
+        else if (SwaggerTypeChecker.isString(schema))
           return writeString(importer)(schema);
-        else if (SwaggerSwaggerChecker.isArray(schema))
+        else if (SwaggerTypeChecker.isArray(schema))
           return writeArray(components)(importer)(schema);
-        else if (SwaggerSwaggerChecker.isObject(schema))
+        else if (SwaggerTypeChecker.isObject(schema))
           return writeObject(components)(importer)(schema);
-        else if (SwaggerSwaggerChecker.isReference(schema))
+        else if (SwaggerTypeChecker.isReference(schema))
           return writeReference(components)(importer)(schema);
         // NESTED UNION
-        else if (SwaggerSwaggerChecker.isAnyOf(schema))
+        else if (SwaggerTypeChecker.isAnyOf(schema))
           return writeUnion(components)(importer)(schema.anyOf);
-        else if (SwaggerSwaggerChecker.isOneOf(schema))
+        else if (SwaggerTypeChecker.isOneOf(schema))
           return writeUnion(components)(importer)(schema.oneOf);
         else return TypeFactory.keyword("any");
       })();
@@ -236,10 +234,15 @@ export namespace MigrateSchemaProgrammer {
     (
       schema: ISwaggerSchema.IReference,
     ): ts.TypeReferenceNode | ts.KeywordTypeNode => {
+      if (schema.$ref.startsWith("#/components/schemas") === false)
+        return TypeFactory.keyword("any");
       const name: string = schema.$ref.split("/").at(-1)!;
       return name === ""
         ? TypeFactory.keyword("any")
-        : importer.dto(schema.$ref.split("/").at(-1)!, components.namespace);
+        : importer.dto(
+            schema.$ref.split("/").at(-1)!,
+            components["x-nestia-namespace"],
+          );
     };
 
   /* -----------------------------------------------------------
