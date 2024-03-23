@@ -48,7 +48,7 @@ const EditorUploader = (props: {
       title="Swagger file uploader"
       header="Drag and drop a Swagger file here"
       buttonLabel="Click Here"
-      rightLabel="to select swagger.json file"
+      rightLabel="to select swagger.json/yaml file"
       buttonRemoveLabel="Clear"
     />
   );
