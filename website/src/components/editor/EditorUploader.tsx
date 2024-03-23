@@ -1,4 +1,5 @@
 import { ISwagger } from "@nestia/migrate";
+import { load } from "js-yaml";
 import { useState } from "react";
 import FileUpload from "react-mui-fileuploader";
 import { ExtendedFileProps } from "react-mui-fileuploader/dist/types/index.types";
@@ -17,12 +18,19 @@ const EditorUploader = (props: {
     const file: ExtendedFileProps = array.at(-1)!;
     const buffer: ArrayBuffer = await file.arrayBuffer();
     const content: string = new TextDecoder().decode(buffer);
+    const extension: "json" | "yaml" = file.name.split(".").pop()! as
+      | "json"
+      | "yaml";
 
     try {
-      const json: ISwagger = JSON.parse(content);
+      const json: ISwagger =
+        extension === "json" ? JSON.parse(content) : load(content);
       props.onChange(json, null);
     } catch {
-      props.onChange(null, "Invalid JSON file");
+      props.onChange(
+        null,
+        extension === "json" ? "Invalid JSON file" : "Invalid YAML file",
+      );
       return;
     }
     if (array.length > 1) {
@@ -33,8 +41,7 @@ const EditorUploader = (props: {
     <FileUpload
       defaultFiles={elements}
       onFilesChange={onChange}
-      allowedExtensions={["json"]}
-      acceptedType="application/json"
+      acceptedType=".json, .yaml"
       getBase64={false}
       multiFile={false}
       maxUploadFiles={1}
