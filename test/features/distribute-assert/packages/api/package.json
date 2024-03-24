@@ -34,6 +34,6 @@
   },
   "dependencies": {
     "@nestia/fetcher": "file:../../../../../packages/fetcher/nestia-fetcher-2.5.16.tgz",
-    "typia": "^5.5.3"
+    "typia": "^5.5.7"
   }
 }
