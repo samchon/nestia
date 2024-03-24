@@ -1,5 +1,6 @@
 /// <reference lib="dom" />
 import { IEncryptionPassword } from "./IEncryptionPassword";
+import { IFetchEvent } from "./IFetchEvent";
 import { IRandomGenerator } from "./IRandomGenerator";
 
 /**
@@ -47,9 +48,13 @@ export interface IConnection<Headers extends object = {}> {
   simulate?: boolean | Partial<IRandomGenerator>;
 
   /**
-   * Additional options for the `fetch` function.
+   * Logger function.
+   *
+   * This function is called when the fetch event is completed.
+   *
+   * @param event Event information of the fetch event.
    */
-  options?: IConnection.IOptions;
+  logger?: (event: IFetchEvent) => Promise<void>;
 
   /**
    * Encryption password of its closure function.
@@ -59,6 +64,11 @@ export interface IConnection<Headers extends object = {}> {
    * security reason.
    */
   encryption?: IEncryptionPassword | IEncryptionPassword.Closure;
+
+  /**
+   * Additional options for the `fetch` function.
+   */
+  options?: IConnection.IOptions;
 
   /**
    * Custom fetch function.

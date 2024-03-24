@@ -2,8 +2,9 @@ import import2 from "import2";
 
 import { HttpError } from "../HttpError";
 import { IConnection } from "../IConnection";
+import { IFetchEvent } from "../IFetchEvent";
+import { IFetchRoute } from "../IFetchRoute";
 import { IPropagation } from "../IPropagation";
-import { IFetchRoute } from "./IFetchRoute";
 import { Singleton } from "./Singleton";
 
 export namespace FetcherBase {
@@ -62,7 +63,9 @@ export namespace FetcherBase {
     (props: IProps) =>
     async <Input>(
       connection: IConnection,
-      route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
+      metadata: IFetchRoute<
+        "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
+      >,
       input?: Input,
       stringify?: (input: Input) => string,
     ): Promise<IPropagation<any, any>> => {
@@ -73,19 +76,18 @@ export namespace FetcherBase {
       const headers: Record<string, IConnection.HeaderValue | undefined> = {
         ...(connection.headers ?? {}),
       };
-      if (input !== undefined) {
-        if (route.request?.type === undefined)
+      if (input !== undefined)
+        if (metadata.request?.type === undefined)
           throw new Error(
             `Error on ${props.className}.fetch(): no content-type being configured.`,
           );
-        else if (route.request.type !== "multipart/form-data")
-          headers["Content-Type"] = route.request.type;
-      }
+        else if (metadata.request.type !== "multipart/form-data")
+          headers["Content-Type"] = metadata.request.type;
 
       // INIT REQUEST DATA
       const init: RequestInit = {
         ...(connection.options ?? {}),
-        method: route.method,
+        method: metadata.method,
         headers: (() => {
           const output: [string, string][] = [];
           for (const [key, value] of Object.entries(headers))
@@ -101,11 +103,11 @@ export namespace FetcherBase {
       if (input !== undefined)
         init.body = props.encode(
           // BODY TRANSFORM
-          route.request?.type === "application/x-www-form-urlencoded"
+          metadata.request?.type === "application/x-www-form-urlencoded"
             ? request_query_body(input)
-            : route.request?.type === "multipart/form-data"
+            : metadata.request?.type === "multipart/form-data"
               ? request_form_data_body(input as any)
-              : route.request?.type !== "text/plain"
+              : metadata.request?.type !== "text/plain"
                 ? (stringify ?? JSON.stringify)(input)
                 : input,
           headers,
@@ -117,55 +119,81 @@ export namespace FetcherBase {
       // URL SPECIFICATION
       const path: string =
         connection.host[connection.host.length - 1] !== "/" &&
-        route.path[0] !== "/"
-          ? `/${route.path}`
-          : route.path;
+        metadata.path[0] !== "/"
+          ? `/${metadata.path}`
+          : metadata.path;
       const url: URL = new URL(`${connection.host}${path}`);
 
       // DO FETCH
-      const response: Response = await (
-        connection.fetch ?? (await polyfill.get())
-      )(url.href, init);
+      const event: IFetchEvent = {
+        route: metadata,
+        path,
+        status: null,
+        input,
+        output: undefined,
+        started_at: new Date(),
+        respond_at: null,
+        completed_at: null!,
+      };
+      try {
+        // TRY FETCH
+        const response: Response = await (
+          connection.fetch ?? (await polyfill.get())
+        )(url.href, init);
+        event.respond_at = new Date();
+        event.status = response.status;
 
-      // CONSTRUCT RESULT DATA
-      const result: IPropagation<any, any> = {
-        success:
-          response.status === 200 ||
-          response.status === 201 ||
-          response.status == route.status,
-        status: response.status,
-        headers: response_headers_to_object(response.headers),
-        data: undefined!,
-      } as any;
-      if ((result as any).success === false) {
-        // WHEN FAILED
-        result.data = await response.text();
-        const type = response.headers.get("content-type");
-        if (
-          method !== "fetch" &&
-          type &&
-          type.indexOf("application/json") !== -1
-        )
+        // CONSTRUCT RESULT DATA
+        const result: IPropagation<any, any> = {
+          success:
+            response.status === 200 ||
+            response.status === 201 ||
+            response.status == metadata.status,
+          status: response.status,
+          headers: response_headers_to_object(response.headers),
+          data: undefined!,
+        } as any;
+        if ((result as any).success === false) {
+          // WHEN FAILED
+          result.data = await response.text();
+          const type = response.headers.get("content-type");
+          if (
+            method !== "fetch" &&
+            type &&
+            type.indexOf("application/json") !== -1
+          )
+            try {
+              result.data = JSON.parse(result.data);
+            } catch {}
+        } else {
+          // WHEN SUCCESS
+          if (metadata.method === "HEAD") result.data = undefined!;
+          else if (metadata.response?.type === "application/json") {
+            const text: string = await response.text();
+            result.data = text.length ? JSON.parse(text) : undefined;
+          } else if (
+            metadata.response?.type === "application/x-www-form-urlencoded"
+          ) {
+            const query: URLSearchParams = new URLSearchParams(
+              await response.text(),
+            );
+            result.data = metadata.parseQuery
+              ? metadata.parseQuery(query)
+              : query;
+          } else
+            result.data = props.decode(await response.text(), result.headers);
+        }
+        event.output = result.data;
+        return result;
+      } catch (exp) {
+        throw exp;
+      } finally {
+        event.completed_at = new Date();
+        if (connection.logger)
           try {
-            result.data = JSON.parse(result.data);
+            await connection.logger(event);
           } catch {}
-      } else {
-        // WHEN SUCCESS
-        if (route.method === "HEAD") result.data = undefined!;
-        else if (route.response?.type === "application/json") {
-          const text: string = await response.text();
-          result.data = text.length ? JSON.parse(text) : undefined;
-        } else if (
-          route.response?.type === "application/x-www-form-urlencoded"
-        ) {
-          const query: URLSearchParams = new URLSearchParams(
-            await response.text(),
-          );
-          result.data = route.parseQuery ? route.parseQuery(query) : query;
-        } else
-          result.data = props.decode(await response.text(), result.headers);
       }
-      return result;
     };
 }
 

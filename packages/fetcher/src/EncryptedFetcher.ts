@@ -1,9 +1,9 @@
 import { AesPkcs5 } from "./AesPkcs5";
 import { IConnection } from "./IConnection";
 import { IEncryptionPassword } from "./IEncryptionPassword";
+import { IFetchRoute } from "./IFetchRoute";
 import { IPropagation } from "./IPropagation";
 import { FetcherBase } from "./internal/FetcherBase";
-import { IFetchRoute } from "./internal/IFetchRoute";
 
 /**
  * Utility class for `fetch` functions used in `@nestia/sdk` with encryption.
