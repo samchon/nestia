@@ -1,7 +1,7 @@
 import * as Constants from "@nestjs/common/constants";
+import { RouteParamtypes } from "@nestjs/common/enums/route-paramtypes.enum";
 import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
 import "reflect-metadata";
-import { Singleton } from "tstl";
 import { equal } from "tstl/ranges";
 
 import { IController } from "../structures/IController";
@@ -359,10 +359,10 @@ export namespace ReflectAnalyzer {
     if (symbol.indexOf("__custom") !== -1)
       return _Analyze_custom_parameter(param);
 
-    const typeIndex: number = Number(symbol[0]);
+    const typeIndex: RouteParamtypes = Number(symbol[0]) as RouteParamtypes;
     if (isNaN(typeIndex) === true) return null;
 
-    const type: ParamCategory | undefined = nestParameterType.get()[typeIndex];
+    const type: ParamCategory | undefined = getNestParamType(typeIndex);
     if (type === undefined) return null;
 
     return {
@@ -454,48 +454,10 @@ const METHODS = [
 ];
 
 // https://github.com/nestjs/nest/blob/master/packages/common/enums/route-paramtypes.enum.ts
-const nestParameterType = new Singleton<Array<ParamCategory | undefined>>(
-  () => {
-    const { version } = require("@nestjs/common/package.json");
-    const [major, minor, patch] = version.split(".").map(Number);
-    const rawBody: boolean = [
-      major >= 10,
-      major > 10 || minor >= 3,
-      major > 10 ||
-        (major === 10 && minor > 3) ||
-        (major === 10 &&
-          minor === 3 &&
-          ((isNaN(patch) && version.split(".")[2] >= "4") || patch >= 4)),
-    ].every((b) => b);
-    return rawBody
-      ? [
-          undefined,
-          undefined,
-          undefined,
-          "body",
-          undefined, // rawBody
-          "query",
-          "param",
-          "headers",
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-        ]
-      : [
-          undefined,
-          undefined,
-          undefined,
-          "body",
-          "query",
-          "param",
-          "headers",
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-        ];
-  },
-);
+const getNestParamType = (value: RouteParamtypes) => {
+  if (value === RouteParamtypes.BODY) return "body";
+  else if (value === RouteParamtypes.HEADERS) return "headers";
+  else if (value === RouteParamtypes.QUERY) return "query";
+  else if (value === RouteParamtypes.PARAM) return "param";
+  return undefined;
+};
