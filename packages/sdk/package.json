@@ -32,7 +32,11 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
+<<<<<<< HEAD
     "@nestia/fetcher": "D:\\github\\samchon\\nestia\\packages\\fetcher\\nestia-fetcher-2.6.0-dev.20240324.tgz",
+=======
+    "@nestia/fetcher": "^2.5.17",
+>>>>>>> features/enum
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",
@@ -45,7 +49,11 @@
     "typia": "^5.5.3"
   },
   "peerDependencies": {
+<<<<<<< HEAD
     "@nestia/fetcher": ">=2.6.0-dev.20240324",
+=======
+    "@nestia/fetcher": ">=2.5.17",
+>>>>>>> features/enum
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
