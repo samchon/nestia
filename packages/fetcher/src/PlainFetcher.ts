@@ -1,7 +1,7 @@
 import { IConnection } from "./IConnection";
+import { IFetchRoute } from "./IFetchRoute";
 import { IPropagation } from "./IPropagation";
 import { FetcherBase } from "./internal/FetcherBase";
-import { IFetchRoute } from "./internal/IFetchRoute";
 
 /**
  * Utility class for `fetch` functions used in `@nestia/sdk`.
