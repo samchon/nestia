@@ -35,7 +35,7 @@ export namespace MigrateCommander {
     })();
 
     const result: IValidation<MigrateApplication> =
-      MigrateApplication.create(swagger);
+      await MigrateApplication.create(swagger);
     if (result.success === false) {
       console.log(result.errors);
       throw new Error(
