@@ -38,7 +38,7 @@ const execute =
       async () => {
         const directory = `${OUTPUT}/${project}-${config.mode}-${config.simulate}-${config.e2e}`;
         const result: IValidation<MigrateApplication> =
-          MigrateApplication.create(swagger);
+          await MigrateApplication.create(swagger);
         if (result.success === false)
           throw new Error(
             `Invalid swagger file (must follow the OpenAPI 3.0 spec).`,
