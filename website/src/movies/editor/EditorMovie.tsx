@@ -36,10 +36,10 @@ const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
   ): Promise<null | IMigrateFile[]> => {
     try {
       const result: IValidation<MigrateApplication> =
-        MigrateApplication.create(swagger);
+        await MigrateApplication.create(swagger);
       if (result.success === false) {
         alert(
-          "Invalid swagger file (must follow OpenAPI 3.0 spec).\n\n" +
+          "Invalid swagger file (based on OpenAPI 3.0 spec).\n\n" +
             JSON.stringify(result.errors, null, 2),
         );
         return null;
