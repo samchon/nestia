@@ -1,11 +1,10 @@
 import V2_0Converter from "swagger2openapi";
 import typia from "typia";
 
-import { Converter as V3_1Converter } from "@apiture/openapi-down-convert";
-
 import { ISwagger } from "../structures/ISwagger";
 import { ISwaggerV20 } from "../structures/ISwaggerV20";
 import { ISwaggerV31 } from "../structures/ISwaggerV31";
+import { Converter as V3_1Converter } from "./openapi-down-convert/converter";
 
 export namespace OpenApiConverter {
   export const v2_0 = async (swagger: ISwaggerV20): Promise<ISwagger> => {
