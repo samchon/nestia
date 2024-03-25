@@ -54,6 +54,15 @@ export class SecurityController {
     return typia.random<IToken>();
   }
 
+  /**
+   * @security
+   * @security bearer
+   */
+  @core.TypedRoute.Get("optional_by_comment")
+  public optional_by_comment(): IToken {
+    return typia.random<IToken>();
+  }
+
   @core.TypedRoute.Get("security")
   public security(): IToken {
     return typia.random<IToken>();

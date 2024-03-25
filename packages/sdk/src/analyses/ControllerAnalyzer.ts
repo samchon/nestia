@@ -177,16 +177,18 @@ export namespace ControllerAnalyzer {
         ...jsDocTags
           .filter((tag) => tag.name === "security")
           .map((tag) =>
-            (tag.text ?? []).map((text) => {
-              const line: string[] = text.text
-                .split(" ")
-                .filter((s) => s.trim())
-                .filter((s) => !!s.length);
-              if (line.length === 0) return {};
-              return {
-                [line[0]]: line.slice(1),
-              };
-            }),
+            tag.text === undefined
+              ? [{}]
+              : tag.text.map((text) => {
+                  const line: string[] = text.text
+                    .split(" ")
+                    .filter((s) => s.trim())
+                    .filter((s) => !!s.length);
+                  if (line.length === 0) return {};
+                  return {
+                    [line[0]]: line.slice(1),
+                  };
+                }),
           )
           .flat(),
       );
