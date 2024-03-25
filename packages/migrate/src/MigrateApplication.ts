@@ -10,7 +10,6 @@ import { MigrateNestProgrammer } from "./programmers/MigrateNestProgrammer";
 import { IMigrateFile } from "./structures/IMigrateFile";
 import { IMigrateProgram } from "./structures/IMigrateProgram";
 import { ISwagger } from "./structures/ISwagger";
-import { ISwaggerV20 } from "./structures/ISwaggerV20";
 import { ISwaggerV31 } from "./structures/ISwaggerV31";
 import { OpenApiConverter } from "./utils/OpenApiConverter";
 
@@ -18,13 +17,11 @@ export class MigrateApplication {
   private constructor(public readonly swagger: ISwagger) {}
 
   public static async create(
-    swagger: ISwagger | ISwaggerV20 | ISwaggerV31,
+    swagger: ISwagger | ISwaggerV31,
   ): Promise<IValidation<MigrateApplication>> {
-    swagger = typia.is<ISwaggerV20.IVersion>(swagger)
-      ? await OpenApiConverter.v2_0(swagger)
-      : typia.is<ISwaggerV31.IVersion>(swagger)
-        ? OpenApiConverter.v3_1(swagger)
-        : swagger;
+    swagger = typia.is<ISwaggerV31.IVersion>(swagger)
+      ? OpenApiConverter.v3_1(swagger)
+      : swagger;
     const result = typia.validate<ISwagger>(swagger);
     if (result.success === false) return result;
     return {
