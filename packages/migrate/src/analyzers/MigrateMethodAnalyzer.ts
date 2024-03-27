@@ -30,9 +30,11 @@ export namespace MigrateMethodAnalzyer {
             route.responses?.["200"] ??
             route.responses?.default;
           if (response === undefined) return undefined;
-          SwaggerComponentsExplorer.getResponse(props.swagger.components)(
-            response,
-          ) ?? undefined;
+          return (
+            SwaggerComponentsExplorer.getResponse(props.swagger.components)(
+              response,
+            ) ?? undefined
+          );
         })(),
       );
 
