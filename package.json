@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/station",
-  "version": "2.6.1",
+  "version": "2.6.2",
   "description": "Nestia station",
   "main": "prettier.config.js",
   "scripts": {
