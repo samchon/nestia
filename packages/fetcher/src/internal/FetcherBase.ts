@@ -201,16 +201,22 @@ export namespace FetcherBase {
  * @internal
  */
 const polyfill = new Singleton(async (): Promise<typeof fetch> => {
-  if (
-    typeof global === "object" &&
-    typeof global.process === "object" &&
-    typeof global.process.versions === "object" &&
-    typeof global.process.versions.node !== undefined
-  ) {
-    global.fetch ??= ((await import2("node-fetch")) as any).default;
-    return (global as any).fetch;
+  function is_node_process(m: typeof global | null): boolean {
+    return (
+      m !== null &&
+      typeof m.process === "object" &&
+      m.process !== null &&
+      typeof m.process.versions === "object" &&
+      m.process.versions !== null &&
+      typeof m.process.versions.node !== "undefined"
+    );
   }
-  return window.fetch;
+  if (typeof global === "object" && is_node_process(global)) {
+    const m: any = global as any;
+    m.fetch ??= ((await import2("node-fetch")) as any).default;
+    return (m as any).fetch;
+  }
+  return self.fetch;
 });
 
 /**
