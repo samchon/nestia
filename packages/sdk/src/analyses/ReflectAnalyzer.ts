@@ -2,7 +2,7 @@ import * as Constants from "@nestjs/common/constants";
 import { RouteParamtypes } from "@nestjs/common/enums/route-paramtypes.enum";
 import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
 import "reflect-metadata";
-import { equal } from "tstl/ranges";
+import { ranges } from "tstl";
 
 import { IController } from "../structures/IController";
 import { IErrorReport } from "../structures/IErrorReport";
@@ -329,7 +329,7 @@ export namespace ReflectAnalyzer {
             .sort();
 
           // DO VALIDATE
-          if (equal(binded.sort(), parameters) === false)
+          if (ranges.equal(binded.sort(), parameters) === false)
             errors.push({
               file: controller.file,
               controller: controller.name,

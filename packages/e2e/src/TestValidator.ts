@@ -1,4 +1,4 @@
-import { is_sorted } from "tstl/ranges";
+import { ranges } from "tstl";
 
 import { RandomGenerator } from "./RandomGenerator";
 import { json_equal_to } from "./internal/json_equal_to";
@@ -300,7 +300,7 @@ export namespace TestValidator {
 
       const reversed: typeof comp =
         direction === "+" ? comp : (x, y) => comp(y, x);
-      if (is_sorted(data, (x, y) => reversed(x, y) < 0) === false) {
+      if (ranges.is_sorted(data, (x, y) => reversed(x, y) < 0) === false) {
         if (
           fields.length === 1 &&
           data.length &&

@@ -1,4 +1,4 @@
-import { hash } from "tstl/functional/hash";
+import { hash } from "tstl";
 import ts from "typescript";
 
 export class TypeEntry {

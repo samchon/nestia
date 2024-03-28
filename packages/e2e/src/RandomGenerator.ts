@@ -1,5 +1,5 @@
 import { back_inserter, randint } from "tstl";
-import { sample as _Sample } from "tstl/ranges";
+import { ranges } from "tstl";
 
 /**
  * Random data generator.
@@ -147,7 +147,7 @@ export namespace RandomGenerator {
     <T>(array: T[]) =>
     (count: number): T[] => {
       const ret: T[] = [];
-      _Sample(array, back_inserter(ret), count);
+      ranges.sample(array, back_inserter(ret), count);
       return ret;
     };
 
