@@ -1,6 +1,6 @@
 import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
 import path from "path";
-import { HashMap } from "tstl/container/HashMap";
+import { HashMap } from "tstl";
 import ts from "typescript";
 import { CommentFactory } from "typia/lib/factories/CommentFactory";
 

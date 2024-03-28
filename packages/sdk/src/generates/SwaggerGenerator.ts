@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { Singleton } from "tstl/thread/Singleton";
+import { Singleton } from "tstl";
 import ts from "typescript";
 import typia, { IJsonApplication, IJsonComponents } from "typia";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";

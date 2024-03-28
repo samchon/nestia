@@ -1,5 +1,4 @@
-import { HashMap } from "tstl/container/HashMap";
-import { HashSet } from "tstl/container/HashSet";
+import { HashMap, HashSet } from "tstl";
 import ts from "typescript";
 
 import { ITypeTuple } from "../structures/ITypeTuple";

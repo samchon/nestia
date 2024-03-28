@@ -43,7 +43,7 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "cli": "^1.0.1",
-    "tstl": "^2.5.13"
+    "tstl": "^3.0.0"
   },
   "files": [
     "lib",
