@@ -95,12 +95,9 @@ const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
       {
         newWindow: true,
         openFile: "README.md,test/start.ts",
-        startScript:
-          mode === "sdk"
-            ? simulate
-              ? "test:simulate"
-              : "test"
-            : "build:test,test",
+        startScript: (mode === "sdk"
+          ? ["swagger", "hello"]
+          : ["build:test,test", ""]) as any,
       },
     );
     setProgress(false);
