@@ -65,6 +65,11 @@ export class MigrateApplication {
         ...MigrateApiProgrammer.write(program),
         MigrateApiStartProgrammer.write(program),
         ...(config.e2e ? MigrateE2eProgrammer.write(program) : []),
+        {
+          location: "",
+          file: "swagger.json",
+          content: JSON.stringify(this.swagger, null, 2),
+        },
       ],
     };
   }
