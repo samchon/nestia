@@ -40,7 +40,7 @@ export namespace MigrateSchemaProgrammer {
         else if (SwaggerTypeChecker.isObject(schema))
           return writeObject(components)(importer)(schema);
         else if (SwaggerTypeChecker.isReference(schema))
-          return writeReference(components)(importer)(schema);
+          return writeReference(importer)(schema);
         // NESTED UNION
         else if (SwaggerTypeChecker.isAnyOf(schema))
           return writeUnion(components)(importer)(schema.anyOf);
@@ -229,7 +229,6 @@ export namespace MigrateSchemaProgrammer {
       );
 
   const writeReference =
-    (components: ISwaggerComponents) =>
     (importer: MigrateImportProgrammer) =>
     (
       schema: ISwaggerSchema.IReference,
@@ -239,10 +238,7 @@ export namespace MigrateSchemaProgrammer {
       const name: string = schema.$ref.split("/").at(-1)!;
       return name === ""
         ? TypeFactory.keyword("any")
-        : importer.dto(
-            schema.$ref.split("/").at(-1)!,
-            components["x-nestia-namespace"],
-          );
+        : importer.dto(schema.$ref.split("/").at(-1)!);
     };
 
   /* -----------------------------------------------------------
