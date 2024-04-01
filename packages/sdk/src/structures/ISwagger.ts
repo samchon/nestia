@@ -1,6 +1,8 @@
 import { ISwaggerComponents } from "./ISwaggerComponents";
 import { ISwaggerInfo } from "./ISwaggerInfo";
 import { ISwaggerRoute } from "./ISwaggerRoute";
+import { ISwaggerServer } from "./ISwaggerServer";
+import { ISwaggerTag } from "./ISwaggerTag";
 
 /**
  * Swagger Document.
@@ -22,7 +24,7 @@ export interface ISwagger {
   /**
    * List of servers that provide the API.
    */
-  servers: ISwagger.IServer[];
+  servers: ISwaggerServer[];
 
   /**
    * Information about the API.
@@ -46,6 +48,11 @@ export interface ISwagger {
    */
   components: ISwaggerComponents;
 
+  /**
+   * List of tags.
+   */
+  tags: ISwaggerTag[];
+
   // /**
   //  * A declaration of which security mechanisms can be used across the API.
   //  *
@@ -56,36 +63,4 @@ export interface ISwagger {
   //  * especially for {@link ISwaggerSecurityScheme.IOAuth2.IFlow.scopes} property.
   //  */
   // security?: Record<string, string[]>[];
-}
-export namespace ISwagger {
-  /**
-   * Remote server definition.
-   */
-  export interface IServer {
-    /**
-     * A URL to the target host.
-     *
-     * @format uri
-     */
-    url: string;
-
-    /**
-     * An optional string describing the target server.
-     */
-    description?: string;
-  }
-
-  export interface IExternalDocs {
-    /**
-     * The URL for target documentation.
-     *
-     * @format uri
-     */
-    url: string;
-
-    /**
-     * A short description of the target documentation.
-     */
-    description?: string;
-  }
 }

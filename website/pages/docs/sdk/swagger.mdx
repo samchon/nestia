@@ -106,12 +106,13 @@ export default NESTIA_CONFIG;
 ```
   </Tab>
   <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers {13-18, 166-227}
+```typescript filename="INestiaConfig.ts" showLineNumbers {14-19, 167-240}
 import type { INestApplication } from "@nestjs/common";
 
-import type { ISwagger } from "./structures/ISwagger";
 import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
 import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
+import type { ISwaggerServer } from "./structures/ISwaggerServer";
+import type { ISwaggerTag } from "./structures/ISwaggerTag";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -306,7 +307,7 @@ export namespace INestiaConfig {
     /**
      * List of server addresses.
      */
-    servers?: ISwagger.IServer[];
+    servers?: ISwaggerServer[];
 
     /**
      * Security schemes.
@@ -316,6 +317,18 @@ export namespace INestiaConfig {
      * it would be an error.
      */
     security?: Record<string, ISwaggerSecurityScheme>;
+
+    /**
+     * List of tag names with description.
+     *
+     * It is possible to omit this property or skip some tag name even if
+     * the tag name is used in the API routes. In that case, the tag name
+     * would be used without description.
+     *
+     * Of course, if you've written a comment like `@tag {name} {descrition}`,
+     * you can entirely replace this property specification.
+     */
+    tags?: ISwaggerTag[];
 
     /**
      * Decompose query DTO.
@@ -608,7 +621,7 @@ Swagger generator `@nestia/sdk` supports three type of comment tags for controll
     - `@ignore`: hide, never be shown, even in the SDK side
   - Labeling
     - `@summary` : short description of endpoint
-    - `@tag {name}`: grouppig
+    - `@tag {name} {description?}`: grouppig with description
     - `@operationId {value}`: manual operation ID
   - Security
     - `@security {key}`: security scheme key
@@ -616,7 +629,7 @@ Swagger generator `@nestia/sdk` supports three type of comment tags for controll
 
 At first, `@internal` and `@ignore` tags are used to hide the controller method from the Swagger Documents. When you use one of them, the controller method would not be written in the `swagger.json` file. Otherwise, the `@deprecated` tag is used to mark the controller method as deprecated. When you use it, Swagger Editor will show the deprecated message about the route method like below.
 
-Also, the `@summary` tag is used to write short description of the endpoint. By the way, the `@summary` tag can be replaced by writing top sentence ends with `.` symbol. The other one, `@tag {name}` tag is used for only groupping.
+Also, the `@summary` tag is used to write short description of the endpoint. By the way, the `@summary` tag can be replaced by writing top sentence ends with `.` symbol. The other one, `@tag {name} {description?}` tag is used for only groupping. If you fill the `description` part, it would be shown in the Swagger-UI.
 
 The last one, `@security` is a tag for security scheme. It specifies target security scheme by writing its key like `@security {key}`. If target scheme type is OAuth2, and it has configured scopes, you can specify the scopes by writing scopes at the backward like `@security {key} read write`. 
 
@@ -646,7 +659,7 @@ export class BbsArticlesController {
    * @param input Content to store
    * @returns Newly archived article
    *
-   * @tag public
+   * @tag public Some description describing public group...
    * @summary Public API
    * @security bearer
    * @security oauth2 read write
@@ -712,7 +725,7 @@ export class BbsArticlesController {
 ```
   </Tab>
   <Tab>
-```json filename="swagger.json" showLineNumbers {20-22, 60-70, 75, 77, 122, 124-131}
+```json filename="swagger.json" showLineNumbers {17-22, 26-28, 66-76, 81, 83, 128, 130-137}
 {
   "openapi": "3.0.1",
   "servers": [
@@ -729,6 +742,12 @@ export class BbsArticlesController {
       "name": "ISC"
     }
   },
+  "tags": [
+    {
+      "name": "public",
+      "description": "Some description describing public group..."
+    }
+  ],
   "paths": {
     "/bbs/articles/{section}": {
       "post": {

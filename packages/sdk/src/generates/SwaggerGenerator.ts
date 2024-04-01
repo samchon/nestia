@@ -27,6 +27,7 @@ export namespace SwaggerGenerator {
     lazySchemas: Array<ISwaggerLazySchema>;
     lazyProperties: Array<ISwaggerLazyProperty>;
     errors: ISwaggerError[];
+    swagger: ISwagger;
   }
 
   export const generate =
@@ -80,6 +81,7 @@ export namespace SwaggerGenerator {
           lazySchemas,
           lazyProperties,
           errors,
+          swagger,
         })(route);
       }
       swagger.paths = {};
@@ -329,6 +331,7 @@ export namespace SwaggerGenerator {
       },
       paths: {},
       components: {},
+      tags: config.tags ?? [],
     };
   };
 
@@ -344,8 +347,11 @@ export namespace SwaggerGenerator {
   const generate_route =
     (props: IProps) =>
     (route: IRoute): ISwaggerRoute => {
+      // FIND REQUEST BODY
       const body = route.parameters.find((param) => param.category === "body");
-      const getJsDocTexts = (name: string) =>
+
+      // CONSTRUCT SUMMARY & DESCRIPTION
+      const getJsDocTexts = (name: string): string[] =>
         route.jsDocTags
           .filter(
             (tag) =>
@@ -356,7 +362,6 @@ export namespace SwaggerGenerator {
               ) !== undefined,
           )
           .map((tag) => tag.text!.find((elem) => elem.kind === "text")!.text);
-
       const description: string | undefined = route.description?.length
         ? route.description
         : undefined;
@@ -376,9 +381,25 @@ export namespace SwaggerGenerator {
         (tag) => tag.name === "deprecated",
       );
 
+      // CONSTRUCT TAGS
+      const tagSet: Set<string> = new Set([
+        ...route.swaggerTags,
+        ...getJsDocTexts("tag").map((tag) => tag.split(" ")[0]),
+      ]);
+      for (const tag of tagSet)
+        if (props.swagger.tags.find((elem) => elem.name === tag) === undefined)
+          props.swagger.tags.push({ name: tag });
+      for (const texts of getJsDocTexts("tag")) {
+        const [name, ...description] = texts.split(" ");
+        if (description.length)
+          props.swagger.tags.find((elem) => elem.name === name)!.description ??=
+            description.join(" ");
+      }
+
+      // FINALIZE
       return {
         deprecated: deprecated ? true : undefined,
-        tags: [...route.swaggerTags, ...new Set([...getJsDocTexts("tag")])],
+        tags: [...tagSet],
         operationId:
           route.operationId ??
           props.config.operationId?.({
