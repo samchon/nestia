@@ -10,5 +10,4 @@ export interface ISwaggerComponents {
   responses?: Record<string, ISwaggerRouteResponse>;
   schemas?: Record<string, ISwaggerSchema>;
   securitySchemes?: Record<string, ISwaggerSecurityScheme>;
-  "x-nestia-namespace"?: string;
 }
