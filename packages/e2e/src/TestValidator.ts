@@ -68,7 +68,11 @@ export namespace TestValidator {
       const diff: string[] = json_equal_to(exception)(x)(y);
       if (diff.length)
         throw new Error(
-          `Bug on ${title}: found different values - [${diff.join(", ")}]`,
+          [
+            `Bug on ${title}: found different values - [${diff.join(", ")}]:`,
+            "\n",
+            JSON.stringify({ x, y }, null, 2),
+          ].join("\n"),
         );
     };
 
