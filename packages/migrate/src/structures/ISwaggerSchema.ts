@@ -52,6 +52,7 @@ export namespace ISwaggerSchema {
     enum?: string[];
     format?: string;
     pattern?: string;
+    contentMediaType?: string;
     /** @type uint */ minLength?: number;
     /** @type uint */ maxLength?: number;
   }
