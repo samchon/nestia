@@ -1,6 +1,6 @@
 import ts from "typescript";
-import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 
+import { TypeLiteralFactory } from "../factories/TypeLiteralFactory";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 
@@ -38,18 +38,14 @@ export class MigrateImportProgrammer {
     );
   }
 
-  public tag(type: string, arg: number | string): ts.TypeReferenceNode {
+  public tag(type: string, arg: any): ts.TypeReferenceNode {
     const instance: string = this.external({
       type: "instance",
       library: "typia",
       name: "tags",
     });
     return ts.factory.createTypeReferenceNode(`${instance}.${type}`, [
-      ts.factory.createLiteralTypeNode(
-        typeof arg === "string"
-          ? ts.factory.createStringLiteral(arg)
-          : ExpressionFactory.number(arg),
-      ),
+      TypeLiteralFactory.generate(arg),
     ]);
   }
 

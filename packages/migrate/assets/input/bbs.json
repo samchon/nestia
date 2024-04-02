@@ -792,6 +792,7 @@
           "url": {
             "type": "string",
             "format": "uri",
+            "contentMediaType": "application/octet-stream",
             "title": "URL path of the real file",
             "description": "URL path of the real file."
           }
@@ -810,7 +811,8 @@
             "type": "string",
             "format": "uuid",
             "title": "Primary Key",
-            "description": "Primary Key."
+            "description": "Primary Key.",
+            "x-special-description": "Sommetimes made by database automatically."
           },
           "writer": {
             "type": "string",

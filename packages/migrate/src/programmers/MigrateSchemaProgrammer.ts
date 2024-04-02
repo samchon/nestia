@@ -1,4 +1,5 @@
 import ts from "typescript";
+import typia from "typia";
 import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { FormatCheatSheet } from "typia/lib/tags/internal/FormatCheatSheet";
@@ -27,7 +28,8 @@ export namespace MigrateSchemaProgrammer {
 
       const type: ts.TypeNode = (() => {
         // ATOMIC
-        if (SwaggerTypeChecker.isBoolean(schema)) return writeBoolean(schema);
+        if (SwaggerTypeChecker.isBoolean(schema))
+          return writeBoolean(importer)(schema);
         else if (SwaggerTypeChecker.isInteger(schema))
           return writeInteger(importer)(schema);
         else if (SwaggerTypeChecker.isNumber(schema))
@@ -58,13 +60,23 @@ export namespace MigrateSchemaProgrammer {
   /* -----------------------------------------------------------
     ATOMICS
   ----------------------------------------------------------- */
-  const writeBoolean = (schema: ISwaggerSchema.IBoolean): ts.TypeNode => {
-    if (schema.enum?.length)
-      return ts.factory.createLiteralTypeNode(
-        schema.enum[0] ? ts.factory.createTrue() : ts.factory.createFalse(),
-      );
-    return TypeFactory.keyword("boolean");
-  };
+  const writeBoolean =
+    (importer: MigrateImportProgrammer) =>
+    (schema: ISwaggerSchema.IBoolean): ts.TypeNode => {
+      if (schema.enum?.length)
+        return ts.factory.createLiteralTypeNode(
+          schema.enum[0] ? ts.factory.createTrue() : ts.factory.createFalse(),
+        );
+      const intersection: ts.TypeNode[] = [TypeFactory.keyword("boolean")];
+      writePlugin({
+        importer,
+        regular: typia.misc.literals<keyof ISwaggerSchema.IBoolean>(),
+        intersection,
+      })(schema);
+      return intersection.length === 1
+        ? intersection[0]
+        : ts.factory.createIntersectionTypeNode(intersection);
+    };
 
   const writeInteger =
     (importer: MigrateImportProgrammer) =>
@@ -108,7 +120,11 @@ export namespace MigrateSchemaProgrammer {
         );
       if (schema.multipleOf !== undefined)
         intersection.push(importer.tag("MultipleOf", schema.multipleOf));
-
+      writePlugin({
+        importer,
+        regular: typia.misc.literals<keyof ISwaggerSchema.INumber>(),
+        intersection,
+      })(schema);
       return intersection.length === 1
         ? intersection[0]
         : ts.factory.createIntersectionTypeNode(intersection);
@@ -135,6 +151,15 @@ export namespace MigrateSchemaProgrammer {
           undefined
       )
         intersection.push(importer.tag("Format", schema.format));
+      if (schema.contentMediaType !== undefined)
+        intersection.push(
+          importer.tag("ContentMediaType", schema.contentMediaType),
+        );
+      writePlugin({
+        importer,
+        regular: typia.misc.literals<keyof ISwaggerSchema.IString>(),
+        intersection,
+      })(schema);
       return intersection.length === 1
         ? intersection[0]
         : ts.factory.createIntersectionTypeNode(intersection);
@@ -156,6 +181,11 @@ export namespace MigrateSchemaProgrammer {
         intersection.push(importer.tag("MinItems", schema.minItems));
       if (schema.maxItems !== undefined)
         intersection.push(importer.tag("MaxItems", schema.maxItems));
+      writePlugin({
+        importer,
+        regular: typia.misc.literals<keyof ISwaggerSchema.IArray>(),
+        intersection,
+      })(schema);
       return intersection.length === 1
         ? intersection[0]
         : ts.factory.createIntersectionTypeNode(intersection);
@@ -261,3 +291,17 @@ const writeComment = (schema: ISwaggerSchema): string =>
     ...(schema.title !== undefined ? [`@title ${schema.title}`] : []),
     ...(schema.deprecated === true ? [`@deprecated`] : []),
   ].join("\n");
+const writePlugin =
+  (props: {
+    importer: MigrateImportProgrammer;
+    regular: string[];
+    intersection: ts.TypeNode[];
+  }) =>
+  (schema: any) => {
+    const extra: any = {};
+    for (const [key, value] of Object.entries(schema))
+      if (value !== undefined && false === props.regular.includes(key))
+        extra[key] = value;
+    if (Object.keys(extra).length !== 0)
+      props.intersection.push(props.importer.tag("JsonSchemaPlugin", extra));
+  };
