@@ -13,7 +13,7 @@ import type { IBbsArticle } from "../../../structures/IBbsArticle";
 /**
  * Would be shown without any mark.
  *
- * @tag public
+ * @tag public Some description describing public group...
  * @summary Public API
  * @param section Section code
  * @param input Content to store

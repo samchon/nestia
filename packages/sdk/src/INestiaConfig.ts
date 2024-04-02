@@ -1,9 +1,10 @@
 import type { INestApplication } from "@nestjs/common";
 
 import type { INormalizedInput } from "./structures/INormalizedInput";
-import type { ISwagger } from "./structures/ISwagger";
 import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
 import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
+import type { ISwaggerServer } from "./structures/ISwaggerServer";
+import type { ISwaggerTag } from "./structures/ISwaggerTag";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -217,7 +218,7 @@ export namespace INestiaConfig {
     /**
      * List of server addresses.
      */
-    servers?: ISwagger.IServer[];
+    servers?: ISwaggerServer[];
 
     /**
      * Security schemes.
@@ -227,6 +228,18 @@ export namespace INestiaConfig {
      * it would be an error.
      */
     security?: Record<string, ISwaggerSecurityScheme>;
+
+    /**
+     * List of tag names with description.
+     *
+     * It is possible to omit this property or skip some tag name even if
+     * the tag name is used in the API routes. In that case, the tag name
+     * would be used without description.
+     *
+     * Of course, if you've written a comment like `@tag {name} {descrition}`,
+     * you can entirely replace this property specification.
+     */
+    tags?: ISwaggerTag[];
 
     /**
      * Decompose query DTO.

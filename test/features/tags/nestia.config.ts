@@ -6,6 +6,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
   e2e: "src/test",
   swagger: {
     output: "swagger.json",
+    beautify: true,
   },
 };
 export default NESTIA_CONFIG;
