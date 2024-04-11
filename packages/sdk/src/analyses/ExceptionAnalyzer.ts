@@ -126,9 +126,9 @@ export namespace ExceptionAnalyzer {
 
       const meta: Metadata = result.data;
       if (meta.constants.length === 1)
-        return meta.constants[0].values[0].toString();
+        return meta.constants[0].values[0].value.toString();
       else if (meta.escaped && meta.escaped.returns.constants.length === 1)
-        return meta.escaped.returns.constants[0].values[0].toString();
+        return meta.escaped.returns.constants[0].values[0].value.toString();
       else if (ts.isStringLiteral(expression)) return expression.text;
       else if (ts.isNumericLiteral(expression)) {
         const value: number = Number(expression.text.split("_").join(""));

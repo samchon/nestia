@@ -1,4 +1,4 @@
-import { ISwaggerSchema } from "./ISwaggerSchema";
+import { OpenApi } from "@samchon/openapi";
 
 export interface IMigrateRoute {
   name: string;
@@ -20,18 +20,18 @@ export namespace IMigrateRoute {
   export interface IParameter {
     name: string;
     key: string;
-    schema: ISwaggerSchema;
+    schema: OpenApi.IJsonSchema;
     description?: string;
   }
   export interface IHeaders {
     name: string;
     key: string;
-    schema: ISwaggerSchema;
+    schema: OpenApi.IJsonSchema;
   }
   export interface IQuery {
     name: string;
     key: string;
-    schema: ISwaggerSchema;
+    schema: OpenApi.IJsonSchema;
   }
   export interface IBody {
     name: string;
@@ -41,11 +41,11 @@ export namespace IMigrateRoute {
       | "application/json"
       | "application/x-www-form-urlencoded"
       | "multipart/form-data";
-    schema: ISwaggerSchema;
+    schema: OpenApi.IJsonSchema;
     "x-nestia-encrypted"?: boolean;
   }
   export interface IException {
     description?: string;
-    schema: ISwaggerSchema;
+    schema: OpenApi.IJsonSchema;
   }
 }

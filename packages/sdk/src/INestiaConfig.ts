@@ -1,10 +1,7 @@
 import type { INestApplication } from "@nestjs/common";
 
 import type { INormalizedInput } from "./structures/INormalizedInput";
-import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
-import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
-import type { ISwaggerServer } from "./structures/ISwaggerServer";
-import type { ISwaggerTag } from "./structures/ISwaggerTag";
+import { OpenApi } from "@samchon/openapi";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -213,12 +210,12 @@ export namespace INestiaConfig {
      *
      * If omitted, `package.json` content would be used instead.
      */
-    info?: Partial<ISwaggerInfo>;
+    info?: Partial<OpenApi.IDocument.IInfo>;
 
     /**
      * List of server addresses.
      */
-    servers?: ISwaggerServer[];
+    servers?: OpenApi.IServer[];
 
     /**
      * Security schemes.
@@ -227,7 +224,7 @@ export namespace INestiaConfig {
      * theirs methods have a security key which is not enrolled in here property,
      * it would be an error.
      */
-    security?: Record<string, ISwaggerSecurityScheme>;
+    security?: Record<string, OpenApi.ISecurityScheme>;
 
     /**
      * List of tag names with description.
@@ -239,7 +236,7 @@ export namespace INestiaConfig {
      * Of course, if you've written a comment like `@tag {name} {descrition}`,
      * you can entirely replace this property specification.
      */
-    tags?: ISwaggerTag[];
+    tags?: OpenApi.IDocument.ITag[];
 
     /**
      * Decompose query DTO.

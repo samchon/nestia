@@ -1,8 +1,7 @@
+import { OpenApi } from "@samchon/openapi";
 import { IPointer } from "tstl";
 import ts from "typescript";
 
-import { ISwaggerComponents } from "../structures/ISwaggerComponents";
-import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -18,7 +17,7 @@ export namespace MigrateDtoProgrammer {
   }
 
   export const compose = (
-    components: ISwaggerComponents,
+    components: OpenApi.IComponents,
   ): Map<string, IModule> => {
     const dict: Map<string, IModule> = new Map();
     for (const [key, value] of Object.entries(components.schemas ?? {}))
@@ -52,9 +51,9 @@ export namespace MigrateDtoProgrammer {
     };
 
   const writeAlias =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (key: string, value: ISwaggerSchema) =>
+    (key: string, value: OpenApi.IJsonSchema) =>
       FilePrinter.description(
         ts.factory.createTypeAliasDeclaration(
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
@@ -66,7 +65,7 @@ export namespace MigrateDtoProgrammer {
       );
 }
 
-const writeComment = (schema: ISwaggerSchema): string =>
+const writeComment = (schema: OpenApi.IJsonSchema): string =>
   [
     ...(schema.description?.length ? [schema.description] : []),
     ...(schema.description?.length &&

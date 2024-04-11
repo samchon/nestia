@@ -1,9 +1,9 @@
+import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 
 import { IMigrateFile } from "../structures/IMigrateFile";
 import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateE2eFunctionProgrammer } from "./MigrateE2eFileProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -11,11 +11,11 @@ import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 export namespace MigrateE2eProgrammer {
   export const write = (program: IMigrateProgram): IMigrateFile[] =>
     program.controllers
-      .map((c) => c.routes.map(writeFile(program.swagger.components)))
+      .map((c) => c.routes.map(writeFile(program.document.components)))
       .flat();
 
   const writeFile =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (route: IMigrateRoute): IMigrateFile => {
       const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
       const func: ts.FunctionDeclaration =

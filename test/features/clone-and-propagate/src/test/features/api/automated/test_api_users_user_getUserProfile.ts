@@ -10,7 +10,6 @@ export const test_api_users_user_getUserProfile = async (
   const output: IPropagation<
     {
       202: IUser;
-      404: "404 Not Found";
     },
     202
   > = await api.functional.users.user.getUserProfile(

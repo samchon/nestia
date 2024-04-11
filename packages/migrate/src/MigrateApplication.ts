@@ -1,3 +1,4 @@
+import { OpenApi, OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import typia, { IValidation } from "typia";
 
 import { MigrateAnalyzer } from "./analyzers/MigrateAnalyzer";
@@ -9,24 +10,18 @@ import { MigrateE2eProgrammer } from "./programmers/MigrateE2eProgrammer";
 import { MigrateNestProgrammer } from "./programmers/MigrateNestProgrammer";
 import { IMigrateFile } from "./structures/IMigrateFile";
 import { IMigrateProgram } from "./structures/IMigrateProgram";
-import { ISwagger } from "./structures/ISwagger";
-import { ISwaggerV31 } from "./structures/ISwaggerV31";
-import { OpenApiConverter } from "./utils/OpenApiConverter";
 
 export class MigrateApplication {
-  private constructor(public readonly swagger: ISwagger) {}
+  private constructor(public readonly document: OpenApi.IDocument) {}
 
   public static async create(
-    swagger: ISwagger | ISwaggerV31,
+    document: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument,
   ): Promise<IValidation<MigrateApplication>> {
-    swagger = typia.is<ISwaggerV31.IVersion>(swagger)
-      ? OpenApiConverter.v3_1(swagger)
-      : swagger;
-    const result = typia.validate<ISwagger>(swagger);
+    const result = typia.validate(document);
     if (result.success === false) return result;
     return {
       success: true,
-      data: new MigrateApplication(swagger),
+      data: new MigrateApplication(OpenApi.convert(document)),
       errors: [],
     };
   }
@@ -34,7 +29,7 @@ export class MigrateApplication {
   public nest(config: MigrateApplication.IConfig): MigrateApplication.IOutput {
     const program: IMigrateProgram = MigrateAnalyzer.analyze({
       mode: "nest",
-      swagger: this.swagger,
+      document: this.document,
       dictionary: new Map(),
       simulate: config.simulate,
       e2e: config.e2e,
@@ -53,7 +48,7 @@ export class MigrateApplication {
   public sdk(config: MigrateApplication.IConfig): MigrateApplication.IOutput {
     const program: IMigrateProgram = MigrateAnalyzer.analyze({
       mode: "sdk",
-      swagger: this.swagger,
+      document: this.document,
       dictionary: new Map(),
       simulate: config.simulate,
       e2e: config.e2e,
@@ -68,7 +63,7 @@ export class MigrateApplication {
         {
           location: "",
           file: "swagger.json",
-          content: JSON.stringify(this.swagger, null, 2),
+          content: JSON.stringify(this.document, null, 2),
         },
       ],
     };

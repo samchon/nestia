@@ -23,7 +23,6 @@ import type { PartialPickIUsernameemailnullable_attroptional_attr } from "../../
  * - When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type.
  * - check optional query DTO
  * - when use HttpCode decorator, sdk build fail code
- * @throws 404
  *
  * @controller UsersController.getUserProfile
  * @path GET /users/:user_id/user
@@ -46,7 +45,6 @@ export namespace getUserProfile {
   export type Output = IPropagation<
     {
       202: IUser;
-      404: "404 Not Found";
     },
     202
   >;

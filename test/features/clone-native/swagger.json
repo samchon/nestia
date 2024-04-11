@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.0",
   "servers": [
     {
       "url": "https://github.com/samchon/nestia",
@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "2.5.16",
+    "version": "3.0.0-dev.20240412",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -69,7 +69,6 @@
             "format": "date-time"
           }
         },
-        "nullable": false,
         "required": [
           "string",
           "date"
@@ -99,32 +98,27 @@
           },
           "blob": {
             "type": "string",
-            "format": "binary",
-            "nullable": false
+            "format": "binary"
           },
           "blobs": {
             "type": "array",
             "items": {
               "type": "string",
-              "format": "binary",
-              "nullable": false
+              "format": "binary"
             }
           },
           "file": {
             "type": "string",
-            "format": "binary",
-            "nullable": false
+            "format": "binary"
           },
           "files": {
             "type": "array",
             "items": {
               "type": "string",
-              "format": "binary",
-              "nullable": false
+              "format": "binary"
             }
           }
         },
-        "nullable": false,
         "required": [
           "id",
           "strings",
@@ -144,5 +138,6 @@
         "name": "Authorization"
       }
     }
-  }
+  },
+  "tags": []
 }

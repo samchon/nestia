@@ -1,5 +1,4 @@
-import { ISwagger } from "../structures/ISwagger";
-import { ISwaggerRoute } from "../structures/ISwaggerRoute";
+import { OpenApi } from "@samchon/openapi";
 
 /**
  * Swagger customization decorator.
@@ -55,7 +54,7 @@ export namespace SwaggerCustomizer {
     /**
      * Swagger data.
      */
-    swagger: ISwagger;
+    swagger: OpenApi.IDocument;
 
     /**
      * Method of the route.
@@ -70,7 +69,7 @@ export namespace SwaggerCustomizer {
     /**
      * Route data.
      */
-    route: ISwaggerRoute;
+    route: OpenApi.IOperation;
 
     /**
      * Get neighbor endpoint data through the controller method.
@@ -86,7 +85,7 @@ export namespace SwaggerCustomizer {
      * @param accessor Accessor for getting neighbor route data
      * @returns Neighbor route data
      */
-    get(accessor: IAccessor): ISwaggerRoute | undefined;
+    get(accessor: IAccessor): OpenApi.IOperation | undefined;
   }
 
   /**
@@ -111,6 +110,6 @@ export namespace SwaggerCustomizer {
     /**
      * Route data.
      */
-    route: ISwaggerRoute;
+    route: OpenApi.IOperation;
   }
 }

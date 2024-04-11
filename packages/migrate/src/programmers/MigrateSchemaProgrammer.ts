@@ -1,14 +1,12 @@
+import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import typia from "typia";
-import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { FormatCheatSheet } from "typia/lib/tags/internal/FormatCheatSheet";
 import { Escaper } from "typia/lib/utils/Escaper";
 
-import { ISwaggerComponents } from "../structures/ISwaggerComponents";
-import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { FilePrinter } from "../utils/FilePrinter";
-import { SwaggerTypeChecker } from "../utils/SwaggerTypeChecker";
+import { OpenApiTypeChecker } from "../utils/OpenApiTypeChecker";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateSchemaProgrammer {
@@ -16,42 +14,45 @@ export namespace MigrateSchemaProgrammer {
     FACADE
   ----------------------------------------------------------- */
   export const write =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (schema: ISwaggerSchema): ts.TypeNode => {
+    (schema: OpenApi.IJsonSchema): ts.TypeNode => {
+      // CONSIDER ANY TYPE CASE
       const union: ts.TypeNode[] = [];
-      if (SwaggerTypeChecker.isUnknown(schema))
+      if (OpenApiTypeChecker.isUnknown(schema))
         return TypeFactory.keyword("any");
-      else if (SwaggerTypeChecker.isNullOnly(schema)) return createNode("null");
-      else if (SwaggerTypeChecker.isNullable(components)(schema))
-        union.push(createNode("null"));
 
+      // ITERATION
       const type: ts.TypeNode = (() => {
         // ATOMIC
-        if (SwaggerTypeChecker.isBoolean(schema))
+        if (OpenApiTypeChecker.isConstant(schema))
+          return writeConstant(importer)(schema);
+        else if (OpenApiTypeChecker.isBoolean(schema))
           return writeBoolean(importer)(schema);
-        else if (SwaggerTypeChecker.isInteger(schema))
+        else if (OpenApiTypeChecker.isInteger(schema))
           return writeInteger(importer)(schema);
-        else if (SwaggerTypeChecker.isNumber(schema))
+        else if (OpenApiTypeChecker.isNumber(schema))
           return writeNumber(importer)(schema);
-        // INSTANCES
-        else if (SwaggerTypeChecker.isString(schema))
+        else if (OpenApiTypeChecker.isString(schema))
           return writeString(importer)(schema);
-        else if (SwaggerTypeChecker.isArray(schema))
+        // INSTANCES
+        else if (OpenApiTypeChecker.isArray(schema))
           return writeArray(components)(importer)(schema);
-        else if (SwaggerTypeChecker.isObject(schema))
+        else if (OpenApiTypeChecker.isTuple(schema))
+          return writeTuple(components)(importer)(schema);
+        else if (OpenApiTypeChecker.isObject(schema))
           return writeObject(components)(importer)(schema);
-        else if (SwaggerTypeChecker.isReference(schema))
+        else if (OpenApiTypeChecker.isReference(schema))
           return writeReference(importer)(schema);
-        // NESTED UNION
-        else if (SwaggerTypeChecker.isAnyOf(schema))
-          return writeUnion(components)(importer)(schema.anyOf);
-        else if (SwaggerTypeChecker.isOneOf(schema))
+        // UNION
+        else if (OpenApiTypeChecker.isOneOf(schema))
           return writeUnion(components)(importer)(schema.oneOf);
+        else if (OpenApiTypeChecker.isNull(schema)) return createNode("null");
         else return TypeFactory.keyword("any");
       })();
       union.push(type);
 
+      // DETERMINE
       if (union.length === 0) return TypeFactory.keyword("any");
       else if (union.length === 1) return union[0];
       return ts.factory.createUnionTypeNode(union);
@@ -60,17 +61,42 @@ export namespace MigrateSchemaProgrammer {
   /* -----------------------------------------------------------
     ATOMICS
   ----------------------------------------------------------- */
+  const writeConstant =
+    (importer: MigrateImportProgrammer) =>
+    (schema: OpenApi.IJsonSchema.IConstant): ts.TypeNode => {
+      const intersection: ts.TypeNode[] = [
+        ts.factory.createLiteralTypeNode(
+          typeof schema.const === "boolean"
+            ? schema.const === true
+              ? ts.factory.createTrue()
+              : ts.factory.createFalse()
+            : typeof schema.const === "number"
+              ? schema.const < 0
+                ? ts.factory.createPrefixUnaryExpression(
+                    ts.SyntaxKind.MinusToken,
+                    ts.factory.createNumericLiteral(-schema.const),
+                  )
+                : ts.factory.createNumericLiteral(schema.const)
+              : ts.factory.createStringLiteral(schema.const),
+        ),
+      ];
+      writePlugin({
+        importer,
+        regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IConstant>(),
+        intersection,
+      })(schema);
+      return intersection.length === 1
+        ? intersection[0]
+        : ts.factory.createIntersectionTypeNode(intersection);
+    };
+
   const writeBoolean =
     (importer: MigrateImportProgrammer) =>
-    (schema: ISwaggerSchema.IBoolean): ts.TypeNode => {
-      if (schema.enum?.length)
-        return ts.factory.createLiteralTypeNode(
-          schema.enum[0] ? ts.factory.createTrue() : ts.factory.createFalse(),
-        );
+    (schema: OpenApi.IJsonSchema.IBoolean): ts.TypeNode => {
       const intersection: ts.TypeNode[] = [TypeFactory.keyword("boolean")];
       writePlugin({
         importer,
-        regular: typia.misc.literals<keyof ISwaggerSchema.IBoolean>(),
+        regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IBoolean>(),
         intersection,
       })(schema);
       return intersection.length === 1
@@ -80,7 +106,7 @@ export namespace MigrateSchemaProgrammer {
 
   const writeInteger =
     (importer: MigrateImportProgrammer) =>
-    (schema: ISwaggerSchema.IInteger): ts.TypeNode =>
+    (schema: OpenApi.IJsonSchema.IInteger): ts.TypeNode =>
       writeNumeric(() => [
         TypeFactory.keyword("number"),
         importer.tag("Type", "int32"),
@@ -88,19 +114,15 @@ export namespace MigrateSchemaProgrammer {
 
   const writeNumber =
     (importer: MigrateImportProgrammer) =>
-    (schema: ISwaggerSchema.INumber): ts.TypeNode =>
+    (schema: OpenApi.IJsonSchema.INumber): ts.TypeNode =>
       writeNumeric(() => [TypeFactory.keyword("number")])(importer)(schema);
 
   const writeNumeric =
     (factory: () => ts.TypeNode[]) =>
     (importer: MigrateImportProgrammer) =>
-    (schema: ISwaggerSchema.IInteger | ISwaggerSchema.INumber): ts.TypeNode => {
-      if (schema.enum?.length)
-        return ts.factory.createUnionTypeNode(
-          schema.enum.map((i) =>
-            ts.factory.createLiteralTypeNode(ExpressionFactory.number(i)),
-          ),
-        );
+    (
+      schema: OpenApi.IJsonSchema.IInteger | OpenApi.IJsonSchema.INumber,
+    ): ts.TypeNode => {
       const intersection: ts.TypeNode[] = factory();
       if (schema.default !== undefined)
         intersection.push(importer.tag("Default", schema.default));
@@ -122,7 +144,7 @@ export namespace MigrateSchemaProgrammer {
         intersection.push(importer.tag("MultipleOf", schema.multipleOf));
       writePlugin({
         importer,
-        regular: typia.misc.literals<keyof ISwaggerSchema.INumber>(),
+        regular: typia.misc.literals<keyof OpenApi.IJsonSchema.INumber>(),
         intersection,
       })(schema);
       return intersection.length === 1
@@ -132,7 +154,7 @@ export namespace MigrateSchemaProgrammer {
 
   const writeString =
     (importer: MigrateImportProgrammer) =>
-    (schema: ISwaggerSchema.IString): ts.TypeNode => {
+    (schema: OpenApi.IJsonSchema.IString): ts.TypeNode => {
       if (schema.format === "binary")
         return ts.factory.createTypeReferenceNode("File");
 
@@ -157,7 +179,7 @@ export namespace MigrateSchemaProgrammer {
         );
       writePlugin({
         importer,
-        regular: typia.misc.literals<keyof ISwaggerSchema.IString>(),
+        regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IString>(),
         intersection,
       })(schema);
       return intersection.length === 1
@@ -169,9 +191,9 @@ export namespace MigrateSchemaProgrammer {
     INSTANCES
   ----------------------------------------------------------- */
   const writeArray =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (schema: ISwaggerSchema.IArray): ts.TypeNode => {
+    (schema: OpenApi.IJsonSchema.IArray): ts.TypeNode => {
       const intersection: ts.TypeNode[] = [
         ts.factory.createArrayTypeNode(
           write(components)(importer)(schema.items),
@@ -183,7 +205,33 @@ export namespace MigrateSchemaProgrammer {
         intersection.push(importer.tag("MaxItems", schema.maxItems));
       writePlugin({
         importer,
-        regular: typia.misc.literals<keyof ISwaggerSchema.IArray>(),
+        regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IArray>(),
+        intersection,
+      })(schema);
+      return intersection.length === 1
+        ? intersection[0]
+        : ts.factory.createIntersectionTypeNode(intersection);
+    };
+
+  const writeTuple =
+    (components: OpenApi.IComponents) =>
+    (importer: MigrateImportProgrammer) =>
+    (schema: OpenApi.IJsonSchema.ITuple): ts.TypeNode => {
+      const tuple: ts.TypeNode = ts.factory.createTupleTypeNode([
+        ...schema.prefixItems.map(write(components)(importer)),
+        ...(typeof schema.additionalItems === "object" &&
+        schema.additionalItems !== null
+          ? [
+              ts.factory.createRestTypeNode(
+                write(components)(importer)(schema.additionalItems),
+              ),
+            ]
+          : []),
+      ]);
+      const intersection: ts.TypeNode[] = [tuple];
+      writePlugin({
+        importer,
+        regular: typia.misc.literals<keyof OpenApi.IJsonSchema.ITuple>(),
         intersection,
       })(schema);
       return intersection.length === 1
@@ -192,9 +240,9 @@ export namespace MigrateSchemaProgrammer {
     };
 
   const writeObject =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (schema: ISwaggerSchema.IObject): ts.TypeNode => {
+    (schema: OpenApi.IJsonSchema.IObject): ts.TypeNode => {
       const regular = () =>
         ts.factory.createTypeLiteralNode(
           Object.entries(schema.properties ?? []).map(([key, value]) =>
@@ -207,7 +255,7 @@ export namespace MigrateSchemaProgrammer {
       const dynamic = () =>
         ts.factory.createTypeLiteralNode([
           writeDynamicProperty(components)(importer)(
-            schema.additionalProperties as ISwaggerSchema,
+            schema.additionalProperties as OpenApi.IJsonSchema,
           ),
         ]);
       return !!schema.properties?.length &&
@@ -219,10 +267,10 @@ export namespace MigrateSchemaProgrammer {
     };
 
   const writeRegularProperty =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (required: string[]) =>
-    (key: string, value: ISwaggerSchema) =>
+    (key: string, value: OpenApi.IJsonSchema) =>
       FilePrinter.description(
         ts.factory.createPropertySignature(
           undefined,
@@ -238,9 +286,9 @@ export namespace MigrateSchemaProgrammer {
       );
 
   const writeDynamicProperty =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (value: ISwaggerSchema) =>
+    (value: OpenApi.IJsonSchema) =>
       FilePrinter.description(
         ts.factory.createIndexSignature(
           undefined,
@@ -261,7 +309,7 @@ export namespace MigrateSchemaProgrammer {
   const writeReference =
     (importer: MigrateImportProgrammer) =>
     (
-      schema: ISwaggerSchema.IReference,
+      schema: OpenApi.IJsonSchema.IReference,
     ): ts.TypeReferenceNode | ts.KeywordTypeNode => {
       if (schema.$ref.startsWith("#/components/schemas") === false)
         return TypeFactory.keyword("any");
@@ -275,13 +323,13 @@ export namespace MigrateSchemaProgrammer {
     UNIONS
   ----------------------------------------------------------- */
   const writeUnion =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (elements: ISwaggerSchema[]): ts.UnionTypeNode =>
+    (elements: OpenApi.IJsonSchema[]): ts.UnionTypeNode =>
       ts.factory.createUnionTypeNode(elements.map(write(components)(importer)));
 }
 const createNode = (text: string) => ts.factory.createTypeReferenceNode(text);
-const writeComment = (schema: ISwaggerSchema): string =>
+const writeComment = (schema: OpenApi.IJsonSchema): string =>
   [
     ...(schema.description?.length ? [schema.description] : []),
     ...(schema.description?.length &&

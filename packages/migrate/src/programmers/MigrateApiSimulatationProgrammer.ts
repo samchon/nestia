@@ -1,3 +1,4 @@
+import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
@@ -5,7 +6,6 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { MigrateApiFunctionProgrammer } from "./MigrateApiFunctionProgrammer";
 import { MigrateApiNamespaceProgrammer } from "./MigrateApiNamespaceProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -18,7 +18,7 @@ export namespace MigrateApiSimulatationProgrammer {
     alias: string;
   }
   export const random =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (props: IProps) => {
       const output = props.route.success
@@ -70,7 +70,7 @@ export namespace MigrateApiSimulatationProgrammer {
     };
 
   export const simulate =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.VariableStatement => {
       const caller = () =>
@@ -121,7 +121,7 @@ export namespace MigrateApiSimulatationProgrammer {
     };
 
   const assert =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.Statement[] => {
       const parameters = [

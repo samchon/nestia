@@ -1,10 +1,10 @@
+import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
@@ -18,7 +18,7 @@ export namespace MigrateApiFunctionProgrammer {
 
   export const write =
     (config: IMigrateProgram.IConfig) =>
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.FunctionDeclaration =>
       FilePrinter.description(
@@ -42,7 +42,7 @@ export namespace MigrateApiFunctionProgrammer {
       );
 
   export const writeParameterDeclarations =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.ParameterDeclaration[] => [
       IdentifierFactory.parameter(

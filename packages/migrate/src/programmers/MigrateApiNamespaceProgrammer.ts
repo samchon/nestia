@@ -1,3 +1,4 @@
+import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
@@ -7,7 +8,6 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateApiSimulatationProgrammer } from "./MigrateApiSimulatationProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -22,7 +22,7 @@ export namespace MigrateApiNamespaceProgrammer {
 
   export const write =
     (config: IMigrateProgram.IConfig) =>
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.ModuleDeclaration => {
       const types = writeTypes(components)(importer)(props.route);
@@ -65,7 +65,7 @@ export namespace MigrateApiNamespaceProgrammer {
     );
 
   const writeTypes =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.TypeAliasDeclaration[] => {
       const array: ts.TypeAliasDeclaration[] = [];
@@ -110,7 +110,7 @@ export namespace MigrateApiNamespaceProgrammer {
     };
 
   const writeMetadata =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.VariableStatement =>
       constant("METADATA")(
@@ -178,7 +178,7 @@ export namespace MigrateApiNamespaceProgrammer {
       );
 
   const writePath =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (props: IProps): ts.VariableStatement => {
       const out = (body: ts.ConciseBody) =>

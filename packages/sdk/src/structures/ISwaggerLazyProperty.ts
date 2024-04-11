@@ -1,7 +1,7 @@
-import { IJsonSchema } from "typia";
+import { OpenApi } from "@samchon/openapi";
 
 export interface ISwaggerLazyProperty {
-  schema: IJsonSchema;
+  schema: OpenApi.IJsonSchema;
   object: string;
   property: string;
 }

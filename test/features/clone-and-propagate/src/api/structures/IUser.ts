@@ -12,7 +12,7 @@ export type IUser = {
   user_type: IUser.Type;
 };
 export namespace IUser {
-  export type Type = "default" | "admin" | "seller";
+  export type Type = "admin" | "default" | "seller";
   export type ISearch = {
     user_type?: undefined | IUser.Type;
   };

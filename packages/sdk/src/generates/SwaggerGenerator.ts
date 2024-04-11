@@ -2,22 +2,19 @@ import fs from "fs";
 import path from "path";
 import { Singleton } from "tstl";
 import ts from "typescript";
-import typia, { IJsonApplication, IJsonComponents } from "typia";
+import typia, { IJsonApplication } from "typia";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { JsonApplicationProgrammer } from "typia/lib/programmers/json/JsonApplicationProgrammer";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
-import { ISwagger } from "../structures/ISwagger";
-import { ISwaggerError } from "../structures/ISwaggerError";
-import { ISwaggerInfo } from "../structures/ISwaggerInfo";
-import { ISwaggerLazyProperty } from "../structures/ISwaggerLazyProperty";
-import { ISwaggerLazySchema } from "../structures/ISwaggerLazySchema";
-import { ISwaggerRoute } from "../structures/ISwaggerRoute";
-import { ISwaggerSecurityScheme } from "../structures/ISwaggerSecurityScheme";
 import { FileRetriever } from "../utils/FileRetriever";
 import { MapUtil } from "../utils/MapUtil";
 import { SwaggerSchemaGenerator } from "./internal/SwaggerSchemaGenerator";
+import { OpenApi } from "@samchon/openapi";
+import { ISwaggerError } from "../structures/ISwaggerError";
+import { ISwaggerLazyProperty } from "../structures/ISwaggerLazyProperty";
+import { ISwaggerLazySchema } from "../structures/ISwaggerLazySchema";
 
 export namespace SwaggerGenerator {
   export interface IProps {
@@ -27,7 +24,7 @@ export namespace SwaggerGenerator {
     lazySchemas: Array<ISwaggerLazySchema>;
     lazyProperties: Array<ISwaggerLazyProperty>;
     errors: ISwaggerError[];
-    swagger: ISwagger;
+    swagger: OpenApi.IDocument;
   }
 
   export const generate =
@@ -63,13 +60,13 @@ export namespace SwaggerGenerator {
       const errors: ISwaggerError[] = [];
       const lazySchemas: Array<ISwaggerLazySchema> = [];
       const lazyProperties: Array<ISwaggerLazyProperty> = [];
-      const swagger: ISwagger = await initialize(config);
-      const pathDict: Map<string, Record<string, ISwaggerRoute>> = new Map();
+      const swagger: OpenApi.IDocument = await initialize(config);
+      const pathDict: Map<string, Record<string, OpenApi.IOperation>> = new Map();
 
       for (const route of routeList) {
         if (route.jsDocTags.find((tag) => tag.name === "internal")) continue;
 
-        const path: Record<string, ISwaggerRoute> = MapUtil.take(
+        const path: Record<string, OpenApi.IOperation> = MapUtil.take(
           pathDict,
           get_path(route.path, route.parameters),
           () => ({}),
@@ -88,9 +85,7 @@ export namespace SwaggerGenerator {
       for (const [path, routes] of pathDict) swagger.paths[path] = routes;
 
       // FILL JSON-SCHEMAS
-      const application: IJsonApplication = JsonApplicationProgrammer.write({
-        purpose: "swagger",
-      })(lazySchemas.map(({ metadata }) => metadata));
+      const application: IJsonApplication<"3.1"> = JsonApplicationProgrammer.write("3.1")(lazySchemas.map(({ metadata }) => metadata)) as IJsonApplication<"3.1">;
       swagger.components = {
         ...(swagger.components ?? {}),
         ...(application.components ?? {}),
@@ -104,8 +99,8 @@ export namespace SwaggerGenerator {
           (
             application.components.schemas?.[
               p.object
-            ] as IJsonComponents.IObject
-          )?.properties[p.property],
+            ] as OpenApi.IJsonSchema.IObject
+          )?.properties?.[p.property] ?? {},
         );
 
       // CONFIGURE SECURITY
@@ -131,18 +126,18 @@ export namespace SwaggerGenerator {
         at: new Singleton(() => {
           const functor: Map<Function, Endpoint> = new Map();
           for (const route of routeList) {
-            const method = route.method.toLowerCase();
-            const path = get_path(route.path, route.parameters);
+            const method: OpenApi.Method = route.method.toLowerCase() as OpenApi.Method;
+            const path: string = get_path(route.path, route.parameters);
             functor.set(route.target.function, {
               method,
               path,
-              route: swagger.paths[path][method],
+              route: swagger.paths![path][method]!,
             });
           }
           return functor;
         }),
-        get: new Singleton(() => (key: Accessor): ISwaggerRoute | undefined => {
-          const method: string = key.method.toLowerCase();
+        get: new Singleton(() => (key: Accessor): OpenApi.IOperation | undefined => {
+          const method: OpenApi.Method = key.method.toLowerCase() as OpenApi.Method;
           const path: string =
             "/" +
             key.path
@@ -152,7 +147,7 @@ export namespace SwaggerGenerator {
                 str.startsWith(":") ? `{${str.substring(1)}}` : str,
               )
               .join("/");
-          return swagger.paths[path]?.[method];
+          return swagger.paths?.[path]?.[method];
         }),
       };
       for (const route of routeList) {
@@ -167,8 +162,8 @@ export namespace SwaggerGenerator {
           continue;
 
         const path: string = get_path(route.path, route.parameters);
-        const method: string = route.method.toLowerCase();
-        const target: ISwaggerRoute = swagger.paths[path][method];
+        const method: OpenApi.Method = route.method.toLowerCase() as OpenApi.Method;
+        const target: OpenApi.IOperation = swagger.paths![path][method]!;
         const closure: Function | Function[] = Reflect.getMetadata(
           "nestia/SwaggerCustomizer",
           route.controller.prototype,
@@ -205,7 +200,7 @@ export namespace SwaggerGenerator {
     (routeList: IRoute[]): void | never => {
       const securityMap: Map<
         string,
-        { scheme: ISwaggerSecurityScheme; scopes: Set<string> }
+        { scheme: OpenApi.ISecurityScheme; scopes: Set<string> }
       > = new Map();
       for (const [key, value] of Object.entries(config.security ?? {}))
         securityMap.set(key, {
@@ -263,9 +258,9 @@ export namespace SwaggerGenerator {
     --------------------------------------------------------- */
   const initialize = async (
     config: INestiaConfig.ISwaggerConfig,
-  ): Promise<ISwagger> => {
+  ): Promise<OpenApi.IDocument> => {
     const pack = new Singleton(
-      async (): Promise<Partial<ISwaggerInfo> | null> => {
+      async (): Promise<Partial<OpenApi.IDocument.IInfo> | null> => {
         const location: string | null = await FileRetriever.file(
           "package.json",
         )(process.cwd());
@@ -309,7 +304,7 @@ export namespace SwaggerGenerator {
     );
 
     return {
-      openapi: "3.0.1",
+      openapi: "3.1.0",
       servers: config.servers ?? [
         {
           url: "https://github.com/samchon/nestia",
@@ -330,7 +325,9 @@ export namespace SwaggerGenerator {
         license: config.info?.license ?? (await pack.get())?.license,
       },
       paths: {},
-      components: {},
+      components: {
+        schemas: {},
+      },
       tags: config.tags ?? [],
     };
   };
@@ -346,7 +343,7 @@ export namespace SwaggerGenerator {
 
   const generate_route =
     (props: IProps) =>
-    (route: IRoute): ISwaggerRoute => {
+    (route: IRoute): OpenApi.IOperation => {
       // FIND REQUEST BODY
       const body = route.parameters.find((param) => param.category === "body");
 
@@ -387,12 +384,12 @@ export namespace SwaggerGenerator {
         ...getJsDocTexts("tag").map((tag) => tag.split(" ")[0]),
       ]);
       for (const tag of tagSet)
-        if (props.swagger.tags.find((elem) => elem.name === tag) === undefined)
-          props.swagger.tags.push({ name: tag });
+        if (props.swagger.tags!.find((elem) => elem.name === tag) === undefined)
+          props.swagger.tags!.push({ name: tag });
       for (const texts of getJsDocTexts("tag")) {
         const [name, ...description] = texts.split(" ");
         if (description.length)
-          props.swagger.tags.find((elem) => elem.name === name)!.description ??=
+          props.swagger.tags!.find((elem) => elem.name === name)!.description ??=
             description.join(" ");
       }
 
@@ -436,7 +433,7 @@ export namespace SwaggerGenerator {
 
   function fill_security(
     security: Required<INestiaConfig.ISwaggerConfig>["security"],
-    swagger: ISwagger,
+    swagger: OpenApi.IDocument,
   ): void {
     swagger.components.securitySchemes = {};
     for (const [key, value] of Object.entries(security))
@@ -444,8 +441,8 @@ export namespace SwaggerGenerator {
   }
 
   function emend_security(
-    input: ISwaggerSecurityScheme,
-  ): ISwaggerSecurityScheme {
+    input: OpenApi.ISecurityScheme,
+  ): OpenApi.ISecurityScheme {
     if (input.type === "apiKey")
       return {
         ...input,
@@ -463,5 +460,5 @@ interface Accessor {
 interface Endpoint {
   method: string;
   path: string;
-  route: ISwaggerRoute;
+  route: OpenApi.IOperation;
 }
