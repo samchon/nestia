@@ -9,7 +9,6 @@ export const test_api_users_oauth_getOauthProfile = async (
 ) => {
   const output: IPropagation<{
     200: IAuthentication.IProfile;
-    404: "404 Not Found";
   }> = await api.functional.users.oauth.getOauthProfile(
     connection,
     typia.random<string>(),

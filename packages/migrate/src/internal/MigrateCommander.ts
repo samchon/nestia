@@ -1,3 +1,4 @@
+import { OpenApi } from "@samchon/openapi";
 import fs from "fs";
 import path from "path";
 import { format } from "prettier";
@@ -5,7 +6,6 @@ import { IValidation } from "typia";
 
 import { MigrateApplication } from "../MigrateApplication";
 import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
-import { ISwagger } from "../structures/ISwagger";
 import { MigrateInquirer } from "./MigrateInquirer";
 
 export namespace MigrateCommander {
@@ -23,19 +23,19 @@ export namespace MigrateCommander {
       halt("Output directory's parent is not a directory.");
 
     // READ SWAGGER
-    const swagger: ISwagger = (() => {
+    const document: OpenApi.IDocument = (() => {
       if (fs.existsSync(options.input) === false)
         halt("Unable to find the input swagger.json file.");
       const stats: fs.Stats = fs.statSync(options.input);
       if (stats.isFile() === false)
         halt("The input swagger.json is not a file.");
       const content: string = fs.readFileSync(options.input, "utf-8");
-      const swagger: ISwagger = JSON.parse(content);
+      const swagger: OpenApi.IDocument = JSON.parse(content);
       return swagger;
     })();
 
     const result: IValidation<MigrateApplication> =
-      await MigrateApplication.create(swagger);
+      await MigrateApplication.create(document);
     if (result.success === false) {
       console.log(result.errors);
       throw new Error(

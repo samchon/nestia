@@ -17,7 +17,6 @@ export * as objectUnionExplicit from "./objectUnionExplicit";
 export * as objectUnionImplicitControllere from "./objectUnionImplicitControllere";
 export * as performance from "./performance";
 export * as sellers from "./sellers";
-export * as swagger from "./swagger";
 export * as template from "./template";
 export * as tupleHierarchicalController from "./tupleHierarchicalController";
 export * as tupleRestController from "./tupleRestController";

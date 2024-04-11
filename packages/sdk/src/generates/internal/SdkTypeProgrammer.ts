@@ -16,6 +16,7 @@ import { Escaper } from "typia/lib/utils/Escaper";
 import { INestiaConfig } from "../../INestiaConfig";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
+import { MetadataConstantValue } from "typia/lib/schemas/metadata/MetadataConstantValue";
 
 export namespace SdkTypeProgrammer {
   /* -----------------------------------------------------------
@@ -110,14 +111,14 @@ export namespace SdkTypeProgrammer {
   /* -----------------------------------------------------------
     ATOMICS
   ----------------------------------------------------------- */
-  const write_constant = (value: boolean | bigint | number | string) => {
-    if (typeof value === "boolean")
+  const write_constant = (value: MetadataConstantValue) => {
+    if (typeof value.value === "boolean")
       return ts.factory.createLiteralTypeNode(
         value ? ts.factory.createTrue() : ts.factory.createFalse(),
       );
-    else if (typeof value === "bigint")
+    else if (typeof value.value === "bigint")
       return ts.factory.createLiteralTypeNode(
-        value < BigInt(0)
+        value.value < BigInt(0)
           ? ts.factory.createPrefixUnaryExpression(
               ts.SyntaxKind.MinusToken,
               ts.factory.createBigIntLiteral((-value).toString()),
@@ -127,7 +128,7 @@ export namespace SdkTypeProgrammer {
     else if (typeof value === "number")
       return ts.factory.createLiteralTypeNode(ExpressionFactory.number(value));
     return ts.factory.createLiteralTypeNode(
-      ts.factory.createStringLiteral(value),
+      ts.factory.createStringLiteral(value.value as string),
     );
   };
 
@@ -146,12 +147,12 @@ export namespace SdkTypeProgrammer {
             return tuple;
           })();
         if (elem.isSoleLiteral())
-          if (last[1] === null) last[1] = String(elem.constants[0].values[0]);
+          if (last[1] === null) last[1] = String(elem.constants[0].values[0].value);
           else
             spans.push([
               ts.factory.createLiteralTypeNode(
                 ts.factory.createStringLiteral(
-                  String(elem.constants[0].values[0]),
+                  String(elem.constants[0].values[0].value),
                 ),
               ),
               null,
@@ -161,7 +162,7 @@ export namespace SdkTypeProgrammer {
       }
       return ts.factory.createTemplateLiteralType(
         ts.factory.createTemplateHead(
-          head ? (meta[0].constants[0].values[0] as string) : "",
+          head ? (meta[0].constants[0].values[0].value as string) : "",
         ),
         spans
           .filter(([node]) => node !== null)
@@ -233,12 +234,12 @@ export namespace SdkTypeProgrammer {
           FilePrinter.description(
             ts.factory.createPropertySignature(
               undefined,
-              Escaper.variable(String(p.key.constants[0].values[0]))
+              Escaper.variable(String(p.key.constants[0].values[0].value))
                 ? ts.factory.createIdentifier(
-                    String(p.key.constants[0].values[0]),
+                    String(p.key.constants[0].values[0].value),
                   )
                 : ts.factory.createStringLiteral(
-                    String(p.key.constants[0].values[0]),
+                    String(p.key.constants[0].values[0].value),
                   ),
               p.value.isRequired() === false
                 ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)

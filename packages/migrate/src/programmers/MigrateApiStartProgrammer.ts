@@ -1,3 +1,4 @@
+import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
@@ -5,7 +6,6 @@ import { StatementFactory } from "typia/lib/factories/StatementFactory";
 import { IMigrateFile } from "../structures/IMigrateFile";
 import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwagger } from "../structures/ISwagger";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateE2eFunctionProgrammer } from "./MigrateE2eFileProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -13,7 +13,7 @@ import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 export namespace MigrateApiStartProgrammer {
   export const write = (program: IMigrateProgram): IMigrateFile => {
     const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
-    const main: ts.VariableStatement = writeMain(program)(program.swagger)(
+    const main: ts.VariableStatement = writeMain(program)(program.document)(
       importer,
     )(pick(program.controllers.map((c) => c.routes).flat()));
     const statements: ts.Statement[] = [
@@ -50,7 +50,7 @@ export namespace MigrateApiStartProgrammer {
 
   const writeMain =
     (config: IMigrateProgram.IConfig) =>
-    (swagger: ISwagger) =>
+    (document: OpenApi.IDocument) =>
     (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.VariableStatement =>
       StatementFactory.constant(
@@ -63,8 +63,8 @@ export namespace MigrateApiStartProgrammer {
           undefined,
           ts.factory.createBlock(
             [
-              writeConnection(config)(swagger)(importer),
-              ...MigrateE2eFunctionProgrammer.writeBody(swagger.components)(
+              writeConnection(config)(document)(importer),
+              ...MigrateE2eFunctionProgrammer.writeBody(document.components)(
                 importer,
               )(route),
             ],
@@ -75,7 +75,7 @@ export namespace MigrateApiStartProgrammer {
 
   const writeConnection =
     (config: IMigrateProgram.IConfig) =>
-    (swagger: ISwagger) =>
+    (document: OpenApi.IDocument) =>
     (importer: MigrateImportProgrammer): ts.VariableStatement =>
       ts.factory.createVariableStatement(
         undefined,
@@ -108,12 +108,12 @@ export namespace MigrateApiStartProgrammer {
                       undefined,
                     ),
                   ),
-                  ...(swagger.servers[0]?.url?.length
+                  ...(document.servers?.[0]?.url?.length
                     ? [
                         ts.factory.createPropertyAssignment(
                           "host",
                           ts.factory.createStringLiteral(
-                            swagger.servers[0].url,
+                            document.servers[0].url,
                           ),
                         ),
                       ]

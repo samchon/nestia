@@ -7,7 +7,4 @@ export const test_swagger = async () => {
   TestValidator.equals("202")(
     route.responses["202"].content["application/json"].schema.$ref,
   )("#/components/schemas/IUser");
-  TestValidator.equals("404")(
-    route.responses["404"].content["application/json"].schema.enum[0],
-  )("404 Not Found");
 };

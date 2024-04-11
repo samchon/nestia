@@ -1,8 +1,8 @@
-import { ISwaggerSchema } from "./ISwaggerSchema";
+import { OpenApi } from "@samchon/openapi";
 
 export interface IMigrateDto {
   name: string;
   location: string;
-  schema: ISwaggerSchema | null;
+  schema: OpenApi.IJsonSchema | null;
   children: IMigrateDto[];
 }

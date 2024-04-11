@@ -1,11 +1,10 @@
+import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwaggerComponents } from "../structures/ISwaggerComponents";
-import { ISwaggerSchema } from "../structures/ISwaggerSchema";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -13,7 +12,7 @@ import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
 export namespace MigrateNestMethodProgrammer {
   export const write =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.MethodDeclaration => {
       const output: ts.TypeNode = route.success
@@ -75,7 +74,7 @@ export namespace MigrateNestMethodProgrammer {
     ].join("\n");
 
   const writeMethodDecorators =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.Decorator[] => {
       const external =
@@ -154,7 +153,7 @@ export namespace MigrateNestMethodProgrammer {
     };
 
   const writeParameters =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.ParameterDeclaration[] => [
       ...route.parameters.map(({ key, schema: value }) =>
@@ -216,9 +215,9 @@ export namespace MigrateNestMethodProgrammer {
 
   const writeDtoParameter =
     (accessor: { method: string | [string, string]; variable: string }) =>
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (schema: ISwaggerSchema): ts.ParameterDeclaration => {
+    (schema: OpenApi.IJsonSchema): ts.ParameterDeclaration => {
       const instance = ts.factory.createIdentifier(
         importer.external({
           type: "instance",

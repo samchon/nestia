@@ -21,7 +21,14 @@ export namespace TypeLiteralFactory {
     ts.factory.createLiteralTypeNode(ts.factory.createStringLiteral(str));
 
   const generateNumber = (num: number) =>
-    ts.factory.createLiteralTypeNode(ts.factory.createNumericLiteral(num));
+    ts.factory.createLiteralTypeNode(
+      num < 0
+        ? ts.factory.createPrefixUnaryExpression(
+            ts.SyntaxKind.MinusToken,
+            ts.factory.createNumericLiteral(-num),
+          )
+        : ts.factory.createNumericLiteral(num),
+    );
 
   const generateBoolean = (bool: boolean) =>
     ts.factory.createLiteralTypeNode(

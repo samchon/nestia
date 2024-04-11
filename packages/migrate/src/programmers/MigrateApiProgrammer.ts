@@ -58,14 +58,16 @@ export namespace MigrateApiProgrammer {
       file: "index.ts",
       content: FilePrinter.write({
         statements: MigrateApiFileProgrammer.write(program)(
-          program.swagger.components,
+          program.document.components,
         )(props),
       }),
     }));
     if (program.mode === "sdk")
       output.push(
         ...[
-          ...MigrateDtoProgrammer.compose(program.swagger.components).entries(),
+          ...MigrateDtoProgrammer.compose(
+            program.document.components,
+          ).entries(),
         ].map(([key, value]) => ({
           location: "src/structures",
           file: `${key}.ts`,

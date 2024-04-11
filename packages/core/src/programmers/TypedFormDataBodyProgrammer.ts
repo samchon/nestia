@@ -42,7 +42,7 @@ export namespace TypedFormDataBodyProgrammer {
               p.value.arrays.some((a) => isFile(a.type.value)),
           )
           .map((p) => ({
-            name: p.key.constants[0].values[0] as string,
+            name: p.key.constants[0].values[0].value as string,
             limit: !!p.value.natives.length ? 1 : null,
           }));
 

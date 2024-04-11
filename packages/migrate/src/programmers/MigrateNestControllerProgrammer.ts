@@ -1,7 +1,7 @@
+import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 
 import { IMigrateController } from "../structures/IMigrateController";
-import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -9,7 +9,7 @@ import { MigrateNestMethodProgrammer } from "./MigrateNestMethodProgrammer";
 
 export namespace MigrateNestControllerProgrammer {
   export const write =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (controller: IMigrateController): ts.Statement[] => {
       const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
       const $class = ts.factory.createClassDeclaration(

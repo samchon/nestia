@@ -1,14 +1,14 @@
+import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
 export namespace MigrateE2eFunctionProgrammer {
   export const write =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.FunctionDeclaration =>
       ts.factory.createFunctionDeclaration(
@@ -41,7 +41,7 @@ export namespace MigrateE2eFunctionProgrammer {
       );
 
   export const writeBody =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.Statement[] => [
       ts.factory.createVariableStatement(
@@ -83,7 +83,7 @@ export namespace MigrateE2eFunctionProgrammer {
     ];
 
   const writeCallExpressionn =
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.CallExpression =>
       ts.factory.createCallExpression(

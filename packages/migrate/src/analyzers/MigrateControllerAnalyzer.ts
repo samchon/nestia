@@ -1,9 +1,9 @@
+import { OpenApi } from "@samchon/openapi";
 import { Escaper } from "typia/lib/utils/Escaper";
 
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwaggerRoute } from "../structures/ISwaggerRoute";
 import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
 import { MigrateMethodAnalzyer } from "./MigrateMethodAnalyzer";
@@ -13,13 +13,15 @@ export namespace MigrateControllerAnalyzer {
     props: IMigrateProgram.IProps,
   ): IMigrateController[] => {
     interface IEntry {
-      endpoint: ISwaggerRoute;
+      endpoint: OpenApi.IOperation;
       route: IMigrateRoute;
     }
     const endpoints: Map<string, IEntry[]> = new Map();
 
     // GATHER ROUTES
-    for (const [path, collection] of Object.entries(props.swagger.paths)) {
+    for (const [path, collection] of Object.entries(
+      props.document.paths ?? {},
+    )) {
       if (collection === undefined) continue;
 
       // PREPARE DIRECTORIES
@@ -39,10 +41,10 @@ export namespace MigrateControllerAnalyzer {
         const r: IMigrateRoute | null = MigrateMethodAnalzyer.analyze(props)({
           path,
           method,
-        })(value);
+        })(value as OpenApi.IOperation);
         if (r === null) continue;
         routes.push({
-          endpoint: value,
+          endpoint: value as OpenApi.IOperation,
           route: r,
         });
       }

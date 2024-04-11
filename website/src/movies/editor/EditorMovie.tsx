@@ -8,8 +8,9 @@ import {
   RadioGroup,
   Switch,
 } from "@mui/material";
-import { ISwagger, MigrateApplication } from "@nestia/migrate";
+import { MigrateApplication } from "@nestia/migrate";
 import { IMigrateFile } from "@nestia/migrate/lib/structures/IMigrateFile";
+import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import sdk from "@stackblitz/sdk";
 import prettierEsTreePlugin from "prettier/plugins/estree";
 import prettierTsPlugin from "prettier/plugins/typescript";
@@ -26,17 +27,19 @@ const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
   const [e2e, setE2e] = useState(true);
 
   // RESULT
-  const [swagger, setSwagger] = useState<ISwagger | null>(null);
+  const [swagger, setSwagger] = useState<
+    SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(false);
 
   const createFiles = async (
-    swagger: ISwagger,
+    swagger: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument,
     config: MigrateApplication.IConfig,
   ): Promise<null | IMigrateFile[]> => {
     try {
       const result: IValidation<MigrateApplication> =
-        await MigrateApplication.create(swagger);
+        await MigrateApplication.create(swagger as any);
       if (result.success === false) {
         alert(
           "Invalid swagger file (based on OpenAPI 3.0 spec).\n\n" +
@@ -60,7 +63,14 @@ const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
     }
   };
 
-  const handleSwagger = (swagger: ISwagger | null, error: string | null) => {
+  const handleSwagger = (
+    swagger:
+      | SwaggerV2.IDocument
+      | OpenApiV3.IDocument
+      | OpenApiV3_1.IDocument
+      | null,
+    error: string | null,
+  ) => {
     setSwagger(swagger);
     setError(error);
   };
@@ -80,7 +90,7 @@ const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
 
     sdk.openProject(
       {
-        title: "TypeScript Swagger Editor",
+        title: swagger.info?.title ?? "TypeScript Swagger Editor",
         template: "node",
         files: Object.fromEntries(
           files.map(

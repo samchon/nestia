@@ -1,9 +1,9 @@
+import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 
 import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
-import { ISwaggerComponents } from "../structures/ISwaggerComponents";
 import { MigrateApiFunctionProgrammer } from "./MigrateApiFunctionProgrammer";
 import { MigrateApiNamespaceProgrammer } from "./MigrateApiNamespaceProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -22,7 +22,7 @@ export namespace MigrateApiFileProgrammer {
 
   export const write =
     (config: IMigrateProgram.IConfig) =>
-    (components: ISwaggerComponents) =>
+    (components: OpenApi.IComponents) =>
     (props: IProps): ts.Statement[] => {
       const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
       const statements: ts.Statement[] = props.entries

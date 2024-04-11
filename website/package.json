@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/samchon/nestia"
+    "url": "https://github.com/samchon/nest7a"
   },
   "author": "Jeongho Nam",
   "license": "MIT",
@@ -23,7 +23,8 @@
     "@mui/icons-material": "5.15.6",
     "@mui/material": "5.15.6",
     "@mui/system": "5.15.6",
-    "@nestia/migrate": "^0.12.1",
+    "@nestia/migrate": "^0.13.0",
+    "@samchon/openapi": "^0.1.2",
     "@stackblitz/sdk": "^1.9.0",
     "js-yaml": "^4.1.0",
     "next": "14.1.0",

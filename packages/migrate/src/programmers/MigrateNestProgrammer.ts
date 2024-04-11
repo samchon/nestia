@@ -20,11 +20,11 @@ export namespace MigrateNestProgrammer {
         location: c.location,
         file: `${c.name}.ts`,
         statements: MigrateNestControllerProgrammer.write(
-          program.swagger.components,
+          program.document.components,
         )(c),
       })),
       ...[
-        ...MigrateDtoProgrammer.compose(program.swagger.components).entries(),
+        ...MigrateDtoProgrammer.compose(program.document.components).entries(),
       ].map(([key, value]) => ({
         location: "src/api/structures",
         file: `${key}.ts`,

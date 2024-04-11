@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.0",
   "servers": [
     {
       "url": "https://github.com/samchon/nestia",
@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "2.5.8",
+    "version": "3.0.0-dev.20240412",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -73,32 +73,27 @@
         "properties": {
           "blob": {
             "type": "string",
-            "format": "binary",
-            "nullable": false
+            "format": "binary"
           },
           "blobs": {
             "type": "array",
             "items": {
               "type": "string",
-              "format": "binary",
-              "nullable": false
+              "format": "binary"
             }
           },
           "file": {
             "type": "string",
-            "format": "binary",
-            "nullable": false
+            "format": "binary"
           },
           "files": {
             "type": "array",
             "items": {
               "type": "string",
-              "format": "binary",
-              "nullable": false
+              "format": "binary"
             }
           }
         },
-        "nullable": false,
         "required": [
           "blob",
           "blobs",
@@ -119,7 +114,6 @@
             "$ref": "#/components/schemas/process.global.NodeJS.ResourceUsage"
           }
         },
-        "nullable": false,
         "required": [
           "cpu",
           "memory",
@@ -137,7 +131,6 @@
             "type": "number"
           }
         },
-        "nullable": false,
         "required": [
           "user",
           "system"
@@ -162,7 +155,6 @@
             "type": "number"
           }
         },
-        "nullable": false,
         "required": [
           "rss",
           "heapTotal",
@@ -223,7 +215,6 @@
             "type": "number"
           }
         },
-        "nullable": false,
         "required": [
           "fsRead",
           "fsWrite",
@@ -251,5 +242,6 @@
         "name": "Authorization"
       }
     }
-  }
+  },
+  "tags": []
 }

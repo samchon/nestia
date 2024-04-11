@@ -7,7 +7,7 @@ import { SelectorParam } from "../decorators/SelectorParam";
 @Controller("custom")
 export class CustomController {
   @SwaggerCustomizer((props: SwaggerCustomizer.IProps) => {
-    props.swagger.openapi = "3.0.11";
+    props.swagger.openapi = "3.1.11";
     props.route.description = "This is a custom description";
     (props.route as any)["x-special-symbol"] = "Something Special";
 

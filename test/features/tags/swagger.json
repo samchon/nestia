@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.0",
   "servers": [
     {
       "url": "https://github.com/samchon/nestia",
@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "2.6.4-dev.20240401",
+    "version": "3.0.0-dev.20240412",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -122,8 +122,8 @@
         "properties": {
           "title": {
             "type": "string",
-            "maxLength": 50,
-            "minLength": 3
+            "minLength": 3,
+            "maxLength": 50
           },
           "body": {
             "type": "string"
@@ -135,7 +135,6 @@
             }
           }
         },
-        "nullable": false,
         "required": [
           "title",
           "body",
@@ -146,22 +145,33 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "maxLength": 255,
-            "nullable": true
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "maxLength": 255
+              }
+            ]
           },
           "extension": {
-            "type": "string",
-            "maxLength": 8,
-            "minLength": 1,
-            "nullable": true
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            ]
           },
           "url": {
             "type": "string",
             "format": "uri"
           }
         },
-        "nullable": false,
         "required": [
           "name",
           "extension",
@@ -184,8 +194,8 @@
           },
           "title": {
             "type": "string",
-            "maxLength": 50,
-            "minLength": 3
+            "minLength": 3,
+            "maxLength": 50
           },
           "body": {
             "type": "string"
@@ -197,7 +207,6 @@
             }
           }
         },
-        "nullable": false,
         "required": [
           "id",
           "section",

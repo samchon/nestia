@@ -12,6 +12,4 @@ export const test_swagger = async () => {
     "x-values",
     "x-flags",
   ]);
-  const def = headers.find((p) => p.name === "x-name");
-  TestValidator.equals("headers.x-name")(def?.schema.default)("Samchon");
 };

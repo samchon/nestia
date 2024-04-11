@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.0",
   "servers": [
     {
       "url": "https://github.com/samchon/nestia",
@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "2.5.16",
+    "version": "3.0.0-dev.20240412",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -24,20 +24,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string"
-                  },
-                  "body": {
-                    "type": "string"
-                  }
-                },
-                "nullable": false,
-                "required": [
-                  "title",
-                  "body"
-                ]
+                "$ref": "#/components/schemas/__type"
               }
             }
           },
@@ -78,20 +65,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string"
-                  },
-                  "body": {
-                    "type": "string"
-                  }
-                },
-                "nullable": false,
-                "required": [
-                  "title",
-                  "body"
-                ]
+                "$ref": "#/components/schemas/__type.o1"
               }
             }
           },
@@ -107,6 +81,21 @@
   },
   "components": {
     "schemas": {
+      "__type": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "body"
+        ]
+      },
       "__object": {
         "type": "object",
         "properties": {
@@ -120,9 +109,23 @@
             "type": "string"
           }
         },
-        "nullable": false,
         "required": [
           "id",
+          "title",
+          "body"
+        ]
+      },
+      "__type.o1": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          }
+        },
+        "required": [
           "title",
           "body"
         ]
@@ -135,5 +138,6 @@
         "name": "Authorization"
       }
     }
-  }
+  },
+  "tags": []
 }

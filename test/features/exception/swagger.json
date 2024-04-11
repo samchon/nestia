@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.0",
   "servers": [
     {
       "url": "https://github.com/samchon/nestia",
@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "2.5.12-dev.20240228",
+    "version": "3.0.0-dev.20240412",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -336,8 +336,8 @@
         "properties": {
           "title": {
             "type": "string",
-            "maxLength": 50,
-            "minLength": 3
+            "minLength": 3,
+            "maxLength": 50
           },
           "body": {
             "type": "string"
@@ -349,7 +349,6 @@
             }
           }
         },
-        "nullable": false,
         "required": [
           "title",
           "body",
@@ -360,22 +359,33 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "maxLength": 255,
-            "nullable": true
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "maxLength": 255
+              }
+            ]
           },
           "extension": {
-            "type": "string",
-            "maxLength": 8,
-            "minLength": 1,
-            "nullable": true
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            ]
           },
           "url": {
             "type": "string",
             "format": "uri"
           }
         },
-        "nullable": false,
         "required": [
           "name",
           "extension",
@@ -405,7 +415,6 @@
             "type": "string"
           }
         },
-        "nullable": false,
         "required": [
           "method",
           "expected",
@@ -427,7 +436,6 @@
             "type": "string"
           }
         },
-        "nullable": false,
         "required": [
           "schema",
           "table",
@@ -441,7 +449,6 @@
             "type": "string"
           }
         },
-        "nullable": false,
         "required": [
           "reason"
         ]
@@ -462,7 +469,6 @@
             }
           }
         },
-        "nullable": false,
         "required": [
           "name",
           "message",
@@ -482,8 +488,8 @@
           },
           "title": {
             "type": "string",
-            "maxLength": 50,
-            "minLength": 3
+            "minLength": 3,
+            "maxLength": 50
           },
           "body": {
             "type": "string"
@@ -495,7 +501,6 @@
             }
           }
         },
-        "nullable": false,
         "required": [
           "id",
           "created_at",
@@ -508,13 +513,9 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
-            "enum": [
-              "something"
-            ]
+            "const": "something"
           }
         },
-        "nullable": false,
         "required": [
           "type"
         ]
@@ -523,13 +524,9 @@
         "type": "object",
         "properties": {
           "nothing": {
-            "type": "string",
-            "enum": [
-              "nothing"
-            ]
+            "const": "nothing"
           }
         },
-        "nullable": false,
         "required": [
           "nothing"
         ]
@@ -538,13 +535,9 @@
         "type": "object",
         "properties": {
           "everything": {
-            "type": "string",
-            "enum": [
-              "everything"
-            ]
+            "const": "everything"
           }
         },
-        "nullable": false,
         "required": [
           "everything"
         ]
@@ -562,7 +555,6 @@
             "$ref": "#/components/schemas/process.global.NodeJS.ResourceUsage"
           }
         },
-        "nullable": false,
         "required": [
           "cpu",
           "memory",
@@ -580,7 +572,6 @@
             "type": "number"
           }
         },
-        "nullable": false,
         "required": [
           "user",
           "system"
@@ -605,7 +596,6 @@
             "type": "number"
           }
         },
-        "nullable": false,
         "required": [
           "rss",
           "heapTotal",
@@ -666,7 +656,6 @@
             "type": "number"
           }
         },
-        "nullable": false,
         "required": [
           "fsRead",
           "fsWrite",
@@ -694,5 +683,6 @@
         "name": "Authorization"
       }
     }
-  }
+  },
+  "tags": []
 }
