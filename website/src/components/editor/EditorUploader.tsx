@@ -1,11 +1,13 @@
-import { ISwagger } from "@nestia/migrate";
+import { SwaggerV2, OpenApiV3, OpenApiV3_1 } from "@samchon/openapi";
 import { load } from "js-yaml";
 import { useState } from "react";
 import FileUpload from "react-mui-fileuploader";
 import { ExtendedFileProps } from "react-mui-fileuploader/dist/types/index.types";
 
+type Swagger = SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument;
+
 const EditorUploader = (props: {
-  onChange: (swagger: ISwagger | null, error: string | null) => void;
+  onChange: (swagger: Swagger | null, error: string | null) => void;
 }) => {
   const [elements, setElements] = useState<ExtendedFileProps[]>([]);
 
@@ -23,7 +25,7 @@ const EditorUploader = (props: {
       | "yaml";
 
     try {
-      const json: ISwagger =
+      const json: Swagger =
         extension === "json" ? JSON.parse(content) : load(content);
       props.onChange(json, null);
     } catch {
