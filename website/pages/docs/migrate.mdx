@@ -1,13 +1,8 @@
-import { Callout } from 'nextra-theme-docs'
-
 import EditorMovie from "../../src/movies/editor/EditorMovie";
+import { EDITOR_EXAMPLES } from "../../src/constants/EDITOR_EXAMPLES";
 
 # Migration from Swagger
 ## Outline
-<Callout>
-  Supports OpenAPI v3.0 / v3.1
-</Callout>
-
 ```bash filename="Terminal" copy showLineNumbers {}
 npx @nestia/migrate
 ```
@@ -69,20 +64,24 @@ Visit [TypeScript Swagger Editor](./editor) and upload your `swagger.json` file.
 
 Then, you can test the migrated NestJS Project, SDK library and Mockup Simulator in the web browser. 
 
-<Callout type="warning">
-  Supports OpenAPI v3.0 only.
-</Callout>
-
 <EditorMovie mode="nest" />
 
 > Put your `swagger.json` file, then "TypeScript Swagger Editor" be opened.
 
-  - Demo Editors
-    - BBS (Bullet-in Board System): [NestJS Project](https://stackblitz.com/edit/jjqnuw?file=README.md&startScript=build:test,test) / [SDK & Simulator](https://stackblitz.com/edit/yyf3nl?file=README.md,test%2Fstart.ts&startScript=swagger&startScript=hello)
-    - Shopping Mall: [NestJS Project](https://stackblitz.com/edit/1g6adb?file=README.md&startScript=build:test,test) / [SDK & Simulator](https://stackblitz.com/edit/eue3bo?file=README.md,test%2Fstart.ts&startScript=swagger&startScript=hello)
-    - Clickhouse: [NestJS Project](https://stackblitz.com/edit/fzenpq?file=README.md&startScript=build:test,test) / [SDK & Simulator](https://stackblitz.com/edit/p5y9u3?file=README.md,test%2Fstart.ts&startScript=swagger&startScript=hello)
-    - Fireblocks: [NestJS Project](https://stackblitz.com/edit/rraebz?file=README.md&startScript=build:test,test) / [SDK & Simulator](https://stackblitz.com/edit/jvdf9f?file=README.md,test%2Fstart.ts&startScript=swagger&startScript=hello)
-    - 아임포트: [NestJS Project](https://stackblitz.com/edit/5wzs6p?file=README.md&startScript=build:test,test) / [SDK & Simulator](https://stackblitz.com/edit/ldlfqp?file=README.md,test%2Fstart.ts&startScript=swagger&startScript=hello)
-    - 토스페이먼츠: [NestJS Project](https://stackblitz.com/edit/ssvg4n?file=README.md&startScript=build:test,test) [SDK & Simulator](https://stackblitz.com/edit/hdtksu?file=README.md,test%2Fstart.ts&startScript=swagger&startScript=hello)
+{
+  <ul>
+    <li> Demo Editors
+      <ul>{
+        EDITOR_EXAMPLES.map(example => (
+          <li>
+            {example.title}: {" "}
+            <a href={example.nest} target="_blank">NestJS Project</a> /{" "}
+            <a href={example.sdk} target="_blank">SDK & Simulator</a> 
+          </li>
+      ))}
+      </ul>
+    </li>
+  </ul>
+}
 
 [![Example Case](/images/editor/stackblitz.png)](https://stackblitz.com/edit/1g6adb?file=README.md&startScript=build:test,test)

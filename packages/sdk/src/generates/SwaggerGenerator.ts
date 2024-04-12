@@ -1,3 +1,4 @@
+import { OpenApi } from "@samchon/openapi";
 import fs from "fs";
 import path from "path";
 import { Singleton } from "tstl";
@@ -8,13 +9,12 @@ import { JsonApplicationProgrammer } from "typia/lib/programmers/json/JsonApplic
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IRoute } from "../structures/IRoute";
-import { FileRetriever } from "../utils/FileRetriever";
-import { MapUtil } from "../utils/MapUtil";
-import { SwaggerSchemaGenerator } from "./internal/SwaggerSchemaGenerator";
-import { OpenApi } from "@samchon/openapi";
 import { ISwaggerError } from "../structures/ISwaggerError";
 import { ISwaggerLazyProperty } from "../structures/ISwaggerLazyProperty";
 import { ISwaggerLazySchema } from "../structures/ISwaggerLazySchema";
+import { FileRetriever } from "../utils/FileRetriever";
+import { MapUtil } from "../utils/MapUtil";
+import { SwaggerSchemaGenerator } from "./internal/SwaggerSchemaGenerator";
 
 export namespace SwaggerGenerator {
   export interface IProps {
@@ -61,7 +61,10 @@ export namespace SwaggerGenerator {
       const lazySchemas: Array<ISwaggerLazySchema> = [];
       const lazyProperties: Array<ISwaggerLazyProperty> = [];
       const swagger: OpenApi.IDocument = await initialize(config);
-      const pathDict: Map<string, Record<string, OpenApi.IOperation>> = new Map();
+      const pathDict: Map<
+        string,
+        Record<string, OpenApi.IOperation>
+      > = new Map();
 
       for (const route of routeList) {
         if (route.jsDocTags.find((tag) => tag.name === "internal")) continue;
@@ -85,7 +88,10 @@ export namespace SwaggerGenerator {
       for (const [path, routes] of pathDict) swagger.paths[path] = routes;
 
       // FILL JSON-SCHEMAS
-      const application: IJsonApplication<"3.1"> = JsonApplicationProgrammer.write("3.1")(lazySchemas.map(({ metadata }) => metadata)) as IJsonApplication<"3.1">;
+      const application: IJsonApplication<"3.1"> =
+        JsonApplicationProgrammer.write("3.1")(
+          lazySchemas.map(({ metadata }) => metadata),
+        ) as IJsonApplication<"3.1">;
       swagger.components = {
         ...(swagger.components ?? {}),
         ...(application.components ?? {}),
@@ -126,7 +132,8 @@ export namespace SwaggerGenerator {
         at: new Singleton(() => {
           const functor: Map<Function, Endpoint> = new Map();
           for (const route of routeList) {
-            const method: OpenApi.Method = route.method.toLowerCase() as OpenApi.Method;
+            const method: OpenApi.Method =
+              route.method.toLowerCase() as OpenApi.Method;
             const path: string = get_path(route.path, route.parameters);
             functor.set(route.target.function, {
               method,
@@ -136,19 +143,23 @@ export namespace SwaggerGenerator {
           }
           return functor;
         }),
-        get: new Singleton(() => (key: Accessor): OpenApi.IOperation | undefined => {
-          const method: OpenApi.Method = key.method.toLowerCase() as OpenApi.Method;
-          const path: string =
-            "/" +
-            key.path
-              .split("/")
-              .filter((str) => !!str.length)
-              .map((str) =>
-                str.startsWith(":") ? `{${str.substring(1)}}` : str,
-              )
-              .join("/");
-          return swagger.paths?.[path]?.[method];
-        }),
+        get: new Singleton(
+          () =>
+            (key: Accessor): OpenApi.IOperation | undefined => {
+              const method: OpenApi.Method =
+                key.method.toLowerCase() as OpenApi.Method;
+              const path: string =
+                "/" +
+                key.path
+                  .split("/")
+                  .filter((str) => !!str.length)
+                  .map((str) =>
+                    str.startsWith(":") ? `{${str.substring(1)}}` : str,
+                  )
+                  .join("/");
+              return swagger.paths?.[path]?.[method];
+            },
+        ),
       };
       for (const route of routeList) {
         if (
@@ -162,7 +173,8 @@ export namespace SwaggerGenerator {
           continue;
 
         const path: string = get_path(route.path, route.parameters);
-        const method: OpenApi.Method = route.method.toLowerCase() as OpenApi.Method;
+        const method: OpenApi.Method =
+          route.method.toLowerCase() as OpenApi.Method;
         const target: OpenApi.IOperation = swagger.paths![path][method]!;
         const closure: Function | Function[] = Reflect.getMetadata(
           "nestia/SwaggerCustomizer",
@@ -329,6 +341,7 @@ export namespace SwaggerGenerator {
         schemas: {},
       },
       tags: config.tags ?? [],
+      "x-samchon-emended": true,
     };
   };
 
@@ -389,8 +402,9 @@ export namespace SwaggerGenerator {
       for (const texts of getJsDocTexts("tag")) {
         const [name, ...description] = texts.split(" ");
         if (description.length)
-          props.swagger.tags!.find((elem) => elem.name === name)!.description ??=
-            description.join(" ");
+          props.swagger.tags!.find(
+            (elem) => elem.name === name,
+          )!.description ??= description.join(" ");
       }
 
       // FINALIZE

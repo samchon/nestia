@@ -1,9 +1,8 @@
 {
   "private": true,
   "name": "@nestia/station",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Nestia station",
-  "main": "prettier.config.js",
   "scripts": {
     "build": "node build/index.js",
     "package:latest": "node deploy latest",
