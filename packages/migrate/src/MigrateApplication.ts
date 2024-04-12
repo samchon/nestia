@@ -15,7 +15,11 @@ export class MigrateApplication {
   private constructor(public readonly document: OpenApi.IDocument) {}
 
   public static async create(
-    document: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument,
+    document:
+      | SwaggerV2.IDocument
+      | OpenApiV3.IDocument
+      | OpenApiV3_1.IDocument
+      | OpenApi.IDocument,
   ): Promise<IValidation<MigrateApplication>> {
     const result = typia.validate(document);
     if (result.success === false) return result;

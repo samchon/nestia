@@ -1,0 +1,1666 @@
+{
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://localhost:37001",
+      "description": "Local Server"
+    }
+  ],
+  "info": {
+    "version": "3.0.0",
+    "title": "@samchon/bbs-backend",
+    "description": "Backend for bbs",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/bbs/articles": {
+      "patch": {
+        "tags": [
+          "BBS"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "Request info of pagination and searching options.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Paginated summarized articles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPageIBbsArticle.ISummary"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List up all summarized articles",
+        "description": "List up all summarized articles.\n\nList up all summarized articles with pagination and searching options."
+      },
+      "post": {
+        "tags": [
+          "BBS"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "Article information to create.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.ICreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Newly created article.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new article",
+        "description": "Create a new article.\n\nCreate a new article with its first {@link IBbsArticle.ISnapshot snapshot}."
+      }
+    },
+    "/bbs/articles/abridges": {
+      "patch": {
+        "tags": [
+          "BBS"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "Request info of pagination and searching options.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Paginated abridged articles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPageIBbsArticle.IAbridge"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List up all abridged articles",
+        "description": "List up all abridged articles.\n\nList up all abridged articles with pagination and searching options."
+      }
+    },
+    "/bbs/articles/{id}": {
+      "get": {
+        "tags": [
+          "BBS"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Target article's ",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Article information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Read individual article",
+        "description": "Read individual article.\n\nReads an article with its every {@link IBbsArticle.ISnapshot snapshots}."
+      },
+      "put": {
+        "tags": [
+          "BBS"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Target article's ",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "Article information to update.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Newly accumulated snapshot information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle.ISnapshot"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Update an article",
+        "description": "Update an article.\n\nAccumulate a new {@link IBbsArticle.ISnapshot snapshot} record to the article."
+      },
+      "delete": {
+        "tags": [
+          "BBS"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Target article's ",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "Password of the article.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IErase"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Erase an article",
+        "description": "Erase an article.\n\nPerforms soft deletion to the article."
+      }
+    },
+    "/bbs/articles/{articleId}/comments": {
+      "patch": {
+        "tags": [
+          "BBS"
+        ],
+        "parameters": [
+          {
+            "name": "articleId",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "Request info of pagination and searching options.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticleComment.IRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Paginated summarized comments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPageIBbsArticleComment"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List up all summarized comments",
+        "description": "List up all summarized comments.\n\nList up all summarized comments with pagination and searching options."
+      },
+      "post": {
+        "tags": [
+          "BBS"
+        ],
+        "parameters": [
+          {
+            "name": "articleId",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Belonged article's ",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "Comment information to create.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticleComment.ICreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Newly created comment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticleComment"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new comment",
+        "description": "Create a new comment.\n\nCreate a new comment with its first {@link IBbsArticleComment.ISnapshot snapshot}."
+      }
+    },
+    "/bbs/articles/{articleId}/comments/{id}": {
+      "get": {
+        "tags": [
+          "BBS"
+        ],
+        "parameters": [
+          {
+            "name": "articleId",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Belonged article's ",
+            "required": true
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Target comment's ",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comment information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticleComment"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Read individual comment",
+        "description": "Read individual comment.\n\nReads a comment with its every {@link IBbsArticleComment.ISnapshot snapshots}."
+      },
+      "put": {
+        "tags": [
+          "BBS"
+        ],
+        "parameters": [
+          {
+            "name": "articleId",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Belonged article's ",
+            "required": true
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Target comment's ",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "Comment information to update.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticleComment.IUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Newly accumulated snapshot information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticleComment.ISnapshot"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Update a comment",
+        "description": "Update a comment.\n\nAccumulate a new {@link IBbsArticleComment.ISnapshot snapshot} record to the comment."
+      },
+      "delete": {
+        "tags": [
+          "BBS"
+        ],
+        "parameters": [
+          {
+            "name": "articleId",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Belonged article's ",
+            "required": true
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Target comment's ",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "Password of the comment.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticleComment.IErase"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Erase a comment",
+        "description": "Erase a comment.\n\nPerforms soft deletion to the comment."
+      }
+    },
+    "/monitors/health": {
+      "get": {
+        "tags": [
+          "Monitor"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Health check API",
+        "description": "Health check API."
+      }
+    },
+    "/monitors/performance": {
+      "get": {
+        "tags": [
+          "Monitor"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Performance info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPerformance"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get performance information",
+        "description": "Get performance information.\n\nGet perofmration information composed with CPU, memory and resource usage."
+      }
+    },
+    "/monitors/system": {
+      "get": {
+        "tags": [
+          "Monitor"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "System info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ISystem"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get system information",
+        "description": "Get system information.\n\nGet system information with commit and package information."
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IBbsArticle.IRequest": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "$ref": "#/components/schemas/IBbsArticle.IRequest.ISearch",
+            "title": "Search condition",
+            "description": "Search condition."
+          },
+          "sort": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "const": "-writer"
+                },
+                {
+                  "const": "-title"
+                },
+                {
+                  "const": "-created_at"
+                },
+                {
+                  "const": "-updated_at"
+                },
+                {
+                  "const": "+writer"
+                },
+                {
+                  "const": "+title"
+                },
+                {
+                  "const": "+created_at"
+                },
+                {
+                  "const": "+updated_at"
+                }
+              ]
+            },
+            "title": "Sort condition",
+            "description": "Sort condition."
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page number",
+            "description": "Page number."
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limitation of records per a page",
+            "description": "Limitation of records per a page."
+          }
+        }
+      },
+      "IBbsArticle.IRequest.ISearch": {
+        "type": "object",
+        "properties": {
+          "writer": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "title_or_body": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "검색 정보."
+      },
+      "IPageIBbsArticle.ISummary": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/IPage.IPagination",
+            "title": "Page information",
+            "description": "Page information."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IBbsArticle.ISummary"
+            },
+            "title": "List of records",
+            "description": "List of records."
+          }
+        },
+        "required": [
+          "pagination",
+          "data"
+        ],
+        "description": "A page.\n\nCollection of records with pagination indformation."
+      },
+      "IPage.IPagination": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "type": "integer",
+            "title": "Current page number",
+            "description": "Current page number."
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limitation of records per a page",
+            "description": "Limitation of records per a page."
+          },
+          "records": {
+            "type": "integer",
+            "title": "Total records in the database",
+            "description": "Total records in the database."
+          },
+          "pages": {
+            "type": "integer",
+            "title": "Total pages",
+            "description": "Total pages.\n\nEqual to {@link records } / {@link limit } with ceiling."
+          }
+        },
+        "required": [
+          "current",
+          "limit",
+          "records",
+          "pages"
+        ],
+        "description": "Page information."
+      },
+      "IBbsArticle.ISummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Primary Key",
+            "description": "Primary Key."
+          },
+          "writer": {
+            "type": "string",
+            "title": "Writer of the article",
+            "description": "Writer of the article."
+          },
+          "title": {
+            "type": "string",
+            "title": "Title of the last snapshot",
+            "description": "Title of the last snapshot."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation time of the article",
+            "description": "Creation time of the article."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Modification time of the article",
+            "description": "Modification time of the article.\n\nIn other words, the time when the last snapshot was created."
+          }
+        },
+        "required": [
+          "id",
+          "writer",
+          "title",
+          "created_at",
+          "updated_at"
+        ],
+        "description": "Summarized information of the article."
+      },
+      "IPageIBbsArticle.IAbridge": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/IPage.IPagination",
+            "title": "Page information",
+            "description": "Page information."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IBbsArticle.IAbridge"
+            },
+            "title": "List of records",
+            "description": "List of records."
+          }
+        },
+        "required": [
+          "pagination",
+          "data"
+        ],
+        "description": "A page.\n\nCollection of records with pagination indformation."
+      },
+      "IBbsArticle.IAbridge": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Primary Key",
+            "description": "Primary Key."
+          },
+          "writer": {
+            "type": "string",
+            "title": "Writer of the article",
+            "description": "Writer of the article."
+          },
+          "title": {
+            "type": "string",
+            "title": "Title of the last snapshot",
+            "description": "Title of the last snapshot."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation time of the article",
+            "description": "Creation time of the article."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Modification time of the article",
+            "description": "Modification time of the article.\n\nIn other words, the time when the last snapshot was created."
+          },
+          "format": {
+            "$ref": "#/components/schemas/IBbsArticle.Format",
+            "title": "Format of body",
+            "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
+          },
+          "body": {
+            "type": "string",
+            "title": "Content body of article",
+            "description": "Content body of article."
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile.ICreate"
+            },
+            "title": "List of attachment files",
+            "description": "List of attachment files."
+          }
+        },
+        "required": [
+          "id",
+          "writer",
+          "title",
+          "created_at",
+          "updated_at",
+          "format",
+          "body",
+          "files"
+        ],
+        "description": "Abriged information of the article."
+      },
+      "IBbsArticle.Format": {
+        "oneOf": [
+          {
+            "const": "txt"
+          },
+          {
+            "const": "md"
+          },
+          {
+            "const": "html"
+          }
+        ]
+      },
+      "IAttachmentFile.ICreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "File name, except extension",
+            "description": "File name, except extension."
+          },
+          "extension": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            ],
+            "title": "Extension",
+            "description": "Extension.\n\nPossible to omit like `README` case."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "title": "URL path of the real file",
+            "description": "URL path of the real file."
+          }
+        },
+        "required": [
+          "name",
+          "extension",
+          "url"
+        ]
+      },
+      "IBbsArticle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Primary Key",
+            "description": "Primary Key."
+          },
+          "writer": {
+            "type": "string",
+            "title": "Writer of article",
+            "description": "Writer of article."
+          },
+          "snapshots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IBbsArticle.ISnapshot"
+            },
+            "minItems": 1,
+            "title": "List of snapshot contents",
+            "description": "List of snapshot contents.\n\nIt is created for the first time when an article is created, and is\naccumulated every time the article is modified."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation time of article",
+            "description": "Creation time of article."
+          }
+        },
+        "required": [
+          "id",
+          "writer",
+          "snapshots",
+          "created_at"
+        ],
+        "description": "Article entity.\n\n`IBbsArticle* is a super-type entity of all kinds of articles in the current\nbackend system, literally shaping individual articles of the bulletin board.\n\nAnd, as you can see, the elements that must inevitably exist in the article,\nsuch as the `title` or the `body`, do not exist in the `IBbsArticle`, but exist\nin the subsidiary entity, {@link IBbsArticle.ISnapshot }, as a 1: N relationship,\nwhich is because a new snapshot record is published every time the article is\nmodified.\n\nThe reason why a new snapshot record is published every time the article is\nmodified is to preserve the evidence. Due to the nature of e-community, there\nis always a threat of dispute among the participants. And it can happen that\ndisputes arise through articles or {@link IBbsArticleComment comments}, and to\nprevent such things as modifying existing articles to manipulate the situation,\nthe article is designed in this structure.\n\nIn other words, to keep evidence, and prevent fraud."
+      },
+      "IBbsArticle.ISnapshot": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Primary Key",
+            "description": "Primary Key."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation time of snapshot record",
+            "description": "Creation time of snapshot record.\n\nIn other words, creation time or update time or article."
+          },
+          "format": {
+            "$ref": "#/components/schemas/IBbsArticle.Format",
+            "title": "Format of body",
+            "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
+          },
+          "body": {
+            "type": "string",
+            "title": "Content body of article",
+            "description": "Content body of article."
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile.ICreate"
+            },
+            "title": "List of attachment files",
+            "description": "List of attachment files."
+          },
+          "title": {
+            "type": "string",
+            "title": "Title of article",
+            "description": "Title of article."
+          }
+        },
+        "required": [
+          "id",
+          "created_at",
+          "format",
+          "body",
+          "files",
+          "title"
+        ],
+        "description": "Snapshot of article.\n\n`IBbsArticle.ISnapshot` is a snapshot entity that contains the contents of\nthe article, as mentioned in {@link IBbsArticle }, the contents of the article\nare separated from the article record to keep evidence and prevent fraud."
+      },
+      "IBbsArticle.ICreate": {
+        "type": "object",
+        "properties": {
+          "writer": {
+            "type": "string"
+          },
+          "format": {
+            "oneOf": [
+              {
+                "const": "txt"
+              },
+              {
+                "const": "md"
+              },
+              {
+                "const": "html"
+              }
+            ],
+            "title": "Format of body",
+            "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
+          },
+          "title": {
+            "type": "string",
+            "title": "Title of article",
+            "description": "Title of article."
+          },
+          "body": {
+            "type": "string",
+            "title": "Content body of article",
+            "description": "Content body of article."
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile.ICreate"
+            },
+            "title": "List of attachment files",
+            "description": "List of attachment files."
+          },
+          "password": {
+            "type": "string",
+            "title": "Password for modification",
+            "description": "Password for modification."
+          }
+        },
+        "required": [
+          "writer",
+          "format",
+          "title",
+          "body",
+          "files",
+          "password"
+        ],
+        "description": "Store content type of the article."
+      },
+      "IBbsArticle.IUpdate": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "oneOf": [
+              {
+                "const": "txt"
+              },
+              {
+                "const": "md"
+              },
+              {
+                "const": "html"
+              }
+            ],
+            "title": "Format of body",
+            "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
+          },
+          "title": {
+            "type": "string",
+            "title": "Title of article",
+            "description": "Title of article."
+          },
+          "body": {
+            "type": "string",
+            "title": "Content body of article",
+            "description": "Content body of article."
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile.ICreate"
+            },
+            "title": "List of attachment files",
+            "description": "List of attachment files."
+          },
+          "password": {
+            "type": "string",
+            "title": "Password for modification",
+            "description": "Password for modification."
+          }
+        },
+        "required": [
+          "format",
+          "title",
+          "body",
+          "files",
+          "password"
+        ]
+      },
+      "IBbsArticle.IErase": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
+      "IBbsArticleComment.IRequest": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "$ref": "#/components/schemas/IBbsArticleComment.IRequest.ISearch"
+          },
+          "sort": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "const": "-writer"
+                },
+                {
+                  "const": "-created_at"
+                },
+                {
+                  "const": "+writer"
+                },
+                {
+                  "const": "+created_at"
+                }
+              ]
+            }
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page number",
+            "description": "Page number."
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limitation of records per a page",
+            "description": "Limitation of records per a page."
+          }
+        }
+      },
+      "IBbsArticleComment.IRequest.ISearch": {
+        "type": "object",
+        "properties": {
+          "writer": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          }
+        }
+      },
+      "IPageIBbsArticleComment": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/IPage.IPagination",
+            "title": "Page information",
+            "description": "Page information."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IBbsArticleComment"
+            },
+            "title": "List of records",
+            "description": "List of records."
+          }
+        },
+        "required": [
+          "pagination",
+          "data"
+        ],
+        "description": "A page.\n\nCollection of records with pagination indformation."
+      },
+      "IBbsArticleComment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Primary Key",
+            "description": "Primary Key."
+          },
+          "parent_id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "uuid"
+              }
+            ],
+            "title": "Parent comment's ID",
+            "description": "Parent comment's ID."
+          },
+          "writer": {
+            "type": "string",
+            "title": "Writer of comment",
+            "description": "Writer of comment."
+          },
+          "snapshots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IBbsArticleComment.ISnapshot"
+            },
+            "minItems": 1,
+            "title": "List of snapshot contents",
+            "description": "List of snapshot contents.\n\nIt is created for the first time when a comment being created, and is\naccumulated every time the comment is modified."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation time of comment",
+            "description": "Creation time of comment."
+          }
+        },
+        "required": [
+          "id",
+          "parent_id",
+          "writer",
+          "snapshots",
+          "created_at"
+        ],
+        "description": "Comment written on an article.\n\n`IBbsArticleComment` is an entity that shapes the comments written on an article.\n\nAnd for this comment, as in the previous relationship between\n{@link IBbsArticle } and {@link IBbsArticle.ISnapshot }, the content body of the\ncomment is stored in the sub {@link IBbsArticleComment.ISnapshot } table for\nevidentialism, and a new snapshot record is issued every time the comment is modified.\n\nAlso, `IBbsArticleComment` is expressing the relationship of the hierarchical reply\nstructure through the {@link IBbsArticleComment.parent_id } attribute."
+      },
+      "IBbsArticleComment.ISnapshot": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Primary Key",
+            "description": "Primary Key."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation time of snapshot record",
+            "description": "Creation time of snapshot record.\n\nIn other words, creation time or update time or comment."
+          },
+          "format": {
+            "$ref": "#/components/schemas/IBbsArticleComment.Format",
+            "title": "Format of body",
+            "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
+          },
+          "body": {
+            "type": "string",
+            "title": "Content body of comment",
+            "description": "Content body of comment."
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile.ICreate"
+            },
+            "title": "List of attachment files",
+            "description": "List of attachment files."
+          }
+        },
+        "required": [
+          "id",
+          "created_at",
+          "format",
+          "body",
+          "files"
+        ],
+        "description": "Snapshot of comment.\n\n`IBbsArticleComment.ISnapshot` is a snapshot entity that contains\nthe contents of the comment.\n\nAs mentioned in {@link IBbsArticleComment }, designed to keep evidence\nand prevent fraud."
+      },
+      "IBbsArticleComment.Format": {
+        "oneOf": [
+          {
+            "const": "txt"
+          },
+          {
+            "const": "md"
+          },
+          {
+            "const": "html"
+          }
+        ]
+      },
+      "IBbsArticleComment.ICreate": {
+        "type": "object",
+        "properties": {
+          "writer": {
+            "type": "string",
+            "title": "Writer of comment",
+            "description": "Writer of comment."
+          },
+          "format": {
+            "oneOf": [
+              {
+                "const": "txt"
+              },
+              {
+                "const": "md"
+              },
+              {
+                "const": "html"
+              }
+            ],
+            "title": "Format of body",
+            "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
+          },
+          "body": {
+            "type": "string",
+            "title": "Content body of comment",
+            "description": "Content body of comment."
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile.ICreate"
+            },
+            "title": "List of attachment files",
+            "description": "List of attachment files."
+          },
+          "password": {
+            "type": "string",
+            "title": "Password for modification",
+            "description": "Password for modification."
+          }
+        },
+        "required": [
+          "writer",
+          "format",
+          "body",
+          "files",
+          "password"
+        ]
+      },
+      "IBbsArticleComment.IUpdate": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "oneOf": [
+              {
+                "const": "txt"
+              },
+              {
+                "const": "md"
+              },
+              {
+                "const": "html"
+              }
+            ],
+            "title": "Format of body",
+            "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
+          },
+          "body": {
+            "type": "string",
+            "title": "Content body of comment",
+            "description": "Content body of comment."
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile.ICreate"
+            },
+            "title": "List of attachment files",
+            "description": "List of attachment files."
+          },
+          "password": {
+            "type": "string",
+            "title": "Password for modification",
+            "description": "Password for modification."
+          }
+        },
+        "required": [
+          "format",
+          "body",
+          "files",
+          "password"
+        ]
+      },
+      "IBbsArticleComment.IErase": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
+      "IPerformance": {
+        "type": "object",
+        "properties": {
+          "cpu": {
+            "$ref": "#/components/schemas/process.global.NodeJS.CpuUsage"
+          },
+          "memory": {
+            "$ref": "#/components/schemas/process.global.NodeJS.MemoryUsage"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/process.global.NodeJS.ResourceUsage"
+          }
+        },
+        "required": [
+          "cpu",
+          "memory",
+          "resource"
+        ]
+      },
+      "process.global.NodeJS.CpuUsage": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "number"
+          },
+          "system": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "user",
+          "system"
+        ]
+      },
+      "process.global.NodeJS.MemoryUsage": {
+        "type": "object",
+        "properties": {
+          "rss": {
+            "type": "number"
+          },
+          "heapTotal": {
+            "type": "number"
+          },
+          "heapUsed": {
+            "type": "number"
+          },
+          "external": {
+            "type": "number"
+          },
+          "arrayBuffers": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rss",
+          "heapTotal",
+          "heapUsed",
+          "external",
+          "arrayBuffers"
+        ]
+      },
+      "process.global.NodeJS.ResourceUsage": {
+        "type": "object",
+        "properties": {
+          "fsRead": {
+            "type": "number"
+          },
+          "fsWrite": {
+            "type": "number"
+          },
+          "involuntaryContextSwitches": {
+            "type": "number"
+          },
+          "ipcReceived": {
+            "type": "number"
+          },
+          "ipcSent": {
+            "type": "number"
+          },
+          "majorPageFault": {
+            "type": "number"
+          },
+          "maxRSS": {
+            "type": "number"
+          },
+          "minorPageFault": {
+            "type": "number"
+          },
+          "sharedMemorySize": {
+            "type": "number"
+          },
+          "signalsCount": {
+            "type": "number"
+          },
+          "swappedOut": {
+            "type": "number"
+          },
+          "systemCPUTime": {
+            "type": "number"
+          },
+          "unsharedDataSize": {
+            "type": "number"
+          },
+          "unsharedStackSize": {
+            "type": "number"
+          },
+          "userCPUTime": {
+            "type": "number"
+          },
+          "voluntaryContextSwitches": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "fsRead",
+          "fsWrite",
+          "involuntaryContextSwitches",
+          "ipcReceived",
+          "ipcSent",
+          "majorPageFault",
+          "maxRSS",
+          "minorPageFault",
+          "sharedMemorySize",
+          "signalsCount",
+          "swappedOut",
+          "systemCPUTime",
+          "unsharedDataSize",
+          "unsharedStackSize",
+          "userCPUTime",
+          "voluntaryContextSwitches"
+        ]
+      },
+      "ISystem": {
+        "type": "object",
+        "properties": {
+          "uid": {
+            "type": "number",
+            "title": "Random Unique ID",
+            "description": "Random Unique ID."
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "`process.argv`"
+          },
+          "commit": {
+            "$ref": "#/components/schemas/ISystem.ICommit",
+            "title": "Git commit info",
+            "description": "Git commit info."
+          },
+          "package": {
+            "$ref": "#/components/schemas/ISystem.IPackage",
+            "description": "`package.json`"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Creation time of this server",
+            "description": "Creation time of this server."
+          }
+        },
+        "required": [
+          "uid",
+          "arguments",
+          "commit",
+          "package",
+          "created_at"
+        ],
+        "description": "System Information."
+      },
+      "ISystem.ICommit": {
+        "type": "object",
+        "properties": {
+          "shortHash": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "hash": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "sanitizedSubject": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "author": {
+            "$ref": "#/components/schemas/ISystem.ICommit.IUser"
+          },
+          "committer": {
+            "$ref": "#/components/schemas/ISystem.ICommit.IUser"
+          },
+          "authored_at": {
+            "type": "string"
+          },
+          "commited_at": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "shortHash",
+          "branch",
+          "hash",
+          "subject",
+          "sanitizedSubject",
+          "body",
+          "author",
+          "committer",
+          "authored_at",
+          "commited_at",
+          "tags"
+        ],
+        "description": "Git commit info."
+      },
+      "ISystem.ICommit.IUser": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "email"
+        ],
+        "description": "Git user account info."
+      },
+      "ISystem.IPackage": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "main": {
+            "type": "string"
+          },
+          "typings": {
+            "type": "string"
+          },
+          "scripts": {
+            "$ref": "#/components/schemas/Recordstringstring"
+          },
+          "repository": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "git"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "url"
+            ]
+          },
+          "author": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          },
+          "bugs": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "url"
+            ]
+          },
+          "homepage": {
+            "type": "string"
+          },
+          "devDependencies": {
+            "$ref": "#/components/schemas/Recordstringstring"
+          },
+          "dependencies": {
+            "$ref": "#/components/schemas/Recordstringstring"
+          },
+          "publishConfig": {
+            "type": "object",
+            "properties": {
+              "registry": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "registry"
+            ]
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "description",
+          "scripts",
+          "repository",
+          "author",
+          "license",
+          "bugs",
+          "homepage",
+          "dependencies"
+        ],
+        "description": "NPM package info."
+      },
+      "Recordstringstring": {
+        "type": "object",
+        "properties": {},
+        "description": "Construct a type with a set of properties K of type T",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "BBS"
+    },
+    {
+      "name": "Monitor"
+    }
+  ]
+}
