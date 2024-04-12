@@ -7,9 +7,10 @@ updates:
     versioning-strategy: increase
     open-pull-requests-limit: 25
     allow:
+      - dependency-name: "@samchon/openapi"
+      - dependency-name: "@nestjs/*"
       - dependency-name: "tstl"
       - dependency-name: "typia"
-      - dependency-name: "@nestjs/*"
       - dependency-name: ts-node
       - dependency-name: ts-patch
       - dependency-name: typescript
@@ -19,6 +20,7 @@ updates:
           - "@nestjs/*"
       Samchon:
         patterns:
+          - "@samchon/openapi"
           - "tstl"
           - "typia"
       TypeScript:

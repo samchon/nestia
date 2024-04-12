@@ -148,14 +148,34 @@ export namespace MigrateMethodAnalzyer {
         .map((str) =>
           str[0] === "{" ? str.substring(1, str.length - 1) : str.substring(1),
         );
-      if (
-        parameterNames.length !==
-        route.parameters.filter((p) => p.in === "path").length
-      )
-        failures.push(
-          "number of path parameters are not matched with its full path.",
-        );
-
+      const pathParameters: OpenApi.IOperation.IParameter[] =
+        route.parameters.filter((p) => p.in === "path");
+      if (parameterNames.length !== pathParameters.length)
+        if (
+          pathParameters.length < parameterNames.length &&
+          pathParameters.every(
+            (p) => p.name !== undefined && parameterNames.includes(p.name),
+          )
+        ) {
+          for (const name of parameterNames)
+            if (pathParameters.find((p) => p.name === name) === undefined)
+              pathParameters.push({
+                name,
+                in: "path",
+                schema: { type: "string" },
+              });
+          pathParameters.sort(
+            (a, b) =>
+              parameterNames.indexOf(a.name!) - parameterNames.indexOf(b.name!),
+          );
+          route.parameters = [
+            ...pathParameters,
+            ...route.parameters.filter((p) => p.in !== "path"),
+          ];
+        } else
+          failures.push(
+            "number of path parameters are not matched with its full path.",
+          );
       if (failures.length) {
         console.log(
           `Failed to migrate ${endpoint.method.toUpperCase()} ${endpoint.path}`,
