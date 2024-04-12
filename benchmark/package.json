@@ -25,7 +25,7 @@
   "homepage": "https://nestia.io",
   "dependencies": {
     "@nestia/core": "^2.6.3",
-    "typia": "^6.0.0"
+    "typia": "^6.0.1"
   },
   "devDependencies": {
     "@types/autocannon": "^7.9.0",

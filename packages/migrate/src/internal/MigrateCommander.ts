@@ -1,4 +1,4 @@
-import { OpenApi } from "@samchon/openapi";
+import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import fs from "fs";
 import path from "path";
 import { format } from "prettier";
@@ -23,14 +23,20 @@ export namespace MigrateCommander {
       halt("Output directory's parent is not a directory.");
 
     // READ SWAGGER
-    const document: OpenApi.IDocument = (() => {
+    const document:
+      | SwaggerV2.IDocument
+      | OpenApiV3.IDocument
+      | OpenApiV3_1.IDocument = (() => {
       if (fs.existsSync(options.input) === false)
         halt("Unable to find the input swagger.json file.");
       const stats: fs.Stats = fs.statSync(options.input);
       if (stats.isFile() === false)
         halt("The input swagger.json is not a file.");
       const content: string = fs.readFileSync(options.input, "utf-8");
-      const swagger: OpenApi.IDocument = JSON.parse(content);
+      const swagger:
+        | SwaggerV2.IDocument
+        | OpenApiV3.IDocument
+        | OpenApiV3_1.IDocument = JSON.parse(content);
       return swagger;
     })();
 
