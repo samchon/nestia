@@ -12,7 +12,7 @@ import { FastifyRoute } from "../../internal/FastifyRoute";
 import { IStringifyServerProgram } from "../IStringifyServerProgram";
 
 export const createAjvStringifyProgram =
-  (port: number) => async (doc: typia.IJsonApplication) => {
+  (port: number) => async (doc: typia.IJsonApplication<"3.0">) => {
     const server: IPointer<NestFastifyApplication | null> = { value: null };
     const controller = (input: any) => {
       @Controller()
@@ -45,6 +45,6 @@ export const createAjvStringifyProgram =
       },
     };
 
-    const worker = new tgrid.protocols.workers.WorkerServer();
+    const worker = new tgrid.WorkerServer();
     await worker.open(provider);
   };

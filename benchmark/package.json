@@ -5,9 +5,10 @@
   "main": "bin/index.js",
   "scripts": {
     "build": "rimraf bin && tsc",
-    "generate": "ts-node src/generate",
-    "start": "npm run build && node bin",
-    "prepare": "ts-patch install && typia patch"
+    "generate": "ts-node src/generate && npm run prettier && npm run build",
+    "prepare": "ts-patch install && typia patch",
+    "prettier": "prettier ./src/**/*.ts --write",
+    "start": "npm run build && node bin"
   },
   "repository": {
     "type": "git",
@@ -24,7 +25,9 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "^2.6.3",
+    "@nestia/core": "^3.0.2",
+    "@nestjs/platform-express": "^10.3.7",
+    "@nestjs/platform-fastify": "^10.3.7",
     "typia": "^6.0.1"
   },
   "devDependencies": {
@@ -41,10 +44,10 @@
     "jsdom": "^22.0.0",
     "physical-cpu-count": "^2.0.0",
     "rimraf": "^5.0.1",
-    "tgrid": "^0.10.0",
+    "tgrid": "^0.10.2",
     "ts-node": "^10.9.1",
     "ts-patch": "^3.1.1",
     "tstl": "^3.0.0",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.5"
   }
 }

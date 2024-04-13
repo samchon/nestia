@@ -5,17 +5,14 @@ import { ClassValidatorObjectHierarchical } from "../../../../structures/class-v
 import { createNestExpressStringifyProgram } from "../createNestExpressStringifyProgram";
 
 createNestExpressStringifyProgram(true)(37_011)(
-    (input: ClassValidatorObjectHierarchical) => {
-        @Controller()
-        class NestJsController {
-            @Get("stringify")
-            public stringify(): ClassValidatorObjectHierarchical {
-                return plainToInstance(
-                    ClassValidatorObjectHierarchical,
-                    input,
-                );
-            }
-        }
-        return NestJsController;
-    },
+  (input: ClassValidatorObjectHierarchical) => {
+    @Controller()
+    class NestJsController {
+      @Get("stringify")
+      public stringify(): ClassValidatorObjectHierarchical {
+        return plainToInstance(ClassValidatorObjectHierarchical, input);
+      }
+    }
+    return NestJsController;
+  },
 );

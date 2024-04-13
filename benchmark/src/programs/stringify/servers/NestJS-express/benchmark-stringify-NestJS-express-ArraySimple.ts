@@ -5,17 +5,14 @@ import { ClassValidatorArraySimple } from "../../../../structures/class-validato
 import { createNestExpressStringifyProgram } from "../createNestExpressStringifyProgram";
 
 createNestExpressStringifyProgram(true)(37_011)(
-    (input: ClassValidatorArraySimple) => {
-        @Controller()
-        class NestJsController {
-            @Get("stringify")
-            public stringify(): ClassValidatorArraySimple {
-                return plainToInstance(
-                    ClassValidatorArraySimple,
-                    input,
-                );
-            }
-        }
-        return NestJsController;
-    },
+  (input: ClassValidatorArraySimple) => {
+    @Controller()
+    class NestJsController {
+      @Get("stringify")
+      public stringify(): ClassValidatorArraySimple {
+        return plainToInstance(ClassValidatorArraySimple, input);
+      }
+    }
+    return NestJsController;
+  },
 );

@@ -1,9 +1,9 @@
 import typia from "typia";
 
-import { Collection } from "../../../../structures/pure/Collection";
 import { ArrayRecursiveUnionExplicit } from "../../../../structures/pure/ArrayRecursiveUnionExplicit";
+import { Collection } from "../../../../structures/pure/Collection";
 import { createAjvAssertProgram } from "../createAjvAssertProgram";
 
 createAjvAssertProgram(37_002)(
-    typia.json.application<[Collection<ArrayRecursiveUnionExplicit>], "ajv">()
+  typia.json.application<[Collection<ArrayRecursiveUnionExplicit>], "3.0">(),
 );

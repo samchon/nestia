@@ -1,7 +1,6 @@
 import fs from "fs";
 import PHYSICAL_CPU_COUNT from "physical-cpu-count";
 import tgrid from "tgrid";
-import { Driver } from "tgrid/components/Driver";
 
 import { IBenchmarkProgram } from "../programs/IBenchmarkProgram";
 import { Spoiler } from "../structures/helpers/Spoiler";
@@ -82,11 +81,7 @@ export namespace BenchmarkServer {
     <T>(type: string) =>
     async (file: string): Promise<IBenchmarkProgram.IMeasurement | null> => {
       const factory = FACTORIES[type];
-      const connector = new tgrid.protocols.workers.WorkerConnector(
-        null,
-        null,
-        "process",
-      );
+      const connector = new tgrid.WorkerConnector(null, null, "process");
       await connector.connect(file);
 
       const result: IBenchmarkProgram.IMeasurement | null =
@@ -98,7 +93,7 @@ export namespace BenchmarkServer {
   const measureProgram =
     (type: string) =>
     <T>(factory: IFactory<T>) =>
-    async (controller: Driver<IBenchmarkProgram<T>>) => {
+    async (controller: tgrid.Driver<IBenchmarkProgram<T>>) => {
       const input: any = factory.generate();
       const tolerable = async () => {
         if (await controller.skip(type)) return true;

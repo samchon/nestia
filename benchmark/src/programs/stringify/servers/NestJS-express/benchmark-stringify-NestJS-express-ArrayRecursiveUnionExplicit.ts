@@ -5,17 +5,17 @@ import { ClassValidatorArrayRecursiveUnionExplicit } from "../../../../structure
 import { createNestExpressStringifyProgram } from "../createNestExpressStringifyProgram";
 
 createNestExpressStringifyProgram(true)(37_011)(
-    (input: ClassValidatorArrayRecursiveUnionExplicit) => {
-        @Controller()
-        class NestJsController {
-            @Get("stringify")
-            public stringify(): ClassValidatorArrayRecursiveUnionExplicit {
-                return plainToInstance(
-                    ClassValidatorArrayRecursiveUnionExplicit,
-                    input,
-                );
-            }
-        }
-        return NestJsController;
-    },
+  (input: ClassValidatorArrayRecursiveUnionExplicit) => {
+    @Controller()
+    class NestJsController {
+      @Get("stringify")
+      public stringify(): ClassValidatorArrayRecursiveUnionExplicit {
+        return plainToInstance(
+          ClassValidatorArrayRecursiveUnionExplicit,
+          input,
+        );
+      }
+    }
+    return NestJsController;
+  },
 );

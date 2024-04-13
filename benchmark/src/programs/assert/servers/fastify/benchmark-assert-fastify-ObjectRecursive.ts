@@ -5,5 +5,5 @@ import { ObjectRecursive } from "../../../../structures/pure/ObjectRecursive";
 import { createAjvAssertProgram } from "../createAjvAssertProgram";
 
 createAjvAssertProgram(37_002)(
-    typia.json.application<[Collection<ObjectRecursive>], "ajv">()
+  typia.json.application<[Collection<ObjectRecursive>], "3.0">(),
 );

@@ -5,17 +5,14 @@ import { ClassValidatorObjectRecursive } from "../../../../structures/class-vali
 import { createNestFastifyStringifyProgram } from "../createNestFastifyStringifyProgram";
 
 createNestFastifyStringifyProgram(true)(37_021)(
-    (input: ClassValidatorObjectRecursive) => {
-        @Controller()
-        class NestJsController {
-            @Get("stringify")
-            public stringify(): ClassValidatorObjectRecursive {
-                return plainToInstance(
-                    ClassValidatorObjectRecursive,
-                    input,
-                );
-            }
-        }
-        return NestJsController;
-    },
+  (input: ClassValidatorObjectRecursive) => {
+    @Controller()
+    class NestJsController {
+      @Get("stringify")
+      public stringify(): ClassValidatorObjectRecursive {
+        return plainToInstance(ClassValidatorObjectRecursive, input);
+      }
+    }
+    return NestJsController;
+  },
 );

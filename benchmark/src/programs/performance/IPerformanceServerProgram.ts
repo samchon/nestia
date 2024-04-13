@@ -1,4 +1,4 @@
 export interface IPerformanceServerProgram<T> {
-    open(): Promise<number>;
-    close(): Promise<void>;
+  open(): Promise<number>;
+  close(): Promise<void>;
 }
