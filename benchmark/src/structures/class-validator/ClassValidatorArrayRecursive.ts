@@ -5,31 +5,31 @@ import "reflect-metadata";
 import { ClassValidatorTimestamp } from "./ClassValidatorTimestamp";
 
 class Recursive {
-    @cv.IsNumber()
-    public id!: number;
+  @cv.IsNumber()
+  public id!: number;
 
-    @cv.IsString()
-    public code!: string;
+  @cv.IsString()
+  public code!: string;
 
-    @cv.IsNumber()
-    public sequence!: number;
+  @cv.IsNumber()
+  public sequence!: number;
 
-    @tr.Type(() => ClassValidatorTimestamp)
-    @cv.IsObject()
-    @cv.ValidateNested({ each: true })
-    public created_at!: ClassValidatorTimestamp;
+  @tr.Type(() => ClassValidatorTimestamp)
+  @cv.IsObject()
+  @cv.ValidateNested({ each: true })
+  public created_at!: ClassValidatorTimestamp;
 
-    @tr.Type(() => Recursive)
-    @cv.IsArray()
-    @cv.IsObject({ each: true })
-    @cv.ValidateNested({ each: true })
-    public children!: Recursive[];
+  @tr.Type(() => Recursive)
+  @cv.IsArray()
+  @cv.IsObject({ each: true })
+  @cv.ValidateNested({ each: true })
+  public children!: Recursive[];
 }
 
 export class ClassValidatorArrayRecursive {
-    @tr.Type(() => Recursive)
-    @cv.IsArray()
-    @cv.IsObject({ each: true })
-    @cv.ValidateNested({ each: true })
-    public data!: Recursive[];
+  @tr.Type(() => Recursive)
+  @cv.IsArray()
+  @cv.IsObject({ each: true })
+  @cv.ValidateNested({ each: true })
+  public data!: Recursive[];
 }

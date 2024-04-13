@@ -5,5 +5,5 @@ import { ObjectHierarchical } from "../../../../structures/pure/ObjectHierarchic
 import { createAjvStringifyProgram } from "../createAjvStringifyProgram";
 
 createAjvStringifyProgram(37_002)(
-    typia.json.application<[Collection<ObjectHierarchical>], "ajv">()
+  typia.json.application<[Collection<ObjectHierarchical>], "3.0">(),
 );

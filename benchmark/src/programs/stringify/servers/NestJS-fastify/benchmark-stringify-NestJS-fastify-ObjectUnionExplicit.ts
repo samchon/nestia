@@ -5,17 +5,14 @@ import { ClassValidatorObjectUnionExplicit } from "../../../../structures/class-
 import { createNestFastifyStringifyProgram } from "../createNestFastifyStringifyProgram";
 
 createNestFastifyStringifyProgram(true)(37_021)(
-    (input: ClassValidatorObjectUnionExplicit) => {
-        @Controller()
-        class NestJsController {
-            @Get("stringify")
-            public stringify(): ClassValidatorObjectUnionExplicit {
-                return plainToInstance(
-                    ClassValidatorObjectUnionExplicit,
-                    input,
-                );
-            }
-        }
-        return NestJsController;
-    },
+  (input: ClassValidatorObjectUnionExplicit) => {
+    @Controller()
+    class NestJsController {
+      @Get("stringify")
+      public stringify(): ClassValidatorObjectUnionExplicit {
+        return plainToInstance(ClassValidatorObjectUnionExplicit, input);
+      }
+    }
+    return NestJsController;
+  },
 );

@@ -5,17 +5,14 @@ import { ClassValidatorObjectSimple } from "../../../../structures/class-validat
 import { createNestExpressStringifyProgram } from "../createNestExpressStringifyProgram";
 
 createNestExpressStringifyProgram(true)(37_011)(
-    (input: ClassValidatorObjectSimple) => {
-        @Controller()
-        class NestJsController {
-            @Get("stringify")
-            public stringify(): ClassValidatorObjectSimple {
-                return plainToInstance(
-                    ClassValidatorObjectSimple,
-                    input,
-                );
-            }
-        }
-        return NestJsController;
-    },
+  (input: ClassValidatorObjectSimple) => {
+    @Controller()
+    class NestJsController {
+      @Get("stringify")
+      public stringify(): ClassValidatorObjectSimple {
+        return plainToInstance(ClassValidatorObjectSimple, input);
+      }
+    }
+    return NestJsController;
+  },
 );

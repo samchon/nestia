@@ -1,5 +1,7 @@
 import { createAssertBenchmarkProgram } from "../createAssertBenchmarkProgram";
 
 createAssertBenchmarkProgram(
-    __dirname + "/../servers/nestia-fastify/benchmark-assert-nestia-fastify-ArraySimple" + __filename.substr(-3)
+  __dirname +
+    "/../servers/nestia-fastify/benchmark-assert-nestia-fastify-ArraySimple" +
+    __filename.substr(-3),
 );
