@@ -48,7 +48,7 @@ export namespace MigrateMethodAnalzyer {
               ? p.schema
               : OpenApiTypeChecker.isReference(p.schema) &&
                   OpenApiTypeChecker.isObject(
-                    props.document.components.schemas[
+                    props.document.components.schemas?.[
                       p.schema.$ref.replace(`#/components/schemas/`, ``)
                     ] ?? {},
                   )
@@ -148,8 +148,9 @@ export namespace MigrateMethodAnalzyer {
         .map((str) =>
           str[0] === "{" ? str.substring(1, str.length - 1) : str.substring(1),
         );
-      const pathParameters: OpenApi.IOperation.IParameter[] =
-        route.parameters.filter((p) => p.in === "path");
+      const pathParameters: OpenApi.IOperation.IParameter[] = (
+        route.parameters ?? []
+      ).filter((p) => p.in === "path");
       if (parameterNames.length !== pathParameters.length)
         if (
           pathParameters.length < parameterNames.length &&
@@ -170,7 +171,7 @@ export namespace MigrateMethodAnalzyer {
           );
           route.parameters = [
             ...pathParameters,
-            ...route.parameters.filter((p) => p.in !== "path"),
+            ...(route.parameters ?? []).filter((p) => p.in !== "path"),
           ];
         } else
           failures.push(
@@ -196,7 +197,7 @@ export namespace MigrateMethodAnalzyer {
               schema: headers,
             }
           : null,
-        parameters: route.parameters
+        parameters: (route.parameters ?? [])
           .filter((p) => p.in === "path")
           .map((p, i) => ({
             name: parameterNames[i],
@@ -255,7 +256,7 @@ export namespace MigrateMethodAnalzyer {
       if (!!description.length && !description.startsWith(route.summary))
         description = `${emended}\n${description}`;
     }
-    for (const p of route.parameters)
+    for (const p of route.parameters ?? [])
       if (p.description) add(`@param ${p.name} ${p.description}`);
     if (route.requestBody?.description)
       add(`@param body ${route.requestBody.description}`);
@@ -288,14 +289,17 @@ export namespace MigrateMethodAnalzyer {
     ) =>
     (meta?: {
       description?: string;
-      content?: Record<string, OpenApi.IOperation.IMediaType>; // ISwaggerRouteBodyContent;
+      content?: Partial<Record<string, OpenApi.IOperation.IMediaType>>; // ISwaggerRouteBodyContent;
       "x-nestia-encrypted"?: boolean;
     }): false | null | IMigrateRoute.IBody => {
       if (!meta?.content) return null;
 
       const entries: [string, OpenApi.IOperation.IMediaType][] = Object.entries(
         meta.content,
-      ).filter(([_, v]) => !!v);
+      ).filter(([_, v]) => !!v?.schema) as [
+        string,
+        OpenApi.IOperation.IMediaType,
+      ][];
       const json = entries.find((e) =>
         meta["x-nestia-encrypted"] === true
           ? e[0].includes("text/plain") || e[0].includes("application/json")

@@ -25,10 +25,10 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "^3.0.2",
+    "@nestia/core": "^3.0.3",
     "@nestjs/platform-express": "^10.3.7",
     "@nestjs/platform-fastify": "^10.3.7",
-    "typia": "^6.0.1"
+    "typia": "^6.0.2"
   },
   "devDependencies": {
     "@types/autocannon": "^7.9.0",
