@@ -725,9 +725,9 @@ export class BbsArticlesController {
 ```
   </Tab>
   <Tab>
-```json filename="swagger.json" showLineNumbers {17-22, 26-28, 66-76, 81, 83, 128, 130-137}
+```json filename="swagger.json" showLineNumbers {20-22, 60-70, 75, 77, 124-131, 266-271}
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.0",
   "servers": [
     {
       "url": "https://github.com/samchon/nestia",
@@ -735,19 +735,13 @@ export class BbsArticlesController {
     }
   ],
   "info": {
-    "version": "1.0.0",
-    "title": "test",
-    "description": "",
+    "version": "3.0.3",
+    "title": "@nestia/test",
+    "description": "Test program of Nestia",
     "license": {
-      "name": "ISC"
+      "name": "MIT"
     }
   },
-  "tags": [
-    {
-      "name": "public",
-      "description": "Some description describing public group..."
-    }
-  ],
   "paths": {
     "/bbs/articles/{section}": {
       "post": {
@@ -808,7 +802,7 @@ export class BbsArticlesController {
       "put": {
         "deprecated": true,
         "tags": [],
-        "operationId": "BbsArticlesController.update",
+        "operationId": "updateArticle",
         "parameters": [
           {
             "name": "section",
@@ -842,7 +836,7 @@ export class BbsArticlesController {
           "required": true
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Updated content",
             "content": {
               "application/json": {
@@ -873,8 +867,8 @@ export class BbsArticlesController {
         "properties": {
           "title": {
             "type": "string",
-            "maxLength": 50,
-            "minLength": 3
+            "minLength": 3,
+            "maxLength": 50
           },
           "body": {
             "type": "string"
@@ -886,7 +880,6 @@ export class BbsArticlesController {
             }
           }
         },
-        "nullable": false,
         "required": [
           "title",
           "body",
@@ -897,23 +890,33 @@ export class BbsArticlesController {
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "maxLength": 255,
-            "minLength": 1,
-            "nullable": true
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "maxLength": 255
+              }
+            ]
           },
           "extension": {
-            "type": "string",
-            "maxLength": 8,
-            "minLength": 1,
-            "nullable": true
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            ]
           },
           "url": {
             "type": "string",
-            "format": "url"
+            "format": "uri"
           }
         },
-        "nullable": false,
         "required": [
           "name",
           "extension",
@@ -936,8 +939,8 @@ export class BbsArticlesController {
           },
           "title": {
             "type": "string",
-            "maxLength": 50,
-            "minLength": 3
+            "minLength": 3,
+            "maxLength": 50
           },
           "body": {
             "type": "string"
@@ -949,7 +952,6 @@ export class BbsArticlesController {
             }
           }
         },
-        "nullable": false,
         "required": [
           "id",
           "section",
@@ -988,7 +990,14 @@ export class BbsArticlesController {
         "name": "Authorization"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "public",
+      "description": "Some description describing public group..."
+    }
+  ],
+  "x-samchon-emended": true
 }
 ```
   </Tab>
@@ -1243,7 +1252,7 @@ export interface SpecialTag {
 ```
   </Tab>
   <Tab>
-```json filename="swagger.json" showLineNumbers {6, 9, 14-17, 22, 27, 32, 36-47, 56, 58-59}
+```json filename="swagger.json" showLineNumbers {6, 9, 14-17, 22, 27, 33, 46, 51, 62, 64-65}
 {
   "SpecialTag": {
     "type": "object",
@@ -1273,10 +1282,16 @@ export interface SpecialTag {
         "pattern": "^[a-z]+$"
       },
       "format": {
+        "oneOf": [
+          {
+            "type": "string",
+            "format": "date-time",
+          },
+          {
+            "type": "null",
+          }
+        ],
         "description": "You can limit the format of string.",
-        "type": "string",
-        "format": "date-time",
-        "nullable": true
       },
       "ip": {
         "oneOf": [
@@ -1305,7 +1320,6 @@ export interface SpecialTag {
         "minItems": 3
       }
     },
-    "nullable": false,
     "required": [
       "type",
       "string",
@@ -1431,13 +1445,9 @@ typia.json.application<[IAccount]>();
 ```
   </Tab>
   <Tab>
-```javascript copy filename="examples/bin/json-schema-custom.js" showLineNumbers {14, 18}
+```javascript copy filename="examples/bin/json-schema-custom.js" showLineNumbers {10, 14}
 ({
-  schemas: [
-    {
-      $ref: "#/components/schemas/IAccount",
-    },
-  ],
+  version: "3.1",
   components: {
     schemas: {
       IAccount: {
@@ -1452,13 +1462,15 @@ typia.json.application<[IAccount]>();
             "x-monetary": "dollar",
           },
         },
-        nullable: false,
         required: ["code", "balance"],
       },
     },
   },
-  purpose: "swagger",
-  surplus: false,
+  schemas: [
+    {
+      $ref: "#/components/schemas/IAccount",
+    },
+  ],
 });
 ```
   </Tab>
@@ -1509,7 +1521,7 @@ import { tags } from "typia";
 @Controller("custom")
 export class CustomController {
   @SwaggerCustomizer((props: SwaggerCustomizer.IProps) => {
-    props.swagger.openapi = "3.0.11";
+    props.swagger.openapi = "3.1.99";
     props.route.description = "This is a custom description";
     (props.route as any)["x-special-symbol"] = "Something Special";
 
@@ -1534,7 +1546,7 @@ export class CustomController {
   <Tab>
 ```json filename="swagger.json" showLineNumbers {2, 44-45, 75-76}
 {
-  "openapi": "3.0.11",
+  "openapi": "3.1.99",
   "servers": [
     {
       "url": "https://github.com/samchon/nestia",
@@ -1542,7 +1554,7 @@ export class CustomController {
     }
   ],
   "info": {
-    "version": "2.5.9-dev.20240223",
+    "version": "3.0.0-dev.20240412",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -1550,7 +1562,7 @@ export class CustomController {
     }
   },
   "paths": {
-    "/custom/{key}/customize": {
+    "/custom/{key}/{value}/customize": {
       "get": {
         "tags": [],
         "parameters": [
@@ -1559,6 +1571,15 @@ export class CustomController {
             "in": "path",
             "schema": {
               "type": "number"
+            },
+            "description": "",
+            "required": true
+          },
+          {
+            "name": "value",
+            "in": "path",
+            "schema": {
+              "type": "string"
             },
             "description": "",
             "required": true
@@ -1577,6 +1598,10 @@ export class CustomController {
           }
         },
         "description": "This is a custom description",
+        "x-selector": {
+          "method": "get",
+          "path": "/custom/{id}/normal"
+        },
         "x-special-symbol": "Something Special"
       }
     },
@@ -1607,7 +1632,6 @@ export class CustomController {
             }
           }
         },
-        "description": "That is the normal description",
         "x-special-symbol": "Something Normal"
       }
     }
@@ -1621,7 +1645,8 @@ export class CustomController {
         "name": "Authorization"
       }
     }
-  }
+  },
+  "tags": []
 }
 ```
   </Tab>
