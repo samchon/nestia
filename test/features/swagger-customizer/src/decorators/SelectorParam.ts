@@ -28,7 +28,7 @@ export function SelectorParam(neighbor: () => Function): ParameterDecorator {
       );
       if (record === undefined) return;
 
-      const param = props.route.parameters.find((p) => p.name === record.data);
+      const param = props.route.parameters?.find((p) => p.name === record.data);
       if (param?.in !== "path") return;
 
       // DO CUSTOMIZE

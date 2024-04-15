@@ -1,23 +1,24 @@
 import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiSecurity } from "@nestjs/swagger";
 import typia, { tags } from "typia";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
-@ApiTags("common")
 @Controller("bbs/articles/:section")
 export class BbsArticlesController {
   /**
    * Would be shown without any mark.
    *
-   * @tag public Some description describing public group...
-   * @summary Public API
    * @param section Section code
    * @param input Content to store
    * @returns Newly archived article
+   *
+   * @tag public Some description describing public group...
+   * @summary Public API
+   * @security bearer
+   * @security oauth2 read write
    */
-  @ApiTags("protected")
   @TypedRoute.Post()
   public async store(
     @TypedParam("section") section: string,
@@ -43,6 +44,9 @@ export class BbsArticlesController {
    * @returns Updated content
    *
    * @deprecated
+   * @operationId updateArticle
+   * @security basic
+   * @security bearer
    */
   @TypedRoute.Put(":id")
   public async update(
@@ -63,6 +67,7 @@ export class BbsArticlesController {
    *
    * @internal
    */
+  @ApiSecurity("custom") // LEGACY DECORATOR ALSO CAN BE USED
   @TypedRoute.Delete(":id")
   public erase(
     @TypedParam("section") section: string,

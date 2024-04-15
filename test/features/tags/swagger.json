@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.0.0-dev.20240412",
+    "version": "3.0.3",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -18,10 +18,9 @@
     "/bbs/articles/{section}": {
       "post": {
         "tags": [
-          "common",
-          "protected",
           "public"
         ],
+        "operationId": "BbsArticlesController.store",
         "parameters": [
           {
             "name": "section",
@@ -57,15 +56,25 @@
           }
         },
         "summary": "Public API",
-        "description": "Would be shown without any mark."
+        "description": "Would be shown without any mark.",
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "oauth2": [
+              "read",
+              "write"
+            ]
+          }
+        ]
       }
     },
     "/bbs/articles/{section}/{id}": {
       "put": {
         "deprecated": true,
-        "tags": [
-          "common"
-        ],
+        "tags": [],
+        "operationId": "updateArticle",
         "parameters": [
           {
             "name": "section",
@@ -111,7 +120,15 @@
           }
         },
         "summary": "Deprecated API",
-        "description": "Deprecated API.\n\nWould be marked as \"deprecated\".\n\nFor reference, top sentence \"Deprecated API.\" can replace the `@summary` tag."
+        "description": "Deprecated API.\n\nWould be marked as \"deprecated\".\n\nFor reference, top sentence \"Deprecated API.\" can replace the `@summary` tag.",
+        "security": [
+          {
+            "basic": []
+          },
+          {
+            "bearer": []
+          }
+        ]
       }
     }
   },
@@ -216,18 +233,41 @@
           "files"
         ]
       }
+    },
+    "securitySchemes": {
+      "basic": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "oauth2": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://example.com/api/oauth/dialog",
+            "refreshUrl": "https://example.com/api/oauth/refresh",
+            "scopes": {
+              "read": "read authority",
+              "write": "write authority"
+            }
+          }
+        }
+      },
+      "custom": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization"
+      }
     }
   },
   "tags": [
     {
-      "name": "common"
-    },
-    {
-      "name": "protected"
-    },
-    {
       "name": "public",
       "description": "Some description describing public group..."
     }
-  ]
+  ],
+  "x-samchon-emended": true
 }
