@@ -19,6 +19,7 @@ import type { IAuthentication } from "../../../structures/IAuthentication";
 /**
  * - When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.
  * - When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type.
+ * @throws 404
  *
  * @controller UsersController.getOauthProfile
  * @path GET /users/:user_id/oauth
@@ -40,6 +41,7 @@ export namespace getOauthProfile {
   export type Query = Resolved<IAuthentication>;
   export type Output = IPropagation<{
     200: IAuthentication.IProfile;
+    404: "404 Not Found";
   }>;
 
   export const METADATA = {

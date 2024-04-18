@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.0.0-dev.20240412",
+    "version": "3.0.5-dev.20240418",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -243,5 +243,6 @@
       }
     }
   },
-  "tags": []
+  "tags": [],
+  "x-samchon-emended": true
 }

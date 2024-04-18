@@ -38,7 +38,7 @@
     "ts-node": "^10.9.1",
     "ts-patch": "^3.1.0",
     "typescript": "^5.4.2",
-    "typia": "^6.0.2"
+    "typia": "^6.0.3"
   },
   "dependencies": {
     "chalk": "^4.1.2",

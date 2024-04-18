@@ -226,7 +226,15 @@ export namespace MigrateSchemaProgrammer {
                 write(components)(importer)(schema.additionalItems),
               ),
             ]
-          : []),
+          : schema.additionalItems === true
+            ? [
+                ts.factory.createRestTypeNode(
+                  ts.factory.createArrayTypeNode(
+                    ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
+                  ),
+                ),
+              ]
+            : []),
       ]);
       const intersection: ts.TypeNode[] = [tuple];
       writePlugin({

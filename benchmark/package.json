@@ -28,7 +28,7 @@
     "@nestia/core": "^3.0.3",
     "@nestjs/platform-express": "^10.3.7",
     "@nestjs/platform-fastify": "^10.3.7",
-    "typia": "^6.0.2"
+    "typia": "^6.0.3"
   },
   "devDependencies": {
     "@types/autocannon": "^7.9.0",
