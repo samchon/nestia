@@ -219,12 +219,12 @@ export namespace ReflectAnalyzer {
       // CONSTRUCTION
       //----
       // BASIC INFO
-      const encrypted: boolean =
-        Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
-          ?.constructor?.name === "EncryptedRouteInterceptor";
-      const query: boolean =
-        Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto)?.[0]
-          ?.constructor?.name === "TypedQueryRouteInterceptor";
+      const encrypted: boolean = hasInterceptor("EncryptedRouteInterceptor")(
+        proto,
+      );
+      const query: boolean = hasInterceptor("TypedQueryRouteInterceptor")(
+        proto,
+      );
       const method: string =
         METHODS[Reflect.getMetadata(Constants.METHOD_METADATA, proto)];
       if (method === undefined || method === "OPTIONS") return null;
@@ -461,3 +461,11 @@ const getNestParamType = (value: RouteParamtypes) => {
   else if (value === RouteParamtypes.PARAM) return "param";
   return undefined;
 };
+
+const hasInterceptor =
+  (name: string) =>
+  (proto: any): boolean => {
+    const meta = Reflect.getMetadata(Constants.INTERCEPTORS_METADATA, proto);
+    if (Array.isArray(meta) === false) return false;
+    return meta.some((elem) => elem?.constructor?.name === name);
+  };

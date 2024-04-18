@@ -13,11 +13,13 @@ import type { IBbsArticle } from "../../../structures/IBbsArticle";
 /**
  * Would be shown without any mark.
  *
- * @tag public Some description describing public group...
- * @summary Public API
  * @param section Section code
  * @param input Content to store
  * @returns Newly archived article
+ * @tag public Some description describing public group...
+ * @summary Public API
+ * @security bearer
+ * @security oauth2 read write
  *
  * @controller BbsArticlesController.store
  * @path POST /bbs/articles/:section
@@ -77,6 +79,9 @@ export namespace store {
  * @param input Content to update
  * @returns Updated content
  * @deprecated
+ * @operationId updateArticle
+ * @security basic
+ * @security bearer
  *
  * @controller BbsArticlesController.update
  * @path PUT /bbs/articles/:section/:id

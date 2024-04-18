@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.0.0-dev.20240412",
+    "version": "3.0.5-dev.20240418",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -24,7 +24,19 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/__type"
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "body"
+                ]
               }
             }
           },
@@ -65,7 +77,19 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/__type.o1"
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "body"
+                ]
               }
             }
           },
@@ -81,21 +105,6 @@
   },
   "components": {
     "schemas": {
-      "__type": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string"
-          },
-          "body": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "title",
-          "body"
-        ]
-      },
       "__object": {
         "type": "object",
         "properties": {
@@ -114,21 +123,6 @@
           "title",
           "body"
         ]
-      },
-      "__type.o1": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string"
-          },
-          "body": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "title",
-          "body"
-        ]
       }
     },
     "securitySchemes": {
@@ -139,5 +133,6 @@
       }
     }
   },
-  "tags": []
+  "tags": [],
+  "x-samchon-emended": true
 }
