@@ -16,7 +16,6 @@ const CLIENTS: BenchmarkProgrammer.ILibrary[] = [
   "nestia (fastify)",
   "NestJS (express)",
   "NestJS (fastify)",
-  "Fastify",
 ].map((name) => ({
   name,
   body: (type: string) =>
@@ -97,23 +96,6 @@ const SERVERS: BenchmarkProgrammer.ILibrary[] = [
       ].join("\n");
     },
   })),
-  {
-    name: "Fastify",
-    body: (type: string) => {
-      const program = "createAjvPerformanceProgram";
-      return [
-        `import typia from "typia";`,
-        ``,
-        `import { Collection } from "../../../../structures/pure/Collection";`,
-        `import { ${type} } from "../../../../structures/pure/${type}";`,
-        `import { ${program} } from "../${program}";`,
-        ``,
-        `${program}(37_002)(`,
-        `  typia.json.application<[Collection<${type}>], "3.0">()`,
-        `);`,
-      ].join("\n");
-    },
-  },
 ];
 
 BenchmarkProgrammer.generate({

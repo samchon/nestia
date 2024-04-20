@@ -25,9 +25,22 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "^3.0.3",
+    "@nestia/core": "^3.0.5",
+    "@nestjs/common": "^10.3.7",
+    "@nestjs/core": "^10.3.7",
     "@nestjs/platform-express": "^10.3.7",
     "@nestjs/platform-fastify": "^10.3.7",
+    "autocannon": "^7.15.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "d3": "^5.16.0",
+    "express": "^4.18.2",
+    "jsdom": "^22.0.0",
+    "physical-cpu-count": "^2.0.0",
+    "randexp": "^0.5.3",
+    "reflect-metadata": "^0.2.2",
+    "tgrid": "^0.10.3",
+    "tstl": "^3.0.0",
     "typia": "^6.0.3"
   },
   "devDependencies": {
@@ -36,18 +49,9 @@
     "@types/express": "^4.17.17",
     "@types/node": "^20.1.4",
     "@types/physical-cpu-count": "^2.0.0",
-    "autocannon": "^7.11.0",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.0",
-    "d3": "^5.16.0",
-    "express": "^4.18.2",
-    "jsdom": "^22.0.0",
-    "physical-cpu-count": "^2.0.0",
     "rimraf": "^5.0.1",
-    "tgrid": "^0.10.2",
     "ts-node": "^10.9.1",
     "ts-patch": "^3.1.1",
-    "tstl": "^3.0.0",
     "typescript": "^5.4.5"
   }
 }
