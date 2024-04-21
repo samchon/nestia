@@ -19,9 +19,10 @@ export namespace MigrateControllerAnalyzer {
     const endpoints: Map<string, IEntry[]> = new Map();
 
     // GATHER ROUTES
-    for (const [path, collection] of Object.entries(
-      props.document.paths ?? {},
-    )) {
+    for (const [path, collection] of [
+      ...Object.entries(props.document.paths ?? {}),
+      ...Object.entries(props.document.webhooks ?? {}),
+    ]) {
       if (collection === undefined) continue;
 
       // PREPARE DIRECTORIES
@@ -42,11 +43,16 @@ export namespace MigrateControllerAnalyzer {
           path,
           method,
         })(value as OpenApi.IOperation);
-        if (r === null) continue;
-        routes.push({
-          endpoint: value as OpenApi.IOperation,
-          route: r,
-        });
+        if (
+          r !== null &&
+          routes.find(
+            (x) => x.route.method === r.method && x.route.path === r.path,
+          ) === undefined
+        )
+          routes.push({
+            endpoint: value as OpenApi.IOperation,
+            route: r,
+          });
       }
     }
 
