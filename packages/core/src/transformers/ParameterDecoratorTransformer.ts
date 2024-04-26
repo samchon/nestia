@@ -101,6 +101,15 @@ const FUNCTORS: Record<string, Programmer> = {
     parameters.length
       ? parameters
       : [PlainBodyProgrammer.generate(project)(modulo)(type)],
+  "WebSocketRoute.Header": (project) => (modulo) => (parameters) => (type) =>
+    parameters.length
+      ? parameters
+      : [TypedBodyProgrammer.generate(project)(modulo)(type)],
+  "WebSocketRoute.Param": (project) => TypedParamProgrammer.generate(project),
+  "WebSocketRoute.Query": (project) => (modulo) => (parameters) => (type) =>
+    parameters.length
+      ? parameters
+      : [TypedQueryProgrammer.generate(project)(modulo)(type)],
 };
 
 const LIB_PATH = path.join("@nestia", "core", "lib", "decorators");

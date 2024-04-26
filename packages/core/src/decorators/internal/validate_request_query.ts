@@ -7,16 +7,16 @@ import { NoTransformConfigureError } from "./NoTransformConfigureError";
 /**
  * @internal
  */
-export const validate_request_query = <T>(
-  validator?: IRequestQueryValidator<T>,
-) => {
-  if (!validator) return () => NoTransformConfigureError("TypedQuery");
-  else if (validator.type === "assert") return assert(validator.assert);
-  else if (validator.type === "is") return is(validator.is);
-  else if (validator.type === "validate") return validate(validator.validate);
-  return () =>
-    new Error(`Error on nestia.core.TypedQuery(): invalid typed validator.`);
-};
+export const validate_request_query =
+  (method: string) =>
+  <T>(validator?: IRequestQueryValidator<T>) => {
+    if (!validator) throw NoTransformConfigureError(method);
+    else if (validator.type === "assert") return assert(validator.assert);
+    else if (validator.type === "is") return is(validator.is);
+    else if (validator.type === "validate") return validate(validator.validate);
+    return () =>
+      new Error(`Error on nestia.core.${method}(): invalid typed validator.`);
+  };
 
 /**
  * @internal

@@ -46,7 +46,7 @@ import { validate_request_query } from "./internal/validate_request_query";
 export function TypedQuery<T extends object>(
   validator?: IRequestQueryValidator<T>,
 ): ParameterDecorator {
-  const checker = validate_request_query(validator);
+  const checker = validate_request_query("TypedQuery")(validator);
   return createParamDecorator(function TypedQuery(
     _unknown: any,
     context: ExecutionContext,
@@ -70,7 +70,7 @@ export namespace TypedQuery {
   export function Body<T extends object>(
     validator?: IRequestQueryValidator<T>,
   ): ParameterDecorator {
-    const checker = validate_request_query(validator);
+    const checker = validate_request_query("TypedQuery.Body")(validator);
     return createParamDecorator(function TypedQueryBody(
       _unknown: any,
       context: ExecutionContext,

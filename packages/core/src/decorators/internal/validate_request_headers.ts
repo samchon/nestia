@@ -10,7 +10,7 @@ import { NoTransformConfigureError } from "./NoTransformConfigureError";
 export const validate_request_headers = <T>(
   validator?: IRequestHeadersValidator<T>,
 ) => {
-  if (!validator) return () => NoTransformConfigureError("TypedHeaders");
+  if (!validator) throw NoTransformConfigureError("TypedHeaders");
   else if (validator.type === "assert") return assert(validator.assert);
   else if (validator.type === "is") return is(validator.is);
   else if (validator.type === "validate") return validate(validator.validate);

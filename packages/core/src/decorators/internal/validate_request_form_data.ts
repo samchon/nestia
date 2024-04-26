@@ -10,7 +10,7 @@ import { NoTransformConfigureError } from "./NoTransformConfigureError";
 export const validate_request_form_data = <T>(
   props?: IRequestFormDataProps<T>,
 ) => {
-  if (!props) return () => NoTransformConfigureError("TypedFormData.Bpdu");
+  if (!props) throw NoTransformConfigureError("TypedFormData.Bpdu");
   else if (props.validator.type === "assert")
     return assert(props.validator.assert);
   else if (props.validator.type === "is") return is(props.validator.is);
