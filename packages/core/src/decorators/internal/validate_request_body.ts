@@ -10,7 +10,7 @@ import { NoTransformConfigureError } from "./NoTransformConfigureError";
 export const validate_request_body =
   (method: string) =>
   <T>(validator?: IRequestBodyValidator<T>) => {
-    if (!validator) return () => NoTransformConfigureError(method);
+    if (!validator) throw NoTransformConfigureError(method);
     else if (validator.type === "assert") return assert(validator.assert);
     else if (validator.type === "is") return is(validator.is);
     else if (validator.type === "validate") return validate(validator.validate);
