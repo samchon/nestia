@@ -1,16 +1,21 @@
 import { Escaper } from "typia/lib/utils/Escaper";
 
-import { IRoute } from "../structures/IRoute";
+import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
+import { ITypedWebSocketRoute } from "../structures/ITypedWebSocketRoute";
 
 export namespace AccessorAnalyzer {
-  export const analyze = (routes: IRoute[]) => {
+  export const analyze = (
+    routes: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
+  ) => {
     shrink(routes);
     variable(routes);
     shrink(routes);
     for (const r of routes) r.name = r.accessors.at(-1) ?? r.name;
   };
 
-  const prepare = (routeList: IRoute[]): Map<string, number> => {
+  const prepare = (
+    routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
+  ): Map<string, number> => {
     const dict: Map<string, number> = new Map();
     for (const route of routeList)
       route.accessors.forEach((_a, i) => {
@@ -20,7 +25,9 @@ export namespace AccessorAnalyzer {
     return dict;
   };
 
-  const variable = (routeList: IRoute[]) => {
+  const variable = (
+    routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
+  ) => {
     const dict: Map<string, number> = prepare(routeList);
     for (const route of routeList) {
       const emended: string[] = route.accessors.slice();
@@ -42,7 +49,7 @@ export namespace AccessorAnalyzer {
     }
   };
 
-  const shrink = (routeList: IRoute[]) => {
+  const shrink = (routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>) => {
     const dict: Map<string, number> = prepare(routeList);
     for (const route of routeList) {
       if (

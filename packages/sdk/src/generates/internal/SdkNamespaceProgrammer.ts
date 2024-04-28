@@ -7,8 +7,8 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaConfig } from "../../INestiaConfig";
-import { IController } from "../../structures/IController";
-import { IRoute } from "../../structures/IRoute";
+import { IReflectHttpOperation } from "../../structures/IReflectHttpOperation";
+import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
@@ -22,11 +22,11 @@ export namespace SdkNamespaceProgrammer {
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (
-      route: IRoute,
+      route: ITypedHttpRoute,
       props: {
-        headers: IRoute.IParameter | undefined;
-        query: IRoute.IParameter | undefined;
-        input: IRoute.IParameter | undefined;
+        headers: ITypedHttpRoute.IParameter | undefined;
+        query: ITypedHttpRoute.IParameter | undefined;
+        input: ITypedHttpRoute.IParameter | undefined;
       },
     ): ts.ModuleDeclaration => {
       const types = write_types(checker)(config)(importer)(route, props);
@@ -51,7 +51,7 @@ export namespace SdkNamespaceProgrammer {
               ]
             : []),
           ...(config.json &&
-          typia.is<IController.IBodyParameter>(props.input) &&
+          typia.is<IReflectHttpOperation.IBodyParameter>(props.input) &&
           (props.input.contentType === "application/json" ||
             props.input.encrypted === true)
             ? [write_stringify(config)(importer)]
@@ -66,11 +66,11 @@ export namespace SdkNamespaceProgrammer {
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (
-      route: IRoute,
+      route: ITypedHttpRoute,
       props: {
-        headers: IRoute.IParameter | undefined;
-        query: IRoute.IParameter | undefined;
-        input: IRoute.IParameter | undefined;
+        headers: ITypedHttpRoute.IParameter | undefined;
+        query: ITypedHttpRoute.IParameter | undefined;
+        input: ITypedHttpRoute.IParameter | undefined;
       },
     ): ts.TypeAliasDeclaration[] => {
       const array: ts.TypeAliasDeclaration[] = [];
@@ -109,11 +109,11 @@ export namespace SdkNamespaceProgrammer {
   const write_metadata =
     (importer: ImportDictionary) =>
     (
-      route: IRoute,
+      route: ITypedHttpRoute,
       props: {
-        headers: IRoute.IParameter | undefined;
-        query: IRoute.IParameter | undefined;
-        input: IRoute.IParameter | undefined;
+        headers: ITypedHttpRoute.IParameter | undefined;
+        query: ITypedHttpRoute.IParameter | undefined;
+        input: ITypedHttpRoute.IParameter | undefined;
       },
     ): ts.VariableStatement =>
       constant("METADATA")(
@@ -132,7 +132,9 @@ export namespace SdkNamespaceProgrammer {
                 "request",
                 props.input
                   ? LiteralFactory.generate(
-                      typia.is<IController.IBodyParameter>(props.input)
+                      typia.is<IReflectHttpOperation.IBodyParameter>(
+                        props.input,
+                      )
                         ? {
                             type: props.input.contentType,
                             encrypted: !!props.input.encrypted,
@@ -191,9 +193,9 @@ export namespace SdkNamespaceProgrammer {
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (
-      route: IRoute,
+      route: ITypedHttpRoute,
       props: {
-        query: IRoute.IParameter | undefined;
+        query: ITypedHttpRoute.IParameter | undefined;
       },
     ): ts.VariableStatement => {
       const g = {
@@ -504,7 +506,7 @@ const constant = (name: string) => (expression: ts.Expression) =>
 const getType =
   (config: INestiaConfig) =>
   (importer: ImportDictionary) =>
-  (p: IRoute.IParameter | IRoute.IOutput) =>
+  (p: ITypedHttpRoute.IParameter | ITypedHttpRoute.IOutput) =>
     p.metadata
       ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
       : ts.factory.createTypeReferenceNode(p.typeName);

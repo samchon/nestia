@@ -5,15 +5,16 @@ import ts from "typescript";
 import { INestiaConfig } from "./INestiaConfig";
 import { AccessorAnalyzer } from "./analyses/AccessorAnalyzer";
 import { ConfigAnalyzer } from "./analyses/ConfigAnalyzer";
-import { ControllerAnalyzer } from "./analyses/ControllerAnalyzer";
-import { ReflectAnalyzer } from "./analyses/ReflectAnalyzer";
+import { ReflectControllerAnalyzer } from "./analyses/ReflectControllerAnalyzer";
+import { TypedControllerAnalyzer } from "./analyses/TypedControllerAnalyzer";
 import { E2eGenerator } from "./generates/E2eGenerator";
 import { SdkGenerator } from "./generates/SdkGenerator";
 import { SwaggerGenerator } from "./generates/SwaggerGenerator";
-import { IController } from "./structures/IController";
 import { IErrorReport } from "./structures/IErrorReport";
 import { INestiaProject } from "./structures/INestiaProject";
-import { IRoute } from "./structures/IRoute";
+import { IReflectController } from "./structures/IReflectController";
+import { ITypedHttpRoute } from "./structures/ITypedHttpRoute";
+import { ITypedWebSocketRoute } from "./structures/ITypedWebSocketRoute";
 import { MapUtil } from "./utils/MapUtil";
 
 export class NestiaSdkApplication {
@@ -102,13 +103,17 @@ export class NestiaSdkApplication {
     config: (entire: INestiaConfig) => Config,
     archiver: (
       checker: ts.TypeChecker,
-    ) => (config: Config) => (routes: IRoute[]) => Promise<void>,
+    ) => (
+      config: Config,
+    ) => (
+      routes: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
+    ) => Promise<void>,
   ): Promise<void> {
     //----
     // ANALYZE REFLECTS
     //----
     const unique: WeakSet<any> = new WeakSet();
-    const controllers: IController[] = [];
+    const controllers: IReflectController[] = [];
     const project: INestiaProject = {
       config: this.config,
       input: await ConfigAnalyzer.input(this.config),
@@ -120,7 +125,7 @@ export class NestiaSdkApplication {
     console.log("Analyzing reflections");
     for (const include of (await ConfigAnalyzer.input(this.config)).include)
       controllers.push(
-        ...(await ReflectAnalyzer.analyze(project)(
+        ...(await ReflectControllerAnalyzer.analyze(project)(
           unique,
           include.file,
           include.paths,
@@ -132,9 +137,11 @@ export class NestiaSdkApplication {
       const set: Set<string> = new Set();
       for (const c of controllers)
         for (const cPath of c.paths)
-          for (const f of c.functions)
-            for (const fPath of f.paths)
-              set.add(`${f.method}::${cPath}/${fPath}`);
+          for (const op of c.operations)
+            for (const fPath of op.paths)
+              set.add(
+                `${op.protocol === "http" ? `${op.method}::` : ""}${cPath}/${fPath}`,
+              );
       return set.size;
     })();
 
@@ -145,7 +152,7 @@ export class NestiaSdkApplication {
         .map(
           (c) =>
             c.paths.length *
-            c.functions.map((f) => f.paths.length).reduce((a, b) => a + b, 0),
+            c.operations.map((f) => f.paths.length).reduce((a, b) => a + b, 0),
         )
         .reduce((a, b) => a + b, 0)}`,
     );
@@ -161,11 +168,13 @@ export class NestiaSdkApplication {
     );
     project.checker = program.getTypeChecker();
 
-    const routeList: IRoute[] = [];
+    const routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute> = [];
     for (const c of controllers) {
       const file: ts.SourceFile | undefined = program.getSourceFile(c.file);
       if (file === undefined) continue;
-      routeList.push(...(await ControllerAnalyzer.analyze(project)(file, c)));
+      routeList.push(
+        ...(await TypedControllerAnalyzer.analyze(project)(file, c)),
+      );
     }
 
     // REPORT ERRORS
@@ -177,7 +186,9 @@ export class NestiaSdkApplication {
 
     // FIND IMPLICIT TYPES
     if (this.config.clone !== true) {
-      const implicit: IRoute[] = routeList.filter(is_implicit_return_typed);
+      const implicit: ITypedHttpRoute[] = routeList.filter(
+        (r) => r.protocol === "http" && is_implicit_return_typed(r),
+      ) as ITypedHttpRoute[];
       if (implicit.length > 0)
         throw new Error(
           `NestiaApplication.${method}(): implicit return type is not allowed.\n` +
@@ -186,7 +197,7 @@ export class NestiaSdkApplication {
             implicit
               .map(
                 (it) =>
-                  `  - ${it.target.class.name}.${it.target.function.name} at "${it.location}"`,
+                  `  - ${it.controller.name}.${it.name} at "${it.location}"`,
               )
               .join("\n"),
         );
@@ -204,7 +215,7 @@ const print_title = (str: string): void => {
   console.log("-----------------------------------------------------------");
 };
 
-const is_implicit_return_typed = (route: IRoute): boolean => {
+const is_implicit_return_typed = (route: ITypedHttpRoute): boolean => {
   const name: string = route.output.typeName;
   if (name === "void") return false;
   else if (name.indexOf("readonly [") !== -1) return true;

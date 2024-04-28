@@ -8,7 +8,7 @@ import { MetadataAtomic } from "typia/lib/schemas/metadata/MetadataAtomic";
 import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
 
 import { INestiaConfig } from "../../INestiaConfig";
-import { IRoute } from "../../structures/IRoute";
+import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { MapUtil } from "../../utils/MapUtil";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
@@ -26,7 +26,7 @@ export namespace SdkCloneProgrammer {
   export const write =
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
-    (routes: IRoute[]): Map<string, IModule> => {
+    (routes: ITypedHttpRoute[]): Map<string, IModule> => {
       const collection = new MetadataCollection({
         replace: MetadataCollection.replace,
       });

@@ -4,7 +4,8 @@ import { IPointer } from "tstl";
 import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
-import { IRoute } from "../structures/IRoute";
+import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
+import { ITypedWebSocketRoute } from "../structures/ITypedWebSocketRoute";
 import { CloneGenerator } from "./CloneGenerator";
 import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
@@ -13,7 +14,9 @@ export namespace SdkGenerator {
   export const generate =
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
-    async (routes: IRoute[]): Promise<void> => {
+    async (
+      routes: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
+    ): Promise<void> => {
       console.log("Generating SDK Library");
 
       // PREPARE NEW DIRECTORIES
@@ -44,7 +47,10 @@ export namespace SdkGenerator {
       }
 
       // STRUCTURES
-      if (config.clone) await CloneGenerator.write(checker)(config)(routes);
+      if (config.clone)
+        await CloneGenerator.write(checker)(config)(
+          routes.filter((r) => r.protocol === "http") as ITypedHttpRoute[],
+        );
 
       // FUNCTIONAL
       await SdkFileProgrammer.generate(checker)(config)(routes);

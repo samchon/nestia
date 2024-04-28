@@ -1,3 +1,4 @@
+import { OpenApi } from "@samchon/openapi";
 import { Singleton, VariadicSingleton } from "tstl";
 import ts from "typescript";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
@@ -7,12 +8,11 @@ import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
 
 import { INestiaConfig } from "../../INestiaConfig";
-import { IRoute } from "../../structures/IRoute";
-import { SwaggerSchemaValidator } from "./SwaggerSchemaValidator";
-import { OpenApi } from "@samchon/openapi";
 import { ISwaggerError } from "../../structures/ISwaggerError";
 import { ISwaggerLazyProperty } from "../../structures/ISwaggerLazyProperty";
 import { ISwaggerLazySchema } from "../../structures/ISwaggerLazySchema";
+import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { SwaggerSchemaValidator } from "./SwaggerSchemaValidator";
 
 export namespace SwaggerSchemaGenerator {
   export interface IProps {
@@ -26,7 +26,7 @@ export namespace SwaggerSchemaGenerator {
 
   export const response =
     (props: IProps) =>
-    (route: IRoute): Record<string, OpenApi.IOperation.IResponse> => {
+    (route: ITypedHttpRoute): Record<string, OpenApi.IOperation.IResponse> => {
       const output: Record<string, OpenApi.IOperation.IResponse> = {};
 
       //----
@@ -159,8 +159,8 @@ export namespace SwaggerSchemaGenerator {
 
   export const body =
     (props: IProps) =>
-    (route: IRoute) =>
-    (param: IRoute.IParameter): OpenApi.IOperation.IRequestBody => {
+    (route: ITypedHttpRoute) =>
+    (param: ITypedHttpRoute.IParameter): OpenApi.IOperation.IRequestBody => {
       // ANALZE TYPE WITH VALIDATION
       const result = MetadataFactory.analyze(props.checker)({
         escape: true,
@@ -221,8 +221,8 @@ export namespace SwaggerSchemaGenerator {
 
   export const parameter =
     (props: IProps) =>
-    (route: IRoute) =>
-    (param: IRoute.IParameter): OpenApi.IOperation.IParameter[] =>
+    (route: ITypedHttpRoute) =>
+    (param: ITypedHttpRoute.IParameter): OpenApi.IOperation.IParameter[] =>
       param.category === "headers"
         ? headers(props)(route)(param)
         : param.category === "param"
@@ -231,8 +231,8 @@ export namespace SwaggerSchemaGenerator {
 
   const path =
     (props: IProps) =>
-    (route: IRoute) =>
-    (param: IRoute.IParameter): OpenApi.IOperation.IParameter => {
+    (route: ITypedHttpRoute) =>
+    (param: ITypedHttpRoute.IParameter): OpenApi.IOperation.IParameter => {
       // ANALZE TYPE WITH VALIDATION
       const result = MetadataFactory.analyze(props.checker)({
         escape: false,
@@ -255,8 +255,8 @@ export namespace SwaggerSchemaGenerator {
 
   const headers =
     (props: IProps) =>
-    (route: IRoute) =>
-    (param: IRoute.IParameter): OpenApi.IOperation.IParameter[] =>
+    (route: ITypedHttpRoute) =>
+    (param: ITypedHttpRoute.IParameter): OpenApi.IOperation.IParameter[] =>
       decomposible(props)(route)(param)(
         MetadataFactory.analyze(props.checker)({
           escape: false,
@@ -268,8 +268,8 @@ export namespace SwaggerSchemaGenerator {
 
   const query =
     (props: IProps) =>
-    (route: IRoute) =>
-    (param: IRoute.IParameter): OpenApi.IOperation.IParameter[] =>
+    (route: ITypedHttpRoute) =>
+    (param: ITypedHttpRoute.IParameter): OpenApi.IOperation.IParameter[] =>
       decomposible(props)(route)(param)(
         MetadataFactory.analyze(props.checker)({
           escape: false,
@@ -281,8 +281,8 @@ export namespace SwaggerSchemaGenerator {
 
   const decomposible =
     (props: IProps) =>
-    (route: IRoute) =>
-    (param: IRoute.IParameter) =>
+    (route: ITypedHttpRoute) =>
+    (param: ITypedHttpRoute.IParameter) =>
     (
       result: ValidationPipe<Metadata, MetadataFactory.IError>,
     ): OpenApi.IOperation.IParameter[] => {
@@ -316,7 +316,10 @@ export namespace SwaggerSchemaGenerator {
           });
           return {
             name: p.key.constants[0].values[0].value as string,
-            in: param.category === "headers" ? "header" : param.category as "path",
+            in:
+              param.category === "headers"
+                ? "header"
+                : (param.category as "path"),
             schema,
             description: p.description ?? undefined,
             required: p.value.isRequired(),
@@ -326,9 +329,9 @@ export namespace SwaggerSchemaGenerator {
 
   const lazy =
     (props: IProps) =>
-    (route: IRoute) =>
+    (route: ITypedHttpRoute) =>
     (
-      param: IRoute.IParameter,
+      param: ITypedHttpRoute.IParameter,
       result: ValidationPipe<Metadata, MetadataFactory.IError>,
     ): OpenApi.IOperation.IParameter => {
       const schema: OpenApi.IJsonSchema = coalesce(props)(result);
@@ -348,7 +351,9 @@ export namespace SwaggerSchemaGenerator {
 
   const coalesce =
     (props: IProps) =>
-    (result: ValidationPipe<Metadata, MetadataFactory.IError>): OpenApi.IJsonSchema => {
+    (
+      result: ValidationPipe<Metadata, MetadataFactory.IError>,
+    ): OpenApi.IJsonSchema => {
       const schema: OpenApi.IJsonSchema = {} as any;
       props.lazySchemas.push({
         metadata: result.success ? result.data : any.get(),
@@ -358,7 +363,7 @@ export namespace SwaggerSchemaGenerator {
     };
 
   const describe = (
-    route: IRoute,
+    route: ITypedHttpRoute,
     tagName: string,
     parameterName?: string,
   ): string | undefined => {

@@ -2,7 +2,7 @@ import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
 import { INestiaConfig } from "../../INestiaConfig";
-import { IRoute } from "../../structures/IRoute";
+import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
@@ -14,7 +14,7 @@ export namespace E2eFileProgrammer {
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (props: { api: string; current: string }) =>
-    async (route: IRoute): Promise<void> => {
+    async (route: ITypedHttpRoute): Promise<void> => {
       const importer: ImportDictionary = new ImportDictionary(
         `${props.current}/${getFunctionName(route)}.ts`,
       );
@@ -48,7 +48,7 @@ export namespace E2eFileProgrammer {
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
-    (route: IRoute): ts.Statement =>
+    (route: ITypedHttpRoute): ts.Statement =>
       ts.factory.createVariableStatement(
         [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
         ts.factory.createVariableDeclarationList(
@@ -68,7 +68,7 @@ export namespace E2eFileProgrammer {
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
-    (route: IRoute) => {
+    (route: ITypedHttpRoute) => {
       const headers = route.parameters.find(
         (p) => p.category === "headers" && p.field === undefined,
       );
@@ -170,13 +170,13 @@ export namespace E2eFileProgrammer {
     };
 }
 
-const getFunctionName = (route: IRoute): string =>
+const getFunctionName = (route: ITypedHttpRoute): string =>
   ["test", "api", ...route.accessors].join("_");
 
 const getTypeName =
   (config: INestiaConfig) =>
   (importer: ImportDictionary) =>
-  (p: IRoute.IParameter | IRoute.IOutput) =>
+  (p: ITypedHttpRoute.IParameter | ITypedHttpRoute.IOutput) =>
     p.metadata
       ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
       : ts.factory.createTypeReferenceNode(p.typeName);

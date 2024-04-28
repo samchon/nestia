@@ -1,8 +1,8 @@
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 
-import { IRoute } from "./IRoute";
+import { ITypedHttpRoute } from "./ITypedHttpRoute";
 
 export interface ISwaggerError extends MetadataFactory.IError {
-  route: IRoute;
+  route: ITypedHttpRoute;
   from: string;
 }

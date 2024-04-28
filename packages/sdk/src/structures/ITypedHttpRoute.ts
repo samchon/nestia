@@ -1,10 +1,13 @@
 import ts from "typescript";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
-import { IController } from "./IController";
+import { IReflectController } from "./IReflectController";
+import { IReflectHttpOperation } from "./IReflectHttpOperation";
 
-export interface IRoute {
-  controller: Function;
+export interface ITypedHttpRoute {
+  protocol: "http";
+  controller: IReflectController;
+  function: Function;
   name: string;
   method: string;
   path: string;
@@ -12,15 +15,11 @@ export interface IRoute {
   status?: number;
 
   accessors: string[];
-  parameters: IRoute.IParameter[];
+  parameters: ITypedHttpRoute.IParameter[];
   imports: [string, string[]][];
-  output: IRoute.IOutput;
+  output: ITypedHttpRoute.IOutput;
 
   location: string;
-  target: {
-    class: Function;
-    function: Function;
-  };
   description?: string;
   operationId?: string;
   jsDocTags: ts.JSDocTagInfo[];
@@ -29,12 +28,15 @@ export interface IRoute {
     | { type: "assigner"; source: string }
   >;
   security: Record<string, string[]>[];
-  exceptions: Record<number | "2XX" | "3XX" | "4XX" | "5XX", IRoute.IOutput>;
+  exceptions: Record<
+    number | "2XX" | "3XX" | "4XX" | "5XX",
+    ITypedHttpRoute.IOutput
+  >;
   swaggerTags: string[];
 }
 
-export namespace IRoute {
-  export type IParameter = IController.IParameter & {
+export namespace ITypedHttpRoute {
+  export type IParameter = IReflectHttpOperation.IParameter & {
     optional: boolean;
     type: ts.Type;
     typeName: string;

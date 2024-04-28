@@ -39,9 +39,9 @@
     "glob": "^7.2.0",
     "path-to-regexp": "^6.2.1",
     "prettier": "^3.2.5",
+    "ts-node": ">=10.6.0",
     "tsconfck": "^2.0.1",
     "tsconfig-paths": "^4.1.1",
-    "ts-node": ">=10.6.0",
     "tstl": "^3.0.0",
     "typia": "^6.0.3"
   },
@@ -66,8 +66,9 @@
     "eslint": "^8.29.0",
     "eslint-plugin-deprecation": "^1.4.1",
     "rimraf": "^3.0.2",
-    "ts-patch": "v3.0.2",
-    "typescript": "^5.4.2",
+    "tgrid": "^0.11.0",
+    "ts-patch": "^3.1.2",
+    "typescript": "^5.4.5",
     "typescript-transform-paths": "^3.4.4",
     "uuid": "^9.0.0"
   },

@@ -1,43 +1,27 @@
-import type { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
+import { VERSION_NEUTRAL } from "@nestjs/common/interfaces";
 
-import type { ParamCategory } from "./ParamCategory";
+import { ParamCategory } from "./ParamCategory";
 
-export interface IController {
-  target: Function;
-  file: string;
+export interface IReflectHttpOperation {
+  protocol: "http";
+  function: Function;
   name: string;
-  prefixes: string[];
+  method: string;
   paths: string[];
-  versions:
-    | Array<Exclude<VersionValue, Array<string | typeof VERSION_NEUTRAL>>>
-    | undefined;
-  functions: IController.IFunction[];
+  versions: Array<string | typeof VERSION_NEUTRAL> | undefined;
+  encrypted: boolean;
+  parameters: IReflectHttpOperation.IParameter[];
+  status?: number;
+  type?: string;
+  contentType: "application/json" | "text/plain";
   security: Record<string, string[]>[];
-  swaggerTgas: string[];
+  exceptions: Record<
+    number | "2XX" | "3XX" | "4XX" | "5XX",
+    IReflectHttpOperation.IException
+  >;
+  swaggerTags: string[];
 }
-
-export namespace IController {
-  export interface IFunction {
-    target: Function;
-    name: string;
-    method: string;
-    paths: string[];
-    versions:
-      | Array<Exclude<VersionValue, Array<string | typeof VERSION_NEUTRAL>>>
-      | undefined;
-    encrypted: boolean;
-    parameters: IParameter[];
-    status?: number;
-    type?: string;
-    contentType: "application/json" | "text/plain";
-    security: Record<string, string[]>[];
-    exceptions: Record<
-      number | "2XX" | "3XX" | "4XX" | "5XX",
-      IController.IException
-    >;
-    swaggerTags: string[];
-  }
-
+export namespace IReflectHttpOperation {
   export type IParameter =
     | ICommonParameter
     | IQueryParameter

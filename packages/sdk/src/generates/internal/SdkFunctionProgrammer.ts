@@ -3,8 +3,8 @@ import typia from "typia";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
 import { INestiaConfig } from "../../INestiaConfig";
-import { IController } from "../../structures/IController";
-import { IRoute } from "../../structures/IRoute";
+import { IReflectHttpOperation } from "../../structures/IReflectHttpOperation";
+import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { StringUtil } from "../../utils/StringUtil";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkImportWizard } from "./SdkImportWizard";
@@ -15,11 +15,11 @@ export namespace SdkFunctionProgrammer {
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (
-      route: IRoute,
+      route: ITypedHttpRoute,
       props: {
-        headers: IRoute.IParameter | undefined;
-        query: IRoute.IParameter | undefined;
-        input: IRoute.IParameter | undefined;
+        headers: ITypedHttpRoute.IParameter | undefined;
+        query: ITypedHttpRoute.IParameter | undefined;
+        input: ITypedHttpRoute.IParameter | undefined;
       },
     ): ts.FunctionDeclaration => {
       return ts.factory.createFunctionDeclaration(
@@ -73,11 +73,11 @@ export namespace SdkFunctionProgrammer {
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (
-      route: IRoute,
+      route: ITypedHttpRoute,
       props: {
-        headers: IRoute.IParameter | undefined;
-        query: IRoute.IParameter | undefined;
-        input: IRoute.IParameter | undefined;
+        headers: ITypedHttpRoute.IParameter | undefined;
+        query: ITypedHttpRoute.IParameter | undefined;
+        input: ITypedHttpRoute.IParameter | undefined;
       },
     ): ts.Statement[] => {
       const encrypted: boolean =
@@ -88,7 +88,7 @@ export namespace SdkFunctionProgrammer {
           props.input.encrypted === true);
       const contentType: string | undefined =
         props.input !== undefined
-          ? typia.is<IController.IBodyParameter>(props.input)
+          ? typia.is<IReflectHttpOperation.IBodyParameter>(props.input)
             ? props.input.contentType
             : "application/json"
           : undefined;
@@ -157,7 +157,7 @@ export namespace SdkFunctionProgrammer {
               ? [ts.factory.createIdentifier(props.input.name)]
               : []),
             ...(config.json &&
-            typia.is<IController.IBodyParameter>(props.input) &&
+            typia.is<IReflectHttpOperation.IBodyParameter>(props.input) &&
             (props.input.contentType === "application/json" ||
               props.input.encrypted === true)
               ? [ts.factory.createIdentifier(`${route.name}.stringify`)]
@@ -215,7 +215,7 @@ export namespace SdkFunctionProgrammer {
 
   const write_set_headers =
     (config: INestiaConfig) =>
-    (route: IRoute) =>
+    (route: ITypedHttpRoute) =>
     (condition: ts.Expression): ts.Statement[] => {
       const accessor = (x: string) => (y: string) =>
         x[0] === "[" ? `${x}${y}` : `${x}.${y}`;
@@ -285,12 +285,12 @@ export namespace SdkFunctionProgrammer {
 const getTypeName =
   (config: INestiaConfig) =>
   (importer: ImportDictionary) =>
-  (p: IRoute.IParameter | IRoute.IOutput) =>
+  (p: ITypedHttpRoute.IParameter | ITypedHttpRoute.IOutput) =>
     p.metadata
       ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
       : ts.factory.createTypeReferenceNode(p.typeName);
 
-const getReturnType = (config: INestiaConfig) => (route: IRoute) =>
+const getReturnType = (config: INestiaConfig) => (route: ITypedHttpRoute) =>
   ts.factory.createTypeReferenceNode(
     config.propagate !== true && route.output.typeName === "void"
       ? "void"

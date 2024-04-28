@@ -6,7 +6,7 @@ import { StatementFactory } from "typia/lib/factories/StatementFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { INestiaConfig } from "../../INestiaConfig";
-import { IRoute } from "../../structures/IRoute";
+import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkImportWizard } from "./SdkImportWizard";
@@ -17,7 +17,7 @@ export namespace SdkSimulationProgrammer {
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
-    (route: IRoute): ts.VariableStatement => {
+    (route: ITypedHttpRoute): ts.VariableStatement => {
       const output =
         SdkAliasCollection.responseBody(checker)(config)(importer)(route);
       return constant("random")(
@@ -62,11 +62,11 @@ export namespace SdkSimulationProgrammer {
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
     (
-      route: IRoute,
+      route: ITypedHttpRoute,
       props: {
-        headers: IRoute.IParameter | undefined;
-        query: IRoute.IParameter | undefined;
-        input: IRoute.IParameter | undefined;
+        headers: ITypedHttpRoute.IParameter | undefined;
+        query: ITypedHttpRoute.IParameter | undefined;
+        input: ITypedHttpRoute.IParameter | undefined;
       },
     ): ts.VariableStatement => {
       const output: boolean =
@@ -178,7 +178,7 @@ export namespace SdkSimulationProgrammer {
   const assert =
     (config: INestiaConfig) =>
     (importer: ImportDictionary) =>
-    (route: IRoute): ts.Statement[] => {
+    (route: ITypedHttpRoute): ts.Statement[] => {
       const parameters = route.parameters.filter(
         (p) => p.category !== "headers",
       );
@@ -359,7 +359,7 @@ const constant = (name: string) => (expression: ts.Expression) =>
 const getTypeName =
   (config: INestiaConfig) =>
   (importer: ImportDictionary) =>
-  (p: IRoute.IParameter | IRoute.IOutput) =>
+  (p: ITypedHttpRoute.IParameter | ITypedHttpRoute.IOutput) =>
     p.metadata
       ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
       : ts.factory.createTypeReferenceNode(p.typeName);

@@ -1,109 +1,44 @@
-import { VERSION_NEUTRAL, VersionValue } from "@nestjs/common/interfaces";
 import path from "path";
 import { HashMap } from "tstl";
 import ts from "typescript";
 import { CommentFactory } from "typia/lib/factories/CommentFactory";
 
-import { IController } from "../structures/IController";
 import { IErrorReport } from "../structures/IErrorReport";
 import { INestiaProject } from "../structures/INestiaProject";
-import { IRoute } from "../structures/IRoute";
+import { IReflectController } from "../structures/IReflectController";
+import { IReflectHttpOperation } from "../structures/IReflectHttpOperation";
 import { ITypeTuple } from "../structures/ITypeTuple";
+import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { PathUtil } from "../utils/PathUtil";
+import { VersioningStrategy } from "../utils/VersioningStrategy";
 import { ExceptionAnalyzer } from "./ExceptionAnalyzer";
 import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";
 import { SecurityAnalyzer } from "./SecurityAnalyzer";
 
-export namespace ControllerAnalyzer {
+export namespace TypedHttpOperationAnalyzer {
   export const analyze =
     (project: INestiaProject) =>
-    async (
-      sourceFile: ts.SourceFile,
-      controller: IController,
-    ): Promise<IRoute[]> => {
-      // FIND CONTROLLER CLASS
-      const ret: IRoute[] = [];
-      ts.forEachChild(sourceFile, (node) => {
-        if (
-          ts.isClassDeclaration(node) &&
-          node.name?.escapedText === controller.name
-        ) {
-          // ANALYZE THE CONTROLLER
-          ret.push(..._Analyze_controller(project)(controller, node));
-          return;
-        }
-      });
-      return ret;
-    };
-
-  /* ---------------------------------------------------------
-        CLASS
-    --------------------------------------------------------- */
-  const _Analyze_controller =
-    (project: INestiaProject) =>
-    (controller: IController, classNode: ts.ClassDeclaration): IRoute[] => {
-      const classType: ts.InterfaceType = project.checker.getTypeAtLocation(
-        classNode,
-      ) as ts.InterfaceType;
-      const genericDict: GenericAnalyzer.Dictionary = GenericAnalyzer.analyze(
-        project.checker,
-        classNode,
-      );
-
-      const ret: IRoute[] = [];
-      for (const property of classType.getProperties()) {
-        // GET METHOD DECLARATION
-        const declaration: ts.Declaration | undefined =
-          (property.declarations || [])[0];
-        if (!declaration || !ts.isMethodDeclaration(declaration)) continue;
-
-        // IDENTIFIER MUST BE
-        const identifier = declaration.name;
-        if (!ts.isIdentifier(identifier)) continue;
-
-        // ANALYZED WITH THE REFLECTED-FUNCTION
-        const runtime: IController.IFunction | undefined =
-          controller.functions.find((f) => f.name === identifier.escapedText);
-        if (runtime === undefined) continue;
-
-        const routes: IRoute[] = _Analyze_function(project)(
-          controller,
-          genericDict,
-          runtime,
-          declaration,
-          property,
-        );
-        ret.push(...routes);
-      }
-      return ret;
-    };
-
-  /* ---------------------------------------------------------
-        FUNCTION
-    --------------------------------------------------------- */
-  const _Analyze_function =
-    (project: INestiaProject) =>
-    (
-      controller: IController,
-      genericDict: GenericAnalyzer.Dictionary,
-      func: IController.IFunction,
-      declaration: ts.MethodDeclaration,
-      symbol: ts.Symbol,
-    ): IRoute[] => {
-      // PREPARE ASSETS
+    (props: {
+      controller: IReflectController;
+      operation: IReflectHttpOperation;
+      declaration: ts.MethodDeclaration;
+      symbol: ts.Symbol;
+      generics: GenericAnalyzer.Dictionary;
+    }): ITypedHttpRoute[] => {
+      // CHECK TYPE
       const type: ts.Type = project.checker.getTypeOfSymbolAtLocation(
-        symbol,
-        symbol.valueDeclaration!,
+        props.symbol,
+        props.symbol.valueDeclaration!,
       );
       const signature: ts.Signature | undefined =
         project.checker.getSignaturesOfType(type, ts.SignatureKind.Call)[0];
       if (signature === undefined) {
         project.errors.push({
-          file: controller.file,
-          controller: controller.name,
-          function: func.name,
+          file: props.controller.file,
+          controller: props.controller.name,
+          function: props.operation.name,
           message: "unable to get the type signature.",
         });
         return [];
@@ -115,23 +50,25 @@ export namespace ControllerAnalyzer {
 
       // EXPLORE CHILDREN TYPES
       const importDict: ImportAnalyzer.Dictionary = new HashMap();
-      const parameters: Array<IRoute.IParameter | null> = func.parameters.map(
-        (param) =>
-          _Analyze_parameter(project)(
-            genericDict,
-            importDict,
-            controller,
-            func.name,
-            param,
-            signature.getParameters()[param.index],
-          )!,
-      );
+      const parameters: Array<ITypedHttpRoute.IParameter | null> =
+        props.operation.parameters.map(
+          (param) =>
+            _Analyze_parameter(project)({
+              generics: props.generics,
+              imports: importDict,
+              controller: props.controller,
+              function: props.operation.name,
+              parameter: param,
+              symbol: signature.getParameters()[param.index],
+            })!,
+        );
       const outputType: ITypeTuple | null = ImportAnalyzer.analyze(
         project.checker,
-        genericDict,
-        importDict,
-        signature.getReturnType(),
-      );
+      )({
+        generics: props.generics,
+        imports: importDict,
+        type: signature.getReturnType(),
+      });
       if (
         outputType === null ||
         (project.config.clone !== true &&
@@ -139,41 +76,41 @@ export namespace ControllerAnalyzer {
             outputType.typeName === "__object"))
       ) {
         project.errors.push({
-          file: controller.file,
-          controller: controller.name,
-          function: func.name,
+          file: props.controller.file,
+          controller: props.controller.name,
+          function: props.operation.name,
           message: "implicit (unnamed) return type.",
         });
         return [];
       } else if (
-        func.method === "HEAD" &&
+        props.operation.method === "HEAD" &&
         outputType.typeName !== "void" &&
         outputType.typeName !== "undefined"
       ) {
         project.errors.push({
-          file: controller.file,
-          controller: controller.name,
-          function: func.name,
+          file: props.controller.file,
+          controller: props.controller.name,
+          function: props.operation.name,
           message: `HEAD method must return void type.`,
         });
         return [];
       }
 
-      const exceptions = ExceptionAnalyzer.analyze(project)(
-        genericDict,
-        project.config.propagate === true ? importDict : new HashMap(),
-      )(
-        controller,
-        func,
-      )(declaration);
+      const exceptions = ExceptionAnalyzer.analyze(project)({
+        generics: props.generics,
+        imports: project.config.propagate === true ? importDict : new HashMap(),
+        controller: props.controller,
+        operation: props.operation,
+        declaration: props.declaration,
+      });
       const imports: [string, string[]][] = importDict
         .toJSON()
         .map((pair) => [pair.first, pair.second.toJSON()]);
 
       // CONSIDER SECURITY TAGS
       const security: Record<string, string[]>[] = SecurityAnalyzer.merge(
-        ...controller.security,
-        ...func.security,
+        ...props.controller.security,
+        ...props.operation.security,
         ...jsDocTags
           .filter((tag) => tag.name === "security")
           .map((tag) =>
@@ -194,31 +131,29 @@ export namespace ControllerAnalyzer {
       );
 
       // CONSTRUCT COMMON DATA
-      const common: Omit<IRoute, "path" | "accessors"> = {
-        ...func,
-        controller: controller.target,
-        parameters: parameters.filter((p) => p !== null) as IRoute.IParameter[],
+      const common: Omit<ITypedHttpRoute, "path" | "accessors"> = {
+        ...props.operation,
+        controller: props.controller,
+        parameters: parameters.filter(
+          (p) => p !== null,
+        ) as ITypedHttpRoute.IParameter[],
         output: {
           type: outputType.type,
           typeName: outputType.typeName,
-          contentType: func.contentType,
+          contentType: props.operation.contentType,
         },
         imports,
-        status: func.status,
-        target: {
-          class: controller.target,
-          function: func.target,
-        },
+        status: props.operation.status,
         location: (() => {
-          const file = declaration.getSourceFile();
+          const file = props.declaration.getSourceFile();
           const { line, character } = file.getLineAndCharacterOfPosition(
-            declaration.pos,
+            props.declaration.pos,
           );
           return `${path.relative(process.cwd(), file.fileName)}:${line + 1}:${
             character + 1
           }`;
         })(),
-        description: CommentFactory.description(symbol),
+        description: CommentFactory.description(props.symbol),
         operationId: jsDocTags
           .find(({ name }) => name === "operationId")
           ?.text?.[0].text.split(" ")[0]
@@ -249,21 +184,13 @@ export namespace ControllerAnalyzer {
 
       // CONFIGURE PATHS
       const pathList: Set<string> = new Set();
-      const versions: Array<string | null> = _Analyze_versions(
-        project.input.versioning === undefined
-          ? undefined
-          : func.versions ??
-              controller.versions ??
-              (project.input.versioning?.defaultVersion !== undefined
-                ? Array.isArray(project.input.versioning?.defaultVersion)
-                  ? project.input.versioning?.defaultVersion
-                  : [project.input.versioning?.defaultVersion]
-                : undefined) ??
-              undefined,
-      );
-      for (const prefix of controller.prefixes)
-        for (const cPath of controller.paths)
-          for (const filePath of func.paths)
+      const versions: string[] = VersioningStrategy.merge(project)([
+        ...(props.controller.versions ?? []),
+        ...(props.operation.versions ?? []),
+      ]);
+      for (const prefix of props.controller.prefixes)
+        for (const cPath of props.controller.paths)
+          for (const filePath of props.operation.paths)
             pathList.add(PathAnalyzer.join(prefix, cPath, filePath));
 
       return [...pathList]
@@ -277,7 +204,7 @@ export namespace ControllerAnalyzer {
                   : v,
             ),
           )({
-            method: func.method,
+            method: props.operation.method,
             path: individual,
           }),
         )
@@ -286,9 +213,9 @@ export namespace ControllerAnalyzer {
           const escaped: string | null = PathAnalyzer.escape(path);
           if (escaped === null)
             project.errors.push({
-              file: controller.file,
-              controller: controller.name,
-              function: func.name,
+              file: props.controller.file,
+              controller: props.controller.name,
+              function: props.operation.name,
               message: `unable to escape the path "${path}".`,
             });
           return escaped !== null;
@@ -296,28 +223,28 @@ export namespace ControllerAnalyzer {
         .map((path) => ({
           ...common,
           path: PathAnalyzer.escape(path)!,
-          accessors: [...PathUtil.accessors(path), func.name],
+          accessors: [...PathUtil.accessors(path), props.operation.name],
         }));
     };
 
   const _Analyze_parameter =
     (project: INestiaProject) =>
-    (
-      genericDict: GenericAnalyzer.Dictionary,
-      importDict: ImportAnalyzer.Dictionary,
-      controller: IController,
-      funcName: string,
-      param: IController.IParameter,
-      symbol: ts.Symbol,
-    ): IRoute.IParameter | null => {
+    (props: {
+      generics: GenericAnalyzer.Dictionary;
+      imports: ImportAnalyzer.Dictionary;
+      controller: IReflectController;
+      function: string;
+      parameter: IReflectHttpOperation.IParameter;
+      symbol: ts.Symbol;
+    }): ITypedHttpRoute.IParameter | null => {
       const type: ts.Type = project.checker.getTypeOfSymbolAtLocation(
-        symbol,
-        symbol.valueDeclaration!,
+        props.symbol,
+        props.symbol.valueDeclaration!,
       );
-      const name: string = symbol.getEscapedName().toString();
+      const name: string = props.symbol.getEscapedName().toString();
 
       const optional: boolean = !!project.checker.symbolToParameterDeclaration(
-        symbol,
+        props.symbol,
         undefined,
         undefined,
       )?.questionToken;
@@ -325,21 +252,24 @@ export namespace ControllerAnalyzer {
       const errors: IErrorReport[] = [];
 
       // DO NOT SUPPORT BODY PARAMETER
-      if (param.category === "body" && param.field !== undefined)
+      if (
+        props.parameter.category === "body" &&
+        props.parameter.field !== undefined
+      )
         errors.push({
-          file: controller.file,
-          controller: controller.name,
-          function: funcName,
+          file: props.controller.file,
+          controller: props.controller.name,
+          function: props.function,
           message:
             `nestia does not support body field specification. ` +
             `Therefore, erase the "${name}" parameter and ` +
             `re-define a new body decorator accepting full structured message.`,
         });
-      if (optional === true && param.category !== "query")
+      if (optional === true && props.parameter.category !== "query")
         errors.push({
-          file: controller.file,
-          controller: controller.name,
-          function: funcName,
+          file: props.controller.file,
+          controller: props.controller.name,
+          function: props.function,
           message:
             `nestia does not support optional parameter except query parameter. ` +
             `Therefore, erase question mark on the "${name}" parameter, ` +
@@ -347,13 +277,13 @@ export namespace ControllerAnalyzer {
         });
       if (
         optional === true &&
-        param.category === "query" &&
-        param.field === undefined
+        props.parameter.category === "query" &&
+        props.parameter.field === undefined
       )
         errors.push({
-          file: controller.file,
-          controller: controller.name,
-          function: funcName,
+          file: props.controller.file,
+          controller: props.controller.name,
+          function: props.function,
           message:
             `nestia does not support optional query parameter without field specification. ` +
             `Therefore, erase question mark on the "${name}" parameter, ` +
@@ -361,21 +291,20 @@ export namespace ControllerAnalyzer {
         });
 
       // GET TYPE NAME
-      const tuple: ITypeTuple | null = ImportAnalyzer.analyze(
-        project.checker,
-        genericDict,
-        importDict,
+      const tuple: ITypeTuple | null = ImportAnalyzer.analyze(project.checker)({
+        generics: props.generics,
+        imports: props.imports,
         type,
-      );
+      });
       if (
         tuple === null ||
         (project.config.clone !== true &&
           (tuple.typeName === "__type" || tuple.typeName === "__object"))
       )
         errors.push({
-          file: controller.file,
-          controller: controller.name,
-          function: funcName,
+          file: props.controller.file,
+          controller: props.controller.name,
+          function: props.function,
           message: `implicit (unnamed) parameter type from "${name}".`,
         });
       if (errors.length) {
@@ -383,20 +312,11 @@ export namespace ControllerAnalyzer {
         return null;
       }
       return {
-        ...param,
+        ...props.parameter,
         name,
         optional,
         type: tuple!.type,
         typeName: tuple!.typeName,
       };
     };
-
-  function _Analyze_versions(
-    value:
-      | Array<Exclude<VersionValue, Array<string | typeof VERSION_NEUTRAL>>>
-      | undefined,
-  ): Array<string | null> {
-    if (value === undefined) return [null];
-    return value.map((v) => (typeof v === "symbol" ? null : v));
-  }
 }

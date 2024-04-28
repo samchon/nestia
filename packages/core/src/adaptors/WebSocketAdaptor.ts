@@ -281,9 +281,11 @@ const visitMethod = (props: {
       set.size === 0
         ? getVersions(props.config.versioning.defaultVersion)
         : Array.from(set);
-    return array.map((v) =>
-      typeof v === "symbol" ? "" : `${props.config.versioning!.prefix}${v}`,
-    );
+    return array.length === 0
+      ? [""]
+      : array.map((v) =>
+          typeof v === "symbol" ? "" : `${props.config.versioning!.prefix}${v}`,
+        );
   })();
   for (const v of versions)
     for (const cp of props.controller.prefixes)
@@ -332,7 +334,7 @@ const visitMethod = (props: {
           parser,
           handler: async (input: {
             params: Record<string, string>;
-            acceptor: WebAcceptor<any, any>;
+            acceptor: WebAcceptor<any, any, any>;
           }): Promise<void> => {
             const args: any[] = [];
             try {
@@ -395,7 +397,7 @@ interface IOperator {
   parser: Path;
   handler: (props: {
     params: Record<string, string>;
-    acceptor: WebAcceptor<any, any>;
+    acceptor: WebAcceptor<any, any, any>;
   }) => Promise<any>;
 }
 interface IConfig {

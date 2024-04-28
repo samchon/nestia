@@ -2,7 +2,8 @@ import fs from "fs";
 import ts from "typescript";
 
 import { INestiaConfig } from "../../INestiaConfig";
-import { IRoute } from "../../structures/IRoute";
+import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { MapUtil } from "../../utils/MapUtil";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
@@ -16,7 +17,9 @@ export namespace SdkFileProgrammer {
   export const generate =
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
-    async (routeList: IRoute[]): Promise<void> => {
+    async (
+      routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
+    ): Promise<void> => {
       // CONSTRUCT FOLDER TREE
       const root: SdkRouteDirectory = new SdkRouteDirectory(null, "functional");
       for (const route of routeList) emplace(root)(route);
@@ -27,7 +30,7 @@ export namespace SdkFileProgrammer {
 
   const emplace =
     (directory: SdkRouteDirectory) =>
-    (route: IRoute): void => {
+    (route: ITypedHttpRoute | ITypedWebSocketRoute): void => {
       // OPEN DIRECTORIES
       for (const key of route.accessors.slice(0, -1)) {
         directory = MapUtil.take(

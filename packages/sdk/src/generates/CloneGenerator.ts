@@ -2,7 +2,7 @@ import fs from "fs";
 import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
-import { IRoute } from "../structures/IRoute";
+import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { FilePrinter } from "./internal/FilePrinter";
 import { ImportDictionary } from "./internal/ImportDictionary";
 import { SdkCloneProgrammer } from "./internal/SdkCloneProgrammer";
@@ -11,7 +11,7 @@ export namespace CloneGenerator {
   export const write =
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
-    async (routes: IRoute[]): Promise<void> => {
+    async (routes: ITypedHttpRoute[]): Promise<void> => {
       const dict: Map<string, SdkCloneProgrammer.IModule> =
         SdkCloneProgrammer.write(checker)(config)(routes);
       if (dict.size === 0) return;

@@ -4,14 +4,14 @@ import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { ConfigAnalyzer } from "../analyses/ConfigAnalyzer";
-import { IRoute } from "../structures/IRoute";
+import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { E2eFileProgrammer } from "./internal/E2eFileProgrammer";
 
 export namespace E2eGenerator {
   export const generate =
     (checker: ts.TypeChecker) =>
     (config: INestiaConfig) =>
-    async (routeList: IRoute[]): Promise<void> => {
+    async (routeList: ITypedHttpRoute[]): Promise<void> => {
       console.log("Generating E2E Test Functions");
 
       // PREPARE DIRECTORIES
