@@ -1,4 +1,3 @@
-import { PATH_METADATA } from "@nestjs/common/constants";
 import { ranges } from "tstl";
 import typia from "typia";
 
@@ -6,7 +5,6 @@ import { IErrorReport } from "../structures/IErrorReport";
 import { INestiaProject } from "../structures/INestiaProject";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
-import { ArrayUtil } from "../utils/ArrayUtil";
 import { PathAnalyzer } from "./PathAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
 
@@ -18,14 +16,6 @@ export namespace ReflectWebSocketOperationAnalyzer {
       function: Function;
       name: string;
     }): IReflectWebSocketOperation | null => {
-      if (
-        ArrayUtil.has(
-          Reflect.getMetadataKeys(props.function),
-          PATH_METADATA,
-        ) === false
-      )
-        return null;
-
       const route: { paths: string[] } | undefined = Reflect.getMetadata(
         "nestia/WebSocketRoute",
         props.function,
@@ -35,7 +25,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
       const errors: IErrorReport[] = [];
       const everyParameters: IReflectWebSocketOperation.IParameter[] = (
         (Reflect.getMetadata(
-          "nestia/WebSocketParameters",
+          "nestia/WebSocketRoute/Parameters",
           props.controller.prototype,
           props.name,
         ) ?? []) as IReflectWebSocketOperation.IParameter[]

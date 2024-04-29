@@ -1,3 +1,4 @@
+import core from "@nestia/core";
 import { INestApplication, VersioningType } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { Singleton } from "tstl";
@@ -13,6 +14,7 @@ export class Backend {
         type: VersioningType.URI,
         prefix: "v",
       });
+      await core.WebSocketAdaptor.upgrade(app);
       return app;
     });
 

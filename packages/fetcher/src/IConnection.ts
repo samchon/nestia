@@ -18,7 +18,9 @@ import { IRandomGenerator } from "./IRandomGenerator";
  * @author Jenogho Nam - https://github.com/samchon
  * @author Seungjun We - https://github.com/SeungjunWe
  */
-export interface IConnection<Headers extends object = {}> {
+export interface IConnection<
+  Headers extends object | undefined = object | undefined,
+> {
   /**
    * Host address of the remote HTTP server.
    */
@@ -211,7 +213,7 @@ export namespace IConnection {
    *   - "server"
    *   - "user-agent"
    */
-  export type Headerify<T extends object> = {
+  export type Headerify<T extends object | undefined> = {
     [P in keyof T]?: T[P] extends HeaderValue | undefined
       ? P extends string
         ? Lowercase<P> extends "set-cookie"

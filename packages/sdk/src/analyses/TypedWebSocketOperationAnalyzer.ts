@@ -96,9 +96,9 @@ export namespace TypedWebSocketOperationAnalyzer {
         ...(props.operation.versions ?? []),
       ]);
       for (const v of versions)
-        for (const prefix of props.controller.prefixes)
-          for (const cPath of props.controller.paths)
-            for (const filePath of props.operation.paths)
+        for (const prefix of wrapPaths(props.controller.prefixes))
+          for (const cPath of wrapPaths(props.controller.paths))
+            for (const filePath of wrapPaths(props.operation.paths))
               pathList.add(
                 PathAnalyzer.join(
                   project.input.globalPrefix?.prefix ?? "",
@@ -206,6 +206,11 @@ export namespace TypedWebSocketOperationAnalyzer {
         props.symbol.valueDeclaration!,
       );
       const name: string = props.symbol.getEscapedName().toString();
+      const generics: readonly ts.Type[] =
+        type.aliasTypeArguments ??
+        project.checker.getTypeArguments(type as ts.TypeReference) ??
+        [];
+
       const errors: IErrorReport[] = [];
       _Check_optional({
         ...project,
@@ -217,10 +222,7 @@ export namespace TypedWebSocketOperationAnalyzer {
           symbol: props.symbol,
         },
       });
-      if (
-        type.aliasTypeArguments === undefined ||
-        type.aliasTypeArguments.length !== 3
-      )
+      if (generics.length !== 3)
         errors.push({
           file: props.controller.file,
           controller: props.controller.name,
@@ -234,7 +236,7 @@ export namespace TypedWebSocketOperationAnalyzer {
           )({
             generics: props.generics,
             imports: props.imports,
-            type: type.aliasTypeArguments![i],
+            type: generics[i],
           });
           if (tuple === null)
             errors.push({
@@ -277,6 +279,11 @@ export namespace TypedWebSocketOperationAnalyzer {
         props.symbol.valueDeclaration!,
       );
       const name: string = props.symbol.getEscapedName().toString();
+      const generics: readonly ts.Type[] =
+        type.aliasTypeArguments ??
+        project.checker.getTypeArguments(type as ts.TypeReference) ??
+        [];
+
       const errors: IErrorReport[] = [];
       _Check_optional({
         ...project,
@@ -289,7 +296,7 @@ export namespace TypedWebSocketOperationAnalyzer {
         },
       });
       const tuple: ITypeTuple = (() => {
-        if (type.aliasTypeArguments?.length !== 1) {
+        if (generics.length !== 1) {
           errors.push({
             file: props.controller.file,
             controller: props.controller.name,
@@ -303,7 +310,7 @@ export namespace TypedWebSocketOperationAnalyzer {
           )({
             generics: props.generics,
             imports: props.imports,
-            type: type.aliasTypeArguments[0],
+            type: generics[0],
           });
           if (tuple === null)
             errors.push({
@@ -354,3 +361,6 @@ export namespace TypedWebSocketOperationAnalyzer {
         });
     };
 }
+
+const wrapPaths = (paths: string[]): string[] =>
+  paths.length === 0 ? [""] : paths;

@@ -193,9 +193,9 @@ export namespace TypedHttpOperationAnalyzer {
         ...(props.operation.versions ?? []),
       ]);
       for (const v of versions)
-        for (const prefix of props.controller.prefixes)
-          for (const cPath of props.controller.paths)
-            for (const filePath of props.operation.paths)
+        for (const prefix of wrapPaths(props.controller.prefixes))
+          for (const cPath of wrapPaths(props.controller.paths))
+            for (const filePath of wrapPaths(props.operation.paths))
               pathList.add(
                 PathAnalyzer.join(
                   globalPrefix.prefix,
@@ -347,3 +347,6 @@ const enumToMethod = (v: RequestMethod) =>
                 : v === RequestMethod.HEAD
                   ? "head"
                   : "search";
+
+const wrapPaths = (paths: string[]): string[] =>
+  paths.length === 0 ? [""] : paths;

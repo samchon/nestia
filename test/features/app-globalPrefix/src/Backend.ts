@@ -1,3 +1,4 @@
+import core from "@nestia/core";
 import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { Singleton } from "tstl";
@@ -14,6 +15,7 @@ export class Backend {
         },
       );
       app.setGlobalPrefix("x");
+      await core.WebSocketAdaptor.upgrade(app);
       return app;
     });
 

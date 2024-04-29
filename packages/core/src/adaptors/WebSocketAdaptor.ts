@@ -21,6 +21,7 @@ import WebSocket from "ws";
 
 import { IWebSocketRouteReflect } from "../decorators/internal/IWebSocketRouteReflect";
 import { ArrayUtil } from "../utils/ArrayUtil";
+import { VersioningStrategy } from "../utils/VersioningStrategy";
 
 export class WebSocketAdaptor {
   public static async upgrade(
@@ -199,9 +200,11 @@ const visitController = async (props: {
       else if (value.length === 0) return [""];
       else return value;
     })(),
-    versions: getVersions(
-      Reflect.getMetadata(VERSION_METADATA, props.controller.metatype),
-    ),
+    versions: props.config.versioning
+      ? VersioningStrategy.cast(
+          Reflect.getMetadata(VERSION_METADATA, props.controller.metatype),
+        )
+      : undefined,
     modulePrefix: props.modulePrefix,
   };
   for (const mk of Object.getOwnPropertyNames(controller.prototype).filter(
@@ -271,25 +274,16 @@ const visitMethod = (props: {
         "  - @WebSocketRoute.Query()",
       ].join("\n"),
     );
-  const versions: string[] = (() => {
-    if (props.config.versioning === undefined) return [""];
-    const set = new Set([
-      ...props.controller.versions,
-      ...getVersions(Reflect.getMetadata(VERSION_METADATA, props.method.value)),
-    ]);
-    const array =
-      set.size === 0
-        ? getVersions(props.config.versioning.defaultVersion)
-        : Array.from(set);
-    return array.length === 0
-      ? [""]
-      : array.map((v) =>
-          typeof v === "symbol" ? "" : `${props.config.versioning!.prefix}${v}`,
-        );
-  })();
+
+  const versions: string[] = VersioningStrategy.merge(props.config.versioning)([
+    ...(props.controller.versions ?? []),
+    ...VersioningStrategy.cast(
+      Reflect.getMetadata(VERSION_METADATA, props.method.value),
+    ),
+  ]);
   for (const v of versions)
-    for (const cp of props.controller.prefixes)
-      for (const mp of route.paths) {
+    for (const cp of wrapPaths(props.controller.prefixes))
+      for (const mp of wrapPaths(route.paths)) {
         const parser: Path = new Path(
           "/" +
             [
@@ -374,10 +368,7 @@ const visitMethod = (props: {
       }
 };
 
-const getVersions = (
-  value: VersionValue | undefined,
-): Array<string | typeof VERSION_NEUTRAL> =>
-  value === undefined ? [] : Array.isArray(value) ? value : [value];
+const wrapPaths = (value: string[]) => (value.length === 0 ? [""] : value);
 
 interface Entry<T> {
   key: string;
@@ -386,7 +377,7 @@ interface Entry<T> {
 
 interface IController {
   name: string;
-  versions: Array<string | typeof VERSION_NEUTRAL>;
+  versions: Array<string | typeof VERSION_NEUTRAL> | undefined;
   instance: object;
   constructor: Function;
   prototype: any;

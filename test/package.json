@@ -47,6 +47,7 @@
     "@nestjs/core": "^10.3.5",
     "@nestjs/platform-express": "^10.3.5",
     "@nestjs/platform-fastify": "^10.3.5",
+    "tgrid": "^0.11.0",
     "tstl": "^3.0.0",
     "typia": "^6.0.3",
     "uuid": "^9.0.1"
