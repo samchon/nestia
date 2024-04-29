@@ -242,7 +242,6 @@ export namespace TypedHttpOperationAnalyzer {
         props.symbol.valueDeclaration!,
       );
       const name: string = props.symbol.getEscapedName().toString();
-
       const optional: boolean = !!project.checker.symbolToParameterDeclaration(
         props.symbol,
         undefined,

@@ -1,81 +1,36 @@
 import ts from "typescript";
-import typia from "typia";
 import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
-import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
-import { Escaper } from "typia/lib/utils/Escaper";
 
-import { INestiaConfig } from "../../INestiaConfig";
-import { IReflectHttpOperation } from "../../structures/IReflectHttpOperation";
-import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { INestiaProject } from "../../structures/INestiaProject";
+import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
-import { SdkAliasCollection } from "./SdkAliasCollection";
-import { SdkImportWizard } from "./SdkImportWizard";
-import { SdkSimulationProgrammer } from "./SdkSimulationProgrammer";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
-export namespace SdkNamespaceProgrammer {
+export namespace SdkWebSocketNamespaceProgrammer {
   export const write =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (
-      route: ITypedHttpRoute,
-      props: {
-        headers: ITypedHttpRoute.IParameter | undefined;
-        query: ITypedHttpRoute.IParameter | undefined;
-        input: ITypedHttpRoute.IParameter | undefined;
-      },
-    ): ts.ModuleDeclaration => {
-      const types = write_types(checker)(config)(importer)(route, props);
-      return ts.factory.createModuleDeclaration(
+    (route: ITypedWebSocketRoute): ts.ModuleDeclaration =>
+      ts.factory.createModuleDeclaration(
         [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
         ts.factory.createIdentifier(route.name),
         ts.factory.createModuleBlock([
-          ...types,
-          ...(types.length ? [FilePrinter.enter()] : []),
-          write_metadata(importer)(route, props),
+          ...writeTypes(importer)(route),
           FilePrinter.enter(),
-          write_path(config)(importer)(route, props),
-          ...(config.simulate
-            ? [
-                SdkSimulationProgrammer.random(checker)(config)(importer)(
-                  route,
-                ),
-                SdkSimulationProgrammer.simulate(config)(importer)(
-                  route,
-                  props,
-                ),
-              ]
-            : []),
-          ...(config.json &&
-          typia.is<IReflectHttpOperation.IBodyParameter>(props.input) &&
-          (props.input.contentType === "application/json" ||
-            props.input.encrypted === true)
-            ? [write_stringify(config)(importer)]
-            : []),
+          writePath(project)(importer)(route),
         ]),
         ts.NodeFlags.Namespace,
       );
-    };
 
-  const write_types =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
+  const writeTypes =
     (importer: ImportDictionary) =>
-    (
-      route: ITypedHttpRoute,
-      props: {
-        headers: ITypedHttpRoute.IParameter | undefined;
-        query: ITypedHttpRoute.IParameter | undefined;
-        input: ITypedHttpRoute.IParameter | undefined;
-      },
-    ): ts.TypeAliasDeclaration[] => {
-      const array: ts.TypeAliasDeclaration[] = [];
+    (route: ITypedWebSocketRoute): ts.TypeAliasDeclaration[] => {
+      const output: ts.TypeAliasDeclaration[] = [];
       const declare = (name: string, type: ts.TypeNode) =>
-        array.push(
+        output.push(
           ts.factory.createTypeAliasDeclaration(
             [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
             name,
@@ -83,143 +38,107 @@ export namespace SdkNamespaceProgrammer {
             type,
           ),
         );
-      if (props.headers !== undefined)
-        declare(
-          "Headers",
-          SdkAliasCollection.headers(config)(importer)(props.headers),
-        );
-      if (props.query !== undefined)
-        declare(
-          "Query",
-          SdkAliasCollection.query(config)(importer)(props.query),
-        );
-      if (props.input !== undefined)
-        declare(
-          "Input",
-          SdkAliasCollection.input(config)(importer)(props.input),
-        );
-      if (config.propagate === true || route.output.typeName !== "void")
-        declare(
-          "Output",
-          SdkAliasCollection.output(checker)(config)(importer)(route),
-        );
-      return array;
-    };
 
-  const write_metadata =
-    (importer: ImportDictionary) =>
-    (
-      route: ITypedHttpRoute,
-      props: {
-        headers: ITypedHttpRoute.IParameter | undefined;
-        query: ITypedHttpRoute.IParameter | undefined;
-        input: ITypedHttpRoute.IParameter | undefined;
-      },
-    ): ts.VariableStatement =>
-      constant("METADATA")(
-        ts.factory.createAsExpression(
-          ts.factory.createObjectLiteralExpression(
-            [
-              ts.factory.createPropertyAssignment(
-                "method",
-                ts.factory.createStringLiteral(route.method),
-              ),
-              ts.factory.createPropertyAssignment(
-                "path",
-                ts.factory.createStringLiteral(route.path),
-              ),
-              ts.factory.createPropertyAssignment(
-                "request",
-                props.input
-                  ? LiteralFactory.generate(
-                      typia.is<IReflectHttpOperation.IBodyParameter>(
-                        props.input,
-                      )
-                        ? {
-                            type: props.input.contentType,
-                            encrypted: !!props.input.encrypted,
-                          }
-                        : {
-                            type: "application/json",
-                            encrypted: false,
-                          },
-                    )
-                  : ts.factory.createNull(),
-              ),
-              ts.factory.createPropertyAssignment(
-                "response",
-                route.method !== "HEAD"
-                  ? LiteralFactory.generate({
-                      type: route.output.contentType,
-                      encrypted: !!route.encrypted,
-                    })
-                  : ts.factory.createNull(),
-              ),
-              ts.factory.createPropertyAssignment(
-                "status",
-                route.status !== undefined
-                  ? ExpressionFactory.number(route.status)
-                  : ts.factory.createNull(),
-              ),
-              ...(route.output.contentType ===
-              "application/x-www-form-urlencoded"
-                ? [
-                    ts.factory.createPropertyAssignment(
-                      "parseQuery",
-                      ts.factory.createCallExpression(
-                        ts.factory.createIdentifier(
-                          `${SdkImportWizard.typia(importer)}.http.createAssertQuery`,
-                        ),
-                        [
-                          ts.factory.createTypeReferenceNode(
-                            route.output.typeName,
-                          ),
-                        ],
-                        undefined,
-                      ),
-                    ),
-                  ]
-                : []),
-            ],
-            true,
+      declare(
+        "Output",
+        ts.factory.createTypeLiteralNode([
+          ts.factory.createPropertySignature(
+            undefined,
+            "connector",
+            undefined,
+            ts.factory.createTypeReferenceNode(
+              importer.external({
+                type: false,
+                library: "tgrid",
+                instance: "WebConnector",
+              }),
+              [
+                ts.factory.createTypeReferenceNode("Header"),
+                ts.factory.createTypeReferenceNode("Provider"),
+                ts.factory.createTypeReferenceNode("Remote"),
+              ],
+            ),
           ),
-          ts.factory.createTypeReferenceNode(
-            ts.factory.createIdentifier("const"),
+          ts.factory.createPropertySignature(
+            undefined,
+            "driver",
+            undefined,
+            ts.factory.createTypeReferenceNode(
+              importer.external({
+                type: true,
+                library: "tgrid",
+                instance: "Driver",
+              }),
+              [ts.factory.createTypeReferenceNode("Remote")],
+            ),
           ),
-        ),
+        ]),
       );
 
-  const write_path =
-    (config: INestiaConfig) =>
-    (importer: ImportDictionary) =>
-    (
-      route: ITypedHttpRoute,
-      props: {
-        query: ITypedHttpRoute.IParameter | undefined;
-      },
-    ): ts.VariableStatement => {
-      const g = {
-        total: [
-          ...route.parameters.filter(
-            (param) => param.category === "param" || param.category === "query",
-          ),
-        ],
-        query: route.parameters.filter(
-          (param) => param.category === "query" && param.field !== undefined,
+      const acceptor: ITypedWebSocketRoute.IAcceptorParameter =
+        route.parameters.find(
+          (x) => x.category === "acceptor",
+        ) as ITypedWebSocketRoute.IAcceptorParameter;
+      const query = route.parameters.find((x) => x.category === "query") as
+        | ITypedWebSocketRoute.IQueryParameter
+        | undefined;
+
+      declare(
+        "Header",
+        ts.factory.createTypeReferenceNode(
+          (
+            (route.parameters.find((x) => x.category === "header") as
+              | ITypedWebSocketRoute.IHeaderParameter
+              | undefined) ?? acceptor.header
+          ).typeName,
         ),
-        path: route.parameters.filter((param) => param.category === "param"),
-      };
+      );
+      declare(
+        "Provider",
+        ts.factory.createTypeReferenceNode(
+          (
+            (route.parameters.find((x) => x.category === "driver") as
+              | ITypedWebSocketRoute.IDriverParameter
+              | undefined) ?? acceptor.remote
+          ).typeName,
+        ),
+      );
+      declare(
+        "Remote",
+        ts.factory.createTypeReferenceNode(acceptor.provider.typeName),
+      );
+      if (query)
+        declare("Query", ts.factory.createTypeReferenceNode(query.typeName));
+      return output;
+    };
+
+  const writePath =
+    (project: INestiaProject) =>
+    (importer: ImportDictionary) =>
+    (route: ITypedWebSocketRoute): ts.VariableStatement => {
+      const pathParams: ITypedWebSocketRoute.IPathParameter[] =
+        route.parameters.filter(
+          (p) => p.category === "path",
+        ) as ITypedWebSocketRoute.IPathParameter[];
+      const query: ITypedWebSocketRoute.IQueryParameter | undefined =
+        route.parameters.find((p) => p.category === "query") as
+          | ITypedWebSocketRoute.IQueryParameter
+          | undefined;
+      const total: Array<
+        | ITypedWebSocketRoute.IPathParameter
+        | ITypedWebSocketRoute.IQueryParameter
+      > = [...pathParams, ...(query ? [query] : [])];
       const out = (body: ts.ConciseBody) =>
         constant("path")(
           ts.factory.createArrowFunction(
             [],
             [],
-            g.total.map((p) =>
+            total.map((p) =>
               IdentifierFactory.parameter(
                 p.name,
-                p === props.query
+                p === query
                   ? ts.factory.createTypeReferenceNode(`${route.name}.Query`)
-                  : getType(config)(importer)(p),
+                  : getType(project)(importer)(p),
               ),
             ),
             undefined,
@@ -227,7 +146,7 @@ export namespace SdkNamespaceProgrammer {
             body,
           ),
         );
-      if (g.total.length === 0)
+      if (total.length === 0)
         return out(ts.factory.createStringLiteral(route.path));
 
       const template = () => {
@@ -245,7 +164,7 @@ export namespace SdkNamespaceProgrammer {
                 [
                   ts.factory.createBinaryExpression(
                     ts.factory.createIdentifier(
-                      g.path.find((p) => p.field === name)!.name,
+                      pathParams.find((p) => p.field === name)!.name,
                     ),
                     ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
                     ts.factory.createStringLiteral("null"),
@@ -259,14 +178,11 @@ export namespace SdkNamespaceProgrammer {
           }),
         );
       };
-      if (props.query === undefined && g.query.length === 0)
-        return out(template());
+      if (query === undefined) return out(template());
 
       const block = (expr: ts.Expression) => {
         const computeName = (str: string): string =>
-          g.total
-            .filter((p) => p.category !== "headers")
-            .find((p) => p.name === str) !== undefined
+          total.find((p) => p.name === str) !== undefined
             ? computeName("_" + str)
             : str;
         const variables: string = computeName("variables");
@@ -415,62 +331,8 @@ export namespace SdkNamespaceProgrammer {
           true,
         );
       };
-      if (props.query !== undefined && g.query.length === 0)
-        return out(block(ts.factory.createIdentifier(props.query.name)));
-      return out(
-        block(
-          ts.factory.createObjectLiteralExpression(
-            [
-              ...(props.query
-                ? [
-                    ts.factory.createSpreadAssignment(
-                      ts.factory.createIdentifier(props.query.name),
-                    ),
-                  ]
-                : []),
-              ...g.query.map((q) =>
-                q.name === q.field
-                  ? ts.factory.createShorthandPropertyAssignment(q.name)
-                  : ts.factory.createPropertyAssignment(
-                      Escaper.variable(q.field!)
-                        ? q.field!
-                        : ts.factory.createStringLiteral(q.field!),
-                      ts.factory.createIdentifier(q.name),
-                    ),
-              ),
-            ],
-            true,
-          ),
-        ),
-      );
+      return out(block(ts.factory.createIdentifier(query.name)));
     };
-
-  const write_stringify =
-    (config: INestiaConfig) =>
-    (importer: ImportDictionary): ts.VariableStatement =>
-      constant("stringify")(
-        ts.factory.createArrowFunction(
-          [],
-          undefined,
-          [
-            IdentifierFactory.parameter(
-              "input",
-              ts.factory.createTypeReferenceNode("Input"),
-            ),
-          ],
-          undefined,
-          undefined,
-          ts.factory.createCallExpression(
-            IdentifierFactory.access(
-              IdentifierFactory.access(
-                ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
-              )("json"),
-            )(config.assert ? "stringify" : "assertStringify"),
-            undefined,
-            [ts.factory.createIdentifier("input")],
-          ),
-        ),
-      );
 }
 
 const local = (name: string) => (type: string) => (expression: ts.Expression) =>
@@ -504,9 +366,13 @@ const constant = (name: string) => (expression: ts.Expression) =>
     ),
   );
 const getType =
-  (config: INestiaConfig) =>
+  (project: INestiaProject) =>
   (importer: ImportDictionary) =>
-  (p: ITypedHttpRoute.IParameter | ITypedHttpRoute.IOutput) =>
+  (
+    p:
+      | ITypedWebSocketRoute.IPathParameter
+      | ITypedWebSocketRoute.IQueryParameter,
+  ) =>
     p.metadata
-      ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
+      ? SdkTypeProgrammer.write(project)(importer)(p.metadata)
       : ts.factory.createTypeReferenceNode(p.typeName);

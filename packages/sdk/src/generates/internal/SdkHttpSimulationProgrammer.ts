@@ -5,21 +5,19 @@ import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
-import { INestiaConfig } from "../../INestiaConfig";
+import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
-export namespace SdkSimulationProgrammer {
+export namespace SdkHttpSimulationProgrammer {
   export const random =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.VariableStatement => {
-      const output =
-        SdkAliasCollection.responseBody(checker)(config)(importer)(route);
+      const output = SdkAliasCollection.responseBody(project)(importer)(route);
       return constant("random")(
         ts.factory.createArrowFunction(
           undefined,
@@ -40,7 +38,7 @@ export namespace SdkSimulationProgrammer {
               ),
             ),
           ],
-          config.primitive === false
+          project.config.primitive === false
             ? output
             : ts.factory.createTypeReferenceNode(
                 SdkImportWizard.Resolved(importer),
@@ -59,7 +57,7 @@ export namespace SdkSimulationProgrammer {
     };
 
   export const simulate =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (
       route: ITypedHttpRoute,
@@ -70,7 +68,7 @@ export namespace SdkSimulationProgrammer {
       },
     ): ts.VariableStatement => {
       const output: boolean =
-        config.propagate === true || route.output.typeName !== "void";
+        project.config.propagate === true || route.output.typeName !== "void";
       const caller = () =>
         ts.factory.createCallExpression(
           ts.factory.createIdentifier("random"),
@@ -127,12 +125,12 @@ export namespace SdkSimulationProgrammer {
                   p.optional
                     ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
                     : undefined,
-                  config.primitive !== false &&
+                  project.config.primitive !== false &&
                     (p === props.query || p === props.input)
                     ? ts.factory.createTypeReferenceNode(
                         `${route.name}.${p === props.query ? "Query" : "Input"}`,
                       )
-                    : getTypeName(config)(importer)(p),
+                    : getTypeName(project)(importer)(p),
                 ),
               ),
           ],
@@ -140,9 +138,9 @@ export namespace SdkSimulationProgrammer {
           undefined,
           ts.factory.createBlock(
             [
-              ...assert(config)(importer)(route),
+              ...assert(project)(importer)(route),
               ts.factory.createReturnStatement(
-                config.propagate
+                project.config.propagate
                   ? ts.factory.createObjectLiteralExpression(
                       [
                         ts.factory.createPropertyAssignment(
@@ -176,7 +174,7 @@ export namespace SdkSimulationProgrammer {
     };
 
   const assert =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.Statement[] => {
       const parameters = route.parameters.filter(
@@ -272,7 +270,7 @@ export namespace SdkSimulationProgrammer {
 
       return [
         validator,
-        ...(config.propagate !== true
+        ...(project.config.propagate !== true
           ? individual
           : [tryAndCatch(importer)(individual)]),
       ];
@@ -357,9 +355,9 @@ const constant = (name: string) => (expression: ts.Expression) =>
   );
 
 const getTypeName =
-  (config: INestiaConfig) =>
+  (project: INestiaProject) =>
   (importer: ImportDictionary) =>
   (p: ITypedHttpRoute.IParameter | ITypedHttpRoute.IOutput) =>
     p.metadata
-      ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
+      ? SdkTypeProgrammer.write(project)(importer)(p.metadata)
       : ts.factory.createTypeReferenceNode(p.typeName);

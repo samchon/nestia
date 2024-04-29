@@ -7,14 +7,14 @@ import { MetadataAlias } from "typia/lib/schemas/metadata/MetadataAlias";
 import { MetadataAtomic } from "typia/lib/schemas/metadata/MetadataAtomic";
 import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
 
-import { INestiaConfig } from "../../INestiaConfig";
+import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { MapUtil } from "../../utils/MapUtil";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
-export namespace SdkCloneProgrammer {
+export namespace SdkHttpCloneProgrammer {
   export interface IModule {
     name: string;
     children: Map<string, IModule>;
@@ -24,15 +24,14 @@ export namespace SdkCloneProgrammer {
   }
 
   export const write =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (routes: ITypedHttpRoute[]): Map<string, IModule> => {
       const collection = new MetadataCollection({
         replace: MetadataCollection.replace,
       });
       for (const r of routes) {
         for (const p of r.parameters) {
-          const res = MetadataFactory.analyze(checker)({
+          const res = MetadataFactory.analyze(project.checker)({
             escape: false,
             constant: true,
             absorb: false,
@@ -40,14 +39,14 @@ export namespace SdkCloneProgrammer {
           if (res.success) p.metadata = res.data;
         }
         for (const e of Object.values(r.exceptions)) {
-          const res = MetadataFactory.analyze(checker)({
+          const res = MetadataFactory.analyze(project.checker)({
             escape: true,
             constant: true,
             absorb: false,
           })(collection)(e.type);
           if (res.success) e.metadata = res.data;
         }
-        const res = MetadataFactory.analyze(checker)({
+        const res = MetadataFactory.analyze(project.checker)({
           escape: true,
           constant: true,
           absorb: false,
@@ -59,12 +58,12 @@ export namespace SdkCloneProgrammer {
       for (const alias of collection.aliases())
         if (isNamedDeclaration(alias.name))
           prepare(dict)(alias.name)((importer) =>
-            write_alias(config)(importer)(alias),
+            write_alias(project)(importer)(alias),
           );
       for (const object of collection.objects())
         if (isNamedDeclaration(object.name))
           prepare(dict)(object.name)((importer) =>
-            write_object(config)(importer)(object),
+            write_object(project)(importer)(object),
           );
       return dict;
     };
@@ -89,7 +88,7 @@ export namespace SdkCloneProgrammer {
     };
 
   const write_alias =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (alias: MetadataAlias): ts.TypeAliasDeclaration =>
       FilePrinter.description(
@@ -97,13 +96,13 @@ export namespace SdkCloneProgrammer {
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
           alias.name.split(".").at(-1)!,
           [],
-          SdkTypeProgrammer.write(config)(importer)(alias.value),
+          SdkTypeProgrammer.write(project)(importer)(alias.value),
         ),
         writeComment([])(alias.description, alias.jsDocTags),
       );
 
   const write_object =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (object: MetadataObject): ts.TypeAliasDeclaration => {
       return FilePrinter.description(
@@ -111,7 +110,7 @@ export namespace SdkCloneProgrammer {
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
           object.name.split(".").at(-1)!,
           [],
-          SdkTypeProgrammer.write_object(config)(importer)(object),
+          SdkTypeProgrammer.write_object(project)(importer)(object),
         ),
         writeComment([])(object.description ?? null, object.jsDocTags),
       );

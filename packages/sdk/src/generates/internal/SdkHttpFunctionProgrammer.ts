@@ -3,6 +3,7 @@ import typia from "typia";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
 import { INestiaConfig } from "../../INestiaConfig";
+import { INestiaProject } from "../../structures/INestiaProject";
 import { IReflectHttpOperation } from "../../structures/IReflectHttpOperation";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { StringUtil } from "../../utils/StringUtil";
@@ -10,9 +11,9 @@ import { ImportDictionary } from "./ImportDictionary";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
-export namespace SdkFunctionProgrammer {
+export namespace SdkHttpFunctionProgrammer {
   export const write =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (
       route: ITypedHttpRoute,
@@ -50,20 +51,20 @@ export namespace SdkFunctionProgrammer {
                 p.optional
                   ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
                   : undefined,
-                config.primitive !== false &&
+                project.config.primitive !== false &&
                   (p === props.query || p === props.input)
                   ? ts.factory.createTypeReferenceNode(
                       `${route.name}.${p === props.query ? "Query" : "Input"}`,
                     )
-                  : getTypeName(config)(importer)(p),
+                  : getTypeName(project)(importer)(p),
               ),
             ),
         ],
         ts.factory.createTypeReferenceNode("Promise", [
-          getReturnType(config)(route),
+          getReturnType(project.config)(route),
         ]),
         ts.factory.createBlock(
-          write_body(config)(importer)(route, props),
+          write_body(project.config)(importer)(route, props),
           true,
         ),
       );
@@ -283,11 +284,11 @@ export namespace SdkFunctionProgrammer {
 }
 
 const getTypeName =
-  (config: INestiaConfig) =>
+  (project: INestiaProject) =>
   (importer: ImportDictionary) =>
   (p: ITypedHttpRoute.IParameter | ITypedHttpRoute.IOutput) =>
     p.metadata
-      ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
+      ? SdkTypeProgrammer.write(project)(importer)(p.metadata)
       : ts.factory.createTypeReferenceNode(p.typeName);
 
 const getReturnType = (config: INestiaConfig) => (route: ITypedHttpRoute) =>

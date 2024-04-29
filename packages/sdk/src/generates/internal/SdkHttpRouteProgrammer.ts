@@ -1,17 +1,16 @@
 import ts from "typescript";
 import { IJsDocTagInfo } from "typia";
 
-import { INestiaConfig } from "../../INestiaConfig";
+import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
-import { SdkFunctionProgrammer } from "./SdkFunctionProgrammer";
-import { SdkNamespaceProgrammer } from "./SdkNamespaceProgrammer";
+import { SdkHttpFunctionProgrammer } from "./SdkHttpFunctionProgrammer";
+import { SdkHttpNamespaceProgrammer } from "./SdkHttpNamespaceProgrammer";
 
-export namespace SdkRouteProgrammer {
-  export const generate =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
+export namespace SdkHttpRouteProgrammer {
+  export const write =
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.Statement[] => {
       const props = {
@@ -25,10 +24,10 @@ export namespace SdkRouteProgrammer {
       };
       return [
         FilePrinter.description(
-          SdkFunctionProgrammer.write(config)(importer)(route, props),
+          SdkHttpFunctionProgrammer.write(project)(importer)(route, props),
           describe(route),
         ),
-        SdkNamespaceProgrammer.write(checker)(config)(importer)(route, props),
+        SdkHttpNamespaceProgrammer.write(project)(importer)(route, props),
       ];
     };
 

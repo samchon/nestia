@@ -47,14 +47,12 @@ export class NestiaSdkApplication {
     await validate("e2e")(this.config.e2e);
 
     print_title("Nestia E2E Generator");
-    await this.generate(
-      "e2e",
-      (config) => config,
-      (checker) => (config) => async (routes) => {
-        await SdkGenerator.generate(checker)(config)(routes);
-        await E2eGenerator.generate(checker)(config)(routes);
-      },
-    );
+    await this.generate("e2e", (project) => async (routes) => {
+      await SdkGenerator.generate(project)(routes);
+      await E2eGenerator.generate(project)(
+        routes.filter((r) => r.protocol === "http") as ITypedHttpRoute[],
+      );
+    });
   }
 
   public async sdk(): Promise<void> {
@@ -71,7 +69,7 @@ export class NestiaSdkApplication {
       );
 
     print_title("Nestia SDK Generator");
-    await this.generate("sdk", (config) => config, SdkGenerator.generate);
+    await this.generate("sdk", SdkGenerator.generate);
   }
 
   public async swagger(): Promise<void> {
@@ -91,20 +89,13 @@ export class NestiaSdkApplication {
       );
 
     print_title("Nestia Swagger Generator");
-    await this.generate(
-      "swagger",
-      (config) => config.swagger!,
-      SwaggerGenerator.generate,
-    );
+    await this.generate("swagger", SwaggerGenerator.generate);
   }
 
-  private async generate<Config>(
+  private async generate(
     method: string,
-    config: (entire: INestiaConfig) => Config,
     archiver: (
-      checker: ts.TypeChecker,
-    ) => (
-      config: Config,
+      project: INestiaProject,
     ) => (
       routes: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
     ) => Promise<void>,
@@ -205,7 +196,7 @@ export class NestiaSdkApplication {
 
     // DO GENERATE
     AccessorAnalyzer.analyze(routeList);
-    await archiver(project.checker)(config(this.config))(routeList);
+    await archiver(project)(routeList);
   }
 }
 

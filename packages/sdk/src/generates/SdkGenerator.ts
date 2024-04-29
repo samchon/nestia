@@ -1,9 +1,8 @@
 import fs from "fs";
 import NodePath from "path";
 import { IPointer } from "tstl";
-import ts from "typescript";
 
-import { INestiaConfig } from "../INestiaConfig";
+import { INestiaProject } from "../structures/INestiaProject";
 import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { ITypedWebSocketRoute } from "../structures/ITypedWebSocketRoute";
 import { CloneGenerator } from "./CloneGenerator";
@@ -12,8 +11,7 @@ import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
 
 export namespace SdkGenerator {
   export const generate =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     async (
       routes: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
     ): Promise<void> => {
@@ -21,14 +19,14 @@ export namespace SdkGenerator {
 
       // PREPARE NEW DIRECTORIES
       try {
-        await fs.promises.mkdir(config.output!);
+        await fs.promises.mkdir(project.config.output!);
       } catch {}
 
       // BUNDLING
       const bundle: string[] = await fs.promises.readdir(BUNDLE_PATH);
       for (const file of bundle) {
         const current: string = `${BUNDLE_PATH}/${file}`;
-        const target: string = `${config.output}/${file}`;
+        const target: string = `${project.config.output}/${file}`;
         const stats: fs.Stats = await fs.promises.stat(current);
 
         if (stats.isFile() === true) {
@@ -47,17 +45,17 @@ export namespace SdkGenerator {
       }
 
       // STRUCTURES
-      if (config.clone)
-        await CloneGenerator.write(checker)(config)(
+      if (project.config.clone)
+        await CloneGenerator.write(project)(
           routes.filter((r) => r.protocol === "http") as ITypedHttpRoute[],
         );
 
       // FUNCTIONAL
-      await SdkFileProgrammer.generate(checker)(config)(routes);
+      await SdkFileProgrammer.generate(project)(routes);
 
       // DISTRIBUTION
-      if (config.distribute !== undefined)
-        await SdkDistributionComposer.compose(config);
+      if (project.config.distribute !== undefined)
+        await SdkDistributionComposer.compose(project.config);
     };
 
   export const BUNDLE_PATH = NodePath.join(

@@ -8,6 +8,7 @@ import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { JsonApplicationProgrammer } from "typia/lib/programmers/json/JsonApplicationProgrammer";
 
 import { INestiaConfig } from "../INestiaConfig";
+import { INestiaProject } from "../structures/INestiaProject";
 import { ISwaggerError } from "../structures/ISwaggerError";
 import { ISwaggerLazyProperty } from "../structures/ISwaggerLazyProperty";
 import { ISwaggerLazySchema } from "../structures/ISwaggerLazySchema";
@@ -29,14 +30,14 @@ export namespace SwaggerGenerator {
   }
 
   export const generate =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig.ISwaggerConfig) =>
+    (project: INestiaProject) =>
     async (
       routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
     ): Promise<void> => {
       console.log("Generating Swagger Documents");
 
       // VALIDATE SECURITY
+      const config = project.config.swagger!;
       const httpRoutes: ITypedHttpRoute[] = routeList.filter(
         (route): route is ITypedHttpRoute => route.protocol === "http",
       ) as ITypedHttpRoute[];
@@ -82,7 +83,7 @@ export namespace SwaggerGenerator {
         );
         path[route.method.toLowerCase()] = generate_route({
           config,
-          checker,
+          checker: project.checker,
           collection,
           lazySchemas,
           lazyProperties,

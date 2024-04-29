@@ -1,3 +1,6 @@
+import ts from "typescript";
+import { Metadata } from "typia/lib/schemas/metadata/Metadata";
+
 import { IReflectController } from "./IReflectController";
 import { IReflectWebSocketOperation } from "./IReflectWebSocketOperation";
 import { ITypeTuple } from "./ITypeTuple";
@@ -25,6 +28,7 @@ export namespace ITypedWebSocketRoute {
   export interface IAcceptorParameter
     extends Omit<IReflectWebSocketOperation.IParameter, "category"> {
     category: "acceptor";
+    name: string;
     header: ITypeTuple;
     provider: ITypeTuple;
     remote: ITypeTuple;
@@ -32,25 +36,32 @@ export namespace ITypedWebSocketRoute {
   export interface IDriverParameter
     extends Omit<IReflectWebSocketOperation.IParameter, "category"> {
     category: "driver";
-    type: string;
+    name: string;
+    type: ts.Type;
     typeName: string;
   }
   export interface IHeaderParameter
     extends Omit<IReflectWebSocketOperation.IParameter, "header"> {
     category: "header";
-    type: string;
+    name: string;
+    type: ts.Type;
     typeName: string;
+    metadata?: Metadata;
   }
   export interface IPathParameter
     extends Omit<IReflectWebSocketOperation.IParameter, "path"> {
     category: "path";
-    type: string;
+    name: string;
+    type: ts.Type;
     typeName: string;
+    metadata?: Metadata;
   }
   export interface IQueryParameter
     extends Omit<IReflectWebSocketOperation.IParameter, "query"> {
     category: "query";
-    type: string;
+    name: string;
+    type: ts.Type;
     typeName: string;
+    metadata?: Metadata;
   }
 }
