@@ -32,7 +32,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "D:\\github\\samchon\\nestia\\packages\\fetcher\\nestia-fetcher-3.1.0-dev.20240426.tgz",
+    "@nestia/fetcher": "^3.1.0-dev.20240426",
     "@samchon/openapi": "^0.1.18",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
@@ -67,7 +67,7 @@
     "eslint": "^8.29.0",
     "eslint-plugin-deprecation": "^1.4.1",
     "rimraf": "^3.0.2",
-    "tgrid": "^0.11.0",
+    "tgrid": "^0.11.1",
     "ts-patch": "^3.1.2",
     "typescript": "^5.4.5",
     "typescript-transform-paths": "^3.4.4",

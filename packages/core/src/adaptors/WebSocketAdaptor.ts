@@ -55,10 +55,12 @@ export class WebSocketAdaptor {
         request,
         client as any,
         async (acceptor): Promise<void> => {
+          const path: string = (() => {
+            const index: number = acceptor.path.indexOf("?");
+            return index === -1 ? acceptor.path : acceptor.path.slice(0, index);
+          })();
           for (const op of this.operators) {
-            const params: Record<string, string> | null = op.parser.test(
-              acceptor.path,
-            );
+            const params: Record<string, string> | null = op.parser.test(path);
             if (params !== null)
               try {
                 await op.handler({ params, acceptor });
@@ -77,7 +79,7 @@ export class WebSocketAdaptor {
                 return;
               }
           }
-          await acceptor.reject(1002, `Cannot GET ${acceptor.path}`);
+          await acceptor.reject(1002, `Cannot GET ${path}`);
         },
       ),
     );

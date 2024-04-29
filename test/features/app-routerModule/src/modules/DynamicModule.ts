@@ -9,6 +9,7 @@ import { CommonModule } from "./CommonModule";
   imports: [
     CommonModule,
     BbsModule,
+    CalculateModule,
     RouterModule.register([
       {
         path: "common",

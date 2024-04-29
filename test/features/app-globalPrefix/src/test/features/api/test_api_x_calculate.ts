@@ -36,11 +36,16 @@ export const test_api_x_calculate = async (
                 : 0,
     };
   });
-  for (const e of expected) {
-    const z: number = await driver[e.operator](e.x, e.y);
-    TestValidator.equals("result")(z)(e.z);
+  try {
+    for (const e of expected) {
+      const z: number = await driver[e.operator](e.x, e.y);
+      TestValidator.equals("result")(z)(e.z);
+    }
+    await sleep_for(100);
+    TestValidator.equals("events")(events)(expected);
+  } catch (exp) {
+    throw exp;
+  } finally {
+    await connector.close();
   }
-  await sleep_for(100);
-  TestValidator.equals("events")(events)(expected);
-  await connector.close();
 };

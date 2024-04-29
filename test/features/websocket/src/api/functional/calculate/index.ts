@@ -24,7 +24,7 @@ export async function connect(
   await connector.connect(
     `${connection.host}/${connect.path()}`
       .split("/")
-      .filter((str) => !!str.length)
+      .filter((str) => !!str)
       .join("/"),
   );
   const driver: Driver<connect.Remote> = connector.getDriver();

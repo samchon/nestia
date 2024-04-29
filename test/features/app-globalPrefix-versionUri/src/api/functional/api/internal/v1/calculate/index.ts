@@ -19,7 +19,7 @@ export async function connect(
   const connector: WebConnector<
     connect.Header,
     connect.Provider,
-    connect.Remote
+    connect.Listener
   > = new WebConnector(connection.headers ?? ({} as any), provider);
   await connector.connect(
     `${connection.host}/${connect.path()}`
@@ -27,7 +27,7 @@ export async function connect(
       .filter((str) => !!str)
       .join("/"),
   );
-  const driver: Driver<connect.Remote> = connector.getDriver();
+  const driver: Driver<connect.Listener> = connector.getDriver();
   return {
     connector,
     driver,
@@ -35,12 +35,12 @@ export async function connect(
 }
 export namespace connect {
   export type Output = {
-    connector: WebConnector<Header, Provider, Remote>;
-    driver: Driver<Remote>;
+    connector: WebConnector<Header, Provider, Listener>;
+    driver: Driver<Listener>;
   };
   export type Header = IPrecision;
   export type Provider = IListener;
-  export type Remote = ICalculator;
+  export type Listener = ICalculator;
 
   export const path = () => "/api/internal/v1/calculate";
 }

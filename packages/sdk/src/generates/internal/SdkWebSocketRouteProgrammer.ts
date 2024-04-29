@@ -5,6 +5,7 @@ import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkImportWizard } from "./SdkImportWizard";
+import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 import { SdkWebSocketNamespaceProgrammer } from "./SdkWebSocketNamespaceProgrammer";
 
 export namespace SdkWebSocketRouteProgrammer {
@@ -12,11 +13,12 @@ export namespace SdkWebSocketRouteProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedWebSocketRoute): ts.Statement[] => [
-      writeFunction(importer)(route),
+      writeFunction(project)(importer)(route),
       SdkWebSocketNamespaceProgrammer.write(project)(importer)(route),
     ];
 
   const writeFunction =
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedWebSocketRoute): ts.FunctionDeclaration =>
       ts.factory.createFunctionDeclaration(
@@ -35,6 +37,16 @@ export namespace SdkWebSocketRouteProgrammer {
               [ts.factory.createTypeReferenceNode(`${route.name}.Header`)],
             ),
           ),
+          ...route.parameters
+            .filter((p) => p.category === "param" || p.category === "query")
+            .map((p) =>
+              IdentifierFactory.parameter(
+                p.name,
+                p.category === "param"
+                  ? getPathParameterType(project)(importer)(p)
+                  : ts.factory.createTypeReferenceNode(`${route.name}.Query`),
+              ),
+            ),
           IdentifierFactory.parameter(
             "provider",
             ts.factory.createTypeReferenceNode(`${route.name}.Provider`),
@@ -59,7 +71,7 @@ export namespace SdkWebSocketRouteProgrammer {
           [
             ts.factory.createTypeReferenceNode(`${route.name}.Header`),
             ts.factory.createTypeReferenceNode(`${route.name}.Provider`),
-            ts.factory.createTypeReferenceNode(`${route.name}.Remote`),
+            ts.factory.createTypeReferenceNode(`${route.name}.Listener`),
           ],
         ),
       )(
@@ -106,7 +118,7 @@ export namespace SdkWebSocketRouteProgrammer {
                   [],
                   route.parameters
                     .filter(
-                      (p) => p.category === "path" || p.category === "query",
+                      (p) => p.category === "param" || p.category === "query",
                     )
                     .map((x) => ts.factory.createIdentifier(x.name)),
                 ),
@@ -124,7 +136,7 @@ export namespace SdkWebSocketRouteProgrammer {
               instance: "Driver",
             }),
           ),
-          [ts.factory.createTypeReferenceNode(`${route.name}.Remote`)],
+          [ts.factory.createTypeReferenceNode(`${route.name}.Listener`)],
         ),
       )(
         ts.factory.createCallExpression(
@@ -227,3 +239,10 @@ const joinPath = (caller: ts.Expression) =>
     undefined,
     [ts.factory.createStringLiteral("/")],
   );
+const getPathParameterType =
+  (project: INestiaProject) =>
+  (importer: ImportDictionary) =>
+  (p: ITypedWebSocketRoute.IPathParameter) =>
+    p.metadata
+      ? SdkTypeProgrammer.write(project)(importer)(p.metadata)
+      : ts.factory.createTypeReferenceNode(p.typeName);

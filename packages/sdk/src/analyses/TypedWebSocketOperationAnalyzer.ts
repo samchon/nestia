@@ -227,27 +227,29 @@ export namespace TypedWebSocketOperationAnalyzer {
           file: props.controller.file,
           controller: props.controller.name,
           function: props.function,
-          message: `@WebSocketRoute.Acceptor() must have three type arguments of WebAcceptor<Header, Provider, Remote>`,
+          message: `@WebSocketRoute.Acceptor() must have three type arguments of WebAcceptor<Header, Provider, Listener>`,
         });
-      const [header, provider, remote] = ["header", "provider", "remote"].map(
-        (key, i) => {
-          const tuple: ITypeTuple | null = ImportAnalyzer.analyze(
-            project.checker,
-          )({
-            generics: props.generics,
-            imports: props.imports,
-            type: generics[i],
+      const [header, provider, listener] = [
+        "header",
+        "provider",
+        "listener",
+      ].map((key, i) => {
+        const tuple: ITypeTuple | null = ImportAnalyzer.analyze(
+          project.checker,
+        )({
+          generics: props.generics,
+          imports: props.imports,
+          type: generics[i],
+        });
+        if (tuple === null)
+          errors.push({
+            file: props.controller.file,
+            controller: props.controller.name,
+            function: props.function,
+            message: `unable to analyze the "${key}" argument type of WebAcceptor<Header, Provider, Listener>.`,
           });
-          if (tuple === null)
-            errors.push({
-              file: props.controller.file,
-              controller: props.controller.name,
-              function: props.function,
-              message: `unable to analyze the "${key}" argument type of WebAcceptor<Header, Provider, Remote>.`,
-            });
-          return tuple!;
-        },
-      );
+        return tuple!;
+      });
 
       if (errors.length) {
         project.errors.push(...errors);
@@ -259,7 +261,7 @@ export namespace TypedWebSocketOperationAnalyzer {
         name,
         header,
         provider,
-        remote,
+        listener: listener,
       };
     };
 
