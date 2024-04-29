@@ -147,7 +147,7 @@ const visitApplication = async (
             `    methods:`,
             ...e.methods.map((m) =>
               [
-                `    - ${m.name}:`,
+                `    - name: ${m.name}:`,
                 `      file: ${m.source}:${m.line}:${m.column}`,
                 `      reasons:`,
                 ...m.messages.map(
