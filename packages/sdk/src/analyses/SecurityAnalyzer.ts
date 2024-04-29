@@ -1,7 +1,6 @@
 import { MapUtil } from "../utils/MapUtil";
 
 export namespace SecurityAnalyzer {
-  const none = Symbol("none");
   export const merge = (...entire: Record<string, string[]>[]) => {
     const dict: Map<string | typeof none, Set<string>> = new Map();
     for (const obj of entire) {
@@ -21,4 +20,6 @@ export namespace SecurityAnalyzer {
           });
     return output;
   };
+
+  const none = Symbol("none");
 }

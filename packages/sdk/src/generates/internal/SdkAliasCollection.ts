@@ -1,27 +1,27 @@
 import ts from "typescript";
 import typia from "typia";
 
-import { INestiaConfig } from "../../INestiaConfig";
-import { IController } from "../../structures/IController";
-import { IRoute } from "../../structures/IRoute";
+import { INestiaProject } from "../../structures/INestiaProject";
+import { IReflectHttpOperation } from "../../structures/IReflectHttpOperation";
+import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkAliasCollection {
   export const name =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (p: IRoute.IParameter | IRoute.IOutput): ts.TypeNode =>
+    (p: ITypedHttpRoute.IParameter | ITypedHttpRoute.IOutput): ts.TypeNode =>
       p.metadata
-        ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
+        ? SdkTypeProgrammer.write(project)(importer)(p.metadata)
         : ts.factory.createTypeReferenceNode(p.typeName);
 
   export const headers =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (param: IRoute.IParameter): ts.TypeNode => {
-      const type: ts.TypeNode = name(config)(importer)(param);
-      if (config.primitive === false) return type;
+    (param: ITypedHttpRoute.IParameter): ts.TypeNode => {
+      const type: ts.TypeNode = name(project)(importer)(param);
+      if (project.config.primitive === false) return type;
       return ts.factory.createTypeReferenceNode(
         importer.external({
           type: true,
@@ -33,11 +33,11 @@ export namespace SdkAliasCollection {
     };
 
   export const query =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (param: IRoute.IParameter): ts.TypeNode => {
-      const type: ts.TypeNode = name(config)(importer)(param);
-      if (config.primitive === false) return type;
+    (param: ITypedHttpRoute.IParameter): ts.TypeNode => {
+      const type: ts.TypeNode = name(project)(importer)(param);
+      if (project.config.primitive === false) return type;
       return ts.factory.createTypeReferenceNode(
         importer.external({
           type: true,
@@ -49,17 +49,18 @@ export namespace SdkAliasCollection {
     };
 
   export const input =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (param: IRoute.IParameter): ts.TypeNode => {
-      const type: ts.TypeNode = name(config)(importer)(param);
-      if (config.clone === true || config.primitive === false) return type;
+    (param: ITypedHttpRoute.IParameter): ts.TypeNode => {
+      const type: ts.TypeNode = name(project)(importer)(param);
+      if (project.config.clone === true || project.config.primitive === false)
+        return type;
       return ts.factory.createTypeReferenceNode(
         importer.external({
           type: true,
           library: "@nestia/fetcher",
           instance:
-            typia.is<IController.IBodyParameter>(param) &&
+            typia.is<IReflectHttpOperation.IBodyParameter>(param) &&
             param.contentType === "multipart/form-data"
               ? "Resolved"
               : "Primitive",
@@ -69,18 +70,17 @@ export namespace SdkAliasCollection {
     };
 
   export const output =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: IRoute): ts.TypeNode => {
-      if (config.propagate !== true) {
-        const node: ts.TypeNode = name(config)(importer)(route.output);
-        const type = checker.getTypeAtLocation(node);
+    (route: ITypedHttpRoute): ts.TypeNode => {
+      if (project.config.propagate !== true) {
+        const node: ts.TypeNode = name(project)(importer)(route.output);
+        const type = project.checker.getTypeAtLocation(node);
         const filter = (flag: ts.TypeFlags) => (type.getFlags() & flag) !== 0;
 
         if (
-          config.clone === true ||
-          config.primitive === false ||
+          project.config.clone === true ||
+          project.config.primitive === false ||
           filter(ts.TypeFlags.Undefined) ||
           filter(ts.TypeFlags.Never) ||
           filter(ts.TypeFlags.Void) ||
@@ -103,11 +103,11 @@ export namespace SdkAliasCollection {
       const branches: IBranch[] = [
         {
           status: String(route.status ?? (route.method === "POST" ? 201 : 200)),
-          type: name(config)(importer)(route.output),
+          type: name(project)(importer)(route.output),
         },
         ...Object.entries(route.exceptions).map(([status, value]) => ({
           status,
-          type: name(config)(importer)(value),
+          type: name(project)(importer)(value),
         })),
       ];
       return ts.factory.createTypeReferenceNode(
@@ -139,11 +139,16 @@ export namespace SdkAliasCollection {
     };
 
   export const responseBody =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: IRoute): ts.TypeNode =>
-      output(checker)({ ...config, propagate: false })(importer)(route);
+    (route: ITypedHttpRoute): ts.TypeNode =>
+      output({
+        ...project,
+        config: {
+          ...project.config,
+          propagate: false,
+        },
+      })(importer)(route);
 }
 
 interface IBranch {

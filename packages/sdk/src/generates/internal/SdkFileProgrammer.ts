@@ -1,33 +1,36 @@
 import fs from "fs";
 import ts from "typescript";
 
-import { INestiaConfig } from "../../INestiaConfig";
-import { IRoute } from "../../structures/IRoute";
+import { INestiaProject } from "../../structures/INestiaProject";
+import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { MapUtil } from "../../utils/MapUtil";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
+import { SdkHttpRouteProgrammer } from "./SdkHttpRouteProgrammer";
 import { SdkRouteDirectory } from "./SdkRouteDirectory";
-import { SdkRouteProgrammer } from "./SdkRouteProgrammer";
+import { SdkWebSocketRouteProgrammer } from "./SdkWebSocketRouteProgrammer";
 
 export namespace SdkFileProgrammer {
   /* ---------------------------------------------------------
         CONSTRUCTOR
     --------------------------------------------------------- */
   export const generate =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
-    async (routeList: IRoute[]): Promise<void> => {
+    (project: INestiaProject) =>
+    async (
+      routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
+    ): Promise<void> => {
       // CONSTRUCT FOLDER TREE
       const root: SdkRouteDirectory = new SdkRouteDirectory(null, "functional");
       for (const route of routeList) emplace(root)(route);
 
       // ITERATE FILES
-      await iterate(checker)(config)(root)(config.output + "/functional");
+      await iterate(project)(root)(project.config.output + "/functional");
     };
 
   const emplace =
     (directory: SdkRouteDirectory) =>
-    (route: IRoute): void => {
+    (route: ITypedHttpRoute | ITypedWebSocketRoute): void => {
       // OPEN DIRECTORIES
       for (const key of route.accessors.slice(0, -1)) {
         directory = MapUtil.take(
@@ -45,8 +48,7 @@ export namespace SdkFileProgrammer {
         FILE ITERATOR
     --------------------------------------------------------- */
   const iterate =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (directory: SdkRouteDirectory) =>
     async (outDir: string): Promise<void> => {
       // CREATE A NEW DIRECTORY
@@ -57,7 +59,7 @@ export namespace SdkFileProgrammer {
       // ITERATE CHILDREN
       const statements: ts.Statement[] = [];
       for (const [key, value] of directory.children) {
-        await iterate(checker)(config)(value)(`${outDir}/${key}`);
+        await iterate(project)(value)(`${outDir}/${key}`);
         statements.push(
           ts.factory.createExportDeclaration(
             undefined,
@@ -76,7 +78,7 @@ export namespace SdkFileProgrammer {
         `${outDir}/index.ts`,
       );
       directory.routes.forEach((route, i) => {
-        if (config.clone !== true)
+        if (project.config.clone !== true)
           for (const tuple of route.imports)
             for (const instance of tuple[1])
               importer.internal({
@@ -85,7 +87,9 @@ export namespace SdkFileProgrammer {
                 type: true,
               });
         statements.push(
-          ...SdkRouteProgrammer.generate(checker)(config)(importer)(route),
+          ...(route.protocol === "http"
+            ? SdkHttpRouteProgrammer.write(project)(importer)(route)
+            : SdkWebSocketRouteProgrammer.write(project)(importer)(route)),
         );
         if (i !== directory.routes.length - 1)
           statements.push(FilePrinter.enter());

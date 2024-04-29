@@ -4,53 +4,62 @@ import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
-import { IController } from "../structures/IController";
 import { INestiaProject } from "../structures/INestiaProject";
-import { IRoute } from "../structures/IRoute";
+import { IReflectController } from "../structures/IReflectController";
+import { IReflectHttpOperation } from "../structures/IReflectHttpOperation";
 import { ITypeTuple } from "../structures/ITypeTuple";
+import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { GenericAnalyzer } from "./GenericAnalyzer";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 
 export namespace ExceptionAnalyzer {
   export const analyze =
     (project: INestiaProject) =>
-    (
-      genericDict: GenericAnalyzer.Dictionary,
-      importDict: ImportAnalyzer.Dictionary,
-    ) =>
-    (controller: IController, func: IController.IFunction) =>
-    (
-      declaration: ts.MethodDeclaration,
-    ): Record<number | "2XX" | "3XX" | "4XX" | "5XX", IRoute.IOutput> => {
+    (props: {
+      generics: GenericAnalyzer.Dictionary;
+      imports: ImportAnalyzer.Dictionary;
+      controller: IReflectController;
+      operation: IReflectHttpOperation;
+      declaration: ts.MethodDeclaration;
+    }): Record<
+      number | "2XX" | "3XX" | "4XX" | "5XX",
+      ITypedHttpRoute.IOutput
+    > => {
       const output: Record<
         number | "2XX" | "3XX" | "4XX" | "5XX",
-        IRoute.IOutput
+        ITypedHttpRoute.IOutput
       > = {} as any;
-      for (const decorator of declaration.modifiers ?? [])
+      for (const decorator of props.declaration.modifiers ?? [])
         if (ts.isDecorator(decorator))
-          analyzeTyped(project)(genericDict, importDict)(controller, func)(
+          analyzeTyped(project)({
+            ...props,
             output,
-          )(decorator);
+            decorator,
+          });
       return output;
     };
 
   const analyzeTyped =
     (project: INestiaProject) =>
-    (
-      genericDict: GenericAnalyzer.Dictionary,
-      importDict: ImportAnalyzer.Dictionary,
-    ) =>
-    (controller: IController, func: IController.IFunction) =>
-    (output: Record<number | "2XX" | "3XX" | "4XX" | "5XX", IRoute.IOutput>) =>
-    (decorator: ts.Decorator): boolean => {
+    (props: {
+      generics: GenericAnalyzer.Dictionary;
+      imports: ImportAnalyzer.Dictionary;
+      controller: IReflectController;
+      operation: IReflectHttpOperation;
+      output: Record<
+        number | "2XX" | "3XX" | "4XX" | "5XX",
+        ITypedHttpRoute.IOutput
+      >;
+      decorator: ts.Decorator;
+    }): boolean => {
       // CHECK DECORATOR
-      if (!ts.isCallExpression(decorator.expression)) return false;
-      else if ((decorator.expression.typeArguments ?? []).length !== 1)
+      if (!ts.isCallExpression(props.decorator.expression)) return false;
+      else if ((props.decorator.expression.typeArguments ?? []).length !== 1)
         return false;
 
       // CHECK SIGNATURE
       const signature: ts.Signature | undefined =
-        project.checker.getResolvedSignature(decorator.expression);
+        project.checker.getResolvedSignature(props.decorator.expression);
       if (!signature || !signature.declaration) return false;
       else if (
         path
@@ -61,48 +70,49 @@ export namespace ExceptionAnalyzer {
 
       // GET TYPE INFO
       const status: string | null = getStatus(project.checker)(
-        decorator.expression.arguments[0] ?? null,
+        props.decorator.expression.arguments[0] ?? null,
       );
       if (status === null) return false;
 
-      const node: ts.TypeNode = decorator.expression.typeArguments![0];
+      const node: ts.TypeNode = props.decorator.expression.typeArguments![0];
       const type: ts.Type = project.checker.getTypeFromTypeNode(node);
       if (type.isTypeParameter()) {
         project.errors.push({
-          file: controller.file,
-          controller: controller.name,
-          function: func.name,
+          file: props.controller.file,
+          controller: props.controller.name,
+          function: props.operation.name,
           message: "TypedException() without generic argument specification.",
         });
         return false;
       }
 
-      const tuple: ITypeTuple | null = ImportAnalyzer.analyze(
-        project.checker,
-        genericDict,
-        importDict,
+      const tuple: ITypeTuple | null = ImportAnalyzer.analyze(project.checker)({
+        generics: props.generics,
+        imports: props.imports,
         type,
-      );
+      });
       if (
         tuple === null ||
         (project.config.clone !== true &&
           (tuple.typeName === "__type" || tuple.typeName === "__object"))
       ) {
         project.errors.push({
-          file: controller.file,
-          controller: controller.name,
-          function: func.name,
+          file: props.controller.file,
+          controller: props.controller.name,
+          function: props.operation.name,
           message: "TypeException() with implicit (unnamed) type.",
         });
         return false;
       }
 
       // DO ASSIGN
-      const matched: IController.IException[] = Object.entries(func.exceptions)
+      const matched: IReflectHttpOperation.IException[] = Object.entries(
+        props.operation.exceptions,
+      )
         .filter(([key]) => status === key)
         .map(([_key, value]) => value);
       for (const m of matched)
-        output[m.status] = {
+        props.output[m.status] = {
           type: tuple.type,
           typeName: tuple.typeName,
           contentType: "application/json",

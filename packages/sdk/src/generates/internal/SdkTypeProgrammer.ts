@@ -7,23 +7,23 @@ import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 import { MetadataAlias } from "typia/lib/schemas/metadata/MetadataAlias";
 import { MetadataArray } from "typia/lib/schemas/metadata/MetadataArray";
 import { MetadataAtomic } from "typia/lib/schemas/metadata/MetadataAtomic";
+import { MetadataConstantValue } from "typia/lib/schemas/metadata/MetadataConstantValue";
 import { MetadataEscaped } from "typia/lib/schemas/metadata/MetadataEscaped";
 import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
 import { MetadataProperty } from "typia/lib/schemas/metadata/MetadataProperty";
 import { MetadataTuple } from "typia/lib/schemas/metadata/MetadataTuple";
 import { Escaper } from "typia/lib/utils/Escaper";
 
-import { INestiaConfig } from "../../INestiaConfig";
+import { INestiaProject } from "../../structures/INestiaProject";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
-import { MetadataConstantValue } from "typia/lib/schemas/metadata/MetadataConstantValue";
 
 export namespace SdkTypeProgrammer {
   /* -----------------------------------------------------------
     FACADE
   ----------------------------------------------------------- */
   export const write =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (meta: Metadata, parentEscaped: boolean = false): ts.TypeNode => {
       const union: ts.TypeNode[] = [];
@@ -33,20 +33,20 @@ export namespace SdkTypeProgrammer {
       if (meta.nullable) union.push(writeNode("null"));
       if (meta.isRequired() === false) union.push(writeNode("undefined"));
       if (parentEscaped === false && meta.escaped)
-        union.push(write_escaped(config)(importer)(meta.escaped));
+        union.push(write_escaped(project)(importer)(meta.escaped));
 
       // ATOMIC TYPES
       for (const c of meta.constants)
         for (const value of c.values) union.push(write_constant(value));
       for (const tpl of meta.templates)
-        union.push(write_template(config)(importer)(tpl));
+        union.push(write_template(project)(importer)(tpl));
       for (const atom of meta.atomics) union.push(write_atomic(importer)(atom));
 
       // OBJECT TYPES
       for (const tuple of meta.tuples)
-        union.push(write_tuple(config)(importer)(tuple));
+        union.push(write_tuple(project)(importer)(tuple));
       for (const array of meta.arrays)
-        union.push(write_array(config)(importer)(array));
+        union.push(write_array(project)(importer)(array));
       for (const object of meta.objects)
         if (
           object.name === "object" ||
@@ -55,10 +55,10 @@ export namespace SdkTypeProgrammer {
           object.name === "__object" ||
           object.name.startsWith("__object.")
         )
-          union.push(write_object(config)(importer)(object));
-        else union.push(write_alias(config)(importer)(object));
+          union.push(write_object(project)(importer)(object));
+        else union.push(write_alias(project)(importer)(object));
       for (const alias of meta.aliases)
-        union.push(write_alias(config)(importer)(alias));
+        union.push(write_alias(project)(importer)(alias));
       for (const native of meta.natives)
         if (native === "Blob" || native === "File")
           union.push(write_native(native));
@@ -69,7 +69,7 @@ export namespace SdkTypeProgrammer {
     };
 
   export const write_object =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (object: MetadataObject): ts.TypeNode => {
       const regular = object.properties.filter((p) => p.key.isSoleLiteral());
@@ -77,20 +77,20 @@ export namespace SdkTypeProgrammer {
       return FilePrinter.description(
         regular.length && dynamic.length
           ? ts.factory.createIntersectionTypeNode([
-              write_regular_property(config)(importer)(regular),
-              ...dynamic.map(write_dynamic_property(config)(importer)),
+              write_regular_property(project)(importer)(regular),
+              ...dynamic.map(write_dynamic_property(project)(importer)),
             ])
           : dynamic.length
             ? ts.factory.createIntersectionTypeNode(
-                dynamic.map(write_dynamic_property(config)(importer)),
+                dynamic.map(write_dynamic_property(project)(importer)),
               )
-            : write_regular_property(config)(importer)(regular),
+            : write_regular_property(project)(importer)(regular),
         writeComment([])(object.description ?? null, object.jsDocTags),
       );
     };
 
   const write_escaped =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (meta: MetadataEscaped): ts.TypeNode => {
       if (
@@ -105,7 +105,7 @@ export namespace SdkTypeProgrammer {
             value: "date-time",
           } as IMetadataTypeTag),
         ]);
-      return write(config)(importer)(meta.returns, true);
+      return write(project)(importer)(meta.returns, true);
     };
 
   /* -----------------------------------------------------------
@@ -133,7 +133,7 @@ export namespace SdkTypeProgrammer {
   };
 
   const write_template =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (meta: Metadata[]): ts.TypeNode => {
       const head: boolean = meta[0].isSoleLiteral();
@@ -147,7 +147,8 @@ export namespace SdkTypeProgrammer {
             return tuple;
           })();
         if (elem.isSoleLiteral())
-          if (last[1] === null) last[1] = String(elem.constants[0].values[0].value);
+          if (last[1] === null)
+            last[1] = String(elem.constants[0].values[0].value);
           else
             spans.push([
               ts.factory.createLiteralTypeNode(
@@ -157,8 +158,8 @@ export namespace SdkTypeProgrammer {
               ),
               null,
             ]);
-        else if (last[0] === null) last[0] = write(config)(importer)(elem);
-        else spans.push([write(config)(importer)(elem), null]);
+        else if (last[0] === null) last[0] = write(project)(importer)(elem);
+        else spans.push([write(project)(importer)(elem), null]);
       }
       return ts.factory.createTemplateLiteralType(
         ts.factory.createTemplateHead(
@@ -197,18 +198,18 @@ export namespace SdkTypeProgrammer {
     INSTANCES
   ----------------------------------------------------------- */
   const write_array =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (meta: MetadataArray): ts.TypeNode =>
       write_type_tag_matrix(importer)(
         ts.factory.createArrayTypeNode(
-          write(config)(importer)(meta.type.value),
+          write(project)(importer)(meta.type.value),
         ),
         meta.tags,
       );
 
   const write_tuple =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (meta: MetadataTuple): ts.TypeNode =>
       ts.factory.createTupleTypeNode(
@@ -216,17 +217,19 @@ export namespace SdkTypeProgrammer {
           elem.rest
             ? ts.factory.createRestTypeNode(
                 ts.factory.createArrayTypeNode(
-                  write(config)(importer)(elem.rest),
+                  write(project)(importer)(elem.rest),
                 ),
               )
             : elem.optional
-              ? ts.factory.createOptionalTypeNode(write(config)(importer)(elem))
-              : write(config)(importer)(elem),
+              ? ts.factory.createOptionalTypeNode(
+                  write(project)(importer)(elem),
+                )
+              : write(project)(importer)(elem),
         ),
       );
 
   const write_regular_property =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (properties: MetadataProperty[]): ts.TypeLiteralNode =>
       ts.factory.createTypeLiteralNode(
@@ -244,7 +247,7 @@ export namespace SdkTypeProgrammer {
               p.value.isRequired() === false
                 ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
                 : undefined,
-              SdkTypeProgrammer.write(config)(importer)(p.value),
+              SdkTypeProgrammer.write(project)(importer)(p.value),
             ),
             writeComment(p.value.atomics)(p.description, p.jsDocTags),
           ),
@@ -252,7 +255,7 @@ export namespace SdkTypeProgrammer {
       );
 
   const write_dynamic_property =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (property: MetadataProperty): ts.TypeLiteralNode =>
       ts.factory.createTypeLiteralNode([
@@ -265,10 +268,10 @@ export namespace SdkTypeProgrammer {
                 undefined,
                 ts.factory.createIdentifier("key"),
                 undefined,
-                SdkTypeProgrammer.write(config)(importer)(property.key),
+                SdkTypeProgrammer.write(project)(importer)(property.key),
               ),
             ],
-            SdkTypeProgrammer.write(config)(importer)(property.value),
+            SdkTypeProgrammer.write(project)(importer)(property.value),
           ),
           writeComment(property.value.atomics)(
             property.description,
@@ -278,10 +281,10 @@ export namespace SdkTypeProgrammer {
       ]);
 
   const write_alias =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (meta: MetadataAlias | MetadataObject): ts.TypeNode => {
-      importInternalFile(config)(importer)(meta.name);
+      importInternalFile(project)(importer)(meta.name);
       return ts.factory.createTypeReferenceNode(meta.name);
     };
 
@@ -375,12 +378,15 @@ const writeComment =
   };
 
 const importInternalFile =
-  (config: INestiaConfig) => (importer: ImportDictionary) => (name: string) => {
+  (project: INestiaProject) =>
+  (importer: ImportDictionary) =>
+  (name: string) => {
     const top = name.split(".")[0];
-    if (importer.file === `${config.output}/structures/${top}.ts`) return;
+    if (importer.file === `${project.config.output}/structures/${top}.ts`)
+      return;
     importer.internal({
       type: true,
-      file: `${config.output}/structures/${name.split(".")[0]}`,
+      file: `${project.config.output}/structures/${name.split(".")[0]}`,
       instance: top,
     });
   };

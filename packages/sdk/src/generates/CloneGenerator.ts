@@ -1,30 +1,32 @@
 import fs from "fs";
 import ts from "typescript";
 
-import { INestiaConfig } from "../INestiaConfig";
-import { IRoute } from "../structures/IRoute";
+import { INestiaProject } from "../structures/INestiaProject";
+import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { FilePrinter } from "./internal/FilePrinter";
 import { ImportDictionary } from "./internal/ImportDictionary";
-import { SdkCloneProgrammer } from "./internal/SdkCloneProgrammer";
+import { SdkHttpCloneProgrammer } from "./internal/SdkHttpCloneProgrammer";
 
 export namespace CloneGenerator {
   export const write =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
-    async (routes: IRoute[]): Promise<void> => {
-      const dict: Map<string, SdkCloneProgrammer.IModule> =
-        SdkCloneProgrammer.write(checker)(config)(routes);
+    (project: INestiaProject) =>
+    async (routes: ITypedHttpRoute[]): Promise<void> => {
+      const dict: Map<string, SdkHttpCloneProgrammer.IModule> =
+        SdkHttpCloneProgrammer.write(project)(routes);
       if (dict.size === 0) return;
       try {
-        await fs.promises.mkdir(`${config.output}/structures`);
+        await fs.promises.mkdir(`${project.config.output}/structures`);
       } catch {}
-      for (const [key, value] of dict) await writeDtoFile(config)(key, value);
+      for (const [key, value] of dict) await writeDtoFile(project)(key, value);
     };
 
   const writeDtoFile =
-    (config: INestiaConfig) =>
-    async (key: string, value: SdkCloneProgrammer.IModule): Promise<void> => {
-      const location: string = `${config.output}/structures/${key}.ts`;
+    (project: INestiaProject) =>
+    async (
+      key: string,
+      value: SdkHttpCloneProgrammer.IModule,
+    ): Promise<void> => {
+      const location: string = `${project.config.output}/structures/${key}.ts`;
       const importer: ImportDictionary = new ImportDictionary(location);
       const statements: ts.Statement[] = iterate(importer)(value);
       if (statements.length === 0) return;
@@ -32,7 +34,7 @@ export namespace CloneGenerator {
       await FilePrinter.write({
         location,
         statements: [
-          ...importer.toStatements(`${config.output}/structures`),
+          ...importer.toStatements(`${project.config.output}/structures`),
           ...(importer.empty() ? [] : [FilePrinter.enter()]),
           ...statements,
         ],
@@ -41,7 +43,7 @@ export namespace CloneGenerator {
 
   const iterate =
     (importer: ImportDictionary) =>
-    (modulo: SdkCloneProgrammer.IModule): ts.Statement[] => {
+    (modulo: SdkHttpCloneProgrammer.IModule): ts.Statement[] => {
       const output: ts.Statement[] = [];
       if (modulo.programmer !== null) output.push(modulo.programmer(importer));
       if (modulo.children.size) {

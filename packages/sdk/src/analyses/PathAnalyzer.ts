@@ -1,29 +1,7 @@
-import { RequestMethod } from "@nestjs/common";
 import path from "path";
 import { Token, parse } from "path-to-regexp";
 
-import { INormalizedInput } from "../structures/INormalizedInput";
-
 export namespace PathAnalyzer {
-  export const combinate =
-    (globalPrefix: INormalizedInput["globalPrefix"]) =>
-    (versions: Array<string | null>) =>
-    (props: { path: string; method: string }): string[] => {
-      const out = (str: string) =>
-        versions.map((v) => (v === null ? str : join(v, str)));
-      if (!globalPrefix?.prefix.length) return out(props.path);
-      else if (!globalPrefix.exclude?.length)
-        return out(props.path).map((str) => join(globalPrefix.prefix, str));
-      return globalPrefix.exclude.some((exclude) =>
-        typeof exclude === "string"
-          ? RegExp(exclude).test(props.path)
-          : METHOD(exclude.method) === props.method &&
-            RegExp(exclude.path).test(props.path),
-      )
-        ? out(props.path)
-        : out(props.path).map((str) => join(globalPrefix.prefix, str));
-    };
-
   export const join = (...args: string[]) =>
     "/" +
     _Trim(
@@ -89,22 +67,3 @@ export namespace PathAnalyzer {
     value: string;
   }
 }
-
-const METHOD = (value: RequestMethod) =>
-  value === RequestMethod.ALL
-    ? "all"
-    : value === RequestMethod.DELETE
-      ? "delete"
-      : value === RequestMethod.GET
-        ? "get"
-        : value === RequestMethod.HEAD
-          ? "head"
-          : value === RequestMethod.OPTIONS
-            ? "options"
-            : value === RequestMethod.PATCH
-              ? "patch"
-              : value === RequestMethod.POST
-                ? "post"
-                : value === RequestMethod.PUT
-                  ? "put"
-                  : "unknown";

@@ -1,11 +1,12 @@
 import cp from "child_process";
 import fs from "fs";
 import path from "path";
+import typia from "typia";
 
 import { INestiaConfig } from "../../INestiaConfig";
 
 export namespace SdkDistributionComposer {
-  export const compose = async (config: INestiaConfig) => {
+  export const compose = async (config: INestiaConfig, websocket: boolean) => {
     if (!fs.existsSync(config.distribute!))
       await fs.promises.mkdir(config.distribute!);
 
@@ -32,6 +33,7 @@ export namespace SdkDistributionComposer {
       `npm install --save @nestia/fetcher@${versions["@nestia/fetcher"]}`,
     );
     execute(`npm install --save typia@${versions["typia"]}`);
+    if (websocket) execute(`npm install --save tgrid@${versions["tgrid"]}`);
     execute("npx typia setup --manager npm");
 
     exit();
@@ -74,18 +76,25 @@ export namespace SdkDistributionComposer {
       );
     };
 
-  const dependencies = async () => {
+  const dependencies = async (): Promise<IDependencies> => {
     const content: string = await fs.promises.readFile(
       __dirname + "/../../../package.json",
       "utf8",
     );
-    const json: { dependencies: IDependencies } = JSON.parse(content);
-    return json.dependencies;
+    const json: {
+      dependencies: Record<string, string>;
+      devDependencies: Record<string, string>;
+    } = JSON.parse(content);
+    return typia.assert<IDependencies>({
+      ...json.devDependencies,
+      ...json.dependencies,
+    });
   };
 }
 
 interface IDependencies {
   "@nestia/fetcher": string;
   typia: string;
+  tgrid: string;
 }
 const BUNDLE = __dirname + "/../../../assets/bundle/distribute";

@@ -10,8 +10,6 @@ import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import type { IBbsArticle } from "../../../../../structures/IBbsArticle";
 import type { IPage } from "../../../../../structures/IPage";
 
-export * as comments from "./comments";
-
 /**
  * @controller BbsArticlesController.index
  * @path GET /api/internal/bbs/:section/articles

@@ -1,9 +1,10 @@
-import { IRoute } from "../../structures/IRoute";
+import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 
 export class SdkRouteDirectory {
   public readonly module: string;
   public readonly children: Map<string, SdkRouteDirectory>;
-  public readonly routes: IRoute[];
+  public readonly routes: Array<ITypedHttpRoute | ITypedWebSocketRoute>;
 
   public constructor(
     readonly parent: SdkRouteDirectory | null,

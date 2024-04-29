@@ -1,31 +1,32 @@
 import fs from "fs";
 import NodePath from "path";
 import { IPointer } from "tstl";
-import ts from "typescript";
 
-import { INestiaConfig } from "../INestiaConfig";
-import { IRoute } from "../structures/IRoute";
+import { INestiaProject } from "../structures/INestiaProject";
+import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
+import { ITypedWebSocketRoute } from "../structures/ITypedWebSocketRoute";
 import { CloneGenerator } from "./CloneGenerator";
 import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
 
 export namespace SdkGenerator {
   export const generate =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
-    async (routes: IRoute[]): Promise<void> => {
+    (project: INestiaProject) =>
+    async (
+      routes: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
+    ): Promise<void> => {
       console.log("Generating SDK Library");
 
       // PREPARE NEW DIRECTORIES
       try {
-        await fs.promises.mkdir(config.output!);
+        await fs.promises.mkdir(project.config.output!);
       } catch {}
 
       // BUNDLING
       const bundle: string[] = await fs.promises.readdir(BUNDLE_PATH);
       for (const file of bundle) {
         const current: string = `${BUNDLE_PATH}/${file}`;
-        const target: string = `${config.output}/${file}`;
+        const target: string = `${project.config.output}/${file}`;
         const stats: fs.Stats = await fs.promises.stat(current);
 
         if (stats.isFile() === true) {
@@ -44,14 +45,20 @@ export namespace SdkGenerator {
       }
 
       // STRUCTURES
-      if (config.clone) await CloneGenerator.write(checker)(config)(routes);
+      if (project.config.clone)
+        await CloneGenerator.write(project)(
+          routes.filter((r) => r.protocol === "http") as ITypedHttpRoute[],
+        );
 
       // FUNCTIONAL
-      await SdkFileProgrammer.generate(checker)(config)(routes);
+      await SdkFileProgrammer.generate(project)(routes);
 
       // DISTRIBUTION
-      if (config.distribute !== undefined)
-        await SdkDistributionComposer.compose(config);
+      if (project.config.distribute !== undefined)
+        await SdkDistributionComposer.compose(
+          project.config,
+          routes.some((r) => r.protocol === "websocket"),
+        );
     };
 
   export const BUNDLE_PATH = NodePath.join(

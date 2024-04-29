@@ -1,8 +1,8 @@
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
-import { INestiaConfig } from "../../INestiaConfig";
-import { IRoute } from "../../structures/IRoute";
+import { INestiaProject } from "../../structures/INestiaProject";
+import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
@@ -11,14 +11,13 @@ import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace E2eFileProgrammer {
   export const generate =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (props: { api: string; current: string }) =>
-    async (route: IRoute): Promise<void> => {
+    async (route: ITypedHttpRoute): Promise<void> => {
       const importer: ImportDictionary = new ImportDictionary(
         `${props.current}/${getFunctionName(route)}.ts`,
       );
-      if (config.clone !== true)
+      if (project.config.clone !== true)
         for (const tuple of route.imports)
           for (const instance of tuple[1])
             importer.internal({
@@ -33,7 +32,7 @@ export namespace E2eFileProgrammer {
         name: "api",
       });
 
-      const functor = generate_function(checker)(config)(importer)(route);
+      const functor = generate_function(project)(importer)(route);
       await FilePrinter.write({
         location: importer.file,
         statements: [
@@ -45,10 +44,9 @@ export namespace E2eFileProgrammer {
     };
 
   const generate_function =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: IRoute): ts.Statement =>
+    (route: ITypedHttpRoute): ts.Statement =>
       ts.factory.createVariableStatement(
         [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
         ts.factory.createVariableDeclarationList(
@@ -57,7 +55,7 @@ export namespace E2eFileProgrammer {
               ts.factory.createIdentifier(getFunctionName(route)),
               undefined,
               undefined,
-              generate_arrow(checker)(config)(importer)(route),
+              generate_arrow(project)(importer)(route),
             ),
           ],
           ts.NodeFlags.Const,
@@ -65,10 +63,9 @@ export namespace E2eFileProgrammer {
       );
 
   const generate_arrow =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: IRoute) => {
+    (route: ITypedHttpRoute) => {
       const headers = route.parameters.find(
         (p) => p.category === "headers" && p.field === undefined,
       );
@@ -94,7 +91,7 @@ export namespace E2eFileProgrammer {
                             SdkImportWizard.typia(importer),
                           ),
                         )("random"),
-                        [getTypeName(config)(importer)(headers)],
+                        [getTypeName(project)(importer)(headers)],
                         undefined,
                       ),
                     ),
@@ -120,7 +117,7 @@ export namespace E2eFileProgrammer {
                 IdentifierFactory.access(
                   ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
                 )("random"),
-                [getTypeName(config)(importer)(p)],
+                [getTypeName(project)(importer)(p)],
                 undefined,
               ),
             ),
@@ -153,11 +150,10 @@ export namespace E2eFileProgrammer {
                 ts.factory.createVariableDeclaration(
                   "output",
                   undefined,
-                  config.propagate !== true && route.output.typeName === "void"
+                  project.config.propagate !== true &&
+                    route.output.typeName === "void"
                     ? undefined
-                    : SdkAliasCollection.output(checker)(config)(importer)(
-                        route,
-                      ),
+                    : SdkAliasCollection.output(project)(importer)(route),
                   ts.factory.createAwaitExpression(caller),
                 ),
               ],
@@ -170,13 +166,13 @@ export namespace E2eFileProgrammer {
     };
 }
 
-const getFunctionName = (route: IRoute): string =>
+const getFunctionName = (route: ITypedHttpRoute): string =>
   ["test", "api", ...route.accessors].join("_");
 
 const getTypeName =
-  (config: INestiaConfig) =>
+  (project: INestiaProject) =>
   (importer: ImportDictionary) =>
-  (p: IRoute.IParameter | IRoute.IOutput) =>
+  (p: ITypedHttpRoute.IParameter | ITypedHttpRoute.IOutput) =>
     p.metadata
-      ? SdkTypeProgrammer.write(config)(importer)(p.metadata)
+      ? SdkTypeProgrammer.write(project)(importer)(p.metadata)
       : ts.factory.createTypeReferenceNode(p.typeName);

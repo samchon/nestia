@@ -8,10 +8,12 @@ import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { JsonApplicationProgrammer } from "typia/lib/programmers/json/JsonApplicationProgrammer";
 
 import { INestiaConfig } from "../INestiaConfig";
-import { IRoute } from "../structures/IRoute";
+import { INestiaProject } from "../structures/INestiaProject";
 import { ISwaggerError } from "../structures/ISwaggerError";
 import { ISwaggerLazyProperty } from "../structures/ISwaggerLazyProperty";
 import { ISwaggerLazySchema } from "../structures/ISwaggerLazySchema";
+import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
+import { ITypedWebSocketRoute } from "../structures/ITypedWebSocketRoute";
 import { FileRetriever } from "../utils/FileRetriever";
 import { MapUtil } from "../utils/MapUtil";
 import { SwaggerSchemaGenerator } from "./internal/SwaggerSchemaGenerator";
@@ -28,13 +30,18 @@ export namespace SwaggerGenerator {
   }
 
   export const generate =
-    (checker: ts.TypeChecker) =>
-    (config: INestiaConfig.ISwaggerConfig) =>
-    async (routeList: IRoute[]): Promise<void> => {
+    (project: INestiaProject) =>
+    async (
+      routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
+    ): Promise<void> => {
       console.log("Generating Swagger Documents");
 
       // VALIDATE SECURITY
-      validate_security(config)(routeList);
+      const config = project.config.swagger!;
+      const httpRoutes: ITypedHttpRoute[] = routeList.filter(
+        (route): route is ITypedHttpRoute => route.protocol === "http",
+      ) as ITypedHttpRoute[];
+      validate_security(config)(httpRoutes);
 
       // PREPARE ASSETS
       const parsed: path.ParsedPath = path.parse(config.output);
@@ -66,7 +73,7 @@ export namespace SwaggerGenerator {
         Record<string, OpenApi.IOperation>
       > = new Map();
 
-      for (const route of routeList) {
+      for (const route of httpRoutes) {
         if (route.jsDocTags.find((tag) => tag.name === "internal")) continue;
 
         const path: Record<string, OpenApi.IOperation> = MapUtil.take(
@@ -76,7 +83,7 @@ export namespace SwaggerGenerator {
         );
         path[route.method.toLowerCase()] = generate_route({
           config,
-          checker,
+          checker: project.checker,
           collection,
           lazySchemas,
           lazyProperties,
@@ -117,8 +124,8 @@ export namespace SwaggerGenerator {
         for (const e of errors)
           console.error(
             `${path.relative(e.route.location, process.cwd())}:${
-              e.route.target.class.name
-            }.${e.route.target.function.name}:${
+              e.route.controller.name
+            }.${e.route.name}:${
               e.from
             } - error TS(@nestia/sdk): invalid type detected.\n\n` +
               e.messages.map((m) => `  - ${m}`).join("\n"),
@@ -131,11 +138,11 @@ export namespace SwaggerGenerator {
       const customizer = {
         at: new Singleton(() => {
           const functor: Map<Function, Endpoint> = new Map();
-          for (const route of routeList) {
+          for (const route of httpRoutes) {
             const method: OpenApi.Method =
               route.method.toLowerCase() as OpenApi.Method;
             const path: string = get_path(route.path, route.parameters);
-            functor.set(route.target.function, {
+            functor.set(route.function, {
               method,
               path,
               route: swagger.paths![path][method]!,
@@ -161,13 +168,13 @@ export namespace SwaggerGenerator {
             },
         ),
       };
-      for (const route of routeList) {
+      for (const route of httpRoutes) {
         if (
           false ===
           Reflect.hasMetadata(
             "nestia/SwaggerCustomizer",
             route.controller.prototype,
-            route.target.function.name,
+            route.name,
           )
         )
           continue;
@@ -179,7 +186,7 @@ export namespace SwaggerGenerator {
         const closure: Function | Function[] = Reflect.getMetadata(
           "nestia/SwaggerCustomizer",
           route.controller.prototype,
-          route.target.function.name,
+          route.name,
         );
         const array: Function[] = Array.isArray(closure) ? closure : [closure];
         for (const fn of array)
@@ -209,7 +216,7 @@ export namespace SwaggerGenerator {
 
   const validate_security =
     (config: INestiaConfig.ISwaggerConfig) =>
-    (routeList: IRoute[]): void | never => {
+    (routeList: ITypedHttpRoute[]): void | never => {
       const securityMap: Map<
         string,
         { scheme: OpenApi.ISecurityScheme; scopes: Set<string> }
@@ -252,7 +259,7 @@ export namespace SwaggerGenerator {
           for (const [key, scopes] of Object.entries(record))
             validate((str) =>
               violations.push(
-                `  - ${str} (${route.target.class.name}.${route.target.function.name}() at "${route.location}")`,
+                `  - ${str} (${route.controller.name}.${route.name}() at "${route.location}")`,
               ),
             )(key, scopes);
 
@@ -345,8 +352,11 @@ export namespace SwaggerGenerator {
     };
   };
 
-  function get_path(path: string, parameters: IRoute.IParameter[]): string {
-    const filtered: IRoute.IParameter[] = parameters.filter(
+  function get_path(
+    path: string,
+    parameters: ITypedHttpRoute.IParameter[],
+  ): string {
+    const filtered: ITypedHttpRoute.IParameter[] = parameters.filter(
       (param) => param.category === "param" && !!param.field,
     );
     for (const param of filtered)
@@ -356,7 +366,7 @@ export namespace SwaggerGenerator {
 
   const generate_route =
     (props: IProps) =>
-    (route: IRoute): OpenApi.IOperation => {
+    (route: ITypedHttpRoute): OpenApi.IOperation => {
       // FIND REQUEST BODY
       const body = route.parameters.find((param) => param.category === "body");
 
@@ -414,8 +424,8 @@ export namespace SwaggerGenerator {
         operationId:
           route.operationId ??
           props.config.operationId?.({
-            class: route.target.class.name,
-            function: route.target.function.name,
+            class: route.controller.name,
+            function: route.name,
             method: route.method as "GET",
             path: route.path,
           }),
