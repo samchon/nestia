@@ -3,18 +3,17 @@ import typia from "typia";
 import type { Format } from "typia/lib/tags/Format";
 
 import api from "../../../../api";
-import type { IBbsComment } from "../../../../api/structures/IBbsComment";
+import type { IBbsArticle } from "../../../../api/structures/IBbsArticle";
 
-export const test_api_bbs_articles_comments_update = async (
+export const test_api_x_bbs_articles_update = async (
   connection: api.IConnection,
 ) => {
-  const output: Primitive<IBbsComment> =
-    await api.functional.bbs.articles.comments.update(
+  const output: Primitive<IBbsArticle> =
+    await api.functional.x.bbs.articles.update(
       connection,
       typia.random<string>(),
       typia.random<string & Format<"uuid">>(),
-      typia.random<string & Format<"uuid">>(),
-      typia.random<IBbsComment.IStore>(),
+      typia.random<IBbsArticle.IStore>(),
     );
   typia.assert(output);
 };

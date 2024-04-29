@@ -18,11 +18,12 @@ export namespace VersioningStrategy {
           ? cast(project.input.versioning?.defaultVersion)
           : Array.from(set);
       return !!array?.length
-        ? array.map((v) =>
-            typeof v === "symbol"
+        ? array.map((x) => {
+            console.log("version", x);
+            return typeof x === "symbol"
               ? ""
-              : `${project.input.versioning!.prefix}${v}`,
-          )
-        : [""];
+              : `${project.input.versioning!.prefix}${x}`;
+          })
+        : [];
     };
 }

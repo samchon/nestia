@@ -95,27 +95,21 @@ export namespace TypedWebSocketOperationAnalyzer {
         ...(props.controller.versions ?? []),
         ...(props.operation.versions ?? []),
       ]);
-      for (const prefix of props.controller.prefixes)
-        for (const cPath of props.controller.paths)
-          for (const filePath of props.operation.paths)
-            pathList.add(PathAnalyzer.join(prefix, cPath, filePath));
+      for (const v of versions)
+        for (const prefix of props.controller.prefixes)
+          for (const cPath of props.controller.paths)
+            for (const filePath of props.operation.paths)
+              pathList.add(
+                PathAnalyzer.join(
+                  project.input.globalPrefix?.prefix ?? "",
+                  v,
+                  prefix,
+                  cPath,
+                  filePath,
+                ),
+              );
 
       return [...pathList]
-        .map((individual) =>
-          PathAnalyzer.combinate(project.input.globalPrefix)(
-            [...versions].map((v) =>
-              v === null
-                ? null
-                : project.input.versioning?.prefix?.length
-                  ? `${project.input.versioning.prefix}${v}`
-                  : v,
-            ),
-          )({
-            method: "get",
-            path: individual,
-          }),
-        )
-        .flat()
         .filter((path) => {
           const escaped: string | null = PathAnalyzer.escape(path);
           if (escaped === null)

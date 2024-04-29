@@ -55,7 +55,10 @@ export namespace SdkGenerator {
 
       // DISTRIBUTION
       if (project.config.distribute !== undefined)
-        await SdkDistributionComposer.compose(project.config);
+        await SdkDistributionComposer.compose(
+          project.config,
+          routes.some((r) => r.protocol === "websocket"),
+        );
     };
 
   export const BUNDLE_PATH = NodePath.join(

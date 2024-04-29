@@ -6,11 +6,17 @@ import { ApplicationModule } from "./modules/ApplicationModule";
 
 export class Backend {
   public readonly application: Singleton<Promise<INestApplication>> =
-    new Singleton(() =>
-      NestFactory.create(ApplicationModule, {
-        logger: false,
-      }),
-    );
+    new Singleton(async () => {
+      const app: INestApplication = await NestFactory.create(
+        ApplicationModule,
+        {
+          logger: false,
+        },
+      );
+      app.setGlobalPrefix("x");
+      return app;
+    });
+
   public async open(): Promise<void> {
     return (await this.application.get()).listen(37_000);
   }

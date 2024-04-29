@@ -1,3 +1,4 @@
+import { RequestMethod } from "@nestjs/common";
 import path from "path";
 import { HashMap } from "tstl";
 import ts from "typescript";
@@ -183,42 +184,50 @@ export namespace TypedHttpOperationAnalyzer {
       };
 
       // CONFIGURE PATHS
+      const globalPrefix = project.input.globalPrefix ?? {
+        prefix: "",
+      };
       const pathList: Set<string> = new Set();
       const versions: string[] = VersioningStrategy.merge(project)([
         ...(props.controller.versions ?? []),
         ...(props.operation.versions ?? []),
       ]);
-      for (const prefix of props.controller.prefixes)
-        for (const cPath of props.controller.paths)
-          for (const filePath of props.operation.paths)
-            pathList.add(PathAnalyzer.join(prefix, cPath, filePath));
-
+      for (const v of versions)
+        for (const prefix of props.controller.prefixes)
+          for (const cPath of props.controller.paths)
+            for (const filePath of props.operation.paths)
+              pathList.add(
+                PathAnalyzer.join(
+                  globalPrefix.prefix,
+                  v,
+                  prefix,
+                  cPath,
+                  filePath,
+                ),
+              );
       return [...pathList]
-        .map((individual) =>
-          PathAnalyzer.combinate(project.input.globalPrefix)(
-            [...versions].map((v) =>
-              v === null
-                ? null
-                : project.input.versioning?.prefix?.length
-                  ? `${project.input.versioning.prefix}${v}`
-                  : v,
-            ),
-          )({
-            method: props.operation.method,
-            path: individual,
-          }),
-        )
-        .flat()
         .filter((path) => {
           const escaped: string | null = PathAnalyzer.escape(path);
-          if (escaped === null)
+          if (escaped === null) {
             project.errors.push({
               file: props.controller.file,
               controller: props.controller.name,
               function: props.operation.name,
               message: `unable to escape the path "${path}".`,
             });
-          return escaped !== null;
+            return false;
+          } else if (Array.isArray(globalPrefix.exclude))
+            return globalPrefix.exclude.some((e) =>
+              typeof e === "string"
+                ? !RegExp(e).test(path)
+                : RegExp(e.path).test(path) &&
+                  (enumToMethod(e.method) === "all" ||
+                    enumToMethod(e.method) ===
+                      props.operation.method.toLowerCase()) &&
+                  (e.version === undefined ||
+                    versions.some((v) => v === e.version)),
+            );
+          return true;
         })
         .map((path) => ({
           ...common,
@@ -319,3 +328,22 @@ export namespace TypedHttpOperationAnalyzer {
       };
     };
 }
+
+const enumToMethod = (v: RequestMethod) =>
+  v === RequestMethod.GET
+    ? "get"
+    : v === RequestMethod.POST
+      ? "post"
+      : v === RequestMethod.PUT
+        ? "put"
+        : v === RequestMethod.DELETE
+          ? "delete"
+          : v === RequestMethod.PATCH
+            ? "patch"
+            : v === RequestMethod.ALL
+              ? "all"
+              : v === RequestMethod.OPTIONS
+                ? "options"
+                : v === RequestMethod.HEAD
+                  ? "head"
+                  : "search";
