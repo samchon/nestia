@@ -13,6 +13,7 @@ export class Backend {
       }),
       { logger: false },
     );
+    await core.WebSocketAdaptor.upgrade(this.application_);
     await this.application_.listen(37_000);
   }
 

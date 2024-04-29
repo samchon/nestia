@@ -55,7 +55,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
               [
                 ts.factory.createTypeReferenceNode("Header"),
                 ts.factory.createTypeReferenceNode("Provider"),
-                ts.factory.createTypeReferenceNode("Remote"),
+                ts.factory.createTypeReferenceNode("Listener"),
               ],
             ),
           ),
@@ -69,7 +69,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
                 library: "tgrid",
                 instance: "Driver",
               }),
-              [ts.factory.createTypeReferenceNode("Remote")],
+              [ts.factory.createTypeReferenceNode("Listener")],
             ),
           ),
         ]),
@@ -99,12 +99,12 @@ export namespace SdkWebSocketNamespaceProgrammer {
           (
             (route.parameters.find((x) => x.category === "driver") as
               | ITypedWebSocketRoute.IDriverParameter
-              | undefined) ?? acceptor.remote
+              | undefined) ?? acceptor.listener
           ).typeName,
         ),
       );
       declare(
-        "Remote",
+        "Listener",
         ts.factory.createTypeReferenceNode(acceptor.provider.typeName),
       );
       if (query)
@@ -118,7 +118,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
     (route: ITypedWebSocketRoute): ts.VariableStatement => {
       const pathParams: ITypedWebSocketRoute.IPathParameter[] =
         route.parameters.filter(
-          (p) => p.category === "path",
+          (p) => p.category === "param",
         ) as ITypedWebSocketRoute.IPathParameter[];
       const query: ITypedWebSocketRoute.IQueryParameter | undefined =
         route.parameters.find((p) => p.category === "query") as

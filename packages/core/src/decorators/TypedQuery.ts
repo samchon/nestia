@@ -31,8 +31,8 @@ import { validate_request_query } from "./internal/validate_request_query";
  * same with {@link nest.Query}, but it can automatically cast property type following
  * its DTO definition. Also, `TypedQuery` performs type validation.
  *
- * For reference, target type `T` must follow such restriction. Also, if actual URL
- * query parameter values are different with their promised type `T`,
+ * For reference, target type `T` must follow such restriction. Also, if
+ * actual URL query parameter values are different with their promised type `T`,
  * `BadRequestException` error (status code: 400) would be thrown.
  *
  * 1. Type `T` must be an object type

@@ -8,3 +8,4 @@ export * as common from "./common";
 export * as performance from "./performance";
 export * as bbs from "./bbs";
 export * as articles from "./articles";
+export * as websocket from "./websocket";

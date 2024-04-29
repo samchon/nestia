@@ -96,9 +96,9 @@ export namespace TypedWebSocketOperationAnalyzer {
         ...(props.operation.versions ?? []),
       ]);
       for (const v of versions)
-        for (const prefix of props.controller.prefixes)
-          for (const cPath of props.controller.paths)
-            for (const filePath of props.operation.paths)
+        for (const prefix of wrapPaths(props.controller.prefixes))
+          for (const cPath of wrapPaths(props.controller.paths))
+            for (const filePath of wrapPaths(props.operation.paths))
               pathList.add(
                 PathAnalyzer.join(
                   project.input.globalPrefix?.prefix ?? "",
@@ -206,6 +206,11 @@ export namespace TypedWebSocketOperationAnalyzer {
         props.symbol.valueDeclaration!,
       );
       const name: string = props.symbol.getEscapedName().toString();
+      const generics: readonly ts.Type[] =
+        type.aliasTypeArguments ??
+        project.checker.getTypeArguments(type as ts.TypeReference) ??
+        [];
+
       const errors: IErrorReport[] = [];
       _Check_optional({
         ...project,
@@ -217,35 +222,34 @@ export namespace TypedWebSocketOperationAnalyzer {
           symbol: props.symbol,
         },
       });
-      if (
-        type.aliasTypeArguments === undefined ||
-        type.aliasTypeArguments.length !== 3
-      )
+      if (generics.length !== 3)
         errors.push({
           file: props.controller.file,
           controller: props.controller.name,
           function: props.function,
-          message: `@WebSocketRoute.Acceptor() must have three type arguments of WebAcceptor<Header, Provider, Remote>`,
+          message: `@WebSocketRoute.Acceptor() must have three type arguments of WebAcceptor<Header, Provider, Listener>`,
         });
-      const [header, provider, remote] = ["header", "provider", "remote"].map(
-        (key, i) => {
-          const tuple: ITypeTuple | null = ImportAnalyzer.analyze(
-            project.checker,
-          )({
-            generics: props.generics,
-            imports: props.imports,
-            type: type.aliasTypeArguments![i],
+      const [header, provider, listener] = [
+        "header",
+        "provider",
+        "listener",
+      ].map((key, i) => {
+        const tuple: ITypeTuple | null = ImportAnalyzer.analyze(
+          project.checker,
+        )({
+          generics: props.generics,
+          imports: props.imports,
+          type: generics[i],
+        });
+        if (tuple === null)
+          errors.push({
+            file: props.controller.file,
+            controller: props.controller.name,
+            function: props.function,
+            message: `unable to analyze the "${key}" argument type of WebAcceptor<Header, Provider, Listener>.`,
           });
-          if (tuple === null)
-            errors.push({
-              file: props.controller.file,
-              controller: props.controller.name,
-              function: props.function,
-              message: `unable to analyze the "${key}" argument type of WebAcceptor<Header, Provider, Remote>.`,
-            });
-          return tuple!;
-        },
-      );
+        return tuple!;
+      });
 
       if (errors.length) {
         project.errors.push(...errors);
@@ -257,7 +261,7 @@ export namespace TypedWebSocketOperationAnalyzer {
         name,
         header,
         provider,
-        remote,
+        listener: listener,
       };
     };
 
@@ -277,6 +281,11 @@ export namespace TypedWebSocketOperationAnalyzer {
         props.symbol.valueDeclaration!,
       );
       const name: string = props.symbol.getEscapedName().toString();
+      const generics: readonly ts.Type[] =
+        type.aliasTypeArguments ??
+        project.checker.getTypeArguments(type as ts.TypeReference) ??
+        [];
+
       const errors: IErrorReport[] = [];
       _Check_optional({
         ...project,
@@ -289,7 +298,7 @@ export namespace TypedWebSocketOperationAnalyzer {
         },
       });
       const tuple: ITypeTuple = (() => {
-        if (type.aliasTypeArguments?.length !== 1) {
+        if (generics.length !== 1) {
           errors.push({
             file: props.controller.file,
             controller: props.controller.name,
@@ -303,7 +312,7 @@ export namespace TypedWebSocketOperationAnalyzer {
           )({
             generics: props.generics,
             imports: props.imports,
-            type: type.aliasTypeArguments[0],
+            type: generics[0],
           });
           if (tuple === null)
             errors.push({
@@ -354,3 +363,6 @@ export namespace TypedWebSocketOperationAnalyzer {
         });
     };
 }
+
+const wrapPaths = (paths: string[]): string[] =>
+  paths.length === 0 ? [""] : paths;

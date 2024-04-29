@@ -1,12 +1,9 @@
-import { PATH_METADATA } from "@nestjs/common/constants";
 import { ranges } from "tstl";
-import typia from "typia";
 
 import { IErrorReport } from "../structures/IErrorReport";
 import { INestiaProject } from "../structures/INestiaProject";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
-import { ArrayUtil } from "../utils/ArrayUtil";
 import { PathAnalyzer } from "./PathAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
 
@@ -18,14 +15,6 @@ export namespace ReflectWebSocketOperationAnalyzer {
       function: Function;
       name: string;
     }): IReflectWebSocketOperation | null => {
-      if (
-        ArrayUtil.has(
-          Reflect.getMetadataKeys(props.function),
-          PATH_METADATA,
-        ) === false
-      )
-        return null;
-
       const route: { paths: string[] } | undefined = Reflect.getMetadata(
         "nestia/WebSocketRoute",
         props.function,
@@ -33,16 +22,13 @@ export namespace ReflectWebSocketOperationAnalyzer {
       if (route === undefined) return null;
 
       const errors: IErrorReport[] = [];
-      const everyParameters: IReflectWebSocketOperation.IParameter[] = (
+      const parameters: IReflectWebSocketOperation.IParameter[] = (
         (Reflect.getMetadata(
-          "nestia/WebSocketParameters",
+          "nestia/WebSocketRoute/Parameters",
           props.controller.prototype,
           props.name,
         ) ?? []) as IReflectWebSocketOperation.IParameter[]
       ).sort((a, b) => a.index - b.index);
-      const parameters: IReflectWebSocketOperation.IParameter[] =
-        everyParameters.filter((p) => typia.is(p.category));
-
       if (parameters.find((p) => (p.category === "acceptor") === undefined))
         errors.push({
           file: props.controller.file,
@@ -50,7 +36,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
           function: props.name,
           message: "@WebSocketRoute.Acceptor() is essentially required",
         });
-      if (everyParameters.length !== props.function.length)
+      if (parameters.length !== props.function.length)
         errors.push({
           file: props.controller.file,
           controller: props.controller.name,
@@ -65,8 +51,8 @@ export namespace ReflectWebSocketOperationAnalyzer {
           ].join("\n"),
         });
 
-      const fields: string[] = everyParameters
-        .filter((p) => p.category === "path")
+      const fields: string[] = parameters
+        .filter((p) => p.category === "param")
         .map((p) => p.field)
         .sort();
       for (const cLoc of props.controller.paths)

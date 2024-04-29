@@ -31,7 +31,7 @@ export namespace ITypedWebSocketRoute {
     name: string;
     header: ITypeTuple;
     provider: ITypeTuple;
-    remote: ITypeTuple;
+    listener: ITypeTuple;
   }
   export interface IDriverParameter
     extends Omit<IReflectWebSocketOperation.IParameter, "category"> {
@@ -50,7 +50,7 @@ export namespace ITypedWebSocketRoute {
   }
   export interface IPathParameter
     extends Omit<IReflectWebSocketOperation.IParameter, "path"> {
-    category: "path";
+    category: "param";
     name: string;
     type: ts.Type;
     typeName: string;

@@ -10,7 +10,7 @@ export interface IReflectWebSocketOperation {
 }
 export namespace IReflectWebSocketOperation {
   export interface IParameter {
-    category: "acceptor" | "driver" | "header" | "path" | "query";
+    category: "acceptor" | "driver" | "header" | "param" | "query";
     field: string;
     index: number;
   }

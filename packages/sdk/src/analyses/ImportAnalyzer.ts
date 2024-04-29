@@ -117,8 +117,7 @@ export namespace ImportAnalyzer {
       const sourceFile: ts.SourceFile | undefined =
         symbol.declarations?.[0]?.getSourceFile();
       if (sourceFile === undefined) return name;
-
-      if (sourceFile.fileName.indexOf("typescript/lib") === -1) {
+      else if (sourceFile.fileName.indexOf("typescript/lib") === -1) {
         const set: HashSet<string> = props.imports.take(
           sourceFile.fileName,
           () => new HashSet(),

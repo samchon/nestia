@@ -20,12 +20,11 @@ import { NoTransformConfigureError } from "./internal/NoTransformConfigureError"
  * import { tags } from "typia";
  *
  * \@TypedRoute.Get("shopping/sales/:id/:no/:paused")
- * public async pause
- *     (
- *         \@TypedParam("id", "uuid"), id: string & tags.Format<"uuid">,
- *         \@TypedParam("no") id: number & tags.Type<"uint32">
- *         \@TypedParam("paused") paused: boolean | null
- *     ): Promise<void>;
+ * public async pause(
+ *   \@TypedParam("id", "uuid"), id: string & tags.Format<"uuid">,
+ *   \@TypedParam("no") id: number & tags.Type<"uint32">
+ *   \@TypedParam("paused") paused: boolean | null
+ * ): Promise<void>;
  * ```
  *
  * @param name URL Parameter name
