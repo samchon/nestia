@@ -94,5 +94,6 @@
         { "transform": "typia/lib/transform" },
         { "transform": "@nestia/core/lib/transform" },
       ],
-    }
+    },
+    "include": ["src"],
   }

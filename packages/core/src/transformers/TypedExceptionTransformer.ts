@@ -21,8 +21,7 @@ export namespace TypedExceptionTransformer {
         const location: string = path.resolve(
           signature.declaration.getSourceFile().fileName,
         );
-        if (location.indexOf(LIB_PATH) === -1 && location !== SRC_PATH)
-          return false;
+        if (location.indexOf(LIB_PATH) === -1) return false;
 
         // CHECK DUPLICATED
         return decorator.expression.arguments.length !== 3;
@@ -34,15 +33,12 @@ export namespace TypedExceptionTransformer {
         TypedExceptionProgrammer.generate(project)(decorator.expression),
       );
     };
-
-  const LIB_PATH = path.join(
-    "@nestia",
-    "core",
-    "lib",
-    "decorators",
-    `TypedException.d.ts`,
-  );
-  const SRC_PATH = path.resolve(
-    path.join(__dirname, "..", "decorators", `TypedException.ts`),
-  );
 }
+
+const LIB_PATH = path.join(
+  "@nestia",
+  "core",
+  "lib",
+  "decorators",
+  `TypedException.d.ts`,
+);

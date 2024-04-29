@@ -123,7 +123,7 @@ export namespace SwaggerGenerator {
       if (errors.length) {
         for (const e of errors)
           console.error(
-            `${path.relative(e.route.location, process.cwd())}:${
+            `${path.relative(process.cwd(), e.route.location)}:${
               e.route.controller.name
             }.${e.route.name}:${
               e.from
