@@ -480,6 +480,8 @@ If you need additional parameters, you can use nested decorators.
 
 For reference, those decorators are almost same with [`@TypedHeaders()`](./TypedHeaders), [`@TypedParam()`](./TypedParam) and [`@TypedQuery()`](./TypedQuery). However, they can't be used in `@WebSocketRoute()` decorated method. Only nested decorator functions under the `WebSocketRoute` module are allowed.
 
+Also, if you don't want to accept the client connection, reject it through `WebAcceptor.close()` function.
+
 
 
 
