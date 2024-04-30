@@ -10,7 +10,9 @@
 
 Nestia is a set of helper libraries for NestJS, supporting below features:
 
-  - `@nestia/core`: Super-fast decorators
+  - `@nestia/core`:
+    - Super-fast/easy decorators
+    - Advanced WebSocket routes
   - `@nestia/sdk`:
     - Swagger generator evolved than ever
     - SDK library generator for clients
@@ -58,6 +60,7 @@ Check out the document in the [website](https://nestia.io/docs/):
 
 ### 📖 Features
   - Core Library
+    - [WebSocketRoute](https://nestia.io/docs/core/WebSocketRoute)
     - [TypedRoute](https://nestia.io/docs/core/TypedRoute/)
     - [TypedBody](https://nestia.io/docs/core/TypedBody/)
     - [TypedParam](https://nestia.io/docs/core/TypedParam/)
