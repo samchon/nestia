@@ -1,0 +1,801 @@
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+
+## Outline
+<Tabs 
+  items={[
+      <code>@nestia/core</code>,
+      "Server Application",
+      'Client Application',
+  ]}>
+  <Tab>
+```typescript
+export function WebSocketRoute(path?: string): MethodDecorator;
+export namespace WebSocketRoute {
+  export function Acceptor(): ParameterDecorator;
+  export function Driver(): ParameterDecorator;
+  export function Header(): ParameterDecorator;
+  export function Param(field: string): ParameterDecorator;
+  export function Query(): ParameterDecorator;
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="src/CalculateController.ts" showLineNumbers
+import { WebSocketRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import { Driver, WebAcceptor } from "tgrid";
+
+import { ICalculator } from "./api/structures/ICalculator";
+import { IListener } from "./api/structures/IListener";
+import { Calculator } from "./providers/Calculator";
+
+@Controller("calculate")
+export class CalculateController {
+  /**
+   * Start simple calculator.
+   *
+   * Start simple calculator through WebSocket.
+   */
+  @WebSocketRoute("start")
+  public async start(
+    @WebSocketRoute.Acceptor()
+    acceptor: WebAcceptor<any, ICalculator, IListener>,
+    @WebSocketRoute.Driver() driver: Driver<IListener>,
+  ): Promise<void> {
+    await acceptor.accept(new Calculator(driver));
+  }
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="test/features/test_api_calculate_start.ts" showLineNumbers
+import { TestValidator } from "@nestia/e2e";
+import api from "@samchon/calculator-api/lib/index";
+import { IListener } from "@samchon/calculator-api/lib/structures/IListener";
+
+export const test_api_calculate_start = async (
+  connection: api.IConnection,
+): Promise<void> => {
+  const stack: IListener.IEvent[] = [];
+  const listener: IListener = {
+    on: (event) => stack.push(event),
+  };
+  const { connector, driver } = await api.functional.calculate.start(
+    connection,
+    listener,
+  );
+  try {
+    TestValidator.equals("plus")(await driver.plus(4, 2))(6);
+    TestValidator.equals("minus")(await driver.minus(4, 2))(2);
+    TestValidator.equals("multiply")(await driver.multiply(4, 2))(8);
+    TestValidator.equals("divide")(await driver.divide(4, 2))(2);
+    TestValidator.equals("events")(stack)([
+      { type: "plus", x: 4, y: 2, z: 6 },
+      { type: "minus", x: 4, y: 2, z: 2 },
+      { type: "multiply", x: 4, y: 2, z: 8 },
+      { type: "divide", x: 4, y: 2, z: 2 },
+    ]);
+  } catch (exp) {
+    throw exp;
+  } finally {
+    await connector.close();
+  }
+};
+```
+  </Tab>
+</Tabs>
+
+WebSocket route decorators.
+
+`@WebSocketRoute()` is a collection of decorators for WebSocket routes.
+
+Also, supports [SDK (Software Development Kit)](../generators/sdk), so that you can easily develop the WebSocket client.
+
+
+
+
+## How to use
+### Application Setup
+```typescript filename="src/CalculateModule.ts" copy showLineNumbers {1,10}
+import { WebSocketAdaptor } from "@nestia/core";
+import { INestApplication } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+
+import { CalculateModule } from "./CalculateModule";
+
+export namespace CalculateBackend {
+  export const start = async (): Promise<INestApplication> => {
+    const app: INestApplication = await NestFactory.create(CalculateModule);
+    await WebSocketAdaptor.upgrade(app);
+    await app.listen(3_000, "0.0.0.0");
+    return app;
+  };
+}
+```
+
+At first, you need to upgrade your NestJS application to support WebSocket protocol.
+
+Import `WebSocketAdaptor` class from `@nestia/core`, and call `WebSocketAdaptor.upgrade()` function with the NestJS application instance like above. 
+
+If you don't upgrade it, `@WebSocketRoute()` decorated methods never work.
+
+### `@WebSocketRoute()`
+<Tabs 
+  items={[
+      <code>CalculateController.ts</code>,
+      <code>Calculator.ts</code>,
+      <code>ICalculator.ts</code>,
+      <code>IListener.ts</code>,
+      "Client Application",
+  ]}>
+  <Tab>
+```typescript filename="src/CalculateController.ts" copy showLineNumbers
+import { WebSocketRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import { Driver, WebAcceptor } from "tgrid";
+
+import { ICalculator } from "./api/structures/ICalculator";
+import { IListener } from "./api/structures/IListener";
+import { Calculator } from "./providers/Calculator";
+
+@Controller("calculate")
+export class CalculateController {
+  /**
+   * Start simple calculator.
+   *
+   * Start simple calculator through WebSocket.
+   */
+  @WebSocketRoute("start")
+  public async start(
+    @WebSocketRoute.Acceptor()
+    acceptor: WebAcceptor<any, ICalculator, IListener>,
+    @WebSocketRoute.Driver() driver: Driver<IListener>,
+  ): Promise<void> {
+    await acceptor.accept(new Calculator(driver));
+  }
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="src/providers/Calculator.ts" copy showLineNumbers
+import { Driver } from "tgrid";
+
+import { ICalculator } from "../api/structures/ICalculator";
+import { IListener } from "../api/structures/IListener";
+
+export class Calculator implements ICalculator {
+  public constructor(private readonly listener: Driver<IListener>) {}
+
+  public plus(x: number, y: number): number {
+    const z: number = x + y;
+    this.listener.on({ type: "plus", x, y, z }).catch(() => {});
+    return z;
+  }
+
+  public minus(x: number, y: number): number {
+    const z: number = x - y;
+    this.listener.on({ type: "minus", x, y, z }).catch(() => {});
+    return z;
+  }
+
+  public multiply(x: number, y: number): number {
+    const z: number = x * y;
+    this.listener.on({ type: "multiply", x, y, z }).catch(() => {});
+    return z;
+  }
+
+  public divide(x: number, y: number): number {
+    const z: number = x / y;
+    this.listener.on({ type: "divide", x, y, z }).catch(() => {});
+    return z;
+  }
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="src/api/structures/ICalculator.ts" copy showLineNumbers
+export interface ICalculator {
+  plus(a: number, b: number): number;
+  minus(a: number, b: number): number;
+  multiply(a: number, b: number): number;
+  divide(a: number, b: number): number;
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="src/api/structures/IListener.ts" copy showLineNumbers
+export interface IListener {
+  on(event: IListener.IEvent): void;
+}
+export namespace IListener {
+  export interface IEvent {
+    type: string;
+    x: number;
+    y: number;
+    z: number;
+  }
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="test/features/test_api_calculate_start.ts" showLineNumbers
+import { TestValidator } from "@nestia/e2e";
+import api from "@samchon/calculator-api/lib/index";
+import { IListener } from "@samchon/calculator-api/lib/structures/IListener";
+
+export const test_api_calculate_start = async (
+  connection: api.IConnection,
+): Promise<void> => {
+  const stack: IListener.IEvent[] = [];
+  const listener: IListener = {
+    on: (event) => stack.push(event),
+  };
+  const { connector, driver } = await api.functional.calculate.start(
+    connection,
+    listener,
+  );
+  try {
+    TestValidator.equals("plus")(await driver.plus(4, 2))(6);
+    TestValidator.equals("minus")(await driver.minus(4, 2))(2);
+    TestValidator.equals("multiply")(await driver.multiply(4, 2))(8);
+    TestValidator.equals("divide")(await driver.divide(4, 2))(2);
+    TestValidator.equals("events")(stack)([
+      { type: "plus", x: 4, y: 2, z: 6 },
+      { type: "minus", x: 4, y: 2, z: 2 },
+      { type: "multiply", x: 4, y: 2, z: 8 },
+      { type: "divide", x: 4, y: 2, z: 2 },
+    ]);
+  } catch (exp) {
+    throw exp;
+  } finally {
+    await connector.close();
+  }
+};
+```
+  </Tab>
+</Tabs>
+
+After that, attach `@WebSocketRoute()` decorator function onto target method like above.
+
+Note that, never forget to defining the `@WebSocketRoute.Acceptor()` decorated parameter. It is essential for both WebSocket route method and SDK library generation. Each generic arguments of `WebAcceptor<Header, Provider, Listener>` means like below:
+
+  - `Header`: Header information received by client
+  - `Provider`: Service provider for client
+  - `Listener`: Remote service provider from client
+
+Also, the `Driver<IListener>` is a type of the remote provider by client. If you call any function of the remote provider, your function call request will be sent to the remote client, and returned value would be recived from the client asynchronouly. 
+
+Therefore, the `Driver<T>` type converts every functions' return type to be `Promise<R>`. In the client side, your `Provider` would be also wrapped into the `Driver<Provider>`, so that client can call your functions asynchronously, too.
+
+### Nested Decorators
+<Tabs 
+  items={[
+      <code>CalcController.ts</code>,
+      <code>AdvCalculator.ts</code>,
+      <code>IAvCalculator.ts</code>,
+      <code>IListener.ts</code>,
+      "Client Application",
+  ]}>
+  <Tab>
+```typescript filename="src/CalculateController.ts" copy showLineNumbers
+import { WebSocketRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import { Driver, WebAcceptor } from "tgrid";
+import { tags } from "typia";
+
+import { IAdvancedCalculator } from "./api/structures/IAdvancedCalculator";
+import { IHeader } from "./api/structures/IHeader";
+import { IListener } from "./api/structures/IListener";
+import { IMemo } from "./api/structures/IMemo";
+import { AdvancedCalculator } from "./providers/AdvancedCalculator";
+
+@Controller("calculate")
+export class CalculateController {
+  /**
+   * Start advanced calculator.
+   *
+   * Start advanced calculator through WebSocket with additional informations.
+   *
+   * @param id ID to assign
+   * @param header Header information
+   * @param memo Memo to archive
+   */
+  @WebSocketRoute(":id/advance")
+  public async advance(
+    @WebSocketRoute.Param("id") id: string & tags.Format<"uuid">,
+    @WebSocketRoute.Header() header: undefined | Partial<IHeader>,
+    @WebSocketRoute.Query() memo: IMemo,
+    @WebSocketRoute.Acceptor()
+    acceptor: WebAcceptor<undefined, IAdvancedCalculator, IListener>,
+  ): Promise<void> {
+    if (header?.precision !== undefined && header.precision < 0)
+      await acceptor.reject(1008, "Invalid precision value");
+    else
+      await acceptor.accept(
+        new AdvancedCalculator(
+          id,
+          { precision: header?.precision ?? 2 },
+          memo,
+          acceptor.getDriver(),
+        ),
+      );
+  }
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="src/providers/AdvancedCalculator.ts" copy showLineNumbers
+import { Driver } from "tgrid";
+
+import { IAdvancedCalculator } from "../api/structures/IAdvancedCalculator";
+import { IHeader } from "../api/structures/IHeader";
+import { IListener } from "../api/structures/IListener";
+import { IMemo } from "../api/structures/IMemo";
+
+export class AdvancedCalculator implements IAdvancedCalculator {
+  private round: (value: number) => number;
+
+  public constructor(
+    private readonly id: string,
+    private readonly header: IHeader,
+    private readonly memo: IMemo,
+    private readonly listener: Driver<IListener>,
+  ) {
+    this.round = roundPrecision(header.precision);
+  }
+
+  public getId(): string {
+    return this.id;
+  }
+  public getPrecision(): number {
+    return this.header.precision;
+  }
+  public getMemo(): IMemo {
+    return this.memo;
+  }
+
+  public plus(x: number, y: number): number {
+    const z: number = this.round(x + y);
+    this.listener.on({ type: "plus", x, y, z }).catch(() => {});
+    return z;
+  }
+  public minus(x: number, y: number): number {
+    const z: number = this.round(x - y);
+    this.listener.on({ type: "minus", x, y, z }).catch(() => {});
+    return z;
+  }
+  public multiply(x: number, y: number): number {
+    const z: number = this.round(x * y);
+    this.listener.on({ type: "multiply", x, y, z }).catch(() => {});
+    return z;
+  }
+  public divide(x: number, y: number): number {
+    const z: number = this.round(x / y);
+    this.listener.on({ type: "divide", x, y, z }).catch(() => {});
+    return z;
+  }
+}
+
+const roundPrecision =
+  (precision: number) =>
+  (value: number): number => {
+    const factor: number = Math.pow(10, precision);
+    return Math.round(value * factor) / factor;
+  };
+```
+  </Tab>
+  <Tab>
+```typescript filename="src/api/structures/IAdvancedCalculator.ts" copy showLineNumbers
+import { IMemo } from "./IMemo";
+
+export interface IAdvancedCalculator {
+  plus(a: number, b: number): number;
+  minus(a: number, b: number): number;
+  multiply(a: number, b: number): number;
+  divide(a: number, b: number): number;
+
+  getId(): string;
+  getPrecision(): number;
+  getMemo(): IMemo;
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="src/api/structures/IListener.ts" copy showLineNumbers
+export interface IListener {
+  on(event: IListener.IEvent): void;
+}
+export namespace IListener {
+  export interface IEvent {
+    type: string;
+    x: number;
+    y: number;
+    z: number;
+  }
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="test/features/test_api_calculate_advavnce.ts" showLineNumbers
+import { TestValidator } from "@nestia/e2e";
+import api from "@samchon/calculator-api/lib/index";
+import { IListener } from "@samchon/calculator-api/lib/structures/IListener";
+import { IMemo } from "@samchon/calculator-api/lib/structures/IMemo";
+import { v4 } from "uuid";
+
+export const test_api_calculate_advance = async (
+  connection: api.IConnection,
+): Promise<void> => {
+  const stack: IListener.IEvent[] = [];
+  const listener: IListener = {
+    on: (event) => stack.push(event),
+  };
+
+  const id: string = v4();
+  const memo: IMemo = {
+    title: "test",
+    description: null,
+    time: Date.now(),
+  };
+  const { connector, driver } = await api.functional.calculate.advance(
+    {
+      ...connection,
+      headers: { precision: 2 },
+    },
+    id,
+    memo,
+    listener,
+  );
+  try {
+    TestValidator.equals("id")(await driver.getId())(id);
+    TestValidator.equals("memo")(await driver.getMemo())(memo);
+    TestValidator.equals("precision")(await driver.getPrecision())(2);
+    TestValidator.equals("plus")(await driver.plus(1, 2))(3);
+    TestValidator.equals("minus")(await driver.minus(1, 2))(-1);
+    TestValidator.equals("multiply")(await driver.multiply(0.01, 0.02))(0);
+    TestValidator.equals("divide")(await driver.divide(1, 3))(0.33);
+    TestValidator.equals("events")(stack)([
+      { type: "plus", x: 1, y: 2, z: 3 },
+      { type: "minus", x: 1, y: 2, z: -1 },
+      { type: "multiply", x: 0.01, y: 0.02, z: 0 },
+      { type: "divide", x: 1, y: 3, z: 0.33 },
+    ]);
+  } catch (exp) {
+    throw exp;
+  } finally {
+    await connector.close();
+  }
+};
+```
+  </Tab>
+</Tabs>
+
+If you need additional parameters, you can use nested decorators.
+
+  - `@WebSocketRoute.Acceptor()`: Acceptor for the client connection
+  - `@WebSocketRoute.Driver()`: Driver for the remote provider by client
+  - `@WebSocketRoute.Header()`: Header information from the client
+  - `@WebSocketRoute.Param()`: URL path parameter
+  - `@WebSocketRoute.Query()`: URL query parameter
+
+For reference, those decorators are almost same with [`@TypedHeaders()`](./TypedHeaders), [`@TypedParam()`](./TypedParam) and [`@TypedQuery()`](./TypedQuery). However, they can't be used in `@WebSocketRoute()` decorated method. Only nested decorator functions under the `WebSocketRoute` module are allowed.
+
+
+
+
+## Software Development Kit
+Related Document: [Software Development Kit](../generators/sdk)
+
+When you configure a `nestia.config.ts` file and run `npx nestia sdk` command, `@nestia/sdk` will generate a SDK (Software Development Kit) library for the WebSocket route. With the SDK library, you can easily develop the WebSocket client application with TypeScript types.
+
+Also, as I've mentioned above, remote provider by WebSocket server is wrapped into the `Driver<T>` type, so that the client application can call the remote provider's function asynchronously. For example, `ICalculator.plus()` function returned `number` value in the server side, but `Driver<T>` returns `Promise<number>` type.
+
+In the same reason, the `IListener` type would be wrapped into the `Driver<IListener>` in the server side, and the `listener` provider would be called asynchronously in the server side through the WebSocket network communication.
+
+<Tabs 
+  items={[
+      "Client Application",
+      "SDK Library",
+      "Server Application",
+      <code>IAdvCalculator.ts</code>,
+      <code>IListener.ts</code>,
+  ]}>
+  <Tab>
+```typescript filename="test/features/test_api_calculate_start.ts" showLineNumbers
+import { TestValidator } from "@nestia/e2e";
+import api from "@samchon/calculator-api/lib/index";
+import { IListener } from "@samchon/calculator-api/lib/structures/IListener";
+
+export const test_api_calculate_start = async (
+  connection: api.IConnection,
+): Promise<void> => {
+  const stack: IListener.IEvent[] = [];
+  const listener: IListener = {
+    on: (event) => stack.push(event),
+  };
+  const { connector, driver } = await api.functional.calculate.start(
+    connection,
+    listener,
+  );
+  try {
+    TestValidator.equals("plus")(await driver.plus(4, 2))(6);
+    TestValidator.equals("minus")(await driver.minus(4, 2))(2);
+    TestValidator.equals("multiply")(await driver.multiply(4, 2))(8);
+    TestValidator.equals("divide")(await driver.divide(4, 2))(2);
+    TestValidator.equals("events")(stack)([
+      { type: "plus", x: 4, y: 2, z: 6 },
+      { type: "minus", x: 4, y: 2, z: 2 },
+      { type: "multiply", x: 4, y: 2, z: 8 },
+      { type: "divide", x: 4, y: 2, z: 2 },
+    ]);
+  } catch (exp) {
+    throw exp;
+  } finally {
+    await connector.close();
+  }
+};
+```
+  </Tab>
+  <Tab>
+```typescript filename="src/api/functional/calculate/index.ts" showLineNumbers
+/**
+ * @packageDocumentation
+ * @module api.functional.calculate
+ * @nestia Generated by Nestia - https://github.com/samchon/nestia
+ */
+//================================================================
+import type { IConnection } from "@nestia/fetcher";
+import { WebConnector } from "tgrid";
+import type { Driver } from "tgrid";
+import type { Format } from "typia/lib/tags/Format";
+
+import type { IAdvancedCalculator } from "../../structures/IAdvancedCalculator";
+import type { IHeader } from "../../structures/IHeader";
+import type { IListener } from "../../structures/IListener";
+import type { IMemo } from "../../structures/IMemo";
+
+/**
+ * Start advanced calculator.
+ *
+ * Start advanced calculator through WebSocket with additional informations.
+ *
+ * @param id ID to assign
+ * @param memo Memo to archive
+ *
+ * @controller CalculateController.advance
+ * @path /calculate/:id/advance
+ * @nestia Generated by Nestia - https://github.com/samchon/nestia
+ */
+export async function advance(
+  connection: IConnection<advance.Header>,
+  id: string & Format<"uuid">,
+  memo: advance.Query,
+  provider: advance.Provider,
+): Promise<advance.Output> {
+  const connector: WebConnector<
+    advance.Header,
+    advance.Provider,
+    advance.Listener
+  > = new WebConnector(connection.headers ?? ({} as any), provider);
+  await connector.connect(
+    `${connection.host}/${advance.path(id, memo)}`
+      .split("/")
+      .filter((str) => !!str)
+      .join("/"),
+  );
+  const driver: Driver<advance.Listener> = connector.getDriver();
+  return {
+    connector,
+    driver,
+  };
+}
+export namespace advance {
+  export type Output = {
+    connector: WebConnector<Header, Provider, Listener>;
+    driver: Driver<Listener>;
+  };
+  export type Header = undefined | Partial<IHeader>;
+  export type Provider = IListener;
+  export type Listener = IAdvancedCalculator;
+  export type Query = IMemo;
+
+  export const path = (id: string & Format<"uuid">, memo: advance.Query) => {
+    const variables: URLSearchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(memo as any))
+      if (undefined === value) continue;
+      else if (Array.isArray(value))
+        value.forEach((elem: any) => variables.append(key, String(elem)));
+      else variables.set(key, String(value));
+    const location: string = `/calculate/${encodeURIComponent(id ?? "null")}/advance`;
+    return 0 === variables.size
+      ? location
+      : `${location}?${variables.toString()}`;
+  };
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="src/CalculateController.ts" copy showLineNumbers
+import { WebSocketRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import { Driver, WebAcceptor } from "tgrid";
+import { tags } from "typia";
+
+import { IAdvancedCalculator } from "./api/structures/IAdvancedCalculator";
+import { IHeader } from "./api/structures/IHeader";
+import { IListener } from "./api/structures/IListener";
+import { IMemo } from "./api/structures/IMemo";
+import { AdvancedCalculator } from "./providers/AdvancedCalculator";
+
+@Controller("calculate")
+export class CalculateController {
+  /**
+   * Start advanced calculator.
+   *
+   * Start advanced calculator through WebSocket with additional informations.
+   *
+   * @param id ID to assign
+   * @param header Header information
+   * @param memo Memo to archive
+   */
+  @WebSocketRoute(":id/advance")
+  public async advance(
+    @WebSocketRoute.Param("id") id: string & tags.Format<"uuid">,
+    @WebSocketRoute.Header() header: undefined | Partial<IHeader>,
+    @WebSocketRoute.Query() memo: IMemo,
+    @WebSocketRoute.Acceptor()
+    acceptor: WebAcceptor<undefined, IAdvancedCalculator, IListener>,
+  ): Promise<void> {
+    if (header?.precision !== undefined && header.precision < 0)
+      await acceptor.reject(1008, "Invalid precision value");
+    else
+      await acceptor.accept(
+        new AdvancedCalculator(
+          id,
+          { precision: header?.precision ?? 2 },
+          memo,
+          acceptor.getDriver(),
+        ),
+      );
+  }
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="src/api/structures/IAdvancedCalculator.ts" copy showLineNumbers
+import { IMemo } from "./IMemo";
+
+export interface IAdvancedCalculator {
+  plus(a: number, b: number): number;
+  minus(a: number, b: number): number;
+  multiply(a: number, b: number): number;
+  divide(a: number, b: number): number;
+
+  getId(): string;
+  getPrecision(): number;
+  getMemo(): IMemo;
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="src/api/structures/IListener.ts" copy showLineNumbers
+export interface IListener {
+  on(event: IListener.IEvent): void;
+}
+export namespace IListener {
+  export interface IEvent {
+    type: string;
+    x: number;
+    y: number;
+    z: number;
+  }
+}
+```
+  </Tab>
+</Tabs>
+
+
+
+
+## Restrictions
+### `@WebSocketAcceptor()`
+When defining `@WebSocketRoute()` decorated method, you must define the `@WebSocketRoute.Acceptor()` decorated parameter. It is essential for both WebSocket route method and SDK library generation, because its target type `WebAcceptor<Header, Provider, Listener>` has significant type definitions for WebSocket communication.
+
+  - `Header`: Header information received by client
+  - `Provider`: Service provider for client
+  - `Listener`: Remote service provider from client
+
+```typescript filename="src/CalculateController.ts" copy showLineNumbers
+import { WebSocketRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import { Driver, WebAcceptor } from "tgrid";
+
+import { ICalculator } from "./api/structures/ICalculator";
+import { IListener } from "./api/structures/IListener";
+import { Calculator } from "./providers/Calculator";
+
+@Controller("calculate")
+export class CalculateController {
+  /**
+   * Start simple calculator.
+   *
+   * Start simple calculator through WebSocket.
+   */
+  @WebSocketRoute("start")
+  public async start(
+    @WebSocketRoute.Acceptor()
+    acceptor: WebAcceptor<any, ICalculator, IListener>,
+    @WebSocketRoute.Driver() driver: Driver<IListener>,
+  ): Promise<void> {
+    await acceptor.accept(new Calculator(driver));
+  }
+}
+```
+
+### `@WebSocketRoute.Param()`
+`@WebSocketRoute.Param()` allows only atomic type.
+
+  - `boolean`
+  - `number`
+  - `string`
+
+Also, `@WebSocketRoute.Param()` allows nullable like `number | null`, but undefindable type is not.
+
+  - `number | null` is allowed
+  - `string | undefined` is prohibited
+
+If you violate above condition, and try to declare object or union type, compilation error would be occured:
+
+```bash
+Error on nestia.core.WebSocketRoute.Param(): only atomic type is allowed
+```
+
+### `@WebSocketRoute.Query()`
+When using `@WebSocketRoute.Query()`, you've to follow such restrction.
+
+At first, type of `@WebSocketRoute.Query()` must be a pure **object type**. It does not allow union type. Also, nullable and undefindable types are not allowed, either. Note that, query parameter type must be a sole **object type** without any extra definition.
+
+At next, type of properties must be **atomic**, or array of atomic type. In the atomic type case, the atomic type allows both nullable and undefindable types. However, mixed union atomic type like `string | number` or `"1" | "2" | 3` are not allowed. Also, the array type does not allow both nullable and undefindable types, either.
+
+  - `boolean`
+  - `number`
+  - `bigint`
+  - `string`
+
+```typescript filename="SomeQueryDto.ts" showLineNumbers
+export interface SomeQueryDto {
+  //----
+  // ATOMIC TYPES
+  //----
+  // ALLOWED
+  boolean: boolean;
+  number: number;
+  string: string;
+  bigint: bigint;
+  optional_number?: number;
+  nullable_string: string | null;
+  literal_union: "A" | "B" | "C" | "D";
+
+  // NOT ALLOWED
+  mixed_union: string | number | boolean;
+  mixed_literal: "A" | "B" | 3;
+
+  //----
+  // ARRAY TYPES
+  //----
+  // ALLOWED
+  nullable_element_array: (string | null)[];
+  string_array: string[];
+  number_array: number[];
+  literal_union_array: ("A" | "B" | "C")[];
+  literal_tuple: ["A", "B", "C"];
+
+  // NOT ALLOWED
+  optional_element_array: (string | undefined)[];
+  optional_array: string[] | undefined;
+  nullable_array: string[] | null;
+  union_atomic_array: (string | number)[];
+  mixed_literal_array: ("A", "B", 3)[];
+  mixed_tuple: ["A", "B", 3];
+}
+```

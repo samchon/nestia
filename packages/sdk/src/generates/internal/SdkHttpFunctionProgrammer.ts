@@ -22,8 +22,8 @@ export namespace SdkHttpFunctionProgrammer {
         query: ITypedHttpRoute.IParameter | undefined;
         input: ITypedHttpRoute.IParameter | undefined;
       },
-    ): ts.FunctionDeclaration => {
-      return ts.factory.createFunctionDeclaration(
+    ): ts.FunctionDeclaration =>
+      ts.factory.createFunctionDeclaration(
         [
           ts.factory.createModifier(ts.SyntaxKind.ExportKeyword),
           ts.factory.createModifier(ts.SyntaxKind.AsyncKeyword),
@@ -68,7 +68,6 @@ export namespace SdkHttpFunctionProgrammer {
           true,
         ),
       );
-    };
 
   const write_body =
     (config: INestiaConfig) =>
