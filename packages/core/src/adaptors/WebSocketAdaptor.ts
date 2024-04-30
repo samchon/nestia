@@ -80,7 +80,7 @@ export class WebSocketAdaptor {
                 return;
               }
           }
-          await acceptor.reject(1002, `Cannot GET ${path}`);
+          await acceptor.reject(1002, `WebSocket API not found`);
         },
       ),
     );
@@ -147,7 +147,7 @@ const visitApplication = async (
             `    methods:`,
             ...e.methods.map((m) =>
               [
-                `    - name: ${m.name}:`,
+                `    - name: ${m.name}`,
                 `      file: ${m.source}:${m.line}:${m.column}`,
                 `      reasons:`,
                 ...m.messages.map(
@@ -205,7 +205,7 @@ const visitController = async (props: {
       : undefined,
     modulePrefix: props.modulePrefix,
   };
-  for (const mk of Object.getOwnPropertyNames(controller.prototype).filter(
+  for (const mk of getOwnPropertyNames(controller.prototype).filter(
     (key) =>
       key !== "constructor" && typeof controller.prototype[key] === "function",
   )) {
@@ -373,6 +373,16 @@ const visitMethod = (props: {
 };
 
 const wrapPaths = (value: string[]) => (value.length === 0 ? [""] : value);
+const getOwnPropertyNames = (prototype: any): string[] => {
+  const result: Set<string> = new Set();
+  const iterate = (m: any) => {
+    if (m === null) return;
+    for (const k of Object.getOwnPropertyNames(m)) result.add(k);
+    iterate(Object.getPrototypeOf(m));
+  };
+  iterate(prototype);
+  return Array.from(result);
+};
 
 interface Entry<T> {
   key: string;

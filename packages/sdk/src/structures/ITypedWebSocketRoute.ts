@@ -17,6 +17,7 @@ export interface ITypedWebSocketRoute {
 
   location: string;
   description?: string;
+  jsDocTags: ts.JSDocTagInfo[];
 }
 export namespace ITypedWebSocketRoute {
   export type IParameter =

@@ -87,6 +87,7 @@ export namespace TypedWebSocketOperationAnalyzer {
           }`;
         })(),
         description: CommentFactory.description(props.symbol),
+        jsDocTags,
       };
 
       // CONFIGURE PATHS

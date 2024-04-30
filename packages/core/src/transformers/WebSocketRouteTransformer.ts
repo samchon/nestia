@@ -57,7 +57,8 @@ export namespace WebSocketRouteTransformer {
           if (
             param.type
               ?.getText()
-              .split(".")
+              .split("<")[0]
+              ?.split(".")
               .at(-1)
               ?.startsWith("WebAcceptor") !== true
           )
@@ -67,8 +68,12 @@ export namespace WebSocketRouteTransformer {
             );
         } else if (category === "Driver") {
           if (
-            param.type?.getText().split(".").at(-1)?.startsWith("Driver") !==
-            true
+            param.type
+              ?.getText()
+              .split("<")[0]
+              ?.split(".")
+              .at(-1)
+              ?.startsWith("Driver") !== true
           )
             report(
               param,

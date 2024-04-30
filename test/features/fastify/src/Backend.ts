@@ -1,12 +1,10 @@
 import core from "@nestia/core";
+import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from "@nestjs/platform-fastify";
+import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 export class Backend {
-  private application_?: NestFastifyApplication;
+  private application_?: INestApplication;
 
   public async open(): Promise<void> {
     this.application_ = await NestFactory.create(
@@ -17,6 +15,7 @@ export class Backend {
       new FastifyAdapter(),
       { logger: false },
     );
+    await core.WebSocketAdaptor.upgrade(this.application_);
     await this.application_.listen(37_000);
   }
 

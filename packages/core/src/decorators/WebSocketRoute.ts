@@ -10,7 +10,7 @@ import { validate_request_query } from "./internal/validate_request_query";
 /**
  * WebSocket route decorator.
  *
- * `@WebSocketRoute` is a route decorator function for WebSocket routes.
+ * `@WebSocketRoute()` is a route decorator function for WebSocket routes.
  * If you want to define a WebSocket route with this `@WebSocketRoute` decorator,
  * please don't forget to call the {@link WebSocketAdaptor.upgrade} function
  * to the {@link INestApplication} instance.
