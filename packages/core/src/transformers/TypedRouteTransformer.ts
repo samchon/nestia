@@ -23,11 +23,7 @@ export namespace TypedRouteTransformer {
         const location: string = path.resolve(
           signature.declaration.getSourceFile().fileName,
         );
-        if (
-          LIB_PATHS.every((str) => location.indexOf(str) === -1) &&
-          SRC_PATHS.every((str) => location !== str)
-        )
-          return null;
+        if (LIB_PATHS.every((str) => location.indexOf(str) === -1)) return null;
 
         // CHECK DUPLICATE BOOSTER
         if (decorator.expression.arguments.length >= 2) return false;
@@ -81,8 +77,5 @@ export namespace TypedRouteTransformer {
   const CLASSES = ["EncryptedRoute", "TypedRoute", "TypedQuery"];
   const LIB_PATHS = CLASSES.map((cla) =>
     path.join("@nestia", "core", "lib", "decorators", `${cla}.d.ts`),
-  );
-  const SRC_PATHS = CLASSES.map((cla) =>
-    path.resolve(path.join(__dirname, "..", "decorators", `${cla}.ts`)),
   );
 }

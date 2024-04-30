@@ -13,6 +13,7 @@ import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
 import { Module } from "@nestjs/core/injector/module";
 import getFunctionLocation from "get-function-location";
 import { IncomingMessage, Server } from "http";
+import path from "path";
 import { Path } from "path-parser";
 import { Duplex } from "stream";
 import { WebAcceptor } from "tgrid";
@@ -127,7 +128,7 @@ const visitApplication = async (
       Reflect.getMetadata(MODULE_PATH, m.metatype) ??
       "";
     for (const controller of m.controllers.values())
-      visitController({
+      await visitController({
         config,
         errors,
         operators,
@@ -135,7 +136,7 @@ const visitApplication = async (
         modulePrefix,
       });
   }
-  if (errors.length) {
+  if (errors.length)
     throw new Error(
       [
         `WebSocketAdaptor: ${errors.length} error(s) found:`,
@@ -143,30 +144,25 @@ const visitApplication = async (
         ...errors.map((e) =>
           [
             `  - controller: ${e.name}`,
-            `  - methods:`,
+            `    methods:`,
             ...e.methods.map((m) =>
               [
-                `  - name: ${m.name}`,
-                `  - file: ${m.source}:${m.line}:${m.column}`,
-                `  - reasons:`,
+                `    - name: ${m.name}:`,
+                `      file: ${m.source}:${m.line}:${m.column}`,
+                `      reasons:`,
                 ...m.messages.map(
                   (msg) =>
-                    `  - ${msg
+                    `        - ${msg
                       .split("\n")
-                      .map((str) => `  ${str}`)
+                      .map((str, i) => (i == 0 ? str : `        ${str}`))
                       .join("\n")}`,
                 ),
-              ]
-                .map((str) => `  ${str}`)
-                .join("\n"),
+              ].join("\n"),
             ),
-          ]
-            .map((str) => `  ${str}`)
-            .join("\n"),
+          ].join("\n"),
         ),
       ].join("\n"),
     );
-  }
   return operators;
 };
 
@@ -224,12 +220,18 @@ const visitController = async (props: {
       },
       report: (msg) => errorMessages.push(msg),
     });
-    if (errorMessages.length)
+    if (errorMessages.length) {
+      const file = await getFunctionLocation(controller.prototype[mk]);
       methodErrors.push({
         name: mk,
         messages: errorMessages,
-        ...(await getFunctionLocation(controller.prototype[mk])),
+        ...file,
+        source: path.relative(
+          process.cwd(),
+          file.source.replace("file:///", ""),
+        ),
       });
+    }
   }
 
   if (methodErrors.length)
