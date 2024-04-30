@@ -23,7 +23,7 @@
     "@mui/icons-material": "5.15.6",
     "@mui/material": "5.15.6",
     "@mui/system": "5.15.6",
-    "@nestia/migrate": "^0.13.9",
+    "@nestia/migrate": "^0.13.10",
     "@samchon/openapi": "^0.1.21",
     "@stackblitz/sdk": "^1.9.0",
     "js-yaml": "^4.1.0",
