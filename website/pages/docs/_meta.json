@@ -19,7 +19,7 @@
   "api": {
     "title": "API Documents",
     "href": "/api",
-    "newWindow": false
+    "newWindow": true
   },
   "benchmark": {
     "title": "⇲ Benchmark Result",
