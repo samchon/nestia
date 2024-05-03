@@ -16,6 +16,11 @@
     "type": "separator",
     "title": "🔗 Appendix"
   },
+  "api": {
+    "title": "API Documents",
+    "href": "/api",
+    "newWindow": false
+  },
   "benchmark": {
     "title": "⇲ Benchmark Result",
     "href": "https://github.com/samchon/nestia/tree/master/benchmark/results/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics",

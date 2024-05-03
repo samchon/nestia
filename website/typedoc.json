@@ -1,0 +1,7 @@
+{
+  "tsconfig": "../packages/core/tsconfig.json",
+  "entryPoints": [
+    "../packages/core/src/index.ts",
+  ],
+  "out": "./public/api"
+}
