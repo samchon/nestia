@@ -10,5 +10,11 @@ const nextConfig = {
     unoptimized: true,
   },
   output: "export",
+  rewrites: async () => [
+    {
+      source: "/api",
+      destination: "/api/index.html",
+    },
+  ],
 };
 module.exports = nextConfig;

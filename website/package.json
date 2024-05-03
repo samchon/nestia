@@ -4,7 +4,7 @@
   "description": "Nestia Guide Documents",
   "private": true,
   "scripts": {
-    "build": "rimraf .next && rimraf .out && next build && next-sitemap",
+    "build": "rimraf .next && rimraf .out && typedoc && next build && next-sitemap",
     "deploy": "node deploy",
     "dev": "next dev"
   },
@@ -43,6 +43,7 @@
     "gh-pages": "^5.0.0",
     "next-sitemap": "^4.2.3",
     "rimraf": "^5.0.0",
+    "typedoc": "^0.25.13",
     "typescript": "^5.4.5"
   }
 }
