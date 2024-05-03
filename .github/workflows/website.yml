@@ -14,9 +14,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-      - name: Install Core
-        working-directory: packages/core
-        run: npm install
+      - name: Root Install
+        run: npm run package:tgz
       - name: Build
         working-directory: website 
         run: npm install && npm run build
