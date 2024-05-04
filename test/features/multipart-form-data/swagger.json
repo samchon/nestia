@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.1.0-dev.20240426",
+    "version": "3.1.1",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -71,6 +71,9 @@
       "IMultipart": {
         "type": "object",
         "properties": {
+          "title": {
+            "type": "string"
+          },
           "blob": {
             "type": "string",
             "format": "binary"
@@ -82,6 +85,16 @@
               "format": "binary"
             }
           },
+          "description": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
           "file": {
             "type": "string",
             "format": "binary"
@@ -92,11 +105,19 @@
               "type": "string",
               "format": "binary"
             }
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
+          "title",
           "blob",
           "blobs",
+          "description",
           "file",
           "files"
         ]

@@ -18,8 +18,8 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
     - SDK library generator for clients
     - Mockup Simulator for client applications
     - Automatic E2E test functions generator
-  - `@nestia/migrate`: Migration from Swagger to NestJS
-  - `@nestia/editor`: Online TypeScript Swagger Editor
+  - `@nestia/migrate`: OpenAPI generator from Swagger to NestJS
+  - `@nestia/editor`: Swagger-UI with Online TypeScript Editor
   - `nestia`: Just CLI (command line interface) tool
 
 > **Note**
