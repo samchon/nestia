@@ -1,4 +1,4 @@
-import type { MultipartFile } from "@fastify/multipart";
+import type { Multipart } from "@fastify/multipart";
 import {
   BadRequestException,
   ExecutionContext,
@@ -147,7 +147,7 @@ const decodeFastify =
   <T>(_props: IRequestFormDataProps<T>) =>
   async (socket: {
     request: FastifyRequest & {
-      files?(): AsyncIterableIterator<MultipartFile>;
+      parts?(): AsyncIterableIterator<Multipart>;
     };
     response: FastifyReply;
   }): Promise<FormData> => {
@@ -161,13 +161,19 @@ const decodeFastify =
     const data: FormData = new FormData();
     for (const [key, value] of Object.entries(socket.request.body ?? {}))
       for (const elem of String(value).split(",")) data.append(key, elem);
-    for await (const file of socket.request.files())
-      data.append(
-        file.fieldname,
-        new File([await file.toBuffer()], file.filename, {
-          type: file.mimetype,
-        }),
-      );
+    for await (const part of socket.request.parts())
+      if (part.type === "file")
+        data.append(
+          part.fieldname,
+          new File([await part.toBuffer()], part.filename, {
+            type: part.mimetype,
+          }),
+        );
+      else {
+        const value: string = String(part.value);
+        for (const elem of String(value).split(","))
+          data.append(part.fieldname, elem);
+      }
     return data;
   };
 
