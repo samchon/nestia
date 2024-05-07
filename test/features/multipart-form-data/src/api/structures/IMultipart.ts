@@ -4,6 +4,15 @@ export interface IMultipart {
   blobs: Blob[];
   description: null | string;
   file: File;
+  flags: number[];
   files: File[];
   notes?: string[];
+}
+export namespace IMultipart {
+  export interface IContent {
+    title: string;
+    description: null | string;
+    flags: number[];
+    notes?: string[];
+  }
 }

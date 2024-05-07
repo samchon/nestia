@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.1.1",
+    "version": "3.1.2",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -42,7 +42,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IMultipart.IContent"
+                }
+              }
+            }
           }
         }
       }
@@ -99,6 +106,12 @@
             "type": "string",
             "format": "binary"
           },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
           "files": {
             "type": "array",
             "items": {
@@ -119,7 +132,43 @@
           "blobs",
           "description",
           "file",
+          "flags",
           "files"
+        ]
+      },
+      "IMultipart.IContent": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "flags"
         ]
       },
       "IPerformance": {

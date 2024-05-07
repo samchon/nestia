@@ -133,8 +133,9 @@ const decodeExpress = <T>(props: IRequestFormDataProps<T>) => {
 
     const data: FormData = new FormData();
     for (const [key, value] of Object.entries(socket.request.body))
-      for (const elem of String(value).split(",")) data.append(key, elem);
-
+      if (Array.isArray(value))
+        for (const elem of value) data.append(key, String(elem));
+      else data.append(key, String(value));
     if (socket.request.files) parseFiles(data)(socket.request.files);
     return data;
   };
@@ -159,8 +160,6 @@ const decodeFastify =
         "Have not configured the `fastify-multipart` plugin yet. Inquiry to the backend developer.",
       );
     const data: FormData = new FormData();
-    for (const [key, value] of Object.entries(socket.request.body ?? {}))
-      for (const elem of String(value).split(",")) data.append(key, elem);
     for await (const part of socket.request.parts())
       if (part.type === "file")
         data.append(
@@ -169,11 +168,10 @@ const decodeFastify =
             type: part.mimetype,
           }),
         );
-      else {
-        const value: string = String(part.value);
-        for (const elem of String(value).split(","))
-          data.append(part.fieldname, elem);
-      }
+      else if (Array.isArray(part.value))
+        for (const elem of part.value)
+          data.append(part.fieldname, String(elem));
+      else data.append(part.fieldname, String(part.value));
     return data;
   };
 
