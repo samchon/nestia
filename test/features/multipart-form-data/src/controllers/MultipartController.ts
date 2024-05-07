@@ -9,7 +9,7 @@ export class MultipartController {
   @core.TypedRoute.Post()
   public async post(
     @core.TypedFormData.Body() body: IMultipart,
-  ): Promise<void> {
+  ): Promise<IMultipart.IContent> {
     await validateBlob(0)(body.blob);
     await ArrayUtil.asyncForEach(body.blobs)((blob, i) =>
       validateBlob(i)(blob),
@@ -18,6 +18,7 @@ export class MultipartController {
     await ArrayUtil.asyncForEach(body.files)((file, i) =>
       validateBlob(i, `${i}.png`)(file),
     );
+    return body;
   }
 }
 
