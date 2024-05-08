@@ -1,8 +1,10 @@
+/// <reference path="../typings/get-function-location.d.ts" />
 import { INestApplication, VersioningType } from "@nestjs/common";
 import { MODULE_PATH } from "@nestjs/common/constants";
 import { NestContainer } from "@nestjs/core";
 import { Module } from "@nestjs/core/injector/module";
 import fs from "fs";
+import getFunctionLocation from "get-function-location";
 import path from "path";
 import { HashMap, Pair, Singleton } from "tstl";
 
@@ -47,7 +49,7 @@ export namespace ConfigAnalyzer {
         "";
       for (const controller of [...m.controllers.keys()]) {
         const file: string | null =
-          (await require("get-function-location")(controller))?.source ?? null;
+          (await getFunctionLocation(controller))?.source ?? null;
         if (file === null) continue;
 
         const location: string = normalize_file(file);
