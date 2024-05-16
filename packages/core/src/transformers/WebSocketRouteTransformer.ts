@@ -60,11 +60,11 @@ export namespace WebSocketRouteTransformer {
               .split("<")[0]
               ?.split(".")
               .at(-1)
-              ?.startsWith("WebAcceptor") !== true
+              ?.startsWith("WebSocketAcceptor") !== true
           )
             report(
               param,
-              `parameter ${JSON.stringify(param.name.getText())} must have WebAcceptor<Header, Provider, Listener> type.`,
+              `parameter ${JSON.stringify(param.name.getText())} must have WebSocketAcceptor<Header, Provider, Listener> type.`,
             );
         } else if (category === "Driver") {
           if (

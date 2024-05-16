@@ -64,10 +64,10 @@ export namespace WebSocketRoute {
    * Acceptor parameter decorator.
    *
    * `@WebSocketRoute.Acceptor()` is a parameter decorator function for the
-   * `WebAcceptor<Header, Provider, Listener>` (of `tgrid`) typed parameter.
+   * `WebSocketAcceptor<Header, Provider, Listener>` (of `tgrid`) typed parameter.
    *
    * In the controller method decorated by `@WebSocketRoute()` and
-   * `@WebSocketRoute.Acceptor()`, call {@link WebAcceptor.accept} function
+   * `@WebSocketRoute.Acceptor()`, call {@link WebSocketAcceptor.accept} function
    * with `Provider` instance when you want to accept the WebSocket client
    * connection. Otherwise you want to reject the connection, call
    * {@link WebSocketAcceptor.rejcet} function instead.
@@ -101,7 +101,7 @@ export namespace WebSocketRoute {
    *
    * For reference, this `@WebSocketRoute.Driver()` decorator is optional, and
    * can be substituted by `@WebSocketRoute.Acceptor()` decorated parameter
-   * by calling the {@link WebAcceptor.getDriver} function.
+   * by calling the {@link WebSocketAcceptor.getDriver} function.
    */
   export function Driver(): ParameterDecorator {
     return function WebSocketDriver(
@@ -123,12 +123,12 @@ export namespace WebSocketRoute {
    * WebSocket header with type casting and assertion.
    *
    * For reference, `@WebSocketRoute.Header()` is different with HTTP headers.
-   * It's for WebSocket protocol, especially for TGrid's {@link WebConnector}
-   * and {@link WebAcceptor}'s special header.
+   * It's for WebSocket protocol, especially for TGrid's {@link WebSocketConnector}
+   * and {@link WebSocketAcceptor}'s special header.
    *
    * Also, this `@WebSocketRoute.Header()` decorator is optional, and
    * can be substituted by `@WebSocketRoute.Acceptor()` decorated parameter
-   * by accessting to the {@link WebAcceptor.header} property.
+   * by accessting to the {@link WebSocketAcceptor.header} property.
    */
   export function Header<T>(
     validator?: IRequestBodyValidator<T>,

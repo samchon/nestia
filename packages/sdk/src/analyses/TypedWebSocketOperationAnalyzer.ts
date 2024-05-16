@@ -228,7 +228,7 @@ export namespace TypedWebSocketOperationAnalyzer {
           file: props.controller.file,
           controller: props.controller.name,
           function: props.function,
-          message: `@WebSocketRoute.Acceptor() must have three type arguments of WebAcceptor<Header, Provider, Listener>`,
+          message: `@WebSocketRoute.Acceptor() must have three type arguments of WebSocketAcceptor<Header, Provider, Listener>`,
         });
       const [header, provider, listener] = [
         "header",
@@ -247,7 +247,7 @@ export namespace TypedWebSocketOperationAnalyzer {
             file: props.controller.file,
             controller: props.controller.name,
             function: props.function,
-            message: `unable to analyze the "${key}" argument type of WebAcceptor<Header, Provider, Listener>.`,
+            message: `unable to analyze the "${key}" argument type of WebSocketAcceptor<Header, Provider, Listener>.`,
           });
         return tuple!;
       });

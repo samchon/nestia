@@ -1,6 +1,6 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import { Driver, WebAcceptor } from "tgrid";
+import { Driver, WebSocketAcceptor } from "tgrid";
 
 import { ICalculator } from "@api/lib/structures/ICalculator";
 import { IListener } from "@api/lib/structures/IListener";
@@ -12,11 +12,11 @@ export function CalculateControllerBase(path: string) {
     @core.WebSocketRoute()
     public async connect(
       @core.WebSocketRoute.Acceptor()
-      adaptor: WebAcceptor<IPrecision, ICalculator, IListener>,
+      acceptor: WebSocketAcceptor<IPrecision, ICalculator, IListener>,
       @core.WebSocketRoute.Driver()
       driver: Driver<IListener>,
     ): Promise<void> {
-      await adaptor.accept({
+      await acceptor.accept({
         plus: (x, y) => {
           const z: number = x + y;
           driver.on({ operator: "plus", x, y, z }).catch(() => {});
