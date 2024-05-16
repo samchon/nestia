@@ -39,7 +39,7 @@
     "physical-cpu-count": "^2.0.0",
     "randexp": "^0.5.3",
     "reflect-metadata": "^0.2.2",
-    "tgrid": "^0.10.3",
+    "tgrid": "^1.0.0",
     "tstl": "^3.0.0",
     "typia": "^6.0.3"
   },

@@ -5,7 +5,7 @@
  */
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
-import { WebConnector } from "tgrid";
+import { WebSocketConnector } from "tgrid";
 import type { Driver } from "tgrid";
 
 import type { ICalculator } from "../../../structures/ICalculator";
@@ -21,11 +21,11 @@ export async function connect(
   connection: IConnection<connect.Header>,
   provider: connect.Provider,
 ): Promise<connect.Output> {
-  const connector: WebConnector<
+  const connector: WebSocketConnector<
     connect.Header,
     connect.Provider,
     connect.Listener
-  > = new WebConnector(connection.headers ?? ({} as any), provider);
+  > = new WebSocketConnector(connection.headers ?? ({} as any), provider);
   await connector.connect(
     `${connection.host.endsWith("/") ? connection.host.substring(0, connection.host.length - 1) : connection.host}${connect.path()}`,
   );
@@ -37,7 +37,7 @@ export async function connect(
 }
 export namespace connect {
   export type Output = {
-    connector: WebConnector<Header, Provider, Listener>;
+    connector: WebSocketConnector<Header, Provider, Listener>;
     driver: Driver<Listener>;
   };
   export type Header = IPrecision;

@@ -23,7 +23,7 @@ export namespace WebSocketRoute {
 ```typescript filename="src/CalculateController.ts" showLineNumbers
 import { WebSocketRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import { Driver, WebAcceptor } from "tgrid";
+import { Driver, WebSocketAcceptor } from "tgrid";
 
 import { ICalculator } from "./api/structures/ICalculator";
 import { IListener } from "./api/structures/IListener";
@@ -39,7 +39,7 @@ export class CalculateController {
   @WebSocketRoute("start")
   public async start(
     @WebSocketRoute.Acceptor()
-    acceptor: WebAcceptor<any, ICalculator, IListener>,
+    acceptor: WebSocketAcceptor<any, ICalculator, IListener>,
     @WebSocketRoute.Driver() driver: Driver<IListener>,
   ): Promise<void> {
     await acceptor.accept(new Calculator(driver));
@@ -92,6 +92,13 @@ WebSocket route decorators.
 Also, supports [SDK (Software Development Kit)](../generators/sdk), so that you can easily develop the WebSocket client.
 
 
+  - References
+    - [TGrid > Guide Documents > Remote Procedure Call](https://tgrid.com/docs/remote-procedure-call/)
+    - [TGrid > Guide Documents > Features > Components](https://tgrid.com/docs/features/components/)
+    - [TGrid > Guide Documents > Features > WebSocket Protocol](https://tgrid.com/docs/features/websocket/)
+    - [TGrid > Guide Documents > Learn from Examples > NestJS WebSocket](https://tgrid.com/docs/examples/nestjs-websocket/)
+    - [💻 Playground Website](https://stackblitz.com/~/github.com/samchon/tgrid.example.nestjs?file=src/calculate.test.ts&view=editor)
+
 
 
 ## How to use
@@ -132,7 +139,7 @@ If you don't upgrade it, `@WebSocketRoute()` decorated methods never work.
 ```typescript filename="src/CalculateController.ts" copy showLineNumbers
 import { WebSocketRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import { Driver, WebAcceptor } from "tgrid";
+import { Driver, WebSocketAcceptor } from "tgrid";
 
 import { ICalculator } from "./api/structures/ICalculator";
 import { IListener } from "./api/structures/IListener";
@@ -148,7 +155,7 @@ export class CalculateController {
   @WebSocketRoute("start")
   public async start(
     @WebSocketRoute.Acceptor()
-    acceptor: WebAcceptor<any, ICalculator, IListener>,
+    acceptor: WebSocketAcceptor<any, ICalculator, IListener>,
     @WebSocketRoute.Driver() driver: Driver<IListener>,
   ): Promise<void> {
     await acceptor.accept(new Calculator(driver));
@@ -257,7 +264,7 @@ export const test_api_calculate_start = async (
 
 After that, attach `@WebSocketRoute()` decorator function onto target method like above.
 
-Note that, never forget to defining the `@WebSocketRoute.Acceptor()` decorated parameter. It is essential for both WebSocket route method and SDK library generation. Each generic arguments of `WebAcceptor<Header, Provider, Listener>` means like below:
+Note that, never forget to defining the `@WebSocketRoute.Acceptor()` decorated parameter. It is essential for both WebSocket route method and SDK library generation. Each generic arguments of `WebSocketAcceptor<Header, Provider, Listener>` means like below:
 
   - `Header`: Header information received by client
   - `Provider`: Service provider for client
@@ -280,7 +287,7 @@ Therefore, the `Driver<T>` type converts every functions' return type to be `Pro
 ```typescript filename="src/CalculateController.ts" copy showLineNumbers
 import { WebSocketRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import { Driver, WebAcceptor } from "tgrid";
+import { Driver, WebSocketAcceptor } from "tgrid";
 import { tags } from "typia";
 
 import { IAdvancedCalculator } from "./api/structures/IAdvancedCalculator";
@@ -306,7 +313,7 @@ export class CalculateController {
     @WebSocketRoute.Header() header: undefined | Partial<IHeader>,
     @WebSocketRoute.Query() memo: IMemo,
     @WebSocketRoute.Acceptor()
-    acceptor: WebAcceptor<undefined, IAdvancedCalculator, IListener>,
+    acceptor: WebSocketAcceptor<undefined, IAdvancedCalculator, IListener>,
   ): Promise<void> {
     if (header?.precision !== undefined && header.precision < 0)
       await acceptor.reject(1008, "Invalid precision value");
@@ -480,7 +487,7 @@ If you need additional parameters, you can use nested decorators.
 
 For reference, those decorators are almost same with [`@TypedHeaders()`](./TypedHeaders), [`@TypedParam()`](./TypedParam) and [`@TypedQuery()`](./TypedQuery). However, they can't be used in `@WebSocketRoute()` decorated method. Only nested decorator functions under the `WebSocketRoute` module are allowed.
 
-Also, if you don't want to accept the client connection, reject it through `WebAcceptor.close()` function.
+Also, if you don't want to accept the client connection, reject it through `WebSocketAcceptor.close()` function.
 
 
 
@@ -547,7 +554,7 @@ export const test_api_calculate_start = async (
  */
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
-import { WebConnector } from "tgrid";
+import { WebSocketConnector } from "tgrid";
 import type { Driver } from "tgrid";
 import type { Format } from "typia/lib/tags/Format";
 
@@ -574,11 +581,11 @@ export async function advance(
   memo: advance.Query,
   provider: advance.Provider,
 ): Promise<advance.Output> {
-  const connector: WebConnector<
+  const connector: WebSocketConnector<
     advance.Header,
     advance.Provider,
     advance.Listener
-  > = new WebConnector(connection.headers ?? ({} as any), provider);
+  > = new WebSocketConnector(connection.headers ?? ({} as any), provider);
   await connector.connect(
     `${connection.host}/${advance.path(id, memo)}`
       .split("/")
@@ -593,7 +600,7 @@ export async function advance(
 }
 export namespace advance {
   export type Output = {
-    connector: WebConnector<Header, Provider, Listener>;
+    connector: WebSocketConnector<Header, Provider, Listener>;
     driver: Driver<Listener>;
   };
   export type Header = undefined | Partial<IHeader>;
@@ -620,7 +627,7 @@ export namespace advance {
 ```typescript filename="src/CalculateController.ts" copy showLineNumbers
 import { WebSocketRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import { Driver, WebAcceptor } from "tgrid";
+import { Driver, WebSocketAcceptor } from "tgrid";
 import { tags } from "typia";
 
 import { IAdvancedCalculator } from "./api/structures/IAdvancedCalculator";
@@ -646,7 +653,7 @@ export class CalculateController {
     @WebSocketRoute.Header() header: undefined | Partial<IHeader>,
     @WebSocketRoute.Query() memo: IMemo,
     @WebSocketRoute.Acceptor()
-    acceptor: WebAcceptor<undefined, IAdvancedCalculator, IListener>,
+    acceptor: WebSocketAcceptor<undefined, IAdvancedCalculator, IListener>,
   ): Promise<void> {
     if (header?.precision !== undefined && header.precision < 0)
       await acceptor.reject(1008, "Invalid precision value");
@@ -701,7 +708,7 @@ export namespace IListener {
 
 ## Restrictions
 ### `@WebSocketAcceptor()`
-When defining `@WebSocketRoute()` decorated method, you must define the `@WebSocketRoute.Acceptor()` decorated parameter. It is essential for both WebSocket route method and SDK library generation, because its target type `WebAcceptor<Header, Provider, Listener>` has significant type definitions for WebSocket communication.
+When defining `@WebSocketRoute()` decorated method, you must define the `@WebSocketRoute.Acceptor()` decorated parameter. It is essential for both WebSocket route method and SDK library generation, because its target type `WebSocketAcceptor<Header, Provider, Listener>` has significant type definitions for WebSocket communication.
 
   - `Header`: Header information received by client
   - `Provider`: Service provider for client
@@ -710,7 +717,7 @@ When defining `@WebSocketRoute()` decorated method, you must define the `@WebSoc
 ```typescript filename="src/CalculateController.ts" copy showLineNumbers
 import { WebSocketRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import { Driver, WebAcceptor } from "tgrid";
+import { Driver, WebSocketAcceptor } from "tgrid";
 
 import { ICalculator } from "./api/structures/ICalculator";
 import { IListener } from "./api/structures/IListener";
@@ -726,7 +733,7 @@ export class CalculateController {
   @WebSocketRoute("start")
   public async start(
     @WebSocketRoute.Acceptor()
-    acceptor: WebAcceptor<any, ICalculator, IListener>,
+    acceptor: WebSocketAcceptor<any, ICalculator, IListener>,
     @WebSocketRoute.Driver() driver: Driver<IListener>,
   ): Promise<void> {
     await acceptor.accept(new Calculator(driver));

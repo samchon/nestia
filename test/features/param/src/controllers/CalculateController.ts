@@ -1,6 +1,6 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import { Driver, WebAcceptor } from "tgrid";
+import { Driver, WebSocketAcceptor } from "tgrid";
 import { tags } from "typia";
 
 import { ICalculator } from "@api/lib/structures/ICalculator";
@@ -13,7 +13,7 @@ export class CalculateController {
   public async connect(
     @core.WebSocketRoute.Param("id") id: string & tags.Format<"uuid">,
     @core.WebSocketRoute.Acceptor()
-    adaptor: WebAcceptor<IPrecision, ICalculator, IListener>,
+    adaptor: WebSocketAcceptor<IPrecision, ICalculator, IListener>,
     @core.WebSocketRoute.Driver()
     driver: Driver<IListener>,
   ): Promise<void> {

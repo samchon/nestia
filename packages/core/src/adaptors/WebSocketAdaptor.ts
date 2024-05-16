@@ -16,7 +16,7 @@ import { IncomingMessage, Server } from "http";
 import path from "path";
 import { Path } from "path-parser";
 import { Duplex } from "stream";
-import { WebAcceptor } from "tgrid";
+import { WebSocketAcceptor } from "tgrid";
 import typia from "typia";
 import WebSocket from "ws";
 
@@ -52,7 +52,7 @@ export class WebSocketAdaptor {
     head: Buffer,
   ) => {
     this.ws.handleUpgrade(request, duplex, head, (client, request) =>
-      WebAcceptor.upgrade(
+      WebSocketAcceptor.upgrade(
         request,
         client as any,
         async (acceptor): Promise<void> => {
@@ -67,8 +67,8 @@ export class WebSocketAdaptor {
                 await op.handler({ params, acceptor });
               } catch (error) {
                 if (
-                  acceptor.state === WebAcceptor.State.OPEN ||
-                  acceptor.state === WebAcceptor.State.ACCEPTING
+                  acceptor.state === WebSocketAcceptor.State.OPEN ||
+                  acceptor.state === WebSocketAcceptor.State.ACCEPTING
                 )
                   await acceptor.reject(
                     1008,
@@ -332,7 +332,7 @@ const visitMethod = (props: {
           parser,
           handler: async (input: {
             params: Record<string, string>;
-            acceptor: WebAcceptor<any, any, any>;
+            acceptor: WebSocketAcceptor<any, any, any>;
           }): Promise<void> => {
             const args: any[] = [];
             try {
@@ -402,7 +402,7 @@ interface IOperator {
   parser: Path;
   handler: (props: {
     params: Record<string, string>;
-    acceptor: WebAcceptor<any, any, any>;
+    acceptor: WebSocketAcceptor<any, any, any>;
   }) => Promise<any>;
 }
 interface IConfig {

@@ -50,7 +50,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
               importer.external({
                 type: false,
                 library: "tgrid",
-                instance: "WebConnector",
+                instance: "WebSocketConnector",
               }),
               [
                 ts.factory.createTypeReferenceNode("Header"),
