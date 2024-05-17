@@ -30,7 +30,7 @@ Just import and call some API functions like gif image below:
     - Automatic E2E test functions generator
   - `nestia`: just CLI (command line interface) tool
 
-> **Note**
+> [!NOTE]
 > 
 > - **Only one line** required, with pure TypeScript type
 > - Runtime validator is **20,000x faster** than `class-validator`

@@ -1,0 +1,6 @@
+{
+  "extends": "next",
+  "rules": {
+    "@typescript-eslint/no-namespace": "off"
+  }
+}
