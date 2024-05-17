@@ -22,7 +22,7 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
   - `@nestia/editor`: Swagger-UI with Online TypeScript Editor
   - `nestia`: Just CLI (command line interface) tool
 
-> **Note**
+> [!NOTE]
 > 
 > - **Only one line** required, with pure TypeScript type
 > - Enhance performance **30x** up

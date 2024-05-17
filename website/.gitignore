@@ -2,3 +2,7 @@
 node_modules/
 out/
 public/api/
+
+public/robots.txt
+public/sitemap*.xml
+!package-lock.json

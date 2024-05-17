@@ -18,7 +18,7 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
   - `@nestia/migrate`: migration from Swagger to NestJS
   - `nestia`: just CLI (command line interface) tool
 
-> **Note**
+> [!NOTE]
 > 
 > - **Only one line** required, with pure TypeScript type
 > - Enhance performance **30x** up
