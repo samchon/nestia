@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://nestia.io
-
-# Sitemaps
-Sitemap: https://nestia.io/sitemap.xml
