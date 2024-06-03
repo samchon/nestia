@@ -27,13 +27,11 @@ export namespace SdkDistributionComposer {
       await replace({ root, output })(file);
 
     // INSTALL PACKAGES
-    const versions: IDependencies = await dependencies();
+    const v: IDependencies = await dependencies();
     execute("npm install --save-dev rimraf");
-    execute(
-      `npm install --save @nestia/fetcher@${versions["@nestia/fetcher"]}`,
-    );
-    execute(`npm install --save typia@${versions["typia"]}`);
-    if (websocket) execute(`npm install --save tgrid@${versions["tgrid"]}`);
+    execute(`npm install --save @nestia/fetcher@${v.version}`);
+    execute(`npm install --save typia@${v.typia}`);
+    if (websocket) execute(`npm install --save tgrid@${v.tgrid}`);
     execute("npx typia setup --manager npm");
 
     exit();
@@ -82,18 +80,20 @@ export namespace SdkDistributionComposer {
       "utf8",
     );
     const json: {
+      version: string;
       dependencies: Record<string, string>;
       devDependencies: Record<string, string>;
     } = JSON.parse(content);
     return typia.assert<IDependencies>({
       ...json.devDependencies,
       ...json.dependencies,
+      version: json.version,
     });
   };
 }
 
 interface IDependencies {
-  "@nestia/fetcher": string;
+  version: string;
   typia: string;
   tgrid: string;
 }
