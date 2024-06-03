@@ -7,6 +7,7 @@ import { Escaper } from "typia/lib/utils/Escaper";
 
 import { FilePrinter } from "../utils/FilePrinter";
 import { OpenApiTypeChecker } from "../utils/OpenApiTypeChecker";
+import { StringUtil } from "../utils/StringUtil";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateSchemaProgrammer {
@@ -321,10 +322,14 @@ export namespace MigrateSchemaProgrammer {
     ): ts.TypeReferenceNode | ts.KeywordTypeNode => {
       if (schema.$ref.startsWith("#/components/schemas") === false)
         return TypeFactory.keyword("any");
-      const name: string = schema.$ref.split("/").at(-1)!;
-      return name === ""
-        ? TypeFactory.keyword("any")
-        : importer.dto(schema.$ref.split("/").at(-1)!);
+      const name: string = schema.$ref
+        .split("/")
+        .slice(3)
+        .filter((str) => str.length !== 0)
+        .map(StringUtil.escapeNonVariableSymbols)
+        .join("");
+      if (name === "") return TypeFactory.keyword("any");
+      return importer.dto(name);
     };
 
   /* -----------------------------------------------------------

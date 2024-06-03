@@ -68,10 +68,19 @@ const execute =
     );
 
 const iterate = async (directory: string): Promise<void> => {
+  const filter = (() => {
+    const only = process.argv.findIndex((str) => str === "--only");
+    if (only !== -1 && process.argv.length >= only + 1)
+      return (str: string) => str.includes(process.argv[only + 1]);
+    return () => true;
+  })();
+
   for (const file of await fs.promises.readdir(directory)) {
     const location: string = `${directory}/${file}`;
     if (fs.statSync(location).isDirectory()) await iterate(location);
     else if (location.endsWith(".json")) {
+      const project: string = file.substring(0, file.length - 5);
+      if (filter(project) === false) continue;
       const document:
         | SwaggerV2.IDocument
         | OpenApiV3.IDocument
@@ -82,12 +91,13 @@ const iterate = async (directory: string): Promise<void> => {
         ["nest", true],
         ["sdk", true],
         ["sdk", false],
-      ] as const)
+      ] as const) {
         await execute({
           mode,
           simulate: flag,
           e2e: flag,
-        })(file.substring(0, file.length - 5))(document);
+        })(project)(document);
+      }
     }
   }
 };
