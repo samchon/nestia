@@ -1,0 +1,6537 @@
+{
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://studio-connector-poc",
+      "description": "k8s"
+    },
+    {
+      "url": "http://localhost:3003",
+      "description": "Local Server"
+    }
+  ],
+  "info": {
+    "version": "0.1.0",
+    "title": "@wrtn/connector",
+    "description": "Starter kit of Nestia",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/connector/arxiv-search": {
+      "post": {
+        "tags": [
+          "Arxiv"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "아카이브 논문 검색 조건",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IConnector.ISearchInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "검색 조건을 기반으로 아카이브에서 검색된 논문 목록.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IConnector.ISearchOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "아카이브 논문 검색",
+        "description": "입력한 검색 조건을 기반으로 아카이브에서 논문을 검색합니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/arxiv.svg"
+      }
+    },
+    "/connector/daum/blog": {
+      "post": {
+        "tags": [
+          "Daum"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "다음 블로그 검색을 위한 조건",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IDaum.ISearchDaumInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IDaum.IBlogDaumOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "다음 블로그 검색",
+        "description": "다음 블로그 컨텐츠를 검색합니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/daum.svg"
+      }
+    },
+    "/connector/daum/cafe": {
+      "post": {
+        "tags": [
+          "Daum"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "다음 카페 검색을 위한 조건",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IDaum.ISearchDaumInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IDaum.ICafeDaumOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "다음 카페 검색",
+        "description": "다음 카페 컨텐츠를 검색합니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/daum.svg"
+      }
+    },
+    "/connector/naver/cafe": {
+      "post": {
+        "tags": [
+          "Naver"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "네이버 카페 검색을 위한 조건",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/INaver.INaverKeywordInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/INaver.ICafeNaverOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "네이버 카페 검색",
+        "description": "네이버 카페 컨텐츠를 검색합니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/naver_cafe.svg"
+      }
+    },
+    "/connector/naver/blog": {
+      "post": {
+        "tags": [
+          "Naver"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "네이버 블로그 검색을 위한 조건",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/INaver.INaverKeywordInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/INaver.IBlogNaverOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "네이버 블로그 검색",
+        "description": "네이버 블로그 컨텐츠를 검색합니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/naver_blog.svg"
+      }
+    },
+    "/connector/youtube-search": {
+      "post": {
+        "tags": [
+          "Youtube"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "유튜브 영상 검색을 위한 조건",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IYoutubeSearch.ISearchInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "유튜브 영상 검색 결과 목록.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IConnector.ISearchOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "유튜브 영상 검색",
+        "description": "유튜브 영상 검색 결과를 가져옵니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/youtube.svg"
+      }
+    },
+    "/connector/google-scholar": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "구글 스콜라 논문 검색 조건",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleScholar.ISearchInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "구글 스콜라 논문 목록",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IGoogleScholar.ISearchOutput"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 스콜라 논문 목록 검색",
+        "description": "구글 스콜라에 있는 논문 목록을 가져옵니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/google_scholar.svg"
+      }
+    },
+    "/connector/csv/read": {
+      "post": {
+        "tags": [
+          "CSV"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "CSV 파일을 읽어 오기 위한 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICsv.IReadInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "CSV 파일 내용.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICsv.IReadOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "CSV 파일 읽기",
+        "description": "CSV 파일 내용을 읽어옵니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/csv.svg"
+      }
+    },
+    "/connector/csv/write": {
+      "post": {
+        "tags": [
+          "CSV"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "CSV 파일을 생성하기 위한 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICsv.IWriteInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICsv.IWriteOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "CSV 파일 생성",
+        "description": "CSV 파일을 생성합니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/csv.svg"
+      }
+    },
+    "/connector/csv/csv-to-excel": {
+      "post": {
+        "tags": [
+          "CSV"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "CSV 파일을 엑셀 파일로 변환하기 위한 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICsv.ICsvToExcelInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "excel file url",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICsv.ICsvToExcelOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "CSV 파일 Excel 파일 변환",
+        "description": "CSV 파일을 엑셀 파일로 변환합니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/csv.svg"
+      }
+    },
+    "/connector/extract/keyword": {
+      "post": {
+        "tags": [
+          "Llm"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "키워드 추출을 위한 입력",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IKeywordExtraction.IExtractKeywordInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "추출된 키워드",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IKeywordExtraction.IExtractKeywordOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "키워드 추출",
+        "description": "주어진 입력과 관련 높은 키워드를 추출합니다."
+      }
+    },
+    "/connector/rank/rank": {
+      "post": {
+        "tags": [
+          "Sort"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "정렬할 후보 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IRanker.IRankInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "정렬된 후보의 인덱스 배열",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IRanker.IRankOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "조건 정렬",
+        "description": "주어진 아이템의 배열을 점수가 높은 순서대로 정렬합니다."
+      }
+    },
+    "/connector/marketing-copy/generate-copy": {
+      "post": {
+        "tags": [
+          "Llm"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "마케팅 카피 생성을 위한 입력",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IMarketingCopyGenerator.IGenerateMarketingCopyInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "생성된 마케팅 카피",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartialIMarketingCopyComponents"
+                }
+              }
+            }
+          }
+        },
+        "summary": "마케팅 카피 생성",
+        "description": "주어진 입력으로부터 마케팅 카피를 생성합니다."
+      }
+    },
+    "/connector/marketing-copy/generate-copy-image": {
+      "post": {
+        "tags": [
+          "Llm"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "마케팅 카피 이미지 생성을 위한 입력",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IMarketingCopyGenerator.IGenerateMarketingCopyImageInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "생성된 마케팅 카피 이미지",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IMarketingCopyImage"
+                }
+              }
+            }
+          }
+        },
+        "summary": "마케팅 카피 이미지 생성",
+        "description": "주어진 입력으로부터 마케팅 카피 이미지를 생성합니다."
+      }
+    },
+    "/connector/student-report-generator": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "학생 생활 기록부 생성을 위한 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IStudentReportGeneratorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "생성된 학생 생활 기록부.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IStudentReportGeneratorResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "학생 생활 기록부 생성",
+        "description": "입력된 정보를 바탕으로 학생 생활 기록부를 생성합니다."
+      }
+    },
+    "/connector/student-report-generator/row": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "학생 생활 기록부 생성을 위한 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IStudentReportRowGeneratorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "생성된 학생 생활 기록부.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IStudentReportRowGeneratorResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "학생 생활 기록부 생성",
+        "description": "입력된 정보를 바탕으로 학생 생활 기록부를 생성합니다."
+      }
+    },
+    "/connector/rag/analyze": {
+      "post": {
+        "tags": [
+          "RAG"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "분석할 파일 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IRag.IAnalyzeInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IRag.IAnalysisOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "RAG 분석 요청.",
+        "description": "입력된 파일에 대해 RAG 분석을 요청합니다."
+      }
+    },
+    "/connector/rag/generate": {
+      "post": {
+        "tags": [
+          "RAG"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IRag.IGenerateInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IRag.IGenerateOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "RAG 기반 채팅.",
+        "description": "RAG 분석을 기반으로 채팅을 합니다."
+      }
+    },
+    "/connector/hwp/parse": {
+      "post": {
+        "tags": [
+          "Hwp"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "파싱할 hwp 파일",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IHwp.IParseInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "파싱된 hwp 파일 텍스트 데이터.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHwp.IParseOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Hwp 파일 파싱",
+        "description": "hwp 파일을 파싱합니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/hwp.svg"
+      }
+    },
+    "/connector/excel/read": {
+      "post": {
+        "tags": [
+          "Excel"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "내용을 가져올 엑셀 파일 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IExcel.IReadExcelInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IExcel.IReadExcelOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "엑셀 파일 안의 내용 가져오기",
+        "description": "입력된 파일 정보를 바탕으로 해당 엑셀 파일의 내용을 가져옵니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/excel.svg"
+      }
+    },
+    "/connector/excel/worksheet": {
+      "post": {
+        "tags": [
+          "Excel"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "워크 시트 목록을 가져올 엑셀 파일 url",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IExcel.IGetWorksheetListInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "엑셀 워크 시트 목록.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IExcel.IWorksheetListOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "액셀 워크 시트 목록 가져오기",
+        "description": "입력된 파일 url에 존재하는 엑셀 워크 시트 목록을 가져옵니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/excel.svg"
+      }
+    },
+    "/connector/excel/rows": {
+      "post": {
+        "tags": [
+          "Excel"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "엑셀 파일에 새로운 데이터를 추가 하기 위한 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IExcel.IInsertExcelRowInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IExcel.IInsertExcelRowOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "액셀 데이터 추가",
+        "description": "데이터를 엑셀시트에 추가합니다.",
+        "x-wrtn-icon": "https://ecosystem-connector.s3.ap-northeast-2.amazonaws.com/icon/light/excel.svg"
+      }
+    },
+    "/connector/google-docs": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "생성할 구글 docs 제목.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleDocs.ICreateGoogleDocsInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "생성된 구글 docs 고유 ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleDocs.ICreateGoogleDocsOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 docs 생성.",
+        "description": "구글 docs를 생성합니다."
+      }
+    },
+    "/connector/google-docs/permission": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "구글 docs 권한 부여를 위한 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleDocs.IPermissionGoogleDocsInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "구글 docs 권한 부여.",
+        "description": "구글 docs에 권한을 부여합니다."
+      }
+    },
+    "/connector/google-docs/get/{id}": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "구글 docs 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICommon.ISecretgooglehttps//www.googleapis.com/auth/drivehttps//www.googleapis.com/auth/documents"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "구글 docs 내용.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleDocs.IReadGoogleDocsOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 docs 읽기.",
+        "description": "구글 docs의 내용을 읽어옵니다."
+      }
+    },
+    "/connector/google-docs/template": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "복사할 구글 docs 링크와 생성할 구글 docs 제목.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleDocs.ICreateDocByTemplateInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "생성된 구글 docs 고유 ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleDocs.ICreateDocByTemplateOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 docs 복사.",
+        "description": "이미 존재하는 구글 docs를 복사하여 새로운 구글 docs를 생성합니다."
+      }
+    },
+    "/connector/google-docs/{id}": {
+      "delete": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "삭제할 구글 docs 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICommon.ISecretgooglehttps//www.googleapis.com/auth/drivehttps//www.googleapis.com/auth/documents"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "구글 docs 삭제.",
+        "description": "구글 docs를 삭제합니다."
+      }
+    },
+    "/connector/google-docs/get-list": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICommon.ISecretgooglehttps//www.googleapis.com/auth/drivehttps//www.googleapis.com/auth/documents"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "구글 docs 목록.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleDocs.IListGoogleDocsOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 docs 목록 가져오기.",
+        "description": "구글 docs 목록을 가져옵니다."
+      }
+    },
+    "/connector/google-docs/append": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleDocs.IAppendTextGoogleDocsInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "구글 docs 텍스트 추가.",
+        "description": "구글 docs에 텍스트를 추가합니다."
+      }
+    },
+    "/connector/google-sheet": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "구글 시트 URL과 가져올 헤더 index.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleSheet.IReadGoogleSheetHeadersInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "구글 시트 헤더 정보.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleSheet.IReadGoogleSheetOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 시트 헤더 정보 가져오기.",
+        "description": "구글 시트의 헤더 정보를 가져옵니다."
+      }
+    },
+    "/connector/google-sheet/permission": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "권한 부여를 위한 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleSheet.IPermissionInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "구글 시트 권한 부여.",
+        "description": "구글 시트에 권한을 부여합니다."
+      }
+    },
+    "/connector/google-sheet/header": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "구글 시트 url과 추가할 헤더 이름.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleSheet.IWriteGoogleSheetHeadersInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "구글 시트 헤더 추가.",
+        "description": "구글 시트에 헤더를 추가합니다."
+      }
+    },
+    "/connector/google-sheet/worksheet": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "워크시트 목록을 가져올 구글 시트 url.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleSheet.IGetWorkSheetInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleSheet.IGetWorkSheetOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 시트 워크시트 목록 가져오기.",
+        "description": "구글 워크시트 목록을 가져옵니다."
+      }
+    },
+    "/connector/google-sheet/get-rows": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleSheet.IReadGoogleSheetRowsInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "구글 시트 Row 정보.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleSheet.IReadGoogleSheetRowsOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 시트 Row 정보 가져오기.",
+        "description": "구글 시트의 Row 정보를 가져옵니다."
+      }
+    },
+    "/connector/google-calendar/get-list": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICommon.ISecretgooglehttps//www.googleapis.com/auth/calendar"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "구글 캘린더 목록.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarOutput"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 캘린더 목록 가져오기.",
+        "description": "구글 캘린더 목록을 가져옵니다."
+      }
+    },
+    "/connector/google-calendar": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "생성할 캘린더 제목.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleCalendar.ICreateCalendarInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "캘린더 고유 ID와 캘린더 제목.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 캘린더 생성.",
+        "description": "구글 캘린더를 생성합니다."
+      }
+    },
+    "/connector/google-calendar/{calendarId}": {
+      "delete": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "calendarId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "삭제할 캘린더 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICommon.ISecretgooglehttps//www.googleapis.com/auth/calendar"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "구글 캘린더 삭제.",
+        "description": "캘린더를 삭제합니다."
+      }
+    },
+    "/connector/google-calendar/{calendarId}/get-events": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "calendarId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "이벤트 목록을 가져올 캘린더 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "이벤트 목록을 가져오기 위한 조건.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleCalendar.IReadGoogleCalendarEventInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "구글 캘린더 이벤트 목록.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleCalendar.IReadGoogleCalendarEventOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 캘린더 이벤트 목록 가져오기.",
+        "description": "구글 캘린더에 있는 이벤트 목록을 가져옵니다."
+      }
+    },
+    "/connector/google-calendar/{calendarId}/quick-event": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "calendarId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "이벤트를 추가할 캘린더 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "이벤트를 추가할 캘린더 고유 ID, 이벤트 명.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleCalendar.ICreateQuickEventInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "구글 캘린더 빠른 이벤트 추가.",
+        "description": "구글 캘린더에 빠른 이벤트를 추가합니다."
+      }
+    },
+    "/connector/google-calendar/{calendarId}/event": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "calendarId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "이벤트를 추가할 캘린더 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "이벤트 추가를 위한 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleCalendar.IEventRequestBodyInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "추가한 이벤트 정보.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 캘린더 이벤트 추가.",
+        "description": "구글 캘린더에 이벤트를 추가합니다."
+      }
+    },
+    "/connector/google-calendar/{calendarId}/event/{eventId}": {
+      "put": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "calendarId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "이벤트가 있는 캘린더 고유 ID.",
+            "required": true
+          },
+          {
+            "name": "eventId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "수정할 이벤트 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "업데이트 할 이벤트 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleCalendar.IEventRequestBodyInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "업데이트 된 이벤트 정보.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 캘린더 이벤트 수정.",
+        "description": "이벤트를 수정합니다."
+      },
+      "delete": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "calendarId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "이벤트가 있는 캘린더 고유 ID.",
+            "required": true
+          },
+          {
+            "name": "eventId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "삭제할 이벤트 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICommon.ISecretgooglehttps//www.googleapis.com/auth/calendar"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "구글 캘린더 이벤트 삭제.",
+        "description": "이벤트를 삭제합니다."
+      }
+    },
+    "/connector/google-calendar/{calendarId}/event/{eventId}/attendees": {
+      "put": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "calendarId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "이벤트가 있는 캘린더 고유 ID.",
+            "required": true
+          },
+          {
+            "name": "eventId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "참석자를 추가할 이벤트 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "추가할 참석자 이메일 목록.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleCalendar.IAddAttendeesToEventInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "참석자가 추가된 이벤트 정보.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 캘린더 이벤트 참석자 추가.",
+        "description": "이벤트에 참석자를 추가합니다."
+      }
+    },
+    "/connector/google-drive/get/folders": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICommon.ISecretgooglehttps//www.googleapis.com/auth/drive"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "구글 드라이브 폴더 목록.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleDrive.IFolderListGoogleDriveOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 드라이브 폴더 목록 가져오기.",
+        "description": "구글 드라이브에 있는 폴더 목록을 가져옵니다."
+      }
+    },
+    "/connector/google-drive/get/files": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleDrive.IFileListGoogleDriveInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "구글 드라이브 파일 목록.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleDrive.IFileListGoogleDriveOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 드라이브 파일 목록 가져오기.",
+        "description": "구글 드라이브에 있는 파일 목록을 가져옵니다."
+      }
+    },
+    "/connector/google-drive/folder": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "생성할 폴더 이름.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleDrive.ICreateFolderGoogleDriveInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "생성된 폴더 고유 ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleDrive.ICreateFolderGoogleDriveOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 드라이브 폴더 생성.",
+        "description": "구글 드라이브에 새로운 폴더를 생성합니다."
+      }
+    },
+    "/connector/google-drive/file": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "생성할 파일명과 파일을 생성할 폴더 고유 ID.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleDrive.ICreateFileGoogleDriveInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "생성된 파일 고유 ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleDrive.ICreateFileGoogleDriveOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 드라이브 파일 생성.",
+        "description": "구글 드라이브에 새로운 파일을 생성합니다."
+      }
+    },
+    "/connector/google-drive/file/{id}": {
+      "delete": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "삭제할 파일 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICommon.ISecretgooglehttps//www.googleapis.com/auth/drive"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "구글 드라이브 파일 삭제.",
+        "description": "구글 드라이브에 있는 파일을 삭제합니다."
+      }
+    },
+    "/connector/google-drive/folder/{id}": {
+      "delete": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "삭제할 폴더 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICommon.ISecretgooglehttps//www.googleapis.com/auth/drive"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "구글 드라이브 폴더 삭제.",
+        "description": "구글 드라이브에 있는 폴더를 삭제합니다."
+      }
+    },
+    "/connector/google-drive/permission": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "권한 부여를 위한 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleDrive.IPermissionGoogleDriveInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "구글 드라이브 권한 부여.",
+        "description": "파일 또는 폴더에 접근하기 위한 권한을 부여합니다."
+      }
+    },
+    "/connector/google-drive/file/{id}/text": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "파일 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "추가할 텍스트.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGoogleDrive.IAppendTextGoogleDriveInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "구글 드라이브 파일 텍스트 추가.",
+        "description": "파일에 텍스트를 추가합니다."
+      }
+    },
+    "/connector/google-drive/get/file/{id}": {
+      "post": {
+        "tags": [
+          "Google"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "파일 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICommon.ISecretgooglehttps//www.googleapis.com/auth/drive"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "파일 텍스트 내용.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGoogleDrive.IReadFileGoogleDriveOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "구글 드라이브 파일 텍스트 읽기.",
+        "description": "파일에서 텍스트를 읽어옵니다."
+      }
+    },
+    "/connector/llm/selector-llm": {
+      "post": {
+        "tags": [
+          "Llm"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "후보 선택을 위한 입력",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ISelectorLlmRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "선택된 후보 인덱스 배열",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ISelectorLlmResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "조건 선택",
+        "description": "주어진 후보 중에서 조건에 맞는 것을 선택합니다."
+      }
+    },
+    "/connector/gmail/send": {
+      "post": {
+        "tags": [
+          "Gmail"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "메일을 보내기 위해 필요한 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGmail.ICreateMailInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "전송된 메일의 ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGmail.ISendMailOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "GMAIL 전송.",
+        "description": "메일을 전송합니다."
+      }
+    },
+    "/connector/gmail/draft": {
+      "post": {
+        "tags": [
+          "Gmail"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "메일 초안을 생성하기 위한 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGmail.ICreateMailInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "GMAIL 초안 생성.",
+        "description": "메일 초안을 생성 합니다."
+      }
+    },
+    "/connector/gmail/reply": {
+      "post": {
+        "tags": [
+          "Gmail"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "메일 답장에 필요한 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGmail.IReplyInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "GMAIL 답장.",
+        "description": "수신된 메일에 답장을 보냅니다."
+      }
+    },
+    "/connector/gmail/get/{id}": {
+      "post": {
+        "tags": [
+          "Gmail"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "해당 메일의 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICommon.ISecretgooglehttps//mail.google.com/"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "해당 메일의 정보.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGmail.IFindGmailOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "GMAIL 정보 가져오기.",
+        "description": "메일의 정보를 가져옵니다."
+      }
+    },
+    "/connector/gmail/read-list": {
+      "post": {
+        "tags": [
+          "Gmail"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "메일 리스트를 가져오기 위한 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGmail.IFindEmailListInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "메일 리스트.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGmail.IFindGmailListOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "GMAIL 리스트 가져오기.",
+        "description": "메일 리스트를 가져옵니다."
+      }
+    },
+    "/connector/gmail/{id}": {
+      "delete": {
+        "tags": [
+          "Gmail"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "삭제할 메일의 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICommon.ISecretgooglehttps//mail.google.com/"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "GMAIL 삭제.",
+        "description": "메일을 삭제합니다."
+      }
+    },
+    "/connector/gmail/label": {
+      "post": {
+        "tags": [
+          "Gmail"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "라벨 생성을 위한 정보.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGmail.ILabelInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "생성된 라벨의 고유 ID.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IGmail.ILabelOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "GMAIL 라벨 생성.",
+        "description": "라벨을 생성합니다."
+      }
+    },
+    "/connector/gmail/label/{mailId}": {
+      "post": {
+        "tags": [
+          "Gmail"
+        ],
+        "parameters": [
+          {
+            "name": "mailId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "라벨을 부여할 메일의 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "부여할 라벨의 고유 ID 목록.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGmail.IMailLabelOperationInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "GMAIL 라벨 부여.",
+        "description": "메일에 라벨을 부여합니다."
+      },
+      "delete": {
+        "tags": [
+          "Gmail"
+        ],
+        "parameters": [
+          {
+            "name": "mailId",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "라벨을 제거할 메일의 고유 ID.",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "제거할 라벨의 고유 ID 목록.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IGmail.IMailLabelOperationInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "GMAIL 라벨 제거.",
+        "description": "메일에 부여된 라벨을 제거합니다."
+      }
+    },
+    "/connector/tool/{id}/generate": {
+      "post": {
+        "tags": [
+          "Tool"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "description": "",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ITool.IGenerateInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ITool.IGenerateOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "툴 사용",
+        "description": "툴을 사용합니다."
+      }
+    },
+    "/connector/chatbot/generate/easy": {
+      "post": {
+        "tags": [
+          "Chatbot"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "쉬움 난이도로 제작된 챗봇을 사용하기 위한 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IChatbot.IChatbotEasyGenerateInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "챗봇의 답변",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IChatbot.IChatbotGenerateOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "난이도 쉬움 챗봇 사용",
+        "description": "쉬움 난이도로 제작된 챗봇을 사용합니다."
+      }
+    },
+    "/connector/chatbot/generate/hard": {
+      "post": {
+        "tags": [
+          "Chatbot"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "description": "어려움 난이도로 제작된 챗봇을 사용하기 위한 정보",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IChatbot.IChatBotHardGenerateInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "챗봇의 답변",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IChatbot.IChatbotGenerateOutput"
+                }
+              }
+            }
+          }
+        },
+        "summary": "난이도 어려움 챗봇 사용",
+        "description": "어려움 난이도로 제작된 챗봇을 사용합니다."
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IConnector.ISearchInput": {
+        "type": "object",
+        "properties": {
+          "num_results": {
+            "type": "integer",
+            "x-wrtn-placeholder": "10",
+            "title": "검색 결과 개수",
+            "description": "몇 개의 검색 결과를 가져올지 설정합니다."
+          },
+          "from_date": {
+            "type": "string",
+            "format": "date",
+            "title": "검색 결과 시작 날짜",
+            "description": "검색 결과 시작 날짜를 설정합니다."
+          },
+          "to_date": {
+            "type": "string",
+            "format": "date",
+            "title": "검색 결과 종료 날짜",
+            "description": "검색 결과 종료 날짜를 설정합니다."
+          },
+          "and_keywords": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-wrtn-placeholder": "biology"
+            },
+            "title": "반드시 포함되어야 하는 키워드",
+            "description": "검색 결과에 포함되어야 하는 키워드입니다."
+          },
+          "or_keywords": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-wrtn-placeholder": "ecosystem"
+            },
+            "title": "포함되면 좋겠는 키워드",
+            "description": "검색 결과에 포함되면 좋겠는 키워드입니다."
+          },
+          "not_keywords": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-wrtn-placeholder": "pollution"
+            },
+            "title": "포함되면 안되는 키워드",
+            "description": "검색 결과에 포함되면 안되는 키워드입니다."
+          }
+        },
+        "required": [
+          "and_keywords"
+        ],
+        "title": "검색 조건",
+        "description": "검색 조건을 입력합니다."
+      },
+      "IConnector.ISearchOutput": {
+        "type": "object",
+        "properties": {
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IConnector.IReferenceContent"
+            },
+            "title": "산출물 정보",
+            "description": "검색 결과에 대한 산출물 정보를 담고 있습니다."
+          }
+        },
+        "required": [
+          "references"
+        ]
+      },
+      "IConnector.IReferenceContent": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "제목",
+            "description": "산출물의 제목입니다."
+          },
+          "type": {
+            "$ref": "#/components/schemas/IConnector.ReferenceType",
+            "title": "산출물 타입",
+            "description": "비디오, 이미지, 뉴스기사, 논문.."
+          },
+          "source": {
+            "$ref": "#/components/schemas/IConnector.ContentProvider",
+            "title": "산출물의 출처",
+            "description": "유튜브, 페이스북, 인스타그램, 구글 검색, arxiv, 구글 뉴스"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "title": "URL 주소",
+            "description": "산출물의 URL 주소입니다."
+          },
+          "contents": {
+            "type": "string",
+            "title": "산출물 내용",
+            "description": "산출물의 내용입니다."
+          },
+          "image": {
+            "type": "string",
+            "format": "uri",
+            "title": "산출물 이미지 url",
+            "description": "산출물의 이미지 URL 주소입니다."
+          },
+          "statistics": {
+            "$ref": "#/components/schemas/PartialRecordIConnector.MetricTypenumberTypeint32",
+            "title": "산출물 통계 자료 정보",
+            "description": "산출물의 통계 자료 정보입니다."
+          }
+        },
+        "required": [
+          "title",
+          "type",
+          "source",
+          "url"
+        ]
+      },
+      "IConnector.ReferenceType": {
+        "oneOf": [
+          {
+            "const": "video"
+          },
+          {
+            "const": "image"
+          },
+          {
+            "const": "news_article"
+          },
+          {
+            "const": "research_paper"
+          }
+        ],
+        "title": "Connector 산출물 타입",
+        "description": "비디오, 이미지, 뉴스기사, 논문.."
+      },
+      "IConnector.ContentProvider": {
+        "oneOf": [
+          {
+            "const": "youtube"
+          },
+          {
+            "const": "facebook"
+          },
+          {
+            "const": "instagram"
+          },
+          {
+            "const": "google_search"
+          },
+          {
+            "const": "arxiv"
+          },
+          {
+            "const": "google_news"
+          }
+        ],
+        "title": "Connector 산출물 출처",
+        "description": "산출물의 출처입니다."
+      },
+      "PartialRecordIConnector.MetricTypenumberTypeint32": {
+        "type": "object",
+        "properties": {
+          "view_count": {
+            "type": "integer"
+          },
+          "like_count": {
+            "type": "integer"
+          },
+          "rank": {
+            "type": "integer"
+          }
+        },
+        "description": "Make all properties in T optional"
+      },
+      "IDaum.ISearchDaumInput": {
+        "type": "object",
+        "properties": {
+          "andKeywords": {
+            "type": "string",
+            "x-wrtn-placeholder": "뤼튼",
+            "title": "꼭 들어가야하는 키워드",
+            "description": "다음 검색 결과에 들어가야하는 키워드를 설정합니다."
+          },
+          "orKeywords": {
+            "type": "string",
+            "x-wrtn-placeholder": "스튜디오",
+            "title": "들어가면 좋은 키워드",
+            "description": "다음 검색 결과에 들어가면 좋은 키워드를 설정합니다."
+          },
+          "notKeywords": {
+            "type": "string",
+            "x-wrtn-placeholder": "폭력",
+            "title": "들어가면 안되는 키워드",
+            "description": "다음 검색 결과에 들어가면 안되는 키워드를 설정합니다."
+          },
+          "sort": {
+            "oneOf": [
+              {
+                "const": "accuracy",
+                "default": "accuracy",
+                "x-wrtn-placeholder": "accuracy"
+              },
+              {
+                "const": "recency",
+                "default": "accuracy",
+                "x-wrtn-placeholder": "accuracy"
+              }
+            ],
+            "title": "결과 문서 정렬 방식",
+            "description": "- accuracy: 정확도순 (default)\n- recency: 최신순"
+          },
+          "page": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 1,
+            "title": "결과 페이지 번호",
+            "description": "결과 페이지의 번호입니다."
+          },
+          "size": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 10,
+            "title": "한 페이지에 보여질 문서 수",
+            "description": "한 페이지에 보여질 문서 수 입니다."
+          }
+        },
+        "required": [
+          "andKeywords"
+        ]
+      },
+      "IDaum.IBlogDaumOutput": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "type": "object",
+            "properties": {
+              "totalCount": {
+                "type": "number",
+                "title": "검색된 컨텐츠 수",
+                "description": "검색된 문서의 총 개수입니다."
+              },
+              "pageableCount": {
+                "type": "number",
+                "title": "검색된 문서 중 노출 가능한 컨텐츠 수",
+                "description": "검색된 문서 중 노출 가능한 컨텐츠의 개수입니다."
+              },
+              "isEnd": {
+                "type": "boolean",
+                "title": "현재 페이지가 마지막 페이지인지 여부",
+                "description": "값이 false면 page를 증가시켜 다음 페이지를 요청할 수 있습니다."
+              }
+            },
+            "required": [
+              "totalCount",
+              "pageableCount",
+              "isEnd"
+            ]
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "title": "문서의 제목",
+                  "description": "검색된 문서의 제목입니다."
+                },
+                "contents": {
+                  "type": "string",
+                  "title": "문서 본문중 일부",
+                  "description": "검색된 문서의 본문 중 일부입니다."
+                },
+                "url": {
+                  "type": "string",
+                  "title": "문서 URL",
+                  "description": "검색된 문서의 URL입니다."
+                },
+                "blogName": {
+                  "type": "string",
+                  "title": "블로그의 이름",
+                  "description": "검색된 블로그의 이름입니다."
+                },
+                "thumbnail": {
+                  "type": "string",
+                  "title": "썸네일 이미지 URL",
+                  "description": "검색 시스템에서 추출한 대표 미리보기 이미지 URL."
+                },
+                "dateTime": {
+                  "type": "string",
+                  "title": "문서 작성 시간",
+                  "description": "검색된 문서가 작성된 시간입니다."
+                }
+              },
+              "required": [
+                "title",
+                "contents",
+                "url",
+                "blogName",
+                "thumbnail",
+                "dateTime"
+              ]
+            }
+          }
+        },
+        "required": [
+          "meta",
+          "documents"
+        ]
+      },
+      "IDaum.ICafeDaumOutput": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "type": "object",
+            "properties": {
+              "totalCount": {
+                "type": "number",
+                "title": "검색된 다음 카페 컨텐츠 수",
+                "description": "검색된 다음 카페의 총 갯수 입니다."
+              },
+              "pageableCount": {
+                "type": "number",
+                "title": "검색된 다음 카페 컨텐츠 중 노출 가능한 컨텐츠 수",
+                "description": "검색된 다음 카페 컨텐츠 중 노출 가능한 컨텐츠의 개수입니다."
+              },
+              "isEnd": {
+                "type": "boolean",
+                "title": "현재 페이지가 마지막 페이지인지 여부",
+                "description": "값이 false면 page를 증가시켜 다음 페이지를 요청할 수 있습니다."
+              }
+            },
+            "required": [
+              "totalCount",
+              "pageableCount",
+              "isEnd"
+            ]
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "title": "문서의 제목",
+                  "description": "검색된 문서의 제목입니다."
+                },
+                "contents": {
+                  "type": "string",
+                  "title": "문서 본문중 일부",
+                  "description": "검색된 문서의 본문 중 일부입니다."
+                },
+                "url": {
+                  "type": "string",
+                  "title": "문서 URL",
+                  "description": "검색된 문서의 URL입니다."
+                },
+                "cafeName": {
+                  "type": "string",
+                  "title": "카페 이름",
+                  "description": "검색된 다음 카페 이름입니다."
+                },
+                "thumbnail": {
+                  "type": "string",
+                  "title": "썸네일 이미지 URL",
+                  "description": "검색 시스템에서 추출한 대표 미리보기 이미지 URL."
+                },
+                "dateTime": {
+                  "type": "string",
+                  "title": "문서 작성 시간",
+                  "description": "검색된 문서가 작성된 시간입니다."
+                }
+              },
+              "required": [
+                "title",
+                "contents",
+                "url",
+                "cafeName",
+                "thumbnail",
+                "dateTime"
+              ]
+            }
+          }
+        },
+        "required": [
+          "meta",
+          "documents"
+        ]
+      },
+      "INaver.INaverKeywordInput": {
+        "type": "object",
+        "properties": {
+          "andKeywords": {
+            "type": "string",
+            "x-wrtn-placeholder": "뤼튼",
+            "title": "꼭 들어가야하는 키워드",
+            "description": "검색 결과에 반드시 포함되어야 하는 키워드입니다."
+          },
+          "orKeywords": {
+            "type": "string",
+            "x-wrtn-placeholder": "스튜디오",
+            "title": "들어가면 좋은 키워드",
+            "description": "검색 결과에 포함되면 좋겠는 키워드입니다."
+          },
+          "notKeywords": {
+            "type": "string",
+            "x-wrtn-placeholder": "폭력",
+            "title": "들어가면 안되는 키워드",
+            "description": "검색 결과에 포함되면 안되는 키워드입니다."
+          },
+          "display": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10,
+            "x-wrtn-placeholder": "10",
+            "title": "검색할 개수",
+            "description": "검색 결과를 몇 개 받아올 것인지 설정합니다.\n최소 1개, 최대 100개, 기본 10개입니다."
+          },
+          "sort": {
+            "oneOf": [
+              {
+                "const": "date",
+                "x-wrtn-placeholder": "sim"
+              },
+              {
+                "const": "sim",
+                "x-wrtn-placeholder": "sim"
+              }
+            ],
+            "title": "검색 결과 정렬 방법",
+            "description": "검색 결과를 어떤 기준으로 정렬할 것인지 설정합니다."
+          }
+        },
+        "required": [
+          "andKeywords"
+        ],
+        "title": "검색 조건"
+      },
+      "INaver.ICafeNaverOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "lastBuildDate": {
+                "type": "string",
+                "title": "검색 결과를 생성한 시간.",
+                "description": "검색 결과를 생성한 시간입니다."
+              },
+              "total": {
+                "type": "number",
+                "title": "총 검색 결과 개수.",
+                "description": "검색 결과의 총 개수입니다."
+              },
+              "start": {
+                "type": "number",
+                "title": "검색 시작 위치.",
+                "description": "검색 결과의 시작 위치입니다."
+              },
+              "display": {
+                "type": "number",
+                "title": "한 번에 표시할 검색 결과 개수.",
+                "description": "한 번에 표시할 검색 결과의 개수입니다."
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/INaver.ICafeNaverItemOutput"
+                },
+                "title": "개별 검색 결과.",
+                "description": "개별 검색 결과입니다."
+              }
+            },
+            "required": [
+              "lastBuildDate",
+              "total",
+              "start",
+              "display",
+              "items"
+            ],
+            "title": "네이버 카페 검색 결과물 데이터.",
+            "description": "네이버 카페 검색 결과물 데이터."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "INaver.ICafeNaverItemOutput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "게시글 제목.",
+            "description": "네이버 카페 게시글의 제목."
+          },
+          "link": {
+            "type": "string",
+            "title": "게시글 링크.",
+            "description": "네이버 카페 게시글의 링크."
+          },
+          "description": {
+            "type": "string",
+            "title": "게시글 요약 내용.",
+            "description": "네이버 카페 게시글의 요약 내용."
+          },
+          "cafename": {
+            "type": "string",
+            "title": "게시글이 있는 카페 이름.",
+            "description": "네이버 카페 게시글이 있는 카페의 이름."
+          },
+          "cafeurl": {
+            "type": "string",
+            "title": "게시글이 있는 카페 링크.",
+            "description": "네이버 카페 게시글이 있는 카페의 링크."
+          }
+        },
+        "required": [
+          "title",
+          "link",
+          "description",
+          "cafename",
+          "cafeurl"
+        ]
+      },
+      "INaver.IBlogNaverOutput": {
+        "type": "object",
+        "properties": {
+          "lastBuildDate": {
+            "type": "string",
+            "title": "검색 결과를 생성한 시간.",
+            "description": "검색 결과를 생성한 시간입니다."
+          },
+          "total": {
+            "type": "number",
+            "title": "총 검색 결과 개수.",
+            "description": "검색 결과의 총 개수입니다."
+          },
+          "start": {
+            "type": "number",
+            "title": "검색 시작 위치.",
+            "description": "검색 결과의 시작 위치입니다."
+          },
+          "display": {
+            "type": "number",
+            "title": "한 번에 표시할 검색 결과 개수.",
+            "description": "한 번에 표시할 검색 결과의 개수입니다."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/INaver.IBlogNaverItemOutput"
+            },
+            "title": "개별 검색 결과.",
+            "description": "개별 검색 결과입니다."
+          }
+        },
+        "required": [
+          "lastBuildDate",
+          "total",
+          "start",
+          "display",
+          "items"
+        ]
+      },
+      "INaver.IBlogNaverItemOutput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "게시글 제목.",
+            "description": "네이버 블로그 게시물의 제목."
+          },
+          "link": {
+            "type": "string",
+            "title": "게시글 링크.",
+            "description": "네이버 블로그 게시물의 링크."
+          },
+          "description": {
+            "type": "string",
+            "title": "게시글 요약 내용.",
+            "description": "네이버 블로그 게시물의 요약 내용."
+          },
+          "bloggername": {
+            "type": "string",
+            "title": "블로그 포스트가 있는 블로그의 이름.",
+            "description": "네이버 블로그 게시물이 있는 블로그의 이름."
+          },
+          "bloggerlink": {
+            "type": "string",
+            "title": "블로그 포스트가 있는 블로그의 주소.",
+            "description": "네이버 블로그 게시물이 있는 블로그의 주소."
+          },
+          "postdate": {
+            "type": "string",
+            "title": "블로그 포스트가 작성된 날짜.",
+            "description": "네이버 블로그 게시물이 작성된 날짜."
+          }
+        },
+        "required": [
+          "title",
+          "link",
+          "description",
+          "bloggername",
+          "bloggerlink",
+          "postdate"
+        ]
+      },
+      "IYoutubeSearch.ISearchInput": {
+        "type": "object",
+        "properties": {
+          "and_keywords": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-wrtn-placeholder": "뤼튼"
+            },
+            "title": "반드시 포함되어야 하는 키워드",
+            "description": "검색 결과에 포함되어야 하는 키워드입니다."
+          },
+          "or_keywords": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-wrtn-placeholder": "스튜디오"
+            },
+            "title": "포함되면 좋겠는 키워드",
+            "description": "검색 결과에 포함되면 좋겠는 키워드입니다."
+          },
+          "not_keywords": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-wrtn-placeholder": "폭력"
+            },
+            "title": "포함되면 안되는 키워드",
+            "description": "검색 결과에 포함되면 안되는 키워드입니다."
+          }
+        },
+        "required": [
+          "and_keywords"
+        ]
+      },
+      "IGoogleScholar.ISearchInput": {
+        "type": "object",
+        "properties": {
+          "andKeyword": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-wrtn-placeholder": "biology"
+            },
+            "title": "꼭 포함할 키워드",
+            "description": "검색 결과에 포함되어야 하는 키워드입니다."
+          },
+          "orKeyword": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-wrtn-placeholder": "ecosystem"
+            },
+            "title": "포함 되면 좋겠는 키워드",
+            "description": "검색 결과에 포함되면 좋겠는 키워드입니다."
+          },
+          "notKeyword": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-wrtn-placeholder": "pollution"
+            },
+            "title": "제외할 키워드",
+            "description": "검색 결과에 포함되면 안되는 키워드입니다."
+          },
+          "max_results": {
+            "type": "integer",
+            "x-wrtn-placeholder": "10",
+            "title": "검색 결과 갯수",
+            "description": "몇 개의 검색 결과를 받아올 것인지 설정합니다."
+          }
+        },
+        "required": [
+          "andKeyword",
+          "max_results"
+        ],
+        "title": "검색 조건"
+      },
+      "IGoogleScholar.ISearchOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "검색 결과 데이터 고유 id",
+            "description": "검색 결과 데이터의 고유 id 입니다."
+          },
+          "title": {
+            "type": "string",
+            "title": "검색된 논문 제목",
+            "description": "검색된 논문의 제목입니다."
+          },
+          "link": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "uri"
+              }
+            ],
+            "title": "검색된 논문 링크",
+            "description": "검색된 논문의 링크입니다."
+          },
+          "snippet": {
+            "type": "string",
+            "title": "검색 결과 내용 단편",
+            "description": "검색 결과의 내용 단편입니다."
+          },
+          "publication_info": {
+            "type": "string",
+            "title": "출판 요약 정보",
+            "description": "검색된 논문의 출판 요약 정보입니다."
+          },
+          "resource": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IGoogleScholar.IResource"
+                }
+              }
+            ],
+            "title": "참고자료 정보",
+            "description": "검색된 논문의 참고자료 정보입니다."
+          },
+          "citation_count": {
+            "type": "integer",
+            "title": "인용된 횟수",
+            "description": "검색된 논문이 인용된 횟수입니다."
+          },
+          "related_pages_link": {
+            "type": "string",
+            "format": "uri",
+            "title": "관련 학술 자료 링크",
+            "description": "검색된 논문과 관련된 학술 자료 링크입니다."
+          },
+          "version_info": {
+            "$ref": "#/components/schemas/IGoogleScholar.IVersion",
+            "title": "버전 정보",
+            "description": "검색된 논문의 버전 정보입니다."
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "link",
+          "snippet",
+          "publication_info",
+          "resource",
+          "citation_count",
+          "related_pages_link",
+          "version_info"
+        ]
+      },
+      "IGoogleScholar.IResource": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "참고 자료 제목",
+            "description": "참고 자료의 제목입니다."
+          },
+          "file_format": {
+            "type": "string",
+            "title": "참고자료 파일 형식",
+            "description": "참고자료 파일의 형식입니다."
+          },
+          "link": {
+            "type": "string",
+            "format": "uri",
+            "title": "참고자료 링크",
+            "description": "참고자료의 링크입니다."
+          }
+        },
+        "required": [
+          "title",
+          "link"
+        ]
+      },
+      "IGoogleScholar.IVersion": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "버전 정보",
+            "description": "버전 정보입니다."
+          },
+          "link": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "uri"
+              }
+            ],
+            "title": "버전 관련 링크",
+            "description": "버전 관련 링크입니다."
+          }
+        },
+        "required": [
+          "version",
+          "link"
+        ]
+      },
+      "ICsv.IReadInput": {
+        "type": "object",
+        "properties": {
+          "s3Url": {
+            "type": "string",
+            "format": "uri",
+            "contentMediaType": "text/csv",
+            "title": "파일",
+            "description": "읽어올 Csv 파일입니다."
+          },
+          "delimiter": {
+            "type": "string",
+            "x-wrtn-placeholder": ",",
+            "title": "구분자",
+            "description": "읽어올 Csv 파일 구분자 입니다."
+          }
+        },
+        "required": [
+          "s3Url",
+          "delimiter"
+        ],
+        "title": "Csv 파일 정보"
+      },
+      "ICsv.IReadOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "title": "csv 데이터 리스트.",
+            "description": "읽어온 csv 파일 데이터."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ICsv.IWriteInput": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "x-wrtn-placeholder": "example.csv",
+            "title": "파일명",
+            "description": "생성할 Csv 파일명입니다."
+          },
+          "delimiter": {
+            "type": "string",
+            "x-wrtn-placeholder": ",",
+            "title": "구분자",
+            "description": "생성할 Csv 파일 구분자 입니다."
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "title": "파일 데이터 값들",
+            "description": "생성할 Csv 파일에 넣을 데이터 값 들 입니다."
+          }
+        },
+        "required": [
+          "fileName",
+          "delimiter",
+          "values"
+        ]
+      },
+      "ICsv.IWriteOutput": {
+        "type": "object",
+        "properties": {
+          "s3Url": {
+            "type": "string",
+            "format": "uri",
+            "contentMediaType": "text/csv",
+            "title": "csv 파일",
+            "description": "작성된 csv 파일의 s3 url입니다."
+          }
+        },
+        "required": [
+          "s3Url"
+        ]
+      },
+      "ICsv.ICsvToExcelInput": {
+        "type": "object",
+        "properties": {
+          "s3Url": {
+            "type": "string",
+            "format": "uri",
+            "contentMediaType": "text/csv",
+            "title": "파일",
+            "description": "csv에서 excel로 변환할 파일입니다."
+          },
+          "delimiter": {
+            "type": "string",
+            "x-wrtn-placeholder": ",",
+            "title": "구분자",
+            "description": "csv에서 excel로 변환할 파일 구분자 입니다."
+          }
+        },
+        "required": [
+          "s3Url",
+          "delimiter"
+        ]
+      },
+      "ICsv.ICsvToExcelOutput": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "contentMediaType": "text/csv",
+            "title": "s3 url",
+            "description": "변환된 excel 파일의 s3 url입니다."
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "IKeywordExtraction.IExtractKeywordInput": {
+        "type": "object",
+        "properties": {
+          "referenceContent": {
+            "$ref": "#/components/schemas/IConnector.IReferenceContent",
+            "title": "참고 자료",
+            "description": "키워드 추출을 위한 참고 자료"
+          },
+          "context": {
+            "title": "문맥 정보",
+            "description": "키워드 추출을 위한 문맥 정보"
+          }
+        },
+        "required": [
+          "referenceContent",
+          "context"
+        ],
+        "title": "키워드 추출을 위한 입력"
+      },
+      "IKeywordExtraction.IExtractKeywordOutput": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "추출된 키워드"
+          }
+        },
+        "required": [
+          "keyword"
+        ]
+      },
+      "IRanker.IRankInput": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IRanker.IScoredItem"
+            },
+            "title": "아이템 목록",
+            "description": "정렬할 아이템 목록"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "정렬을 위한 입력"
+      },
+      "IRanker.IScoredItem": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "number",
+            "title": "점수",
+            "description": "아이템의 점수"
+          }
+        },
+        "required": [
+          "score"
+        ],
+        "title": "정렬할 아이템"
+      },
+      "IRanker.IRankOutput": {
+        "type": "object",
+        "properties": {
+          "rankedIndices": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "title": "정렬된 아이템의 인덱스 배열",
+            "description": "정렬된 아이템의 인덱스 배열"
+          }
+        },
+        "required": [
+          "rankedIndices"
+        ],
+        "title": "정렬된 결과"
+      },
+      "IMarketingCopyGenerator.IGenerateMarketingCopyInput": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "$ref": "#/components/schemas/IKeywordExtraction.IExtractKeywordOutput",
+            "title": "키워드",
+            "description": "마케팅 카피의 전반적인 키워드"
+          },
+          "marketingPurpose": {
+            "$ref": "#/components/schemas/IMarketingPurpose",
+            "title": "마케팅 목적",
+            "description": "마케팅을 하려는 목적 및 상품 정보"
+          },
+          "distributionChannel": {
+            "$ref": "#/components/schemas/IDistributionChannel",
+            "title": "마케팅 채널",
+            "description": "마케팅 카피를 사용할 채널 정보"
+          },
+          "referenceContent": {
+            "$ref": "#/components/schemas/IConnector.IReferenceContent",
+            "title": "참고 자료",
+            "description": "마케팅 카피 생성을 위한 참고 자료"
+          }
+        },
+        "required": [
+          "keyword",
+          "marketingPurpose",
+          "distributionChannel",
+          "referenceContent"
+        ],
+        "title": "마케팅 카피 생성을 위한 입력"
+      },
+      "IMarketingPurpose": {
+        "type": "object",
+        "properties": {
+          "purpose": {
+            "oneOf": [
+              {
+                "const": "sign_up"
+              },
+              {
+                "const": "purchase"
+              },
+              {
+                "const": "visit"
+              }
+            ],
+            "title": "마케팅 목적.",
+            "description": "마케팅을 하려는 목적입니다."
+          },
+          "product_name": {
+            "type": "string",
+            "title": "마케팅 할 상품명.",
+            "description": "마케팅을 할 상품명입니다."
+          },
+          "unique_selling_point": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "상품의 셀링 포인트.",
+            "description": "상품의 셀링 포인트입니다."
+          },
+          "user_benefit": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "마케팅 하려는 제품의 베네핏.",
+            "description": "마케팅 하려는 제품의 베네핏입니다."
+          }
+        },
+        "required": [
+          "purpose",
+          "product_name",
+          "unique_selling_point",
+          "user_benefit"
+        ]
+      },
+      "IDistributionChannel": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "oneOf": [
+              {
+                "const": "youtube"
+              },
+              {
+                "const": "facebook"
+              },
+              {
+                "const": "instagram_feed"
+              },
+              {
+                "const": "instagram_story"
+              },
+              {
+                "const": "naver"
+              },
+              {
+                "const": "kakao"
+              }
+            ],
+            "title": "마케팅 카피를 사용할 채널.",
+            "description": "마케팅 카피를 사용할 채널 입니다."
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "const": "title"
+                },
+                {
+                  "const": "cta"
+                },
+                {
+                  "const": "subtitle"
+                }
+              ]
+            },
+            "title": "마케팅 카피를 사용할 채널에서 가져올 정보.",
+            "description": "마케팅 카피를 사용할 채널에서 가져올 정보입니다."
+          }
+        },
+        "required": [
+          "channel",
+          "components"
+        ]
+      },
+      "PartialIMarketingCopyComponents": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "마케팅 카피의 제목.",
+            "description": "마케팅 카피의 제목입니다."
+          },
+          "cta": {
+            "type": "string",
+            "title": "마케팅 카피의 CTA 문구.",
+            "description": "마케팅 카피의 CTA 문구입니다."
+          },
+          "subtitle": {
+            "type": "string",
+            "title": "마케팅 카피의 설명.",
+            "description": "마케팅 카피의 설명입니다."
+          }
+        },
+        "description": "Make all properties in T optional"
+      },
+      "IMarketingCopyGenerator.IGenerateMarketingCopyImageInput": {
+        "type": "object",
+        "properties": {
+          "copy": {
+            "$ref": "#/components/schemas/PartialIMarketingCopyComponents",
+            "title": "마케팅 카피 생성 결과",
+            "description": "마케팅 카피 이미지과 관련된 마케팅 카피 생성 결과"
+          },
+          "keyword": {
+            "$ref": "#/components/schemas/IKeywordExtraction.IExtractKeywordOutput",
+            "title": "키워드",
+            "description": "마케팅 카피 이미지의 전반적인 키워드"
+          },
+          "marketingPurpose": {
+            "$ref": "#/components/schemas/IMarketingPurpose",
+            "title": "마케팅 목적",
+            "description": "마케팅을 하려는 목적 및 상품 정보"
+          },
+          "distributionChannel": {
+            "$ref": "#/components/schemas/IDistributionChannel",
+            "title": "마케팅 채널",
+            "description": "마케팅 카피를 사용할 채널 정보"
+          },
+          "referenceContent": {
+            "$ref": "#/components/schemas/IConnector.IReferenceContent",
+            "title": "참고 자료",
+            "description": "마케팅 카피 생성을 위한 참고 자료"
+          }
+        },
+        "required": [
+          "copy",
+          "keyword",
+          "marketingPurpose",
+          "distributionChannel",
+          "referenceContent"
+        ],
+        "title": "마케팅 카피 이미지 생성을 위한 입력"
+      },
+      "IMarketingCopyImage": {
+        "type": "object",
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "title": "마케팅 카피 시안의 이미지 URL.",
+            "description": "생성된 마케팅 카피 시안의 이미지 URL입니다."
+          }
+        },
+        "required": [
+          "imageUrl"
+        ]
+      },
+      "IStudentReportGeneratorRequest": {
+        "type": "object",
+        "properties": {
+          "consideration": {
+            "type": "string",
+            "title": "고려사항.",
+            "description": "생기부 데이터 생성시 LLM에게 전달할 고려사항입니다."
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IOutputStructure"
+            },
+            "title": "생성될 생기부 데이터 구조.",
+            "description": "생성될 생기부 데이터 구조 입니다."
+          },
+          "reference_data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ITableRowData"
+            },
+            "title": "참고자료 데이터.",
+            "description": "생기부 데이터 생성시 참고할 표의 데이터입니다."
+          }
+        },
+        "required": [
+          "consideration",
+          "outputs",
+          "reference_data"
+        ]
+      },
+      "IOutputStructure": {
+        "type": "object",
+        "properties": {
+          "field_name": {
+            "type": "string",
+            "title": "LLM으로 부터 생성될 필드명.",
+            "description": "LLM으로 부터 생성될 필드명입니다."
+          },
+          "field_description": {
+            "type": "string",
+            "title": "필드에 대한 설명.",
+            "description": "필드에 대한 설명 및 LLM이 해당 필드를 어떻게 채울지에 대한 가이드."
+          },
+          "example": {
+            "type": "string",
+            "title": "필드에 대한 예시.",
+            "description": "필드에 대한 예시입니다."
+          }
+        },
+        "required": [
+          "field_name",
+          "field_description",
+          "example"
+        ]
+      },
+      "ITableRowData": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {
+          "type": "string"
+        }
+      },
+      "IStudentReportGeneratorResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ITableRowData"
+            },
+            "title": "생성된 생기부 데이터.",
+            "description": "생성된 생기부 데이터입니다."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "IStudentReportRowGeneratorRequest": {
+        "type": "object",
+        "properties": {
+          "consideration": {
+            "type": "string",
+            "title": "고려사항.",
+            "description": "생기부 데이터 생성시 LLM에게 전달할 고려사항입니다."
+          },
+          "output_structure": {
+            "$ref": "#/components/schemas/IOutputStructure",
+            "title": "생성될 생기부 데이터 구조.",
+            "description": "생성될 생기부 데이터 구조 입니다."
+          },
+          "reference_data": {
+            "$ref": "#/components/schemas/ITableRowData",
+            "title": "참고자료 데이터.",
+            "description": "생기부 데이터 생성시 참고할 표의 데이터입니다."
+          }
+        },
+        "required": [
+          "consideration",
+          "output_structure",
+          "reference_data"
+        ]
+      },
+      "IStudentReportRowGeneratorResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ITableRowData",
+            "title": "생성된 생기부 데이터.",
+            "description": "생성된 생기부 데이터입니다."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "IRag.IAnalyzeInput": {
+        "type": "object",
+        "properties": {
+          "fileUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "파일 경로 리스트.",
+            "description": "분석할 파일 경로 리스트입니다."
+          },
+          "fileType": {
+            "const": "pdf",
+            "title": "파일 확장자.",
+            "description": "분석할 파일의 확장자입니다."
+          }
+        },
+        "required": [
+          "fileUrls",
+          "fileType"
+        ]
+      },
+      "IRag.IAnalysisOutput": {
+        "type": "object",
+        "properties": {
+          "docId": {
+            "type": "string",
+            "title": "document id.",
+            "description": "분석된 document의 id입니다."
+          }
+        },
+        "required": [
+          "docId"
+        ]
+      },
+      "IRag.IGenerateInput": {
+        "type": "object",
+        "properties": {
+          "docId": {
+            "type": "string",
+            "title": "document id.",
+            "description": "분석할 document의 id입니다."
+          },
+          "query": {
+            "type": "string",
+            "title": "유저 발화.",
+            "description": "유저의 발화입니다."
+          },
+          "histories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IRag.IHistory"
+            },
+            "title": "이전 발화 내역.",
+            "description": "이전 발화 내역입니다."
+          }
+        },
+        "required": [
+          "docId",
+          "query"
+        ]
+      },
+      "IRag.IHistory": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "oneOf": [
+              {
+                "const": "user"
+              },
+              {
+                "const": "assistant"
+              }
+            ],
+            "title": "발화자 역할.",
+            "description": "발화자의 역할입니다."
+          },
+          "text": {
+            "type": "string",
+            "title": "발화 내용.",
+            "description": "발화 내용입니다."
+          }
+        },
+        "required": [
+          "role",
+          "text"
+        ]
+      },
+      "IRag.IGenerateOutput": {
+        "type": "object",
+        "properties": {
+          "answer": {
+            "type": "string",
+            "title": "발화에 대한 응답.",
+            "description": "RAG 기반 생성 요청에 대한 응답입니다."
+          }
+        },
+        "required": [
+          "answer"
+        ]
+      },
+      "IHwp.IParseInput": {
+        "type": "object",
+        "properties": {
+          "fileUrl": {
+            "type": "string",
+            "format": "uri",
+            "contentMediaType": "application/vnd.hancom.hwp",
+            "title": "hwp 파일",
+            "description": "파싱할 hwp 파일."
+          }
+        },
+        "required": [
+          "fileUrl"
+        ],
+        "title": "hwp 파일 파싱을 위한 정보"
+      },
+      "IHwp.IParseOutput": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "텍스트",
+            "description": "파싱된 hwp 파일의 텍스트"
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "IExcel.IReadExcelInput": {
+        "type": "object",
+        "properties": {
+          "fileUrl": {
+            "type": "string",
+            "format": "uri",
+            "contentMediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "title": "excel 파일",
+            "description": "읽어올 엑셀 파일."
+          },
+          "sheetName": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "x-wrtn-placeholder": "sheet1"
+              }
+            ],
+            "title": "excel sheet 이름",
+            "description": "읽어올 excel sheet 이름."
+          }
+        },
+        "required": [
+          "fileUrl"
+        ],
+        "title": "파일 정보"
+      },
+      "IExcel.IReadExcelOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IExcel.IReadExcelRowData"
+            },
+            "title": "excel sheet 데이터",
+            "description": "읽어온 excel sheet 데이터."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "IExcel.IReadExcelRowData": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {}
+      },
+      "IExcel.IGetWorksheetListInput": {
+        "type": "object",
+        "properties": {
+          "fileUrl": {
+            "type": "string",
+            "format": "uri",
+            "contentMediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "title": "excel 파일",
+            "description": "excel worksheet 리스트를 가져올 파일"
+          }
+        },
+        "required": [
+          "fileUrl"
+        ],
+        "title": "파일 정보"
+      },
+      "IExcel.IWorksheetListOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sheetName": {
+                  "type": "string",
+                  "title": "sheet 이름",
+                  "description": "가져온 worksheet의 이름."
+                },
+                "id": {
+                  "type": "number",
+                  "title": "sheet id",
+                  "description": "가져온 worksheet의 id."
+                }
+              },
+              "required": [
+                "sheetName",
+                "id"
+              ]
+            },
+            "title": "sheet 리스트 데이터"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "IExcel.IInsertExcelRowInput": {
+        "type": "object",
+        "properties": {
+          "sheetName": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "x-wrtn-placeholder": "sheet1"
+              }
+            ],
+            "title": "sheet 이름",
+            "description": "excel 행을 추가할 sheet 이름.\n입력이 들어오지 않을 시 기본으로 첫번째 sheet를 대상으로 동작합니다."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Recordstringany"
+            },
+            "title": "추가할 excel 행 데이터",
+            "description": "key가 header 이름이고 value가 해당 행의 값인 객체의 배열"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "데이터 추가를 위한 정보"
+      },
+      "Recordstringany": {
+        "type": "object",
+        "properties": {},
+        "description": "Construct a type with a set of properties K of type T",
+        "additionalProperties": {}
+      },
+      "IExcel.IInsertExcelRowOutput": {
+        "type": "object",
+        "properties": {
+          "fileUrl": {
+            "type": "string",
+            "format": "uri",
+            "contentMediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "title": "생성된 파일 url.",
+            "description": "새로 추가된 excel 파일의 url."
+          }
+        },
+        "required": [
+          "fileUrl"
+        ]
+      },
+      "IGoogleDocs.ICreateGoogleDocsInput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "구글 docs 제목.",
+            "description": "생성할 docs의 제목입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/documents"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "title",
+          "secretKey"
+        ]
+      },
+      "IGoogleDocs.ICreateGoogleDocsOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "생성된 docs id.",
+            "description": "생성된 docs의 id입니다."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "IGoogleDocs.IPermissionGoogleDocsInput": {
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "title": "구글 docs id.",
+            "description": "접근 권한을 부여할 구글 docs의 id입니다."
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPermission"
+            },
+            "title": "접근 가능하게 할 이메일과 부여할 권한 리스트.",
+            "description": "접근 가능하게 할 이메일과 부여할 권한 리스트입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/documents"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "documentId",
+          "permissions",
+          "secretKey"
+        ]
+      },
+      "IPermission": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "권한을 부여할 사용자의 이메일.",
+            "description": "권한을 부여할 사용자의 이메일입니다."
+          },
+          "role": {
+            "oneOf": [
+              {
+                "const": "owner"
+              },
+              {
+                "const": "writer"
+              },
+              {
+                "const": "commenter"
+              },
+              {
+                "const": "reader"
+              },
+              {
+                "const": "organizer"
+              },
+              {
+                "const": "fileOrganizer"
+              }
+            ],
+            "title": "부여할 권한.",
+            "description": "부여할 권한의 종류입니다."
+          },
+          "type": {
+            "oneOf": [
+              {
+                "const": "user"
+              },
+              {
+                "const": "group"
+              },
+              {
+                "const": "domain"
+              },
+              {
+                "const": "anyone"
+              }
+            ],
+            "title": "부여할 권한의 타입.",
+            "description": "부여할 권한의 타입입니다."
+          }
+        },
+        "required": [
+          "email",
+          "role",
+          "type"
+        ]
+      },
+      "ICommon.ISecretgooglehttps//www.googleapis.com/auth/drivehttps//www.googleapis.com/auth/documents": {
+        "type": "object",
+        "properties": {
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/documents"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "secretKey"
+        ]
+      },
+      "IGoogleDocs.IReadGoogleDocsOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/IGoogleDocs",
+            "title": "구글 docs 데이터.",
+            "description": "읽어온 구글 docs의 데이터입니다."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "IGoogleDocs": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "text 정보.",
+            "description": "구글 docs의 text 정보입니다."
+          },
+          "table": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "title": "테이블 정보.",
+            "description": "구글 docs의 테이블 정보입니다."
+          }
+        }
+      },
+      "IGoogleDocs.ICreateDocByTemplateInput": {
+        "type": "object",
+        "properties": {
+          "templateId": {
+            "type": "string",
+            "title": "복제할 구글 docs.",
+            "description": "복제할 구글 docs."
+          },
+          "title": {
+            "type": "string",
+            "title": "생성할 docs 제목.",
+            "description": "복제하여 새로 생성할 docs의 제목입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/documents"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "templateId",
+          "title",
+          "secretKey"
+        ]
+      },
+      "IGoogleDocs.ICreateDocByTemplateOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "생성된 docs id.",
+            "description": "복사된 docs의 id입니다."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "IGoogleDocs.IListGoogleDocsOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "title": "구글 docs id.",
+                  "description": "가져온 구글 docs의 id입니다."
+                },
+                "title": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "title": "구글 docs title.",
+                  "description": "가져온 구글 docs의 제목입니다."
+                }
+              }
+            },
+            "title": "구글 docs 리스트.",
+            "description": "검색된 구글 docs 리스트입니다."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "IGoogleDocs.IAppendTextGoogleDocsInput": {
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": "string",
+            "title": "구글 docs.",
+            "description": "텍스트를 추가할 구글 docs를 선택합니다."
+          },
+          "text": {
+            "type": "string",
+            "title": "텍스트.",
+            "description": "추가할 텍스트입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/documents"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "documentId",
+          "text",
+          "secretKey"
+        ]
+      },
+      "IGoogleSheet.IReadGoogleSheetHeadersInput": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "시트 url.",
+            "description": "헤더 정보를 읽어올 시트의 url 주소입니다."
+          },
+          "index": {
+            "type": "number",
+            "title": "시트 헤더 index.",
+            "description": "읽어올 시트의 헤더 index입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/drive"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "url",
+          "secretKey"
+        ]
+      },
+      "IGoogleSheet.IReadGoogleSheetOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "title": "시트 데이터.",
+            "description": "읽어온 시트의 데이터입니다."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "IGoogleSheet.IPermissionInput": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "title": "시트 url.",
+            "description": "권한을 부여할 시트의 url 입니다."
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPermission.o1"
+            },
+            "title": "접근 가능하게 할 이메일과 부여할 권한 리스트.",
+            "description": "접근 가능하게 할 이메일과 부여할 권한 리스트 입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/drive"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "url",
+          "permissions",
+          "secretKey"
+        ]
+      },
+      "IPermission.o1": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "권한을 부여할 사용자의 이메일.",
+            "description": "권한을 부여할 사용자의 이메일입니다."
+          },
+          "role": {
+            "oneOf": [
+              {
+                "const": "owner"
+              },
+              {
+                "const": "writer"
+              },
+              {
+                "const": "commenter"
+              },
+              {
+                "const": "reader"
+              }
+            ],
+            "title": "부여할 권한.",
+            "description": "부여할 권한의 종류입니다."
+          }
+        },
+        "required": [
+          "email",
+          "role"
+        ]
+      },
+      "IGoogleSheet.IWriteGoogleSheetHeadersInput": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "시트 url.",
+            "description": "헤더를 추가할 시트의 url 입니다."
+          },
+          "index": {
+            "type": "number",
+            "title": "시트 index.",
+            "description": "추가할 헤더의 index 입니다."
+          },
+          "headerNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "시트에 추가할 헤더 리스트.",
+            "description": "시트에 추가할 헤더 리스트 입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/drive"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "url",
+          "headerNames",
+          "secretKey"
+        ]
+      },
+      "IGoogleSheet.IGetWorkSheetInput": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "시트 url.",
+            "description": "읽어올 시트의 url 입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/drive"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "url",
+          "secretKey"
+        ]
+      },
+      "IGoogleSheet.IGetWorkSheetOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "워크시트 제목 리스트.",
+            "description": "읽어온 시트의 제목 리스트 입니다."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "IGoogleSheet.IReadGoogleSheetRowsInput": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "시트 url.",
+            "description": "행을 읽어올 시트의 url 입니다."
+          },
+          "workSheetTitle": {
+            "type": "string",
+            "title": "작업할 시트 제목.",
+            "description": "작업할 시트의 제목입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/drive"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "url",
+          "workSheetTitle",
+          "secretKey"
+        ]
+      },
+      "IGoogleSheet.IReadGoogleSheetRowsOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IGoogleSheet.IReadGoogleSheetRowData"
+            },
+            "title": "읽어온 구글 시트 행 데이터.",
+            "description": "읽어온 구글 시트 행 데이터입니다."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "IGoogleSheet.IReadGoogleSheetRowData": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {}
+      },
+      "ICommon.ISecretgooglehttps//www.googleapis.com/auth/calendar": {
+        "type": "object",
+        "properties": {
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/calendar"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "secretKey"
+        ]
+      },
+      "IGoogleCalendar.IGoogleCalendarOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "캘린더 id.",
+            "description": "생성된 캘린더의 id 입니다."
+          },
+          "summary": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "캘린더 명.",
+            "description": "생성된 캘린더의 이름 입니다."
+          }
+        }
+      },
+      "IGoogleCalendar.ICreateCalendarInput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "생성할 캘린더 제목.",
+            "description": "생성할 캘린더의 제목 입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/calendar"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "title",
+          "secretKey"
+        ]
+      },
+      "IGoogleCalendar.IReadGoogleCalendarEventInput": {
+        "type": "object",
+        "properties": {
+          "extract_fields": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "const": "organizer"
+                },
+                {
+                  "const": "summary"
+                },
+                {
+                  "const": "description"
+                },
+                {
+                  "const": "htmlLink"
+                },
+                {
+                  "const": "created"
+                },
+                {
+                  "const": "updated"
+                },
+                {
+                  "const": "location"
+                },
+                {
+                  "const": "creator"
+                },
+                {
+                  "const": "start"
+                },
+                {
+                  "const": "end"
+                },
+                {
+                  "const": "attendees"
+                },
+                {
+                  "const": "reminders"
+                },
+                {
+                  "const": "attachments"
+                }
+              ]
+            },
+            "title": "가져올 데이터 (필드) 정보.",
+            "description": "캘린더 데이터에서 가져올 데이터 정보입니다."
+          },
+          "time_max": {
+            "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent.IDate",
+            "title": "이벤트를 가져올 마지막 날짜 정보.",
+            "description": "해당 날짜 이후의 이벤트는 가져오지 않습니다."
+          },
+          "time_min": {
+            "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent.IDate",
+            "title": "이벤트를 가져올 시작 날짜 정보.",
+            "description": "해당 날짜 이전의 이벤트는 가져오지 않습니다."
+          },
+          "max_results": {
+            "type": "integer",
+            "title": "몇 개의 결과를 반환할지.",
+            "description": "가져올 이벤트의 최대 개수를 설정합니다."
+          },
+          "orderBy": {
+            "oneOf": [
+              {
+                "const": "updated"
+              },
+              {
+                "const": "startTime"
+              }
+            ],
+            "title": "어떤 순서대로 받아올 것인지.",
+            "description": "캘린더 이벤트 정렬 순서입니다."
+          },
+          "query": {
+            "type": "string",
+            "title": "이벤트 검색어.",
+            "description": "검색어를 포함하는 이벤트를 검색할 수 있습니다.\n\n제목, 설명, 위치, 참석자 등에서 지정한 검색어를 포함하는 이벤트를 검색할 수 있음"
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/calendar"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "secretKey"
+        ]
+      },
+      "IGoogleCalendar.IGoogleCalendarEvent.IDate": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "number",
+            "title": "연도.",
+            "description": "연도입니다."
+          },
+          "month": {
+            "type": "number",
+            "title": "달.",
+            "description": "달입니다."
+          },
+          "date": {
+            "type": "number",
+            "title": "일.",
+            "description": "일입니다."
+          },
+          "hour": {
+            "type": "number",
+            "title": "시.",
+            "description": "시입니다."
+          }
+        },
+        "required": [
+          "year",
+          "month",
+          "date",
+          "hour"
+        ]
+      },
+      "IGoogleCalendar.IReadGoogleCalendarEventOutput": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent"
+            },
+            "title": "이벤트 리스트.",
+            "description": "검색된 캘린더 이벤트 리스트입니다."
+          }
+        },
+        "required": [
+          "events"
+        ]
+      },
+      "IGoogleCalendar.IGoogleCalendarEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 id.",
+            "description": "이벤트의 고유 id 입니다."
+          },
+          "htmlLink": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "uri"
+              }
+            ],
+            "title": "이벤트 링크.",
+            "description": "이벤트 링크 입니다."
+          },
+          "color": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 색상.",
+            "description": "이벤트 색상입니다."
+          },
+          "createdDate": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 생성 날짜.",
+            "description": "이벤트 생성 날짜입니다."
+          },
+          "updatedDate": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 업데이트 날짜.",
+            "description": "이벤트 업데이트 날짜입니다."
+          },
+          "title": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 제목.",
+            "description": "이벤트 제목입니다."
+          },
+          "description": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 설명.",
+            "description": "이벤트 설명입니다."
+          },
+          "location": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 위치.",
+            "description": "이벤트 위치입니다."
+          },
+          "organizer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent.IOrganizer"
+              }
+            ],
+            "title": "이벤트 주최자.",
+            "description": "이벤트 주최자의 정보입니다."
+          },
+          "creator": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent.ICreator"
+              }
+            ],
+            "title": "이벤트 생성자.",
+            "description": "이벤트 생성자의 정보입니다."
+          },
+          "startDate": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "dateTime": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "title": "이벤트 시작 날짜.",
+                    "description": "이벤트 시작 날짜입니다."
+                  },
+                  "timeZone": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "title": "이벤트 시작 날짜 타임존.",
+                    "description": "이벤트 시작 날짜 타임존입니다."
+                  }
+                }
+              }
+            ],
+            "title": "이벤트 시작 날짜.\n\n이벤트의 시작 날짜 정보입니다."
+          },
+          "endDate": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "dateTime": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "title": "이벤트 끝나는 날짜.",
+                    "description": "이벤트 끝나는 날짜입니다."
+                  },
+                  "timeZone": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "title": "이벤트 끝나는 날짜 타임존.",
+                    "description": "이벤트 끝나는 날짜 타임존입니다."
+                  }
+                }
+              }
+            ],
+            "title": "이벤트 끝나는 날짜.",
+            "description": "이벤트의 끝나는 날짜 정보입니다."
+          },
+          "recurrence": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "title": "이벤트 반복 정보.",
+            "description": "이벤트 반복 정보입니다."
+          },
+          "transparency": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 바쁨 / 한가함 여부.",
+            "description": "이벤트 바쁨 / 한가함 여부입니다."
+          },
+          "guestsCanModify": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "title": "초대자 이벤트 수정 권한 여부.",
+            "description": "초대자 이벤트 수정 권한 여부입니다."
+          },
+          "reminders": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent.IReminders"
+              }
+            ],
+            "title": "이벤트 알림 정보.",
+            "description": "이벤트 알림 정보입니다."
+          },
+          "attendees": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent.IAttendees"
+                }
+              }
+            ],
+            "title": "이벤트 참석자.",
+            "description": "이벤트 참석자 정보입니다."
+          },
+          "attachments": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent.IAttachments"
+                }
+              }
+            ],
+            "title": "첨부파일 정보.",
+            "description": "이벤트 첨부파일 정보입니다."
+          },
+          "hangoutLink": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "구글 밋 링크.",
+            "description": "구글 밋 링크입니다."
+          },
+          "visibility": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 공개 상태.",
+            "description": "이벤트 공개 상태입니다."
+          }
+        }
+      },
+      "IGoogleCalendar.IGoogleCalendarEvent.IOrganizer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 주최자 프로필 id.",
+            "description": "이벤트 주최자 프로필 id입니다."
+          },
+          "displayName": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 주최자 이름.",
+            "description": "이벤트 주최자 이름입니다."
+          },
+          "email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 주최자 이메일.",
+            "description": "이벤트 주최자 이메일입니다."
+          },
+          "self": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "title": "이벤트 사본이 표시되는 캘린더에 해당하는지 여부.",
+            "description": "이벤트 사본이 표시되는 캘린더에 해당하는지 여부입니다."
+          }
+        },
+        "description": "주최자 정보"
+      },
+      "IGoogleCalendar.IGoogleCalendarEvent.ICreator": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 생성자 프로필 id.",
+            "description": "이벤트 생성자 프로필 id입니다."
+          },
+          "displayName": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 생성자 이름.",
+            "description": "이벤트 생성자 이름입니다."
+          },
+          "email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 생성자 이메일.",
+            "description": "이벤트 생성자 이메일입니다."
+          },
+          "self": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "title": "이벤트 사본이 표시되는 캘린더에 해당하는지 여부.",
+            "description": "이벤트 사본이 표시되는 캘린더에 해당하는지 여부입니다."
+          }
+        },
+        "title": "이벤트 생성자 정보.",
+        "description": "이벤트 생성자 정보입니다."
+      },
+      "IGoogleCalendar.IGoogleCalendarEvent.IReminders": {
+        "type": "object",
+        "properties": {
+          "useDefault": {
+            "type": "boolean",
+            "title": "디폴트 알림 여부.",
+            "description": "디폴트 알림 여부입니다."
+          },
+          "overrides": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent.IRemindersOverrides"
+            },
+            "title": "알림 설정 정보.",
+            "description": "알림 설정 정보입니다."
+          }
+        }
+      },
+      "IGoogleCalendar.IGoogleCalendarEvent.IRemindersOverrides": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "알림 방식.",
+            "description": "알림 방식입니다."
+          },
+          "minutes": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "알림 보내는 시간.",
+            "description": "알림 보내는 시간입니다."
+          }
+        }
+      },
+      "IGoogleCalendar.IGoogleCalendarEvent.IAttendees": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이벤트 참석자 이메일.",
+            "description": "이벤트 참석자 이메일입니다."
+          },
+          "organizer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "title": "이벤트 참석자가 주최자인지 여부.",
+            "description": "이벤트 참석자가 주최자인지 여부입니다."
+          },
+          "self": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "title": "일정 사본이 표시되는 캘린더를 나타내는지 여부.",
+            "description": "일정 사본이 표시되는 캘린더를 나타내는지 여부입니다."
+          },
+          "responseStatus": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "참석자의 참석 응답 상태.",
+            "description": "참석자의 참석 응답 상태입니다."
+          }
+        },
+        "description": "참석자 정보"
+      },
+      "IGoogleCalendar.IGoogleCalendarEvent.IAttachments": {
+        "type": "object",
+        "properties": {
+          "fileUrl": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "uri"
+              }
+            ],
+            "title": "파일 url.",
+            "description": "이벤트 첨부파일 url입니다."
+          },
+          "title": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "파일 제목.",
+            "description": "첨부파일 제목입니다."
+          },
+          "mimeType": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "인터넷 미디어 유형.",
+            "description": "인터넷 미디어 유형입니다."
+          },
+          "iconLink": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "uri"
+              }
+            ],
+            "title": "파일 icon 링크.",
+            "description": "첨부파일 아이콘 링크입니다."
+          },
+          "fileId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "파일 id.",
+            "description": "첨부파일의 id 입니다."
+          }
+        }
+      },
+      "IGoogleCalendar.ICreateQuickEventInput": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "캘린더 빠른 이벤트 생성 문구.",
+            "description": "캘린더 빠른 이벤트 생성 문구입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/calendar"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "text",
+          "secretKey"
+        ]
+      },
+      "IGoogleCalendar.IEventRequestBodyInput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "이벤트 제목.",
+            "description": "생성할 이벤트 제목입니다."
+          },
+          "description": {
+            "type": "string",
+            "title": "이벤트 설명.",
+            "description": "생성할 이벤트 설명입니다."
+          },
+          "location": {
+            "type": "string",
+            "title": "이벤트 장소.",
+            "description": "생성할 이벤트 장소입니다."
+          },
+          "start": {
+            "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent.IDate",
+            "title": "이벤트 시작일.",
+            "description": "생성할 이벤트 시작일입니다."
+          },
+          "end": {
+            "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent.IDate",
+            "title": "이벤트 종료일.",
+            "description": "생성할 이벤트 종료일입니다."
+          },
+          "attendeesEmail": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "참석자 이메일.",
+            "description": "이벤트 참석자 이메일입니다."
+          },
+          "repeatFrequency": {
+            "oneOf": [
+              {
+                "const": "DAILY"
+              },
+              {
+                "const": "WEEKLY"
+              },
+              {
+                "const": "MONTHLY"
+              },
+              {
+                "const": "YEARLY"
+              }
+            ],
+            "title": "이벤트 반복 주기.",
+            "description": "이벤트 반복 주기입니다."
+          },
+          "repeatNum": {
+            "type": "number",
+            "title": "이벤트 반복 횟수.",
+            "description": "이벤트 반복 횟수입니다."
+          },
+          "repeatUntil": {
+            "$ref": "#/components/schemas/IGoogleCalendar.IGoogleCalendarEvent.IDate",
+            "title": "이벤트 반복 마감 일자.",
+            "description": "이벤트 반복 마감 일자입니다."
+          },
+          "isBusy": {
+            "type": "boolean",
+            "title": "바쁨 여부.",
+            "description": "이벤트 바쁨 상태 여부입니다."
+          },
+          "isUseDefaultReminder": {
+            "type": "boolean",
+            "title": "캘린더 기본 알림 사용 여부.",
+            "description": "캘린더 기본 알림 사용 여부입니다."
+          },
+          "remindersType": {
+            "oneOf": [
+              {
+                "const": "email"
+              },
+              {
+                "const": "popup"
+              }
+            ],
+            "title": "이벤트 알림 유형.",
+            "description": "이벤트 알림 유형입니다."
+          },
+          "minutesBeforeReminders": {
+            "type": "number",
+            "title": "일정 시작전 알림 설정 시간.",
+            "description": "일정 시작전 알림 설정 시간입니다."
+          },
+          "isConferencing": {
+            "type": "boolean",
+            "title": "구글밋 생성 여부.",
+            "description": "구글밋 생성 여부입니다."
+          },
+          "visibility": {
+            "oneOf": [
+              {
+                "const": "default"
+              },
+              {
+                "const": "public"
+              },
+              {
+                "const": "private"
+              }
+            ],
+            "title": "이벤트 공개 상태.",
+            "description": "이벤트 공개 상태입니다."
+          },
+          "colorId": {
+            "type": "string",
+            "title": "이벤트 색상.",
+            "description": "이벤트 색상."
+          },
+          "isGuestCanModify": {
+            "type": "boolean",
+            "title": "게스트 이벤트 수정 가능 여부.",
+            "description": "게스트 이벤트 수정 가능 여부입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/calendar"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "secretKey"
+        ]
+      },
+      "IGoogleCalendar.IAddAttendeesToEventInput": {
+        "type": "object",
+        "properties": {
+          "attendeesEmail": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "추가할 참석자 이메일.",
+            "description": "추가할 참석자 이메일입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/calendar"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "attendeesEmail",
+          "secretKey"
+        ]
+      },
+      "ICommon.ISecretgooglehttps//www.googleapis.com/auth/drive": {
+        "type": "object",
+        "properties": {
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/drive"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "secretKey"
+        ]
+      },
+      "IGoogleDrive.IFolderListGoogleDriveOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "title": "구글 drive folder id.",
+                  "description": "구글 drive folder의 id."
+                },
+                "name": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "title": "구글 drive folder name.",
+                  "description": "구글 drive 폴더 명."
+                }
+              }
+            },
+            "title": "구글 drive folder 데이터.",
+            "description": "구글 drive에 있는 folder 데이터 리스트."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "IGoogleDrive.IFileListGoogleDriveInput": {
+        "type": "object",
+        "properties": {
+          "folderId": {
+            "type": "string",
+            "title": "구글 drive 폴더.",
+            "description": "파일을 불러 올 폴더."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/drive"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "secretKey"
+        ]
+      },
+      "IGoogleDrive.IFileListGoogleDriveOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "title": "구글 drive file id.",
+                  "description": "구글 drive file의 id."
+                },
+                "name": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "title": "구글 drive file name.",
+                  "description": "구글 drive file의 이름."
+                }
+              }
+            },
+            "title": "구글 drive file 데이터.",
+            "description": "구글 drive에 있는 file 데이터 리스트."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "IGoogleDrive.ICreateFolderGoogleDriveInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "구글 drive 폴더명.",
+            "description": "생성할 drive 폴더명."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/drive"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "name",
+          "secretKey"
+        ]
+      },
+      "IGoogleDrive.ICreateFolderGoogleDriveOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "생성된 drive id.",
+            "description": "생성된 drive 폴더 id."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "IGoogleDrive.ICreateFileGoogleDriveInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "구글 drive file명.",
+            "description": "drive에 생성할 파일명."
+          },
+          "folderIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "구글 drive folder ids.",
+            "description": "drive에 생성할 파일이 속할 폴더 id 리스트."
+          },
+          "content": {
+            "type": "string",
+            "title": "구글 drive file content.",
+            "description": "drive에 생성할 파일의 내용."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/drive"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "name",
+          "folderIds",
+          "content",
+          "secretKey"
+        ]
+      },
+      "IGoogleDrive.ICreateFileGoogleDriveOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "생성된 drive file id.",
+            "description": "생성된 drive 파일 id."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "IGoogleDrive.IPermissionGoogleDriveInput": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string",
+            "title": "구글 drive file id.",
+            "description": "접근 권한을 부여할 drive 파일 id."
+          },
+          "folderId": {
+            "type": "string",
+            "title": "구글 drive folder id.",
+            "description": "접근 권한을 부여할 drive 폴더 id."
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IGoogleDrive.IPermission"
+            },
+            "title": "접근 가능하게 할 이메일과 부여할 권한 리스트.",
+            "description": "접근 가능하게 할 이메일과 부여할 권한 리스트 입니다."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/drive"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "permissions",
+          "secretKey"
+        ]
+      },
+      "IGoogleDrive.IPermission": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "권한을 부여할 사용자의 이메일.",
+            "description": "구글 drive 접근 권한을 부여할 사용자의 이메일 주소입니다."
+          },
+          "role": {
+            "oneOf": [
+              {
+                "const": "owner"
+              },
+              {
+                "const": "writer"
+              },
+              {
+                "const": "commenter"
+              },
+              {
+                "const": "reader"
+              },
+              {
+                "const": "organizer"
+              },
+              {
+                "const": "fileOrganizer"
+              }
+            ],
+            "title": "부여할 권한.",
+            "description": "부여할 권한의 종류입니다."
+          },
+          "type": {
+            "oneOf": [
+              {
+                "const": "user"
+              },
+              {
+                "const": "group"
+              },
+              {
+                "const": "domain"
+              },
+              {
+                "const": "anyone"
+              }
+            ],
+            "title": "부여할 권한의 타입.",
+            "description": "부여할 권한의 타입입니다."
+          }
+        },
+        "required": [
+          "email",
+          "role",
+          "type"
+        ]
+      },
+      "IGoogleDrive.IAppendTextGoogleDriveInput": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "추가할 text.",
+            "description": "drive 파일에 추가할 text."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://www.googleapis.com/auth/drive"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "text",
+          "secretKey"
+        ]
+      },
+      "IGoogleDrive.IReadFileGoogleDriveOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "title": "구글 drive file data.",
+            "description": "drive 파일에서 추출한 text 데이터."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ISelectorLlmRequest": {
+        "type": "object",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {},
+            "title": "선택지.",
+            "description": "선택 후보군 리스트입니다."
+          },
+          "num_select": {
+            "type": "number",
+            "title": "선택 개수.",
+            "description": "선택할 후보군의 개수입니다."
+          },
+          "context": {
+            "title": "고려사항.",
+            "description": "후보군을 선택할 때 고려해야할 내용들을 넣습니다."
+          }
+        },
+        "required": [
+          "candidates",
+          "num_select",
+          "context"
+        ]
+      },
+      "ISelectorLlmResponse": {
+        "type": "object",
+        "properties": {
+          "selection": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "title": "선택된 후보 인덱스 정보.",
+            "description": "선택된 후보들의 인덱스 리스트입니다."
+          }
+        },
+        "required": [
+          "selection"
+        ]
+      },
+      "IGmail.ICreateMailInput": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "title": "보내는 사람 이메일 주소.",
+            "description": "메일을 보내는 사람의 이메일 주소."
+          },
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "받는 사람 이메일 주소.",
+            "description": "메일을 받는 사람의 이메일 주소."
+          },
+          "subject": {
+            "type": "string",
+            "title": "이메일 제목.",
+            "description": "보낼 메일의 제목."
+          },
+          "body": {
+            "type": "string",
+            "title": "이메일 본문.",
+            "description": "보낼 메일의 본문."
+          },
+          "cc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "참조할 사람 이메일.",
+            "description": "참조할 사람 이메일 주소."
+          },
+          "Bcc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "숨은참조할 사람 이메일.",
+            "description": "숨은참조할 사람 이메일 주소."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://mail.google.com/"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "subject",
+          "body",
+          "secretKey"
+        ]
+      },
+      "IGmail.ISendMailOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "보낸 메일의 id.",
+            "description": "보낸 메일의 id."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "IGmail.IReplyInput": {
+        "type": "object",
+        "properties": {
+          "originalMailId": {
+            "type": "string",
+            "title": "답장할 메일.",
+            "description": "답장할 메일."
+          },
+          "replyText": {
+            "type": "string",
+            "title": "답장할 문구.",
+            "description": "답장할 문구."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://mail.google.com/"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "originalMailId",
+          "replyText",
+          "secretKey"
+        ]
+      },
+      "ICommon.ISecretgooglehttps//mail.google.com/": {
+        "type": "object",
+        "properties": {
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://mail.google.com/"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "secretKey"
+        ]
+      },
+      "IGmail.IFindGmailOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "이메일 id.",
+            "description": "이메일의 고유 id."
+          },
+          "labelIds": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "title": "이메일 라벨 id.",
+            "description": "이메일에 부여된 라벨 id."
+          },
+          "from": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "발신자 이메일.",
+            "description": "이메일을 보낸 사람의 이메일 주소."
+          },
+          "subject": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "제목.",
+            "description": "이메일의 제목."
+          },
+          "body": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "본문 요약.",
+            "description": "이메일의 본문 요약."
+          },
+          "attachments": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IGmail.IAttachmentOutput"
+                }
+              }
+            ],
+            "title": "첨부파일.",
+            "description": "이메일에 첨부된 파일 목록."
+          }
+        }
+      },
+      "IGmail.IAttachmentOutput": {
+        "type": "object",
+        "properties": {
+          "partId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "메시지 부분의 변경할 수 없는 ID.",
+            "description": "메시지 부분의 변경할 수 없는 ID."
+          },
+          "mimeType": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "메시지 부분의 MIME 유형.",
+            "description": "메세지의 MIME 유형입니다."
+          },
+          "filename": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "첨부파일 명.",
+            "description": "이 메시지 부분이 첨부파일을 나타내는 경우에만 표시됩니다."
+          },
+          "headers": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IGmail.IAttachmentHeader"
+                }
+              }
+            ],
+            "title": "첨부파일 헤더 정보.",
+            "description": "전체 메시지 페이로드를 나타내는 최상위 메시지 부분에는 To, From, Subject와 같은 표준 RFC 2822 이메일 헤더가 포함됩니다."
+          },
+          "body": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/IGmail.IAttachmentBody"
+              }
+            ],
+            "title": "첨부파일 헤더 body 정보.",
+            "description": "이 부분의 메시지 부분 본문으로, 컨테이너 MIME 메시지 부분의 경우 비어 있을 수 있습니다."
+          }
+        }
+      },
+      "IGmail.IAttachmentHeader": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "첨부파일 헤더 타입.",
+            "description": "첨부파일 헤더 타입."
+          },
+          "value": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "첨부파일 헤더 값.",
+            "description": "첨부파일 헤더 값."
+          }
+        }
+      },
+      "IGmail.IAttachmentBody": {
+        "type": "object",
+        "properties": {
+          "attachmentId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "첨부파일 id.",
+            "description": "첨부파일 고유 id입니다."
+          },
+          "size": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "첨부파일 데이터의 바이트 수.",
+            "description": "첨부파일 데이터의 바이트 수입니다."
+          }
+        }
+      },
+      "IGmail.IFindEmailListInput": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "title": "보낸 사람의 이메일.",
+            "description": "이메일을 보낸 사람의 이메일 주소."
+          },
+          "to": {
+            "type": "string",
+            "title": "받는 사람의 이메일.",
+            "description": "이메일을 받는 사람의 이메일 주소."
+          },
+          "subject": {
+            "type": "string",
+            "title": "이메일 제목.",
+            "description": "이메일 제목."
+          },
+          "after": {
+            "type": "string",
+            "title": "특정 날짜 이후.",
+            "description": "해당 날짜 이후의 이메일만 반환."
+          },
+          "before": {
+            "type": "string",
+            "title": "특정 날짜 이전.",
+            "description": "해당 날짜 이전의 이메일만 반환."
+          },
+          "label": {
+            "type": "string",
+            "title": "메일에 부여된 라벨.",
+            "description": "메일에 부여된 라벨."
+          },
+          "maxResults": {
+            "type": "number",
+            "maximum": 500,
+            "minimum": 1,
+            "title": "최대 반환 갯수.",
+            "description": "메일의 반환 갯수."
+          },
+          "labelIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "필터링할 라벨 목록.",
+            "description": "지정된 라벨 ID와 모두 일치하는 라벨이 있는 메일만 반환하기 위한 라벨 목록들."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://mail.google.com/"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "secretKey"
+        ]
+      },
+      "IGmail.IFindGmailListOutput": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IGmail.IFindGmailOutput"
+            },
+            "title": "gmail 검색 데이터 정보.",
+            "description": "검색된 gmail 데이터 정보."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "IGmail.ILabelInput": {
+        "type": "object",
+        "properties": {
+          "labelName": {
+            "type": "string",
+            "title": "라벨 이름.",
+            "description": "생성할 라벨의 이름."
+          },
+          "labelListVisibility": {
+            "oneOf": [
+              {
+                "const": "labelHide"
+              },
+              {
+                "const": "labelShow"
+              },
+              {
+                "const": "labelShowIfUnread"
+              }
+            ],
+            "title": "라벨의 공개 상태.",
+            "description": "생성할 라벨의 공개 상태.\n숨김 / 보임 / 안읽었을 때 보임"
+          },
+          "messageListVisibility": {
+            "oneOf": [
+              {
+                "const": "hide"
+              },
+              {
+                "const": "show"
+              }
+            ],
+            "title": "라벨이 지정된 메일의 공개 상태.",
+            "description": "생성된 라벨이 지정된 메일의 공개 상태.\n숨김 / 보임"
+          },
+          "color": {
+            "$ref": "#/components/schemas/IGmail.ILabelColor",
+            "title": "라벨 색깔.",
+            "description": "생성할 메일 라벨의 색깔"
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://mail.google.com/"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "labelName",
+          "secretKey"
+        ]
+      },
+      "IGmail.ILabelColor": {
+        "type": "object",
+        "properties": {
+          "textColor": {
+            "type": "string",
+            "title": "라벨 글씨 색.",
+            "description": "라벨 글씨 색상."
+          },
+          "backgroundColor": {
+            "type": "string",
+            "title": "라벨 배경 색.",
+            "description": "라벨 배경 색상."
+          }
+        },
+        "required": [
+          "textColor",
+          "backgroundColor"
+        ]
+      },
+      "IGmail.ILabelOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "생성된 라벨 id.",
+            "description": "생성된 라벨의 id."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "IGmail.IMailLabelOperationInput": {
+        "type": "object",
+        "properties": {
+          "labelIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "title": "라벨 목록.",
+            "description": "부여하거나 삭제할 라벨 목록들."
+          },
+          "secretKey": {
+            "type": "string",
+            "x-wrtn-secret-key": "google",
+            "x-wrtn-secret-scopes": [
+              "https://mail.google.com/"
+            ],
+            "title": "인증을 위한 시크릿 값",
+            "description": "secret key."
+          }
+        },
+        "required": [
+          "labelIds",
+          "secretKey"
+        ]
+      },
+      "ITool.IGenerateInput": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      "ITool.IGenerateOutput": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "description": "툴을 사용한 결과입니다."
+      },
+      "IChatbot.IChatbotEasyGenerateInput": {
+        "type": "object",
+        "properties": {
+          "difficulty": {
+            "const": "easy",
+            "title": "난이도",
+            "description": "챗봇이 제작된 난이도 입니다."
+          },
+          "role": {
+            "type": "string",
+            "title": "역할",
+            "description": "챗봇의 역할입니다."
+          },
+          "personality": {
+            "type": "string",
+            "title": "성격",
+            "description": "챗봇의 성격입니다."
+          },
+          "requirement": {
+            "type": "string",
+            "title": "요구사항",
+            "description": "챗봇의 요구사항입니다."
+          },
+          "name": {
+            "type": "string",
+            "title": "이름",
+            "description": "챗봇의 이름입니다."
+          },
+          "description": {
+            "type": "string",
+            "title": "설명",
+            "description": "챗봇의 설명입니다."
+          },
+          "message": {
+            "type": "string",
+            "title": "유저 발화",
+            "description": "유저의 발화입니다."
+          },
+          "histories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IChatbot.IHistory"
+            },
+            "title": "채팅 히스토리",
+            "description": "채팅 히스토리 입니다."
+          }
+        },
+        "required": [
+          "difficulty",
+          "role",
+          "personality",
+          "requirement",
+          "name",
+          "description",
+          "message"
+        ],
+        "title": "쉬움 난이도 챗봇 사용을 위한 정보"
+      },
+      "IChatbot.IHistory": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "oneOf": [
+              {
+                "const": "user"
+              },
+              {
+                "const": "assistant"
+              }
+            ],
+            "title": "발화자 역할",
+            "description": "발화자의 역할입니다."
+          },
+          "content": {
+            "type": "string",
+            "title": "발화 내용",
+            "description": "발화 내용입니다."
+          }
+        },
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "채팅 히스토리"
+      },
+      "IChatbot.IChatbotGenerateOutput": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "title": "챗봇 응답",
+            "description": "챗봇 응답 결과 입니다."
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "title": "챗봇 응답"
+      },
+      "IChatbot.IChatBotHardGenerateInput": {
+        "type": "object",
+        "properties": {
+          "difficulty": {
+            "const": "hard",
+            "title": "난이도",
+            "description": "챗봇이 제작된 난이도 입니다."
+          },
+          "prompt": {
+            "type": "string",
+            "title": "프롬프트",
+            "description": "LLM 요청시 필요한 프롬프트입니다."
+          },
+          "name": {
+            "type": "string",
+            "title": "이름",
+            "description": "챗봇의 이름입니다."
+          },
+          "description": {
+            "type": "string",
+            "title": "설명",
+            "description": "챗봇의 설명입니다."
+          },
+          "message": {
+            "type": "string",
+            "title": "유저 발화",
+            "description": "유저의 발화입니다."
+          },
+          "histories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IChatbot.IHistory"
+            },
+            "title": "채팅 히스토리",
+            "description": "채팅 히스토리 입니다."
+          }
+        },
+        "required": [
+          "difficulty",
+          "prompt",
+          "name",
+          "description",
+          "message"
+        ],
+        "title": "어려움 난이도 챗봇 사용을 위한 정보"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Arxiv",
+      "description": "학술자료 사이트"
+    },
+    {
+      "name": "Daum",
+      "description": "다음 포털 사이트"
+    },
+    {
+      "name": "Naver",
+      "description": "네이버 포털 사이트"
+    },
+    {
+      "name": "Youtube",
+      "description": "유튜브"
+    },
+    {
+      "name": "Google",
+      "description": "Scholar 학술자료 사이트"
+    },
+    {
+      "name": "CSV",
+      "description": "텍스트 파일 형식"
+    },
+    {
+      "name": "Llm",
+      "description": "키워드 추출 생성"
+    },
+    {
+      "name": "Sort",
+      "description": "Rank Ranking 정렬 순위 순서 랭킹 랭크"
+    },
+    {
+      "name": "RAG"
+    },
+    {
+      "name": "Hwp",
+      "description": "한글 워드 프로세서"
+    },
+    {
+      "name": "Excel",
+      "description": "엑셀 파일"
+    },
+    {
+      "name": "Gmail"
+    },
+    {
+      "name": "Tool"
+    },
+    {
+      "name": "Chatbot"
+    }
+  ],
+  "x-samchon-emended": true
+}

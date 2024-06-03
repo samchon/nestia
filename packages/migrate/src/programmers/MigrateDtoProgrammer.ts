@@ -4,6 +4,7 @@ import ts from "typescript";
 
 import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
+import { StringUtil } from "../utils/StringUtil";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
@@ -20,10 +21,16 @@ export namespace MigrateDtoProgrammer {
     components: OpenApi.IComponents,
   ): Map<string, IModule> => {
     const dict: Map<string, IModule> = new Map();
-    for (const [key, value] of Object.entries(components.schemas ?? {}))
-      prepare(dict)(key)((importer) =>
-        writeAlias(components)(importer)(key, value),
+    for (const [key, value] of Object.entries(components.schemas ?? {})) {
+      const emendedKey: string = key
+        .split("/")
+        .filter((str) => str.length !== 0)
+        .map(StringUtil.escapeNonVariableSymbols)
+        .join("");
+      prepare(dict)(emendedKey)((importer) =>
+        writeAlias(components)(importer)(emendedKey, value),
       );
+    }
     return dict;
   };
 

@@ -29,12 +29,16 @@ const setup = (tag) => (version) => (directory) => {
           } catch {}
         record[key] =
           tag === "tgz"
-            ? path.resolve(
-                `${__dirname}/../packages/${key.replace(
-                  "@nestia/",
-                  "",
-                )}/nestia-${key.replace("@nestia/", "")}-${version}.tgz`,
-              )
+            ? path
+                .relative(
+                  directory,
+                  `${__dirname}/../packages/${key.replace(
+                    "@nestia/",
+                    "",
+                  )}/nestia-${key.replace("@nestia/", "")}-${version}.tgz`,
+                )
+                .split("\\")
+                .join("/")
             : `^${version}`;
       }
   for (const key of Object.keys(info.peerDependencies ?? {}))

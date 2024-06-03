@@ -57,4 +57,39 @@ export namespace StringUtil {
     (keep: string[]) =>
     (change: string): string =>
       keep.includes(change) ? escapeDuplicate(keep)(`_${change}`) : change;
+
+  export const escapeNonVariableSymbols = (str: string): string => {
+    for (const [before, after] of VARIABLE_REPLACERS)
+      str = str.split(before).join(after);
+    return str;
+  };
 }
+
+const VARIABLE_REPLACERS: [string, string][] = [
+  ["`", "_backquote_"],
+  ["!", "_exclamation_"],
+  ["#", "_hash_"],
+  ["$", "_dollar_"],
+  ["%", "_percent_"],
+  ["^", "_caret_"],
+  ["&", "_and_"],
+  ["*", "_star_"],
+  ["(", "_lparen_"],
+  [")", "_rparen_"],
+  ["-", "_minus_"],
+  ["+", "_plus_"],
+  ["|", "_or_"],
+  ["{", "_blt_"],
+  ["}", "_bgt_"],
+  ["<", "_lt_"],
+  [">", "_gt_"],
+  ["[", "_alt_"],
+  ["]", "_agt_"],
+  [",", "_comma_"],
+  ["'", "_singlequote_"],
+  ['"', "_doublequote_"],
+  [" ", "_space_"],
+  ["?", "_question_"],
+  [":", "_colon_"],
+  [";", "_semicolon_"],
+];
