@@ -23,8 +23,8 @@
     "@mui/icons-material": "5.15.6",
     "@mui/material": "5.15.6",
     "@mui/system": "5.15.6",
-    "@nestia/migrate": "^0.13.10",
-    "@samchon/openapi": "^0.1.21",
+    "@nestia/migrate": "^0.13.13",
+    "@samchon/openapi": "^0.1.22",
     "@stackblitz/sdk": "^1.9.0",
     "js-yaml": "^4.1.0",
     "next": "14.1.1",
@@ -34,7 +34,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-mui-fileuploader": "^0.5.2",
-    "typia": "^6.0.3"
+    "typia": "^6.0.5"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
