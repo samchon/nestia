@@ -204,6 +204,8 @@ export namespace MigrateSchemaProgrammer {
         intersection.push(importer.tag("MinItems", schema.minItems));
       if (schema.maxItems !== undefined)
         intersection.push(importer.tag("MaxItems", schema.maxItems));
+      if (schema.uniqueItems === true)
+        intersection.push(importer.tag("UniqueItems"));
       writePlugin({
         importer,
         regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IArray>(),

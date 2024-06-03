@@ -38,15 +38,16 @@ export class MigrateImportProgrammer {
     );
   }
 
-  public tag(type: string, arg: any): ts.TypeReferenceNode {
+  public tag(type: string, arg?: any): ts.TypeReferenceNode {
     const instance: string = this.external({
       type: "instance",
       library: "typia",
       name: "tags",
     });
-    return ts.factory.createTypeReferenceNode(`${instance}.${type}`, [
-      TypeLiteralFactory.generate(arg),
-    ]);
+    return ts.factory.createTypeReferenceNode(
+      `${instance}.${type}`,
+      arg === undefined ? [] : [TypeLiteralFactory.generate(arg)],
+    );
   }
 
   public toStatements(
