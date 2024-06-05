@@ -78,7 +78,7 @@ export namespace SdkFileProgrammer {
         `${outDir}/index.ts`,
       );
       directory.routes.forEach((route, i) => {
-        if (project.config.clone !== true)
+        if (project.config.clone !== true || route.protocol === "websocket")
           for (const tuple of route.imports)
             for (const instance of tuple[1])
               importer.internal({
