@@ -61,6 +61,13 @@ export namespace StringUtil {
   export const escapeNonVariableSymbols = (str: string): string => {
     for (const [before, after] of VARIABLE_REPLACERS)
       str = str.split(before).join(after);
+    for (let i: number = 0; i <= 9; ++i)
+      if (str[0] === i.toString()) {
+        str = "_" + str;
+        break;
+      }
+    str = str.trim();
+    if (str === "") return "_empty_";
     return str;
   };
 }
@@ -92,4 +99,5 @@ const VARIABLE_REPLACERS: [string, string][] = [
   ["?", "_question_"],
   [":", "_colon_"],
   [";", "_semicolon_"],
+  ["...", "_rest_"],
 ];
