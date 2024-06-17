@@ -37,6 +37,7 @@ export async function index(
     },
     {
       ...index.METADATA,
+      template: index.METADATA.path,
       path: index.path(section),
     },
     input,
@@ -82,6 +83,7 @@ export async function $catch(
 ): Promise<$catch.Output> {
   return PlainFetcher.fetch(connection, {
     ...$catch.METADATA,
+    template: $catch.METADATA.path,
     path: $catch.path(section, input),
   });
 }
@@ -132,6 +134,7 @@ export async function at(
 ): Promise<at.Output> {
   return PlainFetcher.fetch(connection, {
     ...at.METADATA,
+    template: at.METADATA.path,
     path: at.path(section, id),
   });
 }
@@ -171,6 +174,7 @@ export async function $new(
 ): Promise<$new.Output> {
   return PlainFetcher.fetch(connection, {
     ...$new.METADATA,
+    template: $new.METADATA.path,
     path: $new.path(section, date),
   });
 }
@@ -218,6 +222,7 @@ export async function store(
     },
     {
       ...store.METADATA,
+      template: store.METADATA.path,
       path: store.path(section),
     },
     input,
@@ -273,6 +278,7 @@ export async function update(
     },
     {
       ...update.METADATA,
+      template: update.METADATA.path,
       path: update.path(section, id),
     },
     input,
@@ -317,6 +323,7 @@ export async function $$delete(
 ): Promise<void> {
   return PlainFetcher.fetch(connection, {
     ...$$delete.METADATA,
+    template: $$delete.METADATA.path,
     path: $$delete.path(section, id),
   });
 }
@@ -352,6 +359,7 @@ export async function $delete(
 ): Promise<void> {
   return PlainFetcher.fetch(connection, {
     ...$delete.METADATA,
+    template: $delete.METADATA.path,
     path: $delete.path(section),
   });
 }

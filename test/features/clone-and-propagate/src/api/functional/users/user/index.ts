@@ -38,6 +38,7 @@ export async function getUserProfile(
     ? getUserProfile.simulate(connection, user_id, query)
     : PlainFetcher.propagate(connection, {
         ...getUserProfile.METADATA,
+        template: getUserProfile.METADATA.path,
         path: getUserProfile.path(user_id, query),
       });
 }
@@ -139,6 +140,7 @@ export async function updateUserProfile(
         },
         {
           ...updateUserProfile.METADATA,
+          template: updateUserProfile.METADATA.path,
           path: updateUserProfile.path(user_id),
         },
         body,

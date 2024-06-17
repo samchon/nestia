@@ -36,6 +36,7 @@ export async function store(
     },
     {
       ...store.METADATA,
+      template: store.METADATA.path,
       path: store.path(),
     },
     input,
@@ -82,6 +83,7 @@ export async function update(
     },
     {
       ...update.METADATA,
+      template: update.METADATA.path,
       path: update.path(id),
     },
     input,

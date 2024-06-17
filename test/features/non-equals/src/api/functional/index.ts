@@ -31,6 +31,7 @@ export async function request(
     },
     {
       ...request.METADATA,
+      template: request.METADATA.path,
       path: request.path(),
     },
     input,

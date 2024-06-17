@@ -19,6 +19,7 @@ export async function boolean(
 ): Promise<boolean.Output> {
   return PlainFetcher.fetch(connection, {
     ...boolean.METADATA,
+    template: boolean.METADATA.path,
     path: boolean.path(value),
   });
 }
@@ -51,6 +52,7 @@ export async function number(
 ): Promise<number.Output> {
   return PlainFetcher.fetch(connection, {
     ...number.METADATA,
+    template: number.METADATA.path,
     path: number.path(value),
   });
 }
@@ -83,6 +85,7 @@ export async function string(
 ): Promise<string.Output> {
   return PlainFetcher.fetch(connection, {
     ...string.METADATA,
+    template: string.METADATA.path,
     path: string.path(value),
   });
 }
@@ -115,6 +118,7 @@ export async function nullable(
 ): Promise<nullable.Output> {
   return PlainFetcher.fetch(connection, {
     ...nullable.METADATA,
+    template: nullable.METADATA.path,
     path: nullable.path(value),
   });
 }
@@ -147,6 +151,7 @@ export async function literal(
 ): Promise<literal.Output> {
   return PlainFetcher.fetch(connection, {
     ...literal.METADATA,
+    template: literal.METADATA.path,
     path: literal.path(value),
   });
 }
@@ -179,6 +184,7 @@ export async function uuid(
 ): Promise<uuid.Output> {
   return PlainFetcher.fetch(connection, {
     ...uuid.METADATA,
+    template: uuid.METADATA.path,
     path: uuid.path(value),
   });
 }
@@ -211,6 +217,7 @@ export async function date(
 ): Promise<date.Output> {
   return PlainFetcher.fetch(connection, {
     ...date.METADATA,
+    template: date.METADATA.path,
     path: date.path(value),
   });
 }
@@ -243,6 +250,7 @@ export async function uuid_nullable(
 ): Promise<uuid_nullable.Output> {
   return PlainFetcher.fetch(connection, {
     ...uuid_nullable.METADATA,
+    template: uuid_nullable.METADATA.path,
     path: uuid_nullable.path(value),
   });
 }
@@ -275,6 +283,7 @@ export async function date_nullable(
 ): Promise<date_nullable.Output> {
   return PlainFetcher.fetch(connection, {
     ...date_nullable.METADATA,
+    template: date_nullable.METADATA.path,
     path: date_nullable.path(value),
   });
 }

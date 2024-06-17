@@ -18,6 +18,7 @@ export async function boolean(
 ): Promise<boolean.Output> {
   return PlainFetcher.fetch(connection, {
     ...boolean.METADATA,
+    template: boolean.METADATA.path,
     path: boolean.path(value),
   });
 }
@@ -50,6 +51,7 @@ export async function number(
 ): Promise<number.Output> {
   return PlainFetcher.fetch(connection, {
     ...number.METADATA,
+    template: number.METADATA.path,
     path: number.path(value),
   });
 }
@@ -82,6 +84,7 @@ export async function string(
 ): Promise<string.Output> {
   return PlainFetcher.fetch(connection, {
     ...string.METADATA,
+    template: string.METADATA.path,
     path: string.path(value),
   });
 }
@@ -114,6 +117,7 @@ export async function nullable(
 ): Promise<nullable.Output> {
   return PlainFetcher.fetch(connection, {
     ...nullable.METADATA,
+    template: nullable.METADATA.path,
     path: nullable.path(value),
   });
 }
@@ -146,6 +150,7 @@ export async function literal(
 ): Promise<literal.Output> {
   return PlainFetcher.fetch(connection, {
     ...literal.METADATA,
+    template: literal.METADATA.path,
     path: literal.path(value),
   });
 }

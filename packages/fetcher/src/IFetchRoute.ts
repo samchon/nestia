@@ -17,6 +17,13 @@ export interface IFetchRoute<
   path: string;
 
   /**
+   * Path template.
+   *
+   * Filled since 3.2.2 version.
+   */
+  template?: string;
+
+  /**
    * Request body data info.
    */
   request: Method extends "DELETE" | "POST" | "PUT" | "PATCH"

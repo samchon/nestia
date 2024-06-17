@@ -17,6 +17,7 @@ import type { IBbsArticle } from "../../structures/IBbsArticle";
 export async function at(connection: IConnection): Promise<at.Output> {
   return PlainFetcher.fetch(connection, {
     ...at.METADATA,
+    template: at.METADATA.path,
     path: at.path(),
   });
 }

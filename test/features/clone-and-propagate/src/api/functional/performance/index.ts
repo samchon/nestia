@@ -20,6 +20,7 @@ export async function cpu(connection: IConnection): Promise<cpu.Output> {
     ? cpu.simulate(connection)
     : PlainFetcher.propagate(connection, {
         ...cpu.METADATA,
+        template: cpu.METADATA.path,
         path: cpu.path(),
       });
 }
@@ -70,6 +71,7 @@ export async function memory(connection: IConnection): Promise<memory.Output> {
     ? memory.simulate(connection)
     : PlainFetcher.propagate(connection, {
         ...memory.METADATA,
+        template: memory.METADATA.path,
         path: memory.path(),
       });
 }
@@ -122,6 +124,7 @@ export async function resource(
     ? resource.simulate(connection)
     : PlainFetcher.propagate(connection, {
         ...resource.METADATA,
+        template: resource.METADATA.path,
         path: resource.path(),
       });
 }

@@ -25,6 +25,7 @@ export async function original(
     ? original.simulate(connection)
     : PlainFetcher.propagate(connection, {
         ...original.METADATA,
+        template: original.METADATA.path,
         path: original.path(),
       });
 }

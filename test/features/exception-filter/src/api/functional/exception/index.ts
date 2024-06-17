@@ -32,6 +32,7 @@ export async function typedBody(
     },
     {
       ...typedBody.METADATA,
+      template: typedBody.METADATA.path,
       path: typedBody.path(),
     },
     input,
@@ -66,6 +67,7 @@ export namespace typedBody {
 export async function typedManual(connection: IConnection): Promise<void> {
   return PlainFetcher.fetch(connection, {
     ...typedManual.METADATA,
+    template: typedManual.METADATA.path,
     path: typedManual.path(),
   });
 }
@@ -95,6 +97,7 @@ export async function typedParam(
 ): Promise<void> {
   return PlainFetcher.fetch(connection, {
     ...typedParam.METADATA,
+    template: typedParam.METADATA.path,
     path: typedParam.path(id),
   });
 }
@@ -125,6 +128,7 @@ export async function typedQuery(
 ): Promise<typedQuery.Output> {
   return PlainFetcher.fetch(connection, {
     ...typedQuery.METADATA,
+    template: typedQuery.METADATA.path,
     path: typedQuery.path(file),
   });
 }
@@ -165,6 +169,7 @@ export namespace typedQuery {
 export async function internal(connection: IConnection): Promise<void> {
   return PlainFetcher.fetch(connection, {
     ...internal.METADATA,
+    template: internal.METADATA.path,
     path: internal.path(),
   });
 }

@@ -17,6 +17,7 @@ import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 export async function get(connection: IConnection): Promise<get.Output> {
   return PlainFetcher.propagate(connection, {
     ...get.METADATA,
+    template: get.METADATA.path,
     path: get.path(),
   });
 }
@@ -53,6 +54,7 @@ export async function union(
 ): Promise<union.Output> {
   return PlainFetcher.propagate(connection, {
     ...union.METADATA,
+    template: union.METADATA.path,
     path: union.path(error_type),
   });
 }

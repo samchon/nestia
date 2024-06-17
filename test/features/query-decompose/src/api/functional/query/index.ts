@@ -21,6 +21,7 @@ export async function typed(
 ): Promise<typed.Output> {
   return PlainFetcher.fetch(connection, {
     ...typed.METADATA,
+    template: typed.METADATA.path,
     path: typed.path(query),
   });
 }
@@ -64,6 +65,7 @@ export async function nest(
 ): Promise<nest.Output> {
   return PlainFetcher.fetch(connection, {
     ...nest.METADATA,
+    template: nest.METADATA.path,
     path: nest.path(query),
   });
 }
@@ -107,6 +109,7 @@ export async function individual(
 ): Promise<individual.Output> {
   return PlainFetcher.fetch(connection, {
     ...individual.METADATA,
+    template: individual.METADATA.path,
     path: individual.path(id),
   });
 }
@@ -152,6 +155,7 @@ export async function composite(
 ): Promise<composite.Output> {
   return PlainFetcher.fetch(connection, {
     ...composite.METADATA,
+    template: composite.METADATA.path,
     path: composite.path(atomic, query),
   });
 }
