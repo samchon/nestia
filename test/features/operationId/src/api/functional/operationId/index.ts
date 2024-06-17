@@ -18,6 +18,7 @@ import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 export async function custom(connection: IConnection): Promise<void> {
   return PlainFetcher.fetch(connection, {
     ...custom.METADATA,
+    template: custom.METADATA.path,
     path: custom.path(),
   });
 }

@@ -17,6 +17,7 @@ import type { IToken } from "../structures/IToken";
 export async function basic(connection: IConnection): Promise<basic.Output> {
   return PlainFetcher.fetch(connection, {
     ...basic.METADATA,
+    template: basic.METADATA.path,
     path: basic.path(),
   });
 }
@@ -50,6 +51,7 @@ export async function basic_by_comment(
 ): Promise<basic_by_comment.Output> {
   return PlainFetcher.fetch(connection, {
     ...basic_by_comment.METADATA,
+    template: basic_by_comment.METADATA.path,
     path: basic_by_comment.path(),
   });
 }
@@ -78,6 +80,7 @@ export namespace basic_by_comment {
 export async function bearer(connection: IConnection): Promise<bearer.Output> {
   return PlainFetcher.fetch(connection, {
     ...bearer.METADATA,
+    template: bearer.METADATA.path,
     path: bearer.path(),
   });
 }
@@ -111,6 +114,7 @@ export async function bearer_by_comment(
 ): Promise<bearer_by_comment.Output> {
   return PlainFetcher.fetch(connection, {
     ...bearer_by_comment.METADATA,
+    template: bearer_by_comment.METADATA.path,
     path: bearer_by_comment.path(),
   });
 }
@@ -139,6 +143,7 @@ export namespace bearer_by_comment {
 export async function oauth2(connection: IConnection): Promise<oauth2.Output> {
   return PlainFetcher.fetch(connection, {
     ...oauth2.METADATA,
+    template: oauth2.METADATA.path,
     path: oauth2.path(),
   });
 }
@@ -172,6 +177,7 @@ export async function oauth2_by_comment(
 ): Promise<oauth2_by_comment.Output> {
   return PlainFetcher.fetch(connection, {
     ...oauth2_by_comment.METADATA,
+    template: oauth2_by_comment.METADATA.path,
     path: oauth2_by_comment.path(),
   });
 }
@@ -206,6 +212,7 @@ export async function optional_by_comment(
 ): Promise<optional_by_comment.Output> {
   return PlainFetcher.fetch(connection, {
     ...optional_by_comment.METADATA,
+    template: optional_by_comment.METADATA.path,
     path: optional_by_comment.path(),
   });
 }
@@ -236,6 +243,7 @@ export async function security(
 ): Promise<security.Output> {
   return PlainFetcher.fetch(connection, {
     ...security.METADATA,
+    template: security.METADATA.path,
     path: security.path(),
   });
 }

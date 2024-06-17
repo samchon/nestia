@@ -42,6 +42,7 @@ export async function change(
         },
         {
           ...change.METADATA,
+          template: change.METADATA.path,
           path: change.path(),
         },
         input,

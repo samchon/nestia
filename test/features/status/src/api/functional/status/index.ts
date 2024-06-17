@@ -17,6 +17,7 @@ import type { IBbsArticle } from "../../structures/IBbsArticle";
 export async function random(connection: IConnection): Promise<random.Output> {
   return PlainFetcher.fetch(connection, {
     ...random.METADATA,
+    template: random.METADATA.path,
     path: random.path(),
   });
 }

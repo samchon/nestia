@@ -22,6 +22,7 @@ export async function index(connection: IConnection): Promise<index.Output> {
     ? index.simulate(connection)
     : PlainFetcher.propagate(connection, {
         ...index.METADATA,
+        template: index.METADATA.path,
         path: index.path(),
       });
 }

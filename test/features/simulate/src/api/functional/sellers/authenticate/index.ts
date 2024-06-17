@@ -41,6 +41,7 @@ export async function join(
         },
         {
           ...join.METADATA,
+          template: join.METADATA.path,
           path: join.path(),
         },
         input,
@@ -118,6 +119,7 @@ export async function login(
         },
         {
           ...login.METADATA,
+          template: login.METADATA.path,
           path: login.path(),
         },
         input,
@@ -180,6 +182,7 @@ export async function exit(connection: IConnection): Promise<void> {
     ? exit.simulate(connection)
     : PlainFetcher.fetch(connection, {
         ...exit.METADATA,
+        template: exit.METADATA.path,
         path: exit.path(),
       });
 }

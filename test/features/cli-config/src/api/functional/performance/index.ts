@@ -29,6 +29,7 @@ export async function get(connection: IConnection): Promise<get.Output> {
     ? get.simulate(connection)
     : PlainFetcher.fetch(connection, {
         ...get.METADATA,
+        template: get.METADATA.path,
         path: get.path(),
       });
 }

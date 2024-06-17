@@ -31,6 +31,7 @@ export async function post(
         connection,
         {
           ...post.METADATA,
+          template: post.METADATA.path,
           path: post.path(),
         },
         body,

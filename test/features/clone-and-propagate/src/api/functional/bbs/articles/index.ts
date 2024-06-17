@@ -39,6 +39,7 @@ export async function index(
     ? index.simulate(connection, section, query)
     : PlainFetcher.propagate(connection, {
         ...index.METADATA,
+        template: index.METADATA.path,
         path: index.path(section, query),
       });
 }
@@ -141,6 +142,7 @@ export async function store(
         },
         {
           ...store.METADATA,
+          template: store.METADATA.path,
           path: store.path(section),
         },
         input,
@@ -239,6 +241,7 @@ export async function update(
         },
         {
           ...update.METADATA,
+          template: update.METADATA.path,
           path: update.path(section, id),
         },
         input,

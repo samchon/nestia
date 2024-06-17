@@ -39,6 +39,7 @@ export async function store(
         },
         {
           ...store.METADATA,
+          template: store.METADATA.path,
           path: store.path(),
         },
         input,

@@ -18,6 +18,7 @@ export async function head(connection: IConnection): Promise<void> {
     ? head.simulate(connection)
     : PlainFetcher.fetch(connection, {
         ...head.METADATA,
+        template: head.METADATA.path,
         path: head.path(),
       });
 }

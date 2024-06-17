@@ -34,6 +34,7 @@ export async function login(
     },
     {
       ...login.METADATA,
+      template: login.METADATA.path,
       path: login.path(),
     },
     input,

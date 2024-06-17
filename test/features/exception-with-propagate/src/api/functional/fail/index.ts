@@ -20,6 +20,7 @@ export async function get(
 ): Promise<get.Output> {
   return PlainFetcher.propagate(connection, {
     ...get.METADATA,
+    template: get.METADATA.path,
     path: get.path(error_type),
   });
 }
@@ -61,6 +62,7 @@ export async function composite(
 ): Promise<composite.Output> {
   return PlainFetcher.propagate(connection, {
     ...composite.METADATA,
+    template: composite.METADATA.path,
     path: composite.path(error_type),
   });
 }

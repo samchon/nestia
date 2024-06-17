@@ -63,9 +63,7 @@ export namespace FetcherBase {
     (props: IProps) =>
     async <Input>(
       connection: IConnection,
-      metadata: IFetchRoute<
-        "DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT"
-      >,
+      route: IFetchRoute<"DELETE" | "GET" | "HEAD" | "PATCH" | "POST" | "PUT">,
       input?: Input,
       stringify?: (input: Input) => string,
     ): Promise<IPropagation<any, any>> => {
@@ -77,17 +75,17 @@ export namespace FetcherBase {
         ...(connection.headers ?? {}),
       };
       if (input !== undefined)
-        if (metadata.request?.type === undefined)
+        if (route.request?.type === undefined)
           throw new Error(
             `Error on ${props.className}.fetch(): no content-type being configured.`,
           );
-        else if (metadata.request.type !== "multipart/form-data")
-          headers["Content-Type"] = metadata.request.type;
+        else if (route.request.type !== "multipart/form-data")
+          headers["Content-Type"] = route.request.type;
 
       // INIT REQUEST DATA
       const init: RequestInit = {
         ...(connection.options ?? {}),
-        method: metadata.method,
+        method: route.method,
         headers: (() => {
           const output: [string, string][] = [];
           for (const [key, value] of Object.entries(headers))
@@ -103,11 +101,11 @@ export namespace FetcherBase {
       if (input !== undefined)
         init.body = props.encode(
           // BODY TRANSFORM
-          metadata.request?.type === "application/x-www-form-urlencoded"
+          route.request?.type === "application/x-www-form-urlencoded"
             ? request_query_body(input)
-            : metadata.request?.type === "multipart/form-data"
+            : route.request?.type === "multipart/form-data"
               ? request_form_data_body(input as any)
-              : metadata.request?.type !== "text/plain"
+              : route.request?.type !== "text/plain"
                 ? (stringify ?? JSON.stringify)(input)
                 : input,
           headers,
@@ -119,14 +117,14 @@ export namespace FetcherBase {
       // URL SPECIFICATION
       const path: string =
         connection.host[connection.host.length - 1] !== "/" &&
-        metadata.path[0] !== "/"
-          ? `/${metadata.path}`
-          : metadata.path;
+        route.path[0] !== "/"
+          ? `/${route.path}`
+          : route.path;
       const url: URL = new URL(`${connection.host}${path}`);
 
       // DO FETCH
       const event: IFetchEvent = {
-        route: metadata,
+        route,
         path,
         status: null,
         input,
@@ -148,7 +146,7 @@ export namespace FetcherBase {
           success:
             response.status === 200 ||
             response.status === 201 ||
-            response.status == metadata.status,
+            response.status == route.status,
           status: response.status,
           headers: response_headers_to_object(response.headers),
           data: undefined!,
@@ -167,19 +165,17 @@ export namespace FetcherBase {
             } catch {}
         } else {
           // WHEN SUCCESS
-          if (metadata.method === "HEAD") result.data = undefined!;
-          else if (metadata.response?.type === "application/json") {
+          if (route.method === "HEAD") result.data = undefined!;
+          else if (route.response?.type === "application/json") {
             const text: string = await response.text();
             result.data = text.length ? JSON.parse(text) : undefined;
           } else if (
-            metadata.response?.type === "application/x-www-form-urlencoded"
+            route.response?.type === "application/x-www-form-urlencoded"
           ) {
             const query: URLSearchParams = new URLSearchParams(
               await response.text(),
             );
-            result.data = metadata.parseQuery
-              ? metadata.parseQuery(query)
-              : query;
+            result.data = route.parseQuery ? route.parseQuery(query) : query;
           } else
             result.data = props.decode(await response.text(), result.headers);
         }

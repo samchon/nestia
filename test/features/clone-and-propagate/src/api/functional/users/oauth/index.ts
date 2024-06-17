@@ -34,6 +34,7 @@ export async function getOauthProfile(
     ? getOauthProfile.simulate(connection, user_id, query)
     : PlainFetcher.propagate(connection, {
         ...getOauthProfile.METADATA,
+        template: getOauthProfile.METADATA.path,
         path: getOauthProfile.path(user_id, query),
       });
 }

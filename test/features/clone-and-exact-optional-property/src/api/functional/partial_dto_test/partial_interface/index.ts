@@ -38,6 +38,7 @@ export async function partialInterface(
         },
         {
           ...partialInterface.METADATA,
+          template: partialInterface.METADATA.path,
           path: partialInterface.path(),
         },
         body,

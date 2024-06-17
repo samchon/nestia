@@ -23,6 +23,7 @@ import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 export async function get(connection: IConnection): Promise<void> {
   return PlainFetcher.fetch(connection, {
     ...get.METADATA,
+    template: get.METADATA.path,
     path: get.path(),
   });
 }

@@ -36,6 +36,7 @@ export async function typed(
     },
     {
       ...typed.METADATA,
+      template: typed.METADATA.path,
       path: typed.path(section),
     },
     input,
@@ -76,6 +77,7 @@ export async function union(
 ): Promise<union.Output> {
   return PlainFetcher.fetch(connection, {
     ...union.METADATA,
+    template: union.METADATA.path,
     path: union.path(section),
   });
 }
@@ -125,6 +127,7 @@ export async function tags(
     },
     {
       ...tags.METADATA,
+      template: tags.METADATA.path,
       path: tags.path(section),
     },
     input,
@@ -178,6 +181,7 @@ export async function composite(
     },
     {
       ...composite.METADATA,
+      template: composite.METADATA.path,
       path: composite.path(section),
     },
     input,

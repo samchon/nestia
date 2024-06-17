@@ -41,6 +41,7 @@ export async function index(
         },
         {
           ...index.METADATA,
+          template: index.METADATA.path,
           path: index.path(section),
         },
         input,
@@ -111,6 +112,7 @@ export async function query(
     ? query.simulate(connection, section, input)
     : PlainFetcher.fetch(connection, {
         ...query.METADATA,
+        template: query.METADATA.path,
         path: query.path(section, input),
       });
 }
@@ -186,6 +188,7 @@ export async function at(
     ? at.simulate(connection, section, id)
     : PlainFetcher.fetch(connection, {
         ...at.METADATA,
+        template: at.METADATA.path,
         path: at.path(section, id),
       });
 }
@@ -250,6 +253,7 @@ export async function first(
     ? first.simulate(connection, section, date)
     : PlainFetcher.fetch(connection, {
         ...first.METADATA,
+        template: first.METADATA.path,
         path: first.path(section, date),
       });
 }
@@ -322,6 +326,7 @@ export async function store(
         },
         {
           ...store.METADATA,
+          template: store.METADATA.path,
           path: store.path(section),
         },
         input,
@@ -402,6 +407,7 @@ export async function update(
         },
         {
           ...update.METADATA,
+          template: update.METADATA.path,
           path: update.path(section, id),
         },
         input,

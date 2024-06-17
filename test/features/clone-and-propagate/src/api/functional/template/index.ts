@@ -26,6 +26,7 @@ export async function index(connection: IConnection): Promise<index.Output> {
     ? index.simulate(connection)
     : PlainFetcher.propagate(connection, {
         ...index.METADATA,
+        template: index.METADATA.path,
         path: index.path(),
       });
 }
@@ -78,6 +79,7 @@ export async function at(
     ? at.simulate(connection, id)
     : PlainFetcher.propagate(connection, {
         ...at.METADATA,
+        template: at.METADATA.path,
         path: at.path(id),
       });
 }
@@ -156,6 +158,7 @@ export async function store(
         },
         {
           ...store.METADATA,
+          template: store.METADATA.path,
           path: store.path(),
         },
         body,

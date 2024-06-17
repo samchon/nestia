@@ -38,6 +38,7 @@ export async function partialType(
         },
         {
           ...partialType.METADATA,
+          template: partialType.METADATA.path,
           path: partialType.path(),
         },
         body,

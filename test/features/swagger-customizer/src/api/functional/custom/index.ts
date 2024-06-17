@@ -20,6 +20,7 @@ export async function customize(
 ): Promise<customize.Output> {
   return PlainFetcher.fetch(connection, {
     ...customize.METADATA,
+    template: customize.METADATA.path,
     path: customize.path(___key, ___value),
   });
 }
@@ -52,6 +53,7 @@ export async function normal(
 ): Promise<normal.Output> {
   return PlainFetcher.fetch(connection, {
     ...normal.METADATA,
+    template: normal.METADATA.path,
     path: normal.path(id),
   });
 }

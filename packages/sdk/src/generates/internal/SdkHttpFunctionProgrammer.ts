@@ -137,6 +137,14 @@ export namespace SdkHttpFunctionProgrammer {
                   )("METADATA"),
                 ),
                 ts.factory.createPropertyAssignment(
+                  "template",
+                  IdentifierFactory.access(
+                    IdentifierFactory.access(
+                      ts.factory.createIdentifier(route.name),
+                    )("METADATA"),
+                  )("path"),
+                ),
+                ts.factory.createPropertyAssignment(
                   "path",
                   ts.factory.createCallExpression(
                     IdentifierFactory.access(

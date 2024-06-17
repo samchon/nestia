@@ -40,6 +40,7 @@ export async function single(
     },
     {
       ...single.METADATA,
+      template: single.METADATA.path,
       path: single.path(accountCode),
     },
     input,
@@ -87,6 +88,7 @@ export async function activate(
     },
     {
       ...activate.METADATA,
+      template: activate.METADATA.path,
       path: activate.path(accountCode),
     },
     input,

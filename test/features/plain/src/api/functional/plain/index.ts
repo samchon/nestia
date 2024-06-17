@@ -30,6 +30,7 @@ export async function string(
         },
         {
           ...string.METADATA,
+          template: string.METADATA.path,
           path: string.path(),
         },
         body,
@@ -97,6 +98,7 @@ export async function template(
         },
         {
           ...template.METADATA,
+          template: template.METADATA.path,
           path: template.path(),
         },
         body,
@@ -167,6 +169,7 @@ export async function constant(
         },
         {
           ...constant.METADATA,
+          template: constant.METADATA.path,
           path: constant.path(),
         },
         body,

@@ -26,6 +26,7 @@ export async function send(
     },
     {
       ...send.METADATA,
+      template: send.METADATA.path,
       path: send.path(),
     },
     body,

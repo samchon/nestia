@@ -22,6 +22,7 @@ export async function literals(
     ? literals.simulate(connection)
     : PlainFetcher.propagate(connection, {
         ...literals.METADATA,
+        template: literals.METADATA.path,
         path: literals.path(),
       });
 }

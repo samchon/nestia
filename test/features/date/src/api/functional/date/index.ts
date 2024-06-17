@@ -17,6 +17,7 @@ import type { IDateDefined } from "../../structures/IDateDefined";
 export async function get(connection: IConnection): Promise<get.Output> {
   return PlainFetcher.fetch(connection, {
     ...get.METADATA,
+    template: get.METADATA.path,
     path: get.path(),
   });
 }

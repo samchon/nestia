@@ -23,6 +23,7 @@ export async function index(
 ): Promise<index.Output> {
   return PlainFetcher.fetch(connection, {
     ...index.METADATA,
+    template: index.METADATA.path,
     path: index.path(section, query),
   });
 }
@@ -81,6 +82,7 @@ export async function store(
     },
     {
       ...store.METADATA,
+      template: store.METADATA.path,
       path: store.path(section),
     },
     input,
@@ -136,6 +138,7 @@ export async function update(
     },
     {
       ...update.METADATA,
+      template: update.METADATA.path,
       path: update.path(section, id),
     },
     input,
