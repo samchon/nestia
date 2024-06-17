@@ -181,7 +181,7 @@ export namespace TestValidator {
     <Solution extends IEntity<any>>(expected: Solution[]) =>
     <Summary extends IEntity<any>>(
       gotten: Summary[],
-      trace: boolean = true,
+      trace: boolean = false,
     ): void => {
       const length: number = Math.min(expected.length, gotten.length);
       expected = expected.slice(0, length);
@@ -296,7 +296,7 @@ export namespace TestValidator {
     /**
      * @param direction "+" means ascending order, and "-" means descending order
      */
-    async (direction: "+" | "-", trace: boolean = true) => {
+    async (direction: "+" | "-", trace: boolean = false) => {
       let data: T[] = await getter(
         fields.map((field) => `${direction}${field}` as const) as Sortable,
       );
