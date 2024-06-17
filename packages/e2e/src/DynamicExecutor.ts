@@ -7,14 +7,19 @@ import { StopWatch } from "./StopWatch";
 /**
  * Dynamic Executor running prefixed functions.
  *
- * `DynamicExecutor` runs every prefixed functions in a specific directory.
- * However, if you want to run only specific functions, you can use
- * `--include` or `--exclude` option in the CLI (Command Line Interface) level.
+ * `DynamicExecutor` runs every (or some filtered) prefixed functions
+ * in a specific directory.
  *
- * When you want to see example utilization cases, see the below example links.
+ * For reference, it's useful for test program development of a backend server.
+ * Just write test functions under a directory, and just specify it.
+ * Furthermore, if you compose e2e test programs to utilize the `@nestia/sdk`
+ * generated API functions, you can take advantage of {@link DynamicBenchmarker}
+ * at the same time.
  *
- * @example https://github.com/samchon/nestia-template/blob/master/src/test/index.ts
- * @example https://github.com/samchon/backend/blob/master/src/test/index.ts
+ * When you want to see some utilization cases, see the below example links.
+ *
+ * @example https://github.com/samchon/nestia-start/blob/master/test/index.ts
+ * @example https://github.com/samchon/backend/blob/master/test/index.ts
  * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace DynamicExecutor {
