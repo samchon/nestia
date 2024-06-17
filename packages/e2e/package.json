@@ -1,6 +1,6 @@
 {
   "name": "@nestia/e2e",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "description": "E2E test utilify functions",
   "main": "lib/index.js",
   "scripts": {
@@ -38,11 +38,13 @@
     "ts-node": "^10.9.1",
     "ts-patch": "^3.1.0",
     "typescript": "^5.4.2",
-    "typia": "^6.0.3"
+    "typia": "^6.1.0"
   },
   "dependencies": {
+    "@nestia/fetcher": "^3.2.2",
     "chalk": "^4.1.2",
     "cli": "^1.0.1",
+    "tgrid": "^1.0.1",
     "tstl": "^3.0.0"
   },
   "files": [
