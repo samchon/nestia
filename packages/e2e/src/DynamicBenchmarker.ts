@@ -180,7 +180,7 @@ export namespace DynamicBenchmarker {
       IBenchmarkMaster,
       IBenchmarkServant
     >[] = await Promise.all(
-      new Array(props.threads).fill(null).map(async (i) => {
+      new Array(props.threads).fill(null).map(async (_, i) => {
         const connector: WorkerConnector<
           null,
           IBenchmarkMaster,
