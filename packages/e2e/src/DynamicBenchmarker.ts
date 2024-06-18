@@ -358,37 +358,45 @@ export namespace DynamicBenchmarker {
         driver: ctx.driver,
         props: ctx.props,
       })(ctx.props.location);
-      const events: IBenchmarkEvent[] = [];
 
-      ctx.props.connection.logger = async (e): Promise<void> => {
-        events.push({
-          metadata: e.route,
-          status: e.status,
-          started_at: e.started_at.toISOString(),
-          repond_at: e.respond_at?.toISOString() ?? null,
-          completed_at: e.completed_at.toISOString(),
-        });
-      };
-
+      const entireEvents: IBenchmarkEvent[] = [];
       await Promise.all(
-        new Array(mass.simultaneous).fill(null).map(async () => {
-          while (events.length < mass.count) {
-            const prev: number = events.length;
-            const func: IFunction<Parameters> =
-              functions[Math.floor(Math.random() * functions.length)];
-            try {
-              await func.value(
-                ...ctx.props.parameters(ctx.props.connection, func.key),
-              );
-              const current: number = events.length;
-              if (current !== prev)
-                ctx.driver.progress(current).catch(() => {});
-            } catch {}
-          }
-        }),
+        new Array(mass.simultaneous)
+          .fill(null)
+          .map(() => 1)
+          .map(async () => {
+            while (entireEvents.length < mass.count) {
+              const localEvents: IBenchmarkEvent[] = [];
+              const func: IFunction<Parameters> =
+                functions[Math.floor(Math.random() * functions.length)];
+              const connection: IConnection = {
+                ...ctx.props.connection,
+                logger: async (fe): Promise<void> => {
+                  const be: IBenchmarkEvent = {
+                    metadata: fe.route,
+                    status: fe.status,
+                    started_at: fe.started_at.toISOString(),
+                    repond_at: fe.respond_at?.toISOString() ?? null,
+                    completed_at: fe.completed_at.toISOString(),
+                    success: true,
+                  };
+                  localEvents.push(be);
+                  entireEvents.push(be);
+                },
+              };
+              try {
+                await func.value(...ctx.props.parameters(connection, func.key));
+              } catch (exp) {
+                for (const e of localEvents)
+                  e.success = e.status === 200 || e.status === 201;
+              }
+              if (localEvents.length !== 0)
+                ctx.driver.progress(entireEvents.length).catch(() => {});
+            }
+          }),
       );
-      await ctx.driver.progress(events.length);
-      return events;
+      await ctx.driver.progress(entireEvents.length);
+      return entireEvents;
     };
 }
 
@@ -427,9 +435,7 @@ const iterate =
 const statistics = (
   events: IBenchmarkEvent[],
 ): DynamicBenchmarker.IReport.IStatistics => {
-  const successes: IBenchmarkEvent[] = events.filter(
-    (event) => event.status === 200 || event.status === 201,
-  );
+  const successes: IBenchmarkEvent[] = events.filter((event) => event.success);
   return {
     count: events.length,
     success: successes.length,
