@@ -6,4 +6,5 @@ export interface IBenchmarkEvent {
   started_at: string;
   repond_at: string | null;
   completed_at: string;
+  success: boolean;
 }
