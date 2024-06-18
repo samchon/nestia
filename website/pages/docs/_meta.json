@@ -9,6 +9,7 @@
   },
   "core": "Core Library",
   "sdk": "Generators",
+  "e2e": "E2E Testing",
   "migrate": "Migration from Swagger",
   "editor": "TypeScript Swagger Editor",
 
