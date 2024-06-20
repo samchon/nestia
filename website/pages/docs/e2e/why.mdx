@@ -5,6 +5,9 @@ When developing a test program for NestJS developed backend server, I recommend 
 
 Furthermore, if you develop test functions utilizing the SDK library, you can easily switch the e2e test functions to the performance benchmark functions. Just by utilizing `@nestia/e2e` library, you can easily measure your NestJS developed backend server's performance through the SDK library utilizing e2e test functions.
 
+  - [E2E Test Function Example](https://github.com/samchon/nestia-start/blob/master/test/features/api/bbs/test_api_bbs_article_create.ts)
+  - [Benchmark Example](https://github.com/samchon/nestia-start/blob/master/docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md)
+
 ![SDK](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
 
 > SDK library utilizing test functions can be used in the performance benchmark program
@@ -191,13 +194,458 @@ Those are the reasons why I recommend to adapt the new era's e2e test paradigm i
 
 
 ## Test Program Development
+<Tabs items={[
+    "Test Main Program",
+    "Test Function #1",
+    "Test Function #2",
+  ]}>
+  <Tab>
+```typescript filename="test/index.ts" showLineNumbers {49-61}
+import { DynamicExecutor, StopWatch } from "@nestia/e2e";
+import { sleep_for } from "tstl";
 
+import BbsApi from "@samchon/bbs-api";
+
+import { BbsBackend } from "../src/BbsBackend";
+import { BbsConfiguration } from "../src/BbsConfiguration";
+import { BbsGlobal } from "../src/BbsGlobal";
+import { BbsSetupWizard } from "../src/setup/BbsSetupWizard";
+import { ArgumentParser } from "../src/utils/ArgumentParser";
+
+interface IOptions {
+  reset: boolean;
+  include?: string[];
+  exclude?: string[];
+  trace: boolean;
+}
+
+const getOptions = () =>
+  ArgumentParser.parse<IOptions>(async (command, prompt, action) => {
+    command.option("--reset <true|false>", "reset local DB or not");
+    command.option("--include <string...>", "include feature files");
+    command.option("--exclude <string...>", "exclude feature files");
+    command.option("--trace <boolean>", "trace detailed errors");
+
+    return action(async (options) => {
+      if (typeof options.reset === "string")
+        options.reset = options.reset === "true";
+      options.reset ??= await prompt.boolean("reset")("Reset local DB");
+      options.trace = options.trace !== ("false" as any);
+      return options as IOptions;
+    });
+  });
+
+const main = async (): Promise<void> => {
+  // CONFIGURE
+  const options: IOptions = await getOptions();
+  BbsGlobal.testing = true;
+
+  if (options.reset) {
+    await StopWatch.trace("Reset DB")(BbsSetupWizard.schema);
+    await StopWatch.trace("Seed Data")(BbsSetupWizard.seed);
+  }
+
+  // OPEN SERVER
+  const backend: BbsBackend = new BbsBackend();
+  await backend.open();
+
+  // DO TEST
+  const connection: BbsApi.IConnection = {
+    host: `http://127.0.0.1:${BbsConfiguration.API_PORT()}`,
+  };
+  const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
+    prefix: "test",
+    parameters: () => [{ ...connection }],
+    filter: (func) =>
+      (!options.include?.length ||
+        (options.include ?? []).some((str) => func.includes(str))) &&
+      (!options.exclude?.length ||
+        (options.exclude ?? []).every((str) => !func.includes(str))),
+  })(__dirname + "/features");
+
+  // TERMINATE
+  await sleep_for(2500); // WAIT FOR BACKGROUND EVENTS
+  await backend.close();
+
+  const exceptions: Error[] = report.executions
+    .filter((exec) => exec.error !== null)
+    .map((exec) => exec.error!);
+  if (exceptions.length === 0) {
+    console.log("Success");
+    console.log("Elapsed time", report.time.toLocaleString(), `ms`);
+  } else {
+    if (options.trace !== false) for (const exp of exceptions) console.log(exp);
+    console.log("Failed");
+    console.log("Elapsed time", report.time.toLocaleString(), `ms`);
+    process.exit(-1);
+  }
+};
+main().catch((exp) => {
+  console.log(exp);
+  process.exit(-1);
+});
+```
+  </Tab>
+  <Tab>
+```typescript filename="test/features/api/bbs/test_api_bbs_article_create.ts" showLineNumbers
+import { ArrayUtil, RandomGenerator, TestValidator } from "@nestia/e2e";
+import { randint } from "tstl";
+
+import BbsApi from "@samchon/bbs-api/lib/index";
+import { IBbsArticle } from "@samchon/bbs-api/lib/structures/bbs/IBbsArticle";
+
+import { prepare_random_file } from "./internal/prepare_random_file";
+
+export const test_api_bbs_article_create = async (
+  connection: BbsApi.IConnection,
+): Promise<void> => {
+  // PREPARE INPUT DATA
+  const input: IBbsArticle.ICreate = {
+    writer: RandomGenerator.name(),
+    password: RandomGenerator.alphaNumeric(8),
+    title: RandomGenerator.paragraph()(),
+    body: RandomGenerator.content()()(),
+    format: "md",
+    files: ArrayUtil.repeat(randint(0, 3))(() => prepare_random_file()),
+  };
+
+  // DO CREATE
+  const article: IBbsArticle = await BbsApi.functional.bbs.articles.create(
+    connection,
+    input,
+  );
+
+  // VALIDATE WHETHER EXACT DATA IS INSERTED
+  TestValidator.equals("create")({
+    snapshots: [
+      {
+        format: input.format,
+        title: input.title,
+        body: input.body,
+        files: input.files,
+      },
+    ],
+    writer: input.writer,
+  })(article);
+
+  // COMPARE WITH READ DATA
+  const read: IBbsArticle = await BbsApi.functional.bbs.articles.at(
+    connection,
+    article.id,
+  );
+  TestValidator.equals("read")(read)(article);
+};
+```
+  </Tab>
+  <Tab>
+```typescript filename="test/features/api/bbs/test_api_bbs_article_index_search.ts" showLineNumbers
+import { ArrayUtil, RandomGenerator, TestValidator } from "@nestia/e2e";
+
+import BbsApi from "@samchon/bbs-api/lib/index";
+import { IBbsArticle } from "@samchon/bbs-api/lib/structures/bbs/IBbsArticle";
+import { IPage } from "@samchon/bbs-api/lib/structures/common/IPage";
+
+import { generate_random_article } from "./internal/generate_random_article";
+
+export const test_api_bbs_article_index_search = async (
+  connection: BbsApi.IConnection,
+): Promise<void> => {
+  await ArrayUtil.asyncRepeat(REPEAT)(() =>
+    generate_random_article(connection),
+  );
+
+  const expected: IPage<IBbsArticle.IAbridge> =
+    await BbsApi.functional.bbs.articles.abridges(connection, {
+      limit: REPEAT,
+    });
+
+  const validator = TestValidator.search("search")(
+    async (search: IBbsArticle.IRequest.ISearch) => {
+      const page: IPage<IBbsArticle.IAbridge> =
+        await BbsApi.functional.bbs.articles.abridges(connection, {
+          search,
+          limit: REPEAT,
+        });
+      return page.data;
+    },
+  )(expected.data, 2);
+
+  await validator({
+    fields: ["writer"],
+    values: (arc) => [arc.writer],
+    request: ([writer]) => ({ writer }),
+    filter: (arc, [name]) => arc.writer.includes(name),
+  });
+  await validator({
+    fields: ["title"],
+    values: (arc) => [arc.title],
+    request: ([title]) => ({ title }),
+    filter: (arc, [title]) => arc.title.includes(title),
+  });
+  await validator({
+    fields: ["title_or_body"],
+    values: (arc) => [RandomGenerator.pick([arc.title, arc.body])],
+    request: ([title_or_body]) => ({ title_or_body }),
+    filter: (arc, [value]) =>
+      arc.title.includes(value) || arc.body.includes(value),
+  });
+};
+
+const REPEAT = 25;
+```
+  </Tab>
+</Tabs>
 
 
 
 
 ## Performance Benchmark
+<Tabs items={[
+    "Benchmark Main Program",
+    "Test Function #1",
+    "Test Function #2",
+    "Benchmark Result Report"
+  ]}>
+  <Tab>
+```typescript filename="test/benchmark/index.ts" showLineNumbers {80-97}
+import { DynamicBenchmarker, StopWatch } from "@nestia/e2e";
+import cliProgress from "cli-progress";
+import fs from "fs";
+import os from "os";
+import { IPointer } from "tstl";
 
+import { BbsBackend } from "../../src/BbsBackend";
+import { BbsConfiguration } from "../../src/BbsConfiguration";
+import { BbsGlobal } from "../../src/BbsGlobal";
+import { BbsSetupWizard } from "../../src/setup/BbsSetupWizard";
+import { ArgumentParser } from "../../src/utils/ArgumentParser";
+
+interface IOptions {
+  reset: boolean;
+  include?: string[];
+  exclude?: string[];
+  trace: boolean;
+  count: number;
+  threads: number;
+  simultaneous: number;
+}
+
+const getOptions = () =>
+  ArgumentParser.parse<IOptions>(async (command, prompt, action) => {
+    command.option("--mode <string>", "target mode");
+    command.option("--reset <true|false>", "reset local DB or not");
+    command.option("--include <string...>", "include feature files");
+    command.option("--exclude <string...>", "exclude feature files");
+    command.option("--count <number>", "number of requests to make");
+    command.option("--threads <number>", "number of threads to use");
+    command.option(
+      "--simultaneous <number>",
+      "number of simultaneous requests to make",
+    );
+    return action(async (options) => {
+      if (typeof options.reset === "string")
+        options.reset = options.reset === "true";
+      options.reset ??= await prompt.boolean("reset")("Reset local DB");
+      options.trace = options.trace !== ("false" as any);
+      options.count = Number(
+        options.count ??
+          (await prompt.number("count")("Number of requests to make")),
+      );
+      options.threads = Number(
+        options.threads ??
+          (await prompt.number("threads")("Number of threads to use")),
+      );
+      options.simultaneous = Number(
+        options.simultaneous ??
+          (await prompt.number("simultaneous")(
+            "Number of simultaneous requests to make",
+          )),
+      );
+      return options as IOptions;
+    });
+  });
+
+const main = async (): Promise<void> => {
+  // CONFIGURATIONS
+  const options: IOptions = await getOptions();
+  BbsGlobal.testing = true;
+
+  if (options.reset) {
+    await StopWatch.trace("Reset DB")(BbsSetupWizard.schema);
+    await StopWatch.trace("Seed Data")(BbsSetupWizard.seed);
+  }
+
+  // BACKEND SERVER
+  const backend: BbsBackend = new BbsBackend();
+  await backend.open();
+
+  // DO BENCHMARK
+  const prev: IPointer<number> = { value: 0 };
+  const bar: cliProgress.SingleBar = new cliProgress.SingleBar(
+    {},
+    cliProgress.Presets.shades_classic,
+  );
+  bar.start(options.count, 0);
+
+  const report: DynamicBenchmarker.IReport = await DynamicBenchmarker.master({
+    servant: `${__dirname}/servant.js`,
+    count: options.count,
+    threads: options.threads,
+    simultaneous: options.simultaneous,
+    filter: (func) =>
+      (!options.include?.length ||
+        (options.include ?? []).some((str) => func.includes(str))) &&
+      (!options.exclude?.length ||
+        (options.exclude ?? []).every((str) => !func.includes(str))),
+    progress: (value: number) => {
+      if (value >= 100 + prev.value) {
+        bar.update(value);
+        prev.value = value;
+      }
+    },
+    stdio: "ignore",
+  });
+  bar.stop();
+
+  // DOCUMENTATION
+  try {
+    await fs.promises.mkdir(`${BbsConfiguration.ROOT}/docs/benchmarks`, {
+      recursive: true,
+    });
+  } catch {}
+  await fs.promises.writeFile(
+    `${BbsConfiguration.ROOT}/docs/benchmarks/${os
+      .cpus()[0]
+      .model.trim()
+      .split("\\")
+      .join("")
+      .split("/")
+      .join("")}.md`,
+    DynamicBenchmarker.markdown(report),
+    "utf8",
+  );
+
+  // CLOSE
+  await backend.close();
+};
+main().catch((exp) => {
+  console.error(exp);
+  process.exit(-1);
+});
+```
+  </Tab>
+  <Tab>
+```typescript filename="test/features/api/bbs/test_api_bbs_article_create.ts" showLineNumbers
+import { ArrayUtil, RandomGenerator, TestValidator } from "@nestia/e2e";
+import { randint } from "tstl";
+
+import BbsApi from "@samchon/bbs-api/lib/index";
+import { IBbsArticle } from "@samchon/bbs-api/lib/structures/bbs/IBbsArticle";
+
+import { prepare_random_file } from "./internal/prepare_random_file";
+
+export const test_api_bbs_article_create = async (
+  connection: BbsApi.IConnection,
+): Promise<void> => {
+  // PREPARE INPUT DATA
+  const input: IBbsArticle.ICreate = {
+    writer: RandomGenerator.name(),
+    password: RandomGenerator.alphaNumeric(8),
+    title: RandomGenerator.paragraph()(),
+    body: RandomGenerator.content()()(),
+    format: "md",
+    files: ArrayUtil.repeat(randint(0, 3))(() => prepare_random_file()),
+  };
+
+  // DO CREATE
+  const article: IBbsArticle = await BbsApi.functional.bbs.articles.create(
+    connection,
+    input,
+  );
+
+  // VALIDATE WHETHER EXACT DATA IS INSERTED
+  TestValidator.equals("create")({
+    snapshots: [
+      {
+        format: input.format,
+        title: input.title,
+        body: input.body,
+        files: input.files,
+      },
+    ],
+    writer: input.writer,
+  })(article);
+
+  // COMPARE WITH READ DATA
+  const read: IBbsArticle = await BbsApi.functional.bbs.articles.at(
+    connection,
+    article.id,
+  );
+  TestValidator.equals("read")(read)(article);
+};
+```
+  </Tab>
+  <Tab>
+```typescript filename="test/features/api/bbs/test_api_bbs_article_index_search.ts" showLineNumbers
+import { ArrayUtil, RandomGenerator, TestValidator } from "@nestia/e2e";
+
+import BbsApi from "@samchon/bbs-api/lib/index";
+import { IBbsArticle } from "@samchon/bbs-api/lib/structures/bbs/IBbsArticle";
+import { IPage } from "@samchon/bbs-api/lib/structures/common/IPage";
+
+import { generate_random_article } from "./internal/generate_random_article";
+
+export const test_api_bbs_article_index_search = async (
+  connection: BbsApi.IConnection,
+): Promise<void> => {
+  await ArrayUtil.asyncRepeat(REPEAT)(() =>
+    generate_random_article(connection),
+  );
+
+  const expected: IPage<IBbsArticle.IAbridge> =
+    await BbsApi.functional.bbs.articles.abridges(connection, {
+      limit: REPEAT,
+    });
+
+  const validator = TestValidator.search("search")(
+    async (search: IBbsArticle.IRequest.ISearch) => {
+      const page: IPage<IBbsArticle.IAbridge> =
+        await BbsApi.functional.bbs.articles.abridges(connection, {
+          search,
+          limit: REPEAT,
+        });
+      return page.data;
+    },
+  )(expected.data, 2);
+
+  await validator({
+    fields: ["writer"],
+    values: (arc) => [arc.writer],
+    request: ([writer]) => ({ writer }),
+    filter: (arc, [name]) => arc.writer.includes(name),
+  });
+  await validator({
+    fields: ["title"],
+    values: (arc) => [arc.title],
+    request: ([title]) => ({ title }),
+    filter: (arc, [title]) => arc.title.includes(title),
+  });
+  await validator({
+    fields: ["title_or_body"],
+    values: (arc) => [RandomGenerator.pick([arc.title, arc.body])],
+    request: ([title_or_body]) => ({ title_or_body }),
+    filter: (arc, [value]) =>
+      arc.title.includes(value) || arc.body.includes(value),
+  });
+};
+
+const REPEAT = 25;
+```
+  </Tab>
+  <Tab>
+![Benchmark Result](/images/benchmark.png)
+  </Tab>
+</Tabs>
 
 
 
