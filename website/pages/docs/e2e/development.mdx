@@ -1,0 +1,320 @@
+import { Tabs, Tab } from 'nextra-theme-docs'
+
+## Outline
+Test your backend server with e2e test functions.
+
+If you've succeded to generate [SDK library by `@nestia/sdk`](../sdk/sdk), you can utilize the SDK library to implement e2e test functions. As the SDK library ensures types safety for remote API calls, you can develop much more efficient and safer test program than unit testing case.
+
+If you want to pre-exprience the test program utliizng the e2e test functions of `@nestia/sdk`, visit below playground website.
+
+💻 [https://stackblitz.com/~/github.com/samchon/nestia-start](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,test/index.ts,test/features/api/bbs/test_api_bbs_article_create.ts!&view=editor)
+
+> ```bash
+> - test_api_bbs_article_at: 149 ms
+> - test_api_bbs_article_create: 30 ms
+> - test_api_bbs_article_index_search: 1,312 ms
+> - test_api_bbs_article_index_sort: 1,110 ms
+> - test_api_bbs_article_update: 28 m
+> ```
+
+
+
+
+## Main Program
+```typescript filename="test/index.ts" showLineNumbers {51-59}
+import { DynamicExecutor } from "@nestia/e2e";
+
+import api from "@ORGANIZATION/PROJECT-api";
+
+import { MyBackend } from "../src/MyBackend";
+import { MyConfiguration } from "../src/MyConfiguration";
+import { MyGlobal } from "../src/MyGlobal";
+import { ArgumentParser } from "./helpers/ArgumentParser";
+
+interface IOptions {
+  include?: string[];
+  exclude?: string[];
+}
+
+const getOptions = () =>
+  ArgumentParser.parse<IOptions>(async (command, _prompt, action) => {
+    // command.option("--mode <string>", "target mode");
+    // command.option("--reset <true|false>", "reset local DB or not");
+    command.option("--include <string...>", "include feature files");
+    command.option("--exclude <string...>", "exclude feature files");
+
+    return action(async (options) => {
+      // if (typeof options.reset === "string")
+      //     options.reset = options.reset === "true";
+      // options.mode ??= await prompt.select("mode")("Select mode")([
+      //     "LOCAL",
+      //     "DEV",
+      //     "REAL",
+      // ]);
+      // options.reset ??= await prompt.boolean("reset")("Reset local DB");
+      return options as IOptions;
+    });
+  });
+
+async function main(): Promise<void> {
+  // CONFIGURATIONS
+  const options: IOptions = await getOptions();
+  MyGlobal.testing = true;
+
+  // BACKEND SERVER
+  const backend: MyBackend = new MyBackend();
+  await backend.open();
+
+  //----
+  // CLINET CONNECTOR
+  //----
+  // DO TEST
+  const connection: api.IConnection = {
+    host: `http://127.0.0.1:${MyConfiguration.API_PORT()}`,
+  };
+  const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
+    prefix: "test",
+    parameters: () => [{ ...connection }],
+    filter: (func) =>
+      (!options.include?.length ||
+        (options.include ?? []).some((str) => func.includes(str))) &&
+      (!options.exclude?.length ||
+        (options.exclude ?? []).every((str) => !func.includes(str))),
+  })(__dirname + "/features");
+
+  await backend.close();
+
+  const failures: DynamicExecutor.IReport.IExecution[] =
+    report.executions.filter((exec) => exec.error !== null);
+  if (failures.length === 0) {
+    console.log("Success");
+    console.log("Elapsed time", report.time.toLocaleString(), `ms`);
+  } else {
+    for (const f of failures) console.log(f.error);
+    process.exit(-1);
+  }
+
+  console.log(
+    [
+      `All: #${report.executions.length}`,
+      `Success: #${report.executions.length - failures.length}`,
+      `Failed: #${failures.length}`,
+    ].join("\n"),
+  );
+}
+main().catch((exp) => {
+  console.log(exp);
+  process.exit(-1);
+});
+```
+
+To compose the test program of `@nestia/e2e` on your backend application, you have to create one executable TypeScript program.
+
+The main program is executed by user (`npm run benchmark` command in the playground project), and it runs every (or some filtered) e2e test functions located in the target directory. In above case, `test/features` is the directory collecting e2e test functions.
+
+If you want to see more test program cases, visit below links:
+
+  - [`samchon/nestia-start`](https://github.com/samchon/nestia-start/blob/master/test/index.ts)
+  - [`samchon/backend`](https://github.com/samchon/backend/blob/master/test/index.ts)
+
+
+
+## Test Functions
+<Tabs items={[
+    "Test Function #1",
+    "Test Function #2",
+    "Test Function #3",
+  ]}>
+  <Tab>
+```typescript filename="test/features/api/bbs/test_api_bbs_article_create.ts" showLineNumbers
+import { RandomGenerator, TestValidator } from "@nestia/e2e";
+import { v4 } from "uuid";
+
+import api from "@ORGANIZATION/PROJECT-api/lib/index";
+import { IBbsArticle } from "@ORGANIZATION/PROJECT-api/lib/structures/bbs/IBbsArticle";
+
+export async function test_api_bbs_article_create(
+  connection: api.IConnection,
+): Promise<void> {
+  // STORE A NEW ARTICLE
+  const stored: IBbsArticle = await api.functional.bbs.articles.create(
+    connection,
+    "general",
+    {
+      writer: RandomGenerator.name(),
+      title: RandomGenerator.paragraph(3)(),
+      body: RandomGenerator.content(8)()(),
+      format: "txt",
+      files: [
+        {
+          name: "logo",
+          extension: "png",
+          url: "https://somewhere.com/logo.png",
+        },
+      ],
+      password: v4(),
+    },
+  );
+
+  // READ THE DATA AGAIN
+  const read: IBbsArticle = await api.functional.bbs.articles.at(
+    connection,
+    stored.section,
+    stored.id,
+  );
+  TestValidator.equals("created")(stored)(read);
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="test/features/api/bbs/test_api_bbs_article_update.ts" showLineNumbers
+import { RandomGenerator, TestValidator } from "@nestia/e2e";
+import { v4 } from "uuid";
+
+import api from "@ORGANIZATION/PROJECT-api/lib/index";
+import { IBbsArticle } from "@ORGANIZATION/PROJECT-api/lib/structures/bbs/IBbsArticle";
+
+export async function test_api_bbs_article_update(
+  connection: api.IConnection,
+): Promise<void> {
+  // STORE A NEW ARTICLE
+  const password: string = v4();
+  const article: IBbsArticle = await api.functional.bbs.articles.create(
+    connection,
+    "general",
+    {
+      writer: RandomGenerator.name(),
+      title: RandomGenerator.paragraph(3)(),
+      body: RandomGenerator.content(8)()(),
+      format: "txt",
+      files: [
+        {
+          name: "logo",
+          extension: "png",
+          url: "https://somewhere.com/logo.png",
+        },
+      ],
+      password,
+    },
+  );
+
+  // UPDATE WITH EXACT PASSWORD
+  const content: IBbsArticle.ISnapshot =
+    await api.functional.bbs.articles.update(
+      connection,
+      article.section,
+      article.id,
+      {
+        title: RandomGenerator.paragraph(3)(),
+        body: RandomGenerator.content(8)()(),
+        format: "txt",
+        files: [],
+        password,
+      },
+    );
+  article.snapshots.push(content);
+
+  // TRY UPDATE WITH WRONG PASSWORD
+  await TestValidator.error("update with wrong password")(() =>
+    api.functional.bbs.articles.update(
+      connection,
+      article.section,
+      article.id,
+      {
+        title: RandomGenerator.paragraph(5)(),
+        body: RandomGenerator.content(8)()(),
+        format: "txt",
+        files: [],
+        password: v4(),
+      },
+    ),
+  );
+}
+```
+  </Tab>
+  <Tab>
+```typescript filename="test/features/api/bbs/test_api_bbs_article_index_search.ts" showLineNumbers
+import { ArrayUtil, RandomGenerator, TestValidator } from "@nestia/e2e";
+
+import api from "@ORGANIZATION/PROJECT-api/lib/index";
+import { IBbsArticle } from "@ORGANIZATION/PROJECT-api/lib/structures/bbs/IBbsArticle";
+import { IPage } from "@ORGANIZATION/PROJECT-api/lib/structures/common/IPage";
+
+export async function test_api_bbs_article_index_search(
+  connection: api.IConnection,
+): Promise<void> {
+  // GENERATE 100 ARTICLES
+  const section: string = "general";
+  const articles: IBbsArticle[] = await ArrayUtil.asyncRepeat(100)(() =>
+    api.functional.bbs.articles.create(connection, section, {
+      writer: RandomGenerator.name(),
+      title: RandomGenerator.paragraph(4)(),
+      body: RandomGenerator.content(3)()(),
+      format: "txt",
+      files: [],
+      password: RandomGenerator.alphabets(8),
+    }),
+  );
+
+  // GET ENTIRE DATA
+  const total: IPage<IBbsArticle.ISummary> =
+    await api.functional.bbs.articles.index(connection, section, {
+      limit: articles.length,
+      sort: ["-created_at"],
+    });
+
+  // PREPARE SEARCH FUNCTION
+  const search = TestValidator.search("BbsArticleProvider.index()")(
+    async (input: IBbsArticle.IRequest.ISearch) => {
+      const page: IPage<IBbsArticle.ISummary> =
+        await api.functional.bbs.articles.index(connection, section, {
+          limit: articles.length,
+          search: input,
+          sort: ["-created_at"],
+        });
+      return page.data;
+    },
+  )(total.data, 10);
+
+  // SEARCH TITLE
+  await search({
+    fields: ["title"],
+    values: (article) => [article.title],
+    request: ([title]) => ({ title }),
+    filter: (article, [title]) => article.title.includes(title),
+  });
+
+  // SEARCH WRITER
+  await search({
+    fields: ["writer"],
+    values: (article) => [article.writer],
+    request: ([writer]) => ({ writer }),
+    filter: (article, [writer]) => article.writer.includes(writer),
+  });
+
+  // SEARCH BOTH OF THEM
+  await search({
+    fields: ["title", "writer"],
+    values: (article) => [article.title, article.writer],
+    request: ([title, writer]) => ({ title, writer }),
+    filter: (article, [title, writer]) =>
+      article.title.includes(title) && article.writer.includes(writer),
+  });
+}
+```
+  </Tab>
+</Tabs>
+
+Developing e2e test functions are very easy. Just make e2e based test function utilizing `@nestia/sdk` generated SDK library, and exports the function with `test_` prefixed name (If you've configured another `prefix` property in the test main program, just follow the configuration).
+
+Also, make the function to have parameter(s) configured in the servant program of the benchmark. As above test functions are examples of playground project that has configured to have only one `connection` parameter, All of them have the only one parameter `connection`.
+
+After composing these e2e test functions, just execute the test main program. In the playground project, it can be exeucted by `npm run test` command. The test program will run these e2e test functions, and report if some bugs be occured.
+
+```bash
+git clone https://github.com/samchon/nestia-start
+cd nestia-start
+npm install
+npm run build:test
+npm run test
+```

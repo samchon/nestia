@@ -1,12 +1,14 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Alert, Tabs, Tab } from 'nextra-theme-docs'
 
 ## Outline
+E2E test functions rather than unit test functions.
+
 When developing a test program for NestJS developed backend server, I recommend to adapt E2E test paradigm instead of unit test paradigm. It's because with the [`@nestia/sdk` generated SDK library](../sdk/sdk), E2E test functions can be much easier, safer and efficient for production than the traditional unit test functions.
 
 Furthermore, if you develop test functions utilizing the SDK library, you can easily switch the e2e test functions to the performance benchmark functions. Just by utilizing `@nestia/e2e` library, you can easily measure your NestJS developed backend server's performance through the SDK library utilizing e2e test functions.
 
   - [E2E Test Function Example](https://github.com/samchon/nestia-start/blob/master/test/features/api/bbs/test_api_bbs_article_create.ts)
-  - [Benchmark Example](https://github.com/samchon/nestia-start/blob/master/docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md)
+  - [Benchmark Result Example](https://github.com/samchon/nestia-start/blob/master/docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md)
 
 ![SDK](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
 
@@ -186,9 +188,9 @@ Those are the reasons why I recommend to adapt the new era's e2e test paradigm i
 
 > You can experience benchmark program utilizing e2e test functions.
 >
-> [https://stackblitz.com/~/github.com/samchon/nestia-start](https://stackblitz.com/~/github.com/samchon/nestia-start?file=docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md!,test/benchmark/index.ts&startScript=build:test,benchmark)
+> 💻 [https://stackblitz.com/~/github.com/samchon/nestia-start](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md!,test/benchmark/index.ts,test/benchmark/servant.ts,test/features/api/bbs/test_api_bbs_article_create.ts&startScript=build:test,benchmark&view=editor)
 >
-> [![Benchmark Result Screenshot](/images/benchmark.png)](https://stackblitz.com/~/github.com/samchon/nestia-start?file=docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md!,test/benchmark/index.ts&startScript=build:test,benchmark)
+> [![Benchmark Result Screenshot](/images/benchmark.png)](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md!,test/benchmark/index.ts,test/benchmark/servant.ts,test/features/api/bbs/test_api_bbs_article_create.ts&startScript=build:test,benchmark&view=editor)
 
 
 
@@ -198,60 +200,59 @@ Those are the reasons why I recommend to adapt the new era's e2e test paradigm i
     "Test Main Program",
     "Test Function #1",
     "Test Function #2",
-  ]}>
+  ]}
+  selectedIndex={1}>
   <Tab>
-```typescript filename="test/index.ts" showLineNumbers {49-61}
-import { DynamicExecutor, StopWatch } from "@nestia/e2e";
-import { sleep_for } from "tstl";
+```typescript filename="test/index.ts" showLineNumbers {51-59}
+import { DynamicExecutor } from "@nestia/e2e";
 
-import BbsApi from "@samchon/bbs-api";
+import api from "@ORGANIZATION/PROJECT-api";
 
-import { BbsBackend } from "../src/BbsBackend";
-import { BbsConfiguration } from "../src/BbsConfiguration";
-import { BbsGlobal } from "../src/BbsGlobal";
-import { BbsSetupWizard } from "../src/setup/BbsSetupWizard";
-import { ArgumentParser } from "../src/utils/ArgumentParser";
+import { MyBackend } from "../src/MyBackend";
+import { MyConfiguration } from "../src/MyConfiguration";
+import { MyGlobal } from "../src/MyGlobal";
+import { ArgumentParser } from "./helpers/ArgumentParser";
 
 interface IOptions {
-  reset: boolean;
   include?: string[];
   exclude?: string[];
-  trace: boolean;
 }
 
 const getOptions = () =>
-  ArgumentParser.parse<IOptions>(async (command, prompt, action) => {
-    command.option("--reset <true|false>", "reset local DB or not");
+  ArgumentParser.parse<IOptions>(async (command, _prompt, action) => {
+    // command.option("--mode <string>", "target mode");
+    // command.option("--reset <true|false>", "reset local DB or not");
     command.option("--include <string...>", "include feature files");
     command.option("--exclude <string...>", "exclude feature files");
-    command.option("--trace <boolean>", "trace detailed errors");
 
     return action(async (options) => {
-      if (typeof options.reset === "string")
-        options.reset = options.reset === "true";
-      options.reset ??= await prompt.boolean("reset")("Reset local DB");
-      options.trace = options.trace !== ("false" as any);
+      // if (typeof options.reset === "string")
+      //     options.reset = options.reset === "true";
+      // options.mode ??= await prompt.select("mode")("Select mode")([
+      //     "LOCAL",
+      //     "DEV",
+      //     "REAL",
+      // ]);
+      // options.reset ??= await prompt.boolean("reset")("Reset local DB");
       return options as IOptions;
     });
   });
 
-const main = async (): Promise<void> => {
-  // CONFIGURE
+async function main(): Promise<void> {
+  // CONFIGURATIONS
   const options: IOptions = await getOptions();
-  BbsGlobal.testing = true;
+  MyGlobal.testing = true;
 
-  if (options.reset) {
-    await StopWatch.trace("Reset DB")(BbsSetupWizard.schema);
-    await StopWatch.trace("Seed Data")(BbsSetupWizard.seed);
-  }
-
-  // OPEN SERVER
-  const backend: BbsBackend = new BbsBackend();
+  // BACKEND SERVER
+  const backend: MyBackend = new MyBackend();
   await backend.open();
 
+  //----
+  // CLINET CONNECTOR
+  //----
   // DO TEST
-  const connection: BbsApi.IConnection = {
-    host: `http://127.0.0.1:${BbsConfiguration.API_PORT()}`,
+  const connection: api.IConnection = {
+    host: `http://127.0.0.1:${MyConfiguration.API_PORT()}`,
   };
   const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
     prefix: "test",
@@ -263,23 +264,26 @@ const main = async (): Promise<void> => {
         (options.exclude ?? []).every((str) => !func.includes(str))),
   })(__dirname + "/features");
 
-  // TERMINATE
-  await sleep_for(2500); // WAIT FOR BACKGROUND EVENTS
   await backend.close();
 
-  const exceptions: Error[] = report.executions
-    .filter((exec) => exec.error !== null)
-    .map((exec) => exec.error!);
-  if (exceptions.length === 0) {
+  const failures: DynamicExecutor.IReport.IExecution[] =
+    report.executions.filter((exec) => exec.error !== null);
+  if (failures.length === 0) {
     console.log("Success");
     console.log("Elapsed time", report.time.toLocaleString(), `ms`);
   } else {
-    if (options.trace !== false) for (const exp of exceptions) console.log(exp);
-    console.log("Failed");
-    console.log("Elapsed time", report.time.toLocaleString(), `ms`);
+    for (const f of failures) console.log(f.error);
     process.exit(-1);
   }
-};
+
+  console.log(
+    [
+      `All: #${report.executions.length}`,
+      `Success: #${report.executions.length - failures.length}`,
+      `Failed: #${failures.length}`,
+    ].join("\n"),
+  );
+}
 main().catch((exp) => {
   console.log(exp);
   process.exit(-1);
@@ -288,143 +292,157 @@ main().catch((exp) => {
   </Tab>
   <Tab>
 ```typescript filename="test/features/api/bbs/test_api_bbs_article_create.ts" showLineNumbers
-import { ArrayUtil, RandomGenerator, TestValidator } from "@nestia/e2e";
-import { randint } from "tstl";
+import { RandomGenerator, TestValidator } from "@nestia/e2e";
+import { v4 } from "uuid";
 
-import BbsApi from "@samchon/bbs-api/lib/index";
-import { IBbsArticle } from "@samchon/bbs-api/lib/structures/bbs/IBbsArticle";
+import api from "@ORGANIZATION/PROJECT-api/lib/index";
+import { IBbsArticle } from "@ORGANIZATION/PROJECT-api/lib/structures/bbs/IBbsArticle";
 
-import { prepare_random_file } from "./internal/prepare_random_file";
-
-export const test_api_bbs_article_create = async (
-  connection: BbsApi.IConnection,
-): Promise<void> => {
-  // PREPARE INPUT DATA
-  const input: IBbsArticle.ICreate = {
-    writer: RandomGenerator.name(),
-    password: RandomGenerator.alphaNumeric(8),
-    title: RandomGenerator.paragraph()(),
-    body: RandomGenerator.content()()(),
-    format: "md",
-    files: ArrayUtil.repeat(randint(0, 3))(() => prepare_random_file()),
-  };
-
-  // DO CREATE
-  const article: IBbsArticle = await BbsApi.functional.bbs.articles.create(
+export async function test_api_bbs_article_create(
+  connection: api.IConnection,
+): Promise<void> {
+  // STORE A NEW ARTICLE
+  const stored: IBbsArticle = await api.functional.bbs.articles.create(
     connection,
-    input,
+    "general",
+    {
+      writer: RandomGenerator.name(),
+      title: RandomGenerator.paragraph(3)(),
+      body: RandomGenerator.content(8)()(),
+      format: "txt",
+      files: [
+        {
+          name: "logo",
+          extension: "png",
+          url: "https://somewhere.com/logo.png",
+        },
+      ],
+      password: v4(),
+    },
   );
 
-  // VALIDATE WHETHER EXACT DATA IS INSERTED
-  TestValidator.equals("create")({
-    snapshots: [
-      {
-        format: input.format,
-        title: input.title,
-        body: input.body,
-        files: input.files,
-      },
-    ],
-    writer: input.writer,
-  })(article);
-
-  // COMPARE WITH READ DATA
-  const read: IBbsArticle = await BbsApi.functional.bbs.articles.at(
+  // READ THE DATA AGAIN
+  const read: IBbsArticle = await api.functional.bbs.articles.at(
     connection,
-    article.id,
+    stored.section,
+    stored.id,
   );
-  TestValidator.equals("read")(read)(article);
-};
+  TestValidator.equals("created")(stored)(read);
+}
 ```
   </Tab>
   <Tab>
 ```typescript filename="test/features/api/bbs/test_api_bbs_article_index_search.ts" showLineNumbers
 import { ArrayUtil, RandomGenerator, TestValidator } from "@nestia/e2e";
 
-import BbsApi from "@samchon/bbs-api/lib/index";
-import { IBbsArticle } from "@samchon/bbs-api/lib/structures/bbs/IBbsArticle";
-import { IPage } from "@samchon/bbs-api/lib/structures/common/IPage";
+import api from "@ORGANIZATION/PROJECT-api/lib/index";
+import { IBbsArticle } from "@ORGANIZATION/PROJECT-api/lib/structures/bbs/IBbsArticle";
+import { IPage } from "@ORGANIZATION/PROJECT-api/lib/structures/common/IPage";
 
-import { generate_random_article } from "./internal/generate_random_article";
-
-export const test_api_bbs_article_index_search = async (
-  connection: BbsApi.IConnection,
-): Promise<void> => {
-  await ArrayUtil.asyncRepeat(REPEAT)(() =>
-    generate_random_article(connection),
+export async function test_api_bbs_article_index_search(
+  connection: api.IConnection,
+): Promise<void> {
+  // GENERATE 100 ARTICLES
+  const section: string = "general";
+  const articles: IBbsArticle[] = await ArrayUtil.asyncRepeat(100)(() =>
+    api.functional.bbs.articles.create(connection, section, {
+      writer: RandomGenerator.name(),
+      title: RandomGenerator.paragraph(4)(),
+      body: RandomGenerator.content(3)()(),
+      format: "txt",
+      files: [],
+      password: RandomGenerator.alphabets(8),
+    }),
   );
 
-  const expected: IPage<IBbsArticle.IAbridge> =
-    await BbsApi.functional.bbs.articles.abridges(connection, {
-      limit: REPEAT,
+  // GET ENTIRE DATA
+  const total: IPage<IBbsArticle.ISummary> =
+    await api.functional.bbs.articles.index(connection, section, {
+      limit: articles.length,
+      sort: ["-created_at"],
     });
 
-  const validator = TestValidator.search("search")(
-    async (search: IBbsArticle.IRequest.ISearch) => {
-      const page: IPage<IBbsArticle.IAbridge> =
-        await BbsApi.functional.bbs.articles.abridges(connection, {
-          search,
-          limit: REPEAT,
+  // PREPARE SEARCH FUNCTION
+  const search = TestValidator.search("BbsArticleProvider.index()")(
+    async (input: IBbsArticle.IRequest.ISearch) => {
+      const page: IPage<IBbsArticle.ISummary> =
+        await api.functional.bbs.articles.index(connection, section, {
+          limit: articles.length,
+          search: input,
+          sort: ["-created_at"],
         });
       return page.data;
     },
-  )(expected.data, 2);
+  )(total.data, 10);
 
-  await validator({
-    fields: ["writer"],
-    values: (arc) => [arc.writer],
-    request: ([writer]) => ({ writer }),
-    filter: (arc, [name]) => arc.writer.includes(name),
-  });
-  await validator({
+  // SEARCH TITLE
+  await search({
     fields: ["title"],
-    values: (arc) => [arc.title],
+    values: (article) => [article.title],
     request: ([title]) => ({ title }),
-    filter: (arc, [title]) => arc.title.includes(title),
+    filter: (article, [title]) => article.title.includes(title),
   });
-  await validator({
-    fields: ["title_or_body"],
-    values: (arc) => [RandomGenerator.pick([arc.title, arc.body])],
-    request: ([title_or_body]) => ({ title_or_body }),
-    filter: (arc, [value]) =>
-      arc.title.includes(value) || arc.body.includes(value),
-  });
-};
 
-const REPEAT = 25;
+  // SEARCH WRITER
+  await search({
+    fields: ["writer"],
+    values: (article) => [article.writer],
+    request: ([writer]) => ({ writer }),
+    filter: (article, [writer]) => article.writer.includes(writer),
+  });
+
+  // SEARCH BOTH OF THEM
+  await search({
+    fields: ["title", "writer"],
+    values: (article) => [article.title, article.writer],
+    request: ([title, writer]) => ({ title, writer }),
+    filter: (article, [title, writer]) =>
+      article.title.includes(title) && article.writer.includes(writer),
+  });
+}
 ```
   </Tab>
 </Tabs>
 
+Just make test functions utillizing SDK library, and export those functions with `test_` prefixed names. And then if compose the main program of the test, all of the test functions would be automatically mounted and executed whenever you run the main test program.
 
+If you want to experience the test program earlier, visit below playground website.
+
+💻 [https://stackblitz.com/~/github.com/samchon/nestia-start](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,test/index.ts,test/features/api/bbs/test_api_bbs_article_create.ts!&view=editor)
+
+> ```bash
+> - test_api_bbs_article_at: 149 ms
+> - test_api_bbs_article_create: 30 ms
+> - test_api_bbs_article_index_search: 1,312 ms
+> - test_api_bbs_article_index_sort: 1,110 ms
+> - test_api_bbs_article_update: 28 m
+> ```
 
 
 ## Performance Benchmark
 <Tabs items={[
     "Benchmark Main Program",
+    "Benchmark Servant Program",
     "Test Function #1",
     "Test Function #2",
-    "Benchmark Result Report"
-  ]}>
+  ]}
+  selectedIndex={1}>
   <Tab>
-```typescript filename="test/benchmark/index.ts" showLineNumbers {80-97}
-import { DynamicBenchmarker, StopWatch } from "@nestia/e2e";
+```typescript filename="test/benchmark/index.ts" showLineNumbers {76-94}
+import { DynamicBenchmarker } from "@nestia/e2e";
 import cliProgress from "cli-progress";
 import fs from "fs";
 import os from "os";
 import { IPointer } from "tstl";
 
-import { BbsBackend } from "../../src/BbsBackend";
-import { BbsConfiguration } from "../../src/BbsConfiguration";
-import { BbsGlobal } from "../../src/BbsGlobal";
-import { BbsSetupWizard } from "../../src/setup/BbsSetupWizard";
-import { ArgumentParser } from "../../src/utils/ArgumentParser";
+import { MyBackend } from "../../src/MyBackend";
+import { MyConfiguration } from "../../src/MyConfiguration";
+import { MyGlobal } from "../../src/MyGlobal";
+import { ArgumentParser } from "../helpers/ArgumentParser";
 
 interface IOptions {
-  reset: boolean;
   include?: string[];
   exclude?: string[];
-  trace: boolean;
   count: number;
   threads: number;
   simultaneous: number;
@@ -432,8 +450,8 @@ interface IOptions {
 
 const getOptions = () =>
   ArgumentParser.parse<IOptions>(async (command, prompt, action) => {
-    command.option("--mode <string>", "target mode");
-    command.option("--reset <true|false>", "reset local DB or not");
+    // command.option("--mode <string>", "target mode");
+    // command.option("--reset <true|false>", "reset local DB or not");
     command.option("--include <string...>", "include feature files");
     command.option("--exclude <string...>", "exclude feature files");
     command.option("--count <number>", "number of requests to make");
@@ -443,10 +461,14 @@ const getOptions = () =>
       "number of simultaneous requests to make",
     );
     return action(async (options) => {
-      if (typeof options.reset === "string")
-        options.reset = options.reset === "true";
-      options.reset ??= await prompt.boolean("reset")("Reset local DB");
-      options.trace = options.trace !== ("false" as any);
+      // if (typeof options.reset === "string")
+      //     options.reset = options.reset === "true";
+      // options.mode ??= await prompt.select("mode")("Select mode")([
+      //     "LOCAL",
+      //     "DEV",
+      //     "REAL",
+      // ]);
+      // options.reset ??= await prompt.boolean("reset")("Reset local DB");
       options.count = Number(
         options.count ??
           (await prompt.number("count")("Number of requests to make")),
@@ -468,15 +490,10 @@ const getOptions = () =>
 const main = async (): Promise<void> => {
   // CONFIGURATIONS
   const options: IOptions = await getOptions();
-  BbsGlobal.testing = true;
-
-  if (options.reset) {
-    await StopWatch.trace("Reset DB")(BbsSetupWizard.schema);
-    await StopWatch.trace("Seed Data")(BbsSetupWizard.seed);
-  }
+  MyGlobal.testing = true;
 
   // BACKEND SERVER
-  const backend: BbsBackend = new BbsBackend();
+  const backend: MyBackend = new MyBackend();
   await backend.open();
 
   // DO BENCHMARK
@@ -509,12 +526,12 @@ const main = async (): Promise<void> => {
 
   // DOCUMENTATION
   try {
-    await fs.promises.mkdir(`${BbsConfiguration.ROOT}/docs/benchmarks`, {
+    await fs.promises.mkdir(`${MyConfiguration.ROOT}/docs/benchmarks`, {
       recursive: true,
     });
   } catch {}
   await fs.promises.writeFile(
-    `${BbsConfiguration.ROOT}/docs/benchmarks/${os
+    `${MyConfiguration.ROOT}/docs/benchmarks/${os
       .cpus()[0]
       .model.trim()
       .split("\\")
@@ -535,117 +552,151 @@ main().catch((exp) => {
 ```
   </Tab>
   <Tab>
+```typescript filename="test/benchmark/servant.ts" showLineNumbers
+import { DynamicBenchmarker } from "@nestia/e2e";
+
+import { MyConfiguration } from "../../src/MyConfiguration";
+
+DynamicBenchmarker.servant({
+  connection: {
+    host: `http://127.0.0.1:${MyConfiguration.API_PORT()}`,
+  },
+  location: `${__dirname}/../features`,
+  parameters: (connection) => [connection],
+  prefix: "test_api_",
+}).catch((exp) => {
+  console.error(exp);
+  process.exit(-1);
+});
+```
+  </Tab>
+  <Tab>
 ```typescript filename="test/features/api/bbs/test_api_bbs_article_create.ts" showLineNumbers
-import { ArrayUtil, RandomGenerator, TestValidator } from "@nestia/e2e";
-import { randint } from "tstl";
+import { RandomGenerator, TestValidator } from "@nestia/e2e";
+import { v4 } from "uuid";
 
-import BbsApi from "@samchon/bbs-api/lib/index";
-import { IBbsArticle } from "@samchon/bbs-api/lib/structures/bbs/IBbsArticle";
+import api from "@ORGANIZATION/PROJECT-api/lib/index";
+import { IBbsArticle } from "@ORGANIZATION/PROJECT-api/lib/structures/bbs/IBbsArticle";
 
-import { prepare_random_file } from "./internal/prepare_random_file";
-
-export const test_api_bbs_article_create = async (
-  connection: BbsApi.IConnection,
-): Promise<void> => {
-  // PREPARE INPUT DATA
-  const input: IBbsArticle.ICreate = {
-    writer: RandomGenerator.name(),
-    password: RandomGenerator.alphaNumeric(8),
-    title: RandomGenerator.paragraph()(),
-    body: RandomGenerator.content()()(),
-    format: "md",
-    files: ArrayUtil.repeat(randint(0, 3))(() => prepare_random_file()),
-  };
-
-  // DO CREATE
-  const article: IBbsArticle = await BbsApi.functional.bbs.articles.create(
+export async function test_api_bbs_article_create(
+  connection: api.IConnection,
+): Promise<void> {
+  // STORE A NEW ARTICLE
+  const stored: IBbsArticle = await api.functional.bbs.articles.create(
     connection,
-    input,
+    "general",
+    {
+      writer: RandomGenerator.name(),
+      title: RandomGenerator.paragraph(3)(),
+      body: RandomGenerator.content(8)()(),
+      format: "txt",
+      files: [
+        {
+          name: "logo",
+          extension: "png",
+          url: "https://somewhere.com/logo.png",
+        },
+      ],
+      password: v4(),
+    },
   );
 
-  // VALIDATE WHETHER EXACT DATA IS INSERTED
-  TestValidator.equals("create")({
-    snapshots: [
-      {
-        format: input.format,
-        title: input.title,
-        body: input.body,
-        files: input.files,
-      },
-    ],
-    writer: input.writer,
-  })(article);
-
-  // COMPARE WITH READ DATA
-  const read: IBbsArticle = await BbsApi.functional.bbs.articles.at(
+  // READ THE DATA AGAIN
+  const read: IBbsArticle = await api.functional.bbs.articles.at(
     connection,
-    article.id,
+    stored.section,
+    stored.id,
   );
-  TestValidator.equals("read")(read)(article);
-};
+  TestValidator.equals("created")(stored)(read);
+}
 ```
   </Tab>
   <Tab>
 ```typescript filename="test/features/api/bbs/test_api_bbs_article_index_search.ts" showLineNumbers
 import { ArrayUtil, RandomGenerator, TestValidator } from "@nestia/e2e";
 
-import BbsApi from "@samchon/bbs-api/lib/index";
-import { IBbsArticle } from "@samchon/bbs-api/lib/structures/bbs/IBbsArticle";
-import { IPage } from "@samchon/bbs-api/lib/structures/common/IPage";
+import api from "@ORGANIZATION/PROJECT-api/lib/index";
+import { IBbsArticle } from "@ORGANIZATION/PROJECT-api/lib/structures/bbs/IBbsArticle";
+import { IPage } from "@ORGANIZATION/PROJECT-api/lib/structures/common/IPage";
 
-import { generate_random_article } from "./internal/generate_random_article";
-
-export const test_api_bbs_article_index_search = async (
-  connection: BbsApi.IConnection,
-): Promise<void> => {
-  await ArrayUtil.asyncRepeat(REPEAT)(() =>
-    generate_random_article(connection),
+export async function test_api_bbs_article_index_search(
+  connection: api.IConnection,
+): Promise<void> {
+  // GENERATE 100 ARTICLES
+  const section: string = "general";
+  const articles: IBbsArticle[] = await ArrayUtil.asyncRepeat(100)(() =>
+    api.functional.bbs.articles.create(connection, section, {
+      writer: RandomGenerator.name(),
+      title: RandomGenerator.paragraph(4)(),
+      body: RandomGenerator.content(3)()(),
+      format: "txt",
+      files: [],
+      password: RandomGenerator.alphabets(8),
+    }),
   );
 
-  const expected: IPage<IBbsArticle.IAbridge> =
-    await BbsApi.functional.bbs.articles.abridges(connection, {
-      limit: REPEAT,
+  // GET ENTIRE DATA
+  const total: IPage<IBbsArticle.ISummary> =
+    await api.functional.bbs.articles.index(connection, section, {
+      limit: articles.length,
+      sort: ["-created_at"],
     });
 
-  const validator = TestValidator.search("search")(
-    async (search: IBbsArticle.IRequest.ISearch) => {
-      const page: IPage<IBbsArticle.IAbridge> =
-        await BbsApi.functional.bbs.articles.abridges(connection, {
-          search,
-          limit: REPEAT,
+  // PREPARE SEARCH FUNCTION
+  const search = TestValidator.search("BbsArticleProvider.index()")(
+    async (input: IBbsArticle.IRequest.ISearch) => {
+      const page: IPage<IBbsArticle.ISummary> =
+        await api.functional.bbs.articles.index(connection, section, {
+          limit: articles.length,
+          search: input,
+          sort: ["-created_at"],
         });
       return page.data;
     },
-  )(expected.data, 2);
+  )(total.data, 10);
 
-  await validator({
-    fields: ["writer"],
-    values: (arc) => [arc.writer],
-    request: ([writer]) => ({ writer }),
-    filter: (arc, [name]) => arc.writer.includes(name),
-  });
-  await validator({
+  // SEARCH TITLE
+  await search({
     fields: ["title"],
-    values: (arc) => [arc.title],
+    values: (article) => [article.title],
     request: ([title]) => ({ title }),
-    filter: (arc, [title]) => arc.title.includes(title),
+    filter: (article, [title]) => article.title.includes(title),
   });
-  await validator({
-    fields: ["title_or_body"],
-    values: (arc) => [RandomGenerator.pick([arc.title, arc.body])],
-    request: ([title_or_body]) => ({ title_or_body }),
-    filter: (arc, [value]) =>
-      arc.title.includes(value) || arc.body.includes(value),
-  });
-};
 
-const REPEAT = 25;
+  // SEARCH WRITER
+  await search({
+    fields: ["writer"],
+    values: (article) => [article.writer],
+    request: ([writer]) => ({ writer }),
+    filter: (article, [writer]) => article.writer.includes(writer),
+  });
+
+  // SEARCH BOTH OF THEM
+  await search({
+    fields: ["title", "writer"],
+    values: (article) => [article.title, article.writer],
+    request: ([title, writer]) => ({ title, writer }),
+    filter: (article, [title, writer]) =>
+      article.title.includes(title) && article.writer.includes(writer),
+  });
+}
 ```
-  </Tab>
-  <Tab>
-![Benchmark Result](/images/benchmark.png)
   </Tab>
 </Tabs>
 
+You can re-use test functions for the performance benchmark program.
 
+Just compose the benchmark's main and servant programs like above pointing the test functions' directory, then the benchmark program would utilize those test functions for the backend server performance measurement. The benchmark program will make multiple worker threads, and let them to make requests to the backend server simultaneously through the test functions.
 
+If you want to experience the benchmark program earlier, visit below playground website.
+
+💻 [https://stackblitz.com/~/github.com/samchon/nestia-start](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md!,test/benchmark/index.ts,test/benchmark/servant.ts,test/features/api/bbs/test_api_bbs_article_create.ts&startScript=build:test,benchmark&view=editor)
+
+> ```bash
+> ? Number of requests to make 1024
+> ? Number of threads to use 4
+> ? Number of simultaneous requests to make 32
+> ████████████████████████████████████████ 100% | ETA: 0s | 3654/1024
+> ```
+>
+> [![Benchmark Image](/images/benchmark-dark.png)](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md!,test/benchmark/index.ts,test/benchmark/servant.ts,test/features/api/bbs/test_api_bbs_article_create.ts&startScript=build:test,benchmark&view=editor)
