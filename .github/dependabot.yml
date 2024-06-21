@@ -11,6 +11,7 @@ updates:
       - dependency-name: "@nestjs/*"
       - dependency-name: "tstl"
       - dependency-name: "typia"
+      - dependency-name: "tgrid"
       - dependency-name: ts-node
       - dependency-name: ts-patch
       - dependency-name: typescript
@@ -23,6 +24,7 @@ updates:
           - "@samchon/openapi"
           - "tstl"
           - "typia"
+          - "tgrid"
       TypeScript:
         patterns:
           - "ts-node"
