@@ -99,7 +99,7 @@ const sections: HomeStrengthSectionMovie.Props[] = [
     href: "/docs/sdk/simulator",
   },
   {
-    title: "TypeScript Swagger Editor",
+    title: "TS OpenAPI Generator",
     subTitle: <HomeCodeBlock>npx @nestia/migrate</HomeCodeBlock>,
     description: (
       <React.Fragment>
