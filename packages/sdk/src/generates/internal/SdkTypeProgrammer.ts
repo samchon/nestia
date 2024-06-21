@@ -39,7 +39,7 @@ export namespace SdkTypeProgrammer {
       for (const c of meta.constants)
         for (const value of c.values) union.push(write_constant(value));
       for (const tpl of meta.templates)
-        union.push(write_template(project)(importer)(tpl));
+        union.push(write_template(project)(importer)(tpl.row ?? tpl));
       for (const atom of meta.atomics) union.push(write_atomic(importer)(atom));
 
       // OBJECT TYPES

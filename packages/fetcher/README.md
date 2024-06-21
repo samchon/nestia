@@ -75,6 +75,10 @@ Check out the document in the [website](https://nestia.io/docs/):
     - [Software Development Kit](https://nestia.io/docs/sdk/sdk/)
     - [E2E Functions](https://nestia.io/docs/sdk/e2e/)
     - [Mockup Simulator](https://nestia.io/docs/sdk/simulator/)
+  - E2E Testing
+    - [Why E2E Test?](https://nestia.io/docs/e2e/why/)
+    - [Test Program Development](https://nestia.io/docs/e2e/development/)
+    - [Performance Benchmark](https://nestia.io/docs/e2e/benchmark/)
   - [Swagger to NestJS](https://nestia.io/docs/migrate/)
   - [TypeScript Swagger Editor](https://nestia.io/docs/editor/)
 

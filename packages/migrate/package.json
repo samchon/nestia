@@ -69,7 +69,7 @@
     "prettier": "^3.2.5",
     "tstl": "^3.0.0",
     "typescript": "^5.4.5",
-    "typia": "^6.1.1"
+    "typia": "^6.2.0"
   },
   "files": [
     "lib",
