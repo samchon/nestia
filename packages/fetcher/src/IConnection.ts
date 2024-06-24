@@ -75,8 +75,13 @@ export interface IConnection<
   /**
    * Custom fetch function.
    *
-   * If you want to use custom `fetch` function instead of built-in function,
+   * If you want to use custom `fetch` function instead of built-in,
    * assign your custom `fetch` function into this property.
+   *
+   * For reference, the `fetch` function has started to be supported
+   * since version 20 of NodeJS. Therefore, if you are using NodeJS
+   * version 19 or lower, you have to assign the `node-fetch` module
+   * into this property.
    */
   fetch?: typeof fetch;
 }

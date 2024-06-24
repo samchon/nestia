@@ -1,6 +1,6 @@
 {
   "name": "@nestia/fetcher",
-  "version": "3.2.6",
+  "version": "3.3.0-dev.20240624",
   "description": "Fetcher library of Nestia SDK",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -34,10 +34,6 @@
   },
   "peerDependencies": {
     "typescript": ">= 4.8.0"
-  },
-  "dependencies": {
-    "import2": "^1.0.3",
-    "node-fetch": "^2.6.7"
   },
   "files": [
     "README.md",

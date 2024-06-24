@@ -1,12 +1,12 @@
-import import2 from "import2";
-
 import { HttpError } from "../HttpError";
 import { IConnection } from "../IConnection";
 import { IFetchEvent } from "../IFetchEvent";
 import { IFetchRoute } from "../IFetchRoute";
 import { IPropagation } from "../IPropagation";
-import { Singleton } from "./Singleton";
 
+/**
+ * @internal
+ */
 export namespace FetcherBase {
   export interface IProps {
     className: string;
@@ -20,7 +20,7 @@ export namespace FetcherBase {
     ) => any;
   }
 
-  export const fetch =
+  export const request =
     (props: IProps) =>
     async <Input, Output>(
       connection: IConnection,
@@ -135,9 +135,10 @@ export namespace FetcherBase {
       };
       try {
         // TRY FETCH
-        const response: Response = await (
-          connection.fetch ?? (await polyfill.get())
-        )(url.href, init);
+        const response: Response = await (connection.fetch ?? fetch)(
+          url.href,
+          init,
+        );
         event.respond_at = new Date();
         event.status = response.status;
 
@@ -192,28 +193,6 @@ export namespace FetcherBase {
       }
     };
 }
-
-/**
- * @internal
- */
-const polyfill = new Singleton(async (): Promise<typeof fetch> => {
-  function is_node_process(m: typeof global | null): boolean {
-    return (
-      m !== null &&
-      typeof m.process === "object" &&
-      m.process !== null &&
-      typeof m.process.versions === "object" &&
-      m.process.versions !== null &&
-      typeof m.process.versions.node !== "undefined"
-    );
-  }
-  if (typeof global === "object" && is_node_process(global)) {
-    const m: any = global as any;
-    m.fetch ??= ((await import2("node-fetch")) as any).default;
-    return (m as any).fetch;
-  }
-  return self.fetch;
-});
 
 /**
  * @internal
