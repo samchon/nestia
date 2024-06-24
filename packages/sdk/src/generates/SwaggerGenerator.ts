@@ -142,10 +142,13 @@ export namespace SwaggerGenerator {
             const method: OpenApi.Method =
               route.method.toLowerCase() as OpenApi.Method;
             const path: string = get_path(route.path, route.parameters);
+            const operation: OpenApi.IOperation | undefined =
+              swagger.paths?.[path]?.[method];
+            if (operation === undefined) continue;
             functor.set(route.function, {
               method,
               path,
-              route: swagger.paths![path][method]!,
+              route: operation,
             });
           }
           return functor;
@@ -182,7 +185,10 @@ export namespace SwaggerGenerator {
         const path: string = get_path(route.path, route.parameters);
         const method: OpenApi.Method =
           route.method.toLowerCase() as OpenApi.Method;
-        const target: OpenApi.IOperation = swagger.paths![path][method]!;
+        const target: OpenApi.IOperation | undefined =
+          swagger.paths?.[path]?.[method];
+        if (target === undefined) continue;
+
         const closure: Function | Function[] = Reflect.getMetadata(
           "nestia/SwaggerCustomizer",
           route.controller.prototype,
