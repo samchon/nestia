@@ -67,7 +67,7 @@ export namespace PlainFetcher {
       throw new Error(
         "Error on PlainFetcher.fetch(): PlainFetcher doesn't have encryption ability. Use EncryptedFetcher instead.",
       );
-    return FetcherBase.fetch({
+    return FetcherBase.request({
       className: "PlainFetcher",
       encode: (input) => input,
       decode: (input) => input,

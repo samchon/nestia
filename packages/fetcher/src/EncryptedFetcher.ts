@@ -85,7 +85,7 @@ export namespace EncryptedFetcher {
               })
         : () => () => connection.encryption as IEncryptionPassword;
 
-    return FetcherBase.fetch({
+    return FetcherBase.request({
       className: "EncryptedFetcher",
       encode:
         route.request?.encrypted === true
