@@ -41,7 +41,7 @@
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",
     "rimraf": "^3.0.2",
-    "typescript": "<5.5.0"
+    "typescript": "^5.5.2"
   },
   "files": [
     "bin",

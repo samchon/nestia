@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "3.3.0-dev.20240624",
+  "version": "3.3.0",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -36,7 +36,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "^3.3.0-dev.20240624",
+    "@nestia/fetcher": "^3.3.0",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "@samchon/openapi": "^0.1.21",
@@ -49,16 +49,16 @@
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.3",
     "tgrid": "^1.0.0",
-    "typia": "^6.0.3",
+    "typia": "^6.3.1",
     "ws": "^7.5.3"
   },
   "peerDependencies": {
-    "@nestia/fetcher": ">=3.3.0-dev.20240624",
+    "@nestia/fetcher": ">=3.3.0",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.3",
-    "typia": ">=6.0.3 <7.0.0"
+    "typia": ">=6.3.1 <7.0.0"
   },
   "devDependencies": {
     "@fastify/multipart": "^8.1.0",
@@ -80,9 +80,9 @@
     "inquirer": "^8.2.5",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
-    "ts-patch": "^3.2.0",
+    "ts-patch": "^3.2.1",
     "tstl": "^3.0.0",
-    "typescript": "<5.5.0",
+    "typescript": "^5.5.2",
     "typescript-transform-paths": "^3.4.6"
   },
   "files": [
