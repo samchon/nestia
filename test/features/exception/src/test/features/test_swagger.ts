@@ -4,7 +4,7 @@ export const test_swagger = async () => {
   const content = await import("../../../swagger.json");
   for (const [key, value] of [
     [201, "IBbsArticle"],
-    [400, "TypeGuardError"],
+    [400, "TypeGuardErrorany"],
     [404, "INotFound"],
     [428, "IUnprocessibleEntity"],
     ["5XX", "IInternalServerError"],
