@@ -28,7 +28,7 @@ export namespace MigrateNestMethodProgrammer {
           ts.factory.createToken(ts.SyntaxKind.AsyncKeyword),
         ],
         undefined,
-        route.name,
+        route.accessor.at(-1)!,
         undefined,
         undefined,
         writeParameters(components)(importer)(route),
@@ -36,7 +36,7 @@ export namespace MigrateNestMethodProgrammer {
         ts.factory.createBlock(
           [
             ...[
-              ...route.parameters.map((p) => StringUtil.normalize(p.key)),
+              ...route.parameters.map((p) => p.key),
               ...(route.headers ? ["headers"] : []),
               ...(route.query ? ["query"] : []),
               ...(route.body ? ["body"] : []),
@@ -174,7 +174,7 @@ export namespace MigrateNestMethodProgrammer {
             ),
           ],
           undefined,
-          StringUtil.normalize(key),
+          key,
           undefined,
           MigrateSchemaProgrammer.write(components)(importer)(value),
         ),
@@ -241,7 +241,7 @@ export namespace MigrateNestMethodProgrammer {
           ),
         ],
         undefined,
-        StringUtil.normalize(accessor.variable),
+        accessor.variable,
         undefined,
         MigrateSchemaProgrammer.write(components)(importer)(schema),
       );

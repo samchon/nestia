@@ -10,9 +10,7 @@ import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateE2eProgrammer {
   export const write = (program: IMigrateProgram): IMigrateFile[] =>
-    program.controllers
-      .map((c) => c.routes.map(writeFile(program.document.components)))
-      .flat();
+    program.routes.map(writeFile(program.document.components));
 
   const writeFile =
     (components: OpenApi.IComponents) =>

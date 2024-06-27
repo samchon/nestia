@@ -15,7 +15,7 @@ export namespace MigrateApiStartProgrammer {
     const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
     const main: ts.VariableStatement = writeMain(program)(program.document)(
       importer,
-    )(pick(program.controllers.map((c) => c.routes).flat()));
+    )(pick(program.routes));
     const statements: ts.Statement[] = [
       ...importer.toStatements(
         (name) => `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,

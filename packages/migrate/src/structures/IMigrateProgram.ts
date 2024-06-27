@@ -1,27 +1,27 @@
 import { OpenApi } from "@samchon/openapi";
 
-import { IMigrateController } from "./IMigrateController";
 import { IMigrateRoute } from "./IMigrateRoute";
 
 export interface IMigrateProgram extends IMigrateProgram.IProps {
-  controllers: IMigrateController[];
+  routes: IMigrateRoute[];
+  errors: IMigrateProgram.IError[];
 }
 export namespace IMigrateProgram {
-  export type Dictionary = Map<OpenApi.IOperation, IEntry>;
-  export interface IEntry {
-    controller: IMigrateController;
-    route: IMigrateRoute;
-  }
   export interface IProps {
     mode: "nest" | "sdk";
     simulate: boolean;
     e2e: boolean;
     document: OpenApi.IDocument;
-    dictionary: Dictionary;
   }
   export interface IConfig {
     mode: "nest" | "sdk";
     simulate: boolean;
     e2e: boolean;
+  }
+  export interface IError {
+    method: string;
+    path: string;
+    operation: () => OpenApi.IOperation;
+    messages: string[];
   }
 }

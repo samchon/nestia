@@ -5,7 +5,6 @@ import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
-import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { FilePrinter } from "../utils/FilePrinter";
@@ -14,34 +13,28 @@ import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
 export namespace MigrateApiNamespaceProgrammer {
-  export interface IProps {
-    controller: IMigrateController;
-    route: IMigrateRoute;
-    alias: string;
-  }
-
   export const write =
     (config: IMigrateProgram.IConfig) =>
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (props: IProps): ts.ModuleDeclaration => {
-      const types = writeTypes(components)(importer)(props.route);
+    (route: IMigrateRoute): ts.ModuleDeclaration => {
+      const types = writeTypes(components)(importer)(route);
       return ts.factory.createModuleDeclaration(
         [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
-        ts.factory.createIdentifier(props.alias),
+        ts.factory.createIdentifier(route.accessor.at(-1)!),
         ts.factory.createModuleBlock([
           ...types,
           ...(types.length ? [FilePrinter.newLine()] : []),
-          writeMetadata(components)(importer)(props),
+          writeMetadata(components)(importer)(route),
           FilePrinter.newLine(),
-          writePath(components)(importer)(props),
+          writePath(components)(importer)(route),
           ...(config.simulate
             ? [
                 MigrateApiSimulatationProgrammer.random(components)(importer)(
-                  props,
+                  route,
                 ),
                 MigrateApiSimulatationProgrammer.simulate(components)(importer)(
-                  props,
+                  route,
                 ),
               ]
             : []),
@@ -50,17 +43,13 @@ export namespace MigrateApiNamespaceProgrammer {
       );
     };
 
-  export const writePathCallExpression = (props: IProps) =>
+  export const writePathCallExpression = (route: IMigrateRoute) =>
     ts.factory.createCallExpression(
-      ts.factory.createIdentifier(`${props.alias}.path`),
+      ts.factory.createIdentifier(`${route.accessor.at(-1)!}.path`),
       undefined,
       [
-        ...props.route.parameters.map((p) =>
-          ts.factory.createIdentifier(p.key),
-        ),
-        ...(props.route.query
-          ? [ts.factory.createIdentifier(props.route.query.key)]
-          : []),
+        ...route.parameters.map((p) => ts.factory.createIdentifier(p.key)),
+        ...(route.query ? [ts.factory.createIdentifier(route.query.key)] : []),
       ],
     );
 
@@ -112,41 +101,38 @@ export namespace MigrateApiNamespaceProgrammer {
   const writeMetadata =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (props: IProps): ts.VariableStatement =>
+    (route: IMigrateRoute): ts.VariableStatement =>
       constant("METADATA")(
         ts.factory.createAsExpression(
           ts.factory.createObjectLiteralExpression(
             [
               ts.factory.createPropertyAssignment(
                 "method",
-                ts.factory.createStringLiteral(
-                  props.route.method.toUpperCase(),
-                ),
+                ts.factory.createStringLiteral(route.method.toUpperCase()),
               ),
               ts.factory.createPropertyAssignment(
                 "path",
-                ts.factory.createStringLiteral(getPath(props)),
+                ts.factory.createStringLiteral(getPath(route)),
               ),
               ts.factory.createPropertyAssignment(
                 "request",
-                props.route.body
+                route.body
                   ? LiteralFactory.generate({
-                      type: props.route.body.type,
-                      encrypted: !!props.route.body["x-nestia-encrypted"],
+                      type: route.body.type,
+                      encrypted: !!route.body["x-nestia-encrypted"],
                     })
                   : ts.factory.createNull(),
               ),
               ts.factory.createPropertyAssignment(
                 "response",
-                props.route.method.toUpperCase() !== "HEAD"
+                route.method.toUpperCase() !== "HEAD"
                   ? LiteralFactory.generate({
-                      type: props.route.success?.type ?? "application/json",
-                      encrypted: !!props.route.success?.["x-nestia-encrypted"],
+                      type: route.success?.type ?? "application/json",
+                      encrypted: !!route.success?.["x-nestia-encrypted"],
                     })
                   : ts.factory.createNull(),
               ),
-              ...(props.route.success?.type ===
-              "application/x-www-form-urlencoded"
+              ...(route.success?.type === "application/x-www-form-urlencoded"
                 ? [
                     ts.factory.createPropertyAssignment(
                       "parseQuery",
@@ -160,7 +146,7 @@ export namespace MigrateApiNamespaceProgrammer {
                         ),
                         [
                           MigrateSchemaProgrammer.write(components)(importer)(
-                            props.route.success.schema,
+                            route.success.schema,
                           ),
                         ],
                         undefined,
@@ -180,25 +166,25 @@ export namespace MigrateApiNamespaceProgrammer {
   const writePath =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (props: IProps): ts.VariableStatement => {
+    (route: IMigrateRoute): ts.VariableStatement => {
       const out = (body: ts.ConciseBody) =>
         constant("path")(
           ts.factory.createArrowFunction(
             [],
             [],
             [
-              ...props.route.parameters.map((p) =>
+              ...route.parameters.map((p) =>
                 IdentifierFactory.parameter(
                   p.key,
                   MigrateSchemaProgrammer.write(components)(importer)(p.schema),
                 ),
               ),
-              ...(props.route.query
+              ...(route.query
                 ? [
                     IdentifierFactory.parameter(
-                      props.route.query.key,
+                      route.query.key,
                       ts.factory.createTypeReferenceNode(
-                        `${props.alias}.Query`,
+                        `${route.accessor.at(-1)!}.Query`,
                       ),
                     ),
                   ]
@@ -210,7 +196,7 @@ export namespace MigrateApiNamespaceProgrammer {
           ),
         );
       const template = () => {
-        const path: string = getPath(props);
+        const path: string = getPath(route);
         const splitted: string[] = path.split(":");
         if (splitted.length === 1) return ts.factory.createStringLiteral(path);
         return ts.factory.createTemplateExpression(
@@ -224,7 +210,7 @@ export namespace MigrateApiNamespaceProgrammer {
                 [
                   ts.factory.createBinaryExpression(
                     ts.factory.createIdentifier(
-                      props.route.parameters.find((p) => p.name === name)!.key,
+                      route.parameters.find((p) => p.name === name)!.key,
                     ),
                     ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
                     ts.factory.createStringLiteral("null"),
@@ -238,10 +224,10 @@ export namespace MigrateApiNamespaceProgrammer {
           }),
         );
       };
-      if (!props.route.query) return out(template());
+      if (!route.query) return out(template());
 
       const computeName = (str: string): string =>
-        props.route.parameters.find((p) => p.key === str) !== undefined
+        route.parameters.find((p) => p.key === str) !== undefined
           ? computeName("_" + str)
           : str;
       const variables: string = computeName("variables");
@@ -286,7 +272,7 @@ export namespace MigrateApiNamespaceProgrammer {
                 undefined,
                 [
                   ts.factory.createAsExpression(
-                    ts.factory.createIdentifier(props.route.query.key),
+                    ts.factory.createIdentifier(route.query.key),
                     TypeFactory.keyword("any"),
                   ),
                 ],
@@ -409,11 +395,7 @@ const constant = (name: string) => (expression: ts.Expression) =>
       ts.NodeFlags.Const,
     ),
   );
-const getPath = (props: MigrateApiNamespaceProgrammer.IProps) =>
-  "/" +
-  [...props.controller.path.split("/"), ...props.route.path.split("/")]
-    .filter((str) => !!str.length)
-    .join("/");
+const getPath = (route: IMigrateRoute) => "/" + route.emendedPath;
 const local = (name: string) => (type: string) => (expression: ts.Expression) =>
   ts.factory.createVariableStatement(
     [],

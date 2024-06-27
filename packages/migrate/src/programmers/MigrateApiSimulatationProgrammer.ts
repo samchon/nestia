@@ -4,7 +4,6 @@ import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
-import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateRoute } from "../structures/IMigrateRoute";
 import { MigrateApiFunctionProgrammer } from "./MigrateApiFunctionProgrammer";
 import { MigrateApiNamespaceProgrammer } from "./MigrateApiNamespaceProgrammer";
@@ -12,18 +11,13 @@ import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
 export namespace MigrateApiSimulatationProgrammer {
-  export interface IProps {
-    controller: IMigrateController;
-    route: IMigrateRoute;
-    alias: string;
-  }
   export const random =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (props: IProps) => {
-      const output = props.route.success
+    (route: IMigrateRoute) => {
+      const output = route.success
         ? MigrateSchemaProgrammer.write(components)(importer)(
-            props.route.success.schema,
+            route.success.schema,
           )
         : TypeFactory.keyword("void");
       return constant("random")(
@@ -72,7 +66,7 @@ export namespace MigrateApiSimulatationProgrammer {
   export const simulate =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (props: IProps): ts.VariableStatement => {
+    (route: IMigrateRoute): ts.VariableStatement => {
       const caller = () =>
         ts.factory.createCallExpression(
           ts.factory.createIdentifier("random"),
@@ -104,14 +98,12 @@ export namespace MigrateApiSimulatationProgrammer {
           undefined,
           MigrateApiFunctionProgrammer.writeParameterDeclarations(components)(
             importer,
-          )(props),
-          ts.factory.createTypeReferenceNode(
-            props.route.success ? "Output" : "void",
-          ),
+          )(route),
+          ts.factory.createTypeReferenceNode(route.success ? "Output" : "void"),
           undefined,
           ts.factory.createBlock(
             [
-              ...assert(components)(importer)(props),
+              ...assert(components)(importer)(route),
               ts.factory.createReturnStatement(caller()),
             ],
             true,
@@ -123,31 +115,31 @@ export namespace MigrateApiSimulatationProgrammer {
   const assert =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (props: IProps): ts.Statement[] => {
+    (route: IMigrateRoute): ts.Statement[] => {
       const parameters = [
-        ...props.route.parameters.map((p) => ({
+        ...route.parameters.map((p) => ({
           category: "param",
           name: p.key,
           schema: MigrateSchemaProgrammer.write(components)(importer)(p.schema),
         })),
-        ...(props.route.query
+        ...(route.query
           ? [
               {
                 category: "query",
-                name: props.route.query.key,
+                name: route.query.key,
                 schema: MigrateSchemaProgrammer.write(components)(importer)(
-                  props.route.query.schema,
+                  route.query.schema,
                 ),
               },
             ]
           : []),
-        ...(props.route.body
+        ...(route.body
           ? [
               {
                 category: "body",
-                name: props.route.body.key,
+                name: route.body.key,
                 schema: MigrateSchemaProgrammer.write(components)(importer)(
-                  props.route.body.schema,
+                  route.body.schema,
                 ),
               },
             ]
@@ -181,12 +173,12 @@ export namespace MigrateApiSimulatationProgrammer {
                 ),
                 ts.factory.createPropertyAssignment(
                   "path",
-                  MigrateApiNamespaceProgrammer.writePathCallExpression(props),
+                  MigrateApiNamespaceProgrammer.writePathCallExpression(route),
                 ),
                 ts.factory.createPropertyAssignment(
                   "contentType",
                   ts.factory.createStringLiteral(
-                    props.route.success?.type ?? "application/json",
+                    route.success?.type ?? "application/json",
                   ),
                 ),
               ],
