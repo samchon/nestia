@@ -43,7 +43,7 @@
     "gh-pages": "^5.0.0",
     "next-sitemap": "^4.2.3",
     "rimraf": "^5.0.0",
-    "typedoc": "^0.25.13",
+    "typedoc": "^0.26.2",
     "typescript": "^5.5.2"
   }
 }
