@@ -34,7 +34,6 @@ export class MigrateApplication {
     const program: IMigrateProgram = MigrateAnalyzer.analyze({
       mode: "nest",
       document: this.document,
-      dictionary: new Map(),
       simulate: config.simulate,
       e2e: config.e2e,
     });
@@ -46,6 +45,7 @@ export class MigrateApplication {
         ...MigrateApiProgrammer.write(program),
         ...(config.e2e ? MigrateE2eProgrammer.write(program) : []),
       ],
+      errors: program.errors,
     };
   }
 
@@ -53,7 +53,6 @@ export class MigrateApplication {
     const program: IMigrateProgram = MigrateAnalyzer.analyze({
       mode: "sdk",
       document: this.document,
-      dictionary: new Map(),
       simulate: config.simulate,
       e2e: config.e2e,
     });
@@ -70,6 +69,7 @@ export class MigrateApplication {
           content: JSON.stringify(this.document, null, 2),
         },
       ],
+      errors: program.errors,
     };
   }
 }
@@ -77,6 +77,7 @@ export namespace MigrateApplication {
   export interface IOutput {
     program: IMigrateProgram;
     files: IMigrateFile[];
+    errors: IMigrateProgram.IError[];
   }
   export interface IConfig {
     simulate: boolean;

@@ -1,6 +1,6 @@
 {
   "name": "@nestia/migrate",
-  "version": "0.13.17",
+  "version": "0.14.0-dev.20240627",
   "description": "Migration program from swagger to NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -59,11 +59,11 @@
     "swagger-ui-express": "^5.0.0",
     "tgrid": "^1.0.1",
     "ts-node": "^10.9.1",
-    "ts-patch": "^3.1.0",
+    "ts-patch": "^3.2.1",
     "typescript-transform-paths": "^3.4.6"
   },
   "dependencies": {
-    "@samchon/openapi": "^0.1.22",
+    "@samchon/openapi": "^0.2.1",
     "commander": "10.0.0",
     "inquirer": "8.2.5",
     "prettier": "^3.2.5",

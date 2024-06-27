@@ -1,9 +1,14 @@
+import { OpenApi } from "@samchon/openapi";
+
 import { IMigrateProgram } from "../structures/IMigrateProgram";
-import { MigrateControllerAnalyzer } from "./MigrateControllerAnalyzer";
 
 export namespace MigrateAnalyzer {
-  export const analyze = (props: IMigrateProgram.IProps): IMigrateProgram => ({
-    ...props,
-    controllers: MigrateControllerAnalyzer.analyze(props),
-  });
+  export const analyze = (props: IMigrateProgram.IProps): IMigrateProgram => {
+    const result = OpenApi.migrate(props.document);
+    return {
+      ...props,
+      routes: result.routes,
+      errors: result.errors,
+    };
+  };
 }

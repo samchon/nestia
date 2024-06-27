@@ -1,5 +1,7 @@
 import ts from "typescript";
 
+import { MigrateControllerAnalyzer } from "../analyzers/MigrateControllerAnalyzer";
+import { IMigrateController } from "../structures/IMigrateController";
 import { IMigrateFile } from "../structures/IMigrateFile";
 import { IMigrateProgram } from "../structures/IMigrateProgram";
 import { FilePrinter } from "../utils/FilePrinter";
@@ -9,14 +11,17 @@ import { MigrateNestControllerProgrammer } from "./MigrateNestControllerProgramm
 import { MigrateNestModuleProgrammer } from "./MigrateNestModuleProgrammer";
 
 export namespace MigrateNestProgrammer {
-  export const write = (program: IMigrateProgram): IMigrateFile[] =>
-    [
+  export const write = (program: IMigrateProgram): IMigrateFile[] => {
+    const controllers: IMigrateController[] = MigrateControllerAnalyzer.analyze(
+      program.routes,
+    );
+    return [
       {
         location: "src",
         file: "MyModule.ts",
-        statements: MigrateNestModuleProgrammer.write(program.controllers),
+        statements: MigrateNestModuleProgrammer.write(controllers),
       },
-      ...program.controllers.map((c) => ({
+      ...controllers.map((c) => ({
         location: c.location,
         file: `${c.name}.ts`,
         statements: MigrateNestControllerProgrammer.write(
@@ -35,6 +40,7 @@ export namespace MigrateNestProgrammer {
       file: o.file,
       content: FilePrinter.write({ statements: o.statements }),
     }));
+  };
 
   const writeDtoFile = (
     key: string,

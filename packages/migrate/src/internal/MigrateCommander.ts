@@ -50,13 +50,19 @@ export namespace MigrateCommander {
     }
 
     const app: MigrateApplication = result.data;
-    const { files } =
+    const program =
       options.mode === "nest" ? app.nest(options) : app.sdk(options);
+    if (program.errors)
+      for (const error of program.errors)
+        console.error(
+          `Failed to migrate ${error.method} ${error.path}`,
+          ...error.messages.map((msg) => `  - ${msg}`),
+        );
     await MigrateFileArchiver.archive({
       mkdir: fs.promises.mkdir,
       writeFile: async (file, content) =>
         fs.promises.writeFile(file, await beautify(content), "utf-8"),
-    })(options.output)(files);
+    })(options.output)(program.files);
   };
 
   const beautify = async (script: string): Promise<string> => {
