@@ -8,17 +8,11 @@ import {
   RadioGroup,
   Switch,
 } from "@mui/material";
-import { MigrateApplication } from "@nestia/migrate";
-import { IMigrateFile } from "@nestia/migrate/lib/structures/IMigrateFile";
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
-import sdk from "@stackblitz/sdk";
-import prettierEsTreePlugin from "prettier/plugins/estree";
-import prettierTsPlugin from "prettier/plugins/typescript";
-import { format } from "prettier/standalone";
 import { useState } from "react";
-import { IValidation } from "typia";
 
 import EditorUploader from "../../components/editor/EditorUploader";
+import { EditorComposer } from "../../functional/EditorComposer";
 
 const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
   // PARAMETERS
@@ -32,36 +26,6 @@ const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
   >(null);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(false);
-
-  const createFiles = async (
-    swagger: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument,
-    config: MigrateApplication.IConfig,
-  ): Promise<null | IMigrateFile[]> => {
-    try {
-      const result: IValidation<MigrateApplication> =
-        await MigrateApplication.create(swagger as any);
-      if (result.success === false) {
-        alert(
-          "Invalid swagger file (based on OpenAPI 3.0 spec).\n\n" +
-            JSON.stringify(result.errors, null, 2),
-        );
-        return null;
-      }
-
-      const app: MigrateApplication = result.data;
-      const { files }: MigrateApplication.IOutput = app[mode](config);
-      for (const f of files)
-        if (f.file.substring(f.file.length - 3) === ".ts")
-          f.content = await format(f.content, {
-            parser: "typescript",
-            plugins: [prettierEsTreePlugin, prettierTsPlugin],
-          });
-      return files;
-    } catch (exp) {
-      alert(exp instanceof Error ? exp.message : "unkown error");
-      return null;
-    }
-  };
 
   const handleSwagger = (
     swagger:
@@ -79,37 +43,15 @@ const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
     if (swagger === null) return;
 
     setProgress(true);
-    const files: null | IMigrateFile[] = await createFiles(swagger, {
-      simulate,
-      e2e,
-    });
-    if (files === null) {
-      setProgress(false);
-      return;
+    try {
+      await EditorComposer[props.mode]({
+        swagger,
+        e2e,
+        simulate,
+      });
+    } catch (exp) {
+      setError(exp instanceof Error ? exp.message : "unknown error");
     }
-
-    sdk.openProject(
-      {
-        title: swagger.info?.title ?? "TypeScript Swagger Editor",
-        template: "node",
-        files: Object.fromEntries(
-          files.map(
-            (f) =>
-              [
-                [f.location, f.location.length ? "/" : "", f.file].join(""),
-                f.content,
-              ] as const,
-          ),
-        ),
-      },
-      {
-        newWindow: true,
-        openFile: "README.md,test/start.ts",
-        startScript: (mode === "sdk"
-          ? ["swagger", "hello"]
-          : ["build:test,test", ""]) as any,
-      },
-    );
     setProgress(false);
   };
 

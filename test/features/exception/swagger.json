@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.2.2-dev.20240617",
+    "version": "3.3.2",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -55,7 +55,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TypeGuardError"
+                  "$ref": "#/components/schemas/TypeGuardErrorany"
                 }
               }
             }
@@ -261,7 +261,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TypeGuardError"
+                  "$ref": "#/components/schemas/TypeGuardErrorany"
                 }
               }
             }
@@ -392,7 +392,7 @@
           "url"
         ]
       },
-      "TypeGuardError": {
+      "TypeGuardErrorany": {
         "type": "object",
         "properties": {
           "method": {
@@ -405,6 +405,7 @@
             "type": "string"
           },
           "value": {},
+          "fake_expected_typed_value_": {},
           "name": {
             "type": "string"
           },
