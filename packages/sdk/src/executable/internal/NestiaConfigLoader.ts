@@ -10,42 +10,39 @@ import { INestiaConfig } from "../../INestiaConfig";
 export namespace NestiaConfigLoader {
   export const compilerOptions = async (
     project: string,
-  ): Promise<ts.CompilerOptions> => {
+  ): Promise<ts.ParsedCommandLine> => {
     const configFileName = ts.findConfigFile(
       process.cwd(),
       ts.sys.fileExists,
       project,
     );
     if (!configFileName) throw new Error(`unable to find "${project}" file.`);
-
     const { tsconfig } = await parseNative(configFileName);
     const configFileText = JSON.stringify(tsconfig);
     const { config } = ts.parseConfigFileTextToJson(
       configFileName,
       configFileText,
     );
-    const configParseResult = ts.parseJsonConfigFileContent(
+    return ts.parseJsonConfigFileContent(
       config,
       ts.sys,
       path.dirname(configFileName),
     );
-
-    const { moduleResolution, ...result } =
-      configParseResult.raw.compilerOptions;
-    return result;
   };
 
   export const config = async (
     file: string,
-    options: ts.CompilerOptions,
+    rawCompilerOptions: Record<string, any>,
   ): Promise<INestiaConfig> => {
     if (fs.existsSync(path.resolve(file)) === false)
       throw new Error(`Unable to find "${file}" file.`);
 
     register({
       emit: false,
-      compilerOptions: options,
-      require: options.baseUrl ? ["tsconfig-paths/register"] : undefined,
+      compilerOptions: rawCompilerOptions,
+      require: rawCompilerOptions.baseUrl
+        ? ["tsconfig-paths/register"]
+        : undefined,
     });
 
     const loaded: INestiaConfig & { default?: INestiaConfig } = await import(

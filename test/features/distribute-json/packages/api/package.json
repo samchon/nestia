@@ -8,8 +8,7 @@
     "build": "npm run build:sdk && npm run compile",
     "build:sdk": "rimraf ../../src/api/functional && cd ../.. && npx nestia sdk && cd packages/api",
     "compile": "rimraf lib && tsc",
-    "deploy": "npm run build && npm publish",
-    "prepare": "ts-patch install && typia patch"
+    "deploy": "npm run build && npm publish"
   },
   "repository": {
     "type": "git",
@@ -25,15 +24,5 @@
     "lib",
     "package.json",
     "README.md"
-  ],
-  "devDependencies": {
-    "rimraf": "^5.0.7",
-    "ts-node": "^10.9.2",
-    "ts-patch": "^3.2.1",
-    "typescript": "^5.5.2"
-  },
-  "dependencies": {
-    "@nestia/fetcher": "^3.2.2-dev.20240617",
-    "typia": "^6.3.1"
-  }
+  ]
 }

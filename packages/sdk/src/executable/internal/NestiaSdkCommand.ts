@@ -17,7 +17,7 @@ export namespace NestiaSdkCommand {
     task: (app: NestiaSdkApplication) => Promise<void>,
   ) => {
     // LOAD CONFIG INFO
-    const compilerOptions: ts.CompilerOptions =
+    const command: ts.ParsedCommandLine =
       await NestiaConfigLoader.compilerOptions(
         getFileArgument({
           type: "project",
@@ -29,13 +29,13 @@ export namespace NestiaSdkCommand {
         type: "config",
         extension: "ts",
       }) ?? "nestia.config.ts",
-      compilerOptions,
+      command.raw.compilerOptions,
     );
 
     // GENERATE
     const app: NestiaSdkApplication = new NestiaSdkApplication(
       config,
-      compilerOptions,
+      command.options,
     );
     await task(app);
   };
