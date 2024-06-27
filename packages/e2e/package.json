@@ -36,15 +36,15 @@
     "@typescript-eslint/parser": "^5.57.0",
     "rimraf": "^4.1.2",
     "ts-node": "^10.9.1",
-    "ts-patch": "^3.1.0",
-    "typescript": "<5.5.0",
-    "typia": "^6.1.1"
+    "ts-patch": "^3.2.1",
+    "typescript": "^5.5.2",
+    "typia": "^6.3.1"
   },
   "dependencies": {
     "@nestia/fetcher": "^3.2.2",
     "chalk": "^4.1.2",
     "cli": "^1.0.1",
-    "tgrid": "^1.0.1",
+    "tgrid": "^1.0.2",
     "tstl": "^3.0.0"
   },
   "files": [
