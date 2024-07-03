@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -36,10 +36,10 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "^3.4.0",
+    "@nestia/fetcher": "^3.4.1",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
-    "@samchon/openapi": "^0.2.2",
+    "@samchon/openapi": "^0.3.0",
     "detect-ts-node": "^1.0.5",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",
@@ -49,16 +49,16 @@
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.3",
     "tgrid": "^1.0.0",
-    "typia": "^6.3.1",
+    "typia": "^6.4.0",
     "ws": "^7.5.3"
   },
   "peerDependencies": {
-    "@nestia/fetcher": ">=3.4.0",
+    "@nestia/fetcher": ">=3.4.1",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.3",
-    "typia": ">=6.3.1 <7.0.0"
+    "typia": ">=6.4.0 <7.0.0"
   },
   "devDependencies": {
     "@fastify/multipart": "^8.1.0",
