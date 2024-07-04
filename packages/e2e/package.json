@@ -38,7 +38,7 @@
     "ts-node": "^10.9.1",
     "ts-patch": "^3.2.1",
     "typescript": "^5.5.2",
-    "typia": "^6.3.1"
+    "typia": "^6.4.0"
   },
   "dependencies": {
     "@nestia/fetcher": "^3.2.2",
