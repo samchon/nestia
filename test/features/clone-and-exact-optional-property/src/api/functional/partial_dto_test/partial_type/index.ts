@@ -14,8 +14,8 @@ import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
-import type { PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr } from "../../../structures/PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr";
 import type { PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrb } from "../../../structures/PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrb";
+import type { PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrd } from "../../../structures/PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrd";
 
 /**
  * @controller PartialDTOTestController.partialType
@@ -46,7 +46,7 @@ export async function partialType(
 }
 export namespace partialType {
   export type Input =
-    PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr;
+    PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrd;
   export type Output = IPropagation<{
     201: PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrb;
   }>;

@@ -36,7 +36,7 @@ export function TypedParam<T extends boolean | bigint | number | string | null>(
   name: string,
   assert?: (value: string) => T,
 ): ParameterDecorator {
-  if (assert === undefined) throw NoTransformConfigureError("TypedParam");
+  if (assert === undefined) return NoTransformConfigureError("TypedParam");
 
   return createParamDecorator(function TypedParam(
     {}: any,

@@ -3,7 +3,7 @@ import { Controller } from "@nestjs/common";
 
 @Controller("body")
 export class TypedBodyController {
-  @core.TypedRoute.Get("generic")
+  @core.TypedRoute.Post("generic")
   public async generic<T>(
     @core.TypedBody() input: ISomething<T>,
   ): Promise<ISomething<T>> {

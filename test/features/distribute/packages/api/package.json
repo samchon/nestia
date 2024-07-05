@@ -29,10 +29,10 @@
   "devDependencies": {
     "rimraf": "^5.0.7",
     "ts-patch": "^3.2.1",
-    "typescript": "^5.4.2"
+    "typescript": "^5.5.2"
   },
   "dependencies": {
-    "@nestia/fetcher": "^3.3.2",
+    "@nestia/fetcher": "^3.4.2-dev.20240705",
     "typia": "^6.4.0"
   }
 }

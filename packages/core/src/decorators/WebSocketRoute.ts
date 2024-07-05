@@ -167,7 +167,7 @@ export namespace WebSocketRoute {
     assert?: (value: string) => T,
   ): ParameterDecorator {
     if (assert === undefined)
-      throw NoTransformConfigureError("WebSocketRoute.Param");
+      return NoTransformConfigureError("WebSocketRoute.Param");
     return function WebSocketParam(
       target: Object,
       propertyKey: string | symbol | undefined,
