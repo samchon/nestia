@@ -29,7 +29,7 @@ export const get_path_and_querify =
 const take =
   (method: string) =>
   <T>(functor?: IResponseBodyQuerifier<T> | null) => {
-    if (functor === undefined) throw NoTransformConfigureError(method);
+    if (functor === undefined) return NoTransformConfigureError(method);
     else if (functor === null) return querify;
     else if (functor.type === "stringify") return functor.stringify;
     else if (functor.type === "assert") return assert(functor.assert);

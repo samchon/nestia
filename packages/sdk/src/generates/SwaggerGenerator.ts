@@ -281,7 +281,7 @@ export namespace SwaggerGenerator {
   /* ---------------------------------------------------------
         INITIALIZERS
     --------------------------------------------------------- */
-  const initialize = async (
+  export const initialize = async (
     config: INestiaConfig.ISwaggerConfig,
   ): Promise<OpenApi.IDocument> => {
     const pack = new Singleton(
@@ -370,7 +370,7 @@ export namespace SwaggerGenerator {
     return path;
   }
 
-  const generate_route =
+  export const generate_route =
     (props: IProps) =>
     (route: ITypedHttpRoute): OpenApi.IOperation => {
       // FIND REQUEST BODY

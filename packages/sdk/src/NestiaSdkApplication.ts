@@ -1,3 +1,4 @@
+import transform from "@nestia/core/lib/transform";
 import fs from "fs";
 import path from "path";
 import ts from "typescript";
@@ -114,6 +115,7 @@ export class NestiaSdkApplication {
     };
 
     console.log("Analyzing reflections");
+    await turnTransformError(false);
     for (const include of (await ConfigAnalyzer.input(this.config)).include)
       controllers.push(
         ...(await ReflectControllerAnalyzer.analyze(project)(
@@ -123,6 +125,7 @@ export class NestiaSdkApplication {
           include.controller,
         )),
       );
+    await turnTransformError(true);
 
     const agg: number = (() => {
       const set: Set<string> = new Set();
@@ -159,6 +162,25 @@ export class NestiaSdkApplication {
     );
     project.checker = program.getTypeChecker();
 
+    const diagnostics: ts.Diagnostic[] = [];
+    ts.transform(
+      program
+        .getSourceFiles()
+        .filter((file) => false === file.isDeclarationFile),
+      [
+        transform(
+          program,
+          ((this.compilerOptions.plugins as any) ?? []).find(
+            (p: any) => p.transform === "@nestia/core/lib/transform",
+          ) ?? {},
+          {
+            addDiagnostic: (diag) => diagnostics.push(diag),
+          },
+        ),
+      ],
+      program.getCompilerOptions(),
+    );
+
     const routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute> = [];
     for (const c of controllers) {
       const file: ts.SourceFile | undefined = program.getSourceFile(c.file);
@@ -167,6 +189,36 @@ export class NestiaSdkApplication {
         ...(await TypedControllerAnalyzer.analyze(project)(file, c)),
       );
     }
+
+    // TRACE ERRORS
+    for (const diag of diagnostics) {
+      const file: string = diag.file
+        ? path.relative(diag.file.fileName, process.cwd())
+        : "(unknown file)";
+      const category: string =
+        diag.category === ts.DiagnosticCategory.Warning
+          ? "warning"
+          : diag.category === ts.DiagnosticCategory.Error
+            ? "error"
+            : diag.category === ts.DiagnosticCategory.Suggestion
+              ? "suggestion"
+              : diag.category === ts.DiagnosticCategory.Message
+                ? "message"
+                : "unkown";
+      const [line, pos] = diag.file
+        ? (() => {
+            const lines: string[] = diag
+              .file!.text.substring(0, diag.start)
+              .split("\n");
+            if (lines.length === 0) return [0, 0];
+            return [lines.length, lines.at(-1)!.length + 1];
+          })()
+        : [0, 0];
+      console.error(
+        `${file}:${line}:${pos} - ${category} TS${diag.code}: ${diag.messageText}`,
+      );
+    }
+    if (diagnostics.length) process.exit(-1);
 
     // REPORT ERRORS
     if (project.errors.length) {
@@ -255,3 +307,11 @@ const report_errors =
   };
 
 const VARIABLE = /[a-zA-Z_$0-9]/;
+const turnTransformError = async (flag: boolean): Promise<void> => {
+  try {
+    const modulo = await import(
+      "@nestia/core/lib/decorators/internal/NoTransformConfigureError" as string
+    );
+    modulo.NoTransformConfigureError.throws = flag;
+  } catch {}
+};

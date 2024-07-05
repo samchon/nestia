@@ -15,7 +15,7 @@ import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
 import type { IUser } from "../../../structures/IUser";
-import type { PartialPickIUsernameemailnullable_attroptional_attr } from "../../../structures/PartialPickIUsernameemailnullable_attroptional_attr";
+import type { PartialPickIUseremailnamenullable_attroptional_attr } from "../../../structures/PartialPickIUseremailnamenullable_attroptional_attr";
 
 /**
  * - When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.
@@ -147,7 +147,7 @@ export async function updateUserProfile(
       );
 }
 export namespace updateUserProfile {
-  export type Input = PartialPickIUsernameemailnullable_attroptional_attr;
+  export type Input = PartialPickIUseremailnamenullable_attroptional_attr;
   export type Output = IPropagation<{
     201: IUser;
   }>;

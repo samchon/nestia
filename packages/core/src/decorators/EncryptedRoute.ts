@@ -146,7 +146,7 @@ class EncryptedRouteInterceptor implements NestInterceptor {
           context.getClass(),
         );
         if (!param)
-          throw NoTransformConfigureError(`EncryptedRoute.${this.method}`);
+          return NoTransformConfigureError(`EncryptedRoute.${this.method}`);
 
         const headers: Singleton<Record<string, string>> = new Singleton(() => {
           const request: express.Request = http.getRequest();

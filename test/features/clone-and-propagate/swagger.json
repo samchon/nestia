@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.3.2",
+    "version": "3.4.2-dev.20240705",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -1633,7 +1633,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PartialPickIUsernameemailnullable_attroptional_attr"
+                "$ref": "#/components/schemas/PartialPickIUseremailnamenullable_attroptional_attr"
               }
             }
           },
@@ -3941,12 +3941,9 @@
           }
         ]
       },
-      "PartialPickIUsernameemailnullable_attroptional_attr": {
+      "PartialPickIUseremailnamenullable_attroptional_attr": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string"
-          },
           "email": {
             "oneOf": [
               {
@@ -3957,6 +3954,9 @@
                 "format": "email"
               }
             ]
+          },
+          "name": {
+            "type": "string"
           },
           "nullable_attr": {
             "oneOf": [
