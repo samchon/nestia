@@ -412,6 +412,7 @@ export namespace SwaggerGenerator {
         ...route.swaggerTags,
         ...getJsDocTexts("tag").map((tag) => tag.split(" ")[0]),
       ]);
+      props.swagger.tags ??= [];
       for (const tag of tagSet)
         if (props.swagger.tags!.find((elem) => elem.name === tag) === undefined)
           props.swagger.tags!.push({ name: tag });
