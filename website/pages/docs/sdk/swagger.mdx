@@ -63,7 +63,7 @@ If you have a special configuration file that its file name is not `nestia.confi
 <Tabs items={[
   <code>nestia.config.ts</code>, 
   <code>INestiaConfig.ts</code>,
-  <code>ISwaggerSecurityScheme.ts</code>,
+  <code>OpenApi.ISecuritySchema</code>,
 ]}>
   <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {18-34}
@@ -106,13 +106,9 @@ export default NESTIA_CONFIG;
 ```
   </Tab>
   <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers {14-19, 167-240}
+```typescript filename="INestiaConfig.ts" showLineNumbers {11-16, 163-244}
 import type { INestApplication } from "@nestjs/common";
-
-import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
-import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
-import type { ISwaggerServer } from "./structures/ISwaggerServer";
-import type { ISwaggerTag } from "./structures/ISwaggerTag";
+import type { OpenApi } from "@samchon/openapi";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -302,12 +298,12 @@ export namespace INestiaConfig {
      *
      * If omitted, `package.json` content would be used instead.
      */
-    info?: Partial<ISwaggerInfo>;
+    info?: Partial<OpenApi.IDocument.IInfo>;
 
     /**
      * List of server addresses.
      */
-    servers?: ISwaggerServer[];
+    servers?: OpenApi.IServer[];
 
     /**
      * Security schemes.
@@ -316,7 +312,7 @@ export namespace INestiaConfig {
      * theirs methods have a security key which is not enrolled in here property,
      * it would be an error.
      */
-    security?: Record<string, ISwaggerSecurityScheme>;
+    security?: Record<string, OpenApi.ISecurityScheme>;
 
     /**
      * List of tag names with description.
@@ -328,7 +324,7 @@ export namespace INestiaConfig {
      * Of course, if you've written a comment like `@tag {name} {descrition}`,
      * you can entirely replace this property specification.
      */
-    tags?: ISwaggerTag[];
+    tags?: OpenApi.IDocument.ITag[];
 
     /**
      * Decompose query DTO.
@@ -359,24 +355,24 @@ export namespace INestiaConfig {
 ```
   </Tab>
   <Tab>
-```typescript filename="ISwaggerSecurityScheme.ts" showLineNumbers
+```typescript filename="@samchon/openapi" showLineNumbers
 /**
  * Security scheme of Swagger Documents.
  *
- * `ISwaggerSecurityScheme` is a data structure representing content of
+ * `ISecurityScheme` is a data structure representing content of
  * `securitySchemes` in `swagger.json` file. It is composed with 5 types of security
  * schemes as an union type like below.
  *
  * @reference https://swagger.io/specification/#security-scheme-object
  * @author Jeongho Nam - https://github.com/samchon
  */
-export type ISwaggerSecurityScheme =
-  | ISwaggerSecurityScheme.IHttpBasic
-  | ISwaggerSecurityScheme.IHttpBearer
-  | ISwaggerSecurityScheme.IApiKey
-  | ISwaggerSecurityScheme.IOpenId
-  | ISwaggerSecurityScheme.IOAuth2;
-export namespace ISwaggerSecurityScheme {
+export type ISecurityScheme =
+  | ISecurityScheme.IHttpBasic
+  | ISecurityScheme.IHttpBearer
+  | ISecurityScheme.IApiKey
+  | ISecurityScheme.IOpenId
+  | ISecurityScheme.IOAuth2;
+export namespace ISecurityScheme {
   export interface IHttpBasic {
     type: "http";
     scheme: "basic";
@@ -388,15 +384,7 @@ export namespace ISwaggerSecurityScheme {
   }
   export interface IApiKey {
     type: "apiKey";
-
-    /**
-     * @default header
-     */
     in?: "header" | "query" | "cookie";
-
-    /**
-     * @default Authorization
-     */
     name?: string;
   }
 
@@ -710,7 +698,7 @@ export namespace INestiaConfig {
      * `false`, the query DTO would be one object type which contains all of query
      * parameters.
      *
-     * @default true
+     * @default false
      */
     decompose?: boolean;
 
@@ -763,7 +751,7 @@ For reference, target security schemes must be configured in the `nestia.config.
   'Controller', 
   'Swagger Documents', 
   <code>nestia.config.ts</code>,
-  <code>ISwaggerSecurityScheme</code>,
+  <code>OpenApi.ISecurityScheme</code>,
 ]}>
   <Tab>
 ```typescript filename="Controller" showLineNumbers {17-20, 35, 46-49, 66, 68}
@@ -1183,24 +1171,24 @@ export default NESTIA_CONFIG;
 ```
   </Tab>
   <Tab>
-```typescript filename="ISwaggerSecurityScheme.ts" showLineNumbers
+```typescript filename="@samchon/openapi" showLineNumbers
 /**
  * Security scheme of Swagger Documents.
  *
- * `ISwaggerSecurityScheme` is a data structure representing content of
+ * `OpenApi.ISecurityScheme` is a data structure representing content of
  * `securitySchemes` in `swagger.json` file. It is composed with 5 types of security
  * schemes as an union type like below.
  *
  * @reference https://swagger.io/specification/#security-scheme-object
  * @author Jeongho Nam - https://github.com/samchon
  */
-export type ISwaggerSecurityScheme =
-  | ISwaggerSecurityScheme.IHttpBasic
-  | ISwaggerSecurityScheme.IHttpBearer
-  | ISwaggerSecurityScheme.IApiKey
-  | ISwaggerSecurityScheme.IOpenId
-  | ISwaggerSecurityScheme.IOAuth2;
-export namespace ISwaggerSecurityScheme {
+export type ISecurityScheme =
+  | ISecurityScheme.IHttpBasic
+  | ISecurityScheme.IHttpBearer
+  | ISecurityScheme.IApiKey
+  | ISecurityScheme.IOpenId
+  | ISecurityScheme.IOAuth2;
+export namespace ISecurityScheme {
   export interface IHttpBasic {
     type: "http";
     scheme: "basic";
@@ -1212,15 +1200,7 @@ export namespace ISwaggerSecurityScheme {
   }
   export interface IApiKey {
     type: "apiKey";
-
-    /**
-     * @default header
-     */
     in?: "header" | "query" | "cookie";
-
-    /**
-     * @default Authorization
-     */
     name?: string;
   }
 
@@ -1461,20 +1441,20 @@ export interface SpecialTag {
 /**
  * Security schema of Swagger Documents.
  *
- * `ISwaggerSecurityScheme` is a data structure representing content of
+ * `ISecurityScheme` is a data structure representing content of
  * `securitySchemes` in `swagger.json` file. It is composed with 5 types of security
  * schemes as an union type like below.
  *
  * @reference https://swagger.io/specification/#security-scheme-object
  * @author Jeongho Nam - https://github.com/samchon
  */
-export type ISwaggerSecurityScheme =
-  | ISwaggerSecurityScheme.IHttpBasic
-  | ISwaggerSecurityScheme.IHttpBearer
-  | ISwaggerSecurityScheme.IApiKey
-  | ISwaggerSecurityScheme.IOpenId
-  | ISwaggerSecurityScheme.IOAuth2;
-export namespace ISwaggerSecurityScheme {
+export type ISecurityScheme =
+  | ISecurityScheme.IHttpBasic
+  | ISecurityScheme.IHttpBearer
+  | ISecurityScheme.IApiKey
+  | ISecurityScheme.IOpenId
+  | ISecurityScheme.IOAuth2;
+export namespace ISecurityScheme {
   export interface IHttpBasic {
     type: "http";
     scheme: "basic";
@@ -1619,19 +1599,19 @@ export function SwaggerCustomizer(
 ): MethodDecorator;
 export namespace SwaggerCustomizer {
   export interface IProps {
-    swagger: ISwagger;
+    swagger: OpenApi.IDocument;
     method: string;
     path: string;
-    route: ISwaggerRoute;
+    route: OpenApi.IOperation;
     at(func: Function): ISwaggerEndpoint | undefined;
-    get(accessor: IAccessor): ISwaggerRoute | undefined;
+    get(accessor: IAccessor): OpenApi.IOperation | undefined;
   }
   export interface IAccessor {
     path: string;
     method: string;
   }
   export interface ISwaggerEndpoint extends IAccessor {
-    route: ISwaggerRoute;
+    route: OpenApi.IOperation;
   }
 }
 ```
