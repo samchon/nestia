@@ -724,6 +724,15 @@ export namespace INestiaConfig {
 
 
 ## Special Tags
+### `@nestjs/swagger` Decorators
+Swagger generator fo `@nestia/sdk` supports some `@nestjs/swagger` decorators. Here is the list of them. 
+
+  - `@ApiBasicAuth()`
+  - `@ApiBearerAuth()`
+  - `@ApiOAuth2()`
+  - `@ApiSecurity()`
+  - `@ApiTags()`
+
 ### Controller Methods
 Swagger generator `@nestia/sdk` supports three type of comment tags for controller methods:
 
@@ -1513,7 +1522,7 @@ export namespace ISecurityScheme {
 ## Customization
 [Typia > JSON schema > Customization](https://typia.io/docs/json/schema/#customization)
 
-If what you want is not just filling special properties of JSON schema spec, but to adding custom properties into the JSON schema definition, you can accomlish it with `typia` feature. Define a type based on `typia.tags.TagBase`, and specify the `schema` property type as you want.
+If what you want is not just filling special properties of JSON schema spec, but to adding custom properties into the JSON schema definition, you can accomlish it with `typia` feature. Define a type based on `typia.tags.TagBase` or `typia.tags.JsonSchemaPlugin`, and specify the `schema` property type as you want.
 
 For reference, the custom property must be started with x- prefix. It's a rule of JSON schema.
 
@@ -1531,13 +1540,8 @@ type Monetary<Value extends string> = tags.TagBase<{
   };
 }>;
 
-type Placeholder<Value extends string> = tags.TagBase<{
-  target: "boolean" | "number" | "string";
-  kind: "placeholder";
-  value: Value;
-  schema: {
-    "x-placeholder": Value;
-  };
+type Placeholder<Value extends string> = tags.JsonSchemaPlugin<{
+  "x-placeholder": Value;
 }>;
 
 interface IAccount {
