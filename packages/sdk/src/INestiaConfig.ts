@@ -1,7 +1,7 @@
 import type { INestApplication } from "@nestjs/common";
+import { OpenApi } from "@samchon/openapi";
 
 import type { INormalizedInput } from "./structures/INormalizedInput";
-import { OpenApi } from "@samchon/openapi";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -242,12 +242,20 @@ export namespace INestiaConfig {
      * Decompose query DTO.
      *
      * If you configure this property to be `true`, the query DTO would be decomposed
-     * into individual query parameters per each property.
+     * into individual query parameters per each property. Otherwise you set it to be
+     * `false`, the query DTO would be one object type which contains all of query
+     * parameters.
      *
-     * @default false
+     * @default true
      */
     decompose?: boolean;
 
+    /**
+     * Operation ID generator.
+     *
+     * @param props Properties of the API endpoint.
+     * @returns Operation ID.
+     */
     operationId?(props: {
       class: string;
       function: string;
