@@ -150,10 +150,7 @@ export default NESTIA_CONFIG;
   <Tab>
 ```typescript copy filename="INestiaConfig.ts" showLineNumbers {13-32}
 import type { INestApplication } from "@nestjs/common";
-
-import type { ISwagger } from "./structures/ISwagger";
-import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
-import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
+import type { OpenApi } from "@samchon/openapi";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -332,12 +329,12 @@ export namespace INestiaConfig {
      *
      * If omitted, `package.json` content would be used instead.
      */
-    info?: Partial<ISwaggerInfo>;
+    info?: Partial<OpenApi.IDocument.IInfo>;
 
     /**
      * List of server addresses.
      */
-    servers?: ISwagger.IServer[];
+    servers?: OpenApi.IServer[];
 
     /**
      * Security schemes.
@@ -346,18 +343,38 @@ export namespace INestiaConfig {
      * theirs methods have a security key which is not enrolled in here property,
      * it would be an error.
      */
-    security?: Record<string, ISwaggerSecurityScheme>;
+    security?: Record<string, OpenApi.ISecurityScheme>;
+
+    /**
+     * List of tag names with description.
+     *
+     * It is possible to omit this property or skip some tag name even if
+     * the tag name is used in the API routes. In that case, the tag name
+     * would be used without description.
+     *
+     * Of course, if you've written a comment like `@tag {name} {descrition}`,
+     * you can entirely replace this property specification.
+     */
+    tags?: OpenApi.IDocument.ITag[];
 
     /**
      * Decompose query DTO.
      *
      * If you configure this property to be `true`, the query DTO would be decomposed
-     * into individual query parameters per each property.
+     * into individual query parameters per each property. Otherwise you set it to be
+     * `false`, the query DTO would be one object type which contains all of query
+     * parameters.
      *
      * @default false
      */
     decompose?: boolean;
 
+    /**
+     * Operation ID generator.
+     *
+     * @param props Properties of the API endpoint.
+     * @returns Operation ID.
+     */
     operationId?(props: {
       class: string;
       function: string;

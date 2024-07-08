@@ -34,8 +34,16 @@ export namespace SwaggerSchemaValidator {
       if (meta.objects.length !== 1 || meta.bucket() !== 1)
         insert("only one object type is allowed.");
       if (meta.nullable === true) insert("query parameters cannot be null.");
-      if (meta.isRequired() === false)
-        insert("query parameters cannot be undefined.");
+      if (meta.isRequired() === false) {
+        const everyPropertiesAreOptional: boolean =
+          meta.size() === 1 &&
+          meta.objects.length === 1 &&
+          meta.objects[0].properties.every((p) => p.value.optional);
+        if (everyPropertiesAreOptional === false)
+          insert(
+            "query parameters can be optional only when every properties are optional.",
+          );
+      }
     } else if (
       explore.nested !== null &&
       explore.nested instanceof MetadataArray

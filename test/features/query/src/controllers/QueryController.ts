@@ -2,6 +2,7 @@ import { TypedQuery, TypedRoute } from "@nestia/core";
 import { Controller, Query } from "@nestjs/common";
 
 import { INestQuery } from "@api/lib/structures/INestQuery";
+import { IOptionalQuery } from "@api/lib/structures/IOptionalQuery";
 import { IQuery } from "@api/lib/structures/IQuery";
 
 @Controller("query")
@@ -9,6 +10,13 @@ export class QueryController {
   @TypedRoute.Get("typed")
   public async typed(@TypedQuery() query: IQuery): Promise<IQuery> {
     return query;
+  }
+
+  @TypedRoute.Get("optional")
+  public async optional(
+    @TypedQuery() query?: IOptionalQuery,
+  ): Promise<IOptionalQuery> {
+    return query ?? {};
   }
 
   @TypedRoute.Get("nest")

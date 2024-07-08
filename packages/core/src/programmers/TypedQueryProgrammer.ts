@@ -20,6 +20,7 @@ export namespace TypedQueryProgrammer {
             project: IProject,
           ) => (
             modulo: ts.LeftHandSideExpression,
+            allowOptiona: boolean,
           ) => (type: ts.Type) => ts.ArrowFunction,
         ) =>
           ts.factory.createObjectLiteralExpression([
@@ -36,7 +37,10 @@ export namespace TypedQueryProgrammer {
                   finite: false,
                   functional: false,
                 },
-              })(modulo)(type),
+              })(
+                modulo,
+                true,
+              )(type),
             ),
           ]);
 

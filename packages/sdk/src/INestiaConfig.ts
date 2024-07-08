@@ -1,8 +1,6 @@
 import type { INestApplication } from "@nestjs/common";
 import { OpenApi } from "@samchon/openapi";
 
-import type { INormalizedInput } from "./structures/INormalizedInput";
-
 /**
  * Definition for the `nestia.config.ts` file.
  *
@@ -144,11 +142,6 @@ export interface INestiaConfig {
    * @default false
    */
   json?: boolean;
-
-  /**
-   * @internal
-   */
-  normalized?: INormalizedInput;
 }
 export namespace INestiaConfig {
   /**
