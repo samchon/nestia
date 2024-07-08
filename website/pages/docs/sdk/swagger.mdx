@@ -724,14 +724,23 @@ export namespace INestiaConfig {
 
 
 ## Special Tags
-### `@nestjs/swagger` Decorators
-Swagger generator fo `@nestia/sdk` supports some `@nestjs/swagger` decorators. Here is the list of them. 
+### NestJS Decorators
+Swagger generator fo `@nestia/sdk` supports some NestJS decorators. Here is the list of them. 
 
-  - `@ApiBasicAuth()`
-  - `@ApiBearerAuth()`
-  - `@ApiOAuth2()`
-  - `@ApiSecurity()`
-  - `@ApiTags()`
+  - `@nestjs/common`
+    - `@Get()`, `@Post()`, `@Put()`, `@Patch()`, `@Delete()`, ...
+    - `@Header()`, `@Headers()`
+    - `@Body()`
+    - `@HttpCode()`
+    - `@Param()`
+    - `@Query()`
+    - `@Version()`
+  - `@nestjs/swagger`
+    - `@ApiBasicAuth()`
+    - `@ApiBearerAuth()`
+    - `@ApiOAuth2()`
+    - `@ApiSecurity()`
+    - `@ApiTags()`
 
 ### Controller Methods
 Swagger generator `@nestia/sdk` supports three type of comment tags for controller methods:
