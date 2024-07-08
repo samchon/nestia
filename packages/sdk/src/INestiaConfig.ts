@@ -1,5 +1,5 @@
 import type { INestApplication } from "@nestjs/common";
-import type { OpenApi } from "@samchon/openapi";
+import { OpenApi } from "@samchon/openapi";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -239,7 +239,7 @@ export namespace INestiaConfig {
      * `false`, the query DTO would be one object type which contains all of query
      * parameters.
      *
-     * @default false
+     * @default true
      */
     decompose?: boolean;
 

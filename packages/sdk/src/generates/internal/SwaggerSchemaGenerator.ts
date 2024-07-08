@@ -300,7 +300,7 @@ export namespace SwaggerSchemaGenerator {
         );
         return [decoded];
       } else if (
-        props.config.decompose !== true ||
+        props.config.decompose === false ||
         result.data.objects.length === 0
       )
         return [decoded];
