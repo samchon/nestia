@@ -211,7 +211,14 @@ export namespace SdkHttpNamespaceProgrammer {
               IdentifierFactory.parameter(
                 p.name,
                 p === props.query
-                  ? ts.factory.createTypeReferenceNode(`${route.name}.Query`)
+                  ? p.optional
+                    ? ts.factory.createUnionTypeNode([
+                        ts.factory.createTypeReferenceNode(
+                          `${route.name}.Query`,
+                        ),
+                        ts.factory.createTypeReferenceNode("undefined"),
+                      ])
+                    : ts.factory.createTypeReferenceNode(`${route.name}.Query`)
                   : getType(project)(importer)(p),
               ),
             ),
@@ -409,7 +416,17 @@ export namespace SdkHttpNamespaceProgrammer {
         );
       };
       if (props.query !== undefined && g.query.length === 0)
-        return out(block(ts.factory.createIdentifier(props.query.name)));
+        return out(
+          block(
+            props.query.optional
+              ? ts.factory.createBinaryExpression(
+                  ts.factory.createIdentifier(props.query.name),
+                  ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
+                  ts.factory.createObjectLiteralExpression([], false),
+                )
+              : ts.factory.createIdentifier(props.query.name),
+          ),
+        );
       return out(
         block(
           ts.factory.createObjectLiteralExpression(

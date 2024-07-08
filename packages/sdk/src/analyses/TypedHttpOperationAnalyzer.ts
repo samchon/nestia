@@ -3,6 +3,8 @@ import path from "path";
 import { HashMap } from "tstl";
 import ts from "typescript";
 import { CommentFactory } from "typia/lib/factories/CommentFactory";
+import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
+import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 
 import { IErrorReport } from "../structures/IErrorReport";
 import { INestiaProject } from "../structures/INestiaProject";
@@ -287,16 +289,32 @@ export namespace TypedHttpOperationAnalyzer {
         optional === true &&
         props.parameter.category === "query" &&
         props.parameter.field === undefined
-      )
-        errors.push({
-          file: props.controller.file,
-          controller: props.controller.name,
-          function: props.function,
-          message:
-            `nestia does not support optional query parameter without field specification. ` +
-            `Therefore, erase question mark on the "${name}" parameter, ` +
-            `or re-define re-define parameters for each query parameters.`,
-        });
+      ) {
+        const everyPropertiesAreOptional: boolean = (() => {
+          const res = MetadataFactory.analyze(project.checker)({
+            escape: false,
+            constant: true,
+            absorb: true,
+          })(new MetadataCollection())(type);
+          if (res.success === false) return false;
+          const m = res.data;
+          return (
+            m.size() === 1 &&
+            m.objects.length === 1 &&
+            m.objects[0]!.properties.every((p) => p.value.optional === true)
+          );
+        })();
+        if (everyPropertiesAreOptional === false)
+          errors.push({
+            file: props.controller.file,
+            controller: props.controller.name,
+            function: props.function,
+            message:
+              `nestia does not support optional query parameter exception field specification or every properties are optional case. ` +
+              `Therefore, erase question mark on the "${name}" parameter, ` +
+              `or re-define re-define parameters for each query parameters.`,
+          });
+      }
 
       // GET TYPE NAME
       const tuple: ITypeTuple | null = ImportAnalyzer.analyze(project.checker)({
