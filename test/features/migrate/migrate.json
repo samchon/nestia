@@ -45,7 +45,7 @@
         "name": "query",
         "key": "query",
         "schema": {
-          "$ref": "#/components/schemas/IPage.IRequest"
+          "$ref": "#/components/schemas/IApiBbsArticles.PatchQuery"
         }
       },
       "body": null,
@@ -169,7 +169,7 @@
         "name": "query",
         "key": "query",
         "schema": {
-          "$ref": "#/components/schemas/IQuery"
+          "$ref": "#/components/schemas/IApiQueryTyped.GetQuery"
         }
       },
       "body": null,
@@ -198,7 +198,7 @@
         "name": "query",
         "key": "query",
         "schema": {
-          "$ref": "#/components/schemas/INestQuery"
+          "$ref": "#/components/schemas/IApiQueryNest.GetQuery"
         }
       },
       "body": null,

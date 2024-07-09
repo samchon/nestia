@@ -17,7 +17,7 @@ export namespace GaffComparator {
    */
   export const strings =
     <T>(getter: (input: T) => string | string[]) =>
-    (x: T, y: T) => {
+    (x: T, y: T): number => {
       const a: string[] = wrap(getter(x));
       const b: string[] = wrap(getter(y));
 
@@ -33,7 +33,7 @@ export namespace GaffComparator {
    */
   export const dates =
     <T>(getter: (input: T) => string | string[]) =>
-    (x: T, y: T) => {
+    (x: T, y: T): number => {
       const take = (v: T) =>
         wrap(getter(v)).map((str) => new Date(str).getTime());
       const a: number[] = take(x);
@@ -51,7 +51,7 @@ export namespace GaffComparator {
    */
   export const numbers =
     <T>(closure: (input: T) => number | number[]) =>
-    (x: T, y: T) => {
+    (x: T, y: T): number => {
       const a: number[] = wrap(closure(x));
       const b: number[] = wrap(closure(y));
 
@@ -59,11 +59,6 @@ export namespace GaffComparator {
       return idx !== -1 ? a[idx] - b[idx] : 0;
     };
 
-  function compare(x: string, y: string) {
-    return x.localeCompare(y);
-  }
-
-  function wrap<T>(elem: T | T[]): T[] {
-    return Array.isArray(elem) ? elem : [elem];
-  }
+  const compare = (x: string, y: string) => x.localeCompare(y);
+  const wrap = <T>(elem: T | T[]): T[] => (Array.isArray(elem) ? elem : [elem]);
 }

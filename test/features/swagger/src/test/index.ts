@@ -20,7 +20,14 @@ async function main(): Promise<void> {
         host: "http://127.0.0.1:37000",
       },
     ],
-  })(`${__dirname}/features`);
+    location: `${__dirname}/features`,
+    onComplete: (exec) => {
+      const elapsed: number =
+        new Date(exec.started_at).getTime() -
+        new Date(exec.completed_at).getTime();
+      console.log(`  - ${exec.name}: ${elapsed.toLocaleString()} ms`);
+    },
+  });
   await server.close();
 
   const exceptions: Error[] = report.executions

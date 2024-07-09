@@ -1,6 +1,3 @@
-import { back_inserter, randint } from "tstl";
-import { ranges } from "tstl";
-
 /**
  * Random data generator.
  *
@@ -146,9 +143,10 @@ export namespace RandomGenerator {
   export const sample =
     <T>(array: T[]) =>
     (count: number): T[] => {
-      const ret: T[] = [];
-      ranges.sample(array, back_inserter(ret), count);
-      return ret;
+      count = Math.min(count, array.length);
+      const indexes: Set<number> = new Set();
+      while (indexes.size < count) indexes.add(randint(0, array.length - 1));
+      return Array.from(indexes).map((index) => array[index]);
     };
 
   /**
@@ -159,3 +157,6 @@ export namespace RandomGenerator {
    */
   export const pick = <T>(array: T[]): T => array[randint(0, array.length - 1)];
 }
+
+const randint = (min: number, max: number): number =>
+  Math.floor(Math.random() * (max - min + 1)) + min;

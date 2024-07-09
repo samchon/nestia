@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.4.2-dev.20240705",
+    "version": "3.5.0",
     "title": "@nestia/test",
     "description": "Test program of Nestia",
     "license": {
@@ -356,13 +356,34 @@
             "required": true
           },
           {
-            "name": "query",
+            "name": "page",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/IPage.IRequest"
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
             },
-            "description": "Pagination query",
-            "required": true
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -1533,12 +1554,29 @@
             "required": true
           },
           {
-            "name": "query",
+            "name": "user_id",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/IAuthentication"
+              "type": "string"
             },
-            "description": "",
+            "required": true
+          },
+          {
+            "name": "oauth_type",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "const": "google"
+                },
+                {
+                  "const": "github"
+                },
+                {
+                  "const": "kakao"
+                }
+              ]
+            },
             "required": true
           }
         ],
@@ -1582,13 +1620,22 @@
             "required": true
           },
           {
-            "name": "query",
+            "name": "user_type",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/IUser.ISearch"
+              "oneOf": [
+                {
+                  "const": "admin"
+                },
+                {
+                  "const": "default"
+                },
+                {
+                  "const": "seller"
+                }
+              ]
             },
-            "description": "",
-            "required": true
+            "required": false
           }
         ],
         "responses": {

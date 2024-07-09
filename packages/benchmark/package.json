@@ -1,0 +1,52 @@
+{
+  "name": "@nestia/benchmark",
+  "version": "0.1.0",
+  "description": "NestJS Performance Benchmark Program",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "build": "npm run build:main && npm run build:test",
+    "build:main": "rimraf lib && tsc",
+    "build:test": "rimraf bin && tsc -p test/tsconfig.json",
+    "dev": "npm run build:test -- --watch",
+    "prepare": "ts-patch install && typia patch",
+    "test": "node bin/test"
+  },
+  "keywords": [
+    "e2e",
+    "nestia",
+    "nestjs",
+    "Performance",
+    "benchmark"
+  ],
+  "author": "Jeongho Nam",
+  "license": "MIT",
+  "devDependencies": {
+    "@nestia/core": "^3.5.0",
+    "@nestia/e2e": "^0.7.0",
+    "@nestia/sdk": "^3.5.0",
+    "@nestjs/common": "^10.3.10",
+    "@nestjs/core": "^10.3.10",
+    "@nestjs/platform-express": "^10.3.10",
+    "@types/uuid": "^10.0.0",
+    "nestia": "^5.3.1",
+    "ts-node": "^10.9.2",
+    "ts-patch": "^3.2.1",
+    "typescript": "^5.5.3",
+    "typescript-transform-paths": "^3.4.7",
+    "typia": "^6.4.3",
+    "uuid": "^10.0.0"
+  },
+  "dependencies": {
+    "@nestia/fetcher": "^3.5.0",
+    "tgrid": "^1.0.2",
+    "tstl": "^3.0.0"
+  },
+  "files": [
+    "lib",
+    "src",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ]
+}
