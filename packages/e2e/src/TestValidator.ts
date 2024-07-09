@@ -1,5 +1,3 @@
-import { ranges } from "tstl";
-
 import { RandomGenerator } from "./RandomGenerator";
 import { json_equal_to } from "./internal/json_equal_to";
 
@@ -304,7 +302,7 @@ export namespace TestValidator {
 
       const reversed: typeof comp =
         direction === "+" ? comp : (x, y) => comp(y, x);
-      if (ranges.is_sorted(data, (x, y) => reversed(x, y) < 0) === false) {
+      if (is_sorted(data, reversed) === false) {
         if (
           fields.length === 1 &&
           data.length &&
@@ -340,4 +338,10 @@ function is_promise(input: any): input is Promise<any> {
     typeof (input as any).then === "function" &&
     typeof (input as any).catch === "function"
   );
+}
+
+function is_sorted<T>(data: T[], comp: (x: T, y: T) => number): boolean {
+  for (let i: number = 1; i < data.length; ++i)
+    if (comp(data[i - 1], data[i]) > 0) return false;
+  return true;
 }

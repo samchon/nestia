@@ -1,8 +1,9 @@
 {
-  "name": "@nestia/benchmark",
+  "private": true,
+  "name": "@samchon/nestia-benchmark",
   "version": "0.1.0",
   "description": "Benchmark Nestia",
-  "main": "bin/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "rimraf bin && tsc",
     "generate": "ts-node src/generate && npm run prettier && npm run build",

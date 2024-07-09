@@ -27,12 +27,12 @@
     "README.md"
   ],
   "devDependencies": {
-    "rimraf": "^5.0.7",
+    "rimraf": "^6.0.0",
     "ts-patch": "^3.2.1",
     "typescript": "^5.5.2"
   },
   "dependencies": {
-    "@nestia/fetcher": "^3.4.2-dev.20240705",
+    "@nestia/fetcher": "^3.5.0",
     "typia": "^6.4.2"
   }
 }
