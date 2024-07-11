@@ -12,6 +12,7 @@ import { ISwaggerError } from "../../structures/ISwaggerError";
 import { ISwaggerLazyProperty } from "../../structures/ISwaggerLazyProperty";
 import { ISwaggerLazySchema } from "../../structures/ISwaggerLazySchema";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { SwaggerDescriptionGenerator } from "./SwaggerDescriptionGenerator";
 import { SwaggerSchemaValidator } from "./SwaggerSchemaValidator";
 
 export namespace SwaggerSchemaGenerator {
@@ -321,8 +322,12 @@ export namespace SwaggerSchemaGenerator {
                 ? "header"
                 : (param.category as "path"),
             schema,
-            description: p.description ?? undefined,
             required: p.value.isRequired(),
+            ...SwaggerDescriptionGenerator.generate({
+              description: p.description ?? undefined,
+              jsDocTags: p.jsDocTags,
+              kind: "title",
+            }),
           } satisfies OpenApi.IOperation.IParameter;
         });
     };
@@ -331,21 +336,35 @@ export namespace SwaggerSchemaGenerator {
     (props: IProps) =>
     (route: ITypedHttpRoute) =>
     (
-      param: ITypedHttpRoute.IParameter,
+      p: ITypedHttpRoute.IParameter,
       result: ValidationPipe<Metadata, MetadataFactory.IError>,
     ): OpenApi.IOperation.IParameter => {
       const schema: OpenApi.IJsonSchema = coalesce(props)(result);
       return {
-        name: param.field ?? param.name,
+        name: p.field ?? p.name,
         in:
-          param.category === "headers"
+          p.category === "headers"
             ? "header"
-            : param.category === "param"
+            : p.category === "param"
               ? "path"
               : "query",
         schema,
-        description: describe(route, "param", param.name) ?? "",
         required: result.success ? result.data.isRequired() : true,
+        ...SwaggerDescriptionGenerator.generate({
+          description:
+            p.description ??
+            p.jsDocTags.find((tag) => tag.name === "description")?.text?.[0]
+              .text ??
+            route.jsDocTags
+              .find(
+                (tag) => tag.name === "param" && tag.text?.[0].text === p.name,
+              )
+              ?.text?.map((e) => e.text)
+              .join("")
+              .substring(p.name.length),
+          jsDocTags: p.jsDocTags,
+          kind: "title",
+        }),
       };
     };
 

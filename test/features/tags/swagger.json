@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.5.0",
+    "version": "3.6.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -28,8 +28,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "Section code",
-            "required": true
+            "required": true,
+            "description": " Section code"
           }
         ],
         "requestBody": {
@@ -82,8 +82,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "Section code",
-            "required": true
+            "required": true,
+            "description": " Section code"
           },
           {
             "name": "id",
@@ -92,8 +92,8 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "Target article ID",
-            "required": true
+            "required": true,
+            "description": " Target article ID"
           }
         ],
         "requestBody": {

@@ -5,6 +5,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
   output: "src/api",
   e2e: "src/test",
   swagger: {
+    beautify: true,
     output: "swagger.json",
     security: {
       bearer: {

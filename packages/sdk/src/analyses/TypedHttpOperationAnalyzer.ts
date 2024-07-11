@@ -343,6 +343,8 @@ export namespace TypedHttpOperationAnalyzer {
         optional,
         type: tuple!.type,
         typeName: tuple!.typeName,
+        description: CommentFactory.description(props.symbol),
+        jsDocTags: props.symbol.getJsDocTags(),
       };
     };
 }

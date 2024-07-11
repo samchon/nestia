@@ -41,6 +41,8 @@ export namespace ITypedHttpRoute {
     type: ts.Type;
     typeName: string;
     metadata?: Metadata;
+    description?: string;
+    jsDocTags: ts.JSDocTagInfo[];
   };
   export interface IOutput {
     type: ts.Type;

@@ -16,6 +16,7 @@ import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { ITypedWebSocketRoute } from "../structures/ITypedWebSocketRoute";
 import { FileRetriever } from "../utils/FileRetriever";
 import { MapUtil } from "../utils/MapUtil";
+import { SwaggerDescriptionGenerator } from "./internal/SwaggerDescriptionGenerator";
 import { SwaggerSchemaGenerator } from "./internal/SwaggerSchemaGenerator";
 
 export namespace SwaggerGenerator {
@@ -388,21 +389,11 @@ export namespace SwaggerGenerator {
               ) !== undefined,
           )
           .map((tag) => tag.text!.find((elem) => elem.kind === "text")!.text);
-      const description: string | undefined = route.description?.length
-        ? route.description
-        : undefined;
-      const summary: string | undefined = (() => {
-        if (description === undefined) return undefined;
-
-        const [explicit] = getJsDocTexts("summary");
-        if (explicit?.length) return explicit;
-
-        const index: number = description.indexOf("\n");
-        const top: string = (
-          index === -1 ? description : description.substring(0, index)
-        ).trim();
-        return top.endsWith(".") ? top.substring(0, top.length - 1) : undefined;
-      })();
+      const { summary, description } = SwaggerDescriptionGenerator.generate({
+        description: route.description,
+        jsDocTags: route.jsDocTags,
+        kind: "summary",
+      });
       const deprecated = route.jsDocTags.find(
         (tag) => tag.name === "deprecated",
       );

@@ -21,9 +21,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 8
 
       - name: test
         working-directory: ./test
@@ -31,4 +28,4 @@ jobs:
 
       - name: migrate
         working-directory: ./packages/migrate
-        run: pnpm install && npm run build && npm run test
+        run: npm install && npm run build && npm run test
