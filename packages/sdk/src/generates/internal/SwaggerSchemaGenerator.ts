@@ -349,6 +349,7 @@ export namespace SwaggerSchemaGenerator {
               ? "path"
               : "query",
         schema,
+        required: result.success ? result.data.isRequired() : true,
         ...SwaggerDescriptionGenerator.generate({
           description:
             p.description ??

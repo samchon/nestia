@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.5.0",
+    "version": "3.6.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -25,7 +25,6 @@
             "schema": {
               "type": "number"
             },
-            "description": "",
             "required": true
           },
           {
@@ -34,7 +33,6 @@
             "schema": {
               "type": "string"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -69,7 +67,6 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "",
             "required": true
           }
         ],
