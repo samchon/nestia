@@ -1,4 +1,4 @@
-import { OpenApi } from "@samchon/openapi";
+import { OpenApi, OpenApiV3, SwaggerV2 } from "@samchon/openapi";
 import fs from "fs";
 import path from "path";
 import { Singleton } from "tstl";
@@ -208,12 +208,21 @@ export namespace SwaggerGenerator {
       }
 
       // DO GENERATE
+      const document:
+        | OpenApi.IDocument
+        | SwaggerV2.IDocument
+        | OpenApiV3.IDocument =
+        config.openapi === "2.0"
+          ? OpenApi.downgrade(swagger, config.openapi as "2.0")
+          : config.openapi === "3.0"
+            ? OpenApi.downgrade(swagger, config.openapi as "3.0")
+            : swagger;
       await fs.promises.writeFile(
         location,
         !config.beautify
-          ? JSON.stringify(swagger)
+          ? JSON.stringify(document)
           : JSON.stringify(
-              swagger,
+              document,
               null,
               typeof config.beautify === "number" ? config.beautify : 2,
             ),
