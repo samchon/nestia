@@ -2,6 +2,7 @@ import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
+import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { IMigrateRoute } from "../structures/IMigrateRoute";
@@ -87,6 +88,17 @@ export namespace MigrateNestMethodProgrammer {
               name: instance,
             }),
           );
+
+      // EXAMPLES
+      const decorators: ts.Decorator[] = [];
+      if (route.success)
+        decorators.push(
+          ...writeExampleDecorators("Response")(importer)(
+            route.success.media(),
+          ),
+        );
+
+      // ROUTER
       const router = (instance: string) =>
         ts.factory.createDecorator(
           ts.factory.createCallExpression(
@@ -97,8 +109,6 @@ export namespace MigrateNestMethodProgrammer {
             [ts.factory.createStringLiteral(route.path)],
           ),
         );
-
-      const decorators: ts.Decorator[] = [];
       if (route.success?.["x-nestia-encrypted"])
         decorators.push(router("EncryptedRoute"));
       else if (route.success?.type === "text/plain")
@@ -142,8 +152,12 @@ export namespace MigrateNestMethodProgrammer {
                 isNaN(Number(key))
                   ? ts.factory.createStringLiteral(key)
                   : ExpressionFactory.number(Number(key)),
-                ...(value.description?.length
-                  ? [ts.factory.createStringLiteral(value.description)]
+                ...(value.response().description?.length
+                  ? [
+                      ts.factory.createStringLiteral(
+                        value.response().description!,
+                      ),
+                    ]
                   : []),
               ],
             ),
@@ -156,9 +170,10 @@ export namespace MigrateNestMethodProgrammer {
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (route: IMigrateRoute): ts.ParameterDeclaration[] => [
-      ...route.parameters.map(({ key, schema: value }) =>
+      ...route.parameters.map((p) =>
         ts.factory.createParameterDeclaration(
           [
+            ...writeExampleDecorators("Parameter")(importer)(p.parameter()),
             ts.factory.createDecorator(
               ts.factory.createCallExpression(
                 ts.factory.createIdentifier(
@@ -169,28 +184,36 @@ export namespace MigrateNestMethodProgrammer {
                   }),
                 ),
                 undefined,
-                [ts.factory.createStringLiteral(key)],
+                [ts.factory.createStringLiteral(p.key)],
               ),
             ),
           ],
           undefined,
-          key,
+          p.key,
           undefined,
-          MigrateSchemaProgrammer.write(components)(importer)(value),
+          MigrateSchemaProgrammer.write(components)(importer)(p.schema),
         ),
       ),
       ...(route.headers
         ? [
             writeDtoParameter({ method: "TypedHeaders", variable: "headers" })(
               components,
-            )(importer)(route.headers.schema),
+            )(importer)({
+              schema: route.headers.schema,
+              example: route.headers.example(),
+              examples: route.headers.examples(),
+            }),
           ]
         : []),
       ...(route.query
         ? [
             writeDtoParameter({ method: "TypedQuery", variable: "query" })(
               components,
-            )(importer)(route.query.schema),
+            )(importer)({
+              schema: route.query.schema,
+              example: route.query.example(),
+              examples: route.query.examples(),
+            }),
           ]
         : []),
       ...(route.body
@@ -208,7 +231,11 @@ export namespace MigrateNestMethodProgrammer {
                         ? ["TypedFormData", "Body"]
                         : "TypedBody",
               variable: "body",
-            })(components)(importer)(route.body.schema),
+            })(components)(importer)({
+              schema: route.body.schema,
+              example: route.body.media().example,
+              examples: route.body.media().examples,
+            }),
           ]
         : []),
     ];
@@ -217,7 +244,11 @@ export namespace MigrateNestMethodProgrammer {
     (accessor: { method: string | [string, string]; variable: string }) =>
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (schema: OpenApi.IJsonSchema): ts.ParameterDeclaration => {
+    (props: {
+      schema: OpenApi.IJsonSchema;
+      example?: any;
+      examples?: Record<string, any>;
+    }): ts.ParameterDeclaration => {
       const instance = ts.factory.createIdentifier(
         importer.external({
           type: "instance",
@@ -230,6 +261,7 @@ export namespace MigrateNestMethodProgrammer {
       );
       return ts.factory.createParameterDeclaration(
         [
+          ...writeExampleDecorators("Parameter")(importer)(props),
           ts.factory.createDecorator(
             ts.factory.createCallExpression(
               typeof accessor.method === "string"
@@ -243,7 +275,55 @@ export namespace MigrateNestMethodProgrammer {
         undefined,
         accessor.variable,
         undefined,
-        MigrateSchemaProgrammer.write(components)(importer)(schema),
+        MigrateSchemaProgrammer.write(components)(importer)(props.schema),
       );
     };
+
+  const writeExampleDecorators =
+    (kind: "Response" | "Parameter") =>
+    (importer: MigrateImportProgrammer) =>
+    (media: {
+      example?: any;
+      examples?: Record<string, any>;
+    }): ts.Decorator[] => [
+      ...(media.example !== undefined
+        ? [
+            ts.factory.createDecorator(
+              ts.factory.createCallExpression(
+                IdentifierFactory.access(
+                  ts.factory.createIdentifier(
+                    importer.external({
+                      type: "instance",
+                      library: "@nestia/core",
+                      name: "SwaggerExample",
+                    }),
+                  ),
+                )(kind),
+                [],
+                [LiteralFactory.generate(media.example)],
+              ),
+            ),
+          ]
+        : []),
+      ...Object.entries(media.examples ?? {}).map(([key, value]) =>
+        ts.factory.createDecorator(
+          ts.factory.createCallExpression(
+            IdentifierFactory.access(
+              ts.factory.createIdentifier(
+                importer.external({
+                  type: "instance",
+                  library: "@nestia/core",
+                  name: "SwaggerExample",
+                }),
+              ),
+            )(kind),
+            [],
+            [
+              ts.factory.createStringLiteral(key),
+              LiteralFactory.generate(value),
+            ],
+          ),
+        ),
+      ),
+    ];
 }
