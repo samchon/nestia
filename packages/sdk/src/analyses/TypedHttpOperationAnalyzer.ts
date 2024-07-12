@@ -183,6 +183,8 @@ export namespace TypedHttpOperationAnalyzer {
           ),
         security,
         exceptions,
+        example: props.operation.example,
+        examples: props.operation.examples,
       };
 
       // CONFIGURE PATHS

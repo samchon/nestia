@@ -4,7 +4,6 @@ import {
   ApiBasicAuth,
   ApiBearerAuth,
   ApiOAuth2,
-  ApiSecurity,
 } from "@nestjs/swagger";
 import typia from "typia";
 

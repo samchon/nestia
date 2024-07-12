@@ -143,6 +143,10 @@ export namespace SwaggerSchemaGenerator {
             : {
                 [route.output.contentType]: {
                   schema: coalesce(props)(result),
+                  ...{
+                    example: route.example,
+                    examples: route.examples,
+                  },
                 },
               },
         ...(props.config.additional === true
@@ -205,6 +209,10 @@ export namespace SwaggerSchemaGenerator {
         content: {
           [contentType]: {
             schema,
+            ...{
+              example: param.example,
+              examples: param.examples,
+            },
           },
         },
         required: true,
@@ -365,6 +373,10 @@ export namespace SwaggerSchemaGenerator {
           jsDocTags: p.jsDocTags,
           kind: "title",
         }),
+        ...{
+          example: p.example,
+          examples: p.examples,
+        },
       };
     };
 

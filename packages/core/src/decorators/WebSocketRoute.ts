@@ -48,7 +48,7 @@ export function WebSocketRoute(
     _target: Object,
     _propertyKey: string | symbol,
     descriptor: TypedPropertyDescriptor<any>,
-  ) {
+  ): TypedPropertyDescriptor<any> {
     Reflect.defineMetadata(
       "nestia/WebSocketRoute",
       {

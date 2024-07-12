@@ -1,3 +1,4 @@
+import { SwaggerExample } from "@nestia/core";
 import {
   HEADERS_METADATA,
   HTTP_CODE_METADATA,
@@ -65,6 +66,19 @@ export namespace ReflectHttpOperationAnalyzer {
             _Analyze_http_parameter(...tuple);
           if (child !== null) output.push(child);
         }
+        const examples: SwaggerExample.IData<any>[] =
+          Reflect.getMetadata(
+            "nestia/SwaggerExample/Parameters",
+            props.controller.prototype,
+            props.name,
+          ) ?? [];
+        for (const p of output) {
+          const e = examples.find((elem) => elem.index === p.index);
+          if (e !== undefined) {
+            p.example = e.example;
+            p.examples = e.examples;
+          }
+        }
         return output.sort((x, y) => x.index - y.index);
       })();
 
@@ -82,6 +96,8 @@ export namespace ReflectHttpOperationAnalyzer {
       }
 
       // DO CONSTRUCT
+      const example: SwaggerExample.IData<any> | undefined =
+        Reflect.getMetadata("nestia/SwaggerExample/Response", props.function);
       const meta: IReflectHttpOperation = {
         protocol: "http",
         function: props.function,
@@ -122,6 +138,9 @@ export namespace ReflectHttpOperationAnalyzer {
               []),
           ]),
         ],
+        ...(example
+          ? { example: example.example, examples: example.examples }
+          : {}),
       };
 
       // VALIDATE PATH ARGUMENTS

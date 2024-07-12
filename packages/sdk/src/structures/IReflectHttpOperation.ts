@@ -19,6 +19,8 @@ export interface IReflectHttpOperation {
     number | "2XX" | "3XX" | "4XX" | "5XX",
     IReflectHttpOperation.IException
   >;
+  example?: any;
+  examples?: Record<string, any>;
   swaggerTags: string[];
 }
 export namespace IReflectHttpOperation {
@@ -34,6 +36,8 @@ export namespace IReflectHttpOperation {
     index: number;
     name: string;
     field: string | undefined;
+    example?: any;
+    examples?: Record<string, any>;
   }
   export interface IHeadersParameter {
     custom: true;
@@ -41,6 +45,8 @@ export namespace IReflectHttpOperation {
     index: number;
     name: string;
     field: string | undefined;
+    example?: any;
+    examples?: Record<string, any>;
   }
   export interface IQueryParameter {
     custom: true;
@@ -48,6 +54,8 @@ export namespace IReflectHttpOperation {
     index: number;
     name: string;
     field: string | undefined;
+    example?: any;
+    examples?: Record<string, any>;
   }
   export interface IBodyParameter {
     custom: true;
@@ -61,6 +69,8 @@ export namespace IReflectHttpOperation {
       | "application/x-www-form-urlencoded"
       | "multipart/form-data"
       | "text/plain";
+    example?: any;
+    examples?: Record<string, any>;
   }
   export interface IPathParameter {
     custom: true;
@@ -68,6 +78,8 @@ export namespace IReflectHttpOperation {
     index: number;
     name: string;
     field: string | undefined;
+    example?: any;
+    examples?: Record<string, any>;
   }
 
   export interface IException {
