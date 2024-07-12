@@ -44,7 +44,7 @@ const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
 
     setProgress(true);
     try {
-      await EditorComposer[props.mode]({
+      await EditorComposer[mode]({
         swagger,
         e2e,
         simulate,
@@ -63,7 +63,7 @@ const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
         <FormLabel> Mode </FormLabel>
         <RadioGroup
           defaultValue={mode}
-          onChange={(evt) => setMode(evt.target.value as "nest" | "sdk")}
+          onChange={(_e, value) => setMode(value as "nest" | "sdk")}
           style={{ paddingLeft: 15 }}
         >
           <FormControlLabel
