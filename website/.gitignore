@@ -2,6 +2,7 @@
 node_modules/
 out/
 public/api/
+typedoc-json/
 
 public/robots.txt
 public/sitemap*.xml

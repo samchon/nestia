@@ -1,7 +1,6 @@
 {
-  "tsconfig": "../packages/core/tsconfig.json",
-  "entryPoints": [
-    "../packages/core/src/index.ts",
-  ],
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Nestia API Documents",
+  "entryPointStrategy": "packages",
   "out": "./public/api"
 }
