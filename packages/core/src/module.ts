@@ -15,6 +15,7 @@ export * from "./decorators/EncryptedBody";
 export * from "./decorators/EncryptedModule";
 export * from "./decorators/PlainBody";
 export * from "./decorators/SwaggerCustomizer";
+export * from "./decorators/SwaggerExample";
 
 export * from "./adaptors/WebSocketAdaptor";
 export * from "./decorators/WebSocketRoute";

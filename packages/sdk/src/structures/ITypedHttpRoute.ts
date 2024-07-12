@@ -32,6 +32,8 @@ export interface ITypedHttpRoute {
     number | "2XX" | "3XX" | "4XX" | "5XX",
     ITypedHttpRoute.IOutput
   >;
+  example?: any;
+  examples?: Record<string, any>;
   swaggerTags: string[];
 }
 
