@@ -1,5 +1,8 @@
 import { Tabs, Tab } from 'nextra-theme-docs'
 
+import { EditorComposer } from "../../../src/functional/EditorComposer";
+import { EDITOR_EXAMPLES } from "../../../src/constants/EDITOR_EXAMPLES";
+
 ## Outline
 <Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
   <Tab>
@@ -728,12 +731,8 @@ export namespace INestiaConfig {
 Swagger generator fo `@nestia/sdk` supports some NestJS decorators. Here is the list of them. 
 
   - `@nestjs/common`
-    - `@Get()`, `@Post()`, `@Put()`, `@Patch()`, `@Delete()`, ...
-    - `@Header()`, `@Headers()`
-    - `@Body()`
+    - `@Header()`
     - `@HttpCode()`
-    - `@Param()`
-    - `@Query()`
     - `@Version()`
   - `@nestjs/swagger`
     - `@ApiBasicAuth()`
@@ -741,6 +740,9 @@ Swagger generator fo `@nestia/sdk` supports some NestJS decorators. Here is the 
     - `@ApiOAuth2()`
     - `@ApiSecurity()`
     - `@ApiTags()`
+  - `@nestia/core`
+    - `@SwaggerExample.Response()`
+    - `@SwaggerExample.Parameter()`
 
 ### Controller Methods
 Swagger generator `@nestia/sdk` supports three type of comment tags for controller methods:
@@ -1776,9 +1778,24 @@ You can choose two options for `swagger.json` file distribution.
 
 The 1st is publishing the `swagger.json` file in a public repo, and showing it through Swagger Editor like below:
 
-  - `samchon/bbs-backend`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fbbs-backend%2Fmaster%2Fpackages%2Fapi%2Fswagger.json)
-  - `samchon/fake-iamport-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fpayments%2Fmaster%2Fpackages%2Fiamport-server-api%2Fswagger.json)
-  - `samchon/fake-toss-payments-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fpayments%2Fmaster%2Fpackages%2Ftoss-payments-server-api%2Fswagger.json)
+{<ul>
+  {EDITOR_EXAMPLES.map((example) => (
+    <li>
+      <a style={{ cursor: "pointer" }} 
+         onMouseDown={(evt) => {
+          if (evt.which === 3) return;
+          EditorComposer.sdk({
+            title: example.title,
+            swagger: example.swagger,
+            e2e: true,
+            simulate: true,
+          }).catch(() => {});
+         }}>
+        {example.title}
+      </a>
+    </li>
+  ))}
+</ul>}
 
 The 2nd way is to hosting the `swagger.json` file in the NestJS backend server.
 
