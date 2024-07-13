@@ -25,6 +25,7 @@ const NESTIA_CONFIG: INestiaConfig = {
     return app;
   },
   swagger: {
+    openapi: "3.1",
     output: "dist/swagger.json",
     beautify: true,
     security: {
@@ -69,7 +70,7 @@ If you have a special configuration file that its file name is not `nestia.confi
   <code>OpenApi.ISecuritySchema</code>,
 ]}>
   <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {18-34}
+```typescript copy filename="nestia.config.ts" showLineNumbers {18-35}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
 // import { FastifyAdaptor } from "@nestjs/platform-fastify";
@@ -88,6 +89,7 @@ const NESTIA_CONFIG: INestiaConfig = {
     return app;
   },
   swagger: {
+    openapi: "3.1",
     output: "dist/swagger.json",
     security: {
       bearer: {
@@ -109,7 +111,7 @@ export default NESTIA_CONFIG;
 ```
   </Tab>
   <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers {11-16, 163-244}
+```typescript filename="INestiaConfig.ts" showLineNumbers {10-15, 163-256}
 import type { INestApplication } from "@nestjs/common";
 import type { OpenApi } from "@samchon/openapi";
 
@@ -277,6 +279,18 @@ export namespace INestiaConfig {
    */
   export interface ISwaggerConfig {
     /**
+     * OpenAPI version.
+     *
+     * If you configure this property to be `2.0` or `3.0`, the newly generated
+     * `swagger.json` file would follow the specified OpenAPI version. The newly
+     * generated `swagger.json` file would be downgraded from the OpenAPI v3.1
+     * specification by {@link OpenApi.downgrade} method.
+     *
+     * @default 3.1
+     */
+    openapi?: "2.0" | "3.0" | "3.1";
+    
+    /**
      * Output path of the `swagger.json`.
      *
      * If you've configured only directory, the file name would be the `swagger.json`.
@@ -435,11 +449,12 @@ By the way, `nestia.config.ts` supports alternative options specifying the targe
 
 <Tabs items={[
     'Module (express)',
-    'Directory (fastify)', 
+    'Module (fastify)', 
+    'Directory',
     'Pattern', 
     'Exclude'
   ]}
-  defaultIndex={2}>
+  defaultIndex={3}>
   <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
 import { INestiaConfig } from "@nestia/sdk";
@@ -458,6 +473,7 @@ const NESTIA_CONFIG: INestiaConfig = {
     return app;
   },
   swagger: {
+    openapi: "3.1",
     output: "dist/swagger.json",
     beautify: true,
     security: {
@@ -497,6 +513,7 @@ const NESTIA_CONFIG: INestiaConfig = {
     return app;
   },
   swagger: {
+    openapi: "3.1",
     output: "dist/swagger.json",
     beautify: true,
     security: {
@@ -528,6 +545,7 @@ const NESTIA_CONFIG: INestiaConfig = {
     "src/test/controllers"
   ],
   swagger: {
+    openapi: "3.1",
     output: "dist/swagger.json",
     beautify: true,
     security: {
@@ -555,6 +573,7 @@ import { INestiaConfig } from "@nestia/sdk";
 const NESTIA_CONFIG: INestiaConfig = {
   input: "src/**/*.controller.ts",
   swagger: {
+    openapi: "3.1",
     output: "dist/swagger.json",
     beautify: true,
     security: {
@@ -585,6 +604,7 @@ const NESTIA_CONFIG: INestiaConfig = {
     exclude: ["src/**/*.fake.ts"],
   },
   swagger: {
+    openapi: "3.1",
     output: "dist/swagger.json",
     beautify: true,
     security: {
@@ -609,6 +629,10 @@ export default NESTIA_CONFIG;
 
 Additionally, you can configure the `swagger` property in the `nestia.config.ts` file.
 
+  - `swagger.openapi`: OpenAPI version specification.
+    - `"2.0"`
+    - `"3.0"`
+    - `"3.1"` *(default)*
   - `swagger.beautify`: Whether to beautify JSON content or not. 
   - `swagger.info`: API information. If not configured, `package.json` content be utilized instead.
   - `swagger.servers`: List of server addresses.
@@ -620,7 +644,7 @@ Additionally, you can configure the `swagger` property in the `nestia.config.ts`
 <details>
 <summary> See detailed options: </summary>
 <br/>
-```typescript filename="INestiaConfig.ts" showLineNumbers {15-96}
+```typescript filename="INestiaConfig.ts" showLineNumbers {15-108}
 export namespace INestiaConfig {
   /**
    * Building `swagger.json` is also possible.
@@ -636,6 +660,18 @@ export namespace INestiaConfig {
     output: string;
 
     /**
+     * OpenAPI version.
+     *
+     * If you configure this property to be `2.0` or `3.0`, the newly generated
+     * `swagger.json` file would follow the specified OpenAPI version. The newly
+     * generated `swagger.json` file would be downgraded from the OpenAPI v3.1
+     * specification by {@link OpenApi.downgrade} method.
+     *
+     * @default 3.1
+     */
+    openapi?: "2.0" | "3.0" | "3.1";
+
+    /**
      * Whether to beautify JSON content or not.
      *
      * If you configure this property to be `true`, the `swagger.json` file would
@@ -645,20 +681,6 @@ export namespace INestiaConfig {
      * @default false
      */
     beautify?: boolean | number;
-
-    /**
-     * Whether to include additional information or not.
-     *
-     * If configured to be `true`, those properties would be added into each
-     * API endpoinnt.
-     *
-     * - `x-nestia-method`
-     * - `x-nestia-namespace`
-     * ` `x-nestia-jsDocTags`
-     *
-     * @default false
-     */
-    additional?: boolean;
 
     /**
      * API information.
@@ -741,8 +763,8 @@ Swagger generator fo `@nestia/sdk` supports some NestJS decorators. Here is the 
     - `@ApiSecurity()`
     - `@ApiTags()`
   - `@nestia/core`
-    - `@SwaggerExample.Response()`
     - `@SwaggerExample.Parameter()`
+    - `@SwaggerExample.Response()`
 
 ### Controller Methods
 Swagger generator `@nestia/sdk` supports three type of comment tags for controller methods:

@@ -175,12 +175,12 @@ export namespace INestiaConfig {
 
     /**
      * OpenAPI version.
-     * 
+     *
      * If you configure this property to be `2.0` or `3.0`, the newly generated
      * `swagger.json` file would follow the specified OpenAPI version. The newly
      * generated `swagger.json` file would be downgraded from the OpenAPI v3.1
      * specification by {@link OpenApi.downgrade} method.
-     * 
+     *
      * @default 3.1
      */
     openapi?: "2.0" | "3.0" | "3.1";
@@ -195,20 +195,6 @@ export namespace INestiaConfig {
      * @default false
      */
     beautify?: boolean | number;
-
-    /**
-     * Whether to include additional information or not.
-     *
-     * If configured to be `true`, those properties would be added into each
-     * API endpoinnt.
-     *
-     * - `x-nestia-method`
-     * - `x-nestia-namespace`
-     * ` `x-nestia-jsDocTags`
-     *
-     * @default false
-     */
-    additional?: boolean;
 
     /**
      * API information.

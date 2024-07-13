@@ -348,6 +348,18 @@ export namespace INestiaConfig {
     output: string;
 
     /**
+     * OpenAPI version.
+     *
+     * If you configure this property to be `2.0` or `3.0`, the newly generated
+     * `swagger.json` file would follow the specified OpenAPI version. The newly
+     * generated `swagger.json` file would be downgraded from the OpenAPI v3.1
+     * specification by {@link OpenApi.downgrade} method.
+     *
+     * @default 3.1
+     */
+    openapi?: "2.0" | "3.0" | "3.1";
+
+    /**
      * API information.
      *
      * If omitted, `package.json` content would be used instead.
@@ -436,7 +448,7 @@ By the way, `nestia.config.ts` supports alternative options specifying the targe
     'Pattern', 
     'Exclude'
   ]}
-  defaultIndex={2}>
+  defaultIndex={3}>
   <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
 import { INestiaConfig } from "@nestia/sdk";
