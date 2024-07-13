@@ -18,6 +18,7 @@ export namespace NestiaSetupWizard {
     pack.install({ dev: false, modulo: "@nestia/e2e", version: "latest" });
     pack.install({ dev: false, modulo: "@nestia/fetcher", version: "latest" });
     pack.install({ dev: true, modulo: "@nestia/sdk", version: "latest" });
+    pack.install({ dev: true, modulo: "@nestia/benchmark", version: "latest" });
     pack.install({ dev: true, modulo: "nestia", version: "latest" });
     pack.install({ dev: false, modulo: "typia" });
 
