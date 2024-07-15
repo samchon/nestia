@@ -5,7 +5,7 @@ E2E test functions rather than unit test functions.
 
 When developing a test program for NestJS developed backend server, I recommend to adapt E2E test paradigm instead of unit test paradigm. It's because with the [`@nestia/sdk` generated SDK library](../sdk/sdk), E2E test functions can be much easier, safer and efficient for production than the traditional unit test functions.
 
-Furthermore, if you develop test functions utilizing the SDK library, you can easily switch the e2e test functions to the performance benchmark functions. Just by utilizing `@nestia/e2e` library, you can easily measure your NestJS developed backend server's performance through the SDK library utilizing e2e test functions.
+Furthermore, if you develop test functions utilizing the SDK library, you can easily switch the e2e test functions to the performance benchmark functions. Just by utilizing `@nestia/e2e` nd `@nestia/benchmark` libraries, you can easily measure your NestJS developed backend server's performance through the SDK library utilizing e2e test functions.
 
   - [E2E Test Function Example](https://github.com/samchon/nestia-start/blob/master/test/features/api/bbs/test_api_bbs_article_create.ts)
   - [Benchmark Result Example](https://github.com/samchon/nestia-start/blob/master/docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md)
@@ -429,7 +429,7 @@ If you want to experience the test program earlier, visit below playground websi
   selectedIndex={1}>
   <Tab>
 ```typescript filename="test/benchmark/index.ts" showLineNumbers {76-94}
-import { DynamicBenchmarker } from "@nestia/e2e";
+import { DynamicBenchmarker } from "@nestia/benchmark";
 import cliProgress from "cli-progress";
 import fs from "fs";
 import os from "os";
@@ -553,7 +553,7 @@ main().catch((exp) => {
   </Tab>
   <Tab>
 ```typescript filename="test/benchmark/servant.ts" showLineNumbers
-import { DynamicBenchmarker } from "@nestia/e2e";
+import { DynamicBenchmarker } from "@nestia/benchmark";
 
 import { MyConfiguration } from "../../src/MyConfiguration";
 
