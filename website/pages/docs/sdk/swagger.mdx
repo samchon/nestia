@@ -9,14 +9,14 @@ import { EDITOR_EXAMPLES } from "../../../src/constants/EDITOR_EXAMPLES";
 ```typescript copy filename="nestia.config.ts" showLineNumbers
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -73,14 +73,14 @@ If you have a special configuration file that its file name is not `nestia.confi
 ```typescript copy filename="nestia.config.ts" showLineNumbers {18-35}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -498,13 +498,13 @@ export default NESTIA_CONFIG;
 ```typescript copy filename="nestia.config.ts" showLineNumbers {8-16}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-import { FastifyAdaptor } from "@nestjs/platform-fastify";
+import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
-    const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,

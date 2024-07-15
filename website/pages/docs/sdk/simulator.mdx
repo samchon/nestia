@@ -6,14 +6,14 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 ```typescript copy filename="nestia.config.ts" showLineNumbers {19}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
       //     type: VersioningType.URI,
@@ -147,14 +147,14 @@ Within framework of backend developers, they also do not need to be suffered fro
 ```typescript copy filename="nestia.config.ts" showLineNumbers {19}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -478,7 +478,7 @@ export default NESTIA_CONFIG;
 ```typescript copy filename="nestia.config.ts" showLineNumbers {8-16}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-import { FastifyAdaptor } from "@nestjs/platform-fastify";
+import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
