@@ -1,6 +1,7 @@
 import { IMigrateRoute } from "@samchon/openapi";
 
 import { IConnection } from "./IConnection";
+import { IPropagation } from "./IPropagation";
 import { PlainFetcher } from "./PlainFetcher";
 
 export namespace MigrateFetcher {
@@ -46,6 +47,46 @@ export namespace MigrateFetcher {
       },
       props.route.body ? props.arguments.at(-1) : undefined,
     );
+  }
+
+  export async function propagate(
+    props: IProps,
+  ): Promise<IPropagation.IBranch<boolean, number, any>> {
+    const length: number =
+      props.route.parameters.length +
+      (props.route.query ? 1 : 0) +
+      (props.route.body ? 1 : 0);
+    if (props.arguments.length !== length)
+      throw new Error(
+        `Error on MigrateFetcher.propagate(): arguments length is not matched with the route (expected: ${length}, actual: ${props.arguments.length}).`,
+      );
+    else if (
+      props.route.body?.["x-nestia-encrypted"] === true ||
+      props.route.success?.["x-nestia-encrypted"] === true
+    )
+      throw new Error(
+        `Error on MigrateFetcher.propagate(): encrypted API is not supported yet.`,
+      );
+    return PlainFetcher.propagate(
+      props.connection,
+      {
+        method: props.route.method.toUpperCase() as "POST",
+        path: getPath(props),
+        template: props.route.path,
+        status: null,
+        request: props.route.body
+          ? {
+              encrypted: false,
+              type: props.route.body.type,
+            }
+          : null,
+        response: {
+          encrypted: false,
+          type: props.route.success?.type ?? "application/json",
+        },
+      },
+      props.route.body ? props.arguments.at(-1) : undefined,
+    ) as Promise<IPropagation.IBranch<boolean, number, any>>;
   }
 
   function getPath(props: Pick<IProps, "arguments" | "route">): string {
