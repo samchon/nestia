@@ -9,8 +9,8 @@
         "articles",
         "post"
       ],
-      "headers": null,
       "parameters": [],
+      "headers": null,
       "query": null,
       "body": {
         "type": "application/json",
@@ -39,14 +39,14 @@
         "articles",
         "patch"
       ],
-      "headers": null,
       "parameters": [],
+      "headers": null,
       "query": {
-        "name": "query",
-        "key": "query",
         "schema": {
           "$ref": "#/components/schemas/IApiBbsArticles.PatchQuery"
-        }
+        },
+        "name": "query",
+        "key": "query"
       },
       "body": null,
       "success": {
@@ -68,18 +68,17 @@
         "articles",
         "getById"
       ],
-      "headers": null,
       "parameters": [
         {
           "name": "id",
           "key": "id",
           "schema": {
             "type": "string",
-            "format": "uuid",
-            "description": ""
+            "format": "uuid"
           }
         }
       ],
+      "headers": null,
       "query": null,
       "body": null,
       "success": {
@@ -101,18 +100,17 @@
         "articles",
         "putById"
       ],
-      "headers": null,
       "parameters": [
         {
           "name": "id",
           "key": "id",
           "schema": {
             "type": "string",
-            "format": "uuid",
-            "description": ""
+            "format": "uuid"
           }
         }
       ],
+      "headers": null,
       "query": null,
       "body": {
         "type": "application/json",
@@ -133,8 +131,8 @@
         "multipart",
         "post"
       ],
-      "headers": null,
       "parameters": [],
+      "headers": null,
       "query": null,
       "body": {
         "type": "multipart/form-data",
@@ -163,14 +161,14 @@
         "typed",
         "get"
       ],
-      "headers": null,
       "parameters": [],
+      "headers": null,
       "query": {
-        "name": "query",
-        "key": "query",
         "schema": {
           "$ref": "#/components/schemas/IApiQueryTyped.GetQuery"
-        }
+        },
+        "name": "query",
+        "key": "query"
       },
       "body": null,
       "success": {
@@ -192,14 +190,14 @@
         "nest",
         "get"
       ],
-      "headers": null,
       "parameters": [],
+      "headers": null,
       "query": {
-        "name": "query",
-        "key": "query",
         "schema": {
           "$ref": "#/components/schemas/IApiQueryNest.GetQuery"
-        }
+        },
+        "name": "query",
+        "key": "query"
       },
       "body": null,
       "success": {
@@ -221,14 +219,14 @@
         "individual",
         "get"
       ],
-      "headers": null,
       "parameters": [],
+      "headers": null,
       "query": {
-        "name": "query",
-        "key": "query",
         "schema": {
           "$ref": "#/components/schemas/IApiQueryIndividual.GetQuery"
-        }
+        },
+        "name": "query",
+        "key": "query"
       },
       "body": null,
       "success": {
@@ -250,14 +248,14 @@
         "composite",
         "get"
       ],
-      "headers": null,
       "parameters": [],
+      "headers": null,
       "query": {
-        "name": "query",
-        "key": "query",
         "schema": {
           "$ref": "#/components/schemas/IApiQueryComposite.GetQuery"
-        }
+        },
+        "name": "query",
+        "key": "query"
       },
       "body": null,
       "success": {
@@ -279,8 +277,8 @@
         "body",
         "post"
       ],
-      "headers": null,
       "parameters": [],
+      "headers": null,
       "query": null,
       "body": {
         "type": "application/x-www-form-urlencoded",
