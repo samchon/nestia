@@ -75,6 +75,10 @@ export namespace TypedFormData {
   export function Body<T extends object>(
     props?: IRequestFormDataProps<T>,
   ): ParameterDecorator {
+    if (typeof File === "undefined")
+      throw new Error(
+        "Error on TypedFormData.Body(): 'File' class is not supported in the older version of NodeJS. Upgrade the NodeJS to the modern.",
+      );
     const checker = validate_request_form_data(props);
     const predicator = (type: "express" | "fastify") =>
       new Singleton(() =>
