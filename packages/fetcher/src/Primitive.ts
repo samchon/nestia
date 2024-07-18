@@ -47,15 +47,17 @@ type PrimitiveMain<Instance> = Instance extends [never]
         ? never
         : ValueOf<Instance> extends object
           ? Instance extends object
-            ? Instance extends NativeClass
-              ? never
+            ? Instance extends Date
+              ? string & FormatDateTime
               : Instance extends IJsonable<infer Raw>
                 ? ValueOf<Raw> extends object
                   ? Raw extends object
                     ? PrimitiveObject<Raw> // object would be primitified
                     : never // cannot be
                   : ValueOf<Raw> // atomic value
-                : PrimitiveObject<Instance> // object would be primitified
+                : Instance extends NativeClass
+                  ? never
+                  : PrimitiveObject<Instance> // object would be primitified
             : never // cannot be
           : ValueOf<Instance>;
 
@@ -107,7 +109,10 @@ type NativeClass =
   | Float64Array
   | ArrayBuffer
   | SharedArrayBuffer
-  | DataView;
+  | DataView
+  | Blob
+  | File
+  | RegExp;
 
 type IsTuple<T extends readonly any[] | { length: number }> = [T] extends [
   never,
@@ -134,3 +139,16 @@ interface IValueOf<T> {
 interface IJsonable<T> {
   toJSON(): T;
 }
+
+type FormatDateTime = {
+  "typia.tag"?: {
+    target: "string";
+    kind: "format";
+    value: "date-time";
+    validate: `/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])(T|\\s)([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]{1,9})?(Z|[+-]([01][0-9]|2[0-3]):[0-5][0-9])$/i.test($input)`;
+    exclusive: ["format", "pattern"];
+    schema: {
+      format: "date-time";
+    };
+  };
+};
