@@ -70,6 +70,7 @@ type ResolvedObject<T extends object> =
                 | DataView
                 | Blob
                 | File
+                | RegExp
             ? T
             : {
                 [P in keyof T]: ResolvedMain<T[P]>;
