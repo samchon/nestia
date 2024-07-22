@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.5.1-dev.20240710",
+    "version": "3.8.0-dev.20240722-2",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -54,6 +54,7 @@
             "schema": {
               "type": "string"
             },
+            "required": true,
             "title": "The first value",
             "description": " The first value.\r\nThe first string value."
           },
@@ -63,6 +64,7 @@
             "schema": {
               "type": "string"
             },
+            "required": true,
             "title": "The second value",
             "description": " The second value.\r\nThe second string value."
           }
@@ -93,6 +95,7 @@
             "schema": {
               "type": "boolean"
             },
+            "required": true,
             "title": "The boolean value",
             "description": " The boolean value.\r\nThe boolean value as a path parameter."
           }
@@ -123,6 +126,7 @@
             "schema": {
               "type": "number"
             },
+            "required": true,
             "title": "Description in the parameter",
             "description": "Description in the parameter."
           }
@@ -153,6 +157,7 @@
             "schema": {
               "type": "string"
             },
+            "required": true,
             "title": "Yaho",
             "description": "Yoohoo"
           }
@@ -189,7 +194,8 @@
                   "type": "string"
                 }
               ]
-            }
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -232,7 +238,8 @@
                   "const": "C"
                 }
               ]
-            }
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -269,7 +276,8 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -296,7 +304,8 @@
             "schema": {
               "type": "string",
               "format": "date"
-            }
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -330,7 +339,8 @@
                   "format": "uuid"
                 }
               ]
-            }
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -371,7 +381,8 @@
                   "format": "date"
                 }
               ]
-            }
+            },
+            "required": true
           }
         ],
         "responses": {

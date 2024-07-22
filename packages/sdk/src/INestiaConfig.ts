@@ -1,5 +1,6 @@
 import type { INestApplication } from "@nestjs/common";
 import { OpenApi } from "@samchon/openapi";
+import { IOpenAiSchema } from "@wrtnio/openai-function-schema";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -27,6 +28,15 @@ export interface INestiaConfig {
    * If not specified, you can't build the `swagger.json`.
    */
   swagger?: INestiaConfig.ISwaggerConfig;
+
+  /**
+   * Configuration for the OpenAI funtion call schema generation.
+   *
+   * You can generate the schema for the OpenAI function call through
+   * this configuration. Recommend to use the function call schemas with
+   * the {@link swagger} document.
+   */
+  openai?: INestiaConfig.IOpenAiConnfig;
 
   /**
    * Output directory that SDK would be placed in.
@@ -267,5 +277,93 @@ export namespace INestiaConfig {
       method: "HEAD" | "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
       path: string;
     }): string;
+  }
+
+  /**
+   * Configuration for the OpenAI funtion call schema generation.
+   */
+  export interface IOpenAiConnfig {
+    /**
+     * Output path of the `openai.json`.
+     *
+     * If you've configured only directory, the file name would be the `openai.json`.
+     * Otherwise you've configured the full path with file name and extension, the
+     * `openai.json` file would be renamed to it.
+     */
+    output: string;
+
+    /**
+     * Whether the parameters are keyworded or not.
+     *
+     * If this property value is `true`, length of the
+     * {@link IOpenAiDocument.IFunction.parameters} is always 1, and type of the
+     * pararameter is always {@link IOpenAiSchema.IObject} type. Also, its
+     * properties are following below rules:
+     *
+     * - `pathParameters`: Path parameters of {@link ISwaggerMigrateRoute.parameters}
+     * - `query`: Query parameter of {@link ISwaggerMigrateRoute.query}
+     * - `body`: Body parameter of {@link ISwaggerMigrateRoute.body}
+     *
+     * ```typescript
+     * {
+     *   ...pathParameters,
+     *   query,
+     *   body,
+     * }
+     * ```
+     *
+     * Otherwise (this property value is `false`), length of the
+     * {@link IOpenAiDocument.IFunction.parameters} is variable, and sequence of the
+     * parameters are following below rules.
+     *
+     * ```typescript
+     * [
+     *   ...pathParameters,
+     *   ...(query ? [query] : []),
+     *   ...(body ? [body] : []),
+     * ]
+     * ```
+     *
+     * @default false
+     */
+    keyword?: boolean;
+
+    /**
+     * Separator function for the parameters.
+     *
+     * When composing parameter arguments through OpenAI function call,
+     * there can be a case that some parameters must be composed by human, or
+     * LLM cannot understand the parameter. For example, if the parameter type
+     * has configured {@link IOpenAiSchema.IString["x-wrtn-secret-key"]}, the
+     * secret key value must be composed by human, not by LLM (Large Language Model).
+     *
+     * In that case, if you configure this property with a function that
+     * predicating whether the schema value must be composed by human or not,
+     * the parameters would be separated into two parts.
+     *
+     * - {@link IOpenAiFunction.separated.llm}
+     * - {@link IOpenAiFunction.separated.human}
+     *
+     * When writing the function, note that returning value `true` means to be
+     * a human composing the value, and `false` means to LLM composing the value.
+     * Also, when predicating the schema, it would better to utilize the
+     * {@link OpenAiTypeChecker} features.
+     *
+     * @param schema Schema to be separated.
+     * @returns Whether the schema value must be composed by human or not.
+     * @default null
+     */
+    separate?: null | ((schema: IOpenAiSchema) => boolean);
+
+    /**
+     * Whether to beautify JSON content or not.
+     *
+     * If you configure this property to be `true`, the `openai.json` file would
+     * be beautified with indentation (2 spaces) and line breaks. If you configure
+     * numeric value instead, the indentation would be specified by the number.
+     *
+     * @default false
+     */
+    beautify?: boolean | number;
   }
 }

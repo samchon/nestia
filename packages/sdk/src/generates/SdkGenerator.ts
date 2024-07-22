@@ -32,9 +32,9 @@ export namespace SdkGenerator {
         lazyProperties: [],
         lazySchemas: [],
         errors,
-        swagger: await SwaggerGenerator.initialize({
-          output: "",
-        }),
+        swagger: await SwaggerGenerator.initialize(
+          project.config.swagger ?? { output: "" },
+        ),
       });
       for (const r of routes) if (r.protocol === "http") validator(r);
       if (errors.length) {

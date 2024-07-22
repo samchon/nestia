@@ -19,6 +19,7 @@ import type { IAuthentication } from "../../../structures/IAuthentication";
 /**
  * - When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.
  * - When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type.
+ *
  * @throws 404
  *
  * @controller UsersController.getOauthProfile

@@ -7,8 +7,8 @@
     }
   ],
   "info": {
-    "version": "3.5.0",
-    "title": "@nestia/test",
+    "version": "3.8.0-dev.20240722",
+    "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
       "name": "MIT"
