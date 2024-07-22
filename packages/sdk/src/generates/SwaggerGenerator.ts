@@ -35,7 +35,7 @@ export namespace SwaggerGenerator {
     async (
       routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
     ): Promise<void> => {
-      console.log("Generating Swagger Documents");
+      console.log("Generating Swagger Document");
 
       // VALIDATE SECURITY
       const config = project.config.swagger!;
@@ -56,9 +56,46 @@ export namespace SwaggerGenerator {
           `Error on NestiaApplication.swagger(): failed to create output directory: ${directory}`,
         );
 
+      // COMPOSE SWAGGER DOCUMENT
       const location: string = !!parsed.ext
         ? path.resolve(config.output)
         : path.join(path.resolve(config.output), "swagger.json");
+      const swagger: OpenApi.IDocument = await compose(project)(routeList);
+
+      // DO GENERATE
+      const document:
+        | OpenApi.IDocument
+        | SwaggerV2.IDocument
+        | OpenApiV3.IDocument =
+        config.openapi === "2.0"
+          ? OpenApi.downgrade(swagger, config.openapi as "2.0")
+          : config.openapi === "3.0"
+            ? OpenApi.downgrade(swagger, config.openapi as "3.0")
+            : swagger;
+      await fs.promises.writeFile(
+        location,
+        !config.beautify
+          ? JSON.stringify(document)
+          : JSON.stringify(
+              document,
+              null,
+              typeof config.beautify === "number" ? config.beautify : 2,
+            ),
+        "utf8",
+      );
+    };
+
+  export const compose =
+    (project: INestiaProject) =>
+    async (
+      routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
+    ): Promise<OpenApi.IDocument> => {
+      // VALIDATE SECURITY
+      const config = project.config.swagger!;
+      const httpRoutes: ITypedHttpRoute[] = routeList.filter(
+        (route): route is ITypedHttpRoute => route.protocol === "http",
+      ) as ITypedHttpRoute[];
+      validate_security(config)(httpRoutes);
 
       const collection: MetadataCollection = new MetadataCollection({
         replace: MetadataCollection.replace,
@@ -206,28 +243,7 @@ export namespace SwaggerGenerator {
             get: (accessor: Accessor) => customizer.get.get()(accessor),
           });
       }
-
-      // DO GENERATE
-      const document:
-        | OpenApi.IDocument
-        | SwaggerV2.IDocument
-        | OpenApiV3.IDocument =
-        config.openapi === "2.0"
-          ? OpenApi.downgrade(swagger, config.openapi as "2.0")
-          : config.openapi === "3.0"
-            ? OpenApi.downgrade(swagger, config.openapi as "3.0")
-            : swagger;
-      await fs.promises.writeFile(
-        location,
-        !config.beautify
-          ? JSON.stringify(document)
-          : JSON.stringify(
-              document,
-              null,
-              typeof config.beautify === "number" ? config.beautify : 2,
-            ),
-        "utf8",
-      );
+      return swagger;
     };
 
   const validate_security =

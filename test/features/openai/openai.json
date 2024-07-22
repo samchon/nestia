@@ -1,0 +1,848 @@
+{
+  "openapi": "3.0.3",
+  "functions": [
+    {
+      "method": "post",
+      "path": "/bbs/articles",
+      "name": "bbs_articles_post",
+      "parameters": [
+        {
+          "type": "object",
+          "properties": {
+            "writer": {
+              "type": "string"
+            },
+            "format": {
+              "type": "string",
+              "enum": [
+                "txt",
+                "md",
+                "html"
+              ],
+              "title": "Format of body",
+              "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
+            },
+            "title": {
+              "type": "string",
+              "title": "Title of article",
+              "description": "Title of article."
+            },
+            "body": {
+              "type": "string",
+              "title": "Content body of article",
+              "description": "Content body of article."
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "title": "File name, except extension",
+                    "description": "File name, except extension."
+                  },
+                  "extension": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8,
+                    "nullable": true,
+                    "title": "Extension",
+                    "description": "Extension.\n\nPossible to omit like `README` case."
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "contentMediaType": "image/*",
+                    "title": "URL path of the real file",
+                    "description": "URL path of the real file."
+                  }
+                },
+                "required": [
+                  "name",
+                  "extension",
+                  "url"
+                ]
+              },
+              "title": "List of attachment files",
+              "description": "List of attachment files."
+            },
+            "password": {
+              "type": "string",
+              "title": "Password for modification",
+              "description": "Password for modification."
+            }
+          },
+          "required": [
+            "writer",
+            "format",
+            "title",
+            "body",
+            "files",
+            "password"
+          ],
+          "description": "Store content type of the article."
+        }
+      ],
+      "output": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Primary Key",
+            "description": "Primary Key."
+          },
+          "writer": {
+            "type": "string",
+            "title": "Writer of article",
+            "description": "Writer of article."
+          },
+          "snapshots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "title": "Primary Key",
+                  "description": "Primary Key."
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Creation time of snapshot record",
+                  "description": "Creation time of snapshot record.\n\nIn other words, creation time or update time or article."
+                },
+                "format": {
+                  "type": "string",
+                  "enum": [
+                    "txt",
+                    "md",
+                    "html"
+                  ]
+                },
+                "title": {
+                  "type": "string",
+                  "title": "Title of article",
+                  "description": "Title of article."
+                },
+                "body": {
+                  "type": "string",
+                  "title": "Content body of article",
+                  "description": "Content body of article."
+                },
+                "files": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "title": "File name, except extension",
+                        "description": "File name, except extension."
+                      },
+                      "extension": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 8,
+                        "nullable": true,
+                        "title": "Extension",
+                        "description": "Extension.\n\nPossible to omit like `README` case."
+                      },
+                      "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "contentMediaType": "image/*",
+                        "title": "URL path of the real file",
+                        "description": "URL path of the real file."
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "extension",
+                      "url"
+                    ]
+                  },
+                  "title": "List of attachment files",
+                  "description": "List of attachment files."
+                }
+              },
+              "required": [
+                "id",
+                "created_at",
+                "format",
+                "title",
+                "body",
+                "files"
+              ],
+              "description": "Snapshot of article.\n\n`IBbsArticle.ISnapshot` is a snapshot entity that contains the contents of\nthe article, as mentioned in {@link IBbsArticle}, the contents of the article\nare separated from the article record to keep evidence and prevent fraud."
+            },
+            "minItems": 1,
+            "title": "List of snapshot contents",
+            "description": "List of snapshot contents.\n\nIt is created for the first time when an article is created, and is\naccumulated every time the article is modified."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation time of article",
+            "description": "Creation time of article."
+          }
+        },
+        "required": [
+          "id",
+          "writer",
+          "snapshots",
+          "created_at"
+        ],
+        "description": "Article entity.\n\n`IBbsArticle* is a super-type entity of all kinds of articles in the current\nbackend system, literally shaping individual articles of the bulletin board.\n\nAnd, as you can see, the elements that must inevitably exist in the article,\nsuch as the `title` or the `body`, do not exist in the `IBbsArticle`, but exist\nin the subsidiary entity, {@link IBbsArticle.ISnapshot}, as a 1: N relationship,\nwhich is because a new snapshot record is published every time the article is\nmodified.\n\nThe reason why a new snapshot record is published every time the article is\nmodified is to preserve the evidence. Due to the nature of e-community, there\nis always a threat of dispute among the participants. And it can happen that\ndisputes arise through articles or {@link IBbsArticleComment comments}, and to\nprevent such things as modifying existing articles to manipulate the situation,\nthe article is designed in this structure.\n\nIn other words, to keep evidence, and prevent fraud."
+      },
+      "description": "Create a new article.\n\nCreate a new article with its first {@link IBbsArticle.ISnapshot snapshot}."
+    },
+    {
+      "method": "patch",
+      "path": "/bbs/articles",
+      "name": "bbs_articles_patch",
+      "parameters": [
+        {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "integer",
+              "title": "Page number",
+              "description": "Page number."
+            },
+            "limit": {
+              "type": "integer",
+              "title": "Limitation of records per a page",
+              "description": "Limitation of records per a page."
+            }
+          },
+          "required": []
+        }
+      ],
+      "output": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "current": {
+                "type": "integer",
+                "title": "Current page number",
+                "description": "Current page number."
+              },
+              "limit": {
+                "type": "integer",
+                "title": "Limitation of records per a page",
+                "description": "Limitation of records per a page."
+              },
+              "records": {
+                "type": "integer",
+                "title": "Total records in the database",
+                "description": "Total records in the database."
+              },
+              "pages": {
+                "type": "integer",
+                "title": "Total pages",
+                "description": "Total pages.\n\nEqual to {@link records} / {@link limit} with ceiling."
+              }
+            },
+            "required": [
+              "current",
+              "limit",
+              "records",
+              "pages"
+            ],
+            "description": "Page information."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "title": "Primary Key",
+                  "description": "Primary Key."
+                },
+                "writer": {
+                  "type": "string",
+                  "title": "Writer of the article",
+                  "description": "Writer of the article."
+                },
+                "title": {
+                  "type": "string",
+                  "title": "Title of the last snapshot",
+                  "description": "Title of the last snapshot."
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Creation time of the article",
+                  "description": "Creation time of the article."
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Modification time of the article",
+                  "description": "Modification time of the article.\n\nIn other words, the time when the last snapshot was created."
+                }
+              },
+              "required": [
+                "id",
+                "writer",
+                "title",
+                "created_at",
+                "updated_at"
+              ],
+              "description": "Summarized information of the article."
+            },
+            "title": "List of records",
+            "description": "List of records."
+          }
+        },
+        "required": [
+          "pagination",
+          "data"
+        ],
+        "description": "A page.\n\nCollection of records with pagination indformation."
+      },
+      "description": "List up all summarized articles.\n\nList up all summarized articles with pagination and searching options."
+    },
+    {
+      "method": "patch",
+      "path": "/bbs/articles/abridges",
+      "name": "bbs_articles_abridges_patch",
+      "parameters": [
+        {
+          "type": "object",
+          "properties": {
+            "search": {
+              "type": "object",
+              "properties": {
+                "writer": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "body": {
+                  "type": "string"
+                },
+                "title_or_body": {
+                  "type": "string"
+                },
+                "from": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "to": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "description": "검색 정보."
+            },
+            "sort": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "-title",
+                  "-writer",
+                  "-created_at",
+                  "-updated_at",
+                  "+title",
+                  "+writer",
+                  "+created_at",
+                  "+updated_at"
+                ]
+              },
+              "title": "Sort condition",
+              "description": "Sort condition."
+            },
+            "page": {
+              "type": "integer",
+              "title": "Page number",
+              "description": "Page number."
+            },
+            "limit": {
+              "type": "integer",
+              "title": "Limitation of records per a page",
+              "description": "Limitation of records per a page."
+            }
+          }
+        }
+      ],
+      "output": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "current": {
+                "type": "integer",
+                "title": "Current page number",
+                "description": "Current page number."
+              },
+              "limit": {
+                "type": "integer",
+                "title": "Limitation of records per a page",
+                "description": "Limitation of records per a page."
+              },
+              "records": {
+                "type": "integer",
+                "title": "Total records in the database",
+                "description": "Total records in the database."
+              },
+              "pages": {
+                "type": "integer",
+                "title": "Total pages",
+                "description": "Total pages.\n\nEqual to {@link records} / {@link limit} with ceiling."
+              }
+            },
+            "required": [
+              "current",
+              "limit",
+              "records",
+              "pages"
+            ],
+            "description": "Page information."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "title": "Primary Key",
+                  "description": "Primary Key."
+                },
+                "writer": {
+                  "type": "string",
+                  "title": "Writer of the article",
+                  "description": "Writer of the article."
+                },
+                "title": {
+                  "type": "string",
+                  "title": "Title of the last snapshot",
+                  "description": "Title of the last snapshot."
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Creation time of the article",
+                  "description": "Creation time of the article."
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Modification time of the article",
+                  "description": "Modification time of the article.\n\nIn other words, the time when the last snapshot was created."
+                },
+                "format": {
+                  "type": "string",
+                  "enum": [
+                    "txt",
+                    "md",
+                    "html"
+                  ]
+                },
+                "body": {
+                  "type": "string",
+                  "title": "Content body of article",
+                  "description": "Content body of article."
+                },
+                "files": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "title": "File name, except extension",
+                        "description": "File name, except extension."
+                      },
+                      "extension": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 8,
+                        "nullable": true,
+                        "title": "Extension",
+                        "description": "Extension.\n\nPossible to omit like `README` case."
+                      },
+                      "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "contentMediaType": "image/*",
+                        "title": "URL path of the real file",
+                        "description": "URL path of the real file."
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "extension",
+                      "url"
+                    ]
+                  },
+                  "title": "List of attachment files",
+                  "description": "List of attachment files."
+                }
+              },
+              "required": [
+                "id",
+                "writer",
+                "title",
+                "created_at",
+                "updated_at",
+                "format",
+                "body",
+                "files"
+              ],
+              "description": "Abriged information of the article."
+            },
+            "title": "List of records",
+            "description": "List of records."
+          }
+        },
+        "required": [
+          "pagination",
+          "data"
+        ],
+        "description": "A page.\n\nCollection of records with pagination indformation."
+      },
+      "description": "List up all abridged articles.\n\nList up all abridged articles with pagination and searching options."
+    },
+    {
+      "method": "get",
+      "path": "/bbs/articles/{id}",
+      "name": "bbs_articles_getById",
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": " Target article's {@link IBbsArticle.id}"
+        }
+      ],
+      "output": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Primary Key",
+            "description": "Primary Key."
+          },
+          "writer": {
+            "type": "string",
+            "title": "Writer of article",
+            "description": "Writer of article."
+          },
+          "snapshots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "title": "Primary Key",
+                  "description": "Primary Key."
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Creation time of snapshot record",
+                  "description": "Creation time of snapshot record.\n\nIn other words, creation time or update time or article."
+                },
+                "format": {
+                  "type": "string",
+                  "enum": [
+                    "txt",
+                    "md",
+                    "html"
+                  ]
+                },
+                "title": {
+                  "type": "string",
+                  "title": "Title of article",
+                  "description": "Title of article."
+                },
+                "body": {
+                  "type": "string",
+                  "title": "Content body of article",
+                  "description": "Content body of article."
+                },
+                "files": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "title": "File name, except extension",
+                        "description": "File name, except extension."
+                      },
+                      "extension": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 8,
+                        "nullable": true,
+                        "title": "Extension",
+                        "description": "Extension.\n\nPossible to omit like `README` case."
+                      },
+                      "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "contentMediaType": "image/*",
+                        "title": "URL path of the real file",
+                        "description": "URL path of the real file."
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "extension",
+                      "url"
+                    ]
+                  },
+                  "title": "List of attachment files",
+                  "description": "List of attachment files."
+                }
+              },
+              "required": [
+                "id",
+                "created_at",
+                "format",
+                "title",
+                "body",
+                "files"
+              ],
+              "description": "Snapshot of article.\n\n`IBbsArticle.ISnapshot` is a snapshot entity that contains the contents of\nthe article, as mentioned in {@link IBbsArticle}, the contents of the article\nare separated from the article record to keep evidence and prevent fraud."
+            },
+            "minItems": 1,
+            "title": "List of snapshot contents",
+            "description": "List of snapshot contents.\n\nIt is created for the first time when an article is created, and is\naccumulated every time the article is modified."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation time of article",
+            "description": "Creation time of article."
+          }
+        },
+        "required": [
+          "id",
+          "writer",
+          "snapshots",
+          "created_at"
+        ],
+        "description": "Article entity.\n\n`IBbsArticle* is a super-type entity of all kinds of articles in the current\nbackend system, literally shaping individual articles of the bulletin board.\n\nAnd, as you can see, the elements that must inevitably exist in the article,\nsuch as the `title` or the `body`, do not exist in the `IBbsArticle`, but exist\nin the subsidiary entity, {@link IBbsArticle.ISnapshot}, as a 1: N relationship,\nwhich is because a new snapshot record is published every time the article is\nmodified.\n\nThe reason why a new snapshot record is published every time the article is\nmodified is to preserve the evidence. Due to the nature of e-community, there\nis always a threat of dispute among the participants. And it can happen that\ndisputes arise through articles or {@link IBbsArticleComment comments}, and to\nprevent such things as modifying existing articles to manipulate the situation,\nthe article is designed in this structure.\n\nIn other words, to keep evidence, and prevent fraud."
+      },
+      "description": "Read individual article.\n\nReads an article with its every {@link IBbsArticle.ISnapshot snapshots}."
+    },
+    {
+      "method": "put",
+      "path": "/bbs/articles/{id}",
+      "name": "bbs_articles_putById",
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": " Target article's {@link IBbsArticle.id}"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "enum": [
+                "txt",
+                "md",
+                "html"
+              ],
+              "title": "Format of body",
+              "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
+            },
+            "title": {
+              "type": "string",
+              "title": "Title of article",
+              "description": "Title of article."
+            },
+            "body": {
+              "type": "string",
+              "title": "Content body of article",
+              "description": "Content body of article."
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "title": "File name, except extension",
+                    "description": "File name, except extension."
+                  },
+                  "extension": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8,
+                    "nullable": true,
+                    "title": "Extension",
+                    "description": "Extension.\n\nPossible to omit like `README` case."
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "contentMediaType": "image/*",
+                    "title": "URL path of the real file",
+                    "description": "URL path of the real file."
+                  }
+                },
+                "required": [
+                  "name",
+                  "extension",
+                  "url"
+                ]
+              },
+              "title": "List of attachment files",
+              "description": "List of attachment files."
+            },
+            "password": {
+              "type": "string",
+              "title": "Password for modification",
+              "description": "Password for modification."
+            }
+          },
+          "required": [
+            "format",
+            "title",
+            "body",
+            "files",
+            "password"
+          ]
+        }
+      ],
+      "output": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Primary Key",
+            "description": "Primary Key."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation time of snapshot record",
+            "description": "Creation time of snapshot record.\n\nIn other words, creation time or update time or article."
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "txt",
+              "md",
+              "html"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "title": "Title of article",
+            "description": "Title of article."
+          },
+          "body": {
+            "type": "string",
+            "title": "Content body of article",
+            "description": "Content body of article."
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 255,
+                  "title": "File name, except extension",
+                  "description": "File name, except extension."
+                },
+                "extension": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8,
+                  "nullable": true,
+                  "title": "Extension",
+                  "description": "Extension.\n\nPossible to omit like `README` case."
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "contentMediaType": "image/*",
+                  "title": "URL path of the real file",
+                  "description": "URL path of the real file."
+                }
+              },
+              "required": [
+                "name",
+                "extension",
+                "url"
+              ]
+            },
+            "title": "List of attachment files",
+            "description": "List of attachment files."
+          }
+        },
+        "required": [
+          "id",
+          "created_at",
+          "format",
+          "title",
+          "body",
+          "files"
+        ],
+        "description": "Snapshot of article.\n\n`IBbsArticle.ISnapshot` is a snapshot entity that contains the contents of\nthe article, as mentioned in {@link IBbsArticle}, the contents of the article\nare separated from the article record to keep evidence and prevent fraud."
+      },
+      "description": "Update an article.\n\nAccumulate a new {@link IBbsArticle.ISnapshot snapshot} record to the article."
+    },
+    {
+      "method": "delete",
+      "path": "/bbs/articles/{id}",
+      "name": "bbs_articles_eraseById",
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": " Target article's {@link IBbsArticle.id}"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "password": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "password"
+          ]
+        }
+      ],
+      "description": "Erase an article.\n\nPerforms soft deletion to the article."
+    }
+  ],
+  "errors": [],
+  "options": {
+    "keyword": false,
+    "separate": null
+  }
+}

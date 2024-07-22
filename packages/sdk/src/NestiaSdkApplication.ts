@@ -9,6 +9,7 @@ import { ConfigAnalyzer } from "./analyses/ConfigAnalyzer";
 import { ReflectControllerAnalyzer } from "./analyses/ReflectControllerAnalyzer";
 import { TypedControllerAnalyzer } from "./analyses/TypedControllerAnalyzer";
 import { E2eGenerator } from "./generates/E2eGenerator";
+import { OpenAiGenerator } from "./generates/OpenAiGenerator";
 import { SdkGenerator } from "./generates/SdkGenerator";
 import { SwaggerGenerator } from "./generates/SwaggerGenerator";
 import { IErrorReport } from "./structures/IErrorReport";
@@ -91,6 +92,26 @@ export class NestiaSdkApplication {
 
     print_title("Nestia Swagger Generator");
     await this.generate("swagger", SwaggerGenerator.generate);
+  }
+
+  public async openai(): Promise<void> {
+    if (!this.config.openai?.output)
+      throw new Error(
+        `Error on NestiaApplication.openai(): output path of the "openai.json" is not specified.`,
+      );
+
+    const parsed: path.ParsedPath = path.parse(this.config.openai.output);
+    const directory: string = !!parsed.ext
+      ? path.resolve(parsed.dir)
+      : this.config.openai.output;
+    const stats: fs.Stats = await fs.promises.lstat(directory);
+    if (stats.isDirectory() === false)
+      throw new Error(
+        "Error on NestiaApplication.openai(): output directory does not exists.",
+      );
+
+    print_title("Nestia OpenAI Function Calling Schema Generator");
+    await this.generate("openai", OpenAiGenerator.generate);
   }
 
   private async generate(

@@ -7,6 +7,7 @@ import { NestiaConfigLoader } from "./NestiaConfigLoader";
 export namespace NestiaSdkCommand {
   export const sdk = () => main((app) => app.sdk());
   export const swagger = () => main((app) => app.swagger());
+  export const openai = () => main((app) => app.openai());
   export const e2e = () => main((app) => app.e2e());
 
   const main = async (task: (app: NestiaSdkApplication) => Promise<void>) => {
