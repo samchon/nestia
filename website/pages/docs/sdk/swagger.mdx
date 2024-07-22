@@ -27,7 +27,6 @@ const NESTIA_CONFIG: INestiaConfig = {
   swagger: {
     openapi: "3.1",
     output: "dist/swagger.json",
-    beautify: true,
     security: {
       bearer: {
         type: "apiKey",
@@ -41,6 +40,7 @@ const NESTIA_CONFIG: INestiaConfig = {
         description: "Local Server",
       },
     ],
+    beautify: true,
   },
 };
 export default NESTIA_CONFIG;
@@ -49,7 +49,6 @@ export default NESTIA_CONFIG;
   <Tab>
 ```bash filename="Terminal" showLineNumbers {}
 npx nestia swagger
-npx nestia swagger --config nestia.config.ts --project tsconfig.json
 ```
   </Tab>
 </Tabs>
@@ -58,12 +57,11 @@ Configure [`nestia.config.ts`](#nestiaconfigts) file and run `npx nestia swagger
 
 Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate `swagger.json` file.
 
-If you have a special configuration file that its file name is not `nestia.config.ts`, you can specify it with `--config` option like `npx nestia swagger --config another.config.ts`. Also, if you have a special `tsconfig.json` file, you can specify it with `--project` option like `npx nestia swagger --project another.tsconfig.json`, too.
-
 
 
 
 ## Configuration
+### Application Module
 <Tabs items={[
   <code>nestia.config.ts</code>, 
   <code>INestiaConfig.ts</code>,
@@ -445,7 +443,10 @@ At least, you've to configure those two properties:
 
 When you've completed above configuration, just run `npx nestia swagger` command. Then, `swagger.json` file would be newly generated, and placed into the `$config.swagger.output` directory following your `nestia.config.ts` configuration.
 
-By the way, `nestia.config.ts` supports alternative options specifying the target controller classes instead of using the `Module` instance. If your backend application server does not have special configuration like `setGlobalPrefix`, `enableVersioning` and `RouterModule`, it is okay to specifying the target controller classes just by writing their file path like below.
+### File Specification
+`nestia.config.ts` supports alternative options specifying path of target controllers.
+
+If your backend application server does not have special configuration like `setGlobalPrefix`, `enableVersioning` and `RouterModule`, it is okay to specifying the target controller classes just by writing their file or directory paths like below.
 
 <Tabs items={[
     'Module (express)',
@@ -627,6 +628,7 @@ export default NESTIA_CONFIG;
   </Tab>
 </Tabs>
 
+### Additional Properties
 Additionally, you can configure the `swagger` property in the `nestia.config.ts` file.
 
   - `swagger.openapi`: OpenAPI version specification.
@@ -640,6 +642,10 @@ Additionally, you can configure the `swagger` property in the `nestia.config.ts`
   - `swagger.tags`: List of tag names with description.
   - `swagger.decompose`: Whether to decompose query DTO as individual parameters.
   - `swagger.operationId`: Operation ID genereator.
+
+For reference, if you do not configure `swagger.info` property or omit some members of the information instance, `@nestia/sdk` will utilize your `package.json` file content instead. For example, if you omit the `swagger.info.version`, your `package.json` file's `version` property would be written instead.
+
+Also, whether you configure `swagger.openapi` version or not, the newly generated `swagger.file` starts from the [OpenAPI v3.1 specification](https://github.com/samchon/openapi/blob/master/src/OpenApi.ts) emended by [`@samchon/openapi`](https://github.com/samchon/openapi). If your target OpenAPI version is lower than v3.1, `@nestia/sdk` just downgrades the newly generated OpenAPI v3.1 content by calling [`OpenApi.downgrade()`](https://github.com/samchon/openapi/blob/master/src/OpenApi.ts) function.
 
 <details>
 <summary> See detailed options: </summary>
@@ -744,6 +750,18 @@ export namespace INestiaConfig {
 ```
 
 </details>
+
+### CLI Arguments
+```bash filename="Terminal"
+npx nestia swagger
+npx nestia swagger --config nestia2.config.ts
+npx nestia swagger --project tsconfig2.json
+npx nestia swagger --config nestia3.config.ts --project tsconfig3.tsconfig.json
+```
+
+If you have a special configuration file that its file name is not `nestia.config.ts` or the configuration file is not placed on the root directory of the project, you can specify it with `--config` option like `npx nestia swagger --config another.config.ts`. 
+
+Also, if you have a special `tsconfig.json` file or the project file is not located in the root directory of the project, you can specify it with `--project` argument like `npx nestia swagger --project another.tsconfig.json`, too.
 
 
 
@@ -1798,7 +1816,7 @@ export class CustomController {
 ## Distribution
 You can choose two options for `swagger.json` file distribution.
 
-The 1st is publishing the `swagger.json` file in a public repo, and showing it through Swagger Editor like below:
+The 1st is publishing the `swagger.json` file in a public repo, and showing it through [`@nestia/editor`](/docs/editor) like below:
 
 {<ul>
   {EDITOR_EXAMPLES.map((example) => (

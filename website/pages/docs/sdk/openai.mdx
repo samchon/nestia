@@ -1,0 +1,933 @@
+import { Tab, Tabs } from "nextra-theme-docs";
+
+## Outline
+<Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
+  <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
+
+import { YourModule } from "./src/YourModule";
+
+const NESTIA_CONFIG: INestiaConfig = {
+  input: async () => {
+    const app = await NestFactory.create(YourModule);
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  openai: {
+    output: "dist/openai.json",
+    keyword: true,
+    beautify: true,
+  },
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```bash filename="Terminal" showLineNumbers
+npx nestia openai
+```
+  </Tab>
+</Tabs>
+
+Configure [`nestia.config.ts`](#nestiaconfigts) file and run `npx nestia openai` command.
+
+Then, `@nestia/openai` will analyze your NestJS backend server code, and generate `openai.json` file. The `openai.json` file contains the information of [OpenAI function calling schemas](https://platform.openai.com/docs/guides/function-calling), so that you can develop OpenAI function calling agent service with it.
+
+For reference, the `@nestia/sdk` generated OpenAI function calling schemas are following the type definitions of [`@wrtnio/openai-function-schema`](https://github.com/wrtnio/openai-function-schema) package. As it provides the function call executor and schema separator to LLM (Large Language Model) and human parts, you can easily develop the OpenAI function calling agent service with `@nestia/sdk` and [`@wrtnio/openai-function-schema`](https://github.com/wrtnio/openai-function-schema).
+
+
+
+
+## Configuration
+### Application Module
+<Tabs items={[
+  <code>nestia.config.ts</code>, 
+  <code>INestiaConfig.ts</code>,
+]}>
+  <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {18-22}
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
+
+import { YourModule } from "./src/YourModule";
+
+const NESTIA_CONFIG: INestiaConfig = {
+  input: async () => {
+    const app = await NestFactory.create(YourModule);
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  openai: {
+    output: "dist/openai.json",
+    beautify: true,
+    keyword: true,
+  },
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```typescript filename="INestiaConfig.ts" showLineNumbers {11-18, 173-259}
+import type { INestApplication } from "@nestjs/common";
+import { OpenApi } from "@samchon/openapi";
+import { IOpenAiSchema } from "@wrtnio/openai-function-schema";
+
+/**
+ * Definition for the `nestia.config.ts` file.
+ *
+ * @author Jeongho Nam - https://github.com/samchon
+ */
+export interface INestiaConfig {
+  /**
+   * Configuration for the OpenAI funtion call schema generation.
+   *
+   * You can generate the schema for the OpenAI function call through
+   * this configuration. Recommend to use the function call schemas with
+   * the {@link swagger} document.
+   */
+  openai?: INestiaConfig.IOpenAiConnfig;
+
+  /**
+   * Accessor of controller classes.
+   *
+   * You can specify target controller classes within two ways.
+   *
+   *   - Asynchronous function returning `INestApplication` instance
+   *   - Specify the path or directory of controller class files
+   */
+  input:
+    | (() => Promise<INestApplication>)
+    | INestiaConfig.IInput
+    | string[]
+    | string;
+
+  /**
+   * Building `swagger.json` is also possible.
+   *
+   * If not specified, you can't build the `swagger.json`.
+   */
+  swagger?: INestiaConfig.ISwaggerConfig;
+
+  /**
+   * Output directory that SDK would be placed in.
+   *
+   * If not configured, you can't build the SDK library.
+   */
+  output?: string;
+
+  /**
+   * Target directory that SDK distribution files would be placed in.
+   *
+   * If you configure this property and runs `npx nestia sdk` command,
+   * distribution environments for the SDK library would be generated.
+   *
+   * After the SDK library generation, move to the `distribute` directory,
+   * and runs `npm publish` command, then you can share SDK library with
+   * other client (frontend) developers.
+   *
+   * Recommend to use `"packages/api"` value.
+   */
+  distribute?: string;
+
+  /**
+   * Allow simulation mode.
+   *
+   * If you configure this property to be `true`, the SDK library would be contain
+   * simulation mode. In the simulation mode, the SDK library would not communicate
+   * with the real backend server, but just returns random mock-up data
+   * with requestion data validation.
+   *
+   * For reference, random mock-up data would be generated by `typia.random<T>()`
+   * function.
+   *
+   * @default false
+   */
+  simulate?: boolean;
+
+  /**
+   * Target directory that e2e test functions would be placed in.
+   *
+   * If you configure this property and runs `npx nestia e2e` command,
+   * `@nestia/sdk` will analyze your NestJS backend server code, and
+   * generates e2e test functions for every API endpoints.
+   *
+   * If not configured, you can't run `npx nestia e2e` command.
+   */
+  e2e?: string;
+
+  /**
+   * Whether to use propagation mode or not.
+   *
+   * If being configured, interaction functions of the SDK library would
+   * perform the propagation mode. The propagation mode means that never
+   * throwing exception even when status code is not 200 (or 201), but just
+   * returning the {@link IPropagation} typed instance, which can specify its body
+   * type through discriminated union determined by status code.
+   *
+   * @default false
+   */
+  propagate?: boolean;
+
+  /**
+   * Whether to clone DTO structures or not.
+   *
+   * If being configured, all of DTOs used in the backend server would be cloned
+   * into the `structures` directory, and the SDK library would be refer to the
+   * cloned DTOs instead of the original.
+   *
+   * @default false
+   */
+  clone?: boolean;
+
+  /**
+   * Whether to wrap DTO by primitive type.
+   *
+   * If you don't configure this property as `false`, all of DTOs in the
+   * SDK library would be automatically wrapped by {@link Primitive} type.
+   *
+   * For refenrece, if a DTO type be capsuled by the {@link Primitive} type,
+   * all of methods in the DTO type would be automatically erased. Also, if
+   * the DTO has a `toJSON()` method, the DTO type would be automatically
+   * converted to return type of the `toJSON()` method.
+   *
+   * @default true
+   */
+  primitive?: boolean;
+
+  /**
+   * Whether to assert parameter types or not.
+   *
+   * If you configure this property to be `true`, all of the function
+   * parameters of SDK library would be checked through
+   * [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/).
+   *
+   * This option would make your SDK library compilation time a little bit slower,
+   * but would enahcne the type safety even in the runtime level.
+   *
+   * @default false
+   */
+  assert?: boolean;
+
+  /**
+   * Whether to optimize JSON string conversion 10x faster or not.
+   *
+   * If you configure this property to be `true`, the SDK library would utilize the
+   * [`typia.assertStringify<T>() function`](https://github.com/samchon/typia#enhanced-json)
+   * to boost up JSON serialization speed and ensure type safety.
+   *
+   * This option would make your SDK library compilation time a little bit slower,
+   * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
+   * safety even in the rumtime level.
+   *
+   * @default false
+   */
+  json?: boolean;
+}
+export namespace INestiaConfig {
+  /**
+   * List of files or directories to include or exclude to specifying the NestJS
+   * controllers.
+   */
+  export interface IInput {
+    /**
+     * List of files or directories containing the NestJS controller classes.
+     */
+    include: string[];
+
+    /**
+     * List of files or directories to be excluded.
+     */
+    exclude?: string[];
+  }
+
+  /**
+   * Configuration for the OpenAI funtion call schema generation.
+   */
+  export interface IOpenAiConnfig {
+    /**
+     * Output path of the `openai.json`.
+     *
+     * If you've configured only directory, the file name would be the `openai.json`.
+     * Otherwise you've configured the full path with file name and extension, the
+     * `openai.json` file would be renamed to it.
+     */
+    output: string;
+
+    /**
+     * Whether the parameters are keyworded or not.
+     *
+     * If this property value is `true`, length of the
+     * {@link IOpenAiDocument.IFunction.parameters} is always 1, and type of the
+     * pararameter is always {@link IOpenAiSchema.IObject} type. Also, its
+     * properties are following below rules:
+     *
+     * - `pathParameters`: Path parameters of {@link ISwaggerMigrateRoute.parameters}
+     * - `query`: Query parameter of {@link ISwaggerMigrateRoute.query}
+     * - `body`: Body parameter of {@link ISwaggerMigrateRoute.body}
+     *
+     * ```typescript
+     * {
+     *   ...pathParameters,
+     *   query,
+     *   body,
+     * }
+     * ```
+     *
+     * Otherwise (this property value is `false`), length of the
+     * {@link IOpenAiDocument.IFunction.parameters} is variable, and sequence of the
+     * parameters are following below rules.
+     *
+     * ```typescript
+     * [
+     *   ...pathParameters,
+     *   ...(query ? [query] : []),
+     *   ...(body ? [body] : []),
+     * ]
+     * ```
+     *
+     * @default false
+     */
+    keyword?: boolean;
+
+    /**
+     * Separator function for the parameters.
+     *
+     * When composing parameter arguments through OpenAI function call,
+     * there can be a case that some parameters must be composed by human, or
+     * LLM cannot understand the parameter. For example, if the parameter type
+     * has configured {@link IOpenAiSchema.IString["x-wrtn-secret-key"]}, the
+     * secret key value must be composed by human, not by LLM (Large Language Model).
+     *
+     * In that case, if you configure this property with a function that
+     * predicating whether the schema value must be composed by human or not,
+     * the parameters would be separated into two parts.
+     *
+     * - {@link IOpenAiFunction.separated.llm}
+     * - {@link IOpenAiFunction.separated.human}
+     *
+     * When writing the function, note that returning value `true` means to be
+     * a human composing the value, and `false` means to LLM composing the value.
+     * Also, when predicating the schema, it would better to utilize the
+     * {@link OpenAiTypeChecker} features.
+     *
+     * @param schema Schema to be separated.
+     * @returns Whether the schema value must be composed by human or not.
+     * @default null
+     */
+    separate?: null | ((schema: IOpenAiSchema) => boolean);
+
+    /**
+     * Whether to beautify JSON content or not.
+     *
+     * If you configure this property to be `true`, the `openai.json` file would
+     * be beautified with indentation (2 spaces) and line breaks. If you configure
+     * numeric value instead, the indentation would be specified by the number.
+     *
+     * @default false
+     */
+    beautify?: boolean | number;
+  }
+
+  /**
+   * Building `swagger.json` is also possible.
+   */
+  export interface ISwaggerConfig {
+    /**
+     * Output path of the `swagger.json`.
+     *
+     * If you've configured only directory, the file name would be the `swagger.json`.
+     * Otherwise you've configured the full path with file name and extension, the
+     * `swagger.json` file would be renamed to it.
+     */
+    output: string;
+
+    /**
+     * OpenAPI version.
+     *
+     * If you configure this property to be `2.0` or `3.0`, the newly generated
+     * `swagger.json` file would follow the specified OpenAPI version. The newly
+     * generated `swagger.json` file would be downgraded from the OpenAPI v3.1
+     * specification by {@link OpenApi.downgrade} method.
+     *
+     * @default 3.1
+     */
+    openapi?: "2.0" | "3.0" | "3.1";
+
+    /**
+     * Whether to beautify JSON content or not.
+     *
+     * If you configure this property to be `true`, the `swagger.json` file would
+     * be beautified with indentation (2 spaces) and line breaks. If you configure
+     * numeric value instead, the indentation would be specified by the number.
+     *
+     * @default false
+     */
+    beautify?: boolean | number;
+
+    /**
+     * API information.
+     *
+     * If omitted, `package.json` content would be used instead.
+     */
+    info?: Partial<OpenApi.IDocument.IInfo>;
+
+    /**
+     * List of server addresses.
+     */
+    servers?: OpenApi.IServer[];
+
+    /**
+     * Security schemes.
+     *
+     * When generating `swagger.json` file through `nestia`, if your controllers or
+     * theirs methods have a security key which is not enrolled in here property,
+     * it would be an error.
+     */
+    security?: Record<string, OpenApi.ISecurityScheme>;
+
+    /**
+     * List of tag names with description.
+     *
+     * It is possible to omit this property or skip some tag name even if
+     * the tag name is used in the API routes. In that case, the tag name
+     * would be used without description.
+     *
+     * Of course, if you've written a comment like `@tag {name} {descrition}`,
+     * you can entirely replace this property specification.
+     */
+    tags?: OpenApi.IDocument.ITag[];
+
+    /**
+     * Decompose query DTO.
+     *
+     * If you configure this property to be `true`, the query DTO would be decomposed
+     * into individual query parameters per each property. Otherwise you set it to be
+     * `false`, the query DTO would be one object type which contains all of query
+     * parameters.
+     *
+     * @default true
+     */
+    decompose?: boolean;
+
+    /**
+     * Operation ID generator.
+     *
+     * @param props Properties of the API endpoint.
+     * @returns Operation ID.
+     */
+    operationId?(props: {
+      class: string;
+      function: string;
+      method: "HEAD" | "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+      path: string;
+    }): string;
+  }
+}
+```
+  </Tab>
+</Tabs>
+
+Make `nestia.config.ts` file and run `npx nestia openai` command.
+
+At first, create `nestia.config.ts` file through `npx nestia init` command. It would be placed on the top level directory of your NestJS backend project. For reference, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
+
+At least, you've to configure those two properties:
+
+  - `input`: Accessor of controller classes
+  - `openai.output`: Path of `openai.json` file
+
+When you've completed above configuration, just run `npx nestia swagger` command. Then, `openai.json` file would be newly generated, and placed into the `$config.swagger.output` directory following your `nestia.config.ts` configuration.
+
+### File Specification
+`nestia.config.ts` supports alternative options specifying path of target controllers.
+
+If your backend application server does not have special configuration like `setGlobalPrefix`, `enableVersioning` and `RouterModule`, it is okay to specifying the target controller classes just by writing their file or directory paths like below.
+
+<Tabs items={[
+    'Module (express)',
+    'Module (fastify)', 
+    'Directory',
+    'Pattern', 
+    'Exclude'
+  ]}
+  defaultIndex={3}>
+  <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+
+import { YourModule } from "./src/YourModule";
+
+const NESTIA_CONFIG: INestiaConfig = {
+  input: async () => {
+    const app = await NestFactory.create(YourModule);
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  openai: {
+    output: "dist/openai.json",
+    beautify: true,
+    keyword: true,
+  },
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {8-16}
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+import { FastifyAdapter } from "@nestjs/platform-fastify";
+
+import { YourModule } from "./src/YourModule";
+
+const NESTIA_CONFIG: INestiaConfig = {
+  input: async () => {
+    const app = await NestFactory.create(YourModule, new FastifyAdapter());
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  openai: {
+    output: "dist/openai.json",
+    beautify: true,
+    keyword: true,
+  },
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {4-8}
+import { INestiaConfig } from "@nestia/sdk";
+
+const NESTIA_CONFIG: INestiaConfig = {
+  input: [
+    "src/controllers", 
+    "src/fake/controllers", 
+    "src/test/controllers"
+  ],
+  openai: {
+    output: "dist/openai.json",
+    beautify: true,
+    keyword: true,
+  },
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {4}
+import { INestiaConfig } from "@nestia/sdk";
+
+const NESTIA_CONFIG: INestiaConfig = {
+  input: "src/**/*.controller.ts",
+  openai: {
+    output: "dist/openai.json",
+    beautify: true,
+    keyword: true,
+  },
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {4-7}
+import { INestiaConfig } from "@nestia/sdk";
+
+const NESTIA_CONFIG: INestiaConfig = {
+  input: {
+    include: ["src/controllers"],
+    exclude: ["src/**/*.fake.ts"],
+  },
+  openai: {
+    output: "dist/openai.json",
+    beautify: true,
+    keyword: true,
+  },
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+</Tabs>
+
+### Additional Properties
+
+  - `openai.keyword`: Whether the parameters are keyworded or not.
+  - `openai.separate`
+  - `openai.beautify`: Whether to beautify JSON content or not.
+
+<details>
+<summary> See detailed options: </summary>
+<br/>
+```typescript filename="INestiaConfig.ts" showLineNumbers {15-87}
+export namespace INestiaConfig {
+  /**
+   * Configuration for the OpenAI funtion call schema generation.
+   */
+  export interface IOpenAiConnfig {
+    /**
+     * Output path of the `openai.json`.
+     *
+     * If you've configured only directory, the file name would be the `openai.json`.
+     * Otherwise you've configured the full path with file name and extension, the
+     * `openai.json` file would be renamed to it.
+     */
+    output: string;
+
+    /**
+     * Whether the parameters are keyworded or not.
+     *
+     * If this property value is `true`, length of the
+     * {@link IOpenAiDocument.IFunction.parameters} is always 1, and type of the
+     * pararameter is always {@link IOpenAiSchema.IObject} type. Also, its
+     * properties are following below rules:
+     *
+     * - `pathParameters`: Path parameters of {@link ISwaggerMigrateRoute.parameters}
+     * - `query`: Query parameter of {@link ISwaggerMigrateRoute.query}
+     * - `body`: Body parameter of {@link ISwaggerMigrateRoute.body}
+     *
+     * ```typescript
+     * {
+     *   ...pathParameters,
+     *   query,
+     *   body,
+     * }
+     * ```
+     *
+     * Otherwise (this property value is `false`), length of the
+     * {@link IOpenAiDocument.IFunction.parameters} is variable, and sequence of the
+     * parameters are following below rules.
+     *
+     * ```typescript
+     * [
+     *   ...pathParameters,
+     *   ...(query ? [query] : []),
+     *   ...(body ? [body] : []),
+     * ]
+     * ```
+     *
+     * @default false
+     */
+    keyword?: boolean;
+
+    /**
+     * Separator function for the parameters.
+     *
+     * When composing parameter arguments through OpenAI function call,
+     * there can be a case that some parameters must be composed by human, or
+     * LLM cannot understand the parameter. For example, if the parameter type
+     * has configured {@link IOpenAiSchema.IString["x-wrtn-secret-key"]}, the
+     * secret key value must be composed by human, not by LLM (Large Language Model).
+     *
+     * In that case, if you configure this property with a function that
+     * predicating whether the schema value must be composed by human or not,
+     * the parameters would be separated into two parts.
+     *
+     * - {@link IOpenAiFunction.separated.llm}
+     * - {@link IOpenAiFunction.separated.human}
+     *
+     * When writing the function, note that returning value `true` means to be
+     * a human composing the value, and `false` means to LLM composing the value.
+     * Also, when predicating the schema, it would better to utilize the
+     * {@link OpenAiTypeChecker} features.
+     *
+     * @param schema Schema to be separated.
+     * @returns Whether the schema value must be composed by human or not.
+     * @default null
+     */
+    separate?: null | ((schema: IOpenAiSchema) => boolean);
+
+    /**
+     * Whether to beautify JSON content or not.
+     *
+     * If you configure this property to be `true`, the `openai.json` file would
+     * be beautified with indentation (2 spaces) and line breaks. If you configure
+     * numeric value instead, the indentation would be specified by the number.
+     *
+     * @default false
+     */
+    beautify?: boolean | number;
+  }
+}
+```
+</details>
+
+### CLI Arguments
+```bash filename="Terminal"
+npx nestia swagger
+npx nestia swagger --config nestia2.config.ts
+npx nestia swagger --project tsconfig2.json
+npx nestia swagger --config nestia3.config.ts --project tsconfig3.tsconfig.json
+```
+
+If you have a special configuration file that its file name is not `nestia.config.ts` or the configuration file is not placed on the root directory of the project, you can specify it with `--config` option like `npx nestia swagger --config another.config.ts`. 
+
+Also, if you have a special `tsconfig.json` file or the project file is not located in the root directory of the project, you can specify it with `--project` argument like `npx nestia swagger --project another.tsconfig.json`, too.
+
+
+
+
+## Function Call Execution
+### Positional
+<Tabs 
+  items={[
+    <code>nestia.config.ts</code>, 
+    "Test Program Function",
+  ]}
+  defaultIndex={1}>
+  <Tab>
+```typescript filename="nestia.config.ts" showLineNumbers {10}
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+ 
+import { AppModule } from "./src/AppModule";
+ 
+const NESTIA_CONFIG: INestiaConfig = {
+  input: () => NestFactory.create(AppModule),
+  openai: {
+    output: "dist/openai.json",
+    keyword: false,
+  },
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```typescript filename="test_fetcher_keyword_bbs_article_update.ts" showLineNumbers {21-30}
+import {
+  IOpenAiDocument,
+  IOpenAiFunction,
+  OpenAiFetcher,
+} from "@wrtnio/openai-function-schema";
+import fs from "fs";
+import typia from "typia";
+
+import { IBbsArticle } from "../../../api/structures/IBbsArticle";
+
+const main = async (): Promise<void> => {
+  // OPENAI FUNCTION CALL SCHEMAS
+  const document: IOpenAiDocument = JSON.parse( 
+    await fs.promises.readFile("openai.json", "utf8"),
+  );
+
+  // EXECUTE OPENAI FUNCTION CALL
+  const func: IOpenAiFunction = document.functions.find(
+    (f) => f.method === "put" && f.path === "/bbs/articles",
+  )!;
+  const article: IBbsArticle = await OpenAiFetcher.execute({
+    document,
+    function: func,
+    connection: { host: "http://localhost:3000" },
+    arguments: [
+      // imagine that arguments are composed by OpenAI
+      v4(),
+      typia.random<IBbsArticle.ICreate>(),
+    ],
+  });
+  typia.assert(article);
+};
+main().catch(console.error);
+```
+  </Tab>
+</Tabs>
+
+If you deliver `openai.json` file's function call schemas to the [OpenAI SDK](https://github.com/openai/openai-node), the OpenAI chatting agent will choose proper functions during the chatting, and composes argument values automatically to induce the function call executions.
+
+When the OpenAI SDK notifies you the target function to execute with argument values, just perform the function call executino by importing `OpenAiFetcher` module of [`@wrtnio/openai-function-schema`](https://wrtnio/openai-function-schema) and calling the `OpenAiFetcher.execute()` method of it.
+
+Above is the example code utilizin the `OpenAiFetcher.execute()` method.
+
+### Keyword
+<Tabs 
+  items={[
+    <code>nestia.config.ts</code>, 
+    "Test Program Function",
+  ]}
+  defaultIndex={1}>
+  <Tab>
+```typescript filename="nestia.config.ts" showLineNumbers {10}
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+ 
+import { AppModule } from "./src/AppModule";
+ 
+const NESTIA_CONFIG: INestiaConfig = {
+  input: () => NestFactory.create(AppModule),
+  openai: {
+    output: "dist/openai.json",
+    keyword: true,
+  },
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```typescript filename="test_fetcher_positional_bbs_article_update.ts" showLineNumbers {21-32}
+import {
+  IOpenAiDocument,
+  IOpenAiFunction,
+  OpenAiFetcher,
+} from "@wrtnio/openai-function-schema";
+import fs from "fs";
+import typia from "typia";
+
+import { IBbsArticle } from "../../../api/structures/IBbsArticle";
+
+const main = async (): Promise<void> => {
+  // OPENAI FUNCTION CALL SCHEMAS
+  const document: IOpenAiDocument = JSON.parse( 
+    await fs.promises.readFile("openai.json", "utf8"),
+  );
+
+  // EXECUTE OPENAI FUNCTION CALL
+  const func: IOpenAiFunction = document.functions.find(
+    (f) => f.method === "put" && f.path === "/bbs/articles",
+  )!;
+  const article: IBbsArticle = await OpenAiFetcher.execute({
+    document,
+    function: func,
+    connection: { host: "http://localhost:3000" },
+    arguments: [
+      // imagine that argument is composed by OpenAI
+      {
+        id: v4(),
+        body: typia.random<IBbsArticle.ICreate>(),
+      },
+    ],
+  });
+  typia.assert(article);
+};
+main().catch(console.error);
+```
+  </Tab>
+</Tabs>
+
+If you've configured `openai.keyword` option of `nestia.config.ts` file to be `true`, every OpenAI function call schemas defined in the `openai.json` have only one parameter, and the parameter is always an object type. 
+
+This is the concept of "keyworded parameter", keeping only one parameter by groupping every parameters into an object. This "keyworded parameter" mode is recommended due to the OpenAI makes more suitable argument values in rather than the non-keyworded parameter (positional parameters) case.
+
+Also, do not worry anything about re-construction of the parameters. The `OpenAiFetcher.execute()` method of [`@wrtnio/openai-function-schema`](https://wrtnio/openai-function-schema) will automatically decompose the object parameter into the positional parameters, and perform the function call execution. 
+
+Just put the argument value composed from OpenAI, then `OpenAiFetcher.execute()` will do everything.
+
+
+
+### Separate
+<Tabs items={[
+  <code>nestia.config.ts</code>, 
+  "Test Program Function",
+]}>
+  <Tab>
+```typescript filename="nestia.config.ts" showLineNumbers
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+import { IOpenAiSchema, OpenAiTypeChecker } from "@wrtnio/openai-function-schema";
+ 
+import { AppModule } from "./src/AppModule";
+ 
+const NESTIA_CONFIG: INestiaConfig = {
+  input: () => NestFactory.create(AppModule),
+  openai: {
+    output: "dist/openai.json",
+    keyword: true,
+    separate: (schema: IOpenAiSchema) =>
+      OpenAiTypeChecker.isString(schema) &&
+      (schema["x-wrtn-secret-key"] !== undefined ||
+        schema["contentMediaType"] !== undefined),
+    beautify: true,
+  },
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```typescript filename="test_combiner_keyword_parameters_query.ts" showLineNumbers
+import {
+  IOpenAiDocument,
+  IOpenAiFunction,
+  IOpenAiSchema,
+  OpenAiDataCombiner,
+  OpenAiFetcher,
+  OpenAiTypeChecker,
+} from "@wrtnio/openai-function-schema";
+import fs from "fs";
+import typia from "typia";
+
+import { IMembership } from "../../api/structures/IMembership";
+
+const main = async (): Promise<void> => {
+  // OPENAI FUNCTION CALL SCHEMAS
+  const document: IOpenAiDocument = JSON.parse(
+    await fs.promises.readFile("openai.json", "utf8"),
+  );
+
+  // EXECUTE OPENAI FUNCTION CALL
+  const func: IOpenAiFunction = document.functions.find(
+    (f) => f.method === "patch" && f.path === "/membership/change",
+  )!;
+  const membership: IMembership = await OpenAiFetcher.execute({
+    document,
+    function: func,
+    connection: { host: "http://localhost:3000" },
+    arguments: OpenAiDataCombiner.parameters({
+      function: func,
+      llm: [
+        // imagine that below argument is composed by OpenAI
+        {
+          body: {
+            name: "Wrtn Technologies",
+            email: "master@wrtn.io",
+            password: "1234",
+            age: 20,
+            gender: 1,
+          },
+        },
+      ],
+      human: [
+        // imagine that below argument is composed by human
+        {
+          query: {
+            secret: "something",
+          },
+          body: {
+            secretKey: "something",
+            picture: "https://wrtn.io/logo.png",
+          },
+        },
+      ],
+    }),
+  });
+  typia.assert(membership);
+};
+main().catch(console.error);
+```
+  </Tab>
+</Tabs>
+
+At last, there can be some special API operation that some arguments must be composed by user, not by LLM (Large Language Model). For example, if an API operation requires file uploading or secret key identifier, it must be composed by user manually in the frontend application side.
+
+For such case, `nestia.config.ts` file supports special option `openai.separate`. If you configure the callback function, it would be utilized for determining whether the value must be composed by user or not. When the arguments are composed by both user and LLM sides, you can combine them into one through `OpenAiDataComposer.parameters()` method, so that you can still execute the function calling with `OpenAiFetcher.execute()` method.
+
+Above is the example code of such special case.
