@@ -835,12 +835,14 @@ Just put the argument value composed from OpenAI, then `OpenAiFetcher.execute()`
 
 
 ### Separate
-<Tabs items={[
-  <code>nestia.config.ts</code>, 
-  "Test Program Function",
-]}>
+<Tabs 
+  items={[
+    <code>nestia.config.ts</code>, 
+    "Test Program Function",
+  ]}
+  defaultIndex={1}>
   <Tab>
-```typescript filename="nestia.config.ts" showLineNumbers
+```typescript filename="nestia.config.ts" showLineNumbers {11-15}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
 import { IOpenAiSchema, OpenAiTypeChecker } from "@wrtnio/openai-function-schema";
@@ -863,7 +865,7 @@ export default NESTIA_CONFIG;
 ```
   </Tab>
   <Tab>
-```typescript filename="test_combiner_keyword_parameters_query.ts" showLineNumbers
+```typescript filename="test_combiner_keyword_parameters_query.ts" showLineNumbers {24-55}
 import {
   IOpenAiDocument,
   IOpenAiFunction,
