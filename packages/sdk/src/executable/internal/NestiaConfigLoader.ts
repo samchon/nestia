@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { register } from "ts-node";
-import { parseNative } from "tsconfck";
+import { parse } from "tsconfck";
 import ts from "typescript";
 import typia from "typia";
 
@@ -17,7 +17,7 @@ export namespace NestiaConfigLoader {
       project,
     );
     if (!configFileName) throw new Error(`unable to find "${project}" file.`);
-    const { tsconfig } = await parseNative(configFileName);
+    const { tsconfig } = await parse(configFileName);
     const configFileText = JSON.stringify(tsconfig);
     const { config } = ts.parseConfigFileTextToJson(
       configFileName,

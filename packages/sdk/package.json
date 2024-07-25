@@ -42,7 +42,7 @@
     "path-to-regexp": "^6.2.1",
     "prettier": "^3.2.5",
     "ts-node": ">=10.6.0",
-    "tsconfck": "^2.0.1",
+    "tsconfck": "^2.1.2",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^3.0.0",
     "typia": "^6.5.4"
