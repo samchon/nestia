@@ -11,7 +11,7 @@ const main = async (): Promise<void> => {
 
   const report: DynamicBenchmarker.IReport = await DynamicBenchmarker.master({
     servant: `${__dirname}/servant.js`,
-    count: 1024,
+    count: 40_000,
     threads: 4,
     simultaneous: 32,
     stdio: "ignore",
