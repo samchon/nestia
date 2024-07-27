@@ -91,16 +91,12 @@ export namespace ExceptionAnalyzer {
         imports: props.imports,
         type,
       });
-      if (
-        tuple === null ||
-        (project.config.clone !== true &&
-          (tuple.typeName === "__type" || tuple.typeName === "__object"))
-      ) {
+      if (tuple === null) {
         project.errors.push({
           file: props.controller.file,
           controller: props.controller.name,
           function: props.operation.name,
-          message: "TypeException() with implicit (unnamed) type.",
+          message: `TypeException() with unknown type on ${status} status.`,
         });
         return false;
       }

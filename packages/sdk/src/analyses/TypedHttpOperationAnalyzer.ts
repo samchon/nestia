@@ -72,17 +72,12 @@ export namespace TypedHttpOperationAnalyzer {
         imports: importDict,
         type: signature.getReturnType(),
       });
-      if (
-        outputType === null ||
-        (project.config.clone !== true &&
-          (outputType.typeName === "__type" ||
-            outputType.typeName === "__object"))
-      ) {
+      if (outputType === null) {
         project.errors.push({
           file: props.controller.file,
           controller: props.controller.name,
           function: props.operation.name,
-          message: "implicit (unnamed) return type.",
+          message: "unknown return type.",
         });
         return [];
       } else if (
@@ -324,16 +319,12 @@ export namespace TypedHttpOperationAnalyzer {
         imports: props.imports,
         type,
       });
-      if (
-        tuple === null ||
-        (project.config.clone !== true &&
-          (tuple.typeName === "__type" || tuple.typeName === "__object"))
-      )
+      if (tuple === null)
         errors.push({
           file: props.controller.file,
           controller: props.controller.name,
           function: props.function,
-          message: `implicit (unnamed) parameter type from "${name}".`,
+          message: `unknown parameter type from ${JSON.stringify(name)}.`,
         });
       if (errors.length) {
         project.errors.push(...errors);
