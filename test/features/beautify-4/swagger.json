@@ -7,7 +7,7 @@
         }
     ],
     "info": {
-        "version": "3.8.0-dev.20240722",
+        "version": "3.9.0-dev.20240728",
         "title": "@samchon/nestia-test",
         "description": "Test program of Nestia",
         "license": {

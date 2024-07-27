@@ -157,16 +157,24 @@ export namespace TypedWebSocketOperationAnalyzer {
         imports: props.imports,
         type,
       });
-      if (
-        tuple === null ||
+      if (tuple === null)
+        errors.push({
+          file: props.controller.file,
+          controller: props.controller.name,
+          function: props.function,
+          message: `unknown parameter type from "${props.function}@${name}".`,
+        });
+      else if (
         tuple.typeName === "__type" ||
-        tuple.typeName === "__object"
+        tuple.typeName === "__object" ||
+        tuple.typeName.startsWith("__type.") ||
+        tuple.typeName.startsWith("__object.")
       )
         errors.push({
           file: props.controller.file,
           controller: props.controller.name,
           function: props.function,
-          message: `implicit (unnamed) parameter type from ${JSON.stringify(name)}.`,
+          message: `implicit (unnamed) parameter type from "${props.function}@${name}".`,
         });
       _Check_optional({
         ...project,
@@ -358,9 +366,7 @@ export namespace TypedWebSocketOperationAnalyzer {
           file: props.controller.file,
           controller: props.controller.name,
           function: props.function,
-          message: `@WebSocketRoute() does not allow optional parameter, but be detected from ${JSON.stringify(
-            props.parameter.symbol.getEscapedName().toString(),
-          )}.`,
+          message: `@WebSocketRoute() does not allow optional parameter, but be detected from ${props.function}@${props.parameter.symbol.getEscapedName().toString()}.`,
         });
     };
 }
