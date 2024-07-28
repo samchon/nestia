@@ -20,6 +20,10 @@ export const EDITOR_EXAMPLES: IAsset[] = [
     swagger: "/swaggers/uber.json",
   },
   {
+    title: "OpenAI",
+    swagger: "/swaggers/openai.json",
+  },
+  {
     title: "아임포트",
     swagger: "/swaggers/iamport.json",
   },
