@@ -141,7 +141,8 @@ export namespace SdkGenerator {
     typeName === "__type" ||
     typeName === "__object" ||
     typeName.startsWith("__type.") ||
-    typeName.startsWith("__object.");
+    typeName.startsWith("__object.") ||
+    typeName.includes("readonly [");
 
   export const BUNDLE_PATH = NodePath.join(
     __dirname,

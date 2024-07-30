@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "3.9.0",
+  "version": "3.9.1",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -32,9 +32,9 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "^3.9.0",
-    "@nestia/fetcher": "^3.9.0",
-    "@samchon/openapi": "^0.4.2",
+    "@nestia/core": "^3.9.1",
+    "@nestia/fetcher": "^3.9.1",
+    "@samchon/openapi": "^0.4.3",
     "@wrtnio/openai-function-schema": "^0.2.3",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
@@ -45,16 +45,16 @@
     "tsconfck": "^2.1.2",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^3.0.0",
-    "typia": "^6.6.0"
+    "typia": "^6.6.1"
   },
   "peerDependencies": {
-    "@nestia/core": ">=3.9.0",
-    "@nestia/fetcher": ">=3.9.0",
+    "@nestia/core": ">=3.9.1",
+    "@nestia/fetcher": ">=3.9.1",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
     "ts-node": ">=10.6.0",
-    "typia": ">=6.6.0 <7.0.0"
+    "typia": ">=6.6.1 <7.0.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
@@ -69,7 +69,7 @@
     "eslint": "^8.29.0",
     "eslint-plugin-deprecation": "^1.4.1",
     "rimraf": "^3.0.2",
-    "tgrid": "^1.0.2",
+    "tgrid": "^1.0.3",
     "ts-patch": "^3.2.1",
     "typescript": "^5.5.2",
     "typescript-transform-paths": "^3.4.4",

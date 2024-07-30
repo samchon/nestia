@@ -49,7 +49,7 @@ export class NestiaSdkApplication {
     await validate("e2e")(this.config.e2e);
 
     print_title("Nestia E2E Generator");
-    await this.generate("e2e", (project) => async (routes) => {
+    await this.generate((project) => async (routes) => {
       await SdkGenerator.generate(project)(routes);
       await E2eGenerator.generate(project)(
         routes.filter((r) => r.protocol === "http") as ITypedHttpRoute[],
@@ -71,7 +71,7 @@ export class NestiaSdkApplication {
       );
 
     print_title("Nestia SDK Generator");
-    await this.generate("sdk", SdkGenerator.generate);
+    await this.generate(SdkGenerator.generate);
   }
 
   public async swagger(): Promise<void> {
@@ -91,7 +91,7 @@ export class NestiaSdkApplication {
       );
 
     print_title("Nestia Swagger Generator");
-    await this.generate("swagger", SwaggerGenerator.generate);
+    await this.generate(SwaggerGenerator.generate);
   }
 
   public async openai(): Promise<void> {
@@ -111,11 +111,10 @@ export class NestiaSdkApplication {
       );
 
     print_title("Nestia OpenAI Function Calling Schema Generator");
-    await this.generate("openai", OpenAiGenerator.generate);
+    await this.generate(OpenAiGenerator.generate);
   }
 
   private async generate(
-    method: string,
     archiver: (
       project: INestiaProject,
     ) => (
@@ -248,25 +247,6 @@ export class NestiaSdkApplication {
     }
     if (project.warnings.length) report_errors("warning")(project.warnings);
 
-    // FIND IMPLICIT TYPES
-    if (this.config.clone !== true) {
-      const implicit: ITypedHttpRoute[] = routeList.filter(
-        (r) => r.protocol === "http" && is_implicit_return_typed(r),
-      ) as ITypedHttpRoute[];
-      if (implicit.length > 0)
-        throw new Error(
-          `NestiaApplication.${method}(): implicit return type is not allowed.\n` +
-            "\n" +
-            "List of implicit return typed routes:\n" +
-            implicit
-              .map(
-                (it) =>
-                  `  - ${it.controller.name}.${it.name} at "${it.location}"`,
-              )
-              .join("\n"),
-        );
-    }
-
     // DO GENERATE
     AccessorAnalyzer.analyze(routeList);
     await archiver(project)(routeList);
@@ -279,21 +259,21 @@ const print_title = (str: string): void => {
   console.log("-----------------------------------------------------------");
 };
 
-const is_implicit_return_typed = (route: ITypedHttpRoute): boolean => {
-  const name: string = route.output.typeName;
-  if (name === "void") return false;
-  else if (name.indexOf("readonly [") !== -1) return true;
+// const is_implicit_return_typed = (route: ITypedHttpRoute): boolean => {
+//   const name: string = route.output.typeName;
+//   if (name === "void") return false;
+//   else if (name.indexOf("readonly [") !== -1) return true;
 
-  const pos: number = name.indexOf("__object");
-  if (pos === -1) return false;
+//   const pos: number = name.indexOf("__object");
+//   if (pos === -1) return false;
 
-  const before: number = pos - 1;
-  const after: number = pos + "__object".length;
-  for (const i of [before, after])
-    if (name[i] === undefined) continue;
-    else if (VARIABLE.test(name[i])) return false;
-  return true;
-};
+//   const before: number = pos - 1;
+//   const after: number = pos + "__object".length;
+//   for (const i of [before, after])
+//     if (name[i] === undefined) continue;
+//     else if (VARIABLE.test(name[i])) return false;
+//   return true;
+// };
 
 const report_errors =
   (type: "error" | "warning") =>
@@ -327,7 +307,7 @@ const report_errors =
     }
   };
 
-const VARIABLE = /[a-zA-Z_$0-9]/;
+// const VARIABLE = /[a-zA-Z_$0-9]/;
 const turnTransformError = async (flag: boolean): Promise<void> => {
   try {
     const modulo = await import(
