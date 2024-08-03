@@ -34,7 +34,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-mui-fileuploader": "^0.5.2",
-    "typia": "^6.6.1"
+    "typia": "^6.7.0-dev.20240803-4"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",

@@ -54,7 +54,7 @@ export namespace TypedFormDataBodyProgrammer {
             project: IProject,
           ) => (
             modulo: ts.LeftHandSideExpression,
-          ) => (type: ts.Type) => ts.ArrowFunction,
+          ) => (type: ts.Type) => ts.Expression,
         ) =>
           ts.factory.createObjectLiteralExpression(
             [

@@ -31,7 +31,7 @@ export namespace TypedBodyProgrammer {
             project: IProject,
           ) => (
             modulo: ts.LeftHandSideExpression,
-          ) => (equals: boolean) => (type: ts.Type) => ts.ArrowFunction,
+          ) => (equals: boolean) => (type: ts.Type) => ts.Expression,
         ) =>
           ts.factory.createObjectLiteralExpression([
             ts.factory.createPropertyAssignment(
@@ -57,7 +57,7 @@ export namespace TypedBodyProgrammer {
             project: IProject,
           ) => (
             modulo: ts.LeftHandSideExpression,
-          ) => (type: ts.Type) => ts.ArrowFunction,
+          ) => (type: ts.Type) => ts.Expression,
         ) =>
           ts.factory.createObjectLiteralExpression([
             ts.factory.createPropertyAssignment(
