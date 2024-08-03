@@ -21,7 +21,7 @@ export namespace TypedQueryProgrammer {
           ) => (
             modulo: ts.LeftHandSideExpression,
             allowOptiona: boolean,
-          ) => (type: ts.Type) => ts.ArrowFunction,
+          ) => (type: ts.Type) => ts.Expression,
         ) =>
           ts.factory.createObjectLiteralExpression([
             ts.factory.createPropertyAssignment(
