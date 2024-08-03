@@ -20,7 +20,7 @@ export namespace NestiaSetupWizard {
     pack.install({ dev: true, modulo: "@nestia/sdk", version: "latest" });
     pack.install({ dev: true, modulo: "@nestia/benchmark", version: "latest" });
     pack.install({ dev: true, modulo: "nestia", version: "latest" });
-    pack.install({ dev: false, modulo: "typia" });
+    pack.install({ dev: false, modulo: "typia", version: "latest" });
 
     // INSTALL TYPESCRIPT COMPILERS
     pack.install({ dev: true, modulo: "ts-patch", version: "latest" });
