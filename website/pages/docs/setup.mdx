@@ -295,46 +295,77 @@ module.exports = {
 <Tabs items={['npm', 'pnpm', 'yarn']}>
   <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-npx nestia setup
+# NESTIA
+npm install --save-dev nestia
+npm install --save-dev @nestia/sdk
+npm install --save @nestia/core
+npm install --save @nestia/e2e
+npm install --save typia
 ```
   </Tab>
   <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-npx nestia setup --manager pnpm
+# NESTIA
+pnpm install --save-dev nestia
+pnpm install --save-dev @nestia/sdk
+pnpm install --save @nestia/core
+pnpm install --save @nestia/e2e
+pnpm install --save typia
 ```
   </Tab>
   <Tab>
 ```bash filename="Terminal" copy showLineNumbers
-npx nestia setup --manager yarn
+# NESTIA
+yarn add -D nestia
+yarn add -D @nestia/sdk
+yarn add @nestia/core
+yarn add @nestia/e2e
+yarn add typia
 ```
   </Tab>
 </Tabs>
 
-After install `nestia` like above, you have to modify `project.json` on each app you use typia like below.
+After install `nestia` like above, you have to configure tsconfig.base.json (or ts.config.json on app you use nestia) like blow.
 
-```javascript filename="project.json" showLineNumbers copy
- "targets": {
-    "build": {
-      ...
-      "options": {
-        ...
-        "target": "node",
-        "compiler": "tsc",
-        "transformers": [
-          "typia/lib/transform",
-          {
-            "name": "@nestia/core/lib/transform",
-            "options": {
-              "validate": "assert",
-              "stringify": "assert"
-            }
-          }
-        ]
-      }
-    },
-    ...
- }
+```json filename="tsconfig.json" showLineNumbers copy
+{
+  "strict": true,
+  "strictNullChecks": true,
+  "compilerOptions": {
+    "plugins": [
+      { "transform": "typia/lib/transform" },
+      { 
+        "transform": "@nestia/core/lib/transform",
+        "validate": "assert",
+        "stringify": "assert", 
+      },
+    ],
+  },
+}
 ```
+
+After that you have to turn off option "transpileOnly": false (default nx use option "transpileOnly": true) like blow: 
+
+```json filename="webpack.config.js" showLineNumbers copy
+const { composePlugins, withNx } = require('@nx/webpack');
+
+module.exports = composePlugins(withNx({}), (config) => {
+  config.module?.rules.forEach((rule) => {
+    if (rule.options?.transpileOnly) {
+      rule.options.transpileOnly = false;
+    }
+  });
+
+  config.devtool = 'inline-source-map';
+  config.plugins = config.plugins?.filter(
+    (plugin) => plugin.constructor.name !== 'ForkTsCheckerWebpackPlugin'
+  );
+  return config;
+});
+```
+
+See example project at [Commit](https://github.com/honguyenhaituan/nx-typia/commit/c1df98cf949b84633448d9ec4edbcef3635a0927#diff-a0a5604fa921b013eb184e3591b2908eabdca975a41a1134653bc627a55f4d32)
+
 
 
 
