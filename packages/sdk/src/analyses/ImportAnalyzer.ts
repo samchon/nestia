@@ -1,57 +1,61 @@
-import { HashMap, HashSet } from "tstl";
 import ts from "typescript";
 
-import { ITypeTuple } from "../structures/ITypeTuple";
-import { GenericAnalyzer } from "./GenericAnalyzer";
+import { IReflectType } from "../structures/IReflectType";
+import { IReflectTypeImport } from "../structures/IReflectTypeImport";
+import { MapUtil } from "../utils/MapUtil";
 
 export namespace ImportAnalyzer {
   export interface IOutput {
-    features: [string, string[]][];
-    alias: string;
+    imports: IReflectTypeImport[];
+    type: IReflectType | null;
   }
-
-  export type Dictionary = HashMap<string, HashSet<string>>;
-
-  export const analyze =
-    (checker: ts.TypeChecker) =>
-    (props: {
-      generics: GenericAnalyzer.Dictionary;
-      imports: Dictionary;
-      type: ts.Type;
-    }): ITypeTuple | null => {
-      const type: ts.Type = get_type(checker)(props.type);
-      explore_escaped_name(checker)({
-        ...props,
-        type,
-      });
-      try {
-        return {
+  export const analyze = (
+    checker: ts.TypeChecker,
+    generics: WeakMap<ts.Type, ts.Type>,
+    type: ts.Type,
+  ): IOutput => {
+    const imports: Map<string, Set<string>> = new Map();
+    try {
+      type = escape(checker, type);
+      return {
+        type: explore({
+          checker,
+          generics,
+          imports,
           type,
-          typeName: explore_escaped_name(checker)({
-            ...props,
-            type,
-          }),
-        };
-      } catch {
-        return null;
-      }
-    };
+        }),
+        imports: [...imports].map(([file, instances]) => ({
+          file,
+          instances: Array.from(instances),
+        })),
+      };
+    } catch {
+      return {
+        imports: [],
+        type: null,
+      };
+    }
+  };
+
+  export const unique = (
+    imports: IReflectTypeImport[],
+  ): IReflectTypeImport[] => {
+    const map: Map<string, Set<string>> = new Map();
+    imports.forEach(({ file, instances }) => {
+      const set: Set<string> = MapUtil.take(map, file, () => new Set());
+      instances.forEach((instance) => set.add(instance));
+    });
+    return [...map].map(([file, instances]) => ({
+      file,
+      instances: Array.from(instances),
+    }));
+  };
 
   /* ---------------------------------------------------------
-        TYPE
-    --------------------------------------------------------- */
-  const get_type =
-    (checker: ts.TypeChecker) =>
-    (type: ts.Type): ts.Type => {
-      const symbol: ts.Symbol | undefined = type.getSymbol();
-      return symbol && get_name(symbol) === "Promise"
-        ? escape_promise(checker)(type)
-        : type;
-    };
-
-  const escape_promise =
-    (checker: ts.TypeChecker) =>
-    (type: ts.Type): ts.Type => {
+    TYPE
+  --------------------------------------------------------- */
+  const escape = (checker: ts.TypeChecker, type: ts.Type): ts.Type => {
+    if (type.symbol && getName(type.symbol) === "Promise") {
       const generic: readonly ts.Type[] = checker.getTypeArguments(
         type as ts.TypeReference,
       );
@@ -59,96 +63,101 @@ export namespace ImportAnalyzer {
         throw new Error(
           "Error on ImportAnalyzer.analyze(): invalid promise type.",
         );
-      return generic[0];
-    };
+      type = generic[0];
+    }
+    return type;
+  };
 
-  const get_name = (symbol: ts.Symbol): string =>
-    explore_name(
+  const getName = (symbol: ts.Symbol): string =>
+    exploreName(
       symbol.escapedName.toString(),
       symbol.getDeclarations()?.[0]?.parent,
     );
 
   /* ---------------------------------------------------------
-        ESCAPED TEXT WITH IMPORT STATEMENTS
-    --------------------------------------------------------- */
-  const explore_escaped_name =
-    (checker: ts.TypeChecker) =>
-    (props: {
-      generics: GenericAnalyzer.Dictionary;
-      imports: Dictionary;
-      type: ts.Type;
-    }): string => {
-      //----
-      // CONDITIONAL BRANCHES
-      //----
-      // DECOMPOSE GENERIC ARGUMENT
-      let type: ts.Type = props.type;
-      while (props.generics.has(type) === true)
-        type = props.generics.get(type)!;
+    ESCAPED TEXT WITH IMPORT STATEMENTS
+  --------------------------------------------------------- */
+  const explore = (props: {
+    checker: ts.TypeChecker;
+    generics: WeakMap<ts.Type, ts.Type>;
+    imports: Map<string, Set<string>>;
+    type: ts.Type;
+  }): IReflectType => {
+    //----
+    // CONDITIONAL BRANCHES
+    //----
+    // DECOMPOSE GENERIC ARGUMENT
+    let type: ts.Type = props.type;
+    while (props.generics.has(type) === true) type = props.generics.get(type)!;
 
-      // PRIMITIVE
-      const symbol: ts.Symbol | undefined =
-        type.aliasSymbol ?? type.getSymbol();
+    // PRIMITIVE
+    const symbol: ts.Symbol | undefined = type.aliasSymbol ?? type.symbol;
 
-      // UNION OR INTERSECT
-      if (type.aliasSymbol === undefined && type.isUnionOrIntersection()) {
-        const joiner: string = type.isIntersection() ? " & " : " | ";
-        return type.types
+    // UNION OR INTERSECT
+    if (type.aliasSymbol === undefined && type.isUnionOrIntersection()) {
+      const joiner: string = type.isIntersection() ? " & " : " | ";
+      return {
+        name: type.types
           .map((child) =>
-            explore_escaped_name(checker)({
+            explore({
               ...props,
               type: child,
             }),
           )
-          .join(joiner);
-      }
-      // NO SYMBOL
-      else if (symbol === undefined)
-        return checker.typeToString(
+          .join(joiner),
+      };
+    }
+    // NO SYMBOL
+    else if (symbol === undefined)
+      return {
+        name: props.checker.typeToString(
           type,
           undefined,
           ts.TypeFormatFlags.NoTruncation,
-        );
+        ),
+      };
 
-      //----
-      // SPECIALIZATION
-      //----
-      const name: string = get_name(symbol);
-      const sourceFile: ts.SourceFile | undefined =
-        symbol.declarations?.[0]?.getSourceFile();
-      if (sourceFile === undefined) return name;
-      else if (sourceFile.fileName.indexOf("typescript/lib") === -1) {
-        const set: HashSet<string> = props.imports.take(
-          sourceFile.fileName,
-          () => new HashSet(),
-        );
-        set.insert(name.split(".")[0]);
-      }
+    //----
+    // SPECIALIZATION
+    //----
+    const name: string = getName(symbol);
+    const sourceFile: ts.SourceFile | undefined =
+      symbol.declarations?.[0]?.getSourceFile();
+    if (sourceFile === undefined) return { name };
+    else if (sourceFile.fileName.indexOf("typescript/lib") === -1) {
+      const set: Set<string> = MapUtil.take(
+        props.imports,
+        sourceFile.fileName,
+        () => new Set(),
+      );
+      set.add(name.split(".")[0]);
+    }
 
-      // CHECK GENERIC
-      const generic: readonly ts.Type[] = type.aliasSymbol
-        ? type.aliasTypeArguments ?? []
-        : checker.getTypeArguments(type as ts.TypeReference);
-      return generic.length
-        ? name === "Promise"
-          ? explore_escaped_name(checker)({
-              ...props,
-              type: generic[0],
-            })
-          : `${name}<${generic
-              .map((child) =>
-                explore_escaped_name(checker)({
-                  ...props,
-                  type: child,
-                }),
-              )
-              .join(", ")}>`
-        : name;
-    };
+    // CHECK GENERIC
+    const generic: readonly ts.Type[] = type.aliasSymbol
+      ? type.aliasTypeArguments ?? []
+      : props.checker.getTypeArguments(type as ts.TypeReference);
+    return generic.length
+      ? name === "Promise"
+        ? explore({
+            ...props,
+            type: generic[0],
+          })
+        : {
+            name,
+            typeArguments: generic.map((child) =>
+              explore({
+                ...props,
+                type: child,
+              }),
+            ),
+          }
+      : { name };
+  };
 
-  const explore_name = (name: string, decl?: ts.Node): string =>
+  const exploreName = (name: string, decl?: ts.Node): string =>
     decl && ts.isModuleBlock(decl)
-      ? explore_name(
+      ? exploreName(
           `${decl.parent.name.getFullText().trim()}.${name}`,
           decl.parent.parent,
         )

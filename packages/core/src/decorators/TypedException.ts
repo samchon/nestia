@@ -10,16 +10,12 @@
  * but only affects to the swagger documents generation. Also, it does not affect to
  * the SDK library generation yet, but will be used in the future.
  *
- * @param status Status number or pattern like "2XX", "3XX", "4XX", "5XX"
- * @param description Description about the exception
+ * @param props Properties for the exception
  * @returns Method decorator
  *
  * @author Jeongho Nam - https://github.com/samchon
  */
-export function TypedException(
-  status: number | "2XX" | "3XX" | "4XX" | "5XX",
-  description?: string | undefined,
-): never;
+export function TypedException(props: TypedException.IProps<unknown>): never;
 
 /**
  * Exception decorator.
@@ -32,38 +28,35 @@ export function TypedException(
  * the SDK library generation yet, but will be used in the future.
  *
  * @template T Type of the exception
- * @param status Status number or pattern like "2XX", "3XX", "4XX", "5XX"
- * @param description Description about the exception
+ * @param props Properties for the exception
  * @returns Method decorator
  *
  * @author Jeongho Nam - https://github.com/samchon
  */
 export function TypedException<T>(
-  status: number | "2XX" | "3XX" | "4XX" | "5XX",
-  description?: string | undefined,
+  props: TypedException.IProps<T>,
 ): MethodDecorator;
 
 /**
  * @internal
  */
 export function TypedException<T>(
-  status: number | "2XX" | "3XX" | "4XX" | "5XX",
-  description?: string | undefined,
-  type?: string | undefined,
+  props: TypedException.IProps<T>,
 ): MethodDecorator {
   return function TypedException(
     target: Object | T,
     propertyKey: string | symbol,
     descriptor: TypedPropertyDescriptor<any>,
   ) {
-    const array: IProps[] = (() => {
-      const oldbie: IProps[] | undefined = Reflect.getMetadata(
-        "nestia/TypedException",
-        (target as any)[propertyKey],
-      );
+    const array: TypedException.IProps<any>[] = (() => {
+      const oldbie: TypedException.IProps<any>[] | undefined =
+        Reflect.getMetadata(
+          "nestia/TypedException",
+          (target as any)[propertyKey],
+        );
       if (oldbie !== undefined) return oldbie;
 
-      const newbie: IProps[] = [];
+      const newbie: TypedException.IProps<any>[] = [];
       Reflect.defineMetadata(
         "nestia/TypedException",
         newbie,
@@ -71,20 +64,15 @@ export function TypedException<T>(
       );
       return newbie;
     })();
-    array.push({
-      status,
-      description,
-      type: type!,
-    });
+    array.push(props);
     return descriptor;
   };
 }
-
-/**
- * @internal
- */
-interface IProps {
-  status: number | "2XX" | "3XX" | "4XX" | "5XX";
-  description?: string | undefined;
-  type: string;
+export namespace TypedException {
+  export interface IProps<T> {
+    status: number | "2XX" | "3XX" | "4XX" | "5XX";
+    description?: string | undefined;
+    example?: T;
+    examples?: Record<string, T>;
+  }
 }

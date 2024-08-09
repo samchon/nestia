@@ -2,95 +2,156 @@ import { ranges } from "tstl";
 
 import { IErrorReport } from "../structures/IErrorReport";
 import { INestiaProject } from "../structures/INestiaProject";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
+import { IReflectTypeImport } from "../structures/IReflectTypeImport";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
+import { IReflectWebSocketOperationParameter } from "../structures/IReflectWebSocketOperationParameter";
+import { StringUtil } from "../utils/StringUtil";
+import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
 
 export namespace ReflectWebSocketOperationAnalyzer {
-  export const analyze =
-    (project: INestiaProject) =>
-    (props: {
-      controller: IReflectController;
-      function: Function;
-      name: string;
-    }): IReflectWebSocketOperation | null => {
-      const route: { paths: string[] } | undefined = Reflect.getMetadata(
-        "nestia/WebSocketRoute",
-        props.function,
-      );
-      if (route === undefined) return null;
+  export interface IProps {
+    project: INestiaProject;
+    controller: IReflectController;
+    function: Function;
+    name: string;
+    metadata: IOperationMetadata;
+  }
+  export const analyze = (ctx: IProps): IReflectWebSocketOperation | null => {
+    const route: { paths: string[] } | undefined = Reflect.getMetadata(
+      "nestia/WebSocketRoute",
+      ctx.function,
+    );
+    if (route === undefined) return null;
 
-      const errors: IErrorReport[] = [];
-      const parameters: IReflectWebSocketOperation.IParameter[] = (
+    const errors: IErrorReport[] = [];
+    const report = (message: string): null => {
+      errors.push({
+        file: ctx.controller.file,
+        controller: ctx.controller.class.name,
+        function: ctx.name,
+        message,
+      });
+      return null;
+    };
+    const preconfigured: IReflectWebSocketOperationParameter.IPreconfigured[] =
+      (
         (Reflect.getMetadata(
           "nestia/WebSocketRoute/Parameters",
-          props.controller.prototype,
-          props.name,
-        ) ?? []) as IReflectWebSocketOperation.IParameter[]
+          ctx.controller.class.prototype,
+          ctx.name,
+        ) ?? []) as IReflectWebSocketOperationParameter[]
       ).sort((a, b) => a.index - b.index);
-      if (parameters.find((p) => (p.category === "acceptor") === undefined))
-        errors.push({
-          file: props.controller.file,
-          controller: props.controller.name,
-          function: props.name,
-          message: "@WebSocketRoute.Acceptor() is essentially required",
-        });
-      if (parameters.length !== props.function.length)
-        errors.push({
-          file: props.controller.file,
-          controller: props.controller.name,
-          function: props.name,
-          message: [
-            "Every parameters must be one of below:",
-            "  - @WebSocketRoute.Acceptor()",
-            "  - @WebSocketRoute.Driver()",
-            "  - @WebSocketRoute.Header()",
-            "  - @WebSocketRoute.Param()",
-            "  - @WebSocketRoute.Query()",
-          ].join("\n"),
-        });
+    if (preconfigured.find((p) => (p.kind === "acceptor") === undefined))
+      report("@WebSocketRoute.Acceptor() is essentially required");
+    if (preconfigured.length !== ctx.function.length)
+      report(
+        [
+          "Every parameters must be one of below:",
+          "  - @WebSocketRoute.Acceptor()",
+          "  - @WebSocketRoute.Driver()",
+          "  - @WebSocketRoute.Header()",
+          "  - @WebSocketRoute.Param()",
+          "  - @WebSocketRoute.Query()",
+        ].join("\n"),
+      );
 
-      const fields: string[] = parameters
-        .filter((p) => p.category === "param")
-        .map((p) => p.field)
-        .sort();
-      for (const cLoc of props.controller.paths)
-        for (const mLoc of route.paths) {
-          const location: string = PathAnalyzer.join(cLoc, mLoc);
-          if (location.includes("*")) continue;
+    const imports: IReflectTypeImport[] = [];
+    const parameters: IReflectWebSocketOperationParameter[] = preconfigured
+      .map((p) => {
+        // METADATA INFO
+        const matched: IOperationMetadata.IParameter | undefined =
+          ctx.metadata.parameters.find((m) => p.index === m.index);
 
-          const binded: string[] | null = PathAnalyzer.parameters(location);
-          if (binded === null) {
-            errors.push({
-              file: props.controller.file,
-              controller: props.controller.name,
-              function: props.name,
-              message: `invalid path (${JSON.stringify(location)})`,
-            });
-            continue;
-          }
-          if (ranges.equal(binded.sort(), fields) === false)
-            errors.push({
-              file: props.controller.file,
-              controller: props.controller.name,
-              function: props.name,
-              message: `binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${binded.join(
-                ", ",
-              )}], parameters: [${fields.join(", ")}]).`,
-            });
-        }
-      if (errors.length) {
-        project.errors.push(...errors);
-        return null;
+        // VALIDATE PARAMETER
+        if (matched === undefined)
+          return report(
+            `Unable to find parameter type of the ${p.index} (th).`,
+          );
+        else if (matched.schema === null || matched.type === null)
+          return report(
+            `Failed to analyze the parameter type of the ${JSON.stringify(matched.name)}.`,
+          );
+        else if (
+          p.kind === "param" &&
+          !(p as IReflectWebSocketOperationParameter.IParamParameter).field
+            ?.length
+        )
+          return report(`@WebSocketRoute.Param() must have a field name.`);
+        else if (
+          p.kind === "acceptor" &&
+          matched.type?.typeArguments?.length !== 3
+        )
+          return `@WebSocketRoute.Acceptor() must have three type arguments.`;
+        else if (
+          p.kind === "driver" &&
+          matched.type?.typeArguments?.length !== 1
+        )
+          return report(
+            `@WebSocketRoute.Driver() must have one type argument.`,
+          );
+
+        // COMPLETE COMPOSITION
+        imports.push(...matched.imports);
+        if (p.kind === "acceptor" || p.kind === "driver" || p.kind === "query")
+          return {
+            ...p,
+            name: matched.name,
+            type: matched.type,
+          };
+        else if (p.kind === "param")
+          return {
+            ...p,
+            kind: "param",
+            field: p.field!,
+            name: matched.name,
+            type: matched.type,
+          } satisfies IReflectWebSocketOperationParameter.IParamParameter;
+
+        // UNKNOWN TYPE, MAYBE NEW FEATURE
+        return report(
+          `@WebSocketRoute.${StringUtil.capitalize(p.kind)}() has not been supported yet. How about upgrading the nestia packages?`,
+        );
+      })
+      .filter((p): p is IReflectWebSocketOperationParameter => !!p);
+
+    const fields: string[] = preconfigured
+      .filter((p) => p.kind === "param")
+      .map((p) => p.field ?? "")
+      .filter((field): field is string => !!field?.length)
+      .sort();
+    for (const cLoc of ctx.controller.paths)
+      for (const mLoc of route.paths) {
+        const location: string = PathAnalyzer.join(cLoc, mLoc);
+        if (location.includes("*")) continue;
+
+        const binded: string[] | null = PathAnalyzer.parameters(location);
+        if (binded === null)
+          report(`invalid path (${JSON.stringify(location)})`);
+        else if (ranges.equal(binded.sort(), fields) === false)
+          report(
+            `binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${binded.join(
+              ", ",
+            )}], parameters: [${fields.join(", ")}]).`,
+          );
       }
-      return {
-        protocol: "websocket",
-        target: props.function,
-        name: props.name,
-        paths: route.paths,
-        versions: ReflectMetadataAnalyzer.versions(props.function),
-        parameters,
-      };
+    if (errors.length) {
+      ctx.project.errors.push(...errors);
+      return null;
+    }
+    return {
+      protocol: "websocket",
+      name: ctx.name,
+      paths: route.paths,
+      function: ctx.function,
+      versions: ReflectMetadataAnalyzer.versions(ctx.function),
+      parameters,
+      imports: ImportAnalyzer.unique(imports),
+      description: ctx.metadata.description ?? null,
+      jsDocTags: ctx.metadata.jsDocTags,
     };
+  };
 }

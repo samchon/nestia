@@ -14,6 +14,7 @@ import { SdkGenerator } from "./generates/SdkGenerator";
 import { SwaggerGenerator } from "./generates/SwaggerGenerator";
 import { IErrorReport } from "./structures/IErrorReport";
 import { INestiaProject } from "./structures/INestiaProject";
+import { INestiaSdkInput } from "./structures/INestiaSdkInput";
 import { IReflectController } from "./structures/IReflectController";
 import { ITypedHttpRoute } from "./structures/ITypedHttpRoute";
 import { ITypedWebSocketRoute } from "./structures/ITypedWebSocketRoute";
@@ -125,7 +126,6 @@ export class NestiaSdkApplication {
     // ANALYZE REFLECTS
     //----
     const unique: WeakSet<any> = new WeakSet();
-    const controllers: IReflectController[] = [];
     const project: INestiaProject = {
       config: this.config,
       input: await ConfigAnalyzer.input(this.config),
@@ -135,17 +135,12 @@ export class NestiaSdkApplication {
     };
 
     console.log("Analyzing reflections");
-    await turnTransformError(false);
-    for (const include of (await ConfigAnalyzer.input(this.config)).include)
-      controllers.push(
-        ...(await ReflectControllerAnalyzer.analyze(project)(
-          unique,
-          include.file,
-          include.paths,
-          include.controller,
-        )),
-      );
-    await turnTransformError(true);
+    const input: INestiaSdkInput = await ConfigAnalyzer.input(this.config);
+    const controllers: IReflectController[] = input.controllers
+      .map((c) =>
+        ReflectControllerAnalyzer.analyze({ project, controller: c, unique }),
+      )
+      .filter((c): c is IReflectController => c !== null);
 
     const agg: number = (() => {
       const set: Set<string> = new Set();
@@ -306,13 +301,3 @@ const report_errors =
         }
     }
   };
-
-// const VARIABLE = /[a-zA-Z_$0-9]/;
-const turnTransformError = async (flag: boolean): Promise<void> => {
-  try {
-    const modulo = await import(
-      "@nestia/core/lib/decorators/internal/NoTransformConfigureError" as string
-    );
-    modulo.NoTransformConfigureError.throws = flag;
-  } catch {}
-};

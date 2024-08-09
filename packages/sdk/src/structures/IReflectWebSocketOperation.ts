@@ -1,17 +1,17 @@
 import { VERSION_NEUTRAL } from "@nestjs/common";
+import ts from "typescript";
+
+import { IReflectTypeImport } from "./IReflectTypeImport";
+import { IReflectWebSocketOperationParameter } from "./IReflectWebSocketOperationParameter";
 
 export interface IReflectWebSocketOperation {
   protocol: "websocket";
-  target: Function;
   name: string;
   paths: string[];
+  function: Function;
   versions: Array<string | typeof VERSION_NEUTRAL> | undefined;
-  parameters: IReflectWebSocketOperation.IParameter[];
-}
-export namespace IReflectWebSocketOperation {
-  export interface IParameter {
-    category: "acceptor" | "driver" | "header" | "param" | "query";
-    field: string;
-    index: number;
-  }
+  parameters: IReflectWebSocketOperationParameter[];
+  imports: IReflectTypeImport[];
+  description: string | null;
+  jsDocTags: ts.JSDocTagInfo[];
 }

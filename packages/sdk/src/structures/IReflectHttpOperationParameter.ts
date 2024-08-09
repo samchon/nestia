@@ -1,0 +1,76 @@
+import { IMetadata } from "typia/lib/schemas/metadata/IMetadata";
+import { IMetadataComponents } from "typia/lib/schemas/metadata/IMetadataComponents";
+
+import { IReflectType } from "./IReflectType";
+
+export type IReflectHttpOperationParameter =
+  | IReflectHttpOperationParameter.IBody
+  | IReflectHttpOperationParameter.IHeaders
+  | IReflectHttpOperationParameter.IParam
+  | IReflectHttpOperationParameter.IQuery;
+export namespace IReflectHttpOperationParameter {
+  export interface IBody extends IBase<"body"> {
+    contentType:
+      | "application/json"
+      | "application/x-www-form-urlencoded"
+      | "multipart/form-data"
+      | "text/plain";
+    encrypted: boolean;
+  }
+  export interface IHeaders extends IBase<"headers"> {
+    field: string | null;
+  }
+  export interface IParam extends IBase<"param"> {
+    field: string;
+  }
+  export interface IQuery extends IBase<"query"> {
+    field: string | null;
+  }
+  interface IBase<Kind extends string> {
+    kind: Kind;
+    name: string;
+    index: number;
+    type: IReflectType;
+    schema: IMetadata;
+    components: IMetadataComponents;
+    example?: any;
+    examples?: Record<string, any>;
+  }
+
+  /**
+   * @internal
+   */
+  export type IPreconfigured =
+    | IPreconfigured.IBody
+    | IPreconfigured.IHeaders
+    | IPreconfigured.IParam
+    | IPreconfigured.IQuery;
+
+  /**
+   * @internal
+   */
+  export namespace IPreconfigured {
+    export interface IBody extends IBase<"body"> {
+      field?: string;
+      encrypted?: boolean;
+      contentType:
+        | "application/json"
+        | "application/x-www-form-urlencoded"
+        | "multipart/form-data"
+        | "text/plain";
+    }
+    export interface IHeaders extends IBase<"headers"> {
+      field?: string;
+    }
+    export interface IParam extends IBase<"param"> {
+      field?: string;
+    }
+    export interface IQuery extends IBase<"query"> {
+      field?: string;
+    }
+    interface IBase<Kind extends string> {
+      kind: Kind;
+      index: number;
+    }
+  }
+}

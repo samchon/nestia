@@ -76,7 +76,7 @@ export namespace SdkAliasCollection {
       if (project.config.propagate !== true) {
         const node: ts.TypeNode = name(project)(importer)(route.output);
         const type = project.checker.getTypeAtLocation(node);
-        const filter = (flag: ts.TypeFlags) => (type.getFlags() & flag) !== 0;
+        const filter = (flag: ts.TypeFlags) => (type.flags & flag) !== 0;
 
         if (
           project.config.clone === true ||

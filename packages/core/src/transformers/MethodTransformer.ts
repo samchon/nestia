@@ -1,7 +1,6 @@
 import ts from "typescript";
 
 import { INestiaTransformProject } from "../options/INestiaTransformProject";
-import { TypedExceptionTransformer } from "./TypedExceptionTransformer";
 import { TypedRouteTransformer } from "./TypedRouteTransformer";
 import { WebSocketRouteTransformer } from "./WebSocketRouteTransformer";
 
@@ -24,10 +23,12 @@ export namespace MethodTransformer {
       if (escaped === undefined) return method;
 
       const operator = (decorator: ts.Decorator): ts.Decorator => {
-        decorator = TypedExceptionTransformer.transform(project)(decorator);
         decorator =
           TypedRouteTransformer.transform(project)(escaped)(decorator);
-        WebSocketRouteTransformer.validate(project)(decorator, method);
+        decorator = WebSocketRouteTransformer.validate(project)(
+          decorator,
+          method,
+        );
         return decorator;
       };
       if (ts.getDecorators !== undefined)
