@@ -6,10 +6,10 @@ import {
 
 import { INestiaProject } from "../structures/INestiaProject";
 import { INestiaSdkInput } from "../structures/INestiaSdkInput";
-import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperation } from "../structures/IReflectHttpOperation";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
+import { IOperationMetadata } from "../transformers/IOperationMetadata";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { ReflectHttpOperationAnalyzer } from "./ReflectHttpOperationAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
@@ -47,9 +47,10 @@ export namespace ReflectControllerAnalyzer {
           if (str.includes("*") === true) {
             props.project.warnings.push({
               file: props.controller.location,
-              controller: props.controller.class.name,
+              class: props.controller.class.name,
               function: null,
-              message: "@nestia/sdk does not compose wildcard controller.",
+              from: null,
+              contents: ["@nestia/sdk does not compose wildcard controller."],
             });
             return false;
           }

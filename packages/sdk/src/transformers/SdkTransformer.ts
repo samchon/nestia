@@ -5,7 +5,7 @@ import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { GenericAnalyzer } from "../analyses/GenericAnalyzer";
-import { IOperationMetadata } from "../structures/IOperationMetadata";
+import { IOperationMetadata } from "./IOperationMetadata";
 import { ISdkTransformerContext } from "./ISdkTransformerContext";
 import { SdkMetadataProgrammer } from "./SdkMetadataProgrammer";
 

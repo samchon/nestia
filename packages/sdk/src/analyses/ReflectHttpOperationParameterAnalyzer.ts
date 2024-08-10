@@ -1,10 +1,17 @@
 import { ROUTE_ARGS_METADATA } from "@nestjs/common/constants";
 import { RouteParamtypes } from "@nestjs/common/enums/route-paramtypes.enum";
+import { JsonMetadataFactory } from "typia/lib/factories/JsonMetadataFactory";
+import { HttpFormDataProgrammer } from "typia/lib/programmers/http/HttpFormDataProgrammer";
+import { HttpHeadersProgrammer } from "typia/lib/programmers/http/HttpHeadersProgrammer";
+import { HttpParameterProgrammer } from "typia/lib/programmers/http/HttpParameterProgrammer";
+import { HttpQueryProgrammer } from "typia/lib/programmers/http/HttpQueryProgrammer";
 
-import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationParameter } from "../structures/IReflectHttpOperationParameter";
+import { IReflectOperationError } from "../structures/IReflectOperationError";
 import { IReflectTypeImport } from "../structures/IReflectTypeImport";
+import { IOperationMetadata } from "../transformers/IOperationMetadata";
+import { TextPlainValidator } from "../transformers/TextPlainValidator";
 
 export namespace ReflectHttpOperationParameterAnalyzer {
   export interface IContext {
@@ -13,41 +20,130 @@ export namespace ReflectHttpOperationParameterAnalyzer {
     functionName: string;
     httpMethod: string;
     metadata: IOperationMetadata;
-    report: (message: string) => void;
-    isError: () => boolean;
+    errors: IReflectOperationError[];
   }
   export const analyze = (ctx: IContext): IReflectHttpOperationParameter[] => {
     const preconfigured: IReflectHttpOperationParameter.IPreconfigured[] =
       analyzePreconfigured(ctx);
     const imports: IReflectTypeImport[] = [];
+    const errors: IReflectOperationError[] = [];
+
+    //----
+    // FIND CONTRADICTIONS
+    //----
+    // GET AND HEAD METHOD
+    const contradictErrors: string[] = [];
+    const contradict = (message: string) => {
+      contradictErrors.push(message);
+    };
+    if (
+      (ctx.httpMethod === "GET" || ctx.httpMethod === "HEAD") &&
+      preconfigured.some((x) => x.kind === "body")
+    )
+      contradict(`@Body() is not allowed in the ${ctx.httpMethod} method.`);
+
+    // FIND DUPLICATED BODY
+    if (
+      preconfigured.filter((x) => x.kind === "body" && x.field === undefined)
+        .length > 1
+    )
+      contradict(`Duplicated @Body() is not allowed.`);
+    if (
+      preconfigured.filter((x) => x.kind === "query" && x.field === undefined)
+        .length > 1
+    )
+      contradict(`Duplicated @Query() without field name is not allowed.`);
+    if (
+      preconfigured.filter((x) => x.kind === "headers" && x.field === undefined)
+        .length > 1
+    )
+      contradict(`Duplicated @Headers() without field name is not allowed.`);
+
+    // FIND DUPLICATED FIELDS
+    if (
+      isUnique(
+        preconfigured
+          .filter((x) => x.kind === "param")
+          .map((x) => x.field)
+          .filter((field) => field !== undefined),
+      ) === false
+    )
+      contradict(`Duplicated field names of path are not allowed.`);
+    if (
+      isUnique(
+        preconfigured
+          .filter((x) => x.kind === "query")
+          .map((x) => x.field)
+          .filter((field) => field !== undefined),
+      ) === false
+    )
+      contradict(`Duplicated field names of query are not allowed.`);
+    if (
+      isUnique(
+        preconfigured
+          .filter((x) => x.kind === "headers")
+          .map((x) => x.field)
+          .filter((field) => field !== undefined),
+      ) === false
+    )
+      contradict(`Duplicated field names of headers are not allowed.`);
+    if (contradictErrors.length)
+      errors.push({
+        file: ctx.controller.file,
+        class: ctx.controller.class.name,
+        function: ctx.functionName,
+        from: "",
+        contents: contradictErrors,
+      });
+
+    //----
+    // COMPOSE PARAMETERS
+    //----
     const parameters: IReflectHttpOperationParameter[] = preconfigured
       .map((p): IReflectHttpOperationParameter | null => {
         // METADATA INFO
+        const pErrorContents: Array<string | IOperationMetadata.IError> = [];
         const matched: IOperationMetadata.IParameter | undefined =
           ctx.metadata.parameters.find((x) => x.index === p.index);
+        const report = () => {
+          errors.push({
+            file: ctx.controller.file,
+            class: ctx.controller.class.name,
+            function: ctx.functionName,
+            from: `parameter ${matched ? JSON.stringify(matched.name) : `of ${p.index} th`}`,
+            contents: pErrorContents,
+          });
+          return null;
+        };
 
         // VALIDATE TYPE
         if (matched === undefined)
-          ctx.report(`Unable to find parameter type of the ${p.index} (th).`);
-        else if (matched.schema === null || matched.type === null)
-          ctx.report(
-            `Failed to analyze the parameter type of the ${JSON.stringify(matched.name)}.`,
-          );
+          pErrorContents.push(`Unable to find parameter type.`);
+        else if (matched.type === null)
+          pErrorContents.push(`Failed to get the type info.`);
 
-        // VALIDATE KIND
-        if (p.kind === "body" && p.field)
-          ctx.report(`@Body() must not have a field name.`);
-        else if (p.kind === "param" && !p.field)
-          ctx.report(`@Param() must have a field name.`);
+        // CONSIDER KIND
+        const schema: IOperationMetadata.ISchema | null = (() => {
+          if (matched === undefined) return null;
+          const result =
+            p.kind === "body" &&
+            (p.contentType === "application/json" || p.encrypted === true)
+              ? matched.primitive
+              : matched.resolved;
+          return result.success ? result.data : null;
+        })();
+        if (p.kind === "body" && p.field !== undefined)
+          pErrorContents.push(`@Body() must not have a field name.`);
+        else if (p.kind === "param" && p.field === undefined)
+          pErrorContents.push(`@Param() must have a field name.`);
 
-        if (ctx.isError()) return null;
+        if (pErrorContents.length) return report();
         else if (
           matched === undefined ||
-          matched.schema === null ||
           matched.type === null ||
-          matched.required === false
+          schema === null
         )
-          return null;
+          return null; // unreachable
 
         // COMPOSITION
         imports.push(...matched.imports);
@@ -58,8 +154,8 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             field: p.field!,
             name: matched.name,
             type: matched.type,
-            schema: matched.schema,
-            components: matched.components,
+            validate: HttpParameterProgrammer.validate,
+            ...schema,
           };
         else if (p.kind === "query" || p.kind === "headers")
           return {
@@ -68,8 +164,11 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             field: p.field ?? null,
             name: matched.name,
             type: matched.type,
-            schema: matched.schema,
-            components: matched.components,
+            validate:
+              p.kind === "query"
+                ? HttpQueryProgrammer.validate
+                : HttpHeadersProgrammer.validate,
+            ...schema,
           };
         else if (p.kind === "body")
           return {
@@ -79,65 +178,24 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             contentType: p.contentType,
             name: matched.name,
             type: matched.type,
-            schema: matched.schema,
-            components: matched.components,
+            validate:
+              p.contentType === "application/json" || p.encrypted === true
+                ? JsonMetadataFactory.validate
+                : p.contentType === "application/x-www-form-urlencoded"
+                  ? HttpQueryProgrammer.validate
+                  : p.contentType === "multipart/form-data"
+                    ? HttpFormDataProgrammer.validate
+                    : TextPlainValidator.validate,
+            ...schema,
           };
         else {
-          ctx.report(`Unknown kind of the parameter.`);
-          return null;
+          pErrorContents.push(`Unknown kind of the parameter.`);
+          return report();
         }
       })
       .filter((x): x is IReflectHttpOperationParameter => x !== null);
 
-    //----
-    // POST VALIDATIONS
-    //----
-    // GET AND HEAD METHOD
-    if (
-      (ctx.httpMethod === "GET" || ctx.httpMethod === "HEAD") &&
-      parameters.some((x) => x.kind === "body")
-    )
-      ctx.report(`@Body() is not allowed in the ${ctx.httpMethod} method.`);
-
-    // FIND DUPLICATED BODY
-    if (parameters.filter((x) => x.kind === "body").length > 1)
-      ctx.report(`Duplicated @Body() is not allowed.`);
-    if (
-      parameters.filter((x) => x.kind === "query" && x.field === null).length >
-      1
-    )
-      ctx.report(`Duplicated @Query() without field name is not allowed.`);
-    if (
-      parameters.filter((x) => x.kind === "headers" && x.field === null)
-        .length > 1
-    )
-      ctx.report(`Duplicated @Headers() without field name is not allowed.`);
-
-    // FIND DUPLICATED FIELDS
-    if (
-      isUnique(
-        parameters.filter((x) => x.kind === "param").map((x) => x.field),
-      ) === false
-    )
-      ctx.report(`Duplicated field names of path are not allowed.`);
-    if (
-      isUnique(
-        parameters
-          .filter((x) => x.kind === "query")
-          .filter((x) => x.field !== null)
-          .map((x) => x.field!),
-      ) === false
-    )
-      ctx.report(`Duplicated field names of query are not allowed.`);
-    if (
-      isUnique(
-        parameters
-          .filter((x) => x.kind === "headers")
-          .filter((x) => x.field !== null)
-          .map((x) => x.field!),
-      ) === false
-    )
-      ctx.report(`Duplicated field names of headers are not allowed.`);
+    if (errors.length) ctx.errors.push(...errors);
     return parameters;
   };
 

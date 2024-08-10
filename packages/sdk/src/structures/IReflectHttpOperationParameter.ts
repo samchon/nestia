@@ -1,3 +1,4 @@
+import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { IMetadata } from "typia/lib/schemas/metadata/IMetadata";
 import { IMetadataComponents } from "typia/lib/schemas/metadata/IMetadataComponents";
 
@@ -31,8 +32,9 @@ export namespace IReflectHttpOperationParameter {
     name: string;
     index: number;
     type: IReflectType;
-    schema: IMetadata;
+    metadata: IMetadata;
     components: IMetadataComponents;
+    validate: MetadataFactory.Validator;
     example?: any;
     examples?: Record<string, any>;
   }

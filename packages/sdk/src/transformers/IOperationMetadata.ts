@@ -1,10 +1,10 @@
-import { IJsDocTagInfo, Primitive } from "typia";
-import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
+import { IJsDocTagInfo } from "typia";
 import { IMetadata } from "typia/lib/schemas/metadata/IMetadata";
 import { IMetadataComponents } from "typia/lib/schemas/metadata/IMetadataComponents";
+import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
 
-import { IReflectType } from "./IReflectType";
-import { IReflectTypeImport } from "./IReflectTypeImport";
+import { IReflectType } from "../structures/IReflectType";
+import { IReflectTypeImport } from "../structures/IReflectTypeImport";
 
 export interface IOperationMetadata {
   parameters: IOperationMetadata.IParameter[];
@@ -19,16 +19,18 @@ export namespace IOperationMetadata {
     index: number;
   }
   export interface IResponse {
-    imports: IReflectTypeImport[];
-    components: IMetadataComponents;
-    primitive: ISchema | null;
-    resolved: ISchema | null;
     type: IReflectType | null;
-    required: boolean;
-    errors: Primitive<MetadataFactory.IError>[];
+    imports: IReflectTypeImport[];
+    primitive: ValidationPipe<ISchema, IError>;
+    resolved: ValidationPipe<ISchema, IError>;
   }
   export interface ISchema {
     components: IMetadataComponents;
-    value: IMetadata;
+    metadata: IMetadata;
+  }
+  export interface IError {
+    name: string;
+    accessor: string | null;
+    messages: string[];
   }
 }

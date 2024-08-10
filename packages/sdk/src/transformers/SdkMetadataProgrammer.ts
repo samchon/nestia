@@ -3,12 +3,13 @@ import { CommentFactory } from "typia/lib/factories/CommentFactory";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
-import { IMetadata } from "typia/lib/schemas/metadata/IMetadata";
-import { IMetadataComponents } from "typia/lib/schemas/metadata/IMetadataComponents";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
+import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
+import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
+import { Escaper } from "typia/lib/utils/Escaper";
 
 import { ImportAnalyzer } from "../analyses/ImportAnalyzer";
-import { IOperationMetadata } from "../structures/IOperationMetadata";
+import { IOperationMetadata } from "./IOperationMetadata";
 import { ISdkTransformerContext } from "./ISdkTransformerContext";
 
 export namespace SdkMetadataProgrammer {
@@ -80,76 +81,78 @@ export namespace SdkMetadataProgrammer {
     type: ts.Type | null;
     required: boolean;
   }): IOperationMetadata.IResponse => {
-    const result = MetadataFactory.analyze(
-      p.context.checker,
-      p.context.api,
-    )({
-      escape: true,
-      constant: true,
-      absorb: false,
-    })(p.context.collection)(p.type);
-    if (result.success === false) result.errors;
     const analyzed: ImportAnalyzer.IOutput = p.type
       ? ImportAnalyzer.analyze(p.context.checker, p.generics, p.type)
       : {
           type: { name: "any" },
           imports: [],
         };
+    const [primitive, resolved] = [true, false].map((escape) =>
+      MetadataFactory.analyze(
+        p.context.checker,
+        p.context.api,
+      )({
+        escape,
+        constant: true,
+        absorb: true,
+      })(p.context.collection)(p.type),
+    );
     return {
       ...analyzed,
-      ...(result.success
-        ? {
-            ...writeSchema({
-              collection: p.context.collection,
-              metadata: result.data,
-            }),
-            errors: [],
-          }
-        : {
-            schema: null,
-            components: {
-              objects: [],
-              arrays: [],
-              tuples: [],
-              aliases: [],
-            } satisfies IMetadataComponents,
-            errors: result.errors,
-          }),
-      required: !(
-        p.required === false ||
-        (result.success && result.data.isRequired() === false)
-      ),
+      primitive: writeSchema({
+        collection: p.context.collection,
+        result: primitive,
+      }),
+      resolved: writeSchema({
+        collection: p.context.collection,
+        result: resolved,
+      }),
     };
   };
 
   const writeSchema = (p: {
     collection: MetadataCollection;
-    metadata: Metadata;
-  }): {
-    components: IMetadataComponents;
-    schema: IMetadata;
-  } => {
-    const visited: Set<string> = iterateVisited(p.metadata);
+    result: ValidationPipe<Metadata, MetadataFactory.IError>;
+  }): ValidationPipe<IOperationMetadata.ISchema, IOperationMetadata.IError> => {
+    if (p.result.success === false)
+      return {
+        success: false,
+        errors: p.result.errors.map((e) => ({
+          name: e.name,
+          accessor:
+            e.explore.object !== null
+              ? join({
+                  object: e.explore.object,
+                  key: e.explore.property,
+                })
+              : null,
+          messages: e.messages,
+        })),
+      };
+    const visited: Set<string> = iterateVisited(p.result.data);
     return {
-      components: {
-        objects: p.collection
-          .objects()
-          .filter((o) => visited.has(o.name))
-          .map((o) => o.toJSON()),
-        aliases: p.collection
-          .aliases()
-          .filter((a) => visited.has(a.name))
-          .map((a) => a.toJSON()),
-        arrays: p.collection
-          .arrays()
-          .filter((a) => visited.has(a.name))
-          .map((a) => a.toJSON()),
-        tuples: p.collection
-          .tuples()
-          .filter((t) => visited.has(t.name))
-          .map((t) => t.toJSON()),
+      success: true,
+      data: {
+        components: {
+          objects: p.collection
+            .objects()
+            .filter((o) => visited.has(o.name))
+            .map((o) => o.toJSON()),
+          aliases: p.collection
+            .aliases()
+            .filter((a) => visited.has(a.name))
+            .map((a) => a.toJSON()),
+          arrays: p.collection
+            .arrays()
+            .filter((a) => visited.has(a.name))
+            .map((a) => a.toJSON()),
+          tuples: p.collection
+            .tuples()
+            .filter((t) => visited.has(t.name))
+            .map((t) => t.toJSON()),
+        },
+        metadata: p.result.data.toJSON(),
       },
-      schema: p.metadata.toJSON(),
     };
   };
 
@@ -202,4 +205,17 @@ const iterateVisited = (metdata: Metadata): Set<string> => {
   };
   iterate(metdata);
   return names;
+};
+
+const join = ({
+  object,
+  key,
+}: {
+  object: MetadataObject;
+  key: string | object | null;
+}) => {
+  if (key === null) return object.name;
+  else if (typeof key === "object") return `${object.name}[key]`;
+  else if (Escaper.variable(key)) return `${object.name}.${key}`;
+  return `${object.name}[${JSON.stringify(key)}]`;
 };

@@ -1,4 +1,4 @@
-import { IOperationMetadata } from "../structures/IOperationMetadata";
+import { IOperationMetadata } from "../transformers/IOperationMetadata";
 
 export function OperationMetadata(
   metadata: IOperationMetadata,

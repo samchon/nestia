@@ -1,3 +1,4 @@
+import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { IMetadata } from "typia/lib/schemas/metadata/IMetadata";
 import { IMetadataComponents } from "typia/lib/schemas/metadata/IMetadataComponents";
 
@@ -14,4 +15,5 @@ export interface IReflectHttpOperationException {
   type: IReflectType;
   schema: IMetadata;
   components: IMetadataComponents;
+  validate: MetadataFactory.Validator;
 }

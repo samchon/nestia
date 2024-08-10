@@ -1,12 +1,11 @@
 import { ranges } from "tstl";
 
-import { IErrorReport } from "../structures/IErrorReport";
 import { INestiaProject } from "../structures/INestiaProject";
-import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectTypeImport } from "../structures/IReflectTypeImport";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
 import { IReflectWebSocketOperationParameter } from "../structures/IReflectWebSocketOperationParameter";
+import { IOperationMetadata } from "../transformers/IOperationMetadata";
 import { StringUtil } from "../utils/StringUtil";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";
@@ -27,16 +26,8 @@ export namespace ReflectWebSocketOperationAnalyzer {
     );
     if (route === undefined) return null;
 
-    const errors: IErrorReport[] = [];
-    const report = (message: string): null => {
-      errors.push({
-        file: ctx.controller.file,
-        controller: ctx.controller.class.name,
-        function: ctx.name,
-        message,
-      });
-      return null;
-    };
+    // @todo -> detailing is required
+    const errors: string[] = [];
     const preconfigured: IReflectWebSocketOperationParameter.IPreconfigured[] =
       (
         (Reflect.getMetadata(
@@ -46,9 +37,9 @@ export namespace ReflectWebSocketOperationAnalyzer {
         ) ?? []) as IReflectWebSocketOperationParameter[]
       ).sort((a, b) => a.index - b.index);
     if (preconfigured.find((p) => (p.kind === "acceptor") === undefined))
-      report("@WebSocketRoute.Acceptor() is essentially required");
+      errors.push("@WebSocketRoute.Acceptor() is essentially required");
     if (preconfigured.length !== ctx.function.length)
-      report(
+      errors.push(
         [
           "Every parameters must be one of below:",
           "  - @WebSocketRoute.Acceptor()",
@@ -68,11 +59,11 @@ export namespace ReflectWebSocketOperationAnalyzer {
 
         // VALIDATE PARAMETER
         if (matched === undefined)
-          return report(
+          return errors.push(
             `Unable to find parameter type of the ${p.index} (th).`,
           );
-        else if (matched.schema === null || matched.type === null)
-          return report(
+        else if (matched.type === null)
+          return errors.push(
             `Failed to analyze the parameter type of the ${JSON.stringify(matched.name)}.`,
           );
         else if (
@@ -80,7 +71,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
           !(p as IReflectWebSocketOperationParameter.IParamParameter).field
             ?.length
         )
-          return report(`@WebSocketRoute.Param() must have a field name.`);
+          return errors.push(`@WebSocketRoute.Param() must have a field name.`);
         else if (
           p.kind === "acceptor" &&
           matched.type?.typeArguments?.length !== 3
@@ -90,7 +81,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
           p.kind === "driver" &&
           matched.type?.typeArguments?.length !== 1
         )
-          return report(
+          return errors.push(
             `@WebSocketRoute.Driver() must have one type argument.`,
           );
 
@@ -112,7 +103,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
           } satisfies IReflectWebSocketOperationParameter.IParamParameter;
 
         // UNKNOWN TYPE, MAYBE NEW FEATURE
-        return report(
+        return errors.push(
           `@WebSocketRoute.${StringUtil.capitalize(p.kind)}() has not been supported yet. How about upgrading the nestia packages?`,
         );
       })
@@ -130,16 +121,22 @@ export namespace ReflectWebSocketOperationAnalyzer {
 
         const binded: string[] | null = PathAnalyzer.parameters(location);
         if (binded === null)
-          report(`invalid path (${JSON.stringify(location)})`);
+          errors.push(`invalid path (${JSON.stringify(location)})`);
         else if (ranges.equal(binded.sort(), fields) === false)
-          report(
+          errors.push(
             `binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${binded.join(
               ", ",
             )}], parameters: [${fields.join(", ")}]).`,
           );
       }
     if (errors.length) {
-      ctx.project.errors.push(...errors);
+      ctx.project.errors.push({
+        file: ctx.controller.file,
+        class: ctx.controller.class.name,
+        function: ctx.function.name,
+        from: ctx.name,
+        contents: errors,
+      });
       return null;
     }
     return {

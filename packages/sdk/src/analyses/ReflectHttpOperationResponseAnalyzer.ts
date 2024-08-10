@@ -4,10 +4,14 @@ import {
   INTERCEPTORS_METADATA,
 } from "@nestjs/common/constants";
 import typia from "typia";
+import { JsonMetadataFactory } from "typia/lib/factories/JsonMetadataFactory";
+import { HttpQueryProgrammer } from "typia/lib/programmers/http/HttpQueryProgrammer";
 
-import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperationSuccess";
+import { IReflectOperationError } from "../structures/IReflectOperationError";
+import { IOperationMetadata } from "../transformers/IOperationMetadata";
+import { TextPlainValidator } from "../transformers/TextPlainValidator";
 
 export namespace ReflectHttpOperationResponseAnalyzer {
   export interface IContext {
@@ -16,13 +20,24 @@ export namespace ReflectHttpOperationResponseAnalyzer {
     functionName: string;
     httpMethod: string;
     metadata: IOperationMetadata;
-    report: (message: string) => void;
-    isError: () => boolean;
+    errors: IReflectOperationError[];
   }
 
   export const analyze = (
     ctx: IContext,
   ): IReflectHttpOperationSuccess | null => {
+    const errors: Array<string | IOperationMetadata.IError> = [];
+    const report = () => {
+      ctx.errors.push({
+        file: ctx.controller.file,
+        class: ctx.controller.class.name,
+        function: ctx.functionName,
+        from: "return",
+        contents: errors,
+      });
+      return null;
+    };
+
     const encrypted: boolean = hasInterceptor({
       name: "EncryptedRouteInterceptor",
       function: ctx.function,
@@ -41,25 +56,25 @@ export namespace ReflectHttpOperationResponseAnalyzer {
               h.name.toLowerCase() === "content-type",
           )?.value ?? (ctx.httpMethod === "HEAD" ? null : "application/json");
 
-    if (
-      ctx.metadata.success.type === null ||
-      ctx.metadata.success.schema === null
-    )
-      ctx.report(`Failed to analyze the return type.`);
+    const schema =
+      contentType === "application/json"
+        ? ctx.metadata.success.primitive
+        : ctx.metadata.success.resolved;
+    if (schema.success === false) errors.push(...schema.errors);
     if (ctx.httpMethod === "HEAD" && contentType !== null)
-      ctx.report(`HEAD method must not have a content type.`);
+      errors.push(`HEAD method must not have a content type.`);
     if (
       typia.is<IReflectHttpOperationSuccess["contentType"]>(contentType) ===
       false
     )
-      ctx.report(
+      errors.push(
         `@nestia/sdk does not support ${JSON.stringify(contentType)} content type.`,
       );
 
-    if (ctx.isError()) return null;
+    if (errors.length) return report();
     else if (
       ctx.metadata.success.type === null ||
-      ctx.metadata.success.schema === null ||
+      schema.success === false ||
       !typia.is<IReflectHttpOperationSuccess["contentType"]>(contentType)
     )
       return null;
@@ -69,8 +84,18 @@ export namespace ReflectHttpOperationResponseAnalyzer {
       status:
         getStatus(ctx.function) ?? (ctx.httpMethod === "POST" ? 201 : 200),
       type: ctx.metadata.success.type,
-      schema: ctx.metadata.success.schema,
-      components: ctx.metadata.success.components,
+      ...schema.data,
+      validate:
+        contentType === "application/json" || encrypted === true
+          ? JsonMetadataFactory.validate
+          : contentType === "application/x-www-form-urlencoded"
+            ? HttpQueryProgrammer.validate
+            : contentType === "text/plain"
+              ? TextPlainValidator.validate
+              : (meta) =>
+                  meta.size()
+                    ? ["HEAD method must not have any return value."]
+                    : [],
     };
   };
 
