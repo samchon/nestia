@@ -1,3 +1,4 @@
+import { IJsDocTagInfo } from "typia";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { IMetadata } from "typia/lib/schemas/metadata/IMetadata";
 import { IMetadataComponents } from "typia/lib/schemas/metadata/IMetadataComponents";
@@ -37,6 +38,8 @@ export namespace IReflectHttpOperationParameter {
     validate: MetadataFactory.Validator;
     example?: any;
     examples?: Record<string, any>;
+    description: string | null;
+    jsDocTags: IJsDocTagInfo[];
   }
 
   /**

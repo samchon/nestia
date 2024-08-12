@@ -92,7 +92,7 @@ export namespace ReflectHttpOperationAnalyzer {
       success,
       security: ReflectMetadataAnalyzer.securities(props.function),
       exceptions: {} as any,
-      tags: Reflect.getMetadata("swagger/apiUseTags", props.function),
+      tags: Reflect.getMetadata("swagger/apiUseTags", props.function) ?? [],
       imports: ImportAnalyzer.unique(
         [
           ...props.metadata.parameters
@@ -101,6 +101,12 @@ export namespace ReflectHttpOperationAnalyzer {
           ...props.metadata.success.imports,
         ].flat(),
       ),
+      description: props.metadata.description,
+      jsDocTags: props.metadata.jsDocTags,
+      operationId: props.metadata.jsDocTags
+        .find(({ name }) => name === "operationId")
+        ?.text?.[0].text.split(" ")[0]
+        .trim(),
     };
 
     // VALIDATE PATH ARGUMENTS

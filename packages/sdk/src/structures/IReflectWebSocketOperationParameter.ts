@@ -1,17 +1,20 @@
+import { IJsDocTagInfo } from "typia";
+
 import { IReflectType } from "./IReflectType";
+import { IReflectTypeImport } from "./IReflectTypeImport";
 
 export type IReflectWebSocketOperationParameter =
-  | IReflectWebSocketOperationParameter.IAcceptorParameter
-  | IReflectWebSocketOperationParameter.IDriverParameter
-  | IReflectWebSocketOperationParameter.IHeaderParameter
-  | IReflectWebSocketOperationParameter.IParamParameter
-  | IReflectWebSocketOperationParameter.IQueryParameter;
+  | IReflectWebSocketOperationParameter.IAcceptor
+  | IReflectWebSocketOperationParameter.IDriver
+  | IReflectWebSocketOperationParameter.IHeader
+  | IReflectWebSocketOperationParameter.IParam
+  | IReflectWebSocketOperationParameter.IQuery;
 export namespace IReflectWebSocketOperationParameter {
-  export type IAcceptorParameter = IBase<"acceptor">;
-  export type IDriverParameter = IBase<"driver">;
-  export type IHeaderParameter = IBase<"header">;
-  export type IQueryParameter = IBase<"query">;
-  export interface IParamParameter extends IBase<"param"> {
+  export type IAcceptor = IBase<"acceptor">;
+  export type IDriver = IBase<"driver">;
+  export type IHeader = IBase<"header">;
+  export type IQuery = IBase<"query">;
+  export interface IParam extends IBase<"param"> {
     field: string;
   }
   interface IBase<Kind extends string> {
@@ -19,6 +22,9 @@ export namespace IReflectWebSocketOperationParameter {
     name: string;
     index: number;
     type: IReflectType;
+    imports: IReflectTypeImport[];
+    description: string | null;
+    jsDocTags: IJsDocTagInfo[];
   }
 
   /**

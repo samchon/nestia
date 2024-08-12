@@ -1,15 +1,14 @@
 import ts from "typescript";
-import typia from "typia";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { INestiaProject } from "../../structures/INestiaProject";
-import { IReflectHttpOperation } from "../../structures/IReflectHttpOperation";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { StringUtil } from "../../utils/StringUtil";
 import { ImportDictionary } from "./ImportDictionary";
+import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkImportWizard } from "./SdkImportWizard";
-import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkHttpFunctionProgrammer {
   export const write =
@@ -18,9 +17,9 @@ export namespace SdkHttpFunctionProgrammer {
     (
       route: ITypedHttpRoute,
       props: {
-        headers: ITypedHttpRoute.IParameter | undefined;
-        query: ITypedHttpRoute.IParameter | undefined;
-        input: ITypedHttpRoute.IParameter | undefined;
+        headers: ITypedHttpRouteParameter.IHeaders | undefined;
+        query: ITypedHttpRouteParameter.IQuery | undefined;
+        input: ITypedHttpRouteParameter.IBody | undefined;
       },
     ): ts.FunctionDeclaration =>
       ts.factory.createFunctionDeclaration(
@@ -42,13 +41,13 @@ export namespace SdkHttpFunctionProgrammer {
             ),
           ),
           ...route.parameters
-            .filter((p) => p.category !== "headers")
+            .filter((p) => p.kind !== "headers")
             .map((p) =>
               ts.factory.createParameterDeclaration(
                 [],
                 undefined,
                 p.name,
-                p.optional
+                p.metadata.optional
                   ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
                   : undefined,
                 project.config.primitive !== false &&
@@ -56,12 +55,12 @@ export namespace SdkHttpFunctionProgrammer {
                   ? ts.factory.createTypeReferenceNode(
                       `${route.name}.${p === props.query ? "Query" : "Input"}`,
                     )
-                  : getTypeName(project)(importer)(p),
+                  : SdkAliasCollection.name(p.type),
               ),
             ),
         ],
         ts.factory.createTypeReferenceNode("Promise", [
-          getReturnType(project.config)(route),
+          SdkAliasCollection.name(route.success.type),
         ]),
         ts.factory.createBlock(
           write_body(project.config)(importer)(route, props),
@@ -75,34 +74,21 @@ export namespace SdkHttpFunctionProgrammer {
     (
       route: ITypedHttpRoute,
       props: {
-        headers: ITypedHttpRoute.IParameter | undefined;
-        query: ITypedHttpRoute.IParameter | undefined;
-        input: ITypedHttpRoute.IParameter | undefined;
+        headers: ITypedHttpRouteParameter.IHeaders | undefined;
+        query: ITypedHttpRouteParameter.IQuery | undefined;
+        input: ITypedHttpRouteParameter.IBody | undefined;
       },
     ): ts.Statement[] => {
-      const encrypted: boolean =
-        route.encrypted === true ||
-        (props.input !== undefined &&
-          props.input.custom === true &&
-          props.input.category === "body" &&
-          props.input.encrypted === true);
-      const contentType: string | undefined =
-        props.input !== undefined
-          ? typia.is<IReflectHttpOperation.IBodyParameter>(props.input)
-            ? props.input.contentType
-            : "application/json"
-          : undefined;
-
       const caller = () =>
         ts.factory.createCallExpression(
           IdentifierFactory.access(
             ts.factory.createIdentifier(
-              SdkImportWizard.Fetcher(encrypted)(importer),
+              SdkImportWizard.Fetcher(!!props.input?.encrypted)(importer),
             ),
           )(config.propagate ? "propagate" : "fetch"),
           undefined,
           [
-            contentType && contentType !== "multipart/form-data"
+            props.input?.contentType !== "multipart/form-data"
               ? ts.factory.createObjectLiteralExpression(
                   [
                     ts.factory.createSpreadAssignment(
@@ -119,7 +105,9 @@ export namespace SdkHttpFunctionProgrammer {
                           ),
                           ts.factory.createPropertyAssignment(
                             ts.factory.createStringLiteral("Content-Type"),
-                            ts.factory.createStringLiteral(contentType),
+                            ts.factory.createStringLiteral(
+                              props.input?.contentType ?? "application/json",
+                            ),
                           ),
                         ],
                         true,
@@ -152,9 +140,7 @@ export namespace SdkHttpFunctionProgrammer {
                     )("path"),
                     undefined,
                     route.parameters
-                      .filter(
-                        (p) => p.category === "param" || p.category === "query",
-                      )
+                      .filter((p) => p.kind === "param" || p.kind === "query")
                       .map((p) => ts.factory.createIdentifier(p.name)),
                   ),
                 ),
@@ -165,7 +151,7 @@ export namespace SdkHttpFunctionProgrammer {
               ? [ts.factory.createIdentifier(props.input.name)]
               : []),
             ...(config.json &&
-            typia.is<IReflectHttpOperation.IBodyParameter>(props.input) &&
+            props.input !== undefined &&
             (props.input.contentType === "application/json" ||
               props.input.encrypted === true)
               ? [ts.factory.createIdentifier(`${route.name}.stringify`)]
@@ -183,7 +169,7 @@ export namespace SdkHttpFunctionProgrammer {
                 [
                   ts.factory.createIdentifier("connection"),
                   ...route.parameters
-                    .filter((p) => p.category !== "headers")
+                    .filter((p) => p.kind !== "headers")
                     .map((p) => ts.factory.createIdentifier(p.name)),
                 ],
               ),
@@ -196,7 +182,7 @@ export namespace SdkHttpFunctionProgrammer {
       return [
         ...(config.assert
           ? route.parameters
-              .filter((p) => p.category !== "headers")
+              .filter((p) => p.kind !== "headers")
               .map((p) =>
                 ts.factory.createExpressionStatement(
                   ts.factory.createCallExpression(
@@ -215,7 +201,7 @@ export namespace SdkHttpFunctionProgrammer {
                 ),
               )
           : []),
-        ...(route.setHeaders.length === 0
+        ...(route.success.setHeaders.length === 0
           ? [ts.factory.createReturnStatement(output(false))]
           : write_set_headers(config)(route)(output(true))),
       ];
@@ -240,7 +226,7 @@ export namespace SdkHttpFunctionProgrammer {
           ts.factory.createToken(ts.SyntaxKind.QuestionQuestionEqualsToken),
           ts.factory.createObjectLiteralExpression([]),
         ),
-        ...route.setHeaders.map((tuple) =>
+        ...route.success.setHeaders.map((tuple) =>
           tuple.type === "assigner"
             ? ts.factory.createCallExpression(
                 ts.factory.createIdentifier("Object.assign"),
@@ -267,7 +253,7 @@ export namespace SdkHttpFunctionProgrammer {
               ts.factory.createVariableDeclaration(
                 output,
                 undefined,
-                getReturnType(config)(route),
+                SdkAliasCollection.name(route.success.type),
                 condition,
               ),
             ],
@@ -289,18 +275,3 @@ export namespace SdkHttpFunctionProgrammer {
       ];
     };
 }
-
-const getTypeName =
-  (project: INestiaProject) =>
-  (importer: ImportDictionary) =>
-  (p: ITypedHttpRoute.IParameter | ITypedHttpRoute.IOutput) =>
-    p.metadata
-      ? SdkTypeProgrammer.write(project)(importer)(p.metadata)
-      : ts.factory.createTypeReferenceNode(p.typeName);
-
-const getReturnType = (config: INestiaConfig) => (route: ITypedHttpRoute) =>
-  ts.factory.createTypeReferenceNode(
-    config.propagate !== true && route.output.typeName === "void"
-      ? "void"
-      : `${route.name}.Output`,
-  );

@@ -34,10 +34,7 @@ export namespace NestiaSdkCommand {
     );
 
     // GENERATE
-    const app: NestiaSdkApplication = new NestiaSdkApplication(
-      config,
-      command.options,
-    );
+    const app: NestiaSdkApplication = new NestiaSdkApplication(config);
     await task(app);
   };
 

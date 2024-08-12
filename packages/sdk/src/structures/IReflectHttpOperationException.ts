@@ -13,7 +13,7 @@ export interface IReflectHttpOperationException {
 
   // REFLECTED PROPERTIES
   type: IReflectType;
-  schema: IMetadata;
+  metadata: IMetadata;
   components: IMetadataComponents;
   validate: MetadataFactory.Validator;
 }

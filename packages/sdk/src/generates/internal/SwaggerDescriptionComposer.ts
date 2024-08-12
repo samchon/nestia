@@ -1,8 +1,8 @@
 import { IJsDocTagInfo } from "typia";
 
-export namespace SwaggerDescriptionGenerator {
-  export const generate = <Kind extends "summary" | "title">(props: {
-    description?: string;
+export namespace SwaggerDescriptionComposer {
+  export const compose = <Kind extends "summary" | "title">(props: {
+    description: string | null;
     jsDocTags: IJsDocTagInfo[];
     kind: Kind;
   }): Kind extends "summary"
@@ -14,7 +14,7 @@ export namespace SwaggerDescriptionGenerator {
         name: props.kind,
       });
       if (explicit?.length) return explicit;
-      else if (props.description === undefined) return undefined;
+      else if (!props.description?.length) return undefined;
 
       const index: number = props.description.indexOf("\n");
       const top: string = (
@@ -28,7 +28,27 @@ export namespace SwaggerDescriptionGenerator {
     } as any;
   };
 
-  const getJsDocTexts = (props: {
+  export const descriptionFromJsDocTag = (props: {
+    jsDocTags: IJsDocTagInfo[];
+    tag: string;
+    parameter?: string;
+  }): string | undefined => {
+    const parametric: (elem: IJsDocTagInfo) => boolean = props.parameter
+      ? (tag) =>
+          tag.text!.find(
+            (elem) =>
+              elem.kind === "parameterName" && elem.text === props.parameter,
+          ) !== undefined
+      : () => true;
+    const tag: IJsDocTagInfo | undefined = props.jsDocTags.find(
+      (tag) => tag.name === props.tag && tag.text && parametric(tag),
+    );
+    return tag && tag.text
+      ? tag.text.find((elem) => elem.kind === "text")?.text
+      : undefined;
+  };
+
+  export const getJsDocTexts = (props: {
     jsDocTags: IJsDocTagInfo[];
     name: string;
   }): string[] =>

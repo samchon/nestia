@@ -68,7 +68,8 @@ export namespace ReflectControllerAnalyzer {
       if (typeof value !== "function") continue;
       const metadata: IOperationMetadata | undefined = Reflect.getMetadata(
         "nestia/OperationMetadata",
-        value,
+        props.controller.class.prototype,
+        key,
       );
       if (metadata === undefined) continue;
       const next: ReflectHttpOperationAnalyzer.IProps = {

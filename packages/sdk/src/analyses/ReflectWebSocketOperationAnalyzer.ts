@@ -68,8 +68,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
           );
         else if (
           p.kind === "param" &&
-          !(p as IReflectWebSocketOperationParameter.IParamParameter).field
-            ?.length
+          !(p as IReflectWebSocketOperationParameter.IParam).field?.length
         )
           return errors.push(`@WebSocketRoute.Param() must have a field name.`);
         else if (
@@ -100,7 +99,10 @@ export namespace ReflectWebSocketOperationAnalyzer {
             field: p.field!,
             name: matched.name,
             type: matched.type,
-          } satisfies IReflectWebSocketOperationParameter.IParamParameter;
+            imports: matched.imports,
+            description: matched.description,
+            jsDocTags: matched.jsDocTags,
+          } satisfies IReflectWebSocketOperationParameter.IParam;
 
         // UNKNOWN TYPE, MAYBE NEW FEATURE
         return errors.push(

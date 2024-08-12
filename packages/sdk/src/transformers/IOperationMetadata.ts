@@ -17,6 +17,8 @@ export namespace IOperationMetadata {
   export interface IParameter extends IResponse {
     name: string;
     index: number;
+    description: string | null;
+    jsDocTags: IJsDocTagInfo[];
   }
   export interface IResponse {
     type: IReflectType | null;

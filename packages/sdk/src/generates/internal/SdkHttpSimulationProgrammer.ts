@@ -7,10 +7,10 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkImportWizard } from "./SdkImportWizard";
-import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkHttpSimulationProgrammer {
   export const random =
@@ -62,13 +62,13 @@ export namespace SdkHttpSimulationProgrammer {
     (
       route: ITypedHttpRoute,
       props: {
-        headers: ITypedHttpRoute.IParameter | undefined;
-        query: ITypedHttpRoute.IParameter | undefined;
-        input: ITypedHttpRoute.IParameter | undefined;
+        headers: ITypedHttpRouteParameter.IHeaders | undefined;
+        query: ITypedHttpRouteParameter.IQuery | undefined;
+        input: ITypedHttpRouteParameter.IBody | undefined;
       },
     ): ts.VariableStatement => {
       const output: boolean =
-        project.config.propagate === true || route.output.typeName !== "void";
+        project.config.propagate === true || route.success.type.name !== "void";
       const caller = () =>
         ts.factory.createCallExpression(
           ts.factory.createIdentifier("random"),
@@ -105,7 +105,7 @@ export namespace SdkHttpSimulationProgrammer {
               ts.factory.createTypeReferenceNode(
                 SdkImportWizard.IConnection(importer),
                 route.parameters.some(
-                  (p) => p.category === "headers" && p.field === undefined,
+                  (p) => p.kind === "headers" && p.field === undefined,
                 )
                   ? [
                       ts.factory.createTypeReferenceNode(
@@ -116,13 +116,13 @@ export namespace SdkHttpSimulationProgrammer {
               ),
             ),
             ...route.parameters
-              .filter((p) => p.category !== "headers")
+              .filter((p) => p.kind !== "headers")
               .map((p) =>
                 ts.factory.createParameterDeclaration(
                   [],
                   undefined,
                   p.name,
-                  p.optional
+                  p.metadata.optional
                     ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
                     : undefined,
                   project.config.primitive !== false &&
@@ -130,7 +130,7 @@ export namespace SdkHttpSimulationProgrammer {
                     ? ts.factory.createTypeReferenceNode(
                         `${route.name}.${p === props.query ? "Query" : "Input"}`,
                       )
-                    : getTypeName(project)(importer)(p),
+                    : SdkAliasCollection.name(p.type),
                 ),
               ),
           ],
@@ -150,14 +150,14 @@ export namespace SdkHttpSimulationProgrammer {
                         ts.factory.createPropertyAssignment(
                           "status",
                           ExpressionFactory.number(
-                            route.status ??
+                            route.success.status ??
                               (route.method === "POST" ? 201 : 200),
                           ),
                         ),
                         ts.factory.createPropertyAssignment(
                           "headers",
                           LiteralFactory.generate({
-                            "Content-Type": route.output.contentType,
+                            "Content-Type": route.success.contentType,
                           }),
                         ),
                         ts.factory.createPropertyAssignment("data", caller()),
@@ -177,9 +177,7 @@ export namespace SdkHttpSimulationProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.Statement[] => {
-      const parameters = route.parameters.filter(
-        (p) => p.category !== "headers",
-      );
+      const parameters = route.parameters.filter((p) => p.kind !== "headers");
       if (parameters.length === 0) return [];
 
       const typia = SdkImportWizard.typia(importer);
@@ -213,16 +211,14 @@ export namespace SdkHttpSimulationProgrammer {
                     ts.factory.createIdentifier("path"),
                     undefined,
                     route.parameters
-                      .filter(
-                        (p) => p.category === "param" || p.category === "query",
-                      )
+                      .filter((p) => p.kind === "param" || p.kind === "query")
                       .map((p) => ts.factory.createIdentifier(p.name)),
                   ),
                 ),
                 ts.factory.createPropertyAssignment(
                   "contentType",
                   ts.factory.createIdentifier(
-                    JSON.stringify(route.output.contentType),
+                    JSON.stringify(route.success.contentType),
                   ),
                 ),
               ],
@@ -237,8 +233,8 @@ export namespace SdkHttpSimulationProgrammer {
             (() => {
               const base = IdentifierFactory.access(
                 ts.factory.createIdentifier("assert"),
-              )(p.category);
-              if (p.category !== "param") return base;
+              )(p.kind);
+              if (p.kind !== "param") return base;
               return ts.factory.createCallExpression(base, undefined, [
                 ts.factory.createStringLiteral(p.name),
               ]);
@@ -256,11 +252,7 @@ export namespace SdkHttpSimulationProgrammer {
                     "assert",
                   ),
                   undefined,
-                  [
-                    ts.factory.createIdentifier(
-                      p.category === "headers" ? "connection.headers" : p.name,
-                    ),
-                  ],
+                  [ts.factory.createIdentifier(p.name)],
                 ),
               ),
             ],
@@ -353,11 +345,3 @@ const constant = (name: string) => (expression: ts.Expression) =>
       ts.NodeFlags.Const,
     ),
   );
-
-const getTypeName =
-  (project: INestiaProject) =>
-  (importer: ImportDictionary) =>
-  (p: ITypedHttpRoute.IParameter | ITypedHttpRoute.IOutput) =>
-    p.metadata
-      ? SdkTypeProgrammer.write(project)(importer)(p.metadata)
-      : ts.factory.createTypeReferenceNode(p.typeName);

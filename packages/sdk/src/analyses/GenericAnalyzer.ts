@@ -4,7 +4,7 @@ export namespace GenericAnalyzer {
   export function analyze(
     checker: ts.TypeChecker,
     classNode: ts.ClassDeclaration,
-  ): Dictionary {
+  ): WeakMap<ts.Type, ts.Type> {
     const dict: WeakMap<ts.Type, ts.Type> = new WeakMap();
     explore(checker, dict, classNode);
     return dict;
@@ -12,7 +12,7 @@ export namespace GenericAnalyzer {
 
   function explore(
     checker: ts.TypeChecker,
-    dict: Dictionary,
+    dict: WeakMap<ts.Type, ts.Type>,
     classNode: ts.ClassDeclaration,
   ): void {
     if (classNode.heritageClauses === undefined) return;

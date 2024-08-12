@@ -52,18 +52,24 @@ export namespace SdkMetadataProgrammer {
     generics: WeakMap<ts.Type, ts.Type>;
     parameter: ts.ParameterDeclaration;
     index: number;
-  }): IOperationMetadata.IParameter => ({
-    ...writeType({
-      ...props,
-      type:
-        props.context.checker.getTypeFromTypeNode(
-          props.parameter.type ?? TypeFactory.keyword("any"),
-        ) ?? null,
-      required: props.parameter.questionToken === undefined,
-    }),
-    name: props.parameter.name.getText(),
-    index: props.index,
-  });
+  }): IOperationMetadata.IParameter => {
+    const symbol: ts.Symbol | undefined =
+      props.context.checker.getSymbolAtLocation(props.parameter);
+    return {
+      ...writeType({
+        ...props,
+        type:
+          props.context.checker.getTypeFromTypeNode(
+            props.parameter.type ?? TypeFactory.keyword("any"),
+          ) ?? null,
+        required: props.parameter.questionToken === undefined,
+      }),
+      name: props.parameter.name.getText(),
+      index: props.index,
+      description: (symbol && CommentFactory.description(symbol)) ?? null,
+      jsDocTags: symbol?.getJsDocTags() ?? [],
+    };
+  };
 
   const writeResponse = (props: {
     context: ISdkTransformerContext;

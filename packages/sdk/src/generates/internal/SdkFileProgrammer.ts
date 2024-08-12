@@ -2,6 +2,7 @@ import fs from "fs";
 import ts from "typescript";
 
 import { INestiaProject } from "../../structures/INestiaProject";
+import { ITypedApplication } from "../../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { MapUtil } from "../../utils/MapUtil";
@@ -15,18 +16,14 @@ export namespace SdkFileProgrammer {
   /* ---------------------------------------------------------
         CONSTRUCTOR
     --------------------------------------------------------- */
-  export const generate =
-    (project: INestiaProject) =>
-    async (
-      routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
-    ): Promise<void> => {
-      // CONSTRUCT FOLDER TREE
-      const root: SdkRouteDirectory = new SdkRouteDirectory(null, "functional");
-      for (const route of routeList) emplace(root)(route);
+  export const generate = async (app: ITypedApplication): Promise<void> => {
+    // CONSTRUCT FOLDER TREE
+    const root: SdkRouteDirectory = new SdkRouteDirectory(null, "functional");
+    for (const route of app.routes) emplace(root)(route);
 
-      // ITERATE FILES
-      await iterate(project)(root)(project.config.output + "/functional");
-    };
+    // ITERATE FILES
+    await iterate(app.project)(root)(`${app.project.config.output}/functional`);
+  };
 
   const emplace =
     (directory: SdkRouteDirectory) =>
@@ -80,16 +77,16 @@ export namespace SdkFileProgrammer {
       directory.routes.forEach((route, i) => {
         if (project.config.clone !== true || route.protocol === "websocket")
           for (const tuple of route.imports)
-            for (const instance of tuple[1])
+            for (const instance of tuple.instances)
               importer.internal({
-                file: tuple[0],
+                file: tuple.file,
                 instance,
                 type: true,
               });
         statements.push(
           ...(route.protocol === "http"
             ? SdkHttpRouteProgrammer.write(project)(importer)(route)
-            : SdkWebSocketRouteProgrammer.write(project)(importer)(route)),
+            : SdkWebSocketRouteProgrammer.write(importer)(route)),
         );
         if (i !== directory.routes.length - 1)
           statements.push(FilePrinter.enter());

@@ -155,6 +155,8 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             name: matched.name,
             type: matched.type,
             validate: HttpParameterProgrammer.validate,
+            description: matched.description,
+            jsDocTags: matched.jsDocTags,
             ...schema,
           };
         else if (p.kind === "query" || p.kind === "headers")
@@ -168,6 +170,8 @@ export namespace ReflectHttpOperationParameterAnalyzer {
               p.kind === "query"
                 ? HttpQueryProgrammer.validate
                 : HttpHeadersProgrammer.validate,
+            description: matched.description,
+            jsDocTags: matched.jsDocTags,
             ...schema,
           };
         else if (p.kind === "body")
@@ -186,6 +190,8 @@ export namespace ReflectHttpOperationParameterAnalyzer {
                   : p.contentType === "multipart/form-data"
                     ? HttpFormDataProgrammer.validate
                     : TextPlainValidator.validate,
+            description: matched.description,
+            jsDocTags: matched.jsDocTags,
             ...schema,
           };
         else {
@@ -204,7 +210,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
   ): IReflectHttpOperationParameter.IPreconfigured[] => {
     const dict: NestParameters | undefined = Reflect.getMetadata(
       ROUTE_ARGS_METADATA,
-      props.controller.constructor,
+      props.controller.class,
       props.functionName,
     );
     if (dict === undefined) return [];

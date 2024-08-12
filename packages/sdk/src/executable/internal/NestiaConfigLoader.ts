@@ -37,14 +37,19 @@ export namespace NestiaConfigLoader {
     if (fs.existsSync(path.resolve(file)) === false)
       throw new Error(`Unable to find "${file}" file.`);
 
+    const plugins: any[] = compilerOptions.plugins ?? [];
+    if (typia.is<object[]>(plugins) === false)
+      throw new Error(`invalid "compilerOptions.plugins" data.`);
+    if (
+      plugins.some((x: any) => x.transform === "@nestia/sdk/lib/transform") ===
+      false
+    )
+      plugins.push({ transform: "@nestia/sdk/lib/transform" });
     register({
       emit: false,
       compilerOptions: {
         ...compilerOptions,
-        plugins: [
-          ...(compilerOptions.plugins ?? []),
-          { transform: "@nestia/sdk/lib/transform" },
-        ],
+        plugins,
       },
       require: compilerOptions.baseUrl
         ? ["tsconfig-paths/register"]

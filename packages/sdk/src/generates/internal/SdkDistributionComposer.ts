@@ -6,13 +6,16 @@ import typia from "typia";
 import { INestiaConfig } from "../../INestiaConfig";
 
 export namespace SdkDistributionComposer {
-  export const compose = async (config: INestiaConfig, websocket: boolean) => {
-    if (!fs.existsSync(config.distribute!))
-      await fs.promises.mkdir(config.distribute!);
+  export const compose = async (props: {
+    config: INestiaConfig;
+    websocket: boolean;
+  }) => {
+    if (!fs.existsSync(props.config.distribute!))
+      await fs.promises.mkdir(props.config.distribute!);
 
     const root: string = process.cwd();
-    const output: string = path.resolve(config.output!);
-    process.chdir(config.distribute!);
+    const output: string = path.resolve(props.config.output!);
+    process.chdir(props.config.distribute!);
 
     const exit = () => process.chdir(root);
     if (await configured()) return exit();
@@ -31,7 +34,7 @@ export namespace SdkDistributionComposer {
     execute("npm install --save-dev rimraf");
     execute(`npm install --save @nestia/fetcher@${v.version}`);
     execute(`npm install --save typia@${v.typia}`);
-    if (websocket) execute(`npm install --save tgrid@${v.tgrid}`);
+    if (props.websocket) execute(`npm install --save tgrid@${v.tgrid}`);
     execute("npx typia setup --manager npm");
 
     exit();

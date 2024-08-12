@@ -1,4 +1,5 @@
 import { VERSION_NEUTRAL } from "@nestjs/common/interfaces";
+import { IJsDocTagInfo } from "typia";
 
 import { IReflectHttpOperationException } from "./IReflectHttpOperationException";
 import { IReflectHttpOperationParameter } from "./IReflectHttpOperationParameter";
@@ -21,4 +22,7 @@ export interface IReflectHttpOperation {
   security: Record<string, string[]>[];
   tags: string[];
   imports: IReflectTypeImport[];
+  operationId: string | undefined;
+  description: string | null;
+  jsDocTags: IJsDocTagInfo[];
 }
