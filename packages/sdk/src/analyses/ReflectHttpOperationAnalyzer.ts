@@ -132,7 +132,7 @@ export namespace ReflectHttpOperationAnalyzer {
           continue;
         }
         const parameters: string[] = operation.parameters
-          .filter((param) => param.kind === "param")
+          .filter((param) => param.category === "param")
           .map((param) => param.field!)
           .sort();
 

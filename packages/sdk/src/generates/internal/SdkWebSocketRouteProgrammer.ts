@@ -31,7 +31,7 @@ export namespace SdkWebSocketRouteProgrammer {
       (tag) =>
         tag.name !== "param" ||
         route.parameters
-          .filter((p) => p.kind === "param" || p.kind === "query")
+          .filter((p) => p.category === "param" || p.category === "query")
           .some((p) => p.name === tag.text?.[0]?.text),
     );
     if (tags.length !== 0) {
@@ -73,11 +73,11 @@ export namespace SdkWebSocketRouteProgrammer {
             ),
           ),
           ...route.parameters
-            .filter((p) => p.kind === "param" || p.kind === "query")
+            .filter((p) => p.category === "param" || p.category === "query")
             .map((p) =>
               IdentifierFactory.parameter(
                 p.name,
-                p.kind === "param"
+                p.category === "param"
                   ? SdkAliasCollection.name(p.type)
                   : ts.factory.createTypeReferenceNode(`${route.name}.Query`),
               ),
@@ -152,7 +152,9 @@ export namespace SdkWebSocketRouteProgrammer {
                   ),
                   [],
                   route.parameters
-                    .filter((p) => p.kind === "param" || p.kind === "query")
+                    .filter(
+                      (p) => p.category === "param" || p.category === "query",
+                    )
                     .map((x) => ts.factory.createIdentifier(x.name)),
                 ),
               ),

@@ -38,24 +38,27 @@ export namespace ReflectHttpOperationParameterAnalyzer {
     };
     if (
       (ctx.httpMethod === "GET" || ctx.httpMethod === "HEAD") &&
-      preconfigured.some((x) => x.kind === "body")
+      preconfigured.some((x) => x.category === "body")
     )
       contradict(`@Body() is not allowed in the ${ctx.httpMethod} method.`);
 
     // FIND DUPLICATED BODY
     if (
-      preconfigured.filter((x) => x.kind === "body" && x.field === undefined)
-        .length > 1
+      preconfigured.filter(
+        (x) => x.category === "body" && x.field === undefined,
+      ).length > 1
     )
       contradict(`Duplicated @Body() is not allowed.`);
     if (
-      preconfigured.filter((x) => x.kind === "query" && x.field === undefined)
-        .length > 1
+      preconfigured.filter(
+        (x) => x.category === "query" && x.field === undefined,
+      ).length > 1
     )
       contradict(`Duplicated @Query() without field name is not allowed.`);
     if (
-      preconfigured.filter((x) => x.kind === "headers" && x.field === undefined)
-        .length > 1
+      preconfigured.filter(
+        (x) => x.category === "headers" && x.field === undefined,
+      ).length > 1
     )
       contradict(`Duplicated @Headers() without field name is not allowed.`);
 
@@ -63,7 +66,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
     if (
       isUnique(
         preconfigured
-          .filter((x) => x.kind === "param")
+          .filter((x) => x.category === "param")
           .map((x) => x.field)
           .filter((field) => field !== undefined),
       ) === false
@@ -72,7 +75,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
     if (
       isUnique(
         preconfigured
-          .filter((x) => x.kind === "query")
+          .filter((x) => x.category === "query")
           .map((x) => x.field)
           .filter((field) => field !== undefined),
       ) === false
@@ -81,7 +84,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
     if (
       isUnique(
         preconfigured
-          .filter((x) => x.kind === "headers")
+          .filter((x) => x.category === "headers")
           .map((x) => x.field)
           .filter((field) => field !== undefined),
       ) === false
@@ -126,15 +129,15 @@ export namespace ReflectHttpOperationParameterAnalyzer {
         const schema: IOperationMetadata.ISchema | null = (() => {
           if (matched === undefined) return null;
           const result =
-            p.kind === "body" &&
+            p.category === "body" &&
             (p.contentType === "application/json" || p.encrypted === true)
               ? matched.primitive
               : matched.resolved;
           return result.success ? result.data : null;
         })();
-        if (p.kind === "body" && p.field !== undefined)
+        if (p.category === "body" && p.field !== undefined)
           pErrorContents.push(`@Body() must not have a field name.`);
-        else if (p.kind === "param" && p.field === undefined)
+        else if (p.category === "param" && p.field === undefined)
           pErrorContents.push(`@Param() must have a field name.`);
 
         if (pErrorContents.length) return report();
@@ -147,9 +150,9 @@ export namespace ReflectHttpOperationParameterAnalyzer {
 
         // COMPOSITION
         imports.push(...matched.imports);
-        if (p.kind === "param")
+        if (p.category === "param")
           return {
-            kind: p.kind,
+            category: p.category,
             index: p.index,
             field: p.field!,
             name: matched.name,
@@ -159,24 +162,24 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             jsDocTags: matched.jsDocTags,
             ...schema,
           };
-        else if (p.kind === "query" || p.kind === "headers")
+        else if (p.category === "query" || p.category === "headers")
           return {
-            kind: p.kind,
+            category: p.category,
             index: p.index,
             field: p.field ?? null,
             name: matched.name,
             type: matched.type,
             validate:
-              p.kind === "query"
+              p.category === "query"
                 ? HttpQueryProgrammer.validate
                 : HttpHeadersProgrammer.validate,
             description: matched.description,
             jsDocTags: matched.jsDocTags,
             ...schema,
           };
-        else if (p.kind === "body")
+        else if (p.category === "body")
           return {
-            kind: p.kind,
+            category: p.category,
             index: p.index,
             encrypted: !!p.encrypted,
             contentType: p.contentType,
@@ -229,19 +232,20 @@ export namespace ReflectHttpOperationParameterAnalyzer {
     const symbol: string = key.split(":")[0];
     if (symbol.indexOf("__custom") !== -1) return analyzeCustomParameter(param);
 
-    const kind: IReflectHttpOperationParameter.IPreconfigured["kind"] | null =
-      getNestParamType(Number(symbol[0]) as RouteParamtypes);
-    if (kind === null) return null;
-    if (kind === "body")
+    const category:
+      | IReflectHttpOperationParameter.IPreconfigured["category"]
+      | null = getNestParamType(Number(symbol[0]) as RouteParamtypes);
+    if (category === null) return null;
+    if (category === "body")
       return {
-        kind: "body",
+        category: "body",
         index: param.index,
         field: param.data,
         contentType: "application/json",
       };
     else
       return {
-        kind,
+        category,
         index: param.index,
         field: param.data,
       };
@@ -259,7 +263,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
       param.factory.name === "TypedFormDataBody"
     )
       return {
-        kind: "body",
+        category: "body",
         index: param.index,
         encrypted: param.factory.name === "EncryptedBody",
         contentType:
@@ -274,19 +278,19 @@ export namespace ReflectHttpOperationParameterAnalyzer {
       };
     else if (param.factory.name === "TypedHeaders")
       return {
-        kind: "headers",
+        category: "headers",
         index: param.index,
         field: param.data,
       };
     else if (param.factory.name === "TypedParam")
       return {
-        kind: "param",
+        category: "param",
         index: param.index,
         field: param.data,
       };
     else if (param.factory.name === "TypedQuery")
       return {
-        kind: "query",
+        category: "query",
         index: param.index,
         field: undefined,
       };

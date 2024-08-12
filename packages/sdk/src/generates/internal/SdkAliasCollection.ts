@@ -51,7 +51,7 @@ export namespace SdkAliasCollection {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (param: ITypedHttpRouteParameter): ts.TypeNode => {
-      const type: ts.TypeNode = name(param);
+      const type: ts.TypeNode = name(param.type);
       if (project.config.clone === true || project.config.primitive === false)
         return type;
       return ts.factory.createTypeReferenceNode(

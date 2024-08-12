@@ -129,7 +129,7 @@ export async function store(
   );
 }
 export namespace store {
-  export type Input = Resolved<input>;
+  export type Input = Resolved<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -182,7 +182,7 @@ export async function update(
   );
 }
 export namespace update {
-  export type Input = Resolved<input>;
+  export type Input = Resolved<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {

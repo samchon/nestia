@@ -19,11 +19,11 @@ export namespace SwaggerOperationParameterComposer {
   export const compose = (
     props: IProps<ITypedHttpRouteParameter>,
   ): OpenApi.IOperation.IParameter[] =>
-    props.parameter.kind === "body"
+    props.parameter.category === "body"
       ? []
-      : props.parameter.kind === "param"
+      : props.parameter.category === "param"
         ? [path({ ...props, parameter: props.parameter })]
-        : props.parameter.kind === "query"
+        : props.parameter.category === "query"
           ? query({ ...props, parameter: props.parameter })
           : header({ ...props, parameter: props.parameter });
 
@@ -94,7 +94,7 @@ export namespace SwaggerOperationParameterComposer {
   ): OpenApi.IOperation.IParameter[] => {
     const param: OpenApi.IOperation.IParameter = {
       name: props.parameter.field ?? props.parameter.name,
-      in: props.parameter.kind === "query" ? "query" : "header",
+      in: props.parameter.category === "query" ? "query" : "header",
       schema: props.schema,
       ...SwaggerDescriptionComposer.compose({
         description:
@@ -142,7 +142,7 @@ export namespace SwaggerOperationParameterComposer {
         }
         return {
           name: p.key.constants[0].values[0].value as string,
-          in: props.parameter.kind === "query" ? "query" : "header",
+          in: props.parameter.category === "query" ? "query" : "header",
           schema: json.schemas[0],
           required: p.value.isRequired(),
           ...SwaggerDescriptionComposer.compose({

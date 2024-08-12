@@ -75,13 +75,13 @@ export namespace SdkWebSocketNamespaceProgrammer {
       );
 
       const acceptor: ITypedWebSocketRouteParameter.IAcceptor =
-        route.parameters.find((x) => x.kind === "acceptor")!;
+        route.parameters.find((x) => x.category === "acceptor")!;
       const query: ITypedWebSocketRouteParameter.IQuery | undefined =
-        route.parameters.find((x) => x.kind === "query");
+        route.parameters.find((x) => x.category === "query");
       declare(
         "Header",
         SdkAliasCollection.name(
-          (route.parameters.find((x) => x.kind === "header")?.type ??
+          (route.parameters.find((x) => x.category === "header")?.type ??
             acceptor.type.typeArguments?.[0])!,
         ),
       );
@@ -100,10 +100,10 @@ export namespace SdkWebSocketNamespaceProgrammer {
   const writePath = (route: ITypedWebSocketRoute): ts.VariableStatement => {
     const pathParams: ITypedWebSocketRouteParameter.IParam[] =
       route.parameters.filter(
-        (p) => p.kind === "param",
+        (p) => p.category === "param",
       ) as ITypedWebSocketRouteParameter.IParam[];
     const query: ITypedWebSocketRouteParameter.IQuery | undefined =
-      route.parameters.find((p) => p.kind === "query");
+      route.parameters.find((p) => p.category === "query");
     const total: Array<
       | ITypedWebSocketRouteParameter.IParam
       | ITypedWebSocketRouteParameter.IQuery

@@ -104,7 +104,7 @@ export namespace ImportAnalyzer {
               type: child,
             }),
           )
-          .map(getName)
+          .map(getEscapedText)
           .join(joiner),
       };
     }
@@ -163,9 +163,9 @@ export namespace ImportAnalyzer {
           decl.parent.parent,
         )
       : name;
-}
 
-const getName = (type: IReflectType): string =>
-  type.typeArguments
-    ? `${type.name}<${type.typeArguments.map(getName).join(", ")}>`
-    : type.name;
+  const getEscapedText = (type: IReflectType): string =>
+    type.typeArguments
+      ? `${type.name}<${type.typeArguments.map(getEscapedText).join(", ")}>`
+      : type.name;
+}

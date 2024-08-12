@@ -66,7 +66,7 @@ export namespace E2eFileProgrammer {
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute) => {
       const headers = route.parameters.find(
-        (p) => p.kind === "headers" && p.field === undefined,
+        (p) => p.category === "headers" && p.field === undefined,
       );
       const connection = headers
         ? ts.factory.createObjectLiteralExpression(
@@ -110,7 +110,7 @@ export namespace E2eFileProgrammer {
         [
           connection,
           ...route.parameters
-            .filter((p) => p.kind !== "headers")
+            .filter((p) => p.category !== "headers")
             .map((p) =>
               ts.factory.createCallExpression(
                 IdentifierFactory.access(

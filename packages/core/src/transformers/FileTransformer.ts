@@ -46,7 +46,7 @@ export namespace FileTransformer {
         (node as any).parent ??= file;
 
         // REPORT DIAGNOSTIC
-        const diagnostic = ts.createDiagnosticForNode(node, {
+        const diagnostic = (ts as any).createDiagnosticForNode(node, {
           key: exp.code,
           category: ts.DiagnosticCategory.Error,
           message: exp.message,

@@ -181,13 +181,13 @@ export namespace SdkHttpNamespaceProgrammer {
     const g = {
       total: [
         ...route.parameters.filter(
-          (param) => param.kind === "param" || param.kind === "query",
+          (param) => param.category === "param" || param.category === "query",
         ),
       ],
       query: route.parameters
-        .filter((param) => param.kind === "query")
+        .filter((param) => param.category === "query")
         .filter((param) => param.field !== null),
-      path: route.parameters.filter((param) => param.kind === "param"),
+      path: route.parameters.filter((param) => param.category === "param"),
     };
     const out = (body: ts.ConciseBody) =>
       constant("path")(

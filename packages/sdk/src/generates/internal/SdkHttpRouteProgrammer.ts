@@ -15,12 +15,12 @@ export namespace SdkHttpRouteProgrammer {
     (route: ITypedHttpRoute): ts.Statement[] => {
       const props = {
         headers: route.parameters
-          .filter((p) => p.kind === "headers")
+          .filter((p) => p.category === "headers")
           .find((p) => p.field === undefined),
         query: route.parameters
-          .filter((p) => p.kind === "query")
+          .filter((p) => p.category === "query")
           .find((p) => p.field === undefined),
-        input: route.parameters.find((p) => p.kind === "body"),
+        input: route.parameters.find((p) => p.category === "body"),
       };
       return [
         FilePrinter.description(
@@ -40,7 +40,7 @@ export namespace SdkHttpRouteProgrammer {
 
     // PARMAETERS
     for (const p of route.parameters) {
-      if (p.kind === "headers") continue;
+      if (p.category === "headers") continue;
 
       const description: string | undefined =
         p.description ??

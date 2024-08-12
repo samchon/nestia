@@ -200,7 +200,7 @@ export namespace SwaggerGenerator {
   }): string => {
     let str: string = route.path;
     const filtered: ITypedHttpRouteParameter.IParam[] = route.parameters.filter(
-      (param) => param.kind === "param",
+      (param) => param.category === "param",
     );
     for (const param of filtered)
       str = str.replace(`:${param.field}`, `{${param.field}}`);

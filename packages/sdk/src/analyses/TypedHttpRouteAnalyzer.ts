@@ -119,7 +119,7 @@ export namespace TypedHttpRouteAnalyzer {
         metadata: cast(
           p,
           `parameter (name: ${JSON.stringify(p.name)})`,
-          p.kind === "body" &&
+          p.category === "body" &&
             (p.contentType === "application/json" || p.encrypted === true),
         ),
       }));

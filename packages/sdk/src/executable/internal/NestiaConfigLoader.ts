@@ -37,14 +37,17 @@ export namespace NestiaConfigLoader {
     if (fs.existsSync(path.resolve(file)) === false)
       throw new Error(`Unable to find "${file}" file.`);
 
-    const plugins: any[] = compilerOptions.plugins ?? [];
-    if (typia.is<object[]>(plugins) === false)
-      throw new Error(`invalid "compilerOptions.plugins" data.`);
-    if (
-      plugins.some((x: any) => x.transform === "@nestia/sdk/lib/transform") ===
-      false
-    )
-      plugins.push({ transform: "@nestia/sdk/lib/transform" });
+    const plugins: any[] = [
+      ...typia
+        .assert<object[]>(compilerOptions.plugins ?? [])
+        .filter(
+          (x: any) =>
+            x.transform !== "@nestia/core/lib/transform" &&
+            x.transform !== "@nestia/sdk/lib/transform",
+        ),
+      { transform: "@nestia/core/lib/transform" },
+      { transform: "@nestia/sdk/lib/transform" },
+    ];
     register({
       emit: false,
       compilerOptions: {

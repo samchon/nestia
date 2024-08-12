@@ -27,8 +27,8 @@ export namespace ITypedHttpRouteParameter {
     field: string | null;
   }
 
-  interface IBase<Kind extends string> {
-    kind: Kind;
+  interface IBase<Category extends string> {
+    category: Category;
     name: string;
     index: number;
     type: IReflectType;

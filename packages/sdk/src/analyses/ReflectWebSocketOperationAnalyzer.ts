@@ -36,7 +36,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
           ctx.name,
         ) ?? []) as IReflectWebSocketOperationParameter[]
       ).sort((a, b) => a.index - b.index);
-    if (preconfigured.find((p) => (p.kind === "acceptor") === undefined))
+    if (preconfigured.find((p) => (p.category === "acceptor") === undefined))
       errors.push("@WebSocketRoute.Acceptor() is essentially required");
     if (preconfigured.length !== ctx.function.length)
       errors.push(
@@ -67,17 +67,17 @@ export namespace ReflectWebSocketOperationAnalyzer {
             `Failed to analyze the parameter type of the ${JSON.stringify(matched.name)}.`,
           );
         else if (
-          p.kind === "param" &&
+          p.category === "param" &&
           !(p as IReflectWebSocketOperationParameter.IParam).field?.length
         )
           return errors.push(`@WebSocketRoute.Param() must have a field name.`);
         else if (
-          p.kind === "acceptor" &&
+          p.category === "acceptor" &&
           matched.type?.typeArguments?.length !== 3
         )
           return `@WebSocketRoute.Acceptor() must have three type arguments.`;
         else if (
-          p.kind === "driver" &&
+          p.category === "driver" &&
           matched.type?.typeArguments?.length !== 1
         )
           return errors.push(
@@ -86,16 +86,20 @@ export namespace ReflectWebSocketOperationAnalyzer {
 
         // COMPLETE COMPOSITION
         imports.push(...matched.imports);
-        if (p.kind === "acceptor" || p.kind === "driver" || p.kind === "query")
+        if (
+          p.category === "acceptor" ||
+          p.category === "driver" ||
+          p.category === "query"
+        )
           return {
             ...p,
             name: matched.name,
             type: matched.type,
           };
-        else if (p.kind === "param")
+        else if (p.category === "param")
           return {
             ...p,
-            kind: "param",
+            category: "param",
             field: p.field!,
             name: matched.name,
             type: matched.type,
@@ -105,14 +109,15 @@ export namespace ReflectWebSocketOperationAnalyzer {
           } satisfies IReflectWebSocketOperationParameter.IParam;
 
         // UNKNOWN TYPE, MAYBE NEW FEATURE
+        console.log(p);
         return errors.push(
-          `@WebSocketRoute.${StringUtil.capitalize(p.kind)}() has not been supported yet. How about upgrading the nestia packages?`,
+          `@WebSocketRoute.${StringUtil.capitalize(p.category)}() has not been supported yet. How about upgrading the nestia packages?`,
         );
       })
       .filter((p): p is IReflectWebSocketOperationParameter => !!p);
 
     const fields: string[] = preconfigured
-      .filter((p) => p.kind === "param")
+      .filter((p) => p.category === "param")
       .map((p) => p.field ?? "")
       .filter((field): field is string => !!field?.length)
       .sort();

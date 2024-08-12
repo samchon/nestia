@@ -1,6 +1,3 @@
-/**
- * @internal
- */
 export function NoTransformConfigureError(method: string): never {
   if (NoTransformConfigureError.throws === true)
     throw new Error(

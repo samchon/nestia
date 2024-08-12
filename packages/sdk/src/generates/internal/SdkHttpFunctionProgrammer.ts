@@ -41,7 +41,7 @@ export namespace SdkHttpFunctionProgrammer {
             ),
           ),
           ...route.parameters
-            .filter((p) => p.kind !== "headers")
+            .filter((p) => p.category !== "headers")
             .map((p) =>
               ts.factory.createParameterDeclaration(
                 [],
@@ -140,7 +140,9 @@ export namespace SdkHttpFunctionProgrammer {
                     )("path"),
                     undefined,
                     route.parameters
-                      .filter((p) => p.kind === "param" || p.kind === "query")
+                      .filter(
+                        (p) => p.category === "param" || p.category === "query",
+                      )
                       .map((p) => ts.factory.createIdentifier(p.name)),
                   ),
                 ),
@@ -169,7 +171,7 @@ export namespace SdkHttpFunctionProgrammer {
                 [
                   ts.factory.createIdentifier("connection"),
                   ...route.parameters
-                    .filter((p) => p.kind !== "headers")
+                    .filter((p) => p.category !== "headers")
                     .map((p) => ts.factory.createIdentifier(p.name)),
                 ],
               ),
@@ -182,7 +184,7 @@ export namespace SdkHttpFunctionProgrammer {
       return [
         ...(config.assert
           ? route.parameters
-              .filter((p) => p.kind !== "headers")
+              .filter((p) => p.category !== "headers")
               .map((p) =>
                 ts.factory.createExpressionStatement(
                   ts.factory.createCallExpression(

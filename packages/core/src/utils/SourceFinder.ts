@@ -18,6 +18,7 @@ export namespace SourceFinder {
     (input: string[]) =>
     async (closure: (location: string) => void): Promise<void> => {
       for (const pattern of input) {
+        console.log(path.resolve(pattern));
         for (const file of await _Glob(path.resolve(pattern))) {
           const stats: fs.Stats = await fs.promises.stat(file);
           if (stats.isDirectory() === true)

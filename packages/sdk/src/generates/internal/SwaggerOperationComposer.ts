@@ -17,7 +17,7 @@ export namespace SwaggerOperationComposer {
   }): OpenApi.IOperation => {
     // FIND REQUEST BODY
     const body: ITypedHttpRouteParameter.IBody | undefined =
-      props.route.parameters.find((param) => param.kind === "body");
+      props.route.parameters.find((param) => param.category === "body");
 
     // COMPOSE TAGS
     const tags: Set<string> = new Set([

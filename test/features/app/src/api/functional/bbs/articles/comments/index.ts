@@ -135,7 +135,7 @@ export async function store(
   );
 }
 export namespace store {
-  export type Input = Resolved<input>;
+  export type Input = Resolved<IBbsComment.IStore>;
   export type Output = Primitive<IBbsComment>;
 
   export const METADATA = {
@@ -185,7 +185,7 @@ export async function update(
   );
 }
 export namespace update {
-  export type Input = Resolved<input>;
+  export type Input = Resolved<IBbsComment.IStore>;
   export type Output = Primitive<IBbsComment>;
 
   export const METADATA = {

@@ -7,6 +7,8 @@
 import type { IConnection } from "@nestia/fetcher";
 import { WebSocketConnector } from "tgrid";
 import type { Driver } from "tgrid";
+import type { WebSocketAcceptor } from "tgrid/lib/protocols/web/WebSocketAcceptor";
+import type { Driver } from "tgrid/lib/typings/Driver";
 
 import type { ICalculator } from "../../../structures/ICalculator";
 import type { IListener } from "../../../structures/IListener";
@@ -41,8 +43,8 @@ export namespace connect {
     driver: Driver<Listener>;
   };
   export type Header = IPrecision;
-  export type Provider = IListener;
-  export type Listener = ICalculator;
+  export type Provider = ICalculator;
+  export type Listener = IListener;
 
   export const path = () => "/x/calculate";
 }

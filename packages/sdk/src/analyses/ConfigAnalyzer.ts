@@ -14,16 +14,20 @@ import { MapUtil } from "../utils/MapUtil";
 export namespace ConfigAnalyzer {
   export const input = async (
     config: INestiaConfig,
-  ): Promise<INestiaSdkInput> =>
-    MapUtil.take(memory, config, async () => {
+  ): Promise<INestiaSdkInput> => {
+    return MapUtil.take(memory, config, async () => {
       const app: INestApplication =
         typeof config.input === "function"
           ? await config.input()
-          : await NestFactory.create(await DynamicModule.mount(config.input), {
-              logger: false,
-            });
+          : await NestFactory.create(
+              await DynamicModule.mount(config.input, {}, true as any),
+              {
+                logger: false,
+              },
+            );
       return analyze_application(app);
     });
+  };
 
   const analyze_application = async (
     app: INestApplication,

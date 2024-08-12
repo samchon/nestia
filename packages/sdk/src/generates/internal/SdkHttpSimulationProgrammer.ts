@@ -105,7 +105,7 @@ export namespace SdkHttpSimulationProgrammer {
               ts.factory.createTypeReferenceNode(
                 SdkImportWizard.IConnection(importer),
                 route.parameters.some(
-                  (p) => p.kind === "headers" && p.field === undefined,
+                  (p) => p.category === "headers" && p.field === undefined,
                 )
                   ? [
                       ts.factory.createTypeReferenceNode(
@@ -116,7 +116,7 @@ export namespace SdkHttpSimulationProgrammer {
               ),
             ),
             ...route.parameters
-              .filter((p) => p.kind !== "headers")
+              .filter((p) => p.category !== "headers")
               .map((p) =>
                 ts.factory.createParameterDeclaration(
                   [],
@@ -177,7 +177,9 @@ export namespace SdkHttpSimulationProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.Statement[] => {
-      const parameters = route.parameters.filter((p) => p.kind !== "headers");
+      const parameters = route.parameters.filter(
+        (p) => p.category !== "headers",
+      );
       if (parameters.length === 0) return [];
 
       const typia = SdkImportWizard.typia(importer);
@@ -211,7 +213,9 @@ export namespace SdkHttpSimulationProgrammer {
                     ts.factory.createIdentifier("path"),
                     undefined,
                     route.parameters
-                      .filter((p) => p.kind === "param" || p.kind === "query")
+                      .filter(
+                        (p) => p.category === "param" || p.category === "query",
+                      )
                       .map((p) => ts.factory.createIdentifier(p.name)),
                   ),
                 ),
@@ -233,8 +237,8 @@ export namespace SdkHttpSimulationProgrammer {
             (() => {
               const base = IdentifierFactory.access(
                 ts.factory.createIdentifier("assert"),
-              )(p.kind);
-              if (p.kind !== "param") return base;
+              )(p.category);
+              if (p.category !== "param") return base;
               return ts.factory.createCallExpression(base, undefined, [
                 ts.factory.createStringLiteral(p.name),
               ]);

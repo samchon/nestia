@@ -28,8 +28,8 @@ export namespace IReflectHttpOperationParameter {
   export interface IQuery extends IBase<"query"> {
     field: string | null;
   }
-  interface IBase<Kind extends string> {
-    kind: Kind;
+  interface IBase<Category extends string> {
+    category: Category;
     name: string;
     index: number;
     type: IReflectType;
@@ -73,8 +73,8 @@ export namespace IReflectHttpOperationParameter {
     export interface IQuery extends IBase<"query"> {
       field?: string;
     }
-    interface IBase<Kind extends string> {
-      kind: Kind;
+    interface IBase<Category extends string> {
+      category: Category;
       index: number;
     }
   }

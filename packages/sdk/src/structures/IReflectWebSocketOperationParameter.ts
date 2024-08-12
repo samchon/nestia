@@ -17,8 +17,8 @@ export namespace IReflectWebSocketOperationParameter {
   export interface IParam extends IBase<"param"> {
     field: string;
   }
-  interface IBase<Kind extends string> {
-    kind: Kind;
+  interface IBase<Category extends string> {
+    category: Category;
     name: string;
     index: number;
     type: IReflectType;
@@ -31,7 +31,7 @@ export namespace IReflectWebSocketOperationParameter {
    * @internal
    */
   export interface IPreconfigured {
-    kind: "acceptor" | "driver" | "header" | "param" | "query";
+    category: "acceptor" | "driver" | "header" | "param" | "query";
     index: number;
     field?: string;
   }

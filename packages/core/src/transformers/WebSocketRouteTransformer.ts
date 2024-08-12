@@ -20,7 +20,7 @@ export namespace WebSocketRouteTransformer {
 
       const report = (node: ts.Node, message: string) => {
         errors.push(
-          ts.createDiagnosticForNode(node, {
+          (ts as any).createDiagnosticForNode(node, {
             category: ts.DiagnosticCategory.Error,
             key: "nestia.core.WebSocketRoute",
             code: "(nestia.core.WebSocketRoute)" as any,

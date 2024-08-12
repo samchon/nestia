@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "3.11.0-dev.20240811",
+  "version": "3.11.0-dev.20240813-2",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "rimraf lib && tsc",
-    "dev": "npm run build -- --watch",
+    "dev": "tsc -p tsconfig.test.json --watch",
     "eslint": "eslint ./**/*.ts",
     "eslint:fix": "eslint ./**/*.ts --fix",
     "prepare": "ts-patch install && typia patch"
@@ -36,7 +36,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "../fetcher/nestia-fetcher-3.11.0-dev.20240811.tgz",
+    "@nestia/fetcher": "^3.11.0-dev.20240813-2",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "@samchon/openapi": "^0.4.3",
@@ -53,7 +53,7 @@
     "ws": "^7.5.3"
   },
   "peerDependencies": {
-    "@nestia/fetcher": ">=3.11.0-dev.20240811",
+    "@nestia/fetcher": ">=3.11.0-dev.20240813-2",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
