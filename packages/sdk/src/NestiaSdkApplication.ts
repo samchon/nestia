@@ -4,6 +4,7 @@ import { HashSet, Pair, TreeMap } from "tstl";
 import { IMetadataDictionary } from "typia/lib/schemas/metadata/IMetadataDictionary";
 
 import { INestiaConfig } from "./INestiaConfig";
+import { AccessorAnalyzer } from "./analyses/AccessorAnalyzer";
 import { ConfigAnalyzer } from "./analyses/ConfigAnalyzer";
 import { PathAnalyzer } from "./analyses/PathAnalyzer";
 import { ReflectControllerAnalyzer } from "./analyses/ReflectControllerAnalyzer";
@@ -228,6 +229,8 @@ export class NestiaSdkApplication {
             }),
           );
       }
+    AccessorAnalyzer.analyze(routes);
+
     if (props.validate !== undefined)
       props.validate({
         project,

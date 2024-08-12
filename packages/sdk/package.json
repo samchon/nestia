@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "rimraf lib && tsc",
-    "dev": "rimraf lib && tsc --watch",
+    "dev": "tsc -p tsconfig.test.json --watch",
     "eslint": "eslint ./**/*.ts",
     "prepare": "ts-patch install && typia patch"
   },

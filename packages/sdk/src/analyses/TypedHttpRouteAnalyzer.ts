@@ -14,6 +14,7 @@ import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { ITypedHttpRouteException } from "../structures/ITypedHttpRouteException";
 import { ITypedHttpRouteParameter } from "../structures/ITypedHttpRouteParameter";
 import { ITypedHttpRouteSuccess } from "../structures/ITypedHttpRouteSuccess";
+import { PathUtil } from "../utils/PathUtil";
 
 export namespace TypedHttpRouteAnalyzer {
   export const dictionary = (
@@ -155,7 +156,7 @@ export namespace TypedHttpRouteAnalyzer {
       ...props.operation,
       controller: props.controller,
       path,
-      accessors: ["@lazy"],
+      accessors: [...PathUtil.accessors(path), props.operation.name],
       exceptions,
       parameters,
       success,

@@ -74,30 +74,19 @@ export namespace SdkAliasCollection {
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.TypeNode => {
       if (project.config.propagate !== true) {
-        const node: ts.TypeNode = name(route.success.type);
-        const type = project.checker.getTypeAtLocation(node);
-        const filter = (flag: ts.TypeFlags) => (type.flags & flag) !== 0;
-
-        if (
-          project.config.clone === true ||
-          project.config.primitive === false ||
-          filter(ts.TypeFlags.Undefined) ||
-          filter(ts.TypeFlags.Never) ||
-          filter(ts.TypeFlags.Void) ||
-          filter(ts.TypeFlags.VoidLike)
-        )
-          return node;
+        if (project.config.clone === true || project.config.primitive === false)
+          return name(route.success.type);
         return ts.factory.createTypeReferenceNode(
           importer.external({
             type: true,
             library: "@nestia/fetcher",
             instance:
-              route.success.contentType === "application/json" &&
+              route.success.contentType === "application/json" ||
               route.success.encrypted === true
                 ? "Primitive"
                 : "Resolved",
           }),
-          [node],
+          [name(route.success.type)],
         );
       }
 

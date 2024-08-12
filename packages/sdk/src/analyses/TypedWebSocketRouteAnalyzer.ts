@@ -1,6 +1,7 @@
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
 import { ITypedWebSocketRoute } from "../structures/ITypedWebSocketRoute";
+import { PathUtil } from "../utils/PathUtil";
 
 export namespace TypedWebSocketRouteAnalyzer {
   export const analyze = (props: {
@@ -12,6 +13,6 @@ export namespace TypedWebSocketRouteAnalyzer {
       ...props.operation,
       controller: props.controller,
       path,
-      accessors: ["@lazy"],
+      accessors: [...PathUtil.accessors(path), props.operation.name],
     }));
 }

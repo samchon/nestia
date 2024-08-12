@@ -35,7 +35,7 @@ export namespace SdkHttpNamespaceProgrammer {
           ...(types.length ? [FilePrinter.enter()] : []),
           write_metadata(importer)(route, props),
           FilePrinter.enter(),
-          write_path(route, props),
+          write_path(route, props.query),
           ...(project.config.simulate
             ? [
                 SdkHttpSimulationProgrammer.random(project)(importer)(route),
@@ -92,11 +92,8 @@ export namespace SdkHttpNamespaceProgrammer {
           "Input",
           SdkAliasCollection.input(project)(importer)(props.input),
         );
-      if (
-        project.config.propagate === true ||
-        route.success.type.name !== "void"
-      )
-        declare("Output", SdkAliasCollection.name(route.success.type));
+      if (route.success.type.name !== "void")
+        declare("Output", SdkAliasCollection.output(project)(importer)(route));
       return array;
     };
 
@@ -179,9 +176,7 @@ export namespace SdkHttpNamespaceProgrammer {
 
   const write_path = (
     route: ITypedHttpRoute,
-    props: {
-      query: ITypedHttpRouteParameter.IQuery | undefined;
-    },
+    query: ITypedHttpRouteParameter.IQuery | undefined,
   ): ts.VariableStatement => {
     const g = {
       total: [
@@ -191,7 +186,7 @@ export namespace SdkHttpNamespaceProgrammer {
       ],
       query: route.parameters
         .filter((param) => param.kind === "query")
-        .filter((param) => param.field !== undefined),
+        .filter((param) => param.field !== null),
       path: route.parameters.filter((param) => param.kind === "param"),
     };
     const out = (body: ts.ConciseBody) =>
@@ -202,8 +197,8 @@ export namespace SdkHttpNamespaceProgrammer {
           g.total.map((p) =>
             IdentifierFactory.parameter(
               p.name,
-              p === props.query
-                ? p.metadata.optional
+              p === query
+                ? p.metadata.isRequired() === false
                   ? ts.factory.createUnionTypeNode([
                       ts.factory.createTypeReferenceNode(`${route.name}.Query`),
                       ts.factory.createTypeReferenceNode("undefined"),
@@ -249,8 +244,7 @@ export namespace SdkHttpNamespaceProgrammer {
         }),
       );
     };
-    if (props.query === undefined && g.query.length === 0)
-      return out(template());
+    if (query === undefined && g.query.length === 0) return out(template());
 
     const block = (expr: ts.Expression) => {
       const computeName = (str: string): string =>
@@ -398,26 +392,26 @@ export namespace SdkHttpNamespaceProgrammer {
         true,
       );
     };
-    if (props.query !== undefined && g.query.length === 0)
+    if (query !== undefined && g.query.length === 0)
       return out(
         block(
-          props.query.metadata.optional
+          query.metadata.isRequired() === false
             ? ts.factory.createBinaryExpression(
-                ts.factory.createIdentifier(props.query.name),
+                ts.factory.createIdentifier(query.name),
                 ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
                 ts.factory.createObjectLiteralExpression([], false),
               )
-            : ts.factory.createIdentifier(props.query.name),
+            : ts.factory.createIdentifier(query.name),
         ),
       );
     return out(
       block(
         ts.factory.createObjectLiteralExpression(
           [
-            ...(props.query
+            ...(query
               ? [
                   ts.factory.createSpreadAssignment(
-                    ts.factory.createIdentifier(props.query.name),
+                    ts.factory.createIdentifier(query.name),
                   ),
                 ]
               : []),

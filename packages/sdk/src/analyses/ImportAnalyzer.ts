@@ -55,7 +55,7 @@ export namespace ImportAnalyzer {
     TYPE
   --------------------------------------------------------- */
   const escape = (checker: ts.TypeChecker, type: ts.Type): ts.Type => {
-    if (type.symbol && getName(type.symbol) === "Promise") {
+    if (type.symbol && getNameOfSymbol(type.symbol) === "Promise") {
       const generic: readonly ts.Type[] = checker.getTypeArguments(
         type as ts.TypeReference,
       );
@@ -68,7 +68,7 @@ export namespace ImportAnalyzer {
     return type;
   };
 
-  const getName = (symbol: ts.Symbol): string =>
+  const getNameOfSymbol = (symbol: ts.Symbol): string =>
     exploreName(
       symbol.escapedName.toString(),
       symbol.getDeclarations()?.[0]?.parent,
@@ -104,6 +104,7 @@ export namespace ImportAnalyzer {
               type: child,
             }),
           )
+          .map(getName)
           .join(joiner),
       };
     }
@@ -120,7 +121,7 @@ export namespace ImportAnalyzer {
     //----
     // SPECIALIZATION
     //----
-    const name: string = getName(symbol);
+    const name: string = getNameOfSymbol(symbol);
     const sourceFile: ts.SourceFile | undefined =
       symbol.declarations?.[0]?.getSourceFile();
     if (sourceFile === undefined) return { name };
@@ -163,3 +164,8 @@ export namespace ImportAnalyzer {
         )
       : name;
 }
+
+const getName = (type: IReflectType): string =>
+  type.typeArguments
+    ? `${type.name}<${type.typeArguments.map(getName).join(", ")}>`
+    : type.name;
