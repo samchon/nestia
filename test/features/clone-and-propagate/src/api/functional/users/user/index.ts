@@ -34,7 +34,7 @@ import type { PartialPickIUsernameemailoptional_attrnullable_attr } from "../../
 export async function getUserProfile(
   connection: IConnection,
   user_id: string,
-  query: IUser.ISearch,
+  query: getUserProfile.Query,
 ): Promise<
   IPropagation<
     {
@@ -62,6 +62,7 @@ export async function getUserProfile(
       );
 }
 export namespace getUserProfile {
+  export type Query = IUser.ISearch;
   export type Output = IPropagation<
     {
       202: IUser;
@@ -81,15 +82,25 @@ export namespace getUserProfile {
     status: 202,
   } as const;
 
-  export const path = (user_id: string, query: IUser.ISearch) =>
-    `/users/${encodeURIComponent(user_id ?? "null")}/user`;
+  export const path = (user_id: string, query: getUserProfile.Query) => {
+    const variables: URLSearchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(query as any))
+      if (undefined === value) continue;
+      else if (Array.isArray(value))
+        value.forEach((elem: any) => variables.append(key, String(elem)));
+      else variables.set(key, String(value));
+    const location: string = `/users/${encodeURIComponent(user_id ?? "null")}/user`;
+    return 0 === variables.size
+      ? location
+      : `${location}?${variables.toString()}`;
+  };
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Primitive<IUser>> => typia.random<Primitive<IUser>>(g);
   export const simulate = (
     connection: IConnection,
     user_id: string,
-    query: IUser.ISearch,
+    query: getUserProfile.Query,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

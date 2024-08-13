@@ -2,7 +2,6 @@ import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
-import { INestiaConfig } from "../../INestiaConfig";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
@@ -66,13 +65,13 @@ export namespace SdkHttpFunctionProgrammer {
           SdkAliasCollection.output(project)(importer)(route),
         ]),
         ts.factory.createBlock(
-          write_body(project.config)(importer)(route, props),
+          write_body(project)(importer)(route, props),
           true,
         ),
       );
 
   const write_body =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (
       route: ITypedHttpRoute,
@@ -88,8 +87,8 @@ export namespace SdkHttpFunctionProgrammer {
             ts.factory.createIdentifier(
               SdkImportWizard.Fetcher(!!props.input?.encrypted)(importer),
             ),
-          )(config.propagate ? "propagate" : "fetch"),
-          config.propagate
+          )(project.config.propagate ? "propagate" : "fetch"),
+          project.config.propagate
             ? route.method.toLowerCase() === "get" ||
               route.method.toLowerCase() === "head"
               ? [TypeFactory.keyword("any")]
@@ -160,7 +159,7 @@ export namespace SdkHttpFunctionProgrammer {
             ...(props.input
               ? [ts.factory.createIdentifier(props.input.name)]
               : []),
-            ...(config.json &&
+            ...(project.config.json &&
             props.input !== undefined &&
             (props.input.contentType === "application/json" ||
               props.input.encrypted === true)
@@ -169,7 +168,7 @@ export namespace SdkHttpFunctionProgrammer {
           ],
         );
       const output = (awaiter: boolean) =>
-        config.simulate
+        project.config.simulate
           ? ts.factory.createConditionalExpression(
               ts.factory.createIdentifier("!!connection.simulate"),
               undefined,
@@ -190,7 +189,7 @@ export namespace SdkHttpFunctionProgrammer {
             ? ts.factory.createAwaitExpression(caller())
             : caller();
       return [
-        ...(config.assert
+        ...(project.config.assert
           ? route.parameters
               .filter((p) => p.category !== "headers")
               .map((p) =>
@@ -213,12 +212,13 @@ export namespace SdkHttpFunctionProgrammer {
           : []),
         ...(route.success.setHeaders.length === 0
           ? [ts.factory.createReturnStatement(output(false))]
-          : write_set_headers(config)(route)(output(true))),
+          : write_set_headers(project)(importer)(route)(output(true))),
       ];
     };
 
   const write_set_headers =
-    (config: INestiaConfig) =>
+    (project: INestiaProject) =>
+    (importer: ImportDictionary) =>
     (route: ITypedHttpRoute) =>
     (condition: ts.Expression): ts.Statement[] => {
       const accessor = (x: string) => (y: string) =>
@@ -228,7 +228,9 @@ export namespace SdkHttpFunctionProgrammer {
         ...route.parameters.map((p) => p.name),
       ])("output");
       const headers: string = accessor("connection")("headers");
-      const data: string = config.propagate ? accessor(output)("data") : output;
+      const data: string = project.config.propagate
+        ? accessor(output)("data")
+        : output;
 
       const assigners: ts.ExpressionStatement[] = [
         ts.factory.createBinaryExpression(
@@ -263,14 +265,14 @@ export namespace SdkHttpFunctionProgrammer {
               ts.factory.createVariableDeclaration(
                 output,
                 undefined,
-                SdkAliasCollection.name(route.success.type),
+                SdkAliasCollection.output(project)(importer)(route),
                 condition,
               ),
             ],
             ts.NodeFlags.Const,
           ),
         ),
-        ...(config.propagate
+        ...(project.config.propagate
           ? [
               ts.factory.createIfStatement(
                 ts.factory.createIdentifier(accessor(output)("success")),

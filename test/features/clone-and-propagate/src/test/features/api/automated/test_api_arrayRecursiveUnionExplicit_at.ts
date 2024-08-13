@@ -13,7 +13,7 @@ export const test_api_arrayRecursiveUnionExplicit_at = async (
 ) => {
   const output: IPropagation<
     {
-      200: IDirectory | IImageFile | IShortcut | ITextFile | IZipFile;
+      200: IDirectory | IImageFile | ITextFile | IZipFile | IShortcut;
     },
     200
   > = await api.functional.arrayRecursiveUnionExplicit.at(

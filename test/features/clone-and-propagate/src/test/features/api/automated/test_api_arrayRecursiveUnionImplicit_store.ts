@@ -15,23 +15,23 @@ export const test_api_arrayRecursiveUnionImplicit_store = async (
   const output: IPropagation<
     {
       201:
-        | IDirectory
-        | IImageFile
+        | IDirectory.o1
         | ISharedDirectory
-        | IShortcut
-        | ITextFile
-        | IZipFile;
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1;
     },
     201
   > = await api.functional.arrayRecursiveUnionImplicit.store(
     connection,
     typia.random<
-      | IDirectory
-      | IImageFile
+      | IDirectory.o1
       | ISharedDirectory
-      | IShortcut
-      | ITextFile
-      | IZipFile
+      | IImageFile.o1
+      | ITextFile.o1
+      | IZipFile.o1
+      | IShortcut.o1
     >(),
   );
   typia.assert(output);

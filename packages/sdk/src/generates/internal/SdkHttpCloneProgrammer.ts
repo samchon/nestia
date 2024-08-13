@@ -23,6 +23,10 @@ export namespace SdkHttpCloneProgrammer {
   }
 
   export const write = (app: ITypedApplication): Map<string, IModule> => {
+    // console.log({
+    //   objects: Array.from(app.collection.objects.keys()).sort(),
+    //   aliases: Array.from(app.collection.aliases.keys()).sort(),
+    // });
     // COMPOSE THE DICTIONARY
     const dict: Map<string, IModule> = new Map();
     for (const [k, v] of app.collection.objects.entries())
@@ -39,7 +43,6 @@ export namespace SdkHttpCloneProgrammer {
           name: k,
           programmer: (importer) => write_alias(app.project)(importer)(v),
         });
-
     return dict;
   };
 

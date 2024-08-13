@@ -15,12 +15,12 @@ export const test_api_arrayRecursiveUnionImplicit_at = async (
   const output: IPropagation<
     {
       200:
-        | IDirectory
-        | IImageFile
+        | IDirectory.o1
         | ISharedDirectory
-        | IShortcut
-        | ITextFile
-        | IZipFile;
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1;
     },
     200
   > = await api.functional.arrayRecursiveUnionImplicit.at(

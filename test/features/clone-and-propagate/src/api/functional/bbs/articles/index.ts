@@ -34,7 +34,7 @@ import type { IPageIBbsArticle } from "../../../structures/IPageIBbsArticle";
 export async function index(
   connection: IConnection,
   section: string,
-  query: IPage.IRequest,
+  query: index.Query,
 ): Promise<
   IPropagation<
     {
@@ -61,6 +61,7 @@ export async function index(
       );
 }
 export namespace index {
+  export type Query = IPage.IRequest;
   export type Output = IPropagation<
     {
       200: IPageIBbsArticle.ISummary;
@@ -79,8 +80,18 @@ export namespace index {
     status: 200,
   } as const;
 
-  export const path = (section: string, query: IPage.IRequest) =>
-    `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
+  export const path = (section: string, query: index.Query) => {
+    const variables: URLSearchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(query as any))
+      if (undefined === value) continue;
+      else if (Array.isArray(value))
+        value.forEach((elem: any) => variables.append(key, String(elem)));
+      else variables.set(key, String(value));
+    const location: string = `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
+    return 0 === variables.size
+      ? location
+      : `${location}?${variables.toString()}`;
+  };
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Primitive<IPageIBbsArticle.ISummary>> =>
@@ -88,7 +99,7 @@ export namespace index {
   export const simulate = (
     connection: IConnection,
     section: string,
-    query: IPage.IRequest,
+    query: index.Query,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

@@ -13,12 +13,12 @@ export const test_api_arrayRecursiveUnionExplicit_store = async (
 ) => {
   const output: IPropagation<
     {
-      201: IDirectory | IImageFile | IShortcut | ITextFile | IZipFile;
+      201: IDirectory | IImageFile | ITextFile | IZipFile | IShortcut;
     },
     201
   > = await api.functional.arrayRecursiveUnionExplicit.store(
     connection,
-    typia.random<IDirectory | IImageFile | IShortcut | ITextFile | IZipFile>(),
+    typia.random<IDirectory | IImageFile | ITextFile | IZipFile | IShortcut>(),
   );
   typia.assert(output);
 };

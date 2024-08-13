@@ -42,7 +42,12 @@ export async function join(
     201
   >
 > {
-  const output: ISeller.IAuthorized = !!connection.simulate
+  const output: IPropagation<
+    {
+      201: ISeller.IAuthorized;
+    },
+    201
+  > = !!connection.simulate
     ? join.simulate(connection, input)
     : await EncryptedFetcher.propagate<any, any>(
         {
@@ -151,7 +156,12 @@ export async function login(
     201
   >
 > {
-  const output: ISeller.IAuthorized = !!connection.simulate
+  const output: IPropagation<
+    {
+      201: ISeller.IAuthorized;
+    },
+    201
+  > = !!connection.simulate
     ? login.simulate(connection, input)
     : await EncryptedFetcher.propagate<any, any>(
         {

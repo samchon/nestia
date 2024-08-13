@@ -105,7 +105,7 @@ export namespace SdkHttpSimulationProgrammer {
               ts.factory.createTypeReferenceNode(
                 SdkImportWizard.IConnection(importer),
                 route.parameters.some(
-                  (p) => p.category === "headers" && p.field === undefined,
+                  (p) => p.category === "headers" && p.field === null,
                 )
                   ? [
                       ts.factory.createTypeReferenceNode(
@@ -130,7 +130,9 @@ export namespace SdkHttpSimulationProgrammer {
                     ? ts.factory.createTypeReferenceNode(
                         `${route.name}.${p === props.query ? "Query" : "Input"}`,
                       )
-                    : SdkAliasCollection.name(p.type),
+                    : project.config.clone === true
+                      ? SdkAliasCollection.from(project)(importer)(p.metadata)
+                      : SdkAliasCollection.name(p.type),
                 ),
               ),
           ],

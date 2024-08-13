@@ -315,20 +315,6 @@ const report = (props: {
     ].join("");
     console.log(message);
   }
-
-  // for (const [file, cMap] of map) {
-  //   for (const [controller, fMap] of cMap)
-  //     for (const [func, messages] of fMap) {
-  //       const location: string = path.relative(process.cwd(), file);
-  //       console.log(
-  //         `${location} - ${
-  //           func !== null ? `${controller}.${func}()` : controller
-  //         }`,
-  //       );
-  //       for (const msg of messages) console.log(`  - ${msg}`);
-  //       console.log("");
-  //     }
-  // }
 };
 
 const wrapPaths = (paths: string[]): string[] =>

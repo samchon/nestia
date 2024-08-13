@@ -1,5 +1,6 @@
 import type { IPropagation } from "@nestia/fetcher";
 import typia from "typia";
+import type { Format } from "typia/lib/tags/Format";
 
 import api from "../../../../api";
 import type { IPerson } from "../../../../api/structures/IPerson";

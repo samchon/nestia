@@ -30,7 +30,7 @@ import type { IAuthentication } from "../../../structures/IAuthentication";
 export async function getOauthProfile(
   connection: IConnection,
   user_id: string,
-  query: IAuthentication,
+  query: getOauthProfile.Query,
 ): Promise<
   IPropagation<
     {
@@ -58,6 +58,7 @@ export async function getOauthProfile(
       );
 }
 export namespace getOauthProfile {
+  export type Query = IAuthentication;
   export type Output = IPropagation<
     {
       200: IAuthentication.IProfile;
@@ -77,8 +78,18 @@ export namespace getOauthProfile {
     status: 200,
   } as const;
 
-  export const path = (user_id: string, query: IAuthentication) =>
-    `/users/${encodeURIComponent(user_id ?? "null")}/oauth`;
+  export const path = (user_id: string, query: getOauthProfile.Query) => {
+    const variables: URLSearchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(query as any))
+      if (undefined === value) continue;
+      else if (Array.isArray(value))
+        value.forEach((elem: any) => variables.append(key, String(elem)));
+      else variables.set(key, String(value));
+    const location: string = `/users/${encodeURIComponent(user_id ?? "null")}/oauth`;
+    return 0 === variables.size
+      ? location
+      : `${location}?${variables.toString()}`;
+  };
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Primitive<IAuthentication.IProfile>> =>
@@ -86,7 +97,7 @@ export namespace getOauthProfile {
   export const simulate = (
     connection: IConnection,
     user_id: string,
-    query: IAuthentication,
+    query: getOauthProfile.Query,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

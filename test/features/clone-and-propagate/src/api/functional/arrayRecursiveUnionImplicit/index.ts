@@ -31,12 +31,12 @@ export async function index(connection: IConnection): Promise<
   IPropagation<
     {
       200: (
-        | IDirectory
+        | IDirectory.o1
         | ISharedDirectory
-        | IImageFile
-        | ITextFile
-        | IZipFile
-        | IShortcut
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1
       )[];
     },
     200
@@ -63,12 +63,12 @@ export namespace index {
   export type Output = IPropagation<
     {
       200: (
-        | IDirectory
+        | IDirectory.o1
         | ISharedDirectory
-        | IImageFile
-        | ITextFile
-        | IZipFile
-        | IShortcut
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1
       )[];
     },
     200
@@ -91,24 +91,24 @@ export namespace index {
   ): Resolved<
     Primitive<
       (
-        | IDirectory
+        | IDirectory.o1
         | ISharedDirectory
-        | IImageFile
-        | ITextFile
-        | IZipFile
-        | IShortcut
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1
       )[]
     >
   > =>
     typia.random<
       Primitive<
         (
-          | IDirectory
+          | IDirectory.o1
           | ISharedDirectory
-          | IImageFile
-          | ITextFile
-          | IZipFile
-          | IShortcut
+          | IImageFile.o1
+          | ITextFile.o1
+          | IZipFile.o1
+          | IShortcut.o1
         )[]
       >
     >(g);
@@ -140,12 +140,12 @@ export async function at(
   IPropagation<
     {
       200:
-        | IDirectory
+        | IDirectory.o1
         | ISharedDirectory
-        | IImageFile
-        | ITextFile
-        | IZipFile
-        | IShortcut;
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1;
     },
     200
   >
@@ -171,12 +171,12 @@ export namespace at {
   export type Output = IPropagation<
     {
       200:
-        | IDirectory
+        | IDirectory.o1
         | ISharedDirectory
-        | IImageFile
-        | ITextFile
-        | IZipFile
-        | IShortcut;
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1;
     },
     200
   >;
@@ -198,22 +198,22 @@ export namespace at {
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<
     Primitive<
-      | IDirectory
+      | IDirectory.o1
       | ISharedDirectory
-      | IImageFile
-      | ITextFile
-      | IZipFile
-      | IShortcut
+      | IImageFile.o1
+      | ITextFile.o1
+      | IZipFile.o1
+      | IShortcut.o1
     >
   > =>
     typia.random<
       Primitive<
-        | IDirectory
+        | IDirectory.o1
         | ISharedDirectory
-        | IImageFile
-        | ITextFile
-        | IZipFile
-        | IShortcut
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1
       >
     >(g);
   export const simulate = (connection: IConnection, id: number): Output => {
@@ -261,12 +261,12 @@ export async function store(
   IPropagation<
     {
       201:
-        | IDirectory
+        | IDirectory.o1
         | ISharedDirectory
-        | IImageFile
-        | ITextFile
-        | IZipFile
-        | IShortcut;
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1;
     },
     201
   >
@@ -291,21 +291,21 @@ export async function store(
 }
 export namespace store {
   export type Input =
-    | IDirectory
+    | IDirectory.o1
     | ISharedDirectory
-    | IImageFile
-    | ITextFile
-    | IZipFile
-    | IShortcut;
+    | IImageFile.o1
+    | ITextFile.o1
+    | IZipFile.o1
+    | IShortcut.o1;
   export type Output = IPropagation<
     {
       201:
-        | IDirectory
+        | IDirectory.o1
         | ISharedDirectory
-        | IImageFile
-        | ITextFile
-        | IZipFile
-        | IShortcut;
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1;
     },
     201
   >;
@@ -329,22 +329,22 @@ export namespace store {
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<
     Primitive<
-      | IDirectory
+      | IDirectory.o1
       | ISharedDirectory
-      | IImageFile
-      | ITextFile
-      | IZipFile
-      | IShortcut
+      | IImageFile.o1
+      | ITextFile.o1
+      | IZipFile.o1
+      | IShortcut.o1
     >
   > =>
     typia.random<
       Primitive<
-        | IDirectory
+        | IDirectory.o1
         | ISharedDirectory
-        | IImageFile
-        | ITextFile
-        | IZipFile
-        | IShortcut
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1
       >
     >(g);
   export const simulate = (

@@ -30,13 +30,6 @@ export namespace E2eFileProgrammer {
         instance: null,
         name: "api",
       });
-      for (const tuple of route.imports)
-        for (const instance of tuple.instances)
-          importer.internal({
-            type: true,
-            file: tuple.file,
-            instance,
-          });
 
       const functor = generate_function(project)(importer)(route);
       await FilePrinter.write({
@@ -73,7 +66,7 @@ export namespace E2eFileProgrammer {
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute) => {
       const headers = route.parameters.find(
-        (p) => p.category === "headers" && p.field === undefined,
+        (p) => p.category === "headers" && p.field === null,
       );
       const connection = headers
         ? ts.factory.createObjectLiteralExpression(
@@ -97,7 +90,13 @@ export namespace E2eFileProgrammer {
                             SdkImportWizard.typia(importer),
                           ),
                         )("random"),
-                        [SdkAliasCollection.name(headers.type)],
+                        [
+                          project.config.clone === true
+                            ? SdkAliasCollection.from(project)(importer)(
+                                headers.metadata,
+                              )
+                            : SdkAliasCollection.name(headers.type),
+                        ],
                         undefined,
                       ),
                     ),
@@ -123,7 +122,11 @@ export namespace E2eFileProgrammer {
                 IdentifierFactory.access(
                   ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
                 )("random"),
-                [SdkAliasCollection.name(p.type)],
+                [
+                  project.config.clone === true
+                    ? SdkAliasCollection.from(project)(importer)(p.metadata)
+                    : SdkAliasCollection.name(p.type),
+                ],
                 undefined,
               ),
             ),

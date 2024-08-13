@@ -10,11 +10,11 @@ export type ISharedDirectory = {
   name: string;
   path: string;
   children: (
-    | IDirectory
+    | IDirectory.o1
     | ISharedDirectory
-    | IImageFile
-    | ITextFile
-    | IZipFile
-    | IShortcut
+    | IImageFile.o1
+    | ITextFile.o1
+    | IZipFile.o1
+    | IShortcut.o1
   )[];
 };

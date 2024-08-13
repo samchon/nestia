@@ -1,5 +1,5 @@
 import path from "path";
-import { HashSet, hash } from "tstl";
+import { HashSet, Singleton, hash } from "tstl";
 import ts from "typescript";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
@@ -16,9 +16,7 @@ export namespace SdkOperationTransformer {
       const context: ISdkOperationTransformerContext = {
         checker,
         api,
-        collection: new MetadataCollection({
-          replace: MetadataCollection.replace,
-        }),
+        collection: collection.get(),
       };
       return (file: ts.SourceFile): ts.SourceFile => {
         if (file.isDeclarationFile === true) return file;
@@ -216,4 +214,11 @@ const TYPED_EXCEPTION_PATH = path.join(
   "lib",
   "decorators",
   `TypedException.d.ts`,
+);
+
+const collection = new Singleton(
+  () =>
+    new MetadataCollection({
+      replace: MetadataCollection.replace,
+    }),
 );

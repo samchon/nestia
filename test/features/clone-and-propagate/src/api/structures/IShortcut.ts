@@ -8,11 +8,21 @@ export type IShortcut = {
   id: number;
   name: string;
   path: string;
-  target:
-    | IDirectory
-    | ISharedDirectory
-    | IImageFile
-    | ITextFile
-    | IZipFile
-    | IShortcut;
+  target: IDirectory | IImageFile | ITextFile | IZipFile | IShortcut;
+  type: "file";
+  extension: "lnk";
 };
+export namespace IShortcut {
+  export type o1 = {
+    id: number;
+    name: string;
+    path: string;
+    target:
+      | IDirectory.o1
+      | ISharedDirectory
+      | IImageFile.o1
+      | ITextFile.o1
+      | IZipFile.o1
+      | IShortcut.o1;
+  };
+}

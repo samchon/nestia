@@ -2,12 +2,12 @@ import type { IPropagation } from "@nestia/fetcher";
 import typia from "typia";
 
 import api from "../../../../api";
-import type { ArrayTemplate } from "../../../../api/structures/ArrayTemplate";
+import type { Template } from "../../../../api/structures/Template";
 
 export const test_api_template_index = async (connection: api.IConnection) => {
   const output: IPropagation<
     {
-      200: ArrayTemplate;
+      200: Template[];
     },
     200
   > = await api.functional.template.index(connection);

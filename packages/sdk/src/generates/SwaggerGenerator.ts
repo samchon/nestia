@@ -16,6 +16,7 @@ import { SwaggerOperationComposer } from "./internal/SwaggerOperationComposer";
 export namespace SwaggerGenerator {
   export const generate = async (app: ITypedApplication): Promise<void> => {
     // GET CONFIGURATION
+    console.log("Generating Swagger Document");
     if (app.project.config.swagger === undefined)
       throw new Error("Swagger configuration is not defined.");
     const config: INestiaConfig.ISwaggerConfig = app.project.config.swagger;

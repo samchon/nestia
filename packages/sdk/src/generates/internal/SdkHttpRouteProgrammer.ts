@@ -16,10 +16,10 @@ export namespace SdkHttpRouteProgrammer {
       const props = {
         headers: route.parameters
           .filter((p) => p.category === "headers")
-          .find((p) => p.field === undefined),
+          .find((p) => p.field === null),
         query: route.parameters
           .filter((p) => p.category === "query")
-          .find((p) => p.field === undefined),
+          .find((p) => p.field === null),
         input: route.parameters.find((p) => p.category === "body"),
       };
       return [

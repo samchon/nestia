@@ -30,11 +30,11 @@ export async function get(connection: IConnection): Promise<
   IPropagation<
     {
       200: (
-        | IPoint
+        | IPoint.o1
         | ILine
         | ITriangle
         | IRectangle
-        | IPolyline
+        | IPolyline.o1
         | IPolygon
         | ICircle
       )[];
@@ -63,11 +63,11 @@ export namespace get {
   export type Output = IPropagation<
     {
       200: (
-        | IPoint
+        | IPoint.o1
         | ILine
         | ITriangle
         | IRectangle
-        | IPolyline
+        | IPolyline.o1
         | IPolygon
         | ICircle
       )[];
@@ -92,11 +92,11 @@ export namespace get {
   ): Resolved<
     Primitive<
       (
-        | IPoint
+        | IPoint.o1
         | ILine
         | ITriangle
         | IRectangle
-        | IPolyline
+        | IPolyline.o1
         | IPolygon
         | ICircle
       )[]
@@ -105,11 +105,11 @@ export namespace get {
     typia.random<
       Primitive<
         (
-          | IPoint
+          | IPoint.o1
           | ILine
           | ITriangle
           | IRectangle
-          | IPolyline
+          | IPolyline.o1
           | IPolygon
           | ICircle
         )[]
