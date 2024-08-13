@@ -21,11 +21,20 @@ export async function typed(
   connection: IConnection,
   query: typed.Query,
 ): Promise<typed.Output> {
-  return PlainFetcher.fetch(connection, {
-    ...typed.METADATA,
-    template: typed.METADATA.path,
-    path: typed.path(query),
-  });
+  return PlainFetcher.fetch(
+    {
+      ...connection,
+      headers: {
+        ...connection.headers,
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      ...typed.METADATA,
+      template: typed.METADATA.path,
+      path: typed.path(query),
+    },
+  );
 }
 export namespace typed {
   export type Query = Resolved<IQuery>;
@@ -39,7 +48,7 @@ export namespace typed {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (query: typed.Query) => {
@@ -63,16 +72,25 @@ export namespace typed {
  */
 export async function optional(
   connection: IConnection,
-  query?: optional.Query,
+  query: optional.Query,
 ): Promise<optional.Output> {
-  return PlainFetcher.fetch(connection, {
-    ...optional.METADATA,
-    template: optional.METADATA.path,
-    path: optional.path(query),
-  });
+  return PlainFetcher.fetch(
+    {
+      ...connection,
+      headers: {
+        ...connection.headers,
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      ...optional.METADATA,
+      template: optional.METADATA.path,
+      path: optional.path(query),
+    },
+  );
 }
 export namespace optional {
-  export type Query = Resolved<undefined | IOptionalQuery>;
+  export type Query = Resolved<IOptionalQuery>;
   export type Output = Primitive<IOptionalQuery>;
 
   export const METADATA = {
@@ -83,12 +101,12 @@ export namespace optional {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
-  export const path = (query: optional.Query | undefined) => {
+  export const path = (query: optional.Query) => {
     const variables: URLSearchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(query ?? ({} as any)))
+    for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;
       else if (Array.isArray(value))
         value.forEach((elem: any) => variables.append(key, String(elem)));
@@ -109,11 +127,20 @@ export async function nest(
   connection: IConnection,
   query: nest.Query,
 ): Promise<nest.Output> {
-  return PlainFetcher.fetch(connection, {
-    ...nest.METADATA,
-    template: nest.METADATA.path,
-    path: nest.path(query),
-  });
+  return PlainFetcher.fetch(
+    {
+      ...connection,
+      headers: {
+        ...connection.headers,
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      ...nest.METADATA,
+      template: nest.METADATA.path,
+      path: nest.path(query),
+    },
+  );
 }
 export namespace nest {
   export type Query = Resolved<INestQuery>;
@@ -127,7 +154,7 @@ export namespace nest {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (query: nest.Query) => {
@@ -153,11 +180,20 @@ export async function individual(
   connection: IConnection,
   id: string,
 ): Promise<individual.Output> {
-  return PlainFetcher.fetch(connection, {
-    ...individual.METADATA,
-    template: individual.METADATA.path,
-    path: individual.path(id),
-  });
+  return PlainFetcher.fetch(
+    {
+      ...connection,
+      headers: {
+        ...connection.headers,
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      ...individual.METADATA,
+      template: individual.METADATA.path,
+      path: individual.path(id),
+    },
+  );
 }
 export namespace individual {
   export type Output = Primitive<string>;
@@ -170,7 +206,7 @@ export namespace individual {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (id: string) => {
@@ -199,11 +235,20 @@ export async function composite(
   atomic: string,
   query: composite.Query,
 ): Promise<composite.Output> {
-  return PlainFetcher.fetch(connection, {
-    ...composite.METADATA,
-    template: composite.METADATA.path,
-    path: composite.path(atomic, query),
-  });
+  return PlainFetcher.fetch(
+    {
+      ...connection,
+      headers: {
+        ...connection.headers,
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      ...composite.METADATA,
+      template: composite.METADATA.path,
+      path: composite.path(atomic, query),
+    },
+  );
 }
 export namespace composite {
   export type Query = Resolved<Omit<IQuery, "atomic">>;
@@ -217,7 +262,7 @@ export namespace composite {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (atomic: string, query: composite.Query) => {
@@ -263,7 +308,7 @@ export async function body(
   );
 }
 export namespace body {
-  export type Input = Primitive<IQuery>;
+  export type Input = Resolved<IQuery>;
   export type Output = Resolved<IQuery>;
 
   export const METADATA = {
@@ -277,7 +322,7 @@ export namespace body {
       type: "application/x-www-form-urlencoded",
       encrypted: false,
     },
-    status: null,
+    status: 201,
     parseQuery: typia.http.createAssertQuery<IQuery>(),
   } as const;
 

@@ -61,15 +61,17 @@ export namespace SdkOperationProgrammer {
   }): IOperationMetadata.IParameter => {
     const symbol: ts.Symbol | undefined =
       props.context.checker.getSymbolAtLocation(props.parameter);
+    const common: IOperationMetadata.IResponse = writeType({
+      context: props.context,
+      generics: props.generics,
+      type:
+        props.context.checker.getTypeFromTypeNode(
+          props.parameter.type ?? TypeFactory.keyword("any"),
+        ) ?? null,
+      required: props.parameter.questionToken === undefined,
+    });
     return {
-      ...writeType({
-        ...props,
-        type:
-          props.context.checker.getTypeFromTypeNode(
-            props.parameter.type ?? TypeFactory.keyword("any"),
-          ) ?? null,
-        required: props.parameter.questionToken === undefined,
-      }),
+      ...common,
       name: props.parameter.name.getText(),
       index: props.index,
       description: (symbol && CommentFactory.description(symbol)) ?? null,

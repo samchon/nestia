@@ -1,3 +1,4 @@
+import { SwaggerCustomizer } from "@nestia/core";
 import { OpenApi, OpenApiV3, SwaggerV2 } from "@samchon/openapi";
 import fs from "fs";
 import path from "path";
@@ -93,7 +94,7 @@ export namespace SwaggerGenerator {
     const document: OpenApi.IDocument = props.document;
     document.components.schemas ??= {};
     Object.assign(document.components.schemas, json.components.schemas);
-    document.paths = writePaths({ ...props, schema });
+    document.paths = writePaths({ ...props, schema, document });
 
     return document;
   };
@@ -183,15 +184,80 @@ export namespace SwaggerGenerator {
     routes: ITypedHttpRoute[];
   }): Record<string, OpenApi.IPath> => {
     const output: Record<string, OpenApi.IPath> = {};
+    const customizers: Array<() => void> = [];
+
+    // SWAGGER CUSTOMIZER
+    const customizer = {
+      at: new Singleton(() => {
+        const functor: Map<Function, Endpoint> = new Map();
+        for (const r of props.routes) {
+          const method: OpenApi.Method =
+            r.method.toLowerCase() as OpenApi.Method;
+          const path: string = getPath(r);
+          const operation: OpenApi.IOperation | undefined =
+            props.document.paths?.[path]?.[method];
+          if (operation === undefined) continue;
+          functor.set(r.function, {
+            method,
+            path,
+            route: operation,
+          });
+        }
+        return functor;
+      }),
+      get: new Singleton(
+        () =>
+          (key: Accessor): OpenApi.IOperation | undefined => {
+            const method: OpenApi.Method =
+              key.method.toLowerCase() as OpenApi.Method;
+            const path: string =
+              "/" +
+              key.path
+                .split("/")
+                .filter((str) => !!str.length)
+                .map((str) =>
+                  str.startsWith(":") ? `{${str.substring(1)}}` : str,
+                )
+                .join("/");
+            return props.document.paths?.[path]?.[method];
+          },
+      ),
+    };
+
+    // COMPOSE OPERATIONS
     for (const r of props.routes) {
+      const operation: OpenApi.IOperation = SwaggerOperationComposer.compose({
+        ...props,
+        route: r,
+      });
       const path: string = getPath(r);
       output[path] ??= {};
-      output[path][r.method.toLowerCase() as "get"] =
-        SwaggerOperationComposer.compose({
-          ...props,
-          route: r,
+      output[path][r.method.toLowerCase() as "get"] = operation;
+
+      const closure: Function | Function[] | undefined = Reflect.getMetadata(
+        "nestia/SwaggerCustomizer",
+        r.controller.class.prototype,
+        r.name,
+      );
+      if (closure !== undefined) {
+        const array: Function[] = Array.isArray(closure) ? closure : [closure];
+        customizers.push(() => {
+          for (const closure of array)
+            closure({
+              swagger: props.document,
+              method: r.method,
+              path,
+              route: operation,
+              at: (func: Function) => customizer.at.get().get(func),
+              get: (accessor: Accessor) => customizer.get.get()(accessor),
+            } satisfies SwaggerCustomizer.IProps);
         });
+      }
     }
+
+    // DO CUSTOMIZE
+    for (const fn of customizers) fn();
+
     return output;
   };
 
@@ -207,4 +273,14 @@ export namespace SwaggerGenerator {
       str = str.replace(`:${param.field}`, `{${param.field}}`);
     return str;
   };
+}
+
+interface Accessor {
+  method: string;
+  path: string;
+}
+interface Endpoint {
+  method: string;
+  path: string;
+  route: OpenApi.IOperation;
 }

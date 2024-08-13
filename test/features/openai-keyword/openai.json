@@ -5,6 +5,7 @@
       "method": "post",
       "path": "/bbs/articles",
       "name": "bbs_articles_post",
+      "strict": true,
       "parameters": [
         {
           "type": "object",
@@ -121,18 +122,20 @@
                   "title": "Creation time of snapshot record",
                   "description": "Creation time of snapshot record.\n\nIn other words, creation time or update time or article."
                 },
+                "title": {
+                  "type": "string",
+                  "title": "Title of article",
+                  "description": "Title of article."
+                },
                 "format": {
                   "type": "string",
                   "enum": [
                     "txt",
                     "md",
                     "html"
-                  ]
-                },
-                "title": {
-                  "type": "string",
-                  "title": "Title of article",
-                  "description": "Title of article."
+                  ],
+                  "title": "Format of body",
+                  "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
                 },
                 "body": {
                   "type": "string",
@@ -179,8 +182,8 @@
               "required": [
                 "id",
                 "created_at",
-                "format",
                 "title",
+                "format",
                 "body",
                 "files"
               ],
@@ -211,6 +214,7 @@
       "method": "patch",
       "path": "/bbs/articles",
       "name": "bbs_articles_patch",
+      "strict": true,
       "parameters": [
         {
           "type": "object",
@@ -220,12 +224,10 @@
               "properties": {
                 "page": {
                   "type": "integer",
-                  "title": "Page number",
                   "description": "Page number."
                 },
                 "limit": {
                   "type": "integer",
-                  "title": "Limitation of records per a page",
                   "description": "Limitation of records per a page."
                 }
               },
@@ -328,6 +330,7 @@
       "method": "patch",
       "path": "/bbs/articles/abridges",
       "name": "bbs_articles_abridges_patch",
+      "strict": true,
       "parameters": [
         {
           "type": "object",
@@ -366,12 +369,12 @@
                   "items": {
                     "type": "string",
                     "enum": [
-                      "-title",
                       "-writer",
+                      "-title",
                       "-created_at",
                       "-updated_at",
-                      "+title",
                       "+writer",
+                      "+title",
                       "+created_at",
                       "+updated_at"
                     ]
@@ -468,7 +471,9 @@
                     "txt",
                     "md",
                     "html"
-                  ]
+                  ],
+                  "title": "Format of body",
+                  "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
                 },
                 "body": {
                   "type": "string",
@@ -540,6 +545,7 @@
       "method": "get",
       "path": "/bbs/articles/{id}",
       "name": "bbs_articles_getById",
+      "strict": true,
       "parameters": [
         {
           "type": "object",
@@ -547,7 +553,7 @@
             "id": {
               "type": "string",
               "format": "uuid",
-              "description": " Target article's {@link IBbsArticle.id}"
+              "description": " Target article's {@link IBbsArticle.id }"
             }
           }
         }
@@ -583,18 +589,20 @@
                   "title": "Creation time of snapshot record",
                   "description": "Creation time of snapshot record.\n\nIn other words, creation time or update time or article."
                 },
+                "title": {
+                  "type": "string",
+                  "title": "Title of article",
+                  "description": "Title of article."
+                },
                 "format": {
                   "type": "string",
                   "enum": [
                     "txt",
                     "md",
                     "html"
-                  ]
-                },
-                "title": {
-                  "type": "string",
-                  "title": "Title of article",
-                  "description": "Title of article."
+                  ],
+                  "title": "Format of body",
+                  "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
                 },
                 "body": {
                   "type": "string",
@@ -641,8 +649,8 @@
               "required": [
                 "id",
                 "created_at",
-                "format",
                 "title",
+                "format",
                 "body",
                 "files"
               ],
@@ -673,6 +681,7 @@
       "method": "put",
       "path": "/bbs/articles/{id}",
       "name": "bbs_articles_putById",
+      "strict": true,
       "parameters": [
         {
           "type": "object",
@@ -680,7 +689,7 @@
             "id": {
               "type": "string",
               "format": "uuid",
-              "description": " Target article's {@link IBbsArticle.id}"
+              "description": " Target article's {@link IBbsArticle.id }"
             },
             "body": {
               "type": "object",
@@ -773,18 +782,20 @@
             "title": "Creation time of snapshot record",
             "description": "Creation time of snapshot record.\n\nIn other words, creation time or update time or article."
           },
+          "title": {
+            "type": "string",
+            "title": "Title of article",
+            "description": "Title of article."
+          },
           "format": {
             "type": "string",
             "enum": [
               "txt",
               "md",
               "html"
-            ]
-          },
-          "title": {
-            "type": "string",
-            "title": "Title of article",
-            "description": "Title of article."
+            ],
+            "title": "Format of body",
+            "description": "Format of body.\n\nSame meaning with extension like `html`, `md`, `txt`."
           },
           "body": {
             "type": "string",
@@ -831,8 +842,8 @@
         "required": [
           "id",
           "created_at",
-          "format",
           "title",
+          "format",
           "body",
           "files"
         ],
@@ -844,6 +855,7 @@
       "method": "delete",
       "path": "/bbs/articles/{id}",
       "name": "bbs_articles_eraseById",
+      "strict": true,
       "parameters": [
         {
           "type": "object",
@@ -851,7 +863,7 @@
             "id": {
               "type": "string",
               "format": "uuid",
-              "description": " Target article's {@link IBbsArticle.id}"
+              "description": " Target article's {@link IBbsArticle.id }"
             },
             "body": {
               "type": "object",

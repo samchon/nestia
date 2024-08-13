@@ -16,6 +16,6 @@ export const test_swagger = async () => {
     queries.find((q) => q.name === "limit")?.required,
   )(false);
   TestValidator.equals("required")(
-    queries.find((q) => q.name === "enforce")?.required
+    queries.find((q) => q.name === "enforce")?.required,
   )(true);
 };

@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.9.0-dev.20240728",
+    "version": "3.11.0-dev.20240813-11",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -21,7 +21,9 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "content": {
+              "application/json": {}
+            }
           }
         }
       }
@@ -42,7 +44,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -60,7 +61,6 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -75,6 +75,41 @@
   },
   "components": {
     "schemas": {
+      "IMultipart.IContent": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "flags"
+        ]
+      },
       "IMultipart": {
         "type": "object",
         "properties": {
@@ -134,41 +169,6 @@
           "file",
           "flags",
           "files"
-        ]
-      },
-      "IMultipart.IContent": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string"
-          },
-          "description": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string"
-              }
-            ]
-          },
-          "flags": {
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
-          },
-          "notes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "title",
-          "description",
-          "flags"
         ]
       },
       "IPerformance": {
@@ -307,9 +307,7 @@
     },
     "securitySchemes": {
       "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
+        "type": "apiKey"
       }
     }
   },

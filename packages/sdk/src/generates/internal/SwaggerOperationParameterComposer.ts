@@ -114,6 +114,7 @@ export namespace SwaggerOperationParameterComposer {
         jsDocTags: props.jsDocTags,
         kind: "title",
       }),
+      required: props.parameter.metadata.isRequired(),
       example: props.parameter.example,
       examples: props.parameter.examples,
     };
