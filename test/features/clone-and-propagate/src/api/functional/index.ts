@@ -19,5 +19,4 @@ export * as performance from "./performance";
 export * as sellers from "./sellers";
 export * as template from "./template";
 export * as tupleHierarchicalController from "./tupleHierarchicalController";
-export * as tupleRestController from "./tupleRestController";
 export * as users from "./users";

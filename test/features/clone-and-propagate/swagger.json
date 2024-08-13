@@ -234,22 +234,22 @@
                   "items": {
                     "oneOf": [
                       {
-                        "$ref": "#/components/schemas/IDirectory"
+                        "$ref": "#/components/schemas/IDirectory.o1"
                       },
                       {
                         "$ref": "#/components/schemas/ISharedDirectory"
                       },
                       {
-                        "$ref": "#/components/schemas/IImageFile"
+                        "$ref": "#/components/schemas/IImageFile.o1"
                       },
                       {
-                        "$ref": "#/components/schemas/ITextFile"
+                        "$ref": "#/components/schemas/ITextFile.o1"
                       },
                       {
-                        "$ref": "#/components/schemas/IZipFile"
+                        "$ref": "#/components/schemas/IZipFile.o1"
                       },
                       {
-                        "$ref": "#/components/schemas/IShortcut"
+                        "$ref": "#/components/schemas/IShortcut.o1"
                       }
                     ]
                   }
@@ -268,22 +268,22 @@
               "schema": {
                 "oneOf": [
                   {
-                    "$ref": "#/components/schemas/IDirectory"
+                    "$ref": "#/components/schemas/IDirectory.o1"
                   },
                   {
                     "$ref": "#/components/schemas/ISharedDirectory"
                   },
                   {
-                    "$ref": "#/components/schemas/IImageFile"
+                    "$ref": "#/components/schemas/IImageFile.o1"
                   },
                   {
-                    "$ref": "#/components/schemas/ITextFile"
+                    "$ref": "#/components/schemas/ITextFile.o1"
                   },
                   {
-                    "$ref": "#/components/schemas/IZipFile"
+                    "$ref": "#/components/schemas/IZipFile.o1"
                   },
                   {
-                    "$ref": "#/components/schemas/IShortcut"
+                    "$ref": "#/components/schemas/IShortcut.o1"
                   }
                 ]
               }
@@ -298,22 +298,22 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/IDirectory"
+                      "$ref": "#/components/schemas/IDirectory.o1"
                     },
                     {
                       "$ref": "#/components/schemas/ISharedDirectory"
                     },
                     {
-                      "$ref": "#/components/schemas/IImageFile"
+                      "$ref": "#/components/schemas/IImageFile.o1"
                     },
                     {
-                      "$ref": "#/components/schemas/ITextFile"
+                      "$ref": "#/components/schemas/ITextFile.o1"
                     },
                     {
-                      "$ref": "#/components/schemas/IZipFile"
+                      "$ref": "#/components/schemas/IZipFile.o1"
                     },
                     {
-                      "$ref": "#/components/schemas/IShortcut"
+                      "$ref": "#/components/schemas/IShortcut.o1"
                     }
                   ]
                 }
@@ -343,22 +343,22 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/IDirectory"
+                      "$ref": "#/components/schemas/IDirectory.o1"
                     },
                     {
                       "$ref": "#/components/schemas/ISharedDirectory"
                     },
                     {
-                      "$ref": "#/components/schemas/IImageFile"
+                      "$ref": "#/components/schemas/IImageFile.o1"
                     },
                     {
-                      "$ref": "#/components/schemas/ITextFile"
+                      "$ref": "#/components/schemas/ITextFile.o1"
                     },
                     {
-                      "$ref": "#/components/schemas/IZipFile"
+                      "$ref": "#/components/schemas/IZipFile.o1"
                     },
                     {
-                      "$ref": "#/components/schemas/IShortcut"
+                      "$ref": "#/components/schemas/IShortcut.o1"
                     }
                   ]
                 }
@@ -839,7 +839,7 @@
                   "items": {
                     "oneOf": [
                       {
-                        "$ref": "#/components/schemas/IPoint"
+                        "$ref": "#/components/schemas/IPoint.o1"
                       },
                       {
                         "$ref": "#/components/schemas/ILine"
@@ -851,7 +851,7 @@
                         "$ref": "#/components/schemas/IRectangle"
                       },
                       {
-                        "$ref": "#/components/schemas/IPolyline"
+                        "$ref": "#/components/schemas/IPolyline.o1"
                       },
                       {
                         "$ref": "#/components/schemas/IPolygon"
@@ -1554,34 +1554,6 @@
         }
       }
     },
-    "/tupleRestController": {
-      "get": {
-        "tags": [],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "prefixItems": [
-                    {
-                      "type": "boolean"
-                    },
-                    {
-                      "type": "number"
-                    }
-                  ],
-                  "additionalItems": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/users/{user_id}/oauth": {
       "get": {
         "summary": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types",
@@ -1803,9 +1775,6 @@
                   "$ref": "#/components/schemas/IDirectory"
                 },
                 {
-                  "$ref": "#/components/schemas/ISharedDirectory"
-                },
-                {
                   "$ref": "#/components/schemas/IImageFile"
                 },
                 {
@@ -1816,6 +1785,215 @@
                 },
                 {
                   "$ref": "#/components/schemas/IShortcut"
+                }
+              ]
+            }
+          },
+          "type": {
+            "const": "directory"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "children",
+          "type"
+        ]
+      },
+      "IImageFile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "url": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "type": {
+            "const": "file"
+          },
+          "extension": {
+            "const": "jpg"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "width",
+          "height",
+          "url",
+          "size",
+          "type",
+          "extension"
+        ]
+      },
+      "ITextFile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "content": {
+            "type": "string"
+          },
+          "type": {
+            "const": "file"
+          },
+          "extension": {
+            "const": "txt"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "size",
+          "content",
+          "type",
+          "extension"
+        ]
+      },
+      "IZipFile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "count": {
+            "type": "number"
+          },
+          "type": {
+            "const": "file"
+          },
+          "extension": {
+            "const": "zip"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "size",
+          "count",
+          "type",
+          "extension"
+        ]
+      },
+      "IShortcut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "target": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/IDirectory"
+              },
+              {
+                "$ref": "#/components/schemas/IImageFile"
+              },
+              {
+                "$ref": "#/components/schemas/ITextFile"
+              },
+              {
+                "$ref": "#/components/schemas/IZipFile"
+              },
+              {
+                "$ref": "#/components/schemas/IShortcut"
+              }
+            ]
+          },
+          "type": {
+            "const": "file"
+          },
+          "extension": {
+            "const": "lnk"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "target",
+          "type",
+          "extension"
+        ]
+      },
+      "IDirectory.o1": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/IDirectory.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/ISharedDirectory"
+                },
+                {
+                  "$ref": "#/components/schemas/IImageFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/ITextFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/IZipFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/IShortcut.o1"
                 }
               ]
             }
@@ -1855,22 +2033,22 @@
             "items": {
               "oneOf": [
                 {
-                  "$ref": "#/components/schemas/IDirectory"
+                  "$ref": "#/components/schemas/IDirectory.o1"
                 },
                 {
                   "$ref": "#/components/schemas/ISharedDirectory"
                 },
                 {
-                  "$ref": "#/components/schemas/IImageFile"
+                  "$ref": "#/components/schemas/IImageFile.o1"
                 },
                 {
-                  "$ref": "#/components/schemas/ITextFile"
+                  "$ref": "#/components/schemas/ITextFile.o1"
                 },
                 {
-                  "$ref": "#/components/schemas/IZipFile"
+                  "$ref": "#/components/schemas/IZipFile.o1"
                 },
                 {
-                  "$ref": "#/components/schemas/IShortcut"
+                  "$ref": "#/components/schemas/IShortcut.o1"
                 }
               ]
             }
@@ -1884,7 +2062,7 @@
           "children"
         ]
       },
-      "IImageFile": {
+      "IImageFile.o1": {
         "type": "object",
         "properties": {
           "id": {
@@ -1919,7 +2097,7 @@
           "size"
         ]
       },
-      "ITextFile": {
+      "ITextFile.o1": {
         "type": "object",
         "properties": {
           "id": {
@@ -1946,7 +2124,7 @@
           "content"
         ]
       },
-      "IZipFile": {
+      "IZipFile.o1": {
         "type": "object",
         "properties": {
           "id": {
@@ -1973,7 +2151,7 @@
           "count"
         ]
       },
-      "IShortcut": {
+      "IShortcut.o1": {
         "type": "object",
         "properties": {
           "id": {
@@ -1988,22 +2166,22 @@
           "target": {
             "oneOf": [
               {
-                "$ref": "#/components/schemas/IDirectory"
+                "$ref": "#/components/schemas/IDirectory.o1"
               },
               {
                 "$ref": "#/components/schemas/ISharedDirectory"
               },
               {
-                "$ref": "#/components/schemas/IImageFile"
+                "$ref": "#/components/schemas/IImageFile.o1"
               },
               {
-                "$ref": "#/components/schemas/ITextFile"
+                "$ref": "#/components/schemas/ITextFile.o1"
               },
               {
-                "$ref": "#/components/schemas/IZipFile"
+                "$ref": "#/components/schemas/IZipFile.o1"
               },
               {
-                "$ref": "#/components/schemas/IShortcut"
+                "$ref": "#/components/schemas/IShortcut.o1"
               }
             ]
           }
@@ -2332,17 +2510,22 @@
           "member": {
             "type": "object",
             "properties": {
-              "token": {
-                "type": "string"
-              },
-              "expires_at": {
+              "id": {
                 "type": "string",
-                "format": "date-time"
+                "format": "uuid"
+              },
+              "email": {
+                "type": "string",
+                "format": "email"
+              },
+              "age": {
+                "type": "integer"
               }
             },
             "required": [
-              "token",
-              "expires_at"
+              "id",
+              "email",
+              "age"
             ]
           },
           "created_at": {
@@ -2444,16 +2627,6 @@
           },
           "y": {
             "type": "number"
-          },
-          "slope": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "number"
-              }
-            ]
           }
         },
         "required": [
@@ -2559,16 +2732,6 @@
             "items": {
               "$ref": "#/components/schemas/IPoint"
             }
-          },
-          "length": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "number"
-              }
-            ]
           }
         },
         "required": [
@@ -2594,14 +2757,39 @@
           "type"
         ]
       },
+      "IPoint.o1": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "slope": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ]
+      },
       "ILine": {
         "type": "object",
         "properties": {
           "p1": {
-            "$ref": "#/components/schemas/IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "p2": {
-            "$ref": "#/components/schemas/IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "width": {
             "oneOf": [
@@ -2633,13 +2821,13 @@
         "type": "object",
         "properties": {
           "p1": {
-            "$ref": "#/components/schemas/IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "p2": {
-            "$ref": "#/components/schemas/IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "p3": {
-            "$ref": "#/components/schemas/IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "width": {
             "oneOf": [
@@ -2682,16 +2870,16 @@
         "type": "object",
         "properties": {
           "p1": {
-            "$ref": "#/components/schemas/IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "p2": {
-            "$ref": "#/components/schemas/IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "p3": {
-            "$ref": "#/components/schemas/IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "p4": {
-            "$ref": "#/components/schemas/IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "width": {
             "oneOf": [
@@ -2731,16 +2919,40 @@
           "p4"
         ]
       },
+      "IPolyline.o1": {
+        "type": "object",
+        "properties": {
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPoint.o1"
+            }
+          },
+          "length": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "points"
+        ]
+      },
       "IPolygon": {
         "type": "object",
         "properties": {
           "outer": {
-            "$ref": "#/components/schemas/IPolyline"
+            "$ref": "#/components/schemas/IPolyline.o1"
           },
           "inner": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IPolyline"
+              "$ref": "#/components/schemas/IPolyline.o1"
             }
           },
           "area": {
@@ -2762,7 +2974,7 @@
         "type": "object",
         "properties": {
           "centroid": {
-            "$ref": "#/components/schemas/IPoint"
+            "$ref": "#/components/schemas/IPoint.o1"
           },
           "radius": {
             "type": "number"
