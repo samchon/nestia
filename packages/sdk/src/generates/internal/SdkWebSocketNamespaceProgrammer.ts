@@ -78,6 +78,8 @@ export namespace SdkWebSocketNamespaceProgrammer {
         route.parameters.find((x) => x.category === "acceptor")!;
       const query: ITypedWebSocketRouteParameter.IQuery | undefined =
         route.parameters.find((x) => x.category === "query");
+      const driver: ITypedWebSocketRouteParameter.IDriver | undefined =
+        route.parameters.find((x) => x.category === "driver");
       declare(
         "Header",
         SdkAliasCollection.name(
@@ -87,11 +89,13 @@ export namespace SdkWebSocketNamespaceProgrammer {
       );
       declare(
         "Provider",
-        SdkAliasCollection.name(acceptor.type.typeArguments?.[1]!),
+        SdkAliasCollection.name(
+          driver?.type.typeArguments?.[0] ?? acceptor.type.typeArguments?.[2]!,
+        ),
       );
       declare(
         "Listener",
-        SdkAliasCollection.name(acceptor.type.typeArguments?.[2]!),
+        SdkAliasCollection.name(acceptor.type.typeArguments?.[1]!),
       );
       if (query) declare("Query", SdkAliasCollection.name(query.type));
       return output;

@@ -118,7 +118,6 @@ export namespace ReflectWebSocketOperationAnalyzer {
           } satisfies IReflectWebSocketOperationParameter.IParam;
 
         // UNKNOWN TYPE, MAYBE NEW FEATURE
-        console.log(p);
         return errors.push(
           `@WebSocketRoute.${StringUtil.capitalize(p.category)}() has not been supported yet. How about upgrading the nestia packages?`,
         );

@@ -41,8 +41,8 @@ export namespace connect {
     driver: Driver<Listener>;
   };
   export type Header = IPrecision;
-  export type Provider = ICalculator;
-  export type Listener = IListener;
+  export type Provider = IListener;
+  export type Listener = ICalculator;
 
   export const path = () => "/x/calculate";
 }
