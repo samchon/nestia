@@ -9,15 +9,17 @@ import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
 import { Escaper } from "typia/lib/utils/Escaper";
 
 import { ImportAnalyzer } from "../analyses/ImportAnalyzer";
+import { MetadataUtil } from "../utils/MetadataUtil";
 import { IOperationMetadata } from "./IOperationMetadata";
-import { ISdkTransformerContext } from "./ISdkTransformerContext";
+import { ISdkOperationTransformerContext } from "./ISdkOperationTransformerContext";
 
-export namespace SdkMetadataProgrammer {
+export namespace SdkOperationProgrammer {
   export interface IProps {
-    context: ISdkTransformerContext;
+    context: ISdkOperationTransformerContext;
     generics: WeakMap<ts.Type, ts.Type>;
     node: ts.MethodDeclaration;
     symbol: ts.Symbol | undefined;
+    exceptions: ts.TypeNode[];
   }
   export const write = (p: IProps): IOperationMetadata => ({
     parameters: p.node.parameters.map((parameter, index) =>
@@ -38,13 +40,19 @@ export namespace SdkMetadataProgrammer {
           : null,
       }),
     }),
-    exceptions: {}, // @todo
+    exceptions: p.exceptions.map((e) =>
+      writeResponse({
+        context: p.context,
+        generics: p.generics,
+        type: p.context.checker.getTypeFromTypeNode(e),
+      }),
+    ),
     jsDocTags: p.symbol?.getJsDocTags() ?? [],
     description: p.symbol ? CommentFactory.description(p.symbol) ?? null : null,
   });
 
   const writeParameter = (props: {
-    context: ISdkTransformerContext;
+    context: ISdkOperationTransformerContext;
     generics: WeakMap<ts.Type, ts.Type>;
     parameter: ts.ParameterDeclaration;
     index: number;
@@ -68,7 +76,7 @@ export namespace SdkMetadataProgrammer {
   };
 
   const writeResponse = (props: {
-    context: ISdkTransformerContext;
+    context: ISdkOperationTransformerContext;
     generics: WeakMap<ts.Type, ts.Type>;
     type: ts.Type | null;
   }): IOperationMetadata.IResponse =>
@@ -78,7 +86,7 @@ export namespace SdkMetadataProgrammer {
     });
 
   const writeType = (p: {
-    context: ISdkTransformerContext;
+    context: ISdkOperationTransformerContext;
     generics: WeakMap<ts.Type, ts.Type>;
     type: ts.Type | null;
     required: boolean;
@@ -174,38 +182,14 @@ export namespace SdkMetadataProgrammer {
   };
 }
 
-const iterateVisited = (metdata: Metadata): Set<string> => {
+const iterateVisited = (metadata: Metadata): Set<string> => {
   const names: Set<string> = new Set();
-  const visited: WeakSet<Metadata> = new WeakSet();
-  const iterate = (metadata: Metadata): void => {
-    if (visited.has(metadata)) return;
-    visited.add(metadata);
-    for (const alias of metadata.aliases) {
-      names.add(alias.name);
-      iterate(alias.value);
-    }
-    for (const array of metadata.arrays) {
-      names.add(array.type.name);
-      iterate(array.type.value);
-    }
-    for (const tuple of metadata.tuples) {
-      names.add(tuple.type.name);
-      tuple.type.elements.map(iterate);
-    }
-    for (const object of metadata.objects) {
-      names.add(object.name);
-      object.properties.map((p) => {
-        iterate(p.key);
-        iterate(p.value);
-      });
-    }
-    if (metadata.escaped) {
-      iterate(metadata.escaped.original);
-      iterate(metadata.escaped.returns);
-    }
-    if (metadata.rest) iterate(metadata.rest);
-  };
-  iterate(metdata);
+  MetadataUtil.visit((m) => {
+    for (const alias of m.aliases) names.add(alias.name);
+    for (const array of m.arrays) names.add(array.type.name);
+    for (const tuple of m.tuples) names.add(tuple.type.name);
+    for (const object of m.objects) names.add(object.name);
+  })(metadata);
   return names;
 };
 

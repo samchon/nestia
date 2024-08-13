@@ -9,7 +9,6 @@ import { HttpQueryProgrammer } from "typia/lib/programmers/http/HttpQueryProgram
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationParameter } from "../structures/IReflectHttpOperationParameter";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
-import { IReflectTypeImport } from "../structures/IReflectTypeImport";
 import { IOperationMetadata } from "../transformers/IOperationMetadata";
 import { TextPlainValidator } from "../transformers/TextPlainValidator";
 
@@ -25,7 +24,6 @@ export namespace ReflectHttpOperationParameterAnalyzer {
   export const analyze = (ctx: IContext): IReflectHttpOperationParameter[] => {
     const preconfigured: IReflectHttpOperationParameter.IPreconfigured[] =
       analyzePreconfigured(ctx);
-    const imports: IReflectTypeImport[] = [];
     const errors: IReflectOperationError[] = [];
 
     //----
@@ -149,7 +147,6 @@ export namespace ReflectHttpOperationParameterAnalyzer {
           return null; // unreachable
 
         // COMPOSITION
-        imports.push(...matched.imports);
         if (p.category === "param")
           return {
             category: p.category,

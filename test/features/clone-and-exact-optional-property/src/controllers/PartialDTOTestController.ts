@@ -39,6 +39,12 @@ interface IOriginal {
   created_at: (string & typia.tags.Format<"date-time">) | null;
   original_optional?: boolean;
   undefinable_attr: string | undefined;
+  something?: ISomething | null;
+}
+
+interface ISomething {
+  a: string;
+  b: boolean;
 }
 
 interface IPartialInterface

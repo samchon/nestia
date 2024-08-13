@@ -15,10 +15,7 @@ export interface IReflectHttpOperation {
   versions: Array<string | typeof VERSION_NEUTRAL> | undefined;
   parameters: IReflectHttpOperationParameter[];
   success: IReflectHttpOperationSuccess;
-  exceptions: Record<
-    number | "2XX" | "3XX" | "4XX" | "5XX",
-    IReflectHttpOperationException
-  >;
+  exceptions: Record<string, IReflectHttpOperationException>;
   security: Record<string, string[]>[];
   tags: string[];
   imports: IReflectTypeImport[];

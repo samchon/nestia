@@ -6,4 +6,12 @@ export namespace StringUtil {
     (keep: string[]) =>
     (change: string): string =>
       keep.includes(change) ? escapeDuplicate(keep)(`_${change}`) : change;
+
+  export const isImplicit = (str: string) =>
+    str === "object" ||
+    str === "__type" ||
+    str === "__object" ||
+    str.startsWith("__type.") ||
+    str.startsWith("__object.") ||
+    str.includes("readonly [");
 }

@@ -43,6 +43,6 @@
     "src"
   ],
   "dependencies": {
-    "@samchon/openapi": "^0.4.3"
+    "@samchon/openapi": "^0.4.4"
   }
 }

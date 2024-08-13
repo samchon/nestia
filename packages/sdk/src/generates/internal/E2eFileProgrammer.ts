@@ -30,6 +30,13 @@ export namespace E2eFileProgrammer {
         instance: null,
         name: "api",
       });
+      for (const tuple of route.imports)
+        for (const instance of tuple.instances)
+          importer.internal({
+            type: true,
+            file: tuple.file,
+            instance,
+          });
 
       const functor = generate_function(project)(importer)(route);
       await FilePrinter.write({

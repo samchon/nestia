@@ -9,7 +9,7 @@ import { IReflectTypeImport } from "../structures/IReflectTypeImport";
 export interface IOperationMetadata {
   parameters: IOperationMetadata.IParameter[];
   success: IOperationMetadata.IResponse;
-  exceptions: Record<string, IOperationMetadata.IResponse>;
+  exceptions: IOperationMetadata.IResponse[];
   description: string | null;
   jsDocTags: IJsDocTagInfo[];
 }
@@ -26,6 +26,12 @@ export namespace IOperationMetadata {
     primitive: ValidationPipe<ISchema, IError>;
     resolved: ValidationPipe<ISchema, IError>;
   }
+  export interface IException {
+    type: IReflectType | null;
+    imports: IReflectTypeImport[];
+    primitive: ValidationPipe<ISchema, IError>;
+  }
+
   export interface ISchema {
     components: IMetadataComponents;
     metadata: IMetadata;

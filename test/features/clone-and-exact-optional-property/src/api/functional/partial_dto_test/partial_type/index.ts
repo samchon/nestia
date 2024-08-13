@@ -7,6 +7,7 @@
 import type {
   IConnection,
   IPropagation,
+  Primitive,
   Resolved,
   HttpError,
 } from "@nestia/fetcher";
@@ -14,8 +15,8 @@ import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
-import type { PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrb } from "../../../structures/PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrb";
-import type { PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrd } from "../../../structures/PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrd";
+import type { PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr } from "../../../structures/PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr";
+import type { PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr } from "../../../structures/PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr";
 
 /**
  * @controller PartialDTOTestController.partialType
@@ -25,10 +26,17 @@ import type { PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_at
 export async function partialType(
   connection: IConnection,
   body: partialType.Input,
-): Promise<partialType.Output> {
+): Promise<
+  IPropagation<
+    {
+      201: PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr;
+    },
+    201
+  >
+> {
   return !!connection.simulate
     ? partialType.simulate(connection, body)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -46,10 +54,13 @@ export async function partialType(
 }
 export namespace partialType {
   export type Input =
-    PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrd;
-  export type Output = IPropagation<{
-    201: PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrb;
-  }>;
+    PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr;
+  export type Output = IPropagation<
+    {
+      201: PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -62,16 +73,18 @@ export namespace partialType {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/partial-dto-test/partial-type";
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrb> =>
-    typia.random<PartialPickIOriginalemailcreated_atoriginal_optionalundefinable_attrb>(
-      g,
-    );
+  ): Resolved<
+    Primitive<PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr>
+  > =>
+    typia.random<
+      Primitive<PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr>
+    >(g);
   export const simulate = (
     connection: IConnection,
     body: partialType.Input,
@@ -104,6 +117,6 @@ export namespace partialType {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

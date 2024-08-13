@@ -22,7 +22,7 @@ export async function index(
   connection: IConnection,
   section: string,
   query: IPage.IRequest,
-): Promise<IPage<IBbsArticle.ISummary>> {
+): Promise<Primitive<IPage<IBbsArticle.ISummary>>> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -65,7 +65,7 @@ export async function at(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-): Promise<IBbsArticle> {
+): Promise<Primitive<IBbsArticle>> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -114,7 +114,7 @@ export async function store(
   connection: IConnection,
   section: string,
   input: store.Input,
-): Promise<IBbsArticle> {
+): Promise<Primitive<IBbsArticle>> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -170,7 +170,7 @@ export async function update(
   section: string,
   id: string & Format<"uuid">,
   input: update.Input,
-): Promise<IBbsArticle> {
+): Promise<Primitive<IBbsArticle>> {
   return PlainFetcher.fetch(
     {
       ...connection,

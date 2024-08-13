@@ -7,7 +7,7 @@ import { IReflectOperationError } from "../structures/IReflectOperationError";
 import { IReflectType } from "../structures/IReflectType";
 import { ITypedApplication } from "../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
-// import { CloneGenerator } from "./CloneGenerator";
+import { CloneGenerator } from "./CloneGenerator";
 import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
 
@@ -44,8 +44,8 @@ export namespace SdkGenerator {
       }
     }
 
-    // // STRUCTURES
-    // if (app.project.config.clone === true) await CloneGenerator.write(app);
+    // STRUCTURES
+    if (app.project.config.clone === true) await CloneGenerator.write(app);
 
     // FUNCTIONAL
     await SdkFileProgrammer.generate(app);

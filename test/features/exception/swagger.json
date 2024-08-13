@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.9.0-dev.20240728",
+    "version": "3.11.0-dev.20240813-11",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -40,7 +40,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -54,7 +53,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TypeGuardErrorany"
+                  "$ref": "#/components/schemas/IInternalServerError"
                 }
               }
             }
@@ -64,17 +63,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/INotFound"
+                  "$ref": "#/components/schemas/IUnprocessibleEntity"
                 }
               }
             }
           },
           "428": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IUnprocessibleEntity"
+                  "$ref": "#/components/schemas/INotFound"
                 }
               }
             }
@@ -84,7 +82,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IInternalServerError"
+                  "$ref": "#/components/schemas/TypeGuardErrorany"
                 }
               }
             }
@@ -107,19 +105,18 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/IBbsArticle"
-                    },
-                    {
                       "$ref": "#/components/schemas/INotFound"
                     },
                     {
                       "$ref": "#/components/schemas/IUnprocessibleEntity"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IBbsArticle"
                     }
                   ]
                 }
@@ -174,7 +171,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -243,7 +239,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -257,7 +252,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TypeGuardErrorany"
+                  "$ref": "#/components/schemas/IInternalServerError"
                 }
               }
             }
@@ -267,7 +262,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/INotFound"
+                  "$ref": "#/components/schemas/IUnprocessibleEntity"
                 }
               }
             }
@@ -277,7 +272,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IUnprocessibleEntity"
+                  "$ref": "#/components/schemas/INotFound"
                 }
               }
             }
@@ -287,7 +282,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IInternalServerError"
+                  "$ref": "#/components/schemas/TypeGuardErrorany"
                 }
               }
             }
@@ -301,7 +296,9 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "content": {
+              "application/json": {}
+            }
           }
         }
       }
@@ -312,7 +309,6 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -327,9 +323,17 @@
   },
   "components": {
     "schemas": {
-      "IBbsArticle.IStore": {
+      "IBbsArticle": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "title": {
             "type": "string",
             "minLength": 3,
@@ -346,6 +350,8 @@
           }
         },
         "required": [
+          "id",
+          "created_at",
           "title",
           "body",
           "files"
@@ -388,6 +394,82 @@
           "url"
         ]
       },
+      "IBbsArticle.IStore": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "body",
+          "files"
+        ]
+      },
+      "IInternalServerError": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "stack": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "message",
+          "stack"
+        ]
+      },
+      "IUnprocessibleEntity": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "INotFound": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "type": "string"
+          },
+          "table": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema",
+          "table",
+          "id"
+        ]
+      },
       "TypeGuardErrorany": {
         "type": "object",
         "properties": {
@@ -418,92 +500,6 @@
           "value",
           "name",
           "message"
-        ]
-      },
-      "INotFound": {
-        "type": "object",
-        "properties": {
-          "schema": {
-            "type": "string"
-          },
-          "table": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "schema",
-          "table",
-          "id"
-        ]
-      },
-      "IUnprocessibleEntity": {
-        "type": "object",
-        "properties": {
-          "reason": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "reason"
-        ]
-      },
-      "IInternalServerError": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          },
-          "stack": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "name",
-          "message",
-          "stack"
-        ]
-      },
-      "IBbsArticle": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "title": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 50
-          },
-          "body": {
-            "type": "string"
-          },
-          "files": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IAttachmentFile"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "created_at",
-          "title",
-          "body",
-          "files"
         ]
       },
       "IExceptional.Something": {
@@ -675,9 +671,7 @@
     },
     "securitySchemes": {
       "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
+        "type": "apiKey"
       }
     }
   },

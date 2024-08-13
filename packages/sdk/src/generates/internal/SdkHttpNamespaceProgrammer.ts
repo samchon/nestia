@@ -92,7 +92,10 @@ export namespace SdkHttpNamespaceProgrammer {
           "Input",
           SdkAliasCollection.input(project)(importer)(props.input),
         );
-      if (route.success.type.name !== "void")
+      if (
+        project.config.propagate === true ||
+        route.success.metadata.size() !== 0
+      )
         declare("Output", SdkAliasCollection.output(project)(importer)(route));
       return array;
     };

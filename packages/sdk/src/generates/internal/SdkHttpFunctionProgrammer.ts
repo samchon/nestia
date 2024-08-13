@@ -1,5 +1,6 @@
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
+import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { INestiaProject } from "../../structures/INestiaProject";
@@ -60,7 +61,7 @@ export namespace SdkHttpFunctionProgrammer {
             ),
         ],
         ts.factory.createTypeReferenceNode("Promise", [
-          SdkAliasCollection.name(route.success.type),
+          SdkAliasCollection.output(project)(importer)(route),
         ]),
         ts.factory.createBlock(
           write_body(project.config)(importer)(route, props),
@@ -86,7 +87,12 @@ export namespace SdkHttpFunctionProgrammer {
               SdkImportWizard.Fetcher(!!props.input?.encrypted)(importer),
             ),
           )(config.propagate ? "propagate" : "fetch"),
-          undefined,
+          config.propagate
+            ? route.method.toLowerCase() === "get" ||
+              route.method.toLowerCase() === "head"
+              ? [TypeFactory.keyword("any")]
+              : [TypeFactory.keyword("any"), TypeFactory.keyword("any")]
+            : undefined,
           [
             props.input?.contentType !== "multipart/form-data"
               ? ts.factory.createObjectLiteralExpression(

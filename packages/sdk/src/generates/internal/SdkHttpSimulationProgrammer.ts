@@ -141,28 +141,31 @@ export namespace SdkHttpSimulationProgrammer {
               ...assert(project)(importer)(route),
               ts.factory.createReturnStatement(
                 project.config.propagate
-                  ? ts.factory.createObjectLiteralExpression(
-                      [
-                        ts.factory.createPropertyAssignment(
-                          "success",
-                          ts.factory.createTrue(),
-                        ),
-                        ts.factory.createPropertyAssignment(
-                          "status",
-                          ExpressionFactory.number(
-                            route.success.status ??
-                              (route.method === "POST" ? 201 : 200),
+                  ? ts.factory.createAsExpression(
+                      ts.factory.createObjectLiteralExpression(
+                        [
+                          ts.factory.createPropertyAssignment(
+                            "success",
+                            ts.factory.createTrue(),
                           ),
-                        ),
-                        ts.factory.createPropertyAssignment(
-                          "headers",
-                          LiteralFactory.generate({
-                            "Content-Type": route.success.contentType,
-                          }),
-                        ),
-                        ts.factory.createPropertyAssignment("data", caller()),
-                      ],
-                      true,
+                          ts.factory.createPropertyAssignment(
+                            "status",
+                            ExpressionFactory.number(
+                              route.success.status ??
+                                (route.method === "POST" ? 201 : 200),
+                            ),
+                          ),
+                          ts.factory.createPropertyAssignment(
+                            "headers",
+                            LiteralFactory.generate({
+                              "Content-Type": route.success.contentType,
+                            }),
+                          ),
+                          ts.factory.createPropertyAssignment("data", caller()),
+                        ],
+                        true,
+                      ),
+                      ts.factory.createTypeReferenceNode("Output"),
                     )
                   : caller(),
               ),

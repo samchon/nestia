@@ -18,6 +18,7 @@ npx @nestia/sdk [command] [options?]
   4. npx @nestia/sdk swagger --config? [config file] --project? [project file]
   5. npx @nestia/sdk openai --config? [config file] --project? [project file]
   6. npx @nestia/sdk e2e --config? [config file] --project? [project file]
+  7. npx @nestia/sdk generate --config? [config file] --project? [project file]
 `;
 
 function halt(desc: string): never {
@@ -65,6 +66,7 @@ async function main() {
   else if (type === "swagger") await execute((c) => c.swagger());
   else if (type === "openai") await execute((c) => c.openai());
   else if (type === "e2e") await execute((c) => c.e2e());
+  else if (type === "all") await execute((c) => c.all());
   else halt(USAGE);
 
   process.exit(0);

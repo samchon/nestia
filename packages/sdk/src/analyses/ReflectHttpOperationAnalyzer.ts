@@ -11,6 +11,7 @@ import { IOperationMetadata } from "../transformers/IOperationMetadata";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";
+import { ReflectHttpOperationExceptionAnalyzer } from "./ReflectHttpOperationExceptionAnalyzer";
 import { ReflectHttpOperationParameterAnalyzer } from "./ReflectHttpOperationParameterAnalyzer";
 import { ReflectHttpOperationResponseAnalyzer } from "./ReflectHttpOperationResponseAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
@@ -91,7 +92,14 @@ export namespace ReflectHttpOperationAnalyzer {
       parameters,
       success,
       security: ReflectMetadataAnalyzer.securities(props.function),
-      exceptions: {} as any,
+      exceptions: ReflectHttpOperationExceptionAnalyzer.analyze({
+        controller: props.controller,
+        function: props.function,
+        functionName: props.name,
+        httpMethod: method,
+        metadata: props.metadata,
+        errors,
+      }),
       tags: Reflect.getMetadata("swagger/apiUseTags", props.function) ?? [],
       imports: ImportAnalyzer.unique(
         [

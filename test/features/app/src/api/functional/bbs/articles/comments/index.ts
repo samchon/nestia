@@ -21,7 +21,7 @@ export async function index(
   section: string,
   articleId: string & Format<"uuid">,
   query: IPage.IRequest,
-): Promise<IPage<IBbsComment>> {
+): Promise<Primitive<IPage<IBbsComment>>> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -69,7 +69,7 @@ export async function at(
   section: string,
   articleId: string & Format<"uuid">,
   id: string & Format<"uuid">,
-): Promise<IBbsComment> {
+): Promise<Primitive<IBbsComment>> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -117,7 +117,7 @@ export async function store(
   section: string,
   articleId: string & Format<"uuid">,
   input: store.Input,
-): Promise<IBbsComment> {
+): Promise<Primitive<IBbsComment>> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -167,7 +167,7 @@ export async function update(
   articleId: string & Format<"uuid">,
   id: string & Format<"uuid">,
   input: update.Input,
-): Promise<IBbsComment> {
+): Promise<Primitive<IBbsComment>> {
   return PlainFetcher.fetch(
     {
       ...connection,

@@ -1,5 +1,6 @@
 import ts from "typescript";
 import typia from "typia";
+import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { IReflectHttpOperationParameter } from "../../structures/IReflectHttpOperationParameter";
@@ -74,7 +75,9 @@ export namespace SdkAliasCollection {
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.TypeNode => {
       if (project.config.propagate !== true) {
-        if (project.config.clone === true || project.config.primitive === false)
+        if (route.success.metadata.size() === 0)
+          return TypeFactory.keyword("void");
+        else if (project.config.primitive === false)
           return name(route.success.type);
         return ts.factory.createTypeReferenceNode(
           importer.external({

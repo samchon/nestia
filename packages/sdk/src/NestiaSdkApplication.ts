@@ -27,6 +27,24 @@ import { VersioningStrategy } from "./utils/VersioningStrategy";
 export class NestiaSdkApplication {
   public constructor(private readonly config: INestiaConfig) {}
 
+  public async all(): Promise<void> {
+    if (
+      !this.config.output &&
+      !this.config.swagger?.output &&
+      !this.config.openai?.output
+    )
+      throw new Error("Error on NestiaApplication.all(): nothing to generate.");
+    print_title("Nestia All Generator");
+    await this.generate({
+      generate: async (app) => {
+        if (this.config.output) await SdkGenerator.generate(app);
+        if (this.config.e2e) await E2eGenerator.generate(app);
+        if (this.config.swagger) await SwaggerGenerator.generate(app);
+        if (this.config.openai) await OpenAiGenerator.generate(app);
+      },
+    });
+  }
+
   public async e2e(): Promise<void> {
     if (!this.config.output)
       throw new Error(
@@ -234,6 +252,7 @@ export class NestiaSdkApplication {
     if (props.validate !== undefined)
       props.validate({
         project,
+        collection,
         routes,
       });
     if (project.errors.length)
@@ -243,6 +262,7 @@ export class NestiaSdkApplication {
       });
     await props.generate({
       project,
+      collection,
       routes,
     });
   }
@@ -253,22 +273,6 @@ const print_title = (str: string): void => {
   console.log(` ${str}`);
   console.log("-----------------------------------------------------------");
 };
-
-// const is_implicit_return_typed = (route: ITypedHttpRoute): boolean => {
-//   const name: string = route.output.typeName;
-//   if (name === "void") return false;
-//   else if (name.indexOf("readonly [") !== -1) return true;
-
-//   const pos: number = name.indexOf("__object");
-//   if (pos === -1) return false;
-
-//   const before: number = pos - 1;
-//   const after: number = pos + "__object".length;
-//   for (const i of [before, after])
-//     if (name[i] === undefined) continue;
-//     else if (VARIABLE.test(name[i])) return false;
-//   return true;
-// };
 
 const report = (props: {
   type: "error" | "warning";

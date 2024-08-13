@@ -1,3 +1,4 @@
+import path from "path";
 import { HashSet, hash } from "tstl";
 import ts from "typescript";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
@@ -6,13 +7,13 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { GenericAnalyzer } from "../analyses/GenericAnalyzer";
 import { IOperationMetadata } from "./IOperationMetadata";
-import { ISdkTransformerContext } from "./ISdkTransformerContext";
-import { SdkMetadataProgrammer } from "./SdkMetadataProgrammer";
+import { ISdkOperationTransformerContext } from "./ISdkOperationTransformerContext";
+import { SdkOperationProgrammer } from "./SdkOperationProgrammer";
 
-export namespace SdkTransformer {
+export namespace SdkOperationTransformer {
   export const transformFile =
     (checker: ts.TypeChecker) => (api: ts.TransformationContext) => {
-      const context: ISdkTransformerContext = {
+      const context: ISdkOperationTransformerContext = {
         checker,
         api,
         collection: new MetadataCollection({
@@ -62,7 +63,7 @@ export namespace SdkTransformer {
   }
 
   const transformNode = (props: {
-    context: ISdkTransformerContext;
+    context: ISdkOperationTransformerContext;
     visitor: IVisitor;
     node: ts.Node;
   }): ts.Node =>
@@ -74,7 +75,7 @@ export namespace SdkTransformer {
       : props.node;
 
   const transformClass = (props: {
-    context: ISdkTransformerContext;
+    context: ISdkOperationTransformerContext;
     visitor: IVisitor;
     node: ts.ClassDeclaration;
   }): ts.ClassDeclaration => {
@@ -117,7 +118,7 @@ export namespace SdkTransformer {
   };
 
   const transformMethod = (props: {
-    context: ISdkTransformerContext;
+    context: ISdkOperationTransformerContext;
     visitor: IVisitor;
     class: ts.ClassDeclaration;
     generics: WeakMap<ts.Type, ts.Type>;
@@ -137,7 +138,13 @@ export namespace SdkTransformer {
     if (props.visitor.visited.has(key)) return props.node;
     else props.visitor.visited.insert(key);
 
-    const metadata: IOperationMetadata = SdkMetadataProgrammer.write(props);
+    const metadata: IOperationMetadata = SdkOperationProgrammer.write({
+      ...props,
+      exceptions: getExceptionTypes({
+        checker: props.context.checker,
+        decorators,
+      }),
+    });
     return ts.factory.updateMethodDeclaration(
       props.node,
       [
@@ -166,6 +173,26 @@ export namespace SdkTransformer {
       props.node.body,
     );
   };
+
+  const getExceptionTypes = (props: {
+    checker: ts.TypeChecker;
+    decorators: readonly ts.Decorator[];
+  }) =>
+    props.decorators
+      .map((deco) => {
+        if (false === ts.isCallExpression(deco.expression)) return null;
+        const signature: ts.Signature | undefined =
+          props.checker.getResolvedSignature(deco.expression);
+        if (signature === undefined) return null;
+        else if (!signature.declaration) return null;
+        const location: string = path.resolve(
+          signature.declaration.getSourceFile()?.fileName ?? "",
+        );
+        if (location.includes(TYPED_EXCEPTION_PATH) === false) return null;
+        else if (deco.expression.typeArguments?.length !== 1) return null;
+        return deco.expression.typeArguments[0];
+      })
+      .filter((t) => t !== null);
 }
 
 class MethodKey {
@@ -182,3 +209,11 @@ class MethodKey {
     return hash(this.className, this.methodName);
   }
 }
+
+const TYPED_EXCEPTION_PATH = path.join(
+  "@nestia",
+  "core",
+  "lib",
+  "decorators",
+  `TypedException.d.ts`,
+);
