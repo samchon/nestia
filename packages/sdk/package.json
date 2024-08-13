@@ -32,8 +32,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "../core/nestia-core-3.11.0-dev.20240813-11.tgz",
-    "@nestia/fetcher": "../fetcher/nestia-fetcher-3.11.0-dev.20240813-11.tgz",
+    "@nestia/fetcher": ">=3.11.0-dev.20240813-11",
     "@samchon/openapi": "^0.4.5",
     "@wrtnio/openai-function-schema": "^0.2.3",
     "cli": "^1.0.1",
@@ -45,10 +44,9 @@
     "tsconfck": "^2.1.2",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^3.0.0",
-    "typia": "^6.8.0"
+    "typia": ">=6.8.0 <7.0.0"
   },
   "peerDependencies": {
-    "@nestia/core": ">=3.11.0-dev.20240813-11",
     "@nestia/fetcher": ">=3.11.0-dev.20240813-11",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
