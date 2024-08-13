@@ -25,7 +25,7 @@ import type { Format } from "typia/lib/tags/Format";
 export async function store(
   connection: IConnection,
   input: store.Input,
-): Promise<store.Output> {
+): Promise<void> {
   return !!connection.simulate
     ? store.simulate(connection, input)
     : PlainFetcher.fetch(
@@ -49,11 +49,6 @@ export namespace store {
     title: string;
     body: string;
   };
-  export type Output = {
-    id: string;
-    title: string;
-    body: string;
-  };
 
   export const METADATA = {
     method: "POST",
@@ -66,26 +61,16 @@ export namespace store {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/body";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<{
-    id: string;
-    title: string;
-    body: string;
-  }> =>
-    typia.random<{
-      id: string;
-      title: string;
-      body: string;
-    }>(g);
+  export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
+    typia.random<void>(g);
   export const simulate = (
     connection: IConnection,
     input: store.Input,
-  ): Output => {
+  ): void => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -146,14 +131,13 @@ export namespace update {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (id: string & Format<"uuid">) =>
     `/body/${encodeURIComponent(id ?? "null")}`;
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<undefined> => typia.random<undefined>(g);
+  export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
+    typia.random<void>(g);
   export const simulate = (
     connection: IConnection,
     id: string & Format<"uuid">,

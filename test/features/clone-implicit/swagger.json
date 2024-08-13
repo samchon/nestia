@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.9.0-dev.20240728",
+    "version": "3.11.0-dev.20240813-11",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -17,6 +17,8 @@
   "paths": {
     "/body": {
       "post": {
+        "summary": "Store an article",
+        "description": "Store an article.",
         "tags": [],
         "parameters": [],
         "requestBody": {
@@ -46,16 +48,10 @@
           "201": {
             "description": "Newly archived article",
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/__object"
-                }
-              }
+              "application/json": {}
             }
           }
-        },
-        "summary": "Store an article",
-        "description": "Store an article."
+        }
       }
     },
     "/body/{id}": {
@@ -96,39 +92,19 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "content": {
+              "application/json": {}
+            }
           }
         }
       }
     }
   },
   "components": {
-    "schemas": {
-      "__object": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "body": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "title",
-          "body"
-        ]
-      }
-    },
+    "schemas": {},
     "securitySchemes": {
       "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
+        "type": "apiKey"
       }
     }
   },

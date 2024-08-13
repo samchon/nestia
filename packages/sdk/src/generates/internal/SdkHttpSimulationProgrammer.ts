@@ -68,7 +68,8 @@ export namespace SdkHttpSimulationProgrammer {
       },
     ): ts.VariableStatement => {
       const output: boolean =
-        project.config.propagate === true || route.success.type.name !== "void";
+        project.config.propagate === true ||
+        route.success.metadata.size() !== 0;
       const caller = () =>
         ts.factory.createCallExpression(
           ts.factory.createIdentifier("random"),
