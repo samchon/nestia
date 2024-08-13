@@ -77,6 +77,8 @@ export namespace SwaggerOperationParameterComposer {
       jsDocTags: props.parameter.jsDocTags,
       kind: "title",
     }),
+    example: props.parameter.example,
+    examples: props.parameter.examples,
   });
 
   export const query = (

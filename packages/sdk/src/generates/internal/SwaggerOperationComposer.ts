@@ -2,6 +2,7 @@ import { OpenApi } from "@samchon/openapi";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 import { INestiaConfig } from "../../INestiaConfig";
+import { SecurityAnalyzer } from "../../analyses/SecurityAnalyzer";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
@@ -44,6 +45,29 @@ export namespace SwaggerOperationComposer {
       }
     }
 
+    // SECURITY
+    const security: Record<string, string[]>[] = SecurityAnalyzer.merge(
+      ...props.route.controller.security,
+      ...props.route.security,
+      ...props.route.jsDocTags
+        .filter((tag) => tag.name === "security")
+        .map((tag) =>
+          tag.text === undefined
+            ? [{}]
+            : tag.text.map((text) => {
+                const line: string[] = text.text
+                  .split(" ")
+                  .filter((s) => s.trim())
+                  .filter((s) => !!s.length);
+                if (line.length === 0) return {};
+                return {
+                  [line[0]]: line.slice(1),
+                };
+              }),
+        )
+        .flat(),
+    );
+
     // FINALIZE
     return {
       ...SwaggerDescriptionComposer.compose({
@@ -85,6 +109,7 @@ export namespace SwaggerOperationComposer {
         schema: props.schema,
         route: props.route,
       }),
+      security: security.length ? security : undefined,
     };
   };
 }

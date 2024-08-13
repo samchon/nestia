@@ -1,3 +1,4 @@
+import { SwaggerExample } from "@nestia/core";
 import {
   HEADERS_METADATA,
   HTTP_CODE_METADATA,
@@ -78,6 +79,11 @@ export namespace ReflectHttpOperationResponseAnalyzer {
       !typia.is<IReflectHttpOperationSuccess["contentType"]>(contentType)
     )
       return null;
+
+    const example: SwaggerExample.IData<any> | undefined = Reflect.getMetadata(
+      "nestia/SwaggerExample/Response",
+      ctx.function,
+    );
     return {
       contentType: contentType,
       encrypted,
@@ -96,6 +102,8 @@ export namespace ReflectHttpOperationResponseAnalyzer {
                   meta.size()
                     ? ["HEAD method must not have any return value."]
                     : [],
+      example: example?.example,
+      examples: example?.examples,
     };
   };
 

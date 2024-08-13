@@ -1,3 +1,4 @@
+import { SwaggerExample } from "@nestia/core";
 import { ROUTE_ARGS_METADATA } from "@nestjs/common/constants";
 import { RouteParamtypes } from "@nestjs/common/enums/route-paramtypes.enum";
 import { JsonMetadataFactory } from "typia/lib/factories/JsonMetadataFactory";
@@ -148,6 +149,14 @@ export namespace ReflectHttpOperationParameterAnalyzer {
         )
           return null; // unreachable
 
+        const example: SwaggerExample.IData<any> | undefined = (
+          Reflect.getMetadata(
+            "nestia/SwaggerExample/Parameters",
+            ctx.controller.class.prototype,
+            ctx.functionName,
+          ) ?? []
+        ).find((x: SwaggerExample.IData<any>) => x.index === matched.index);
+
         // COMPOSITION
         if (p.category === "param")
           return {
@@ -159,6 +168,8 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             validate: HttpParameterProgrammer.validate,
             description: matched.description,
             jsDocTags: matched.jsDocTags,
+            example: example?.example,
+            examples: example?.examples,
             ...schema,
           };
         else if (p.category === "query")
@@ -173,6 +184,8 @@ export namespace ReflectHttpOperationParameterAnalyzer {
               : HttpQueryProgrammer.validate,
             description: matched.description,
             jsDocTags: matched.jsDocTags,
+            example: example?.example,
+            examples: example?.examples,
             ...schema,
           };
         else if (p.category === "headers")
@@ -187,6 +200,8 @@ export namespace ReflectHttpOperationParameterAnalyzer {
               : HttpHeadersProgrammer.validate,
             description: matched.description,
             jsDocTags: matched.jsDocTags,
+            example: example?.example,
+            examples: example?.examples,
             ...schema,
           };
         else if (p.category === "body")
@@ -207,6 +222,8 @@ export namespace ReflectHttpOperationParameterAnalyzer {
                     : TextPlainValidator.validate,
             description: matched.description,
             jsDocTags: matched.jsDocTags,
+            example: example?.example,
+            examples: example?.examples,
             ...schema,
           };
         else {

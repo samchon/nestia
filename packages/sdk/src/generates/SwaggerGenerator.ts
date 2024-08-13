@@ -94,7 +94,7 @@ export namespace SwaggerGenerator {
     const document: OpenApi.IDocument = props.document;
     document.components.schemas ??= {};
     Object.assign(document.components.schemas, json.components.schemas);
-    document.paths = writePaths({ ...props, schema, document });
+    fillPaths({ ...props, schema, document });
 
     return document;
   };
@@ -177,17 +177,15 @@ export namespace SwaggerGenerator {
     };
   };
 
-  const writePaths = (props: {
+  const fillPaths = (props: {
     config: INestiaConfig.ISwaggerConfig;
     document: OpenApi.IDocument;
     schema: (metadata: Metadata) => OpenApi.IJsonSchema | undefined;
     routes: ITypedHttpRoute[];
-  }): Record<string, OpenApi.IPath> => {
-    const output: Record<string, OpenApi.IPath> = {};
-    const customizers: Array<() => void> = [];
-
+  }): void => {
     // SWAGGER CUSTOMIZER
-    const customizer = {
+    const customizers: Array<() => void> = [];
+    const neighbor = {
       at: new Singleton(() => {
         const functor: Map<Function, Endpoint> = new Map();
         for (const r of props.routes) {
@@ -231,8 +229,9 @@ export namespace SwaggerGenerator {
         route: r,
       });
       const path: string = getPath(r);
-      output[path] ??= {};
-      output[path][r.method.toLowerCase() as "get"] = operation;
+      props.document.paths ??= {};
+      props.document.paths[path] ??= {};
+      props.document.paths[path][r.method.toLowerCase() as "get"] = operation;
 
       const closure: Function | Function[] | undefined = Reflect.getMetadata(
         "nestia/SwaggerCustomizer",
@@ -248,8 +247,8 @@ export namespace SwaggerGenerator {
               method: r.method,
               path,
               route: operation,
-              at: (func: Function) => customizer.at.get().get(func),
-              get: (accessor: Accessor) => customizer.get.get()(accessor),
+              at: (func: Function) => neighbor.at.get().get(func),
+              get: (accessor: Accessor) => neighbor.get.get()(accessor),
             } satisfies SwaggerCustomizer.IProps);
         });
       }
@@ -257,8 +256,6 @@ export namespace SwaggerGenerator {
 
     // DO CUSTOMIZE
     for (const fn of customizers) fn();
-
-    return output;
   };
 
   const getPath = (route: {

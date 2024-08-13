@@ -29,7 +29,7 @@ export async function join(
   connection: IConnection,
   input: join.Input,
 ): Promise<join.Output> {
-  const output: join.Output = !!connection.simulate
+  const output: Primitive<ISeller.IAuthorized> = !!connection.simulate
     ? join.simulate(connection, input)
     : await EncryptedFetcher.fetch(
         {
@@ -51,7 +51,7 @@ export async function join(
   return output;
 }
 export namespace join {
-  export type Input = Primitive<ISeller.IJoin>;
+  export type Input = Resolved<ISeller.IJoin>;
   export type Output = Primitive<ISeller.IAuthorized>;
 
   export const METADATA = {
@@ -65,7 +65,7 @@ export namespace join {
       type: "text/plain",
       encrypted: true,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/sellers/authenticate/join";
@@ -107,7 +107,7 @@ export async function login(
   connection: IConnection,
   input: login.Input,
 ): Promise<login.Output> {
-  const output: login.Output = !!connection.simulate
+  const output: Primitive<ISeller.IAuthorized> = !!connection.simulate
     ? login.simulate(connection, input)
     : await EncryptedFetcher.fetch(
         {
@@ -129,7 +129,7 @@ export async function login(
   return output;
 }
 export namespace login {
-  export type Input = Primitive<ISeller.ILogin>;
+  export type Input = Resolved<ISeller.ILogin>;
   export type Output = Primitive<ISeller.IAuthorized>;
 
   export const METADATA = {
@@ -143,7 +143,7 @@ export namespace login {
       type: "text/plain",
       encrypted: true,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/sellers/authenticate/login";
@@ -179,11 +179,20 @@ export namespace login {
 export async function exit(connection: IConnection): Promise<void> {
   return !!connection.simulate
     ? exit.simulate(connection)
-    : PlainFetcher.fetch(connection, {
-        ...exit.METADATA,
-        template: exit.METADATA.path,
-        path: exit.path(),
-      });
+    : PlainFetcher.fetch(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...exit.METADATA,
+          template: exit.METADATA.path,
+          path: exit.path(),
+        },
+      );
 }
 export namespace exit {
   export const METADATA = {
@@ -194,13 +203,12 @@ export namespace exit {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/sellers/authenticate/exit";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<void>> => typia.random<Primitive<void>>(g);
+  export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
+    typia.random<void>(g);
   export const simulate = (connection: IConnection): void => {
     return random(
       "object" === typeof connection.simulate && null !== connection.simulate
