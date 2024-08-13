@@ -82,6 +82,20 @@ export namespace SdkTransformer {
       props.context.checker,
       props.node,
     );
+
+    // TO AVOID COMMENT COMPILATION BUG
+    const symbolDict: Map<string, ts.Symbol> = new Map();
+    const classType: ts.InterfaceType = props.context.checker.getTypeAtLocation(
+      props.node,
+    ) as ts.InterfaceType;
+    for (const symbol of classType.getProperties()) {
+      const declaration: ts.Declaration | undefined = (symbol.declarations ||
+        [])[0];
+      if (!declaration || !ts.isMethodDeclaration(declaration)) continue;
+      const identifier = declaration.name;
+      if (!ts.isIdentifier(identifier)) continue;
+      symbolDict.set(identifier.escapedText.toString(), symbol);
+    }
     return ts.factory.updateClassDeclaration(
       props.node,
       props.node.modifiers,
@@ -95,6 +109,7 @@ export namespace SdkTransformer {
               generics,
               class: props.node,
               node: m,
+              symbol: symbolDict.get(m.name.getText()),
             })
           : m,
       ),
@@ -107,6 +122,7 @@ export namespace SdkTransformer {
     class: ts.ClassDeclaration;
     generics: WeakMap<ts.Type, ts.Type>;
     node: ts.MethodDeclaration;
+    symbol: ts.Symbol | undefined;
   }): ts.MethodDeclaration => {
     const decorators: readonly ts.Decorator[] | undefined = ts.getDecorators
       ? ts.getDecorators(props.node)

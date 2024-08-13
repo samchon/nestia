@@ -17,35 +17,31 @@ export namespace SdkMetadataProgrammer {
     context: ISdkTransformerContext;
     generics: WeakMap<ts.Type, ts.Type>;
     node: ts.MethodDeclaration;
+    symbol: ts.Symbol | undefined;
   }
-  export const write = (p: IProps): IOperationMetadata => {
-    const symbol: ts.Symbol | undefined = p.context.checker.getSymbolAtLocation(
-      p.node,
-    );
-    const signature: ts.Signature | undefined =
-      p.context.checker.getSignatureFromDeclaration(p.node);
-    return {
-      parameters: p.node.parameters.map((parameter, index) =>
-        writeParameter({
-          context: p.context,
-          generics: p.generics,
-          parameter,
-          index,
-        }),
-      ),
-      success: writeResponse({
+  export const write = (p: IProps): IOperationMetadata => ({
+    parameters: p.node.parameters.map((parameter, index) =>
+      writeParameter({
         context: p.context,
         generics: p.generics,
-        type: getReturnType({
-          checker: p.context.checker,
-          signature,
-        }),
+        parameter,
+        index,
       }),
-      exceptions: {}, // @todo
-      description: (symbol && CommentFactory.description(symbol)) ?? null,
-      jsDocTags: signature?.getJsDocTags() ?? [],
-    };
-  };
+    ),
+    success: writeResponse({
+      context: p.context,
+      generics: p.generics,
+      type: getReturnType({
+        checker: p.context.checker,
+        type: p.node.type
+          ? p.context.checker.getTypeFromTypeNode(p.node.type)
+          : null,
+      }),
+    }),
+    exceptions: {}, // @todo
+    jsDocTags: p.symbol?.getJsDocTags() ?? [],
+    description: p.symbol ? CommentFactory.description(p.symbol) ?? null : null,
+  });
 
   const writeParameter = (props: {
     context: ISdkTransformerContext;
@@ -164,9 +160,9 @@ export namespace SdkMetadataProgrammer {
 
   const getReturnType = (p: {
     checker: ts.TypeChecker;
-    signature: ts.Signature | undefined;
+    type: ts.Type | null;
   }): ts.Type | null => {
-    const type: ts.Type | null = p.signature?.getReturnType() ?? null;
+    const type: ts.Type | null = p.type;
     if (type === null) return null;
     else if (type.symbol?.name === "Promise") {
       const generic: readonly ts.Type[] = p.checker.getTypeArguments(
