@@ -7,8 +7,11 @@ import type { ObjectUnionImplicit } from "../../../../api/structures/ObjectUnion
 export const test_api_objectUnionImplicitControllere_get = async (
   connection: api.IConnection,
 ) => {
-  const output: IPropagation<{
-    200: ObjectUnionImplicit;
-  }> = await api.functional.objectUnionImplicitControllere.get(connection);
+  const output: IPropagation<
+    {
+      200: ObjectUnionImplicit;
+    },
+    200
+  > = await api.functional.objectUnionImplicitControllere.get(connection);
   typia.assert(output);
 };

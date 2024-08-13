@@ -6,8 +6,9 @@
 //================================================================
 import type {
   IConnection,
-  Resolved,
   IPropagation,
+  Primitive,
+  Resolved,
   HttpError,
 } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
@@ -33,21 +34,39 @@ import type { IPageIBbsArticle } from "../../../structures/IPageIBbsArticle";
 export async function index(
   connection: IConnection,
   section: string,
-  query: index.Query,
-): Promise<index.Output> {
+  query: IPage.IRequest,
+): Promise<
+  IPropagation<
+    {
+      200: IPageIBbsArticle.ISummary;
+    },
+    200
+  >
+> {
   return !!connection.simulate
     ? index.simulate(connection, section, query)
-    : PlainFetcher.propagate(connection, {
-        ...index.METADATA,
-        template: index.METADATA.path,
-        path: index.path(section, query),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...index.METADATA,
+          template: index.METADATA.path,
+          path: index.path(section, query),
+        },
+      );
 }
 export namespace index {
-  export type Query = Resolved<IPage.IRequest>;
-  export type Output = IPropagation<{
-    200: IPageIBbsArticle.ISummary;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: IPageIBbsArticle.ISummary;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -57,29 +76,19 @@ export namespace index {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
-  export const path = (section: string, query: index.Query) => {
-    const variables: URLSearchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(query as any))
-      if (undefined === value) continue;
-      else if (Array.isArray(value))
-        value.forEach((elem: any) => variables.append(key, String(elem)));
-      else variables.set(key, String(value));
-    const location: string = `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
-    return 0 === variables.size
-      ? location
-      : `${location}?${variables.toString()}`;
-  };
+  export const path = (section: string, query: IPage.IRequest) =>
+    `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IPageIBbsArticle.ISummary> =>
-    typia.random<IPageIBbsArticle.ISummary>(g);
+  ): Resolved<Primitive<IPageIBbsArticle.ISummary>> =>
+    typia.random<Primitive<IPageIBbsArticle.ISummary>>(g);
   export const simulate = (
     connection: IConnection,
     section: string,
-    query: index.Query,
+    query: IPage.IRequest,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -110,7 +119,7 @@ export namespace index {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -129,10 +138,17 @@ export async function store(
   connection: IConnection,
   section: string,
   input: store.Input,
-): Promise<store.Output> {
+): Promise<
+  IPropagation<
+    {
+      201: IBbsArticle;
+    },
+    201
+  >
+> {
   return !!connection.simulate
     ? store.simulate(connection, section, input)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -150,9 +166,12 @@ export async function store(
 }
 export namespace store {
   export type Input = IBbsArticle.IStore;
-  export type Output = IPropagation<{
-    201: IBbsArticle;
-  }>;
+  export type Output = IPropagation<
+    {
+      201: IBbsArticle;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -165,14 +184,15 @@ export namespace store {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = (section: string) =>
     `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
+  ): Resolved<Primitive<IBbsArticle>> =>
+    typia.random<Primitive<IBbsArticle>>(g);
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -207,7 +227,7 @@ export namespace store {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -228,10 +248,17 @@ export async function update(
   section: string,
   id: string & Format<"uuid">,
   input: update.Input,
-): Promise<update.Output> {
+): Promise<
+  IPropagation<
+    {
+      200: IBbsArticle;
+    },
+    200
+  >
+> {
   return !!connection.simulate
     ? update.simulate(connection, section, id, input)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -249,9 +276,12 @@ export async function update(
 }
 export namespace update {
   export type Input = IBbsArticle.IStore;
-  export type Output = IPropagation<{
-    200: IBbsArticle;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: IBbsArticle;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "PUT",
@@ -264,14 +294,15 @@ export namespace update {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (section: string, id: string & Format<"uuid">) =>
     `/bbs/articles/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
+  ): Resolved<Primitive<IBbsArticle>> =>
+    typia.random<Primitive<IBbsArticle>>(g);
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -308,6 +339,6 @@ export namespace update {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

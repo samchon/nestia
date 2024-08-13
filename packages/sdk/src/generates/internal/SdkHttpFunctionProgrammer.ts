@@ -56,7 +56,9 @@ export namespace SdkHttpFunctionProgrammer {
                   ? ts.factory.createTypeReferenceNode(
                       `${route.name}.${p === props.query ? "Query" : "Input"}`,
                     )
-                  : SdkAliasCollection.name(p.type),
+                  : project.config.clone === true
+                    ? SdkAliasCollection.from(project)(importer)(p.metadata)
+                    : SdkAliasCollection.name(p.type),
               ),
             ),
         ],

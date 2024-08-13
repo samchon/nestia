@@ -7,9 +7,12 @@ import type { ISeller } from "../../../../api/structures/ISeller";
 export const test_api_sellers_authenticate_join = async (
   connection: api.IConnection,
 ) => {
-  const output: IPropagation<{
-    201: ISeller.IAuthorized;
-  }> = await api.functional.sellers.authenticate.join(
+  const output: IPropagation<
+    {
+      201: ISeller.IAuthorized;
+    },
+    201
+  > = await api.functional.sellers.authenticate.join(
     connection,
     typia.random<ISeller.IJoin>(),
   );

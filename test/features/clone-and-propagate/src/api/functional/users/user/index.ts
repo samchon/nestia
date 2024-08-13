@@ -6,8 +6,9 @@
 //================================================================
 import type {
   IConnection,
-  Resolved,
   IPropagation,
+  Primitive,
+  Resolved,
   HttpError,
 } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
@@ -15,7 +16,7 @@ import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
 import type { IUser } from "../../../structures/IUser";
-import type { PartialPickIUseremailnamenullable_attroptional_attr } from "../../../structures/PartialPickIUseremailnamenullable_attroptional_attr";
+import type { PartialPickIUsernameemailoptional_attrnullable_attr } from "../../../structures/PartialPickIUsernameemailoptional_attrnullable_attr";
 
 /**
  * - When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.
@@ -33,18 +34,34 @@ import type { PartialPickIUseremailnamenullable_attroptional_attr } from "../../
 export async function getUserProfile(
   connection: IConnection,
   user_id: string,
-  query: getUserProfile.Query,
-): Promise<getUserProfile.Output> {
+  query: IUser.ISearch,
+): Promise<
+  IPropagation<
+    {
+      202: IUser;
+      404: "404 Not Found";
+    },
+    202
+  >
+> {
   return !!connection.simulate
     ? getUserProfile.simulate(connection, user_id, query)
-    : PlainFetcher.propagate(connection, {
-        ...getUserProfile.METADATA,
-        template: getUserProfile.METADATA.path,
-        path: getUserProfile.path(user_id, query),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...getUserProfile.METADATA,
+          template: getUserProfile.METADATA.path,
+          path: getUserProfile.path(user_id, query),
+        },
+      );
 }
 export namespace getUserProfile {
-  export type Query = Resolved<IUser.ISearch>;
   export type Output = IPropagation<
     {
       202: IUser;
@@ -64,25 +81,15 @@ export namespace getUserProfile {
     status: 202,
   } as const;
 
-  export const path = (user_id: string, query: getUserProfile.Query) => {
-    const variables: URLSearchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(query as any))
-      if (undefined === value) continue;
-      else if (Array.isArray(value))
-        value.forEach((elem: any) => variables.append(key, String(elem)));
-      else variables.set(key, String(value));
-    const location: string = `/users/${encodeURIComponent(user_id ?? "null")}/user`;
-    return 0 === variables.size
-      ? location
-      : `${location}?${variables.toString()}`;
-  };
+  export const path = (user_id: string, query: IUser.ISearch) =>
+    `/users/${encodeURIComponent(user_id ?? "null")}/user`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IUser> => typia.random<IUser>(g);
+  ): Resolved<Primitive<IUser>> => typia.random<Primitive<IUser>>(g);
   export const simulate = (
     connection: IConnection,
     user_id: string,
-    query: getUserProfile.Query,
+    query: IUser.ISearch,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -113,7 +120,7 @@ export namespace getUserProfile {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -127,10 +134,17 @@ export async function updateUserProfile(
   connection: IConnection,
   user_id: string,
   body: updateUserProfile.Input,
-): Promise<updateUserProfile.Output> {
+): Promise<
+  IPropagation<
+    {
+      201: IUser;
+    },
+    201
+  >
+> {
   return !!connection.simulate
     ? updateUserProfile.simulate(connection, user_id, body)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -147,10 +161,13 @@ export async function updateUserProfile(
       );
 }
 export namespace updateUserProfile {
-  export type Input = PartialPickIUseremailnamenullable_attroptional_attr;
-  export type Output = IPropagation<{
-    201: IUser;
-  }>;
+  export type Input = PartialPickIUsernameemailoptional_attrnullable_attr;
+  export type Output = IPropagation<
+    {
+      201: IUser;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -163,14 +180,14 @@ export namespace updateUserProfile {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = (user_id: string) =>
     `/users/${encodeURIComponent(user_id ?? "null")}/user`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IUser> => typia.random<IUser>(g);
+  ): Resolved<Primitive<IUser>> => typia.random<Primitive<IUser>>(g);
   export const simulate = (
     connection: IConnection,
     user_id: string,
@@ -205,6 +222,6 @@ export namespace updateUserProfile {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

@@ -7,8 +7,11 @@ import type { TupleRest } from "../../../../api/structures/TupleRest";
 export const test_api_tupleRestController_get = async (
   connection: api.IConnection,
 ) => {
-  const output: IPropagation<{
-    200: TupleRest;
-  }> = await api.functional.tupleRestController.get(connection);
+  const output: IPropagation<
+    {
+      200: TupleRest;
+    },
+    200
+  > = await api.functional.tupleRestController.get(connection);
   typia.assert(output);
 };

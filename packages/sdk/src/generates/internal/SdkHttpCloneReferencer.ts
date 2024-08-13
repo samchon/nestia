@@ -1,5 +1,6 @@
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
+import { IReflectType } from "../../structures/IReflectType";
 import { ITypedApplication } from "../../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { StringUtil } from "../../utils/StringUtil";
@@ -24,17 +25,20 @@ export namespace SdkHttpCloneReferencer {
       visitType({
         unique,
         metadata: p.metadata,
+        type: p.type,
         name: (name) => (p.type = { name }),
       });
     for (const v of Object.values(props.route.exceptions))
       visitType({
         unique,
         metadata: v.metadata,
+        type: v.type,
         name: (name) => (v.type = { name }),
       });
     visitType({
       unique,
       metadata: props.route.success.metadata,
+      type: props.route.success.type,
       name: (name) => (props.route.success.type = { name }),
     });
     props.route.imports = Array.from(unique).map((str) => ({
@@ -46,6 +50,7 @@ export namespace SdkHttpCloneReferencer {
   const visitType = (p: {
     unique: Set<string>;
     metadata: Metadata;
+    type: IReflectType;
     name: (key: string) => void;
   }): void => {
     const enroll = (key: string) => {
@@ -59,3 +64,8 @@ export namespace SdkHttpCloneReferencer {
     p.name(p.metadata.getName());
   };
 }
+
+const getFullText = (type: IReflectType): string =>
+  type.typeArguments === undefined
+    ? type.name
+    : `${type.name}<${type.typeArguments.map(getFullText).join(", ")}>`;

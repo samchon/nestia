@@ -33,9 +33,9 @@ export namespace SdkHttpNamespaceProgrammer {
         ts.factory.createModuleBlock([
           ...types,
           ...(types.length ? [FilePrinter.enter()] : []),
-          write_metadata(importer)(route, props),
+          write_metadata(project)(importer)(route, props),
           FilePrinter.enter(),
-          write_path(route, props.query),
+          write_path(project)(importer)(route, props.query),
           ...(project.config.simulate
             ? [
                 SdkHttpSimulationProgrammer.random(project)(importer)(route),
@@ -101,6 +101,7 @@ export namespace SdkHttpNamespaceProgrammer {
     };
 
   const write_metadata =
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (
       route: ITypedHttpRoute,
@@ -162,7 +163,13 @@ export namespace SdkHttpNamespaceProgrammer {
                         ts.factory.createIdentifier(
                           `${SdkImportWizard.typia(importer)}.http.createAssertQuery`,
                         ),
-                        [SdkAliasCollection.name(route.success.type)],
+                        [
+                          project.config.clone === true
+                            ? SdkAliasCollection.from(project)(importer)(
+                                route.success.metadata,
+                              )
+                            : SdkAliasCollection.name(route.success.type),
+                        ],
                         undefined,
                       ),
                     ),
@@ -177,263 +184,275 @@ export namespace SdkHttpNamespaceProgrammer {
         ),
       );
 
-  const write_path = (
-    route: ITypedHttpRoute,
-    query: ITypedHttpRouteParameter.IQuery | undefined,
-  ): ts.VariableStatement => {
-    const g = {
-      total: [
-        ...route.parameters.filter(
-          (param) => param.category === "param" || param.category === "query",
-        ),
-      ],
-      query: route.parameters
-        .filter((param) => param.category === "query")
-        .filter((param) => param.field !== null),
-      path: route.parameters.filter((param) => param.category === "param"),
-    };
-    const out = (body: ts.ConciseBody) =>
-      constant("path")(
-        ts.factory.createArrowFunction(
-          [],
-          [],
-          g.total.map((p) =>
-            IdentifierFactory.parameter(
-              p.name,
-              p === query
-                ? p.metadata.isRequired() === false
-                  ? ts.factory.createUnionTypeNode([
-                      ts.factory.createTypeReferenceNode(`${route.name}.Query`),
-                      ts.factory.createTypeReferenceNode("undefined"),
-                    ])
-                  : ts.factory.createTypeReferenceNode(`${route.name}.Query`)
-                : SdkAliasCollection.name(p.type),
-            ),
+  const write_path =
+    (project: INestiaProject) =>
+    (importer: ImportDictionary) =>
+    (
+      route: ITypedHttpRoute,
+      query: ITypedHttpRouteParameter.IQuery | undefined,
+    ): ts.VariableStatement => {
+      const g = {
+        total: [
+          ...route.parameters.filter(
+            (param) => param.category === "param" || param.category === "query",
           ),
-          undefined,
-          undefined,
-          body,
-        ),
-      );
-    if (g.total.length === 0)
-      return out(ts.factory.createStringLiteral(route.path));
-
-    const template = () => {
-      const splitted: string[] = route.path.split(":");
-      if (splitted.length === 1)
-        return ts.factory.createStringLiteral(route.path);
-      return ts.factory.createTemplateExpression(
-        ts.factory.createTemplateHead(splitted[0]),
-        splitted.slice(1).map((s, i, arr) => {
-          const name: string = s.split("/")[0];
-          return ts.factory.createTemplateSpan(
-            ts.factory.createCallExpression(
-              ts.factory.createIdentifier("encodeURIComponent"),
-              undefined,
-              [
-                ts.factory.createBinaryExpression(
-                  ts.factory.createIdentifier(
-                    g.path.find((p) => p.field === name)!.name,
-                  ),
-                  ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
-                  ts.factory.createStringLiteral("null"),
-                ),
-              ],
-            ),
-            (i !== arr.length - 1
-              ? ts.factory.createTemplateMiddle
-              : ts.factory.createTemplateTail)(s.substring(name.length)),
-          );
-        }),
-      );
-    };
-    if (query === undefined && g.query.length === 0) return out(template());
-
-    const block = (expr: ts.Expression) => {
-      const computeName = (str: string): string =>
-        g.total.find((p) => p.name === str) !== undefined
-          ? computeName("_" + str)
-          : str;
-      const variables: string = computeName("variables");
-      return ts.factory.createBlock(
-        [
-          local(variables)("URLSearchParams")(
-            ts.factory.createNewExpression(
-              ts.factory.createIdentifier("URLSearchParams"),
-              [],
-              [],
-            ),
-          ),
-          ts.factory.createForOfStatement(
-            undefined,
-            ts.factory.createVariableDeclarationList(
-              [
-                ts.factory.createVariableDeclaration(
-                  ts.factory.createArrayBindingPattern([
-                    ts.factory.createBindingElement(
-                      undefined,
-                      undefined,
-                      ts.factory.createIdentifier("key"),
-                      undefined,
-                    ),
-                    ts.factory.createBindingElement(
-                      undefined,
-                      undefined,
-                      ts.factory.createIdentifier("value"),
-                      undefined,
-                    ),
-                  ]),
-                  undefined,
-                  undefined,
-                  undefined,
-                ),
-              ],
-              ts.NodeFlags.Const,
-            ),
-            ts.factory.createCallExpression(
-              ts.factory.createIdentifier("Object.entries"),
-              undefined,
-              [ts.factory.createAsExpression(expr, TypeFactory.keyword("any"))],
-            ),
-            ts.factory.createIfStatement(
-              ts.factory.createStrictEquality(
-                ts.factory.createIdentifier("undefined"),
-                ts.factory.createIdentifier("value"),
-              ),
-              ts.factory.createContinueStatement(),
-              ts.factory.createIfStatement(
-                ts.factory.createCallExpression(
-                  ts.factory.createIdentifier("Array.isArray"),
-                  undefined,
-                  [ts.factory.createIdentifier("value")],
-                ),
-                ts.factory.createExpressionStatement(
-                  ts.factory.createCallExpression(
-                    ts.factory.createPropertyAccessExpression(
-                      ts.factory.createIdentifier("value"),
-                      ts.factory.createIdentifier("forEach"),
-                    ),
-                    undefined,
-                    [
-                      ts.factory.createArrowFunction(
-                        undefined,
-                        undefined,
-                        [IdentifierFactory.parameter("elem")],
-                        undefined,
-                        undefined,
-                        ts.factory.createCallExpression(
-                          IdentifierFactory.access(
-                            ts.factory.createIdentifier(variables),
-                          )("append"),
-                          undefined,
-                          [
-                            ts.factory.createIdentifier("key"),
-                            ts.factory.createCallExpression(
-                              ts.factory.createIdentifier("String"),
-                              undefined,
-                              [ts.factory.createIdentifier("elem")],
-                            ),
-                          ],
+        ],
+        query: route.parameters
+          .filter((param) => param.category === "query")
+          .filter((param) => param.field !== null),
+        path: route.parameters.filter((param) => param.category === "param"),
+      };
+      const out = (body: ts.ConciseBody) =>
+        constant("path")(
+          ts.factory.createArrowFunction(
+            [],
+            [],
+            g.total.map((p) =>
+              IdentifierFactory.parameter(
+                p.name,
+                p === query
+                  ? p.metadata.isRequired() === false
+                    ? ts.factory.createUnionTypeNode([
+                        ts.factory.createTypeReferenceNode(
+                          `${route.name}.Query`,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                ts.factory.createExpressionStatement(
-                  ts.factory.createCallExpression(
-                    IdentifierFactory.access(
-                      ts.factory.createIdentifier(variables),
-                    )("set"),
-                    undefined,
-                    [
-                      ts.factory.createIdentifier("key"),
-                      ts.factory.createCallExpression(
-                        ts.factory.createIdentifier("String"),
-                        undefined,
-                        [ts.factory.createIdentifier("value")],
-                      ),
-                    ],
-                  ),
-                ),
+                        ts.factory.createTypeReferenceNode("undefined"),
+                      ])
+                    : ts.factory.createTypeReferenceNode(`${route.name}.Query`)
+                  : project.config.clone === true
+                    ? SdkAliasCollection.from(project)(importer)(p.metadata)
+                    : SdkAliasCollection.name(p.type),
               ),
             ),
+            undefined,
+            undefined,
+            body,
           ),
-          local("location")("string")(template()),
-          ts.factory.createReturnStatement(
-            ts.factory.createConditionalExpression(
-              ts.factory.createStrictEquality(
-                ExpressionFactory.number(0),
-                IdentifierFactory.access(
-                  ts.factory.createIdentifier(variables),
-                )("size"),
-              ),
-              undefined,
-              ts.factory.createIdentifier("location"),
-              undefined,
-              ts.factory.createTemplateExpression(
-                ts.factory.createTemplateHead(""),
+        );
+      if (g.total.length === 0)
+        return out(ts.factory.createStringLiteral(route.path));
+
+      const template = () => {
+        const splitted: string[] = route.path.split(":");
+        if (splitted.length === 1)
+          return ts.factory.createStringLiteral(route.path);
+        return ts.factory.createTemplateExpression(
+          ts.factory.createTemplateHead(splitted[0]),
+          splitted.slice(1).map((s, i, arr) => {
+            const name: string = s.split("/")[0];
+            return ts.factory.createTemplateSpan(
+              ts.factory.createCallExpression(
+                ts.factory.createIdentifier("encodeURIComponent"),
+                undefined,
                 [
-                  ts.factory.createTemplateSpan(
-                    ts.factory.createIdentifier("location"),
-                    ts.factory.createTemplateMiddle("?"),
-                  ),
-                  ts.factory.createTemplateSpan(
-                    ts.factory.createCallExpression(
-                      IdentifierFactory.access(
-                        ts.factory.createIdentifier(variables),
-                      )("toString"),
-                      undefined,
-                      undefined,
+                  ts.factory.createBinaryExpression(
+                    ts.factory.createIdentifier(
+                      g.path.find((p) => p.field === name)!.name,
                     ),
-                    ts.factory.createTemplateTail(""),
+                    ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
+                    ts.factory.createStringLiteral("null"),
                   ),
                 ],
               ),
-            ),
-          ),
-        ],
-        true,
-      );
-    };
-    if (query !== undefined && g.query.length === 0)
-      return out(
-        block(
-          query.metadata.isRequired() === false
-            ? ts.factory.createBinaryExpression(
-                ts.factory.createIdentifier(query.name),
-                ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
-                ts.factory.createObjectLiteralExpression([], false),
-              )
-            : ts.factory.createIdentifier(query.name),
-        ),
-      );
-    return out(
-      block(
-        ts.factory.createObjectLiteralExpression(
+              (i !== arr.length - 1
+                ? ts.factory.createTemplateMiddle
+                : ts.factory.createTemplateTail)(s.substring(name.length)),
+            );
+          }),
+        );
+      };
+      if (query === undefined && g.query.length === 0) return out(template());
+
+      const block = (expr: ts.Expression) => {
+        const computeName = (str: string): string =>
+          g.total.find((p) => p.name === str) !== undefined
+            ? computeName("_" + str)
+            : str;
+        const variables: string = computeName("variables");
+        return ts.factory.createBlock(
           [
-            ...(query
-              ? [
-                  ts.factory.createSpreadAssignment(
-                    ts.factory.createIdentifier(query.name),
+            local(variables)("URLSearchParams")(
+              ts.factory.createNewExpression(
+                ts.factory.createIdentifier("URLSearchParams"),
+                [],
+                [],
+              ),
+            ),
+            ts.factory.createForOfStatement(
+              undefined,
+              ts.factory.createVariableDeclarationList(
+                [
+                  ts.factory.createVariableDeclaration(
+                    ts.factory.createArrayBindingPattern([
+                      ts.factory.createBindingElement(
+                        undefined,
+                        undefined,
+                        ts.factory.createIdentifier("key"),
+                        undefined,
+                      ),
+                      ts.factory.createBindingElement(
+                        undefined,
+                        undefined,
+                        ts.factory.createIdentifier("value"),
+                        undefined,
+                      ),
+                    ]),
+                    undefined,
+                    undefined,
+                    undefined,
                   ),
-                ]
-              : []),
-            ...g.query.map((q) =>
-              q.name === q.field
-                ? ts.factory.createShorthandPropertyAssignment(q.name)
-                : ts.factory.createPropertyAssignment(
-                    Escaper.variable(q.field!)
-                      ? q.field!
-                      : ts.factory.createStringLiteral(q.field!),
-                    ts.factory.createIdentifier(q.name),
+                ],
+                ts.NodeFlags.Const,
+              ),
+              ts.factory.createCallExpression(
+                ts.factory.createIdentifier("Object.entries"),
+                undefined,
+                [
+                  ts.factory.createAsExpression(
+                    expr,
+                    TypeFactory.keyword("any"),
                   ),
+                ],
+              ),
+              ts.factory.createIfStatement(
+                ts.factory.createStrictEquality(
+                  ts.factory.createIdentifier("undefined"),
+                  ts.factory.createIdentifier("value"),
+                ),
+                ts.factory.createContinueStatement(),
+                ts.factory.createIfStatement(
+                  ts.factory.createCallExpression(
+                    ts.factory.createIdentifier("Array.isArray"),
+                    undefined,
+                    [ts.factory.createIdentifier("value")],
+                  ),
+                  ts.factory.createExpressionStatement(
+                    ts.factory.createCallExpression(
+                      ts.factory.createPropertyAccessExpression(
+                        ts.factory.createIdentifier("value"),
+                        ts.factory.createIdentifier("forEach"),
+                      ),
+                      undefined,
+                      [
+                        ts.factory.createArrowFunction(
+                          undefined,
+                          undefined,
+                          [IdentifierFactory.parameter("elem")],
+                          undefined,
+                          undefined,
+                          ts.factory.createCallExpression(
+                            IdentifierFactory.access(
+                              ts.factory.createIdentifier(variables),
+                            )("append"),
+                            undefined,
+                            [
+                              ts.factory.createIdentifier("key"),
+                              ts.factory.createCallExpression(
+                                ts.factory.createIdentifier("String"),
+                                undefined,
+                                [ts.factory.createIdentifier("elem")],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ts.factory.createExpressionStatement(
+                    ts.factory.createCallExpression(
+                      IdentifierFactory.access(
+                        ts.factory.createIdentifier(variables),
+                      )("set"),
+                      undefined,
+                      [
+                        ts.factory.createIdentifier("key"),
+                        ts.factory.createCallExpression(
+                          ts.factory.createIdentifier("String"),
+                          undefined,
+                          [ts.factory.createIdentifier("value")],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            local("location")("string")(template()),
+            ts.factory.createReturnStatement(
+              ts.factory.createConditionalExpression(
+                ts.factory.createStrictEquality(
+                  ExpressionFactory.number(0),
+                  IdentifierFactory.access(
+                    ts.factory.createIdentifier(variables),
+                  )("size"),
+                ),
+                undefined,
+                ts.factory.createIdentifier("location"),
+                undefined,
+                ts.factory.createTemplateExpression(
+                  ts.factory.createTemplateHead(""),
+                  [
+                    ts.factory.createTemplateSpan(
+                      ts.factory.createIdentifier("location"),
+                      ts.factory.createTemplateMiddle("?"),
+                    ),
+                    ts.factory.createTemplateSpan(
+                      ts.factory.createCallExpression(
+                        IdentifierFactory.access(
+                          ts.factory.createIdentifier(variables),
+                        )("toString"),
+                        undefined,
+                        undefined,
+                      ),
+                      ts.factory.createTemplateTail(""),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
           true,
+        );
+      };
+      if (query !== undefined && g.query.length === 0)
+        return out(
+          block(
+            query.metadata.isRequired() === false
+              ? ts.factory.createBinaryExpression(
+                  ts.factory.createIdentifier(query.name),
+                  ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
+                  ts.factory.createObjectLiteralExpression([], false),
+                )
+              : ts.factory.createIdentifier(query.name),
+          ),
+        );
+      return out(
+        block(
+          ts.factory.createObjectLiteralExpression(
+            [
+              ...(query
+                ? [
+                    ts.factory.createSpreadAssignment(
+                      ts.factory.createIdentifier(query.name),
+                    ),
+                  ]
+                : []),
+              ...g.query.map((q) =>
+                q.name === q.field
+                  ? ts.factory.createShorthandPropertyAssignment(q.name)
+                  : ts.factory.createPropertyAssignment(
+                      Escaper.variable(q.field!)
+                        ? q.field!
+                        : ts.factory.createStringLiteral(q.field!),
+                      ts.factory.createIdentifier(q.name),
+                    ),
+              ),
+            ],
+            true,
+          ),
         ),
-      ),
-    );
-  };
+      );
+    };
 
   const write_stringify =
     (project: INestiaProject) =>

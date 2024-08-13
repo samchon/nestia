@@ -8,8 +8,8 @@ export type Template = {
   ipv4: `${number}.${number}.${number}.${number}`;
   email: `${string}@${string}.${string}`;
   combined:
+    | `the_1_value_with_label_A_${string}_${number}_4`
     | `the_2_value_with_label_A_${string}_${number}_4`
-    | `the_3_value_with_label_A_${string}_${number}_4`
-    | `the_1_value_with_label_A_${string}_${number}_4`;
+    | `the_3_value_with_label_A_${string}_${number}_4`;
   nosubstitution: "something";
 };

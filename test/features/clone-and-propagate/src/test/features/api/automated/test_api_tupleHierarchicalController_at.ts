@@ -7,9 +7,12 @@ import type { TupleHierarchical } from "../../../../api/structures/TupleHierarch
 export const test_api_tupleHierarchicalController_at = async (
   connection: api.IConnection,
 ) => {
-  const output: IPropagation<{
-    200: TupleHierarchical;
-  }> = await api.functional.tupleHierarchicalController.at(
+  const output: IPropagation<
+    {
+      200: TupleHierarchical;
+    },
+    200
+  > = await api.functional.tupleHierarchicalController.at(
     connection,
     typia.random<number>(),
   );

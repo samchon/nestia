@@ -1,6 +1,7 @@
 import ts from "typescript";
 import typia from "typia";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
+import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { IReflectHttpOperationParameter } from "../../structures/IReflectHttpOperationParameter";
@@ -8,6 +9,7 @@ import { IReflectType } from "../../structures/IReflectType";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { ImportDictionary } from "./ImportDictionary";
+import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkAliasCollection {
   export const name = (type: IReflectType): ts.TypeNode =>
@@ -16,10 +18,18 @@ export namespace SdkAliasCollection {
       type.typeArguments ? type.typeArguments.map(name) : undefined,
     );
 
+  export const from =
+    (project: INestiaProject) =>
+    (importer: ImportDictionary) =>
+    (metadata: Metadata) =>
+      SdkTypeProgrammer.write(project)(importer)(metadata);
+
   export const headers =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (param: ITypedHttpRouteParameter.IHeaders): ts.TypeNode => {
+      if (project.config.clone === true)
+        return from(project)(importer)(param.metadata);
       const type: ts.TypeNode = name(param);
       if (project.config.primitive === false) return type;
       return ts.factory.createTypeReferenceNode(
@@ -36,6 +46,8 @@ export namespace SdkAliasCollection {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (param: ITypedHttpRouteParameter.IQuery): ts.TypeNode => {
+      if (project.config.clone === true)
+        return from(project)(importer)(param.metadata);
       const type: ts.TypeNode = name(param);
       if (project.config.primitive === false) return type;
       return ts.factory.createTypeReferenceNode(
@@ -52,9 +64,10 @@ export namespace SdkAliasCollection {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (param: ITypedHttpRouteParameter): ts.TypeNode => {
+      if (project.config.clone === true)
+        return from(project)(importer)(param.metadata);
       const type: ts.TypeNode = name(param.type);
-      if (project.config.clone === true || project.config.primitive === false)
-        return type;
+      if (project.config.primitive === false) return type;
       return ts.factory.createTypeReferenceNode(
         importer.external({
           type: true,
@@ -74,11 +87,15 @@ export namespace SdkAliasCollection {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.TypeNode => {
+      const schema = (p: { metadata: Metadata; type: IReflectType }) =>
+        project.config.clone === true
+          ? from(project)(importer)(p.metadata)
+          : name(p.type);
       if (project.config.propagate !== true) {
         if (route.success.metadata.size() === 0)
           return TypeFactory.keyword("void");
         else if (project.config.primitive === false)
-          return name(route.success.type);
+          return schema(route.success);
         return ts.factory.createTypeReferenceNode(
           importer.external({
             type: true,
@@ -89,7 +106,7 @@ export namespace SdkAliasCollection {
                 ? "Primitive"
                 : "Resolved",
           }),
-          [name(route.success.type)],
+          [schema(route.success)],
         );
       }
 
@@ -98,11 +115,11 @@ export namespace SdkAliasCollection {
           status: String(
             route.success.status ?? (route.method === "POST" ? 201 : 200),
           ),
-          type: name(route.success.type),
+          type: schema(route.success),
         },
         ...Object.entries(route.exceptions).map(([status, value]) => ({
           status,
-          type: name(value.type),
+          type: schema(value),
         })),
       ];
       return ts.factory.createTypeReferenceNode(

@@ -1,17 +1,19 @@
-import type { IBucket } from "./IBucket";
+import type { IImageFile } from "./IImageFile";
+import type { ISharedDirectory } from "./ISharedDirectory";
+import type { IShortcut } from "./IShortcut";
+import type { ITextFile } from "./ITextFile";
+import type { IZipFile } from "./IZipFile";
 
 export type IDirectory = {
   id: number;
   name: string;
   path: string;
-  children: IBucket[];
-  type: "directory";
+  children: (
+    | IDirectory
+    | ISharedDirectory
+    | IImageFile
+    | ITextFile
+    | IZipFile
+    | IShortcut
+  )[];
 };
-export namespace IDirectory {
-  export type o1 = {
-    id: number;
-    name: string;
-    path: string;
-    children: IBucket.o1[];
-  };
-}

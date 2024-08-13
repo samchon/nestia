@@ -6,8 +6,9 @@
 //================================================================
 import type {
   IConnection,
-  Resolved,
   IPropagation,
+  Primitive,
+  Resolved,
   HttpError,
 } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
@@ -29,22 +30,41 @@ import type { IAuthentication } from "../../../structures/IAuthentication";
 export async function getOauthProfile(
   connection: IConnection,
   user_id: string,
-  query: getOauthProfile.Query,
-): Promise<getOauthProfile.Output> {
+  query: IAuthentication,
+): Promise<
+  IPropagation<
+    {
+      200: IAuthentication.IProfile;
+      404: "404 Not Found";
+    },
+    200
+  >
+> {
   return !!connection.simulate
     ? getOauthProfile.simulate(connection, user_id, query)
-    : PlainFetcher.propagate(connection, {
-        ...getOauthProfile.METADATA,
-        template: getOauthProfile.METADATA.path,
-        path: getOauthProfile.path(user_id, query),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...getOauthProfile.METADATA,
+          template: getOauthProfile.METADATA.path,
+          path: getOauthProfile.path(user_id, query),
+        },
+      );
 }
 export namespace getOauthProfile {
-  export type Query = Resolved<IAuthentication>;
-  export type Output = IPropagation<{
-    200: IAuthentication.IProfile;
-    404: "404 Not Found";
-  }>;
+  export type Output = IPropagation<
+    {
+      200: IAuthentication.IProfile;
+      404: "404 Not Found";
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -54,29 +74,19 @@ export namespace getOauthProfile {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
-  export const path = (user_id: string, query: getOauthProfile.Query) => {
-    const variables: URLSearchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(query as any))
-      if (undefined === value) continue;
-      else if (Array.isArray(value))
-        value.forEach((elem: any) => variables.append(key, String(elem)));
-      else variables.set(key, String(value));
-    const location: string = `/users/${encodeURIComponent(user_id ?? "null")}/oauth`;
-    return 0 === variables.size
-      ? location
-      : `${location}?${variables.toString()}`;
-  };
+  export const path = (user_id: string, query: IAuthentication) =>
+    `/users/${encodeURIComponent(user_id ?? "null")}/oauth`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IAuthentication.IProfile> =>
-    typia.random<IAuthentication.IProfile>(g);
+  ): Resolved<Primitive<IAuthentication.IProfile>> =>
+    typia.random<Primitive<IAuthentication.IProfile>>(g);
   export const simulate = (
     connection: IConnection,
     user_id: string,
-    query: getOauthProfile.Query,
+    query: IAuthentication,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -107,6 +117,6 @@ export namespace getOauthProfile {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

@@ -1,18 +1,18 @@
-import type { IBucket } from "./IBucket";
+import type { IDirectory } from "./IDirectory";
+import type { IImageFile } from "./IImageFile";
+import type { ISharedDirectory } from "./ISharedDirectory";
+import type { ITextFile } from "./ITextFile";
+import type { IZipFile } from "./IZipFile";
 
 export type IShortcut = {
   id: number;
   name: string;
   path: string;
-  target: IBucket;
-  type: "file";
-  extension: "lnk";
+  target:
+    | IDirectory
+    | ISharedDirectory
+    | IImageFile
+    | ITextFile
+    | IZipFile
+    | IShortcut;
 };
-export namespace IShortcut {
-  export type o1 = {
-    id: number;
-    name: string;
-    path: string;
-    target: IBucket.o1;
-  };
-}

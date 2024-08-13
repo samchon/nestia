@@ -7,9 +7,12 @@ import type { ICategory } from "../../../../api/structures/ICategory";
 export const test_api_arrayRecursive_at = async (
   connection: api.IConnection,
 ) => {
-  const output: IPropagation<{
-    200: ICategory;
-  }> = await api.functional.arrayRecursive.at(
+  const output: IPropagation<
+    {
+      200: ICategory;
+    },
+    200
+  > = await api.functional.arrayRecursive.at(
     connection,
     typia.random<number>(),
   );

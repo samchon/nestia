@@ -12,6 +12,7 @@ npx nestia [command] [options?]
   7. npx nestia swagger
   8. npx nestia openai
   9. npx nestia e2e
+  10. npx nestia all
 `;
 
 function halt(desc: string): never {
@@ -46,7 +47,8 @@ async function main(): Promise<void> {
     type === "sdk" ||
     type === "openai" ||
     type === "swagger" ||
-    type === "e2e"
+    type === "e2e" ||
+    type === "all"
   ) {
     try {
       require.resolve("@nestia/sdk/lib/executable/sdk");

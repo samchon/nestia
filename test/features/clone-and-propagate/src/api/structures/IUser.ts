@@ -9,11 +9,10 @@ export type IUser = {
   both_optional_and_undefindable?: undefined | string;
   nullable_attr: null | string;
   optional_and_nullable_attr?: null | undefined | number;
-  user_type: IUser.Type;
+  user_type: "admin" | "default" | "seller";
 };
 export namespace IUser {
-  export type Type = "admin" | "default" | "seller";
   export type ISearch = {
-    user_type?: undefined | IUser.Type;
+    user_type?: undefined | "admin" | "default" | "seller";
   };
 }

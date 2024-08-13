@@ -7,9 +7,12 @@ import type { IBox3D } from "../../../../api/structures/IBox3D";
 export const test_api_objectSimple_store = async (
   connection: api.IConnection,
 ) => {
-  const output: IPropagation<{
-    201: IBox3D;
-  }> = await api.functional.objectSimple.store(
+  const output: IPropagation<
+    {
+      201: IBox3D;
+    },
+    201
+  > = await api.functional.objectSimple.store(
     connection,
     typia.random<IBox3D>(),
   );

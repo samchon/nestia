@@ -1,7 +1,7 @@
 import type { IPolyline } from "./IPolyline";
 
 export type IPolygon = {
-  outer: IPolyline.o1;
-  inner?: undefined | IPolyline.o1[];
+  outer: IPolyline;
+  inner?: undefined | IPolyline[];
   area?: null | undefined | number;
 };

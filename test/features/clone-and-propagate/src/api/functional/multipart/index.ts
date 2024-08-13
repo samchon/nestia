@@ -24,10 +24,17 @@ import type { IMultipart } from "../../structures/IMultipart";
 export async function post(
   connection: IConnection,
   body: post.Input,
-): Promise<post.Output> {
+): Promise<
+  IPropagation<
+    {
+      201: undefined;
+    },
+    201
+  >
+> {
   return !!connection.simulate
     ? post.simulate(connection, body)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         connection,
         {
           ...post.METADATA,
@@ -39,9 +46,12 @@ export async function post(
 }
 export namespace post {
   export type Input = IMultipart;
-  export type Output = IPropagation<{
-    201: undefined;
-  }>;
+  export type Output = IPropagation<
+    {
+      201: undefined;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -54,13 +64,12 @@ export namespace post {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/multipart";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<undefined> => typia.random<undefined>(g);
+  export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
+    typia.random<void>(g);
   export const simulate = (
     connection: IConnection,
     body: post.Input,
@@ -93,6 +102,6 @@ export namespace post {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
