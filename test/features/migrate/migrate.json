@@ -92,38 +92,6 @@
       "exceptions": {}
     },
     {
-      "method": "put",
-      "path": "/bbs/articles/{id}",
-      "emendedPath": "bbs/articles/:id",
-      "accessor": [
-        "bbs",
-        "articles",
-        "putById"
-      ],
-      "parameters": [
-        {
-          "name": "id",
-          "key": "id",
-          "schema": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      ],
-      "headers": null,
-      "query": null,
-      "body": {
-        "type": "application/json",
-        "name": "body",
-        "key": "body",
-        "schema": {
-          "$ref": "#/components/schemas/PartialIBbsArticle.ICreate"
-        }
-      },
-      "success": null,
-      "exceptions": {}
-    },
-    {
       "method": "post",
       "path": "/multipart",
       "emendedPath": "multipart",
@@ -299,5 +267,13 @@
       "exceptions": {}
     }
   ],
-  "errors": []
+  "errors": [
+    {
+      "method": "put",
+      "path": "/bbs/articles/{id}",
+      "messages": [
+        "supports only \"application/json\", \"application/x-www-form-urlencoded\" and \"text/plain\" content type in the response body."
+      ]
+    }
+  ]
 }

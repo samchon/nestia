@@ -21,35 +21,37 @@ export namespace SdkOperationProgrammer {
     symbol: ts.Symbol | undefined;
     exceptions: ts.TypeNode[];
   }
-  export const write = (p: IProps): IOperationMetadata => ({
-    parameters: p.node.parameters.map((parameter, index) =>
-      writeParameter({
+  export const write = (p: IProps): IOperationMetadata => {
+    return {
+      parameters: p.node.parameters.map((parameter, index) =>
+        writeParameter({
+          context: p.context,
+          generics: p.generics,
+          parameter,
+          index,
+        }),
+      ),
+      success: writeResponse({
         context: p.context,
         generics: p.generics,
-        parameter,
-        index,
+        type: getReturnType({
+          checker: p.context.checker,
+          signature: p.context.checker.getSignatureFromDeclaration(p.node),
+        }),
       }),
-    ),
-    success: writeResponse({
-      context: p.context,
-      generics: p.generics,
-      type: getReturnType({
-        checker: p.context.checker,
-        type: p.node.type
-          ? p.context.checker.getTypeFromTypeNode(p.node.type)
-          : null,
-      }),
-    }),
-    exceptions: p.exceptions.map((e) =>
-      writeResponse({
-        context: p.context,
-        generics: p.generics,
-        type: p.context.checker.getTypeFromTypeNode(e),
-      }),
-    ),
-    jsDocTags: p.symbol?.getJsDocTags() ?? [],
-    description: p.symbol ? CommentFactory.description(p.symbol) ?? null : null,
-  });
+      exceptions: p.exceptions.map((e) =>
+        writeResponse({
+          context: p.context,
+          generics: p.generics,
+          type: p.context.checker.getTypeFromTypeNode(e),
+        }),
+      ),
+      jsDocTags: p.symbol?.getJsDocTags() ?? [],
+      description: p.symbol
+        ? CommentFactory.description(p.symbol) ?? null
+        : null,
+    };
+  };
 
   const writeParameter = (props: {
     context: ISdkOperationTransformerContext;
@@ -168,9 +170,10 @@ export namespace SdkOperationProgrammer {
 
   const getReturnType = (p: {
     checker: ts.TypeChecker;
-    type: ts.Type | null;
+    signature: ts.Signature | undefined;
   }): ts.Type | null => {
-    const type: ts.Type | null = p.type;
+    const type: ts.Type | null =
+      (p.signature && p.checker.getReturnTypeOfSignature(p.signature)) ?? null;
     if (type === null) return null;
     else if (type.symbol?.name === "Promise") {
       const generic: readonly ts.Type[] = p.checker.getTypeArguments(

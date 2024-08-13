@@ -57,12 +57,15 @@ export namespace SdkHttpFunctionProgrammer {
                     )
                   : project.config.clone === true
                     ? SdkAliasCollection.from(project)(importer)(p.metadata)
-                    : SdkAliasCollection.name(p.type),
+                    : SdkAliasCollection.name(p),
               ),
             ),
         ],
         ts.factory.createTypeReferenceNode("Promise", [
-          SdkAliasCollection.output(project)(importer)(route),
+          project.config.propagate === true ||
+          route.success.metadata.size() !== 0
+            ? ts.factory.createTypeReferenceNode(`${route.name}.Output`)
+            : ts.factory.createTypeReferenceNode("void"),
         ]),
         ts.factory.createBlock(
           write_body(project)(importer)(route, props),
@@ -85,7 +88,9 @@ export namespace SdkHttpFunctionProgrammer {
         ts.factory.createCallExpression(
           IdentifierFactory.access(
             ts.factory.createIdentifier(
-              SdkImportWizard.Fetcher(!!props.input?.encrypted)(importer),
+              SdkImportWizard.Fetcher(
+                !!props.input?.encrypted || route.success.encrypted,
+              )(importer),
             ),
           )(project.config.propagate ? "propagate" : "fetch"),
           project.config.propagate

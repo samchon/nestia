@@ -12,6 +12,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
       },
     },
     operationId: (props) => `${props.class}.${props.function}`,
+    beautify: true,
   },
 };
 export default NESTIA_CONFIG;

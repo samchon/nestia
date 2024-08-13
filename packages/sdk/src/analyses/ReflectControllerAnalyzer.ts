@@ -72,6 +72,8 @@ export namespace ReflectControllerAnalyzer {
         key,
       );
       if (metadata === undefined) continue;
+      else if (metadata.jsDocTags.some((tag) => tag.name === "ignore"))
+        continue;
       const next: ReflectHttpOperationAnalyzer.IProps = {
         project: props.project,
         controller: controller,

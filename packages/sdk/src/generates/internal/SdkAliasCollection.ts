@@ -12,10 +12,12 @@ import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkAliasCollection {
-  export const name = (type: IReflectType): ts.TypeNode =>
+  export const name = ({ type }: { type: IReflectType }): ts.TypeNode =>
     ts.factory.createTypeReferenceNode(
       type.name,
-      type.typeArguments ? type.typeArguments.map(name) : undefined,
+      type.typeArguments
+        ? type.typeArguments.map((a) => name({ type: a }))
+        : undefined,
     );
 
   export const from =
@@ -66,7 +68,7 @@ export namespace SdkAliasCollection {
     (param: ITypedHttpRouteParameter): ts.TypeNode => {
       if (project.config.clone === true)
         return from(project)(importer)(param.metadata);
-      const type: ts.TypeNode = name(param.type);
+      const type: ts.TypeNode = name(param);
       if (project.config.primitive === false) return type;
       return ts.factory.createTypeReferenceNode(
         importer.external({
@@ -90,7 +92,7 @@ export namespace SdkAliasCollection {
       const schema = (p: { metadata: Metadata; type: IReflectType }) =>
         project.config.clone === true
           ? from(project)(importer)(p.metadata)
-          : name(p.type);
+          : name(p);
       if (project.config.propagate !== true) {
         if (route.success.metadata.size() === 0)
           return TypeFactory.keyword("void");

@@ -95,7 +95,7 @@ export namespace E2eFileProgrammer {
                             ? SdkAliasCollection.from(project)(importer)(
                                 headers.metadata,
                               )
-                            : SdkAliasCollection.name(headers.type),
+                            : SdkAliasCollection.name(headers),
                         ],
                         undefined,
                       ),
@@ -125,7 +125,7 @@ export namespace E2eFileProgrammer {
                 [
                   project.config.clone === true
                     ? SdkAliasCollection.from(project)(importer)(p.metadata)
-                    : SdkAliasCollection.name(p.type),
+                    : SdkAliasCollection.name(p),
                 ],
                 undefined,
               ),

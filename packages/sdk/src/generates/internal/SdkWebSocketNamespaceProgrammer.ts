@@ -82,22 +82,26 @@ export namespace SdkWebSocketNamespaceProgrammer {
         route.parameters.find((x) => x.category === "driver");
       declare(
         "Header",
-        SdkAliasCollection.name(
-          (route.parameters.find((x) => x.category === "header")?.type ??
+        SdkAliasCollection.name({
+          type: (route.parameters.find((x) => x.category === "header")?.type ??
             acceptor.type.typeArguments?.[0])!,
-        ),
+        }),
       );
       declare(
         "Provider",
-        SdkAliasCollection.name(
-          driver?.type.typeArguments?.[0] ?? acceptor.type.typeArguments?.[2]!,
-        ),
+        SdkAliasCollection.name({
+          type:
+            driver?.type.typeArguments?.[0] ??
+            acceptor.type.typeArguments?.[2]!,
+        }),
       );
       declare(
         "Listener",
-        SdkAliasCollection.name(acceptor.type.typeArguments?.[1]!),
+        SdkAliasCollection.name({
+          type: acceptor.type.typeArguments?.[1]!,
+        }),
       );
-      if (query) declare("Query", SdkAliasCollection.name(query.type));
+      if (query) declare("Query", SdkAliasCollection.name(query));
       return output;
     };
 

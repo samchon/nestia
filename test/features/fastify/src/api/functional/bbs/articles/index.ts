@@ -21,11 +21,20 @@ export async function index(
   section: string,
   query: index.Query,
 ): Promise<index.Output> {
-  return PlainFetcher.fetch(connection, {
-    ...index.METADATA,
-    template: index.METADATA.path,
-    path: index.path(section, query),
-  });
+  return PlainFetcher.fetch(
+    {
+      ...connection,
+      headers: {
+        ...connection.headers,
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      ...index.METADATA,
+      template: index.METADATA.path,
+      path: index.path(section, query),
+    },
+  );
 }
 export namespace index {
   export type Query = Resolved<IPage.IRequest>;
@@ -39,7 +48,7 @@ export namespace index {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (section: string, query: index.Query) => {
@@ -89,7 +98,7 @@ export async function store(
   );
 }
 export namespace store {
-  export type Input = Primitive<IBbsArticle.IStore>;
+  export type Input = Resolved<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -103,7 +112,7 @@ export namespace store {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = (section: string) =>
@@ -145,7 +154,7 @@ export async function update(
   );
 }
 export namespace update {
-  export type Input = Primitive<IBbsArticle.IStore>;
+  export type Input = Resolved<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -159,7 +168,7 @@ export namespace update {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (section: string, id: string & Format<"uuid">) =>

@@ -65,7 +65,7 @@
     "typescript-transform-paths": "^3.4.6"
   },
   "dependencies": {
-    "@samchon/openapi": "^0.4.4",
+    "@samchon/openapi": "^0.4.5",
     "commander": "10.0.0",
     "inquirer": "8.2.5",
     "prettier": "^3.2.5",

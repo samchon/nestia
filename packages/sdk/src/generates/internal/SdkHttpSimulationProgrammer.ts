@@ -133,7 +133,7 @@ export namespace SdkHttpSimulationProgrammer {
                       )
                     : project.config.clone === true
                       ? SdkAliasCollection.from(project)(importer)(p.metadata)
-                      : SdkAliasCollection.name(p.type),
+                      : SdkAliasCollection.name(p),
                 ),
               ),
           ],

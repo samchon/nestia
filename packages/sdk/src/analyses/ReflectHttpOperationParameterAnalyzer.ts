@@ -11,6 +11,8 @@ import { IReflectHttpOperationParameter } from "../structures/IReflectHttpOperat
 import { IReflectOperationError } from "../structures/IReflectOperationError";
 import { IOperationMetadata } from "../transformers/IOperationMetadata";
 import { TextPlainValidator } from "../transformers/TextPlainValidator";
+import { HttpHeadersValidator } from "../validators/HttpHeadersValidator";
+import { HttpQueryValidator } from "../validators/HttpQueryValidator";
 
 export namespace ReflectHttpOperationParameterAnalyzer {
   export interface IContext {
@@ -159,17 +161,30 @@ export namespace ReflectHttpOperationParameterAnalyzer {
             jsDocTags: matched.jsDocTags,
             ...schema,
           };
-        else if (p.category === "query" || p.category === "headers")
+        else if (p.category === "query")
           return {
             category: p.category,
             index: p.index,
             field: p.field ?? null,
             name: matched.name,
             type: matched.type,
-            validate:
-              p.category === "query"
-                ? HttpQueryProgrammer.validate
-                : HttpHeadersProgrammer.validate,
+            validate: p.field
+              ? HttpQueryValidator.validate
+              : HttpQueryProgrammer.validate,
+            description: matched.description,
+            jsDocTags: matched.jsDocTags,
+            ...schema,
+          };
+        else if (p.category === "headers")
+          return {
+            category: p.category,
+            index: p.index,
+            field: p.field ?? null,
+            name: matched.name,
+            type: matched.type,
+            validate: p.field
+              ? HttpHeadersValidator.validate
+              : HttpHeadersProgrammer.validate,
             description: matched.description,
             jsDocTags: matched.jsDocTags,
             ...schema,

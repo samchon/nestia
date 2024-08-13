@@ -168,7 +168,7 @@ export namespace SdkHttpNamespaceProgrammer {
                             ? SdkAliasCollection.from(project)(importer)(
                                 route.success.metadata,
                               )
-                            : SdkAliasCollection.name(route.success.type),
+                            : SdkAliasCollection.name(route.success),
                         ],
                         undefined,
                       ),
@@ -221,7 +221,7 @@ export namespace SdkHttpNamespaceProgrammer {
                     : ts.factory.createTypeReferenceNode(`${route.name}.Query`)
                   : project.config.clone === true
                     ? SdkAliasCollection.from(project)(importer)(p.metadata)
-                    : SdkAliasCollection.name(p.type),
+                    : SdkAliasCollection.name(p),
               ),
             ),
             undefined,

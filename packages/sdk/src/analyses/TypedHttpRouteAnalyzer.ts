@@ -151,7 +151,10 @@ export namespace TypedHttpRouteAnalyzer {
               },
         ),
     };
-    if (errors.length) return [];
+    if (errors.length) {
+      props.errors.push(...errors);
+      return [];
+    }
     return props.paths.map((path) => ({
       ...props.operation,
       controller: props.controller,

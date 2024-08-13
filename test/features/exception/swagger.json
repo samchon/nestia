@@ -53,7 +53,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IInternalServerError"
+                  "$ref": "#/components/schemas/TypeGuardErrorany"
                 }
               }
             }
@@ -63,7 +63,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IUnprocessibleEntity"
+                  "$ref": "#/components/schemas/INotFound"
                 }
               }
             }
@@ -72,7 +72,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/INotFound"
+                  "$ref": "#/components/schemas/IUnprocessibleEntity"
                 }
               }
             }
@@ -82,7 +82,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TypeGuardErrorany"
+                  "$ref": "#/components/schemas/IInternalServerError"
                 }
               }
             }
@@ -252,7 +252,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IInternalServerError"
+                  "$ref": "#/components/schemas/TypeGuardErrorany"
                 }
               }
             }
@@ -262,7 +262,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IUnprocessibleEntity"
+                  "$ref": "#/components/schemas/INotFound"
                 }
               }
             }
@@ -272,7 +272,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/INotFound"
+                  "$ref": "#/components/schemas/IUnprocessibleEntity"
                 }
               }
             }
@@ -282,7 +282,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TypeGuardErrorany"
+                  "$ref": "#/components/schemas/IInternalServerError"
                 }
               }
             }
@@ -418,58 +418,6 @@
           "files"
         ]
       },
-      "IInternalServerError": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          },
-          "stack": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "name",
-          "message",
-          "stack"
-        ]
-      },
-      "IUnprocessibleEntity": {
-        "type": "object",
-        "properties": {
-          "reason": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "reason"
-        ]
-      },
-      "INotFound": {
-        "type": "object",
-        "properties": {
-          "schema": {
-            "type": "string"
-          },
-          "table": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "schema",
-          "table",
-          "id"
-        ]
-      },
       "TypeGuardErrorany": {
         "type": "object",
         "properties": {
@@ -500,6 +448,58 @@
           "value",
           "name",
           "message"
+        ]
+      },
+      "INotFound": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "type": "string"
+          },
+          "table": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema",
+          "table",
+          "id"
+        ]
+      },
+      "IUnprocessibleEntity": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "IInternalServerError": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "stack": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "message",
+          "stack"
         ]
       },
       "IExceptional.Something": {

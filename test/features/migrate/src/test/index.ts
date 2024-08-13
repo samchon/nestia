@@ -43,10 +43,14 @@ async function main(): Promise<void> {
     ],
     location: `${__dirname}/features`,
     onComplete: (exec) => {
-      const elapsed: number =
-        new Date(exec.completed_at).getTime() -
-        new Date(exec.started_at).getTime();
-      console.log(`  - ${exec.name}: ${elapsed.toLocaleString()} ms`);
+      if (exec.error === null) {
+        const elapsed: number =
+          new Date(exec.completed_at).getTime() -
+          new Date(exec.started_at).getTime();
+        console.log(`  - ${exec.name}: ${elapsed.toLocaleString()} ms`);
+      } else {
+        console.log(`  - ${exec.name}: ${exec.error.message}`);
+      }
     },
   });
   await server.close();

@@ -78,7 +78,7 @@ export namespace SdkWebSocketRouteProgrammer {
               IdentifierFactory.parameter(
                 p.name,
                 p.category === "param"
-                  ? SdkAliasCollection.name(p.type)
+                  ? SdkAliasCollection.name(p)
                   : ts.factory.createTypeReferenceNode(`${route.name}.Query`),
               ),
             ),

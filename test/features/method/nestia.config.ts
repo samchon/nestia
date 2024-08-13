@@ -7,6 +7,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
   simulate: true,
   swagger: {
     output: "swagger.json",
+    beautify: true,
     security: {
       bearer: {
         type: "apiKey",

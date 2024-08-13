@@ -34,7 +34,7 @@
   "dependencies": {
     "@nestia/core": "../core/nestia-core-3.11.0-dev.20240813-11.tgz",
     "@nestia/fetcher": "../fetcher/nestia-fetcher-3.11.0-dev.20240813-11.tgz",
-    "@samchon/openapi": "^0.4.4",
+    "@samchon/openapi": "^0.4.5",
     "@wrtnio/openai-function-schema": "^0.2.3",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
