@@ -16,7 +16,7 @@ export class ImportDictionary {
 
   public external(props: ImportDictionary.IExternalProps): string {
     const composition: IComposition = this.components_.take(
-      new Pair(props.library, props.type),
+      new Pair(`node_modules/${props.library}`, props.type),
       () => ({
         location: `node_modules/${props.library}`,
         elements: new HashSet(),

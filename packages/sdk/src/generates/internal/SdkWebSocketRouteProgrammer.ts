@@ -164,13 +164,11 @@ export namespace SdkWebSocketRouteProgrammer {
       ),
       local("driver")(
         ts.factory.createTypeReferenceNode(
-          ts.factory.createIdentifier(
-            importer.external({
-              type: true,
-              library: "tgrid",
-              instance: "Driver",
-            }),
-          ),
+          importer.external({
+            type: true,
+            library: "tgrid",
+            instance: "Driver",
+          }),
           [ts.factory.createTypeReferenceNode(`${route.name}.Listener`)],
         ),
       )(

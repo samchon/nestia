@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.11.0-dev.20240811",
+    "version": "3.11.0-dev.20240813-11",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -17,6 +17,8 @@
   "paths": {
     "/all": {
       "post": {
+        "summary": "Store an article",
+        "description": "Store an article.\n\nCreate an article, and returns it.",
         "tags": [],
         "parameters": [],
         "requestBody": {

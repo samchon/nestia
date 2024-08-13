@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.11.0-dev.20240811",
+    "version": "3.11.0-dev.20240813-11",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -101,6 +101,8 @@
         }
       },
       "post": {
+        "summary": "Store a new article",
+        "description": "Store a new article.",
         "tags": [],
         "parameters": [
           {
@@ -173,6 +175,8 @@
         }
       },
       "put": {
+        "summary": "Update an article",
+        "description": "Update an article.",
         "tags": [],
         "parameters": [
           {

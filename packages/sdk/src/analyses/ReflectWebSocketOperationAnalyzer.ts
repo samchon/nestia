@@ -85,7 +85,16 @@ export namespace ReflectWebSocketOperationAnalyzer {
           );
 
         // COMPLETE COMPOSITION
-        imports.push(...matched.imports);
+        imports.push(
+          ...matched.imports.filter(
+            (i) =>
+              !(
+                i.file.includes("tgrid/lib") &&
+                (i.file.endsWith("Driver.d.ts") ||
+                  i.file.endsWith("WebSocketAcceptor.d.ts"))
+              ),
+          ),
+        );
         if (
           p.category === "acceptor" ||
           p.category === "driver" ||
