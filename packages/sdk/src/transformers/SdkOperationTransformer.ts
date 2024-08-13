@@ -11,7 +11,7 @@ import { ISdkOperationTransformerContext } from "./ISdkOperationTransformerConte
 import { SdkOperationProgrammer } from "./SdkOperationProgrammer";
 
 export namespace SdkOperationTransformer {
-  export const transformFile =
+  export const iterateFile =
     (checker: ts.TypeChecker) => (api: ts.TransformationContext) => {
       const context: ISdkOperationTransformerContext = {
         checker,
@@ -27,7 +27,7 @@ export namespace SdkOperationTransformer {
         file = ts.visitEachChild(
           file,
           (node) =>
-            transformNode({
+            iterateNode({
               context,
               visitor,
               node,
@@ -60,17 +60,33 @@ export namespace SdkOperationTransformer {
     visited: HashSet<MethodKey>;
   }
 
-  const transformNode = (props: {
+  const iterateNode = (props: {
     context: ISdkOperationTransformerContext;
     visitor: IVisitor;
     node: ts.Node;
   }): ts.Node =>
-    ts.isClassDeclaration(props.node)
+    ts.visitEachChild(
+      transformNode(props),
+      (child) =>
+        iterateNode({
+          ...props,
+          node: child,
+        }),
+      props.context.api,
+    );
+
+  const transformNode = (props: {
+    context: ISdkOperationTransformerContext;
+    visitor: IVisitor;
+    node: ts.Node;
+  }): ts.Node => {
+    return ts.isClassDeclaration(props.node)
       ? transformClass({
           ...props,
           node: props.node,
         })
       : props.node;
+  };
 
   const transformClass = (props: {
     context: ISdkOperationTransformerContext;
