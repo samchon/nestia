@@ -54,7 +54,7 @@ export namespace get {
 
   export const path = (
     error_type: "EXPIRED_PERMISSION" | "INVALID_PERMISSION",
-  ) => `/fail/${encodeURIComponent(error_type ?? "null")}`;
+  ) => `/fail/${encodeURIComponent(error_type?.toString() ?? "null")}`;
 }
 
 /**
@@ -110,5 +110,6 @@ export namespace composite {
       | "EXPIRED_PERMISSION"
       | "INVALID_PERMISSION"
       | "REQUIRED_PERMISSION",
-  ) => `/fail/composite/${encodeURIComponent(error_type ?? "null")}`;
+  ) =>
+    `/fail/composite/${encodeURIComponent(error_type?.toString() ?? "null")}`;
 }

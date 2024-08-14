@@ -63,7 +63,7 @@ export namespace typed {
   } as const;
 
   export const path = (section: string) =>
-    `/exception/${encodeURIComponent(section ?? "null")}/typed`;
+    `/exception/${encodeURIComponent(section?.toString() ?? "null")}/typed`;
 }
 
 /**
@@ -108,7 +108,7 @@ export namespace union {
   } as const;
 
   export const path = (section: string) =>
-    `/exception/${encodeURIComponent(section ?? "null")}/union`;
+    `/exception/${encodeURIComponent(section?.toString() ?? "null")}/union`;
 }
 
 /**
@@ -160,7 +160,7 @@ export namespace tags {
   } as const;
 
   export const path = (section: string) =>
-    `/exception/${encodeURIComponent(section ?? "null")}/tags`;
+    `/exception/${encodeURIComponent(section?.toString() ?? "null")}/tags`;
 }
 
 /**
@@ -212,5 +212,5 @@ export namespace composite {
   } as const;
 
   export const path = (section: string) =>
-    `/exception/${encodeURIComponent(section ?? "null")}/composite`;
+    `/exception/${encodeURIComponent(section?.toString() ?? "null")}/composite`;
 }

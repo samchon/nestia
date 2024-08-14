@@ -161,7 +161,7 @@ export namespace at {
   } as const;
 
   export const path = (id: number) =>
-    `/arrayRecursiveUnionImplicit/${encodeURIComponent(id ?? "null")}`;
+    `/arrayRecursiveUnionImplicit/${encodeURIComponent(id?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<

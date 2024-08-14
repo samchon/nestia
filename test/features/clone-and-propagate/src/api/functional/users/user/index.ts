@@ -80,7 +80,7 @@ export namespace getUserProfile {
       else if (Array.isArray(value))
         value.forEach((elem: any) => variables.append(key, String(elem)));
       else variables.set(key, String(value));
-    const location: string = `/users/${encodeURIComponent(user_id ?? "null")}/user`;
+    const location: string = `/users/${encodeURIComponent(user_id?.toString() ?? "null")}/user`;
     return 0 === variables.size
       ? location
       : `${location}?${variables.toString()}`;
@@ -179,7 +179,7 @@ export namespace updateUserProfile {
   } as const;
 
   export const path = (user_id: string) =>
-    `/users/${encodeURIComponent(user_id ?? "null")}/user`;
+    `/users/${encodeURIComponent(user_id?.toString() ?? "null")}/user`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IUser> => typia.random<IUser>(g);

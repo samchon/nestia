@@ -76,7 +76,7 @@ export namespace getOauthProfile {
       else if (Array.isArray(value))
         value.forEach((elem: any) => variables.append(key, String(elem)));
       else variables.set(key, String(value));
-    const location: string = `/users/${encodeURIComponent(user_id ?? "null")}/oauth`;
+    const location: string = `/users/${encodeURIComponent(user_id?.toString() ?? "null")}/oauth`;
     return 0 === variables.size
       ? location
       : `${location}?${variables.toString()}`;

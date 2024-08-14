@@ -30,10 +30,10 @@ export namespace NestiaConfigLoader {
     );
   };
 
-  export const config = async (
+  export const configurations = async (
     file: string,
     compilerOptions: Record<string, any>,
-  ): Promise<INestiaConfig> => {
+  ): Promise<INestiaConfig[]> => {
     if (fs.existsSync(path.resolve(file)) === false)
       throw new Error(`Unable to find "${file}" file.`);
 
@@ -59,16 +59,19 @@ export namespace NestiaConfigLoader {
         : undefined,
     });
 
-    const loaded: INestiaConfig & { default?: INestiaConfig } = await import(
-      path.resolve(file)
-    );
-    const config: INestiaConfig =
+    const loaded: (INestiaConfig | INestiaConfig[]) & {
+      default?: INestiaConfig | INestiaConfig[];
+    } = await import(path.resolve(file));
+    const instance: INestiaConfig | INestiaConfig[] =
       typeof loaded?.default === "object" && loaded.default !== null
         ? loaded.default
         : loaded;
+    const configurations: INestiaConfig[] = Array.isArray(instance)
+      ? instance
+      : [instance];
 
     try {
-      return typia.assert(config);
+      return typia.assert(configurations);
     } catch (exp) {
       if (typia.is<typia.TypeGuardError>(exp))
         exp.message = `invalid "${file}" data.`;

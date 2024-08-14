@@ -46,7 +46,7 @@ export namespace boolean {
   } as const;
 
   export const path = (value: false | true) =>
-    `/param/${encodeURIComponent(value ?? "null")}/boolean`;
+    `/param/${encodeURIComponent(value?.toString() ?? "null")}/boolean`;
 }
 
 /**
@@ -88,7 +88,7 @@ export namespace number {
   } as const;
 
   export const path = (value: number) =>
-    `/param/${encodeURIComponent(value ?? "null")}/number`;
+    `/param/${encodeURIComponent(value?.toString() ?? "null")}/number`;
 }
 
 /**
@@ -130,7 +130,7 @@ export namespace string {
   } as const;
 
   export const path = (value: string) =>
-    `/param/${encodeURIComponent(value ?? "null")}/string`;
+    `/param/${encodeURIComponent(value?.toString() ?? "null")}/string`;
 }
 
 /**
@@ -172,7 +172,7 @@ export namespace nullable {
   } as const;
 
   export const path = (value: null | string) =>
-    `/param/${encodeURIComponent(value ?? "null")}/nullable`;
+    `/param/${encodeURIComponent(value?.toString() ?? "null")}/nullable`;
 }
 
 /**
@@ -214,5 +214,5 @@ export namespace literal {
   } as const;
 
   export const path = (value: "A" | "B" | "C") =>
-    `/param/${encodeURIComponent(value ?? "null")}/literal`;
+    `/param/${encodeURIComponent(value?.toString() ?? "null")}/literal`;
 }

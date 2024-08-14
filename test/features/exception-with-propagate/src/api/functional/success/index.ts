@@ -99,5 +99,5 @@ export namespace union {
 
   export const path = (
     error_type: "EXPIRED_PERMISSION" | "REQUIRED_PERMISSION",
-  ) => `/success/${encodeURIComponent(error_type ?? "null")}`;
+  ) => `/success/${encodeURIComponent(error_type?.toString() ?? "null")}`;
 }
