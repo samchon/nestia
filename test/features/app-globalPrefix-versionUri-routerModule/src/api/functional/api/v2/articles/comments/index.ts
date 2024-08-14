@@ -22,11 +22,20 @@ export async function index(
   articleId: string & Format<"uuid">,
   query: index.Query,
 ): Promise<index.Output> {
-  return PlainFetcher.fetch(connection, {
-    ...index.METADATA,
-    template: index.METADATA.path,
-    path: index.path(section, articleId, query),
-  });
+  return PlainFetcher.fetch(
+    {
+      ...connection,
+      headers: {
+        ...connection.headers,
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      ...index.METADATA,
+      template: index.METADATA.path,
+      path: index.path(section, articleId, query),
+    },
+  );
 }
 export namespace index {
   export type Query = Resolved<IPage.IRequest>;
@@ -40,7 +49,7 @@ export namespace index {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (
@@ -72,11 +81,20 @@ export async function at(
   articleId: string & Format<"uuid">,
   id: string & Format<"uuid">,
 ): Promise<at.Output> {
-  return PlainFetcher.fetch(connection, {
-    ...at.METADATA,
-    template: at.METADATA.path,
-    path: at.path(section, articleId, id),
-  });
+  return PlainFetcher.fetch(
+    {
+      ...connection,
+      headers: {
+        ...connection.headers,
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      ...at.METADATA,
+      template: at.METADATA.path,
+      path: at.path(section, articleId, id),
+    },
+  );
 }
 export namespace at {
   export type Output = Primitive<IBbsComment>;
@@ -89,7 +107,7 @@ export namespace at {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (
@@ -128,7 +146,7 @@ export async function store(
   );
 }
 export namespace store {
-  export type Input = Primitive<IBbsComment.IStore>;
+  export type Input = Resolved<IBbsComment.IStore>;
   export type Output = Primitive<IBbsComment>;
 
   export const METADATA = {
@@ -142,7 +160,7 @@ export namespace store {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = (section: string, articleId: string & Format<"uuid">) =>
@@ -178,7 +196,7 @@ export async function update(
   );
 }
 export namespace update {
-  export type Input = Primitive<IBbsComment.IStore>;
+  export type Input = Resolved<IBbsComment.IStore>;
   export type Output = Primitive<IBbsComment>;
 
   export const METADATA = {
@@ -192,7 +210,7 @@ export namespace update {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (

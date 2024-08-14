@@ -28,7 +28,7 @@ export async function partialInterface(
 ): Promise<partialInterface.Output> {
   return !!connection.simulate
     ? partialInterface.simulate(connection, body)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -46,9 +46,12 @@ export async function partialInterface(
 }
 export namespace partialInterface {
   export type Input = IOriginal.IPartialInterface;
-  export type Output = IPropagation<{
-    201: IPartialInterface;
-  }>;
+  export type Output = IPropagation<
+    {
+      201: IPartialInterface;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -61,7 +64,7 @@ export namespace partialInterface {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/partial-dto-test/partial-interface";
@@ -100,6 +103,6 @@ export namespace partialInterface {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

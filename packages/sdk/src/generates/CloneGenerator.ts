@@ -2,23 +2,25 @@ import fs from "fs";
 import ts from "typescript";
 
 import { INestiaProject } from "../structures/INestiaProject";
-import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
+import { ITypedApplication } from "../structures/ITypedApplication";
 import { FilePrinter } from "./internal/FilePrinter";
 import { ImportDictionary } from "./internal/ImportDictionary";
 import { SdkHttpCloneProgrammer } from "./internal/SdkHttpCloneProgrammer";
+import { SdkHttpCloneReferencer } from "./internal/SdkHttpCloneReferencer";
 
 export namespace CloneGenerator {
-  export const write =
-    (project: INestiaProject) =>
-    async (routes: ITypedHttpRoute[]): Promise<void> => {
-      const dict: Map<string, SdkHttpCloneProgrammer.IModule> =
-        SdkHttpCloneProgrammer.write(project)(routes);
-      if (dict.size === 0) return;
-      try {
-        await fs.promises.mkdir(`${project.config.output}/structures`);
-      } catch {}
-      for (const [key, value] of dict) await writeDtoFile(project)(key, value);
-    };
+  export const write = async (app: ITypedApplication): Promise<void> => {
+    const dict: Map<string, SdkHttpCloneProgrammer.IModule> =
+      SdkHttpCloneProgrammer.write(app);
+    if (dict.size === 0) return;
+
+    SdkHttpCloneReferencer.replace(app);
+    try {
+      await fs.promises.mkdir(`${app.project.config.output}/structures`);
+    } catch {}
+    for (const [key, value] of dict)
+      await writeDtoFile(app.project)(key, value);
+  };
 
   const writeDtoFile =
     (project: INestiaProject) =>

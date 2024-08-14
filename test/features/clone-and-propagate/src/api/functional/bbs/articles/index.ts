@@ -6,8 +6,8 @@
 //================================================================
 import type {
   IConnection,
-  Resolved,
   IPropagation,
+  Resolved,
   HttpError,
 } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
@@ -37,17 +37,29 @@ export async function index(
 ): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection, section, query)
-    : PlainFetcher.propagate(connection, {
-        ...index.METADATA,
-        template: index.METADATA.path,
-        path: index.path(section, query),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...index.METADATA,
+          template: index.METADATA.path,
+          path: index.path(section, query),
+        },
+      );
 }
 export namespace index {
-  export type Query = Resolved<IPage.IRequest>;
-  export type Output = IPropagation<{
-    200: IPageIBbsArticle.ISummary;
-  }>;
+  export type Query = IPage.IRequest;
+  export type Output = IPropagation<
+    {
+      200: IPageIBbsArticle.ISummary;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -57,7 +69,7 @@ export namespace index {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (section: string, query: index.Query) => {
@@ -110,7 +122,7 @@ export namespace index {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -132,7 +144,7 @@ export async function store(
 ): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, section, input)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -150,9 +162,12 @@ export async function store(
 }
 export namespace store {
   export type Input = IBbsArticle.IStore;
-  export type Output = IPropagation<{
-    201: IBbsArticle;
-  }>;
+  export type Output = IPropagation<
+    {
+      201: IBbsArticle;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -165,7 +180,7 @@ export namespace store {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = (section: string) =>
@@ -207,7 +222,7 @@ export namespace store {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -231,7 +246,7 @@ export async function update(
 ): Promise<update.Output> {
   return !!connection.simulate
     ? update.simulate(connection, section, id, input)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -249,9 +264,12 @@ export async function update(
 }
 export namespace update {
   export type Input = IBbsArticle.IStore;
-  export type Output = IPropagation<{
-    200: IBbsArticle;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: IBbsArticle;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "PUT",
@@ -264,7 +282,7 @@ export namespace update {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (section: string, id: string & Format<"uuid">) =>
@@ -308,6 +326,6 @@ export namespace update {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

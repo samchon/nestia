@@ -14,8 +14,12 @@ import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
-import type { ArrayRecursiveUnionImplicit } from "../../structures/ArrayRecursiveUnionImplicit";
-import type { IBucket } from "../../structures/IBucket";
+import type { IDirectory } from "../../structures/IDirectory";
+import type { IImageFile } from "../../structures/IImageFile";
+import type { ISharedDirectory } from "../../structures/ISharedDirectory";
+import type { IShortcut } from "../../structures/IShortcut";
+import type { ITextFile } from "../../structures/ITextFile";
+import type { IZipFile } from "../../structures/IZipFile";
 
 /**
  * @controller ArrayRecursiveUnionImplicitController.index
@@ -25,16 +29,35 @@ import type { IBucket } from "../../structures/IBucket";
 export async function index(connection: IConnection): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection)
-    : PlainFetcher.propagate(connection, {
-        ...index.METADATA,
-        template: index.METADATA.path,
-        path: index.path(),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...index.METADATA,
+          template: index.METADATA.path,
+          path: index.path(),
+        },
+      );
 }
 export namespace index {
-  export type Output = IPropagation<{
-    200: ArrayRecursiveUnionImplicit;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: (
+        | IDirectory.o1
+        | ISharedDirectory
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1
+      )[];
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -44,14 +67,32 @@ export namespace index {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/arrayRecursiveUnionImplicit";
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<ArrayRecursiveUnionImplicit> =>
-    typia.random<ArrayRecursiveUnionImplicit>(g);
+  ): Resolved<
+    (
+      | IDirectory.o1
+      | ISharedDirectory
+      | IImageFile.o1
+      | ITextFile.o1
+      | IZipFile.o1
+      | IShortcut.o1
+    )[]
+  > =>
+    typia.random<
+      (
+        | IDirectory.o1
+        | ISharedDirectory
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1
+      )[]
+    >(g);
   export const simulate = (connection: IConnection): Output => {
     return {
       success: true,
@@ -64,7 +105,7 @@ export namespace index {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -79,16 +120,34 @@ export async function at(
 ): Promise<at.Output> {
   return !!connection.simulate
     ? at.simulate(connection, id)
-    : PlainFetcher.propagate(connection, {
-        ...at.METADATA,
-        template: at.METADATA.path,
-        path: at.path(id),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...at.METADATA,
+          template: at.METADATA.path,
+          path: at.path(id),
+        },
+      );
 }
 export namespace at {
-  export type Output = IPropagation<{
-    200: IBucket.o1;
-  }>;
+  export type Output = IPropagation<
+    {
+      200:
+        | IDirectory.o1
+        | ISharedDirectory
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -98,14 +157,29 @@ export namespace at {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (id: number) =>
     `/arrayRecursiveUnionImplicit/${encodeURIComponent(id ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IBucket.o1> => typia.random<IBucket.o1>(g);
+  ): Resolved<
+    | IDirectory.o1
+    | ISharedDirectory
+    | IImageFile.o1
+    | ITextFile.o1
+    | IZipFile.o1
+    | IShortcut.o1
+  > =>
+    typia.random<
+      | IDirectory.o1
+      | ISharedDirectory
+      | IImageFile.o1
+      | ITextFile.o1
+      | IZipFile.o1
+      | IShortcut.o1
+    >(g);
   export const simulate = (connection: IConnection, id: number): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -135,7 +209,7 @@ export namespace at {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -150,7 +224,7 @@ export async function store(
 ): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, body)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -167,10 +241,25 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input = IBucket.o1;
-  export type Output = IPropagation<{
-    201: IBucket.o1;
-  }>;
+  export type Input =
+    | IDirectory.o1
+    | ISharedDirectory
+    | IImageFile.o1
+    | ITextFile.o1
+    | IZipFile.o1
+    | IShortcut.o1;
+  export type Output = IPropagation<
+    {
+      201:
+        | IDirectory.o1
+        | ISharedDirectory
+        | IImageFile.o1
+        | ITextFile.o1
+        | IZipFile.o1
+        | IShortcut.o1;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -183,13 +272,28 @@ export namespace store {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/arrayRecursiveUnionImplicit";
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IBucket.o1> => typia.random<IBucket.o1>(g);
+  ): Resolved<
+    | IDirectory.o1
+    | ISharedDirectory
+    | IImageFile.o1
+    | ITextFile.o1
+    | IZipFile.o1
+    | IShortcut.o1
+  > =>
+    typia.random<
+      | IDirectory.o1
+      | ISharedDirectory
+      | IImageFile.o1
+      | ITextFile.o1
+      | IZipFile.o1
+      | IShortcut.o1
+    >(g);
   export const simulate = (
     connection: IConnection,
     body: store.Input,
@@ -222,6 +326,6 @@ export namespace store {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

@@ -15,14 +15,23 @@ import type { Format } from "typia/lib/tags/Format";
  */
 export async function customize(
   connection: IConnection,
-  ___key: number,
-  ___value: string,
+  __key: number,
+  __value: string,
 ): Promise<customize.Output> {
-  return PlainFetcher.fetch(connection, {
-    ...customize.METADATA,
-    template: customize.METADATA.path,
-    path: customize.path(___key, ___value),
-  });
+  return PlainFetcher.fetch(
+    {
+      ...connection,
+      headers: {
+        ...connection.headers,
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      ...customize.METADATA,
+      template: customize.METADATA.path,
+      path: customize.path(__key, __value),
+    },
+  );
 }
 export namespace customize {
   export type Output = Primitive<string>;
@@ -35,11 +44,11 @@ export namespace customize {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
-  export const path = (___key: number, ___value: string) =>
-    `/custom/${encodeURIComponent(___key ?? "null")}/${encodeURIComponent(___value ?? "null")}/customize`;
+  export const path = (__key: number, __value: string) =>
+    `/custom/${encodeURIComponent(__key ?? "null")}/${encodeURIComponent(__value ?? "null")}/customize`;
 }
 
 /**
@@ -51,11 +60,20 @@ export async function normal(
   connection: IConnection,
   id: string & Format<"uuid">,
 ): Promise<normal.Output> {
-  return PlainFetcher.fetch(connection, {
-    ...normal.METADATA,
-    template: normal.METADATA.path,
-    path: normal.path(id),
-  });
+  return PlainFetcher.fetch(
+    {
+      ...connection,
+      headers: {
+        ...connection.headers,
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      ...normal.METADATA,
+      template: normal.METADATA.path,
+      path: normal.path(id),
+    },
+  );
 }
 export namespace normal {
   export type Output = Primitive<string>;
@@ -68,7 +86,7 @@ export namespace normal {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (id: string & Format<"uuid">) =>

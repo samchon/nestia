@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.9.0-dev.20240728",
+    "version": "3.11.0-dev.20240814",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -40,7 +40,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -70,7 +69,6 @@
             }
           },
           "428": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -107,19 +105,18 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/IBbsArticle"
-                    },
-                    {
                       "$ref": "#/components/schemas/INotFound"
                     },
                     {
                       "$ref": "#/components/schemas/IUnprocessibleEntity"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IBbsArticle"
                     }
                   ]
                 }
@@ -174,7 +171,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -243,7 +239,6 @@
         },
         "responses": {
           "201": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -301,7 +296,9 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "content": {
+              "application/json": {}
+            }
           }
         }
       }
@@ -312,7 +309,6 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -327,9 +323,17 @@
   },
   "components": {
     "schemas": {
-      "IBbsArticle.IStore": {
+      "IBbsArticle": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "title": {
             "type": "string",
             "minLength": 3,
@@ -346,6 +350,8 @@
           }
         },
         "required": [
+          "id",
+          "created_at",
           "title",
           "body",
           "files"
@@ -386,6 +392,30 @@
           "name",
           "extension",
           "url"
+        ]
+      },
+      "IBbsArticle.IStore": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "body",
+          "files"
         ]
       },
       "TypeGuardErrorany": {
@@ -470,40 +500,6 @@
           "name",
           "message",
           "stack"
-        ]
-      },
-      "IBbsArticle": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "title": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 50
-          },
-          "body": {
-            "type": "string"
-          },
-          "files": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IAttachmentFile"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "created_at",
-          "title",
-          "body",
-          "files"
         ]
       },
       "IExceptional.Something": {
@@ -675,9 +671,7 @@
     },
     "securitySchemes": {
       "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
+        "type": "apiKey"
       }
     }
   },

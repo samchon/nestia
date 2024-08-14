@@ -8,9 +8,12 @@ import type { IPageIBbsArticle } from "../../../../api/structures/IPageIBbsArtic
 export const test_api_bbs_articles_index = async (
   connection: api.IConnection,
 ) => {
-  const output: IPropagation<{
-    200: IPageIBbsArticle.ISummary;
-  }> = await api.functional.bbs.articles.index(
+  const output: IPropagation<
+    {
+      200: IPageIBbsArticle.ISummary;
+    },
+    200
+  > = await api.functional.bbs.articles.index(
     connection,
     typia.random<string>(),
     typia.random<IPage.IRequest>(),

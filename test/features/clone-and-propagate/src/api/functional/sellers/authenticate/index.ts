@@ -34,9 +34,14 @@ export async function join(
   connection: IConnection,
   input: join.Input,
 ): Promise<join.Output> {
-  const output: join.Output = !!connection.simulate
+  const output: IPropagation<
+    {
+      201: ISeller.IAuthorized;
+    },
+    201
+  > = !!connection.simulate
     ? join.simulate(connection, input)
-    : await EncryptedFetcher.propagate(
+    : await EncryptedFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -59,9 +64,12 @@ export async function join(
 }
 export namespace join {
   export type Input = ISeller.IJoin;
-  export type Output = IPropagation<{
-    201: ISeller.IAuthorized;
-  }>;
+  export type Output = IPropagation<
+    {
+      201: ISeller.IAuthorized;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -74,7 +82,7 @@ export namespace join {
       type: "text/plain",
       encrypted: true,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/sellers/authenticate/join";
@@ -113,7 +121,7 @@ export namespace join {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -132,9 +140,14 @@ export async function login(
   connection: IConnection,
   input: login.Input,
 ): Promise<login.Output> {
-  const output: login.Output = !!connection.simulate
+  const output: IPropagation<
+    {
+      201: ISeller.IAuthorized;
+    },
+    201
+  > = !!connection.simulate
     ? login.simulate(connection, input)
-    : await EncryptedFetcher.propagate(
+    : await EncryptedFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -157,9 +170,12 @@ export async function login(
 }
 export namespace login {
   export type Input = ISeller.ILogin;
-  export type Output = IPropagation<{
-    201: ISeller.IAuthorized;
-  }>;
+  export type Output = IPropagation<
+    {
+      201: ISeller.IAuthorized;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -172,7 +188,7 @@ export namespace login {
       type: "text/plain",
       encrypted: true,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/sellers/authenticate/login";
@@ -211,7 +227,7 @@ export namespace login {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -224,16 +240,28 @@ export namespace login {
 export async function exit(connection: IConnection): Promise<exit.Output> {
   return !!connection.simulate
     ? exit.simulate(connection)
-    : PlainFetcher.propagate(connection, {
-        ...exit.METADATA,
-        template: exit.METADATA.path,
-        path: exit.path(),
-      });
+    : PlainFetcher.propagate<any, any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...exit.METADATA,
+          template: exit.METADATA.path,
+          path: exit.path(),
+        },
+      );
 }
 export namespace exit {
-  export type Output = IPropagation<{
-    200: undefined;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: void;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "DELETE",
@@ -243,13 +271,12 @@ export namespace exit {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/sellers/authenticate/exit";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<undefined> => typia.random<undefined>(g);
+  export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
+    typia.random<void>(g);
   export const simulate = (connection: IConnection): Output => {
     return {
       success: true,
@@ -262,6 +289,6 @@ export namespace exit {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

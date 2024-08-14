@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.9.0-dev.20240728",
+    "version": "3.11.0-dev.20240814",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -30,7 +30,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -57,7 +56,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -84,7 +82,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -119,7 +116,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -202,31 +198,29 @@
       "OmitIQueryatomic": {
         "type": "object",
         "properties": {
-          "limit": {
-            "type": "number"
-          },
-          "enforce": {
-            "type": "boolean"
-          },
           "values": {
             "type": "array",
             "items": {
               "type": "string"
             }
+          },
+          "limit": {
+            "type": "number"
+          },
+          "enforce": {
+            "type": "boolean"
           }
         },
         "required": [
-          "enforce",
-          "values"
+          "values",
+          "enforce"
         ],
         "description": "Construct a type with the properties of T except for those in type K."
       }
     },
     "securitySchemes": {
       "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
+        "type": "apiKey"
       }
     }
   },

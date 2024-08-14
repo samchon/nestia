@@ -7,7 +7,7 @@ import { IHeaders } from "@api/lib/structures/IHeaders";
 
 @Controller("headers/:section")
 export class HeadersController {
-  @core.TypedRoute.Patch()
+  @core.TypedQuery.Patch()
   public emplace(
     @core.TypedHeaders() headers: IHeaders,
     @Param("section") section: string,

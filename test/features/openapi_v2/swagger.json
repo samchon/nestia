@@ -1,1 +1,679 @@
-{"swagger":"2.0","info":{"version":"3.9.0-dev.20240728","title":"@samchon/nestia-test","description":"Test program of Nestia","license":{"name":"MIT"}},"host":"github.com/samchon/nestia","definitions":{"schemas":{},"IPerformance":{"type":"object","properties":{"cpu":{"$ref":"#/definitions/process.global.NodeJS.CpuUsage"},"memory":{"$ref":"#/definitions/process.global.NodeJS.MemoryUsage"},"resource":{"$ref":"#/definitions/process.global.NodeJS.ResourceUsage"}},"required":["cpu","memory","resource"],"description":"Performance info."},"process.global.NodeJS.CpuUsage":{"type":"object","properties":{"user":{"type":"number"},"system":{"type":"number"}},"required":["user","system"]},"process.global.NodeJS.MemoryUsage":{"type":"object","properties":{"rss":{"type":"number"},"heapTotal":{"type":"number"},"heapUsed":{"type":"number"},"external":{"type":"number"},"arrayBuffers":{"type":"number"}},"required":["rss","heapTotal","heapUsed","external","arrayBuffers"]},"process.global.NodeJS.ResourceUsage":{"type":"object","properties":{"fsRead":{"type":"number"},"fsWrite":{"type":"number"},"involuntaryContextSwitches":{"type":"number"},"ipcReceived":{"type":"number"},"ipcSent":{"type":"number"},"majorPageFault":{"type":"number"},"maxRSS":{"type":"number"},"minorPageFault":{"type":"number"},"sharedMemorySize":{"type":"number"},"signalsCount":{"type":"number"},"swappedOut":{"type":"number"},"systemCPUTime":{"type":"number"},"unsharedDataSize":{"type":"number"},"unsharedStackSize":{"type":"number"},"userCPUTime":{"type":"number"},"voluntaryContextSwitches":{"type":"number"}},"required":["fsRead","fsWrite","involuntaryContextSwitches","ipcReceived","ipcSent","majorPageFault","maxRSS","minorPageFault","sharedMemorySize","signalsCount","swappedOut","systemCPUTime","unsharedDataSize","unsharedStackSize","userCPUTime","voluntaryContextSwitches"]},"IPage.IRequest":{"type":"object","properties":{"page":{"type":"integer","x-nullable":true},"limit":{"type":"integer","x-nullable":true}},"description":"Page request data"},"IPageIBbsArticle.ISummary":{"type":"object","properties":{"data":{"type":"array","items":{"$ref":"#/definitions/IBbsArticle.ISummary"}},"pagination":{"$ref":"#/definitions/IPage.IPagination"}},"required":["data","pagination"]},"IBbsArticle.ISummary":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"section":{"type":"string"},"writer":{"type":"string"},"title":{"type":"string","minLength":3,"maxLength":50},"created_at":{"type":"string","format":"date-time"}},"required":["id","section","writer","title","created_at"]},"IPage.IPagination":{"type":"object","properties":{"current":{"type":"integer"},"limit":{"type":"integer"},"records":{"type":"integer"},"pages":{"type":"integer"}},"required":["current","limit","records","pages"],"description":"Page information."},"IBbsArticle":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"section":{"type":"string"},"created_at":{"type":"string","format":"date-time"},"title":{"type":"string","minLength":3,"maxLength":50},"body":{"type":"string"},"files":{"type":"array","items":{"$ref":"#/definitions/IAttachmentFile"}}},"required":["id","section","created_at","title","body","files"]},"IAttachmentFile":{"type":"object","properties":{"name":{"type":"string","minLength":1,"maxLength":255,"x-nullable":true},"extension":{"type":"string","minLength":1,"maxLength":8,"x-nullable":true},"url":{"type":"string","format":"uri","x-nullable":true}},"required":["name","extension","url"]},"IBbsArticle.IStore":{"type":"object","properties":{"title":{"type":"string","minLength":3,"maxLength":50},"body":{"type":"string"},"files":{"type":"array","items":{"$ref":"#/definitions/IAttachmentFile"}}},"required":["title","body","files"]},"IPageIBbsComment":{"type":"object","properties":{"data":{"type":"array","items":{"$ref":"#/definitions/IBbsComment"}},"pagination":{"$ref":"#/definitions/IPage.IPagination"}},"required":["data","pagination"]},"IBbsComment":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"created_at":{"type":"string","format":"date-time"},"body":{"type":"string"},"files":{"type":"array","items":{"$ref":"#/definitions/IAttachmentFile"}}},"required":["id","created_at","body","files"]},"IBbsComment.IStore":{"type":"object","properties":{"body":{"type":"string"},"files":{"type":"array","items":{"$ref":"#/definitions/IAttachmentFile"}}},"required":["body","files"]}},"securityDefinitions":{"bearer":{"type":"apiKey","in":"header","name":"Authorization"}},"paths":{"/health":{"get":{"tags":[],"parameters":[],"responses":{"200":{"description":"","schema":{}}}}},"/performance":{"get":{"tags":[],"parameters":[],"responses":{"200":{"description":"","schema":{"$ref":"#/definitions/IPerformance"}}}}},"/bbs/{section}/articles":{"get":{"tags":[],"parameters":[{"type":"string","name":"section","in":"path"},{"type":"integer","x-nullable":true,"name":"page","in":"query"},{"type":"integer","x-nullable":true,"name":"limit","in":"query"}],"responses":{"200":{"description":"","schema":{"$ref":"#/definitions/IPageIBbsArticle.ISummary"}}}},"post":{"tags":[],"parameters":[{"type":"string","description":" Section code","name":"section","in":"path"},{"name":"body","in":"body","description":"Content to store","required":true,"schema":{"$ref":"#/definitions/IBbsArticle.IStore"}}],"responses":{"201":{"description":"Newly archived article","schema":{"$ref":"#/definitions/IBbsArticle"}}},"summary":"Store a new article","description":"Store a new article."}},"/bbs/{section}/articles/{id}":{"get":{"tags":[],"parameters":[{"type":"string","name":"section","in":"path"},{"type":"string","format":"uuid","name":"id","in":"path"}],"responses":{"200":{"description":"","schema":{"$ref":"#/definitions/IBbsArticle"}}}},"put":{"tags":[],"parameters":[{"type":"string","description":" Section code","name":"section","in":"path"},{"type":"string","format":"uuid","description":" Target article ID","name":"id","in":"path"},{"name":"body","in":"body","description":"Content to update","required":true,"schema":{"$ref":"#/definitions/IBbsArticle.IStore"}}],"responses":{"200":{"description":"Updated content","schema":{"$ref":"#/definitions/IBbsArticle"}}},"summary":"Update an article","description":"Update an article."}},"/{section}/articles/{articleId}/comments":{"get":{"tags":[],"parameters":[{"type":"string","name":"section","in":"path"},{"type":"string","format":"uuid","name":"articleId","in":"path"},{"type":"integer","x-nullable":true,"name":"page","in":"query"},{"type":"integer","x-nullable":true,"name":"limit","in":"query"}],"responses":{"200":{"description":"","schema":{"$ref":"#/definitions/IPageIBbsComment"}}}},"post":{"tags":[],"parameters":[{"type":"string","name":"section","in":"path"},{"type":"string","format":"uuid","name":"articleId","in":"path"},{"name":"body","in":"body","required":true,"schema":{"$ref":"#/definitions/IBbsComment.IStore"}}],"responses":{"201":{"description":"","schema":{"$ref":"#/definitions/IBbsComment"}}}}},"/{section}/articles/{articleId}/comments/{id}":{"get":{"tags":[],"parameters":[{"type":"string","name":"section","in":"path"},{"type":"string","format":"uuid","name":"articleId","in":"path"},{"type":"string","format":"uuid","name":"id","in":"path"}],"responses":{"200":{"description":"","schema":{"$ref":"#/definitions/IBbsComment"}}}},"put":{"tags":[],"parameters":[{"type":"string","name":"section","in":"path"},{"type":"string","format":"uuid","name":"articleId","in":"path"},{"type":"string","format":"uuid","name":"id","in":"path"},{"name":"body","in":"body","required":true,"schema":{"$ref":"#/definitions/IBbsComment.IStore"}}],"responses":{"200":{"description":"","schema":{"$ref":"#/definitions/IBbsComment"}}}}}},"tags":[]}
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "3.11.0-dev.20240814",
+    "title": "@samchon/nestia-test",
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "host": "github.com/samchon/nestia",
+  "definitions": {
+    "schemas": {},
+    "IPerformance": {
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "$ref": "#/definitions/process.global.NodeJS.CpuUsage"
+        },
+        "memory": {
+          "$ref": "#/definitions/process.global.NodeJS.MemoryUsage"
+        },
+        "resource": {
+          "$ref": "#/definitions/process.global.NodeJS.ResourceUsage"
+        }
+      },
+      "required": [
+        "cpu",
+        "memory",
+        "resource"
+      ],
+      "description": "Performance info."
+    },
+    "process.global.NodeJS.CpuUsage": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "number"
+        },
+        "system": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "user",
+        "system"
+      ]
+    },
+    "process.global.NodeJS.MemoryUsage": {
+      "type": "object",
+      "properties": {
+        "rss": {
+          "type": "number"
+        },
+        "heapTotal": {
+          "type": "number"
+        },
+        "heapUsed": {
+          "type": "number"
+        },
+        "external": {
+          "type": "number"
+        },
+        "arrayBuffers": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "rss",
+        "heapTotal",
+        "heapUsed",
+        "external",
+        "arrayBuffers"
+      ]
+    },
+    "process.global.NodeJS.ResourceUsage": {
+      "type": "object",
+      "properties": {
+        "fsRead": {
+          "type": "number"
+        },
+        "fsWrite": {
+          "type": "number"
+        },
+        "involuntaryContextSwitches": {
+          "type": "number"
+        },
+        "ipcReceived": {
+          "type": "number"
+        },
+        "ipcSent": {
+          "type": "number"
+        },
+        "majorPageFault": {
+          "type": "number"
+        },
+        "maxRSS": {
+          "type": "number"
+        },
+        "minorPageFault": {
+          "type": "number"
+        },
+        "sharedMemorySize": {
+          "type": "number"
+        },
+        "signalsCount": {
+          "type": "number"
+        },
+        "swappedOut": {
+          "type": "number"
+        },
+        "systemCPUTime": {
+          "type": "number"
+        },
+        "unsharedDataSize": {
+          "type": "number"
+        },
+        "unsharedStackSize": {
+          "type": "number"
+        },
+        "userCPUTime": {
+          "type": "number"
+        },
+        "voluntaryContextSwitches": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "fsRead",
+        "fsWrite",
+        "involuntaryContextSwitches",
+        "ipcReceived",
+        "ipcSent",
+        "majorPageFault",
+        "maxRSS",
+        "minorPageFault",
+        "sharedMemorySize",
+        "signalsCount",
+        "swappedOut",
+        "systemCPUTime",
+        "unsharedDataSize",
+        "unsharedStackSize",
+        "userCPUTime",
+        "voluntaryContextSwitches"
+      ]
+    },
+    "IPageIBbsArticle.ISummary": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IBbsArticle.ISummary"
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/IPage.IPagination"
+        }
+      },
+      "required": [
+        "data",
+        "pagination"
+      ]
+    },
+    "IBbsArticle.ISummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "section": {
+          "type": "string"
+        },
+        "writer": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 50
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "section",
+        "writer",
+        "title",
+        "created_at"
+      ]
+    },
+    "IPage.IPagination": {
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": "integer"
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "records": {
+          "type": "integer"
+        },
+        "pages": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "current",
+        "limit",
+        "records",
+        "pages"
+      ],
+      "description": "Page information."
+    },
+    "IPage.IRequest": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "limit": {
+          "type": "integer",
+          "x-nullable": true
+        }
+      },
+      "description": "Page request data"
+    },
+    "IBbsArticle": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "section": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 50
+        },
+        "body": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IAttachmentFile"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "section",
+        "created_at",
+        "title",
+        "body",
+        "files"
+      ]
+    },
+    "IAttachmentFile": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "x-nullable": true
+        },
+        "extension": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8,
+          "x-nullable": true
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "x-nullable": true
+        }
+      },
+      "required": [
+        "name",
+        "extension",
+        "url"
+      ]
+    },
+    "IBbsArticle.IStore": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 50
+        },
+        "body": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IAttachmentFile"
+          }
+        }
+      },
+      "required": [
+        "title",
+        "body",
+        "files"
+      ]
+    },
+    "IPageIBbsComment": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IBbsComment"
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/IPage.IPagination"
+        }
+      },
+      "required": [
+        "data",
+        "pagination"
+      ]
+    },
+    "IBbsComment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "body": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IAttachmentFile"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "created_at",
+        "body",
+        "files"
+      ]
+    },
+    "IBbsComment.IStore": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IAttachmentFile"
+          }
+        }
+      },
+      "required": [
+        "body",
+        "files"
+      ]
+    }
+  },
+  "securityDefinitions": {
+    "bearer": {
+      "type": "apiKey"
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/performance": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/IPerformance"
+            }
+          }
+        }
+      }
+    },
+    "/bbs/{section}/articles": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "section",
+            "in": "path"
+          },
+          {
+            "type": "integer",
+            "x-nullable": true,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": true,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/IPageIBbsArticle.ISummary"
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Store a new article",
+        "description": "Store a new article.",
+        "tags": [],
+        "parameters": [
+          {
+            "type": "string",
+            "description": " Section code",
+            "name": "section",
+            "in": "path"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Content to store",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IBbsArticle.IStore"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Newly archived article",
+            "schema": {
+              "$ref": "#/definitions/IBbsArticle"
+            }
+          }
+        }
+      }
+    },
+    "/bbs/{section}/articles/{id}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "section",
+            "in": "path"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/IBbsArticle"
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an article",
+        "description": "Update an article.",
+        "tags": [],
+        "parameters": [
+          {
+            "type": "string",
+            "description": " Section code",
+            "name": "section",
+            "in": "path"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": " Target article ID",
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Content to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IBbsArticle.IStore"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated content",
+            "schema": {
+              "$ref": "#/definitions/IBbsArticle"
+            }
+          }
+        }
+      }
+    },
+    "/{section}/articles/{articleId}/comments": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "section",
+            "in": "path"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "articleId",
+            "in": "path"
+          },
+          {
+            "type": "integer",
+            "x-nullable": true,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": true,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/IPageIBbsComment"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "section",
+            "in": "path"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "articleId",
+            "in": "path"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IBbsComment.IStore"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "schema": {
+              "$ref": "#/definitions/IBbsComment"
+            }
+          }
+        }
+      }
+    },
+    "/{section}/articles/{articleId}/comments/{id}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "section",
+            "in": "path"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "articleId",
+            "in": "path"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/IBbsComment"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "section",
+            "in": "path"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "articleId",
+            "in": "path"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IBbsComment.IStore"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/IBbsComment"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}

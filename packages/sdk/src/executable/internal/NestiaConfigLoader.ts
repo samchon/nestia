@@ -32,15 +32,29 @@ export namespace NestiaConfigLoader {
 
   export const config = async (
     file: string,
-    rawCompilerOptions: Record<string, any>,
+    compilerOptions: Record<string, any>,
   ): Promise<INestiaConfig> => {
     if (fs.existsSync(path.resolve(file)) === false)
       throw new Error(`Unable to find "${file}" file.`);
 
+    const plugins: any[] = [
+      ...typia
+        .assert<object[]>(compilerOptions.plugins ?? [])
+        .filter(
+          (x: any) =>
+            x.transform !== "@nestia/core/lib/transform" &&
+            x.transform !== "@nestia/sdk/lib/transform",
+        ),
+      { transform: "@nestia/core/lib/transform" },
+      { transform: "@nestia/sdk/lib/transform" },
+    ];
     register({
       emit: false,
-      compilerOptions: rawCompilerOptions,
-      require: rawCompilerOptions.baseUrl
+      compilerOptions: {
+        ...compilerOptions,
+        plugins,
+      },
+      require: compilerOptions.baseUrl
         ? ["tsconfig-paths/register"]
         : undefined,
     });

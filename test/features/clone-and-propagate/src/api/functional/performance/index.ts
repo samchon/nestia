@@ -18,16 +18,28 @@ import type { process } from "../../structures/process";
 export async function cpu(connection: IConnection): Promise<cpu.Output> {
   return !!connection.simulate
     ? cpu.simulate(connection)
-    : PlainFetcher.propagate(connection, {
-        ...cpu.METADATA,
-        template: cpu.METADATA.path,
-        path: cpu.path(),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...cpu.METADATA,
+          template: cpu.METADATA.path,
+          path: cpu.path(),
+        },
+      );
 }
 export namespace cpu {
-  export type Output = IPropagation<{
-    200: process.global.NodeJS.CpuUsage;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: process.global.NodeJS.CpuUsage;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -37,7 +49,7 @@ export namespace cpu {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/performance/cpu";
@@ -57,7 +69,7 @@ export namespace cpu {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -69,16 +81,28 @@ export namespace cpu {
 export async function memory(connection: IConnection): Promise<memory.Output> {
   return !!connection.simulate
     ? memory.simulate(connection)
-    : PlainFetcher.propagate(connection, {
-        ...memory.METADATA,
-        template: memory.METADATA.path,
-        path: memory.path(),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...memory.METADATA,
+          template: memory.METADATA.path,
+          path: memory.path(),
+        },
+      );
 }
 export namespace memory {
-  export type Output = IPropagation<{
-    200: process.global.NodeJS.MemoryUsage;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: process.global.NodeJS.MemoryUsage;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -88,7 +112,7 @@ export namespace memory {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/performance/memory";
@@ -108,7 +132,7 @@ export namespace memory {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -122,16 +146,28 @@ export async function resource(
 ): Promise<resource.Output> {
   return !!connection.simulate
     ? resource.simulate(connection)
-    : PlainFetcher.propagate(connection, {
-        ...resource.METADATA,
-        template: resource.METADATA.path,
-        path: resource.path(),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...resource.METADATA,
+          template: resource.METADATA.path,
+          path: resource.path(),
+        },
+      );
 }
 export namespace resource {
-  export type Output = IPropagation<{
-    200: process.global.NodeJS.ResourceUsage;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: process.global.NodeJS.ResourceUsage;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -141,7 +177,7 @@ export namespace resource {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/performance/resource";
@@ -161,6 +197,6 @@ export namespace resource {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

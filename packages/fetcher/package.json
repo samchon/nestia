@@ -1,6 +1,6 @@
 {
   "name": "@nestia/fetcher",
-  "version": "3.10.0",
+  "version": "3.11.0-dev.20240814",
   "description": "Fetcher library of Nestia SDK",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -43,6 +43,6 @@
     "src"
   ],
   "dependencies": {
-    "@samchon/openapi": "^0.4.3"
+    "@samchon/openapi": "^0.4.5"
   }
 }

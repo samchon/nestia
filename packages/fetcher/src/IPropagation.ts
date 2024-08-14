@@ -1,5 +1,3 @@
-import { Primitive } from "./Primitive";
-
 /**
  * Propagation type.
  *
@@ -73,7 +71,7 @@ export namespace IPropagation {
       : StatusValue extends number
         ? StatusValue
         : never;
-    data: Primitive<BodyData>;
+    data: BodyData;
     headers: Record<string, string | string[]>;
   }
 

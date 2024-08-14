@@ -6,8 +6,8 @@
 //================================================================
 import type {
   IConnection,
-  Resolved,
   IPropagation,
+  Resolved,
   HttpError,
 } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
@@ -33,18 +33,30 @@ export async function getOauthProfile(
 ): Promise<getOauthProfile.Output> {
   return !!connection.simulate
     ? getOauthProfile.simulate(connection, user_id, query)
-    : PlainFetcher.propagate(connection, {
-        ...getOauthProfile.METADATA,
-        template: getOauthProfile.METADATA.path,
-        path: getOauthProfile.path(user_id, query),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...getOauthProfile.METADATA,
+          template: getOauthProfile.METADATA.path,
+          path: getOauthProfile.path(user_id, query),
+        },
+      );
 }
 export namespace getOauthProfile {
-  export type Query = Resolved<IAuthentication>;
-  export type Output = IPropagation<{
-    200: IAuthentication.IProfile;
-    404: "404 Not Found";
-  }>;
+  export type Query = IAuthentication;
+  export type Output = IPropagation<
+    {
+      200: IAuthentication.IProfile;
+      404: "404 Not Found";
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -54,7 +66,7 @@ export namespace getOauthProfile {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (user_id: string, query: getOauthProfile.Query) => {
@@ -107,6 +119,6 @@ export namespace getOauthProfile {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

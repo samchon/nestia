@@ -23,16 +23,28 @@ export async function original(
 ): Promise<original.Output> {
   return !!connection.simulate
     ? original.simulate(connection)
-    : PlainFetcher.propagate(connection, {
-        ...original.METADATA,
-        template: original.METADATA.path,
-        path: original.path(),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...original.METADATA,
+          template: original.METADATA.path,
+          path: original.path(),
+        },
+      );
 }
 export namespace original {
-  export type Output = IPropagation<{
-    200: IOriginal;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: IOriginal;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -42,7 +54,7 @@ export namespace original {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/partial-dto-test/original";
@@ -61,6 +73,6 @@ export namespace original {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

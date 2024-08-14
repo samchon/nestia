@@ -6,7 +6,7 @@ import { tags } from "typia";
 export class TypedParamController {
   /**
    * Composite path parameters.
-   * 
+   *
    * @param value The first value.
    *              The first string value.
    * @param value2 The second value.
@@ -39,12 +39,26 @@ export class TypedParamController {
   @core.TypedRoute.Get(":value/number")
   public number(
     /**
-    * Description in the parameter.
-    */
-    @core.TypedParam("value") 
-    value: number
+     * Description in the parameter.
+     */
+    @core.TypedParam("value")
+    value: number,
   ): number {
     return value;
+  }
+
+  /**
+   * The bigint.
+   */
+  @core.TypedRoute.Get(":value/bigint")
+  public bigint(
+    /**
+     * Description in the parameter.
+     */
+    @core.TypedParam("value")
+    value: bigint,
+  ): number {
+    return Number(value);
   }
 
   /**
@@ -56,7 +70,7 @@ export class TypedParamController {
      * @title Yaho
      * @description Yoohoo
      */
-    @core.TypedParam("value") value: string
+    @core.TypedParam("value") value: string,
   ): string {
     return value;
   }

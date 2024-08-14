@@ -15,7 +15,6 @@ import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 import type { Format } from "typia/lib/tags/Format";
 
-import type { ArraySimple } from "../../structures/ArraySimple";
 import type { IPerson } from "../../structures/IPerson";
 
 /**
@@ -26,16 +25,28 @@ import type { IPerson } from "../../structures/IPerson";
 export async function index(connection: IConnection): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection)
-    : PlainFetcher.propagate(connection, {
-        ...index.METADATA,
-        template: index.METADATA.path,
-        path: index.path(),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...index.METADATA,
+          template: index.METADATA.path,
+          path: index.path(),
+        },
+      );
 }
 export namespace index {
-  export type Output = IPropagation<{
-    200: ArraySimple;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: IPerson[];
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -45,13 +56,13 @@ export namespace index {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/arraySimple";
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<ArraySimple> => typia.random<ArraySimple>(g);
+  ): Resolved<IPerson[]> => typia.random<IPerson[]>(g);
   export const simulate = (connection: IConnection): Output => {
     return {
       success: true,
@@ -64,7 +75,7 @@ export namespace index {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -79,16 +90,28 @@ export async function at(
 ): Promise<at.Output> {
   return !!connection.simulate
     ? at.simulate(connection, id)
-    : PlainFetcher.propagate(connection, {
-        ...at.METADATA,
-        template: at.METADATA.path,
-        path: at.path(id),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...at.METADATA,
+          template: at.METADATA.path,
+          path: at.path(id),
+        },
+      );
 }
 export namespace at {
-  export type Output = IPropagation<{
-    200: IPerson;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: IPerson;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -98,7 +121,7 @@ export namespace at {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (id: string & Format<"uuid">) =>
@@ -138,7 +161,7 @@ export namespace at {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -153,7 +176,7 @@ export async function store(
 ): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, body)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -171,9 +194,12 @@ export async function store(
 }
 export namespace store {
   export type Input = IPerson;
-  export type Output = IPropagation<{
-    201: IPerson;
-  }>;
+  export type Output = IPropagation<
+    {
+      201: IPerson;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -186,7 +212,7 @@ export namespace store {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/arraySimple";
@@ -225,6 +251,6 @@ export namespace store {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

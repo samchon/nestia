@@ -14,8 +14,6 @@ import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
-import type { TupleHierarchical } from "../../structures/TupleHierarchical";
-
 /**
  * @controller TupleHierarchicalController.index
  * @path GET /tupleHierarchicalController
@@ -24,16 +22,34 @@ import type { TupleHierarchical } from "../../structures/TupleHierarchical";
 export async function index(connection: IConnection): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection)
-    : PlainFetcher.propagate(connection, {
-        ...index.METADATA,
-        template: index.METADATA.path,
-        path: index.path(),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...index.METADATA,
+          template: index.METADATA.path,
+          path: index.path(),
+        },
+      );
 }
 export namespace index {
-  export type Output = IPropagation<{
-    200: TupleHierarchical[];
-  }>;
+  export type Output = IPropagation<
+    {
+      200: [
+        boolean,
+        null,
+        number,
+        [boolean, null, [number, [boolean, string]]],
+        [number, [string, boolean, [number, number, [boolean, string]][]][]],
+      ][];
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -43,13 +59,30 @@ export namespace index {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/tupleHierarchicalController";
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<TupleHierarchical[]> => typia.random<TupleHierarchical[]>(g);
+  ): Resolved<
+    [
+      boolean,
+      null,
+      number,
+      [boolean, null, [number, [boolean, string]]],
+      [number, [string, boolean, [number, number, [boolean, string]][]][]],
+    ][]
+  > =>
+    typia.random<
+      [
+        boolean,
+        null,
+        number,
+        [boolean, null, [number, [boolean, string]]],
+        [number, [string, boolean, [number, number, [boolean, string]][]][]],
+      ][]
+    >(g);
   export const simulate = (connection: IConnection): Output => {
     return {
       success: true,
@@ -62,7 +95,7 @@ export namespace index {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -77,16 +110,34 @@ export async function at(
 ): Promise<at.Output> {
   return !!connection.simulate
     ? at.simulate(connection, id)
-    : PlainFetcher.propagate(connection, {
-        ...at.METADATA,
-        template: at.METADATA.path,
-        path: at.path(id),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...at.METADATA,
+          template: at.METADATA.path,
+          path: at.path(id),
+        },
+      );
 }
 export namespace at {
-  export type Output = IPropagation<{
-    200: TupleHierarchical;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: [
+        boolean,
+        null,
+        number,
+        [boolean, null, [number, [boolean, string]]],
+        [number, [string, boolean, [number, number, [boolean, string]][]][]],
+      ];
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -96,14 +147,31 @@ export namespace at {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (id: number) =>
     `/tupleHierarchicalController/${encodeURIComponent(id ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<TupleHierarchical> => typia.random<TupleHierarchical>(g);
+  ): Resolved<
+    [
+      boolean,
+      null,
+      number,
+      [boolean, null, [number, [boolean, string]]],
+      [number, [string, boolean, [number, number, [boolean, string]][]][]],
+    ]
+  > =>
+    typia.random<
+      [
+        boolean,
+        null,
+        number,
+        [boolean, null, [number, [boolean, string]]],
+        [number, [string, boolean, [number, number, [boolean, string]][]][]],
+      ]
+    >(g);
   export const simulate = (connection: IConnection, id: number): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -133,7 +201,7 @@ export namespace at {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -148,7 +216,7 @@ export async function store(
 ): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, body)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -165,10 +233,25 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input = TupleHierarchical;
-  export type Output = IPropagation<{
-    201: TupleHierarchical;
-  }>;
+  export type Input = [
+    boolean,
+    null,
+    number,
+    [boolean, null, [number, [boolean, string]]],
+    [number, [string, boolean, [number, number, [boolean, string]][]][]],
+  ];
+  export type Output = IPropagation<
+    {
+      201: [
+        boolean,
+        null,
+        number,
+        [boolean, null, [number, [boolean, string]]],
+        [number, [string, boolean, [number, number, [boolean, string]][]][]],
+      ];
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -181,13 +264,30 @@ export namespace store {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/tupleHierarchicalController";
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<TupleHierarchical> => typia.random<TupleHierarchical>(g);
+  ): Resolved<
+    [
+      boolean,
+      null,
+      number,
+      [boolean, null, [number, [boolean, string]]],
+      [number, [string, boolean, [number, number, [boolean, string]][]][]],
+    ]
+  > =>
+    typia.random<
+      [
+        boolean,
+        null,
+        number,
+        [boolean, null, [number, [boolean, string]]],
+        [number, [string, boolean, [number, number, [boolean, string]][]][]],
+      ]
+    >(g);
   export const simulate = (
     connection: IConnection,
     body: store.Input,
@@ -220,6 +320,6 @@ export namespace store {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

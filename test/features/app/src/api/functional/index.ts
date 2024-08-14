@@ -7,4 +7,3 @@
 export * as health from "./health";
 export * as performance from "./performance";
 export * as bbs from "./bbs";
-export * as articles from "./articles";

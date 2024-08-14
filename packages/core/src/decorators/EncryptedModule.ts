@@ -63,9 +63,13 @@ export namespace EncryptedModule {
     path: string | string[] | { include: string[]; exclude?: string[] },
     password: IEncryptionPassword | IEncryptionPassword.Closure,
     options: Omit<Parameters<typeof Module>[0], "controllers"> = {},
+    isTsNode?: boolean,
   ): Promise<object> {
     // LOAD CONTROLLERS
-    const controllers: Creator<object>[] = await load_controllers(path);
+    const controllers: Creator<object>[] = await load_controllers(
+      path,
+      isTsNode,
+    );
 
     // RETURNS WITH DECORATING
     @EncryptedModule(

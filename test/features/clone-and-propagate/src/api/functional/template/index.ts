@@ -24,16 +24,28 @@ import type { Template } from "../../structures/Template";
 export async function index(connection: IConnection): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection)
-    : PlainFetcher.propagate(connection, {
-        ...index.METADATA,
-        template: index.METADATA.path,
-        path: index.path(),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...index.METADATA,
+          template: index.METADATA.path,
+          path: index.path(),
+        },
+      );
 }
 export namespace index {
-  export type Output = IPropagation<{
-    200: Template[];
-  }>;
+  export type Output = IPropagation<
+    {
+      200: Template[];
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -43,7 +55,7 @@ export namespace index {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/template";
@@ -62,7 +74,7 @@ export namespace index {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -77,16 +89,28 @@ export async function at(
 ): Promise<at.Output> {
   return !!connection.simulate
     ? at.simulate(connection, id)
-    : PlainFetcher.propagate(connection, {
-        ...at.METADATA,
-        template: at.METADATA.path,
-        path: at.path(id),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...at.METADATA,
+          template: at.METADATA.path,
+          path: at.path(id),
+        },
+      );
 }
 export namespace at {
-  export type Output = IPropagation<{
-    200: Template;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: Template;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -96,7 +120,7 @@ export namespace at {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (id: number) =>
@@ -133,7 +157,7 @@ export namespace at {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -148,7 +172,7 @@ export async function store(
 ): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, body)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -166,9 +190,12 @@ export async function store(
 }
 export namespace store {
   export type Input = Template;
-  export type Output = IPropagation<{
-    201: Template;
-  }>;
+  export type Output = IPropagation<
+    {
+      201: Template;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -181,7 +208,7 @@ export namespace store {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/template";
@@ -220,6 +247,6 @@ export namespace store {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

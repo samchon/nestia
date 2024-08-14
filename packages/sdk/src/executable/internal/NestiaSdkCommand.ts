@@ -9,12 +9,13 @@ export namespace NestiaSdkCommand {
   export const swagger = () => main((app) => app.swagger());
   export const openai = () => main((app) => app.openai());
   export const e2e = () => main((app) => app.e2e());
+  export const all = () => main((app) => app.all());
 
   const main = async (task: (app: NestiaSdkApplication) => Promise<void>) => {
-    await generate(task);
+    await _Generate(task);
   };
 
-  const generate = async (
+  const _Generate = async (
     task: (app: NestiaSdkApplication) => Promise<void>,
   ) => {
     // LOAD CONFIG INFO
@@ -34,10 +35,7 @@ export namespace NestiaSdkCommand {
     );
 
     // GENERATE
-    const app: NestiaSdkApplication = new NestiaSdkApplication(
-      config,
-      command.options,
-    );
+    const app: NestiaSdkApplication = new NestiaSdkApplication(config);
     await task(app);
   };
 

@@ -16,16 +16,28 @@ import typia from "typia";
 export async function get(connection: IConnection): Promise<get.Output> {
   return !!connection.simulate
     ? get.simulate(connection)
-    : PlainFetcher.propagate(connection, {
-        ...get.METADATA,
-        template: get.METADATA.path,
-        path: get.path(),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...get.METADATA,
+          template: get.METADATA.path,
+          path: get.path(),
+        },
+      );
 }
 export namespace get {
-  export type Output = IPropagation<{
-    200: undefined;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: void;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -35,13 +47,12 @@ export namespace get {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/health";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<undefined> => typia.random<undefined>(g);
+  export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
+    typia.random<void>(g);
   export const simulate = (connection: IConnection): Output => {
     return {
       success: true,
@@ -54,6 +65,6 @@ export namespace get {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

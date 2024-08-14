@@ -20,24 +20,36 @@ export async function literals(
 ): Promise<literals.Output> {
   return !!connection.simulate
     ? literals.simulate(connection)
-    : PlainFetcher.propagate(connection, {
-        ...literals.METADATA,
-        template: literals.METADATA.path,
-        path: literals.path(),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...literals.METADATA,
+          template: literals.METADATA.path,
+          path: literals.path(),
+        },
+      );
 }
 export namespace literals {
-  export type Output = IPropagation<{
-    200: {
-      id: string;
-      member: {
-        id: string & Format<"uuid">;
-        email: string & Format<"email">;
-        age: number & Type<"uint32">;
-      };
-      created_at: string & Format<"date-time">;
-    }[];
-  }>;
+  export type Output = IPropagation<
+    {
+      200: {
+        id: string;
+        member: {
+          id: string & Format<"uuid">;
+          email: string & Format<"email">;
+          age: number & Type<"uint32">;
+        };
+        created_at: string & Format<"date-time">;
+      }[];
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -47,7 +59,7 @@ export namespace literals {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/objectLiteral/literal";
@@ -87,6 +99,6 @@ export namespace literals {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

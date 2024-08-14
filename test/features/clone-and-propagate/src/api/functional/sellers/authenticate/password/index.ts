@@ -32,7 +32,7 @@ export async function change(
 ): Promise<change.Output> {
   return !!connection.simulate
     ? change.simulate(connection, input)
-    : EncryptedFetcher.propagate(
+    : EncryptedFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -50,9 +50,12 @@ export async function change(
 }
 export namespace change {
   export type Input = ISeller.IChangePassword;
-  export type Output = IPropagation<{
-    200: undefined;
-  }>;
+  export type Output = IPropagation<
+    {
+      200: void;
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "PATCH",
@@ -65,13 +68,12 @@ export namespace change {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/sellers/authenticate/password/change";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<undefined> => typia.random<undefined>(g);
+  export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
+    typia.random<void>(g);
   export const simulate = (
     connection: IConnection,
     input: change.Input,
@@ -104,6 +106,6 @@ export namespace change {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

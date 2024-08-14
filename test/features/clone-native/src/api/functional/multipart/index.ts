@@ -42,7 +42,7 @@ export namespace post {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/multipart";

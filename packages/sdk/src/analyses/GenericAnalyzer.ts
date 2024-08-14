@@ -1,20 +1,18 @@
 import ts from "typescript";
 
 export namespace GenericAnalyzer {
-  export type Dictionary = WeakMap<ts.Type, ts.Type>;
-
   export function analyze(
     checker: ts.TypeChecker,
     classNode: ts.ClassDeclaration,
-  ): Dictionary {
-    const dict: Dictionary = new WeakMap();
+  ): WeakMap<ts.Type, ts.Type> {
+    const dict: WeakMap<ts.Type, ts.Type> = new WeakMap();
     explore(checker, dict, classNode);
     return dict;
   }
 
   function explore(
     checker: ts.TypeChecker,
-    dict: Dictionary,
+    dict: WeakMap<ts.Type, ts.Type>,
     classNode: ts.ClassDeclaration,
   ): void {
     if (classNode.heritageClauses === undefined) return;

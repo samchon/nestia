@@ -1,300 +1,173 @@
-import { SwaggerExample } from "@nestia/core";
-import {
-  HEADERS_METADATA,
-  HTTP_CODE_METADATA,
-  INTERCEPTORS_METADATA,
-  METHOD_METADATA,
-  PATH_METADATA,
-  ROUTE_ARGS_METADATA,
-} from "@nestjs/common/constants";
-import { RouteParamtypes } from "@nestjs/common/enums/route-paramtypes.enum";
+import { METHOD_METADATA, PATH_METADATA } from "@nestjs/common/constants";
 import { ranges } from "tstl";
 
-import { IErrorReport } from "../structures/IErrorReport";
 import { INestiaProject } from "../structures/INestiaProject";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperation } from "../structures/IReflectHttpOperation";
-import { ParamCategory } from "../structures/ParamCategory";
+import { IReflectHttpOperationParameter } from "../structures/IReflectHttpOperationParameter";
+import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperationSuccess";
+import { IReflectOperationError } from "../structures/IReflectOperationError";
+import { IOperationMetadata } from "../transformers/IOperationMetadata";
 import { ArrayUtil } from "../utils/ArrayUtil";
+import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";
+import { ReflectHttpOperationExceptionAnalyzer } from "./ReflectHttpOperationExceptionAnalyzer";
+import { ReflectHttpOperationParameterAnalyzer } from "./ReflectHttpOperationParameterAnalyzer";
+import { ReflectHttpOperationResponseAnalyzer } from "./ReflectHttpOperationResponseAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
 
 export namespace ReflectHttpOperationAnalyzer {
-  export const analyze =
-    (project: INestiaProject) =>
-    (props: {
-      controller: IReflectController;
-      function: Function;
-      name: string;
-    }): IReflectHttpOperation | null => {
-      if (
-        ArrayUtil.has(
-          Reflect.getMetadataKeys(props.function),
-          PATH_METADATA,
-          METHOD_METADATA,
-        ) === false
-      )
-        return null;
+  export interface IProps {
+    project: INestiaProject;
+    controller: IReflectController;
+    function: Function;
+    name: string;
+    metadata: IOperationMetadata;
+  }
+  export const analyze = (props: IProps): IReflectHttpOperation | null => {
+    if (
+      ArrayUtil.has(
+        Reflect.getMetadataKeys(props.function),
+        PATH_METADATA,
+        METHOD_METADATA,
+      ) === false
+    )
+      return null;
 
-      const errors: IErrorReport[] = [];
+    const errors: IReflectOperationError[] = [];
+    const method: string =
+      METHODS[Reflect.getMetadata(METHOD_METADATA, props.function)];
+    if (method === undefined || method === "OPTIONS") return null;
 
-      //----
-      // CONSTRUCTION
-      //----
-      // BASIC INFO
-      const encrypted: boolean = hasInterceptor("EncryptedRouteInterceptor")(
-        props.function,
-      );
-      const query: boolean = hasInterceptor("TypedQueryRouteInterceptor")(
-        props.function,
-      );
-      const method: string =
-        METHODS[Reflect.getMetadata(METHOD_METADATA, props.function)];
-      if (method === undefined || method === "OPTIONS") return null;
-
-      const parameters: IReflectHttpOperation.IParameter[] = (() => {
-        const nestParameters: NestParameters | undefined = Reflect.getMetadata(
-          ROUTE_ARGS_METADATA,
-          props.controller.constructor,
-          props.name,
-        );
-        if (nestParameters === undefined) return [];
-
-        const output: IReflectHttpOperation.IParameter[] = [];
-        for (const tuple of Object.entries(nestParameters)) {
-          const child: IReflectHttpOperation.IParameter | null =
-            _Analyze_http_parameter(...tuple);
-          if (child !== null) output.push(child);
-        }
-        const examples: SwaggerExample.IData<any>[] =
-          Reflect.getMetadata(
-            "nestia/SwaggerExample/Parameters",
-            props.controller.prototype,
-            props.name,
-          ) ?? [];
-        for (const p of output) {
-          const e = examples.find((elem) => elem.index === p.index);
-          if (e !== undefined) {
-            p.example = e.example;
-            p.examples = e.examples;
-          }
-        }
-        return output.sort((x, y) => x.index - y.index);
-      })();
-
-      // VALIDATE BODY
-      const body: IReflectHttpOperation.IParameter | undefined =
-        parameters.find((param) => param.category === "body");
-      if (body !== undefined && (method === "GET" || method === "HEAD")) {
-        project.errors.push({
-          file: props.controller.file,
-          controller: props.controller.name,
-          function: props.name,
-          message: `"body" parameter cannot be used in the "${method}" method.`,
-        });
+    const parameters: IReflectHttpOperationParameter[] =
+      ReflectHttpOperationParameterAnalyzer.analyze({
+        controller: props.controller,
+        metadata: props.metadata,
+        httpMethod: method,
+        function: props.function,
+        functionName: props.name,
+        errors,
+      });
+    const success: IReflectHttpOperationSuccess | null = (() => {
+      const localErrors: IReflectOperationError[] = [];
+      const success = ReflectHttpOperationResponseAnalyzer.analyze({
+        controller: props.controller,
+        function: props.function,
+        functionName: props.name,
+        httpMethod: method,
+        metadata: props.metadata,
+        errors,
+      });
+      if (localErrors.length) {
+        errors.push(...localErrors);
         return null;
       }
+      return success;
+    })();
+    if (errors.length) {
+      props.project.errors.push(...errors);
+      return null;
+    } else if (success === null) return null;
 
-      // DO CONSTRUCT
-      const example: SwaggerExample.IData<any> | undefined =
-        Reflect.getMetadata("nestia/SwaggerExample/Response", props.function);
-      const meta: IReflectHttpOperation = {
-        protocol: "http",
+    // DO CONSTRUCT
+    const operation: IReflectHttpOperation = {
+      protocol: "http",
+      function: props.function,
+      name: props.name,
+      method: method === "ALL" ? "POST" : method,
+      paths: ReflectMetadataAnalyzer.paths(props.function).filter((str) => {
+        if (str.includes("*") === true) {
+          props.project.warnings.push({
+            file: props.controller.file,
+            class: props.controller.class.name,
+            function: props.name,
+            from: "",
+            contents: ["@nestia/sdk does not compose wildcard method."],
+          });
+          return false;
+        }
+        return true;
+      }),
+      versions: ReflectMetadataAnalyzer.versions(props.function),
+      parameters,
+      success,
+      security: ReflectMetadataAnalyzer.securities(props.function),
+      exceptions: ReflectHttpOperationExceptionAnalyzer.analyze({
+        controller: props.controller,
         function: props.function,
-        name: props.name,
-        method: method === "ALL" ? "POST" : method,
-        paths: ReflectMetadataAnalyzer.paths(props.function).filter((str) => {
-          if (str.includes("*") === true) {
-            project.warnings.push({
-              file: props.controller.file,
-              controller: props.controller.name,
-              function: props.name,
-              message: "@nestia/sdk does not compose wildcard method.",
-            });
-            return false;
-          }
-          return true;
-        }),
-        versions: ReflectMetadataAnalyzer.versions(props.function),
-        parameters,
-        status: Reflect.getMetadata(HTTP_CODE_METADATA, props.function),
-        encrypted,
-        contentType: encrypted
-          ? "text/plain"
-          : query
-            ? "application/x-www-form-urlencoded"
-            : Reflect.getMetadata(HEADERS_METADATA, props.function)?.find(
-                (h: Record<string, string>) =>
-                  typeof h?.name === "string" &&
-                  typeof h?.value === "string" &&
-                  h.name.toLowerCase() === "content-type",
-              )?.value ?? "application/json",
-        security: ReflectMetadataAnalyzer.securities(props.function),
-        exceptions: ReflectMetadataAnalyzer.exceptions(props.function),
-        swaggerTags: [
-          ...new Set([
-            ...props.controller.swaggerTgas,
-            ...(Reflect.getMetadata("swagger/apiUseTags", props.function) ??
-              []),
-          ]),
-        ],
-        ...(example
-          ? { example: example.example, examples: example.examples }
-          : {}),
-      };
+        functionName: props.name,
+        httpMethod: method,
+        metadata: props.metadata,
+        errors,
+      }),
+      tags: Reflect.getMetadata("swagger/apiUseTags", props.function) ?? [],
+      imports: ImportAnalyzer.unique(
+        [
+          ...props.metadata.parameters
+            .filter((x) => parameters.some((y) => x.index === y.index))
+            .map((x) => x.imports),
+          ...props.metadata.success.imports,
+          ...Object.values(props.metadata.exceptions).map((e) => e.imports),
+        ].flat(),
+      ),
+      description: props.metadata.description,
+      jsDocTags: props.metadata.jsDocTags,
+      operationId: props.metadata.jsDocTags
+        .find(({ name }) => name === "operationId")
+        ?.text?.[0].text.split(" ")[0]
+        .trim(),
+    };
 
-      // VALIDATE PATH ARGUMENTS
-      for (const controllerLocation of props.controller.paths)
-        for (const metaLocation of meta.paths) {
-          // NORMALIZE LOCATION
-          const location: string = PathAnalyzer.join(
-            controllerLocation,
-            metaLocation,
-          );
-          if (location.includes("*")) continue;
+    // VALIDATE PATH ARGUMENTS
+    for (const controllerLocation of props.controller.paths)
+      for (const metaLocation of operation.paths) {
+        // NORMALIZE LOCATION
+        const location: string = PathAnalyzer.join(
+          controllerLocation,
+          metaLocation,
+        );
+        if (location.includes("*")) continue;
 
-          // LIST UP PARAMETERS
-          const binded: string[] | null = PathAnalyzer.parameters(location);
-          if (binded === null) {
-            project.errors.push({
-              file: props.controller.file,
-              controller: props.controller.name,
-              function: props.name,
-              message: `invalid path (${JSON.stringify(location)})`,
-            });
-            continue;
-          }
-          const parameters: string[] = meta.parameters
-            .filter((param) => param.category === "param")
-            .map((param) => param.field!)
-            .sort();
+        // LIST UP PARAMETERS
+        const binded: string[] | null = PathAnalyzer.parameters(location);
+        if (binded === null) {
+          props.project.errors.push({
+            file: props.controller.file,
+            class: props.controller.class.name,
+            function: props.name,
+            from: "{parameters}",
+            contents: [`invalid path (${JSON.stringify(location)})`],
+          });
+          continue;
+        }
+        const parameters: string[] = operation.parameters
+          .filter((param) => param.category === "param")
+          .map((param) => param.field!)
+          .sort();
 
-          // DO VALIDATE
-          if (ranges.equal(binded.sort(), parameters) === false)
-            errors.push({
-              file: props.controller.file,
-              controller: props.controller.name,
-              function: props.name,
-              message: `binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${binded.join(
+        // DO VALIDATE
+        if (ranges.equal(binded.sort(), parameters) === false)
+          errors.push({
+            file: props.controller.file,
+            class: props.controller.class.name,
+            function: props.name,
+            from: "{parameters}",
+            contents: [
+              `binded arguments in the "path" between function's decorator and parameters' decorators are different (function: [${binded.join(
                 ", ",
               )}], parameters: [${parameters.join(", ")}]).`,
-            });
-        }
-
-      // RETURNS
-      if (errors.length) {
-        project.errors.push(...errors);
-        return null;
+            ],
+          });
       }
-      return meta;
-    };
 
-  function _Analyze_http_parameter(
-    key: string,
-    param: INestParam,
-  ): IReflectHttpOperation.IParameter | null {
-    const symbol: string = key.split(":")[0];
-    if (symbol.indexOf("__custom") !== -1)
-      return _Analyze_http_custom_parameter(param);
-
-    const typeIndex: RouteParamtypes = Number(symbol[0]) as RouteParamtypes;
-    if (isNaN(typeIndex) === true) return null;
-
-    const type: ParamCategory | undefined = getNestParamType(typeIndex);
-    if (type === undefined) return null;
-
-    return {
-      custom: false,
-      name: key,
-      category: type,
-      index: param.index,
-      field: param.data,
-    };
-  }
-
-  function _Analyze_http_custom_parameter(
-    param: INestParam,
-  ): IReflectHttpOperation.IParameter | null {
-    if (param.factory === undefined) return null;
-    else if (
-      param.factory.name === "EncryptedBody" ||
-      param.factory.name === "PlainBody" ||
-      param.factory.name === "TypedQueryBody" ||
-      param.factory.name === "TypedBody" ||
-      param.factory.name === "TypedFormDataBody"
-    )
-      return {
-        custom: true,
-        category: "body",
-        index: param.index,
-        name: param.name,
-        field: param.data,
-        encrypted: param.factory.name === "EncryptedBody",
-        contentType:
-          param.factory.name === "PlainBody" ||
-          param.factory.name === "EncryptedBody"
-            ? "text/plain"
-            : param.factory.name === "TypedQueryBody"
-              ? "application/x-www-form-urlencoded"
-              : param.factory.name === "TypedFormDataBody"
-                ? "multipart/form-data"
-                : "application/json",
-      };
-    else if (param.factory.name === "TypedHeaders")
-      return {
-        custom: true,
-        category: "headers",
-        name: param.name,
-        index: param.index,
-        field: param.data,
-      };
-    else if (param.factory.name === "TypedParam")
-      return {
-        custom: true,
-        category: "param",
-        name: param.name,
-        index: param.index,
-        field: param.data,
-      };
-    else if (param.factory.name === "TypedQuery")
-      return {
-        custom: true,
-        name: param.name,
-        category: "query",
-        index: param.index,
-        field: undefined,
-      };
-    else return null;
-  }
-}
-
-interface INestParam {
-  name: string;
-  index: number;
-  factory?: (...args: any) => any;
-  data: string | undefined;
-}
-
-type NestParameters = {
-  [key: string]: INestParam;
-};
-
-const hasInterceptor =
-  (name: string) =>
-  (proto: any): boolean => {
-    const meta = Reflect.getMetadata(INTERCEPTORS_METADATA, proto);
-    if (Array.isArray(meta) === false) return false;
-    return meta.some((elem) => elem?.constructor?.name === name);
+    // RETURNS
+    if (errors.length) {
+      props.project.errors.push(...errors);
+      return null;
+    }
+    return operation;
   };
-
-// https://github.com/nestjs/nest/blob/master/packages/common/enums/route-paramtypes.enum.ts
-const getNestParamType = (value: RouteParamtypes) => {
-  if (value === RouteParamtypes.BODY) return "body";
-  else if (value === RouteParamtypes.HEADERS) return "headers";
-  else if (value === RouteParamtypes.QUERY) return "query";
-  else if (value === RouteParamtypes.PARAM) return "param";
-  return undefined;
-};
+}
 
 // node_modules/@nestjs/common/lib/enums/request-method.enum.ts
 const METHODS = [

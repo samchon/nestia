@@ -20,16 +20,28 @@ export * as literal from "./literal";
 export async function index(connection: IConnection): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection)
-    : PlainFetcher.propagate(connection, {
-        ...index.METADATA,
-        template: index.METADATA.path,
-        path: index.path(),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...index.METADATA,
+          template: index.METADATA.path,
+          path: index.path(),
+        },
+      );
 }
 export namespace index {
-  export type Output = IPropagation<{
-    200: ObjectLietral[];
-  }>;
+  export type Output = IPropagation<
+    {
+      200: ObjectLietral[];
+    },
+    200
+  >;
 
   export const METADATA = {
     method: "GET",
@@ -39,7 +51,7 @@ export namespace index {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/objectLiteral";
@@ -58,6 +70,6 @@ export namespace index {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

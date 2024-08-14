@@ -24,32 +24,42 @@ export async function emplace(
 ): Promise<emplace.Output> {
   return !!connection.simulate
     ? emplace.simulate(connection, section)
-    : PlainFetcher.fetch(connection, {
-        ...emplace.METADATA,
-        template: emplace.METADATA.path,
-        path: emplace.path(section),
-      });
+    : PlainFetcher.fetch(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...emplace.METADATA,
+          template: emplace.METADATA.path,
+          path: emplace.path(section),
+        },
+      );
 }
 export namespace emplace {
   export type Headers = Resolved<IHeaders>;
-  export type Output = Primitive<IHeaders>;
+  export type Output = Resolved<IHeaders>;
 
   export const METADATA = {
     method: "PATCH",
     path: "/headers/:section",
     request: null,
     response: {
-      type: "application/json",
+      type: "application/x-www-form-urlencoded",
       encrypted: false,
     },
-    status: null,
+    status: 200,
+    parseQuery: typia.http.createAssertQuery<IHeaders>(),
   } as const;
 
   export const path = (section: string) =>
-    `/headers/${encodeURIComponent(section ?? "null")}`;
+    `/headers/${encodeURIComponent(section?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IHeaders>> => typia.random<Primitive<IHeaders>>(g);
+  ): Resolved<Resolved<IHeaders>> => typia.random<Resolved<IHeaders>>(g);
   export const simulate = (
     connection: IConnection<emplace.Headers>,
     section: string,
@@ -58,7 +68,7 @@ export namespace emplace {
       method: METADATA.method,
       host: connection.host,
       path: path(section),
-      contentType: "application/json",
+      contentType: "application/x-www-form-urlencoded",
     });
     assert.param("section")(() => typia.assert(section));
     return random(
@@ -105,7 +115,7 @@ export async function store(
 }
 export namespace store {
   export type Headers = Resolved<IHeaders>;
-  export type Input = Primitive<IBbsArticle.IStore>;
+  export type Input = Resolved<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -119,11 +129,11 @@ export namespace store {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = (section: string) =>
-    `/headers/${encodeURIComponent(section ?? "null")}`;
+    `/headers/${encodeURIComponent(section?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Primitive<IBbsArticle>> =>
@@ -186,7 +196,7 @@ export async function update(
       );
 }
 export namespace update {
-  export type Input = Primitive<IBbsArticle.IStore>;
+  export type Input = Resolved<IBbsArticle.IStore>;
 
   export const METADATA = {
     method: "PUT",
@@ -199,14 +209,13 @@ export namespace update {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = (section: string, id: string & Format<"uuid">) =>
-    `/headers/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<void>> => typia.random<Primitive<void>>(g);
+    `/headers/${encodeURIComponent(section?.toString() ?? "null")}/${encodeURIComponent(id?.toString() ?? "null")}`;
+  export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
+    typia.random<void>(g);
   export const simulate = (
     connection: IConnection,
     section: string,

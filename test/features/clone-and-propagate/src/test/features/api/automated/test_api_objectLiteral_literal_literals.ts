@@ -8,16 +8,19 @@ import api from "../../../../api";
 export const test_api_objectLiteral_literal_literals = async (
   connection: api.IConnection,
 ) => {
-  const output: IPropagation<{
-    200: {
-      id: string;
-      member: {
-        id: string & Format<"uuid">;
-        email: string & Format<"email">;
-        age: number & Type<"uint32">;
-      };
-      created_at: string & Format<"date-time">;
-    }[];
-  }> = await api.functional.objectLiteral.literal.literals(connection);
+  const output: IPropagation<
+    {
+      200: {
+        id: string;
+        member: {
+          id: string & Format<"uuid">;
+          email: string & Format<"email">;
+          age: number & Type<"uint32">;
+        };
+        created_at: string & Format<"date-time">;
+      }[];
+    },
+    200
+  > = await api.functional.objectLiteral.literal.literals(connection);
   typia.assert(output);
 };

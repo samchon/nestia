@@ -6,8 +6,8 @@
 //================================================================
 import type {
   IConnection,
-  Resolved,
   IPropagation,
+  Resolved,
   HttpError,
 } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
@@ -15,7 +15,7 @@ import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 
 import type { IUser } from "../../../structures/IUser";
-import type { PartialPickIUseremailnamenullable_attroptional_attr } from "../../../structures/PartialPickIUseremailnamenullable_attroptional_attr";
+import type { PartialPickIUsernameemailoptional_attrnullable_attr } from "../../../structures/PartialPickIUsernameemailoptional_attrnullable_attr";
 
 /**
  * - When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.
@@ -37,14 +37,23 @@ export async function getUserProfile(
 ): Promise<getUserProfile.Output> {
   return !!connection.simulate
     ? getUserProfile.simulate(connection, user_id, query)
-    : PlainFetcher.propagate(connection, {
-        ...getUserProfile.METADATA,
-        template: getUserProfile.METADATA.path,
-        path: getUserProfile.path(user_id, query),
-      });
+    : PlainFetcher.propagate<any>(
+        {
+          ...connection,
+          headers: {
+            ...connection.headers,
+            "Content-Type": "application/json",
+          },
+        },
+        {
+          ...getUserProfile.METADATA,
+          template: getUserProfile.METADATA.path,
+          path: getUserProfile.path(user_id, query),
+        },
+      );
 }
 export namespace getUserProfile {
-  export type Query = Resolved<IUser.ISearch>;
+  export type Query = IUser.ISearch;
   export type Output = IPropagation<
     {
       202: IUser;
@@ -113,7 +122,7 @@ export namespace getUserProfile {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }
 
@@ -130,7 +139,7 @@ export async function updateUserProfile(
 ): Promise<updateUserProfile.Output> {
   return !!connection.simulate
     ? updateUserProfile.simulate(connection, user_id, body)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         {
           ...connection,
           headers: {
@@ -147,10 +156,13 @@ export async function updateUserProfile(
       );
 }
 export namespace updateUserProfile {
-  export type Input = PartialPickIUseremailnamenullable_attroptional_attr;
-  export type Output = IPropagation<{
-    201: IUser;
-  }>;
+  export type Input = PartialPickIUsernameemailoptional_attrnullable_attr;
+  export type Output = IPropagation<
+    {
+      201: IUser;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -163,7 +175,7 @@ export namespace updateUserProfile {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = (user_id: string) =>
@@ -205,6 +217,6 @@ export namespace updateUserProfile {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

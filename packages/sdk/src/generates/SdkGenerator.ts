@@ -1,148 +1,120 @@
 import fs from "fs";
 import NodePath from "path";
-import path from "path";
 import { IPointer } from "tstl";
-import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 
-import { INestiaProject } from "../structures/INestiaProject";
-import { ISwaggerError } from "../structures/ISwaggerError";
+import { INestiaConfig } from "../INestiaConfig";
+import { IReflectOperationError } from "../structures/IReflectOperationError";
+import { IReflectType } from "../structures/IReflectType";
+import { ITypedApplication } from "../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
-import { ITypedWebSocketRoute } from "../structures/ITypedWebSocketRoute";
 import { CloneGenerator } from "./CloneGenerator";
-import { SwaggerGenerator } from "./SwaggerGenerator";
 import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
 
 export namespace SdkGenerator {
-  export const generate =
-    (project: INestiaProject) =>
-    async (
-      routes: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
-    ): Promise<void> => {
-      console.log("Generating SDK Library");
+  export const generate = async (app: ITypedApplication): Promise<void> => {
+    if (app.project.config.output === undefined)
+      throw new Error("Output directory is not defined.");
 
-      // VALIDATE THROUGH SWAGGER GENERATOR
-      const errors: ISwaggerError[] = [];
-      const validate = SwaggerGenerator.generate_route({
-        config: { output: "" },
-        checker: project.checker,
-        collection: new MetadataCollection({
-          replace: MetadataCollection.replace,
-        }),
-        lazyProperties: [],
-        lazySchemas: [],
-        errors,
-        swagger: await SwaggerGenerator.initialize(
-          project.config.swagger ?? { output: "" },
-        ),
+    // PREPARE NEW DIRECTORIES
+    console.log("Generating SDK Library");
+    try {
+      await fs.promises.mkdir(app.project.config.output);
+    } catch {}
+
+    // BUNDLING
+    const bundle: string[] = await fs.promises.readdir(BUNDLE_PATH);
+    for (const file of bundle) {
+      const current: string = `${BUNDLE_PATH}/${file}`;
+      const target: string = `${app.project.config.output}/${file}`;
+      const stats: fs.Stats = await fs.promises.stat(current);
+
+      if (stats.isFile() === true) {
+        const content: string = await fs.promises.readFile(current, "utf8");
+        if (fs.existsSync(target) === false)
+          await fs.promises.writeFile(target, content, "utf8");
+        else if (BUNDLE_CHANGES[file] !== undefined) {
+          const r: IPointer<string> = {
+            value: await fs.promises.readFile(target, "utf8"),
+          };
+          for (const [before, after] of BUNDLE_CHANGES[file])
+            r.value = r.value.replace(before, after);
+          await fs.promises.writeFile(target, r.value, "utf8");
+        }
+      }
+    }
+
+    // STRUCTURES
+    if (app.project.config.clone === true) await CloneGenerator.write(app);
+
+    // FUNCTIONAL
+    await SdkFileProgrammer.generate(app);
+
+    // DISTRIBUTION
+    if (app.project.config.distribute !== undefined)
+      await SdkDistributionComposer.compose({
+        config: app.project.config,
+        websocket: app.routes.some((r) => r.protocol === "websocket"),
       });
-      for (const r of routes)
-        if (r.protocol === "http") {
-          validate(r);
-          if (project.config.clone !== true) validateImplicity(project)(r);
-        }
-      if (errors.length) {
-        for (const e of errors)
-          console.error(
-            `${path.relative(process.cwd(), e.route.location)}:${
-              e.route.controller.name
-            }.${e.route.name}:${
-              e.from
-            } - error TS(@nestia/sdk): invalid type detected.\n\n` +
-              e.messages.map((m) => `  - ${m}`).join("\n"),
-            "\n\n",
-          );
-        throw new TypeError("Invalid type detected");
-      } else if (project.errors.length) {
-        for (const e of project.errors)
-          console.error(
-            `${path.relative(process.cwd(), e.file)}:${
-              e.controller
-            }.${e.function}: error TS(@nestia/sdk): ${e.message}`,
-          );
-        throw new TypeError("Invalid type detected");
-      }
+  };
 
-      // PREPARE NEW DIRECTORIES
-      try {
-        await fs.promises.mkdir(project.config.output!);
-      } catch {}
-
-      // BUNDLING
-      const bundle: string[] = await fs.promises.readdir(BUNDLE_PATH);
-      for (const file of bundle) {
-        const current: string = `${BUNDLE_PATH}/${file}`;
-        const target: string = `${project.config.output}/${file}`;
-        const stats: fs.Stats = await fs.promises.stat(current);
-
-        if (stats.isFile() === true) {
-          const content: string = await fs.promises.readFile(current, "utf8");
-          if (fs.existsSync(target) === false)
-            await fs.promises.writeFile(target, content, "utf8");
-          else if (BUNDLE_CHANGES[file] !== undefined) {
-            const r: IPointer<string> = {
-              value: await fs.promises.readFile(target, "utf8"),
-            };
-            for (const [before, after] of BUNDLE_CHANGES[file])
-              r.value = r.value.replace(before, after);
-            await fs.promises.writeFile(target, r.value, "utf8");
-          }
-        }
-      }
-
-      // STRUCTURES
-      if (project.config.clone)
-        await CloneGenerator.write(project)(
-          routes.filter((r) => r.protocol === "http") as ITypedHttpRoute[],
-        );
-
-      // FUNCTIONAL
-      await SdkFileProgrammer.generate(project)(routes);
-
-      // DISTRIBUTION
-      if (project.config.distribute !== undefined)
-        await SdkDistributionComposer.compose(
-          project.config,
-          routes.some((r) => r.protocol === "websocket"),
-        );
-    };
-
-  const validateImplicity =
-    (project: INestiaProject) =>
-    (route: ITypedHttpRoute): void => {
-      for (const p of route.parameters) {
-        if (isImplicitType(p.typeName))
-          project.errors.push({
-            file: route.location,
-            controller: route.controller.name,
-            function: route.name,
-            message: `implicit (unnamed) parameter type from "${route.name}@${p.name}".`,
-          });
-      }
-      if (project.config.propagate !== true)
-        for (const [key, value] of Object.entries(route.exceptions))
-          if (isImplicitType(value.typeName))
-            project.errors.push({
-              file: route.location,
-              controller: route.controller.name,
-              function: route.name,
-              message: `implicit (unnamed) exception type of ${key} status from "${route.name}".`,
-            });
-      if (isImplicitType(route.output.typeName))
-        project.errors.push({
-          file: route.location,
-          controller: route.controller.name,
-          function: route.name,
-          message: `implicit (unnamed) return type from "${route.name}".`,
+  export const validate = (
+    app: ITypedApplication,
+  ): IReflectOperationError[] => {
+    const errors: IReflectOperationError[] = [];
+    if (app.project.config.clone === true) return errors;
+    for (const route of app.routes)
+      if (route.protocol === "http")
+        validateImplicity({
+          config: app.project.config,
+          errors,
+          route,
         });
-    };
+    return errors;
+  };
 
-  const isImplicitType = (typeName: string): boolean =>
-    typeName === "__type" ||
-    typeName === "__object" ||
-    typeName.startsWith("__type.") ||
-    typeName.startsWith("__object.") ||
-    typeName.includes("readonly [");
+  const validateImplicity = (props: {
+    config: INestiaConfig;
+    errors: IReflectOperationError[];
+    route: ITypedHttpRoute;
+  }): void => {
+    for (const p of props.route.parameters) {
+      if (isImplicitType(p.type))
+        props.errors.push({
+          file: props.route.controller.file,
+          class: props.route.controller.class.name,
+          function: props.route.name,
+          from: `parameter ${JSON.stringify(p.name)}`,
+          contents: [`implicit (unnamed) parameter type.`],
+        });
+    }
+    if (props.config.propagate === true)
+      for (const [key, value] of Object.entries(props.route.exceptions))
+        if (isImplicitType(value.type))
+          props.errors.push({
+            file: props.route.controller.file,
+            class: props.route.controller.class.name,
+            function: props.route.name,
+            from: `exception ${JSON.stringify(key)}`,
+            contents: [`implicit (unnamed) exception type.`],
+          });
+    if (isImplicitType(props.route.success.type))
+      props.errors.push({
+        file: props.route.controller.file,
+        class: props.route.controller.class.name,
+        function: props.route.name,
+        from: "success",
+        contents: [`implicit (unnamed) return type.`],
+      });
+  };
+
+  const isImplicitType = (type: IReflectType): boolean =>
+    type.name === "__type" ||
+    type.name === "__object" ||
+    type.name.startsWith("__type.") ||
+    type.name.startsWith("__object.") ||
+    type.name.includes("readonly [") ||
+    (!!type.typeArguments?.length && type.typeArguments.some(isImplicitType));
 
   export const BUNDLE_PATH = NodePath.join(
     __dirname,

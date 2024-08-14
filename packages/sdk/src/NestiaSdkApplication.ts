@@ -1,29 +1,49 @@
-import transform from "@nestia/core/lib/transform";
 import fs from "fs";
 import path from "path";
-import ts from "typescript";
+import { HashSet, Pair, TreeMap } from "tstl";
+import { IMetadataDictionary } from "typia/lib/schemas/metadata/IMetadataDictionary";
 
 import { INestiaConfig } from "./INestiaConfig";
 import { AccessorAnalyzer } from "./analyses/AccessorAnalyzer";
 import { ConfigAnalyzer } from "./analyses/ConfigAnalyzer";
+import { PathAnalyzer } from "./analyses/PathAnalyzer";
 import { ReflectControllerAnalyzer } from "./analyses/ReflectControllerAnalyzer";
-import { TypedControllerAnalyzer } from "./analyses/TypedControllerAnalyzer";
+import { TypedHttpRouteAnalyzer } from "./analyses/TypedHttpRouteAnalyzer";
+import { TypedWebSocketRouteAnalyzer } from "./analyses/TypedWebSocketRouteAnalyzer";
 import { E2eGenerator } from "./generates/E2eGenerator";
 import { OpenAiGenerator } from "./generates/OpenAiGenerator";
 import { SdkGenerator } from "./generates/SdkGenerator";
 import { SwaggerGenerator } from "./generates/SwaggerGenerator";
-import { IErrorReport } from "./structures/IErrorReport";
 import { INestiaProject } from "./structures/INestiaProject";
 import { IReflectController } from "./structures/IReflectController";
+import { IReflectOperationError } from "./structures/IReflectOperationError";
+import { ITypedApplication } from "./structures/ITypedApplication";
 import { ITypedHttpRoute } from "./structures/ITypedHttpRoute";
 import { ITypedWebSocketRoute } from "./structures/ITypedWebSocketRoute";
-import { MapUtil } from "./utils/MapUtil";
+import { IOperationMetadata } from "./transformers/IOperationMetadata";
+import { StringUtil } from "./utils/StringUtil";
+import { VersioningStrategy } from "./utils/VersioningStrategy";
 
 export class NestiaSdkApplication {
-  public constructor(
-    private readonly config: INestiaConfig,
-    private readonly compilerOptions: ts.CompilerOptions,
-  ) {}
+  public constructor(private readonly config: INestiaConfig) {}
+
+  public async all(): Promise<void> {
+    if (
+      !this.config.output &&
+      !this.config.swagger?.output &&
+      !this.config.openai?.output
+    )
+      throw new Error("Error on NestiaApplication.all(): nothing to generate.");
+    print_title("Nestia All Generator");
+    await this.generate({
+      generate: async (app) => {
+        if (this.config.output) await SdkGenerator.generate(app);
+        if (this.config.e2e) await E2eGenerator.generate(app);
+        if (this.config.swagger) await SwaggerGenerator.generate(app);
+        if (this.config.openai) await OpenAiGenerator.generate(app);
+      },
+    });
+  }
 
   public async e2e(): Promise<void> {
     if (!this.config.output)
@@ -49,11 +69,11 @@ export class NestiaSdkApplication {
     await validate("e2e")(this.config.e2e);
 
     print_title("Nestia E2E Generator");
-    await this.generate((project) => async (routes) => {
-      await SdkGenerator.generate(project)(routes);
-      await E2eGenerator.generate(project)(
-        routes.filter((r) => r.protocol === "http") as ITypedHttpRoute[],
-      );
+    await this.generate({
+      generate: async (app) => {
+        await SdkGenerator.generate(app);
+        await E2eGenerator.generate(app);
+      },
     });
   }
 
@@ -71,7 +91,10 @@ export class NestiaSdkApplication {
       );
 
     print_title("Nestia SDK Generator");
-    await this.generate(SdkGenerator.generate);
+    await this.generate({
+      generate: SdkGenerator.generate,
+      validate: SdkGenerator.validate,
+    });
   }
 
   public async swagger(): Promise<void> {
@@ -91,7 +114,9 @@ export class NestiaSdkApplication {
       );
 
     print_title("Nestia Swagger Generator");
-    await this.generate(SwaggerGenerator.generate);
+    await this.generate({
+      generate: SwaggerGenerator.generate,
+    });
   }
 
   public async openai(): Promise<void> {
@@ -111,21 +136,19 @@ export class NestiaSdkApplication {
       );
 
     print_title("Nestia OpenAI Function Calling Schema Generator");
-    await this.generate(OpenAiGenerator.generate);
+    await this.generate({
+      generate: OpenAiGenerator.generate,
+    });
   }
 
-  private async generate(
-    archiver: (
-      project: INestiaProject,
-    ) => (
-      routes: Array<ITypedHttpRoute | ITypedWebSocketRoute>,
-    ) => Promise<void>,
-  ): Promise<void> {
+  private async generate(props: {
+    generate: (app: ITypedApplication) => Promise<void>;
+    validate?: (app: ITypedApplication) => IReflectOperationError[];
+  }): Promise<void> {
     //----
     // ANALYZE REFLECTS
     //----
     const unique: WeakSet<any> = new WeakSet();
-    const controllers: IReflectController[] = [];
     const project: INestiaProject = {
       config: this.config,
       input: await ConfigAnalyzer.input(this.config),
@@ -135,28 +158,36 @@ export class NestiaSdkApplication {
     };
 
     console.log("Analyzing reflections");
-    await turnTransformError(false);
-    for (const include of (await ConfigAnalyzer.input(this.config)).include)
-      controllers.push(
-        ...(await ReflectControllerAnalyzer.analyze(project)(
-          unique,
-          include.file,
-          include.paths,
-          include.controller,
-        )),
-      );
-    await turnTransformError(true);
+    const controllers: IReflectController[] = project.input.controllers
+      .map((c) =>
+        ReflectControllerAnalyzer.analyze({ project, controller: c, unique }),
+      )
+      .filter((c): c is IReflectController => c !== null);
+
+    if (project.warnings.length)
+      report({
+        type: "warning",
+        errors: project.warnings,
+      });
+    if (project.errors.length)
+      return report({
+        type: "error",
+        errors: project.errors,
+      });
 
     const agg: number = (() => {
-      const set: Set<string> = new Set();
-      for (const c of controllers)
-        for (const cPath of c.paths)
-          for (const op of c.operations)
-            for (const fPath of op.paths)
-              set.add(
-                `${op.protocol === "http" ? `${op.method}::` : ""}${cPath}/${fPath}`,
+      const set: HashSet<Pair<string, string>> = new HashSet();
+      for (const controller of controllers)
+        for (const controllerPath of controller.paths)
+          for (const operation of controller.operations)
+            for (const operationPath of operation.paths)
+              set.insert(
+                new Pair(
+                  `${controllerPath}/${operationPath}`,
+                  operation.protocol === "http" ? operation.method : "",
+                ),
               );
-      return set.size;
+      return set.size();
     })();
 
     console.log(`  - controllers: #${controllers.length}`);
@@ -174,82 +205,66 @@ export class NestiaSdkApplication {
     //----
     // ANALYZE TYPESCRIPT CODE
     //----
-    console.log("Analyzing source codes");
+    console.log("Analyzing soure codes");
 
-    const program: ts.Program = ts.createProgram(
-      controllers.map((c) => c.file),
-      this.compilerOptions,
-    );
-    project.checker = program.getTypeChecker();
+    // METADATA COMPONENTS
+    const collection: IMetadataDictionary =
+      TypedHttpRouteAnalyzer.dictionary(controllers);
 
-    const diagnostics: ts.Diagnostic[] = [];
-    ts.transform(
-      program
-        .getSourceFiles()
-        .filter((file) => false === file.isDeclarationFile),
-      [
-        transform(
-          program,
-          ((this.compilerOptions.plugins as any) ?? []).find(
-            (p: any) => p.transform === "@nestia/core/lib/transform",
-          ) ?? {},
-          {
-            addDiagnostic: (diag) => diagnostics.push(diag),
-          },
-        ),
-      ],
-      program.getCompilerOptions(),
-    );
+    // CONVERT TO TYPED OPERATIONS
+    const globalPrefix: string = project.input.globalPrefix?.prefix ?? "";
+    const routes: Array<ITypedHttpRoute | ITypedWebSocketRoute> = [];
+    for (const c of controllers)
+      for (const o of c.operations) {
+        const pathList: Set<string> = new Set();
+        const versions: string[] = VersioningStrategy.merge(project)([
+          ...(c.versions ?? []),
+          ...(o.versions ?? []),
+        ]);
+        for (const v of versions)
+          for (const prefix of wrapPaths(c.prefixes))
+            for (const cPath of wrapPaths(c.paths))
+              for (const filePath of wrapPaths(o.paths))
+                pathList.add(
+                  PathAnalyzer.join(globalPrefix, v, prefix, cPath, filePath),
+                );
+        if (o.protocol === "http")
+          routes.push(
+            ...TypedHttpRouteAnalyzer.analyze({
+              controller: c,
+              errors: project.errors,
+              dictionary: collection,
+              operation: o,
+              paths: Array.from(pathList),
+            }),
+          );
+        else if (o.protocol === "websocket")
+          routes.push(
+            ...TypedWebSocketRouteAnalyzer.analyze({
+              controller: c,
+              operation: o,
+              paths: Array.from(pathList),
+            }),
+          );
+      }
+    AccessorAnalyzer.analyze(routes);
 
-    const routeList: Array<ITypedHttpRoute | ITypedWebSocketRoute> = [];
-    for (const c of controllers) {
-      const file: ts.SourceFile | undefined = program.getSourceFile(c.file);
-      if (file === undefined) continue;
-      routeList.push(
-        ...(await TypedControllerAnalyzer.analyze(project)(file, c)),
-      );
-    }
-
-    // TRACE ERRORS
-    for (const diag of diagnostics) {
-      const file: string = diag.file
-        ? path.relative(diag.file.fileName, process.cwd())
-        : "(unknown file)";
-      const category: string =
-        diag.category === ts.DiagnosticCategory.Warning
-          ? "warning"
-          : diag.category === ts.DiagnosticCategory.Error
-            ? "error"
-            : diag.category === ts.DiagnosticCategory.Suggestion
-              ? "suggestion"
-              : diag.category === ts.DiagnosticCategory.Message
-                ? "message"
-                : "unkown";
-      const [line, pos] = diag.file
-        ? (() => {
-            const lines: string[] = diag
-              .file!.text.substring(0, diag.start)
-              .split("\n");
-            if (lines.length === 0) return [0, 0];
-            return [lines.length, lines.at(-1)!.length + 1];
-          })()
-        : [0, 0];
-      console.error(
-        `${file}:${line}:${pos} - ${category} TS${diag.code}: ${diag.messageText}`,
-      );
-    }
-    if (diagnostics.length) process.exit(-1);
-
-    // REPORT ERRORS
-    if (project.errors.length) {
-      report_errors("error")(project.errors);
-      process.exit(-1);
-    }
-    if (project.warnings.length) report_errors("warning")(project.warnings);
-
-    // DO GENERATE
-    AccessorAnalyzer.analyze(routeList);
-    await archiver(project)(routeList);
+    if (props.validate !== undefined)
+      props.validate({
+        project,
+        collection,
+        routes,
+      });
+    if (project.errors.length)
+      return report({
+        type: "error",
+        errors: project.errors,
+      });
+    await props.generate({
+      project,
+      collection,
+      routes,
+    });
   }
 }
 
@@ -259,60 +274,48 @@ const print_title = (str: string): void => {
   console.log("-----------------------------------------------------------");
 };
 
-// const is_implicit_return_typed = (route: ITypedHttpRoute): boolean => {
-//   const name: string = route.output.typeName;
-//   if (name === "void") return false;
-//   else if (name.indexOf("readonly [") !== -1) return true;
+const report = (props: {
+  type: "error" | "warning";
+  errors: IReflectOperationError[];
+}): void => {
+  const map: TreeMap<
+    IReflectOperationError.Key,
+    Array<string | IOperationMetadata.IError>
+  > = new TreeMap();
+  for (const e of props.errors)
+    map.take(new IReflectOperationError.Key(e), () => []).push(...e.contents);
 
-//   const pos: number = name.indexOf("__object");
-//   if (pos === -1) return false;
+  console.log("");
+  print_title(`Nestia ${StringUtil.capitalize(props.type)} Report`);
 
-//   const before: number = pos - 1;
-//   const after: number = pos + "__object".length;
-//   for (const i of [before, after])
-//     if (name[i] === undefined) continue;
-//     else if (VARIABLE.test(name[i])) return false;
-//   return true;
-// };
-
-const report_errors =
-  (type: "error" | "warning") =>
-  (errors: IErrorReport[]): void => {
-    // key: file
-    // key: controller
-    // key: function
-    // value: message
-    const map: Map<string, Map<string, Map<string, Set<string>>>> = new Map();
-    for (const e of errors) {
-      const file = MapUtil.take(map, e.file, () => new Map());
-      const controller = MapUtil.take(file, e.controller, () => new Map());
-      const func = MapUtil.take(controller, e.function, () => new Set());
-      func.add(e.message);
-    }
-
-    console.log("");
-    print_title(`Nestia ${type[0].toUpperCase()}${type.slice(1)} Report`);
-    for (const [file, cMap] of map) {
-      for (const [controller, fMap] of cMap)
-        for (const [func, messages] of fMap) {
-          const location: string = path.relative(process.cwd(), file);
-          console.log(
-            `${location} - ${
-              func !== null ? `${controller}.${func}()` : controller
-            }`,
-          );
-          for (const msg of messages) console.log(`  - ${msg}`);
-          console.log("");
-        }
-    }
-  };
-
-// const VARIABLE = /[a-zA-Z_$0-9]/;
-const turnTransformError = async (flag: boolean): Promise<void> => {
-  try {
-    const modulo = await import(
-      "@nestia/core/lib/decorators/internal/NoTransformConfigureError" as string
-    );
-    modulo.NoTransformConfigureError.throws = flag;
-  } catch {}
+  for (const {
+    first: { error },
+    second: contents,
+  } of map) {
+    if (error.contents.length === 0) continue;
+    const location: string = path.relative(process.cwd(), error.file);
+    const message: string = [
+      `${location} - `,
+      error.class,
+      ...(error.function !== null ? [`.${error.function}()`] : [""]),
+      ...(error.from !== null ? [` from ${error.from}`] : [""]),
+      ":\n",
+      contents
+        .map((c) => {
+          if (typeof c === "string") return `  - ${c}`;
+          else
+            return [
+              c.accessor
+                ? `  - ${c.name}: `
+                : `  - ${c.name} (${c.accessor}): `,
+              ...c.messages.map((msg) => `    - ${msg}`),
+            ].join("\n");
+        })
+        .join("\n"),
+    ].join("");
+    console.log(message);
+  }
 };
+
+const wrapPaths = (paths: string[]): string[] =>
+  paths.length === 0 ? [""] : paths;

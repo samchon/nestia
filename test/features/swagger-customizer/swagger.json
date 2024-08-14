@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.9.0-dev.20240728",
+    "version": "3.11.0-dev.20240814",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -17,6 +17,7 @@
   "paths": {
     "/custom/{key}/{value}/customize": {
       "get": {
+        "description": "This is a custom description",
         "tags": [],
         "parameters": [
           {
@@ -38,7 +39,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -48,7 +48,6 @@
             }
           }
         },
-        "description": "This is a custom description",
         "x-selector": {
           "method": "get",
           "path": "/custom/{id}/normal"
@@ -72,7 +71,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -90,9 +88,7 @@
     "schemas": {},
     "securitySchemes": {
       "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
+        "type": "apiKey"
       }
     }
   },
