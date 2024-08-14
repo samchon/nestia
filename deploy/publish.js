@@ -50,7 +50,7 @@ const setup = (tag) => (version) => (directory) => {
 
   // SETUP UPDATED DEPENDENCIES
   fs.writeFileSync(file, JSON.stringify(info, null, 2), "utf8");
-  // execute(directory)("npm cache clean --force");
+  execute(directory)("npm cache clean --force");
   execute(directory)(`npm install`);
 };
 
