@@ -5,19 +5,59 @@ import { NestiaSdkApplication } from "../../NestiaSdkApplication";
 import { NestiaConfigLoader } from "./NestiaConfigLoader";
 
 export namespace NestiaSdkCommand {
-  export const sdk = () => main((app) => app.sdk());
-  export const swagger = () => main((app) => app.swagger());
-  export const openai = () => main((app) => app.openai());
-  export const e2e = () => main((app) => app.e2e());
-  export const all = () => main((app) => app.all());
+  export const sdk = () =>
+    main({
+      title: "SDK library",
+      generate: (app) => app.sdk(),
+      validate: (config) => !!config.output,
+      solution: "configure INestiaConfig.output property.",
+    });
+  export const swagger = () =>
+    main({
+      title: "Swagger Document",
+      generate: (app) => app.swagger(),
+      validate: (config) => !!config.swagger?.output,
+      solution: "configure INestiaConfig.swagger property.",
+    });
+  export const openai = () =>
+    main({
+      title: "OpenAI Function Calling Schema",
+      generate: (app) => app.openai(),
+      validate: (config) => !!config.openai?.output,
+      solution: "configure INestiaConfig.openai property.",
+    });
+  export const e2e = () =>
+    main({
+      title: "E2E Functions",
+      generate: (app) => app.e2e(),
+      validate: (config) => !!config.e2e,
+      solution: [
+        "configure two properties:",
+        "",
+        "  - INestiaConfig.output",
+        "  - INestiaConfig.e2e",
+      ].join("\n"),
+    });
+  export const all = () =>
+    main({
+      title: "everything",
+      generate: (app) => app.all(),
+      validate: () => true,
+      solution: [
+        "configure at laest one property of below:",
+        "",
+        "  - INestiaConfig.output",
+        "  - INestiaConfig.swagger.output",
+        "  - INestiaConfig.openai.output",
+      ].join("\n"),
+    });
 
-  const main = async (task: (app: NestiaSdkApplication) => Promise<void>) => {
-    await _Generate(task);
-  };
-
-  const _Generate = async (
-    task: (app: NestiaSdkApplication) => Promise<void>,
-  ) => {
+  const main = async (props: {
+    title: string;
+    solution: string;
+    generate: (app: NestiaSdkApplication) => Promise<void>;
+    validate: (config: INestiaConfig) => boolean;
+  }) => {
     // LOAD CONFIG INFO
     const command: ts.ParsedCommandLine =
       await NestiaConfigLoader.compilerOptions(
@@ -26,17 +66,29 @@ export namespace NestiaSdkCommand {
           extension: "json",
         }) ?? "tsconfig.json",
       );
-    const config: INestiaConfig = await NestiaConfigLoader.config(
-      getFileArgument({
-        type: "config",
-        extension: "ts",
-      }) ?? "nestia.config.ts",
-      command.raw.compilerOptions,
-    );
+    const configurations: INestiaConfig[] =
+      await NestiaConfigLoader.configurations(
+        getFileArgument({
+          type: "config",
+          extension: "ts",
+        }) ?? "nestia.config.ts",
+        command.raw.compilerOptions,
+      );
 
     // GENERATE
-    const app: NestiaSdkApplication = new NestiaSdkApplication(config);
-    await task(app);
+    if (
+      configurations.length > 1 &&
+      configurations.some(props.validate) === false
+    )
+      throw new Error(
+        `Every configurations are invalid to generate ${props.title}, ${props.solution}`,
+      );
+    for (const config of configurations) {
+      if (configurations.length > 1 && props.validate(config) === false)
+        continue;
+      const app: NestiaSdkApplication = new NestiaSdkApplication(config);
+      await props.generate(app);
+    }
   };
 
   const getFileArgument = (props: {

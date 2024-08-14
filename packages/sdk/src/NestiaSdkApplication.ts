@@ -33,12 +33,22 @@ export class NestiaSdkApplication {
       !this.config.swagger?.output &&
       !this.config.openai?.output
     )
-      throw new Error("Error on NestiaApplication.all(): nothing to generate.");
+      throw new Error(
+        [
+          "Error on NestiaApplication.all(): nothing to generate, configure at least one property of below:",
+          "",
+          "  - INestiaConfig.output",
+          "  - INestiaConfig.swagger.output",
+          "  - INestiaConfig.openai.output",
+        ].join("\n"),
+      );
     print_title("Nestia All Generator");
     await this.generate({
       generate: async (app) => {
-        if (this.config.output) await SdkGenerator.generate(app);
-        if (this.config.e2e) await E2eGenerator.generate(app);
+        if (this.config.output) {
+          await SdkGenerator.generate(app);
+          if (this.config.e2e) await E2eGenerator.generate(app);
+        }
         if (this.config.swagger) await SwaggerGenerator.generate(app);
         if (this.config.openai) await OpenAiGenerator.generate(app);
       },
@@ -48,11 +58,11 @@ export class NestiaSdkApplication {
   public async e2e(): Promise<void> {
     if (!this.config.output)
       throw new Error(
-        "Error on NestiaApplication.e2e(): output path of SDK is not specified.",
+        "Error on NestiaApplication.e2e(): configure INestiaConfig.output property.",
       );
     else if (!this.config.e2e)
       throw new Error(
-        "Error on NestiaApplication.e2e(): output path of e2e test files is not specified.",
+        "Error on NestiaApplication.e2e(): configure INestiaConfig.e2e property.",
       );
 
     const validate =
@@ -80,7 +90,7 @@ export class NestiaSdkApplication {
   public async sdk(): Promise<void> {
     if (!this.config.output)
       throw new Error(
-        "Error on NestiaApplication.sdk(): output path is not specified.",
+        "Error on NestiaApplication.sdk(): configure INestiaConfig.output property.",
       );
 
     const parent: string = path.resolve(this.config.output + "/..");
@@ -100,7 +110,7 @@ export class NestiaSdkApplication {
   public async swagger(): Promise<void> {
     if (!this.config.swagger?.output)
       throw new Error(
-        `Error on NestiaApplication.swagger(): output path of the "swagger.json" is not specified.`,
+        `Error on NestiaApplication.swagger(): configure INestiaConfig.swagger property.`,
       );
 
     const parsed: path.ParsedPath = path.parse(this.config.swagger.output);
@@ -122,7 +132,7 @@ export class NestiaSdkApplication {
   public async openai(): Promise<void> {
     if (!this.config.openai?.output)
       throw new Error(
-        `Error on NestiaApplication.openai(): output path of the "openai.json" is not specified.`,
+        `Error on NestiaApplication.openai(): configure INestiaConfig.openai property.`,
       );
 
     const parsed: path.ParsedPath = path.parse(this.config.openai.output);

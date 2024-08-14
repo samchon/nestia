@@ -55,7 +55,7 @@ export namespace emplace {
   } as const;
 
   export const path = (section: string) =>
-    `/headers/${encodeURIComponent(section ?? "null")}`;
+    `/headers/${encodeURIComponent(section?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Primitive<IHeaders>> => typia.random<Primitive<IHeaders>>(g);
@@ -126,7 +126,7 @@ export namespace store {
   } as const;
 
   export const path = (section: string) =>
-    `/headers/${encodeURIComponent(section ?? "null")}`;
+    `/headers/${encodeURIComponent(section?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Primitive<IBbsArticle>> =>
@@ -199,7 +199,7 @@ export namespace update {
   } as const;
 
   export const path = (section: string, id: string & Format<"uuid">) =>
-    `/headers/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
+    `/headers/${encodeURIComponent(section?.toString() ?? "null")}/${encodeURIComponent(id?.toString() ?? "null")}`;
   export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
     typia.random<void>(g);
   export const simulate = (

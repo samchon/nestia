@@ -66,7 +66,7 @@ export namespace store {
   } as const;
 
   export const path = (section: string) =>
-    `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
+    `/bbs/articles/${encodeURIComponent(section?.toString() ?? "null")}`;
   export const stringify = (input: Input) => typia.json.stringify(input);
 }
 
@@ -127,6 +127,6 @@ export namespace update {
   } as const;
 
   export const path = (section: string, id: string & Format<"uuid">) =>
-    `/bbs/articles/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
+    `/bbs/articles/${encodeURIComponent(section?.toString() ?? "null")}/${encodeURIComponent(id?.toString() ?? "null")}`;
   export const stringify = (input: Input) => typia.json.stringify(input);
 }

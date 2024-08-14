@@ -58,7 +58,7 @@ export namespace index {
       else if (Array.isArray(value))
         value.forEach((elem: any) => variables.append(key, String(elem)));
       else variables.set(key, String(value));
-    const location: string = `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
+    const location: string = `/bbs/articles/${encodeURIComponent(section?.toString() ?? "null")}`;
     return 0 === variables.size
       ? location
       : `${location}?${variables.toString()}`;
@@ -116,7 +116,7 @@ export namespace store {
   } as const;
 
   export const path = (section: string) =>
-    `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
+    `/bbs/articles/${encodeURIComponent(section?.toString() ?? "null")}`;
 }
 
 /**
@@ -172,5 +172,5 @@ export namespace update {
   } as const;
 
   export const path = (section: string, id: string & Format<"uuid">) =>
-    `/bbs/articles/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
+    `/bbs/articles/${encodeURIComponent(section?.toString() ?? "null")}/${encodeURIComponent(id?.toString() ?? "null")}`;
 }

@@ -28,8 +28,7 @@ const feature = (name) => {
     try {
       TestValidator.error("compile error")(() => {
         cp.execSync("npx tsc", { stdio: "ignore" });
-        generate("swagger");
-        generate("sdk");
+        generate("all");
       });
       throw new Error("compile error must be occured.");
     } catch {
@@ -52,14 +51,15 @@ const feature = (name) => {
   if (name.includes("distribute"))
     cp.execSync(`npx rimraf packages/api`, { stdio: "ignore" });
 
-  const config = fs.readFileSync(`${featureDirectory(name)}/${file}`, "utf8");
-  {
-    const lines = config.split("\r\n").join("\n").split("\n");
-    if (lines.some((l) => l.startsWith(`  output:`))) generate("sdk");
-  }
-  for (const kind of ["swagger", "openai", "e2e"])
-    if (config.includes(`${kind}:`)) generate(kind);
-  cp.execSync("npx tsc", { stdio: "ignore" });
+  if (name === "all") {
+    const config = fs.readFileSync(`${featureDirectory(name)}/${file}`, "utf8");
+    {
+      const lines = config.split("\r\n").join("\n").split("\n");
+      if (lines.some((l) => l.startsWith(`  output:`))) generate("sdk");
+    }
+    for (const kind of ["swagger", "openai", "e2e"])
+      if (config.includes(`${kind}:`)) generate(kind);
+  } else generate("all");
 
   // RUN TEST AUTOMATION PROGRAM
   if (fs.existsSync("src/test")) {
@@ -70,7 +70,7 @@ const feature = (name) => {
         return;
       } catch {}
     test();
-  }
+  } else cp.execSync("npx tsc", { stdio: "ignore" });
 };
 
 const main = async () => {

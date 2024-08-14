@@ -103,7 +103,7 @@ export namespace at {
   } as const;
 
   export const path = (id: string & Format<"uuid">) =>
-    `/bbs/articles/${encodeURIComponent(id ?? "null")}`;
+    `/bbs/articles/${encodeURIComponent(id?.toString() ?? "null")}`;
 }
 
 /**
@@ -203,5 +203,5 @@ export namespace update {
   } as const;
 
   export const path = (id: string & Format<"uuid">) =>
-    `/bbs/articles/${encodeURIComponent(id ?? "null")}`;
+    `/bbs/articles/${encodeURIComponent(id?.toString() ?? "null")}`;
 }

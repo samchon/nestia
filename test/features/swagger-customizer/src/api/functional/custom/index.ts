@@ -48,7 +48,7 @@ export namespace customize {
   } as const;
 
   export const path = (__key: number, __value: string) =>
-    `/custom/${encodeURIComponent(__key ?? "null")}/${encodeURIComponent(__value ?? "null")}/customize`;
+    `/custom/${encodeURIComponent(__key?.toString() ?? "null")}/${encodeURIComponent(__value?.toString() ?? "null")}/customize`;
 }
 
 /**
@@ -90,5 +90,5 @@ export namespace normal {
   } as const;
 
   export const path = (id: string & Format<"uuid">) =>
-    `/custom/${encodeURIComponent(id ?? "null")}/normal`;
+    `/custom/${encodeURIComponent(id?.toString() ?? "null")}/normal`;
 }

@@ -107,5 +107,5 @@ export namespace update {
   } as const;
 
   export const path = (id: string & Format<"uuid">) =>
-    `/body/${encodeURIComponent(id ?? "null")}`;
+    `/body/${encodeURIComponent(id?.toString() ?? "null")}`;
 }

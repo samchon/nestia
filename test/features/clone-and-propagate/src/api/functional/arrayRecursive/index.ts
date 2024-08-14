@@ -124,7 +124,7 @@ export namespace at {
   } as const;
 
   export const path = (id: number) =>
-    `/arrayRecursive/${encodeURIComponent(id ?? "null")}`;
+    `/arrayRecursive/${encodeURIComponent(id?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<ICategory> => typia.random<ICategory>(g);

@@ -132,7 +132,7 @@ export namespace typedParam {
   } as const;
 
   export const path = (id: string & Format<"uuid">) =>
-    `/exception/${encodeURIComponent(id ?? "null")}/typedParam`;
+    `/exception/${encodeURIComponent(id?.toString() ?? "null")}/typedParam`;
 }
 
 /**

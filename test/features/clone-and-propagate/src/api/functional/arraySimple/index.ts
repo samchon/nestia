@@ -125,7 +125,7 @@ export namespace at {
   } as const;
 
   export const path = (id: string & Format<"uuid">) =>
-    `/arraySimple/${encodeURIComponent(id ?? "null")}`;
+    `/arraySimple/${encodeURIComponent(id?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IPerson> => typia.random<IPerson>(g);

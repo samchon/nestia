@@ -63,7 +63,7 @@ export namespace index {
       else if (Array.isArray(value))
         value.forEach((elem: any) => variables.append(key, String(elem)));
       else variables.set(key, String(value));
-    const location: string = `/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(articleId ?? "null")}/comments`;
+    const location: string = `/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(articleId?.toString() ?? "null")}/comments`;
     return 0 === variables.size
       ? location
       : `${location}?${variables.toString()}`;
@@ -115,7 +115,7 @@ export namespace at {
     articleId: string & Format<"uuid">,
     id: string & Format<"uuid">,
   ) =>
-    `/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(articleId ?? "null")}/comments/${encodeURIComponent(id ?? "null")}`;
+    `/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(articleId?.toString() ?? "null")}/comments/${encodeURIComponent(id?.toString() ?? "null")}`;
 }
 
 /**
@@ -164,7 +164,7 @@ export namespace store {
   } as const;
 
   export const path = (section: string, articleId: string & Format<"uuid">) =>
-    `/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(articleId ?? "null")}/comments`;
+    `/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(articleId?.toString() ?? "null")}/comments`;
 }
 
 /**
@@ -218,5 +218,5 @@ export namespace update {
     articleId: string & Format<"uuid">,
     id: string & Format<"uuid">,
   ) =>
-    `/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(articleId ?? "null")}/comments/${encodeURIComponent(id ?? "null")}`;
+    `/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(articleId?.toString() ?? "null")}/comments/${encodeURIComponent(id?.toString() ?? "null")}`;
 }

@@ -60,7 +60,7 @@ export namespace index {
       else if (Array.isArray(value))
         value.forEach((elem: any) => variables.append(key, String(elem)));
       else variables.set(key, String(value));
-    const location: string = `/x/bbs/${encodeURIComponent(section ?? "null")}/articles`;
+    const location: string = `/x/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles`;
     return 0 === variables.size
       ? location
       : `${location}?${variables.toString()}`;
@@ -107,7 +107,7 @@ export namespace at {
   } as const;
 
   export const path = (section: string, id: string & Format<"uuid">) =>
-    `/x/bbs/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(id ?? "null")}`;
+    `/x/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(id?.toString() ?? "null")}`;
 }
 
 /**
@@ -161,7 +161,7 @@ export namespace store {
   } as const;
 
   export const path = (section: string) =>
-    `/x/bbs/${encodeURIComponent(section ?? "null")}/articles`;
+    `/x/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles`;
 }
 
 /**
@@ -217,5 +217,5 @@ export namespace update {
   } as const;
 
   export const path = (section: string, id: string & Format<"uuid">) =>
-    `/x/bbs/${encodeURIComponent(section ?? "null")}/articles/${encodeURIComponent(id ?? "null")}`;
+    `/x/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(id?.toString() ?? "null")}`;
 }

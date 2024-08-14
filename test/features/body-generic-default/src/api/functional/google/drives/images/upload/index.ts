@@ -65,7 +65,7 @@ export namespace single {
   } as const;
 
   export const path = (accountCode: string) =>
-    `/google/${encodeURIComponent(accountCode ?? "null")}/drives/images/upload/single`;
+    `/google/${encodeURIComponent(accountCode?.toString() ?? "null")}/drives/images/upload/single`;
 }
 
 /**
@@ -112,5 +112,5 @@ export namespace activate {
   } as const;
 
   export const path = (accountCode: string) =>
-    `/google/${encodeURIComponent(accountCode ?? "null")}/drives/images/upload/activate`;
+    `/google/${encodeURIComponent(accountCode?.toString() ?? "null")}/drives/images/upload/activate`;
 }
