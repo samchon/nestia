@@ -100,7 +100,7 @@ export namespace SdkHttpFunctionProgrammer {
               : [TypeFactory.keyword("any"), TypeFactory.keyword("any")]
             : undefined,
           [
-            props.input?.contentType !== "multipart/form-data"
+            props.input && props.input.contentType !== "multipart/form-data"
               ? ts.factory.createObjectLiteralExpression(
                   [
                     ts.factory.createSpreadAssignment(
