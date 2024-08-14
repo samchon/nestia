@@ -147,7 +147,7 @@ export namespace FetcherBase {
           success:
             response.status === 200 ||
             response.status === 201 ||
-            response.status == route.status,
+            response.status === route.status,
           status: response.status,
           headers: response_headers_to_object(response.headers),
           data: undefined!,
