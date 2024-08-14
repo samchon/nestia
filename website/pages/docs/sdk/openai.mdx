@@ -32,7 +32,11 @@ export default NESTIA_CONFIG;
   </Tab>
   <Tab>
 ```bash filename="Terminal" showLineNumbers
+# BUILD OPENAI DOCUMENT ONLY
 npx nestia openai
+
+# BUILD OPENAI/SWAGGER/SDK/E2E AT THE SAME TIME 
+npx nestia all
 ```
   </Tab>
 </Tabs>
@@ -452,125 +456,46 @@ At least, you've to configure those two properties:
 
 When you've completed above configuration, just run `npx nestia swagger` command. Then, `openai.json` file would be newly generated, and placed into the `$config.swagger.output` directory following your `nestia.config.ts` configuration.
 
-### File Specification
-`nestia.config.ts` supports alternative options specifying path of target controllers.
-
-If your backend application server does not have special configuration like `setGlobalPrefix`, `enableVersioning` and `RouterModule`, it is okay to specifying the target controller classes just by writing their file or directory paths like below.
-
-<Tabs items={[
-    'Module (express)',
-    'Module (fastify)', 
-    'Directory',
-    'Pattern', 
-    'Exclude'
-  ]}
-  defaultIndex={3}>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
+### Multiple Files Generation
+```typescript filename="nestia.config.ts" showLineNumbers
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
 
-import { YourModule } from "./src/YourModule";
+import { AppModule } from "./src/modules/AppModule";
+import { BbsModule } from "./src/modules/BbsModule";
+import { CommonModule } from "./src/modules/CommonModule";
 
-const NESTIA_CONFIG: INestiaConfig = {
-  input: async () => {
-    const app = await NestFactory.create(YourModule);
-    // app.setGlobalPrefix("api");
-    // app.enableVersioning({
-    //     type: VersioningType.URI,
-    //     prefix: "v",
-    // })
-    return app;
+export const NESTIA_CONFIGURATIONS: INestiaConfig[] = [
+  {
+    input: () => NestFactory.create(AppModule),
+    openai: {
+      output: "openai.json",
+      keyword: true,
+    },
   },
-  openai: {
-    output: "dist/openai.json",
-    beautify: true,
-    keyword: true,
+  {
+    input: () => NestFactory.create(BbsModule),
+    openai: {
+      output: "bbs.openai.json",
+      keyword: true,
+    },
   },
-};
-export default NESTIA_CONFIG;
+  {
+    input: () => NestFactory.create(CommonModule),
+    openai: {
+      output: "common.openai.json",
+      keyword: false,
+    },
+  },
+];
+export default NESTIA_CONFIGURATIONS;
 ```
-  </Tab>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {8-16}
-import { INestiaConfig } from "@nestia/sdk";
-import { NestFactory } from "@nestjs/core";
-import { FastifyAdapter } from "@nestjs/platform-fastify";
 
-import { YourModule } from "./src/YourModule";
+You can build multiple OpenAI function calling schema files.
 
-const NESTIA_CONFIG: INestiaConfig = {
-  input: async () => {
-    const app = await NestFactory.create(YourModule, new FastifyAdapter());
-    // app.setGlobalPrefix("api");
-    // app.enableVersioning({
-    //     type: VersioningType.URI,
-    //     prefix: "v",
-    // })
-    return app;
-  },
-  openai: {
-    output: "dist/openai.json",
-    beautify: true,
-    keyword: true,
-  },
-};
-export default NESTIA_CONFIG;
-```
-  </Tab>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {4-8}
-import { INestiaConfig } from "@nestia/sdk";
+Just configure an array of `INestiaConfig` instances like above example code. 
 
-const NESTIA_CONFIG: INestiaConfig = {
-  input: [
-    "src/controllers", 
-    "src/fake/controllers", 
-    "src/test/controllers"
-  ],
-  openai: {
-    output: "dist/openai.json",
-    beautify: true,
-    keyword: true,
-  },
-};
-export default NESTIA_CONFIG;
-```
-  </Tab>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {4}
-import { INestiaConfig } from "@nestia/sdk";
-
-const NESTIA_CONFIG: INestiaConfig = {
-  input: "src/**/*.controller.ts",
-  openai: {
-    output: "dist/openai.json",
-    beautify: true,
-    keyword: true,
-  },
-};
-export default NESTIA_CONFIG;
-```
-  </Tab>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {4-7}
-import { INestiaConfig } from "@nestia/sdk";
-
-const NESTIA_CONFIG: INestiaConfig = {
-  input: {
-    include: ["src/controllers"],
-    exclude: ["src/**/*.fake.ts"],
-  },
-  openai: {
-    output: "dist/openai.json",
-    beautify: true,
-    keyword: true,
-  },
-};
-export default NESTIA_CONFIG;
-```
-  </Tab>
-</Tabs>
+Then, `@nestia/sdk` will generate multiple OpenAI function calling schema files following the configurations.
 
 ### Additional Properties
 
