@@ -47,5 +47,5 @@ export namespace connect {
   export type Listener = ICalculator;
 
   export const path = (id: string & Format<"uuid">) =>
-    `/calculate/${encodeURIComponent(id ?? "null")}`;
+    `/calculate/${encodeURIComponent(id?.toString() ?? "null")}`;
 }

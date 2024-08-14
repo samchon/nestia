@@ -39,7 +39,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
+              "application/x-www-form-urlencoded": {
                 "schema": {
                   "$ref": "#/components/schemas/IHeaders"
                 }
@@ -203,6 +203,9 @@
           "x-memo": {
             "type": "string"
           },
+          "x-bigint": {
+            "type": "integer"
+          },
           "x-nAme": {
             "type": "string"
           },
@@ -221,6 +224,7 @@
         },
         "required": [
           "x-category",
+          "x-bigint",
           "x-values",
           "x-fLags"
         ]

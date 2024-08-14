@@ -246,8 +246,17 @@ export namespace SdkHttpNamespaceProgrammer {
                 undefined,
                 [
                   ts.factory.createBinaryExpression(
-                    ts.factory.createIdentifier(
-                      g.path.find((p) => p.field === name)!.name,
+                    ts.factory.createCallChain(
+                      ts.factory.createPropertyAccessChain(
+                        ts.factory.createIdentifier(
+                          g.path.find((p) => p.field === name)!.name,
+                        ),
+                        ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+                        "toString",
+                      ),
+                      undefined,
+                      undefined,
+                      [],
                     ),
                     ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
                     ts.factory.createStringLiteral("null"),

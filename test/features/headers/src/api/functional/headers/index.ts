@@ -41,24 +41,25 @@ export async function emplace(
 }
 export namespace emplace {
   export type Headers = Resolved<IHeaders>;
-  export type Output = Primitive<IHeaders>;
+  export type Output = Resolved<IHeaders>;
 
   export const METADATA = {
     method: "PATCH",
     path: "/headers/:section",
     request: null,
     response: {
-      type: "application/json",
+      type: "application/x-www-form-urlencoded",
       encrypted: false,
     },
     status: 200,
+    parseQuery: typia.http.createAssertQuery<IHeaders>(),
   } as const;
 
   export const path = (section: string) =>
-    `/headers/${encodeURIComponent(section ?? "null")}`;
+    `/headers/${encodeURIComponent(section?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IHeaders>> => typia.random<Primitive<IHeaders>>(g);
+  ): Resolved<Resolved<IHeaders>> => typia.random<Resolved<IHeaders>>(g);
   export const simulate = (
     connection: IConnection<emplace.Headers>,
     section: string,
@@ -67,7 +68,7 @@ export namespace emplace {
       method: METADATA.method,
       host: connection.host,
       path: path(section),
-      contentType: "application/json",
+      contentType: "application/x-www-form-urlencoded",
     });
     assert.param("section")(() => typia.assert(section));
     return random(
@@ -132,7 +133,7 @@ export namespace store {
   } as const;
 
   export const path = (section: string) =>
-    `/headers/${encodeURIComponent(section ?? "null")}`;
+    `/headers/${encodeURIComponent(section?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Primitive<IBbsArticle>> =>
@@ -212,7 +213,7 @@ export namespace update {
   } as const;
 
   export const path = (section: string, id: string & Format<"uuid">) =>
-    `/headers/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
+    `/headers/${encodeURIComponent(section?.toString() ?? "null")}/${encodeURIComponent(id?.toString() ?? "null")}`;
   export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
     typia.random<void>(g);
   export const simulate = (

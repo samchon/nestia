@@ -145,6 +145,34 @@
         }
       }
     },
+    "/param/{value}/bigint": {
+      "get": {
+        "summary": "The bigint",
+        "description": "The bigint.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "value",
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/param/{value}/string": {
       "get": {
         "summary": "The string",
