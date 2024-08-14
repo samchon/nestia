@@ -6,8 +6,11 @@
 //================================================================
 import type { IConnection, Resolved, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
+import type { TypeGuardError } from "typia/lib/TypeGuardError";
 
 import type { IBbsArticle } from "../../structures/IBbsArticle";
+import type { IExceptional } from "../../structures/IExceptional";
+import type { IInternalServerError } from "../../structures/IInternalServerError";
 import type { INotFound } from "../../structures/INotFound";
 import type { IUnprocessibleEntity } from "../../structures/IUnprocessibleEntity";
 

@@ -24,14 +24,7 @@ import type { IMultipart } from "../../structures/IMultipart";
 export async function post(
   connection: IConnection,
   body: post.Input,
-): Promise<
-  IPropagation<
-    {
-      201: undefined;
-    },
-    201
-  >
-> {
+): Promise<post.Output> {
   return !!connection.simulate
     ? post.simulate(connection, body)
     : PlainFetcher.propagate<any, any>(
@@ -48,7 +41,7 @@ export namespace post {
   export type Input = IMultipart;
   export type Output = IPropagation<
     {
-      201: undefined;
+      201: void;
     },
     201
   >;

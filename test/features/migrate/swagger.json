@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.11.0-dev.20240813-11",
+    "version": "3.11.0-dev.20240814",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -309,7 +309,8 @@
             "in": "query",
             "schema": {
               "type": "string"
-            }
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -334,7 +335,8 @@
             "in": "query",
             "schema": {
               "type": "string"
-            }
+            },
+            "required": true
           },
           {
             "name": "values",

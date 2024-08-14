@@ -7,7 +7,7 @@ import type { IMultipart } from "../../../../api/structures/IMultipart";
 export const test_api_multipart_post = async (connection: api.IConnection) => {
   const output: IPropagation<
     {
-      201: undefined;
+      201: void;
     },
     201
   > = await api.functional.multipart.post(

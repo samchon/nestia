@@ -5,6 +5,7 @@
  */
 //================================================================
 import type { IConnection, Resolved, Primitive } from "@nestia/fetcher";
+import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
 import type { Format } from "typia/lib/tags/Format";
@@ -90,7 +91,7 @@ export async function update(
   typia.assert<typeof section>(section);
   typia.assert<typeof id>(id);
   typia.assert<typeof input>(input);
-  return PlainFetcher.fetch(
+  return EncryptedFetcher.fetch(
     {
       ...connection,
       headers: {

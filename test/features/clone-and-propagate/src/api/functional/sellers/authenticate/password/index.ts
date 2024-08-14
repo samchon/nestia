@@ -29,14 +29,7 @@ import type { ISeller } from "../../../../structures/ISeller";
 export async function change(
   connection: IConnection,
   input: change.Input,
-): Promise<
-  IPropagation<
-    {
-      200: undefined;
-    },
-    200
-  >
-> {
+): Promise<change.Output> {
   return !!connection.simulate
     ? change.simulate(connection, input)
     : EncryptedFetcher.propagate<any, any>(
@@ -59,7 +52,7 @@ export namespace change {
   export type Input = ISeller.IChangePassword;
   export type Output = IPropagation<
     {
-      200: undefined;
+      200: void;
     },
     200
   >;

@@ -7,7 +7,6 @@
 import type {
   IConnection,
   IPropagation,
-  Primitive,
   Resolved,
   HttpError,
 } from "@nestia/fetcher";
@@ -26,14 +25,7 @@ import type { PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_a
 export async function partialType(
   connection: IConnection,
   body: partialType.Input,
-): Promise<
-  IPropagation<
-    {
-      201: PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr;
-    },
-    201
-  >
-> {
+): Promise<partialType.Output> {
   return !!connection.simulate
     ? partialType.simulate(connection, body)
     : PlainFetcher.propagate<any, any>(
@@ -79,12 +71,10 @@ export namespace partialType {
   export const path = () => "/partial-dto-test/partial-type";
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<
-    Primitive<PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr>
-  > =>
-    typia.random<
-      Primitive<PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr>
-    >(g);
+  ): Resolved<PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr> =>
+    typia.random<PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr>(
+      g,
+    );
   export const simulate = (
     connection: IConnection,
     body: partialType.Input,

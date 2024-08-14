@@ -93,7 +93,6 @@
         { "transform": "typescript-transform-paths" },
         { "transform": "typia/lib/transform" },
         { "transform": "@nestia/core/lib/transform" },
-        // { "transform": "@nestia/sdk/lib/transform" }, // @todo -> must be removed
       ],
     }
   }

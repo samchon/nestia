@@ -7,7 +7,6 @@
 import type {
   IConnection,
   IPropagation,
-  Primitive,
   Resolved,
   HttpError,
 } from "@nestia/fetcher";
@@ -35,15 +34,7 @@ export async function getUserProfile(
   connection: IConnection,
   user_id: string,
   query: getUserProfile.Query,
-): Promise<
-  IPropagation<
-    {
-      202: IUser;
-      404: "404 Not Found";
-    },
-    202
-  >
-> {
+): Promise<getUserProfile.Output> {
   return !!connection.simulate
     ? getUserProfile.simulate(connection, user_id, query)
     : PlainFetcher.propagate<any>(
@@ -96,7 +87,7 @@ export namespace getUserProfile {
   };
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IUser>> => typia.random<Primitive<IUser>>(g);
+  ): Resolved<IUser> => typia.random<IUser>(g);
   export const simulate = (
     connection: IConnection,
     user_id: string,
@@ -145,14 +136,7 @@ export async function updateUserProfile(
   connection: IConnection,
   user_id: string,
   body: updateUserProfile.Input,
-): Promise<
-  IPropagation<
-    {
-      201: IUser;
-    },
-    201
-  >
-> {
+): Promise<updateUserProfile.Output> {
   return !!connection.simulate
     ? updateUserProfile.simulate(connection, user_id, body)
     : PlainFetcher.propagate<any, any>(
@@ -198,7 +182,7 @@ export namespace updateUserProfile {
     `/users/${encodeURIComponent(user_id ?? "null")}/user`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IUser>> => typia.random<Primitive<IUser>>(g);
+  ): Resolved<IUser> => typia.random<IUser>(g);
   export const simulate = (
     connection: IConnection,
     user_id: string,

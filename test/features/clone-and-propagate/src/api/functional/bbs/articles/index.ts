@@ -7,7 +7,6 @@
 import type {
   IConnection,
   IPropagation,
-  Primitive,
   Resolved,
   HttpError,
 } from "@nestia/fetcher";
@@ -35,14 +34,7 @@ export async function index(
   connection: IConnection,
   section: string,
   query: index.Query,
-): Promise<
-  IPropagation<
-    {
-      200: IPageIBbsArticle.ISummary;
-    },
-    200
-  >
-> {
+): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection, section, query)
     : PlainFetcher.propagate<any>(
@@ -94,8 +86,8 @@ export namespace index {
   };
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IPageIBbsArticle.ISummary>> =>
-    typia.random<Primitive<IPageIBbsArticle.ISummary>>(g);
+  ): Resolved<IPageIBbsArticle.ISummary> =>
+    typia.random<IPageIBbsArticle.ISummary>(g);
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -149,14 +141,7 @@ export async function store(
   connection: IConnection,
   section: string,
   input: store.Input,
-): Promise<
-  IPropagation<
-    {
-      201: IBbsArticle;
-    },
-    201
-  >
-> {
+): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, section, input)
     : PlainFetcher.propagate<any, any>(
@@ -202,8 +187,7 @@ export namespace store {
     `/bbs/articles/${encodeURIComponent(section ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IBbsArticle>> =>
-    typia.random<Primitive<IBbsArticle>>(g);
+  ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -259,14 +243,7 @@ export async function update(
   section: string,
   id: string & Format<"uuid">,
   input: update.Input,
-): Promise<
-  IPropagation<
-    {
-      200: IBbsArticle;
-    },
-    200
-  >
-> {
+): Promise<update.Output> {
   return !!connection.simulate
     ? update.simulate(connection, section, id, input)
     : PlainFetcher.propagate<any, any>(
@@ -312,8 +289,7 @@ export namespace update {
     `/bbs/articles/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IBbsArticle>> =>
-    typia.random<Primitive<IBbsArticle>>(g);
+  ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
   export const simulate = (
     connection: IConnection,
     section: string,

@@ -3,6 +3,7 @@ import typia from "typia";
 
 import api from "../../../../api";
 import type { IBbsArticle } from "../../../../api/structures/IBbsArticle";
+import type { IExceptional } from "../../../../api/structures/IExceptional";
 import type { INotFound } from "../../../../api/structures/INotFound";
 import type { IUnprocessibleEntity } from "../../../../api/structures/IUnprocessibleEntity";
 

@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.11.0-dev.20240813-11",
+    "version": "3.11.0-dev.20240814",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -29,46 +29,46 @@
                 "$ref": "#/components/schemas/IBbsArticle.ICreate"
               },
               "example": {
-                "title": "gdfgfanluctqzuznmqjbenssetjeqgcz",
-                "body": "dwlkwqudkz",
-                "files": []
+                "title": "hfbnbvceiclxejzihiymkcuatryj",
+                "body": "dchutvbk",
+                "files": [
+                  {
+                    "name": "izxsmutsrwiegivayewurshtqhwgnzjyvgzdeajuzqblceiymzaucrxzsqplmqptjnrnjjhrinsbcprdwnzbsmctanrpzyhnjpr",
+                    "extension": "w",
+                    "url": "https://kgkzvjkvrh.cxh"
+                  }
+                ]
               },
               "examples": {
                 "z": {
-                  "title": "slag",
-                  "body": "qvioacgou",
-                  "files": [
-                    {
-                      "name": null,
-                      "extension": null,
-                      "url": "https://kshmejumxs.iyv"
-                    }
-                  ]
+                  "title": "xqnvmavueorvkindxxxzdqaulovjhnrajgvinksqevdfjrty",
+                  "body": "ppysjvqxav",
+                  "files": []
                 },
                 "y": {
-                  "title": "jqhtzfmivfexfivbdwjihnjaxrejpbvttynowtlrscfnro",
-                  "body": "lyvudt",
+                  "title": "efwtsltpfzgxsewzyuzudgmblchovoxfzmoya",
+                  "body": "mwido",
                   "files": [
                     {
-                      "name": null,
+                      "name": "segvciviszvifhnmsyjlvufnstxzoqnjrnrzddogykktmfgxjdvbpixxgniyabggwdsojbktnqbmpsirstbptuqrqevjovhfilxcozxkzxpmymktyyfwjfiwcxlulschdjdlwnzvsvupblhuwwflqgipwgnitsberoitnooqcpiveatbwapt",
                       "extension": null,
-                      "url": "https://rqgobqsjfa.uus"
+                      "url": "https://jrsmaswsxw.hld"
                     }
                   ]
                 },
                 "x": {
-                  "title": "bimnpbmqdxxppbmssvtybkexokwduzxzzg",
-                  "body": "hugifc",
+                  "title": "gblphfvq",
+                  "body": "zwavlwpq",
                   "files": [
                     {
-                      "name": "ddtyfeqboivaosaxspgwdpvqwdfaepqxlqtrkqmmmywbequnctxhqsxetxncivkhiqycyovuytpztrkpibaesdldponuimqhmerxlxfcnorkupadlkajpscbwfmysqetyfctltnvierhrdfucotmnfyenjwpgbjypcjteyco",
+                      "name": "wucazpleekbfemmeshgmisxycoyuwqvuqswqmpywrrpmwdfcyqbmiswenvhsxlfahxwphckinoaemoxgxfqkpkjfzcxjwvdaejpetcavtriqxjtbmthgtmelvvclzfttlwkxzoknlhskchhwxvdwnsivtyfjlcphdltpmsitdfdujlglxhbjroyddbwiehjaumxdud",
                       "extension": null,
-                      "url": "https://bvrkppfxmq.pyv"
+                      "url": "https://amtxzavioi.bgc"
                     },
                     {
                       "name": null,
                       "extension": null,
-                      "url": "https://woldscsdvw.enl"
+                      "url": "https://aniwcbqcaz.nog"
                     }
                   ]
                 }
@@ -86,11 +86,22 @@
                   "$ref": "#/components/schemas/IBbsArticle"
                 },
                 "example": {
-                  "id": "44c1473b-f8d8-48e8-b4a7-9e0ac981c19c",
-                  "created_at": "2024-07-23T05:35:25.094Z",
-                  "title": "ozkhngogtihspebdjj",
-                  "body": "mxoerrmte",
-                  "files": []
+                  "id": "a8f59917-f109-4a96-8853-d00db3c6fcdc",
+                  "created_at": "2024-08-06T10:22:42.681Z",
+                  "title": "odmhzvkaorjbxhebmrqgcrlwgydftrkyjsxqdqlhicdzrmrvxp",
+                  "body": "htvjyxqisd",
+                  "files": [
+                    {
+                      "name": "mushpoftvsmhtbzhznexaolppcmwglqwqugvdlqwnwuemwuwaauvaofkjvxigqlouzirndnrggfrbnmjafogxdhjrsxpbznzumdknxoxczwrbsawrgwmirfmnemqjiiwortxcvkhuehqhvfdtweuqtnfctymanzhkywpfwdkycvruclnff",
+                      "extension": "ioddcr",
+                      "url": "https://iaatpblqxz.xfp"
+                    },
+                    {
+                      "name": null,
+                      "extension": null,
+                      "url": "https://ardyyyjvwh.tgu"
+                    }
+                  ]
                 }
               }
             }
@@ -110,7 +121,7 @@
               "format": "uuid"
             },
             "required": true,
-            "example": "31606e10-de56-4637-8e73-58254b54bd7e"
+            "example": "cfb81c78-f1e1-49c0-a327-6bc5a6aebc57"
           }
         ],
         "requestBody": {
@@ -120,7 +131,8 @@
                 "$ref": "#/components/schemas/PartialIBbsArticle.ICreate"
               },
               "example": {
-                "title": "ykmzwhos"
+                "title": "tnsytoell",
+                "body": "afylypcjbh"
               }
             }
           },
@@ -134,26 +146,48 @@
                   "$ref": "#/components/schemas/IBbsArticle"
                 },
                 "example": {
-                  "id": "13713d37-5420-4a12-a5a6-fd42da26e09f",
-                  "created_at": "2024-08-06T20:40:46.426Z",
-                  "title": "vgofcjythskfmuxhwmztbuhuzhiqedqeympbvwyg",
-                  "body": "chvzz",
-                  "files": []
+                  "id": "d5a8b384-3059-450c-b288-df87b8dd4ab0",
+                  "created_at": "2024-08-15T09:01:03.669Z",
+                  "title": "fancwxsacqugilawwknmqsflnll",
+                  "body": "jvicfunlx",
+                  "files": [
+                    {
+                      "name": "zijwarwexbbfumwzijdmvaquktbnxbeilxfpmkupplgtkxsndbujcjmdaovpykpxvbawhojlfpxjcaaxlwfsonklbfisamddpaquvuqrbdmgcgrw",
+                      "extension": null,
+                      "url": "https://ktifkflfgc.htp"
+                    },
+                    {
+                      "name": "jcvfjtgsfrlfagveavlhcrfxrqgbayplpoiapxhvoqfvcs",
+                      "extension": "urcmr",
+                      "url": "https://opwhddpxey.yjb"
+                    }
+                  ]
                 },
                 "examples": {
                   "b": {
-                    "id": "ae8c2b14-f8d9-4e51-9465-add30fde1f7b",
-                    "created_at": "2024-08-08T09:10:41.251Z",
-                    "title": "aiuccqwxsjnmfbipyzzdegmndfpanwtyfxcedcsek",
-                    "body": "xbcnyt",
+                    "id": "19cc1c05-6d09-4250-887d-e070197aae94",
+                    "created_at": "2024-08-07T07:45:51.261Z",
+                    "title": "xikkmkdnyipkrecrqtvuzcnnawqyyyjfjflcdphptbbxaiw",
+                    "body": "uyhkdv",
                     "files": []
                   },
                   "a": {
-                    "id": "9c456287-b113-459b-836b-00a6f2190088",
-                    "created_at": "2024-08-09T01:34:41.446Z",
-                    "title": "ujnsorrkzoocchptnml",
-                    "body": "loygdk",
-                    "files": []
+                    "id": "7a7ce5b9-f652-44c7-a8b1-673c88d1b398",
+                    "created_at": "2024-08-20T08:51:41.494Z",
+                    "title": "ysttqxmokh",
+                    "body": "howvrrpsr",
+                    "files": [
+                      {
+                        "name": null,
+                        "extension": null,
+                        "url": "https://dxwocnytvy.bgv"
+                      },
+                      {
+                        "name": null,
+                        "extension": "kmopzn",
+                        "url": "https://ipdcqnajbb.luo"
+                      }
+                    ]
                   }
                 }
               }

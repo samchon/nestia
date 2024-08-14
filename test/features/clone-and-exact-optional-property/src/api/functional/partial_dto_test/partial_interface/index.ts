@@ -7,7 +7,6 @@
 import type {
   IConnection,
   IPropagation,
-  Primitive,
   Resolved,
   HttpError,
 } from "@nestia/fetcher";
@@ -26,14 +25,7 @@ import type { IPartialInterface } from "../../../structures/IPartialInterface";
 export async function partialInterface(
   connection: IConnection,
   body: partialInterface.Input,
-): Promise<
-  IPropagation<
-    {
-      201: IPartialInterface;
-    },
-    201
-  >
-> {
+): Promise<partialInterface.Output> {
   return !!connection.simulate
     ? partialInterface.simulate(connection, body)
     : PlainFetcher.propagate<any, any>(
@@ -78,8 +70,7 @@ export namespace partialInterface {
   export const path = () => "/partial-dto-test/partial-interface";
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IPartialInterface>> =>
-    typia.random<Primitive<IPartialInterface>>(g);
+  ): Resolved<IPartialInterface> => typia.random<IPartialInterface>(g);
   export const simulate = (
     connection: IConnection,
     body: partialInterface.Input,

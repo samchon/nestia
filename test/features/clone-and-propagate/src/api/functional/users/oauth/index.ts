@@ -7,7 +7,6 @@
 import type {
   IConnection,
   IPropagation,
-  Primitive,
   Resolved,
   HttpError,
 } from "@nestia/fetcher";
@@ -31,15 +30,7 @@ export async function getOauthProfile(
   connection: IConnection,
   user_id: string,
   query: getOauthProfile.Query,
-): Promise<
-  IPropagation<
-    {
-      200: IAuthentication.IProfile;
-      404: "404 Not Found";
-    },
-    200
-  >
-> {
+): Promise<getOauthProfile.Output> {
   return !!connection.simulate
     ? getOauthProfile.simulate(connection, user_id, query)
     : PlainFetcher.propagate<any>(
@@ -92,8 +83,8 @@ export namespace getOauthProfile {
   };
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IAuthentication.IProfile>> =>
-    typia.random<Primitive<IAuthentication.IProfile>>(g);
+  ): Resolved<IAuthentication.IProfile> =>
+    typia.random<IAuthentication.IProfile>(g);
   export const simulate = (
     connection: IConnection,
     user_id: string,

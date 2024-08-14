@@ -8,7 +8,7 @@ export const test_api_sellers_authenticate_exit = async (
 ) => {
   const output: IPropagation<
     {
-      200: undefined;
+      200: void;
     },
     200
   > = await api.functional.sellers.authenticate.exit(connection);

@@ -32,8 +32,8 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "^3.11.0-dev.20240814",
-    "@nestia/fetcher": "^3.11.0-dev.20240814",
+    "@nestia/core": "../core/nestia-core-3.11.0-dev.20240814.tgz",
+    "@nestia/fetcher": "../fetcher/nestia-fetcher-3.11.0-dev.20240814.tgz",
     "@samchon/openapi": "^0.4.5",
     "@wrtnio/openai-function-schema": "^0.2.3",
     "cli": "^1.0.1",

@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.11.0-dev.20240813-11",
+    "version": "3.11.0-dev.20240814",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -24,7 +24,8 @@
             "in": "header",
             "schema": {
               "$ref": "#/components/schemas/IHeaders"
-            }
+            },
+            "required": true
           },
           {
             "name": "section",
@@ -58,7 +59,8 @@
             "schema": {
               "$ref": "#/components/schemas/IHeaders"
             },
-            "description": " Headers for authentication"
+            "description": " Headers for authentication",
+            "required": true
           },
           {
             "name": "section",
@@ -89,6 +91,61 @@
                   "$ref": "#/components/schemas/IBbsArticle"
                 }
               }
+            }
+          }
+        }
+      }
+    },
+    "/headers/{section}/{id}": {
+      "put": {
+        "summary": "Update an article",
+        "description": "Update an article.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "section",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " Target section code"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "description": " Target article id"
+          },
+          {
+            "name": "x-name",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "description": " Name in header for authentication",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "Content to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {}
             }
           }
         }

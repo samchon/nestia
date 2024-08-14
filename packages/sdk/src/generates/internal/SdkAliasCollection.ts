@@ -90,27 +90,25 @@ export namespace SdkAliasCollection {
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.TypeNode => {
       const schema = (p: { metadata: Metadata; type: IReflectType }) =>
-        project.config.clone === true
-          ? from(project)(importer)(p.metadata)
-          : name(p);
-      if (project.config.propagate !== true) {
-        if (route.success.metadata.size() === 0)
-          return TypeFactory.keyword("void");
-        else if (project.config.primitive === false)
-          return schema(route.success);
-        return ts.factory.createTypeReferenceNode(
-          importer.external({
-            type: true,
-            library: "@nestia/fetcher",
-            instance:
-              route.success.contentType === "application/json" ||
-              route.success.encrypted === true
-                ? "Primitive"
-                : "Resolved",
-          }),
-          [schema(route.success)],
-        );
-      }
+        p.metadata.size() === 0
+          ? TypeFactory.keyword("void")
+          : project.config.clone === true
+            ? from(project)(importer)(p.metadata)
+            : project.config.primitive !== false
+              ? ts.factory.createTypeReferenceNode(
+                  importer.external({
+                    type: true,
+                    library: "@nestia/fetcher",
+                    instance:
+                      route.success.contentType === "application/json" ||
+                      route.success.encrypted === true
+                        ? "Primitive"
+                        : "Resolved",
+                  }),
+                  [name(p)],
+                )
+              : name(p);
+      if (project.config.propagate !== true) return schema(route.success);
 
       const branches: IBranch[] = [
         {
