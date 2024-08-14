@@ -76,20 +76,11 @@ export async function union(
   connection: IConnection,
   section: string,
 ): Promise<union.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...union.METADATA,
-      template: union.METADATA.path,
-      path: union.path(section),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...union.METADATA,
+    template: union.METADATA.path,
+    path: union.path(section),
+  });
 }
 export namespace union {
   export type Output = Primitive<

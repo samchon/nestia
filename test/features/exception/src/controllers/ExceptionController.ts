@@ -16,7 +16,18 @@ import { IUnprocessibleEntity } from "@api/lib/structures/IUnprocessibleEntity";
 @Controller("exception")
 export class ExceptionController {
   @TypedRoute.Post(":section/typed")
-  @TypedException<TypeGuardError>(400, "invalid request")
+  @TypedException<TypeGuardError>({
+    status: 400,
+    description: "invalid request",
+    example: {
+      name: "BadRequestException",
+      method: "TypedBody",
+      path: "$input.title",
+      expected: "string",
+      value: 123,
+      message: "invalid type",
+    },
+  })
   @TypedException<INotFound>(404, "unable to find the matched section")
   @TypedException<IUnprocessibleEntity>(428)
   @TypedException<IInternalServerError>("5XX", "internal server error")
