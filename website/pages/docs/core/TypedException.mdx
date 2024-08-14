@@ -1,12 +1,18 @@
 ## Outline
-```typescript
+```typescript filename="@nestia/core" showLineNumbers
 export function TypedException<T extends object>(
   status: number | "2XX" | "3XX" | "4XX" | "5XX",
   description?: string,
 ): MethodDecorator;
+export function TypedException<T extends object>(props: {
+  status: : number | "2XX" | "3XX" | "4XX" | "5XX";
+  description?: string;
+  example?: T;
+  examples?: Record<string, T>;
+}): MethodDecorator;
 ```
 
-Exception decorator only for swagger documents.
+Exception decorator of HTTP responses.
 
 `TypedException` is a decorator function describing HTTP exception and its type which could be occured in a controller method. For reference, this decorator function does not affect to the method's behavior, but affects to the [swagger documents](../sdk/swagger) generation, or SDK functions when [propagation mode](../sdk/sdk#propagation-mode) being used. 
 
@@ -33,7 +39,18 @@ import { IUnprocessibleEntity } from "@api/lib/structures/IUnprocessibleEntity";
 @Controller("exception")
 export class ExceptionController {
   @TypedRoute.Post(":section/typed")
-  @TypedException<TypeGuardError>(400, "invalid request")
+  @TypedException<TypeGuardError>({
+    status: 400, 
+    description: "invalid request",
+    example: {
+      name: "BadRequestException",
+      method: "TypedBody",
+      path: "$input.title",
+      expected: "string",
+      value: 123,
+      message: "invalid type",
+    },
+  })
   @TypedException<INotFound>(404, "unable to find the matched section")
   @TypedException<IUnprocessibleEntity>(428)
   @TypedException<IInternalServerError>("5XX", "internal server error")
@@ -50,9 +67,9 @@ export class ExceptionController {
 
 Just call `TypedException()` function with target type and status code. 
 
-If you want to add description, you can add it as second parameter.
+If you want to add description or example value, you also can add it as a property.
 
-For reference, [swagger](./sdk/swagger) allows to use special pattern like `2XX`, `3XX`, `4XX`, `5XX` for status code.
+For reference, [swagger](./sdk/swagger) allows to special pattern like `2XX`, `3XX`, `4XX`, `5XX` for status code.
 
 
 
@@ -60,4 +77,297 @@ For reference, [swagger](./sdk/swagger) allows to use special pattern like `2XX`
 ## Swagger Example
 Here is an example of swagger documents utilizing the `@TypedException()` decorator.
 
-https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia%2Fmaster%2Ftest%2Ffeatures%2Fexception%2Fswagger.json
+```json filename="swagger.json" showLineNumbers {51-97}
+{
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://github.com/samchon/nestia",
+      "description": "insert your server url"
+    }
+  ],
+  "info": {
+    "version": "3.11.1",
+    "title": "@samchon/nestia-test",
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/exception/{section}/typed": {
+      "post": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "section",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TypeGuardErrorany"
+                },
+                "example": {
+                  "name": "BadRequestException",
+                  "method": "TypedBody",
+                  "path": "$input.title",
+                  "expected": "string",
+                  "value": 123,
+                  "message": "invalid type"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "unable to find the matched section",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/INotFound"
+                }
+              }
+            }
+          },
+          "428": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IUnprocessibleEntity"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IInternalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IBbsArticle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "created_at",
+          "title",
+          "body",
+          "files"
+        ]
+      },
+      "IAttachmentFile": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "maxLength": 255
+              }
+            ]
+          },
+          "extension": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            ]
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "name",
+          "extension",
+          "url"
+        ]
+      },
+      "IBbsArticle.IStore": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "body",
+          "files"
+        ]
+      },
+      "TypeGuardErrorany": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "expected": {
+            "type": "string"
+          },
+          "value": {},
+          "fake_expected_typed_value_": {},
+          "name": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "stack": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "expected",
+          "value",
+          "name",
+          "message"
+        ]
+      },
+      "INotFound": {
+        "type": "object",
+        "properties": {
+          "schema": {
+            "type": "string"
+          },
+          "table": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema",
+          "table",
+          "id"
+        ]
+      },
+      "IUnprocessibleEntity": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "IInternalServerError": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "stack": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "message",
+          "stack"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "apiKey"
+      }
+    }
+  },
+  "tags": [],
+  "x-samchon-emended": true
+}
+```

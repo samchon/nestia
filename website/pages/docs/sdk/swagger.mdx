@@ -655,6 +655,7 @@ Swagger generator fo `@nestia/sdk` supports some NestJS decorators. Here is the 
     - `@ApiSecurity()`
     - `@ApiTags()`
   - `@nestia/core`
+    - `@TypedException()`
     - `@SwaggerExample.Parameter()`
     - `@SwaggerExample.Response()`
 
@@ -1510,16 +1511,16 @@ typia.json.application<[IAccount]>();
 
 Otherwise you wanna customize the swagger data, utilize the `@SwaggerCustomizer()` decorator.
 
-As you can see from the above example code, callback function defined in the `@SwaggerCustomizer()` decorator is changing the swagger data, because it is called when the `npx nestia swagger` command being executed. Furthermore, it is possible to add plugin property starting with `x-` characters.
+As you can see from the below example code, callback function defined in the `@SwaggerCustomizer()` decorator is changing the swagger data, because it is called when the `npx nestia swagger` command being executed. Furthermore, it is possible to add plugin property starting with `x-` characters.
 
-In other words, the `@SwaggerCustomizer()` does not affect the runtime behavior of the backend server, but only affects the `swagger.json` file.
+Also, this `@SwaggerCustomizer()` decorator is especially useful when defining an authentication decorator. Developing the authentication logic in the decorator function, apply the `@SwaggerCustomizer()` with `OpenApi.IOperation.security` property. Then whenever the decorator function is called, the security scheme would be added into the swagger data.
 
 <Tabs items={[
     <code>@nestia/core</code>, 
     <code>MyCustomController.ts</code>, 
-    <code>swagger.json</code>
+    <code>ShoppingSellerAuth.ts</code>
   ]} 
-  defaultIndex={1}>
+  defaultIndex={2}>
   <Tab>
 ```typescript filename="@nestia/core" showLineNumbers
 export function SwaggerCustomizer(
@@ -1576,110 +1577,35 @@ export class CustomController {
 ```
   </Tab>
   <Tab>
-```json filename="swagger.json" showLineNumbers {2, 44-45, 75-76}
-{
-  "openapi": "3.1.99",
-  "servers": [
-    {
-      "url": "https://github.com/samchon/nestia",
-      "description": "insert your server url"
-    }
-  ],
-  "info": {
-    "version": "3.0.0-dev.20240412",
-    "title": "@nestia/test",
-    "description": "Test program of Nestia",
-    "license": {
-      "name": "MIT"
-    }
-  },
-  "paths": {
-    "/custom/{key}/{value}/customize": {
-      "get": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "key",
-            "in": "path",
-            "schema": {
-              "type": "number"
-            },
-            "description": "",
-            "required": true
-          },
-          {
-            "name": "value",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "description": "",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "description": "This is a custom description",
-        "x-selector": {
-          "method": "get",
-          "path": "/custom/{id}/normal"
-        },
-        "x-special-symbol": "Something Special"
-      }
-    },
-    "/custom/{id}/normal": {
-      "get": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "x-special-symbol": "Something Normal"
-      }
-    }
-  },
-  "components": {
-    "schemas": {},
-    "securitySchemes": {
-      "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
-      }
-    }
-  },
-  "tags": []
-}
+```typescript filename="ShoppingSellerAuth.ts" showLineNumbers {14-19}
+import { ExecutionContext, createParamDecorator } from "@nestjs/common";
+import { Singleton } from "tstl";
+
+import { ShoppingSellerProvider } from "../providers/shoppings/actors/ShoppingSellerProvider";
+import { SwaggerCustomizer } from "@nestia/core";
+
+export const ShoppingSellerAuth =
+  (): ParameterDecorator =>
+  (
+    target: Object,
+    propertyKey: string | symbol | undefined,
+    parameterIndex: number
+  ): void => {
+    SwaggerCustomizer((props) => {
+      props.route.security ??= [];
+      props.route.security.push({
+        bearer: [],
+      });
+    })(target, propertyKey as string, undefined!);
+    singleton.get()(target, propertyKey, parameterIndex);
+  };
+
+const singleton = new Singleton(() =>
+  createParamDecorator(async (_0: any, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    return ShoppingSellerProvider.authorize(request);
+  })()
+);
 ```
   </Tab>
 </Tabs>
