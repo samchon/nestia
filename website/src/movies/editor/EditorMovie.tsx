@@ -105,8 +105,9 @@ const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
         disabled={progress === true || swagger === null}
         onClick={() => generate()}
       >
-        {error ?? (progress ? "Generating..." : "Generate Editor")}
+        {progress ? "Generating..." : "Generate Editor"}
       </Button>
+      ...{error !== null ? [<div>{error}</div>] : []}
     </Paper>
   );
 };
