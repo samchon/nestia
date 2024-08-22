@@ -1,11 +1,6 @@
-import {
-  INestApplication,
-  RouteInfo,
-  VersionValue,
-} from "@nestjs/common/interfaces";
+import { RouteInfo, VersionValue } from "@nestjs/common/interfaces";
 
 export interface INestiaSdkInput {
-  application: INestApplication;
   controllers: INestiaSdkInput.IController[];
   globalPrefix?: {
     prefix: string;
