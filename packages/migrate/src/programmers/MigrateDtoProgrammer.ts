@@ -25,7 +25,7 @@ export namespace MigrateDtoProgrammer {
       const emendedKey: string = key
         .split("/")
         .filter((str) => str.length !== 0)
-        .map(StringUtil.escapeNonVariableSymbols)
+        .map(StringUtil.escapeNonVariable)
         .join("");
       prepare(dict)(emendedKey)((importer) =>
         writeAlias(components)(importer)(emendedKey, value),
@@ -81,4 +81,7 @@ const writeComment = (schema: OpenApi.IJsonSchema): string =>
       : []),
     ...(schema.title !== undefined ? [`@title ${schema.title}`] : []),
     ...(schema.deprecated === true ? [`@deprecated`] : []),
-  ].join("\n");
+  ]
+    .join("\n")
+    .split("*/")
+    .join("*\\/");
