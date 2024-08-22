@@ -1,31 +1,56 @@
 /// <reference path="../typings/get-function-location.d.ts" />
-import { DynamicModule } from "@nestia/core";
 import { INestApplication, VersioningType } from "@nestjs/common";
 import { MODULE_PATH } from "@nestjs/common/constants";
-import { NestContainer, NestFactory } from "@nestjs/core";
+import { NestContainer } from "@nestjs/core";
 import { Module } from "@nestjs/core/injector/module";
+import fs from "fs";
 import getFunctionLocation from "get-function-location";
-import { HashMap } from "tstl";
+import path from "path";
+import { HashMap, Pair, Singleton } from "tstl";
 
 import { INestiaConfig } from "../INestiaConfig";
+import { SdkGenerator } from "../generates/SdkGenerator";
 import { INestiaSdkInput } from "../structures/INestiaSdkInput";
+import { ArrayUtil } from "../utils/ArrayUtil";
 import { MapUtil } from "../utils/MapUtil";
+import { SourceFinder } from "../utils/SourceFinder";
 
 export namespace ConfigAnalyzer {
   export const input = async (
     config: INestiaConfig,
   ): Promise<INestiaSdkInput> => {
     return MapUtil.take(memory, config, async () => {
-      const app: INestApplication =
-        typeof config.input === "function"
-          ? await config.input()
-          : await NestFactory.create(
-              await DynamicModule.mount(config.input, {}, true as any),
-              {
-                logger: false,
-              },
-            );
-      return analyze_application(app);
+      if (typeof config.input === "function")
+        return analyze_application(await config.input());
+
+      const sources: string[] = await SourceFinder.find({
+        include: Array.isArray(config.input)
+          ? config.input
+          : typeof config.input === "object"
+            ? config.input.include
+            : [config.input],
+        exclude:
+          typeof config.input === "object" && !Array.isArray(config.input)
+            ? config.input.exclude ?? []
+            : [],
+        filter: filter(config),
+      });
+      const controllers: INestiaSdkInput.IController[] = [];
+      for (const file of sources) {
+        const external: any[] = await import(file);
+        for (const key in external) {
+          const instance: Function = external[key];
+          if (Reflect.getMetadata("path", instance) !== undefined)
+            controllers.push({
+              class: instance,
+              location: file,
+              prefixes: [],
+            });
+        }
+      }
+      return {
+        controllers,
+      };
     });
   };
 
@@ -66,7 +91,6 @@ export namespace ConfigAnalyzer {
 
     const versioning = (app as any).config?.versioningOptions;
     return {
-      application: app,
       controllers,
       globalPrefix:
         typeof (app as any).config?.globalPrefix === "string"
@@ -99,3 +123,33 @@ const normalize_file = (str: string) =>
         ? 7
         : 0,
   );
+
+const filter =
+  (config: INestiaConfig) =>
+  async (location: string): Promise<boolean> =>
+    location.endsWith(".ts") &&
+    !location.endsWith(".d.ts") &&
+    (config.output === undefined ||
+      (location.indexOf(path.join(config.output, "functional")) === -1 &&
+        (await (
+          await bundler.get(config.output)
+        )(location))) === false);
+
+const bundler = new Singleton(async (output: string) => {
+  const assets: string[] = await fs.promises.readdir(SdkGenerator.BUNDLE_PATH);
+  const tuples: Pair<string, boolean>[] = await ArrayUtil.asyncMap(
+    assets,
+    async (file) => {
+      const relative: string = path.join(output, file);
+      const location: string = path.join(SdkGenerator.BUNDLE_PATH, file);
+      const stats: fs.Stats = await fs.promises.stat(location);
+      return new Pair(relative, stats.isDirectory());
+    },
+  );
+  return async (file: string): Promise<boolean> => {
+    for (const it of tuples)
+      if (it.second === false && file === it.first) return true;
+      else if (it.second === true && file.indexOf(it.first) === 0) return true;
+    return false;
+  };
+});

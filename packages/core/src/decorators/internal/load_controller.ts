@@ -3,9 +3,6 @@ import is_ts_node from "detect-ts-node";
 import { Creator } from "../../typings/Creator";
 import { SourceFinder } from "../../utils/SourceFinder";
 
-/**
- * @internal
- */
 export const load_controllers = async (
   path: string | string[] | { include: string[]; exclude?: string[] },
   isTsNode?: boolean,

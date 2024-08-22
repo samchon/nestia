@@ -107,7 +107,7 @@ const EditorMovie = (props: { mode: "nest" | "sdk" }) => {
       >
         {progress ? "Generating..." : "Generate Editor"}
       </Button>
-      ...{error !== null ? [<div>{error}</div>] : []}
+      {...error ? [<div>{error}</div>] : []}
     </Paper>
   );
 };
