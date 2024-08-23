@@ -18,7 +18,8 @@ async function main(): Promise<void> {
         },
       },
     ],
-  })(`${__dirname}/features`);
+    location: `${__dirname}/features`,
+  });
   await server.close();
 
   const exceptions: Error[] = report.executions
