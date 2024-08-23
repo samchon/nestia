@@ -125,8 +125,10 @@ export namespace SdkTypeProgrammer {
             )
           : ts.factory.createBigIntLiteral(value.toString()),
       );
-    else if (typeof value === "number")
-      return ts.factory.createLiteralTypeNode(ExpressionFactory.number(value));
+    else if (typeof value.value === "number")
+      return ts.factory.createLiteralTypeNode(
+        ExpressionFactory.number(value.value),
+      );
     return ts.factory.createLiteralTypeNode(
       ts.factory.createStringLiteral(value.value as string),
     );
@@ -363,7 +365,7 @@ const writeComment =
                 a.tags.some((r) => r.some((t) => t.kind === tag.name)),
               ),
           )
-        : jsDocTags ?? [];
+        : (jsDocTags ?? []);
 
     if (description?.length && filtered.length) lines.push("");
     if (filtered.length)
