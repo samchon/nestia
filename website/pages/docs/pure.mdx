@@ -25,10 +25,11 @@ This is the power of `nestia`, with pure TypeScript type.
     <span>Pure Nestia DTO</span>,
 ]}>
   <Tab>
-```typescript filename="BbsArticle.ts" showLineNumbers {24-35}
+```typescript filename="BbsArticle.ts" showLineNumbers {25-36}
 import { ApiProperty } from "@nestjs/swagger";
 import {
   ArrayNotEmpty,
+  Format,
   IsArray,
   IsObject,
   IsOptional,
@@ -116,6 +117,7 @@ export class AttachmentFile {
     format: "url",
     description: "URL of the file.",
   })
+  @Format("uri")
   @IsString()
   url!: string;
 }
@@ -138,9 +140,6 @@ export interface IBbsArticle {
 
   /**
    * Title of the article.
-   *
-   * @minLength 5
-   * @maxLength 100
    */
   title: null | (string & tags.MinLength<5> & tags.MaxLength<100>);
 
@@ -151,8 +150,6 @@ export interface IBbsArticle {
 
   /**
    * Creation time of article.
-   *
-   * @format date-time
    */
   created_at: string & tags.Format<"date-time">;
 }
@@ -160,9 +157,6 @@ export interface IBbsArticle {
 export interface IAttachmentFile {
   /**
    * File name.
-   *
-   * @pattern ^[a-z0-9]+$
-   * @maxLength 255
    */
   name: string & tags.Pattern<"^[a-z0-9]+$"> & tags.MaxLength<255>;
 
@@ -174,7 +168,7 @@ export interface IAttachmentFile {
   /**
    * URL of the file.
    */
-  url: string;
+  url: string & tags.Format<"uri">;
 }
 ```
   </Tab>
