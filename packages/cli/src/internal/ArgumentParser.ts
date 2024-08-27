@@ -19,7 +19,7 @@ export namespace ArgumentParser {
       "tsconfig.json file location",
     );
     commander.program.option(
-      "--swagger [boolean]",
+      "--runtime [boolean]",
       "transform runtime swagger",
     );
 
@@ -100,7 +100,7 @@ export namespace ArgumentParser {
           (await select("swagger")("Transform Runtime Swagger")([
             "true",
             "false",
-          ]))) === "true";
+          ]))) !== "false";
 
       if (questioned.value) console.log("");
       return options as IArguments;
