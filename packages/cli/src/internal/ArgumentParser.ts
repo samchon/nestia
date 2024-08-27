@@ -8,7 +8,7 @@ export namespace ArgumentParser {
   export interface IArguments {
     manager: "npm" | "pnpm" | "yarn";
     project: string | null;
-    swagger: boolean;
+    runtime: boolean;
   }
 
   export async function parse(pack: PackageManager): Promise<IArguments> {
@@ -95,8 +95,8 @@ export namespace ArgumentParser {
       );
       pack.manager = options.manager;
       options.project ??= await configure();
-      options.swagger =
-        ((options.swagger as string | undefined) ??
+      options.runtime =
+        ((options.runtime as string | undefined) ??
           (await select("swagger")("Transform Runtime Swagger")([
             "true",
             "false",
