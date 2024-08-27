@@ -13,7 +13,7 @@ import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
 
 export namespace ReflectWebSocketOperationAnalyzer {
   export interface IProps {
-    project: INestiaProject;
+    project: Omit<INestiaProject, "config">;
     controller: IReflectController;
     function: Function;
     name: string;

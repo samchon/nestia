@@ -21,7 +21,7 @@ export namespace ConfigAnalyzer {
   ): Promise<INestiaSdkInput> => {
     return MapUtil.take(memory, config, async () => {
       if (typeof config.input === "function")
-        return analyze_application(await config.input());
+        return application(await config.input());
 
       const sources: string[] = await SourceFinder.find({
         include: Array.isArray(config.input)
@@ -31,7 +31,7 @@ export namespace ConfigAnalyzer {
             : [config.input],
         exclude:
           typeof config.input === "object" && !Array.isArray(config.input)
-            ? config.input.exclude ?? []
+            ? (config.input.exclude ?? [])
             : [],
         filter: filter(config),
       });
@@ -54,7 +54,7 @@ export namespace ConfigAnalyzer {
     });
   };
 
-  const analyze_application = async (
+  export const application = async (
     app: INestApplication,
   ): Promise<INestiaSdkInput> => {
     const container: NestContainer = (app as any).container as NestContainer;

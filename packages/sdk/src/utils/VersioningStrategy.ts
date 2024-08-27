@@ -9,7 +9,7 @@ export namespace VersioningStrategy {
     value === undefined ? [] : Array.isArray(value) ? value : [value];
 
   export const merge =
-    (project: INestiaProject) =>
+    (project: Omit<INestiaProject, "config">) =>
     (values: Array<string | typeof VERSION_NEUTRAL>): string[] => {
       if (project.input.versioning === undefined) return [""];
       const set: Set<string | typeof VERSION_NEUTRAL> = new Set(values);

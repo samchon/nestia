@@ -17,7 +17,7 @@ import { ReflectWebSocketOperationAnalyzer } from "./ReflectWebSocketOperationAn
 
 export namespace ReflectControllerAnalyzer {
   export interface IProps {
-    project: INestiaProject;
+    project: Omit<INestiaProject, "config">;
     controller: INestiaSdkInput.IController;
     unique: WeakSet<Function>;
   }

@@ -8,6 +8,7 @@ export namespace ArgumentParser {
   export interface IArguments {
     manager: "npm" | "pnpm" | "yarn";
     project: string | null;
+    swagger: boolean;
   }
 
   export async function parse(pack: PackageManager): Promise<IArguments> {
@@ -16,6 +17,10 @@ export namespace ArgumentParser {
     commander.program.option(
       "--project [project]",
       "tsconfig.json file location",
+    );
+    commander.program.option(
+      "--swagger [boolean]",
+      "transform runtime swagger",
     );
 
     // INTERNAL PROCEDURES
@@ -90,6 +95,12 @@ export namespace ArgumentParser {
       );
       pack.manager = options.manager;
       options.project ??= await configure();
+      options.swagger =
+        ((options.swagger as string | undefined) ??
+          (await select("swagger")("Transform Runtime Swagger")([
+            "true",
+            "false",
+          ]))) === "true";
 
       if (questioned.value) console.log("");
       return options as IArguments;

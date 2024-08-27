@@ -1,5 +1,7 @@
+import { NestiaSwaggerComposer } from "@nestia/sdk";
 import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import { SwaggerModule } from "@nestjs/swagger";
 import { Singleton } from "tstl";
 
 import { ApplicationModule } from "./modules/ApplicationModule";
@@ -11,7 +13,10 @@ export class Backend {
     );
 
   public async open(): Promise<void> {
-    return (await this.application.get()).listen(37_000);
+    const app: INestApplication = await this.application.get();
+    const document = await NestiaSwaggerComposer.document(app, {});
+    SwaggerModule.setup("api", app, document as any);
+    await app.listen(37_000);
   }
 
   public async close(): Promise<void> {
