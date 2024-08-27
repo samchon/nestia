@@ -50,7 +50,7 @@ export namespace PluginConfigurator {
         p.transform === "typia/lib/transform",
     );
     const swagger: boolean =
-      args.swagger === false
+      args.runtime === false
         ? true
         : !!plugins.find(
             (p) =>

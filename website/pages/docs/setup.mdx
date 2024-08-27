@@ -49,6 +49,24 @@ When you want to setup `nestia` in existing project, just run above `npx nestia 
 
 Setup Wizard will install and configure everything automatically.
 
+During the setup process, the prompt will ask you to whether configure runtime swagger or not. If you hope to build [Swagger Document in the runtime](/docs/sdk/swagger/#runtime-composition), you have to choose `true` option. Otherwise, just select the `false` option please.
+
+```bash filename="Terminal"
+npm install --save-dev nestia@latest
+npx nestia setup
+
+----------------------------------------
+ Nestia Setup Wizard
+----------------------------------------
+? Package Manager (Use arrow keys)
+> npm
+  pnpm
+  yarn (berry is not supported)
+? Transform Runtime Swagger (Use arrow keys)
+> true
+  false
+```
+
 
 
 
@@ -328,7 +346,8 @@ After install `nestia` like above, you have to modify `project.json` on each app
               "validate": "assert",
               "stringify": "assert"
             }
-          }
+          },
+          "@nestia/sdk/lib/transform", // for runtime swagger composition
         ]
       }
     },
@@ -350,9 +369,9 @@ npm install --save-dev ts-patch
 
 # NESTIA
 npm install --save-dev nestia
-npm install --save-dev @nestia/sdk
 npm install --save @nestia/core
 npm install --save @nestia/e2e
+npm install --save @nestia/sdk
 npm install --save typia
 ```
   </Tab>
@@ -402,6 +421,7 @@ If you want to install `nestia` manually, you have to install `ts-node` and `ts-
         "validate": "assert",
         "stringify": "assert", 
       },
+      { "transform": "@nestia/sdk/lib/transform" }, // for runtime swagger composition
     ],
   },
 }

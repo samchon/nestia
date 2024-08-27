@@ -4,9 +4,46 @@ import { EditorComposer } from "../../../src/functional/EditorComposer";
 import { EDITOR_EXAMPLES } from "../../../src/constants/EDITOR_EXAMPLES";
 
 ## Outline
+<Tabs items={["Bootstrap", "Configuration"]}>
+  <Tab>
+```typescript filename="main.ts" showLineNumbers {8-9} copy
+import { NestiaSwaggerComposer } from "@nestia/sdk";
+import { INestApplication } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { SwaggerModule } from "@nestjs/swagger";
+
+const main = async (): Promise<void> => {
+  const app: INestApplication = await NestFactory.create(ApplicationModule);
+  const document = await NestiaSwaggerComposer.document(app, {});
+  SwaggerModule.setup("api", app, document as any);
+  await app.listen(3_000);
+};
+main().catch(console.error);
+```
+  </Tab>
+  <Tab>
+```typescript filename="tsconfig.json" showLineNumbers
+{
+  "compilerOptions": {
+    "strict": true,
+    "plugins": [
+      { "transform": "typia/lib/transform" },
+      { "transform": "@nestia/core/lib/transform" },
+      { "transform": "@nestia/sdk/lib/transform" }, // essential
+    ],
+  },
+}
+```
+  </Tab>
+</Tabs>
+
+If you want to build Swagger Document in runtime, compose it like above.
+
+By the way, it needs plugin configuration on the `tsconfig.json` file.
+
 <Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
   <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
+```typescript filename="nestia.config.ts" showLineNumbers copy
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
 // import { FastifyAdapter } from "@nestjs/platform-fastify";
@@ -47,7 +84,7 @@ export default NESTIA_CONFIG;
 ```
   </Tab>
   <Tab>
-```bash filename="Terminal" showLineNumbers {}
+```bash filename="Terminal" showLineNumbers
 # BUILD SWAGGER DOCUUMET ONLY
 npx nestia swagger
 
@@ -57,16 +94,97 @@ npx nestia all
   </Tab>
 </Tabs>
 
-Configure [`nestia.config.ts`](#nestiaconfigts) file and run `npx nestia swagger` command.
+Otherwise you want to generate a swagger file by CLI (Command Line Interface), configure `nestia.config.ts` file and run the `npx nestia swagger` command. Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate `swagger.json` file.
 
-Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate `swagger.json` file.
-
-If you want to build not only Swagger Document, but also [OpenAI function calling schema](./openai), [SDK (Software Development Kit) library](./sdk) and [automated E2E (End-to-End) test functions](./e2e) at the same time, run `npx nestia all` command instead.
+When you want to build not only Swagger Document file, but also [OpenAI function calling schema](./openai), [SDK (Software Development Kit) library](./sdk) and [automated E2E (End-to-End) test functions](./e2e) at the same time, run `npx nestia all` command instead.
 
 
 
+## Runtime Composition
+### Bootstrap
+```typescript filename="main.ts" showLineNumbers {8-17}
+import { NestiaSwaggerComposer } from "@nestia/sdk";
+import { INestApplication } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { SwaggerModule } from "@nestjs/swagger";
 
-## Configuration
+const main = async (): Promise<void> => {
+  const app: INestApplication = await NestFactory.create(ApplicationModule);
+  const document = await NestiaSwaggerComposer.document(app, {
+    openapi: "3.1",
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Localhost"
+      }
+    ]
+  });
+  SwaggerModule.setup("api", app, document as any);
+  await app.listen(3_000);
+};
+main().catch(console.error);
+```
+
+Call `NestiaSwaggerComposer.document()` function.
+
+To compose Swagger Document in runtime and serve it through the Swagger UI in the NestJS application, import `NestiaSwaggerComposer` module from `@nestia/sdk` and call the `NestiaSwaggerComposer.document()` function with the `INestApplication` instance.
+
+When you call the `NestiaSwaggerComposer.document()` function, `@nestia/sdk` will analyze your NestJS backed server code in the compilation level rapidly, and generate the Swagger Document object in the runtime. If you want to specify the OpenAPI version or server address(es), configure the second parameter of the `NestiaSwaggerComposer.document()` function.
+
+After that, deliver the generated Swagger Document object to the `SwaggerModule.setup()` function of the `@nestjs/swagger` module. Then, the Swagger UI would be served in the `http://localhost:3000/api` address, and the `swagger.json` file would be placed on the http://localhost:3000/api-json location. Note that, as the NestJS core team and `SwaggerModule.setup()` function have not defined the exact OpenAPI document types, you've to cast the `document` object to `any` type.
+
+### Plugin Configuration
+```json filename="tsconfig.json" showLineNumbers
+{
+  "compilerOptions": {
+    "strict": true,
+    "plugins": [
+      { "transform": "typia/lib/transform" },
+      { "transform": "@nestia/core/lib/transform" },
+      { "transform": "@nestia/sdk/lib/transform" }, // essential
+    ],
+  },
+}
+```
+
+Configure plugin property of `tsconfig.json` file like above.
+
+To activate the runtime swagger composer by `NestiaSwaggerComposer.document()` function, you have to configure the plugin on the `tsconfig.json` file. If you've not done it yet, open the `tsconfig.json` file and configure like above. If you don't do that, the runtime swagger composer cannot find any API operations, so that the Swagger Document would be empty.
+
+<Tabs items={["Argument Specified", "Prompt Question"]}>
+  <Tab>
+```bash filename="Terminal"
+npm install --save-dev nestia@latest
+npx nestia setup --runtime true
+```
+  </Tab>
+  <Tab>
+```bash filename="Terminal"
+npm install --save-dev nestia@latest
+npx nestia setup
+
+----------------------------------------
+ Nestia Setup Wizard
+----------------------------------------
+? Package Manager (Use arrow keys)
+> npm
+  pnpm
+  yarn (berry is not supported)
+? Transform Runtime Swagger (Use arrow keys)
+> true
+  false
+```
+  </Tab>
+</Tabs>
+
+If you feel the `tsconfig.json` file configuration annoying, you can do it with CLI command of `nestia`. Just run the `npx nestia setup --runtime true` command, then the `tsconfig.json` file would be automatically configured with the plugin property. 
+
+If you do not specify the `--runtime true` argument, so that run only the `npx nestia setup` command, the CLI prompt will ask you whether to configure the runtime argument or not. Answer as `yes` to configure it.
+
+
+
+
+## File Generation
 ### Application Module
 <Tabs items={[
   <code>nestia.config.ts</code>, 
@@ -1641,18 +1759,39 @@ The 2nd way is to hosting the `swagger.json` file in the NestJS backend server.
 
 Read below example code, and follow it on yours:
 
-```typescript copy showLineNumbers
+<Tabs items={["Runtime", "File Generated"]}>
+  <Tab>
+```typescript filename="main.ts" showLineNumbers copy
+import { NestiaSwaggerComposer } from "@nestia/sdk";
+import { INestApplication } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { SwaggerModule } from "@nestjs/swagger";
+
+const main = async (): Promise<void> => {
+  const app: INestApplication = await NestFactory.create(ApplicationModule);
+  const document = await NestiaSwaggerComposer.document(app, {});
+  SwaggerModule.setup("api", app, document as any);
+
+  await app.listen(3_000);
+};
+main().catch(console.error);
+```
+  </Tab>
+  <Tab>
+```typescript filename="main.ts" showLineNumbers copy
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule } from "@nestjs/swagger";
 import fs from "fs";
 
-async function open(): Promise<void> {
-  const app = await NestFactory.create({...});
-
+const main = async (): Promise<void> => {
+  const app = await NestFactory.create(ApplicationModule);
   const docs = require("...write swagger.json path");
   docs.servers = [{ url: "write your server URL" }];
   SwaggerModule.setup("swagger", app, docs);
 
   await app.listen(8080);
 }
+main().catch(console.error);
 ```
+  </Tab>
+</Tabs>
