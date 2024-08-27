@@ -66,7 +66,7 @@ export namespace SwaggerGenerator {
   };
 
   export const compose = (props: {
-    config: INestiaConfig.ISwaggerConfig;
+    config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     routes: ITypedHttpRoute[];
     document: OpenApi.IDocument;
   }): OpenApi.IDocument => {
@@ -100,7 +100,7 @@ export namespace SwaggerGenerator {
   };
 
   export const initialize = async (
-    config: INestiaConfig.ISwaggerConfig,
+    config: Omit<INestiaConfig.ISwaggerConfig, "output">,
   ): Promise<OpenApi.IDocument> => {
     const pack = new Singleton(
       async (): Promise<Partial<OpenApi.IDocument.IInfo> | null> => {
@@ -178,7 +178,7 @@ export namespace SwaggerGenerator {
   };
 
   const fillPaths = (props: {
-    config: INestiaConfig.ISwaggerConfig;
+    config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     document: OpenApi.IDocument;
     schema: (metadata: Metadata) => OpenApi.IJsonSchema | undefined;
     routes: ITypedHttpRoute[];

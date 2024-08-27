@@ -9,7 +9,7 @@ import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
 
 export namespace SwaggerOperationParameterComposer {
   export interface IProps<Parameter extends ITypedHttpRouteParameter> {
-    config: INestiaConfig.ISwaggerConfig;
+    config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     document: OpenApi.IDocument;
     schema: OpenApi.IJsonSchema;
     jsDocTags: IJsDocTagInfo[];

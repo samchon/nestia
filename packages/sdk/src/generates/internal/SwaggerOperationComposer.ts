@@ -11,7 +11,7 @@ import { SwaggerOperationResponseComposer } from "./SwaggerOperationResponseComp
 
 export namespace SwaggerOperationComposer {
   export const compose = (props: {
-    config: INestiaConfig.ISwaggerConfig;
+    config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     document: OpenApi.IDocument;
     schema: (metadata: Metadata) => OpenApi.IJsonSchema | undefined;
     route: ITypedHttpRoute;
