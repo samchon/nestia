@@ -95,10 +95,12 @@ export namespace ArgumentParser {
       );
       pack.manager = options.manager;
       options.project ??= await configure();
-      options.swagger = options.swagger
-        ? (options.swagger as any) === "true"
-        : (await select("swagger")("Transform Runtime Swagger")(["Y", "N"])) ===
-          "Y";
+      options.swagger =
+        ((options.swagger as string | undefined) ??
+          (await select("swagger")("Transform Runtime Swagger")([
+            "true",
+            "false",
+          ]))) === "true";
 
       if (questioned.value) console.log("");
       return options as IArguments;
