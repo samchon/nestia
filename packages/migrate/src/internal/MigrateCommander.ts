@@ -2,7 +2,7 @@ import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import fs from "fs";
 import path from "path";
 import { format } from "prettier";
-import { IValidation } from "typia";
+import typia, { IValidation, tags } from "typia";
 
 import { MigrateApplication } from "../MigrateApplication";
 import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
@@ -26,18 +26,22 @@ export namespace MigrateCommander {
     const document:
       | SwaggerV2.IDocument
       | OpenApiV3.IDocument
-      | OpenApiV3_1.IDocument = (() => {
+      | OpenApiV3_1.IDocument = await (async () => {
+      if (typia.is<string & tags.Format<"uri">>(options.input)) {
+        const response: Response = await fetch(options.input);
+        const content: string = await response.text();
+        return JSON.parse(content);
+      }
       if (fs.existsSync(options.input) === false)
         halt("Unable to find the input swagger.json file.");
       const stats: fs.Stats = fs.statSync(options.input);
       if (stats.isFile() === false)
         halt("The input swagger.json is not a file.");
-      const content: string = fs.readFileSync(options.input, "utf-8");
-      const swagger:
-        | SwaggerV2.IDocument
-        | OpenApiV3.IDocument
-        | OpenApiV3_1.IDocument = JSON.parse(content);
-      return swagger;
+      const content: string = await fs.promises.readFile(
+        options.input,
+        "utf-8",
+      );
+      return JSON.parse(content);
     })();
 
     const result: IValidation<MigrateApplication> =
