@@ -87,7 +87,7 @@ export namespace TypedFormData {
     return createParamDecorator(async function TypedFormDataBody(
       _unknown: any,
       context: ExecutionContext,
-    ) {
+    ): Promise<T> {
       const http: HttpArgumentsHost = context.switchToHttp();
       const request: express.Request = http.getRequest();
       if (isMultipartFormData(request.headers["content-type"]) === false)

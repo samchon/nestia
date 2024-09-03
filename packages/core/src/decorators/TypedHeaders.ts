@@ -54,11 +54,10 @@ export function TypedHeaders<T extends object>(
   return createParamDecorator(function TypedHeaders(
     _unknown: any,
     context: ExecutionContext,
-  ) {
+  ): T {
     const request: express.Request | FastifyRequest = context
       .switchToHttp()
       .getRequest();
-
     const output: T | Error = checker(request.headers);
     if (output instanceof Error) throw output;
     return output;

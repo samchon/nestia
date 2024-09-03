@@ -14,4 +14,5 @@ export interface INestiaTransformOptions {
     | "assertPrune"
     | "validatePrune";
   stringify?: "stringify" | "assert" | "is" | "validate" | null;
+  throws?: boolean;
 }

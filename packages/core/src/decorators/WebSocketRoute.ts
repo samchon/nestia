@@ -2,8 +2,8 @@ import typia from "typia";
 
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
 import { IRequestQueryValidator } from "../options/IRequestQueryValidator";
+import { NoTransformConfigurationError } from "./NoTransformConfigurationError";
 import { IWebSocketRouteReflect } from "./internal/IWebSocketRouteReflect";
-import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
 import { validate_request_body } from "./internal/validate_request_body";
 import { validate_request_query } from "./internal/validate_request_query";
 
@@ -166,8 +166,10 @@ export namespace WebSocketRoute {
     field: string,
     assert?: (value: string) => T,
   ): ParameterDecorator {
-    if (assert === undefined)
-      return NoTransformConfigureError("WebSocketRoute.Param");
+    if (assert === undefined) {
+      NoTransformConfigurationError("WebSocketRoute.Param");
+      assert = (value) => value as T;
+    }
     return function WebSocketParam(
       target: Object,
       propertyKey: string | symbol | undefined,

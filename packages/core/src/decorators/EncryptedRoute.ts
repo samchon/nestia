@@ -20,7 +20,6 @@ import typia from "typia";
 import { IResponseBodyStringifier } from "../options/IResponseBodyStringifier";
 import { Singleton } from "../utils/Singleton";
 import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
-import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
 import { get_path_and_stringify } from "./internal/get_path_and_stringify";
 import { headers_to_object } from "./internal/headers_to_object";
 import { route_error } from "./internal/route_error";
@@ -146,7 +145,9 @@ class EncryptedRouteInterceptor implements NestInterceptor {
           context.getClass(),
         );
         if (!param)
-          return NoTransformConfigureError(`EncryptedRoute.${this.method}`);
+          return Error(
+            `Error on EncryptedRoute.${this.method}(): no password found.`,
+          );
 
         const headers: Singleton<Record<string, string>> = new Singleton(() => {
           const request: express.Request = http.getRequest();
