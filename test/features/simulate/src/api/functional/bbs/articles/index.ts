@@ -110,20 +110,11 @@ export async function query(
 ): Promise<query.Output> {
   return !!connection.simulate
     ? query.simulate(connection, section, input)
-    : PlainFetcher.fetch(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...query.METADATA,
-          template: query.METADATA.path,
-          path: query.path(section, input),
-        },
-      );
+    : PlainFetcher.fetch(connection, {
+        ...query.METADATA,
+        template: query.METADATA.path,
+        path: query.path(section, input),
+      });
 }
 export namespace query {
   export type Query = Resolved<IPage.IRequest>;
@@ -195,20 +186,11 @@ export async function at(
 ): Promise<at.Output> {
   return !!connection.simulate
     ? at.simulate(connection, section, id)
-    : PlainFetcher.fetch(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...at.METADATA,
-          template: at.METADATA.path,
-          path: at.path(section, id),
-        },
-      );
+    : PlainFetcher.fetch(connection, {
+        ...at.METADATA,
+        template: at.METADATA.path,
+        path: at.path(section, id),
+      });
 }
 export namespace at {
   export type Output = Primitive<IBbsArticle>;
@@ -269,20 +251,11 @@ export async function first(
 ): Promise<first.Output> {
   return !!connection.simulate
     ? first.simulate(connection, section, date)
-    : PlainFetcher.fetch(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...first.METADATA,
-          template: first.METADATA.path,
-          path: first.path(section, date),
-        },
-      );
+    : PlainFetcher.fetch(connection, {
+        ...first.METADATA,
+        template: first.METADATA.path,
+        path: first.path(section, date),
+      });
 }
 export namespace first {
   export type Output = Primitive<IBbsArticle>;

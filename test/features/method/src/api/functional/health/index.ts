@@ -16,20 +16,11 @@ import typia from "typia";
 export async function get(connection: IConnection): Promise<void> {
   return !!connection.simulate
     ? get.simulate(connection)
-    : PlainFetcher.fetch(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...get.METADATA,
-          template: get.METADATA.path,
-          path: get.path(),
-        },
-      );
+    : PlainFetcher.fetch(connection, {
+        ...get.METADATA,
+        template: get.METADATA.path,
+        path: get.path(),
+      });
 }
 export namespace get {
   export const METADATA = {

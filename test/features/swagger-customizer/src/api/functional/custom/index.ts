@@ -18,20 +18,11 @@ export async function customize(
   __key: number,
   __value: string,
 ): Promise<customize.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...customize.METADATA,
-      template: customize.METADATA.path,
-      path: customize.path(__key, __value),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...customize.METADATA,
+    template: customize.METADATA.path,
+    path: customize.path(__key, __value),
+  });
 }
 export namespace customize {
   export type Output = Primitive<string>;
@@ -60,20 +51,11 @@ export async function normal(
   connection: IConnection,
   id: string & Format<"uuid">,
 ): Promise<normal.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...normal.METADATA,
-      template: normal.METADATA.path,
-      path: normal.path(id),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...normal.METADATA,
+    template: normal.METADATA.path,
+    path: normal.path(id),
+  });
 }
 export namespace normal {
   export type Output = Primitive<string>;

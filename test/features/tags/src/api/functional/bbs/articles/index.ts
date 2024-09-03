@@ -17,6 +17,7 @@ import type { IBbsArticle } from "../../../structures/IBbsArticle";
  * @param input Content to store
  * @returns Newly archived article
  * @tag public Some description describing public group...
+ * @tag write Write accessor
  * @summary Public API
  * @security bearer
  * @security oauth2 read write
@@ -146,20 +147,11 @@ export async function erase(
   section: string,
   id: string & Format<"uuid">,
 ): Promise<void> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...erase.METADATA,
-      template: erase.METADATA.path,
-      path: erase.path(section, id),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...erase.METADATA,
+    template: erase.METADATA.path,
+    path: erase.path(section, id),
+  });
 }
 export namespace erase {
   export const METADATA = {

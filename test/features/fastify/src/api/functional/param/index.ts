@@ -16,20 +16,11 @@ export async function boolean(
   connection: IConnection,
   value: false | true,
 ): Promise<boolean.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...boolean.METADATA,
-      template: boolean.METADATA.path,
-      path: boolean.path(value),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...boolean.METADATA,
+    template: boolean.METADATA.path,
+    path: boolean.path(value),
+  });
 }
 export namespace boolean {
   export type Output = Primitive<false | true>;
@@ -58,20 +49,11 @@ export async function number(
   connection: IConnection,
   value: number,
 ): Promise<number.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...number.METADATA,
-      template: number.METADATA.path,
-      path: number.path(value),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...number.METADATA,
+    template: number.METADATA.path,
+    path: number.path(value),
+  });
 }
 export namespace number {
   export type Output = Primitive<number>;
@@ -100,20 +82,11 @@ export async function string(
   connection: IConnection,
   value: string,
 ): Promise<string.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...string.METADATA,
-      template: string.METADATA.path,
-      path: string.path(value),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...string.METADATA,
+    template: string.METADATA.path,
+    path: string.path(value),
+  });
 }
 export namespace string {
   export type Output = Primitive<string>;
@@ -142,20 +115,11 @@ export async function nullable(
   connection: IConnection,
   value: null | string,
 ): Promise<nullable.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...nullable.METADATA,
-      template: nullable.METADATA.path,
-      path: nullable.path(value),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...nullable.METADATA,
+    template: nullable.METADATA.path,
+    path: nullable.path(value),
+  });
 }
 export namespace nullable {
   export type Output = Primitive<null | string>;
@@ -184,20 +148,11 @@ export async function literal(
   connection: IConnection,
   value: "A" | "B" | "C",
 ): Promise<literal.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...literal.METADATA,
-      template: literal.METADATA.path,
-      path: literal.path(value),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...literal.METADATA,
+    template: literal.METADATA.path,
+    path: literal.path(value),
+  });
 }
 export namespace literal {
   export type Output = Primitive<"A" | "B" | "C">;

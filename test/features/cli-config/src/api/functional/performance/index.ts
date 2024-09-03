@@ -27,20 +27,11 @@ import type { IPerformance } from "../../structures/IPerformance";
 export async function get(connection: IConnection): Promise<get.Output> {
   return !!connection.simulate
     ? get.simulate(connection)
-    : PlainFetcher.fetch(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...get.METADATA,
-          template: get.METADATA.path,
-          path: get.path(),
-        },
-      );
+    : PlainFetcher.fetch(connection, {
+        ...get.METADATA,
+        template: get.METADATA.path,
+        path: get.path(),
+      });
 }
 export namespace get {
   export type Output = Primitive<IPerformance>;

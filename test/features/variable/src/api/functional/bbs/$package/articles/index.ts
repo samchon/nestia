@@ -81,20 +81,11 @@ export async function $catch(
   section: null | string,
   input: $catch.Query,
 ): Promise<$catch.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...$catch.METADATA,
-      template: $catch.METADATA.path,
-      path: $catch.path(section, input),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...$catch.METADATA,
+    template: $catch.METADATA.path,
+    path: $catch.path(section, input),
+  });
 }
 export namespace $catch {
   export type Query = Resolved<IPage.IRequest>;
@@ -141,20 +132,11 @@ export async function at(
   section: string,
   id: null | (string & Format<"uuid">),
 ): Promise<at.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...at.METADATA,
-      template: at.METADATA.path,
-      path: at.path(section, id),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...at.METADATA,
+    template: at.METADATA.path,
+    path: at.path(section, id),
+  });
 }
 export namespace at {
   export type Output = Primitive<IBbsArticle>;
@@ -190,20 +172,11 @@ export async function $new(
   section: string,
   date: string & Format<"date">,
 ): Promise<$new.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...$new.METADATA,
-      template: $new.METADATA.path,
-      path: $new.path(section, date),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...$new.METADATA,
+    template: $new.METADATA.path,
+    path: $new.path(section, date),
+  });
 }
 export namespace $new {
   export type Output = Primitive<IBbsArticle>;
@@ -348,20 +321,11 @@ export async function $$delete(
   section: string,
   id: string & Format<"uuid">,
 ): Promise<void> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...$$delete.METADATA,
-      template: $$delete.METADATA.path,
-      path: $$delete.path(section, id),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...$$delete.METADATA,
+    template: $$delete.METADATA.path,
+    path: $$delete.path(section, id),
+  });
 }
 export namespace $$delete {
   export const METADATA = {
@@ -393,20 +357,11 @@ export async function $delete(
   connection: IConnection,
   section: string,
 ): Promise<void> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...$delete.METADATA,
-      template: $delete.METADATA.path,
-      path: $delete.path(section),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...$delete.METADATA,
+    template: $delete.METADATA.path,
+    path: $delete.path(section),
+  });
 }
 export namespace $delete {
   export const METADATA = {

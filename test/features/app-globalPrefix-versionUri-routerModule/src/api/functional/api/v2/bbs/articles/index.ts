@@ -21,20 +21,11 @@ export async function index(
   section: string,
   query: index.Query,
 ): Promise<index.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...index.METADATA,
-      template: index.METADATA.path,
-      path: index.path(section, query),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...index.METADATA,
+    template: index.METADATA.path,
+    path: index.path(section, query),
+  });
 }
 export namespace index {
   export type Query = Resolved<IPage.IRequest>;
@@ -75,20 +66,11 @@ export async function at(
   section: string,
   id: string & Format<"uuid">,
 ): Promise<at.Output> {
-  return PlainFetcher.fetch(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...at.METADATA,
-      template: at.METADATA.path,
-      path: at.path(section, id),
-    },
-  );
+  return PlainFetcher.fetch(connection, {
+    ...at.METADATA,
+    template: at.METADATA.path,
+    path: at.path(section, id),
+  });
 }
 export namespace at {
   export type Output = Primitive<IBbsArticle>;

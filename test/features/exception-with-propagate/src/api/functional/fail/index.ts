@@ -17,20 +17,11 @@ export async function get(
   connection: IConnection,
   error_type: "EXPIRED_PERMISSION" | "INVALID_PERMISSION",
 ): Promise<get.Output> {
-  return PlainFetcher.propagate<any>(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...get.METADATA,
-      template: get.METADATA.path,
-      path: get.path(error_type),
-    },
-  );
+  return PlainFetcher.propagate<any>(connection, {
+    ...get.METADATA,
+    template: get.METADATA.path,
+    path: get.path(error_type),
+  });
 }
 export namespace get {
   export type Output = IPropagation<
@@ -70,20 +61,11 @@ export async function composite(
     | "INVALID_PERMISSION"
     | "REQUIRED_PERMISSION",
 ): Promise<composite.Output> {
-  return PlainFetcher.propagate<any>(
-    {
-      ...connection,
-      headers: {
-        ...connection.headers,
-        "Content-Type": "application/json",
-      },
-    },
-    {
-      ...composite.METADATA,
-      template: composite.METADATA.path,
-      path: composite.path(error_type),
-    },
-  );
+  return PlainFetcher.propagate<any>(connection, {
+    ...composite.METADATA,
+    template: composite.METADATA.path,
+    path: composite.path(error_type),
+  });
 }
 export namespace composite {
   export type Output = IPropagation<

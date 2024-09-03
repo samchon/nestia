@@ -20,20 +20,11 @@ export * as literal from "./literal";
 export async function index(connection: IConnection): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection)
-    : PlainFetcher.propagate<any>(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...index.METADATA,
-          template: index.METADATA.path,
-          path: index.path(),
-        },
-      );
+    : PlainFetcher.propagate<any>(connection, {
+        ...index.METADATA,
+        template: index.METADATA.path,
+        path: index.path(),
+      });
 }
 export namespace index {
   export type Output = IPropagation<

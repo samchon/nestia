@@ -22,6 +22,7 @@ export namespace SwaggerOperationComposer {
 
     // COMPOSE TAGS
     const tags: Set<string> = new Set([
+      ...props.route.controller.tags,
       ...props.route.tags,
       ...SwaggerDescriptionComposer.getJsDocTexts({
         jsDocTags: props.route.jsDocTags,

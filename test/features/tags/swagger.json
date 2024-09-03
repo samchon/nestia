@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.11.0",
+    "version": "3.12.1-dev.20240903",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -20,7 +20,9 @@
         "summary": "Public API",
         "description": "Would be shown without any mark.",
         "tags": [
-          "public"
+          "bbs",
+          "public",
+          "write"
         ],
         "operationId": "BbsArticlesController.store",
         "parameters": [
@@ -75,7 +77,11 @@
         "summary": "Deprecated API",
         "description": "Deprecated API.\n\nWould be marked as \"deprecated\".\n\nFor reference, top sentence \"Deprecated API.\" can replace the `@summary` tag.",
         "deprecated": true,
-        "tags": [],
+        "tags": [
+          "bbs",
+          "public",
+          "write"
+        ],
         "operationId": "updateArticle",
         "parameters": [
           {
@@ -133,7 +139,9 @@
       "delete": {
         "summary": "Would not be shown",
         "description": "Would not be shown.",
-        "tags": [],
+        "tags": [
+          "bbs"
+        ],
         "operationId": "BbsArticlesController.erase",
         "parameters": [
           {
@@ -302,8 +310,15 @@
   },
   "tags": [
     {
+      "name": "bbs"
+    },
+    {
       "name": "public",
       "description": "Some description describing public group..."
+    },
+    {
+      "name": "write",
+      "description": "Write accessor"
     }
   ],
   "x-samchon-emended": true

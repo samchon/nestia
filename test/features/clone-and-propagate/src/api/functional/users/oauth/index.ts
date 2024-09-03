@@ -33,20 +33,11 @@ export async function getOauthProfile(
 ): Promise<getOauthProfile.Output> {
   return !!connection.simulate
     ? getOauthProfile.simulate(connection, user_id, query)
-    : PlainFetcher.propagate<any>(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...getOauthProfile.METADATA,
-          template: getOauthProfile.METADATA.path,
-          path: getOauthProfile.path(user_id, query),
-        },
-      );
+    : PlainFetcher.propagate<any>(connection, {
+        ...getOauthProfile.METADATA,
+        template: getOauthProfile.METADATA.path,
+        path: getOauthProfile.path(user_id, query),
+      });
 }
 export namespace getOauthProfile {
   export type Query = IAuthentication;

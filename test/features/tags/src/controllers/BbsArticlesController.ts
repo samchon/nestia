@@ -1,10 +1,11 @@
 import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import { ApiSecurity } from "@nestjs/swagger";
+import { ApiSecurity, ApiTags } from "@nestjs/swagger";
 import typia, { tags } from "typia";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
+@ApiTags("bbs")
 @Controller("bbs/articles/:section")
 export class BbsArticlesController {
   /**
@@ -15,6 +16,7 @@ export class BbsArticlesController {
    * @returns Newly archived article
    *
    * @tag public Some description describing public group...
+   * @tag write Write accessor
    * @summary Public API
    * @security bearer
    * @security oauth2 read write
@@ -48,6 +50,7 @@ export class BbsArticlesController {
    * @security basic
    * @security bearer
    */
+  @ApiTags("public", "write")
   @TypedRoute.Put(":id")
   public async update(
     @TypedParam("section") section: string,

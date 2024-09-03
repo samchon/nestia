@@ -37,20 +37,11 @@ export async function getUserProfile(
 ): Promise<getUserProfile.Output> {
   return !!connection.simulate
     ? getUserProfile.simulate(connection, user_id, query)
-    : PlainFetcher.propagate<any>(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...getUserProfile.METADATA,
-          template: getUserProfile.METADATA.path,
-          path: getUserProfile.path(user_id, query),
-        },
-      );
+    : PlainFetcher.propagate<any>(connection, {
+        ...getUserProfile.METADATA,
+        template: getUserProfile.METADATA.path,
+        path: getUserProfile.path(user_id, query),
+      });
 }
 export namespace getUserProfile {
   export type Query = IUser.ISearch;

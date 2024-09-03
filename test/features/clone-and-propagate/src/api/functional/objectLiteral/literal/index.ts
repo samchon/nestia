@@ -20,20 +20,11 @@ export async function literals(
 ): Promise<literals.Output> {
   return !!connection.simulate
     ? literals.simulate(connection)
-    : PlainFetcher.propagate<any>(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...literals.METADATA,
-          template: literals.METADATA.path,
-          path: literals.path(),
-        },
-      );
+    : PlainFetcher.propagate<any>(connection, {
+        ...literals.METADATA,
+        template: literals.METADATA.path,
+        path: literals.path(),
+      });
 }
 export namespace literals {
   export type Output = IPropagation<
