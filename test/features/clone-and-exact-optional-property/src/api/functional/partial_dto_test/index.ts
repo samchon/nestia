@@ -23,20 +23,11 @@ export async function original(
 ): Promise<original.Output> {
   return !!connection.simulate
     ? original.simulate(connection)
-    : PlainFetcher.propagate<any>(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...original.METADATA,
-          template: original.METADATA.path,
-          path: original.path(),
-        },
-      );
+    : PlainFetcher.propagate<any>(connection, {
+        ...original.METADATA,
+        template: original.METADATA.path,
+        path: original.path(),
+      });
 }
 export namespace original {
   export type Output = IPropagation<

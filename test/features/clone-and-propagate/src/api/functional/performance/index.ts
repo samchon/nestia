@@ -18,20 +18,11 @@ import type { process } from "../../structures/process";
 export async function cpu(connection: IConnection): Promise<cpu.Output> {
   return !!connection.simulate
     ? cpu.simulate(connection)
-    : PlainFetcher.propagate<any>(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...cpu.METADATA,
-          template: cpu.METADATA.path,
-          path: cpu.path(),
-        },
-      );
+    : PlainFetcher.propagate<any>(connection, {
+        ...cpu.METADATA,
+        template: cpu.METADATA.path,
+        path: cpu.path(),
+      });
 }
 export namespace cpu {
   export type Output = IPropagation<
@@ -81,20 +72,11 @@ export namespace cpu {
 export async function memory(connection: IConnection): Promise<memory.Output> {
   return !!connection.simulate
     ? memory.simulate(connection)
-    : PlainFetcher.propagate<any>(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...memory.METADATA,
-          template: memory.METADATA.path,
-          path: memory.path(),
-        },
-      );
+    : PlainFetcher.propagate<any>(connection, {
+        ...memory.METADATA,
+        template: memory.METADATA.path,
+        path: memory.path(),
+      });
 }
 export namespace memory {
   export type Output = IPropagation<
@@ -146,20 +128,11 @@ export async function resource(
 ): Promise<resource.Output> {
   return !!connection.simulate
     ? resource.simulate(connection)
-    : PlainFetcher.propagate<any>(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...resource.METADATA,
-          template: resource.METADATA.path,
-          path: resource.path(),
-        },
-      );
+    : PlainFetcher.propagate<any>(connection, {
+        ...resource.METADATA,
+        template: resource.METADATA.path,
+        path: resource.path(),
+      });
 }
 export namespace resource {
   export type Output = IPropagation<

@@ -37,20 +37,11 @@ export async function index(
 ): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection, section, query)
-    : PlainFetcher.propagate<any>(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...index.METADATA,
-          template: index.METADATA.path,
-          path: index.path(section, query),
-        },
-      );
+    : PlainFetcher.propagate<any>(connection, {
+        ...index.METADATA,
+        template: index.METADATA.path,
+        path: index.path(section, query),
+      });
 }
 export namespace index {
   export type Query = IPage.IRequest;

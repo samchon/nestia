@@ -240,20 +240,11 @@ export namespace login {
 export async function exit(connection: IConnection): Promise<exit.Output> {
   return !!connection.simulate
     ? exit.simulate(connection)
-    : PlainFetcher.propagate<any, any>(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...exit.METADATA,
-          template: exit.METADATA.path,
-          path: exit.path(),
-        },
-      );
+    : PlainFetcher.propagate<any, any>(connection, {
+        ...exit.METADATA,
+        template: exit.METADATA.path,
+        path: exit.path(),
+      });
 }
 export namespace exit {
   export type Output = IPropagation<

@@ -179,20 +179,11 @@ export namespace login {
 export async function exit(connection: IConnection): Promise<void> {
   return !!connection.simulate
     ? exit.simulate(connection)
-    : PlainFetcher.fetch(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...exit.METADATA,
-          template: exit.METADATA.path,
-          path: exit.path(),
-        },
-      );
+    : PlainFetcher.fetch(connection, {
+        ...exit.METADATA,
+        template: exit.METADATA.path,
+        path: exit.path(),
+      });
 }
 export namespace exit {
   export const METADATA = {

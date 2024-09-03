@@ -29,20 +29,11 @@ import type { IZipFile } from "../../structures/IZipFile";
 export async function index(connection: IConnection): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection)
-    : PlainFetcher.propagate<any>(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...index.METADATA,
-          template: index.METADATA.path,
-          path: index.path(),
-        },
-      );
+    : PlainFetcher.propagate<any>(connection, {
+        ...index.METADATA,
+        template: index.METADATA.path,
+        path: index.path(),
+      });
 }
 export namespace index {
   export type Output = IPropagation<
@@ -120,20 +111,11 @@ export async function at(
 ): Promise<at.Output> {
   return !!connection.simulate
     ? at.simulate(connection, id)
-    : PlainFetcher.propagate<any>(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...at.METADATA,
-          template: at.METADATA.path,
-          path: at.path(id),
-        },
-      );
+    : PlainFetcher.propagate<any>(connection, {
+        ...at.METADATA,
+        template: at.METADATA.path,
+        path: at.path(id),
+      });
 }
 export namespace at {
   export type Output = IPropagation<

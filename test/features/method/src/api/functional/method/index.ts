@@ -16,20 +16,11 @@ import typia from "typia";
 export async function head(connection: IConnection): Promise<void> {
   return !!connection.simulate
     ? head.simulate(connection)
-    : PlainFetcher.fetch(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...head.METADATA,
-          template: head.METADATA.path,
-          path: head.path(),
-        },
-      );
+    : PlainFetcher.fetch(connection, {
+        ...head.METADATA,
+        template: head.METADATA.path,
+        path: head.path(),
+      });
 }
 export namespace head {
   export const METADATA = {

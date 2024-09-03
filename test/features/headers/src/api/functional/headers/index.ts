@@ -24,20 +24,11 @@ export async function emplace(
 ): Promise<emplace.Output> {
   return !!connection.simulate
     ? emplace.simulate(connection, section)
-    : PlainFetcher.fetch(
-        {
-          ...connection,
-          headers: {
-            ...connection.headers,
-            "Content-Type": "application/json",
-          },
-        },
-        {
-          ...emplace.METADATA,
-          template: emplace.METADATA.path,
-          path: emplace.path(section),
-        },
-      );
+    : PlainFetcher.fetch(connection, {
+        ...emplace.METADATA,
+        template: emplace.METADATA.path,
+        path: emplace.path(section),
+      });
 }
 export namespace emplace {
   export type Headers = Resolved<IHeaders>;
