@@ -4,8 +4,8 @@
   "description": "Nestia Guide Documents",
   "private": true,
   "scripts": {
-    "build": "rimraf .next && rimraf .out && node build/typedoc && next build && next-sitemap",
-    "deploy": "node deploy",
+    "build": "rimraf .next && rimraf .out && node build/typedoc && next build && node build/sitemap",
+    "deploy": "node build/deploy",
     "dev": "next dev"
   },
   "repository": {
