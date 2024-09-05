@@ -49,20 +49,18 @@ export namespace PluginConfigurator {
         p !== null &&
         p.transform === "typia/lib/transform",
     );
-    const swagger: boolean =
-      args.runtime === false
-        ? true
-        : !!plugins.find(
-            (p) =>
-              typeof p === "object" &&
-              p !== null &&
-              p.transform === "@nestia/sdk/lib/transform",
-          );
+    const swagger: comments.CommentObject | undefined = plugins.find(
+      (p) =>
+        typeof p === "object" &&
+        p !== null &&
+        p.transform === "@nestia/sdk/lib/transform",
+    );
     if (
       strictNullChecks !== false &&
       (strict === true || strictNullChecks === true) &&
       core !== undefined &&
-      typia !== undefined
+      typia !== undefined &&
+      swagger !== undefined
     )
       return;
 
@@ -101,7 +99,7 @@ export namespace PluginConfigurator {
                     "stringify": "assert"
                 }`) as comments.CommentObject,
       );
-    if (swagger === false)
+    if (swagger === undefined && args.runtime === true)
       plugins.push(
         comments.parse(
           `{ "transform": "@nestia/sdk/lib/transform" }`,

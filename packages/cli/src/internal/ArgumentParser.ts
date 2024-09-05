@@ -97,7 +97,7 @@ export namespace ArgumentParser {
       options.project ??= await configure();
       options.runtime =
         ((options.runtime as string | undefined) ??
-          (await select("swagger")("Transform Runtime Swagger")([
+          (await select("runtime")("Transform Runtime Swagger")([
             "true",
             "false",
           ]))) !== "false";
