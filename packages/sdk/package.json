@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "3.12.1",
+  "version": "3.12.2",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -32,8 +32,8 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "^3.12.1",
-    "@nestia/fetcher": "^3.12.1",
+    "@nestia/core": "../core/nestia-core-3.12.2.tgz",
+    "@nestia/fetcher": "../fetcher/nestia-fetcher-3.12.2.tgz",
     "@samchon/openapi": "^0.4.6",
     "@wrtnio/openai-function-schema": "^0.2.3",
     "cli": "^1.0.1",
@@ -48,8 +48,8 @@
     "typia": "^6.9.0"
   },
   "peerDependencies": {
-    "@nestia/core": ">=3.12.1",
-    "@nestia/fetcher": ">=3.12.1",
+    "@nestia/core": ">=3.12.2",
+    "@nestia/fetcher": ">=3.12.2",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",

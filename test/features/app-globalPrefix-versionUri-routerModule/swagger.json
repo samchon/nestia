@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.12.1-dev.20240903",
+    "version": "3.12.2",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -21,6 +21,7 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {}
             }
@@ -34,6 +35,7 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {}
             }
@@ -47,6 +49,7 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {}
             }
@@ -60,6 +63,7 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -77,6 +81,7 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -94,6 +99,7 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -150,6 +156,7 @@
         ],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -245,6 +252,7 @@
         ],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -340,6 +348,7 @@
         ],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -414,6 +423,7 @@
         ],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -498,6 +508,7 @@
         ],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -582,6 +593,7 @@
         ],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -696,6 +708,7 @@
         ],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -739,6 +752,7 @@
         },
         "responses": {
           "201": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -804,6 +818,7 @@
         ],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -847,6 +862,7 @@
         },
         "responses": {
           "201": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -912,6 +928,7 @@
         ],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -955,6 +972,7 @@
         },
         "responses": {
           "201": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -999,6 +1017,7 @@
         ],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1051,6 +1070,7 @@
         },
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1095,6 +1115,7 @@
         ],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1147,6 +1168,7 @@
         },
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1191,6 +1213,7 @@
         ],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1243,6 +1266,7 @@
         },
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {

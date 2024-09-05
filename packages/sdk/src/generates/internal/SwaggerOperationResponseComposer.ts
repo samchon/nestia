@@ -51,7 +51,7 @@ export namespace SwaggerOperationResponseComposer {
         oldbie.description ??= description;
       else if (oldbie === undefined)
         output[status] = {
-          description,
+          description: description,
           content: {
             "application/json": {
               schema: {},
@@ -76,7 +76,7 @@ export namespace SwaggerOperationResponseComposer {
     ] = {
       description: props.route.success.encrypted
         ? `${warning.get(!!description, props.route.method)}${description ?? ""}`
-        : description,
+        : (description ?? ""),
       content: props.route.success.contentType
         ? {
             [props.route.success.contentType]: {
