@@ -22,7 +22,7 @@ export namespace GenericAnalyzer {
         // MUST BE CLASS
         const expression: ts.Type = checker.getTypeAtLocation(hType.expression);
         const superNode: ts.Declaration | undefined =
-          expression.symbol.getDeclarations()?.[0];
+          expression.symbol?.getDeclarations?.()?.[0];
 
         if (superNode === undefined || !ts.isClassDeclaration(superNode))
           continue;
