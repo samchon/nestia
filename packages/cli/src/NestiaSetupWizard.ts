@@ -1,3 +1,5 @@
+import fs from "fs";
+
 import { ArgumentParser } from "./internal/ArgumentParser";
 import { CommandExecutor } from "./internal/CommandExecutor";
 import { PackageManager } from "./internal/PackageManager";
@@ -29,7 +31,11 @@ export namespace NestiaSetupWizard {
     // INSTALL TYPESCRIPT COMPILERS
     pack.install({ dev: true, modulo: "ts-patch", version: "latest" });
     pack.install({ dev: true, modulo: "ts-node", version: "latest" });
-    pack.install({ dev: true, modulo: "typescript", version: "5.5.2" });
+    pack.install({
+      dev: true,
+      modulo: "typescript",
+      version: await getTypeScriptVersion(),
+    });
     args.project ??= (() => {
       const runner: string = pack.manager === "npm" ? "npx" : pack.manager;
       CommandExecutor.run(`${runner} tsc --init`);
@@ -75,4 +81,14 @@ export namespace NestiaSetupWizard {
     // CONFIGURE PLUGIN
     await PluginConfigurator.configure(args);
   }
+
+  const getTypeScriptVersion = async (): Promise<string> => {
+    const content: string = await fs.promises.readFile(
+      `${__dirname}/../package.json`,
+      "utf-8",
+    );
+    const json: { devDependencies: { typescript: string } } =
+      JSON.parse(content);
+    return json.devDependencies.typescript;
+  };
 }

@@ -5,7 +5,7 @@ import { CommandExecutor } from "./CommandExecutor";
 import { FileRetriever } from "./FileRetriever";
 
 export class PackageManager {
-  public manager: string = "npm";
+  public manager: Manager = "npm";
   public get file(): string {
     return path.join(this.directory, "package.json");
   }
@@ -38,17 +38,20 @@ export class PackageManager {
   public install(props: {
     dev: boolean;
     modulo: string;
-    version?: `latest` | `next` | `${number}.${number}.${number}`;
+    version?:
+      | `latest`
+      | `next`
+      | `^${number}.${number}.${number}`
+      | (string & {});
     force?: boolean;
   }): boolean {
-    const symbol: string =
-      this.manager === "yarn"
-        ? `add${props.dev ? " -D" : ""}`
-        : `install ${props.dev ? "--save-dev" : "--save"}`;
+    const cmd = installCmdTable[this.manager];
+    const option = props.dev ? devOptionTable[this.manager] : "";
+    const middle: string = `${cmd} ${option}` as const;
     CommandExecutor.run(
-      `${this.manager} ${symbol}${props.force === true ? " --force" : ""} ${
-        props.modulo
-      }${props.version ? `@${props.version}` : ""}`,
+      `${this.manager} ${middle} ${props.modulo}${
+        props.version ? `@${props.version}` : ""
+      }`,
     );
     return true;
   }
@@ -70,3 +73,19 @@ export namespace Package {
     devDependencies?: Record<string, string>;
   }
 }
+
+type Manager = "npm" | "pnpm" | "yarn" | "bun";
+
+const installCmdTable = {
+  npm: "install",
+  pnpm: "add",
+  yarn: "add",
+  bun: "add",
+} as const satisfies Record<Manager, string>;
+
+const devOptionTable = {
+  npm: "--save-dev",
+  pnpm: "--save-dev",
+  yarn: "--dev",
+  bun: "--dev",
+} as const satisfies Record<Manager, string>;

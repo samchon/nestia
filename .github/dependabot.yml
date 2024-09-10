@@ -1,7 +1,16 @@
 version: 2
 updates:
+#######################################################
   - package-ecosystem: 'npm'
-    directory: '/packages/test'
+    directory: '/packages/cli'
+    schedule:
+      interval: 'daily'
+    open-pull-requests-limit: 25
+    allow:
+      - dependency-name: typescript
+#######################################################
+  - package-ecosystem: 'npm'
+    directory: 'test'
     schedule:
       interval: 'daily'
     versioning-strategy: increase
