@@ -10,7 +10,6 @@ npx nestia [command] [options?]
   5. npx nestia init
   6. npx nestia sdk
   7. npx nestia swagger
-  8. npx nestia openai
   9. npx nestia e2e
   10. npx nestia all
 `;
@@ -45,7 +44,6 @@ async function main(): Promise<void> {
     type === "dependencies" ||
     type === "init" ||
     type === "sdk" ||
-    type === "openai" ||
     type === "swagger" ||
     type === "e2e" ||
     type === "all"
