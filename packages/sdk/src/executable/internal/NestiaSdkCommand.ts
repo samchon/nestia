@@ -19,13 +19,6 @@ export namespace NestiaSdkCommand {
       validate: (config) => !!config.swagger?.output,
       solution: "configure INestiaConfig.swagger property.",
     });
-  export const openai = () =>
-    main({
-      title: "OpenAI Function Calling Schema",
-      generate: (app) => app.openai(),
-      validate: (config) => !!config.openai?.output,
-      solution: "configure INestiaConfig.openai property.",
-    });
   export const e2e = () =>
     main({
       title: "E2E Functions",
@@ -48,7 +41,6 @@ export namespace NestiaSdkCommand {
         "",
         "  - INestiaConfig.output",
         "  - INestiaConfig.swagger.output",
-        "  - INestiaConfig.openai.output",
       ].join("\n"),
     });
 

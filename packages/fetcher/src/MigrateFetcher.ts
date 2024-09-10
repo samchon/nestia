@@ -1,12 +1,19 @@
-import { IMigrateRoute } from "@samchon/openapi";
+import { IHttpMigrateRoute } from "@samchon/openapi";
 
 import { IConnection } from "./IConnection";
 import { IPropagation } from "./IPropagation";
 import { PlainFetcher } from "./PlainFetcher";
 
+/**
+ * Use `HttpMigration.execute()` function of `@samchon/openapi` instead.
+ *
+ * This module would be removed in the next major update.
+ *
+ * @deprecated
+ */
 export namespace MigrateFetcher {
   export interface IProps {
-    route: IMigrateRoute;
+    route: IHttpMigrateRoute;
     connection: IConnection;
     arguments: any[];
   }
