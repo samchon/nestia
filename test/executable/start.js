@@ -57,7 +57,7 @@ const feature = (name) => {
       const lines = config.split("\r\n").join("\n").split("\n");
       if (lines.some((l) => l.startsWith(`  output:`))) generate("sdk");
     }
-    for (const kind of ["swagger", "openai", "e2e"])
+    for (const kind of ["swagger", "e2e"])
       if (config.includes(`${kind}:`)) generate(kind);
   } else generate("all");
 

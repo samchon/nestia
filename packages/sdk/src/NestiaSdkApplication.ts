@@ -11,7 +11,6 @@ import { ReflectControllerAnalyzer } from "./analyses/ReflectControllerAnalyzer"
 import { TypedHttpRouteAnalyzer } from "./analyses/TypedHttpRouteAnalyzer";
 import { TypedWebSocketRouteAnalyzer } from "./analyses/TypedWebSocketRouteAnalyzer";
 import { E2eGenerator } from "./generates/E2eGenerator";
-import { OpenAiGenerator } from "./generates/OpenAiGenerator";
 import { SdkGenerator } from "./generates/SdkGenerator";
 import { SwaggerGenerator } from "./generates/SwaggerGenerator";
 import { INestiaProject } from "./structures/INestiaProject";
@@ -28,11 +27,7 @@ export class NestiaSdkApplication {
   public constructor(private readonly config: INestiaConfig) {}
 
   public async all(): Promise<void> {
-    if (
-      !this.config.output &&
-      !this.config.swagger?.output &&
-      !this.config.openai?.output
-    )
+    if (!this.config.output && !this.config.swagger?.output)
       throw new Error(
         [
           "Error on NestiaApplication.all(): nothing to generate, configure at least one property of below:",
@@ -50,7 +45,6 @@ export class NestiaSdkApplication {
           if (this.config.e2e) await E2eGenerator.generate(app);
         }
         if (this.config.swagger) await SwaggerGenerator.generate(app);
-        if (this.config.openai) await OpenAiGenerator.generate(app);
       },
     });
   }
@@ -126,28 +120,6 @@ export class NestiaSdkApplication {
     print_title("Nestia Swagger Generator");
     await this.generate({
       generate: SwaggerGenerator.generate,
-    });
-  }
-
-  public async openai(): Promise<void> {
-    if (!this.config.openai?.output)
-      throw new Error(
-        `Error on NestiaApplication.openai(): configure INestiaConfig.openai property.`,
-      );
-
-    const parsed: path.ParsedPath = path.parse(this.config.openai.output);
-    const directory: string = !!parsed.ext
-      ? path.resolve(parsed.dir)
-      : this.config.openai.output;
-    const stats: fs.Stats = await fs.promises.lstat(directory);
-    if (stats.isDirectory() === false)
-      throw new Error(
-        "Error on NestiaApplication.openai(): output directory does not exists.",
-      );
-
-    print_title("Nestia OpenAI Function Calling Schema Generator");
-    await this.generate({
-      generate: OpenAiGenerator.generate,
     });
   }
 

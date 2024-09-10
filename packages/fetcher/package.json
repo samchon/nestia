@@ -1,6 +1,6 @@
 {
   "name": "@nestia/fetcher",
-  "version": "3.12.2",
+  "version": "3.13.0-dev.2024910",
   "description": "Fetcher library of Nestia SDK",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -30,7 +30,7 @@
     "@typescript-eslint/eslint-plugin": "^5.46.1",
     "@typescript-eslint/parser": "^5.46.1",
     "rimraf": "^3.0.2",
-    "typescript": "^5.5.2"
+    "typescript": "5.5.4"
   },
   "peerDependencies": {
     "typescript": ">= 4.8.0"
@@ -43,6 +43,6 @@
     "src"
   ],
   "dependencies": {
-    "@samchon/openapi": "^0.4.6"
+    "@samchon/openapi": "^1.0.0"
   }
 }
