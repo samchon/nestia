@@ -3,15 +3,15 @@ import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
 
-import { IMigrateFile } from "../structures/IMigrateFile";
-import { IMigrateProgram } from "../structures/IMigrateProgram";
-import { IMigrateRoute } from "../structures/IMigrateRoute";
+import { IHttpMigrateFile } from "../structures/IHttpMigrateFile";
+import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
+import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateE2eFunctionProgrammer } from "./MigrateE2eFileProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateApiStartProgrammer {
-  export const write = (program: IMigrateProgram): IMigrateFile => {
+  export const write = (program: IHttpMigrateProgram): IHttpMigrateFile => {
     const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
     const main: ts.VariableStatement = writeMain(program)(program.document)(
       importer,
@@ -49,10 +49,10 @@ export namespace MigrateApiStartProgrammer {
   };
 
   const writeMain =
-    (config: IMigrateProgram.IConfig) =>
+    (config: IHttpMigrateProgram.IConfig) =>
     (document: OpenApi.IDocument) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.VariableStatement =>
+    (route: IHttpMigrateRoute): ts.VariableStatement =>
       StatementFactory.constant(
         "main",
         ts.factory.createArrowFunction(
@@ -74,7 +74,7 @@ export namespace MigrateApiStartProgrammer {
       );
 
   const writeConnection =
-    (config: IMigrateProgram.IConfig) =>
+    (config: IHttpMigrateProgram.IConfig) =>
     (document: OpenApi.IDocument) =>
     (importer: MigrateImportProgrammer): ts.VariableStatement =>
       ts.factory.createVariableStatement(

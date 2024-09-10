@@ -1,9 +1,9 @@
 import ts from "typescript";
 
 import { MigrateControllerAnalyzer } from "../analyzers/MigrateControllerAnalyzer";
-import { IMigrateController } from "../structures/IMigrateController";
-import { IMigrateFile } from "../structures/IMigrateFile";
-import { IMigrateProgram } from "../structures/IMigrateProgram";
+import { IHttpMigrateController } from "../structures/IHttpMigrateController";
+import { IHttpMigrateFile } from "../structures/IHttpMigrateFile";
+import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateDtoProgrammer } from "./MigrateDtoProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -11,10 +11,9 @@ import { MigrateNestControllerProgrammer } from "./MigrateNestControllerProgramm
 import { MigrateNestModuleProgrammer } from "./MigrateNestModuleProgrammer";
 
 export namespace MigrateNestProgrammer {
-  export const write = (program: IMigrateProgram): IMigrateFile[] => {
-    const controllers: IMigrateController[] = MigrateControllerAnalyzer.analyze(
-      program.routes,
-    );
+  export const write = (program: IHttpMigrateProgram): IHttpMigrateFile[] => {
+    const controllers: IHttpMigrateController[] =
+      MigrateControllerAnalyzer.analyze(program.routes);
     return [
       {
         location: "src",

@@ -1,4 +1,4 @@
-import { IMigrateFile } from "../structures/IMigrateFile";
+import { IHttpMigrateFile } from "../structures/IHttpMigrateFile";
 
 export namespace MigrateFileArchiver {
   export interface IOperator {
@@ -9,7 +9,7 @@ export namespace MigrateFileArchiver {
   export const archive =
     (operator: IOperator) =>
     (output: string) =>
-    async (files: IMigrateFile[]): Promise<void> => {
+    async (files: IHttpMigrateFile[]): Promise<void> => {
       const visited: Set<string> = new Set();
       for (const f of files) {
         await mkdir(operator.mkdir)(output)(visited)(f.location);

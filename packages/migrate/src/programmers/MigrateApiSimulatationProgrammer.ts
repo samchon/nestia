@@ -4,7 +4,7 @@ import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
-import { IMigrateRoute } from "../structures/IMigrateRoute";
+import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
 import { MigrateApiFunctionProgrammer } from "./MigrateApiFunctionProgrammer";
 import { MigrateApiNamespaceProgrammer } from "./MigrateApiNamespaceProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -14,7 +14,7 @@ export namespace MigrateApiSimulatationProgrammer {
   export const random =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute) => {
+    (route: IHttpMigrateRoute) => {
       const output = route.success
         ? MigrateSchemaProgrammer.write(components)(importer)(
             route.success.schema,
@@ -66,7 +66,7 @@ export namespace MigrateApiSimulatationProgrammer {
   export const simulate =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.VariableStatement => {
+    (route: IHttpMigrateRoute): ts.VariableStatement => {
       const caller = () =>
         ts.factory.createCallExpression(
           ts.factory.createIdentifier("random"),
@@ -115,7 +115,7 @@ export namespace MigrateApiSimulatationProgrammer {
   const assert =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.Statement[] => {
+    (route: IHttpMigrateRoute): ts.Statement[] => {
       const parameters = [
         ...route.parameters.map((p) => ({
           category: "param",

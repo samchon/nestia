@@ -4,5 +4,5 @@ export * from "./analyzers/MigrateAnalyzer";
 
 export * from "./archivers/MigrateFileArchiver";
 
-export * from "./structures/IMigrateProgram";
-export * from "./structures/IMigrateSchema";
+export * from "./structures/IHttpMigrateProgram";
+export * from "./structures/IHttpMigrateSchema";

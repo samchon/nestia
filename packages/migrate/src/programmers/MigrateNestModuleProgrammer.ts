@@ -1,10 +1,12 @@
 import ts from "typescript";
 
-import { IMigrateController } from "../structures/IMigrateController";
+import { IHttpMigrateController } from "../structures/IHttpMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
 
 export namespace MigrateNestModuleProgrammer {
-  export const write = (controllers: IMigrateController[]): ts.Statement[] => [
+  export const write = (
+    controllers: IHttpMigrateController[],
+  ): ts.Statement[] => [
     $import("@nestjs/common")("Module"),
     ...(controllers.length ? [FilePrinter.newLine()] : []),
     ...controllers.map((c) =>

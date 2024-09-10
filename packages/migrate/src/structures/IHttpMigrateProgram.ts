@@ -1,12 +1,12 @@
 import { OpenApi } from "@samchon/openapi";
 
-import { IMigrateRoute } from "./IMigrateRoute";
+import { IHttpMigrateRoute } from "./IHttpMigrateRoute";
 
-export interface IMigrateProgram extends IMigrateProgram.IProps {
-  routes: IMigrateRoute[];
-  errors: IMigrateProgram.IError[];
+export interface IHttpMigrateProgram extends IHttpMigrateProgram.IProps {
+  routes: IHttpMigrateRoute[];
+  errors: IHttpMigrateProgram.IError[];
 }
-export namespace IMigrateProgram {
+export namespace IHttpMigrateProgram {
   export interface IProps {
     mode: "nest" | "sdk";
     simulate: boolean;

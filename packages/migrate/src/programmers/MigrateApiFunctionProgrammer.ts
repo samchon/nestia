@@ -2,18 +2,18 @@ import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
-import { IMigrateProgram } from "../structures/IMigrateProgram";
-import { IMigrateRoute } from "../structures/IMigrateRoute";
+import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
+import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
 export namespace MigrateApiFunctionProgrammer {
   export const write =
-    (config: IMigrateProgram.IConfig) =>
+    (config: IHttpMigrateProgram.IConfig) =>
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.FunctionDeclaration =>
+    (route: IHttpMigrateRoute): ts.FunctionDeclaration =>
       FilePrinter.description(
         ts.factory.createFunctionDeclaration(
           [
@@ -39,7 +39,7 @@ export namespace MigrateApiFunctionProgrammer {
   export const writeParameterDeclarations =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.ParameterDeclaration[] => [
+    (route: IHttpMigrateRoute): ts.ParameterDeclaration[] => [
       IdentifierFactory.parameter(
         "connection",
         ts.factory.createTypeReferenceNode(
@@ -85,7 +85,7 @@ export namespace MigrateApiFunctionProgrammer {
         : []),
     ];
 
-  const writeDescription = (route: IMigrateRoute): string =>
+  const writeDescription = (route: IHttpMigrateRoute): string =>
     [
       route.comment(),
       `@path ${route.emendedPath}`,
@@ -93,9 +93,9 @@ export namespace MigrateApiFunctionProgrammer {
     ].join("\n");
 
   const writeBody =
-    (config: IMigrateProgram.IConfig) =>
+    (config: IHttpMigrateProgram.IConfig) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.Statement[] => {
+    (route: IHttpMigrateRoute): ts.Statement[] => {
       const encrypted: boolean = !!route.success?.["x-nestia-encrypted"];
       const contentType: string = route.body?.type ?? "application/json";
 
