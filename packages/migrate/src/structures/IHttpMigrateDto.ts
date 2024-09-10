@@ -1,8 +1,8 @@
 import { OpenApi } from "@samchon/openapi";
 
-export interface IMigrateDto {
+export interface IHttpMigrateDto {
   name: string;
   location: string;
   schema: OpenApi.IJsonSchema | null;
-  children: IMigrateDto[];
+  children: IHttpMigrateDto[];
 }

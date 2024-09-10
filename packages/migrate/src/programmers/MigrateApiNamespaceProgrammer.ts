@@ -5,8 +5,8 @@ import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
-import { IMigrateProgram } from "../structures/IMigrateProgram";
-import { IMigrateRoute } from "../structures/IMigrateRoute";
+import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
+import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateApiSimulatationProgrammer } from "./MigrateApiSimulatationProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -14,10 +14,10 @@ import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
 export namespace MigrateApiNamespaceProgrammer {
   export const write =
-    (config: IMigrateProgram.IConfig) =>
+    (config: IHttpMigrateProgram.IConfig) =>
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.ModuleDeclaration => {
+    (route: IHttpMigrateRoute): ts.ModuleDeclaration => {
       const types = writeTypes(components)(importer)(route);
       return ts.factory.createModuleDeclaration(
         [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
@@ -43,7 +43,7 @@ export namespace MigrateApiNamespaceProgrammer {
       );
     };
 
-  export const writePathCallExpression = (route: IMigrateRoute) =>
+  export const writePathCallExpression = (route: IHttpMigrateRoute) =>
     ts.factory.createCallExpression(
       ts.factory.createIdentifier(`${route.accessor.at(-1)!}.path`),
       undefined,
@@ -56,7 +56,7 @@ export namespace MigrateApiNamespaceProgrammer {
   const writeTypes =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.TypeAliasDeclaration[] => {
+    (route: IHttpMigrateRoute): ts.TypeAliasDeclaration[] => {
       const array: ts.TypeAliasDeclaration[] = [];
       const declare = (name: string, type: ts.TypeNode) =>
         array.push(
@@ -101,7 +101,7 @@ export namespace MigrateApiNamespaceProgrammer {
   const writeMetadata =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.VariableStatement =>
+    (route: IHttpMigrateRoute): ts.VariableStatement =>
       constant("METADATA")(
         ts.factory.createAsExpression(
           ts.factory.createObjectLiteralExpression(
@@ -166,7 +166,7 @@ export namespace MigrateApiNamespaceProgrammer {
   const writePath =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.VariableStatement => {
+    (route: IHttpMigrateRoute): ts.VariableStatement => {
       const out = (body: ts.ConciseBody) =>
         constant("path")(
           ts.factory.createArrowFunction(
@@ -395,7 +395,7 @@ const constant = (name: string) => (expression: ts.Expression) =>
       ts.NodeFlags.Const,
     ),
   );
-const getPath = (route: IMigrateRoute) => "/" + route.emendedPath;
+const getPath = (route: IHttpMigrateRoute) => "/" + route.emendedPath;
 const local = (name: string) => (type: string) => (expression: ts.Expression) =>
   ts.factory.createVariableStatement(
     [],

@@ -2,7 +2,7 @@ import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
-import { IMigrateRoute } from "../structures/IMigrateRoute";
+import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
@@ -10,7 +10,7 @@ export namespace MigrateE2eFunctionProgrammer {
   export const write =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.FunctionDeclaration =>
+    (route: IHttpMigrateRoute): ts.FunctionDeclaration =>
       ts.factory.createFunctionDeclaration(
         [
           ts.factory.createModifier(ts.SyntaxKind.ExportKeyword),
@@ -43,7 +43,7 @@ export namespace MigrateE2eFunctionProgrammer {
   export const writeBody =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.Statement[] => [
+    (route: IHttpMigrateRoute): ts.Statement[] => [
       ts.factory.createVariableStatement(
         [],
         ts.factory.createVariableDeclarationList(
@@ -85,7 +85,7 @@ export namespace MigrateE2eFunctionProgrammer {
   const writeCallExpressionn =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (route: IMigrateRoute): ts.CallExpression =>
+    (route: IHttpMigrateRoute): ts.CallExpression =>
       ts.factory.createCallExpression(
         ts.factory.createPropertyAccessExpression(
           ts.factory.createIdentifier("api.functional"),

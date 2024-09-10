@@ -8,8 +8,8 @@ import { MigrateApiProgrammer } from "./programmers/MigrateApiProgrammer";
 import { MigrateApiStartProgrammer } from "./programmers/MigrateApiStartProgrammer";
 import { MigrateE2eProgrammer } from "./programmers/MigrateE2eProgrammer";
 import { MigrateNestProgrammer } from "./programmers/MigrateNestProgrammer";
-import { IMigrateFile } from "./structures/IMigrateFile";
-import { IMigrateProgram } from "./structures/IMigrateProgram";
+import { IHttpMigrateFile } from "./structures/IHttpMigrateFile";
+import { IHttpMigrateProgram } from "./structures/IHttpMigrateProgram";
 
 export class MigrateApplication {
   private constructor(public readonly document: OpenApi.IDocument) {}
@@ -31,7 +31,7 @@ export class MigrateApplication {
   }
 
   public nest(config: MigrateApplication.IConfig): MigrateApplication.IOutput {
-    const program: IMigrateProgram = MigrateAnalyzer.analyze({
+    const program: IHttpMigrateProgram = MigrateAnalyzer.analyze({
       mode: "nest",
       document: this.document,
       simulate: config.simulate,
@@ -50,7 +50,7 @@ export class MigrateApplication {
   }
 
   public sdk(config: MigrateApplication.IConfig): MigrateApplication.IOutput {
-    const program: IMigrateProgram = MigrateAnalyzer.analyze({
+    const program: IHttpMigrateProgram = MigrateAnalyzer.analyze({
       mode: "sdk",
       document: this.document,
       simulate: config.simulate,
@@ -75,9 +75,9 @@ export class MigrateApplication {
 }
 export namespace MigrateApplication {
   export interface IOutput {
-    program: IMigrateProgram;
-    files: IMigrateFile[];
-    errors: IMigrateProgram.IError[];
+    program: IHttpMigrateProgram;
+    files: IHttpMigrateFile[];
+    errors: IHttpMigrateProgram.IError[];
   }
   export interface IConfig {
     simulate: boolean;

@@ -1,7 +1,7 @@
 import cp from "child_process";
 import fs from "fs";
 
-import { IMigrateFile } from "../structures/IMigrateFile";
+import { IHttpMigrateFile } from "../structures/IHttpMigrateFile";
 
 const ROOT: string = `${__dirname}/../..`;
 const ASSETS: string = `${ROOT}/assets`;
@@ -36,27 +36,28 @@ const bundle = async (props: {
       await fs.promises.rm(`${template}/${location}`, { recursive: true });
   };
 
-  const iterate = (collection: IMigrateFile[]) => async (location: string) => {
-    const directory: string[] = await fs.promises.readdir(location);
-    for (const file of directory) {
-      const absolute: string = location + "/" + file;
-      const stats: fs.Stats = await fs.promises.stat(absolute);
-      if (stats.isDirectory()) await iterate(collection)(absolute);
-      else {
-        const content: string = await fs.promises.readFile(absolute, "utf-8");
-        collection.push({
-          location: (() => {
-            const str: string = location.replace(template, "");
-            return str[0] === "/" ? str.substring(1) : str;
-          })(),
-          file,
-          content,
-        });
+  const iterate =
+    (collection: IHttpMigrateFile[]) => async (location: string) => {
+      const directory: string[] = await fs.promises.readdir(location);
+      for (const file of directory) {
+        const absolute: string = location + "/" + file;
+        const stats: fs.Stats = await fs.promises.stat(absolute);
+        if (stats.isDirectory()) await iterate(collection)(absolute);
+        else {
+          const content: string = await fs.promises.readFile(absolute, "utf-8");
+          collection.push({
+            location: (() => {
+              const str: string = location.replace(template, "");
+              return str[0] === "/" ? str.substring(1) : str;
+            })(),
+            file,
+            content,
+          });
+        }
       }
-    }
-  };
+    };
 
-  const archive = async (collection: IMigrateFile[]): Promise<void> => {
+  const archive = async (collection: IHttpMigrateFile[]): Promise<void> => {
     const name: string = `${props.mode.toUpperCase()}_TEMPLATE`;
     const body: string = JSON.stringify(collection, null, 2);
     const content: string = `export const ${name} = ${body}`;
@@ -71,7 +72,7 @@ const bundle = async (props: {
     );
   };
 
-  const collection: IMigrateFile[] = [];
+  const collection: IHttpMigrateFile[] = [];
   await clone();
   await iterate(collection)(template);
   await archive(collection);
