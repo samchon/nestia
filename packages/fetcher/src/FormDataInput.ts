@@ -23,7 +23,6 @@
  * `number`  | `number`
  * `string`  | `string`
  * `File`    | `File \| IFileProps`
- * `Object`  | `never`
  *
  * @template T Target object type.
  * @author Jeongho Nam - https://github.com/samchon
