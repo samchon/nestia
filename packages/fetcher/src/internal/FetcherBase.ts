@@ -214,10 +214,9 @@ const request_form_data_body = (input: Record<string, any>): FormData => {
   const encoded: FormData = new FormData();
   const append = (key: string) => (value: any) => {
     if (value === undefined) return;
-    else if (value instanceof Blob)
-      if (value instanceof File) encoded.append(key, value, value.name);
-      else encoded.append(key, value);
-    else encoded.append(key, String(value));
+    else if (typeof File === "function" && value instanceof File)
+      encoded.append(key, value, value.name);
+    else encoded.append(key, value);
   };
   for (const [key, value] of Object.entries(input))
     if (Array.isArray(value)) value.map(append(key));

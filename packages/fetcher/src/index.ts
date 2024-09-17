@@ -1,3 +1,4 @@
+export * from "./FormDataInput";
 export * from "./HttpError";
 export * from "./IConnection";
 export * from "./IEncryptionPassword";

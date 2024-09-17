@@ -65,11 +65,17 @@ export namespace SdkAliasCollection {
   export const input =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (param: ITypedHttpRouteParameter): ts.TypeNode => {
-      if (project.config.clone === true)
-        return from(project)(importer)(param.metadata);
+    (param: ITypedHttpRouteParameter.IBody): ts.TypeNode => {
+      if (project.config.clone === true) {
+        const type: ts.TypeNode = from(project)(importer)(param.metadata);
+        return param.contentType === "multipart/form-data"
+          ? formDataInput(importer)(type)
+          : type;
+      }
       const type: ts.TypeNode = name(param);
-      if (project.config.primitive === false) return type;
+      if (param.contentType === "multipart/form-data")
+        return formDataInput(importer)(type);
+      else if (project.config.primitive === false) return type;
       return ts.factory.createTypeReferenceNode(
         importer.external({
           type: true,
@@ -161,6 +167,16 @@ export namespace SdkAliasCollection {
           propagate: false,
         },
       })(importer)(route);
+
+  const formDataInput = (importer: ImportDictionary) => (type: ts.TypeNode) =>
+    ts.factory.createTypeReferenceNode(
+      importer.external({
+        type: true,
+        library: "@nestia/fetcher",
+        instance: "FormDataInput",
+      }),
+      [type],
+    );
 }
 
 interface IBranch {
