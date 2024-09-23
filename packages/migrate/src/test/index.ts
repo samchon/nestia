@@ -57,11 +57,11 @@ const execute =
             fs.promises.writeFile(file, await beautify(content), "utf-8"),
         })(directory)(files);
         cp.execSync(`npx tsc -p ${directory}/tsconfig.json`, {
-          stdio: "inherit",
+          stdio: "ignore",
           cwd: directory,
         });
         cp.execSync(`npx tsc -p ${directory}/test/tsconfig.json`, {
-          stdio: "inherit",
+          stdio: "ignore",
           cwd: directory,
         });
       },
