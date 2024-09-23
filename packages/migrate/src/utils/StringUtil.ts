@@ -84,6 +84,7 @@ const RESERVED: Set<string> = new Set([
 const VARIABLE_REPLACERS: [string, string][] = [
   ["`", "_backquote_"],
   ["!", "_exclamation_"],
+  ["@", "_at_"],
   ["#", "_hash_"],
   ["$", "_dollar_"],
   ["%", "_percent_"],

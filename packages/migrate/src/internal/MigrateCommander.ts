@@ -16,7 +16,7 @@ export namespace MigrateCommander {
 
     // VALIDATE OUTPUT DIRECTORY
     const parent: string = resolve(options.output + "/..")!;
-    if (fs.existsSync(options.output)) halt("Output directory alreay exists.");
+    if (fs.existsSync(options.output)) halt("Output directory already exists.");
     else if (fs.existsSync(parent) === false)
       halt("Output directory's parent directory does not exist.");
     else if (fs.statSync(parent).isDirectory() === false)
