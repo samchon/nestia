@@ -28,7 +28,7 @@
   "devDependencies": {
     "@nestia/sdk": "^3.14.0",
     "@nestjs/swagger": "^7.4.2",
-    "@samchon/openapi": "^1.0.2",
+    "@samchon/openapi": "^1.0.3",
     "@types/express": "^4.17.17",
     "@types/node": "20.11.16",
     "@types/uuid": "^9.0.8",
