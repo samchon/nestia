@@ -50,12 +50,14 @@ export namespace ReflectHttpOperationResponseAnalyzer {
             function: ctx.function,
           })
         ? "application/x-www-form-urlencoded"
-        : Reflect.getMetadata(HEADERS_METADATA, ctx.function)?.find(
+        : (Reflect.getMetadata(HEADERS_METADATA, ctx.function)?.find(
             (h: Record<string, string>) =>
               typeof h?.name === "string" &&
               typeof h?.value === "string" &&
               h.name.toLowerCase() === "content-type",
-          )?.value ?? (ctx.httpMethod === "HEAD" ? null : "application/json");
+          )?.value ??
+          Reflect.getMetadata("swagger/apiProduces", ctx.function)?.[0] ??
+          (ctx.httpMethod === "HEAD" ? null : "application/json"));
 
     const schema =
       contentType === "application/json"

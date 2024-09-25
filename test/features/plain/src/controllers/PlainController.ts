@@ -1,5 +1,6 @@
 import core from "@nestia/core";
 import { Controller, Header, Post } from "@nestjs/common";
+import { ApiProduces } from "@nestjs/swagger";
 
 @Controller("plain")
 export class PlainController {
@@ -9,7 +10,7 @@ export class PlainController {
     return body;
   }
 
-  @Header("Content-Type", "text/plain")
+  @ApiProduces("text/plain")
   @Post("template")
   public async template(
     @core.PlainBody()
