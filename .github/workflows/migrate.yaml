@@ -1,0 +1,27 @@
+name: build
+on: 
+  push:
+    paths:
+      - 'packages/migrate/assets/input/*.json'
+      - 'packages/migrate/src/**'
+      - 'packages/migrate/test/**'
+      - 'packages/migrate/package.json'
+  pull_request:
+    paths:
+      - 'packages/*/src/**'
+      - 'packages/*/package.json'
+      - 'test/**'
+      - 'test/package.json'
+
+jobs:
+  Ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: test
+        working-directory: ./test
+        run: npm start

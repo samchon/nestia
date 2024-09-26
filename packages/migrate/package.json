@@ -65,13 +65,13 @@
     "typescript-transform-paths": "^3.4.6"
   },
   "dependencies": {
-    "@samchon/openapi": "^1.0.2",
+    "@samchon/openapi": "^1.1.0",
     "commander": "10.0.0",
     "inquirer": "8.2.5",
     "prettier": "^3.2.5",
     "tstl": "^3.0.0",
     "typescript": "^5.5.4",
-    "typia": "^6.10.0"
+    "typia": "^6.11.0"
   },
   "files": [
     "lib",

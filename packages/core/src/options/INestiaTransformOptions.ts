@@ -13,6 +13,13 @@ export interface INestiaTransformOptions {
     // PRUNE
     | "assertPrune"
     | "validatePrune";
-  stringify?: "stringify" | "assert" | "is" | "validate" | null;
+  stringify?:
+    | "stringify"
+    | "assert"
+    | "is"
+    | "validate"
+    | "validate.log"
+    | "validateEquals.log"
+    | null;
   throws?: boolean;
 }

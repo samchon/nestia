@@ -2,8 +2,8 @@ name: build
 on: 
   push:
     paths:
-      - 'packages/*/src/**'
-      - 'packages/*/package.json'
+      - 'packages/{core,fetcher,sdk}/src/**'
+      - 'packages/{core,fetcher,sdk}/package.json'
       - 'test/**'
       - 'test/package.json'
   pull_request:
@@ -25,7 +25,3 @@ jobs:
       - name: test
         working-directory: ./test
         run: npm start
-
-      - name: migrate
-        working-directory: ./packages/migrate
-        run: npm install && npm run build && npm run test
