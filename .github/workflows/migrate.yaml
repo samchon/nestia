@@ -2,10 +2,10 @@ name: build
 on: 
   push:
     paths:
-      - 'packages/{core,fetcher,sdk}/src/**'
-      - 'packages/{core,fetcher,sdk}/package.json'
-      - 'test/**'
-      - 'test/package.json'
+      - 'packages/migrate/assets/input/*.json'
+      - 'packages/migrate/src/**'
+      - 'packages/migrate/test/**'
+      - 'packages/migrate/package.json'
   pull_request:
     paths:
       - 'packages/*/src/**'
