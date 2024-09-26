@@ -1,5 +1,4 @@
 import ts from "typescript";
-import { ValidateProgrammer } from "typia/lib/programmers/ValidateProgrammer";
 import { JsonAssertStringifyProgrammer } from "typia/lib/programmers/json/JsonAssertStringifyProgrammer";
 import { JsonIsStringifyProgrammer } from "typia/lib/programmers/json/JsonIsStringifyProgrammer";
 import { JsonStringifyProgrammer } from "typia/lib/programmers/json/JsonStringifyProgrammer";
@@ -60,15 +59,7 @@ export namespace TypedRouteProgrammer {
         return parameter({
           type: "validate.log",
           key: "validate",
-          programmer: (project) => (modulo) =>
-            ValidateProgrammer.write(project)(modulo)(false),
-        });
-      else if (project.options.stringify === "validateEquals.log")
-        return parameter({
-          type: "validateEquals.log",
-          key: "validate",
-          programmer: (project) => (modulo) =>
-            ValidateProgrammer.write(project)(modulo)(true),
+          programmer: JsonValidateStringifyProgrammer.write,
         });
       else if (project.options.stringify === null)
         return ts.factory.createNull();

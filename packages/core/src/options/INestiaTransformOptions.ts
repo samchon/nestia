@@ -19,7 +19,6 @@ export interface INestiaTransformOptions {
     | "is"
     | "validate"
     | "validate.log"
-    | "validateEquals.log"
     | null;
   throws?: boolean;
 }

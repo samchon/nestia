@@ -24,7 +24,7 @@ export namespace IResponseBodyStringifier {
     validate: (input: T) => IValidation<string>;
   }
   export interface IValidateLog<T> {
-    type: "validate.log" | "validateEquals.log";
-    validate: (input: T) => IValidation<T>;
+    type: "validate.log";
+    validate: (input: T) => IValidation<string>;
   }
 }

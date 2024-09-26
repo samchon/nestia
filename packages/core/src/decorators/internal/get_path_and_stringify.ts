@@ -46,10 +46,7 @@ const take =
     else if (functor.type === "assert") return assert(functor.assert);
     else if (functor.type === "is") return is(functor.is);
     else if (functor.type === "validate") return validate(functor.validate);
-    else if (
-      functor.type === "validate.log" ||
-      functor.type === "validateEquals.log"
-    )
+    else if (functor.type === "validate.log")
       return validateLog(logger)(functor.validate);
     throw new Error(
       `Error on nestia.core.${method}(): invalid typed stringify function.`,
@@ -107,12 +104,14 @@ const validateLog =
   (logger: () => (log: TypedRoute.IValidateErrorLog) => void) =>
   <T>(closure: (data: T) => IValidation<any>) =>
   (data: T, method: string, path: string): string => {
-    const result: IValidation<any> = closure(data);
+    const result: IValidation<string> = closure(data);
+    if (result.success === true) return result.data;
     if (result.success === false)
       logger()({
         errors: result.errors,
         method,
         path,
+        data,
       });
     return JSON.stringify(data);
   };

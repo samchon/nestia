@@ -29,6 +29,13 @@ export const test_api_bbs_article_at = async (
       ],
       method: "GET",
       path: `/bbs/articles/${id}`,
+      data: {
+        id,
+        title: "Hello, world!",
+        body: "This is a test article.",
+        thumbnail: null,
+        created_at: "wrong-data",
+      },
     },
   ]);
 };

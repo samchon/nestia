@@ -93,6 +93,7 @@ export namespace PluginConfigurator {
          *   - "assert": Use typia.assertStringify() function
          *   - "is": Use typia.isStringify() function
          *   - "validate": Use typia.validateStringify() function
+         *   - "validate.log": typia.validateStringify(), but do not throw and just log it
          *   - "stringify": Use typia.stringify() function, but dangerous
          *   - null: Just use JSON.stringify() function, without boosting
          */
