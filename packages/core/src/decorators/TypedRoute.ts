@@ -13,7 +13,7 @@ import {
 import { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import type express from "express";
 import { catchError, map } from "rxjs/operators";
-import typia from "typia";
+import typia, { IValidation } from "typia";
 
 import { IResponseBodyStringifier } from "../options/IResponseBodyStringifier";
 import { get_path_and_stringify } from "./internal/get_path_and_stringify";
@@ -76,6 +76,64 @@ export namespace TypedRoute {
   export const Delete = Generator("Delete");
 
   /**
+   * Set the logger function for the response validation failure.
+   *
+   * If you've configured the transformation option to `validate.log`
+   * in the `tsconfig.json` file, then the error log information of the
+   * response validation failure would be logged through this function
+   * instead of throwing the 400 bad request error.
+   *
+   * By the way, be careful. If you've configured the response
+   * transformation option to be `validate.log` or `validateEquals.log`,
+   * client may get wrong response data. Therefore, this way is not
+   * recommendedin the common backend server case.
+   *
+   * @param func Logger function
+   * @default console.log
+   */
+  export function setValidateErrorLogger(
+    func: (log: IValidateErrorLog) => void,
+  ): void {
+    __logger = func;
+  }
+
+  /**
+   * Error log information of the response validation failure.
+   *
+   * `IValidationErrorLog` is a structure representing the error log
+   * information when the returned value from the `@TypedRoute` or
+   * `@EncryptedRoute` decorated controller method is not following
+   * the promised type `T`.
+   *
+   * If you've configured the transformation option to `validate.log` or
+   * `validateEquals.log` in the `tsconfig.json` file, then this error log
+   * information `IValidateErrorLog` would be logged through the
+   * {@link setValidateErrorLogger} function instead of throwing the
+   * 400 bad request error.
+   */
+  export interface IValidateErrorLog {
+    /**
+     * HTTP method of the request.
+     */
+    method: string;
+
+    /**
+     * HTTP path of the request.
+     */
+    path: string;
+
+    /**
+     * Validation error informations with detailed reasons.
+     */
+    errors: IValidation.IError[];
+  }
+
+  /**
+   * @internal
+   */
+  export let __logger: (log: IValidateErrorLog) => void = console.log;
+
+  /**
    * @internal
    */
   function Generator(method: "Get" | "Post" | "Put" | "Patch" | "Delete") {
@@ -87,9 +145,9 @@ export namespace TypedRoute {
     ): MethodDecorator;
 
     function route(...args: any[]): MethodDecorator {
-      const [path, stringify] = get_path_and_stringify(`TypedRoute.${method}`)(
-        ...args,
-      );
+      const [path, stringify] = get_path_and_stringify(() => __logger)(
+        `TypedRoute.${method}`,
+      )(...args);
       return applyDecorators(
         ROUTERS[method](path),
         UseInterceptors(new TypedRouteInterceptor(stringify)),
@@ -118,15 +176,22 @@ for (const method of [
  * @internal
  */
 class TypedRouteInterceptor implements NestInterceptor {
-  public constructor(private readonly stringify: (input: any) => string) {}
+  public constructor(
+    private readonly stringify: (
+      input: any,
+      method: string,
+      path: string,
+    ) => string,
+  ) {}
 
   public intercept(context: ExecutionContext, next: CallHandler) {
     const http: HttpArgumentsHost = context.switchToHttp();
+    const request: express.Request = http.getRequest();
     const response: express.Response = http.getResponse();
     response.header("Content-Type", "application/json");
 
     return next.handle().pipe(
-      map((value) => this.stringify(value)),
+      map((value) => this.stringify(value, request.method, request.url)),
       catchError((err) => route_error(http.getRequest(), err)),
     );
   }
