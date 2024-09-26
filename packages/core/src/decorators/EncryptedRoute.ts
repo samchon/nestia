@@ -95,9 +95,9 @@ export namespace EncryptedRoute {
    * instead of throwing the 400 bad request error.
    *
    * By the way, be careful. If you've configured the response
-   * transformation option to be `validate.log` or `validateEquals.log`,
-   * client may get wrong response data. Therefore, this way is not
-   * recommended in the common backend server case.
+   * transformation option to be `validate.log`, client may get wrong
+   * response data. Therefore, this way is not recommended in the common
+   * backend server case.
    *
    * @param func Logger function
    * @default console.log
