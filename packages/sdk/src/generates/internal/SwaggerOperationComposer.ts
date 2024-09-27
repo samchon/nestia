@@ -111,6 +111,7 @@ export namespace SwaggerOperationComposer {
         route: props.route,
       }),
       security: security.length ? security : undefined,
+      ...(props.route.extensions ?? {}),
     };
   };
 }

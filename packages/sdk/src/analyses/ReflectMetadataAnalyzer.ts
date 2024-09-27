@@ -12,6 +12,14 @@ export namespace ReflectMetadataAnalyzer {
     else return value;
   };
 
+  export const extensions = (value: any): Record<string, any> => {
+    const entire: Record<string, any>[] | undefined = Reflect.getMetadata(
+      "swagger/apiExtension",
+      value,
+    );
+    return entire?.reduce((acc, record) => ({ ...acc, ...record }), {}) ?? {};
+  };
+
   export const securities = (value: any): Record<string, string[]>[] => {
     const entire: Record<string, string[]>[] | undefined = Reflect.getMetadata(
       "swagger/apiSecurity",

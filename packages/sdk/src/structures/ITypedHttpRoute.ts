@@ -26,4 +26,5 @@ export interface ITypedHttpRoute {
   description: string | null;
   jsDocTags: IJsDocTagInfo[];
   operationId: string | undefined;
+  extensions?: Record<string, any>;
 }

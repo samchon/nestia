@@ -116,6 +116,7 @@ export namespace ReflectHttpOperationAnalyzer {
         .find(({ name }) => name === "operationId")
         ?.text?.[0].text.split(" ")[0]
         .trim(),
+      extensions: ReflectMetadataAnalyzer.extensions(props.function),
     };
 
     // VALIDATE PATH ARGUMENTS

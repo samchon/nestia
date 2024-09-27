@@ -22,4 +22,5 @@ export interface IReflectHttpOperation {
   operationId: string | undefined;
   description: string | null;
   jsDocTags: IJsDocTagInfo[];
+  extensions?: Record<string, any>;
 }

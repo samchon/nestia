@@ -163,6 +163,7 @@ export namespace TypedHttpRouteAnalyzer {
       exceptions,
       parameters,
       success,
+      extensions: props.operation.extensions,
     }));
   };
 }
