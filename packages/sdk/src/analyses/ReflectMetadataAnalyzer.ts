@@ -17,7 +17,7 @@ export namespace ReflectMetadataAnalyzer {
       "swagger/apiExtension",
       value,
     );
-    return entire?.reduce((acc, record) => ({ ...acc, ...record }), {}) ?? {};
+    return entire ?? {};
   };
 
   export const securities = (value: any): Record<string, string[]>[] => {

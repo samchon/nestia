@@ -7,6 +7,7 @@ import { IPerformance } from "@api/lib/structures/IPerformance";
 @Controller("performance")
 export class PerformanceController {
   @ApiExtension("x-visibility", "public")
+  @ApiExtension("x-deprecated", true)
   @core.TypedRoute.Get()
   public async get(): Promise<IPerformance> {
     return {
