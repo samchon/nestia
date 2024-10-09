@@ -71,12 +71,16 @@ export namespace TypedHttpRouteAnalyzer {
       escape: boolean,
     ): Metadata => {
       const metadata: Metadata = Metadata.from(next.metadata, props.dictionary);
-      const metaErrors: MetadataFactory.IError[] = MetadataFactory.validate()({
-        escape,
-        constant: true,
-        absorb: true,
-        validate: next.validate,
-      })(next.validate)(metadata);
+      const metaErrors: MetadataFactory.IError[] = MetadataFactory.validate({
+        options: {
+          escape,
+          constant: true,
+          absorb: true,
+          validate: next.validate, // @todo -> CHECK IN TYPIA
+        },
+        functor: next.validate, // @todo -> CHECK IN TYPIA
+        metadata,
+      });
       if (metaErrors.length)
         errors.push({
           file: props.controller.file,

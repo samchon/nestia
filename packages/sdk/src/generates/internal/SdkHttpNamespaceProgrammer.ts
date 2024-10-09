@@ -126,7 +126,7 @@ export namespace SdkHttpNamespaceProgrammer {
               ts.factory.createPropertyAssignment(
                 "request",
                 props.input
-                  ? LiteralFactory.generate(
+                  ? LiteralFactory.write(
                       props.input !== undefined
                         ? {
                             type: props.input.contentType,
@@ -142,7 +142,7 @@ export namespace SdkHttpNamespaceProgrammer {
               ts.factory.createPropertyAssignment(
                 "response",
                 route.method !== "HEAD"
-                  ? LiteralFactory.generate({
+                  ? LiteralFactory.write({
                       type: route.success.contentType,
                       encrypted: !!route.success.encrypted,
                     })
@@ -352,7 +352,8 @@ export namespace SdkHttpNamespaceProgrammer {
                           ts.factory.createCallExpression(
                             IdentifierFactory.access(
                               ts.factory.createIdentifier(variables),
-                            )("append"),
+                              "append",
+                            ),
                             undefined,
                             [
                               ts.factory.createIdentifier("key"),
@@ -371,7 +372,8 @@ export namespace SdkHttpNamespaceProgrammer {
                     ts.factory.createCallExpression(
                       IdentifierFactory.access(
                         ts.factory.createIdentifier(variables),
-                      )("set"),
+                        "set",
+                      ),
                       undefined,
                       [
                         ts.factory.createIdentifier("key"),
@@ -393,7 +395,8 @@ export namespace SdkHttpNamespaceProgrammer {
                   ExpressionFactory.number(0),
                   IdentifierFactory.access(
                     ts.factory.createIdentifier(variables),
-                  )("size"),
+                    "size",
+                  ),
                 ),
                 undefined,
                 ts.factory.createIdentifier("location"),
@@ -409,7 +412,8 @@ export namespace SdkHttpNamespaceProgrammer {
                       ts.factory.createCallExpression(
                         IdentifierFactory.access(
                           ts.factory.createIdentifier(variables),
-                        )("toString"),
+                          "toString",
+                        ),
                         undefined,
                         undefined,
                       ),
@@ -482,8 +486,10 @@ export namespace SdkHttpNamespaceProgrammer {
             IdentifierFactory.access(
               IdentifierFactory.access(
                 ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
-              )("json"),
-            )(project.config.assert ? "stringify" : "assertStringify"),
+                "json",
+              ),
+              project.config.assert ? "stringify" : "assertStringify",
+            ),
             undefined,
             [ts.factory.createIdentifier("input")],
           ),

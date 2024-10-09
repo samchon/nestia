@@ -48,7 +48,7 @@ export namespace SdkOperationProgrammer {
       ),
       jsDocTags: p.symbol?.getJsDocTags() ?? [],
       description: p.symbol
-        ? CommentFactory.description(p.symbol) ?? null
+        ? (CommentFactory.description(p.symbol) ?? null)
         : null,
     };
   };
@@ -102,14 +102,17 @@ export namespace SdkOperationProgrammer {
           imports: [],
         };
     const [primitive, resolved] = [true, false].map((escape) =>
-      MetadataFactory.analyze(
-        p.context.checker,
-        p.context.api,
-      )({
-        escape,
-        constant: true,
-        absorb: true,
-      })(p.context.collection)(p.type),
+      MetadataFactory.analyze({
+        checker: p.context.checker,
+        transformer: p.context.transformer,
+        options: {
+          escape,
+          constant: true,
+          absorb: true,
+        },
+        collection: p.context.collection,
+        type: p.type,
+      }),
     );
     return {
       ...analyzed,
