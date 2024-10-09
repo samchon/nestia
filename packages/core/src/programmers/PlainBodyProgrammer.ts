@@ -5,30 +5,49 @@ import { AssertProgrammer } from "typia/lib/programmers/AssertProgrammer";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 import { TransformerError } from "typia/lib/transformers/TransformerError";
 
-import { INestiaTransformProject } from "../options/INestiaTransformProject";
+import { INestiaTransformContext } from "../options/INestiaTransformProject";
 
 export namespace PlainBodyProgrammer {
-  export const generate =
-    (project: INestiaTransformProject) =>
-    (modulo: ts.LeftHandSideExpression) =>
-    (type: ts.Type): ts.Expression => {
-      const result = MetadataFactory.analyze(project.checker)({
+  export const generate = (props: {
+    context: INestiaTransformContext;
+    modulo: ts.LeftHandSideExpression;
+    type: ts.Type;
+  }): ts.Expression => {
+    const result = MetadataFactory.analyze({
+      checker: props.context.checker,
+      transformer: props.context.transformer,
+      options: {
         escape: false,
         constant: true,
         absorb: true,
         validate,
-      })(new MetadataCollection())(type);
-      if (result.success === false)
-        throw TransformerError.from("nestia.core.TypedParam")(result.errors);
-      return AssertProgrammer.write({
-        ...project,
+      },
+      collection: new MetadataCollection(),
+      type: props.type,
+    });
+    if (result.success === false)
+      throw TransformerError.from({
+        code: "nestia.core.TypedParam",
+        errors: result.errors,
+      });
+    return AssertProgrammer.write({
+      context: {
+        ...props.context,
         options: {
           numeric: false,
           finite: false,
           functional: false,
         },
-      })(modulo)(false)(type);
-    };
+      },
+      modulo: props.modulo,
+      config: {
+        equals: false,
+        guard: false,
+      },
+      type: props.type,
+      name: undefined,
+    });
+  };
 }
 
 const validate = (metadata: Metadata): string[] => {

@@ -1,7 +1,8 @@
-import { IProject } from "typia/lib/transformers/IProject";
+import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
 
 import { INestiaTransformOptions } from "./INestiaTransformOptions";
 
-export interface INestiaTransformProject extends Omit<IProject, "options"> {
+export interface INestiaTransformContext
+  extends Omit<ITypiaContext, "options"> {
   options: INestiaTransformOptions;
 }
