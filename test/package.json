@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@samchon/nestia-test",
-  "version": "4.0.0-dev.20241022",
+  "version": "4.0.0-dev.20241022-2",
   "description": "Test program of Nestia",
   "main": "index.js",
   "scripts": {
@@ -49,7 +49,7 @@
     "@nestjs/platform-fastify": "^10.4.4",
     "tgrid": "^1.0.3",
     "tstl": "^3.0.0",
-    "typia": "7.0.0-dev.20241022",
+    "typia": "^7.0.0-dev.20241022-2",
     "uuid": "^9.0.1"
   }
 }
