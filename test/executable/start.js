@@ -20,7 +20,11 @@ const feature = (name) => {
         : name === "cli-config-project" || name === "cli-project"
           ? " --project tsconfig.nestia.json"
           : "";
-    cp.execSync(`npx nestia ${type}${tail}`, { stdio: "ignore" });
+    try {
+      cp.execSync(`npx nestia ${type}${tail}`, { stdio: "ignore" });
+    } catch {
+      cp.execSync(`npx nestia ${type}${tail}`, { stdio: "inherit" });
+    }
   };
 
   // ERROR MODE HANDLING
@@ -63,13 +67,13 @@ const feature = (name) => {
 
   // RUN TEST AUTOMATION PROGRAM
   if (fs.existsSync("src/test")) {
-    const test = () => cp.execSync("npx ts-node src/test", { stdio: "ignore" });
+    const test = (stdio) => cp.execSync("npx ts-node src/test", { stdio });
     for (let i = 0; i < 3; ++i)
       try {
-        test();
+        test("ignore");
         return;
       } catch {}
-    test();
+    test("inherit");
   } else cp.execSync("npx tsc", { stdio: "ignore" });
 };
 
