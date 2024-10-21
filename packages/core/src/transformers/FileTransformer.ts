@@ -11,7 +11,9 @@ export namespace FileTransformer {
     (transformer: ts.TransformationContext) =>
     (file: ts.SourceFile): ts.SourceFile => {
       if (file.isDeclarationFile) return file;
-      const importer = new ImportProgrammer();
+      const importer = new ImportProgrammer({
+        internalPrefix: "nestia_core_transform",
+      });
       file = ts.visitEachChild(
         file,
         (node) =>

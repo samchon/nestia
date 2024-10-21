@@ -4,7 +4,7 @@ import { IMetadataComponents } from "typia/lib/schemas/metadata/IMetadataCompone
 import { IMetadataDictionary } from "typia/lib/schemas/metadata/IMetadataDictionary";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 import { MetadataComponents } from "typia/lib/schemas/metadata/MetadataComponents";
-import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
+import { MetadataObjectType } from "typia/lib/schemas/metadata/MetadataObjectType";
 import { Escaper } from "typia/lib/utils/Escaper";
 
 import { IReflectController } from "../structures/IReflectController";
@@ -176,7 +176,7 @@ const join = ({
   object,
   key,
 }: {
-  object: MetadataObject;
+  object: MetadataObjectType;
   key: string | object | null;
 }) => {
   if (key === null) return object.name;

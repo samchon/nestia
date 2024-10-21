@@ -57,7 +57,7 @@ export namespace HttpQuerifyProgrammer {
               [],
             ),
           }),
-          ...object.properties.map((p) =>
+          ...object.type.properties.map((p) =>
             ts.factory.createExpressionStatement(
               decode(p.key.constants[0]!.values[0].value as string)(p.value),
             ),

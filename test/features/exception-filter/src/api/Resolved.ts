@@ -1,1 +1,1 @@
-export type { Resolved } from "@nestia/fetcher";
+export type { Resolved } from "typia";

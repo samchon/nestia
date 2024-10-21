@@ -37,7 +37,7 @@ export namespace SdkAliasCollection {
       return ts.factory.createTypeReferenceNode(
         importer.external({
           type: true,
-          library: "@nestia/fetcher",
+          library: "typia",
           instance: "Resolved",
         }),
         [type],
@@ -55,7 +55,7 @@ export namespace SdkAliasCollection {
       return ts.factory.createTypeReferenceNode(
         importer.external({
           type: true,
-          library: "@nestia/fetcher",
+          library: "typia",
           instance: "Resolved",
         }),
         [type],
@@ -79,7 +79,7 @@ export namespace SdkAliasCollection {
       return ts.factory.createTypeReferenceNode(
         importer.external({
           type: true,
-          library: "@nestia/fetcher",
+          library: "typia",
           instance:
             typia.is<IReflectHttpOperationParameter.IBody>(param) &&
             (param.contentType === "application/json" ||
@@ -104,7 +104,7 @@ export namespace SdkAliasCollection {
               ? ts.factory.createTypeReferenceNode(
                   importer.external({
                     type: true,
-                    library: "@nestia/fetcher",
+                    library: "typia",
                     instance:
                       route.success.contentType === "application/json" ||
                       route.success.encrypted === true

@@ -7,7 +7,6 @@ import {
 } from "@nestjs/common";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
-import { assert, is, validate } from "typia";
 
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
 import { Singleton } from "../utils/Singleton";
@@ -75,9 +74,6 @@ export function EncryptedBody<T>(
     return data;
   })();
 }
-Object.assign(EncryptedBody, is);
-Object.assign(EncryptedBody, assert);
-Object.assign(EncryptedBody, validate);
 
 /**
  * @internal

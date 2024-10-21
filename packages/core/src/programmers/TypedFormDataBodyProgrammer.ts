@@ -40,7 +40,7 @@ export namespace TypedFormDataBodyProgrammer {
       });
 
     const files: IRequestFormDataProps.IFile[] =
-      result.data.objects[0].properties
+      result.data.objects[0].type.properties
         .filter(
           (p) =>
             isFile(p.value) || p.value.arrays.some((a) => isFile(a.type.value)),
@@ -115,4 +115,4 @@ export namespace TypedFormDataBodyProgrammer {
 }
 
 const isFile = (meta: Metadata) =>
-  meta.natives.some((n) => n === "File" || n === "Blob");
+  meta.natives.some(({ name }) => name === "File" || name === "Blob");
