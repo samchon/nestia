@@ -49,7 +49,7 @@
     "@nestjs/platform-fastify": "^10.4.5",
     "tgrid": "^1.0.3",
     "tstl": "^3.0.0",
-    "typia": "6.11.2",
+    "typia": "6.11.3",
     "uuid": "^9.0.1"
   }
 }
