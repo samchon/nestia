@@ -35,7 +35,7 @@ export namespace HttpQuerifyProgrammer {
     });
     if (result.success === false)
       throw TransformerError.from({
-        code: `nestia.core.TypedQuery.${functor.method}`,
+        code: functor.method,
         errors: result.errors,
       });
 
