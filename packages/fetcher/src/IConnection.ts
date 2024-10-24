@@ -1,7 +1,8 @@
 /// <reference lib="dom" />
+import { IRandomGenerator } from "typia";
+
 import { IEncryptionPassword } from "./IEncryptionPassword";
 import { IFetchEvent } from "./IFetchEvent";
-import { IRandomGenerator } from "./IRandomGenerator";
 
 /**
  * Connection information.

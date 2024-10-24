@@ -1,5 +1,5 @@
-import type { Resolved } from "@nestia/fetcher";
 import typia from "typia";
+import type { Resolved } from "typia";
 
 import api from "../../../../api";
 import type { IHeaders } from "../../../../api/structures/IHeaders";

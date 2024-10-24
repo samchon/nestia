@@ -92,9 +92,6 @@ export namespace TypedQuery {
       return output;
     })();
   }
-  Object.assign(Body, typia.http.assertQuery);
-  Object.assign(Body, typia.http.isQuery);
-  Object.assign(Body, typia.http.validateQuery);
 
   /**
    * Router decorator function for the GET method.
@@ -169,9 +166,6 @@ export namespace TypedQuery {
       ])
         (deco as any)[key] = value;
 }
-Object.assign(TypedQuery, typia.http.assertQuery);
-Object.assign(TypedQuery, typia.http.isQuery);
-Object.assign(TypedQuery, typia.http.validateQuery);
 
 /**
  * @internal
@@ -209,7 +203,7 @@ class FakeURLSearchParams {
     return value === undefined
       ? null
       : Array.isArray(value)
-        ? value[0] ?? null
+        ? (value[0] ?? null)
         : value;
   }
 

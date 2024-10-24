@@ -1,5 +1,5 @@
 import ts from "typescript";
-import { IProject } from "typia/lib/transformers/IProject";
+import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
 
 import { INestiaTransformOptions } from "./options/INestiaTransformOptions";
 import { FileTransformer } from "./transformers/FileTransformer";
@@ -7,7 +7,7 @@ import { FileTransformer } from "./transformers/FileTransformer";
 export const transform = (
   program: ts.Program,
   options: INestiaTransformOptions | undefined,
-  extras: IProject["extras"],
+  extras: ITypiaContext["extras"],
 ): ts.TransformerFactory<ts.SourceFile> => {
   const compilerOptions: ts.CompilerOptions = program.getCompilerOptions();
   const strict: boolean =

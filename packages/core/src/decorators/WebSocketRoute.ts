@@ -1,5 +1,3 @@
-import typia from "typia";
-
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
 import { IRequestQueryValidator } from "../options/IRequestQueryValidator";
 import { NoTransformConfigurationError } from "./NoTransformConfigurationError";
@@ -146,9 +144,6 @@ export namespace WebSocketRoute {
       });
     };
   }
-  Object.assign(Header, typia.is);
-  Object.assign(Header, typia.assert);
-  Object.assign(Header, typia.validate);
 
   /**
    * URL parameter decorator.
@@ -183,7 +178,6 @@ export namespace WebSocketRoute {
       });
     };
   }
-  Object.assign(Param, typia.http.parameter);
 
   /**
    * URL query decorator.
@@ -221,9 +215,6 @@ export namespace WebSocketRoute {
       });
     };
   }
-  Object.assign(Query, typia.http.assertQuery);
-  Object.assign(Query, typia.http.isQuery);
-  Object.assign(Query, typia.http.validateQuery);
 
   /**
    * @internal

@@ -9,7 +9,6 @@ import type { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import type express from "express";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import multer from "multer";
-import typia from "typia";
 
 import type { IRequestFormDataProps } from "../options/IRequestFormDataProps";
 import { Singleton } from "../utils/Singleton";
@@ -107,9 +106,6 @@ export namespace TypedFormData {
       return output;
     })();
   }
-  Object.assign(Body, typia.http.assertFormData);
-  Object.assign(Body, typia.http.isFormData);
-  Object.assign(Body, typia.http.validateFormData);
 }
 
 /**

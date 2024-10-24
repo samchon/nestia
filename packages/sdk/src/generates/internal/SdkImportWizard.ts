@@ -21,14 +21,14 @@ export namespace SdkImportWizard {
   export const Primitive = (importer: ImportDictionary) =>
     importer.external({
       type: true,
-      library: "@nestia/fetcher",
+      library: "typia",
       instance: "Primitive",
     });
 
   export const Resolved = (importer: ImportDictionary) =>
     importer.external({
       type: true,
-      library: "@nestia/fetcher",
+      library: "typia",
       instance: "Resolved",
     });
 

@@ -135,12 +135,25 @@ const BUNDLE_CHANGES: Record<string, [string, string][]> = {
   ],
   "module.ts": [
     [`export * from "./IConnection"`, `export type * from "./IConnection"`],
-    [`export * from "./Primitive"`, `export type * from "./Primitive"`],
   ],
   "Primitive.ts": [
     [
       `export { Primitive } from "@nestia/fetcher"`,
+      `export type { Primitive } from "typia"`,
+    ],
+    [
       `export type { Primitive } from "@nestia/fetcher"`,
+      `export type { Primitive } from "typia"`,
+    ],
+  ],
+  "Resolved.ts": [
+    [
+      `export { Resolved } from "@nestia/fetcher"`,
+      `export type { Resolved } from "typia"`,
+    ],
+    [
+      `export type { Resolved } from "@nestia/fetcher"`,
+      `export type { Resolved } from "typia"`,
     ],
   ],
 };

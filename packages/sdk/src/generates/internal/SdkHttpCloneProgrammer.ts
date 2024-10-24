@@ -1,9 +1,9 @@
 import { IPointer } from "tstl";
 import ts from "typescript";
 import { IJsDocTagInfo } from "typia";
-import { MetadataAlias } from "typia/lib/schemas/metadata/MetadataAlias";
+import { MetadataAliasType } from "typia/lib/schemas/metadata/MetadataAliasType";
 import { MetadataAtomic } from "typia/lib/schemas/metadata/MetadataAtomic";
-import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
+import { MetadataObjectType } from "typia/lib/schemas/metadata/MetadataObjectType";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedApplication } from "../../structures/ITypedApplication";
@@ -67,7 +67,7 @@ export namespace SdkHttpCloneProgrammer {
   const write_alias =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (alias: MetadataAlias): ts.TypeAliasDeclaration =>
+    (alias: MetadataAliasType): ts.TypeAliasDeclaration =>
       FilePrinter.description(
         ts.factory.createTypeAliasDeclaration(
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
@@ -81,7 +81,7 @@ export namespace SdkHttpCloneProgrammer {
   const write_object =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (object: MetadataObject): ts.TypeAliasDeclaration => {
+    (object: MetadataObjectType): ts.TypeAliasDeclaration => {
       return FilePrinter.description(
         ts.factory.createTypeAliasDeclaration(
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],

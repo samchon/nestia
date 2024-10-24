@@ -92,7 +92,8 @@ export namespace SdkHttpFunctionProgrammer {
                 !!props.input?.encrypted || route.success.encrypted,
               )(importer),
             ),
-          )(project.config.propagate ? "propagate" : "fetch"),
+            project.config.propagate ? "propagate" : "fetch",
+          ),
           project.config.propagate
             ? route.method.toLowerCase() === "get" ||
               route.method.toLowerCase() === "head"
@@ -113,7 +114,8 @@ export namespace SdkHttpFunctionProgrammer {
                           ts.factory.createSpreadAssignment(
                             IdentifierFactory.access(
                               ts.factory.createIdentifier("connection"),
-                            )("headers"),
+                              "headers",
+                            ),
                           ),
                           ts.factory.createPropertyAssignment(
                             ts.factory.createStringLiteral("Content-Type"),
@@ -134,22 +136,26 @@ export namespace SdkHttpFunctionProgrammer {
                 ts.factory.createSpreadAssignment(
                   IdentifierFactory.access(
                     ts.factory.createIdentifier(route.name),
-                  )("METADATA"),
+                    "METADATA",
+                  ),
                 ),
                 ts.factory.createPropertyAssignment(
                   "template",
                   IdentifierFactory.access(
                     IdentifierFactory.access(
                       ts.factory.createIdentifier(route.name),
-                    )("METADATA"),
-                  )("path"),
+                      "METADATA",
+                    ),
+                    "path",
+                  ),
                 ),
                 ts.factory.createPropertyAssignment(
                   "path",
                   ts.factory.createCallExpression(
                     IdentifierFactory.access(
                       ts.factory.createIdentifier(route.name),
-                    )("path"),
+                      "path",
+                    ),
                     undefined,
                     route.parameters
                       .filter(
@@ -204,7 +210,8 @@ export namespace SdkHttpFunctionProgrammer {
                       ts.factory.createIdentifier(
                         SdkImportWizard.typia(importer),
                       ),
-                    )("assert"),
+                      "assert",
+                    ),
                     [
                       ts.factory.createTypeQueryNode(
                         ts.factory.createIdentifier(p.name),

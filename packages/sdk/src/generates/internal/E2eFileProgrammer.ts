@@ -81,7 +81,8 @@ export namespace E2eFileProgrammer {
                     ts.factory.createSpreadAssignment(
                       IdentifierFactory.access(
                         ts.factory.createIdentifier("connection"),
-                      )("headers"),
+                        "headers",
+                      ),
                     ),
                     ts.factory.createSpreadAssignment(
                       ts.factory.createCallExpression(
@@ -89,7 +90,8 @@ export namespace E2eFileProgrammer {
                           ts.factory.createIdentifier(
                             SdkImportWizard.typia(importer),
                           ),
-                        )("random"),
+                          "random",
+                        ),
                         [
                           project.config.clone === true
                             ? SdkAliasCollection.from(project)(importer)(
@@ -121,7 +123,8 @@ export namespace E2eFileProgrammer {
               ts.factory.createCallExpression(
                 IdentifierFactory.access(
                   ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
-                )("random"),
+                  "random",
+                ),
                 [
                   project.config.clone === true
                     ? SdkAliasCollection.from(project)(importer)(p.metadata)
@@ -135,7 +138,8 @@ export namespace E2eFileProgrammer {
       const assert = ts.factory.createCallExpression(
         IdentifierFactory.access(
           ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
-        )("assert"),
+          "assert",
+        ),
         undefined,
         [ts.factory.createIdentifier("output")],
       );

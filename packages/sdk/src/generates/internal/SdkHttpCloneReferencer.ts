@@ -57,10 +57,10 @@ export namespace SdkHttpCloneReferencer {
       if (key.length && StringUtil.isImplicit(key) === false)
         p.unique.add(key.split(".")[0]);
     };
-    for (const alias of p.metadata.aliases) enroll(alias.name);
+    for (const alias of p.metadata.aliases) enroll(alias.type.name);
     for (const array of p.metadata.arrays) enroll(array.type.name);
     for (const tuple of p.metadata.tuples) enroll(tuple.type.name);
-    for (const object of p.metadata.objects) enroll(object.name);
+    for (const object of p.metadata.objects) enroll(object.type.name);
     p.name(p.metadata.getName());
   };
 }

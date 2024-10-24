@@ -1,5 +1,6 @@
-import type { Primitive, IPropagation } from "@nestia/fetcher";
+import type { IPropagation } from "@nestia/fetcher";
 import typia from "typia";
+import type { Primitive } from "typia";
 
 import api from "../../../../api";
 import type { IPerformance } from "../../../../api/structures/IPerformance";

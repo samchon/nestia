@@ -1,5 +1,5 @@
-import type { Primitive } from "@nestia/fetcher";
 import typia from "typia";
+import type { Primitive } from "typia";
 
 import api from "../../../../api";
 import type { IToken } from "../../../../api/structures/IToken";

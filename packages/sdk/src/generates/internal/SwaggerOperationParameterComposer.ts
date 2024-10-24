@@ -1,7 +1,7 @@
 import { OpenApi } from "@samchon/openapi";
 import { VariadicSingleton } from "tstl";
-import { IJsDocTagInfo, IJsonApplication } from "typia";
-import { JsonApplicationProgrammer } from "typia/lib/programmers/json/JsonApplicationProgrammer";
+import { IJsDocTagInfo, IJsonSchemaCollection } from "typia";
+import { JsonSchemasProgrammer } from "typia/lib/programmers/json/JsonSchemasProgrammer";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
@@ -125,16 +125,16 @@ export namespace SwaggerOperationParameterComposer {
       props.parameter.metadata.objects.length === 0
     )
       return [param];
-    return props.parameter.metadata.objects[0].properties
+    return props.parameter.metadata.objects[0].type.properties
       .filter((p) =>
         p.jsDocTags.every(
           (tag) => tag.name !== "hidden" && tag.name !== "ignore",
         ),
       )
       .map((p) => {
-        const json: IJsonApplication = JsonApplicationProgrammer.write("3.1")([
+        const json: IJsonSchemaCollection = JsonSchemasProgrammer.write("3.1")([
           p.value,
-        ]) as IJsonApplication;
+        ]) as IJsonSchemaCollection;
         if (Object.keys(json.components.schemas ?? {}).length !== 0) {
           props.document.components ??= {};
           props.document.components.schemas ??= {};
