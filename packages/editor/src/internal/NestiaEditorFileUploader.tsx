@@ -1,4 +1,4 @@
-import { OpenApi, OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
+import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import { load } from "js-yaml";
 import { useState } from "react";
 import FileUpload from "react-mui-fileuploader";
@@ -13,7 +13,7 @@ export function NestiaEditorFileUploader(
       props.onChange(null, null);
       return;
     }
-    const file: ExtendedFileProps = array[array.length - 1];
+    const file: ExtendedFileProps = array[array.length - 1]!;
     const buffer: ArrayBuffer = await file.arrayBuffer();
     const content: string = new TextDecoder().decode(buffer);
     const extension: "json" | "yaml" = file.name.split(".").pop()! as
