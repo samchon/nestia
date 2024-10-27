@@ -1,30 +1,38 @@
 {
   "name": "@nestia/editor",
+  "private": true,
   "version": "0.1.0",
-  "description": "Swagger UI with TypeScript Editor and SDK library in the online browser",
-  "main": "lib/index.jsx",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/samchon/nestia.git"
-  },
-  "author": "Jeongho Nam",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/samchon/nestia/issues"
-  },
-  "homepage": "https://github.com/samchon/nestia#readme",
   "dependencies": {
+    "@mui/material": "^5.15.6",
     "@nestia/migrate": "^0.18.2",
-    "@samchon/openapi": "^1.1.2",
     "@stackblitz/sdk": "^1.11.0",
+    "js-yaml": "^4.1.0",
+    "prettier": "^3.3.3",
+    "react-json-tree": "^0.19.0",
+    "react-mui-fileuploader": "^0.5.2",
     "typia": "^6.11.3"
   },
   "devDependencies": {
-    "@types/react": "^18.3.12",
+    "@eslint/js": "^9.13.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "eslint": "^9.13.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.13",
+    "globals": "^15.11.0",
     "react": "^18.3.1",
-    "typescript": "^5.6.3"
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.10.0",
+    "vite": "^5.4.9"
   }
 }

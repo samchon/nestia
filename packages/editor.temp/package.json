@@ -1,0 +1,30 @@
+{
+  "name": "@nestia/editor",
+  "version": "0.1.0",
+  "description": "Swagger UI with TypeScript Editor and SDK library in the online browser",
+  "main": "lib/index.jsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samchon/nestia.git"
+  },
+  "author": "Jeongho Nam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samchon/nestia/issues"
+  },
+  "homepage": "https://github.com/samchon/nestia#readme",
+  "dependencies": {
+    "@nestia/migrate": "^0.18.2",
+    "@samchon/openapi": "^1.1.2",
+    "@stackblitz/sdk": "^1.11.0",
+    "typia": "^6.11.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "react": "^18.3.1",
+    "typescript": "^5.6.3"
+  }
+}
