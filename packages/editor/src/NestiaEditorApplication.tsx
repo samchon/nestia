@@ -1,13 +1,14 @@
 import { Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import React from "react";
 
 import { NestiaEditorIframe } from "./NestiaEditorIframe";
 import { NestiaEditorUploader } from "./NestiaEditorUploader";
 
 export function NestiaEditorApplication() {
-  const [ready, setReady] = useState(false);
-  const [asset, setAsset] = useState<IAsset | null>(null);
-  useEffect(() => {
+  const [ready, setReady] = React.useState(false);
+  const [asset, setAsset] = React.useState<IAsset | null>(null);
+
+  React.useEffect(() => {
     (async () => {
       try {
         setAsset(await getAsset());
@@ -18,6 +19,7 @@ export function NestiaEditorApplication() {
     })().catch(() => {});
   }, []);
   if (ready === false) return <></>;
+
   return asset !== null ? (
     <NestiaEditorIframe
       swagger={asset.url}
@@ -55,11 +57,13 @@ async function getAsset(): Promise<IAsset | null> {
 
   const simulate: string | null = query.get("simulate");
   const e2e: string | null = query.get("e2e");
+  const mode: string | null = query.get("mode");
   return {
     url,
     simulate:
       simulate !== null ? simulate === "true" || simulate === "1" : true,
     e2e: e2e !== null ? e2e === "true" || e2e === "1" : true,
+    mode: mode === "nest" ? "nest" : "sdk",
   };
 }
 
@@ -72,4 +76,5 @@ interface IAsset {
   url: string;
   simulate: boolean;
   e2e: boolean;
+  mode: "nest" | "sdk";
 }

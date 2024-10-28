@@ -28,12 +28,14 @@ export namespace NestiaEditorComposer {
       migrate: (app) => app.nest(props),
     })(props);
 
-  export const sdk = (props: IProps): Promise<IValidation<IOutput>> =>
-    compose({
+  export const sdk = async (props: IProps): Promise<IValidation<IOutput>> => {
+    console.log("NestiaEditorComposer.sdk()", props);
+    return compose({
       openFile: "README.md,test/start.ts",
       startScript: ["swagger", "hello"],
       migrate: (app) => app.sdk(props),
     })(props);
+  };
 
   const compose =
     (config: {
@@ -60,10 +62,12 @@ export namespace NestiaEditorComposer {
       const { files } = config.migrate(app);
       for (const f of files)
         if (f.file.substring(f.file.length - 3) === ".ts")
-          f.content = await format(f.content, {
-            parser: "typescript",
-            plugins: [prettierEsTreePlugin, prettierTsPlugin],
-          });
+          try {
+            f.content = await format(f.content, {
+              parser: "typescript",
+              plugins: [prettierEsTreePlugin, prettierTsPlugin],
+            });
+          } catch {}
       return {
         success: true,
         data: {

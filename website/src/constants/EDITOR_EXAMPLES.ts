@@ -1,35 +1,43 @@
 export const EDITOR_EXAMPLES: IAsset[] = [
   {
     title: "BBS (Bullet-in Board System)",
-    swagger: "/swaggers/bbs.json",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.1/example.json",
   },
   {
     title: "Shopping Mall",
-    swagger: "/swaggers/shopping.json",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.1/shopping.json",
   },
   {
     title: "Clickhouse",
-    swagger: "/swaggers/clickhouse.json",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.0/clickhouse.json",
   },
   {
     title: "Fireblocks",
-    swagger: "/swaggers/fireblocks.json",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.0/fireblocks.json",
   },
   {
     title: "Uber",
-    swagger: "/swaggers/uber.json",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v2.0/uber.json",
   },
   {
     title: "OpenAI",
-    swagger: "/swaggers/openai.json",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.0/openai.json",
   },
   {
     title: "아임포트",
-    swagger: "/swaggers/iamport.json",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/payments/refs/heads/master/packages/fake-iamport-server/packages/api/swagger.json",
   },
   {
     title: "토스페이먼츠",
-    swagger: "/swaggers/toss-payments.json",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/payments/refs/heads/master/packages/fake-toss-payments-server/packages/api/swagger.json",
   },
 ];
 interface IAsset {

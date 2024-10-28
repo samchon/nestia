@@ -10,22 +10,23 @@ import {
 } from "@mui/material";
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import StackBlitzSDK from "@stackblitz/sdk";
-import { useEffect, useState } from "react";
-import { JSONTree } from "react-json-tree";
+import React from "react";
 import { IValidation } from "typia";
 
 import { NestiaEditorComposer } from "./internal/NestiaEditorComposer";
 
 export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
-  const [id] = useState(
+  const [id] = React.useState(
     `reactia-editor-div-${Math.random().toString().substring(2)}`,
   );
-  const [step, setStep] = useState(0);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  const [operations, setOperationCount] = useState<Record<string, number>>({});
-  const [composerError, setComposerError] = useState<any | null>(null);
+  const [step, setStep] = React.useState(0);
+  const [fetchError, setFetchError] = React.useState<string | null>(null);
+  const [operations, setOperationCount] = React.useState<
+    Record<string, number>
+  >({});
+  const [composerError, setComposerError] = React.useState<any | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     (async () => {
       // LOADING OPENAPI DOCUMENTS
       setStep(0);
@@ -45,11 +46,20 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
       // GENERATING SOFTWARE DEVELOPMENT KIT
       setStep(1);
       const result: IValidation<NestiaEditorComposer.IOutput> =
-        await NestiaEditorComposer.sdk({
-          document,
-          simulate: props.simulate ?? true,
-          e2e: props.e2e ?? true,
-        });
+        await (async () => {
+          try {
+            return await NestiaEditorComposer[props.mode ?? "sdk"]({
+              document,
+              simulate: props.simulate ?? true,
+              e2e: props.e2e ?? true,
+            });
+          } catch (exp) {
+            return {
+              success: false,
+              errors: exp as any,
+            } satisfies IValidation.IFailure;
+          }
+        })();
       if (result.success === false) {
         setComposerError(result.errors);
         return;
@@ -69,9 +79,12 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
           height: "100%",
           openFile: result.data.openFile,
           startScript: result.data.startScript as any, // no problem
+          crossOriginIsolated: true,
         },
       );
-    })().catch(() => {});
+    })().catch((exp) => {
+      console.error("unknown error", exp);
+    });
   }, []);
   return (
     <div
@@ -152,7 +165,7 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
                   <br />
                   <Alert severity="error">
                     <AlertTitle>Composition Error</AlertTitle>
-                    <JSONTree data={composerError} />
+                    <pre>{JSON.stringify(composerError, null, 2)}</pre>
                   </Alert>
                 </>
               ) : null}
@@ -178,6 +191,11 @@ export namespace NestiaEditorIframe {
       | OpenApiV3_1.IDocument;
     simulate?: boolean;
     e2e?: boolean;
+
+    /**
+     * @internal
+     */
+    mode?: "nest" | "sdk";
 
     /**
      * @internal

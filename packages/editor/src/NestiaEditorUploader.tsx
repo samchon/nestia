@@ -9,22 +9,22 @@ import {
 } from "@mui/material";
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import StackBlitzSDK from "@stackblitz/sdk";
-import { useState } from "react";
+import React from "react";
 
 import { NestiaEditorComposer } from "./internal/NestiaEditorComposer";
 import { NestiaEditorFileUploader } from "./internal/NestiaEditorFileUploader";
 
 export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
   // PARAMETERS
-  const [mode, setMode] = useState<"nest" | "sdk">("sdk");
-  const [simulate, setSimulate] = useState(true);
-  const [e2e, setE2e] = useState(true);
+  const [mode, setMode] = React.useState<"nest" | "sdk">("sdk");
+  const [simulate, setSimulate] = React.useState(true);
+  const [e2e, setE2e] = React.useState(true);
 
   // RESULT
-  const [document, setDocument] = useState<
+  const [document, setDocument] = React.useState<
     SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument | null
   >(null);
-  const [progress, setProgress] = useState(false);
+  const [progress, setProgress] = React.useState(false);
 
   const handleError = (error: string) => {
     if (props.onError) props.onError(error);
