@@ -45,7 +45,10 @@ async function getAsset(): Promise<IAsset | null> {
   const query: URLSearchParams = new URLSearchParams(
     index === -1 ? "" : window.location.href.substring(index + 1),
   );
-  const url: string | null = query.get("url") ?? (await findSwagger());
+  const url: string | null =
+    query.get("url") ??
+    (await findSwagger("./swagger.json")) ??
+    (await findSwagger("./swagger.yaml"));
   if (url === null) return null;
 
   const simulate: string | null = query.get("simulate");
@@ -54,15 +57,15 @@ async function getAsset(): Promise<IAsset | null> {
   return {
     url,
     simulate:
-      simulate !== null ? simulate === "true" || simulate === "1" : true,
-    e2e: e2e !== null ? e2e === "true" || e2e === "1" : true,
+      simulate !== null ? simulate === "true" || simulate === "1" : false,
+    e2e: e2e !== null ? e2e === "true" || e2e === "1" : false,
     mode: mode === "nest" ? "nest" : "sdk",
   };
 }
 
-async function findSwagger(): Promise<string | null> {
-  const response: Response = await fetch("./swagger.json");
-  return response.status === 200 ? "./swagger.json" : null;
+async function findSwagger(file: string): Promise<string | null> {
+  const response: Response = await fetch(file);
+  return response.status === 200 ? file : null;
 }
 
 interface IAsset {
