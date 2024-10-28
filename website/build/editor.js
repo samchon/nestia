@@ -6,7 +6,7 @@ const PACKAGE = `${__dirname}/../../packages/editor`;
 const ASSETS = `${PACKAGE}/dist/assets`;
 
 const main = async () => {
-  cp.execSync("npm install && npm run build:static", {
+  cp.execSync("npm i && npm run build:static", {
     stdio: "ignore",
     cwd: PACKAGE,
   });
@@ -19,8 +19,9 @@ const main = async () => {
     zip.file(`assets/${file}`, await fs.promises.readFile(`${ASSETS}/${file}`));
   const buffer = await zip.generateAsync({
     type: "uint8array",
+    compression: "DEFLATE",
     compressionOptions: {
-      level: 0,
+      level: 9,
     },
   });
   try {
