@@ -1,7 +1,9 @@
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import { load } from "js-yaml";
 import React from "react";
+// @ts-ignore
 import FileUpload from "react-mui-fileuploader";
+// @ts-ignore
 import { ExtendedFileProps } from "react-mui-fileuploader/dist/types/index.types";
 
 export function NestiaEditorFileUploader(

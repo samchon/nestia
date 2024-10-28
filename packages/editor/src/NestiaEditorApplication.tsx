@@ -42,18 +42,11 @@ export function NestiaEditorApplication() {
 
 async function getAsset(): Promise<IAsset | null> {
   const index: number = window.location.href.indexOf("?");
-  if (index === -1) return null;
-
   const query: URLSearchParams = new URLSearchParams(
-    window.location.href.substring(index + 1),
+    index === -1 ? "" : window.location.href.substring(index + 1),
   );
   const url: string | null = query.get("url") ?? (await findSwagger());
   if (url === null) return null;
-  try {
-    new URL(url);
-  } catch {
-    return null;
-  }
 
   const simulate: string | null = query.get("simulate");
   const e2e: string | null = query.get("e2e");
@@ -69,6 +62,7 @@ async function getAsset(): Promise<IAsset | null> {
 
 async function findSwagger(): Promise<string | null> {
   const response: Response = await fetch("./swagger.json");
+  console.log("swagger", response.status);
   return response.status === 200 ? "./swagger.json" : null;
 }
 
