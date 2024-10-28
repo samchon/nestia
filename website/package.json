@@ -23,7 +23,7 @@
     "@mui/icons-material": "5.15.6",
     "@mui/material": "5.15.6",
     "@mui/system": "5.15.6",
-    "@nestia/editor": "0.3.1",
+    "@nestia/editor": "0.3.2",
     "jszip": "^3.10.1",
     "next": "14.2.13",
     "nextra": "^2.13.4",

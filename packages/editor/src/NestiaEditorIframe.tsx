@@ -79,7 +79,6 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
           height: "100%",
           openFile: result.data.openFile,
           startScript: result.data.startScript as any, // no problem
-          crossOriginIsolated: true,
         },
       );
     })().catch((exp) => {

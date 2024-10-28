@@ -62,7 +62,6 @@ async function getAsset(): Promise<IAsset | null> {
 
 async function findSwagger(): Promise<string | null> {
   const response: Response = await fetch("./swagger.json");
-  console.log("swagger", response.status);
   return response.status === 200 ? "./swagger.json" : null;
 }
 
