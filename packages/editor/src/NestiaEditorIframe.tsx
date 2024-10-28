@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import StackBlitzSDK from "@stackblitz/sdk";
+import { load } from "js-yaml";
 import React from "react";
 import { IValidation } from "typia";
 
@@ -211,6 +212,10 @@ const getDocument = async (
   try {
     const response: Response = await fetch(url);
     if (response.status !== 200) return await response.text();
+    else if (url.endsWith(".yaml")) {
+      const text: string = await response.text();
+      return load(text) as OpenApiV3.IDocument;
+    }
     return await response.json();
   } catch (error) {
     if (error instanceof Error) return error.message;
