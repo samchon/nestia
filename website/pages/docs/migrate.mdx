@@ -65,43 +65,35 @@ Visit [TypeScript Swagger Editor](./editor) and upload your `swagger.json` file.
 
 Then, you can test the migrated NestJS Project, SDK library and Mockup Simulator in the web browser. 
 
-<EditorMovie mode="nest" />
+<EditorMovie />
 
 > Put your `swagger.json` file, then "TypeScript Swagger Editor" be opened.
 
-{
-  <ul>
-    <li> Demo Editors
-      <ul>
-        {EDITOR_EXAMPLES.map((example) => (
-          <li>
-            {example.title}{": "}
-            <a style={{ cursor: "pointer" }} 
-               onMouseDown={(evt) => {
-               if (evt.which === 3) return;
-                 EditorComposer.nest({
-                   title: example.title,
-                   swagger: example.swagger,
-                   e2e: true,
-                   simulate: true,
-                 }).catch(() => {});
-               }}> NestJS Project </a>
-            {" / "}
-            <a style={{ cursor: "pointer" }} 
-               onMouseDown={(evt) => {
-               if (evt.which === 3) return;
-                 EditorComposer.sdk({
-                   title: example.title,
-                   swagger: example.swagger,
-                   e2e: true,
-                   simulate: true,
-                 }).catch(() => {});
-               }}> SDK & Simulator </a>
-          </li>
-        ))}
-      </ul>
-    </li>
-  </ul>
-}
+{<ul>
+  <li> Concepts
+    <ul>
+      <li> SDK: collection of typed <code>fetch</code> functions with DTO structures </li>
+      <li> Mockup Simulator: embedded backend simulator in the SDK </li>
+    </ul>
+  </li>
+  <li> Demo Editors
+    <ul>
+      {EDITOR_EXAMPLES.map((example) => (
+        <li>
+          {example.title}{": "}
+          <a href={`/editor/?url=${encodeURIComponent(example.swagger)}&simulate=true&e2e=true`} 
+             target="_blank">
+            SDK & Simulator 
+          </a>
+          {" / "}
+          <a href={`/editor/?url=${encodeURIComponent(example.swagger)}&simulate=true&e2e=true&mode=nest`} 
+             target="_blank"> 
+            NestJS Project 
+          </a>
+        </li>
+      ))}
+    </ul>
+  </li>
+</ul>}
 
 ![Example Case](/images/editor/stackblitz.png)
