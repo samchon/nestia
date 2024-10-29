@@ -1,7 +1,7 @@
 import { MigrateApplication } from "@nestia/migrate";
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
-import prettierEsTreePlugin from "prettier/plugins/estree";
-import prettierTsPlugin from "prettier/plugins/typescript";
+import * as prettierEsTreePlugin from "prettier/plugins/estree";
+import * as prettierTsPlugin from "prettier/plugins/typescript";
 import { format } from "prettier/standalone";
 import { IValidation } from "typia";
 
@@ -67,7 +67,9 @@ export namespace NestiaEditorComposer {
               parser: "typescript",
               plugins: [prettierEsTreePlugin, prettierTsPlugin],
             });
-          } catch {}
+          } catch (exp) {
+            console.log(exp);
+          }
       return {
         success: true,
         data: {
