@@ -26,9 +26,5 @@
     "prettier": "^3.2.4",
     "rimraf": "^5.0.1",
     "sloc": "^0.3.0"
-  },
-  "dependencies": {
-    "@nestia/migrate": "^0.18.2",
-    "@stackblitz/sdk": "^1.11.0"
   }
 }
