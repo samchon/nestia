@@ -2,7 +2,7 @@ export const EDITOR_EXAMPLES: IAsset[] = [
   {
     title: "BBS (Bullet-in Board System)",
     swagger:
-      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.1/example.json",
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.1/bbs.json",
   },
   {
     title: "Shopping Mall",
@@ -28,16 +28,6 @@ export const EDITOR_EXAMPLES: IAsset[] = [
     title: "OpenAI",
     swagger:
       "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.0/openai.json",
-  },
-  {
-    title: "아임포트",
-    swagger:
-      "https://raw.githubusercontent.com/samchon/payments/refs/heads/master/packages/fake-iamport-server/packages/api/swagger.json",
-  },
-  {
-    title: "토스페이먼츠",
-    swagger:
-      "https://raw.githubusercontent.com/samchon/payments/refs/heads/master/packages/fake-toss-payments-server/packages/api/swagger.json",
   },
 ];
 interface IAsset {
