@@ -6,6 +6,7 @@
 //================================================================
 import type {
   IConnection,
+  FormDataInput,
   IPropagation,
   Resolved,
   HttpError,
@@ -38,7 +39,7 @@ export async function post(
       );
 }
 export namespace post {
-  export type Input = IMultipart;
+  export type Input = FormDataInput<IMultipart>;
   export type Output = IPropagation<
     {
       201: void;

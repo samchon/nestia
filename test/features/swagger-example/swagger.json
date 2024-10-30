@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.16.0",
+    "version": "3.17.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -29,42 +29,89 @@
                 "$ref": "#/components/schemas/IBbsArticle.ICreate"
               },
               "example": {
-                "title": "tjvlncajojmuxqsulnd",
-                "body": "oraxfecyp",
-                "files": []
+                "title": "kujwswxungakkeg",
+                "body": "imzvohzi",
+                "files": [
+                  {
+                    "name": null,
+                    "extension": "fahhemtj",
+                    "url": "https://hofrnmmmfm.eat"
+                  },
+                  {
+                    "name": null,
+                    "extension": "nsz",
+                    "url": "https://knixzkymvl.eyk"
+                  },
+                  {
+                    "name": null,
+                    "extension": "ubrgryvo",
+                    "url": "https://wwwpbifejn.fye"
+                  }
+                ]
               },
               "examples": {
                 "z": {
-                  "title": "hcigedlwknojfcheaxcfpzvedowzwlqxmhxraiwdqloxfeic",
-                  "body": "ghxsqvqxps",
+                  "title": "wrxcuskxnhfvlulioztmkaijo",
+                  "body": "khdddcfart",
                   "files": [
                     {
-                      "name": null,
-                      "extension": null,
-                      "url": "https://vwqffkuwnl.yvp"
+                      "name": "gutqcqjvzfckuxymjmkinflgrqgmyuakrmzxwcjapromrrzadaztbpikynxbyleszarhrgojo",
+                      "extension": "z",
+                      "url": "https://nokfguqoxc.wzh"
                     },
                     {
                       "name": null,
-                      "extension": "sgxkop",
-                      "url": "https://ihlxfckbgr.oku"
+                      "extension": null,
+                      "url": "https://cqmkjywmmi.ioa"
+                    },
+                    {
+                      "name": "sqhzjqqqqckgir",
+                      "extension": "gyqi",
+                      "url": "https://srcpnokmgw.unw"
                     }
                   ]
                 },
                 "y": {
-                  "title": "joeptgyzmbogciayts",
-                  "body": "aftua",
+                  "title": "jlqajlnmtrapubwsrsuknkvclapvlaruylhzp",
+                  "body": "puuxxisvg",
                   "files": [
                     {
-                      "name": "kegkbhzynugeaqbzevjheyxeunkbcbeawdetwgtwhfmusppfaytpuiyubsuavtdfqidvxaelilfbembcftvnkucrvkisnqpfevqyogmbnqpboeruucgptlhmzgairuovfffuzeyhonsezikqwacaxkirgclqwukenxbaytkfmjdizwckd",
-                      "extension": "at",
-                      "url": "https://fyzufjsxuk.zpn"
+                      "name": null,
+                      "extension": null,
+                      "url": "https://lohkemjmfa.rom"
+                    },
+                    {
+                      "name": "pzsnirmycjeraaeftyclglkwqmrmabzxubnrosqubsawonhacrmglgxgysjkhyvjufjpkaqkrdnmdmthpdohfewvzpybqlqodhnhdkhnuckgbwabvvhjex",
+                      "extension": null,
+                      "url": "https://qzbzjexytp.uaz"
+                    },
+                    {
+                      "name": "xaxrvoiqwtbrdmmugqlhykzovxkxybormjfcruntqceqqedipipcharzuklcxgdrprneamhlgvqjzbviuzhujivwusdx",
+                      "extension": null,
+                      "url": "https://ziditnkywr.jqr"
                     }
                   ]
                 },
                 "x": {
-                  "title": "vtqwlftvlgtvgnffshahjlksmqznq",
-                  "body": "ybajedj",
-                  "files": []
+                  "title": "vkofrsbemgbmziaxuglvuewioztaylalfaz",
+                  "body": "syzjzjz",
+                  "files": [
+                    {
+                      "name": null,
+                      "extension": "oahfq",
+                      "url": "https://nsesyxzqfy.zba"
+                    },
+                    {
+                      "name": "tzjteuomrssihyqqrxfgkpfvjhsbsrpldgpbjtlmtlatrhutohjphfqxrmwkubwdhszyxmwnqofiercpbeeyxvjsotyxwmuq",
+                      "extension": "dzx",
+                      "url": "https://mvlsddjlnx.oky"
+                    },
+                    {
+                      "name": "zvlrstgachkvwumuqruzclwengfimsylmewomeygpkmzauompsjsxnrrfefdevfthnoaytqacaidvdiaektllhvnqbesbkfikatrbxsyrcgzhcjgpjchgbjjmsvgqsckootoeenhldphwcsizbhahqzcrkxpbatqojroamiodjhwfberxanzywnyfgavzlqyzljulginbuylufwiccxlhcudtxcayzhxjekeceurxqtpevlhbbyc",
+                      "extension": null,
+                      "url": "https://cqgsguexjq.ppu"
+                    }
+                  ]
                 }
               }
             }
@@ -80,15 +127,20 @@
                   "$ref": "#/components/schemas/IBbsArticle"
                 },
                 "example": {
-                  "id": "897d93d4-996d-42f1-b784-91c8065a9639",
-                  "created_at": "2024-10-05T01:41:40.773Z",
-                  "title": "jgzauqhqmhegnrwzanfjxrqts",
-                  "body": "xtdoxl",
+                  "id": "4c3181f9-9d3b-4206-ad4a-f4e5f8bdec9a",
+                  "created_at": "2024-10-15T20:42:23.114Z",
+                  "title": "tdtmcntreqrk",
+                  "body": "esbzrsa",
                   "files": [
                     {
-                      "name": "hvlvjpoxaqvradakngccmtnslkrxwbjsfspoeprrwrzgjcitnjxkzlkgnnteryfiivshdlxtnexesjhfbnldlaaldledesgrkjfbjrnlgvnxfbtctquafodzjgcomncquzegkqsttermx",
-                      "extension": "itbrzy",
-                      "url": "https://dgnzuievap.pcw"
+                      "name": "emhpkilthoykpclnnjirhxcpaceenopwxcznbajdsxllztacstdgckpuhwnzu",
+                      "extension": "vlnu",
+                      "url": "https://rkezkoyqys.nyv"
+                    },
+                    {
+                      "name": "yrjttutgcdvexr",
+                      "extension": "metqemp",
+                      "url": "https://kowoeignub.jcs"
                     }
                   ]
                 }
@@ -110,7 +162,7 @@
               "format": "uuid"
             },
             "required": true,
-            "example": "8940dc24-9f86-49ad-b39e-a4db646dd4cd"
+            "example": "b26491a8-7988-44d7-8a3c-73a842388318"
           }
         ],
         "requestBody": {
@@ -120,8 +172,7 @@
                 "$ref": "#/components/schemas/PartialIBbsArticle.ICreate"
               },
               "example": {
-                "title": "icckceginxvpkqliiclzyt",
-                "body": "ksjwm"
+                "title": "exhehwybpxngielgieyqgsozugwebayrxywtqxxosuyjvxw"
               }
             }
           },
@@ -136,46 +187,52 @@
                   "$ref": "#/components/schemas/IBbsArticle"
                 },
                 "example": {
-                  "id": "cf04cb79-7554-40d5-86c8-62038af66dbc",
-                  "created_at": "2024-10-01T22:18:36.862Z",
-                  "title": "rkhcscferadcsmeokqeqirowkknqefsn",
-                  "body": "vtpteeds",
-                  "files": []
+                  "id": "26d5fd4b-c50f-414c-aec7-04f23bcbcc2d",
+                  "created_at": "2024-10-07T02:19:40.717Z",
+                  "title": "ldjgazuuzqskanqj",
+                  "body": "sofqtk",
+                  "files": [
+                    {
+                      "name": null,
+                      "extension": null,
+                      "url": "https://jokipcbkuo.vfb"
+                    }
+                  ]
                 },
                 "examples": {
                   "b": {
-                    "id": "52c76e4a-f2db-4205-9bfe-5b12cf09eca0",
-                    "created_at": "2024-08-29T18:34:13.221Z",
-                    "title": "mrqjmdrxfznjxkli",
-                    "body": "ubaruxdy",
+                    "id": "3afb5082-69cd-4fae-acdb-d1e11fae0ad9",
+                    "created_at": "2024-10-24T13:05:37.671Z",
+                    "title": "kpnpqkguezjbqkdovxxyntdgxnapmaxmuymsittwyfxg",
+                    "body": "namsgqdxp",
                     "files": [
                       {
                         "name": null,
                         "extension": null,
-                        "url": "https://rfbadyeqlk.txp"
+                        "url": "https://msnlcejwaq.ndr"
                       },
                       {
                         "name": null,
                         "extension": null,
-                        "url": "https://tccpovkrsk.ahd"
+                        "url": "https://swfrjilcli.kmd"
+                      },
+                      {
+                        "name": "wdgjvqqpdgubfkefnirfykpcmqchbrnkhppdbvktjeajsfistmujdlrliczkwnr",
+                        "extension": null,
+                        "url": "https://ngiajnriuk.wiz"
                       }
                     ]
                   },
                   "a": {
-                    "id": "2d40baed-aebb-4ee5-8549-f7283b789d15",
-                    "created_at": "2024-09-09T05:09:51.010Z",
-                    "title": "tgcjbguwxxsdzfzbsftedralrvdkoxjysxkxfsknbezlof",
-                    "body": "rvcrve",
+                    "id": "5dd0ec59-2019-40f7-95ac-1057c5621928",
+                    "created_at": "2024-11-04T20:32:15.411Z",
+                    "title": "zsku",
+                    "body": "npkajdl",
                     "files": [
                       {
-                        "name": "qsyznkjuridvnlsfymhmiedfglkywdxsvijihqbfykxpkmasbmunvgnrckonjjkdtopuarfytcpmhvvwhkijythfutfkfrnvfyezpycckwlwswvniolmkevtmixbpqlcjmmfyllujpcqjayonzbhelentnagrjvuylasusbncqnbuqaqgpizkndnqhndrwvngucrndtvgquae",
-                        "extension": null,
-                        "url": "https://bqlopmxann.ifa"
-                      },
-                      {
                         "name": null,
-                        "extension": null,
-                        "url": "https://bxsrpkcwqh.pot"
+                        "extension": "sc",
+                        "url": "https://juzlftijtz.foo"
                       }
                     ]
                   }

@@ -99,6 +99,7 @@ When you want to build not only Swagger Document file, but also [OpenAI function
 
 
 
+
 ## Runtime Composition
 ### Bootstrap
 ```typescript filename="main.ts" showLineNumbers {8-17}
@@ -783,6 +784,7 @@ Swagger generator `@nestia/sdk` supports three type of comment tags for controll
   - Hiding
     - `@deprecated`: mark as `deprecated`
     - `@internal`: hide, never be shown
+    - `@hidden`: hide, never be shown
     - `@ignore`: hide, never be shown, even in the SDK side
   - Labeling
     - `@summary` : short description of endpoint
@@ -792,7 +794,7 @@ Swagger generator `@nestia/sdk` supports three type of comment tags for controll
     - `@security {key}`: security scheme key
     - `@security {key} {...scopes}`: +scopes for OAuth2 type
 
-At first, `@internal` and `@ignore` tags are used to hide the controller method from the Swagger Documents. When you use one of them, the controller method would not be written in the `swagger.json` file. Otherwise, the `@deprecated` tag is used to mark the controller method as deprecated. When you use it, Swagger Editor will show the deprecated message about the route method like below.
+At first, `@internal`, `@hidden` and `@ignore` tags are used to hide the controller method from the Swagger Documents. When you use one of them, the controller method would not be written in the `swagger.json` file. Otherwise, the `@deprecated` tag is used to mark the controller method as deprecated. When you use it, Swagger Editor will show the deprecated message about the route method like below.
 
 Also, the `@summary` tag is used to write short description of the endpoint. By the way, the `@summary` tag can be replaced by writing top sentence ends with `.` symbol. The other one, `@tag {name} {description?}` tag is used for only groupping. If you fill the `description` part, it would be shown in the Swagger-UI.
 
