@@ -23,8 +23,10 @@ export function NestiaEditorApplication() {
   return asset !== null ? (
     <NestiaEditorIframe
       swagger={asset.url}
+      package={asset.package}
       simulate={asset.simulate}
       e2e={asset.e2e}
+      mode={asset.mode}
     />
   ) : (
     <div
@@ -51,15 +53,21 @@ async function getAsset(): Promise<IAsset | null> {
     (await findSwagger("./swagger.yaml"));
   if (url === null) return null;
 
-  const simulate: string | null = query.get("simulate");
-  const e2e: string | null = query.get("e2e");
   const mode: string | null = query.get("mode");
+  const packageName: string | null =
+    query.get("package") ?? (window as any).package;
+  const simulate: boolean | string | null =
+    query.get("simulate") ?? (window as any).simulate;
+  const e2e: boolean | string | null = query.get("e2e") ?? (window as any).e2e;
   return {
+    mode: mode === "nest" ? "nest" : "sdk",
+    package: packageName ?? "@ORGANIZATION/PROJECT",
     url,
     simulate:
-      simulate !== null ? simulate === "true" || simulate === "1" : false,
-    e2e: e2e !== null ? e2e === "true" || e2e === "1" : false,
-    mode: mode === "nest" ? "nest" : "sdk",
+      simulate !== null
+        ? simulate === true || simulate === "true" || simulate === "1"
+        : false,
+    e2e: e2e !== null ? e2e === true || e2e === "true" || e2e === "1" : false,
   };
 }
 
@@ -69,8 +77,9 @@ async function findSwagger(file: string): Promise<string | null> {
 }
 
 interface IAsset {
+  mode: "nest" | "sdk";
+  package: string;
   url: string;
   simulate: boolean;
   e2e: boolean;
-  mode: "nest" | "sdk";
 }

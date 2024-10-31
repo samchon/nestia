@@ -6,6 +6,7 @@ import {
   Radio,
   RadioGroup,
   Switch,
+  TextField,
 } from "@mui/material";
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import StackBlitzSDK from "@stackblitz/sdk";
@@ -19,6 +20,7 @@ export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
   const [mode, setMode] = React.useState<"nest" | "sdk">("sdk");
   const [simulate, setSimulate] = React.useState(true);
   const [e2e, setE2e] = React.useState(true);
+  const [name, setName] = React.useState("@ORGINIZATION/PROJECT");
 
   // RESULT
   const [document, setDocument] = React.useState<
@@ -51,6 +53,7 @@ export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
         document,
         e2e,
         simulate,
+        package: name,
       });
       if (result.success === true) {
         StackBlitzSDK.openProject(
@@ -79,7 +82,13 @@ export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
       <NestiaEditorFileUploader onChange={handleSwagger} />
       <br />
       <FormControl fullWidth style={{ paddingLeft: 15 }}>
-        <FormLabel> Mode </FormLabel>
+        <TextField
+          onChange={(e) => setName(e.target.value)}
+          defaultValue={name}
+          label="Package Name"
+          variant="outlined"
+        />
+        <FormLabel style={{ paddingTop: 20 }}> Mode </FormLabel>
         <RadioGroup
           defaultValue={mode}
           onChange={(_e, value) => setMode(value as "nest" | "sdk")}

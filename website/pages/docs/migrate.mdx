@@ -31,12 +31,13 @@ npx @nestia/migrate
   --mode [nest|sdk] 
   --input [input] 
   --output [output] 
+  --package [name]
   --simulate [true|false]
   --e2e [true|false]
 
 # EXAMPLES
-npx @nestia/migrate --mode nest --input swagger.json --output directory --simulate false --e2e false
-npx @nestia/migrate --mode sdk --input swagger.json --output directory --simulate true --e2e true
+npx @nestia/migrate --mode nest --input swagger.json --output directory --package @samchon/bbs --simulate false --e2e false
+npx @nestia/migrate --mode sdk --input swagger.json --output directory --package @samchon/bbs --simulate true --e2e true
 ```
 
 You can specify migration options like above. 
@@ -49,6 +50,7 @@ npx @nestia/migrate
   > NestJS
     SDK
 ? Swagger file location: assets/input/clickhouse.json
+? Package name: @samchon/bbs
 ? Output directory path: assets/output/clickhouse-sdk-manual
 ? Mokup Simulator: true
 ? E2E Test Functions: true
@@ -80,14 +82,14 @@ Then, you can test the migrated NestJS Project, SDK library and Mockup Simulator
       {EDITOR_EXAMPLES.map((example) => (
         <li>
           {example.title}{": "}
-          <a href={`/editor/?url=${encodeURIComponent(example.swagger)}&simulate=true&e2e=true`} 
-             target="_blank">
-            SDK & Simulator 
-          </a>
-          {" / "}
-          <a href={`/editor/?url=${encodeURIComponent(example.swagger)}&simulate=true&e2e=true&mode=nest`} 
+          <a href={`/editor/?url=${encodeURIComponent(example.swagger)}&package=${encodeURIComponent(example.package)}&simulate=true&e2e=true&mode=nest`} 
              target="_blank"> 
             NestJS Project 
+          </a>
+          {" / "}
+          <a href={`/editor/?url=${encodeURIComponent(example.swagger)}&package=${encodeURIComponent(example.package)}&simulate=true&e2e=true`} 
+             target="_blank">
+            SDK & Simulator 
           </a>
         </li>
       ))}
