@@ -53,6 +53,7 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
               document,
               simulate: props.simulate ?? true,
               e2e: props.e2e ?? true,
+              package: props.package ?? "@ORGANIZATION/PROJECT",
             });
           } catch (exp) {
             return {
@@ -189,6 +190,7 @@ export namespace NestiaEditorIframe {
       | SwaggerV2.IDocument
       | OpenApiV3.IDocument
       | OpenApiV3_1.IDocument;
+    package?: string;
     simulate?: boolean;
     e2e?: boolean;
 

@@ -10,6 +10,7 @@ export namespace NestiaEditorComposer {
     document: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument;
     e2e: boolean;
     simulate: boolean;
+    package?: string;
     /**
      * @internal
      */

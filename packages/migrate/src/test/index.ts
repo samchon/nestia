@@ -49,7 +49,15 @@ const execute =
 
         const app: MigrateApplication = result.data;
         const { files } =
-          config.mode === "nest" ? app.nest(config) : app.sdk(config);
+          config.mode === "nest"
+            ? app.nest({
+                ...config,
+                package: project,
+              })
+            : app.sdk({
+                ...config,
+                package: project,
+              });
 
         await MigrateFileArchiver.archive({
           mkdir: fs.promises.mkdir,
@@ -91,13 +99,12 @@ const iterate = async (directory: string): Promise<void> => {
         ["nest", true],
         ["sdk", true],
         ["sdk", false],
-      ] as const) {
+      ] as const)
         await execute({
           mode,
           simulate: flag,
           e2e: flag,
         })(project)(document);
-      }
     }
   }
 };
