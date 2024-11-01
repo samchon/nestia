@@ -1,17 +1,17 @@
-import { Metadata as metadata } from "typia/lib/schemas/metadata/Metadata";
+import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 export namespace MetadataUtil {
-  export const visit = (closure: (m: metadata) => unknown) => {
-    const visited: WeakSet<metadata> = new WeakSet();
-    const iterate = (metadata: metadata): void => {
+  export const visit = (closure: (m: Metadata) => unknown) => {
+    const visited: WeakSet<Metadata> = new WeakSet();
+    const iterate = (metadata: Metadata): void => {
       if (visited.has(metadata)) return;
       visited.add(metadata);
       closure(metadata);
-      for (const alias of metadata.aliases) iterate(alias.value);
+      for (const alias of metadata.aliases) iterate(alias.type.value);
       for (const array of metadata.arrays) iterate(array.type.value);
       for (const tuple of metadata.tuples) tuple.type.elements.map(iterate);
       for (const object of metadata.objects)
-        object.properties.forEach((p) => {
+        object.type.properties.forEach((p) => {
           iterate(p.key);
           iterate(p.value);
         });

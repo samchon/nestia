@@ -3,63 +3,73 @@ import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
-import { FunctionImporter } from "typia/lib/programmers/helpers/FunctionImporeter";
+import { FunctionProgrammer } from "typia/lib/programmers/helpers/FunctionProgrammer";
 import { HttpQueryProgrammer } from "typia/lib/programmers/http/HttpQueryProgrammer";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
-import { IProject } from "typia/lib/transformers/IProject";
+import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
 import { TransformerError } from "typia/lib/transformers/TransformerError";
 
 export namespace HttpQuerifyProgrammer {
-  export const write =
-    (project: IProject) =>
-    (modulo: ts.LeftHandSideExpression) =>
-    (type: ts.Type): ts.ArrowFunction => {
-      // GET OBJECT TYPE
-      const importer: FunctionImporter = new FunctionImporter(modulo.getText());
-      const collection: MetadataCollection = new MetadataCollection();
-      const result = MetadataFactory.analyze(project.checker)({
+  export const write = (props: {
+    context: ITypiaContext;
+    modulo: ts.LeftHandSideExpression;
+    type: ts.Type;
+  }): ts.ArrowFunction => {
+    // GET OBJECT TYPE
+    const functor: FunctionProgrammer = new FunctionProgrammer(
+      props.modulo.getText(),
+    );
+    const collection: MetadataCollection = new MetadataCollection();
+    const result = MetadataFactory.analyze({
+      checker: props.context.checker,
+      transformer: props.context.transformer,
+      options: {
         escape: false,
         constant: true,
         absorb: true,
         validate: HttpQueryProgrammer.validate,
-      })(collection)(type);
-      if (result.success === false)
-        throw TransformerError.from(
-          `nestia.core.TypedQuery.${importer.method}`,
-        )(result.errors);
+      },
+      type: props.type,
+      collection,
+    });
+    if (result.success === false)
+      throw TransformerError.from({
+        code: functor.method,
+        errors: result.errors,
+      });
 
-      const object: MetadataObject = result.data.objects[0]!;
-      return ts.factory.createArrowFunction(
-        undefined,
-        undefined,
-        [IdentifierFactory.parameter("input")],
-        undefined,
-        undefined,
-        ts.factory.createBlock(
-          [
-            ...importer.declare(modulo),
-            StatementFactory.constant(
-              "output",
-              ts.factory.createNewExpression(
-                ts.factory.createIdentifier("URLSearchParams"),
-                undefined,
-                [],
-              ),
+    const object: MetadataObject = result.data.objects[0]!;
+    return ts.factory.createArrowFunction(
+      undefined,
+      undefined,
+      [IdentifierFactory.parameter("input")],
+      undefined,
+      undefined,
+      ts.factory.createBlock(
+        [
+          ...functor.declare(),
+          StatementFactory.constant({
+            name: "output",
+            value: ts.factory.createNewExpression(
+              ts.factory.createIdentifier("URLSearchParams"),
+              undefined,
+              [],
             ),
-            ...object.properties.map((p) =>
-              ts.factory.createExpressionStatement(
-                decode(p.key.constants[0]!.values[0].value as string)(p.value),
-              ),
+          }),
+          ...object.type.properties.map((p) =>
+            ts.factory.createExpressionStatement(
+              decode(p.key.constants[0]!.values[0].value as string)(p.value),
             ),
-            ts.factory.createReturnStatement(
-              ts.factory.createIdentifier("output"),
-            ),
-          ],
-          true,
-        ),
-      );
-    };
+          ),
+          ts.factory.createReturnStatement(
+            ts.factory.createIdentifier("output"),
+          ),
+        ],
+        true,
+      ),
+    );
+  };
 
   const decode =
     (key: string) =>
@@ -67,10 +77,12 @@ export namespace HttpQuerifyProgrammer {
       !!value.arrays.length
         ? ts.factory.createCallExpression(
             IdentifierFactory.access(
-              IdentifierFactory.access(ts.factory.createIdentifier("input"))(
+              IdentifierFactory.access(
+                ts.factory.createIdentifier("input"),
                 key,
               ),
-            )("forEach"),
+              "forEach",
+            ),
             undefined,
             [
               ts.factory.createArrowFunction(
@@ -84,12 +96,12 @@ export namespace HttpQuerifyProgrammer {
             ],
           )
         : append(key)(
-            IdentifierFactory.access(ts.factory.createIdentifier("input"))(key),
+            IdentifierFactory.access(ts.factory.createIdentifier("input"), key),
           );
 
   const append = (key: string) => (elem: ts.Expression) =>
     ts.factory.createCallExpression(
-      IdentifierFactory.access(ts.factory.createIdentifier("output"))("append"),
+      IdentifierFactory.access(ts.factory.createIdentifier("output"), "append"),
       undefined,
       [ts.factory.createStringLiteral(key), elem],
     );

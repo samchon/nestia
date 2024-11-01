@@ -187,7 +187,7 @@ export class NestiaSdkApplication {
     //----
     // ANALYZE TYPESCRIPT CODE
     //----
-    console.log("Analyzing soure codes");
+    console.log("Analyzing source codes");
 
     // METADATA COMPONENTS
     const collection: IMetadataDictionary =

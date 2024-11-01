@@ -3,6 +3,6 @@ import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 
 export interface ISdkOperationTransformerContext {
   checker: ts.TypeChecker;
-  api: ts.TransformationContext;
+  transformer: ts.TransformationContext;
   collection: MetadataCollection;
 }

@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.13.0-dev.2024910",
+    "version": "4.0.0-dev.20241022",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -133,46 +133,6 @@
           },
           {
             "bearer": []
-          }
-        ]
-      },
-      "delete": {
-        "summary": "Would not be shown",
-        "description": "Would not be shown.",
-        "tags": [
-          "bbs"
-        ],
-        "operationId": "BbsArticlesController.erase",
-        "parameters": [
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {}
-            }
-          }
-        },
-        "security": [
-          {
-            "custom": []
           }
         ]
       }

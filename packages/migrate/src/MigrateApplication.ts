@@ -14,14 +14,19 @@ import { IHttpMigrateProgram } from "./structures/IHttpMigrateProgram";
 export class MigrateApplication {
   private constructor(public readonly document: OpenApi.IDocument) {}
 
-  public static async create(
+  public static create(
     document:
       | SwaggerV2.IDocument
       | OpenApiV3.IDocument
       | OpenApiV3_1.IDocument
       | OpenApi.IDocument,
-  ): Promise<IValidation<MigrateApplication>> {
-    const result = typia.validate(document);
+  ): IValidation<MigrateApplication> {
+    const result: IValidation<
+      | SwaggerV2.IDocument
+      | OpenApiV3.IDocument
+      | OpenApiV3_1.IDocument
+      | OpenApi.IDocument
+    > = typia.validate(document);
     if (result.success === false) return result;
     return {
       success: true,
@@ -37,7 +42,7 @@ export class MigrateApplication {
       simulate: config.simulate,
       e2e: config.e2e,
     });
-    return {
+    const output: MigrateApplication.IOutput = {
       program,
       files: [
         ...NEST_TEMPLATE,
@@ -47,6 +52,7 @@ export class MigrateApplication {
       ],
       errors: program.errors,
     };
+    return this.finalize(config, output);
   }
 
   public sdk(config: MigrateApplication.IConfig): MigrateApplication.IOutput {
@@ -56,7 +62,7 @@ export class MigrateApplication {
       simulate: config.simulate,
       e2e: config.e2e,
     });
-    return {
+    const output: MigrateApplication.IOutput = {
       program,
       files: [
         ...SDK_TEMPLATE,
@@ -71,6 +77,21 @@ export class MigrateApplication {
       ],
       errors: program.errors,
     };
+    return this.finalize(config, output);
+  }
+
+  private finalize(
+    config: MigrateApplication.IConfig,
+    outupt: MigrateApplication.IOutput,
+  ): MigrateApplication.IOutput {
+    if (config.package)
+      outupt.files = outupt.files.map((file) => ({
+        ...file,
+        content: file.content
+          .split(`@ORGANIZATION/PROJECT`)
+          .join(config.package),
+      }));
+    return outupt;
   }
 }
 export namespace MigrateApplication {
@@ -82,5 +103,6 @@ export namespace MigrateApplication {
   export interface IConfig {
     simulate: boolean;
     e2e: boolean;
+    package?: string;
   }
 }

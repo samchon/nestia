@@ -252,7 +252,8 @@ export namespace SdkWebSocketNamespaceProgrammer {
                         ts.factory.createCallExpression(
                           IdentifierFactory.access(
                             ts.factory.createIdentifier(variables),
-                          )("append"),
+                            "append",
+                          ),
                           undefined,
                           [
                             ts.factory.createIdentifier("key"),
@@ -271,7 +272,8 @@ export namespace SdkWebSocketNamespaceProgrammer {
                   ts.factory.createCallExpression(
                     IdentifierFactory.access(
                       ts.factory.createIdentifier(variables),
-                    )("set"),
+                      "set",
+                    ),
                     undefined,
                     [
                       ts.factory.createIdentifier("key"),
@@ -293,7 +295,8 @@ export namespace SdkWebSocketNamespaceProgrammer {
                 ExpressionFactory.number(0),
                 IdentifierFactory.access(
                   ts.factory.createIdentifier(variables),
-                )("size"),
+                  "size",
+                ),
               ),
               undefined,
               ts.factory.createIdentifier("location"),
@@ -309,7 +312,8 @@ export namespace SdkWebSocketNamespaceProgrammer {
                     ts.factory.createCallExpression(
                       IdentifierFactory.access(
                         ts.factory.createIdentifier(variables),
-                      )("toString"),
+                        "toString",
+                      ),
                       undefined,
                       undefined,
                     ),

@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.13.0-dev.2024910",
+    "version": "4.0.0-dev.20241022",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -42,40 +42,6 @@
                   "$ref": "#/components/schemas/IBbsArticle"
                 }
               }
-            }
-          }
-        }
-      }
-    },
-    "/bbs/articles/{id}": {
-      "put": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "required": true
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PartialIBbsArticle.IStore"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {}
             }
           }
         }
@@ -210,26 +176,6 @@
           "body",
           "files"
         ]
-      },
-      "PartialIBbsArticle.IStore": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 50
-          },
-          "body": {
-            "type": "string"
-          },
-          "files": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IAttachmentFile"
-            }
-          }
-        },
-        "description": "Make all properties in T optional"
       },
       "IPerformance": {
         "type": "object",

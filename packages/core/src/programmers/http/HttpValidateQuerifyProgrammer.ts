@@ -2,62 +2,75 @@ import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
 import { ValidateProgrammer } from "typia/lib/programmers/ValidateProgrammer";
-import { IProject } from "typia/lib/transformers/IProject";
+import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
 
 import { HttpQuerifyProgrammer } from "./HttpQuerifyProgrammer";
 
 export namespace HttpValidateQuerifyProgrammer {
-  export const write =
-    (project: IProject) =>
-    (modulo: ts.LeftHandSideExpression) =>
-    (type: ts.Type, name?: string): ts.ArrowFunction =>
-      ts.factory.createArrowFunction(
-        undefined,
-        undefined,
-        [IdentifierFactory.parameter("input")],
-        undefined,
-        undefined,
-        ts.factory.createBlock([
-          StatementFactory.constant(
-            "validate",
-            ValidateProgrammer.write({
-              ...project,
+  export const write = (props: {
+    context: ITypiaContext;
+    modulo: ts.LeftHandSideExpression;
+    type: ts.Type;
+  }): ts.ArrowFunction =>
+    ts.factory.createArrowFunction(
+      undefined,
+      undefined,
+      [IdentifierFactory.parameter("input")],
+      undefined,
+      undefined,
+      ts.factory.createBlock([
+        StatementFactory.constant({
+          name: "validate",
+          value: ValidateProgrammer.write({
+            config: {
+              equals: false,
+            },
+            context: {
+              ...props.context,
               options: {
-                ...project.options,
+                ...props.context.options,
                 functional: false,
                 numeric: true,
               },
-            })(modulo)(false)(type, name),
-          ),
-          StatementFactory.constant(
-            "query",
-            HttpQuerifyProgrammer.write({
-              ...project,
+            },
+            modulo: props.modulo,
+            type: props.type,
+            name: undefined,
+          }),
+        }),
+        StatementFactory.constant({
+          name: "query",
+          value: HttpQuerifyProgrammer.write({
+            context: {
+              ...props.context,
               options: {
-                ...project.options,
+                ...props.context.options,
                 functional: false,
                 numeric: false,
               },
-            })(modulo)(type),
+            },
+            modulo: props.modulo,
+            type: props.type,
+          }),
+        }),
+        StatementFactory.constant({
+          name: "output",
+          value: ts.factory.createCallExpression(
+            ts.factory.createIdentifier("query"),
+            undefined,
+            [ts.factory.createIdentifier("input")],
           ),
-          StatementFactory.constant(
-            "output",
+        }),
+        ts.factory.createReturnStatement(
+          ts.factory.createAsExpression(
             ts.factory.createCallExpression(
-              ts.factory.createIdentifier("query"),
+              ts.factory.createIdentifier("validate"),
               undefined,
-              [ts.factory.createIdentifier("input")],
+              [ts.factory.createIdentifier("output")],
             ),
+            ts.factory.createTypeReferenceNode("any"),
           ),
-          ts.factory.createReturnStatement(
-            ts.factory.createAsExpression(
-              ts.factory.createCallExpression(
-                ts.factory.createIdentifier("validate"),
-                undefined,
-                [ts.factory.createIdentifier("output")],
-              ),
-              ts.factory.createTypeReferenceNode("any"),
-            ),
-          ),
-        ]),
-      );
+        ),
+      ]),
+    );
 }

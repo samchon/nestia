@@ -3,8 +3,8 @@ import { OpenApi, OpenApiV3, SwaggerV2 } from "@samchon/openapi";
 import fs from "fs";
 import path from "path";
 import { Singleton } from "tstl";
-import typia, { IJsonApplication } from "typia";
-import { JsonApplicationProgrammer } from "typia/lib/programmers/json/JsonApplicationProgrammer";
+import typia, { IJsonSchemaCollection } from "typia";
+import { JsonSchemasProgrammer } from "typia/lib/programmers/json/JsonSchemasProgrammer";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 import { INestiaConfig } from "../INestiaConfig";
@@ -71,8 +71,12 @@ export namespace SwaggerGenerator {
     document: OpenApi.IDocument;
   }): OpenApi.IDocument => {
     // GATHER METADATA
-    const metadatas: Metadata[] = props.routes
-      .filter((r) => r.protocol === "http")
+    const routes: ITypedHttpRoute[] = props.routes.filter((r) =>
+      r.jsDocTags.every(
+        (tag) => tag.name !== "internal" && tag.name !== "hidden",
+      ),
+    );
+    const metadatas: Metadata[] = routes
       .map((r) => [
         r.success.metadata,
         ...r.parameters.map((p) => p.metadata),
@@ -82,9 +86,10 @@ export namespace SwaggerGenerator {
       .filter((m) => m.size() !== 0);
 
     // COMPOSE JSON SCHEMAS
-    const json: IJsonApplication = JsonApplicationProgrammer.write("3.1")(
+    const json: IJsonSchemaCollection = JsonSchemasProgrammer.write({
+      version: "3.1",
       metadatas,
-    ) as IJsonApplication;
+    });
     const dict: WeakMap<Metadata, OpenApi.IJsonSchema> = new WeakMap();
     json.schemas.forEach((schema, i) => dict.set(metadatas[i], schema));
     const schema = (metadata: Metadata): OpenApi.IJsonSchema | undefined =>
@@ -94,8 +99,12 @@ export namespace SwaggerGenerator {
     const document: OpenApi.IDocument = props.document;
     document.components.schemas ??= {};
     Object.assign(document.components.schemas, json.components.schemas);
-    fillPaths({ ...props, schema, document });
-
+    fillPaths({
+      ...props,
+      routes,
+      schema,
+      document,
+    });
     return document;
   };
 

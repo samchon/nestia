@@ -5,6 +5,3 @@ export * from "./IEncryptionPassword";
 export * from "./IFetchEvent";
 export * from "./IFetchRoute";
 export * from "./IPropagation";
-export * from "./IRandomGenerator";
-export * from "./Primitive";
-export * from "./Resolved";

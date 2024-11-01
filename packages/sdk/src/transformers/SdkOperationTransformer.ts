@@ -15,7 +15,7 @@ export namespace SdkOperationTransformer {
     (checker: ts.TypeChecker) => (api: ts.TransformationContext) => {
       const context: ISdkOperationTransformerContext = {
         checker,
-        api,
+        transformer: api,
         collection: collection.get(),
       };
       return (file: ts.SourceFile): ts.SourceFile => {
@@ -72,7 +72,7 @@ export namespace SdkOperationTransformer {
           ...props,
           node: child,
         }),
-      props.context.api,
+      props.context.transformer,
     );
 
   const transformNode = (props: {
@@ -171,7 +171,7 @@ export namespace SdkOperationTransformer {
             undefined,
             [
               ts.factory.createAsExpression(
-                LiteralFactory.generate(metadata),
+                LiteralFactory.write(metadata),
                 TypeFactory.keyword("any"),
               ),
             ],

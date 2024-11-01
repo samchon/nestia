@@ -5,7 +5,6 @@ import {
 } from "@nestjs/common";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
-import { assert, is, misc, validate } from "typia";
 
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
 import { validate_request_body } from "./internal/validate_request_body";
@@ -45,11 +44,6 @@ export function TypedBody<T>(
     return request.body;
   })();
 }
-
-Object.assign(TypedBody, misc.clone);
-Object.assign(TypedBody, is);
-Object.assign(TypedBody, assert);
-Object.assign(TypedBody, validate);
 
 /**
  * @internal
