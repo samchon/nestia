@@ -132,9 +132,10 @@ export namespace SwaggerOperationParameterComposer {
         ),
       )
       .map((p) => {
-        const json: IJsonSchemaCollection = JsonSchemasProgrammer.write("3.1")([
-          p.value,
-        ]) as IJsonSchemaCollection;
+        const json: IJsonSchemaCollection = JsonSchemasProgrammer.write({
+          version: "3.1",
+          metadatas: [p.value],
+        }) as IJsonSchemaCollection;
         if (Object.keys(json.components.schemas ?? {}).length !== 0) {
           props.document.components ??= {};
           props.document.components.schemas ??= {};

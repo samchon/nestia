@@ -86,9 +86,10 @@ export namespace SwaggerGenerator {
       .filter((m) => m.size() !== 0);
 
     // COMPOSE JSON SCHEMAS
-    const json: IJsonSchemaCollection = JsonSchemasProgrammer.write("3.1")(
+    const json: IJsonSchemaCollection = JsonSchemasProgrammer.write({
+      version: "3.1",
       metadatas,
-    ) as IJsonSchemaCollection;
+    });
     const dict: WeakMap<Metadata, OpenApi.IJsonSchema> = new WeakMap();
     json.schemas.forEach((schema, i) => dict.set(metadatas[i], schema));
     const schema = (metadata: Metadata): OpenApi.IJsonSchema | undefined =>
