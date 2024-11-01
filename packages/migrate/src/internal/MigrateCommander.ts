@@ -45,7 +45,7 @@ export namespace MigrateCommander {
     })();
 
     const result: IValidation<MigrateApplication> =
-      await MigrateApplication.create(document);
+      MigrateApplication.create(document);
     if (result.success === false) {
       console.log(result.errors);
       throw new Error(

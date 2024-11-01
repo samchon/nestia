@@ -8,6 +8,7 @@ export namespace MigrateInquirer {
     output: string;
     simulate: boolean;
     e2e: boolean;
+    package: string;
   }
 
   export const parse = async (): Promise<IOutput> => {
@@ -20,6 +21,7 @@ export namespace MigrateInquirer {
     commander.program.option("--output [directory]", "output directory path");
     commander.program.option("--simulate", "Mockup simulator");
     commander.program.option("--e2e [boolean]", "Generate E2E tests");
+    commander.program.option("--package [name]", "Package name");
 
     // INTERNAL PROCEDURES
     const questioned = { value: false };
@@ -69,6 +71,7 @@ export namespace MigrateInquirer {
       );
       partial.input ??= await input("input")("Swagger file location");
       partial.output ??= await input("output")("Output directory path");
+      partial.package ??= await input("package")("Package name");
       if (partial.simulate)
         partial.simulate = (partial.simulate as any) === "true";
       else

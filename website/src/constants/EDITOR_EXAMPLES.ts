@@ -1,38 +1,43 @@
 export const EDITOR_EXAMPLES: IAsset[] = [
   {
     title: "BBS (Bullet-in Board System)",
-    swagger: "/swaggers/bbs.json",
+    package: "@samchon/bbs",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.1/bbs.json",
   },
   {
     title: "Shopping Mall",
-    swagger: "/swaggers/shopping.json",
+    package: "@samchon/shopping",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.1/shopping.json",
   },
   {
     title: "Clickhouse",
-    swagger: "/swaggers/clickhouse.json",
+    package: "clickhouse",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.0/clickhouse.json",
   },
   {
     title: "Fireblocks",
-    swagger: "/swaggers/fireblocks.json",
+    package: "fireblocks",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.0/fireblocks.json",
   },
   {
     title: "Uber",
-    swagger: "/swaggers/uber.json",
+    package: "uber",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v2.0/uber.json",
   },
   {
     title: "OpenAI",
-    swagger: "/swaggers/openai.json",
-  },
-  {
-    title: "아임포트",
-    swagger: "/swaggers/iamport.json",
-  },
-  {
-    title: "토스페이먼츠",
-    swagger: "/swaggers/toss-payments.json",
+    package: "openai",
+    swagger:
+      "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/examples/v3.0/openai.json",
   },
 ];
 interface IAsset {
   title: string;
+  package: string;
   swagger: string;
 }

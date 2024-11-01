@@ -71,8 +71,12 @@ export namespace SwaggerGenerator {
     document: OpenApi.IDocument;
   }): OpenApi.IDocument => {
     // GATHER METADATA
-    const metadatas: Metadata[] = props.routes
-      .filter((r) => r.protocol === "http")
+    const routes: ITypedHttpRoute[] = props.routes.filter((r) =>
+      r.jsDocTags.every(
+        (tag) => tag.name !== "internal" && tag.name !== "hidden",
+      ),
+    );
+    const metadatas: Metadata[] = routes
       .map((r) => [
         r.success.metadata,
         ...r.parameters.map((p) => p.metadata),
@@ -94,8 +98,12 @@ export namespace SwaggerGenerator {
     const document: OpenApi.IDocument = props.document;
     document.components.schemas ??= {};
     Object.assign(document.components.schemas, json.components.schemas);
-    fillPaths({ ...props, schema, document });
-
+    fillPaths({
+      ...props,
+      routes,
+      schema,
+      document,
+    });
     return document;
   };
 

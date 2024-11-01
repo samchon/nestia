@@ -8,7 +8,4 @@ export const test_swagger = async (): Promise<void> => {
   TestValidator.equals("tags of update()")(
     swagger.paths["/bbs/articles/{section}/{id}"].put.tags,
   )(["bbs", "public", "write"]);
-  TestValidator.equals("tags of erase()")(
-    swagger.paths["/bbs/articles/{section}/{id}"].delete.tags,
-  )(["bbs"]);
 };
