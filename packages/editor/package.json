@@ -1,12 +1,13 @@
 {
   "name": "@nestia/editor",
-  "version": "0.6.2",
+  "version": "0.7.1",
   "typings": "lib/index.d.ts",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "scripts": {
-    "build:lib": "tsc --project tsconfig.lib.json && rollup -c",
-    "build:static": "tsc -b && vite build",
+    "build": "npm run build:static && npm run build:lib",
+    "build:static": "rimraf dist && tsc -b && vite build",
+    "build:lib": "rimraf lib && tsc --project tsconfig.lib.json && rollup -c",
     "dev": "vite",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -42,9 +43,14 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "@nestjs/common": "^10.4.6",
+    "@nestjs/core": "^10.4.6",
+    "@nestjs/platform-express": "^10.4.6",
+    "@nestjs/platform-fastify": "^10.4.6",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
     "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.8.6",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
@@ -55,6 +61,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "rollup": "^4.24.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.10.0",
     "vite": "^5.4.9"
@@ -63,6 +70,7 @@
     "README.md",
     "LICENSE",
     "package.json",
+    "dist",
     "lib",
     "src"
   ]
