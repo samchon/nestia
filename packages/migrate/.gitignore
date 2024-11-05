@@ -2,5 +2,3 @@ assets/nest
 assets/sdk
 assets/output
 src/bundles/
-
-!package-lock.json
