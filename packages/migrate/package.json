@@ -66,7 +66,7 @@
     "tgrid": "^1.0.3",
     "ts-node": "^10.9.1",
     "ts-patch": "^3.2.1",
-    "typescript-transform-paths": "^3.4.6"
+    "typescript-transform-paths": "^3.5.2"
   },
   "dependencies": {
     "@samchon/openapi": "^1.1.2",
@@ -74,7 +74,7 @@
     "inquirer": "8.2.5",
     "prettier": "^3.2.5",
     "tstl": "^3.0.0",
-    "typescript": "^5.5.4",
+    "typescript": "^5.6.3",
     "typia": "^6.11.3"
   },
   "files": [
