@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/station",
-  "version": "3.19.0-dev.20241111",
+  "version": "3.19.0-dev.20241112",
   "description": "Nestia station",
   "scripts": {
     "build": "node build/index.js",

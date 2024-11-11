@@ -2,6 +2,6 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "target": "ES2015",
-    "outDir": "../../test/node_modules/@nestia/sdk/lib"
+    "outDir": "../../test/node_modules/@nestia/fetcher/lib"
   }
 }

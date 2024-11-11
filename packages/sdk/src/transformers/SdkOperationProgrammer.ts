@@ -48,7 +48,7 @@ export namespace SdkOperationProgrammer {
       ),
       jsDocTags: p.symbol?.getJsDocTags() ?? [],
       description: p.symbol
-        ? CommentFactory.description(p.symbol) ?? null
+        ? (CommentFactory.description(p.symbol) ?? null)
         : null,
     };
   };
@@ -61,15 +61,20 @@ export namespace SdkOperationProgrammer {
   }): IOperationMetadata.IParameter => {
     const symbol: ts.Symbol | undefined =
       props.context.checker.getSymbolAtLocation(props.parameter);
-    const common: IOperationMetadata.IResponse = writeType({
+    const common: IOperationMetadata.IResponse = writeResponse({
       context: props.context,
       generics: props.generics,
       type:
         props.context.checker.getTypeFromTypeNode(
           props.parameter.type ?? TypeFactory.keyword("any"),
         ) ?? null,
-      required: props.parameter.questionToken === undefined,
     });
+    const optional: boolean = props.parameter.questionToken !== undefined;
+    if (common.primitive.success)
+      common.primitive.data.metadata.optional = optional;
+    if (common.resolved.success)
+      common.resolved.data.metadata.optional = optional;
+
     return {
       ...common,
       name: props.parameter.name.getText(),
@@ -79,21 +84,10 @@ export namespace SdkOperationProgrammer {
     };
   };
 
-  const writeResponse = (props: {
+  const writeResponse = (p: {
     context: ISdkOperationTransformerContext;
     generics: WeakMap<ts.Type, ts.Type>;
     type: ts.Type | null;
-  }): IOperationMetadata.IResponse =>
-    writeType({
-      ...props,
-      required: true,
-    });
-
-  const writeType = (p: {
-    context: ISdkOperationTransformerContext;
-    generics: WeakMap<ts.Type, ts.Type>;
-    type: ts.Type | null;
-    required: boolean;
   }): IOperationMetadata.IResponse => {
     const analyzed: ImportAnalyzer.IOutput = p.type
       ? ImportAnalyzer.analyze(p.context.checker, p.generics, p.type)
