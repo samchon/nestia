@@ -47,7 +47,7 @@ export namespace SdkHttpFunctionProgrammer {
                 [],
                 undefined,
                 p.name,
-                p.metadata.optional
+                p.metadata.optional === true
                   ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
                   : undefined,
                 project.config.primitive !== false &&

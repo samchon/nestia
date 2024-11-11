@@ -74,13 +74,15 @@ export namespace FetcherBase {
       const headers: Record<string, IConnection.HeaderValue | undefined> = {
         ...(connection.headers ?? {}),
       };
-      if (input !== undefined)
+      if (input !== undefined) {
         if (route.request?.type === undefined)
           throw new Error(
             `Error on ${props.className}.fetch(): no content-type being configured.`,
           );
         else if (route.request.type !== "multipart/form-data")
           headers["Content-Type"] = route.request.type;
+      } else if (input === undefined && headers["Content-Type"] !== undefined)
+        delete headers["Content-Type"];
 
       // INIT REQUEST DATA
       const init: RequestInit = {

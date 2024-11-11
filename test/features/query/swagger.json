@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "3.17.0",
+    "version": "3.19.0-dev.20241112",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -69,49 +69,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/IQuery.o1"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/query/optional": {
-      "get": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "a",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "required": false
-          },
-          {
-            "name": "b",
-            "in": "query",
-            "schema": {
-              "type": "number"
-            },
-            "required": false
-          },
-          {
-            "name": "c",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            },
-            "required": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IOptionalQuery"
                 }
               }
             }
@@ -351,20 +308,6 @@
           "enforce",
           "atomic"
         ]
-      },
-      "IOptionalQuery": {
-        "type": "object",
-        "properties": {
-          "a": {
-            "type": "string"
-          },
-          "b": {
-            "type": "number"
-          },
-          "c": {
-            "type": "boolean"
-          }
-        }
       },
       "INestQuery": {
         "type": "object",
