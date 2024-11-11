@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "3.18.0",
+  "version": "3.19.0-dev.20241111",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -32,9 +32,9 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "^3.18.0",
-    "@nestia/fetcher": "^3.18.0",
-    "@samchon/openapi": "^1.1.0",
+    "@nestia/core": "^3.19.0-dev.20241111",
+    "@nestia/fetcher": "^3.19.0-dev.20241111",
+    "@samchon/openapi": "^1.2.2",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",
@@ -44,16 +44,16 @@
     "tsconfck": "^2.1.2",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^3.0.0",
-    "typia": "^6.11.0"
+    "typia": "^6.12.0"
   },
   "peerDependencies": {
-    "@nestia/core": ">=3.18.0",
-    "@nestia/fetcher": ">=3.18.0",
+    "@nestia/core": ">=3.19.0-dev.20241111",
+    "@nestia/fetcher": ">=3.19.0-dev.20241111",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
     "ts-node": ">=10.6.0",
-    "typia": ">=6.11.0 <7.0.0"
+    "typia": ">=6.12.0 <7.0.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",

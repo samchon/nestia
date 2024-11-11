@@ -41,7 +41,7 @@
     "ts-patch": "^3.2.1",
     "typescript": "^5.5.3",
     "typescript-transform-paths": "^3.4.7",
-    "typia": "^6.11.0"
+    "typia": "^6.12.0"
   },
   "files": [
     "lib",
