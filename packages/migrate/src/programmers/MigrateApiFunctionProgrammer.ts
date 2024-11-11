@@ -80,6 +80,11 @@ export namespace MigrateApiFunctionProgrammer {
               ts.factory.createTypeReferenceNode(
                 `${route.accessor.at(-1)!}.Input`,
               ),
+              (route.body.type === "application/json" ||
+                route.body.type === "text/plain") &&
+                route.operation().requestBody?.required === false
+                ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
+                : undefined,
             ),
           ]
         : []),

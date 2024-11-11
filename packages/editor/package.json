@@ -1,6 +1,6 @@
 {
   "name": "@nestia/editor",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "typings": "lib/index.d.ts",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
@@ -34,7 +34,7 @@
   "homepage": "https://nestia.io",
   "dependencies": {
     "@mui/material": "^5.15.6",
-    "@nestia/migrate": "^0.19.0",
+    "@nestia/migrate": "^0.20.0",
     "@stackblitz/sdk": "^1.11.0",
     "js-yaml": "^4.1.0",
     "prettier": "^3.3.3",

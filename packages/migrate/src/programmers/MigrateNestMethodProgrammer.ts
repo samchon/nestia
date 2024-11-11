@@ -199,6 +199,7 @@ export namespace MigrateNestMethodProgrammer {
             writeDtoParameter({ method: "TypedHeaders", variable: "headers" })(
               components,
             )(importer)({
+              required: true,
               schema: route.headers.schema,
               example: route.headers.example(),
               examples: route.headers.examples(),
@@ -210,6 +211,7 @@ export namespace MigrateNestMethodProgrammer {
             writeDtoParameter({ method: "TypedQuery", variable: "query" })(
               components,
             )(importer)({
+              required: true,
               schema: route.query.schema,
               example: route.query.example(),
               examples: route.query.examples(),
@@ -233,10 +235,11 @@ export namespace MigrateNestMethodProgrammer {
               variable: "body",
             })(components)(importer)({
               schema: route.body.schema,
-              required:
-                (route.body.type !== "application/json" &&
-                  route.body.type !== "text/plain") ||
-                !!route.operation().requestBody?.required,
+              required: !(
+                (route.body.type === "application/json" ||
+                  route.body.type === "text/plain") &&
+                route.operation().requestBody?.required === false
+              ),
               example: route.body.media().example,
               examples: route.body.media().examples,
             }),
