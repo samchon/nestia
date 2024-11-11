@@ -233,6 +233,10 @@ export namespace MigrateNestMethodProgrammer {
               variable: "body",
             })(components)(importer)({
               schema: route.body.schema,
+              required:
+                (route.body.type !== "application/json" &&
+                  route.body.type !== "text/plain") ||
+                !!route.operation().requestBody?.required,
               example: route.body.media().example,
               examples: route.body.media().examples,
             }),
@@ -246,6 +250,7 @@ export namespace MigrateNestMethodProgrammer {
     (importer: MigrateImportProgrammer) =>
     (props: {
       schema: OpenApi.IJsonSchema;
+      required: boolean;
       example?: any;
       examples?: Record<string, any>;
     }): ts.ParameterDeclaration => {
@@ -274,7 +279,9 @@ export namespace MigrateNestMethodProgrammer {
         ],
         undefined,
         accessor.variable,
-        undefined,
+        props.required === false
+          ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
+          : undefined,
         MigrateSchemaProgrammer.write(components)(importer)(props.schema),
       );
     };
