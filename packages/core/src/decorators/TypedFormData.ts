@@ -11,7 +11,6 @@ import fastifyMulter from "fastify-multer";
 import type * as FastifyMulter from "fastify-multer/lib/interfaces";
 import "fastify-multer/typings/fastify/index.d.ts";
 import expressMulter from "multer";
-import typia from "typia"
 
 import type { IRequestFormDataProps } from "../options/IRequestFormDataProps";
 import { Singleton } from "../utils/Singleton";
