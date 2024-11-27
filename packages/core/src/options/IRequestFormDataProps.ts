@@ -1,5 +1,3 @@
-import type fastifyMulter from "fastify-multer/lib/interfaces";
-import type expressMulter from "multer";
 import { IValidation } from "typia";
 
 export interface IRequestFormDataProps<T> {
@@ -8,7 +6,6 @@ export interface IRequestFormDataProps<T> {
     | IRequestFormDataProps.IAssert<T>
     | IRequestFormDataProps.IIs<T>
     | IRequestFormDataProps.IValidate<T>;
-  options?: expressMulter.Options | fastifyMulter.Options;
 }
 export namespace IRequestFormDataProps {
   export interface IAssert<T> {
