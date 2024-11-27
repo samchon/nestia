@@ -53,9 +53,9 @@ export namespace MigrateApiStartProgrammer {
     (document: OpenApi.IDocument) =>
     (importer: MigrateImportProgrammer) =>
     (route: IHttpMigrateRoute): ts.VariableStatement =>
-      StatementFactory.constant(
-        "main",
-        ts.factory.createArrowFunction(
+      StatementFactory.constant({
+        name: "main",
+        value: ts.factory.createArrowFunction(
           [ts.factory.createToken(ts.SyntaxKind.AsyncKeyword)],
           undefined,
           [],
@@ -71,7 +71,7 @@ export namespace MigrateApiStartProgrammer {
             true,
           ),
         ),
-      );
+      });
 
   const writeConnection =
     (config: IHttpMigrateProgram.IConfig) =>
