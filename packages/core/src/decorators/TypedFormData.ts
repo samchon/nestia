@@ -1,15 +1,11 @@
 import {
   BadRequestException,
   ExecutionContext,
-  InternalServerErrorException,
   createParamDecorator,
 } from "@nestjs/common";
 import type { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import type express from "express";
-import type { FastifyReply, FastifyRequest } from "fastify";
-import fastifyMulter from "fastify-multer";
-import type * as FastifyMulter from "fastify-multer/lib/interfaces";
-import ExpressMulter from "multer";
+import type ExpressMulter from "multer";
 
 import type { IRequestFormDataProps } from "../options/IRequestFormDataProps";
 import { Singleton } from "../utils/Singleton";
@@ -70,17 +66,19 @@ export namespace TypedFormData {
    *
    * Much easier and type safer than `@nest.UploadFile()` decorator.
    *
-   * @param options Options for the `multer` or `fastify-multer`
+   * @param factory Factory function ncreating the `multer` or `fastify-multer`
+   *                instance. In the factory function, you also can specify the
+   *                multer composition options like `storage` engine.
    */
-  export function Body(
-    options?: ExpressMulter.Options | FastifyMulter.Options,
+  export function Body<Multer extends IMulterBase>(
+    factory: () => Multer | Promise<Multer>,
   ): ParameterDecorator;
 
   /**
    * @internal
    */
   export function Body<T extends object>(
-    options: ExpressMulter.Options | FastifyMulter.Options | undefined,
+    factory: () => Promise<IMulterBase>,
     props?: IRequestFormDataProps<T> | undefined,
   ): ParameterDecorator {
     if (typeof File === "undefined")
@@ -88,12 +86,9 @@ export namespace TypedFormData {
         "Error on TypedFormData.Body(): 'File' class is not supported in the older version of NodeJS. Upgrade the NodeJS to the modern.",
       );
     const checker = validate_request_form_data(props);
-    const predicator = (type: "express" | "fastify") =>
-      new Singleton(() =>
-        type === "express"
-          ? decodeExpress(options as ExpressMulter.Options | undefined, props!)
-          : decodeFastify(options as FastifyMulter.Options | undefined, props!),
-      );
+    const uploader = new Singleton(async () =>
+      decode((await factory()) as ExpressMulter.Multer, props!),
+    );
     return createParamDecorator(async function TypedFormDataBody(
       _unknown: any,
       context: ExecutionContext,
@@ -104,11 +99,9 @@ export namespace TypedFormData {
         throw new BadRequestException(
           `Request body type is not "multipart/form-data".`,
         );
-
-      const decoder = isExpressRequest(request)
-        ? predicator("express").get()
-        : predicator("fastify").get();
-      const data: FormData = await decoder({
+      const data: FormData = await (
+        await uploader.get()
+      )({
         request: request as any,
         response: http.getResponse(),
       });
@@ -117,16 +110,27 @@ export namespace TypedFormData {
       return output;
     })();
   }
+
+  /**
+   * Base type of the `multer` or `fastify-multer`.
+   */
+  export interface IMulterBase {
+    single(fieldName: string): any;
+    array(fieldName: string, maxCount?: number): any;
+    fields(fields: readonly object[]): any;
+    any(): any;
+    none(): any;
+  }
 }
 
 /**
  * @internal
  */
-const decodeExpress = <T>(
-  options: ExpressMulter.Options | undefined,
+const decode = <T>(
+  multer: ExpressMulter.Multer,
   props: IRequestFormDataProps<T>,
 ) => {
-  const upload = ExpressMulter(options).fields(
+  const upload = multer.fields(
     props!.files.map((file) => ({
       name: file.name,
       ...(file.limit === 1 ? { maxCount: 1 } : {}),
@@ -151,52 +155,6 @@ const decodeExpress = <T>(
         for (const elem of value) data.append(key, String(elem));
       else data.append(key, String(value));
     if (socket.request.files) parseFiles(data)(socket.request.files);
-    return data;
-  };
-};
-
-/**
- * @internal
- */
-const decodeFastify = <T>(
-  options: FastifyMulter.Options | undefined,
-  props: IRequestFormDataProps<T>,
-) => {
-  const fastifyInstance = fastifyMulter(options);
-  const upload = fastifyInstance.fields(
-    props!.files.map((file) => ({
-      name: file.name,
-      ...(file.limit === 1 ? { maxCount: 1 } : {}),
-    })),
-  );
-  const interceptor = (request: FastifyRequest, response: FastifyReply) =>
-    new Promise<void>((resolve, reject) =>
-      upload.call(request.server, request, response, (error) => {
-        if (error) reject(error);
-        else resolve();
-      }),
-    );
-  return async (socket: {
-    request: FastifyRequest;
-    response: FastifyReply;
-  }): Promise<FormData> => {
-    if (
-      (socket.request as any).files === undefined ||
-      (typeof socket.request as any).files !== "function"
-    )
-      throw new InternalServerErrorException(
-        "Have not configured the `fastify-multer` plugin yet. Inquiry to the backend developer.",
-      );
-
-    await interceptor(socket.request, socket.response);
-
-    const data: FormData = new FormData();
-    for (const [key, value] of Object.entries(socket.request.body as any))
-      if (Array.isArray(value))
-        for (const elem of value) data.append(key, String(elem));
-      else data.append(key, String(value));
-    if ((socket.request as any).files)
-      parseFiles(data)((socket.request as any).files);
     return data;
   };
 };
@@ -235,10 +193,3 @@ const isMultipartFormData = (text?: string): boolean =>
     .split(";")
     .map((str) => str.trim())
     .some((str) => str === "multipart/form-data");
-
-/**
- * @internal
- */
-const isExpressRequest = (
-  request: express.Request | FastifyRequest,
-): request is express.Request => (request as express.Request).app !== undefined;

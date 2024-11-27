@@ -15,7 +15,7 @@
     }
   },
   "paths": {
-    "/api/internal/v1/health": {
+    "/v1/health": {
       "get": {
         "tags": [],
         "parameters": [],
@@ -29,7 +29,7 @@
         }
       }
     },
-    "/api/internal/v1/performance": {
+    "/v1/performance": {
       "get": {
         "tags": [],
         "parameters": [],
@@ -47,7 +47,7 @@
         }
       }
     },
-    "/api/internal/v1/bbs/{section}/articles": {
+    "/v1/bbs/{section}/articles": {
       "get": {
         "tags": [],
         "parameters": [
@@ -104,7 +104,7 @@
         }
       }
     },
-    "/api/internal/v2/bbs/{section}/articles": {
+    "/v2/bbs/{section}/articles": {
       "get": {
         "tags": [],
         "parameters": [
@@ -161,7 +161,7 @@
         }
       }
     },
-    "/api/internal/bbs/{section}/articles": {
+    "/bbs/{section}/articles": {
       "get": {
         "tags": [],
         "parameters": [
@@ -257,7 +257,7 @@
         }
       }
     },
-    "/api/internal/v1/bbs/{section}/articles/{id}": {
+    "/v1/bbs/{section}/articles/{id}": {
       "get": {
         "tags": [],
         "parameters": [
@@ -293,7 +293,7 @@
         }
       }
     },
-    "/api/internal/v2/bbs/{section}/articles/{id}": {
+    "/v2/bbs/{section}/articles/{id}": {
       "put": {
         "summary": "Update an article",
         "description": "Update an article.",

@@ -29,6 +29,6 @@
     "rimraf": "^6.0.1"
   },
   "dependencies": {
-    "@nestia/fetcher": "^4.0.0-dev.20241027"
+    "@nestia/fetcher": "^4.0.0-dev.20241027-3"
   }
 }

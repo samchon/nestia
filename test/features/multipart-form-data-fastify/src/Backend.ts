@@ -19,7 +19,7 @@ export class Backend {
         new FastifyAdapter(),
         { logger: false },
       );
-      await app.register(fastifyMulter.contentParser);
+      await app.register(fastifyMulter.contentParser as any);
       return app;
     });
 
