@@ -1,4 +1,3 @@
-import type { Multipart } from "@fastify/multipart";
 import {
   BadRequestException,
   ExecutionContext,
@@ -8,7 +7,11 @@ import {
 import type { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import type express from "express";
 import type { FastifyReply, FastifyRequest } from "fastify";
-import multer from "multer";
+import fastifyMulter from "fastify-multer";
+import type * as FastifyMulter from "fastify-multer/lib/interfaces";
+import "fastify-multer/typings/fastify/index.d.ts";
+import expressMulter from "multer";
+import typia from "typia"
 
 import type { IRequestFormDataProps } from "../options/IRequestFormDataProps";
 import { Singleton } from "../utils/Singleton";
@@ -35,13 +38,13 @@ import { validate_request_form_data } from "./internal/validate_request_form_dat
  * 3. Only `boolean`, `bigint`, `number`, `string`, `Blob`, `File` or their array types are allowed
  * 4. By the way, union type never be not allowed
  *
- * By the way, if you're using `fastify`, you have to setup `@fastify/multipart`
+ * By the way, if you're using `fastify`, you have to setup `fastify-multer`
  * and configure like below when composing the NestJS application. If you don't do
  * that, `@TypedFormData.Body()` will not work properly, and throw 500 internal
  * server error when `Blob` or `File` type being utilized.
  *
  * ```typescript
- * import multipart from "fastify-multipart";
+ * import fastifyMulter from "fastify-multer";
  * import { NestFactory } from "@nestjs/core";
  * import {
  *   FastifyAdapter,
@@ -53,7 +56,7 @@ import { validate_request_form_data } from "./internal/validate_request_form_dat
  *     AppModule,
  *     new FastifyAdapter(),
  *   );
- *   app.register(multipart);
+ *   app.register(fastifyMulter.contentParser);
  *   await app.listen(3000);
  * }
  * ```
@@ -112,7 +115,7 @@ export namespace TypedFormData {
  * @internal
  */
 const decodeExpress = <T>(props: IRequestFormDataProps<T>) => {
-  const upload = multerApplication.get().fields(
+  const upload = expressMulter(props.options as expressMulter.Options).fields(
     props!.files.map((file) => ({
       name: file.name,
       ...(file.limit === 1 ? { maxCount: 1 } : {}),
@@ -144,12 +147,23 @@ const decodeExpress = <T>(props: IRequestFormDataProps<T>) => {
 /**
  * @internal
  */
-const decodeFastify =
-  <T>(_props: IRequestFormDataProps<T>) =>
-  async (socket: {
-    request: FastifyRequest & {
-      parts?(): AsyncIterableIterator<Multipart>;
-    };
+const decodeFastify = <T>(props: IRequestFormDataProps<T>) => {
+  const fastifyInstance = fastifyMulter(props.options as FastifyMulter.Options);
+  const upload = fastifyInstance.fields(
+    props!.files.map((file) => ({
+      name: file.name,
+      ...(file.limit === 1 ? { maxCount: 1 } : {}),
+    })),
+  );
+  const interceptor = (request: FastifyRequest, response: FastifyReply) =>
+    new Promise<void>((resolve, reject) =>
+      upload.call(request.server, request, response, (error) => {
+        if (error) reject(error);
+        else resolve();
+      }),
+    );
+  return async (socket: {
+    request: FastifyRequest;
     response: FastifyReply;
   }): Promise<FormData> => {
     if (
@@ -157,23 +171,20 @@ const decodeFastify =
       typeof socket.request.files !== "function"
     )
       throw new InternalServerErrorException(
-        "Have not configured the `fastify-multipart` plugin yet. Inquiry to the backend developer.",
+        "Have not configured the `fastify-multer` plugin yet. Inquiry to the backend developer.",
       );
+
+    await interceptor(socket.request, socket.response);
+
     const data: FormData = new FormData();
-    for await (const part of socket.request.parts())
-      if (part.type === "file")
-        data.append(
-          part.fieldname,
-          new File([await part.toBuffer()], part.filename, {
-            type: part.mimetype,
-          }),
-        );
-      else if (Array.isArray(part.value))
-        for (const elem of part.value)
-          data.append(part.fieldname, String(elem));
-      else data.append(part.fieldname, String(part.value));
+    for (const [key, value] of Object.entries(socket.request.body as any))
+      if (Array.isArray(value))
+        for (const elem of value) data.append(key, String(elem));
+      else data.append(key, String(value));
+    if (socket.request.files) parseFiles(data)(socket.request.files);
     return data;
   };
+};
 
 /**
  * @internal
@@ -216,8 +227,3 @@ const isMultipartFormData = (text?: string): boolean =>
 const isExpressRequest = (
   request: express.Request | FastifyRequest,
 ): request is express.Request => (request as express.Request).app !== undefined;
-
-/**
- * @internal
- */
-const multerApplication = new Singleton(() => multer());

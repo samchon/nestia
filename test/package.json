@@ -47,6 +47,7 @@
     "@nestjs/core": "^10.4.6",
     "@nestjs/platform-express": "^10.4.6",
     "@nestjs/platform-fastify": "^10.4.6",
+    "fastify-multer": "^2.0.3",
     "tgrid": "^1.0.3",
     "tstl": "^3.0.0",
     "typia": "^7.0.0-dev.20241027-2",

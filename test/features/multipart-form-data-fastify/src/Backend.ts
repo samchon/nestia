@@ -1,4 +1,3 @@
-import multipart from "@fastify/multipart";
 import core from "@nestia/core";
 import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -6,6 +5,7 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from "@nestjs/platform-fastify";
+import fastifyMulter from "fastify-multer";
 import { Singleton } from "tstl";
 
 export class Backend {
@@ -19,7 +19,7 @@ export class Backend {
         new FastifyAdapter(),
         { logger: false },
       );
-      await app.register(multipart);
+      await app.register(fastifyMulter.contentParser);
       return app;
     });
 
