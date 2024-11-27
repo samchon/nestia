@@ -1,6 +1,6 @@
 {
   "name": "@nestia/benchmark",
-  "version": "0.2.3",
+  "version": "0.3.0-dev.20241127-2",
   "description": "NestJS Performance Benchmark Program",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -22,7 +22,7 @@
   "author": "Jeongho Nam",
   "license": "MIT",
   "devDependencies": {
-    "@nestia/core": "^3.8.1",
+    "@nestia/core": "^4.0.0-dev.20241027-4",
     "@nestia/e2e": "^0.7.0",
     "@nestia/sdk": "^3.8.1",
     "@nestjs/common": "^10.3.10",
@@ -38,7 +38,7 @@
     "uuid": "^10.0.0"
   },
   "dependencies": {
-    "@nestia/fetcher": "^3.8.1",
+    "@nestia/fetcher": "^4.0.0-dev.20241027-4",
     "tgrid": "^1.0.3",
     "tstl": "^3.0.0"
   },

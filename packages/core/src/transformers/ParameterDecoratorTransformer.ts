@@ -100,9 +100,14 @@ const FUNCTORS: Record<string, Programmer> = {
       ? props.arguments
       : [TypedQueryBodyProgrammer.generate(props)],
   "TypedFormData.Body": (props) =>
-    props.arguments.length
-      ? props.arguments
-      : [TypedFormDataBodyProgrammer.generate(props)],
+    props.arguments.length === 0
+      ? [
+          ts.factory.createIdentifier("undefined"),
+          TypedFormDataBodyProgrammer.generate(props),
+        ]
+      : props.arguments.length === 1
+        ? [props.arguments[0], TypedFormDataBodyProgrammer.generate(props)]
+        : props.arguments,
   PlainBody: (props) =>
     props.arguments.length
       ? props.arguments
