@@ -63,7 +63,6 @@ const validate = (metadata: Metadata): string[] => {
       .reduce((a, b) => a + b, 0);
   if (expected === 0 || expected !== metadata.size())
     insert(`only string type is allowed`);
-  if (metadata.isRequired() === false) insert(`do not allow undefindable type`);
   if (metadata.nullable === true) insert(`do not allow nullable type`);
   else if (metadata.any === true) insert(`do not allow any type`);
 

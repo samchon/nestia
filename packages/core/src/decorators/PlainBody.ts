@@ -7,6 +7,7 @@ import type express from "express";
 import type { FastifyRequest } from "fastify";
 
 import { get_text_body } from "./internal/get_text_body";
+import { is_request_body_undefined } from "./internal/is_request_body_undefined";
 import { validate_request_body } from "./internal/validate_request_body";
 
 /**
@@ -51,7 +52,12 @@ export function PlainBody(
     const request: express.Request | FastifyRequest = context
       .switchToHttp()
       .getRequest();
-    if (!isTextPlain(request.headers["content-type"]))
+    if (
+      is_request_body_undefined(request) &&
+      (checker ?? (() => null))(undefined as any) === null
+    )
+      return undefined;
+    else if (!isTextPlain(request.headers["content-type"]))
       throw new BadRequestException(`Request body type is not "text/plain".`);
     const value: string = await get_text_body(request);
     if (checker) {

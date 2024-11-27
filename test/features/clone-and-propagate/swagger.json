@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "4.0.0-dev.20241022",
+    "version": "4.0.0-dev.20241027",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -2370,6 +2370,7 @@
             ]
           }
         },
+        "required": [],
         "description": "Page request data"
       },
       "IBbsArticle": {
@@ -3477,7 +3478,8 @@
               }
             ]
           }
-        }
+        },
+        "required": []
       },
       "PartialPickIUsernameemailoptional_attrnullable_attr": {
         "type": "object",
@@ -3510,6 +3512,7 @@
             ]
           }
         },
+        "required": [],
         "description": "Make all properties in T optional"
       }
     },
