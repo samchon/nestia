@@ -328,35 +328,49 @@ npx nestia setup --manager yarn
   </Tab>
 </Tabs>
 
-After install `nestia` like above, you have to modify `project.json` on each app you use typia like below.
+After installing `nestia` like above, and ensuring the `prepare` script is something similar to `ts-patch install && typia patch` you have to modify the `tsconfig.lib.json` on each package to be similar to the below.
 
-```javascript filename="project.json" showLineNumbers copy
+```json filename="tsconfig.lib.json" showLineNumbers copy
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "declaration": true,
+    "types": [],
+    "plugins": [
+      { "transform": "typia/lib/transform" },
+      { 
+        "transform": "@nestia/core/lib/transform",
+        "validate": "assert",
+        "stringify": "assert", 
+      },
+      { "transform": "@nestia/sdk/lib/transform" }, // for runtime swagger composition
+    ],
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["jest.config.ts", "**/*.spec.ts", "**/*.test.ts"]
+}
+```
+
+After this, when running `nx <package-name>:build` it _should_ now output with the Nestia transforms applied. But if Nestia fails for any reasons (for example it considers some type you have to be invalid), this error is not reported back via Nx. Nx will silent swallow these errors from ts-patch/nestia, and you will just not get the output you expect. To debug this, you can create a new task in your `project.json` file similar to the below.
+
+```json filename="project.json" showLineNumbers copy
  "targets": {
-    "build": {
-      ...
+    "build:validate:nestia": {
+      "executor": "nx:run-commands",
       "options": {
-        ...
-        "target": "node",
-        "compiler": "tsc",
-        "transformers": [
-          "typia/lib/transform",
-          {
-            "name": "@nestia/core/lib/transform",
-            "options": {
-              "validate": "assert",
-              "stringify": "assert"
-            }
-          },
-          "@nestia/sdk/lib/transform", // for runtime swagger composition
-        ]
+        "commands": [
+          "tsc --project packages/<package-name>/tsconfig.lib.json --outDir dist/packages/nestiaTest"
+        ],
       }
     },
     ...
  }
 ```
 
+Running this task will show you the errors from Nestia, and allow you to correct them, meaning that using the standard `nx <package-name>:build` task should now work the way you expect.
 
-
+Note: While Nx has a `transformers` feature on certain plugins, that won't work with Nestia. The reason is because Nx is expecting a transformer to export a `before` hook, which Nx then plugs directly into TypeScript via the compiler API. Nestia doesn't export that kind of hook, because Nestia only works with ts-patch, which abstracts the need for creating a specific before hook in the way Nx wants.
 
 ## Manual Setup
 <Tabs items={['npm', 'pnpm', 'yarn']}>

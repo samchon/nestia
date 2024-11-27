@@ -5,6 +5,7 @@
  */
 //================================================================
 export * as bbs from "./bbs";
+export * as body from "./body";
 export * as calculate from "./calculate";
 export * as health from "./health";
 export * as performance from "./performance";

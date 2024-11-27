@@ -6,7 +6,7 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "build": "rimraf lib && tsc",
-    "dev": "npm run build -- --watch",
+    "dev": "tsc -p tsconfig.test.json --watch",
     "eslint": "eslint src",
     "eslint:fix": "eslint src --fix"
   },
