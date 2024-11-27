@@ -36,7 +36,7 @@ export namespace get {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 200,
   } as const;
 
   export const path = () => "/health";

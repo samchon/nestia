@@ -1,8 +1,5 @@
-import chalk from "chalk";
 import fs from "fs";
 import NodePath from "path";
-
-import { StopWatch } from "./StopWatch";
 
 /**
  * Dynamic Executor running prefixed functions.
@@ -36,7 +33,7 @@ export namespace DynamicExecutor {
   /**
    * Options for dynamic executor.
    */
-  export interface IOptions<Parameters extends any[], Ret = any> {
+  export interface IProps<Parameters extends any[], Ret = any> {
     /**
      * Prefix of function name.
      *
@@ -47,12 +44,26 @@ export namespace DynamicExecutor {
     prefix: string;
 
     /**
+     * Location of the test functions.
+     */
+    location: string;
+
+    /**
      * Get parameters of a function.
      *
      * @param name Function name
      * @returns Parameters
      */
     parameters: (name: string) => Parameters;
+
+    /**
+     * On complete function.
+     *
+     * Listener of completion of a test function.
+     *
+     * @param exec Execution result of a test function
+     */
+    onComplete?: (exec: IExecution) => void;
 
     /**
      * Filter function whether to run or not.
@@ -81,13 +92,6 @@ export namespace DynamicExecutor {
     ) => Promise<any>;
 
     /**
-     * Whether to show elapsed time on `console` or not.
-     *
-     * @default true
-     */
-    showElapsedTime?: boolean;
-
-    /**
      * Extension of dynamic functions.
      *
      * @default js
@@ -107,38 +111,42 @@ export namespace DynamicExecutor {
     /**
      * Execution results of dynamic functions.
      */
-    executions: IReport.IExecution[];
+    executions: IExecution[];
 
     /**
      * Total elapsed time.
      */
     time: number;
   }
-  export namespace IReport {
+
+  /**
+   * Execution of a test function.
+   */
+  export interface IExecution {
     /**
-     * Execution result of a dynamic function.
+     * Name of function.
      */
-    export interface IExecution {
-      /**
-       * Name of function.
-       */
-      name: string;
+    name: string;
 
-      /**
-       * Location path of the function.
-       */
-      location: string;
+    /**
+     * Location path of the function.
+     */
+    location: string;
 
-      /**
-       * Error when occured.
-       */
-      error: Error | null;
+    /**
+     * Error when occured.
+     */
+    error: Error | null;
 
-      /**
-       * Elapsed time.
-       */
-      time: number;
-    }
+    /**
+     * Elapsed time.
+     */
+    started_at: string;
+
+    /**
+     * Completion time.
+     */
+    completed_at: string;
   }
 
   /**
@@ -148,18 +156,12 @@ export namespace DynamicExecutor {
    * Otherwise, {@link validate} mode does not terminate when error occurs, but
    * just archive the error log.
    *
-   * @param options Options of dynamic executor
-   * @returns Runner of dynamic functions with specific location
+   * @param props Properties of dynamic execution
+   * @returns Report of dynamic test functions execution
    */
-  export const assert =
-    <Arguments extends any[]>(options: IOptions<Arguments>) =>
-    /**
-     * Run dynamic executor.
-     *
-     * @param path Location of prefixed functions
-     */
-    (path: string): Promise<IReport> =>
-      main(options)(true)(path);
+  export const assert = <Arguments extends any[]>(
+    props: IProps<Arguments>,
+  ): Promise<IReport> => main(true)(props);
 
   /**
    * Prepare dynamic executor in loose mode.
@@ -168,33 +170,27 @@ export namespace DynamicExecutor {
    * Instead, the error would be archived and returns as a list. Otherwise,
    * {@link assert} mode terminates the program directly when error occurs.
    *
-   * @param options Options of dynamic executor
-   * @returns Runner of dynamic functions with specific location
+   * @param props Properties of dynamic executor
+   * @returns Report of dynamic test functions execution
    */
-  export const validate =
-    <Arguments extends any[]>(options: IOptions<Arguments>) =>
-    /**
-     * Run dynamic executor.
-     *
-     * @param path Location of prefix functions
-     * @returns List of errors
-     */
-    (path: string): Promise<IReport> =>
-      main(options)(false)(path);
+  export const validate = <Arguments extends any[]>(
+    props: IProps<Arguments>,
+  ): Promise<IReport> => main(false)(props);
 
   const main =
-    <Arguments extends any[]>(options: IOptions<Arguments>) =>
     (assert: boolean) =>
-    async (path: string) => {
+    async <Arguments extends any[]>(
+      props: IProps<Arguments>,
+    ): Promise<IReport> => {
       const report: IReport = {
-        location: path,
+        location: props.location,
         time: Date.now(),
         executions: [],
       };
 
-      const executor = execute(options)(report)(assert);
-      const iterator = iterate(options.extension ?? "js")(executor);
-      await iterator(path);
+      const executor = execute(props)(report)(assert);
+      const iterator = iterate(props.extension ?? "js")(executor);
+      await iterator(props.location);
 
       report.time = Date.now() - report.time;
       return report;
@@ -224,54 +220,42 @@ export namespace DynamicExecutor {
     };
 
   const execute =
-    <Arguments extends any[]>(options: IOptions<Arguments>) =>
+    <Arguments extends any[]>(props: IProps<Arguments>) =>
     (report: IReport) =>
     (assert: boolean) =>
     async (location: string, modulo: Module<Arguments>): Promise<void> => {
       for (const [key, closure] of Object.entries(modulo)) {
         if (
-          key.substring(0, options.prefix.length) !== options.prefix ||
+          key.substring(0, props.prefix.length) !== props.prefix ||
           typeof closure !== "function" ||
-          (options.filter && options.filter(key) === false)
+          (props.filter && props.filter(key) === false)
         )
           continue;
 
         const func = async () => {
-          if (options.wrapper !== undefined)
-            await options.wrapper(key, closure, options.parameters(key));
-          else await closure(...options.parameters(key));
+          if (props.wrapper !== undefined)
+            await props.wrapper(key, closure, props.parameters(key));
+          else await closure(...props.parameters(key));
         };
-        const label: string = chalk.greenBright(key);
 
-        const result: IReport.IExecution = {
+        const result: IExecution = {
           name: key,
           location,
           error: null,
-          time: Date.now(),
+          started_at: new Date().toISOString(),
+          completed_at: new Date().toISOString(),
         };
         report.executions.push(result);
 
         try {
-          if (options.showElapsedTime === false) {
-            await func();
-            result.time = Date.now() - result.time;
-            console.log(`  - ${label}`);
-          } else {
-            result.time = (await StopWatch.measure(func))[1];
-            console.log(
-              `  - ${label}: ${chalk.yellowBright(
-                result.time.toLocaleString(),
-              )} ms`,
-            );
-          }
+          await func();
+          result.completed_at = new Date().toISOString();
         } catch (exp) {
-          result.time = Date.now() - result.time;
           result.error = exp as Error;
-
-          console.log(
-            `  - ${label} -> ${chalk.redBright((exp as Error)?.name)}`,
-          );
           if (assert === true) throw exp;
+        } finally {
+          result.completed_at = new Date().toISOString();
+          if (props.onComplete) props.onComplete(result);
         }
       }
     };

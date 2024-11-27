@@ -13,7 +13,7 @@
   "info": {
     "title": "Toss Payments API",
     "description": "Built by [fake-toss-payments-server](https://github.com/samchon/payments/tree/master/packages/toss-payments-server-api) with [nestia](https://github.com/samchon/nestia)",
-    "version": "8.0.0-dev.20240413",
+    "version": "8.1.0",
     "license": {
       "name": "MIT"
     }
@@ -65,8 +65,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "대상 정보의 ",
-            "required": true
+            "required": true,
+            "description": " 대상 정보의 {@link ITossBilling.billingKey}"
           }
         ],
         "requestBody": {
@@ -111,8 +111,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "간편 결제에 등록한 수단의 ",
-            "required": true
+            "required": true,
+            "description": " 간편 결제에 등록한 수단의 {@link ITossBilling.billingKey}"
           }
         ],
         "requestBody": {
@@ -139,7 +139,7 @@
           }
         },
         "summary": "간편 결제에 등록한 수단으로 결제하기",
-        "description": "간편 결제에 등록한 수단으로 결제하기.\n\n`billing.pay` 는 간편 결제에 등록한 수단으로 결제를 진행하고자 할 때 호출하는 API\n함수이다.\n\n그리고 `billing.pay` 는 결제 수단 중 유일하게, 클라이언트 어플리케이션이 토스\n페이먼츠가 제공하는 결제 창을 사용할 수 없어, 귀하의 백엔드 서버가 토스 페이먼츠의\nAPI 함수를 직접 호출해야 하는 경우에 해당한다. 따라서 간편 결제에 관련하여 토스\n페이먼츠와 연동하는 백엔드 서버 및 프론트 어플리케이션을 개발할 때, 반드시 이 상황에\n대한 별도의 설계 및 개발이 필요하니, 이 점을 염두에 두기 바란다.\n\n더하여 `billing.pay` 는 철저히 귀사 백엔드 서버의 판단 아래 호출되는 API 함수인지라,\n이를 통하여 이루어지는 결제는 일절 {@link payments.approve } 가 필요 없다. 다만\n`billing.pay` 는 이처럼 부차적인 승인 과정 필요없이 그 즉시로 결제가 완성되니, 이를\n호출하는 상황에 대하여 세심히 주의를 기울일 필요가 있다",
+        "description": "간편 결제에 등록한 수단으로 결제하기.\n\n`billing.pay` 는 간편 결제에 등록한 수단으로 결제를 진행하고자 할 때 호출하는 API\n함수이다.\n\n그리고 `billing.pay` 는 결제 수단 중 유일하게, 클라이언트 어플리케이션이 토스\n페이먼츠가 제공하는 결제 창을 사용할 수 없어, 귀하의 백엔드 서버가 토스 페이먼츠의\nAPI 함수를 직접 호출해야 하는 경우에 해당한다. 따라서 간편 결제에 관련하여 토스\n페이먼츠와 연동하는 백엔드 서버 및 프론트 어플리케이션을 개발할 때, 반드시 이 상황에\n대한 별도의 설계 및 개발이 필요하니, 이 점을 염두에 두기 바란다.\n\n더하여 `billing.pay` 는 철저히 귀사 백엔드 서버의 판단 아래 호출되는 API 함수인지라,\n이를 통하여 이루어지는 결제는 일절 {@link payments.approve} 가 필요 없다. 다만\n`billing.pay` 는 이처럼 부차적인 승인 과정 필요없이 그 즉시로 결제가 완성되니, 이를\n호출하는 상황에 대하여 세심히 주의를 기울일 필요가 있다",
         "security": [
           {
             "basic": []
@@ -193,8 +193,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "현금 영수증의 ",
-            "required": true
+            "required": true,
+            "description": " 현금 영수증의 {@link ITossCashReceipt.receiptKey}"
           }
         ],
         "requestBody": {
@@ -250,7 +250,7 @@
           }
         },
         "summary": "웹훅 이벤트 더미 리스너",
-        "description": "웹훅 이벤트 더미 리스너.\n\n`internal.webhook` 은 실제 토스 페이먼츠의 결제 서버에는 존재하지 않는 API 로써,\n`fake-toss-payments-server` 의 {@link Configuration.WEBHOOK_URL } 에 아무런 URL 을\n설정하지 않으면, `fake-toss-payments-server` 로부터 발생하는 모든 종류의 웹훅\n이벤트는 이 곳으로 전달되어 무의미하게 사라진다.\n\n따라서 `fake-toss-payments-server` 를 사용하여 토스 페이먼츠 서버와의 연동을 미리\n검증코자 할 때는, 반드시 {@link Configuration.WEBHOOK_URL } 를 설정하여 웹훅\n이벤트가 귀하의 백엔드 서버로 제대로 전달되도록 하자."
+        "description": "웹훅 이벤트 더미 리스너.\n\n`internal.webhook` 은 실제 토스 페이먼츠의 결제 서버에는 존재하지 않는 API 로써,\n`fake-toss-payments-server` 의 {@link Configuration.WEBHOOK_URL} 에 아무런 URL 을\n설정하지 않으면, `fake-toss-payments-server` 로부터 발생하는 모든 종류의 웹훅\n이벤트는 이 곳으로 전달되어 무의미하게 사라진다.\n\n따라서 `fake-toss-payments-server` 를 사용하여 토스 페이먼츠 서버와의 연동을 미리\n검증코자 할 때는, 반드시 {@link Configuration.WEBHOOK_URL} 를 설정하여 웹훅\n이벤트가 귀하의 백엔드 서버로 제대로 전달되도록 하자."
       }
     },
     "/internal/{paymentKey}/deposit": {
@@ -263,8 +263,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "대상 가상 계좌 결제 정보의 ",
-            "required": true
+            "required": true,
+            "description": " 대상 가상 계좌 결제 정보의 {@link ITossPayment.paymentKey}"
           }
         ],
         "responses": {
@@ -298,8 +298,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "결제 정보의 ",
-            "required": true
+            "required": true,
+            "description": " 결제 정보의 {@link ITossPayment.paymentKey}"
           }
         ],
         "responses": {
@@ -315,7 +315,7 @@
           }
         },
         "summary": "결제 정보 조회하기",
-        "description": "결제 정보 조회하기.\n\n`payments.at` 은 결제 정보를 조회하는 함수이다.\n\n주로 클라이언트 어플리케이션이 토스 페이먼츠가 자체적으로 제공하는 결제 창을 사용하는\n경우, 그래서 프론트 어플리케이션이 귀하의 백엔드 서버에 `paymentKey` 등 극히 일부의\n식별자 정보만을 전달해주어, 상세 결제 정보가 필요할 때 사용한다.\n\n참고로 토스 페이먼츠는 다른 결제 PG 사들과 다르게, 클라이언트 어플리케이션에서 토스\n페이먼츠의 결제 창을 이용하여 진행한 결제가 바로 확정되는 것은 아니다. 귀사의 백엔드\n서버가 현재의 `payments.at` 을 통하여 해당 결제 정보를 확인하고, {@link approve } 를\n호출하여 직접 승인하기 전까지, 해당 결제는 확정되지 않으니, 이 점에 유의하기 바란다."
+        "description": "결제 정보 조회하기.\n\n`payments.at` 은 결제 정보를 조회하는 함수이다.\n\n주로 클라이언트 어플리케이션이 토스 페이먼츠가 자체적으로 제공하는 결제 창을 사용하는\n경우, 그래서 프론트 어플리케이션이 귀하의 백엔드 서버에 `paymentKey` 등 극히 일부의\n식별자 정보만을 전달해주어, 상세 결제 정보가 필요할 때 사용한다.\n\n참고로 토스 페이먼츠는 다른 결제 PG 사들과 다르게, 클라이언트 어플리케이션에서 토스\n페이먼츠의 결제 창을 이용하여 진행한 결제가 바로 확정되는 것은 아니다. 귀사의 백엔드\n서버가 현재의 `payments.at` 을 통하여 해당 결제 정보를 확인하고, {@link approve} 를\n호출하여 직접 승인하기 전까지, 해당 결제는 확정되지 않으니, 이 점에 유의하기 바란다."
       },
       "post": {
         "tags": [],
@@ -326,8 +326,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "대상 결제의 ",
-            "required": true
+            "required": true,
+            "description": " 대상 결제의 {@link ITossPayment.paymentKey}"
           }
         ],
         "requestBody": {
@@ -354,7 +354,7 @@
           }
         },
         "summary": "결제 승인하기",
-        "description": "결제 승인하기.\n\n토스 페이먼츠는 귀사의 백엔드에서 일어난 결제가 아닌 프론트 어플리케이션의 결제 창에서\n이루어진 결제의 경우, 해당 서비스으 백엔드 서버로부터 결제를 승인받기 전까지, 이를\n확정하지 않는다. `payments.approve` 는 바로 이러한 상황에서, 해당 결제를 승인해주는\n함수이다.\n\n만일 귀하가 `fake-toss-payments-server` 를 이용하여 결제를 시뮬레이션하는 경우라면,\n결제 관련 API 를 호출함에 있어 {@link ITossCardPayment.ICreate.__approved } 내지\n{@link ITossVirtualAccountPayment.ICreate.__approved } 를 `false` 로 함으로써, 별도\n승인이 필요한 이러한 상황을 시뮬레이션 할 수 있다.",
+        "description": "결제 승인하기.\n\n토스 페이먼츠는 귀사의 백엔드에서 일어난 결제가 아닌 프론트 어플리케이션의 결제 창에서\n이루어진 결제의 경우, 해당 서비스으 백엔드 서버로부터 결제를 승인받기 전까지, 이를\n확정하지 않는다. `payments.approve` 는 바로 이러한 상황에서, 해당 결제를 승인해주는\n함수이다.\n\n만일 귀하가 `fake-toss-payments-server` 를 이용하여 결제를 시뮬레이션하는 경우라면,\n결제 관련 API 를 호출함에 있어 {@link ITossCardPayment.ICreate.__approved} 내지\n{@link ITossVirtualAccountPayment.ICreate.__approved} 를 `false` 로 함으로써, 별도\n승인이 필요한 이러한 상황을 시뮬레이션 할 수 있다.",
         "security": [
           {
             "basic": []
@@ -390,7 +390,7 @@
           }
         },
         "summary": "카드로 결제하기",
-        "description": "카드로 결제하기.\n\n`payments.key_in` 은 카드를 이용한 결제를 할 때 호출되는 API 함수이다.\n\n참고로 `payments.key_in` 는 클라이언트 어플리케이션이 토스 페이먼츠가 자체적으로\n제공하는 결제 창을 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서 호출하는\n일은 없을 것이다. 다만, 고객이 카드를 통하여 결제하는 상황을 시뮬레이션하기 위하여,\n테스트 자동화 프로그램 수준에서 사용될 수는 있다.\n\n그리고 귀하의 백엔드 서버가 `payments.key-in` 을 직접 호출하는 경우, 토스 페이먼츠\n서버는 이를 완전히 승인된 결제로 보고 바로 확정한다. 때문에 `payments.key-in` 을\n직접 호출하는 경우, 토스 페이먼츠의 결제 창을 이용하여 별도의 {@link approve } 가\n필요한 때 대비, 훨씬 더 세심한 주의가 요구된다.\n\n더하여 만약 귀하의 백엔드 서버가 `fake-toss-payments-server` 를 이용하여 고객의\n카드 결제를 시뮬레이션하는 경우, {@link ITossCardPayment.ICreate.__approved } 값을\n`false` 로 하여 카드 결제의 확정을 고의로 회피할 수 있다. 이를 통하여 토스\n페이먼츠의 결제 창을 이용한 카드 결제의 경우, 별도의 {@link approve } 가 필요한\n상황을 시뮬레이션 할 수 있다.",
+        "description": "카드로 결제하기.\n\n`payments.key_in` 은 카드를 이용한 결제를 할 때 호출되는 API 함수이다.\n\n참고로 `payments.key_in` 는 클라이언트 어플리케이션이 토스 페이먼츠가 자체적으로\n제공하는 결제 창을 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서 호출하는\n일은 없을 것이다. 다만, 고객이 카드를 통하여 결제하는 상황을 시뮬레이션하기 위하여,\n테스트 자동화 프로그램 수준에서 사용될 수는 있다.\n\n그리고 귀하의 백엔드 서버가 `payments.key-in` 을 직접 호출하는 경우, 토스 페이먼츠\n서버는 이를 완전히 승인된 결제로 보고 바로 확정한다. 때문에 `payments.key-in` 을\n직접 호출하는 경우, 토스 페이먼츠의 결제 창을 이용하여 별도의 {@link approve} 가\n필요한 때 대비, 훨씬 더 세심한 주의가 요구된다.\n\n더하여 만약 귀하의 백엔드 서버가 `fake-toss-payments-server` 를 이용하여 고객의\n카드 결제를 시뮬레이션하는 경우, {@link ITossCardPayment.ICreate.__approved} 값을\n`false` 로 하여 카드 결제의 확정을 고의로 회피할 수 있다. 이를 통하여 토스\n페이먼츠의 결제 창을 이용한 카드 결제의 경우, 별도의 {@link approve} 가 필요한\n상황을 시뮬레이션 할 수 있다.",
         "security": [
           {
             "basic": []
@@ -408,8 +408,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "결제 정보의 ",
-            "required": true
+            "required": true,
+            "description": " 결제 정보의 {@link ITossPayment.paymentKey}"
           }
         ],
         "requestBody": {
@@ -436,7 +436,7 @@
           }
         },
         "summary": "결제 취소하기",
-        "description": "결제 취소하기.\n\n`payments.cancel` 은 결제를 취소하는 API 이다.\n\n결제 취소 입력 정보 {@link ITossPaymentCancel.ICreate } 에는 취소 사유를 비롯하여,\n고객에게 환불해 줄 금액과 부가세 및 필요시 환불 계좌 정보 등을 입력하게 되어있다.",
+        "description": "결제 취소하기.\n\n`payments.cancel` 은 결제를 취소하는 API 이다.\n\n결제 취소 입력 정보 {@link ITossPaymentCancel.ICreate} 에는 취소 사유를 비롯하여,\n고객에게 환불해 줄 금액과 부가세 및 필요시 환불 계좌 정보 등을 입력하게 되어있다.",
         "security": [
           {
             "basic": []
@@ -472,7 +472,7 @@
           }
         },
         "summary": "가상 계좌로 결제 신청하기",
-        "description": "가상 계좌로 결제 신청하기.\n\n`virtual_accounts.create` 는 고객이 결제 수단을 가상 계좌로 선택하는 경우에 호출되는\nAPI 함수이다. 물론 고객이 이처럼 가상 계좌를 선택한 경우, 고객이 지정된 계좌에 돈을\n입금하기 전까지는 결제가 마무리된 것이 아니기에, {@link ITossPayment.status } 값은\n`WAITING_FOR_DEPOSIT` 이 된다.\n\n참고로 `virtual_accounts.create` 는 클라이언트 어플리케이션이 토스 페이먼츠가\n자체적으로 제공하는 결제 창을 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서\n호출하는 일은 없을 것이다. 다만, 고객이 가상 계좌로 결제를 진행하는 상황을\n시뮬레이션하기 위하여, 테스트 자동화 프로그램 수준에서 사용될 수는 있다.\n\n그리고 `virtual_accounts.create` 이후에 고객이 지정된 계좌에 금액을 입금하거든, 토스\n페이먼츠 서버로부터 웹훅 이벤트가 발생되어 귀하의 백엔드 서버로 전송된다. 만약 연동\n대상 토스 페이먼츠 서버가 실제가 아닌 `fake-toss-payments-server` 라면,\n{@link internal.virtual_accounts.deposit } 를 호출하여, 고객이 가상 계좌에 입금하는\n상황을 시뮬레이션 할 수 있다.",
+        "description": "가상 계좌로 결제 신청하기.\n\n`virtual_accounts.create` 는 고객이 결제 수단을 가상 계좌로 선택하는 경우에 호출되는\nAPI 함수이다. 물론 고객이 이처럼 가상 계좌를 선택한 경우, 고객이 지정된 계좌에 돈을\n입금하기 전까지는 결제가 마무리된 것이 아니기에, {@link ITossPayment.status} 값은\n`WAITING_FOR_DEPOSIT` 이 된다.\n\n참고로 `virtual_accounts.create` 는 클라이언트 어플리케이션이 토스 페이먼츠가\n자체적으로 제공하는 결제 창을 사용하는 경우, 귀하의 백엔드 서버가 이를 실 서비스에서\n호출하는 일은 없을 것이다. 다만, 고객이 가상 계좌로 결제를 진행하는 상황을\n시뮬레이션하기 위하여, 테스트 자동화 프로그램 수준에서 사용될 수는 있다.\n\n그리고 `virtual_accounts.create` 이후에 고객이 지정된 계좌에 금액을 입금하거든, 토스\n페이먼츠 서버로부터 웹훅 이벤트가 발생되어 귀하의 백엔드 서버로 전송된다. 만약 연동\n대상 토스 페이먼츠 서버가 실제가 아닌 `fake-toss-payments-server` 라면,\n{@link internal.virtual_accounts.deposit} 를 호출하여, 고객이 가상 계좌에 입금하는\n상황을 시뮬레이션 할 수 있다.",
         "security": [
           {
             "basic": []
@@ -579,8 +579,8 @@
           },
           "billingKey": {
             "type": "string",
-            "title": "{@link ITossBilling } 의 식별자 키",
-            "description": "{@link ITossBilling } 의 식별자 키."
+            "title": "{@link ITossBilling} 의 식별자 키",
+            "description": "{@link ITossBilling} 의 식별자 키."
           },
           "method": {
             "const": "카드",
@@ -645,8 +645,8 @@
           },
           "billingKey": {
             "type": "string",
-            "title": "{@link IPaymentStore } 의 식별자 키",
-            "description": "{@link IPaymentStore } 의 식별자 키."
+            "title": "{@link IPaymentStore} 의 식별자 키",
+            "description": "{@link IPaymentStore} 의 식별자 키."
           },
           "orderId": {
             "type": "string",
@@ -801,7 +801,7 @@
           "transactionKey": {
             "type": "string",
             "title": "거래 건에 대한 고유한 키 값",
-            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey } 와 달리, 이를 사용할 일은 없더라."
+            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey} 와 달리, 이를 사용할 일은 없더라."
           },
           "orderName": {
             "type": "string",
@@ -1205,7 +1205,7 @@
           "transactionKey": {
             "type": "string",
             "title": "거래 건에 대한 고유한 키 값",
-            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey } 와 달리, 이를 사용할 일은 없더라."
+            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey} 와 달리, 이를 사용할 일은 없더라."
           },
           "orderName": {
             "type": "string",
@@ -1423,7 +1423,7 @@
           "transactionKey": {
             "type": "string",
             "title": "거래 건에 대한 고유한 키 값",
-            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey } 와 달리, 이를 사용할 일은 없더라."
+            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey} 와 달리, 이를 사용할 일은 없더라."
           },
           "orderName": {
             "type": "string",
@@ -1647,7 +1647,7 @@
           "transactionKey": {
             "type": "string",
             "title": "거래 건에 대한 고유한 키 값",
-            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey } 와 달리, 이를 사용할 일은 없더라."
+            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey} 와 달리, 이를 사용할 일은 없더라."
           },
           "orderName": {
             "type": "string",
@@ -1870,7 +1870,7 @@
           "transactionKey": {
             "type": "string",
             "title": "거래 건에 대한 고유한 키 값",
-            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey } 와 달리, 이를 사용할 일은 없더라."
+            "description": "거래 건에 대한 고유한 키 값.\n\n{@link paymentKey} 와 달리, 이를 사용할 일은 없더라."
           },
           "orderName": {
             "type": "string",
@@ -2095,8 +2095,8 @@
           },
           "paymentKey": {
             "type": "string",
-            "title": "귀속 결제의 {@link ITossPayment.paymentKey }",
-            "description": "귀속 결제의 {@link ITossPayment.paymentKey }."
+            "title": "귀속 결제의 {@link ITossPayment.paymentKey}",
+            "description": "귀속 결제의 {@link ITossPayment.paymentKey}."
           },
           "orderId": {
             "type": "string",
@@ -2240,8 +2240,8 @@
         "properties": {
           "paymentKey": {
             "type": "string",
-            "title": "{@link ITossPayment } 의 식별자 키",
-            "description": "{@link ITossPayment } 의 식별자 키."
+            "title": "{@link ITossPayment} 의 식별자 키",
+            "description": "{@link ITossPayment} 의 식별자 키."
           },
           "orderId": {
             "type": "string",
@@ -2410,8 +2410,8 @@
         "properties": {
           "paymentKey": {
             "type": "string",
-            "title": "{@link ITossPayment } 의 식별자 키",
-            "description": "{@link ITossPayment } 의 식별자 키."
+            "title": "{@link ITossPayment} 의 식별자 키",
+            "description": "{@link ITossPayment} 의 식별자 키."
           },
           "cancelReason": {
             "type": "string",
@@ -2531,5 +2531,6 @@
       }
     }
   },
-  "tags": []
+  "tags": [],
+  "x-samchon-emended": true
 }

@@ -7,6 +7,7 @@ export const test_api_plan_template = async (
 ): Promise<void> => {
   const x = "something_123_interesting_abc_is_not_true_it?";
   const y: string = await api.functional.plain.template(connection, x);
+
   TestValidator.equals("template")(x as string)(y);
 
   // TestValidator.error("wrong template")(

@@ -1,13 +1,15 @@
 import commander from "commander";
 import fs from "fs";
 import inquirer from "inquirer";
+import { DetectResult, detect } from "package-manager-detector";
 
 import { PackageManager } from "./PackageManager";
 
 export namespace ArgumentParser {
   export interface IArguments {
-    manager: "npm" | "pnpm" | "yarn";
+    manager: "npm" | "pnpm" | "yarn" | "bun";
     project: string | null;
+    runtime: boolean;
   }
 
   export async function parse(pack: PackageManager): Promise<IArguments> {
@@ -16,6 +18,10 @@ export namespace ArgumentParser {
     commander.program.option(
       "--project [project]",
       "tsconfig.json file location",
+    );
+    commander.program.option(
+      "--runtime [boolean]",
+      "transform runtime swagger",
     );
 
     // INTERNAL PROCEDURES
@@ -80,19 +86,36 @@ export namespace ArgumentParser {
 
     // DO CONSTRUCT
     return action(async (options) => {
-      options.manager ??= await select("manager")("Package Manager")(
-        [
-          "npm" as const,
-          "pnpm" as const,
-          "yarn (berry is not supported)" as "yarn",
-        ],
-        (value) => value.split(" ")[0] as "yarn",
-      );
+      options.manager ??=
+        (await detectManager()) ??
+        (await select("manager")("Package Manager")(
+          [
+            "npm" as const,
+            "pnpm" as const,
+            "yarn (berry is not supported)" as "yarn",
+            "bun" as const,
+          ],
+          (value) => value.split(" ")[0] as "yarn",
+        ));
       pack.manager = options.manager;
       options.project ??= await configure();
+      options.runtime =
+        ((options.runtime as string | undefined) ??
+          (await select("runtime")("Transform Runtime Swagger")([
+            "true",
+            "false",
+          ]))) !== "false";
 
       if (questioned.value) console.log("");
       return options as IArguments;
     });
   }
+
+  const detectManager = async (): Promise<
+    "npm" | "pnpm" | "yarn" | "bun" | null
+  > => {
+    const result: DetectResult | null = await detect({ cwd: process.cwd() });
+    if (result?.name === "npm") return null; // NPM case is still selectable
+    return result?.name ?? null;
+  };
 }

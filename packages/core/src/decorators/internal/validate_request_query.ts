@@ -2,7 +2,7 @@ import { BadRequestException } from "@nestjs/common";
 import typia, { IValidation, TypeGuardError } from "typia";
 
 import { IRequestQueryValidator } from "../../options/IRequestQueryValidator";
-import { NoTransformConfigureError } from "./NoTransformConfigureError";
+import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
 
 /**
  * @internal
@@ -10,8 +10,11 @@ import { NoTransformConfigureError } from "./NoTransformConfigureError";
 export const validate_request_query =
   (method: string) =>
   <T>(validator?: IRequestQueryValidator<T>) => {
-    if (!validator) throw NoTransformConfigureError(method);
-    else if (validator.type === "assert") return assert(validator.assert);
+    if (!validator) {
+      NoTransformConfigurationError(method);
+      return (input: URLSearchParams) =>
+        Object.fromEntries(input.entries()) as T;
+    } else if (validator.type === "assert") return assert(validator.assert);
     else if (validator.type === "is") return is(validator.is);
     else if (validator.type === "validate") return validate(validator.validate);
     return () =>

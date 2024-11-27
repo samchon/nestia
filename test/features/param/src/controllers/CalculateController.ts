@@ -17,9 +17,6 @@ export class CalculateController {
     @core.WebSocketRoute.Driver()
     driver: Driver<IListener>,
   ): Promise<void> {
-    console.log({
-      id,
-    });
     await adaptor.accept({
       getId: () => id,
       plus: (x, y) => {

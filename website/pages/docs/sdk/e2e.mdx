@@ -6,14 +6,14 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 ```typescript filename="nestia.config.ts" copy showLineNumbers {20}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -75,14 +75,14 @@ export const test_api_body_store = async (
 ```typescript copy filename="nestia.config.ts" showLineNumbers {20}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -98,12 +98,9 @@ export default NESTIA_CONFIG;
 ```
   </Tab>
   <Tab>
-```typescript copy filename="INestiaConfig.ts" showLineNumbers {70-79}
+```typescript copy filename="INestiaConfig.ts" showLineNumbers {67-76}
 import type { INestApplication } from "@nestjs/common";
-
-import type { ISwagger } from "./structures/ISwagger";
-import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
-import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
+import { OpenApi } from "@samchon/openapi";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -278,16 +275,28 @@ export namespace INestiaConfig {
     output: string;
 
     /**
+     * OpenAPI version.
+     *
+     * If you configure this property to be `2.0` or `3.0`, the newly generated
+     * `swagger.json` file would follow the specified OpenAPI version. The newly
+     * generated `swagger.json` file would be downgraded from the OpenAPI v3.1
+     * specification by {@link OpenApi.downgrade} method.
+     *
+     * @default 3.1
+     */
+    openapi?: "2.0" | "3.0" | "3.1";
+
+    /**
      * API information.
      *
      * If omitted, `package.json` content would be used instead.
      */
-    info?: Partial<ISwaggerInfo>;
+    info?: Partial<OpenApi.IDocument.IInfo>;
 
     /**
      * List of server addresses.
      */
-    servers?: ISwagger.IServer[];
+    servers?: OpenApi.IServer[];
 
     /**
      * Security schemes.
@@ -296,18 +305,38 @@ export namespace INestiaConfig {
      * theirs methods have a security key which is not enrolled in here property,
      * it would be an error.
      */
-    security?: Record<string, ISwaggerSecurityScheme>;
+    security?: Record<string, OpenApi.SecurityScheme>;
+
+    /**
+     * List of tag names with description.
+     *
+     * It is possible to omit this property or skip some tag name even if
+     * the tag name is used in the API routes. In that case, the tag name
+     * would be used without description.
+     *
+     * Of course, if you've written a comment like `@tag {name} {descrition}`,
+     * you can entirely replace this property specification.
+     */
+    tags?: OpenApi.IDocument.ITag[];
 
     /**
      * Decompose query DTO.
      *
      * If you configure this property to be `true`, the query DTO would be decomposed
-     * into individual query parameters per each property.
+     * into individual query parameters per each property. Otherwise you set it to be
+     * `false`, the query DTO would be one object type which contains all of query
+     * parameters.
      *
      * @default false
      */
     decompose?: boolean;
 
+    /**
+     * Operation ID generator.
+     *
+     * @param props Properties of the API endpoint.
+     * @returns Operation ID.
+     */
     operationId?(props: {
       class: string;
       function: string;
@@ -342,7 +371,7 @@ By the way, `nestia.config.ts` supports alternative options specifying the targe
     'Pattern', 
     'Exclude',
   ]}
-  defaultIndex={2}>
+  defaultIndex={3}>
   <Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
 import { INestiaConfig } from "@nestia/sdk";
@@ -371,13 +400,13 @@ export default NESTIA_CONFIG;
 ```typescript copy filename="nestia.config.ts" showLineNumbers {8-16}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-import { FastifyAdaptor } from "@nestjs/platform-fastify";
+import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
-    const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,

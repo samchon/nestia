@@ -8,14 +8,14 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 ```typescript copy filename="nestia.config.ts" showLineNumbers
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -32,7 +32,6 @@ export default NESTIA_CONFIG;
   <Tab>
 ```bash filename="Terminal" showLineNumbers {}
 npx nestia sdk
-npx nestia sdk --config nestia.config.ts --project tsconfig.json
 ```
   </Tab>
   <Tab>
@@ -103,11 +102,13 @@ export namespace update {
 
 Collection of typed `fetch` functions with DTO structures.
 
-Configure [`nestia.config.ts`](#nestiaconfigts) file and run `npx nestia sdk` command. Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate SDK (Software Development Kit) library composed with. The newly generated SDK library would be composed with `DTO` and `fetch` functions with type definitions following your NestJS server.
+Configure [`nestia.config.ts`](#nestiaconfigts) file and run `npx nestia sdk` command. 
 
-With the SDK library composed with RPC (Remote Procedure Call) functions, you can easily develop e2e test program. Also, frontend developers can utilize the SDK library to interact with your NestJS backend server, much safely and conveniently. If you can't imagine how the SDK library works, then look at the gif image of below. Left side is the NestJS backend server program, and right side is the Frontend program interacting with your server.
+Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate SDK (Software Development Kit) library composed with. The newly generated SDK library would be composed with `DTO` and `fetch` functions with type definitions following your NestJS server.
 
-Isn't it look like much more convenient and safer than before when using [Swagger Documents](swagger)?
+With the SDK library composed with RPC (Remote Procedure Call) functions, you can easily develop e2e test program. Also, frontend developers can utilize the SDK library to interact with your NestJS backend server, much safely and conveniently. 
+
+If you can't imagine how the SDK library works, then look at the gif image of below. Left side is the NestJS backend server program, and right side is the Frontend program interacting with your server. Isn't it look like much more convenient and safer than before [Swagger Documents](swagger) case?
 
 ![SDK](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
 
@@ -117,7 +118,7 @@ Isn't it look like much more convenient and safer than before when using [Swagge
 
 
 ## Configuration
-### `nestia.config.ts`
+### Application Module
 <Tabs items={[
   <code>nestia.config.ts</code>, 
   <code>INestiaConfig.ts</code>,
@@ -126,14 +127,14 @@ Isn't it look like much more convenient and safer than before when using [Swagge
 ```typescript copy filename="nestia.config.ts" showLineNumbers {8-17}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -148,12 +149,9 @@ export default NESTIA_CONFIG;
 ```
   </Tab>
   <Tab>
-```typescript copy filename="INestiaConfig.ts" showLineNumbers {13-32}
+```typescript copy filename="INestiaConfig.ts" showLineNumbers {10-29}
 import type { INestApplication } from "@nestjs/common";
-
-import type { ISwagger } from "./structures/ISwagger";
-import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
-import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
+import type { OpenApi } from "@samchon/openapi";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -328,16 +326,28 @@ export namespace INestiaConfig {
     output: string;
 
     /**
+     * OpenAPI version.
+     *
+     * If you configure this property to be `2.0` or `3.0`, the newly generated
+     * `swagger.json` file would follow the specified OpenAPI version. The newly
+     * generated `swagger.json` file would be downgraded from the OpenAPI v3.1
+     * specification by {@link OpenApi.downgrade} method.
+     *
+     * @default 3.1
+     */
+    openapi?: "2.0" | "3.0" | "3.1";
+
+    /**
      * API information.
      *
      * If omitted, `package.json` content would be used instead.
      */
-    info?: Partial<ISwaggerInfo>;
+    info?: Partial<OpenApi.IDocument.IInfo>;
 
     /**
      * List of server addresses.
      */
-    servers?: ISwagger.IServer[];
+    servers?: OpenApi.IServer[];
 
     /**
      * Security schemes.
@@ -346,18 +356,38 @@ export namespace INestiaConfig {
      * theirs methods have a security key which is not enrolled in here property,
      * it would be an error.
      */
-    security?: Record<string, ISwaggerSecurityScheme>;
+    security?: Record<string, OpenApi.ISecurityScheme>;
+
+    /**
+     * List of tag names with description.
+     *
+     * It is possible to omit this property or skip some tag name even if
+     * the tag name is used in the API routes. In that case, the tag name
+     * would be used without description.
+     *
+     * Of course, if you've written a comment like `@tag {name} {descrition}`,
+     * you can entirely replace this property specification.
+     */
+    tags?: OpenApi.IDocument.ITag[];
 
     /**
      * Decompose query DTO.
      *
      * If you configure this property to be `true`, the query DTO would be decomposed
-     * into individual query parameters per each property.
+     * into individual query parameters per each property. Otherwise you set it to be
+     * `false`, the query DTO would be one object type which contains all of query
+     * parameters.
      *
      * @default false
      */
     decompose?: boolean;
 
+    /**
+     * Operation ID generator.
+     *
+     * @param props Properties of the API endpoint.
+     * @returns Operation ID.
+     */
     operationId?(props: {
       class: string;
       function: string;
@@ -381,108 +411,6 @@ At least, you've to configure those two properties:
 
 When you've completed above configuration, just run `npx nestia sdk` command. Then, SDK library would be newly generated, and placed into the `$config.output` directory following your `nestia.config.ts` configuration.
 
-### Input Pattern
-`nestia.config.ts` supports alternative options instead of using the `Module` instance. 
-
-If your backend application server does not have special configuration like `setGlobalPrefix`, `enableVersioning` and `RouterModule`, it is okay to specifying the target controller classes just by writing their file path like below.
-
-<Tabs 
-  items={[
-    'Module (express)',
-    'Module (fastify)',
-    'Directory', 
-    'Pattern', 
-    'Exclude',
-  ]}
-  defaultIndex={2}>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
-import { INestiaConfig } from "@nestia/sdk";
-import { NestFactory } from "@nestjs/core";
-
-import { YourModule } from "./src/YourModule";
-
-const NESTIA_CONFIG: INestiaConfig = {
-  input: async () => {
-    const app = await NestFactory.create(YourModule);
-    // app.setGlobalPrefix("api");
-    // app.enableVersioning({
-    //     type: VersioningType.URI,
-    //     prefix: "v",
-    // })
-    return app;
-  },
-  output: "src/api",
-  distribute: "packages/api",
-};
-export default NESTIA_CONFIG;
-```
-  </Tab>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {8-16}
-import { INestiaConfig } from "@nestia/sdk";
-import { NestFactory } from "@nestjs/core";
-import { FastifyAdaptor } from "@nestjs/platform-fastify";
-
-import { YourModule } from "./src/YourModule";
-
-const NESTIA_CONFIG: INestiaConfig = {
-  input: async () => {
-    const app = await NestFactory.create(YourModule, new FastifyAdaptor());
-    // app.setGlobalPrefix("api");
-    // app.enableVersioning({
-    //     type: VersioningType.URI,
-    //     prefix: "v",
-    // })
-    return app;
-  },
-  output: "src/api",
-  distribute: "packages/api",
-};
-export default NESTIA_CONFIG;
-```
-  </Tab>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {4-8}
-import { INestiaConfig } from "@nestia/sdk";
-
-const NESTIA_CONFIG: INestiaConfig = {
-  input: ["src/controllers", "src/fake/controllers", "src/test/controllers"],
-  output: "src/api",
-  distribute: "packages/api",
-};
-export default NESTIA_CONFIG;
-```
-  </Tab>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {4}
-import { INestiaConfig } from "@nestia/sdk";
-
-const NESTIA_CONFIG: INestiaConfig = {
-  input: "src/**/*.controller.ts",
-  output: "src/api",
-  distribute: "packages/api",
-};
-export default NESTIA_CONFIG;
-```
-  </Tab>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {4-7}
-import { INestiaConfig } from "@nestia/sdk";
-
-const NESTIA_CONFIG: INestiaConfig = {
-  input: {
-    include: ["src/controllers"],
-    exclude: ["src/**/*.fake.ts"],
-  },
-  output: "src/api",
-  distribute: "packages/api",
-};
-export default NESTIA_CONFIG;
-```
-  </Tab>
-</Tabs>
-
 ### Clone Mode
 <Tabs items={[
   <code>nestia.config.ts</code>,
@@ -493,14 +421,14 @@ export default NESTIA_CONFIG;
 ```typescript copy filename="nestia.config.ts" showLineNumbers {19}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
  
 import { YourModule } from "./src/YourModule";
  
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -619,9 +547,6 @@ This `clone` mode is useful when you'd not separated DTO structures from the ORM
 
 In that case, it would better to remove the dependency by using this `clone` mode.
 
-
-
-
 ### Propagation Mode
 <Tabs items={[
   <code>nestia.config.ts</code>, 
@@ -631,14 +556,14 @@ In that case, it would better to remove the dependency by using this `clone` mod
 ```typescript copy filename="nestia.config.ts" showLineNumbers {19}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const config: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -893,6 +818,18 @@ if (output.success) {
 ```
   </Tab>
 </Tabs>
+
+### CLI Arguments
+```bash filename="Terminal"
+npx nestia sdk
+npx nestia sdk --config nestia2.config.ts
+npx nestia sdk --project tsconfig2.json
+npx nestia sdk --config nestia3.config.ts --project tsconfig3.tsconfig.json
+```
+
+If you have a special configuration file that its file name is not `nestia.config.ts` or the configuration file is not placed on the root directory of the project, you can specify it with `--config` option like `npx nestia sdk --config another.config.ts`. 
+
+Also, if you have a special `tsconfig.json` file or the project file is not located in the root directory of the project, you can specify it with `--project` argument like `npx nestia sdk --project another.tsconfig.json`, too.
 
 
 
@@ -1180,14 +1117,14 @@ export namespace login {
 ```typescript copy filename="nestia.config.ts" showLineNumbers {19}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -1250,8 +1187,8 @@ Also, if your SDK library utilize special alias `paths`, you also need to custom
     "ts-patch": "^3.1.0"
   },
   "dependencies": {
-    "@nestia/fetcher": "^2.3.4",
-    "typia": "^6.0.0"
+    "@nestia/fetcher": "^4.0.0",
+    "typia": "^7.0.0"
   },
   "files": [
     "lib",

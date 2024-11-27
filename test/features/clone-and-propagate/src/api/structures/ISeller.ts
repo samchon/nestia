@@ -2,13 +2,6 @@ import type { Format } from "typia/lib/tags/Format";
 import type { Type } from "typia/lib/tags/Type";
 
 export namespace ISeller {
-  export type IJoin = {
-    email: string & Format<"email">;
-    password: string;
-    name: string;
-    mobile: string;
-    company: string;
-  };
   export type IAuthorized = {
     authorization: {
       token: string;
@@ -38,6 +31,13 @@ export namespace ISeller {
      * Joined time.
      */
     created_at: string & Format<"date-time">;
+  };
+  export type IJoin = {
+    email: string & Format<"email">;
+    password: string;
+    name: string;
+    mobile: string;
+    company: string;
   };
   export type ILogin = {
     email: string & Format<"email">;

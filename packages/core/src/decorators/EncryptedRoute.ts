@@ -19,8 +19,8 @@ import typia from "typia";
 
 import { IResponseBodyStringifier } from "../options/IResponseBodyStringifier";
 import { Singleton } from "../utils/Singleton";
+import { TypedRoute } from "./TypedRoute";
 import { ENCRYPTION_METADATA_KEY } from "./internal/EncryptedConstant";
-import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
 import { get_path_and_stringify } from "./internal/get_path_and_stringify";
 import { headers_to_object } from "./internal/headers_to_object";
 import { route_error } from "./internal/route_error";
@@ -86,6 +86,33 @@ export namespace EncryptedRoute {
    */
   export const Delete = Generator("Delete");
 
+  /**
+   * Set the logger function for the response validation failure.
+   *
+   * If you've configured the transformation option to `validate.log`
+   * in the `tsconfig.json` file, then the error log information of the
+   * response validation failure would be logged through this function
+   * instead of throwing the 400 bad request error.
+   *
+   * By the way, be careful. If you've configured the response
+   * transformation option to be `validate.log`, client may get wrong
+   * response data. Therefore, this way is not recommended in the common
+   * backend server case.
+   *
+   * @param func Logger function
+   * @default console.log
+   */
+  export function setValidateErrorLogger(
+    func: (log: IValidateErrorLog) => void,
+  ): void {
+    TypedRoute.setValidateErrorLogger(func);
+  }
+
+  export import IValidateErrorLog = TypedRoute.IValidateErrorLog;
+
+  /**
+   * @internal
+   */
   function Generator(method: "Get" | "Post" | "Put" | "Patch" | "Delete") {
     function route(path?: string | string[]): MethodDecorator;
     function route<T>(
@@ -98,8 +125,8 @@ export namespace EncryptedRoute {
 
     function route(...args: any[]): MethodDecorator {
       const [path, stringify] = get_path_and_stringify(
-        `EncryptedRoute.${method}`,
-      )(...args);
+        () => TypedRoute.__logger,
+      )(`EncryptedRoute.${method}`)(...args);
       return applyDecorators(
         ROUTERS[method](path),
         UseInterceptors(new EncryptedRouteInterceptor(method, stringify)),
@@ -131,7 +158,11 @@ for (const method of [
 class EncryptedRouteInterceptor implements NestInterceptor {
   public constructor(
     private readonly method: string,
-    private readonly stringify: (input: any) => string,
+    private readonly stringify: (
+      input: any,
+      method: string,
+      path: string,
+    ) => string,
   ) {}
 
   public intercept(context: ExecutionContext, next: CallHandler) {
@@ -146,13 +177,19 @@ class EncryptedRouteInterceptor implements NestInterceptor {
           context.getClass(),
         );
         if (!param)
-          throw NoTransformConfigureError(`EncryptedRoute.${this.method}`);
+          return Error(
+            `Error on EncryptedRoute.${this.method}(): no password found.`,
+          );
 
-        const headers: Singleton<Record<string, string>> = new Singleton(() => {
-          const request: express.Request = http.getRequest();
-          return headers_to_object(request.headers);
-        });
-        const body: string | undefined = this.stringify(value);
+        const request: express.Request = http.getRequest();
+        const headers: Singleton<Record<string, string>> = new Singleton(() =>
+          headers_to_object(request.headers),
+        );
+        const body: string | undefined = this.stringify(
+          value,
+          request.method,
+          request.url,
+        );
         const password: IEncryptionPassword =
           typeof param === "function"
             ? param({

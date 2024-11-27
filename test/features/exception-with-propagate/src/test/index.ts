@@ -18,7 +18,14 @@ async function main(): Promise<void> {
         },
       },
     ],
-  })(`${__dirname}/features`);
+    location: `${__dirname}/features`,
+    onComplete: (exec) => {
+      const elapsed: number =
+        new Date(exec.completed_at).getTime() -
+        new Date(exec.started_at).getTime();
+      console.log(`  - ${exec.name}: ${elapsed.toLocaleString()} ms`);
+    },
+  });
   await server.close();
 
   const exceptions: Error[] = report.executions

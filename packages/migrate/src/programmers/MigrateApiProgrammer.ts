@@ -1,15 +1,15 @@
 import { HashMap, hash } from "tstl";
 import ts from "typescript";
 
-import { IMigrateFile } from "../structures/IMigrateFile";
-import { IMigrateProgram } from "../structures/IMigrateProgram";
+import { IHttpMigrateFile } from "../structures/IHttpMigrateFile";
+import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateApiFileProgrammer } from "./MigrateApiFileProgrammer";
 import { MigrateDtoProgrammer } from "./MigrateDtoProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateApiProgrammer {
-  export const write = (program: IMigrateProgram): IMigrateFile[] => {
+  export const write = (program: IHttpMigrateProgram): IHttpMigrateFile[] => {
     const dict: HashMap<string[], MigrateApiFileProgrammer.IProps> =
       new HashMap(
         (x) => hash(x.join(".")),
@@ -39,7 +39,7 @@ export namespace MigrateApiProgrammer {
     }
 
     // DO GENERATE
-    const output: IMigrateFile[] = [...dict].map(({ second: props }) => ({
+    const output: IHttpMigrateFile[] = [...dict].map(({ second: props }) => ({
       location: `src/${program.mode === "nest" ? "api/" : ""}functional/${props.namespace.join("/")}`,
       file: "index.ts",
       content: FilePrinter.write({

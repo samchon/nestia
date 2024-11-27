@@ -1,13 +1,13 @@
 import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
-import { IErrorReport } from "./IErrorReport";
-import { INormalizedInput } from "./INormalizedInput";
+import { INestiaSdkInput } from "./INestiaSdkInput";
+import { IReflectOperationError } from "./IReflectOperationError";
 
 export interface INestiaProject {
   config: INestiaConfig;
-  input: INormalizedInput;
+  input: INestiaSdkInput;
   checker: ts.TypeChecker;
-  errors: IErrorReport[];
-  warnings: IErrorReport[];
+  errors: IReflectOperationError[];
+  warnings: IReflectOperationError[];
 }

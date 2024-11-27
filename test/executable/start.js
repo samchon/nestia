@@ -18,9 +18,13 @@ const feature = (name) => {
       name === "cli-config" || name === "cli-config-project"
         ? " --config nestia.configuration.ts"
         : name === "cli-config-project" || name === "cli-project"
-        ? " --project tsconfig.nestia.json"
-        : "";
-    cp.execSync(`npx nestia ${type}${tail}`, { stdio: "ignore" });
+          ? " --project tsconfig.nestia.json"
+          : "";
+    try {
+      cp.execSync(`npx nestia ${type}${tail}`, { stdio: "ignore" });
+    } catch {
+      cp.execSync(`npx nestia ${type}${tail}`, { stdio: "inherit" });
+    }
   };
 
   // ERROR MODE HANDLING
@@ -28,15 +32,14 @@ const feature = (name) => {
     try {
       TestValidator.error("compile error")(() => {
         cp.execSync("npx tsc", { stdio: "ignore" });
-        generate("swagger");
-        generate("sdk");
+        generate("all");
       });
       throw new Error("compile error must be occured.");
     } catch {
       return;
     }
 
-  // GENERATE SWAGGER & SDK & E2E
+  // GENERATE SWAGGER & OPENAI & SDK & E2E
   for (const file of [
     "swagger.json",
     "src/api/functional",
@@ -52,24 +55,26 @@ const feature = (name) => {
   if (name.includes("distribute"))
     cp.execSync(`npx rimraf packages/api`, { stdio: "ignore" });
 
-  generate("swagger");
-  generate("sdk");
-  {
+  if (name === "all") {
     const config = fs.readFileSync(`${featureDirectory(name)}/${file}`, "utf8");
-    if (config.includes("e2e:")) generate("e2e");
-  }
-  cp.execSync("npx tsc", { stdio: "ignore" });
+    {
+      const lines = config.split("\r\n").join("\n").split("\n");
+      if (lines.some((l) => l.startsWith(`  output:`))) generate("sdk");
+    }
+    for (const kind of ["swagger", "e2e"])
+      if (config.includes(`${kind}:`)) generate(kind);
+  } else generate("all");
 
   // RUN TEST AUTOMATION PROGRAM
   if (fs.existsSync("src/test")) {
-    const test = () => cp.execSync("npx ts-node src/test", { stdio: "ignore" });
+    const test = (stdio) => cp.execSync("npx ts-node src/test", { stdio });
     for (let i = 0; i < 3; ++i)
       try {
-        test();
+        test("ignore");
         return;
       } catch {}
-    test();
-  }
+    test("inherit");
+  } else cp.execSync("npx tsc", { stdio: "ignore" });
 };
 
 const main = async () => {
@@ -89,11 +94,9 @@ const main = async () => {
       const only = process.argv.findIndex((str) => str === "--only");
       if (only !== -1 && process.argv.length >= only + 1)
         return (str) => str.includes(process.argv[only + 1]);
-
       const from = process.argv.findIndex((str) => str === "--from");
       if (from !== -1 && process.argv.length >= from + 1)
         return (str) => str >= process.argv[from + 1];
-
       return () => true;
     })();
     if (!process.argv.includes("--skipFeatures")) {

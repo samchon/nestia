@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "5.3.1",
+  "version": "6.3.0",
   "description": "Nestia CLI tool",
   "main": "bin/index.js",
   "bin": {
@@ -33,15 +33,16 @@
   "dependencies": {
     "commander": "^10.0.0",
     "comment-json": "^4.2.3",
-    "inquirer": "^8.2.5"
+    "inquirer": "^8.2.5",
+    "package-manager-detector": "^0.2.0"
   },
   "devDependencies": {
-    "@nestia/core": "^2.4.0",
-    "@nestia/sdk": "^2.4.0",
+    "@nestia/core": "^3.8.0",
+    "@nestia/sdk": "^3.8.0",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",
     "rimraf": "^3.0.2",
-    "typescript": "^5.5.2"
+    "typescript": "~5.6.3"
   },
   "files": [
     "bin",

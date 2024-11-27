@@ -7,8 +7,8 @@
     }
   ],
   "info": {
-    "version": "3.3.2",
-    "title": "@nestia/test",
+    "version": "4.0.0-dev.20241027",
+    "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
       "name": "MIT"
@@ -25,7 +25,6 @@
             "schema": {
               "type": "string"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -56,6 +55,14 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TypeGuardErrorany"
+                },
+                "example": {
+                  "name": "BadRequestException",
+                  "method": "TypedBody",
+                  "path": "$input.title",
+                  "expected": "string",
+                  "value": 123,
+                  "message": "invalid type"
                 }
               }
             }
@@ -71,7 +78,6 @@
             }
           },
           "428": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -103,7 +109,6 @@
             "schema": {
               "type": "string"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -115,13 +120,13 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/IBbsArticle"
-                    },
-                    {
                       "$ref": "#/components/schemas/INotFound"
                     },
                     {
                       "$ref": "#/components/schemas/IUnprocessibleEntity"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IBbsArticle"
                     }
                   ]
                 }
@@ -161,7 +166,6 @@
             "schema": {
               "type": "string"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -231,7 +235,6 @@
             "schema": {
               "type": "string"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -298,42 +301,21 @@
           }
         }
       }
-    },
-    "/health": {
-      "get": {
-        "tags": [],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/performance": {
-      "get": {
-        "tags": [],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IPerformance"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
-      "IBbsArticle.IStore": {
+      "IBbsArticle": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "title": {
             "type": "string",
             "minLength": 3,
@@ -350,6 +332,8 @@
           }
         },
         "required": [
+          "id",
+          "created_at",
           "title",
           "body",
           "files"
@@ -390,6 +374,30 @@
           "name",
           "extension",
           "url"
+        ]
+      },
+      "IBbsArticle.IStore": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "body",
+          "files"
         ]
       },
       "TypeGuardErrorany": {
@@ -476,40 +484,6 @@
           "stack"
         ]
       },
-      "IBbsArticle": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "title": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 50
-          },
-          "body": {
-            "type": "string"
-          },
-          "files": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IAttachmentFile"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "created_at",
-          "title",
-          "body",
-          "files"
-        ]
-      },
       "IExceptional.Something": {
         "type": "object",
         "properties": {
@@ -542,146 +516,11 @@
         "required": [
           "everything"
         ]
-      },
-      "IPerformance": {
-        "type": "object",
-        "properties": {
-          "cpu": {
-            "$ref": "#/components/schemas/process.global.NodeJS.CpuUsage"
-          },
-          "memory": {
-            "$ref": "#/components/schemas/process.global.NodeJS.MemoryUsage"
-          },
-          "resource": {
-            "$ref": "#/components/schemas/process.global.NodeJS.ResourceUsage"
-          }
-        },
-        "required": [
-          "cpu",
-          "memory",
-          "resource"
-        ],
-        "description": "Performance info."
-      },
-      "process.global.NodeJS.CpuUsage": {
-        "type": "object",
-        "properties": {
-          "user": {
-            "type": "number"
-          },
-          "system": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "user",
-          "system"
-        ]
-      },
-      "process.global.NodeJS.MemoryUsage": {
-        "type": "object",
-        "properties": {
-          "rss": {
-            "type": "number"
-          },
-          "heapTotal": {
-            "type": "number"
-          },
-          "heapUsed": {
-            "type": "number"
-          },
-          "external": {
-            "type": "number"
-          },
-          "arrayBuffers": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "rss",
-          "heapTotal",
-          "heapUsed",
-          "external",
-          "arrayBuffers"
-        ]
-      },
-      "process.global.NodeJS.ResourceUsage": {
-        "type": "object",
-        "properties": {
-          "fsRead": {
-            "type": "number"
-          },
-          "fsWrite": {
-            "type": "number"
-          },
-          "involuntaryContextSwitches": {
-            "type": "number"
-          },
-          "ipcReceived": {
-            "type": "number"
-          },
-          "ipcSent": {
-            "type": "number"
-          },
-          "majorPageFault": {
-            "type": "number"
-          },
-          "maxRSS": {
-            "type": "number"
-          },
-          "minorPageFault": {
-            "type": "number"
-          },
-          "sharedMemorySize": {
-            "type": "number"
-          },
-          "signalsCount": {
-            "type": "number"
-          },
-          "swappedOut": {
-            "type": "number"
-          },
-          "systemCPUTime": {
-            "type": "number"
-          },
-          "unsharedDataSize": {
-            "type": "number"
-          },
-          "unsharedStackSize": {
-            "type": "number"
-          },
-          "userCPUTime": {
-            "type": "number"
-          },
-          "voluntaryContextSwitches": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "fsRead",
-          "fsWrite",
-          "involuntaryContextSwitches",
-          "ipcReceived",
-          "ipcSent",
-          "majorPageFault",
-          "maxRSS",
-          "minorPageFault",
-          "sharedMemorySize",
-          "signalsCount",
-          "swappedOut",
-          "systemCPUTime",
-          "unsharedDataSize",
-          "unsharedStackSize",
-          "userCPUTime",
-          "voluntaryContextSwitches"
-        ]
       }
     },
     "securitySchemes": {
       "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
+        "type": "apiKey"
       }
     }
   },

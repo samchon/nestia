@@ -1,6 +1,7 @@
 import { TypedQuery, TypedRoute } from "@nestia/core";
 import { Controller, Query } from "@nestjs/common";
 
+import { IBigQuery } from "@api/lib/structures/IBigQuery";
 import { INestQuery } from "@api/lib/structures/INestQuery";
 import { IQuery } from "@api/lib/structures/IQuery";
 
@@ -40,5 +41,10 @@ export class QueryController {
   @TypedQuery.Post("body")
   public async body(@TypedQuery.Body() query: IQuery): Promise<IQuery> {
     return query;
+  }
+
+  @TypedQuery.Post("big")
+  public async big(@TypedQuery.Body() input: IBigQuery): Promise<IBigQuery> {
+    return input;
   }
 }

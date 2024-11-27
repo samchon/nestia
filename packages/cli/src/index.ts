@@ -10,7 +10,8 @@ npx nestia [command] [options?]
   5. npx nestia init
   6. npx nestia sdk
   7. npx nestia swagger
-  8. npx nestia e2e
+  9. npx nestia e2e
+  10. npx nestia all
 `;
 
 function halt(desc: string): never {
@@ -44,7 +45,8 @@ async function main(): Promise<void> {
     type === "init" ||
     type === "sdk" ||
     type === "swagger" ||
-    type === "e2e"
+    type === "e2e" ||
+    type === "all"
   ) {
     try {
       require.resolve("@nestia/sdk/lib/executable/sdk");

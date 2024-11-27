@@ -56,7 +56,7 @@ export namespace connect {
       else if (Array.isArray(value))
         value.forEach((elem: any) => variables.append(key, String(elem)));
       else variables.set(key, String(value));
-    const location: string = `/calculate/${encodeURIComponent(id ?? "null")}`;
+    const location: string = `/calculate/${encodeURIComponent(id?.toString() ?? "null")}`;
     return 0 === variables.size
       ? location
       : `${location}?${variables.toString()}`;

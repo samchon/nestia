@@ -1,55 +1,30 @@
-import ts from "typescript";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
+import { IJsDocTagInfo } from "typia";
 
 import { IReflectController } from "./IReflectController";
-import { IReflectHttpOperation } from "./IReflectHttpOperation";
+import { IReflectTypeImport } from "./IReflectTypeImport";
+import { ITypedHttpRouteException } from "./ITypedHttpRouteException";
+import { ITypedHttpRouteParameter } from "./ITypedHttpRouteParameter";
+import { ITypedHttpRouteSuccess } from "./ITypedHttpRouteSuccess";
 
 export interface ITypedHttpRoute {
   protocol: "http";
-  controller: IReflectController;
   function: Function;
+  controller: IReflectController;
   name: string;
   method: string;
   path: string;
-  encrypted: boolean;
-  status?: number;
-
   accessors: string[];
-  parameters: ITypedHttpRoute.IParameter[];
-  imports: [string, string[]][];
-  output: ITypedHttpRoute.IOutput;
-
-  location: string;
-  description?: string;
-  operationId?: string;
-  jsDocTags: ts.JSDocTagInfo[];
-  setHeaders: Array<
-    | { type: "setter"; source: string; target?: string }
-    | { type: "assigner"; source: string }
-  >;
-  security: Record<string, string[]>[];
+  parameters: ITypedHttpRouteParameter[];
+  success: ITypedHttpRouteSuccess;
   exceptions: Record<
     number | "2XX" | "3XX" | "4XX" | "5XX",
-    ITypedHttpRoute.IOutput
+    ITypedHttpRouteException
   >;
-  swaggerTags: string[];
-}
-
-export namespace ITypedHttpRoute {
-  export type IParameter = IReflectHttpOperation.IParameter & {
-    optional: boolean;
-    type: ts.Type;
-    typeName: string;
-    metadata?: Metadata;
-  };
-  export interface IOutput {
-    type: ts.Type;
-    typeName: string;
-    metadata?: Metadata;
-    description?: string;
-    contentType:
-      | "application/x-www-form-urlencoded"
-      | "application/json"
-      | "text/plain";
-  }
+  security: Record<string, string[]>[];
+  tags: string[];
+  imports: IReflectTypeImport[];
+  description: string | null;
+  jsDocTags: IJsDocTagInfo[];
+  operationId: string | undefined;
+  extensions?: Record<string, any>;
 }

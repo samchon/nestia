@@ -1,5 +1,4 @@
 import ts from "typescript";
-import typia from "typia";
 import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
@@ -7,14 +6,13 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaProject } from "../../structures/INestiaProject";
-import { IReflectHttpOperation } from "../../structures/IReflectHttpOperation";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpSimulationProgrammer } from "./SdkHttpSimulationProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
-import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkHttpNamespaceProgrammer {
   export const write =
@@ -23,9 +21,9 @@ export namespace SdkHttpNamespaceProgrammer {
     (
       route: ITypedHttpRoute,
       props: {
-        headers: ITypedHttpRoute.IParameter | undefined;
-        query: ITypedHttpRoute.IParameter | undefined;
-        input: ITypedHttpRoute.IParameter | undefined;
+        headers: ITypedHttpRouteParameter.IHeaders | undefined;
+        query: ITypedHttpRouteParameter.IQuery | undefined;
+        input: ITypedHttpRouteParameter.IBody | undefined;
       },
     ): ts.ModuleDeclaration => {
       const types = write_types(project)(importer)(route, props);
@@ -35,9 +33,9 @@ export namespace SdkHttpNamespaceProgrammer {
         ts.factory.createModuleBlock([
           ...types,
           ...(types.length ? [FilePrinter.enter()] : []),
-          write_metadata(importer)(route, props),
+          write_metadata(project)(importer)(route, props),
           FilePrinter.enter(),
-          write_path(project)(importer)(route, props),
+          write_path(project)(importer)(route, props.query),
           ...(project.config.simulate
             ? [
                 SdkHttpSimulationProgrammer.random(project)(importer)(route),
@@ -48,7 +46,7 @@ export namespace SdkHttpNamespaceProgrammer {
               ]
             : []),
           ...(project.config.json &&
-          typia.is<IReflectHttpOperation.IBodyParameter>(props.input) &&
+          props.input !== undefined &&
           (props.input.contentType === "application/json" ||
             props.input.encrypted === true)
             ? [write_stringify(project)(importer)]
@@ -64,9 +62,9 @@ export namespace SdkHttpNamespaceProgrammer {
     (
       route: ITypedHttpRoute,
       props: {
-        headers: ITypedHttpRoute.IParameter | undefined;
-        query: ITypedHttpRoute.IParameter | undefined;
-        input: ITypedHttpRoute.IParameter | undefined;
+        headers: ITypedHttpRouteParameter.IHeaders | undefined;
+        query: ITypedHttpRouteParameter.IQuery | undefined;
+        input: ITypedHttpRouteParameter.IBody | undefined;
       },
     ): ts.TypeAliasDeclaration[] => {
       const array: ts.TypeAliasDeclaration[] = [];
@@ -94,19 +92,23 @@ export namespace SdkHttpNamespaceProgrammer {
           "Input",
           SdkAliasCollection.input(project)(importer)(props.input),
         );
-      if (project.config.propagate === true || route.output.typeName !== "void")
+      if (
+        project.config.propagate === true ||
+        route.success.metadata.size() !== 0
+      )
         declare("Output", SdkAliasCollection.output(project)(importer)(route));
       return array;
     };
 
   const write_metadata =
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (
       route: ITypedHttpRoute,
       props: {
-        headers: ITypedHttpRoute.IParameter | undefined;
-        query: ITypedHttpRoute.IParameter | undefined;
-        input: ITypedHttpRoute.IParameter | undefined;
+        headers: ITypedHttpRouteParameter.IHeaders | undefined;
+        query: ITypedHttpRouteParameter.IQuery | undefined;
+        input: ITypedHttpRouteParameter.IBody | undefined;
       },
     ): ts.VariableStatement =>
       constant("METADATA")(
@@ -124,10 +126,8 @@ export namespace SdkHttpNamespaceProgrammer {
               ts.factory.createPropertyAssignment(
                 "request",
                 props.input
-                  ? LiteralFactory.generate(
-                      typia.is<IReflectHttpOperation.IBodyParameter>(
-                        props.input,
-                      )
+                  ? LiteralFactory.write(
+                      props.input !== undefined
                         ? {
                             type: props.input.contentType,
                             encrypted: !!props.input.encrypted,
@@ -142,19 +142,19 @@ export namespace SdkHttpNamespaceProgrammer {
               ts.factory.createPropertyAssignment(
                 "response",
                 route.method !== "HEAD"
-                  ? LiteralFactory.generate({
-                      type: route.output.contentType,
-                      encrypted: !!route.encrypted,
+                  ? LiteralFactory.write({
+                      type: route.success.contentType,
+                      encrypted: !!route.success.encrypted,
                     })
                   : ts.factory.createNull(),
               ),
               ts.factory.createPropertyAssignment(
                 "status",
-                route.status !== undefined
-                  ? ExpressionFactory.number(route.status)
+                route.success.status !== null
+                  ? ExpressionFactory.number(route.success.status)
                   : ts.factory.createNull(),
               ),
-              ...(route.output.contentType ===
+              ...(route.success.contentType ===
               "application/x-www-form-urlencoded"
                 ? [
                     ts.factory.createPropertyAssignment(
@@ -164,9 +164,11 @@ export namespace SdkHttpNamespaceProgrammer {
                           `${SdkImportWizard.typia(importer)}.http.createAssertQuery`,
                         ),
                         [
-                          ts.factory.createTypeReferenceNode(
-                            route.output.typeName,
-                          ),
+                          project.config.clone === true
+                            ? SdkAliasCollection.from(project)(importer)(
+                                route.success.metadata,
+                              )
+                            : SdkAliasCollection.name(route.success),
                         ],
                         undefined,
                       ),
@@ -187,9 +189,7 @@ export namespace SdkHttpNamespaceProgrammer {
     (importer: ImportDictionary) =>
     (
       route: ITypedHttpRoute,
-      props: {
-        query: ITypedHttpRoute.IParameter | undefined;
-      },
+      query: ITypedHttpRouteParameter.IQuery | undefined,
     ): ts.VariableStatement => {
       const g = {
         total: [
@@ -197,9 +197,9 @@ export namespace SdkHttpNamespaceProgrammer {
             (param) => param.category === "param" || param.category === "query",
           ),
         ],
-        query: route.parameters.filter(
-          (param) => param.category === "query" && param.field !== undefined,
-        ),
+        query: route.parameters
+          .filter((param) => param.category === "query")
+          .filter((param) => param.field !== null),
         path: route.parameters.filter((param) => param.category === "param"),
       };
       const out = (body: ts.ConciseBody) =>
@@ -210,9 +210,18 @@ export namespace SdkHttpNamespaceProgrammer {
             g.total.map((p) =>
               IdentifierFactory.parameter(
                 p.name,
-                p === props.query
-                  ? ts.factory.createTypeReferenceNode(`${route.name}.Query`)
-                  : getType(project)(importer)(p),
+                p === query
+                  ? p.metadata.isRequired() === false
+                    ? ts.factory.createUnionTypeNode([
+                        ts.factory.createTypeReferenceNode(
+                          `${route.name}.Query`,
+                        ),
+                        ts.factory.createTypeReferenceNode("undefined"),
+                      ])
+                    : ts.factory.createTypeReferenceNode(`${route.name}.Query`)
+                  : project.config.clone === true
+                    ? SdkAliasCollection.from(project)(importer)(p.metadata)
+                    : SdkAliasCollection.name(p),
               ),
             ),
             undefined,
@@ -237,8 +246,17 @@ export namespace SdkHttpNamespaceProgrammer {
                 undefined,
                 [
                   ts.factory.createBinaryExpression(
-                    ts.factory.createIdentifier(
-                      g.path.find((p) => p.field === name)!.name,
+                    ts.factory.createCallChain(
+                      ts.factory.createPropertyAccessChain(
+                        ts.factory.createIdentifier(
+                          g.path.find((p) => p.field === name)!.name,
+                        ),
+                        ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
+                        "toString",
+                      ),
+                      undefined,
+                      undefined,
+                      [],
                     ),
                     ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
                     ts.factory.createStringLiteral("null"),
@@ -252,14 +270,11 @@ export namespace SdkHttpNamespaceProgrammer {
           }),
         );
       };
-      if (props.query === undefined && g.query.length === 0)
-        return out(template());
+      if (query === undefined && g.query.length === 0) return out(template());
 
       const block = (expr: ts.Expression) => {
         const computeName = (str: string): string =>
-          g.total
-            .filter((p) => p.category !== "headers")
-            .find((p) => p.name === str) !== undefined
+          g.total.find((p) => p.name === str) !== undefined
             ? computeName("_" + str)
             : str;
         const variables: string = computeName("variables");
@@ -337,7 +352,8 @@ export namespace SdkHttpNamespaceProgrammer {
                           ts.factory.createCallExpression(
                             IdentifierFactory.access(
                               ts.factory.createIdentifier(variables),
-                            )("append"),
+                              "append",
+                            ),
                             undefined,
                             [
                               ts.factory.createIdentifier("key"),
@@ -356,7 +372,8 @@ export namespace SdkHttpNamespaceProgrammer {
                     ts.factory.createCallExpression(
                       IdentifierFactory.access(
                         ts.factory.createIdentifier(variables),
-                      )("set"),
+                        "set",
+                      ),
                       undefined,
                       [
                         ts.factory.createIdentifier("key"),
@@ -378,7 +395,8 @@ export namespace SdkHttpNamespaceProgrammer {
                   ExpressionFactory.number(0),
                   IdentifierFactory.access(
                     ts.factory.createIdentifier(variables),
-                  )("size"),
+                    "size",
+                  ),
                 ),
                 undefined,
                 ts.factory.createIdentifier("location"),
@@ -394,7 +412,8 @@ export namespace SdkHttpNamespaceProgrammer {
                       ts.factory.createCallExpression(
                         IdentifierFactory.access(
                           ts.factory.createIdentifier(variables),
-                        )("toString"),
+                          "toString",
+                        ),
                         undefined,
                         undefined,
                       ),
@@ -408,16 +427,26 @@ export namespace SdkHttpNamespaceProgrammer {
           true,
         );
       };
-      if (props.query !== undefined && g.query.length === 0)
-        return out(block(ts.factory.createIdentifier(props.query.name)));
+      if (query !== undefined && g.query.length === 0)
+        return out(
+          block(
+            query.metadata.isRequired() === false
+              ? ts.factory.createBinaryExpression(
+                  ts.factory.createIdentifier(query.name),
+                  ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
+                  ts.factory.createObjectLiteralExpression([], false),
+                )
+              : ts.factory.createIdentifier(query.name),
+          ),
+        );
       return out(
         block(
           ts.factory.createObjectLiteralExpression(
             [
-              ...(props.query
+              ...(query
                 ? [
                     ts.factory.createSpreadAssignment(
-                      ts.factory.createIdentifier(props.query.name),
+                      ts.factory.createIdentifier(query.name),
                     ),
                   ]
                 : []),
@@ -457,8 +486,10 @@ export namespace SdkHttpNamespaceProgrammer {
             IdentifierFactory.access(
               IdentifierFactory.access(
                 ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
-              )("json"),
-            )(project.config.assert ? "stringify" : "assertStringify"),
+                "json",
+              ),
+              project.config.assert ? "stringify" : "assertStringify",
+            ),
             undefined,
             [ts.factory.createIdentifier("input")],
           ),
@@ -496,10 +527,3 @@ const constant = (name: string) => (expression: ts.Expression) =>
       ts.NodeFlags.Const,
     ),
   );
-const getType =
-  (project: INestiaProject) =>
-  (importer: ImportDictionary) =>
-  (p: ITypedHttpRoute.IParameter | ITypedHttpRoute.IOutput) =>
-    p.metadata
-      ? SdkTypeProgrammer.write(project)(importer)(p.metadata)
-      : ts.factory.createTypeReferenceNode(p.typeName);

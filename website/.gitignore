@@ -2,7 +2,9 @@
 node_modules/
 out/
 public/api/
+typedoc-json/
 
+public/downloads
 public/robots.txt
 public/sitemap*.xml
 !package-lock.json

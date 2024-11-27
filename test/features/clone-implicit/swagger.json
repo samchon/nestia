@@ -7,8 +7,8 @@
     }
   ],
   "info": {
-    "version": "3.3.2",
-    "title": "@nestia/test",
+    "version": "4.0.0-dev.20241027",
+    "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
       "name": "MIT"
@@ -17,6 +17,8 @@
   "paths": {
     "/body": {
       "post": {
+        "summary": "Store an article",
+        "description": "Store an article.",
         "tags": [],
         "parameters": [],
         "requestBody": {
@@ -48,14 +50,28 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/__object"
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "body": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "body"
+                  ]
                 }
               }
             }
           }
-        },
-        "summary": "Store an article",
-        "description": "Store an article."
+        }
       }
     },
     "/body/{id}": {
@@ -69,7 +85,6 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -97,39 +112,20 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
           }
         }
       }
     }
   },
   "components": {
-    "schemas": {
-      "__object": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "body": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "title",
-          "body"
-        ]
-      }
-    },
+    "schemas": {},
     "securitySchemes": {
       "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
+        "type": "apiKey"
       }
     }
   },

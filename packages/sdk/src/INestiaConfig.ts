@@ -1,6 +1,4 @@
 import type { INestApplication } from "@nestjs/common";
-
-import type { INormalizedInput } from "./structures/INormalizedInput";
 import { OpenApi } from "@samchon/openapi";
 
 /**
@@ -144,11 +142,6 @@ export interface INestiaConfig {
    * @default false
    */
   json?: boolean;
-
-  /**
-   * @internal
-   */
-  normalized?: INormalizedInput;
 }
 export namespace INestiaConfig {
   /**
@@ -179,6 +172,18 @@ export namespace INestiaConfig {
      * `swagger.json` file would be renamed to it.
      */
     output: string;
+
+    /**
+     * OpenAPI version.
+     *
+     * If you configure this property to be `2.0` or `3.0`, the newly generated
+     * `swagger.json` file would follow the specified OpenAPI version. The newly
+     * generated `swagger.json` file would be downgraded from the OpenAPI v3.1
+     * specification by {@link OpenApi.downgrade} method.
+     *
+     * @default 3.1
+     */
+    openapi?: "2.0" | "3.0" | "3.1";
 
     /**
      * Whether to beautify JSON content or not.
@@ -242,12 +247,20 @@ export namespace INestiaConfig {
      * Decompose query DTO.
      *
      * If you configure this property to be `true`, the query DTO would be decomposed
-     * into individual query parameters per each property.
+     * into individual query parameters per each property. Otherwise you set it to be
+     * `false`, the query DTO would be one object type which contains all of query
+     * parameters.
      *
-     * @default false
+     * @default true
      */
     decompose?: boolean;
 
+    /**
+     * Operation ID generator.
+     *
+     * @param props Properties of the API endpoint.
+     * @returns Operation ID.
+     */
     operationId?(props: {
       class: string;
       function: string;

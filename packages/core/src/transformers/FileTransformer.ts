@@ -1,61 +1,85 @@
 import ts from "typescript";
+import { ImportProgrammer } from "typia/lib/programmers/ImportProgrammer";
 import { TransformerError } from "typia/lib/transformers/TransformerError";
 
-import { INestiaTransformProject } from "../options/INestiaTransformProject";
+import { INestiaTransformContext } from "../options/INestiaTransformProject";
 import { NodeTransformer } from "./NodeTransformer";
 
 export namespace FileTransformer {
   export const transform =
-    (project: Omit<INestiaTransformProject, "context">) =>
-    (context: ts.TransformationContext) =>
-    (file: ts.SourceFile): ts.SourceFile =>
-      file.isDeclarationFile
-        ? file
-        : ts.visitEachChild(
+    (context: Omit<INestiaTransformContext, "importer" | "transformer">) =>
+    (transformer: ts.TransformationContext) =>
+    (file: ts.SourceFile): ts.SourceFile => {
+      if (file.isDeclarationFile) return file;
+      const importer = new ImportProgrammer({
+        internalPrefix: "nestia_core_transform",
+      });
+      file = ts.visitEachChild(
+        file,
+        (node) =>
+          iterate_node({
+            context: {
+              ...context,
+              transformer,
+              importer,
+            },
             file,
-            (node) =>
-              iterate_node({
-                ...project,
-                context,
-              })(context)(file)(node),
-            context,
-          );
-
-  const iterate_node =
-    (project: INestiaTransformProject) =>
-    (context: ts.TransformationContext) =>
-    (file: ts.SourceFile) =>
-    (node: ts.Node): ts.Node =>
-      ts.visitEachChild(
-        try_transform_node(project)(file)(node) ?? node,
-        (child) => iterate_node(project)(context)(file)(child),
-        context,
+            node,
+          }),
+        transformer,
       );
-
-  const try_transform_node =
-    (project: INestiaTransformProject) =>
-    (file: ts.SourceFile) =>
-    (node: ts.Node): ts.Node | null => {
-      try {
-        return NodeTransformer.transform(project)(node);
-      } catch (exp) {
-        // ONLY ACCEPT TRANSFORMER-ERROR
-        if (!isTransformerError(exp)) throw exp;
-
-        // AVOID SPECIAL BUG OF TYPESCRIPT COMPILER API
-        (node as any).parent ??= file;
-
-        // REPORT DIAGNOSTIC
-        const diagnostic = ts.createDiagnosticForNode(node, {
-          key: exp.code,
-          category: ts.DiagnosticCategory.Error,
-          message: exp.message,
-          code: `(${exp.code})` as any,
-        });
-        project.extras.addDiagnostic(diagnostic);
-        return null;
-      }
+      return ts.factory.updateSourceFile(
+        file,
+        [...importer.toStatements(), ...file.statements],
+        false,
+        file.referencedFiles,
+        file.typeReferenceDirectives,
+        file.hasNoDefaultLib,
+        file.libReferenceDirectives,
+      );
     };
+
+  const iterate_node = (props: {
+    context: INestiaTransformContext;
+    file: ts.SourceFile;
+    node: ts.Node;
+  }): ts.Node =>
+    ts.visitEachChild(
+      try_transform_node(props) ?? props.node,
+      (child) =>
+        iterate_node({
+          context: props.context,
+          file: props.file,
+          node: child,
+        }),
+      props.context.transformer,
+    );
+
+  const try_transform_node = (props: {
+    context: INestiaTransformContext;
+    file: ts.SourceFile;
+    node: ts.Node;
+  }): ts.Node | null => {
+    try {
+      return NodeTransformer.transform(props);
+    } catch (exp) {
+      // ONLY ACCEPT TRANSFORMER-ERROR
+      if (!isTransformerError(exp)) throw exp;
+
+      // AVOID SPECIAL BUG OF TYPESCRIPT COMPILER API
+      (props.node as any).parent ??= props.file;
+
+      // REPORT DIAGNOSTIC
+      const diagnostic = (ts as any).createDiagnosticForNode(props.node, {
+        key: exp.code,
+        category: ts.DiagnosticCategory.Error,
+        message: exp.message,
+        code: `(${exp.code})` as any,
+      });
+      props.context.extras.addDiagnostic(diagnostic);
+      return null;
+    }
+  };
 }
 
 const isTransformerError = (error: any): error is TransformerError =>

@@ -5,9 +5,9 @@ import {
 } from "@nestjs/common";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
-import { assert, is, misc, validate } from "typia";
 
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
+import { is_request_body_undefined } from "./internal/is_request_body_undefined";
 import { validate_request_body } from "./internal/validate_request_body";
 
 /**
@@ -35,7 +35,9 @@ export function TypedBody<T>(
     const request: express.Request | FastifyRequest = context
       .switchToHttp()
       .getRequest();
-    if (isApplicationJson(request.headers["content-type"]) === false)
+    if (is_request_body_undefined(request) && checker(undefined as T) === null)
+      return undefined;
+    else if (isApplicationJson(request.headers["content-type"]) === false)
       throw new BadRequestException(
         `Request body type is not "application/json".`,
       );
@@ -45,11 +47,6 @@ export function TypedBody<T>(
     return request.body;
   })();
 }
-
-Object.assign(TypedBody, misc.clone);
-Object.assign(TypedBody, is);
-Object.assign(TypedBody, assert);
-Object.assign(TypedBody, validate);
 
 /**
  * @internal

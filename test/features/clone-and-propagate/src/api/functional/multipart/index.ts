@@ -6,13 +6,14 @@
 //================================================================
 import type {
   IConnection,
+  FormDataInput,
   IPropagation,
-  Resolved,
   HttpError,
 } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import typia from "typia";
+import type { Resolved } from "typia";
 
 import type { IMultipart } from "../../structures/IMultipart";
 
@@ -27,7 +28,7 @@ export async function post(
 ): Promise<post.Output> {
   return !!connection.simulate
     ? post.simulate(connection, body)
-    : PlainFetcher.propagate(
+    : PlainFetcher.propagate<any, any>(
         connection,
         {
           ...post.METADATA,
@@ -38,10 +39,13 @@ export async function post(
       );
 }
 export namespace post {
-  export type Input = IMultipart;
-  export type Output = IPropagation<{
-    201: undefined;
-  }>;
+  export type Input = FormDataInput<IMultipart>;
+  export type Output = IPropagation<
+    {
+      201: void;
+    },
+    201
+  >;
 
   export const METADATA = {
     method: "POST",
@@ -54,13 +58,12 @@ export namespace post {
       type: "application/json",
       encrypted: false,
     },
-    status: null,
+    status: 201,
   } as const;
 
   export const path = () => "/multipart";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<undefined> => typia.random<undefined>(g);
+  export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
+    typia.random<void>(g);
   export const simulate = (
     connection: IConnection,
     body: post.Input,
@@ -93,6 +96,6 @@ export namespace post {
           ? connection.simulate
           : undefined,
       ),
-    };
+    } as Output;
   };
 }

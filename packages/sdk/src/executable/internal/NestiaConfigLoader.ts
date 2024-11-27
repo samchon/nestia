@@ -1,7 +1,8 @@
+import { NoTransformConfigurationError } from "@nestia/core/lib/decorators/NoTransformConfigurationError";
 import fs from "fs";
 import path from "path";
 import { register } from "ts-node";
-import { parseNative } from "tsconfck";
+import { parse } from "tsconfck";
 import ts from "typescript";
 import typia from "typia";
 
@@ -17,7 +18,7 @@ export namespace NestiaConfigLoader {
       project,
     );
     if (!configFileName) throw new Error(`unable to find "${project}" file.`);
-    const { tsconfig } = await parseNative(configFileName);
+    const { tsconfig } = await parse(configFileName);
     const configFileText = JSON.stringify(tsconfig);
     const { config } = ts.parseConfigFileTextToJson(
       configFileName,
@@ -30,31 +31,44 @@ export namespace NestiaConfigLoader {
     );
   };
 
-  export const config = async (
+  export const configurations = async (
     file: string,
-    rawCompilerOptions: Record<string, any>,
-  ): Promise<INestiaConfig> => {
+    compilerOptions: Record<string, any>,
+  ): Promise<INestiaConfig[]> => {
     if (fs.existsSync(path.resolve(file)) === false)
       throw new Error(`Unable to find "${file}" file.`);
 
+    NoTransformConfigurationError.throws = false;
+    const plugins: any[] = [
+      ...typia
+        .assert<object[]>(compilerOptions.plugins ?? [])
+        .filter((x: any) => x.transform !== "@nestia/sdk/lib/transform"),
+      { transform: "@nestia/sdk/lib/transform" },
+    ];
     register({
       emit: false,
-      compilerOptions: rawCompilerOptions,
-      require: rawCompilerOptions.baseUrl
+      compilerOptions: {
+        ...compilerOptions,
+        plugins,
+      },
+      require: compilerOptions.baseUrl
         ? ["tsconfig-paths/register"]
         : undefined,
     });
 
-    const loaded: INestiaConfig & { default?: INestiaConfig } = await import(
-      path.resolve(file)
-    );
-    const config: INestiaConfig =
+    const loaded: (INestiaConfig | INestiaConfig[]) & {
+      default?: INestiaConfig | INestiaConfig[];
+    } = await import(path.resolve(file));
+    const instance: INestiaConfig | INestiaConfig[] =
       typeof loaded?.default === "object" && loaded.default !== null
         ? loaded.default
         : loaded;
+    const configurations: INestiaConfig[] = Array.isArray(instance)
+      ? instance
+      : [instance];
 
     try {
-      return typia.assert(config);
+      return typia.assert(configurations);
     } catch (exp) {
       if (typia.is<typia.TypeGuardError>(exp))
         exp.message = `invalid "${file}" data.`;

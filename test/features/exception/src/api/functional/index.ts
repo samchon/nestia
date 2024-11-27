@@ -5,5 +5,3 @@
  */
 //================================================================
 export * as exception from "./exception";
-export * as health from "./health";
-export * as performance from "./performance";

@@ -1,0 +1,377 @@
+{
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://github.com/samchon/nestia",
+      "description": "insert your server url"
+    }
+  ],
+  "info": {
+    "version": "4.0.0-dev.20241027",
+    "title": "@samchon/nestia-test",
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/bbs/articles": {
+      "post": {
+        "summary": "Create an article",
+        "description": "Create an article.",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "Content to store",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.ICreate"
+              },
+              "example": {
+                "title": "qmkyxdsspwlrdmycuwujfzevhbntqr",
+                "body": "ewnrcrermdoornotdrrfqfxjcntxokahvxxgojey",
+                "files": []
+              },
+              "examples": {
+                "z": {
+                  "title": "pgmvnqcntyio",
+                  "body": "zqholruqtvnogpncksarvjyzuyajzvniamgwjbmtvzehelbsgkfipsdxy",
+                  "files": [
+                    {
+                      "name": null,
+                      "extension": null,
+                      "url": "https://yogydkyyla.qcx"
+                    },
+                    {
+                      "name": "azxybkuwdpiusgequdhgnpwfzssppbieqvzwsfjjgodrxftcrgmnxwsadsizyvifaabx",
+                      "extension": null,
+                      "url": "https://qwrnzwrbtp.yjy"
+                    },
+                    {
+                      "name": null,
+                      "extension": null,
+                      "url": "https://bcxajgisic.vko"
+                    },
+                    {
+                      "name": null,
+                      "extension": null,
+                      "url": "https://xmhrlxpcov.hxn"
+                    }
+                  ]
+                },
+                "y": {
+                  "title": "pwchxiuzqhufwjymeccovjijospaylvyrbzidgvtlmmqlu",
+                  "body": "rvnehnlsbgeuddcfn",
+                  "files": []
+                },
+                "x": {
+                  "title": "jdeblsrcrcotahpsaiqkzyvnrxszdadahtdnplznlhzda",
+                  "body": "zwqvlsuzhzxdslyccmnda",
+                  "files": []
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Newly archived article",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                },
+                "example": {
+                  "id": "1d8dfd7d-ac45-441c-b950-bcbbe518a59f",
+                  "created_at": "2000-06-24T21:06:41.678Z",
+                  "title": "vwtdooseduxih",
+                  "body": "qvcsqfkrwpnsqyiavpzymi",
+                  "files": [
+                    {
+                      "name": "tyrmmdtpemwubnchwpmxsggmuhmhmkvykvkgxuotfkurgattsymdblfluhkgehzbtpvrjkdltmmzwoziirkdctmunkwowlmawrfgxukpfrklidpdbcpmyrcugoubhfyyjqojwgsrwnuwmodmhvlxpyizftapbuvlhcfvfpfuyinxrzxesvgncydqlxaxrpmxggyyprvlrlckatmehelxbmokhmtvcflnqklowghoaxiayeefantazwgacjjxly",
+                      "extension": "bayvvyz",
+                      "url": "https://yuydhvftlm.aui"
+                    },
+                    {
+                      "name": null,
+                      "extension": null,
+                      "url": "https://vzaihehmsu.ecm"
+                    },
+                    {
+                      "name": null,
+                      "extension": "hkwzzq",
+                      "url": "https://xhexzpresq.hsp"
+                    },
+                    {
+                      "name": "qtirzwcyfsudkaewnfrtnhqtogakykcrtnggqxumfuyuuikndavlncihgswkyehnkzulerjqhyjxlxxsioofiabymjmihzopvdshwuolalpjepbzroypmxuzncypbsyxtrkvfixovbokatgjabhunstiecvyaglbdjmwvtywimhwdfdhk",
+                      "extension": null,
+                      "url": "https://kdpzgvuerw.oks"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bbs/articles/{id}": {
+      "put": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "example": "4c28fc02-4ecc-4a54-9c13-1d546f052d8b"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartialIBbsArticle.ICreate"
+              },
+              "example": {
+                "files": [
+                  {
+                    "name": null,
+                    "extension": "ad",
+                    "url": "https://rxpcacxtjb.phf"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                },
+                "example": {
+                  "id": "6a90c4be-8846-483e-a038-93c8ad79937f",
+                  "created_at": "2015-02-02T18:49:35.413Z",
+                  "title": "arhiv",
+                  "body": "jcdqmnsseenkydpncpeepdsnhmegspdzntkyxxiugedydtpchqdcvwsgsrjbakfdpcqzgigq",
+                  "files": [
+                    {
+                      "name": null,
+                      "extension": "dab",
+                      "url": "https://grzlqfibqt.uow"
+                    },
+                    {
+                      "name": "kwiynvrqx",
+                      "extension": null,
+                      "url": "https://tgoponyccy.vqe"
+                    },
+                    {
+                      "name": "nsagsnhfgvakycahsavdlxypwewnzktdccgvtkjghovsmgdala",
+                      "extension": "qk",
+                      "url": "https://zenlmdxarr.isv"
+                    },
+                    {
+                      "name": null,
+                      "extension": null,
+                      "url": "https://jivrdxiycw.otg"
+                    }
+                  ]
+                },
+                "examples": {
+                  "b": {
+                    "id": "12e8b551-4365-4b53-85bb-ea239448afb8",
+                    "created_at": "2010-12-10T02:22:03.174Z",
+                    "title": "qfoclumz",
+                    "body": "nvnvaptsrvqsszygwrnaigowkiismbnccaa",
+                    "files": [
+                      {
+                        "name": null,
+                        "extension": "d",
+                        "url": "https://vobatqrqlj.ixx"
+                      },
+                      {
+                        "name": "tgecvpwyvhdrlaiwyuexivaucchekaprtveiqktadczmuheeajenzgdpbccclmrxxzpesylzuqmlyuzljsjunkqgfbxmmqhhliulnciyfmbpxyhpvcszgfnndbxrvezmozctmogfqwfuiaimhmkzxvyqzeeqemaljhllc",
+                        "extension": null,
+                        "url": "https://oislgepnfp.gyp"
+                      },
+                      {
+                        "name": null,
+                        "extension": "qbghclw",
+                        "url": "https://hukgjgchcn.guy"
+                      },
+                      {
+                        "name": null,
+                        "extension": "olal",
+                        "url": "https://ypezpkvcao.zxy"
+                      }
+                    ]
+                  },
+                  "a": {
+                    "id": "0211cf56-c9dc-4979-bc8b-f22021cdefe4",
+                    "created_at": "2015-09-28T20:01:55.125Z",
+                    "title": "giljruqxovpaeqwaysjepaajawbnerwppvtvien",
+                    "body": "eoghhpvmqxwp",
+                    "files": [
+                      {
+                        "name": null,
+                        "extension": "xi",
+                        "url": "https://hlcxfexjuu.hvn"
+                      },
+                      {
+                        "name": null,
+                        "extension": "vup",
+                        "url": "https://kqhtfmzhrj.wws"
+                      },
+                      {
+                        "name": null,
+                        "extension": "mmyonu",
+                        "url": "https://cjtcvepqsh.xwv"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IBbsArticle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "created_at",
+          "title",
+          "body",
+          "files"
+        ]
+      },
+      "IAttachmentFile": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "maxLength": 255
+              }
+            ]
+          },
+          "extension": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            ]
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "name",
+          "extension",
+          "url"
+        ]
+      },
+      "IBbsArticle.ICreate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "body",
+          "files"
+        ]
+      },
+      "PartialIBbsArticle.ICreate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "required": [],
+        "description": "Make all properties in T optional"
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "apiKey"
+      }
+    }
+  },
+  "tags": [],
+  "x-samchon-emended": true
+}

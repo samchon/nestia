@@ -16,5 +16,5 @@ export const test_api_propagate = async (
   > = await api.functional.users.user.getUserProfile(connection, "something", {
     user_type: "admin",
   });
-  typia.assertEquals(output);
+  typia.assert(output);
 };

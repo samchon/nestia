@@ -7,8 +7,8 @@
     }
   ],
   "info": {
-    "version": "3.3.2",
-    "title": "@nestia/test",
+    "version": "4.0.0-dev.20241027",
+    "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
       "name": "MIT"
@@ -72,7 +72,6 @@
             "schema": {
               "type": "number"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -100,7 +99,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ArrayRecursiveUnionExplicit"
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/IDirectory"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IImageFile"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ITextFile"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IZipFile"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IShortcut"
+                      }
+                    ]
+                  }
                 }
               }
             }
@@ -142,7 +160,23 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IBucket"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/IDirectory"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IImageFile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ITextFile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IZipFile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IShortcut"
+                    }
+                  ]
                 }
               }
             }
@@ -160,7 +194,6 @@
             "schema": {
               "type": "number"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -170,7 +203,23 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IBucket"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/IDirectory"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IImageFile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ITextFile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IZipFile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IShortcut"
+                    }
+                  ]
                 }
               }
             }
@@ -188,7 +237,29 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ArrayRecursiveUnionImplicit"
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/IDirectory.o1"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ISharedDirectory"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IImageFile.o1"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ITextFile.o1"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IZipFile.o1"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IShortcut.o1"
+                      }
+                    ]
+                  }
                 }
               }
             }
@@ -233,7 +304,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IBucket.o1"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/IDirectory.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ISharedDirectory"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IImageFile.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ITextFile.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IZipFile.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IShortcut.o1"
+                    }
+                  ]
                 }
               }
             }
@@ -251,7 +341,6 @@
             "schema": {
               "type": "number"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -261,7 +350,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IBucket.o1"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/IDirectory.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ISharedDirectory"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IImageFile.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ITextFile.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IZipFile.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IShortcut.o1"
+                    }
+                  ]
                 }
               }
             }
@@ -279,7 +387,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ArraySimple"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IPerson"
+                  }
                 }
               }
             }
@@ -324,7 +435,6 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -344,6 +454,8 @@
     },
     "/bbs/articles/{section}": {
       "get": {
+        "summary": "List up summarized articles",
+        "description": "List up summarized articles.",
         "tags": [],
         "parameters": [
           {
@@ -352,17 +464,38 @@
             "schema": {
               "type": "string"
             },
-            "description": "Target section",
-            "required": true
+            "required": true,
+            "description": " Target section"
           },
           {
-            "name": "query",
+            "name": "page",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/IPage.IRequest"
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
             },
-            "description": "Pagination query",
-            "required": true
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -376,11 +509,11 @@
               }
             }
           }
-        },
-        "summary": "List up summarized articles",
-        "description": "List up summarized articles."
+        }
       },
       "post": {
+        "summary": "Store a new article",
+        "description": "Store a new article.",
         "tags": [],
         "parameters": [
           {
@@ -389,8 +522,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "Section code",
-            "required": true
+            "required": true,
+            "description": " Section code"
           }
         ],
         "requestBody": {
@@ -415,13 +548,13 @@
               }
             }
           }
-        },
-        "summary": "Store a new article",
-        "description": "Store a new article."
+        }
       }
     },
     "/bbs/articles/{section}/{id}": {
       "put": {
+        "summary": "Update an article",
+        "description": "Update an article.",
         "tags": [],
         "parameters": [
           {
@@ -430,8 +563,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "Section code",
-            "required": true
+            "required": true,
+            "description": " Section code"
           },
           {
             "name": "id",
@@ -440,8 +573,8 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "Target article ID",
-            "required": true
+            "required": true,
+            "description": " Target article ID"
           }
         ],
         "requestBody": {
@@ -466,9 +599,7 @@
               }
             }
           }
-        },
-        "summary": "Update an article",
-        "description": "Update an article."
+        }
       }
     },
     "/health": {
@@ -477,7 +608,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
           }
         }
       }
@@ -498,7 +632,10 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
           }
         }
       }
@@ -637,7 +774,6 @@
             "schema": {
               "type": "number"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -665,7 +801,44 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ObjectUnionExplicit"
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/DiscriminatorpointIPoint"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DiscriminatorlineILine"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DiscriminatortriangleITriangle"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DiscriminatorrectangleIRectangle"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DiscriminatorpolylineIPolyline"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DiscriminatorpolygonIPolygon"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DiscriminatorcircleICircle"
+                      }
+                    ],
+                    "discriminator": {
+                      "propertyName": "type",
+                      "mapping": {
+                        "point": "#/components/schemas/DiscriminatorpointIPoint",
+                        "line": "#/components/schemas/DiscriminatorlineILine",
+                        "triangle": "#/components/schemas/DiscriminatortriangleITriangle",
+                        "rectangle": "#/components/schemas/DiscriminatorrectangleIRectangle",
+                        "polyline": "#/components/schemas/DiscriminatorpolylineIPolyline",
+                        "polygon": "#/components/schemas/DiscriminatorpolygonIPolygon",
+                        "circle": "#/components/schemas/DiscriminatorcircleICircle"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -683,7 +856,32 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ObjectUnionImplicit"
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/IPoint.o1"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ILine"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ITriangle"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IRectangle"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IPolyline.o1"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IPolygon"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ICircle"
+                      }
+                    ]
+                  }
                 }
               }
             }
@@ -747,6 +945,8 @@
     },
     "/sellers/authenticate/join": {
       "post": {
+        "summary": "Join as a seller",
+        "description": "Join as a seller.",
         "tags": [],
         "parameters": [],
         "requestBody": {
@@ -763,7 +963,7 @@
         },
         "responses": {
           "201": {
-            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.P.ost](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nInformation of newly joined seller",
+            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.Post](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nInformation of newly joined seller",
             "content": {
               "text/plain": {
                 "schema": {
@@ -773,13 +973,13 @@
             },
             "x-nestia-encrypted": true
           }
-        },
-        "summary": "Join as a seller",
-        "description": "Join as a seller."
+        }
       }
     },
     "/sellers/authenticate/login": {
       "post": {
+        "summary": "Log-in as a seller",
+        "description": "Log-in as a seller.",
         "tags": [],
         "parameters": [],
         "requestBody": {
@@ -796,7 +996,7 @@
         },
         "responses": {
           "201": {
-            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.P.ost](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nInformation of the seller",
+            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.Post](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nInformation of the seller",
             "content": {
               "text/plain": {
                 "schema": {
@@ -806,13 +1006,13 @@
             },
             "x-nestia-encrypted": true
           }
-        },
-        "summary": "Log-in as a seller",
-        "description": "Log-in as a seller."
+        }
       }
     },
     "/sellers/authenticate/password/change": {
       "patch": {
+        "summary": "Change password",
+        "description": "Change password.",
         "tags": [],
         "parameters": [],
         "requestBody": {
@@ -829,24 +1029,28 @@
         },
         "responses": {
           "200": {
-            "description": "Empty object"
+            "description": "Empty object",
+            "content": {
+              "application/json": {}
+            }
           }
-        },
-        "summary": "Change password",
-        "description": "Change password."
+        }
       }
     },
     "/sellers/authenticate/exit": {
       "delete": {
+        "summary": "Erase the seller by itself",
+        "description": "Erase the seller by itself.",
         "tags": [],
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
           }
-        },
-        "summary": "Erase the seller by itself",
-        "description": "Erase the seller by itself."
+        }
       }
     },
     "/template": {
@@ -906,7 +1110,6 @@
             "schema": {
               "type": "number"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -936,7 +1139,103 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TupleHierarchical"
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          },
+                          {
+                            "type": "array",
+                            "prefixItems": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "array",
+                                "prefixItems": [
+                                  {
+                                    "type": "boolean"
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ],
+                                "additionalItems": false
+                              }
+                            ],
+                            "additionalItems": false
+                          }
+                        ],
+                        "additionalItems": false
+                      },
+                      {
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "array",
+                                    "prefixItems": [
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "array",
+                                        "prefixItems": [
+                                          {
+                                            "type": "boolean"
+                                          },
+                                          {
+                                            "type": "string"
+                                          }
+                                        ],
+                                        "additionalItems": false
+                                      }
+                                    ],
+                                    "additionalItems": false
+                                  }
+                                }
+                              ],
+                              "additionalItems": false
+                            }
+                          }
+                        ],
+                        "additionalItems": false
+                      }
+                    ],
+                    "additionalItems": false
                   }
                 }
               }
@@ -987,63 +1286,13 @@
                                 "type": "string"
                               }
                             ],
-                            "additionalItems": {
-                              "type": "string"
-                            }
+                            "additionalItems": false
                           }
                         ],
-                        "additionalItems": {
-                          "type": "array",
-                          "prefixItems": [
-                            {
-                              "type": "boolean"
-                            },
-                            {
-                              "type": "string"
-                            }
-                          ],
-                          "additionalItems": {
-                            "type": "string"
-                          }
-                        }
+                        "additionalItems": false
                       }
                     ],
-                    "additionalItems": {
-                      "type": "array",
-                      "prefixItems": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "array",
-                          "prefixItems": [
-                            {
-                              "type": "boolean"
-                            },
-                            {
-                              "type": "string"
-                            }
-                          ],
-                          "additionalItems": {
-                            "type": "string"
-                          }
-                        }
-                      ],
-                      "additionalItems": {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "boolean"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "additionalItems": {
-                          "type": "string"
-                        }
-                      }
-                    }
+                    "additionalItems": false
                   },
                   {
                     "type": "array",
@@ -1083,377 +1332,21 @@
                                         "type": "string"
                                       }
                                     ],
-                                    "additionalItems": {
-                                      "type": "string"
-                                    }
+                                    "additionalItems": false
                                   }
                                 ],
-                                "additionalItems": {
-                                  "type": "array",
-                                  "prefixItems": [
-                                    {
-                                      "type": "boolean"
-                                    },
-                                    {
-                                      "type": "string"
-                                    }
-                                  ],
-                                  "additionalItems": {
-                                    "type": "string"
-                                  }
-                                }
+                                "additionalItems": false
                               }
                             }
                           ],
-                          "additionalItems": {
-                            "type": "array",
-                            "items": {
-                              "type": "array",
-                              "prefixItems": [
-                                {
-                                  "type": "number"
-                                },
-                                {
-                                  "type": "number"
-                                },
-                                {
-                                  "type": "array",
-                                  "prefixItems": [
-                                    {
-                                      "type": "boolean"
-                                    },
-                                    {
-                                      "type": "string"
-                                    }
-                                  ],
-                                  "additionalItems": {
-                                    "type": "string"
-                                  }
-                                }
-                              ],
-                              "additionalItems": {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "boolean"
-                                  },
-                                  {
-                                    "type": "string"
-                                  }
-                                ],
-                                "additionalItems": {
-                                  "type": "string"
-                                }
-                              }
-                            }
-                          }
+                          "additionalItems": false
                         }
                       }
                     ],
-                    "additionalItems": {
-                      "type": "array",
-                      "items": {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "boolean"
-                          },
-                          {
-                            "type": "array",
-                            "items": {
-                              "type": "array",
-                              "prefixItems": [
-                                {
-                                  "type": "number"
-                                },
-                                {
-                                  "type": "number"
-                                },
-                                {
-                                  "type": "array",
-                                  "prefixItems": [
-                                    {
-                                      "type": "boolean"
-                                    },
-                                    {
-                                      "type": "string"
-                                    }
-                                  ],
-                                  "additionalItems": {
-                                    "type": "string"
-                                  }
-                                }
-                              ],
-                              "additionalItems": {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "boolean"
-                                  },
-                                  {
-                                    "type": "string"
-                                  }
-                                ],
-                                "additionalItems": {
-                                  "type": "string"
-                                }
-                              }
-                            }
-                          }
-                        ],
-                        "additionalItems": {
-                          "type": "array",
-                          "items": {
-                            "type": "array",
-                            "prefixItems": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "boolean"
-                                  },
-                                  {
-                                    "type": "string"
-                                  }
-                                ],
-                                "additionalItems": {
-                                  "type": "string"
-                                }
-                              }
-                            ],
-                            "additionalItems": {
-                              "type": "array",
-                              "prefixItems": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "string"
-                                }
-                              ],
-                              "additionalItems": {
-                                "type": "string"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
+                    "additionalItems": false
                   }
                 ],
-                "additionalItems": {
-                  "type": "array",
-                  "prefixItems": [
-                    {
-                      "type": "number"
-                    },
-                    {
-                      "type": "array",
-                      "items": {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "boolean"
-                          },
-                          {
-                            "type": "array",
-                            "items": {
-                              "type": "array",
-                              "prefixItems": [
-                                {
-                                  "type": "number"
-                                },
-                                {
-                                  "type": "number"
-                                },
-                                {
-                                  "type": "array",
-                                  "prefixItems": [
-                                    {
-                                      "type": "boolean"
-                                    },
-                                    {
-                                      "type": "string"
-                                    }
-                                  ],
-                                  "additionalItems": {
-                                    "type": "string"
-                                  }
-                                }
-                              ],
-                              "additionalItems": {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "boolean"
-                                  },
-                                  {
-                                    "type": "string"
-                                  }
-                                ],
-                                "additionalItems": {
-                                  "type": "string"
-                                }
-                              }
-                            }
-                          }
-                        ],
-                        "additionalItems": {
-                          "type": "array",
-                          "items": {
-                            "type": "array",
-                            "prefixItems": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "boolean"
-                                  },
-                                  {
-                                    "type": "string"
-                                  }
-                                ],
-                                "additionalItems": {
-                                  "type": "string"
-                                }
-                              }
-                            ],
-                            "additionalItems": {
-                              "type": "array",
-                              "prefixItems": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "string"
-                                }
-                              ],
-                              "additionalItems": {
-                                "type": "string"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  ],
-                  "additionalItems": {
-                    "type": "array",
-                    "items": {
-                      "type": "array",
-                      "prefixItems": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "array",
-                          "items": {
-                            "type": "array",
-                            "prefixItems": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "array",
-                                "prefixItems": [
-                                  {
-                                    "type": "boolean"
-                                  },
-                                  {
-                                    "type": "string"
-                                  }
-                                ],
-                                "additionalItems": {
-                                  "type": "string"
-                                }
-                              }
-                            ],
-                            "additionalItems": {
-                              "type": "array",
-                              "prefixItems": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "string"
-                                }
-                              ],
-                              "additionalItems": {
-                                "type": "string"
-                              }
-                            }
-                          }
-                        }
-                      ],
-                      "additionalItems": {
-                        "type": "array",
-                        "items": {
-                          "type": "array",
-                          "prefixItems": [
-                            {
-                              "type": "number"
-                            },
-                            {
-                              "type": "number"
-                            },
-                            {
-                              "type": "array",
-                              "prefixItems": [
-                                {
-                                  "type": "boolean"
-                                },
-                                {
-                                  "type": "string"
-                                }
-                              ],
-                              "additionalItems": {
-                                "type": "string"
-                              }
-                            }
-                          ],
-                          "additionalItems": {
-                            "type": "array",
-                            "prefixItems": [
-                              {
-                                "type": "boolean"
-                              },
-                              {
-                                "type": "string"
-                              }
-                            ],
-                            "additionalItems": {
-                              "type": "string"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
+                "additionalItems": false
               }
             }
           },
@@ -1465,7 +1358,103 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TupleHierarchical"
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "array",
+                          "prefixItems": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "string"
+                                }
+                              ],
+                              "additionalItems": false
+                            }
+                          ],
+                          "additionalItems": false
+                        }
+                      ],
+                      "additionalItems": false
+                    },
+                    {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "prefixItems": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "prefixItems": [
+                                        {
+                                          "type": "boolean"
+                                        },
+                                        {
+                                          "type": "string"
+                                        }
+                                      ],
+                                      "additionalItems": false
+                                    }
+                                  ],
+                                  "additionalItems": false
+                                }
+                              }
+                            ],
+                            "additionalItems": false
+                          }
+                        }
+                      ],
+                      "additionalItems": false
+                    }
+                  ],
+                  "additionalItems": false
                 }
               }
             }
@@ -1483,7 +1472,6 @@
             "schema": {
               "type": "number"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -1493,25 +1481,103 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TupleHierarchical"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/tupleRestController": {
-      "get": {
-        "tags": [],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TupleRest"
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "array",
+                          "prefixItems": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "string"
+                                }
+                              ],
+                              "additionalItems": false
+                            }
+                          ],
+                          "additionalItems": false
+                        }
+                      ],
+                      "additionalItems": false
+                    },
+                    {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "prefixItems": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "prefixItems": [
+                                        {
+                                          "type": "boolean"
+                                        },
+                                        {
+                                          "type": "string"
+                                        }
+                                      ],
+                                      "additionalItems": false
+                                    }
+                                  ],
+                                  "additionalItems": false
+                                }
+                              }
+                            ],
+                            "additionalItems": false
+                          }
+                        }
+                      ],
+                      "additionalItems": false
+                    }
+                  ],
+                  "additionalItems": false
                 }
               }
             }
@@ -1521,6 +1587,8 @@
     },
     "/users/{user_id}/oauth": {
       "get": {
+        "summary": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types",
+        "description": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.\n- When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type.",
         "tags": [],
         "parameters": [
           {
@@ -1529,16 +1597,32 @@
             "schema": {
               "type": "string"
             },
-            "description": "",
             "required": true
           },
           {
-            "name": "query",
+            "name": "user_id",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/IAuthentication"
+              "type": "string"
             },
-            "description": "",
+            "required": true
+          },
+          {
+            "name": "oauth_type",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "const": "google"
+                },
+                {
+                  "const": "github"
+                },
+                {
+                  "const": "kakao"
+                }
+              ]
+            },
             "required": true
           }
         ],
@@ -1554,7 +1638,6 @@
             }
           },
           "404": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1563,13 +1646,13 @@
               }
             }
           }
-        },
-        "summary": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types",
-        "description": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.\n- When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type."
+        }
       }
     },
     "/users/{user_id}/user": {
       "get": {
+        "summary": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types",
+        "description": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.\n- When propagation mode being used with `@TypedException<T>()` decorator, target `T` type had not been cloned.\n- When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type.\n- check optional query DTO\n- when use HttpCode decorator, sdk build fail code",
         "tags": [],
         "parameters": [
           {
@@ -1578,17 +1661,25 @@
             "schema": {
               "type": "string"
             },
-            "description": "",
             "required": true
           },
           {
-            "name": "query",
+            "name": "user_type",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/IUser.ISearch"
+              "oneOf": [
+                {
+                  "const": "admin"
+                },
+                {
+                  "const": "default"
+                },
+                {
+                  "const": "seller"
+                }
+              ]
             },
-            "description": "",
-            "required": true
+            "required": false
           }
         ],
         "responses": {
@@ -1603,7 +1694,6 @@
             }
           },
           "404": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -1612,11 +1702,10 @@
               }
             }
           }
-        },
-        "summary": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types",
-        "description": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.\n- When propagation mode being used with `@TypedException<T>()` decorator, target `T` type had not been cloned.\n- When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type.\n- check optional query DTO\n- when use HttpCode decorator, sdk build fail code"
+        }
       },
       "post": {
+        "description": "- check optional, nullable property",
         "tags": [],
         "parameters": [
           {
@@ -1625,7 +1714,6 @@
             "schema": {
               "type": "string"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -1633,7 +1721,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PartialPickIUsernameemailnullable_attroptional_attr"
+                "$ref": "#/components/schemas/PartialPickIUsernameemailoptional_attrnullable_attr"
               }
             }
           },
@@ -1650,8 +1738,7 @@
               }
             }
           }
-        },
-        "description": "- check optional, nullable property"
+        }
       }
     }
   },
@@ -1702,31 +1789,6 @@
           "zone"
         ]
       },
-      "ArrayRecursiveUnionExplicit": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/IBucket"
-        }
-      },
-      "IBucket": {
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/IDirectory"
-          },
-          {
-            "$ref": "#/components/schemas/IImageFile"
-          },
-          {
-            "$ref": "#/components/schemas/ITextFile"
-          },
-          {
-            "$ref": "#/components/schemas/IZipFile"
-          },
-          {
-            "$ref": "#/components/schemas/IShortcut"
-          }
-        ]
-      },
       "IDirectory": {
         "type": "object",
         "properties": {
@@ -1742,7 +1804,23 @@
           "children": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IBucket"
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/IDirectory"
+                },
+                {
+                  "$ref": "#/components/schemas/IImageFile"
+                },
+                {
+                  "$ref": "#/components/schemas/ITextFile"
+                },
+                {
+                  "$ref": "#/components/schemas/IZipFile"
+                },
+                {
+                  "$ref": "#/components/schemas/IShortcut"
+                }
+              ]
             }
           },
           "type": {
@@ -1883,7 +1961,23 @@
             "type": "string"
           },
           "target": {
-            "$ref": "#/components/schemas/IBucket"
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/IDirectory"
+              },
+              {
+                "$ref": "#/components/schemas/IImageFile"
+              },
+              {
+                "$ref": "#/components/schemas/ITextFile"
+              },
+              {
+                "$ref": "#/components/schemas/IZipFile"
+              },
+              {
+                "$ref": "#/components/schemas/IShortcut"
+              }
+            ]
           },
           "type": {
             "const": "file"
@@ -1901,34 +1995,6 @@
           "extension"
         ]
       },
-      "ArrayRecursiveUnionImplicit": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/IBucket.o1"
-        }
-      },
-      "IBucket.o1": {
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/IDirectory.o1"
-          },
-          {
-            "$ref": "#/components/schemas/ISharedDirectory"
-          },
-          {
-            "$ref": "#/components/schemas/IImageFile.o1"
-          },
-          {
-            "$ref": "#/components/schemas/ITextFile.o1"
-          },
-          {
-            "$ref": "#/components/schemas/IZipFile.o1"
-          },
-          {
-            "$ref": "#/components/schemas/IShortcut.o1"
-          }
-        ]
-      },
       "IDirectory.o1": {
         "type": "object",
         "properties": {
@@ -1944,7 +2010,26 @@
           "children": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IBucket.o1"
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/IDirectory.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/ISharedDirectory"
+                },
+                {
+                  "$ref": "#/components/schemas/IImageFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/ITextFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/IZipFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/IShortcut.o1"
+                }
+              ]
             }
           }
         },
@@ -1980,7 +2065,26 @@
           "children": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/IBucket.o1"
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/IDirectory.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/ISharedDirectory"
+                },
+                {
+                  "$ref": "#/components/schemas/IImageFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/ITextFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/IZipFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/IShortcut.o1"
+                }
+              ]
             }
           }
         },
@@ -2094,7 +2198,26 @@
             "type": "string"
           },
           "target": {
-            "$ref": "#/components/schemas/IBucket.o1"
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/IDirectory.o1"
+              },
+              {
+                "$ref": "#/components/schemas/ISharedDirectory"
+              },
+              {
+                "$ref": "#/components/schemas/IImageFile.o1"
+              },
+              {
+                "$ref": "#/components/schemas/ITextFile.o1"
+              },
+              {
+                "$ref": "#/components/schemas/IZipFile.o1"
+              },
+              {
+                "$ref": "#/components/schemas/IShortcut.o1"
+              }
+            ]
           }
         },
         "required": [
@@ -2103,12 +2226,6 @@
           "path",
           "target"
         ]
-      },
-      "ArraySimple": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/IPerson"
-        }
       },
       "IPerson": {
         "type": "object",
@@ -2150,32 +2267,6 @@
           "body",
           "rank"
         ]
-      },
-      "IPage.IRequest": {
-        "type": "object",
-        "properties": {
-          "page": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "integer"
-              }
-            ]
-          },
-          "limit": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "integer"
-              }
-            ]
-          }
-        },
-        "description": "Page request data"
       },
       "IPageIBbsArticle.ISummary": {
         "type": "object",
@@ -2255,68 +2346,32 @@
         ],
         "description": "Page information."
       },
-      "IBbsArticle.IStore": {
+      "IPage.IRequest": {
         "type": "object",
         "properties": {
-          "title": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 50
-          },
-          "body": {
-            "type": "string"
-          },
-          "files": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IAttachmentFile"
-            }
-          }
-        },
-        "required": [
-          "title",
-          "body",
-          "files"
-        ]
-      },
-      "IAttachmentFile": {
-        "type": "object",
-        "properties": {
-          "name": {
+          "page": {
             "oneOf": [
               {
                 "type": "null"
               },
               {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 255
+                "type": "integer"
               }
             ]
           },
-          "extension": {
+          "limit": {
             "oneOf": [
               {
                 "type": "null"
               },
               {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 8
+                "type": "integer"
               }
             ]
-          },
-          "url": {
-            "type": "string",
-            "format": "uri"
           }
         },
-        "required": [
-          "name",
-          "extension",
-          "url"
-        ],
-        "description": "Attachment file."
+        "required": [],
+        "description": "Page request data"
       },
       "IBbsArticle": {
         "type": "object",
@@ -2361,6 +2416,69 @@
           "files"
         ],
         "description": "Article info."
+      },
+      "IAttachmentFile": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              }
+            ]
+          },
+          "extension": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            ]
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "name",
+          "extension",
+          "url"
+        ],
+        "description": "Attachment file."
+      },
+      "IBbsArticle.IStore": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "body",
+          "files"
+        ]
       },
       "IMultipart": {
         "type": "object",
@@ -2497,34 +2615,6 @@
           "y",
           "z"
         ]
-      },
-      "ObjectUnionExplicit": {
-        "type": "array",
-        "items": {
-          "oneOf": [
-            {
-              "$ref": "#/components/schemas/DiscriminatorpointIPoint"
-            },
-            {
-              "$ref": "#/components/schemas/DiscriminatorlineILine"
-            },
-            {
-              "$ref": "#/components/schemas/DiscriminatortriangleITriangle"
-            },
-            {
-              "$ref": "#/components/schemas/DiscriminatorrectangleIRectangle"
-            },
-            {
-              "$ref": "#/components/schemas/DiscriminatorpolylineIPolyline"
-            },
-            {
-              "$ref": "#/components/schemas/DiscriminatorpolygonIPolygon"
-            },
-            {
-              "$ref": "#/components/schemas/DiscriminatorcircleICircle"
-            }
-          ]
-        }
       },
       "DiscriminatorpointIPoint": {
         "type": "object",
@@ -2701,34 +2791,6 @@
           "radius",
           "type"
         ]
-      },
-      "ObjectUnionImplicit": {
-        "type": "array",
-        "items": {
-          "oneOf": [
-            {
-              "$ref": "#/components/schemas/IPoint.o1"
-            },
-            {
-              "$ref": "#/components/schemas/ILine"
-            },
-            {
-              "$ref": "#/components/schemas/ITriangle"
-            },
-            {
-              "$ref": "#/components/schemas/IRectangle"
-            },
-            {
-              "$ref": "#/components/schemas/IPolyline.o1"
-            },
-            {
-              "$ref": "#/components/schemas/IPolygon"
-            },
-            {
-              "$ref": "#/components/schemas/ICircle"
-            }
-          ]
-        }
       },
       "IPoint.o1": {
         "type": "object",
@@ -3080,34 +3142,6 @@
           "voluntaryContextSwitches"
         ]
       },
-      "ISeller.IJoin": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "mobile": {
-            "type": "string"
-          },
-          "company": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "email",
-          "password",
-          "name",
-          "mobile",
-          "company"
-        ]
-      },
       "ISeller.IAuthorized": {
         "type": "object",
         "properties": {
@@ -3168,6 +3202,34 @@
           "mobile",
           "company",
           "created_at"
+        ]
+      },
+      "ISeller.IJoin": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "name",
+          "mobile",
+          "company"
         ]
       },
       "ISeller.ILogin": {
@@ -3244,7 +3306,7 @@
           },
           "combined": {
             "type": "string",
-            "pattern": "^((the_2_value_with_label_A_(.*)_[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?_4)|(the_3_value_with_label_A_(.*)_[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?_4)|(the_1_value_with_label_A_(.*)_[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?_4))$"
+            "pattern": "^((the_1_value_with_label_A_(.*)_[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?_4)|(the_2_value_with_label_A_(.*)_[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?_4)|(the_3_value_with_label_A_(.*)_[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?_4))$"
           },
           "nosubstitution": {
             "const": "something"
@@ -3263,522 +3325,46 @@
           "nosubstitution"
         ]
       },
-      "TupleHierarchical": {
-        "type": "array",
-        "prefixItems": [
-          {
-            "type": "boolean"
+      "IAuthentication.IProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
           },
-          {
-            "type": "null"
+          "name": {
+            "type": "string"
           },
-          {
-            "type": "number"
-          },
-          {
-            "type": "array",
-            "prefixItems": [
-              {
-                "type": "boolean"
-              },
+          "email": {
+            "oneOf": [
               {
                 "type": "null"
               },
               {
-                "type": "array",
-                "prefixItems": [
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "type": "array",
-                    "prefixItems": [
-                      {
-                        "type": "boolean"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ],
-                    "additionalItems": {
-                      "type": "string"
-                    }
-                  }
-                ],
-                "additionalItems": {
-                  "type": "array",
-                  "prefixItems": [
-                    {
-                      "type": "boolean"
-                    },
-                    {
-                      "type": "string"
-                    }
-                  ],
-                  "additionalItems": {
-                    "type": "string"
-                  }
-                }
+                "type": "string",
+                "format": "email"
               }
-            ],
-            "additionalItems": {
-              "type": "array",
-              "prefixItems": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "array",
-                  "prefixItems": [
-                    {
-                      "type": "boolean"
-                    },
-                    {
-                      "type": "string"
-                    }
-                  ],
-                  "additionalItems": {
-                    "type": "string"
-                  }
-                }
-              ],
-              "additionalItems": {
-                "type": "array",
-                "prefixItems": [
-                  {
-                    "type": "boolean"
-                  },
-                  {
-                    "type": "string"
-                  }
-                ],
-                "additionalItems": {
-                  "type": "string"
-                }
-              }
-            }
+            ]
           },
-          {
-            "type": "array",
-            "prefixItems": [
+          "oauth_type": {
+            "oneOf": [
               {
-                "type": "number"
+                "const": "google"
               },
               {
-                "type": "array",
-                "items": {
-                  "type": "array",
-                  "prefixItems": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "boolean"
-                    },
-                    {
-                      "type": "array",
-                      "items": {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "number"
-                          },
-                          {
-                            "type": "number"
-                          },
-                          {
-                            "type": "array",
-                            "prefixItems": [
-                              {
-                                "type": "boolean"
-                              },
-                              {
-                                "type": "string"
-                              }
-                            ],
-                            "additionalItems": {
-                              "type": "string"
-                            }
-                          }
-                        ],
-                        "additionalItems": {
-                          "type": "array",
-                          "prefixItems": [
-                            {
-                              "type": "boolean"
-                            },
-                            {
-                              "type": "string"
-                            }
-                          ],
-                          "additionalItems": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  ],
-                  "additionalItems": {
-                    "type": "array",
-                    "items": {
-                      "type": "array",
-                      "prefixItems": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "array",
-                          "prefixItems": [
-                            {
-                              "type": "boolean"
-                            },
-                            {
-                              "type": "string"
-                            }
-                          ],
-                          "additionalItems": {
-                            "type": "string"
-                          }
-                        }
-                      ],
-                      "additionalItems": {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "boolean"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "additionalItems": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
-                }
+                "const": "github"
+              },
+              {
+                "const": "kakao"
               }
-            ],
-            "additionalItems": {
-              "type": "array",
-              "items": {
-                "type": "array",
-                "prefixItems": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "boolean"
-                  },
-                  {
-                    "type": "array",
-                    "items": {
-                      "type": "array",
-                      "prefixItems": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "array",
-                          "prefixItems": [
-                            {
-                              "type": "boolean"
-                            },
-                            {
-                              "type": "string"
-                            }
-                          ],
-                          "additionalItems": {
-                            "type": "string"
-                          }
-                        }
-                      ],
-                      "additionalItems": {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "boolean"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "additionalItems": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
-                ],
-                "additionalItems": {
-                  "type": "array",
-                  "items": {
-                    "type": "array",
-                    "prefixItems": [
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "boolean"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "additionalItems": {
-                          "type": "string"
-                        }
-                      }
-                    ],
-                    "additionalItems": {
-                      "type": "array",
-                      "prefixItems": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "string"
-                        }
-                      ],
-                      "additionalItems": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            }
+            ]
           }
-        ],
-        "additionalItems": {
-          "type": "array",
-          "prefixItems": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "array",
-              "items": {
-                "type": "array",
-                "prefixItems": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "boolean"
-                  },
-                  {
-                    "type": "array",
-                    "items": {
-                      "type": "array",
-                      "prefixItems": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "array",
-                          "prefixItems": [
-                            {
-                              "type": "boolean"
-                            },
-                            {
-                              "type": "string"
-                            }
-                          ],
-                          "additionalItems": {
-                            "type": "string"
-                          }
-                        }
-                      ],
-                      "additionalItems": {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "boolean"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "additionalItems": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
-                ],
-                "additionalItems": {
-                  "type": "array",
-                  "items": {
-                    "type": "array",
-                    "prefixItems": [
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "boolean"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "additionalItems": {
-                          "type": "string"
-                        }
-                      }
-                    ],
-                    "additionalItems": {
-                      "type": "array",
-                      "prefixItems": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "string"
-                        }
-                      ],
-                      "additionalItems": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          ],
-          "additionalItems": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "prefixItems": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "boolean"
-                },
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "array",
-                    "prefixItems": [
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "number"
-                      },
-                      {
-                        "type": "array",
-                        "prefixItems": [
-                          {
-                            "type": "boolean"
-                          },
-                          {
-                            "type": "string"
-                          }
-                        ],
-                        "additionalItems": {
-                          "type": "string"
-                        }
-                      }
-                    ],
-                    "additionalItems": {
-                      "type": "array",
-                      "prefixItems": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "string"
-                        }
-                      ],
-                      "additionalItems": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              ],
-              "additionalItems": {
-                "type": "array",
-                "items": {
-                  "type": "array",
-                  "prefixItems": [
-                    {
-                      "type": "number"
-                    },
-                    {
-                      "type": "number"
-                    },
-                    {
-                      "type": "array",
-                      "prefixItems": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "string"
-                        }
-                      ],
-                      "additionalItems": {
-                        "type": "string"
-                      }
-                    }
-                  ],
-                  "additionalItems": {
-                    "type": "array",
-                    "prefixItems": [
-                      {
-                        "type": "boolean"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ],
-                    "additionalItems": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "TupleRest": {
-        "type": "array",
-        "prefixItems": [
-          {
-            "type": "boolean"
-          },
-          {
-            "type": "number"
-          }
-        ],
-        "additionalItems": {}
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "oauth_type"
+        ]
       },
       "IAuthentication": {
         "type": "object",
@@ -3804,68 +3390,6 @@
           "user_id",
           "oauth_type"
         ]
-      },
-      "IAuthentication.IProfile": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string",
-                "format": "email"
-              }
-            ]
-          },
-          "oauth_type": {
-            "$ref": "#/components/schemas/IAuthentication.OauthType"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "email",
-          "oauth_type"
-        ]
-      },
-      "IAuthentication.OauthType": {
-        "oneOf": [
-          {
-            "const": "google"
-          },
-          {
-            "const": "github"
-          },
-          {
-            "const": "kakao"
-          }
-        ]
-      },
-      "IUser.ISearch": {
-        "type": "object",
-        "properties": {
-          "user_type": {
-            "oneOf": [
-              {
-                "const": "admin"
-              },
-              {
-                "const": "default"
-              },
-              {
-                "const": "seller"
-              }
-            ]
-          }
-        }
       },
       "IUser": {
         "type": "object",
@@ -3917,7 +3441,17 @@
             ]
           },
           "user_type": {
-            "$ref": "#/components/schemas/IUser.Type"
+            "oneOf": [
+              {
+                "const": "admin"
+              },
+              {
+                "const": "default"
+              },
+              {
+                "const": "seller"
+              }
+            ]
           }
         },
         "required": [
@@ -3928,20 +3462,26 @@
           "user_type"
         ]
       },
-      "IUser.Type": {
-        "oneOf": [
-          {
-            "const": "admin"
-          },
-          {
-            "const": "default"
-          },
-          {
-            "const": "seller"
+      "IUser.ISearch": {
+        "type": "object",
+        "properties": {
+          "user_type": {
+            "oneOf": [
+              {
+                "const": "admin"
+              },
+              {
+                "const": "default"
+              },
+              {
+                "const": "seller"
+              }
+            ]
           }
-        ]
+        },
+        "required": []
       },
-      "PartialPickIUsernameemailnullable_attroptional_attr": {
+      "PartialPickIUsernameemailoptional_attrnullable_attr": {
         "type": "object",
         "properties": {
           "name": {
@@ -3958,6 +3498,9 @@
               }
             ]
           },
+          "optional_attr": {
+            "type": "string"
+          },
           "nullable_attr": {
             "oneOf": [
               {
@@ -3967,19 +3510,15 @@
                 "type": "string"
               }
             ]
-          },
-          "optional_attr": {
-            "type": "string"
           }
         },
+        "required": [],
         "description": "Make all properties in T optional"
       }
     },
     "securitySchemes": {
       "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
+        "type": "apiKey"
       }
     }
   },

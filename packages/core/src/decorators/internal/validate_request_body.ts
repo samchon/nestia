@@ -2,16 +2,18 @@ import { BadRequestException } from "@nestjs/common";
 import typia, { IValidation, TypeGuardError } from "typia";
 
 import { IRequestBodyValidator } from "../../options/IRequestBodyValidator";
-import { NoTransformConfigureError } from "./NoTransformConfigureError";
+import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
 
 /**
  * @internal
  */
 export const validate_request_body =
   (method: string) =>
-  <T>(validator?: IRequestBodyValidator<T>) => {
-    if (!validator) throw NoTransformConfigureError(method);
-    else if (validator.type === "assert") return assert(validator.assert);
+  <T>(validator?: IRequestBodyValidator<T>): ((input: T) => Error | null) => {
+    if (!validator) {
+      NoTransformConfigurationError(method);
+      return () => null;
+    } else if (validator.type === "assert") return assert(validator.assert);
     else if (validator.type === "is") return is(validator.is);
     else if (validator.type === "validate") return validate(validator.validate);
     return () =>

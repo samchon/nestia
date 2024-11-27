@@ -2,7 +2,7 @@ import { InternalServerErrorException } from "@nestjs/common";
 import typia, { IValidation, TypeGuardError } from "typia";
 
 import { IResponseBodyQuerifier } from "../../options/IResponseBodyQuerifier";
-import { NoTransformConfigureError } from "./NoTransformConfigureError";
+import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
 
 /**
  * @internal
@@ -29,8 +29,10 @@ export const get_path_and_querify =
 const take =
   (method: string) =>
   <T>(functor?: IResponseBodyQuerifier<T> | null) => {
-    if (functor === undefined) throw NoTransformConfigureError(method);
-    else if (functor === null) return querify;
+    if (functor === undefined) {
+      NoTransformConfigurationError(method);
+      return querify;
+    } else if (functor === null) return querify;
     else if (functor.type === "stringify") return functor.stringify;
     else if (functor.type === "assert") return assert(functor.assert);
     else if (functor.type === "is") return is(functor.is);

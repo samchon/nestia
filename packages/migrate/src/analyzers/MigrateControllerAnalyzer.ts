@@ -1,12 +1,14 @@
-import { IMigrateRoute } from "@samchon/openapi";
+import { IHttpMigrateRoute } from "@samchon/openapi";
 
-import { IMigrateController } from "../structures/IMigrateController";
+import { IHttpMigrateController } from "../structures/IHttpMigrateController";
 import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
 
 export namespace MigrateControllerAnalyzer {
-  export const analyze = (routes: IMigrateRoute[]): IMigrateController[] => {
-    const endpoints: Map<string, IMigrateRoute[]> = new Map();
+  export const analyze = (
+    routes: IHttpMigrateRoute[],
+  ): IHttpMigrateController[] => {
+    const endpoints: Map<string, IHttpMigrateRoute[]> = new Map();
     for (const r of routes) {
       const location: string = r.emendedPath
         .split("/")
@@ -14,7 +16,7 @@ export namespace MigrateControllerAnalyzer {
         .join("/");
       MapUtil.take(endpoints)(location)(() => []).push(r);
     }
-    const total: IMigrateController[] = [...endpoints.entries()]
+    const total: IHttpMigrateController[] = [...endpoints.entries()]
       .filter(([_l, routes]) => !!routes.length)
       .map(([path, routes]) => {
         const name: string =

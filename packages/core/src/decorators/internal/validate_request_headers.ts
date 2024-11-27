@@ -2,16 +2,19 @@ import { BadRequestException } from "@nestjs/common";
 import typia, { IValidation, TypeGuardError } from "typia";
 
 import { IRequestHeadersValidator } from "../../options/IRequestHeadersValidator";
-import { NoTransformConfigureError } from "./NoTransformConfigureError";
+import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
 
 /**
  * @internal
  */
 export const validate_request_headers = <T>(
   validator?: IRequestHeadersValidator<T>,
-) => {
-  if (!validator) throw NoTransformConfigureError("TypedHeaders");
-  else if (validator.type === "assert") return assert(validator.assert);
+): ((input: Record<string, string | string[] | undefined>) => T | Error) => {
+  if (!validator) {
+    NoTransformConfigurationError("TypedHeaders");
+    return (input: Record<string, string | string[] | undefined>) =>
+      Object.entries(input) as T;
+  } else if (validator.type === "assert") return assert(validator.assert);
   else if (validator.type === "is") return is(validator.is);
   else if (validator.type === "validate") return validate(validator.validate);
   return () =>

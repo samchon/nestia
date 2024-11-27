@@ -6,8 +6,11 @@ import api from "../../../../api";
 export const test_api_sellers_authenticate_exit = async (
   connection: api.IConnection,
 ) => {
-  const output: IPropagation<{
-    200: undefined;
-  }> = await api.functional.sellers.authenticate.exit(connection);
+  const output: IPropagation<
+    {
+      200: void;
+    },
+    200
+  > = await api.functional.sellers.authenticate.exit(connection);
   typia.assert(output);
 };

@@ -2,16 +2,18 @@ import { BadRequestException } from "@nestjs/common";
 import typia, { IValidation, TypeGuardError } from "typia";
 
 import { IRequestFormDataProps } from "../../options/IRequestFormDataProps";
-import { NoTransformConfigureError } from "./NoTransformConfigureError";
+import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
 
 /**
  * @internal
  */
 export const validate_request_form_data = <T>(
   props?: IRequestFormDataProps<T>,
-) => {
-  if (!props) throw NoTransformConfigureError("TypedFormData.Bpdu");
-  else if (props.validator.type === "assert")
+): ((value: FormData) => T | Error) => {
+  if (!props) {
+    NoTransformConfigurationError("TypedFormData.Body");
+    return (input: FormData) => Object.entries(input) as T;
+  } else if (props.validator.type === "assert")
     return assert(props.validator.assert);
   else if (props.validator.type === "is") return is(props.validator.is);
   else if (props.validator.type === "validate")

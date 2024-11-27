@@ -74,13 +74,15 @@ export namespace FetcherBase {
       const headers: Record<string, IConnection.HeaderValue | undefined> = {
         ...(connection.headers ?? {}),
       };
-      if (input !== undefined)
+      if (input !== undefined) {
         if (route.request?.type === undefined)
           throw new Error(
             `Error on ${props.className}.fetch(): no content-type being configured.`,
           );
         else if (route.request.type !== "multipart/form-data")
           headers["Content-Type"] = route.request.type;
+      } else if (input === undefined && headers["Content-Type"] !== undefined)
+        delete headers["Content-Type"];
 
       // INIT REQUEST DATA
       const init: RequestInit = {
@@ -147,7 +149,7 @@ export namespace FetcherBase {
           success:
             response.status === 200 ||
             response.status === 201 ||
-            response.status == route.status,
+            response.status === route.status,
           status: response.status,
           headers: response_headers_to_object(response.headers),
           data: undefined!,
@@ -214,10 +216,9 @@ const request_form_data_body = (input: Record<string, any>): FormData => {
   const encoded: FormData = new FormData();
   const append = (key: string) => (value: any) => {
     if (value === undefined) return;
-    else if (value instanceof Blob)
-      if (value instanceof File) encoded.append(key, value, value.name);
-      else encoded.append(key, value);
-    else encoded.append(key, String(value));
+    else if (typeof File === "function" && value instanceof File)
+      encoded.append(key, value, value.name);
+    else encoded.append(key, value);
   };
   for (const [key, value] of Object.entries(input))
     if (Array.isArray(value)) value.map(append(key));

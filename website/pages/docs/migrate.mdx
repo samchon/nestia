@@ -1,5 +1,4 @@
 import EditorMovie from "../../src/movies/editor/EditorMovie";
-import { EditorComposer } from "../../src/functional/EditorComposer";
 import { EDITOR_EXAMPLES } from "../../src/constants/EDITOR_EXAMPLES";
 
 # Migration from Swagger
@@ -32,12 +31,13 @@ npx @nestia/migrate
   --mode [nest|sdk] 
   --input [input] 
   --output [output] 
+  --package [name]
   --simulate [true|false]
   --e2e [true|false]
 
 # EXAMPLES
-npx @nestia/migrate --mode nest --input swagger.json --output directory --simulate false --e2e false
-npx @nestia/migrate --mode sdk --input swagger.json --output directory --simulate true --e2e true
+npx @nestia/migrate --mode nest --input swagger.json --output directory --package @samchon/bbs --simulate false --e2e false
+npx @nestia/migrate --mode sdk --input swagger.json --output directory --package @samchon/bbs --simulate true --e2e true
 ```
 
 You can specify migration options like above. 
@@ -50,6 +50,7 @@ npx @nestia/migrate
   > NestJS
     SDK
 ? Swagger file location: assets/input/clickhouse.json
+? Package name: @samchon/bbs
 ? Output directory path: assets/output/clickhouse-sdk-manual
 ? Mokup Simulator: true
 ? E2E Test Functions: true
@@ -65,45 +66,35 @@ Visit [TypeScript Swagger Editor](./editor) and upload your `swagger.json` file.
 
 Then, you can test the migrated NestJS Project, SDK library and Mockup Simulator in the web browser. 
 
-<EditorMovie mode="nest" />
+<EditorMovie />
 
 > Put your `swagger.json` file, then "TypeScript Swagger Editor" be opened.
 
-{
-  <ul>
-    <li> Demo Editors
-      <ul>
-        {EDITOR_EXAMPLES.map((example) => (
-          <li>
-            {example.title}{": "}
-            <a 
-              style={{ cursor: "pointer" }} 
-              onClick={() => {
-                EditorComposer.nest({
-                  title: example.title,
-                  swagger: example.swagger,
-                  e2e: true,
-                  simulate: true,
-                }).catch(() => {});
-              }}
-            > NestJS Project </a>
-            {" / "}
-            <a 
-              style={{ cursor: "pointer" }} 
-              onClick={() => {
-                EditorComposer.sdk({
-                  title: example.title,
-                  swagger: example.swagger,
-                  e2e: true,
-                  simulate: true,
-                }).catch(() => {});
-              }}
-            > SDK & Simulator </a>
-          </li>
-        ))}
-      </ul>
-    </li>
-  </ul>
-}
+{<ul>
+  <li> Concepts
+    <ul>
+      <li> SDK: collection of typed <code>fetch</code> functions with DTO structures </li>
+      <li> Mockup Simulator: embedded backend simulator in the SDK </li>
+    </ul>
+  </li>
+  <li> Demo Editors
+    <ul>
+      {EDITOR_EXAMPLES.map((example) => (
+        <li>
+          {example.title}{": "}
+          <a href={`/editor/?url=${encodeURIComponent(example.swagger)}&package=${encodeURIComponent(example.package)}&simulate=true&e2e=true&mode=nest`} 
+             target="_blank"> 
+            NestJS Project 
+          </a>
+          {" / "}
+          <a href={`/editor/?url=${encodeURIComponent(example.swagger)}&package=${encodeURIComponent(example.package)}&simulate=true&e2e=true`} 
+             target="_blank">
+            SDK & Simulator 
+          </a>
+        </li>
+      ))}
+    </ul>
+  </li>
+</ul>}
 
 ![Example Case](/images/editor/stackblitz.png)

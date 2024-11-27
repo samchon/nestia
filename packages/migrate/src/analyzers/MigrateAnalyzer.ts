@@ -1,14 +1,18 @@
-import { OpenApi } from "@samchon/openapi";
+import { HttpMigration, IHttpMigrateApplication } from "@samchon/openapi";
 
-import { IMigrateProgram } from "../structures/IMigrateProgram";
+import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
 
 export namespace MigrateAnalyzer {
-  export const analyze = (props: IMigrateProgram.IProps): IMigrateProgram => {
-    const result = OpenApi.migrate(props.document);
+  export const analyze = (
+    props: IHttpMigrateProgram.IProps,
+  ): IHttpMigrateProgram => {
+    const application: IHttpMigrateApplication = HttpMigration.application(
+      props.document,
+    );
     return {
       ...props,
-      routes: result.routes,
-      errors: result.errors,
+      routes: application.routes,
+      errors: application.errors,
     };
   };
 }

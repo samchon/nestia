@@ -69,7 +69,7 @@ const sections: HomeStrengthSectionMovie.Props[] = [
     ),
     description: (
       <React.Fragment>
-        <p>Mockup Simultar embedded in SDK.</p>
+        <p>Mockup Simulator embedded in SDK.</p>
         <br />
         <p>Simulates validation and response of the backend.</p>
         <br />

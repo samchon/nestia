@@ -1,12 +1,12 @@
 {
   "name": "@nestia/fetcher",
-  "version": "3.4.0",
+  "version": "4.0.0-dev.20241027",
   "description": "Fetcher library of Nestia SDK",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
     "build": "rimraf lib && tsc",
-    "dev": "npm run build -- --watch",
+    "dev": "tsc -p tsconfig.test.json --watch",
     "eslint": "eslint src",
     "eslint:fix": "eslint src --fix"
   },
@@ -25,15 +25,20 @@
     "url": "https://github.com/samchon/nestia/issues"
   },
   "homepage": "https://nestia.io",
+  "dependencies": {
+    "@samchon/openapi": "^2.0.0-dev.20241127-2",
+    "typia": "^7.0.0-dev.20241027-2"
+  },
+  "peerDependencies": {
+    "typescript": ">= 4.8.0"
+  },
   "devDependencies": {
     "@types/node": "^18.11.14",
     "@typescript-eslint/eslint-plugin": "^5.46.1",
     "@typescript-eslint/parser": "^5.46.1",
     "rimraf": "^3.0.2",
-    "typescript": "^5.5.2"
-  },
-  "peerDependencies": {
-    "typescript": ">= 4.8.0"
+    "typescript": "5.5.4",
+    "typia": ">=7.0.0-dev.20241027-2 <8.0.0"
   },
   "files": [
     "README.md",
@@ -41,8 +46,5 @@
     "package.json",
     "lib",
     "src"
-  ],
-  "dependencies": {
-    "@samchon/openapi": "^0.2.2"
-  }
+  ]
 }

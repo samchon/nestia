@@ -7,9 +7,12 @@ import type { IPerson } from "../../../../api/structures/IPerson";
 export const test_api_arraySimple_store = async (
   connection: api.IConnection,
 ) => {
-  const output: IPropagation<{
-    201: IPerson;
-  }> = await api.functional.arraySimple.store(
+  const output: IPropagation<
+    {
+      201: IPerson;
+    },
+    201
+  > = await api.functional.arraySimple.store(
     connection,
     typia.random<IPerson>(),
   );

@@ -1,7 +1,6 @@
 import { ExecutionContext, createParamDecorator } from "@nestjs/common";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
-import typia from "typia";
 
 import { IRequestHeadersValidator } from "../options/IRequestHeadersValidator";
 import { validate_request_headers } from "./internal/validate_request_headers";
@@ -54,16 +53,12 @@ export function TypedHeaders<T extends object>(
   return createParamDecorator(function TypedHeaders(
     _unknown: any,
     context: ExecutionContext,
-  ) {
+  ): T {
     const request: express.Request | FastifyRequest = context
       .switchToHttp()
       .getRequest();
-
     const output: T | Error = checker(request.headers);
     if (output instanceof Error) throw output;
     return output;
   })();
 }
-Object.assign(TypedHeaders, typia.http.assertHeaders);
-Object.assign(TypedHeaders, typia.http.isHeaders);
-Object.assign(TypedHeaders, typia.http.validateHeaders);

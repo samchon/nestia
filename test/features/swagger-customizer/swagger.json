@@ -7,8 +7,8 @@
     }
   ],
   "info": {
-    "version": "3.3.2",
-    "title": "@nestia/test",
+    "version": "4.0.0-dev.20241027",
+    "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
       "name": "MIT"
@@ -17,6 +17,7 @@
   "paths": {
     "/custom/{key}/{value}/customize": {
       "get": {
+        "description": "This is a custom description",
         "tags": [],
         "parameters": [
           {
@@ -25,7 +26,6 @@
             "schema": {
               "type": "number"
             },
-            "description": "",
             "required": true
           },
           {
@@ -34,7 +34,6 @@
             "schema": {
               "type": "string"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -50,7 +49,6 @@
             }
           }
         },
-        "description": "This is a custom description",
         "x-selector": {
           "method": "get",
           "path": "/custom/{id}/normal"
@@ -69,7 +67,6 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "",
             "required": true
           }
         ],
@@ -93,9 +90,7 @@
     "schemas": {},
     "securitySchemes": {
       "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
+        "type": "apiKey"
       }
     }
   },

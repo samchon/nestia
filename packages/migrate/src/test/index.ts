@@ -6,7 +6,7 @@ import { IValidation } from "typia";
 
 import { MigrateApplication } from "../MigrateApplication";
 import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
-import { IMigrateProgram } from "../structures/IMigrateProgram";
+import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
 
 const INPUT: string = `${__dirname}/../../assets/input`;
 const OUTPUT: string = `${__dirname}/../../assets/output`;
@@ -32,7 +32,7 @@ const measure =
   };
 
 const execute =
-  (config: IMigrateProgram.IConfig) =>
+  (config: IHttpMigrateProgram.IConfig) =>
   (project: string) =>
   (
     document: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument,
@@ -49,7 +49,15 @@ const execute =
 
         const app: MigrateApplication = result.data;
         const { files } =
-          config.mode === "nest" ? app.nest(config) : app.sdk(config);
+          config.mode === "nest"
+            ? app.nest({
+                ...config,
+                package: project,
+              })
+            : app.sdk({
+                ...config,
+                package: project,
+              });
 
         await MigrateFileArchiver.archive({
           mkdir: fs.promises.mkdir,
@@ -57,11 +65,11 @@ const execute =
             fs.promises.writeFile(file, await beautify(content), "utf-8"),
         })(directory)(files);
         cp.execSync(`npx tsc -p ${directory}/tsconfig.json`, {
-          stdio: "inherit",
+          stdio: "ignore",
           cwd: directory,
         });
         cp.execSync(`npx tsc -p ${directory}/test/tsconfig.json`, {
-          stdio: "inherit",
+          stdio: "ignore",
           cwd: directory,
         });
       },
@@ -91,13 +99,12 @@ const iterate = async (directory: string): Promise<void> => {
         ["nest", true],
         ["sdk", true],
         ["sdk", false],
-      ] as const) {
+      ] as const)
         await execute({
           mode,
           simulate: flag,
           e2e: flag,
         })(project)(document);
-      }
     }
   }
 };

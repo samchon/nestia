@@ -1,82 +1,58 @@
 import { Tabs, Tab } from 'nextra-theme-docs'
 
+import { EDITOR_EXAMPLES } from "../../../src/constants/EDITOR_EXAMPLES";
+
 ## Outline
-<Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
+<Tabs items={["Bootstrap", "Configuration"]}>
   <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers
-import { INestiaConfig } from "@nestia/sdk";
+```typescript filename="main.ts" showLineNumbers {8-9} copy
+import { NestiaSwaggerComposer } from "@nestia/sdk";
+import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+import { SwaggerModule } from "@nestjs/swagger";
 
-import { YourModule } from "./src/YourModule";
-
-const NESTIA_CONFIG: INestiaConfig = {
-  input: async () => {
-    const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
-    // app.setGlobalPrefix("api");
-    // app.enableVersioning({
-    //     type: VersioningType.URI,
-    //     prefix: "v",
-    // })
-    return app;
-  },
-  swagger: {
-    output: "dist/swagger.json",
-    beautify: true,
-    security: {
-      bearer: {
-        type: "apiKey",
-        name: "Authorization",
-        in: "header",
-      },
-    },
-    servers: [
-      {
-        url: "http://localhost:3000",
-        description: "Local Server",
-      },
-    ],
-  },
+const main = async (): Promise<void> => {
+  const app: INestApplication = await NestFactory.create(ApplicationModule);
+  const document = await NestiaSwaggerComposer.document(app, {});
+  SwaggerModule.setup("api", app, document as any);
+  await app.listen(3_000);
 };
-export default NESTIA_CONFIG;
+main().catch(console.error);
 ```
   </Tab>
   <Tab>
-```bash filename="Terminal" showLineNumbers {}
-npx nestia swagger
-npx nestia swagger --config nestia.config.ts --project tsconfig.json
+```typescript filename="tsconfig.json" showLineNumbers
+{
+  "compilerOptions": {
+    "strict": true,
+    "plugins": [
+      { "transform": "typia/lib/transform" },
+      { "transform": "@nestia/core/lib/transform" },
+      { "transform": "@nestia/sdk/lib/transform" }, // essential
+    ],
+  },
+}
 ```
   </Tab>
 </Tabs>
 
-Configure [`nestia.config.ts`](#nestiaconfigts) file and run `npx nestia swagger` command.
+If you want to build Swagger Document in runtime, compose it like above.
 
-Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate `swagger.json` file.
+By the way, it needs plugin configuration on the `tsconfig.json` file.
 
-If you have a special configuration file that its file name is not `nestia.config.ts`, you can specify it with `--config` option like `npx nestia swagger --config another.config.ts`. Also, if you have a special `tsconfig.json` file, you can specify it with `--project` option like `npx nestia swagger --project another.tsconfig.json`, too.
-
-
-
-
-## Configuration
-<Tabs items={[
-  <code>nestia.config.ts</code>, 
-  <code>INestiaConfig.ts</code>,
-  <code>ISwaggerSecurityScheme.ts</code>,
-]}>
+<Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
   <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {18-34}
+```typescript filename="nestia.config.ts" showLineNumbers copy
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
     const app = await NestFactory.create(YourModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,
@@ -85,6 +61,7 @@ const NESTIA_CONFIG: INestiaConfig = {
     return app;
   },
   swagger: {
+    openapi: "3.1",
     output: "dist/swagger.json",
     security: {
       bearer: {
@@ -106,13 +83,159 @@ export default NESTIA_CONFIG;
 ```
   </Tab>
   <Tab>
-```typescript filename="INestiaConfig.ts" showLineNumbers {14-19, 167-240}
-import type { INestApplication } from "@nestjs/common";
+```bash filename="Terminal" showLineNumbers
+# BUILD SWAGGER DOCUUMET ONLY
+npx nestia swagger
 
-import type { ISwaggerInfo } from "./structures/ISwaggerInfo";
-import type { ISwaggerSecurityScheme } from "./structures/ISwaggerSecurityScheme";
-import type { ISwaggerServer } from "./structures/ISwaggerServer";
-import type { ISwaggerTag } from "./structures/ISwaggerTag";
+# BUILD SWAGGER/OPENAI/SDK/E2E AT THE SAME TIME
+npx nestia all
+```
+  </Tab>
+</Tabs>
+
+Otherwise you want to generate a swagger file by CLI (Command Line Interface), configure `nestia.config.ts` file and run the `npx nestia swagger` command. Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate `swagger.json` file.
+
+When you want to build not only Swagger Document file, but also [OpenAI function calling schema](./openai), [SDK (Software Development Kit) library](./sdk) and [automated E2E (End-to-End) test functions](./e2e) at the same time, run `npx nestia all` command instead.
+
+
+
+
+## Runtime Composition
+### Bootstrap
+```typescript filename="main.ts" showLineNumbers {8-17}
+import { NestiaSwaggerComposer } from "@nestia/sdk";
+import { INestApplication } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { SwaggerModule } from "@nestjs/swagger";
+
+const main = async (): Promise<void> => {
+  const app: INestApplication = await NestFactory.create(ApplicationModule);
+  const document = await NestiaSwaggerComposer.document(app, {
+    openapi: "3.1",
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Localhost"
+      }
+    ]
+  });
+  SwaggerModule.setup("api", app, document as any);
+  await app.listen(3_000);
+};
+main().catch(console.error);
+```
+
+Call `NestiaSwaggerComposer.document()` function.
+
+To compose Swagger Document in runtime and serve it through the Swagger UI in the NestJS application, import `NestiaSwaggerComposer` module from `@nestia/sdk` and call the `NestiaSwaggerComposer.document()` function with the `INestApplication` instance.
+
+When you call the `NestiaSwaggerComposer.document()` function, `@nestia/sdk` will analyze your NestJS backed server code in the compilation level rapidly, and generate the Swagger Document object in the runtime. If you want to specify the OpenAPI version or server address(es), configure the second parameter of the `NestiaSwaggerComposer.document()` function.
+
+After that, deliver the generated Swagger Document object to the `SwaggerModule.setup()` function of the `@nestjs/swagger` module. Then, the Swagger UI would be served in the `http://localhost:3000/api` address, and the `swagger.json` file would be placed on the http://localhost:3000/api-json location. Note that, as the NestJS core team and `SwaggerModule.setup()` function have not defined the exact OpenAPI document types, you've to cast the `document` object to `any` type.
+
+### Plugin Configuration
+```json filename="tsconfig.json" showLineNumbers
+{
+  "compilerOptions": {
+    "strict": true,
+    "plugins": [
+      { "transform": "typia/lib/transform" },
+      { "transform": "@nestia/core/lib/transform" },
+      { "transform": "@nestia/sdk/lib/transform" }, // essential
+    ],
+  },
+}
+```
+
+Configure plugin property of `tsconfig.json` file like above.
+
+To activate the runtime swagger composer by `NestiaSwaggerComposer.document()` function, you have to configure the plugin on the `tsconfig.json` file. If you've not done it yet, open the `tsconfig.json` file and configure like above. If you don't do that, the runtime swagger composer cannot find any API operations, so that the Swagger Document would be empty.
+
+<Tabs items={["Argument Specified", "Prompt Question"]}>
+  <Tab>
+```bash filename="Terminal"
+npm install --save-dev nestia@latest
+npx nestia setup --runtime true
+```
+  </Tab>
+  <Tab>
+```bash filename="Terminal"
+npm install --save-dev nestia@latest
+npx nestia setup
+
+----------------------------------------
+ Nestia Setup Wizard
+----------------------------------------
+? Package Manager (Use arrow keys)
+> npm
+  pnpm
+  yarn (berry is not supported)
+? Transform Runtime Swagger (Use arrow keys)
+> true
+  false
+```
+  </Tab>
+</Tabs>
+
+If you feel the `tsconfig.json` file configuration annoying, you can do it with CLI command of `nestia`. Just run the `npx nestia setup --runtime true` command, then the `tsconfig.json` file would be automatically configured with the plugin property. 
+
+If you do not specify the `--runtime true` argument, so that run only the `npx nestia setup` command, the CLI prompt will ask you whether to configure the runtime argument or not. Answer as `yes` to configure it.
+
+
+
+
+## File Generation
+### Application Module
+<Tabs items={[
+  <code>nestia.config.ts</code>, 
+  <code>INestiaConfig.ts</code>,
+  <code>OpenApi.ISecuritySchema</code>,
+]}>
+  <Tab>
+```typescript copy filename="nestia.config.ts" showLineNumbers {18-35}
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
+
+import { YourModule } from "./src/YourModule";
+
+const NESTIA_CONFIG: INestiaConfig = {
+  input: async () => {
+    const app = await NestFactory.create(YourModule);
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
+    // app.setGlobalPrefix("api");
+    // app.enableVersioning({
+    //     type: VersioningType.URI,
+    //     prefix: "v",
+    // })
+    return app;
+  },
+  swagger: {
+    openapi: "3.1",
+    output: "dist/swagger.json",
+    security: {
+      bearer: {
+        type: "apiKey",
+        name: "Authorization",
+        in: "header",
+      },
+    },
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Local Server",
+      },
+    ],
+    beautify: true,
+  },
+};
+export default NESTIA_CONFIG;
+```
+  </Tab>
+  <Tab>
+```typescript filename="INestiaConfig.ts" showLineNumbers {10-15, 163-256}
+import type { INestApplication } from "@nestjs/common";
+import type { OpenApi } from "@samchon/openapi";
 
 /**
  * Definition for the `nestia.config.ts` file.
@@ -278,6 +401,18 @@ export namespace INestiaConfig {
    */
   export interface ISwaggerConfig {
     /**
+     * OpenAPI version.
+     *
+     * If you configure this property to be `2.0` or `3.0`, the newly generated
+     * `swagger.json` file would follow the specified OpenAPI version. The newly
+     * generated `swagger.json` file would be downgraded from the OpenAPI v3.1
+     * specification by {@link OpenApi.downgrade} method.
+     *
+     * @default 3.1
+     */
+    openapi?: "2.0" | "3.0" | "3.1";
+    
+    /**
      * Output path of the `swagger.json`.
      *
      * If you've configured only directory, the file name would be the `swagger.json`.
@@ -302,12 +437,12 @@ export namespace INestiaConfig {
      *
      * If omitted, `package.json` content would be used instead.
      */
-    info?: Partial<ISwaggerInfo>;
+    info?: Partial<OpenApi.IDocument.IInfo>;
 
     /**
      * List of server addresses.
      */
-    servers?: ISwaggerServer[];
+    servers?: OpenApi.IServer[];
 
     /**
      * Security schemes.
@@ -316,7 +451,7 @@ export namespace INestiaConfig {
      * theirs methods have a security key which is not enrolled in here property,
      * it would be an error.
      */
-    security?: Record<string, ISwaggerSecurityScheme>;
+    security?: Record<string, OpenApi.ISecurityScheme>;
 
     /**
      * List of tag names with description.
@@ -328,18 +463,26 @@ export namespace INestiaConfig {
      * Of course, if you've written a comment like `@tag {name} {descrition}`,
      * you can entirely replace this property specification.
      */
-    tags?: ISwaggerTag[];
+    tags?: OpenApi.IDocument.ITag[];
 
     /**
      * Decompose query DTO.
      *
      * If you configure this property to be `true`, the query DTO would be decomposed
-     * into individual query parameters per each property.
+     * into individual query parameters per each property. Otherwise you set it to be
+     * `false`, the query DTO would be one object type which contains all of query
+     * parameters.
      *
      * @default false
      */
     decompose?: boolean;
 
+    /**
+     * Operation ID generator.
+     *
+     * @param props Properties of the API endpoint.
+     * @returns Operation ID.
+     */
     operationId?(props: {
       class: string;
       function: string;
@@ -351,24 +494,24 @@ export namespace INestiaConfig {
 ```
   </Tab>
   <Tab>
-```typescript filename="ISwaggerSecurityScheme.ts" showLineNumbers
+```typescript filename="@samchon/openapi" showLineNumbers
 /**
  * Security scheme of Swagger Documents.
  *
- * `ISwaggerSecurityScheme` is a data structure representing content of
+ * `ISecurityScheme` is a data structure representing content of
  * `securitySchemes` in `swagger.json` file. It is composed with 5 types of security
  * schemes as an union type like below.
  *
  * @reference https://swagger.io/specification/#security-scheme-object
  * @author Jeongho Nam - https://github.com/samchon
  */
-export type ISwaggerSecurityScheme =
-  | ISwaggerSecurityScheme.IHttpBasic
-  | ISwaggerSecurityScheme.IHttpBearer
-  | ISwaggerSecurityScheme.IApiKey
-  | ISwaggerSecurityScheme.IOpenId
-  | ISwaggerSecurityScheme.IOAuth2;
-export namespace ISwaggerSecurityScheme {
+export type ISecurityScheme =
+  | ISecurityScheme.IHttpBasic
+  | ISecurityScheme.IHttpBearer
+  | ISecurityScheme.IApiKey
+  | ISecurityScheme.IOpenId
+  | ISecurityScheme.IOAuth2;
+export namespace ISecurityScheme {
   export interface IHttpBasic {
     type: "http";
     scheme: "basic";
@@ -380,15 +523,7 @@ export namespace ISwaggerSecurityScheme {
   }
   export interface IApiKey {
     type: "apiKey";
-
-    /**
-     * @default header
-     */
     in?: "header" | "query" | "cookie";
-
-    /**
-     * @default Authorization
-     */
     name?: string;
   }
 
@@ -432,192 +567,224 @@ At least, you've to configure those two properties:
 
 When you've completed above configuration, just run `npx nestia swagger` command. Then, `swagger.json` file would be newly generated, and placed into the `$config.swagger.output` directory following your `nestia.config.ts` configuration.
 
-By the way, `nestia.config.ts` supports alternative options specifying the target controller classes instead of using the `Module` instance. If your backend application server does not have special configuration like `setGlobalPrefix`, `enableVersioning` and `RouterModule`, it is okay to specifying the target controller classes just by writing their file path like below.
-
-<Tabs items={[
-    'Module (express)',
-    'Directory (fastify)', 
-    'Pattern', 
-    'Exclude'
-  ]}
-  defaultIndex={2}>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
+### Multiple Files Generation
+```typescript filename="nestia.config.ts" showLineNumbers
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
 
-import { YourModule } from "./src/YourModule";
+import { AppModule } from "./src/modules/AppModule";
+import { BbsModule } from "./src/modules/BbsModule";
+import { CommonModule } from "./src/modules/CommonModule";
 
-const NESTIA_CONFIG: INestiaConfig = {
-  input: async () => {
-    const app = await NestFactory.create(YourModule);
-    // app.setGlobalPrefix("api");
-    // app.enableVersioning({
-    //     type: VersioningType.URI,
-    //     prefix: "v",
-    // })
-    return app;
-  },
-  swagger: {
-    output: "dist/swagger.json",
-    beautify: true,
-    security: {
-      bearer: {
-        type: "apiKey",
-        name: "Authorization",
-        in: "header",
+export const NESTIA_CONFIGURATIONS: INestiaConfig[] = [
+  {
+    input: () => NestFactory.create(AppModule),
+    swagger: {
+      output: "swagger.json",
+      security: {
+        bearer: {
+          type: "apiKey",
+        },
       },
     },
-    servers: [
-      {
-        url: "http://localhost:3000",
-        description: "Local Server",
-      },
-    ],
   },
-};
-export default NESTIA_CONFIG;
-```
-  </Tab>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {8-16}
-import { INestiaConfig } from "@nestia/sdk";
-import { NestFactory } from "@nestjs/core";
-import { FastifyAdaptor } from "@nestjs/platform-fastify";
-
-import { YourModule } from "./src/YourModule";
-
-const NESTIA_CONFIG: INestiaConfig = {
-  input: async () => {
-    const app = await NestFactory.create(YourModule, new FastifyAdaptor());
-    // app.setGlobalPrefix("api");
-    // app.enableVersioning({
-    //     type: VersioningType.URI,
-    //     prefix: "v",
-    // })
-    return app;
-  },
-  swagger: {
-    output: "dist/swagger.json",
-    beautify: true,
-    security: {
-      bearer: {
-        type: "apiKey",
-        name: "Authorization",
-        in: "header",
+  {
+    input: () => NestFactory.create(BbsModule),
+    swagger: {
+      output: "bbs.swagger.json",
+      security: {
+        bearer: {
+          type: "apiKey",
+        },
       },
     },
-    servers: [
-      {
-        url: "http://localhost:3000",
-        description: "Local Server",
-      },
-    ],
   },
-};
-export default NESTIA_CONFIG;
-```
-  </Tab>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {4-8}
-import { INestiaConfig } from "@nestia/sdk";
-
-const NESTIA_CONFIG: INestiaConfig = {
-  input: [
-    "src/controllers", 
-    "src/fake/controllers", 
-    "src/test/controllers"
-  ],
-  swagger: {
-    output: "dist/swagger.json",
-    beautify: true,
-    security: {
-      bearer: {
-        type: "apiKey",
-        name: "Authorization",
-        in: "header",
+  {
+    input: () => NestFactory.create(CommonModule),
+    swagger: {
+      output: "common.swagger.json",
+      security: {
+        bearer: {
+          type: "apiKey",
+        },
       },
     },
-    servers: [
-      {
-        url: "http://localhost:3000",
-        description: "Local Server",
-      },
-    ],
   },
-};
-export default NESTIA_CONFIG;
+];
+export default NESTIA_CONFIGURATIONS;
 ```
-  </Tab>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {4}
-import { INestiaConfig } from "@nestia/sdk";
 
-const NESTIA_CONFIG: INestiaConfig = {
-  input: "src/**/*.controller.ts",
-  swagger: {
-    output: "dist/swagger.json",
-    beautify: true,
-    security: {
-      bearer: {
-        type: "apiKey",
-        name: "Authorization",
-        in: "header",
-      },
-    },
-    servers: [
-      {
-        url: "http://localhost:3000",
-        description: "Local Server",
-      },
-    ],
-  },
-};
-export default NESTIA_CONFIG;
-```
-  </Tab>
-  <Tab>
-```typescript copy filename="nestia.config.ts" showLineNumbers {4-7}
-import { INestiaConfig } from "@nestia/sdk";
+You can build multiple Swagger Document files.
 
-const NESTIA_CONFIG: INestiaConfig = {
-  input: {
-    include: ["src/controllers"],
-    exclude: ["src/**/*.fake.ts"],
-  },
-  swagger: {
-    output: "dist/swagger.json",
-    beautify: true,
-    security: {
-      bearer: {
-        type: "apiKey",
-        name: "Authorization",
-        in: "header",
-      },
-    },
-    servers: [
-      {
-        url: "http://localhost:3000",
-        description: "Local Server",
-      },
-    ],
-  },
-};
-export default NESTIA_CONFIG;
+Just configure an array of `INestiaConfig` instances like above example code. 
+
+Then, `@nestia/sdk` will generate multiple Swagger Document files following the configurations.
+
+### Additional Properties
+Additionally, you can configure the `swagger` property in the `nestia.config.ts` file.
+
+  - `swagger.openapi`: OpenAPI version specification.
+    - `"2.0"`
+    - `"3.0"`
+    - `"3.1"` *(default)*
+  - `swagger.beautify`: Whether to beautify JSON content or not. 
+  - `swagger.info`: API information. If not configured, `package.json` content be utilized instead.
+  - `swagger.servers`: List of server addresses.
+  - `swagger.security`: Security schemes.
+  - `swagger.tags`: List of tag names with description.
+  - `swagger.decompose`: Whether to decompose query DTO as individual parameters.
+  - `swagger.operationId`: Operation ID genereator.
+
+For reference, if you do not configure `swagger.info` property or omit some members of the information instance, `@nestia/sdk` will utilize your `package.json` file content instead. For example, if you omit the `swagger.info.version`, your `package.json` file's `version` property would be written instead.
+
+Also, whether you configure `swagger.openapi` version or not, the newly generated `swagger.file` starts from the [OpenAPI v3.1 specification](https://github.com/samchon/openapi/blob/master/src/OpenApi.ts) emended by [`@samchon/openapi`](https://github.com/samchon/openapi). If your target OpenAPI version is lower than v3.1, `@nestia/sdk` just downgrades the newly generated OpenAPI v3.1 content by calling [`OpenApi.downgrade()`](https://github.com/samchon/openapi/blob/master/src/OpenApi.ts) function.
+
+<details>
+<summary> See detailed options: </summary>
+<br/>
+```typescript filename="INestiaConfig.ts" showLineNumbers {15-108}
+export namespace INestiaConfig {
+  /**
+   * Building `swagger.json` is also possible.
+   */
+  export interface ISwaggerConfig {
+    /**
+     * Output path of the `swagger.json`.
+     *
+     * If you've configured only directory, the file name would be the `swagger.json`.
+     * Otherwise you've configured the full path with file name and extension, the
+     * `swagger.json` file would be renamed to it.
+     */
+    output: string;
+
+    /**
+     * OpenAPI version.
+     *
+     * If you configure this property to be `2.0` or `3.0`, the newly generated
+     * `swagger.json` file would follow the specified OpenAPI version. The newly
+     * generated `swagger.json` file would be downgraded from the OpenAPI v3.1
+     * specification by {@link OpenApi.downgrade} method.
+     *
+     * @default 3.1
+     */
+    openapi?: "2.0" | "3.0" | "3.1";
+
+    /**
+     * Whether to beautify JSON content or not.
+     *
+     * If you configure this property to be `true`, the `swagger.json` file would
+     * be beautified with indentation (2 spaces) and line breaks. If you configure
+     * numeric value instead, the indentation would be specified by the number.
+     *
+     * @default false
+     */
+    beautify?: boolean | number;
+
+    /**
+     * API information.
+     *
+     * If omitted, `package.json` content would be used instead.
+     */
+    info?: Partial<OpenApi.IDocument.IInfo>;
+
+    /**
+     * List of server addresses.
+     */
+    servers?: OpenApi.IServer[];
+
+    /**
+     * Security schemes.
+     *
+     * When generating `swagger.json` file through `nestia`, if your controllers or
+     * theirs methods have a security key which is not enrolled in here property,
+     * it would be an error.
+     */
+    security?: Record<string, OpenApi.ISecurityScheme>;
+
+    /**
+     * List of tag names with description.
+     *
+     * It is possible to omit this property or skip some tag name even if
+     * the tag name is used in the API routes. In that case, the tag name
+     * would be used without description.
+     *
+     * Of course, if you've written a comment like `@tag {name} {descrition}`,
+     * you can entirely replace this property specification.
+     */
+    tags?: OpenApi.IDocument.ITag[];
+
+    /**
+     * Decompose query DTO.
+     *
+     * If you configure this property to be `true`, the query DTO would be decomposed
+     * into individual query parameters per each property. Otherwise you set it to be
+     * `false`, the query DTO would be one object type which contains all of query
+     * parameters.
+     *
+     * @default false
+     */
+    decompose?: boolean;
+
+    /**
+     * Operation ID generator.
+     *
+     * @param props Properties of the API endpoint.
+     * @returns Operation ID.
+     */
+    operationId?(props: {
+      class: string;
+      function: string;
+      method: "HEAD" | "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+      path: string;
+    }): string;
+  }
+}
 ```
-  </Tab>
-</Tabs>
+
+</details>
+
+### CLI Arguments
+```bash filename="Terminal"
+npx nestia swagger
+npx nestia swagger --config nestia2.config.ts
+npx nestia swagger --project tsconfig2.json
+npx nestia swagger --config nestia3.config.ts --project tsconfig3.tsconfig.json
+```
+
+If you have a special configuration file that its file name is not `nestia.config.ts` or the configuration file is not placed on the root directory of the project, you can specify it with `--config` option like `npx nestia swagger --config another.config.ts`. 
+
+Also, if you have a special `tsconfig.json` file or the project file is not located in the root directory of the project, you can specify it with `--project` argument like `npx nestia swagger --project another.tsconfig.json`, too.
 
 
 
 
 ## Special Tags
+### NestJS Decorators
+Swagger generator fo `@nestia/sdk` supports some NestJS decorators. Here is the list of them. 
+
+  - `@nestjs/common`
+    - `@Header()`
+    - `@HttpCode()`
+    - `@Version()`
+  - `@nestjs/swagger`
+    - `@ApiBasicAuth()`
+    - `@ApiBearerAuth()`
+    - `@ApiOAuth2()`
+    - `@ApiSecurity()`
+    - `@ApiTags()`
+    - `@ApiExtension()`
+  - `@nestia/core`
+    - `@TypedException()`
+    - `@SwaggerExample.Parameter()`
+    - `@SwaggerExample.Response()`
+
 ### Controller Methods
 Swagger generator `@nestia/sdk` supports three type of comment tags for controller methods:
 
   - Hiding
     - `@deprecated`: mark as `deprecated`
     - `@internal`: hide, never be shown
+    - `@hidden`: hide, never be shown
     - `@ignore`: hide, never be shown, even in the SDK side
   - Labeling
     - `@summary` : short description of endpoint
@@ -627,7 +794,7 @@ Swagger generator `@nestia/sdk` supports three type of comment tags for controll
     - `@security {key}`: security scheme key
     - `@security {key} {...scopes}`: +scopes for OAuth2 type
 
-At first, `@internal` and `@ignore` tags are used to hide the controller method from the Swagger Documents. When you use one of them, the controller method would not be written in the `swagger.json` file. Otherwise, the `@deprecated` tag is used to mark the controller method as deprecated. When you use it, Swagger Editor will show the deprecated message about the route method like below.
+At first, `@internal`, `@hidden` and `@ignore` tags are used to hide the controller method from the Swagger Documents. When you use one of them, the controller method would not be written in the `swagger.json` file. Otherwise, the `@deprecated` tag is used to mark the controller method as deprecated. When you use it, Swagger Editor will show the deprecated message about the route method like below.
 
 Also, the `@summary` tag is used to write short description of the endpoint. By the way, the `@summary` tag can be replaced by writing top sentence ends with `.` symbol. The other one, `@tag {name} {description?}` tag is used for only groupping. If you fill the `description` part, it would be shown in the Swagger-UI.
 
@@ -639,7 +806,7 @@ For reference, target security schemes must be configured in the `nestia.config.
   'Controller', 
   'Swagger Documents', 
   <code>nestia.config.ts</code>,
-  <code>ISwaggerSecurityScheme</code>,
+  <code>OpenApi.ISecurityScheme</code>,
 ]}>
   <Tab>
 ```typescript filename="Controller" showLineNumbers {17-20, 35, 46-49, 66, 68}
@@ -1059,24 +1226,24 @@ export default NESTIA_CONFIG;
 ```
   </Tab>
   <Tab>
-```typescript filename="ISwaggerSecurityScheme.ts" showLineNumbers
+```typescript filename="@samchon/openapi" showLineNumbers
 /**
  * Security scheme of Swagger Documents.
  *
- * `ISwaggerSecurityScheme` is a data structure representing content of
+ * `OpenApi.ISecurityScheme` is a data structure representing content of
  * `securitySchemes` in `swagger.json` file. It is composed with 5 types of security
  * schemes as an union type like below.
  *
  * @reference https://swagger.io/specification/#security-scheme-object
  * @author Jeongho Nam - https://github.com/samchon
  */
-export type ISwaggerSecurityScheme =
-  | ISwaggerSecurityScheme.IHttpBasic
-  | ISwaggerSecurityScheme.IHttpBearer
-  | ISwaggerSecurityScheme.IApiKey
-  | ISwaggerSecurityScheme.IOpenId
-  | ISwaggerSecurityScheme.IOAuth2;
-export namespace ISwaggerSecurityScheme {
+export type ISecurityScheme =
+  | ISecurityScheme.IHttpBasic
+  | ISecurityScheme.IHttpBearer
+  | ISecurityScheme.IApiKey
+  | ISecurityScheme.IOpenId
+  | ISecurityScheme.IOAuth2;
+export namespace ISecurityScheme {
   export interface IHttpBasic {
     type: "http";
     scheme: "basic";
@@ -1088,15 +1255,7 @@ export namespace ISwaggerSecurityScheme {
   }
   export interface IApiKey {
     type: "apiKey";
-
-    /**
-     * @default header
-     */
     in?: "header" | "query" | "cookie";
-
-    /**
-     * @default Authorization
-     */
     name?: string;
   }
 
@@ -1337,20 +1496,20 @@ export interface SpecialTag {
 /**
  * Security schema of Swagger Documents.
  *
- * `ISwaggerSecurityScheme` is a data structure representing content of
+ * `ISecurityScheme` is a data structure representing content of
  * `securitySchemes` in `swagger.json` file. It is composed with 5 types of security
  * schemes as an union type like below.
  *
  * @reference https://swagger.io/specification/#security-scheme-object
  * @author Jeongho Nam - https://github.com/samchon
  */
-export type ISwaggerSecurityScheme =
-  | ISwaggerSecurityScheme.IHttpBasic
-  | ISwaggerSecurityScheme.IHttpBearer
-  | ISwaggerSecurityScheme.IApiKey
-  | ISwaggerSecurityScheme.IOpenId
-  | ISwaggerSecurityScheme.IOAuth2;
-export namespace ISwaggerSecurityScheme {
+export type ISecurityScheme =
+  | ISecurityScheme.IHttpBasic
+  | ISecurityScheme.IHttpBearer
+  | ISecurityScheme.IApiKey
+  | ISecurityScheme.IOpenId
+  | ISecurityScheme.IOAuth2;
+export namespace ISecurityScheme {
   export interface IHttpBasic {
     type: "http";
     scheme: "basic";
@@ -1409,13 +1568,13 @@ export namespace ISwaggerSecurityScheme {
 ## Customization
 [Typia > JSON schema > Customization](https://typia.io/docs/json/schema/#customization)
 
-If what you want is not just filling special properties of JSON schema spec, but to adding custom properties into the JSON schema definition, you can accomlish it with `typia` feature. Define a type based on `typia.tags.TagBase`, and specify the `schema` property type as you want.
+If what you want is not just filling special properties of JSON schema spec, but to adding custom properties into the JSON schema definition, you can accomlish it with `typia` feature. Define a type based on `typia.tags.TagBase` or `typia.tags.JsonSchemaPlugin`, and specify the `schema` property type as you want.
 
 For reference, the custom property must be started with x- prefix. It's a rule of JSON schema.
 
 <Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
   <Tab>
-```typescript copy filename="examples/src/json-schema-custom.ts" copy showLineNumbers {7-9, 16-18, 22-23}
+```typescript copy filename="examples/src/json-schema-custom.ts" copy showLineNumbers {7-9, 13, 17-18}
 import typia, { tags } from "typia";
  
 type Monetary<Value extends string> = tags.TagBase<{
@@ -1427,20 +1586,14 @@ type Monetary<Value extends string> = tags.TagBase<{
   };
 }>;
 
-type Placeholder<Value extends string> = tags.TagBase<{
-  target: "boolean" | "number" | "string";
-  kind: "placeholder";
-  value: Value;
-  schema: {
-    "x-placeholder": Value;
-  };
+type Placeholder<Value extends string> = tags.JsonSchemaPlugin<{
+  "x-placeholder": Value;
 }>;
 
 interface IAccount {
   code: string & Placeholder<"Write you account code please">;
   balance: number & Monetary<"dollar">;
 };
- 
 typia.json.application<[IAccount]>();
 ```
   </Tab>
@@ -1478,16 +1631,16 @@ typia.json.application<[IAccount]>();
 
 Otherwise you wanna customize the swagger data, utilize the `@SwaggerCustomizer()` decorator.
 
-As you can see from the above example code, callback function defined in the `@SwaggerCustomizer()` decorator is changing the swagger data, because it is called when the `npx nestia swagger` command being executed. Furthermore, it is possible to add plugin property starting with `x-` characters.
+As you can see from the below example code, callback function defined in the `@SwaggerCustomizer()` decorator is changing the swagger data, because it is called when the `npx nestia swagger` command being executed. Furthermore, it is possible to add plugin property starting with `x-` characters.
 
-In other words, the `@SwaggerCustomizer()` does not affect the runtime behavior of the backend server, but only affects the `swagger.json` file.
+Also, this `@SwaggerCustomizer()` decorator is especially useful when defining an authentication decorator. Developing the authentication logic in the decorator function, apply the `@SwaggerCustomizer()` with `OpenApi.IOperation.security` property. Then whenever the decorator function is called, the security scheme would be added into the swagger data.
 
 <Tabs items={[
     <code>@nestia/core</code>, 
     <code>MyCustomController.ts</code>, 
-    <code>swagger.json</code>
+    <code>ShoppingSellerAuth.ts</code>
   ]} 
-  defaultIndex={1}>
+  defaultIndex={2}>
   <Tab>
 ```typescript filename="@nestia/core" showLineNumbers
 export function SwaggerCustomizer(
@@ -1495,19 +1648,19 @@ export function SwaggerCustomizer(
 ): MethodDecorator;
 export namespace SwaggerCustomizer {
   export interface IProps {
-    swagger: ISwagger;
+    swagger: OpenApi.IDocument;
     method: string;
     path: string;
-    route: ISwaggerRoute;
+    route: OpenApi.IOperation;
     at(func: Function): ISwaggerEndpoint | undefined;
-    get(accessor: IAccessor): ISwaggerRoute | undefined;
+    get(accessor: IAccessor): OpenApi.IOperation | undefined;
   }
   export interface IAccessor {
     path: string;
     method: string;
   }
   export interface ISwaggerEndpoint extends IAccessor {
-    route: ISwaggerRoute;
+    route: OpenApi.IOperation;
   }
 }
 ```
@@ -1544,110 +1697,35 @@ export class CustomController {
 ```
   </Tab>
   <Tab>
-```json filename="swagger.json" showLineNumbers {2, 44-45, 75-76}
-{
-  "openapi": "3.1.99",
-  "servers": [
-    {
-      "url": "https://github.com/samchon/nestia",
-      "description": "insert your server url"
-    }
-  ],
-  "info": {
-    "version": "3.0.0-dev.20240412",
-    "title": "@nestia/test",
-    "description": "Test program of Nestia",
-    "license": {
-      "name": "MIT"
-    }
-  },
-  "paths": {
-    "/custom/{key}/{value}/customize": {
-      "get": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "key",
-            "in": "path",
-            "schema": {
-              "type": "number"
-            },
-            "description": "",
-            "required": true
-          },
-          {
-            "name": "value",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "description": "",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "description": "This is a custom description",
-        "x-selector": {
-          "method": "get",
-          "path": "/custom/{id}/normal"
-        },
-        "x-special-symbol": "Something Special"
-      }
-    },
-    "/custom/{id}/normal": {
-      "get": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "x-special-symbol": "Something Normal"
-      }
-    }
-  },
-  "components": {
-    "schemas": {},
-    "securitySchemes": {
-      "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
-      }
-    }
-  },
-  "tags": []
-}
+```typescript filename="ShoppingSellerAuth.ts" showLineNumbers {14-19}
+import { ExecutionContext, createParamDecorator } from "@nestjs/common";
+import { Singleton } from "tstl";
+
+import { ShoppingSellerProvider } from "../providers/shoppings/actors/ShoppingSellerProvider";
+import { SwaggerCustomizer } from "@nestia/core";
+
+export const ShoppingSellerAuth =
+  (): ParameterDecorator =>
+  (
+    target: Object,
+    propertyKey: string | symbol | undefined,
+    parameterIndex: number
+  ): void => {
+    SwaggerCustomizer((props) => {
+      props.route.security ??= [];
+      props.route.security.push({
+        bearer: [],
+      });
+    })(target, propertyKey as string, undefined!);
+    singleton.get()(target, propertyKey, parameterIndex);
+  };
+
+const singleton = new Singleton(() =>
+  createParamDecorator(async (_0: any, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    return ShoppingSellerProvider.authorize(request);
+  })()
+);
 ```
   </Tab>
 </Tabs>
@@ -1658,28 +1736,56 @@ export class CustomController {
 ## Distribution
 You can choose two options for `swagger.json` file distribution.
 
-The 1st is publishing the `swagger.json` file in a public repo, and showing it through Swagger Editor like below:
+The 1st is publishing the `swagger.json` file in a public repo, and showing it through [`@nestia/editor`](/docs/editor) like below:
 
-  - `samchon/bbs-backend`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fbbs-backend%2Fmaster%2Fpackages%2Fapi%2Fswagger.json)
-  - `samchon/fake-iamport-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fpayments%2Fmaster%2Fpackages%2Fiamport-server-api%2Fswagger.json)
-  - `samchon/fake-toss-payments-server`: [Swagger Editor](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fpayments%2Fmaster%2Fpackages%2Ftoss-payments-server-api%2Fswagger.json)
+{<ul>
+  {EDITOR_EXAMPLES.map((example) => (
+    <li>
+      <a href={`/editor/?url=${encodeURIComponent(example.swagger)}&simulate=true&e2e=true`} 
+          target="_blank">
+        {example.title}
+      </a>
+    </li>
+  ))}
+</ul>}
 
 The 2nd way is to hosting the `swagger.json` file in the NestJS backend server.
 
 Read below example code, and follow it on yours:
 
-```typescript copy showLineNumbers
+<Tabs items={["Runtime", "File Generated"]}>
+  <Tab>
+```typescript filename="main.ts" showLineNumbers copy
+import { NestiaSwaggerComposer } from "@nestia/sdk";
+import { INestApplication } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { SwaggerModule } from "@nestjs/swagger";
+
+const main = async (): Promise<void> => {
+  const app: INestApplication = await NestFactory.create(ApplicationModule);
+  const document = await NestiaSwaggerComposer.document(app, {});
+  SwaggerModule.setup("api", app, document as any);
+
+  await app.listen(3_000);
+};
+main().catch(console.error);
+```
+  </Tab>
+  <Tab>
+```typescript filename="main.ts" showLineNumbers copy
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule } from "@nestjs/swagger";
 import fs from "fs";
 
-async function open(): Promise<void> {
-  const app = await NestFactory.create({...});
-
+const main = async (): Promise<void> => {
+  const app = await NestFactory.create(ApplicationModule);
   const docs = require("...write swagger.json path");
   docs.servers = [{ url: "write your server URL" }];
   SwaggerModule.setup("swagger", app, docs);
 
   await app.listen(8080);
 }
+main().catch(console.error);
 ```
+  </Tab>
+</Tabs>

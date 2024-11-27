@@ -7,8 +7,8 @@
     }
   ],
   "info": {
-    "version": "3.3.2",
-    "title": "@nestia/test",
+    "version": "4.0.0-dev.20241027",
+    "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
       "name": "MIT"
@@ -17,8 +17,12 @@
   "paths": {
     "/bbs/articles/{section}": {
       "post": {
+        "summary": "Public API",
+        "description": "Would be shown without any mark.",
         "tags": [
-          "public"
+          "bbs",
+          "public",
+          "write"
         ],
         "operationId": "BbsArticlesController.store",
         "parameters": [
@@ -28,8 +32,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "Section code",
-            "required": true
+            "required": true,
+            "description": " Section code"
           }
         ],
         "requestBody": {
@@ -55,8 +59,6 @@
             }
           }
         },
-        "summary": "Public API",
-        "description": "Would be shown without any mark.",
         "security": [
           {
             "bearer": []
@@ -72,8 +74,14 @@
     },
     "/bbs/articles/{section}/{id}": {
       "put": {
+        "summary": "Deprecated API",
+        "description": "Deprecated API.\n\nWould be marked as \"deprecated\".\n\nFor reference, top sentence \"Deprecated API.\" can replace the `@summary` tag.",
         "deprecated": true,
-        "tags": [],
+        "tags": [
+          "bbs",
+          "public",
+          "write"
+        ],
         "operationId": "updateArticle",
         "parameters": [
           {
@@ -82,8 +90,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "Section code",
-            "required": true
+            "required": true,
+            "description": " Section code"
           },
           {
             "name": "id",
@@ -92,8 +100,8 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "Target article ID",
-            "required": true
+            "required": true,
+            "description": " Target article ID"
           }
         ],
         "requestBody": {
@@ -119,8 +127,6 @@
             }
           }
         },
-        "summary": "Deprecated API",
-        "description": "Deprecated API.\n\nWould be marked as \"deprecated\".\n\nFor reference, top sentence \"Deprecated API.\" can replace the `@summary` tag.",
         "security": [
           {
             "basic": []
@@ -134,9 +140,20 @@
   },
   "components": {
     "schemas": {
-      "IBbsArticle.IStore": {
+      "IBbsArticle": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "section": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "title": {
             "type": "string",
             "minLength": 3,
@@ -153,6 +170,9 @@
           }
         },
         "required": [
+          "id",
+          "section",
+          "created_at",
           "title",
           "body",
           "files"
@@ -195,20 +215,9 @@
           "url"
         ]
       },
-      "IBbsArticle": {
+      "IBbsArticle.IStore": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "section": {
-            "type": "string"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
           "title": {
             "type": "string",
             "minLength": 3,
@@ -225,9 +234,6 @@
           }
         },
         "required": [
-          "id",
-          "section",
-          "created_at",
           "title",
           "body",
           "files"
@@ -265,8 +271,15 @@
   },
   "tags": [
     {
+      "name": "bbs"
+    },
+    {
       "name": "public",
       "description": "Some description describing public group..."
+    },
+    {
+      "name": "write",
+      "description": "Write accessor"
     }
   ],
   "x-samchon-emended": true

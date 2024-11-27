@@ -3,11 +3,9 @@ import is_ts_node from "detect-ts-node";
 import { Creator } from "../../typings/Creator";
 import { SourceFinder } from "../../utils/SourceFinder";
 
-/**
- * @internal
- */
 export const load_controllers = async (
   path: string | string[] | { include: string[]; exclude?: string[] },
+  isTsNode?: boolean,
 ): Promise<Creator<object>[]> => {
   const sources: string[] = await SourceFinder.find({
     include: Array.isArray(path)
@@ -20,7 +18,7 @@ export const load_controllers = async (
         ? path.exclude ?? []
         : [],
     filter:
-      EXTENSION === "ts"
+      isTsNode === true || EXTENSION === "ts"
         ? (file) =>
             file.substring(file.length - 3) === ".ts" &&
             file.substring(file.length - 5) !== ".d.ts"

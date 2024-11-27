@@ -1,15 +1,14 @@
 import { IPointer } from "tstl";
 import ts from "typescript";
 import { IJsDocTagInfo } from "typia";
-import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
-import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
-import { MetadataAlias } from "typia/lib/schemas/metadata/MetadataAlias";
+import { MetadataAliasType } from "typia/lib/schemas/metadata/MetadataAliasType";
 import { MetadataAtomic } from "typia/lib/schemas/metadata/MetadataAtomic";
-import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
+import { MetadataObjectType } from "typia/lib/schemas/metadata/MetadataObjectType";
 
 import { INestiaProject } from "../../structures/INestiaProject";
-import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
+import { ITypedApplication } from "../../structures/ITypedApplication";
 import { MapUtil } from "../../utils/MapUtil";
+import { StringUtil } from "../../utils/StringUtil";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
@@ -23,74 +22,52 @@ export namespace SdkHttpCloneProgrammer {
       | ((importer: ImportDictionary) => ts.TypeAliasDeclaration);
   }
 
-  export const write =
-    (project: INestiaProject) =>
-    (routes: ITypedHttpRoute[]): Map<string, IModule> => {
-      const collection = new MetadataCollection({
-        replace: MetadataCollection.replace,
-      });
-      for (const r of routes) {
-        for (const p of r.parameters) {
-          const res = MetadataFactory.analyze(project.checker)({
-            escape: false,
-            constant: true,
-            absorb: false,
-          })(collection)(p.type);
-          if (res.success) p.metadata = res.data;
-        }
-        for (const e of Object.values(r.exceptions)) {
-          const res = MetadataFactory.analyze(project.checker)({
-            escape: true,
-            constant: true,
-            absorb: false,
-          })(collection)(e.type);
-          if (res.success) e.metadata = res.data;
-        }
-        const res = MetadataFactory.analyze(project.checker)({
-          escape: true,
-          constant: true,
-          absorb: false,
-        })(collection)(r.output.type);
-        if (res.success) r.output.metadata = res.data;
-      }
+  export const write = (app: ITypedApplication): Map<string, IModule> => {
+    // COMPOSE THE DICTIONARY
+    const dict: Map<string, IModule> = new Map();
+    for (const [k, v] of app.collection.objects.entries())
+      if (StringUtil.isImplicit(k) === false)
+        prepare({
+          dict,
+          name: k,
+          programmer: (importer) => write_object(app.project)(importer)(v),
+        });
+    for (const [k, v] of app.collection.aliases.entries())
+      if (StringUtil.isImplicit(k) === false)
+        prepare({
+          dict,
+          name: k,
+          programmer: (importer) => write_alias(app.project)(importer)(v),
+        });
+    return dict;
+  };
 
-      const dict: Map<string, IModule> = new Map();
-      for (const alias of collection.aliases())
-        if (isNamedDeclaration(alias.name))
-          prepare(dict)(alias.name)((importer) =>
-            write_alias(project)(importer)(alias),
-          );
-      for (const object of collection.objects())
-        if (isNamedDeclaration(object.name))
-          prepare(dict)(object.name)((importer) =>
-            write_object(project)(importer)(object),
-          );
-      return dict;
-    };
+  const prepare = (props: {
+    dict: Map<string, IModule>;
+    name: string;
+    programmer: (importer: ImportDictionary) => ts.TypeAliasDeclaration;
+  }) => {
+    let next: Map<string, IModule> = props.dict;
+    const accessors: string[] = props.name.split(".");
+    const modulo: IPointer<IModule> = { value: null! };
 
-  const prepare =
-    (dict: Map<string, IModule>) =>
-    (name: string) =>
-    (programmer: (importer: ImportDictionary) => ts.TypeAliasDeclaration) => {
-      const accessors: string[] = name.split(".");
-      const modulo: IPointer<IModule> = { value: null! };
-
-      accessors.forEach((acc, i) => {
-        modulo.value = MapUtil.take(dict, acc, () => ({
-          name: acc,
-          children: new Map(),
-          programmer: null,
-        }));
-        if (i === accessors.length - 1) modulo.value.programmer = programmer;
-        dict = modulo.value.children;
-      });
-      return modulo!;
-    };
+    accessors.forEach((acc, i) => {
+      modulo.value = MapUtil.take(next, acc, () => ({
+        name: acc,
+        children: new Map(),
+        programmer: null,
+      }));
+      if (i === accessors.length - 1)
+        modulo.value.programmer = props.programmer;
+      next = modulo.value.children;
+    });
+    return modulo!;
+  };
 
   const write_alias =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (alias: MetadataAlias): ts.TypeAliasDeclaration =>
+    (alias: MetadataAliasType): ts.TypeAliasDeclaration =>
       FilePrinter.description(
         ts.factory.createTypeAliasDeclaration(
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
@@ -104,7 +81,7 @@ export namespace SdkHttpCloneProgrammer {
   const write_object =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (object: MetadataObject): ts.TypeAliasDeclaration => {
+    (object: MetadataObjectType): ts.TypeAliasDeclaration => {
       return FilePrinter.description(
         ts.factory.createTypeAliasDeclaration(
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
@@ -116,13 +93,6 @@ export namespace SdkHttpCloneProgrammer {
       );
     };
 }
-
-const isNamedDeclaration = (name: string) =>
-  name !== "object" &&
-  name !== "__type" &&
-  !name.startsWith("__type.") &&
-  name !== "__object" &&
-  !name.startsWith("__object.");
 
 const writeComment =
   (atomics: MetadataAtomic[]) =>
@@ -139,7 +109,7 @@ const writeComment =
                 a.tags.some((r) => r.some((t) => t.kind === tag.name)),
               ),
           )
-        : jsDocTags ?? [];
+        : (jsDocTags ?? []);
 
     if (description?.length && filtered.length) lines.push("");
     if (filtered.length)

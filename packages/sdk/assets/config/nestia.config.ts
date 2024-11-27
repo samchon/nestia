@@ -2,7 +2,7 @@ import { INestiaConfig } from "@nestia/sdk";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 
-// import { FastifyAdaptor } from "@nestjs/platform-fastify";
+// import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 export const NESTIA_CONFIG: INestiaConfig = {
   /**
@@ -22,7 +22,7 @@ export const NESTIA_CONFIG: INestiaConfig = {
     })
     class MyModule {}
     const app = await NestFactory.create(MyModule);
-    // const app = await NestFactory.create(YourModule, new FastifyAdaptor());
+    // const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,

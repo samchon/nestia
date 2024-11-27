@@ -1,9 +1,7 @@
-import typia from "typia";
-
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
 import { IRequestQueryValidator } from "../options/IRequestQueryValidator";
+import { NoTransformConfigurationError } from "./NoTransformConfigurationError";
 import { IWebSocketRouteReflect } from "./internal/IWebSocketRouteReflect";
-import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
 import { validate_request_body } from "./internal/validate_request_body";
 import { validate_request_query } from "./internal/validate_request_query";
 
@@ -48,7 +46,7 @@ export function WebSocketRoute(
     _target: Object,
     _propertyKey: string | symbol,
     descriptor: TypedPropertyDescriptor<any>,
-  ) {
+  ): TypedPropertyDescriptor<any> {
     Reflect.defineMetadata(
       "nestia/WebSocketRoute",
       {
@@ -146,9 +144,6 @@ export namespace WebSocketRoute {
       });
     };
   }
-  Object.assign(Header, typia.is);
-  Object.assign(Header, typia.assert);
-  Object.assign(Header, typia.validate);
 
   /**
    * URL parameter decorator.
@@ -166,8 +161,10 @@ export namespace WebSocketRoute {
     field: string,
     assert?: (value: string) => T,
   ): ParameterDecorator {
-    if (assert === undefined)
-      throw NoTransformConfigureError("WebSocketRoute.Param");
+    if (assert === undefined) {
+      NoTransformConfigurationError("WebSocketRoute.Param");
+      assert = (value) => value as T;
+    }
     return function WebSocketParam(
       target: Object,
       propertyKey: string | symbol | undefined,
@@ -181,7 +178,6 @@ export namespace WebSocketRoute {
       });
     };
   }
-  Object.assign(Param, typia.http.parameter);
 
   /**
    * URL query decorator.
@@ -219,9 +215,6 @@ export namespace WebSocketRoute {
       });
     };
   }
-  Object.assign(Query, typia.http.assertQuery);
-  Object.assign(Query, typia.http.isQuery);
-  Object.assign(Query, typia.http.validateQuery);
 
   /**
    * @internal

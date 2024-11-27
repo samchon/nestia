@@ -7,8 +7,8 @@
     }
   ],
   "info": {
-    "version": "3.3.2",
-    "title": "@nestia/test",
+    "version": "4.0.0-dev.20241027",
+    "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
       "name": "MIT"
@@ -21,7 +21,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
           }
         }
       }
@@ -32,7 +35,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.G.et](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.",
+            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.Get](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.",
             "content": {
               "text/plain": {
                 "schema": {
@@ -47,6 +50,8 @@
     },
     "/sellers/authenticate/join": {
       "post": {
+        "summary": "Join as a seller",
+        "description": "Join as a seller.",
         "tags": [],
         "parameters": [],
         "requestBody": {
@@ -63,7 +68,7 @@
         },
         "responses": {
           "201": {
-            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.P.ost](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nInformation of newly joined seller",
+            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.Post](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nInformation of newly joined seller",
             "content": {
               "text/plain": {
                 "schema": {
@@ -73,13 +78,13 @@
             },
             "x-nestia-encrypted": true
           }
-        },
-        "summary": "Join as a seller",
-        "description": "Join as a seller."
+        }
       }
     },
     "/sellers/authenticate/login": {
       "post": {
+        "summary": "Log-in as a seller",
+        "description": "Log-in as a seller.",
         "tags": [],
         "parameters": [],
         "requestBody": {
@@ -96,7 +101,7 @@
         },
         "responses": {
           "201": {
-            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.P.ost](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nInformation of the seller",
+            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.Post](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nInformation of the seller",
             "content": {
               "text/plain": {
                 "schema": {
@@ -106,13 +111,13 @@
             },
             "x-nestia-encrypted": true
           }
-        },
-        "summary": "Log-in as a seller",
-        "description": "Log-in as a seller."
+        }
       }
     },
     "/sellers/authenticate/password/change": {
       "patch": {
+        "summary": "Change password",
+        "description": "Change password.",
         "tags": [],
         "parameters": [],
         "requestBody": {
@@ -129,24 +134,28 @@
         },
         "responses": {
           "200": {
-            "description": "Empty object"
+            "description": "Empty object",
+            "content": {
+              "application/json": {}
+            }
           }
-        },
-        "summary": "Change password",
-        "description": "Change password."
+        }
       }
     },
     "/sellers/authenticate/exit": {
       "delete": {
+        "summary": "Erase the seller by itself",
+        "description": "Erase the seller by itself.",
         "tags": [],
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
           }
-        },
-        "summary": "Erase the seller by itself",
-        "description": "Erase the seller by itself."
+        }
       }
     }
   },
@@ -285,33 +294,6 @@
           "voluntaryContextSwitches"
         ]
       },
-      "ISeller.IJoin": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "mobile": {
-            "type": "string"
-          },
-          "company": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "email",
-          "password",
-          "name",
-          "mobile",
-          "company"
-        ]
-      },
       "ISeller.IAuthorized": {
         "type": "object",
         "properties": {
@@ -371,6 +353,33 @@
           "created_at"
         ]
       },
+      "ISeller.IJoin": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "name",
+          "mobile",
+          "company"
+        ]
+      },
       "ISeller.ILogin": {
         "type": "object",
         "properties": {
@@ -404,9 +413,7 @@
     },
     "securitySchemes": {
       "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
+        "type": "apiKey"
       }
     }
   },

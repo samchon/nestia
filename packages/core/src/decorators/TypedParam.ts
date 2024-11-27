@@ -7,7 +7,7 @@ import type express from "express";
 import type { FastifyRequest } from "fastify";
 import typia, { TypeGuardError } from "typia";
 
-import { NoTransformConfigureError } from "./internal/NoTransformConfigureError";
+import { NoTransformConfigurationError } from "./NoTransformConfigurationError";
 
 /**
  * Type safe URL parameter decorator.
@@ -36,7 +36,10 @@ export function TypedParam<T extends boolean | bigint | number | string | null>(
   name: string,
   assert?: (value: string) => T,
 ): ParameterDecorator {
-  if (assert === undefined) throw NoTransformConfigureError("TypedParam");
+  if (assert === undefined) {
+    NoTransformConfigurationError("TypedParam");
+    assert = (value) => value as T;
+  }
 
   return createParamDecorator(function TypedParam(
     {}: any,
@@ -61,4 +64,3 @@ export function TypedParam<T extends boolean | bigint | number | string | null>(
     }
   })(name);
 }
-Object.assign(TypedParam, typia.http.parameter);

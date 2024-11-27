@@ -1,63 +1,69 @@
 import ts from "typescript";
 
-import { INestiaTransformProject } from "../options/INestiaTransformProject";
-import { TypedExceptionTransformer } from "./TypedExceptionTransformer";
+import { INestiaTransformContext } from "../options/INestiaTransformProject";
 import { TypedRouteTransformer } from "./TypedRouteTransformer";
 import { WebSocketRouteTransformer } from "./WebSocketRouteTransformer";
 
 export namespace MethodTransformer {
-  export const transform =
-    (project: INestiaTransformProject) =>
-    (method: ts.MethodDeclaration): ts.MethodDeclaration => {
-      const decorators: readonly ts.Decorator[] | undefined = ts.getDecorators
-        ? ts.getDecorators(method)
-        : (method as any).decorators;
-      if (!decorators?.length) return method;
+  export const transform = (props: {
+    context: INestiaTransformContext;
+    method: ts.MethodDeclaration;
+  }): ts.MethodDeclaration => {
+    const decorators: readonly ts.Decorator[] | undefined = ts.getDecorators
+      ? ts.getDecorators(props.method)
+      : (props.method as any).decorators;
+    if (!decorators?.length) return props.method;
 
-      const signature: ts.Signature | undefined =
-        project.checker.getSignatureFromDeclaration(method);
-      const original: ts.Type | undefined =
-        signature && project.checker.getReturnTypeOfSignature(signature);
-      const escaped: ts.Type | undefined =
-        original && get_escaped_type(project.checker)(original);
+    const signature: ts.Signature | undefined =
+      props.context.checker.getSignatureFromDeclaration(props.method);
+    const original: ts.Type | undefined =
+      signature && props.context.checker.getReturnTypeOfSignature(signature);
+    const type: ts.Type | undefined =
+      original && get_escaped_type(props.context.checker)(original);
 
-      if (escaped === undefined) return method;
+    if (type === undefined) return props.method;
 
-      const operator = (decorator: ts.Decorator): ts.Decorator => {
-        decorator = TypedExceptionTransformer.transform(project)(decorator);
-        decorator =
-          TypedRouteTransformer.transform(project)(escaped)(decorator);
-        WebSocketRouteTransformer.validate(project)(decorator, method);
-        return decorator;
-      };
-      if (ts.getDecorators !== undefined)
-        return ts.factory.updateMethodDeclaration(
-          method,
-          (method.modifiers || []).map((mod) =>
-            ts.isDecorator(mod) ? operator(mod) : mod,
-          ),
-          method.asteriskToken,
-          method.name,
-          method.questionToken,
-          method.typeParameters,
-          method.parameters,
-          method.type,
-          method.body,
-        );
-      // eslint-disable-next-line
-      return (ts.factory.updateMethodDeclaration as any)(
-        method,
-        decorators.map(operator),
-        (method as any).modifiers,
-        method.asteriskToken,
-        method.name,
-        method.questionToken,
-        method.typeParameters,
-        method.parameters,
-        method.type,
-        method.body,
-      );
+    const operator = (decorator: ts.Decorator): ts.Decorator => {
+      decorator = TypedRouteTransformer.transform({
+        context: props.context,
+        decorator,
+        type,
+      });
+      decorator = WebSocketRouteTransformer.validate({
+        context: props.context,
+        method: props.method,
+        decorator,
+      });
+      return decorator;
     };
+    if (ts.getDecorators !== undefined)
+      return ts.factory.updateMethodDeclaration(
+        props.method,
+        (props.method.modifiers || []).map((mod) =>
+          ts.isDecorator(mod) ? operator(mod) : mod,
+        ),
+        props.method.asteriskToken,
+        props.method.name,
+        props.method.questionToken,
+        props.method.typeParameters,
+        props.method.parameters,
+        props.method.type,
+        props.method.body,
+      );
+    // eslint-disable-next-line
+    return (ts.factory.updateMethodDeclaration as any)(
+      props.method,
+      decorators.map(operator),
+      (props.method as any).modifiers,
+      props.method.asteriskToken,
+      props.method.name,
+      props.method.questionToken,
+      props.method.typeParameters,
+      props.method.parameters,
+      props.method.type,
+      props.method.body,
+    );
+  };
 }
 
 const get_escaped_type =

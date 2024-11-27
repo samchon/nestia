@@ -328,7 +328,7 @@ export namespace MigrateSchemaProgrammer {
         .split("/")
         .slice(3)
         .filter((str) => str.length !== 0)
-        .map(StringUtil.escapeNonVariableSymbols)
+        .map(StringUtil.escapeNonVariable)
         .join("");
       if (name === "") return TypeFactory.keyword("any");
       return importer.dto(name);
@@ -353,7 +353,10 @@ const writeComment = (schema: OpenApi.IJsonSchema): string =>
       : []),
     ...(schema.title !== undefined ? [`@title ${schema.title}`] : []),
     ...(schema.deprecated === true ? [`@deprecated`] : []),
-  ].join("\n");
+  ]
+    .join("\n")
+    .split("*/")
+    .join("*\\/");
 const writePlugin =
   (props: {
     importer: MigrateImportProgrammer;

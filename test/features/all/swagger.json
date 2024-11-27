@@ -7,8 +7,8 @@
     }
   ],
   "info": {
-    "version": "3.3.2",
-    "title": "@nestia/test",
+    "version": "4.0.0-dev.20241027",
+    "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
       "name": "MIT"
@@ -17,6 +17,8 @@
   "paths": {
     "/all": {
       "post": {
+        "summary": "Store an article",
+        "description": "Store an article.\n\nCreate an article, and returns it.",
         "tags": [],
         "parameters": [],
         "requestBody": {
@@ -31,7 +33,7 @@
           "required": true
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Newly archived article",
             "content": {
               "application/json": {
@@ -41,9 +43,7 @@
               }
             }
           }
-        },
-        "summary": "Store an article",
-        "description": "Store an article.\n\nCreate an article, and returns it."
+        }
       }
     },
     "/health": {
@@ -52,7 +52,10 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
           }
         }
       }
@@ -78,9 +81,17 @@
   },
   "components": {
     "schemas": {
-      "IBbsArticle.IStore": {
+      "IBbsArticle": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "title": {
             "type": "string",
             "minLength": 3,
@@ -97,6 +108,8 @@
           }
         },
         "required": [
+          "id",
+          "created_at",
           "title",
           "body",
           "files"
@@ -139,17 +152,9 @@
           "url"
         ]
       },
-      "IBbsArticle": {
+      "IBbsArticle.IStore": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
           "title": {
             "type": "string",
             "minLength": 3,
@@ -166,8 +171,6 @@
           }
         },
         "required": [
-          "id",
-          "created_at",
           "title",
           "body",
           "files"
@@ -309,9 +312,7 @@
     },
     "securitySchemes": {
       "bearer": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Authorization"
+        "type": "apiKey"
       }
     }
   },

@@ -1,14 +1,17 @@
 {
   "name": "@nestia/e2e",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "E2E test utilify functions",
   "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "scripts": {
-    "build": "rimraf lib && tsc",
-    "dev": "npm run build -- --watch",
-    "eslint": "eslint src",
+    "build": "npm run build:main && npm run build:test",
+    "build:main": "rimraf lib && tsc",
+    "build:test": "rimraf bin && tsc -p test/tsconfig.json",
+    "dev": "npm run build:test -- --watch",
+    "eslint": "eslint src && eslint test",
     "prepare": "ts-patch install && typia patch",
-    "test": "node lib/test"
+    "test": "node bin/test"
   },
   "repository": {
     "type": "git",
@@ -30,28 +33,19 @@
   "homepage": "https://nestia.io",
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
-    "@types/cli": "^0.11.21",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.57.0",
     "rimraf": "^4.1.2",
     "ts-node": "^10.9.1",
     "ts-patch": "^3.2.1",
-    "typescript": "^5.5.2",
-    "typia": "^6.3.1"
-  },
-  "dependencies": {
-    "@nestia/fetcher": "^3.2.2",
-    "chalk": "^4.1.2",
-    "cli": "^1.0.1",
-    "tgrid": "^1.0.2",
-    "tstl": "^3.0.0"
+    "typescript": "^5.5.3",
+    "typescript-transform-paths": "^3.4.7",
+    "typia": "^7.0.0-dev.20241027-2"
   },
   "files": [
     "lib",
     "src",
-    "!lib/test",
-    "!src/test",
     "README.md",
     "LICENSE",
     "package.json"

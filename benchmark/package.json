@@ -1,8 +1,9 @@
 {
-  "name": "@nestia/benchmark",
+  "private": true,
+  "name": "@samchon/nestia-benchmark",
   "version": "0.1.0",
   "description": "Benchmark Nestia",
-  "main": "bin/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "rimraf bin && tsc",
     "generate": "ts-node src/generate && npm run prettier && npm run build",
@@ -25,7 +26,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "^3.0.5",
+    "@nestia/core": "^3.10.0-dev.20240803-2",
     "@nestjs/common": "^10.3.7",
     "@nestjs/core": "^10.3.7",
     "@nestjs/platform-express": "^10.3.7",
@@ -39,9 +40,9 @@
     "physical-cpu-count": "^2.0.0",
     "randexp": "^0.5.3",
     "reflect-metadata": "^0.2.2",
-    "tgrid": "^1.0.2",
+    "tgrid": "^1.0.3",
     "tstl": "^3.0.0",
-    "typia": "^6.3.1"
+    "typia": "^7.0.0-dev.20241027-2"
   },
   "devDependencies": {
     "@types/autocannon": "^7.9.0",
@@ -52,6 +53,6 @@
     "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",
     "ts-patch": "^3.2.1",
-    "typescript": "^5.4.5"
+    "typescript": "5.5.4"
   }
 }

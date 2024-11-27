@@ -4,12 +4,12 @@ import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { IMetadataTypeTag } from "typia/lib/schemas/metadata/IMetadataTypeTag";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
-import { MetadataAlias } from "typia/lib/schemas/metadata/MetadataAlias";
+import { MetadataAliasType } from "typia/lib/schemas/metadata/MetadataAliasType";
 import { MetadataArray } from "typia/lib/schemas/metadata/MetadataArray";
 import { MetadataAtomic } from "typia/lib/schemas/metadata/MetadataAtomic";
 import { MetadataConstantValue } from "typia/lib/schemas/metadata/MetadataConstantValue";
 import { MetadataEscaped } from "typia/lib/schemas/metadata/MetadataEscaped";
-import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
+import { MetadataObjectType } from "typia/lib/schemas/metadata/MetadataObjectType";
 import { MetadataProperty } from "typia/lib/schemas/metadata/MetadataProperty";
 import { MetadataTuple } from "typia/lib/schemas/metadata/MetadataTuple";
 import { Escaper } from "typia/lib/utils/Escaper";
@@ -49,19 +49,19 @@ export namespace SdkTypeProgrammer {
         union.push(write_array(project)(importer)(array));
       for (const object of meta.objects)
         if (
-          object.name === "object" ||
-          object.name === "__type" ||
-          object.name.startsWith("__type.") ||
-          object.name === "__object" ||
-          object.name.startsWith("__object.")
+          object.type.name === "object" ||
+          object.type.name === "__type" ||
+          object.type.name.startsWith("__type.") ||
+          object.type.name === "__object" ||
+          object.type.name.startsWith("__object.")
         )
-          union.push(write_object(project)(importer)(object));
-        else union.push(write_alias(project)(importer)(object));
+          union.push(write_object(project)(importer)(object.type));
+        else union.push(write_alias(project)(importer)(object.type));
       for (const alias of meta.aliases)
-        union.push(write_alias(project)(importer)(alias));
+        union.push(write_alias(project)(importer)(alias.type));
       for (const native of meta.natives)
-        if (native === "Blob" || native === "File")
-          union.push(write_native(native));
+        if (native.name === "Blob" || native.name === "File")
+          union.push(write_native(native.name));
 
       return union.length === 1
         ? union[0]
@@ -71,7 +71,7 @@ export namespace SdkTypeProgrammer {
   export const write_object =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (object: MetadataObject): ts.TypeNode => {
+    (object: MetadataObjectType): ts.TypeNode => {
       const regular = object.properties.filter((p) => p.key.isSoleLiteral());
       const dynamic = object.properties.filter((p) => !p.key.isSoleLiteral());
       return FilePrinter.description(
@@ -96,7 +96,7 @@ export namespace SdkTypeProgrammer {
       if (
         meta.original.size() === 1 &&
         meta.original.natives.length === 1 &&
-        meta.original.natives[0] === "Date"
+        meta.original.natives[0].name === "Date"
       )
         return ts.factory.createIntersectionTypeNode([
           TypeFactory.keyword("string"),
@@ -125,8 +125,10 @@ export namespace SdkTypeProgrammer {
             )
           : ts.factory.createBigIntLiteral(value.toString()),
       );
-    else if (typeof value === "number")
-      return ts.factory.createLiteralTypeNode(ExpressionFactory.number(value));
+    else if (typeof value.value === "number")
+      return ts.factory.createLiteralTypeNode(
+        ExpressionFactory.number(value.value),
+      );
     return ts.factory.createLiteralTypeNode(
       ts.factory.createStringLiteral(value.value as string),
     );
@@ -283,7 +285,7 @@ export namespace SdkTypeProgrammer {
   const write_alias =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (meta: MetadataAlias | MetadataObject): ts.TypeNode => {
+    (meta: MetadataAliasType | MetadataObjectType): ts.TypeNode => {
       importInternalFile(project)(importer)(meta.name);
       return ts.factory.createTypeReferenceNode(meta.name);
     };
@@ -363,7 +365,7 @@ const writeComment =
                 a.tags.some((r) => r.some((t) => t.kind === tag.name)),
               ),
           )
-        : jsDocTags ?? [];
+        : (jsDocTags ?? []);
 
     if (description?.length && filtered.length) lines.push("");
     if (filtered.length)

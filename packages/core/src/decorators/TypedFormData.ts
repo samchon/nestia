@@ -11,7 +11,7 @@ import fastifyMulter from "fastify-multer";
 import type * as FastifyMulter from "fastify-multer/lib/interfaces";
 import "fastify-multer/typings/fastify/index.d.ts";
 import expressMulter from "multer";
-import typia from "typia";
+import typia from "typia"
 
 import type { IRequestFormDataProps } from "../options/IRequestFormDataProps";
 import { Singleton } from "../utils/Singleton";
@@ -77,6 +77,10 @@ export namespace TypedFormData {
   export function Body<T extends object>(
     props?: IRequestFormDataProps<T>,
   ): ParameterDecorator {
+    if (typeof File === "undefined")
+      throw new Error(
+        "Error on TypedFormData.Body(): 'File' class is not supported in the older version of NodeJS. Upgrade the NodeJS to the modern.",
+      );
     const checker = validate_request_form_data(props);
     const predicator = (type: "express" | "fastify") =>
       new Singleton(() =>
@@ -85,7 +89,7 @@ export namespace TypedFormData {
     return createParamDecorator(async function TypedFormDataBody(
       _unknown: any,
       context: ExecutionContext,
-    ) {
+    ): Promise<T> {
       const http: HttpArgumentsHost = context.switchToHttp();
       const request: express.Request = http.getRequest();
       if (isMultipartFormData(request.headers["content-type"]) === false)
@@ -105,9 +109,6 @@ export namespace TypedFormData {
       return output;
     })();
   }
-  Object.assign(Body, typia.http.assertFormData);
-  Object.assign(Body, typia.http.isFormData);
-  Object.assign(Body, typia.http.validateFormData);
 }
 
 /**
