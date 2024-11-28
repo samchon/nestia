@@ -55,7 +55,8 @@ export namespace MigrateApiSimulatationProgrammer {
                   name: "typia",
                 }),
               ),
-            )("random"),
+              "random",
+            ),
             [output],
             [ts.factory.createIdentifier("g")],
           ),
@@ -147,9 +148,9 @@ export namespace MigrateApiSimulatationProgrammer {
       ];
       if (parameters.length === 0) return [];
 
-      const validator = StatementFactory.constant(
-        "assert",
-        ts.factory.createCallExpression(
+      const validator = StatementFactory.constant({
+        name: "assert",
+        value: ts.factory.createCallExpression(
           IdentifierFactory.access(
             ts.factory.createIdentifier(
               importer.external({
@@ -158,7 +159,8 @@ export namespace MigrateApiSimulatationProgrammer {
                 name: "NestiaSimulator",
               }),
             ),
-          )("assert"),
+            "assert",
+          ),
           undefined,
           [
             ts.factory.createObjectLiteralExpression(
@@ -186,14 +188,15 @@ export namespace MigrateApiSimulatationProgrammer {
             ),
           ],
         ),
-      );
+      });
       const individual = parameters
         .map((p) =>
           ts.factory.createCallExpression(
             (() => {
               const base = IdentifierFactory.access(
                 ts.factory.createIdentifier("assert"),
-              )(p.category);
+                p.category,
+              );
               if (p.category !== "param") return base;
               return ts.factory.createCallExpression(base, undefined, [
                 ts.factory.createStringLiteral(p.name),
@@ -216,7 +219,8 @@ export namespace MigrateApiSimulatationProgrammer {
                         name: "typia",
                       }),
                     ),
-                  )("assert"),
+                    "assert",
+                  ),
                   undefined,
                   [
                     ts.factory.createIdentifier(
@@ -251,7 +255,8 @@ export namespace MigrateApiSimulatationProgrammer {
                           name: "typia",
                         }),
                       ),
-                    )("is"),
+                      "is",
+                    ),
                     [
                       ts.factory.createTypeReferenceNode(
                         importer.external({

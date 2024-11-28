@@ -114,7 +114,8 @@ export namespace MigrateApiFunctionProgrammer {
                 name: encrypted ? "EncryptedFetcher" : "PlainFetcher",
               }),
             ),
-          )("fetch"),
+            "fetch",
+          ),
           undefined,
           [
             contentType && contentType !== "multipart/form-data"
@@ -130,7 +131,8 @@ export namespace MigrateApiFunctionProgrammer {
                           ts.factory.createSpreadAssignment(
                             IdentifierFactory.access(
                               ts.factory.createIdentifier("connection"),
-                            )("headers"),
+                              "headers",
+                            ),
                           ),
                           ts.factory.createPropertyAssignment(
                             ts.factory.createStringLiteral("Content-Type"),
@@ -149,14 +151,16 @@ export namespace MigrateApiFunctionProgrammer {
                 ts.factory.createSpreadAssignment(
                   IdentifierFactory.access(
                     ts.factory.createIdentifier(route.accessor.at(-1)!),
-                  )("METADATA"),
+                    "METADATA",
+                  ),
                 ),
                 ts.factory.createPropertyAssignment(
                   "path",
                   ts.factory.createCallExpression(
                     IdentifierFactory.access(
                       ts.factory.createIdentifier(route.accessor.at(-1)!),
-                    )("path"),
+                      "path",
+                    ),
                     undefined,
                     [
                       ...route.parameters.map((p) =>
