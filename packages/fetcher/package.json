@@ -1,6 +1,6 @@
 {
   "name": "@nestia/fetcher",
-  "version": "4.0.0-dev.20241127-4",
+  "version": "4.0.0-dev.20241129",
   "description": "Fetcher library of Nestia SDK",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -26,8 +26,8 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@samchon/openapi": "^2.0.0-dev.20241127-2",
-    "typia": "^7.0.0-dev.20241027-2"
+    "@samchon/openapi": "^2.0.0-dev.20241129-8",
+    "typia": "^7.0.0-dev.20241029"
   },
   "peerDependencies": {
     "typescript": ">= 4.8.0"
@@ -38,7 +38,7 @@
     "@typescript-eslint/parser": "^5.46.1",
     "rimraf": "^3.0.2",
     "typescript": "5.5.4",
-    "typia": ">=7.0.0-dev.20241027-2 <8.0.0"
+    "typia": ">=7.0.0-dev.20241029 <8.0.0"
   },
   "files": [
     "README.md",
