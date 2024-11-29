@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "4.0.0-dev.20241129",
+  "version": "4.0.0-dev.20241130",
   "description": "Super-fast validation decorators of NestJS",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -36,10 +36,10 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "../fetcher/nestia-fetcher-4.0.0-dev.20241129.tgz",
+    "@nestia/fetcher": "^4.0.0-dev.20241130",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
-    "@samchon/openapi": "^2.0.0-dev.20241129-8",
+    "@samchon/openapi": "^2.0.0-dev.20241130",
     "detect-ts-node": "^1.0.5",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",
@@ -48,16 +48,16 @@
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.3",
     "tgrid": "^1.0.0",
-    "typia": ">=7.0.0-dev.20241029 <8.0.0",
+    "typia": ">=7.0.0-dev.20241030 <8.0.0",
     "ws": "^7.5.3"
   },
   "peerDependencies": {
-    "@nestia/fetcher": ">=4.0.0-dev.20241129",
+    "@nestia/fetcher": ">=4.0.0-dev.20241130",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.3",
-    "typia": ">=7.0.0-dev.20241029 <8.0.0"
+    "typia": ">=7.0.0-dev.20241030 <8.0.0"
   },
   "devDependencies": {
     "@nestjs/common": "^10.3.3",
