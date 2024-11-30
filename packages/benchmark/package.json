@@ -32,9 +32,9 @@
     "nestia": "^5.5.0",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.2.1",
-    "typescript": "5.5.4",
+    "typescript": "~5.6.3",
     "typescript-transform-paths": "^3.4.7",
-    "typia": "^7.0.0-dev.20241027-2",
+    "typia": "^7.0.0-dev.20241130",
     "uuid": "^10.0.0"
   },
   "dependencies": {
