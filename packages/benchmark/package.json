@@ -34,7 +34,7 @@
     "ts-patch": "^3.2.1",
     "typescript": "~5.6.3",
     "typescript-transform-paths": "^3.4.7",
-    "typia": "^7.0.0-dev.20241030",
+    "typia": "^7.0.0-dev.20241130",
     "uuid": "^10.0.0"
   },
   "dependencies": {

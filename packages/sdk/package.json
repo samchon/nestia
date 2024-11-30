@@ -44,7 +44,7 @@
     "tsconfck": "^2.1.2",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^3.0.0",
-    "typia": "^7.0.0-dev.20241030"
+    "typia": "^7.0.0-dev.20241130"
   },
   "peerDependencies": {
     "@nestia/core": ">=4.0.0-dev.20241130",
@@ -53,7 +53,7 @@
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
     "ts-node": ">=10.6.0",
-    "typia": ">=7.0.0-dev.20241030 <8.0.0"
+    "typia": ">=7.0.0-dev.20241130 <8.0.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
