@@ -34,7 +34,7 @@
   "dependencies": {
     "@nestia/core": "../core/nestia-core-4.0.0-dev.20241202.tgz",
     "@nestia/fetcher": "../fetcher/nestia-fetcher-4.0.0-dev.20241202.tgz",
-    "@samchon/openapi": "^2.0.0-dev.20241202-2",
+    "@samchon/openapi": "2.0.0-dev.20241202-2",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",
@@ -44,7 +44,7 @@
     "tsconfck": "^2.1.2",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^3.0.0",
-    "typia": "^7.0.0-dev.20241202"
+    "typia": "7.0.0-dev.20241202"
   },
   "peerDependencies": {
     "@nestia/core": ">=4.0.0-dev.20241202",
