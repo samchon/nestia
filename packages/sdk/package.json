@@ -32,8 +32,8 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/core": "^4.0.0-dev.20241202",
-    "@nestia/fetcher": "^4.0.0-dev.20241202",
+    "@nestia/core": "../core/nestia-core-4.0.0-dev.20241202.tgz",
+    "@nestia/fetcher": "../fetcher/nestia-fetcher-4.0.0-dev.20241202.tgz",
     "@samchon/openapi": "^2.0.0-dev.20241202-2",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",

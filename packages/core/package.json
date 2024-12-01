@@ -36,7 +36,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@nestia/fetcher": "^4.0.0-dev.20241202",
+    "@nestia/fetcher": "../fetcher/nestia-fetcher-4.0.0-dev.20241202.tgz",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
     "@samchon/openapi": "^2.0.0-dev.20241202-2",
@@ -48,7 +48,7 @@
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.3",
     "tgrid": "^1.0.0",
-    "typia": ">=7.0.0-dev.20241202 <8.0.0",
+    "typia": "^7.0.0-dev.20241202",
     "ws": "^7.5.3"
   },
   "peerDependencies": {
