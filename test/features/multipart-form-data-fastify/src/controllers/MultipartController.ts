@@ -1,6 +1,7 @@
 import core from "@nestia/core";
 import { ArrayUtil, TestValidator } from "@nestia/e2e";
 import { Controller } from "@nestjs/common";
+import FastifyMulter from "fastify-multer";
 
 import { IMultipart } from "@api/lib/structures/IMultipart";
 
@@ -8,7 +9,7 @@ import { IMultipart } from "@api/lib/structures/IMultipart";
 export class MultipartController {
   @core.TypedRoute.Post()
   public async post(
-    @core.TypedFormData.Body() body: IMultipart,
+    @core.TypedFormData.Body(() => FastifyMulter()) body: IMultipart,
   ): Promise<IMultipart.IContent> {
     await validateBlob(0)(body.blob);
     await ArrayUtil.asyncForEach(body.blobs)((blob, i) =>

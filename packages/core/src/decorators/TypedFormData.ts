@@ -1,15 +1,11 @@
-import type { Multipart } from "@fastify/multipart";
 import {
   BadRequestException,
   ExecutionContext,
-  InternalServerErrorException,
   createParamDecorator,
 } from "@nestjs/common";
 import type { HttpArgumentsHost } from "@nestjs/common/interfaces";
 import type express from "express";
-import type { FastifyReply, FastifyRequest } from "fastify";
-import multer from "multer";
-import typia from "typia";
+import type ExpressMulter from "multer";
 
 import type { IRequestFormDataProps } from "../options/IRequestFormDataProps";
 import { Singleton } from "../utils/Singleton";
@@ -36,13 +32,13 @@ import { validate_request_form_data } from "./internal/validate_request_form_dat
  * 3. Only `boolean`, `bigint`, `number`, `string`, `Blob`, `File` or their array types are allowed
  * 4. By the way, union type never be not allowed
  *
- * By the way, if you're using `fastify`, you have to setup `@fastify/multipart`
+ * By the way, if you're using `fastify`, you have to setup `fastify-multer`
  * and configure like below when composing the NestJS application. If you don't do
  * that, `@TypedFormData.Body()` will not work properly, and throw 500 internal
  * server error when `Blob` or `File` type being utilized.
  *
  * ```typescript
- * import multipart from "fastify-multipart";
+ * import fastifyMulter from "fastify-multer";
  * import { NestFactory } from "@nestjs/core";
  * import {
  *   FastifyAdapter,
@@ -54,7 +50,7 @@ import { validate_request_form_data } from "./internal/validate_request_form_dat
  *     AppModule,
  *     new FastifyAdapter(),
  *   );
- *   app.register(multipart);
+ *   app.register(fastifyMulter.contentParser);
  *   await app.listen(3000);
  * }
  * ```
@@ -70,20 +66,29 @@ export namespace TypedFormData {
    *
    * Much easier and type safer than `@nest.UploadFile()` decorator.
    *
-   * @param props Automatically filled by transformer
+   * @param factory Factory function ncreating the `multer` or `fastify-multer`
+   *                instance. In the factory function, you also can specify the
+   *                multer composition options like `storage` engine.
+   */
+  export function Body<Multer extends IMulterBase>(
+    factory: () => Multer | Promise<Multer>,
+  ): ParameterDecorator;
+
+  /**
+   * @internal
    */
   export function Body<T extends object>(
-    props?: IRequestFormDataProps<T>,
+    factory: () => Promise<IMulterBase>,
+    props?: IRequestFormDataProps<T> | undefined,
   ): ParameterDecorator {
     if (typeof File === "undefined")
       throw new Error(
         "Error on TypedFormData.Body(): 'File' class is not supported in the older version of NodeJS. Upgrade the NodeJS to the modern.",
       );
     const checker = validate_request_form_data(props);
-    const predicator = (type: "express" | "fastify") =>
-      new Singleton(() =>
-        type === "express" ? decodeExpress(props!) : decodeFastify(props!),
-      );
+    const uploader = new Singleton(async () =>
+      decode((await factory()) as ExpressMulter.Multer, props!),
+    );
     return createParamDecorator(async function TypedFormDataBody(
       _unknown: any,
       context: ExecutionContext,
@@ -94,11 +99,9 @@ export namespace TypedFormData {
         throw new BadRequestException(
           `Request body type is not "multipart/form-data".`,
         );
-
-      const decoder = isExpressRequest(request)
-        ? predicator("express").get()
-        : predicator("fastify").get();
-      const data: FormData = await decoder({
+      const data: FormData = await (
+        await uploader.get()
+      )({
         request: request as any,
         response: http.getResponse(),
       });
@@ -107,16 +110,27 @@ export namespace TypedFormData {
       return output;
     })();
   }
-  Object.assign(Body, typia.http.assertFormData);
-  Object.assign(Body, typia.http.isFormData);
-  Object.assign(Body, typia.http.validateFormData);
+
+  /**
+   * Base type of the `multer` or `fastify-multer`.
+   */
+  export interface IMulterBase {
+    single(fieldName: string): any;
+    array(fieldName: string, maxCount?: number): any;
+    fields(fields: readonly object[]): any;
+    any(): any;
+    none(): any;
+  }
 }
 
 /**
  * @internal
  */
-const decodeExpress = <T>(props: IRequestFormDataProps<T>) => {
-  const upload = multerApplication.get().fields(
+const decode = <T>(
+  multer: ExpressMulter.Multer,
+  props: IRequestFormDataProps<T>,
+) => {
+  const upload = multer.fields(
     props!.files.map((file) => ({
       name: file.name,
       ...(file.limit === 1 ? { maxCount: 1 } : {}),
@@ -144,40 +158,6 @@ const decodeExpress = <T>(props: IRequestFormDataProps<T>) => {
     return data;
   };
 };
-
-/**
- * @internal
- */
-const decodeFastify =
-  <T>(_props: IRequestFormDataProps<T>) =>
-  async (socket: {
-    request: FastifyRequest & {
-      parts?(): AsyncIterableIterator<Multipart>;
-    };
-    response: FastifyReply;
-  }): Promise<FormData> => {
-    if (
-      socket.request.files === undefined ||
-      typeof socket.request.files !== "function"
-    )
-      throw new InternalServerErrorException(
-        "Have not configured the `fastify-multipart` plugin yet. Inquiry to the backend developer.",
-      );
-    const data: FormData = new FormData();
-    for await (const part of socket.request.parts())
-      if (part.type === "file")
-        data.append(
-          part.fieldname,
-          new File([await part.toBuffer()], part.filename, {
-            type: part.mimetype,
-          }),
-        );
-      else if (Array.isArray(part.value))
-        for (const elem of part.value)
-          data.append(part.fieldname, String(elem));
-      else data.append(part.fieldname, String(part.value));
-    return data;
-  };
 
 /**
  * @internal
@@ -213,15 +193,3 @@ const isMultipartFormData = (text?: string): boolean =>
     .split(";")
     .map((str) => str.trim())
     .some((str) => str === "multipart/form-data");
-
-/**
- * @internal
- */
-const isExpressRequest = (
-  request: express.Request | FastifyRequest,
-): request is express.Request => (request as express.Request).app !== undefined;
-
-/**
- * @internal
- */
-const multerApplication = new Singleton(() => multer());

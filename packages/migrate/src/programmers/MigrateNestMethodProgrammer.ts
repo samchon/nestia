@@ -56,7 +56,8 @@ export namespace MigrateNestMethodProgrammer {
                       name: "typia",
                     }),
                   ),
-                )("random"),
+                  "random",
+                ),
                 [output],
                 undefined,
               ),
@@ -102,7 +103,8 @@ export namespace MigrateNestMethodProgrammer {
       const router = (instance: string) =>
         ts.factory.createDecorator(
           ts.factory.createCallExpression(
-            IdentifierFactory.access(external("@nestia/core")(instance))(
+            IdentifierFactory.access(
+              external("@nestia/core")(instance),
               StringUtil.capitalize(route.method),
             ),
             [],
@@ -196,9 +198,11 @@ export namespace MigrateNestMethodProgrammer {
       ),
       ...(route.headers
         ? [
-            writeDtoParameter({ method: "TypedHeaders", variable: "headers" })(
-              components,
-            )(importer)({
+            writeDtoParameter({
+              method: "TypedHeaders",
+              variable: "headers",
+              arguments: [],
+            })(components)(importer)({
               required: true,
               schema: route.headers.schema,
               example: route.headers.example(),
@@ -208,9 +212,11 @@ export namespace MigrateNestMethodProgrammer {
         : []),
       ...(route.query
         ? [
-            writeDtoParameter({ method: "TypedQuery", variable: "query" })(
-              components,
-            )(importer)({
+            writeDtoParameter({
+              method: "TypedQuery",
+              variable: "query",
+              arguments: [],
+            })(components)(importer)({
               required: true,
               schema: route.query.schema,
               example: route.query.example(),
@@ -233,6 +239,29 @@ export namespace MigrateNestMethodProgrammer {
                         ? ["TypedFormData", "Body"]
                         : "TypedBody",
               variable: "body",
+              arguments:
+                route.body.type === "multipart/form-data"
+                  ? [
+                      ts.factory.createArrowFunction(
+                        undefined,
+                        undefined,
+                        [],
+                        undefined,
+                        undefined,
+                        ts.factory.createCallExpression(
+                          ts.factory.createIdentifier(
+                            importer.external({
+                              type: "default",
+                              library: "multer",
+                              name: "Multer",
+                            }),
+                          ),
+                          undefined,
+                          undefined,
+                        ),
+                      ),
+                    ]
+                  : [],
             })(components)(importer)({
               schema: route.body.schema,
               required: !(
@@ -248,7 +277,11 @@ export namespace MigrateNestMethodProgrammer {
     ];
 
   const writeDtoParameter =
-    (accessor: { method: string | [string, string]; variable: string }) =>
+    (accessor: {
+      method: string | [string, string];
+      variable: string;
+      arguments: ts.Expression[];
+    }) =>
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (props: {
@@ -274,9 +307,9 @@ export namespace MigrateNestMethodProgrammer {
             ts.factory.createCallExpression(
               typeof accessor.method === "string"
                 ? instance
-                : IdentifierFactory.access(instance)(accessor.method[1]),
+                : IdentifierFactory.access(instance, accessor.method[1]),
               undefined,
-              undefined,
+              accessor.arguments,
             ),
           ),
         ],
@@ -308,9 +341,10 @@ export namespace MigrateNestMethodProgrammer {
                       name: "SwaggerExample",
                     }),
                   ),
-                )(kind),
+                  kind,
+                ),
                 [],
-                [LiteralFactory.generate(media.example)],
+                [LiteralFactory.write(media.example)],
               ),
             ),
           ]
@@ -326,12 +360,10 @@ export namespace MigrateNestMethodProgrammer {
                   name: "SwaggerExample",
                 }),
               ),
-            )(kind),
+              kind,
+            ),
             [],
-            [
-              ts.factory.createStringLiteral(key),
-              LiteralFactory.generate(value),
-            ],
+            [ts.factory.createStringLiteral(key), LiteralFactory.write(value)],
           ),
         ),
       ),

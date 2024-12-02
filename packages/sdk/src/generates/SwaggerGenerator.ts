@@ -3,8 +3,8 @@ import { OpenApi, OpenApiV3, SwaggerV2 } from "@samchon/openapi";
 import fs from "fs";
 import path from "path";
 import { Singleton } from "tstl";
-import typia, { IJsonApplication } from "typia";
-import { JsonApplicationProgrammer } from "typia/lib/programmers/json/JsonApplicationProgrammer";
+import typia, { IJsonSchemaCollection } from "typia";
+import { JsonSchemasProgrammer } from "typia/lib/programmers/json/JsonSchemasProgrammer";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 import { INestiaConfig } from "../INestiaConfig";
@@ -86,9 +86,10 @@ export namespace SwaggerGenerator {
       .filter((m) => m.size() !== 0);
 
     // COMPOSE JSON SCHEMAS
-    const json: IJsonApplication = JsonApplicationProgrammer.write("3.1")(
+    const json: IJsonSchemaCollection = JsonSchemasProgrammer.write({
+      version: "3.1",
       metadatas,
-    ) as IJsonApplication;
+    });
     const dict: WeakMap<Metadata, OpenApi.IJsonSchema> = new WeakMap();
     json.schemas.forEach((schema, i) => dict.set(metadatas[i], schema));
     const schema = (metadata: Metadata): OpenApi.IJsonSchema | undefined =>

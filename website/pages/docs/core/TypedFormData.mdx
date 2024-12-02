@@ -3,7 +3,10 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 ## Outline
 ```typescript filename="@nestia/core" showLineNumbers
 export namespace TypedFormData {
-  export function Body(): ParameterDecorator;
+  export function Body<Multer extends IMulterBase>(
+    factory: () => Multer | Promise<Multer>
+  ): ParameterDecorator;
+  export type IMulterBase = ExpressMulter.Multer | FastifyMulter.Multer;
 }
 ```
 
@@ -23,12 +26,13 @@ Of course, as every features of `nestia` does, you don't need to define any extr
 ```typescript filename="nestia/MultipartController.ts" showLineNumbers {8}
 import { TypedFormData, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
+import Multer from "multer";
 
 @Controller("bbs/articles")
 export class BbsArticlesController {
   @TypedRoute.Post()
   public async create(
-    @TypedFormData.Body() input: IBbsArticleCreate,
+    @TypedFormData.Body(() => Multer()) input: IBbsArticleCreate,
   ): Promise<void> {
     input;
   }
@@ -154,6 +158,7 @@ export interface IBbsArticleCreate {
 ```typescript copy filename="BbsArticlesController.ts" showLineNumbers {10}
 import { TypedFormData, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
+import Multer from "multer";
 
 import { IBbsArticleCreate } from "./IBbsArticleCreate";
 
@@ -161,7 +166,7 @@ import { IBbsArticleCreate } from "./IBbsArticleCreate";
 export class BbsArticlesController {
   @TypedRoute.Post()
   public async create(
-    @TypedFormData.Body() input: IBbsArticleCreate,
+    @TypedFormData.Body(() => Multer()) input: IBbsArticleCreate,
   ): Promise<void> {
     input;
   }
@@ -440,23 +445,41 @@ Just call `@TypedFormData.Body()` function on the request body parameter, that's
 
 Such optimization is called AOT (Ahead of Time) compilation, and it is the secret of `@TypedFormData.Body`.
 
-By the way, if you're using `fastify`, you have to setup `@fastify/multipart` and configure like below when composing the NestJS application. If you don't do it, `@TypedFormData.Body()` will not work properly, and throw 500 internal server error when `Blob` or `File` type being utilized.
+By the way, if you're using `fastify`, you have to setup `fastify-multer` and configure like below when composing the NestJS application. If you don't do it, `@TypedFormData.Body()` will not work properly, and throw 500 internal server error when `Blob` or `File` type being utilized.
 
-```typescript filename="main.ts" showLineNumbers {1, 11}
-import multipart from "fastify-multipart";
+```typescript filename="fastify-nestjs showLineNumbers {1, 11}
+// main.ts
 import { NestFactory } from "@nestjs/core";
 import { 
   FastifyAdapter, 
   NestFastifyApplication 
 } from "@nestjs/platform-fastify";
+import FastifyMulter from "fastify-multer";
 
 export async function main() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
   );
-  app.register(multipart);
+  app.register(FastifyMulter.contentParser as any);
   await app.listen(3000);
+}
+
+// BbsArticlesController.ts
+import { TypedFormData, TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import FastifyMulter from "fastify-multer";
+
+import { IBbsArticleCreate } from "./IBbsArticleCreate";
+
+@Controller("bbs/articles")
+export class BbsArticlesController {
+  @TypedRoute.Post()
+  public async create(
+    @TypedFormData.Body(() => FastifyMulter()) input: IBbsArticleCreate,
+  ): Promise<void> {
+    input;
+  }
 }
 ```
 

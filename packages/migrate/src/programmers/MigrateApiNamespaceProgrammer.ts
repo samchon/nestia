@@ -117,7 +117,7 @@ export namespace MigrateApiNamespaceProgrammer {
               ts.factory.createPropertyAssignment(
                 "request",
                 route.body
-                  ? LiteralFactory.generate({
+                  ? LiteralFactory.write({
                       type: route.body.type,
                       encrypted: !!route.body["x-nestia-encrypted"],
                     })
@@ -126,7 +126,7 @@ export namespace MigrateApiNamespaceProgrammer {
               ts.factory.createPropertyAssignment(
                 "response",
                 route.method.toUpperCase() !== "HEAD"
-                  ? LiteralFactory.generate({
+                  ? LiteralFactory.write({
                       type: route.success?.type ?? "application/json",
                       encrypted: !!route.success?.["x-nestia-encrypted"],
                     })
@@ -306,7 +306,8 @@ export namespace MigrateApiNamespaceProgrammer {
                           ts.factory.createCallExpression(
                             IdentifierFactory.access(
                               ts.factory.createIdentifier(variables),
-                            )("append"),
+                              "append",
+                            ),
                             undefined,
                             [
                               ts.factory.createIdentifier("key"),
@@ -325,7 +326,8 @@ export namespace MigrateApiNamespaceProgrammer {
                     ts.factory.createCallExpression(
                       IdentifierFactory.access(
                         ts.factory.createIdentifier(variables),
-                      )("set"),
+                        "set",
+                      ),
                       undefined,
                       [
                         ts.factory.createIdentifier("key"),
@@ -347,7 +349,8 @@ export namespace MigrateApiNamespaceProgrammer {
                   ExpressionFactory.number(0),
                   IdentifierFactory.access(
                     ts.factory.createIdentifier(variables),
-                  )("size"),
+                    "size",
+                  ),
                 ),
                 undefined,
                 ts.factory.createIdentifier("location"),
@@ -363,7 +366,8 @@ export namespace MigrateApiNamespaceProgrammer {
                       ts.factory.createCallExpression(
                         IdentifierFactory.access(
                           ts.factory.createIdentifier(variables),
-                        )("toString"),
+                          "toString",
+                        ),
                         undefined,
                         undefined,
                       ),

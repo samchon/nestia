@@ -4,7 +4,7 @@ import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
-import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
+import { MetadataObjectType } from "typia/lib/schemas/metadata/MetadataObjectType";
 import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
 import { Escaper } from "typia/lib/utils/Escaper";
 
@@ -96,14 +96,17 @@ export namespace SdkOperationProgrammer {
           imports: [],
         };
     const [primitive, resolved] = [true, false].map((escape) =>
-      MetadataFactory.analyze(
-        p.context.checker,
-        p.context.api,
-      )({
-        escape,
-        constant: true,
-        absorb: true,
-      })(p.context.collection)(p.type),
+      MetadataFactory.analyze({
+        checker: p.context.checker,
+        transformer: p.context.transformer,
+        options: {
+          escape,
+          constant: true,
+          absorb: true,
+        },
+        collection: p.context.collection,
+        type: p.type,
+      }),
     );
     return {
       ...analyzed,
@@ -184,10 +187,10 @@ export namespace SdkOperationProgrammer {
 const iterateVisited = (metadata: Metadata): Set<string> => {
   const names: Set<string> = new Set();
   MetadataUtil.visit((m) => {
-    for (const alias of m.aliases) names.add(alias.name);
+    for (const alias of m.aliases) names.add(alias.type.name);
     for (const array of m.arrays) names.add(array.type.name);
     for (const tuple of m.tuples) names.add(tuple.type.name);
-    for (const object of m.objects) names.add(object.name);
+    for (const object of m.objects) names.add(object.type.name);
   })(metadata);
   return names;
 };
@@ -196,7 +199,7 @@ const join = ({
   object,
   key,
 }: {
-  object: MetadataObject;
+  object: MetadataObjectType;
   key: string | object | null;
 }) => {
   if (key === null) return object.name;

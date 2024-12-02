@@ -5,7 +5,6 @@ import {
 } from "@nestjs/common";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
-import { assert } from "typia";
 
 import { get_text_body } from "./internal/get_text_body";
 import { is_request_body_undefined } from "./internal/is_request_body_undefined";
@@ -68,7 +67,6 @@ export function PlainBody(
     return value;
   })();
 }
-Object.assign(PlainBody, assert);
 
 /**
  * @internal

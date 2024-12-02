@@ -53,7 +53,6 @@ export namespace NestiaEditorComposer {
             openFile: config.openFile,
             startScript: config.startScript,
           },
-          errors: [],
         };
       const result: IValidation<MigrateApplication> =
         await MigrateApplication.create(props.document);
@@ -86,7 +85,6 @@ export namespace NestiaEditorComposer {
           openFile: config.openFile,
           startScript: config.startScript,
         },
-        errors: [],
       } satisfies IValidation<IOutput>;
     };
 }
