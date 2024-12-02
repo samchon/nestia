@@ -31,7 +31,6 @@ export class MigrateApplication {
     return {
       success: true,
       data: new MigrateApplication(OpenApi.convert(document)),
-      errors: [],
     };
   }
 
