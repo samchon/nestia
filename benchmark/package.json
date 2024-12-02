@@ -42,7 +42,7 @@
     "reflect-metadata": "^0.2.2",
     "tgrid": "^1.0.3",
     "tstl": "^3.0.0",
-    "typia": "7.0.0-dev.20241202"
+    "typia": "^7.0.0-dev.20241202-5"
   },
   "devDependencies": {
     "@types/autocannon": "^7.9.0",
