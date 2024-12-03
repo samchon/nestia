@@ -65,7 +65,7 @@
     "serialize-error": "^4.1.0",
     "source-map-support": "^0.5.21",
     "swagger-ui-express": "^5.0.0",
-    "tgrid": "^1.0.3",
+    "tgrid": "^1.1.0",
     "ts-node": "^10.9.1",
     "ts-patch": "^3.2.1",
     "typescript-transform-paths": "^3.5.2"

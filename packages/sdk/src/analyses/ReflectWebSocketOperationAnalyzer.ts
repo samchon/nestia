@@ -116,11 +116,14 @@ export namespace ReflectWebSocketOperationAnalyzer {
             description: matched.description,
             jsDocTags: matched.jsDocTags,
           } satisfies IReflectWebSocketOperationParameter.IParam;
-
         // UNKNOWN TYPE, MAYBE NEW FEATURE
-        return errors.push(
-          `@WebSocketRoute.${StringUtil.capitalize(p.category)}() has not been supported yet. How about upgrading the nestia packages?`,
-        );
+        else {
+          if (p.category !== "header")
+            errors.push(
+              `@WebSocketRoute.${StringUtil.capitalize(p.category)}() has not been supported yet. How about upgrading the nestia packages?`,
+            );
+          return null;
+        }
       })
       .filter((p): p is IReflectWebSocketOperationParameter => !!p);
 
