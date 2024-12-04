@@ -35,7 +35,7 @@
     "nestia": "^6.2.0",
     "ts-node": "^10.9.2",
     "ts-patch": "v3.2.1",
-    "typescript": "~5.6.3",
+    "typescript": "~5.7.2",
     "typescript-transform-paths": "^3.5.2"
   },
   "dependencies": {
