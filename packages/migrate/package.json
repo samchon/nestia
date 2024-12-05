@@ -67,7 +67,7 @@
     "swagger-ui-express": "^5.0.0",
     "tgrid": "^1.1.0",
     "ts-node": "^10.9.1",
-    "ts-patch": "^3.2.1",
+    "ts-patch": "^3.3.0",
     "typescript-transform-paths": "^3.5.2"
   },
   "dependencies": {
