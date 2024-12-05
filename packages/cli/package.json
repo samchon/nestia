@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "6.3.0",
+  "version": "6.3.1",
   "description": "Nestia CLI tool",
   "main": "bin/index.js",
   "bin": {
@@ -42,7 +42,7 @@
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",
     "rimraf": "^3.0.2",
-    "typescript": "~5.6.3"
+    "typescript": "~5.7.2"
   },
   "files": [
     "bin",

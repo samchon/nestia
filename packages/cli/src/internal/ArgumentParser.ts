@@ -115,7 +115,9 @@ export namespace ArgumentParser {
     "npm" | "pnpm" | "yarn" | "bun" | null
   > => {
     const result: DetectResult | null = await detect({ cwd: process.cwd() });
-    if (result?.name === "npm") return null; // NPM case is still selectable
+    if (result?.name === "npm")
+      return null; // NPM case is still selectable
+    else if (result?.name === "deno") return null; // Deno case is not supported
     return result?.name ?? null;
   };
 }
