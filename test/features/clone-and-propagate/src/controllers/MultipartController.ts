@@ -1,12 +1,14 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import Multer from "multer";
+import FastifyMulter from "fastify-multer";
 import { tags } from "typia";
 
 @Controller("multipart")
 export class MultipartController {
   @core.TypedRoute.Post()
-  public post(@core.TypedFormData.Body(() => Multer()) body: IMultipart): void {
+  public post(
+    @core.TypedFormData.Body(() => FastifyMulter()) body: IMultipart,
+  ): void {
     body;
   }
 }

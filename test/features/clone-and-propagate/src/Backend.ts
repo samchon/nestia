@@ -1,10 +1,13 @@
 import core from "@nestia/core";
-import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-import { FastifyAdapter } from "@nestjs/platform-fastify";
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from "@nestjs/platform-fastify";
+import FastifyMulter from "fastify-multer";
 
 export class Backend {
-  private application_?: INestApplication;
+  private application_?: NestFastifyApplication;
 
   public async open(): Promise<void> {
     this.application_ = await NestFactory.create(
@@ -15,6 +18,7 @@ export class Backend {
       new FastifyAdapter(),
       { logger: false },
     );
+    await this.application_.register(FastifyMulter.contentParser as any);
     await this.application_.listen(37_000);
   }
 
