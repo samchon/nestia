@@ -1,6 +1,7 @@
 import core from "@nestia/core";
 import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import { FastifyAdapter } from "@nestjs/platform-fastify";
 
 export class Backend {
   private application_?: INestApplication;
@@ -11,6 +12,7 @@ export class Backend {
         key: "A".repeat(32),
         iv: "B".repeat(16),
       }),
+      new FastifyAdapter(),
       { logger: false },
     );
     await this.application_.listen(37_000);
