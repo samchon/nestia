@@ -32,6 +32,7 @@
     "@types/multer": "^1.4.12",
     "@types/node": "20.11.16",
     "@types/uuid": "^9.0.8",
+    "chalk": "4.1.2",
     "nestia": "workspace:^",
     "ts-node": "^10.9.2",
     "ts-patch": "~3.3.0",
