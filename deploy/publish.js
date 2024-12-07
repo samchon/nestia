@@ -1,8 +1,5 @@
 const cp = require("child_process");
 const fs = require("fs");
-const { build } = require("./build");
-
-const packages = ["fetcher", "core", "sdk"];
 
 const execute = ({ cwd, script, studio }) => {
   console.log(script);
@@ -12,29 +9,24 @@ const execute = ({ cwd, script, studio }) => {
   });
 };
 
-const setup = ({ tag, version, directory }) => {
+const setup = ({ tag, name, directory, version }) => {
   // CHANGE PACKAGE.JSON INFO
   const file = `${directory}/package.json`;
   const info = JSON.parse(fs.readFileSync(file, "utf8"));
-  info.version = version;
+  info.version = version(name);
 
   // SET DEPENDENCIES
   const rollbacks = [];
-  for (const record of [info.dependencies ?? {}, info.devDependencies ?? {}])
-    for (const key of Object.keys(record))
-      if (
-        key.startsWith("@nestia") &&
-        packages.includes(key.replace("@nestia/", ""))
-      ) {
-        record[key] = `^${version}`;
-        rollbacks.push(() => (record[key] = `workspace:^`));
+  if (info.dependencies)
+    for (const key of Object.keys(info.dependencies)) {
+      if (key.startsWith("@nestia") && !!version(key.replace("@nestia/", ""))) {
+        info.dependencies[key] = `^${version(key.replace("@nestia/", ""))}`;
+        rollbacks.push(() => (info.dependencies[key] = `workspace:^`));
       }
+    }
   for (const key of Object.keys(info.peerDependencies ?? {}))
-    if (
-      key.startsWith("@nestia") &&
-      packages.includes(key.replace("@nestia/", ""))
-    )
-      info.peerDependencies[key] = `>=${version}`;
+    if (key.startsWith("@nestia") && !!version(key.replace("@nestia/", "")))
+      info.peerDependencies[key] = `>=${version(key.replace("@nestia/", ""))}`;
 
   // DO PUBLISH
   fs.writeFileSync(file, JSON.stringify(info, null, 2), "utf8");
@@ -62,28 +54,21 @@ const deploy = ({ tag, version, name }) => {
   setup({
     tag,
     version,
+    name,
     directory,
   });
   console.log("");
 };
 
-const publish = async (tag) => {
-  // GET VERSION
-  const version = (() => {
-    const content = fs.readFileSync(`${__dirname}/../package.json`, "utf8");
-    const info = JSON.parse(content);
-    return info.version;
-  })();
-
+const publish = async ({ tag, packages, version }) => {
   // VALIDATE TAG
-  const dev = version.includes("-dev.") === true;
-  if (tag === "next" && dev === false)
+  const dev = version(packages[0])?.includes("-dev.");
+  if (dev === undefined)
+    throw new Error("Invalid package version. Please check the package.json.");
+  else if (tag === "next" && dev === false)
     throw new Error(`${tag} tag can only be used for dev versions.`);
   else if (tag === "latest" && dev === true)
     throw new Error(`latest tag can only be used for non-dev versions.`);
-
-  // BUILD FIRST
-  await build();
 
   // DO DEPLOY
   const skip = (() => {
@@ -99,6 +84,7 @@ const publish = async (tag) => {
       tag,
       version,
       name: pack,
+      version,
     });
     await new Promise((resolve) => setTimeout(resolve, 1_000));
   }

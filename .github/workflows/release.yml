@@ -21,3 +21,8 @@ jobs:
         run: npm run package:latest
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH }}
+      - name: Website
+        uses: JamesIves/github-pages-deploy-action@4.1.3
+        with:
+          branch: gh-pages
+          folder: ./website/out

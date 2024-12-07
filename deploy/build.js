@@ -11,13 +11,16 @@ const execute = (name) => {
   cp.execSync("npm run build", { stdio: "inherit" });
 };
 
-const build = async () => {
-  await execute("fetcher");
-  await execute("core");
-  await execute("sdk");
-  await execute("e2e");
-  await execute("cli");
-  await execute("benchmark");
+const build = async (packages) => {
+  for (const pack of packages ?? [
+    "fetcher",
+    "core",
+    "sdk",
+    "e2e",
+    "cli",
+    "benchmark",
+  ])
+    await execute(pack);
 };
 
 module.exports = { build };

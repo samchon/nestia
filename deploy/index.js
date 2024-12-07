@@ -1,12 +1,21 @@
+const { version } = require("../package.json");
 const { build } = require("./build");
+const { migrate } = require("./migrate");
 const { publish } = require("./publish");
 
 const main = async () => {
-  if (process.argv[2] === "build") await build();
-  else if (process.argv[2] === "publish") {
+  await build();
+  if (process.argv[2] === "publish") {
     const index = process.argv.indexOf("--tag");
     const tag = index === -1 ? "next" : process.argv[index + 1];
-    await publish(tag);
+    await publish({
+      tag,
+      version: (name) =>
+        ["fetcher", "core", "sdk"].includes(name) ? version : null,
+      packages: ["fetcher", "core", "sdk"],
+    });
+    if (tag === "latest" || process.argv.includes("--migrate"))
+      await migrate(tag);
   }
 };
 main().catch((error) => {

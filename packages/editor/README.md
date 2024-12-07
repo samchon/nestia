@@ -6,7 +6,7 @@
 [![Downloads](https://img.shields.io/npm/dm/@nestia/fetcher.svg)](https://www.npmjs.com/package/@nestia/fetcher)
 [![Build Status](https://github.com/samchon/nestia/workflows/build/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Abuild)
 [![Guide Documents](https://img.shields.io/badge/guide-documents-forestgreen)](https://nestia.io/docs/)
-[![Discord Badge](https://img.shields.io/badge/discord-NestJS/Nestia-d91965?style=flat&labelColor=5866f2&logo=discord&logoColor=white&link=https://discord.com/channels/520622812742811698/1197293125434093701)](https://discord.com/channels/520622812742811698/1181877086797967420)
+[![Discord Badge](https://img.shields.io/badge/discord-samchon-d91965?style=flat&labelColor=5866f2&logo=discord&logoColor=white&link=https://discord.gg/E94XhzrUCZ)](https://discord.gg/E94XhzrUCZ)
 
 Nestia is a set of helper libraries for NestJS, supporting below features:
 
@@ -15,7 +15,6 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
     - Advanced WebSocket routes
   - `@nestia/sdk`:
     - Swagger generator evolved than ever
-    - OpenAI function calling schema generator
     - SDK library generator for clients
     - Mockup Simulator for client applications
     - Automatic E2E test functions generator
