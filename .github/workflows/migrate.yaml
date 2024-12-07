@@ -2,12 +2,14 @@ name: build
 on: 
   push:
     paths:
+      - '.github/workflows/migrate.yaml'
       - 'packages/migrate/assets/input/*.json'
       - 'packages/migrate/src/**'
       - 'packages/migrate/test/**'
       - 'packages/migrate/package.json'
   pull_request:
     paths:
+      - '.github/workflows/migrate.yaml'
       - 'packages/*/src/**'
       - 'packages/*/package.json'
       - 'test/**'
@@ -26,7 +28,7 @@ jobs:
           version: 8
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install && npm run build
       - name: test
         working-directory: ./packages/migrate
         run: npm run test
