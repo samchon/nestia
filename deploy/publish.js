@@ -34,7 +34,7 @@ const setup = ({ tag, name, directory, version }) => {
     fs.rmSync(`${directory}/package-lock.json`);
   execute({
     cwd: directory,
-    script: `npm publish --tag ${tag} --access public${tag === "latest" ? "--provenance" : ""}`,
+    script: `npm publish --tag ${tag} --access public${tag === "latest" ? " --provenance" : ""}`,
     studio: "inherit",
   });
 
