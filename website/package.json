@@ -23,7 +23,7 @@
     "@mui/icons-material": "5.15.6",
     "@mui/material": "5.15.6",
     "@mui/system": "5.15.6",
-    "@nestia/editor": "^0.9.3",
+    "@nestia/editor": "latest",
     "next": "14.2.13",
     "nextra": "^2.13.4",
     "nextra-theme-docs": "^2.13.4",
@@ -38,7 +38,7 @@
     "next-sitemap": "^4.2.3",
     "rimraf": "^5.0.0",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.26.2",
+    "typedoc": "^0.27.3",
     "typescript": "~5.7.2"
   }
 }

@@ -37,8 +37,8 @@
     "package-manager-detector": "^0.2.0"
   },
   "devDependencies": {
-    "@nestia/core": "^3.8.0",
-    "@nestia/sdk": "^3.8.0",
+    "@nestia/core": "workspace:^",
+    "@nestia/sdk": "workspace:^",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",
     "rimraf": "^3.0.2",

@@ -2,14 +2,16 @@ name: build
 on: 
   push:
     paths:
+      - '.github/workflows/build.yml'
       - 'packages/{core,fetcher,sdk}/src/**'
       - 'packages/{core,fetcher,sdk}/package.json'
       - 'test/**'
       - 'test/package.json'
   pull_request:
     paths:
-      - 'packages/*/src/**'
-      - 'packages/*/package.json'
+      - '.github/workflows/build.yml'
+      - 'packages/{core,fetcher,sdk}/src/**'
+      - 'packages/{core,fetcher,sdk}/package.json'
       - 'test/**'
       - 'test/package.json'
 
@@ -21,6 +23,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: test
         working-directory: ./test

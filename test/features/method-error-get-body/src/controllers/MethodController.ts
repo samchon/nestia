@@ -7,7 +7,7 @@ import { IBbsArticle } from "../api/structures/IBbsArticle";
 @Controller("method")
 export class MethodController {
   @core.TypedRoute.Get("body")
-  public body(input: IBbsArticle.IStore): IBbsArticle {
+  public body(@core.TypedBody() input: IBbsArticle.IStore): IBbsArticle {
     input;
     return typia.random<IBbsArticle>();
   }

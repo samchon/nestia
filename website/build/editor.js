@@ -6,7 +6,7 @@ const PACKAGE = `${__dirname}/../../packages/editor`;
 const ASSETS = `${PACKAGE}/dist/assets`;
 
 const main = async () => {
-  cp.execSync("npm i && npm run build:static", {
+  cp.execSync("pnpm install && npm run build:static", {
     stdio: "ignore",
     cwd: PACKAGE,
   });

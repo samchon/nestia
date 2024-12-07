@@ -1,17 +1,19 @@
-name: build
+name: migrate
 on: 
   push:
     paths:
+      - '.github/workflows/migrate.yaml'
       - 'packages/migrate/assets/input/*.json'
       - 'packages/migrate/src/**'
       - 'packages/migrate/test/**'
       - 'packages/migrate/package.json'
   pull_request:
     paths:
-      - 'packages/*/src/**'
-      - 'packages/*/package.json'
-      - 'test/**'
-      - 'test/package.json'
+      - '.github/workflows/migrate.yaml'
+      - 'packages/migrate/assets/input/*.json'
+      - 'packages/migrate/src/**'
+      - 'packages/migrate/test/**'
+      - 'packages/migrate/package.json'
 
 jobs:
   Ubuntu:
@@ -21,7 +23,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
 
+      - name: Install dependencies
+        run: pnpm install && npm run build
+      - name: Build
+        working-directory: ./packages/migrate
+        run: npm run build
       - name: test
-        working-directory: ./test
-        run: npm start
+        working-directory: ./packages/migrate
+        run: npm run test

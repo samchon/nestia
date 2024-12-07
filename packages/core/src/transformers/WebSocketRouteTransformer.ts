@@ -99,11 +99,20 @@ const isLocated = (signature: ts.Signature) => {
   const location: string = path.resolve(
     signature.declaration.getSourceFile().fileName,
   );
-  return location.indexOf(LIB_PATH) !== -1;
+  return (
+    location.indexOf(LIB_PATH) !== -1 || location.indexOf(MONO_PATH) !== -1
+  );
 };
 
 const LIB_PATH = path.join(
   "@nestia",
+  "core",
+  "lib",
+  "decorators",
+  `WebSocketRoute.d.ts`,
+);
+const MONO_PATH = path.join(
+  "packages",
   "core",
   "lib",
   "decorators",

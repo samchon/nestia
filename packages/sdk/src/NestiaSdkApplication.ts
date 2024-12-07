@@ -46,6 +46,7 @@ export class NestiaSdkApplication {
         }
         if (this.config.swagger) await SwaggerGenerator.generate(app);
       },
+      validate: this.config.output ? SdkGenerator.validate : undefined,
     });
   }
 
@@ -232,11 +233,13 @@ export class NestiaSdkApplication {
     AccessorAnalyzer.analyze(routes);
 
     if (props.validate !== undefined)
-      props.validate({
-        project,
-        collection,
-        routes,
-      });
+      project.errors.push(
+        ...props.validate({
+          project,
+          collection,
+          routes,
+        }),
+      );
     if (project.errors.length)
       return report({
         type: "error",
@@ -295,7 +298,8 @@ const report = (props: {
         })
         .join("\n"),
     ].join("");
-    console.log(message);
+    if (props.type === "error") throw new Error(message);
+    else console.log(message);
   }
 };
 
