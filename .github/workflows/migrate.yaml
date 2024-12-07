@@ -29,6 +29,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install && npm run build
+      - name: Build
+        working-directory: ./packages/migrate
+        run: npm run build
       - name: test
         working-directory: ./packages/migrate
         run: npm run test
