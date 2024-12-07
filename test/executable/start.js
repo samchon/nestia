@@ -1,6 +1,7 @@
 const cp = require("child_process");
 const fs = require("fs");
-const { publish } = require("../../deploy/publish");
+
+const { build } = require("../../deploy/build");
 
 const featureDirectory = (name) => `${__dirname}/../features/${name}`;
 const feature = (name) => {
@@ -13,31 +14,33 @@ const feature = (name) => {
     name === "cli-config" || name === "cli-config-project"
       ? "nestia.configuration.ts"
       : "nestia.config.ts";
-  const generate = (type) => {
+  const generate = (type, mustBeError) => {
     const tail =
       name === "cli-config" || name === "cli-config-project"
         ? " --config nestia.configuration.ts"
         : name === "cli-config-project" || name === "cli-project"
           ? " --project tsconfig.nestia.json"
           : "";
-    try {
+    if (mustBeError)
       cp.execSync(`npx nestia ${type}${tail}`, { stdio: "ignore" });
-    } catch {
-      cp.execSync(`npx nestia ${type}${tail}`, { stdio: "inherit" });
-    }
+    else
+      try {
+        cp.execSync(`npx nestia ${type}${tail}`, { stdio: "ignore" });
+      } catch {
+        cp.execSync(`npx nestia ${type}${tail}`, { stdio: "inherit" });
+      }
   };
 
   // ERROR MODE HANDLING
-  if (name.includes("error"))
+  if (name.includes("error")) {
     try {
-      TestValidator.error("compile error")(() => {
-        cp.execSync("npx tsc", { stdio: "ignore" });
-        generate("all");
-      });
-      throw new Error("compile error must be occured.");
+      cp.execSync("npx tsc", { stdio: "ignore" });
+      generate("all", true);
     } catch {
       return;
     }
+    throw new Error("compile error must be occured.");
+  }
 
   // GENERATE SWAGGER & OPENAI & SDK & E2E
   for (const file of [
@@ -52,10 +55,8 @@ const feature = (name) => {
   ])
     cp.execSync(`npx rimraf ${file}`, { stdio: "ignore" });
 
-  if (name.includes("distribute"))
-    cp.execSync(`npx rimraf packages/api`, { stdio: "ignore" });
-
-  if (name === "all") {
+  if (name.includes("distribute")) return;
+  else if (name === "all") {
     const config = fs.readFileSync(`${featureDirectory(name)}/${file}`, "utf8");
     {
       const lines = config.split("\r\n").join("\n").split("\n");
@@ -86,8 +87,8 @@ const main = async () => {
   };
 
   await measure("\nTotal Elapsed Time")(async () => {
-    if (!process.argv.find((str) => str === "--skipBuild"))
-      await publish("tgz");
+    if (!process.argv.find((str) => str === "--skipBuild")) await build();
+    cp.execSync("pnpm install", { stdio: "inherit" });
 
     console.log("\nTest Features");
     const filter = (() => {
@@ -103,17 +104,6 @@ const main = async () => {
       for (const name of await fs.promises.readdir(featureDirectory("")))
         if (filter(name)) await measure()(async () => feature(name));
     }
-
-    // console.log("\nMigration Tests");
-    // if (!process.argv.includes("--skipMigrates")) {
-    //     if (fs.existsSync(`${__dirname}/../migrated`))
-    //         fs.rmSync(`${__dirname}/../migrated`, { recursive: true });
-    //     fs.mkdirSync(`${__dirname}/../migrated`);
-
-    //     for (const name of ["body", "date", "head", "param", "plain", "query" ,"security"])
-    //         if (name.includes(only ?? name))
-    //             await measure()(async () => migrate(name));
-    // }
   });
 };
 

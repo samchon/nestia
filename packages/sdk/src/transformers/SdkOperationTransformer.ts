@@ -195,14 +195,20 @@ export namespace SdkOperationTransformer {
     props.decorators
       .map((deco) => {
         if (false === ts.isCallExpression(deco.expression)) return null;
+
         const signature: ts.Signature | undefined =
           props.checker.getResolvedSignature(deco.expression);
         if (signature === undefined) return null;
         else if (!signature.declaration) return null;
+
         const location: string = path.resolve(
           signature.declaration.getSourceFile()?.fileName ?? "",
         );
-        if (location.includes(TYPED_EXCEPTION_PATH) === false) return null;
+        if (
+          location.includes(TYPED_EXCEPTION_LIB_PATH) === false &&
+          location.includes(TYPED_EXCEPTION_MONO_PATH) === false
+        )
+          return null;
         else if (deco.expression.typeArguments?.length !== 1) return null;
         return deco.expression.typeArguments[0];
       })
@@ -224,8 +230,15 @@ class MethodKey {
   }
 }
 
-const TYPED_EXCEPTION_PATH = path.join(
+const TYPED_EXCEPTION_LIB_PATH = path.join(
   "@nestia",
+  "core",
+  "lib",
+  "decorators",
+  `TypedException.d.ts`,
+);
+const TYPED_EXCEPTION_MONO_PATH = path.join(
+  "packages",
   "core",
   "lib",
   "decorators",

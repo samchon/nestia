@@ -32,7 +32,7 @@ export namespace ParameterDecoratorTransformer {
 
     // FILE PATH
     const file: string = path.resolve(declaration.getSourceFile().fileName);
-    if (file.indexOf(LIB_PATH) === -1 && file.indexOf(SRC_PATH) === -1)
+    if (file.indexOf(LIB_PATH) === -1 && file.indexOf(MONO_PATH) === -1)
       return props.decorator;
 
     //----
@@ -127,7 +127,7 @@ const FUNCTORS: Record<string, Programmer> = {
 };
 
 const LIB_PATH = path.join("@nestia", "core", "lib", "decorators");
-const SRC_PATH = path.resolve(path.join(__dirname, "..", "decorators"));
+const MONO_PATH = path.join("packages", "core", "lib", "decorators");
 
 const getName = (symbol: ts.Symbol): string => {
   const parent = symbol.getDeclarations()?.[0]?.parent;

@@ -23,7 +23,16 @@ async function main(): Promise<void> {
       const elapsed: number =
         new Date(exec.completed_at).getTime() -
         new Date(exec.started_at).getTime();
-      console.log(`  - ${exec.name}: ${elapsed.toLocaleString()} ms`);
+      if (exec.error === null)
+        console.log(`  - ${exec.name}: ${elapsed.toLocaleString()} ms`);
+      else console.log(`  - ${exec.name} -> Error`);
+    },
+    filter: (name) => {
+      const index: number = process.argv.findIndex(
+        (str) => str === "--include",
+      );
+      if (index === -1) return true;
+      return process.argv.slice(index + 1).some((str) => name.includes(str));
     },
   });
   await server.close();

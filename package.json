@@ -1,13 +1,12 @@
 {
   "private": true,
   "name": "@nestia/station",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "description": "Nestia station",
   "scripts": {
-    "build": "node build/index.js",
-    "package:latest": "node deploy latest",
-    "package:next": "node deploy next",
-    "package:tgz": "node deploy tgz",
+    "build": "node deploy build",
+    "package:latest": "node deploy publish --tag latest",
+    "package:next": "node deploy publish --tag next",
     "prettier": "prettier packages/*/src/**/*.ts --write && prettier benchmark/**/*.ts && prettier test/**/*.ts --write",
     "test": "cd test && npm run start"
   },
@@ -23,6 +22,7 @@
   "homepage": "https://nestia.io",
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "@types/node": "^22.10.1",
     "prettier": "^3.2.4",
     "rimraf": "^5.0.1",
     "sloc": "^0.3.0"
