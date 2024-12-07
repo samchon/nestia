@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "rimraf lib && tsc && rollup -c",
-    "bundle": "ts-node src/executable/bundle.ts",
+    "bundle": "node src/executable/bundle.js",
     "dev": "rimraf lib && tsc --watch",
     "package:next": "npm publish --access public --tag next",
     "prepare": "ts-patch install && typia patch && npm run bundle",

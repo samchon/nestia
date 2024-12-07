@@ -1,19 +1,17 @@
-import cp from "child_process";
-import fs from "fs";
+const cp = require("child_process");
+const fs = require("fs");
 
-import { IHttpMigrateFile } from "../structures/IHttpMigrateFile";
+const ROOT = `${__dirname}/../..`;
+const ASSETS = `${ROOT}/assets`;
 
-const ROOT: string = `${__dirname}/../..`;
-const ASSETS: string = `${ROOT}/assets`;
-
-const bundle = async (props: {
-  mode: "nest" | "sdk";
-  repository: string;
-  exceptions?: string[];
-}): Promise<void> => {
-  const root: string = `${__dirname}/../..`;
-  const assets: string = `${root}/assets`;
-  const template: string = `${assets}/${props.mode}`;
+const bundle = async ({
+  mode,
+  repository,
+  exceptions,
+}) => {
+  const root = `${__dirname}/../..`;
+  const assets = `${root}/assets`;
+  const template = `${assets}/${mode}`;
 
   const clone = async () => {
     // CLONE REPOSITORY
@@ -25,29 +23,29 @@ const bundle = async (props: {
       } catch {}
 
     cp.execSync(
-      `git clone https://github.com/samchon/${props.repository} ${props.mode}`,
+      `git clone https://github.com/samchon/${repository} ${mode}`,
       {
         cwd: ASSETS,
       },
     );
 
     // REMOVE VUNLERABLE FILES
-    for (const location of props.exceptions ?? [])
+    for (const location of exceptions ?? [])
       await fs.promises.rm(`${template}/${location}`, { recursive: true });
   };
 
   const iterate =
-    (collection: IHttpMigrateFile[]) => async (location: string) => {
-      const directory: string[] = await fs.promises.readdir(location);
+    (collection) => async (location) => {
+      const directory = await fs.promises.readdir(location);
       for (const file of directory) {
-        const absolute: string = location + "/" + file;
-        const stats: fs.Stats = await fs.promises.stat(absolute);
+        const absolute = location + "/" + file;
+        const stats = await fs.promises.stat(absolute);
         if (stats.isDirectory()) await iterate(collection)(absolute);
         else {
-          const content: string = await fs.promises.readFile(absolute, "utf-8");
+          const content = await fs.promises.readFile(absolute, "utf-8");
           collection.push({
             location: (() => {
-              const str: string = location.replace(template, "");
+              const str = location.replace(template, "");
               return str[0] === "/" ? str.substring(1) : str;
             })(),
             file,
@@ -57,10 +55,10 @@ const bundle = async (props: {
       }
     };
 
-  const archive = async (collection: IHttpMigrateFile[]): Promise<void> => {
-    const name: string = `${props.mode.toUpperCase()}_TEMPLATE`;
-    const body: string = JSON.stringify(collection, null, 2);
-    const content: string = `export const ${name} = ${body}`;
+  const archive = async (collection) => {
+    const name = `${mode.toUpperCase()}_TEMPLATE`;
+    const body = JSON.stringify(collection, null, 2);
+    const content = `export const ${name} = ${body}`;
 
     try {
       await fs.promises.mkdir(`${ROOT}/src/bundles`);
@@ -72,13 +70,13 @@ const bundle = async (props: {
     );
   };
 
-  const collection: IHttpMigrateFile[] = [];
+  const collection = [];
   await clone();
   await iterate(collection)(template);
   await archive(collection);
 };
 
-const main = async (): Promise<void> => {
+const main = async () => {
   await bundle({
     mode: "nest",
     repository: "nestia-start",
