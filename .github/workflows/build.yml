@@ -10,8 +10,8 @@ on:
   pull_request:
     paths:
       - '.github/workflows/build.yml'
-      - 'packages/*/src/**'
-      - 'packages/*/package.json'
+      - 'packages/{core,fetcher,sdk}/src/**'
+      - 'packages/{core,fetcher,sdk}/package.json'
       - 'test/**'
       - 'test/package.json'
 

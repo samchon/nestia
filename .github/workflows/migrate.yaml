@@ -10,10 +10,10 @@ on:
   pull_request:
     paths:
       - '.github/workflows/migrate.yaml'
-      - 'packages/*/src/**'
-      - 'packages/*/package.json'
-      - 'test/**'
-      - 'test/package.json'
+      - 'packages/migrate/assets/input/*.json'
+      - 'packages/migrate/src/**'
+      - 'packages/migrate/test/**'
+      - 'packages/migrate/package.json'
 
 jobs:
   Ubuntu:
