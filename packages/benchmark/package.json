@@ -29,7 +29,7 @@
     "@nestjs/core": "^10.3.10",
     "@nestjs/platform-express": "^10.3.10",
     "@types/uuid": "^10.0.0",
-    "nestia": "workspace:^i",
+    "nestia": "workspace:^",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.3.0",
     "typescript": "~5.7.2",
