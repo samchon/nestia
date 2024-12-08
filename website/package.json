@@ -25,8 +25,8 @@
     "@mui/system": "5.15.6",
     "@nestia/editor": "latest",
     "next": "14.2.13",
-    "nextra": "^2.13.4",
-    "nextra-theme-docs": "^2.13.4",
+    "nextra": "^3.2.4",
+    "nextra-theme-docs": "^3.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
