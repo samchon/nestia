@@ -59,6 +59,7 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
             return {
               success: false,
               errors: exp as any,
+              data: undefined,
             } satisfies IValidation.IFailure;
           }
         })();
