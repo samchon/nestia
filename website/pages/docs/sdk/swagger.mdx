@@ -87,7 +87,7 @@ export default NESTIA_CONFIG;
 # BUILD SWAGGER DOCUUMET ONLY
 npx nestia swagger
 
-# BUILD SWAGGER/OPENAI/SDK/E2E AT THE SAME TIME
+# BUILD SWAGGER/SDK/E2E AT THE SAME TIME
 npx nestia all
 ```
   </Tab>
@@ -95,7 +95,7 @@ npx nestia all
 
 Otherwise you want to generate a swagger file by CLI (Command Line Interface), configure `nestia.config.ts` file and run the `npx nestia swagger` command. Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate `swagger.json` file.
 
-When you want to build not only Swagger Document file, but also [OpenAI function calling schema](./openai), [SDK (Software Development Kit) library](./sdk) and [automated E2E (End-to-End) test functions](./e2e) at the same time, run `npx nestia all` command instead.
+When you want to build not only Swagger Document file, but also [SDK (Software Development Kit) library](./sdk) and [automated E2E (End-to-End) test functions](./e2e) at the same time, run `npx nestia all` command instead.
 
 
 
