@@ -27,7 +27,7 @@
     "rimraf": "^5.0.1",
     "sloc": "^0.3.0"
   },
-  "resolutions": {
+  "overrides": {
     "@jridgewell/gen-mapping": "0.3.5"
   }
 }
