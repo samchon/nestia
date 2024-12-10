@@ -6,8 +6,6 @@ const execute = (name) => {
   console.log("=========================================");
 
   process.chdir(`${__dirname}/../packages/${name}`);
-
-  cp.execSync("pnpm install", { stdio: "inherit" });
   cp.execSync("npm run build", { stdio: "inherit" });
 };
 

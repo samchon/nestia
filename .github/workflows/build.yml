@@ -1,12 +1,5 @@
 name: build
 on: 
-  push:
-    paths:
-      - '.github/workflows/build.yml'
-      - 'packages/{core,fetcher,sdk}/src/**'
-      - 'packages/{core,fetcher,sdk}/package.json'
-      - 'test/**'
-      - 'test/package.json'
   pull_request:
     paths:
       - '.github/workflows/build.yml'
@@ -14,7 +7,6 @@ on:
       - 'packages/{core,fetcher,sdk}/package.json'
       - 'test/**'
       - 'test/package.json'
-
 jobs:
   Ubuntu:
     runs-on: ubuntu-latest
@@ -30,6 +22,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build
+        run: npm run build
+
       - name: test
         working-directory: ./test
-        run: npm start
+        run: pnpm install && npm start -- --skipBuild

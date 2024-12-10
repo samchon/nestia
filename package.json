@@ -1,14 +1,13 @@
 {
   "private": true,
   "name": "@nestia/station",
-  "version": "4.0.5",
+  "version": "4.1.0",
   "description": "Nestia station",
   "scripts": {
     "build": "node deploy build",
     "package:latest": "node deploy publish --tag latest",
     "package:next": "node deploy publish --tag next",
-    "prettier": "prettier packages/*/src/**/*.ts --write && prettier benchmark/**/*.ts && prettier test/**/*.ts --write",
-    "test": "cd test && npm run start"
+    "prettier": "prettier packages/*/src/**/*.ts --write && prettier benchmark/**/*.ts && prettier test/**/*.ts --write"
   },
   "repository": {
     "type": "git",
