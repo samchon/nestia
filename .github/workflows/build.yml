@@ -27,4 +27,4 @@ jobs:
 
       - name: test
         working-directory: ./test
-        run: npm start
+        run: pnpm install && npm start -- --skipBuild
