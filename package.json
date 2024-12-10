@@ -26,5 +26,8 @@
     "prettier": "^3.2.4",
     "rimraf": "^5.0.1",
     "sloc": "^0.3.0"
+  },
+  "resolutions": {
+    "@jridgewell/gen-mapping": "0.3.5"
   }
 }

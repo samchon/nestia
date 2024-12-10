@@ -1,12 +1,5 @@
 name: migrate
-on: 
-  push:
-    paths:
-      - '.github/workflows/migrate.yaml'
-      - 'packages/migrate/assets/input/*.json'
-      - 'packages/migrate/src/**'
-      - 'packages/migrate/test/**'
-      - 'packages/migrate/package.json'
+on:
   pull_request:
     paths:
       - '.github/workflows/migrate.yaml'
@@ -14,7 +7,6 @@ on:
       - 'packages/migrate/src/**'
       - 'packages/migrate/test/**'
       - 'packages/migrate/package.json'
-
 jobs:
   Ubuntu:
     runs-on: ubuntu-latest
