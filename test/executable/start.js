@@ -1,8 +1,6 @@
 const cp = require("child_process");
 const fs = require("fs");
 
-const { build } = require("../../deploy/build");
-
 const featureDirectory = (name) => `${__dirname}/../features/${name}`;
 const feature = (name) => {
   // MOVE TO THE DIRECTORY
@@ -87,8 +85,6 @@ const main = async () => {
   };
 
   await measure("\nTotal Elapsed Time")(async () => {
-    if (!process.argv.find((str) => str === "--skipBuild")) await build();
-
     console.log("\nTest Features");
     const filter = (() => {
       const only = process.argv.findIndex((str) => str === "--only");

@@ -19,11 +19,13 @@ jobs:
         with:
           version: 8
 
-      - name: Install dependencies
+      - name: Setup dependencies
         run: pnpm install && npm run build
+
       - name: Build
         working-directory: ./packages/migrate
         run: npm run build
+        
       - name: test
         working-directory: ./packages/migrate
         run: npm run test
