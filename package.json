@@ -25,10 +25,5 @@
     "prettier": "^3.2.4",
     "rimraf": "^5.0.1",
     "sloc": "^0.3.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "@jridgewell/gen-mapping": "0.3.5"
-    }
   }
 }
