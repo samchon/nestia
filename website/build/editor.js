@@ -2,18 +2,23 @@ const cp = require("child_process");
 const fs = require("fs");
 const JsZip = require("jszip");
 
-const PACKAGE = `${__dirname}/../../packages/editor`;
-const ASSETS = `${PACKAGE}/dist/assets`;
+const MIGRATE = `${__dirname}/../../packages/migrate`;
+const EDITOR = `${__dirname}/../../packages/editor`;
+const ASSETS = `${EDITOR}/dist/assets`;
 
 const main = async () => {
-  cp.execSync("pnpm install && npm run build:static", {
+  cp.execSync("npm run build", {
     stdio: "ignore",
-    cwd: PACKAGE,
+    cwd: MIGRATE,
+  });
+  cp.execSync("npm run build:static", {
+    stdio: "ignore",
+    cwd: EDITOR,
   });
   const zip = new JsZip();
   zip.file(
     "index.html",
-    await fs.promises.readFile(`${PACKAGE}/dist/index.html`),
+    await fs.promises.readFile(`${EDITOR}/dist/index.html`),
   );
   for (const file of await fs.promises.readdir(ASSETS))
     zip.file(`assets/${file}`, await fs.promises.readFile(`${ASSETS}/${file}`));
