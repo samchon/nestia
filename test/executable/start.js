@@ -88,7 +88,6 @@ const main = async () => {
 
   await measure("\nTotal Elapsed Time")(async () => {
     if (!process.argv.find((str) => str === "--skipBuild")) await build();
-    cp.execSync("pnpm install", { stdio: "inherit" });
 
     console.log("\nTest Features");
     const filter = (() => {
