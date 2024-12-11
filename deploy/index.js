@@ -15,7 +15,10 @@ const main = async () => {
       packages: ["fetcher", "core", "sdk"],
     });
     if (tag === "latest" || process.argv.includes("--migrate"))
-      await migrate(tag);
+      await migrate({
+        tag,
+        version: () => version,
+      });
   }
 };
 main().catch((error) => {
