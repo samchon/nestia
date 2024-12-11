@@ -1,10 +1,13 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 
 import { EDITOR_EXAMPLES } from "../../../src/constants/EDITOR_EXAMPLES";
+import { HyperLink } from "../../../src/components/basic/HyperLink";
+import { List } from "../../../src/components/basic/List";
+import { ListItem } from "../../../src/components/basic/ListItem";
 
 ## Outline
 <Tabs items={["Bootstrap", "Configuration"]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="main.ts" showLineNumbers {8-9} copy
 import { NestiaSwaggerComposer } from "@nestia/sdk";
 import { INestApplication } from "@nestjs/common";
@@ -19,8 +22,8 @@ const main = async (): Promise<void> => {
 };
 main().catch(console.error);
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="tsconfig.json" showLineNumbers
 {
   "compilerOptions": {
@@ -33,7 +36,7 @@ main().catch(console.error);
   },
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 If you want to build Swagger Document in runtime, compose it like above.
@@ -41,7 +44,7 @@ If you want to build Swagger Document in runtime, compose it like above.
 By the way, it needs plugin configuration on the `tsconfig.json` file.
 
 <Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="nestia.config.ts" showLineNumbers copy
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -81,8 +84,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" showLineNumbers
 # BUILD SWAGGER DOCUUMET ONLY
 npx nestia swagger
@@ -90,7 +93,7 @@ npx nestia swagger
 # BUILD SWAGGER/SDK/E2E AT THE SAME TIME
 npx nestia all
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Otherwise you want to generate a swagger file by CLI (Command Line Interface), configure `nestia.config.ts` file and run the `npx nestia swagger` command. Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate `swagger.json` file.
@@ -152,13 +155,13 @@ Configure plugin property of `tsconfig.json` file like above.
 To activate the runtime swagger composer by `NestiaSwaggerComposer.document()` function, you have to configure the plugin on the `tsconfig.json` file. If you've not done it yet, open the `tsconfig.json` file and configure like above. If you don't do that, the runtime swagger composer cannot find any API operations, so that the Swagger Document would be empty.
 
 <Tabs items={["Argument Specified", "Prompt Question"]}>
-  <Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal"
 npm install --save-dev nestia@latest
 npx nestia setup --runtime true
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal"
 npm install --save-dev nestia@latest
 npx nestia setup
@@ -174,7 +177,7 @@ npx nestia setup
 > true
   false
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 If you feel the `tsconfig.json` file configuration annoying, you can do it with CLI command of `nestia`. Just run the `npx nestia setup --runtime true` command, then the `tsconfig.json` file would be automatically configured with the plugin property. 
@@ -191,7 +194,7 @@ If you do not specify the `--runtime true` argument, so that run only the `npx n
   <code>INestiaConfig.ts</code>,
   <code>OpenApi.ISecuritySchema</code>,
 ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {18-35}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -231,8 +234,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="INestiaConfig.ts" showLineNumbers {10-15, 163-256}
 import type { INestApplication } from "@nestjs/common";
 import type { OpenApi } from "@samchon/openapi";
@@ -492,8 +495,8 @@ export namespace INestiaConfig {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="@samchon/openapi" showLineNumbers
 /**
  * Security scheme of Swagger Documents.
@@ -553,7 +556,7 @@ export namespace ISecurityScheme {
   }
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Make `nestia.config.ts` file and run `npx nestia swagger` command.
@@ -808,7 +811,7 @@ For reference, target security schemes must be configured in the `nestia.config.
   <code>nestia.config.ts</code>,
   <code>OpenApi.ISecurityScheme</code>,
 ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="Controller" showLineNumbers {17-20, 35, 46-49, 66, 68}
 import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -890,8 +893,8 @@ export class BbsArticlesController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```json filename="swagger.json" showLineNumbers {20-22, 60-70, 75, 77, 124-131, 266-271}
 {
   "openapi": "3.1.0",
@@ -1167,8 +1170,8 @@ export class BbsArticlesController {
   "x-samchon-emended": true
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="nestia.config.ts" showLineNumbers {6-51}
 import type { INestiaConfig } from "@nestia/sdk";
 
@@ -1224,8 +1227,8 @@ export const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="@samchon/openapi" showLineNumbers
 /**
  * Security scheme of Swagger Documents.
@@ -1285,7 +1288,7 @@ export namespace ISecurityScheme {
   }
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ![Swagger Editor](/images/swagger-tags.png)
@@ -1343,7 +1346,7 @@ Let's see how those type and comment tags work with example code.
   <code>IBbsArticle.ts</code>, 
   <code>swagger.json</code>
 ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="SpecialTag.ts" showLineNumbers
 export interface SpecialTag {
   /**
@@ -1409,8 +1412,8 @@ export interface SpecialTag {
     tags.MaxItems<100>;
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```json filename="swagger.json" showLineNumbers {6, 9, 14-17, 22, 27, 33, 46, 51, 62, 64-65}
 {
   "SpecialTag": {
@@ -1490,8 +1493,8 @@ export interface SpecialTag {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="nestia.config.ts" showLineNumbers
 /**
  * Security schema of Swagger Documents.
@@ -1559,7 +1562,7 @@ export namespace ISecurityScheme {
   }
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 
@@ -1573,7 +1576,7 @@ If what you want is not just filling special properties of JSON schema spec, but
 For reference, the custom property must be started with x- prefix. It's a rule of JSON schema.
 
 <Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="examples/src/json-schema-custom.ts" copy showLineNumbers {7-9, 13, 17-18}
 import typia, { tags } from "typia";
  
@@ -1596,8 +1599,8 @@ interface IAccount {
 };
 typia.json.application<[IAccount]>();
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript copy filename="examples/bin/json-schema-custom.js" showLineNumbers {10, 14}
 ({
   version: "3.1",
@@ -1626,7 +1629,7 @@ typia.json.application<[IAccount]>();
   ],
 });
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Otherwise you wanna customize the swagger data, utilize the `@SwaggerCustomizer()` decorator.
@@ -1641,7 +1644,7 @@ Also, this `@SwaggerCustomizer()` decorator is especially useful when defining a
     <code>ShoppingSellerAuth.ts</code>
   ]} 
   defaultIndex={2}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="@nestia/core" showLineNumbers
 export function SwaggerCustomizer(
   closure: (props: SwaggerCustomizer.IProps) => unknown,
@@ -1664,8 +1667,8 @@ export namespace SwaggerCustomizer {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="CustomController.ts" showLineNumbers {7-18}
 import { SwaggerCustomizer, TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -1695,8 +1698,8 @@ export class CustomController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="ShoppingSellerAuth.ts" showLineNumbers {14-19}
 import { ExecutionContext, createParamDecorator } from "@nestjs/common";
 import { Singleton } from "tstl";
@@ -1727,7 +1730,7 @@ const singleton = new Singleton(() =>
   })()
 );
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 
@@ -1738,23 +1741,24 @@ You can choose two options for `swagger.json` file distribution.
 
 The 1st is publishing the `swagger.json` file in a public repo, and showing it through [`@nestia/editor`](/docs/editor) like below:
 
-{<ul>
+{<List>
   {EDITOR_EXAMPLES.map((example) => (
-    <li>
-      <a href={`/editor/?url=${encodeURIComponent(example.swagger)}&simulate=true&e2e=true`} 
-          target="_blank">
+    <ListItem>
+      <HyperLink 
+        href={`/editor/?url=${encodeURIComponent(example.swagger)}&simulate=true&e2e=true`} 
+        target="_blank">
         {example.title}
-      </a>
-    </li>
+      </HyperLink>
+    </ListItem>
   ))}
-</ul>}
+</List>}
 
 The 2nd way is to hosting the `swagger.json` file in the NestJS backend server.
 
 Read below example code, and follow it on yours:
 
 <Tabs items={["Runtime", "File Generated"]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="main.ts" showLineNumbers copy
 import { NestiaSwaggerComposer } from "@nestia/sdk";
 import { INestApplication } from "@nestjs/common";
@@ -1770,8 +1774,8 @@ const main = async (): Promise<void> => {
 };
 main().catch(console.error);
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="main.ts" showLineNumbers copy
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule } from "@nestjs/swagger";
@@ -1787,5 +1791,5 @@ const main = async (): Promise<void> => {
 }
 main().catch(console.error);
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>

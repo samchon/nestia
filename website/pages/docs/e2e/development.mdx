@@ -1,4 +1,4 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 
 ## Outline
 Test your backend server with e2e test functions.
@@ -125,7 +125,7 @@ If you want to see more test program cases, visit below links:
     "Test Function #2",
     "Test Function #3",
   ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="test/features/api/bbs/test_api_bbs_article_create.ts" showLineNumbers
 import { RandomGenerator, TestValidator } from "@nestia/e2e";
 import { v4 } from "uuid";
@@ -165,8 +165,8 @@ export async function test_api_bbs_article_create(
   TestValidator.equals("created")(stored)(read);
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="test/features/api/bbs/test_api_bbs_article_update.ts" showLineNumbers
 import { RandomGenerator, TestValidator } from "@nestia/e2e";
 import { v4 } from "uuid";
@@ -231,8 +231,8 @@ export async function test_api_bbs_article_update(
   );
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="test/features/api/bbs/test_api_bbs_article_index_search.ts" showLineNumbers
 import { ArrayUtil, RandomGenerator, TestValidator } from "@nestia/e2e";
 
@@ -302,7 +302,7 @@ export async function test_api_bbs_article_index_search(
   });
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Developing e2e test functions are very easy. Just make e2e based test function utilizing `@nestia/sdk` generated SDK library, and exports the function with `test_` prefixed name (If you've configured another `prefix` property in the test main program, just follow the configuration).

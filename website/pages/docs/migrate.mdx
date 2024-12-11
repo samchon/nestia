@@ -1,5 +1,8 @@
 import EditorMovie from "../../src/movies/editor/EditorMovie";
 import { EDITOR_EXAMPLES } from "../../src/constants/EDITOR_EXAMPLES";
+import { HyperLink } from "../../src/components/basic/HyperLink";
+import { List } from "../../src/components/basic/List";
+import { ListItem } from "../../src/components/basic/ListItem";
 
 # Migration from Swagger
 ## Outline
@@ -70,31 +73,33 @@ Then, you can test the migrated NestJS Project, SDK library and Mockup Simulator
 
 > Put your `swagger.json` file, then "TypeScript Swagger Editor" be opened.
 
-{<ul>
-  <li> Concepts
-    <ul>
-      <li> SDK: collection of typed <code>fetch</code> functions with DTO structures </li>
-      <li> Mockup Simulator: embedded backend simulator in the SDK </li>
-    </ul>
-  </li>
-  <li> Demo Editors
-    <ul>
+{<List>
+  <ListItem> Concepts
+    <List>
+      <ListItem> SDK: collection of typed <code>fetch</code> functions with DTO structures </ListItem>
+      <ListItem> Mockup Simulator: embedded backend simulator in the SDK </ListItem>
+    </List>
+  </ListItem>
+  <ListItem> Demo Editors
+    <List>
       {EDITOR_EXAMPLES.map((example) => (
-        <li>
+        <ListItem>
           {example.title}{": "}
-          <a href={`/editor/?url=${encodeURIComponent(example.swagger)}&package=${encodeURIComponent(example.package)}&simulate=true&e2e=true&mode=nest`} 
-             target="_blank"> 
+          <HyperLink 
+            href={`/editor/?url=${encodeURIComponent(example.swagger)}&package=${encodeURIComponent(example.package)}&simulate=true&e2e=true&mode=nest`} 
+            target="_blank"> 
             NestJS Project 
-          </a>
+          </HyperLink>
           {" / "}
-          <a href={`/editor/?url=${encodeURIComponent(example.swagger)}&package=${encodeURIComponent(example.package)}&simulate=true&e2e=true`} 
-             target="_blank">
+          <HyperLink 
+            href={`/editor/?url=${encodeURIComponent(example.swagger)}&package=${encodeURIComponent(example.package)}&simulate=true&e2e=true`} 
+            target="_blank">
             SDK & Simulator 
-          </a>
-        </li>
+          </HyperLink>
+        </ListItem>
       ))}
-    </ul>
-  </li>
-</ul>}
+    </List>
+  </ListItem>
+</List>}
 
 ![Example Case](/images/editor/stackblitz.png)

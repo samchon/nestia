@@ -1,8 +1,8 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 
 ## Outline
 <Tabs items={['Configuration', 'Build Script', 'Generated SDK Library']}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {19}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -28,14 +28,14 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" showLineNumbers {}
 npx nestia sdk
 npx nestia sdk --config nestia.config.ts --project tsconfig.json
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/functional/bbs/articles/index.ts" showLineNumbers {19-34, 63-64 66-85}
 /**
  * Update an article.
@@ -124,7 +124,7 @@ export namespace update {
   };
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Nestia SDK library supports Mockup simulator.
@@ -143,7 +143,7 @@ Within framework of backend developers, they also do not need to be suffered fro
   <code>nestia.config.ts</code>, 
   <code>INestiaConfig.ts</code>,
 ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {19}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -169,8 +169,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="INestiaConfig.ts" showLineNumbers {10-29, 52-65}
 import type { INestApplication } from "@nestjs/common";
 import type { OpenApi } from "@samchon/openapi";
@@ -419,7 +419,7 @@ export namespace INestiaConfig {
   }
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Make `nestia.config.ts` file and run `npx nestia sdk` command.
@@ -449,7 +449,7 @@ By the way, `nestia.config.ts` supports alternative options specifying the targe
     'Exclude'
   ]}
   defaultIndex={3}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -473,8 +473,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {8-16}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -499,8 +499,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4-8}
 import { INestiaConfig } from "@nestia/sdk";
 
@@ -513,8 +513,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4}
 import { INestiaConfig } from "@nestia/sdk";
 
@@ -527,8 +527,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4-7}
 import { INestiaConfig } from "@nestia/sdk";
 
@@ -544,7 +544,7 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 
@@ -552,7 +552,7 @@ export default NESTIA_CONFIG;
 
 ## Code Analysis
 <Tabs items={['SDK Library Code', 'utils/NestiaSimulator.ts']}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/functional/bbs/articles/index.ts" showLineNumbers {19-34, 63-64, 66-85}
 /**
  * Update an article.
@@ -641,8 +641,8 @@ export namespace update {
   };
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="NestiaSimulator.ts" showLineNumbers {72-83}
 import { HttpError } from "@nestia/fetcher";
 
@@ -714,7 +714,7 @@ export namespace NestiaSimulator {
     };
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Let's read generated SDK library code, and understand which features are supported

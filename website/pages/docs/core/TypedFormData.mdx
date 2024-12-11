@@ -1,4 +1,4 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 
 ## Outline
 ```typescript filename="@nestia/core" showLineNumbers
@@ -22,7 +22,7 @@ Of course, as every features of `nestia` does, you don't need to define any extr
   <code>@TypedFormData.Body()</code>, 
   <code>@UploadFile()</code>
 ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="nestia/MultipartController.ts" showLineNumbers {8}
 import { TypedFormData, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -46,8 +46,8 @@ export interface IBbsArticleCreate {
   tags: string[];
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="nestjs/multipart.controller.ts" showLineNumbers {16-55}
 import { 
   Body, 
@@ -129,7 +129,7 @@ export class BbsArticleCreateDto {
   tags: string[];
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 
@@ -143,7 +143,7 @@ export class BbsArticleCreateDto {
     <code>BbsArticlesController.js</code>,
   ]}
   defaultIndex={1}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="IBbsArticleCreate.ts" showLineNumbers
 export interface IBbsArticleCreate {
   title: string;
@@ -153,8 +153,8 @@ export interface IBbsArticleCreate {
   tags: string[];
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="BbsArticlesController.ts" showLineNumbers {10}
 import { TypedFormData, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -172,8 +172,8 @@ export class BbsArticlesController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript copy filename="BbsArticlesController.js" showLineNumbers {114-247}
 "use strict";
 var __decorate =
@@ -436,7 +436,7 @@ exports.BbsArticlesController = BbsArticlesController = __decorate(
 );
 //# sourceMappingURL=BbsArticlesController.js.map
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Just call `@TypedFormData.Body()` function on the request body parameter, that's all.
@@ -497,7 +497,7 @@ With those type and comment tags, you can add additional validation logics. If y
     - [Customization](https://typia.io/docs/validators/tags/#customization)
 
 <Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="examples/src/is-special-tags.ts" showLineNumbers {3}
 import typia, { tags } from "typia";
 
@@ -515,8 +515,8 @@ interface SpecialTag {
     tags.MaxItems<100>;
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript filename="examples/bin/is-special-tags.js" showLineNumbers {10-45}
 "use strict";
 var __importDefault =
@@ -565,7 +565,7 @@ const checkSpecialTag = (input) => {
 };
 exports.checkSpecialTag = checkSpecialTag;
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 

@@ -1,4 +1,5 @@
 import { DocsThemeConfig } from "nextra-theme-docs";
+import { useConfig } from "nextra-theme-docs";
 import React from "react";
 
 const config: DocsThemeConfig = {
@@ -20,17 +21,13 @@ const config: DocsThemeConfig = {
   ),
   project: {
     link: "https://github.com/samchon/nestia",
-    // icon: <img
-    //   alt="Nestia Github repo stars"
-    //   src="https://img.shields.io/github/stars/samchon/nestia?style=social"
-    // />
   },
   chat: {
     link: "https://discord.gg/E94XhzrUCZ",
   },
   docsRepositoryBase: "https://github.com/samchon/nestia/blob/master/website",
   footer: {
-    text: () => (
+    content: () => (
       <span>
         Made by{" "}
         <a
@@ -43,74 +40,42 @@ const config: DocsThemeConfig = {
       </span>
     ),
   },
-  useNextSeoProps() {
-    return {
-      defaultTitle: "Nestia Guide Documents",
-      titleTemplate: "Nestia Guide Documents - %s",
-      additionalLinkTags: [
-        {
-          rel: "apple-touch-icon",
-          sizes: "180x180",
-          href: "/favicon/apple-touch-icon.png",
-        },
-        {
-          rel: "manifest",
-          href: "/favicon/site.webmanifest",
-        },
-        ...[16, 32].map((size) => ({
-          rel: "icon",
-          type: "image/png",
-          sizes: `${size}x${size}`,
-          href: `/favicon/favicon-${size}x${size}.png`,
-        })),
-      ],
-      additionalMetaTags: [
-        {
-          property: "og:image",
-          content: "/og.jpg",
-        },
-        {
-          property: "og:type",
-          content: "object",
-        },
-        {
-          property: "og:title",
-          content: "Nestia Guide Documents",
-        },
-        {
-          property: "og:description",
-          content: "NestJS Helper Libraries",
-        },
-        {
-          property: "og:site_name",
-          content: "Nestia Guide Documents",
-        },
-        {
-          property: "og:url",
-          content: "https://nestia.io",
-        },
-        {
-          name: "twitter:card",
-          content: "summary",
-        },
-        {
-          name: "twitter:image",
-          content: "https://nestia.io/og.jpg",
-        },
-        {
-          name: "twitter:title",
-          content: "Nestia Guide Documents",
-        },
-        {
-          name: "twitter:description",
-          content: "NestJS Helper Libraries",
-        },
-        {
-          name: "twitter:site",
-          content: "@SamchonGithub",
-        },
-      ],
-    };
+  head: () => {
+    const config = useConfig();
+    return (
+      <>
+        <title>Nestia Guide Documents - {config.title}</title>
+        <link rel="manifest" href="/favicon/site.webmanifest" />
+        {/* ICONS */}
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/favicon/apple-touch-icon.png"
+        />
+        {[16, 32].map((size) => (
+          <link
+            key={size}
+            rel="icon"
+            type="image/png"
+            sizes={`${size}x${size}`}
+            href={`/favicon/favicon-${size}x${size}.png`}
+          />
+        ))}
+        {/* OG */}
+        <meta name="og:type" content="object" />
+        <meta name="og:site_name" content="Nestia Guide Documents" />
+        <meta name="og:url" content="https://nestia.io" />
+        <meta name="og:image" content="/og.jpg" />
+        <meta name="og:title" content="Nestia Guide Documents" />
+        <meta name="og:description" content="NestJS Helper Libraries" />
+        {/* TWITTER */}
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@SamchonGithub" />
+        <meta name="twitter:image" content="https://nestia.io/og.jpg" />
+        <meta name="twitter:title" content="Nestia Guide Documents" />
+        <meta name="twitter:description" content="NestJS Helper Libraries" />
+      </>
+    );
   },
 };
 

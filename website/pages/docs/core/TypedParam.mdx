@@ -1,4 +1,4 @@
-import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import { Callout, Tabs } from 'nextra/components'
 
 ## Outline
 ```typescript filename="@nestia/core" showLineNumbers
@@ -32,7 +32,7 @@ Therefore, it is not a matter to use `@TypedParam()` or `@Param()` of the origin
     <code>ParametersController.ts</code>, 
     'Compiled JavaScript File',
   ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="ParametersController.ts" showLineNumbers {9, 16, 23}
 import { TypedParam } from "@nestia/core";
 import { Controller, Get } from "@nestjs/common";
@@ -62,8 +62,8 @@ export class ParametersController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript filename="ParametersController.js" showLineNumbers {46-53, 59-66, 72-79}
 "use strict";
 var __decorate =
@@ -232,7 +232,7 @@ exports.ParametersController = ParametersController = __decorate(
   ParametersController,
 );
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Just call `@TypedParam()` function on the path paremeter, that's all.

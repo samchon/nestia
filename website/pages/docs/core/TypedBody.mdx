@@ -1,4 +1,4 @@
-import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import { Callout, Tabs } from 'nextra/components'
 
 ## Outline
 ```typescript filename="@nestia/core" showLineNumbers
@@ -42,7 +42,7 @@ Therefore, it is not a matter to use `@TypedBody()` or `@Body()` of the original
     'Compiled JavaScript File',
   ]}
   defaultIndex={2}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="IBbsArticle.ts" showLineNumbers
 import { tags } from "typia";
 
@@ -58,8 +58,8 @@ export namespace IBbsArticle {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="IAttachmentFile.ts" showLineNumbers
 import { tags } from "typia";
 
@@ -69,8 +69,8 @@ export interface IAttachmentFile {
   url: string & tags.Format<"url">;
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="BbsArticlesController.ts" showLineNumbers {11}
 import { TypedBody, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -92,8 +92,8 @@ export class BbsArticlesController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript filename="BbsArticlesController.js" showLineNumbers {309-470}
 "use strict";
 var __decorate =
@@ -578,7 +578,7 @@ exports.BbsArticlesController = BbsArticlesController = __decorate(
   BbsArticlesController,
 );
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Just call `@TypedBody()` function on the request body parameter, that's all.
@@ -604,7 +604,7 @@ With those type and comment tags, you can add additional validation logics. If y
     - [Customization](https://typia.io/docs/validators/tags/#customization)
 
 <Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="examples/src/is-special-tags.ts" showLineNumbers {3}
 import typia, { tags } from "typia";
 
@@ -622,8 +622,8 @@ interface SpecialTag {
     tags.MaxItems<100>;
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript filename="examples/bin/is-special-tags.js" showLineNumbers {10-45}
 "use strict";
 var __importDefault =
@@ -672,7 +672,7 @@ const checkSpecialTag = (input) => {
 };
 exports.checkSpecialTag = checkSpecialTag;
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 

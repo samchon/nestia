@@ -1,8 +1,8 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 
 ## Outline
 <Tabs items={['Configuration', 'Build Script']} defaultIndex={1}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="nestia.config.ts" copy showLineNumbers {20}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -27,13 +27,13 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npx nestia e2e
 npx nestia e2e --config nestia.config.ts --project tsconfig.json
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Configure [`nestia.config.ts`](#configuration) file and run `npx nestia e2e` command.
@@ -71,7 +71,7 @@ export const test_api_body_store = async (
   <code>nestia.config.ts</code>,
   <code>INestiaConfig.ts</code>,
 ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {20}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -96,8 +96,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="INestiaConfig.ts" showLineNumbers {67-76}
 import type { INestApplication } from "@nestjs/common";
 import { OpenApi } from "@samchon/openapi";
@@ -346,7 +346,7 @@ export namespace INestiaConfig {
   }
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Make `nestia.config.ts` file and run `npx nestia e2e` command.
@@ -372,7 +372,7 @@ By the way, `nestia.config.ts` supports alternative options specifying the targe
     'Exclude',
   ]}
   defaultIndex={3}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {7-15}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -395,8 +395,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {8-16}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -420,8 +420,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4}
 import { INestiaConfig } from "@nestia/sdk";
 
@@ -433,8 +433,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4}
 import { INestiaConfig } from "@nestia/sdk";
 
@@ -446,8 +446,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {4-7}
 import { INestiaConfig } from "@nestia/sdk";
 
@@ -462,7 +462,7 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 
@@ -530,7 +530,7 @@ However, it may not fully meet your requirements. For example, you may connect t
     'E2E Test Function', 
   ]}
   defaultIndex={2}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="src/controllers/BbsArticlesController.ts" showLineNumbers
 import { Controller } from "@nestjs/common";
 import typia, { tags } from "typia";
@@ -583,8 +583,8 @@ export class BbsArticlesController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/functional/bbs/articles/index.ts" showLineNumbers
 /**
  * @packageDocumentation
@@ -713,8 +713,8 @@ export namespace update {
   };
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="test/features/api/automated/test_api_bbs_articles_update.ts" showLineNumbers
 import type { IConnection, Primitive } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
@@ -735,7 +735,7 @@ export const test_api_bbs_articles_update = async (
   typia.assert(output);
 };
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 You also need to customize each e2e test functions.

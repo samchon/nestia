@@ -1,4 +1,4 @@
-import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import { Callout, Tabs } from 'nextra/components'
 
 ## Outline
 <Tabs 
@@ -7,7 +7,7 @@ import { Callout, Tabs, Tab } from 'nextra-theme-docs'
       "Server Application",
       'Client Application',
   ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="@nestia/core" showLineNumbers
 export function WebSocketRoute(path?: string): MethodDecorator;
 export namespace WebSocketRoute {
@@ -18,8 +18,8 @@ export namespace WebSocketRoute {
   export function Query(): ParameterDecorator;
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/CalculateController.ts" showLineNumbers
 import { WebSocketRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -46,8 +46,8 @@ export class CalculateController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="test/features/test_api_calculate_start.ts" showLineNumbers
 import { TestValidator } from "@nestia/e2e";
 import api from "@samchon/calculator-api/lib/index";
@@ -82,7 +82,7 @@ export const test_api_calculate_start = async (
   }
 };
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 WebSocket route decorators.
@@ -135,7 +135,7 @@ If you don't upgrade it, `@WebSocketRoute()` decorated methods never work.
       <code>IListener.ts</code>,
       "Client Application",
   ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="src/CalculateController.ts" copy showLineNumbers
 import { WebSocketRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -162,8 +162,8 @@ export class CalculateController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/providers/Calculator.ts" copy showLineNumbers
 import { Driver } from "tgrid";
 
@@ -198,8 +198,8 @@ export class Calculator implements ICalculator {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/structures/ICalculator.ts" copy showLineNumbers
 export interface ICalculator {
   plus(a: number, b: number): number;
@@ -208,8 +208,8 @@ export interface ICalculator {
   divide(a: number, b: number): number;
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/structures/IListener.ts" copy showLineNumbers
 export interface IListener {
   on(event: IListener.IEvent): void;
@@ -223,8 +223,8 @@ export namespace IListener {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="test/features/test_api_calculate_start.ts" showLineNumbers
 import { TestValidator } from "@nestia/e2e";
 import api from "@samchon/calculator-api/lib/index";
@@ -259,7 +259,7 @@ export const test_api_calculate_start = async (
   }
 };
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 After that, attach `@WebSocketRoute()` decorator function onto target method like above.
@@ -283,7 +283,7 @@ Therefore, the `Driver<T>` type converts every functions' return type to be `Pro
       <code>IListener.ts</code>,
       "Client Application",
   ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="src/CalculateController.ts" copy showLineNumbers
 import { WebSocketRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -329,8 +329,8 @@ export class CalculateController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/providers/AdvancedCalculator.ts" copy showLineNumbers
 import { Driver } from "tgrid";
 
@@ -390,8 +390,8 @@ const roundPrecision =
     return Math.round(value * factor) / factor;
   };
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/structures/IAdvancedCalculator.ts" copy showLineNumbers
 import { IMemo } from "./IMemo";
 
@@ -406,8 +406,8 @@ export interface IAdvancedCalculator {
   getMemo(): IMemo;
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/structures/IListener.ts" copy showLineNumbers
 export interface IListener {
   on(event: IListener.IEvent): void;
@@ -421,8 +421,8 @@ export namespace IListener {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="test/features/test_api_calculate_advavnce.ts" showLineNumbers
 import { TestValidator } from "@nestia/e2e";
 import api from "@samchon/calculator-api/lib/index";
@@ -474,7 +474,7 @@ export const test_api_calculate_advance = async (
   }
 };
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 If you need additional parameters, you can use nested decorators.
@@ -509,7 +509,7 @@ In the same reason, the `IListener` type would be wrapped into the `Driver<IList
       <code>IAdvCalculator.ts</code>,
       <code>IListener.ts</code>,
   ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="test/features/test_api_calculate_start.ts" showLineNumbers
 import { TestValidator } from "@nestia/e2e";
 import api from "@samchon/calculator-api/lib/index";
@@ -544,8 +544,8 @@ export const test_api_calculate_start = async (
   }
 };
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/functional/calculate/index.ts" showLineNumbers
 /**
  * @packageDocumentation
@@ -622,8 +622,8 @@ export namespace advance {
   };
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/CalculateController.ts" copy showLineNumbers
 import { WebSocketRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -669,8 +669,8 @@ export class CalculateController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/structures/IAdvancedCalculator.ts" copy showLineNumbers
 import { IMemo } from "./IMemo";
 
@@ -685,8 +685,8 @@ export interface IAdvancedCalculator {
   getMemo(): IMemo;
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/structures/IListener.ts" copy showLineNumbers
 export interface IListener {
   on(event: IListener.IEvent): void;
@@ -700,7 +700,7 @@ export namespace IListener {
   }
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 

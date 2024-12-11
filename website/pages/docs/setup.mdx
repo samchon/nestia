@@ -1,4 +1,4 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
@@ -25,24 +25,24 @@ npx nestia template <directory>
 
 ## Setup Wizard
 <Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npx nestia setup
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npx nestia setup --manager pnpm
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
      <Alert severity="warning">
        Yarn berry is not supported.
      </Alert>
 ```bash filename="Terminal" copy showLineNumbers
 npx nestia setup --manager yarn
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 When you want to setup `nestia` in existing project, just run above `npx nestia setup` command.
@@ -73,7 +73,7 @@ npx nestia setup
 ## Webpack
 ### With `node_modules`
 <Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # SETUP NESTIA
 npx nestia setup
@@ -82,8 +82,8 @@ npx nestia setup
 npm install --save-dev ts-loader
 npm install --save-dev webpack webpack-cli webpack-node-externals 
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # SETUP NESTIA
 npx nestia setup --manager pnpm
@@ -92,8 +92,8 @@ npx nestia setup --manager pnpm
 pnpm install --save-dev ts-loader
 pnpm install --save-dev webpack webpack-cli webpack-node-externals 
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
      <Alert severity="warning">
        Yarn berry is not supported.
      </Alert>
@@ -105,7 +105,7 @@ npx nestia setup --manager yarn
 yarn add -D ts-loader
 yarn add -D webpack webpack-cli webpack-node-externals 
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 When you want to bundle your NestJS project into a single file, you have to install `webpack` manually.  
@@ -153,25 +153,25 @@ After installing both `nestia` and `webpack`, configure `webpack.config.js` file
 From now on, you can build the single JS file just by running the `npx webpack` command. By the way, when removing `devDependencies` for `--production` install, never forget to add the `--ignore-scripts` option to prevent the `prepare` script.
 
 <Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npx webpack
 npm ci --omit=dev --ignore-scripts
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 pnpm webpack
 pnpm install --production --ignore-scripts
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 yarn webpack
 rm -rf node_modules
 yarn install --production --ignore-scripts --immutable
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### Single JS file only
@@ -180,7 +180,7 @@ If you can build your NestJS project into a singile JS file, and that JS file ev
 To accomplish the light JS bundling, install special dependencies like below.
 
 <Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # SETUP NESTIA
 npx nestia setup
@@ -190,8 +190,8 @@ npm install --save-dev ts-loader
 npm install --save-dev webpack webpack-cli
 npm install --save-dev copy-webpack-plugin write-file-webpack-plugin
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # SETUP NESTIA
 npx nestia setup --manager pnpm
@@ -201,8 +201,8 @@ pnpm install --save-dev ts-loader
 pnpm install --save-dev webpack webpack-cli
 pnpm install --save-dev copy-webpack-plugin write-file-webpack-plugin
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
      <Alert severity="warning">
        Yarn berry is not supported.
      </Alert>
@@ -215,7 +215,7 @@ yarn add -D ts-loader
 yarn add -D webpack webpack-cli
 yarn add -D copy-webpack-plugin write-file-webpack-plugin
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Also, configure `webpack.config.js` file like below, considering options. 
@@ -311,21 +311,21 @@ module.exports = {
 
 ## NX
 <Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npx nestia setup
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npx nestia setup --manager pnpm
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npx nestia setup --manager yarn
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 After installing `nestia` like above, and ensuring the `prepare` script is something similar to `ts-patch install && typia patch` you have to modify the `tsconfig.lib.json` on each package to be similar to the below.
@@ -374,7 +374,7 @@ Note: While Nx has a `transformers` feature on certain plugins, that won't work 
 
 ## Manual Setup
 <Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # COMPILERS
 npm install --save-dev typescript
@@ -388,8 +388,8 @@ npm install --save @nestia/e2e
 npm install --save @nestia/sdk
 npm install --save typia
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # COMPILERS
 pnpm install --save-dev typescript
@@ -403,8 +403,8 @@ pnpm install --save @nestia/core
 pnpm install --save @nestia/e2e
 pnpm install --save typia
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 # COMPILERS
 yarn add -D typescript
@@ -418,7 +418,7 @@ yarn add @nestia/core
 yarn add @nestia/e2e
 yarn add typia
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 If you want to install `nestia` manually, you have to install `ts-node` and `ts-patch` modules as well as `typescript`. After installing those compilers, install `nestia` libraries like above.
@@ -469,21 +469,21 @@ Also, never forget to configure `strict` (or `strictNullChecks`) as `true`. It i
 ```
 
 <Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 npm run prepare
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 pnpm run prepare
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" copy showLineNumbers
 yarn run prepare
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 At last, configure `npm run prepare` command like above. 
