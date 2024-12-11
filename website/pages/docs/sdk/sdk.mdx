@@ -1,10 +1,10 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 
 ## Outline
 <Tabs 
   items={['Configuration', 'Build Script', 'Generated SDK Library']} 
   defaultIndex={1}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -28,13 +28,13 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash filename="Terminal" showLineNumbers {}
 npx nestia sdk
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/functional/bbs/articles/index.ts" showLineNumbers
 /**
  * Update an article.
@@ -97,7 +97,7 @@ export namespace update {
   };
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Collection of typed `fetch` functions with DTO structures.
@@ -123,7 +123,7 @@ If you can't imagine how the SDK library works, then look at the gif image of be
   <code>nestia.config.ts</code>, 
   <code>INestiaConfig.ts</code>,
 ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {8-17}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -147,8 +147,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="INestiaConfig.ts" showLineNumbers {10-29}
 import type { INestApplication } from "@nestjs/common";
 import type { OpenApi } from "@samchon/openapi";
@@ -397,7 +397,7 @@ export namespace INestiaConfig {
   }
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Make `nestia.config.ts` file and run `npx nestia sdk` command.
@@ -417,7 +417,7 @@ When you've completed above configuration, just run `npx nestia sdk` command. Th
   "Source Controller",
   "Cloned DTO types"
 ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {19}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -442,8 +442,8 @@ const NESTIA_CONFIG: INestiaConfig = {
 };
 export default NESTIA_CONFIG;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript showLineNumbers
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -505,8 +505,8 @@ namespace IBbsArticle {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript showLineNumbers
 export namespace IPageIBbsArticle {
   export type ISummary = {
@@ -538,7 +538,7 @@ export namespace IBbsArticle {
   };
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 If you configure `clone` property to be `true` in the `nestia.config.ts` file, all of DTO structures used in the backend server would be cloned into the `structures` directory, and the SDK library would be refer to the cloned DTO structures instead of the original.
@@ -552,7 +552,7 @@ In that case, it would better to remove the dependency by using this `clone` mod
   <code>nestia.config.ts</code>, 
   <code>IPropagation.ts</code>,
 ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="nestia.config.ts" showLineNumbers {19}
 import { INestiaConfig } from "@nestia/sdk";
 import { NestFactory } from "@nestjs/core";
@@ -577,8 +577,8 @@ const config: INestiaConfig = {
 };
 export default config;
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="IPropagation.ts" showLineNumbers
 import { Primitive } from "./Primitive";
 
@@ -683,7 +683,7 @@ export namespace IPropagation {
     : Enumerate<N, [...Acc, Acc["length"]]>;
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Returns `IPropagation` typed instance instead of throwing exception.
@@ -697,7 +697,7 @@ Looking at below code tabs one by one, then you may understand exactly, what the
   "Propagation Mode SDK",
   "Utilization Case",
 ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="src/controllers/BbsArticlesController.ts" showLineNumbers
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -731,8 +731,8 @@ export class BbsArticlesController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/functional/bbs/articles/index.ts" showLineNumbers {19, 36-42}
 /**
  * Update an article.
@@ -801,8 +801,8 @@ export namespace update {
   };
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript showLineNumbers
 const output = await api.functional.bbs.articles.update(section, id, input);
 if (output.success) {
@@ -816,7 +816,7 @@ if (output.success) {
   const result: unknown = output.data;
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### CLI Arguments
@@ -849,7 +849,7 @@ The second `@internal` tag also does not hide from the SDK library, but it would
 The last `@ignore` tag is the most powerful one. If you write `@ignore` tag to the controller method, the SDK library would never generate the API endpoint at all. In that case, client developers can't use the API endpoint even if they know the API endpoint path and method. It is useful for some endpoints that are not supported in the SDK library.
 
 <Tabs items={['NestJS Server Code', 'SDK Library Code']}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="BbsArticlesController.ts"
 import { Controller } from "@nestjs/common";
 
@@ -890,8 +890,8 @@ export class BbsArticlesController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/functional/bbs/articles/index.ts"
 /**
  * @packageDocumentation
@@ -1008,7 +1008,7 @@ export namespace update {
   };
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### Headers
@@ -1024,7 +1024,7 @@ The other one `@assignHeaders` overwrites every property values to the client he
 If you're confused, read example codes of below, clicking each tabs.
 
 <Tabs items={['NestJS Server Code', 'SDK Library Code']}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="ShoppingConsumerAuthenticateController.ts" showLineNumbers {6-7, 15}
 import { Controller } from "@nestjs/common";
 
@@ -1048,8 +1048,8 @@ export class ShoppingConsumerAuthenticateController {
   ): Promise<IShoppingConsumer.IActivated>;
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="src/api/functional/shoppings/customers/authenticate.ts" showLineNumbers {24-27, 47-49}
 /**
  * @packageDocumentation
@@ -1107,7 +1107,7 @@ export namespace login {
     ...
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 
@@ -1157,7 +1157,7 @@ Also, if your SDK library utilize special alias `paths`, you also need to custom
   <code>package.json</code>, 
   <code>tsconfig.json</code>,
 ]}>
-  <Tab>
+  <Tabs.Tab>
 ```json filename="package.json" showLineNumbers {2}
 {
   "name": "@ORGANIZATION/PROJECT-api",
@@ -1197,8 +1197,8 @@ Also, if your SDK library utilize special alias `paths`, you also need to custom
   ]
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```json filename="tsconfig.json" showLineNumbers
 {
   "compilerOptions": {
@@ -1224,5 +1224,5 @@ Also, if your SDK library utilize special alias `paths`, you also need to custom
 }
 
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>

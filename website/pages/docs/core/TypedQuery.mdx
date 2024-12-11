@@ -1,5 +1,5 @@
 ## Outline
-import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import { Callout, Tabs } from 'nextra/components'
 
 ```typescript filename="@nestia/core" showLineNumbers
 export function TypedQuery(): ParameterDecorator;
@@ -58,7 +58,7 @@ While `NestJS` does not support query type validation, `@TypedQuery()` validates
   ]}
   defaultIndex={2}
 >
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="IBbsArticle.ts" showLineNumbers
 import { tags } from "typia";
 
@@ -71,8 +71,8 @@ export namespace IBbsArticle {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="IPage.ts" showLineNumbers
 import { tags } from "typia";
 
@@ -99,8 +99,8 @@ export namespace IPage {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="BbsArticlesController.ts" showLineNumbers {10}
 import { TypedQuery, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -127,8 +127,8 @@ export class BbsArticlesController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript filename="BbsArticlesController.js" showLineNumbers {356-447}
 "use strict";
 var __decorate =
@@ -590,7 +590,7 @@ exports.BbsArticlesController = BbsArticlesController = __decorate(
   BbsArticlesController,
 );
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Just call `@TypedQuery()` function on the query parameter, that's all.
@@ -621,7 +621,7 @@ If you call `@TypedQuery.Body()` decorator function on a specific parameter, the
   ]}
   defaultIndex={1}
 >
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="IBbsArticle.ts" showLineNumbers
 import { tags } from "typia";
 
@@ -639,8 +639,8 @@ export namespace IBbsArticle {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="BbsArticlesController.ts" showLineNumbers {10}
 import { TypedQuery } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -663,8 +663,8 @@ export class BbsArticlesController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript filename="BBsArticlesController.js" showLineNumbers {186-261}
 "use strict";
 var __decorate =
@@ -940,7 +940,7 @@ exports.BbsArticlesController = BbsArticlesController = __decorate(
   BbsArticlesController,
 );
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 
@@ -975,7 +975,7 @@ If you call one of below decorator functions on a method, the method will return
   ]}
   defaultIndex={1}
 >
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="IBbsArticle.ts" showLineNumbers
 import { tags } from "typia";
 
@@ -993,8 +993,8 @@ export namespace IBbsArticle {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="BbsArticlesController.ts" showLineNumbers {8}
 import { TypedQuery } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -1017,8 +1017,8 @@ export class BbsArticlesController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript filename="BBsArticlesController.js" showLineNumbers {87-156}
 "use strict";
 var __decorate =
@@ -1294,7 +1294,7 @@ exports.BbsArticlesController = BbsArticlesController = __decorate(
   BbsArticlesController,
 );
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 
@@ -1314,7 +1314,7 @@ With those type and comment tags, you can add additional validation logics. If y
     - [Customization](https://typia.io/docs/validators/tags/#customization)
 
 <Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="examples/src/is-special-tags.ts" showLineNumbers {3}
 import typia, { tags } from "typia";
 
@@ -1332,8 +1332,8 @@ interface SpecialTag {
     tags.MaxItems<100>;
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript filename="examples/bin/is-special-tags.js" showLineNumbers {10-45}
 "use strict";
 var __importDefault =
@@ -1382,7 +1382,7 @@ const checkSpecialTag = (input) => {
 };
 exports.checkSpecialTag = checkSpecialTag;
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 

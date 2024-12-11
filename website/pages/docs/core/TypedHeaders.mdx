@@ -1,4 +1,4 @@
-import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import { Callout, Tabs } from 'nextra/components'
 
 ## Outline
 ```typescript filename="@nestia/core" showLineNumbers
@@ -31,7 +31,7 @@ Therefore, it is not a matter to use `@TypedHeaders()` or `@Headers()` of the or
   ]}
   defaultIndex={1}
 >
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="IHeaders.ts" showLineNumbers {7}
 export interface IHeaders {
   "x-category": "x" | "y" | "z";
@@ -42,8 +42,8 @@ export interface IHeaders {
   "X-Descriptions": string[]; // ALLOW UPPER-CASE
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="HeadersController.ts" showLineNumbers {20}
 import { Controller } from "@nestjs/common";
 
@@ -72,8 +72,8 @@ export class HeadersController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript filename="HeadersController.js" showLineNumbers {61-200}
 "use strict";
 var __decorate =
@@ -289,7 +289,7 @@ exports.HeadersController = HeadersController = __decorate(
   HeadersController,
 );
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Just call `@TypedHeaders()` function on the request headers parameter, that's all.
@@ -319,7 +319,7 @@ With those type and comment tags, you can add additional validation logics. If y
     - [Customization](https://typia.io/docs/validators/tags/#customization)
 
 <Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="examples/src/is-special-tags.ts" showLineNumbers {3}
 import typia, { tags } from "typia";
 
@@ -337,8 +337,8 @@ interface SpecialTag {
     tags.MaxItems<100>;
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript filename="examples/bin/is-special-tags.js" showLineNumbers {10-45}
 "use strict";
 var __importDefault =
@@ -387,7 +387,7 @@ const checkSpecialTag = (input) => {
 };
 exports.checkSpecialTag = checkSpecialTag;
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 

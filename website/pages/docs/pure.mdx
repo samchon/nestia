@@ -1,4 +1,4 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 
 # Pure TypeScript
 ## Outline
@@ -24,7 +24,7 @@ This is the power of `nestia`, with pure TypeScript type.
     <span>Triple duplicated NestJS DTO</span>,
     <span>Pure Nestia DTO</span>,
 ]}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript filename="BbsArticle.ts" showLineNumbers {25-36}
 import { ApiProperty } from "@nestjs/swagger";
 import {
@@ -122,8 +122,8 @@ export class AttachmentFile {
   url!: string;
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript filename="IBbsArticle.ts" showLineNumbers {9-12}
 import { tags } from "typia";
 
@@ -171,7 +171,7 @@ export interface IAttachmentFile {
   url: string & tags.Format<"uri">;
 }
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 
@@ -200,7 +200,7 @@ Such compile time optimization is called AOT (Ahead of Time) compilation. And th
     'Compiled JavaScript File'
   ]}
     defaultIndex={1}>
-  <Tab>
+  <Tabs.Tab>
 ```typescript copy filename="IBbsArticle.ts" showLineNumbers
 import { tags } from "typia";
 
@@ -222,8 +222,8 @@ export interface IAttachmentFile {
   url: string | (string & tags.Format<"url">);
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```typescript copy filename="BbsArticlesController.ts" showLineNumbers {8, 11}
 import { TypedBody, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
@@ -245,8 +245,8 @@ export class BbsArticlesController {
   }
 }
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```javascript filename="BbsArticlesController.js" showLineNumbers {88-474}
 "use strict";
 "use strict";
@@ -736,7 +736,7 @@ exports.BbsArticlesController = BbsArticlesController = __decorate(
 );
 //# sourceMappingURL=BbsArticlesController.js.map
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ![Assert Function Benchmark](https://github.com/samchon/typia/raw/master/benchmark/results/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics/images/assert.svg)
