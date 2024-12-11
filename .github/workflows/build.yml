@@ -3,10 +3,11 @@ on:
   pull_request:
     paths:
       - '.github/workflows/build.yml'
-      - 'packages/{core,fetcher,sdk}/src/**'
-      - 'packages/{core,fetcher,sdk}/package.json'
+      - 'packages/{core,fetcher,sdk,e2e}/src/**'
+      - 'packages/{core,fetcher,sdk,e2e}/package.json'
       - 'test/**'
       - 'test/package.json'
+      - 'package.json'
 jobs:
   Ubuntu:
     runs-on: ubuntu-latest
