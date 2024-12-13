@@ -20,6 +20,7 @@
     "url": "https://github.com/samchon/nestia/issues"
   },
   "homepage": "https://nestia.io",
+  "packageManager": "pnpm@9.15.0",
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/node": "^22.10.1",
