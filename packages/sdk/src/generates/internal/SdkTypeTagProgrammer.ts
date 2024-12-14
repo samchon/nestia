@@ -12,7 +12,7 @@ export namespace SdkTypeTagProgrammer {
     tag: IMetadataTypeTag,
   ) => {
     const instance: string = tag.name.split("<")[0];
-    if (PREDEFINED[from].has(instance))
+    if (PREDEFINED[from]?.has(instance) === true)
       return ts.factory.createTypeReferenceNode(
         importer.external({
           type: true,
