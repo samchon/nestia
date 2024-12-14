@@ -5,4 +5,4 @@
  */
 //================================================================
 export * as bbs from "./bbs";
-export * as transaction from "./transaction";
+export * as v0 from "./v0";
