@@ -17,6 +17,7 @@ import { Escaper } from "typia/lib/utils/Escaper";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
+import { SdkTypeTagProgrammer } from "./SdkTypeTagProgrammer";
 
 export namespace SdkTypeProgrammer {
   /* -----------------------------------------------------------
@@ -100,7 +101,7 @@ export namespace SdkTypeProgrammer {
       )
         return ts.factory.createIntersectionTypeNode([
           TypeFactory.keyword("string"),
-          writeTag(importer)({
+          SdkTypeTagProgrammer.write(importer, "string", {
             name: "Format",
             value: "date-time",
           } as IMetadataTypeTag),
@@ -184,6 +185,7 @@ export namespace SdkTypeProgrammer {
     (importer: ImportDictionary) =>
     (meta: MetadataAtomic): ts.TypeNode =>
       write_type_tag_matrix(importer)(
+        meta.type as "boolean" | "bigint" | "number" | "string",
         ts.factory.createKeywordTypeNode(
           meta.type === "boolean"
             ? ts.SyntaxKind.BooleanKeyword
@@ -204,6 +206,7 @@ export namespace SdkTypeProgrammer {
     (importer: ImportDictionary) =>
     (meta: MetadataArray): ts.TypeNode =>
       write_type_tag_matrix(importer)(
+        "array",
         ts.factory.createArrayTypeNode(
           write(project)(importer)(meta.type.value),
         ),
@@ -298,22 +301,30 @@ export namespace SdkTypeProgrammer {
   ----------------------------------------------------------- */
   const write_type_tag_matrix =
     (importer: ImportDictionary) =>
-    (base: ts.TypeNode, matrix: IMetadataTypeTag[][]): ts.TypeNode => {
+    (
+      from: "array" | "boolean" | "number" | "bigint" | "string" | "object",
+      base: ts.TypeNode,
+      matrix: IMetadataTypeTag[][],
+    ): ts.TypeNode => {
       matrix = matrix.filter((row) => row.length !== 0);
       if (matrix.length === 0) return base;
       else if (matrix.length === 1)
         return ts.factory.createIntersectionTypeNode([
           base,
-          ...matrix[0].map((tag) => writeTag(importer)(tag)),
+          ...matrix[0].map((tag) =>
+            SdkTypeTagProgrammer.write(importer, from, tag),
+          ),
         ]);
       return ts.factory.createIntersectionTypeNode([
         base,
         ts.factory.createUnionTypeNode(
           matrix.map((row) =>
             row.length === 1
-              ? writeTag(importer)(row[0])
+              ? SdkTypeTagProgrammer.write(importer, from, row[0])
               : ts.factory.createIntersectionTypeNode(
-                  row.map((tag) => writeTag(importer)(tag)),
+                  row.map((tag) =>
+                    SdkTypeTagProgrammer.write(importer, from, tag),
+                  ),
                 ),
           ),
         ),
@@ -322,34 +333,6 @@ export namespace SdkTypeProgrammer {
 }
 
 const writeNode = (text: string) => ts.factory.createTypeReferenceNode(text);
-const writeTag = (importer: ImportDictionary) => (tag: IMetadataTypeTag) => {
-  const instance: string = tag.name.split("<")[0];
-  return ts.factory.createTypeReferenceNode(
-    importer.external({
-      type: true,
-      library: `typia/lib/tags/${instance}`,
-      instance,
-    }),
-    [
-      ts.factory.createLiteralTypeNode(
-        typeof tag.value === "boolean"
-          ? tag.value
-            ? ts.factory.createTrue()
-            : ts.factory.createFalse()
-          : typeof tag.value === "bigint"
-            ? tag.value < BigInt(0)
-              ? ts.factory.createPrefixUnaryExpression(
-                  ts.SyntaxKind.MinusToken,
-                  ts.factory.createBigIntLiteral((-tag.value).toString()),
-                )
-              : ts.factory.createBigIntLiteral(tag.value.toString())
-            : typeof tag.value === "number"
-              ? ExpressionFactory.number(tag.value)
-              : ts.factory.createStringLiteral(tag.value),
-      ),
-    ],
-  );
-};
 const writeComment =
   (atomics: MetadataAtomic[]) =>
   (description: string | null, jsDocTags: IJsDocTagInfo[]): string => {

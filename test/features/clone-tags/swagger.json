@@ -137,7 +137,7 @@
         ]
       }
     },
-    "/transaction/user/{pubkey}": {
+    "/v0/transaction/user/{pubkey}": {
       "get": {
         "tags": [],
         "operationId": "TransactionController.findTransactionsByUser",
