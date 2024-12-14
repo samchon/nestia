@@ -20,6 +20,7 @@ export async function findTransactionsByUser(
       target: "string";
       kind: "regexPattern";
       value: "/^[0-9a-fA-F]+$/";
+      validate: "RegExp(/^[0-9a-fA-F]+$/).test($input)";
       exclusive: false;
       schema: {};
     }> &
@@ -27,6 +28,7 @@ export async function findTransactionsByUser(
       target: "string";
       kind: "lengthDivisibleBy";
       value: 2;
+      validate: "$input.length % 2 === 0";
       exclusive: false;
     }>,
 ): Promise<void> {
@@ -54,6 +56,7 @@ export namespace findTransactionsByUser {
         target: "string";
         kind: "regexPattern";
         value: "/^[0-9a-fA-F]+$/";
+        validate: "RegExp(/^[0-9a-fA-F]+$/).test($input)";
         exclusive: false;
         schema: {};
       }> &
@@ -61,6 +64,7 @@ export namespace findTransactionsByUser {
         target: "string";
         kind: "lengthDivisibleBy";
         value: 2;
+        validate: "$input.length % 2 === 0";
         exclusive: false;
       }>,
   ) =>

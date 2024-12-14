@@ -54,6 +54,7 @@ export namespace SdkTypeTagProgrammer {
             target: from,
             kind: tag.kind,
             value: tag.value,
+            validate: tag.validate,
             exclusive: tag.exclusive,
             schema: tag.schema,
           }) as any,
