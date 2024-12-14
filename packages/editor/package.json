@@ -35,7 +35,7 @@
   "dependencies": {
     "@mui/material": "^5.15.6",
     "@nestia/migrate": "workspace:^",
-    "@samchon/openapi": "^2.0.1",
+    "@samchon/openapi": "^2.1.2",
     "@stackblitz/sdk": "^1.11.0",
     "js-yaml": "^4.1.0",
     "prettier": "3.3.3",
