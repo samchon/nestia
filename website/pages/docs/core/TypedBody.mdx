@@ -703,12 +703,10 @@ For reference, such encryption spec is not supported in the [Swagger-UI](../sdk/
       {
         "transform": "@nestia/core/lib/transform",
         "validate": "assert",
-          // "assert"
-          // "is"
-          // "validate"
-          // "assertEquals"
-          // "equals"
-          // "validateEquals"
+        // "llm": {
+        //   "model": "chatgpt",
+        //   "strict": true,
+        // },
       }
     ]
   }
@@ -726,6 +724,21 @@ Below is the list of available validation functions.
   - [`validate`](https://typia.io/docs/validators/validate/) or [`validateEquals`](https://typia.io/docs/validators/validate/#validateequals-function): find every type errors with detailed reasons
   - [`assertPrune`](https://typia.io/docs/misc/#prune-functions) or [`validatePrune`](https://typia.io/docs/misc/#prune-functions): prune extra properties with type checking
   - [`assertClone`](https://typia.io/docs/misc/#clone-functions) or [`validateClone`](https://typia.io/docs/misc/#clone-functions): deep clone with type checking for faster pruning
+
+Also, if you configure `llm` property of the plugin, `@nestia/core` considers that your backend application has been developed for LLM function calling, and validates the request/response body types following the target LLM model's restrictions. 
+
+For example, if you configure `chatgpt` with `strict` option, dynamic properties and optional properties are not allowed in the request/response body types. If your some request/response body types are not following the target LLM model's restrictions, `@nestia/core` will throw a compilation error.
+
+Here is the list of available LLM models. Read their definitions, and follow their restrictions.
+
+  - Supported schemas
+    - `"chatgpt"`: ([`IChatGptSchema`](https://github.com/samchon/openapi/blob/master/src/structures/IChatGptSchema.ts)), OpenAI ChatGPT
+    - `"claude"`: ([`IClaudeSchema`](https://github.com/samchon/openapi/blob/master/src/structures/IClaudeSchema.ts)), Anthropic Claude
+    - `"gemini"`: ([`IGeminiSchema`](https://github.com/samchon/openapi/blob/master/src/structures/IGeminiSchema.ts)), Google Gemini
+    - `"llama"`: ([`ILlamaSchema`](https://github.com/samchon/openapi/blob/master/src/structures/ILlamaSchema.ts)), Meta Llama
+  - Midldle layer schemas
+    - `"3.0"`: ([`ILlmSchemaV3`](https://github.com/samchon/openapi/blob/master/src/structures/ILlmSchemaV3.ts)), middle layer based on OpenAPI v3.0 specification
+    - `"3.1"`: ([`ILlmSchemaV3_1`](https://github.com/samchon/openapi/blob/master/src/structures/ILlmSchemaV3_1.ts)), middle layer based on OpenAPI v3.1 specification
 
 
 

@@ -1,11 +1,17 @@
 import ts from "typescript";
+import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
+import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
 import { HttpAssertQueryProgrammer } from "typia/lib/programmers/http/HttpAssertQueryProgrammer";
 import { HttpIsQueryProgrammer } from "typia/lib/programmers/http/HttpIsQueryProgrammer";
+import { HttpQueryProgrammer } from "typia/lib/programmers/http/HttpQueryProgrammer";
 import { HttpValidateQueryProgrammer } from "typia/lib/programmers/http/HttpValidateQueryProgrammer";
+import { LlmSchemaProgrammer } from "typia/lib/programmers/llm/LlmSchemaProgrammer";
 import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
+import { TransformerError } from "typia/lib/transformers/TransformerError";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
 import { IRequestQueryValidator } from "../options/IRequestQueryValidator";
+import { LlmValidatePredicator } from "./internal/LlmValidatePredicator";
 
 export namespace TypedQueryProgrammer {
   export const generate = (props: {
@@ -13,6 +19,43 @@ export namespace TypedQueryProgrammer {
     modulo: ts.LeftHandSideExpression;
     type: ts.Type;
   }): ts.Expression => {
+    // VALIDATE TYPE
+    if (LlmValidatePredicator.is(props.context.options.llm)) {
+      const result = MetadataFactory.analyze({
+        checker: props.context.checker,
+        transformer: props.context.transformer,
+        options: {
+          escape: false,
+          constant: true,
+          absorb: true,
+          validate: (meta, explore) => {
+            const errors: string[] = HttpQueryProgrammer.validate(
+              meta,
+              explore,
+              true,
+            );
+            errors.push(
+              ...LlmSchemaProgrammer.validate({
+                model: props.context.options.llm!.model,
+                config: {
+                  strict: props.context.options.llm!.strict,
+                  recursive: props.context.options.llm!.recursive,
+                },
+              })(meta),
+            );
+            return errors;
+          },
+        },
+        collection: new MetadataCollection(),
+        type: props.type,
+      });
+      if (result.success === false)
+        throw TransformerError.from({
+          code: "@nestia.core.TypedQuery",
+          errors: result.errors,
+        });
+    }
+
     // GENERATE VALIDATION PLAN
     const parameter =
       (key: IRequestQueryValidator<any>["type"]) =>

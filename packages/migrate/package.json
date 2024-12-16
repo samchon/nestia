@@ -72,13 +72,13 @@
   },
   "dependencies": {
     "@nestia/sdk": "workspace:^",
-    "@samchon/openapi": "^2.2.0",
+    "@samchon/openapi": "^2.2.1",
     "commander": "10.0.0",
     "inquirer": "8.2.5",
     "prettier": "^3.2.5",
     "tstl": "^3.0.0",
     "typescript": "~5.7.2",
-    "typia": "^7.4.0"
+    "typia": "^7.4.1"
   },
   "files": [
     "lib",
