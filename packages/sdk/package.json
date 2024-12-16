@@ -34,7 +34,7 @@
   "dependencies": {
     "@nestia/core": "workspace:^",
     "@nestia/fetcher": "workspace:^",
-    "@samchon/openapi": "^2.1.2",
+    "@samchon/openapi": "^2.2.0",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",

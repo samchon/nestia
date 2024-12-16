@@ -26,7 +26,7 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@samchon/openapi": "^2.1.2",
+    "@samchon/openapi": "^2.2.0",
     "typia": "^7.4.0"
   },
   "peerDependencies": {
