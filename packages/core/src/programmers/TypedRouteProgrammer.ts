@@ -1,11 +1,14 @@
 import ts from "typescript";
+import { JsonMetadataFactory } from "typia/lib/factories/JsonMetadataFactory";
 import { JsonAssertStringifyProgrammer } from "typia/lib/programmers/json/JsonAssertStringifyProgrammer";
 import { JsonIsStringifyProgrammer } from "typia/lib/programmers/json/JsonIsStringifyProgrammer";
 import { JsonStringifyProgrammer } from "typia/lib/programmers/json/JsonStringifyProgrammer";
 import { JsonValidateStringifyProgrammer } from "typia/lib/programmers/json/JsonValidateStringifyProgrammer";
+import { LlmSchemaProgrammer } from "typia/lib/programmers/llm/LlmSchemaProgrammer";
 import { IProgrammerProps } from "typia/lib/transformers/IProgrammerProps";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
+import { LlmValidatePredicator } from "./internal/LlmValidatePredicator";
 
 export namespace TypedRouteProgrammer {
   export const generate = (props: {
@@ -13,6 +16,22 @@ export namespace TypedRouteProgrammer {
     modulo: ts.LeftHandSideExpression;
     type: ts.Type;
   }): ts.Expression => {
+    // VALIDATE TYPE
+    if (LlmValidatePredicator.is(props.context.options.llm))
+      JsonMetadataFactory.analyze({
+        method: "@nestia.core.TypedBody",
+        checker: props.context.checker,
+        transformer: props.context.transformer,
+        type: props.type,
+        validate: LlmSchemaProgrammer.validate({
+          model: props.context.options.llm.model,
+          config: {
+            strict: props.context.options.llm.strict,
+            recursive: props.context.options.llm.recursive,
+          },
+        }),
+      });
+
     // GENERATE STRINGIFY PLAN
     const parameter = (next: {
       type: string;

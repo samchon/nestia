@@ -3,6 +3,7 @@ import { JsonMetadataFactory } from "typia/lib/factories/JsonMetadataFactory";
 import { AssertProgrammer } from "typia/lib/programmers/AssertProgrammer";
 import { IsProgrammer } from "typia/lib/programmers/IsProgrammer";
 import { ValidateProgrammer } from "typia/lib/programmers/ValidateProgrammer";
+import { LlmSchemaProgrammer } from "typia/lib/programmers/llm/LlmSchemaProgrammer";
 import { MiscAssertCloneProgrammer } from "typia/lib/programmers/misc/MiscAssertCloneProgrammer";
 import { MiscAssertPruneProgrammer } from "typia/lib/programmers/misc/MiscAssertPruneProgrammer";
 import { MiscValidateCloneProgrammer } from "typia/lib/programmers/misc/MiscValidateCloneProgrammer";
@@ -11,6 +12,7 @@ import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
+import { LlmValidatePredicator } from "./internal/LlmValidatePredicator";
 
 export namespace TypedBodyProgrammer {
   export const generate = (props: {
@@ -24,6 +26,15 @@ export namespace TypedBodyProgrammer {
       checker: props.context.checker,
       transformer: props.context.transformer,
       type: props.type,
+      validate: LlmValidatePredicator.is(props.context.options.llm)
+        ? LlmSchemaProgrammer.validate({
+            model: props.context.options.llm.model,
+            config: {
+              strict: props.context.options.llm.strict,
+              recursive: props.context.options.llm.recursive,
+            },
+          })
+        : undefined,
     });
 
     // GENERATE VALIDATION PLAN

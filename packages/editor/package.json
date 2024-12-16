@@ -35,12 +35,12 @@
   "dependencies": {
     "@mui/material": "^5.15.6",
     "@nestia/migrate": "workspace:^",
-    "@samchon/openapi": "^2.2.0",
+    "@samchon/openapi": "^2.2.1",
     "@stackblitz/sdk": "^1.11.0",
     "js-yaml": "^4.1.0",
     "prettier": "3.3.3",
     "react-mui-fileuploader": "^0.5.2",
-    "typia": "^7.4.0"
+    "typia": "^7.4.1-dev.20241216-2"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
