@@ -7,11 +7,12 @@ export class TypedQueryController {
   public query(): IObject {
     return {
       name: "test",
+      gender: 1,
     };
   }
 }
 
 interface IObject {
   name: string;
-  age?: number;
+  gender: number | string;
 }
