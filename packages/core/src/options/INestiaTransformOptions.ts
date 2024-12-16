@@ -1,6 +1,12 @@
 export interface INestiaTransformOptions {
-  validate?: // NORMAL
-  | "assert"
+  validate?: INestiaTransformOptions.Validate;
+  stringify?: INestiaTransformOptions.Stringify | null;
+  throws?: boolean;
+}
+export namespace INestiaTransformOptions {
+  export type Validate =
+    // NORMAL
+    | "assert"
     | "is"
     | "validate"
     // STRICT
@@ -13,12 +19,11 @@ export interface INestiaTransformOptions {
     // PRUNE
     | "assertPrune"
     | "validatePrune";
-  stringify?:
+
+  export type Stringify =
     | "stringify"
     | "assert"
     | "is"
     | "validate"
-    | "validate.log"
-    | null;
-  throws?: boolean;
+    | "validate.log";
 }

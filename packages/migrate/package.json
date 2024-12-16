@@ -1,6 +1,6 @@
 {
   "name": "@nestia/migrate",
-  "version": "4.4.0-dev.20241216",
+  "version": "4.4.0-dev.20241216-3",
   "description": "Migration program from swagger to NestJS",
   "typings": "lib/index.d.ts",
   "main": "lib/index.js",

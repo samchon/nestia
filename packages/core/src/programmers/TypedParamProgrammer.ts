@@ -25,6 +25,9 @@ export namespace TypedParamProgrammer {
         type: props.type,
         name: undefined,
       }),
+      ...(props.context.options?.validate?.startsWith("validate")
+        ? [ts.factory.createTrue()]
+        : []),
     ];
   };
 }
