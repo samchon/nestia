@@ -78,7 +78,7 @@
     "prettier": "^3.2.5",
     "tstl": "^3.0.0",
     "typescript": "~5.7.2",
-    "typia": "^7.4.1-dev.20241216-2"
+    "typia": "^7.4.1"
   },
   "files": [
     "lib",
