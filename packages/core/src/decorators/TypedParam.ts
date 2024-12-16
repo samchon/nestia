@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import type express from "express";
 import type { FastifyRequest } from "fastify";
-import typia, { TypeGuardError } from "typia";
+import typia, { IValidation, TypeGuardError } from "typia";
 
 import { NoTransformConfigurationError } from "./NoTransformConfigurationError";
 
@@ -35,6 +35,7 @@ import { NoTransformConfigurationError } from "./NoTransformConfigurationError";
 export function TypedParam<T extends boolean | bigint | number | string | null>(
   name: string,
   assert?: (value: string) => T,
+  validate?: boolean,
 ): ParameterDecorator {
   if (assert === undefined) {
     NoTransformConfigurationError("TypedParam");
@@ -52,14 +53,24 @@ export function TypedParam<T extends boolean | bigint | number | string | null>(
     try {
       return assert(str);
     } catch (exp) {
-      if (typia.is<TypeGuardError>(exp))
-        throw new BadRequestException({
-          path: exp.path,
-          reason: exp.message,
+      if (typia.is<TypeGuardError>(exp)) {
+        const trace: IValidation.IError = {
+          path: exp.path ?? "$input",
           expected: exp.expected,
           value: exp.value,
+        };
+        throw new BadRequestException({
           message: `Invalid URL parameter value on "${name}".`,
+          ...(validate === true
+            ? {
+                errors: [trace],
+              }
+            : {
+                ...trace,
+                reason: exp.message,
+              }),
         });
+      }
       throw exp;
     }
   })(name);
