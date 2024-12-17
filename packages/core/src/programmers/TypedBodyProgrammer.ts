@@ -12,7 +12,6 @@ import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
 import { IRequestBodyValidator } from "../options/IRequestBodyValidator";
-import { LlmValidatePredicator } from "./internal/LlmValidatePredicator";
 
 export namespace TypedBodyProgrammer {
   export const generate = (props: {
@@ -26,7 +25,7 @@ export namespace TypedBodyProgrammer {
       checker: props.context.checker,
       transformer: props.context.transformer,
       type: props.type,
-      validate: LlmValidatePredicator.is(props.context.options.llm)
+      validate: props.context.options.llm
         ? LlmSchemaProgrammer.validate({
             model: props.context.options.llm.model,
             config: {

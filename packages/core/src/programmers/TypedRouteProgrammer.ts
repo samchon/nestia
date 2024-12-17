@@ -8,7 +8,6 @@ import { LlmSchemaProgrammer } from "typia/lib/programmers/llm/LlmSchemaProgramm
 import { IProgrammerProps } from "typia/lib/transformers/IProgrammerProps";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
-import { LlmValidatePredicator } from "./internal/LlmValidatePredicator";
 
 export namespace TypedRouteProgrammer {
   export const generate = (props: {
@@ -17,7 +16,7 @@ export namespace TypedRouteProgrammer {
     type: ts.Type;
   }): ts.Expression => {
     // VALIDATE TYPE
-    if (LlmValidatePredicator.is(props.context.options.llm))
+    if (props.context.options.llm)
       JsonMetadataFactory.analyze({
         method: "@nestia.core.TypedBody",
         checker: props.context.checker,
