@@ -32,13 +32,11 @@ const setup = ({ tag, name, directory, version }) => {
   fs.writeFileSync(file, JSON.stringify(info, null, 2), "utf8");
   if (fs.existsSync(`${directory}/package-lock.json`))
     fs.rmSync(`${directory}/package-lock.json`);
-  try {
-    execute({
-      cwd: directory,
-      script: `npm publish --tag ${tag} --access public${tag === "latest" ? " --provenance" : ""}`,
-      studio: "ignore",
-    });
-  } catch {}
+  execute({
+    cwd: directory,
+    script: `npm publish --tag ${tag} --access public${tag === "latest" ? " --provenance" : ""}`,
+    studio: "ignore",
+  });
 
   // ROLLBACK THE PACKAGE.JSON
   for (const r of rollbacks) r();
