@@ -1,6 +1,7 @@
 export * from "./decorators/DynamicModule";
 export * from "./utils/ExceptionManager";
 
+export * from "./decorators/HumanRoute";
 export * from "./decorators/TypedRoute";
 export * from "./decorators/TypedBody";
 export * from "./decorators/TypedQuery";
