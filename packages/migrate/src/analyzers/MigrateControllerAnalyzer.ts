@@ -13,7 +13,7 @@ export namespace MigrateControllerAnalyzer {
       const name: string =
         route.operation()["x-samchon-controller"] ??
         (route.accessor.length <= 1
-          ? "App"
+          ? "__App"
           : route.accessor.slice(0, -1).map(StringUtil.capitalize).join("")) +
           "Controller";
       MapUtil.take(collection)(name)(() => ({
