@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "4.0.4",
+    "version": "1.0.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -35,7 +35,11 @@
           {
             "basic": []
           }
-        ]
+        ],
+        "x-samchon-accessor": [
+          "basic"
+        ],
+        "x-samchon-controller": "SecurityController"
       }
     },
     "/basic_by_comment": {
@@ -58,7 +62,11 @@
           {
             "basic": []
           }
-        ]
+        ],
+        "x-samchon-accessor": [
+          "basic_by_comment"
+        ],
+        "x-samchon-controller": "SecurityController"
       }
     },
     "/bearer": {
@@ -81,7 +89,11 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "x-samchon-accessor": [
+          "bearer"
+        ],
+        "x-samchon-controller": "SecurityController"
       }
     },
     "/bearer_by_comment": {
@@ -104,7 +116,11 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "x-samchon-accessor": [
+          "bearer_by_comment"
+        ],
+        "x-samchon-controller": "SecurityController"
       }
     },
     "/oauth2": {
@@ -130,7 +146,11 @@
               "read:pets"
             ]
           }
-        ]
+        ],
+        "x-samchon-accessor": [
+          "oauth2"
+        ],
+        "x-samchon-controller": "SecurityController"
       }
     },
     "/oauth2_by_comment": {
@@ -156,7 +176,11 @@
               "read:pets"
             ]
           }
-        ]
+        ],
+        "x-samchon-accessor": [
+          "oauth2_by_comment"
+        ],
+        "x-samchon-controller": "SecurityController"
       }
     },
     "/optional_by_comment": {
@@ -180,7 +204,11 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "x-samchon-accessor": [
+          "optional_by_comment"
+        ],
+        "x-samchon-controller": "SecurityController"
       }
     },
     "/security": {
@@ -198,7 +226,11 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "security"
+        ],
+        "x-samchon-controller": "SecurityController"
       }
     }
   },

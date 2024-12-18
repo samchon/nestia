@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "4.0.4",
+    "version": "1.0.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -73,7 +73,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "query",
+          "typed"
+        ],
+        "x-samchon-controller": "QueryController"
       }
     },
     "/query/nest": {
@@ -135,7 +140,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "query",
+          "nest"
+        ],
+        "x-samchon-controller": "QueryController"
       }
     },
     "/query/individual": {
@@ -162,7 +172,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "query",
+          "individual"
+        ],
+        "x-samchon-controller": "QueryController"
       }
     },
     "/query/composite": {
@@ -216,7 +231,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "query",
+          "composite"
+        ],
+        "x-samchon-controller": "QueryController"
       }
     },
     "/query/body": {
@@ -244,7 +264,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "query",
+          "body"
+        ],
+        "x-samchon-controller": "QueryController"
       }
     },
     "/query/big": {
@@ -272,7 +297,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "query",
+          "big"
+        ],
+        "x-samchon-controller": "QueryController"
       }
     }
   },

@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "4.0.4",
+    "version": "1.0.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -401,7 +401,12 @@
             "description": "",
             "schema": {}
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "health",
+          "get"
+        ],
+        "x-samchon-controller": "HealthController"
       }
     },
     "/performance": {
@@ -415,7 +420,12 @@
               "$ref": "#/definitions/IPerformance"
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "performance",
+          "get"
+        ],
+        "x-samchon-controller": "PerformanceController"
       }
     },
     "/bbs/{section}/articles": {
@@ -447,7 +457,13 @@
               "$ref": "#/definitions/IPageIBbsArticle.ISummary"
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "index"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       },
       "post": {
         "summary": "Store a new article",
@@ -477,7 +493,13 @@
               "$ref": "#/definitions/IBbsArticle"
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "store"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/bbs/{section}/articles/{id}": {
@@ -503,7 +525,13 @@
               "$ref": "#/definitions/IBbsArticle"
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "at"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       },
       "put": {
         "summary": "Update an article",
@@ -540,7 +568,13 @@
               "$ref": "#/definitions/IBbsArticle"
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "update"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/{section}/articles/{articleId}/comments": {
@@ -578,7 +612,13 @@
               "$ref": "#/definitions/IPageIBbsComment"
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "articles",
+          "comments",
+          "index"
+        ],
+        "x-samchon-controller": "BbsCommentsController"
       },
       "post": {
         "tags": [],
@@ -610,7 +650,13 @@
               "$ref": "#/definitions/IBbsComment"
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "articles",
+          "comments",
+          "store"
+        ],
+        "x-samchon-controller": "BbsCommentsController"
       }
     },
     "/{section}/articles/{articleId}/comments/{id}": {
@@ -642,7 +688,13 @@
               "$ref": "#/definitions/IBbsComment"
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "articles",
+          "comments",
+          "at"
+        ],
+        "x-samchon-controller": "BbsCommentsController"
       },
       "put": {
         "tags": [],
@@ -680,7 +732,13 @@
               "$ref": "#/definitions/IBbsComment"
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "articles",
+          "comments",
+          "update"
+        ],
+        "x-samchon-controller": "BbsCommentsController"
       }
     }
   },

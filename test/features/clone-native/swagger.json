@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "4.0.4",
+    "version": "1.0.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -30,7 +30,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "date",
+          "get"
+        ],
+        "x-samchon-controller": "DateController"
       }
     },
     "/multipart": {
@@ -54,7 +59,12 @@
               "application/json": {}
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "multipart",
+          "post"
+        ],
+        "x-samchon-controller": "MultipartController"
       }
     }
   },

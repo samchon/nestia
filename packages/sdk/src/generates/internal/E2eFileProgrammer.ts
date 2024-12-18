@@ -112,7 +112,7 @@ export namespace E2eFileProgrammer {
         : ts.factory.createIdentifier("connection");
       const caller = ts.factory.createCallExpression(
         ts.factory.createIdentifier(
-          ["api", "functional", ...route.accessors].join("."),
+          ["api", "functional", ...route.accessor].join("."),
         ),
         undefined,
         [
@@ -180,4 +180,4 @@ export namespace E2eFileProgrammer {
 }
 
 const getFunctionName = (route: ITypedHttpRoute): string =>
-  ["test", "api", ...route.accessors].join("_");
+  ["test", "api", ...route.accessor].join("_");

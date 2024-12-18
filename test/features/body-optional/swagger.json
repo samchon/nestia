@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "4.0.4",
+    "version": "1.0.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -40,7 +40,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "body",
+          "optional",
+          "json"
+        ],
+        "x-samchon-controller": "BodyOptionalController"
       }
     },
     "/body/optional/plain": {
@@ -68,7 +74,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "body",
+          "optional",
+          "plain"
+        ],
+        "x-samchon-controller": "BodyOptionalController"
       }
     },
     "/health": {
@@ -82,7 +94,12 @@
               "application/json": {}
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "health",
+          "get"
+        ],
+        "x-samchon-controller": "HealthController"
       }
     }
   },

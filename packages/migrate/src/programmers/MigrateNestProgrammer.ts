@@ -13,7 +13,9 @@ import { MigrateNestModuleProgrammer } from "./MigrateNestModuleProgrammer";
 export namespace MigrateNestProgrammer {
   export const write = (program: IHttpMigrateProgram): IHttpMigrateFile[] => {
     const controllers: IHttpMigrateController[] =
-      MigrateControllerAnalyzer.analyze(program.routes);
+      MigrateControllerAnalyzer.analyze({
+        routes: program.routes,
+      });
     return [
       {
         location: "src",

@@ -23,7 +23,12 @@
               "application/json": {}
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "health",
+          "get"
+        ],
+        "x-samchon-controller": "HealthController"
       }
     },
     "/performance": {
@@ -43,7 +48,12 @@
           }
         },
         "x-deprecated": true,
-        "x-visibility": "public"
+        "x-visibility": "public",
+        "x-samchon-accessor": [
+          "performance",
+          "get"
+        ],
+        "x-samchon-controller": "PerformanceController"
       }
     }
   },

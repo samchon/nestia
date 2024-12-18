@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "4.0.4",
+    "version": "1.0.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -69,7 +69,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "index"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       },
       "post": {
         "summary": "Store a new article",
@@ -108,7 +114,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "store"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/bbs/{section}/articles/{id}": {
@@ -144,7 +156,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "at"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       },
       "put": {
         "summary": "Update an article",
@@ -193,7 +211,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "update"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/bbs/{section}/articles/{articleId}/comments": {
@@ -259,7 +283,14 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "comments",
+          "index"
+        ],
+        "x-samchon-controller": "BbsCommentsController"
       },
       "post": {
         "tags": [],
@@ -303,7 +334,14 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "comments",
+          "store"
+        ],
+        "x-samchon-controller": "BbsCommentsController"
       }
     },
     "/bbs/{section}/articles/{articleId}/comments/{id}": {
@@ -348,7 +386,14 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "comments",
+          "at"
+        ],
+        "x-samchon-controller": "BbsCommentsController"
       },
       "put": {
         "tags": [],
@@ -401,7 +446,14 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "comments",
+          "update"
+        ],
+        "x-samchon-controller": "BbsCommentsController"
       }
     }
   },

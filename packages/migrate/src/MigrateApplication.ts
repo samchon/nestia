@@ -1,7 +1,7 @@
 import { OpenApi, OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import typia, { IValidation } from "typia";
 
-import { MigrateAnalyzer } from "./analyzers/MigrateAnalyzer";
+import { MigrateApplicationAnalyzer } from "./analyzers/MigrateApplicationAnalyzer";
 import { NEST_TEMPLATE } from "./bundles/NEST_TEMPLATE";
 import { SDK_TEMPLATE } from "./bundles/SDK_TEMPLATE";
 import { MigrateApiProgrammer } from "./programmers/MigrateApiProgrammer";
@@ -35,7 +35,7 @@ export class MigrateApplication {
   }
 
   public nest(config: MigrateApplication.IConfig): MigrateApplication.IOutput {
-    const program: IHttpMigrateProgram = MigrateAnalyzer.analyze({
+    const program: IHttpMigrateProgram = MigrateApplicationAnalyzer.analyze({
       mode: "nest",
       document: this.document,
       simulate: config.simulate,
@@ -55,7 +55,7 @@ export class MigrateApplication {
   }
 
   public sdk(config: MigrateApplication.IConfig): MigrateApplication.IOutput {
-    const program: IHttpMigrateProgram = MigrateAnalyzer.analyze({
+    const program: IHttpMigrateProgram = MigrateApplicationAnalyzer.analyze({
       mode: "sdk",
       document: this.document,
       simulate: config.simulate,

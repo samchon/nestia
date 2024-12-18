@@ -10,7 +10,7 @@ export interface ITypedWebSocketRoute {
   controller: IReflectController;
   name: string;
   path: string;
-  accessors: string[];
+  accessor: string[];
   function: Function;
   versions: Array<string | typeof VERSION_NEUTRAL> | undefined;
   parameters: ITypedWebSocketRouteParameter[];

@@ -1,6 +1,6 @@
 export * from "./MigrateApplication";
 
-export * from "./analyzers/MigrateAnalyzer";
+export * from "./analyzers/MigrateApplicationAnalyzer";
 
 export * from "./archivers/MigrateFileArchiver";
 

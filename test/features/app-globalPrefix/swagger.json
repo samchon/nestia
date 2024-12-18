@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "4.0.4",
+    "version": "1.0.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -26,7 +26,13 @@
               "application/json": {}
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "x",
+          "health",
+          "get"
+        ],
+        "x-samchon-controller": "HealthController"
       }
     },
     "/x/performance": {
@@ -44,7 +50,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "x",
+          "performance",
+          "get"
+        ],
+        "x-samchon-controller": "PerformanceController"
       }
     },
     "/x/bbs/{section}/articles": {
@@ -101,7 +113,14 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "x",
+          "bbs",
+          "articles",
+          "index"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       },
       "post": {
         "summary": "Store a new article",
@@ -140,7 +159,14 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "x",
+          "bbs",
+          "articles",
+          "store"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/x/bbs/{section}/articles/{id}": {
@@ -176,7 +202,14 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "x",
+          "bbs",
+          "articles",
+          "at"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       },
       "put": {
         "summary": "Update an article",
@@ -225,7 +258,14 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "x",
+          "bbs",
+          "articles",
+          "update"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/x/bbs/{section}/articles/{articleId}/comments": {
@@ -291,7 +331,15 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "x",
+          "bbs",
+          "articles",
+          "comments",
+          "index"
+        ],
+        "x-samchon-controller": "BbsCommentsController"
       },
       "post": {
         "tags": [],
@@ -335,7 +383,15 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "x",
+          "bbs",
+          "articles",
+          "comments",
+          "store"
+        ],
+        "x-samchon-controller": "BbsCommentsController"
       }
     },
     "/x/bbs/{section}/articles/{articleId}/comments/{id}": {
@@ -380,7 +436,15 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "x",
+          "bbs",
+          "articles",
+          "comments",
+          "at"
+        ],
+        "x-samchon-controller": "BbsCommentsController"
       },
       "put": {
         "tags": [],
@@ -433,7 +497,15 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "x",
+          "bbs",
+          "articles",
+          "comments",
+          "update"
+        ],
+        "x-samchon-controller": "BbsCommentsController"
       }
     }
   },

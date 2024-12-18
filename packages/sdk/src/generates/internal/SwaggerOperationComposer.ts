@@ -112,6 +112,8 @@ export namespace SwaggerOperationComposer {
       }),
       security: security.length ? security : undefined,
       ...(props.route.extensions ?? {}),
+      "x-samchon-accessor": props.route.accessor,
+      "x-samchon-controller": props.route.controller.class.name,
     };
   };
 }
