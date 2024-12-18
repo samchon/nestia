@@ -33,7 +33,7 @@ export namespace MigrateNestControllerProgrammer {
         [],
         [],
         controller.routes.map(
-          MigrateNestMethodProgrammer.write(components)(importer),
+          MigrateNestMethodProgrammer.write(components)(importer)(controller),
         ),
       );
       return [

@@ -5,6 +5,7 @@ import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
+import { IHttpMigrateController } from "../structures/IHttpMigrateController";
 import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
@@ -15,6 +16,7 @@ export namespace MigrateNestMethodProgrammer {
   export const write =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
+    (controller: IHttpMigrateController) =>
     (route: IHttpMigrateRoute): ts.MethodDeclaration => {
       const output: ts.TypeNode = route.success
         ? MigrateSchemaProgrammer.write(components)(importer)(
@@ -24,7 +26,7 @@ export namespace MigrateNestMethodProgrammer {
 
       const method: ts.MethodDeclaration = ts.factory.createMethodDeclaration(
         [
-          ...writeMethodDecorators(components)(importer)(route),
+          ...writeMethodDecorators(components)(importer)(controller)(route),
           ts.factory.createToken(ts.SyntaxKind.PublicKeyword),
           ts.factory.createToken(ts.SyntaxKind.AsyncKeyword),
         ],
@@ -78,6 +80,7 @@ export namespace MigrateNestMethodProgrammer {
   const writeMethodDecorators =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
+    (controller: IHttpMigrateController) =>
     (route: IHttpMigrateRoute): ts.Decorator[] => {
       const external =
         (lib: string) =>
@@ -99,7 +102,24 @@ export namespace MigrateNestMethodProgrammer {
           ),
         );
 
+      // HUMAN-ONLY
+      if (route.operation()["x-samchon-human"] === true)
+        decorators.push(
+          ts.factory.createDecorator(
+            ts.factory.createCallExpression(
+              external("@nestia/core")("HumanRoute"),
+              undefined,
+              undefined,
+            ),
+          ),
+        );
+
       // ROUTER
+      const localPath: string = route.emendedPath
+        .slice(controller.path.length)
+        .split("/")
+        .filter((str) => !!str.length)
+        .join("/");
       const router = (instance: string) =>
         ts.factory.createDecorator(
           ts.factory.createCallExpression(
@@ -108,7 +128,9 @@ export namespace MigrateNestMethodProgrammer {
               StringUtil.capitalize(route.method),
             ),
             [],
-            [ts.factory.createStringLiteral(route.path)],
+            localPath.length
+              ? [ts.factory.createStringLiteral(localPath)]
+              : undefined,
           ),
         );
       if (route.success?.["x-nestia-encrypted"])
