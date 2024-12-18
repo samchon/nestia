@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "4.0.4",
+    "version": "1.0.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -26,7 +26,13 @@
               "application/json": {}
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "v1",
+          "health",
+          "get"
+        ],
+        "x-samchon-controller": "HealthController"
       }
     },
     "/v1/performance": {
@@ -44,7 +50,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "v1",
+          "performance",
+          "get"
+        ],
+        "x-samchon-controller": "PerformanceController"
       }
     },
     "/v1/bbs/{section}/articles": {
@@ -101,7 +113,14 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "v1",
+          "bbs",
+          "articles",
+          "index"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/v2/bbs/{section}/articles": {
@@ -158,7 +177,14 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "v2",
+          "bbs",
+          "articles",
+          "index"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/bbs/{section}/articles": {
@@ -215,7 +241,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "index"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       },
       "post": {
         "summary": "Store a new article",
@@ -254,7 +286,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "store"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/v1/bbs/{section}/articles/{id}": {
@@ -290,7 +328,14 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "v1",
+          "bbs",
+          "articles",
+          "at"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/v2/bbs/{section}/articles/{id}": {
@@ -341,7 +386,14 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "v2",
+          "bbs",
+          "articles",
+          "update"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     }
   },

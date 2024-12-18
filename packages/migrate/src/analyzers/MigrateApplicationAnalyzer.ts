@@ -2,7 +2,7 @@ import { HttpMigration, IHttpMigrateApplication } from "@samchon/openapi";
 
 import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
 
-export namespace MigrateAnalyzer {
+export namespace MigrateApplicationAnalyzer {
   export const analyze = (
     props: IHttpMigrateProgram.IProps,
   ): IHttpMigrateProgram => {

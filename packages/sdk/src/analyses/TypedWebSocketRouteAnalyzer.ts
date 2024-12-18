@@ -13,6 +13,6 @@ export namespace TypedWebSocketRouteAnalyzer {
       ...props.operation,
       controller: props.controller,
       path,
-      accessors: [...PathUtil.accessors(path), props.operation.name],
+      accessor: [...PathUtil.accessors(path), props.operation.name],
     }));
 }

@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "4.0.4",
+    "version": "1.0.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -49,6 +49,11 @@
             }
           }
         },
+        "x-samchon-accessor": [
+          "custom",
+          "customize"
+        ],
+        "x-samchon-controller": "CustomController",
         "x-selector": {
           "method": "get",
           "path": "/custom/{id}/normal"
@@ -82,6 +87,11 @@
             }
           }
         },
+        "x-samchon-accessor": [
+          "custom",
+          "normal"
+        ],
+        "x-samchon-controller": "CustomController",
         "x-special-symbol": "Something Normal"
       }
     }

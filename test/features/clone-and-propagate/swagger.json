@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "4.0.4",
+    "version": "1.0.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -33,7 +33,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursive",
+          "index"
+        ],
+        "x-samchon-controller": "ArrayRecursiveController"
       },
       "post": {
         "tags": [],
@@ -59,7 +64,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursive",
+          "store"
+        ],
+        "x-samchon-controller": "ArrayRecursiveController"
       }
     },
     "/arrayRecursive/{id}": {
@@ -86,7 +96,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursive",
+          "at"
+        ],
+        "x-samchon-controller": "ArrayRecursiveController"
       }
     },
     "/arrayRecursiveUnionExplicit": {
@@ -123,7 +138,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursiveUnionExplicit",
+          "index"
+        ],
+        "x-samchon-controller": "ArrayRecursiveUnionExplicitController"
       },
       "post": {
         "tags": [],
@@ -181,7 +201,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursiveUnionExplicit",
+          "store"
+        ],
+        "x-samchon-controller": "ArrayRecursiveUnionExplicitController"
       }
     },
     "/arrayRecursiveUnionExplicit/{id}": {
@@ -224,7 +249,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursiveUnionExplicit",
+          "at"
+        ],
+        "x-samchon-controller": "ArrayRecursiveUnionExplicitController"
       }
     },
     "/arrayRecursiveUnionImplicit": {
@@ -264,7 +294,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursiveUnionImplicit",
+          "index"
+        ],
+        "x-samchon-controller": "ArrayRecursiveUnionImplicitController"
       },
       "post": {
         "tags": [],
@@ -328,7 +363,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursiveUnionImplicit",
+          "store"
+        ],
+        "x-samchon-controller": "ArrayRecursiveUnionImplicitController"
       }
     },
     "/arrayRecursiveUnionImplicit/{id}": {
@@ -374,7 +414,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursiveUnionImplicit",
+          "at"
+        ],
+        "x-samchon-controller": "ArrayRecursiveUnionImplicitController"
       }
     },
     "/arraySimple": {
@@ -395,7 +440,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "arraySimple",
+          "index"
+        ],
+        "x-samchon-controller": "ArraySimpleController"
       },
       "post": {
         "tags": [],
@@ -421,7 +471,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "arraySimple",
+          "store"
+        ],
+        "x-samchon-controller": "ArraySimpleController"
       }
     },
     "/arraySimple/{id}": {
@@ -449,7 +504,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "arraySimple",
+          "at"
+        ],
+        "x-samchon-controller": "ArraySimpleController"
       }
     },
     "/bbs/articles/{section}": {
@@ -509,7 +569,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "index"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       },
       "post": {
         "summary": "Store a new article",
@@ -548,7 +614,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "store"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/bbs/articles/{section}/{id}": {
@@ -599,7 +671,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "update"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/health": {
@@ -613,7 +691,12 @@
               "application/json": {}
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "health",
+          "get"
+        ],
+        "x-samchon-controller": "HealthController"
       }
     },
     "/multipart": {
@@ -637,7 +720,12 @@
               "application/json": {}
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "multipart",
+          "post"
+        ],
+        "x-samchon-controller": "MultipartController"
       }
     },
     "/objectLiteral": {
@@ -658,7 +746,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "objectLiteral",
+          "index"
+        ],
+        "x-samchon-controller": "ObjectLiteralController"
       }
     },
     "/objectLiteral/literal": {
@@ -714,7 +807,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "objectLiteral",
+          "literal",
+          "literals"
+        ],
+        "x-samchon-controller": "ObjectLiteralController"
       }
     },
     "/objectSimple": {
@@ -735,7 +834,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "objectSimple",
+          "index"
+        ],
+        "x-samchon-controller": "ObjectSimpleController"
       },
       "post": {
         "tags": [],
@@ -761,7 +865,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "objectSimple",
+          "store"
+        ],
+        "x-samchon-controller": "ObjectSimpleController"
       }
     },
     "/objectSimple/{id}": {
@@ -788,7 +897,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "objectSimple",
+          "at"
+        ],
+        "x-samchon-controller": "ObjectSimpleController"
       }
     },
     "/objectUnionExplicit": {
@@ -843,7 +957,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "objectUnionExplicit",
+          "get"
+        ],
+        "x-samchon-controller": "ObjectUnionExplicitController"
       }
     },
     "/objectUnionImplicitControllere": {
@@ -886,7 +1005,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "objectUnionImplicitControllere",
+          "get"
+        ],
+        "x-samchon-controller": "ObjectUnionImplicitController"
       }
     },
     "/performance/cpu": {
@@ -904,7 +1028,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "performance",
+          "cpu"
+        ],
+        "x-samchon-controller": "PerformanceController"
       }
     },
     "/performance/memory": {
@@ -922,7 +1051,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "performance",
+          "memory"
+        ],
+        "x-samchon-controller": "PerformanceController"
       }
     },
     "/performance/resource": {
@@ -940,7 +1074,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "performance",
+          "resource"
+        ],
+        "x-samchon-controller": "PerformanceController"
       }
     },
     "/sellers/authenticate/join": {
@@ -973,7 +1112,13 @@
             },
             "x-nestia-encrypted": true
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "sellers",
+          "authenticate",
+          "join"
+        ],
+        "x-samchon-controller": "SellerAuthenticateController"
       }
     },
     "/sellers/authenticate/login": {
@@ -1006,7 +1151,13 @@
             },
             "x-nestia-encrypted": true
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "sellers",
+          "authenticate",
+          "login"
+        ],
+        "x-samchon-controller": "SellerAuthenticateController"
       }
     },
     "/sellers/authenticate/password/change": {
@@ -1034,7 +1185,14 @@
               "application/json": {}
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "sellers",
+          "authenticate",
+          "password",
+          "change"
+        ],
+        "x-samchon-controller": "SellerAuthenticateController"
       }
     },
     "/sellers/authenticate/exit": {
@@ -1050,7 +1208,13 @@
               "application/json": {}
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "sellers",
+          "authenticate",
+          "exit"
+        ],
+        "x-samchon-controller": "SellerAuthenticateController"
       }
     },
     "/template": {
@@ -1071,7 +1235,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "template",
+          "index"
+        ],
+        "x-samchon-controller": "TemplateController"
       },
       "post": {
         "tags": [],
@@ -1097,7 +1266,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "template",
+          "store"
+        ],
+        "x-samchon-controller": "TemplateController"
       }
     },
     "/template/{id}": {
@@ -1124,7 +1298,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "template",
+          "at"
+        ],
+        "x-samchon-controller": "TemplateController"
       }
     },
     "/tupleHierarchicalController": {
@@ -1241,7 +1420,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "tupleHierarchicalController",
+          "index"
+        ],
+        "x-samchon-controller": "TupleHierarchicalController"
       },
       "post": {
         "tags": [],
@@ -1459,7 +1643,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "tupleHierarchicalController",
+          "store"
+        ],
+        "x-samchon-controller": "TupleHierarchicalController"
       }
     },
     "/tupleHierarchicalController/{id}": {
@@ -1582,7 +1771,12 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "tupleHierarchicalController",
+          "at"
+        ],
+        "x-samchon-controller": "TupleHierarchicalController"
       }
     },
     "/users/{user_id}/oauth": {
@@ -1646,7 +1840,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "users",
+          "oauth",
+          "getOauthProfile"
+        ],
+        "x-samchon-controller": "UsersController"
       }
     },
     "/users/{user_id}/user": {
@@ -1702,7 +1902,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "users",
+          "user",
+          "getUserProfile"
+        ],
+        "x-samchon-controller": "UsersController"
       },
       "post": {
         "description": "- check optional, nullable property",
@@ -1738,7 +1944,13 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "users",
+          "user",
+          "updateUserProfile"
+        ],
+        "x-samchon-controller": "UsersController"
       }
     }
   },

@@ -29,7 +29,7 @@ export namespace SdkFileProgrammer {
     (directory: SdkRouteDirectory) =>
     (route: ITypedHttpRoute | ITypedWebSocketRoute): void => {
       // OPEN DIRECTORIES
-      for (const key of route.accessors.slice(0, -1)) {
+      for (const key of route.accessor.slice(0, -1)) {
         directory = MapUtil.take(
           directory.children,
           key,

@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "4.0.4",
+    "version": "1.0.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -29,82 +29,87 @@
                 "$ref": "#/components/schemas/IBbsArticle.ICreate"
               },
               "example": {
-                "title": "prnybqxguabgdwzep",
-                "body": "grzevqyehsfjdvszhswzpddjfxkterwdrgncyqburtrfzbabpvfkxxqtjfxwklddaqenysqqhhrbnqpoaxc",
+                "title": "grgrelygxieysvdrlmyqhfvfgwutxmuahgwk",
+                "body": "avyo",
                 "files": [
                   {
-                    "name": "fqdhlmxyxqvemihiybiqjwzurkzergsoqfdeyholulfbhzsyzhthmcmhoxklzmqntaedowrhhysiuzgrohegjwcrbcphylprmmlvqpmgzwcpnedlsvmsnasozcnirawnjhsbhdkdmwdbuvzvmawxkiadqbrq",
-                    "extension": "y",
-                    "url": "https://tnukmkaydz.rdq"
+                    "name": null,
+                    "extension": null,
+                    "url": "https://joxozxeahc.icf"
                   },
                   {
                     "name": null,
-                    "extension": "wlmk",
-                    "url": "https://lhzxvumpox.ntg"
+                    "extension": null,
+                    "url": "https://omnefrbdij.fhh"
+                  },
+                  {
+                    "name": "cyafwgoasyfveqolifytdaqehwibdwqqplltgspkuqxzaubjeenbegkwpomftfukpjvvjehsiefzwnugpswcoxkbbrkvsdavuhyedlfdsrkaednxdvlcumaqeoefwhttdzqylxlewdc",
+                    "extension": "mny",
+                    "url": "https://otlenmdtvd.rym"
                   }
                 ]
               },
               "examples": {
                 "z": {
-                  "title": "inzobsbsbepdjbdoqrcnhskkgclxzqhkmblempyajmakjbru",
-                  "body": "ih",
+                  "title": "ytpzimqlgocrzy",
+                  "body": "letciyhdlvfuggjjoeyuwbgrffanloesjbfqycyblc",
                   "files": [
                     {
-                      "name": null,
-                      "extension": "m",
-                      "url": "https://xtrtlzjybw.eum"
+                      "name": "hqvzjgphbtyahlowbclhkstpcewtujxxzxgqjdtbwaclsoooqjzctjvfwhzamzctgpnwoghmalfxltpyzkiaimszouhpmwxvqdczhdvnomfwtjgpckibqpewhykxuthfqkulviwqvxindobuysgxfhuuswycytoictxngcxfkcwfdulhgogqutmwnviypugaarmuxeztdqyiziqvxknxlih",
+                      "extension": "mzlpaz",
+                      "url": "https://iemxzwfvll.hup"
                     },
                     {
-                      "name": "paicsbtolklfqclyyjvbofuqnkxaxeykcmcrtrgfdxtqmbulvgavqjqmvvhhvcwsyucqunequmjikxhdaefzbrloxnseocaiegctgpkptsdashsquttnwlgpwtpmqevxsloszkyivwduuahlgeszdotptctuqpm",
-                      "extension": null,
-                      "url": "https://iixyzgxgon.mzr"
+                      "name": null,
+                      "extension": "azswdg",
+                      "url": "https://auntjkoisr.qgb"
                     }
                   ]
                 },
                 "y": {
-                  "title": "fbn",
-                  "body": "csdhaatrjhbnjrusscjfyfmpmjytqartpfzjwturgqxuenmbmgldaxviqi",
+                  "title": "voefiopitfgmtqcfncgorcrnlznrkhtzbgtjdccxnbhonl",
+                  "body": "qoebjvtumpxmgybnpmvwrhzsssltkikyfzkpdyaqsmrbqbtfprajlumurwvxnzfkurebse",
                   "files": [
                     {
-                      "name": "itkehwofsyxqrqdpvxzjrweetuableyrhs",
-                      "extension": "jx",
-                      "url": "https://xwbovgbril.xdl"
+                      "name": "gbbrxzyvyagdyzlsassntflizjsqixiwbagxisgbrkwjtumsgvfhuwgtajkkwtxeiqudmsnzqoamrkjxeqzfilrnpsrboajylvyrrvuiziclpnizmuxazuxsugsvgkgfkcqcanglrnavrjnmkhhchojgpkjfddxe",
+                      "extension": "ydwriqfw",
+                      "url": "https://ckoxjsnrdl.udf"
                     },
                     {
                       "name": null,
                       "extension": null,
-                      "url": "https://wqhhsynfyd.bqe"
+                      "url": "https://gjrranwegb.zuz"
                     },
                     {
-                      "name": null,
+                      "name": "idljoboutnepouj",
                       "extension": null,
-                      "url": "https://fdrzgwxbil.lkh"
+                      "url": "https://xonisshkgw.jdh"
                     },
                     {
                       "name": null,
-                      "extension": null,
-                      "url": "https://egpjpharfi.xiu"
-                    },
-                    {
-                      "name": null,
-                      "extension": "fqztw",
-                      "url": "https://iosjeefgxy.ggg"
+                      "extension": "p",
+                      "url": "https://jmquqbohxe.akf"
                     }
                   ]
                 },
                 "x": {
-                  "title": "tmr",
-                  "body": "cghmoroaqgizjuyorpyzlefecffjvezqowkqdosddwnfypfpedtmtvsglrcdfcwdpzcrubbumbvwixsl",
+                  "title": "vvpxlxfewwdyuijpi",
+                  "body": "mbcmjhneekqelfmdoiyrmitoqygeirfypdhknbgrstvuwrnnxqgnmphfjrohdf",
                   "files": [
                     {
-                      "name": "fdhsvoqqbcbvzqnrnqfbmxffkoibodgvdppbbtbqhiqsgloehaumiwhmcxqdobonmgsibhxersuokqjvrkqysmkbovbgxyettxswowwhkjqrfkemwhfdwxphusgcgvkhysnuytwrthbdhtpbbltgcvchenpgsitvzxcjcsxtrevgegjlgwxnskfkzjpwopldiyglepjocwxgjjgdvajkichotyrwxxysbzrvfssjjqutnwfmeoejivasyei",
+                      "name": null,
                       "extension": null,
-                      "url": "https://pasnxkllwu.yam"
+                      "url": "https://qcoedbopdh.vkd"
                     },
                     {
-                      "name": "mfyuvmmztmu",
+                      "name": null,
+                      "extension": "icuphni",
+                      "url": "https://wehulkqbru.oja"
+                    },
+                    {
+                      "name": "znnunytfkgiziiptlvvssiikpkosgkghxndjczvtjfevdqkimnqxpgimgbygnypmqgrhufevwqbvrzasrnbwkfrazngsaoruyktrdqdoassyeekgehbcwgtcyzaesyrefzpegqwipzfnikevqaszsqnsxoojgrwxnpsyteyvwcqndosmbfytwcoldaoedyzgvcffeabdcrucwhm",
                       "extension": null,
-                      "url": "https://cyirpylotn.qps"
+                      "url": "https://vplgqmcthu.ffg"
                     }
                   ]
                 }
@@ -122,32 +127,48 @@
                   "$ref": "#/components/schemas/IBbsArticle"
                 },
                 "example": {
-                  "id": "fc40e38a-8217-4053-ac9f-33f8c9726403",
-                  "created_at": "1972-04-08T04:29:39.660Z",
-                  "title": "ptqs",
-                  "body": "usofbbnrgrtlkpucjztcmnrvppwekifwusuicrclicpg",
+                  "id": "d4dbf704-6467-41ce-9eaf-1b07b2f7ec88",
+                  "created_at": "2023-10-10T16:34:21.551Z",
+                  "title": "wiguxdowlzoahbxikxyx",
+                  "body": "aywvkhqwpcdokynxrurdlrgtrakykbczjjdoqzsomdaauyxzmdjsoqiblhy",
                   "files": [
                     {
-                      "name": null,
-                      "extension": null,
-                      "url": "https://sivmwvnzfl.kfa"
+                      "name": "dkkipyvgvgccbgbkzlzeymjzucleoydtlqwsotlufocdjmiznmpisoexytrnlwifaavshowovntzxyggfdaqwyx",
+                      "extension": "bgz",
+                      "url": "https://jtqnlxqymn.kkh"
                     },
                     {
-                      "name": "nzqsugvledmyibaarbsizykjbshkmlfgduafpxrcstvcudyroatbcpaoyxoanizwtttnfeyrqaordhiteikrcabmwjkagqwmaaltfdibpebmiffbhrxsfliqjaquzzzqhhsbpcuzqivmriexadpabuhddhvmtuvwwoamzajtavwkukumoojwxltngdtwjejkmguqrcmdlt",
-                      "extension": "rjnkro",
-                      "url": "https://kbvcxflmxm.jjb"
+                      "name": "vtyatsgxrdddrvzfxglfvscnrmvdxugticbktnoyldhqhtpbcccebnzlmhtnpcvvniiutisifkcnuenkmlgcdstviayxfxbvmbpdgfxrieznvbleqvpbhvzbqthhnfjykmbraqstnbxhlluwgueeeszhhmevwnfempzrbcsdjdv",
+                      "extension": "xgyejxvj",
+                      "url": "https://qsoiknyvxq.cqg"
                     },
                     {
                       "name": null,
-                      "extension": "mqhz",
-                      "url": "https://ykpfwpdwdr.usy"
+                      "extension": "fvxts",
+                      "url": "https://emwvbfsnwj.rpw"
+                    },
+                    {
+                      "name": null,
+                      "extension": "tsoxfunz",
+                      "url": "https://tukrozsspr.fdr"
+                    },
+                    {
+                      "name": null,
+                      "extension": "wxaia",
+                      "url": "https://phkcygmxtg.ndi"
                     }
                   ]
                 }
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "create"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/bbs/articles/{id}": {
@@ -162,7 +183,7 @@
               "format": "uuid"
             },
             "required": true,
-            "example": "7ad8d21f-84f9-4029-8365-0bc0320c9103"
+            "example": "5657eb2d-0a55-4332-a6e8-4495618650c3"
           }
         ],
         "requestBody": {
@@ -172,8 +193,7 @@
                 "$ref": "#/components/schemas/PartialIBbsArticle.ICreate"
               },
               "example": {
-                "title": "lodjhdnhjzawozzuvqtzodlvswfohscsbsjyqctjdrceteiprq",
-                "body": "wfhrvdgffirgzovjfrmpoedihudkcjfjerrnexeal"
+                "title": "xdldiclwqjhyefkcimjvjqohophnkknjnwtvgn"
               }
             }
           },
@@ -188,75 +208,70 @@
                   "$ref": "#/components/schemas/IBbsArticle"
                 },
                 "example": {
-                  "id": "3a8d36d2-4346-4ec3-aa2b-211ac3496134",
-                  "created_at": "1972-08-12T04:09:45.754Z",
-                  "title": "zyirymqxlnrfrgypczrwxsoyuvqlzqfrffpypfwuvfth",
-                  "body": "gnyjdevgjjcenjsfjdlniscqavupdfxwzibaahzszepgobnnegkyr",
+                  "id": "d18f47a3-10a8-4dd7-8705-3ef3fc13ce3a",
+                  "created_at": "1997-09-21T14:33:57.620Z",
+                  "title": "axbkxqietimtyimjtijlmgigqkjqqhcljkjinsa",
+                  "body": "ascfwpvamnlrdptpatxoayxdfolsodtdiiqeuvhzcaskanrgthlkautnouwkfzbregawrlrktgtouajajexxbcanmmgalziqivff",
                   "files": [
                     {
-                      "name": "wvgxzqccjkmafonpcpebqmcgkayndikqzsnszkuueckgedeknjncssesnudimxwcgbkstvlnjlxdyuhipvodzmztmwgnhpepzzsvgyjshjrdrfpbxkosqqnxiwzbatlwioduoqhpvfvnnvtxxlzdbqzynmmjbpunvwevbmerxcfghibtkqpfjvjtrzsjctdrmipnotehydknoumwxvmvngnxuuhnrkuraudngdwkqedovbtkmpbx",
-                      "extension": "qkltlmz",
-                      "url": "https://mklskqqsth.exn"
-                    },
-                    {
-                      "name": "qqssusgojdcdsvzcovrejmwnfgavurfihohwxahtuwqgygcripyummhgxssmdmijyuijjmstjslhjttxjmmpxzdfrglyqwgmwpudvimosskkqbegbykyfkqdzzildlfrxzoakgnabtezjktpathkjcpeekxlcmnjdcsfceklvksmwygcdehtuonfkxgxw",
-                      "extension": "u",
-                      "url": "https://untroxnmgh.oqk"
-                    },
-                    {
-                      "name": "mxtqmqkrqqmcncfzqeczdvlscrdfluntnchrmghu",
+                      "name": "wfwmbxvjuykeplpijgoklpqpftmpmfmolclqkctotvydaocydmcrmxubtcenvxhdtdezfvkmlclrsnrkmmilpifrbczkscwzfdvozeyhiwyoubyymohwvkvezgktbynqlszebawwcpgvdwpswdyhoipiqctbqjusxbyxooxorbdlwpjiwxaimyitbgqvwrktzcazzfhlumfbjfajtdmnjxejvdiolwycrtmdqi",
                       "extension": null,
-                      "url": "https://rwmkgpvzgz.wmo"
+                      "url": "https://zimttfvyhg.ipb"
                     },
                     {
                       "name": null,
-                      "extension": "in",
-                      "url": "https://socsfchosx.zmz"
+                      "extension": "gs",
+                      "url": "https://lwqhyzuwte.rip"
                     },
                     {
-                      "name": "bx",
-                      "extension": "wkggymo",
-                      "url": "https://rqwbgtyzpp.evz"
+                      "name": "keinabjwifiofdztandozhohszaevvwyyjvjsdopgalwtptsyxqrwbxxpusiiernymegyofkndwjhabedquwjhrotoustwuhylujtjjdyhuyrrduftvfbkdaqslfdbgzylsvxrbfxzlakeadhtzjfv",
+                      "extension": "kjfhr",
+                      "url": "https://hcrmbgqtwg.luy"
+                    },
+                    {
+                      "name": null,
+                      "extension": null,
+                      "url": "https://xxkldcdixv.bpl"
                     }
                   ]
                 },
                 "examples": {
                   "b": {
-                    "id": "3e20f4e8-63aa-4d6d-8a4e-204455fd8f3f",
-                    "created_at": "2007-03-03T02:43:47.848Z",
-                    "title": "yhyaynhsofbqgozjrstjuozvtxntyfcsqivl",
-                    "body": "xbkgwdbihggsbrapegngujrjmikedpbotahptiogzprechflucvsdmvgwvjexy",
+                    "id": "1a4f3db5-1b7c-4a8e-a612-69f6bf2f88e9",
+                    "created_at": "1994-04-21T10:18:49.342Z",
+                    "title": "jgowvehzfqqxprsxuvhbdkozfefgbfpx",
+                    "body": "nutproqgbyyzujqgeogorkoagxn",
                     "files": [
                       {
-                        "name": "ynnbrhzcgwqmhnksoebkftmpqnoyfgjyzdyrugilyvndubsmilsqsclmrsihvvdgbeyabxf",
-                        "extension": "eqdulhco",
-                        "url": "https://mhmeeremwz.vxc"
+                        "name": null,
+                        "extension": null,
+                        "url": "https://dxebcpagji.gcj"
+                      },
+                      {
+                        "name": null,
+                        "extension": null,
+                        "url": "https://mannkzbtjf.rmn"
                       }
                     ]
                   },
                   "a": {
-                    "id": "98ab1db0-5cd3-4afb-9e5b-0b8bdcc37e5a",
-                    "created_at": "1985-04-18T21:56:37.605Z",
-                    "title": "soxplgwarkqhc",
-                    "body": "vsvjupqivtvgrjjbsnlqnkzbttqbzkdclhitnnnbzckcxtsxdzuqfavixcuceh",
-                    "files": [
-                      {
-                        "name": null,
-                        "extension": "jq",
-                        "url": "https://qnrpnnypbd.lju"
-                      },
-                      {
-                        "name": "gtrzyptoghgvhyexplzqglbdkphcsjdroyqgaftgjtbyihqwdjetspdoywdqikepwmovrpruokkapfcerxryqeqaycxbhqhgelajxenufpmecrjgawtvcunbzlzyaolwfrejvtdzewwoykpvlmxqckkuouhvpajr",
-                        "extension": null,
-                        "url": "https://demwwxlsvn.eev"
-                      }
-                    ]
+                    "id": "c0d7148a-1f30-4671-8481-7bccfd32b04e",
+                    "created_at": "2016-09-11T04:00:44.600Z",
+                    "title": "cymmwycfcdmdmlxoskfndke",
+                    "body": "fawqdentnohdaajkqqtndnwashwdumzyjzpenqmfieffsfc",
+                    "files": []
                   }
                 }
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "update"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     }
   },

@@ -7,7 +7,7 @@
     }
   ],
   "info": {
-    "version": "4.0.4",
+    "version": "1.0.0",
     "title": "@samchon/nestia-test",
     "description": "Test program of Nestia",
     "license": {
@@ -26,7 +26,15 @@
               "application/json": {}
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "api",
+          "internal",
+          "v1",
+          "health",
+          "get"
+        ],
+        "x-samchon-controller": "HealthController"
       }
     },
     "/api/internal/v1/performance": {
@@ -44,7 +52,15 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "api",
+          "internal",
+          "v1",
+          "performance",
+          "get"
+        ],
+        "x-samchon-controller": "PerformanceController"
       }
     },
     "/api/internal/v1/bbs/{section}/articles": {
@@ -101,7 +117,16 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "api",
+          "internal",
+          "v1",
+          "bbs",
+          "articles",
+          "index"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/api/internal/v2/bbs/{section}/articles": {
@@ -158,7 +183,16 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "api",
+          "internal",
+          "v2",
+          "bbs",
+          "articles",
+          "index"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/api/internal/bbs/{section}/articles": {
@@ -215,7 +249,15 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "api",
+          "internal",
+          "bbs",
+          "articles",
+          "index"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       },
       "post": {
         "summary": "Store a new article",
@@ -254,7 +296,15 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "api",
+          "internal",
+          "bbs",
+          "articles",
+          "store"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/api/internal/v1/bbs/{section}/articles/{id}": {
@@ -290,7 +340,16 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "api",
+          "internal",
+          "v1",
+          "bbs",
+          "articles",
+          "at"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     },
     "/api/internal/v2/bbs/{section}/articles/{id}": {
@@ -341,7 +400,16 @@
               }
             }
           }
-        }
+        },
+        "x-samchon-accessor": [
+          "api",
+          "internal",
+          "v2",
+          "bbs",
+          "articles",
+          "update"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
       }
     }
   },

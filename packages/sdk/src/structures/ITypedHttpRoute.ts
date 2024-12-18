@@ -13,7 +13,7 @@ export interface ITypedHttpRoute {
   name: string;
   method: string;
   path: string;
-  accessors: string[];
+  accessor: string[];
   parameters: ITypedHttpRouteParameter[];
   success: ITypedHttpRouteSuccess;
   exceptions: Record<
