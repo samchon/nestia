@@ -27,6 +27,32 @@ export class ExceptionController {
       value: 123,
       message: "invalid type",
     },
+    examples: {
+      title: {
+        summary: "title",
+        description: "Wrong type of the title",
+        value: {
+          name: "BadRequestException",
+          method: "TypedBody",
+          path: "$input.title",
+          expected: "string",
+          value: 123,
+          message: "invalid type",
+        },
+      },
+      content: {
+        summary: "content",
+        description: "content of the article",
+        value: {
+          name: "BadRequestException",
+          method: "TypedBody",
+          path: "$input.title",
+          expected: "string",
+          value: 123,
+          message: "invalid type",
+        },
+      },
+    },
   })
   @TypedException<INotFound>(404, "unable to find the matched section")
   @TypedException<IUnprocessibleEntity>(428)

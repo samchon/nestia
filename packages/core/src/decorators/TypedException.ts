@@ -119,10 +119,48 @@ export function TypedException<T>(...args: any[]): MethodDecorator {
   };
 }
 export namespace TypedException {
+  /**
+   * Properties for the exception.
+   */
   export interface IProps<T> {
+    /**
+     * Status number or pattern like "2XX", "3XX", "4XX", "5XX".
+     */
     status: number | "2XX" | "3XX" | "4XX" | "5XX";
+
+    /**
+     * Description about the exception.
+     */
     description?: string | undefined;
-    example?: T;
-    examples?: Record<string, T>;
+
+    /**
+     * Example value.
+     */
+    example?: T | undefined;
+
+    /**
+     * Collection of examples for the exception.
+     */
+    examples?: Record<string, IExample<T>> | undefined;
+  }
+
+  /**
+   * Metadata collected in the {@link IProps.examples}.
+   */
+  export interface IExample<T> {
+    /**
+     * Summary of the example.
+     */
+    summary?: string | undefined;
+
+    /**
+     * Description of the example.
+     */
+    description?: string | undefined;
+
+    /**
+     * Value of the example.
+     */
+    value: T;
   }
 }
