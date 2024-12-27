@@ -25,4 +25,35 @@ export const test_swagger = async () => {
       { $ref: "#/components/schemas/IExceptional.Everything" },
     ],
   });
+
+  TestValidator.equals("examples")(
+    content.paths["/exception/{section}/typed"].post.responses[400].content[
+      "application/json"
+    ].examples,
+  )({
+    title: {
+      summary: "title",
+      description: "Wrong type of the title",
+      value: {
+        name: "BadRequestException",
+        method: "TypedBody",
+        path: "$input.title",
+        expected: "string",
+        value: 123,
+        message: "invalid type",
+      },
+    },
+    content: {
+      summary: "content",
+      description: "content of the article",
+      value: {
+        name: "BadRequestException",
+        method: "TypedBody",
+        path: "$input.title",
+        expected: "string",
+        value: 123,
+        message: "invalid type",
+      },
+    },
+  });
 };
