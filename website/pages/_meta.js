@@ -2,7 +2,6 @@ export default {
   index: {
     title: "Introduction",
     type: "page",
-    hidden: true,
     display: "hidden",
     theme: {
       layout: "full",
@@ -16,7 +15,6 @@ export default {
     title: "🛠️ Nestia Editor",
     type: "page",
     href: "/editor/",
-    hidden: true,
     display: "hidden",
     theme: {
       layout: "raw",
