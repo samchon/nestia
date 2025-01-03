@@ -36,7 +36,7 @@
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.57.0",
-    "rimraf": "^4.1.2",
+    "rimraf": "^6.0.1",
     "ts-node": "^10.9.1",
     "ts-patch": "^3.3.0",
     "typescript": "~5.7.2",

@@ -76,7 +76,7 @@
     "fastify": "^4.28.1",
     "git-last-commit": "^1.0.1",
     "inquirer": "^8.2.5",
-    "rimraf": "^3.0.2",
+    "rimraf": "^6.0.1",
     "ts-node": "^10.9.1",
     "ts-patch": "^3.3.0",
     "tstl": "^3.0.0",
