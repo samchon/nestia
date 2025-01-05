@@ -7,8 +7,10 @@ import OpenAI from "openai";
 import typia from "typia";
 
 import { IChatGptService } from "../structures/IChatGptService";
+import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
 import { INestiaChatTextPrompt } from "../structures/INestiaChatTextPrompt";
+import { __IChatFunctionReference } from "../structures/internal/__IChatFunctionReference";
 import { __IChatSelectionApplication } from "../structures/internal/__IChatSelectionApplication";
 import { MapUtil } from "../utils/MapUtil";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
@@ -19,7 +21,11 @@ export namespace ChatGptFunctionSelector {
     service: IChatGptService;
     histories: INestiaChatPrompt[];
     stack: Map<string, IStackItem>;
+    dispatch: (event: INestiaChatEvent) => void;
     content: string;
+    completion?: { value: OpenAI.ChatCompletion };
+    divide?: IHttpLlmFunction<"chatgpt">[][];
+    eliticism?: boolean;
   }
   export interface IStackItem {
     function: IHttpLlmFunction<"chatgpt">;
@@ -28,6 +34,57 @@ export namespace ChatGptFunctionSelector {
 
   export const execute = async (
     props: IProps,
+  ): Promise<INestiaChatTextPrompt[]> => {
+    if (props.divide === undefined)
+      return step(props, props.application.functions);
+
+    const stacks: Map<string, IStackItem>[] = props.divide.map(() => new Map());
+    const events: INestiaChatEvent[] = [];
+    const prompts: INestiaChatTextPrompt[][] = await Promise.all(
+      props.divide.map((candidates, i) =>
+        step(
+          {
+            ...props,
+            stack: stacks[i]!,
+            dispatch: (e) => events.push(e),
+          },
+          candidates,
+        ),
+      ),
+    );
+    if (stacks.every((s) => s.size === 0)) return prompts[0]!;
+    else if (props.eliticism === true)
+      return step(
+        props,
+        stacks.map((s) => Array.from(s.values()).map((s) => s.function)).flat(),
+      );
+
+    for (const e of events)
+      if (e.type === "select")
+        selectFunction({
+          application: props.application,
+          stack: props.stack,
+          dispatch: props.dispatch,
+          reference: {
+            name: e.function.name,
+            reason: "reselect",
+          },
+        });
+      else if (e.type === "cancel")
+        cancelFunction({
+          stack: props.stack,
+          dispatch: props.dispatch,
+          reference: {
+            name: e.function.name,
+            reason: "reselect",
+          },
+        });
+    return [];
+  };
+
+  const step = async (
+    props: IProps,
+    candidates: IHttpLlmFunction<"chatgpt">[],
   ): Promise<INestiaChatTextPrompt[]> => {
     //----
     // EXECUTE CHATGPT API
@@ -41,9 +98,34 @@ export namespace ChatGptFunctionSelector {
             {
               role: "system",
               content: [
-                "You are a helpful assistant.",
-                "Use the supplied tools to assist the user.",
+                "You are a helpful assistant for selecting functions to call.",
+                "",
+                "Use the supplied tools to select some functions of `getApiFunctions()` returned",
               ].join("\n"),
+            },
+            // CANDIDATE FUNCTIONS
+            {
+              role: "assistant",
+              tool_calls: [
+                {
+                  type: "function",
+                  id: "getApiFunctions",
+                  function: {
+                    name: "getApiFunctions",
+                    arguments: JSON.stringify({}),
+                  },
+                },
+              ],
+            },
+            {
+              role: "tool",
+              tool_call_id: "getApiFunctions",
+              content: JSON.stringify(
+                candidates.map((func) => ({
+                  name: func.name,
+                  description: func.description,
+                })),
+              ),
             },
             // PREVIOUS HISTORIES
             ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
@@ -66,10 +148,11 @@ export namespace ChatGptFunctionSelector {
               }) satisfies OpenAI.ChatCompletionTool,
           ),
           tool_choice: "auto",
-          parallel_tool_calls: true,
+          parallel_tool_calls: false,
         },
         props.service.options,
       );
+    if (props.completion) props.completion.value = completion;
 
     //----
     // PROCESS COMPLETION
@@ -81,17 +164,23 @@ export namespace ChatGptFunctionSelector {
         for (const tc of choice.message.tool_calls) {
           if (tc.type !== "function") continue;
           const input: object = JSON.parse(tc.function.arguments);
-          if (typia.is<IStackReference>(input) === false) continue;
+          if (typia.is<__IChatFunctionReference.IProps>(input) === false)
+            continue;
           if (tc.function.name === "selectFunction")
-            selectFunction({
-              stack: props.stack,
-              reference: input,
-            });
+            for (const reference of input.functions)
+              selectFunction({
+                application: props.application,
+                stack: props.stack,
+                dispatch: props.dispatch,
+                reference,
+              });
           else if (tc.function.name === "cancelFunction")
-            cancelFunction({
-              stack: props.stack,
-              reference: input,
-            });
+            for (const reference of input.functions)
+              cancelFunction({
+                stack: props.stack,
+                dispatch: props.dispatch,
+                reference,
+              });
         }
 
       // ASSISTANT MESSAGE
@@ -109,36 +198,49 @@ export namespace ChatGptFunctionSelector {
   };
 
   const selectFunction = (props: {
+    application: IHttpLlmApplication<"chatgpt">;
     stack: Map<string, IStackItem>;
-    reference: IStackReference;
+    reference: __IChatFunctionReference;
+    dispatch: (event: INestiaChatEvent.ISelectFunctionEvent) => void;
   }): void => {
-    const func: IStackItem | undefined = props.stack.get(props.reference.name);
+    const func: IHttpLlmFunction<"chatgpt"> | undefined =
+      props.application.functions.find(
+        (func) => func.name === props.reference.name,
+      );
     if (func === undefined) return;
 
     const item: IStackItem = MapUtil.take(
       props.stack,
       props.reference.name,
       () => ({
-        function: func.function,
+        function: func,
         count: 0,
       }),
     );
     ++item.count;
+
+    props.dispatch({
+      type: "select",
+      function: func,
+      reason: props.reference.reason,
+    });
   };
 
-  const cancelFunction = (props: {
+  export const cancelFunction = (props: {
     stack: Map<string, IStackItem>;
-    reference: IStackReference;
+    reference: __IChatFunctionReference;
+    dispatch: (event: INestiaChatEvent.ICancelFunctionEvent) => void;
   }): void => {
     const item: IStackItem | undefined = props.stack.get(props.reference.name);
-    if (item !== undefined && --item.count === 0)
-      props.stack.delete(props.reference.name);
-  };
-}
+    if (item === undefined) return;
+    else if (--item.count === 0) props.stack.delete(props.reference.name);
 
-interface IStackReference {
-  name: string;
-  reason: string;
+    props.dispatch({
+      type: "cancel",
+      function: item.function,
+      reason: props.reference.reason,
+    });
+  };
 }
 
 const CONTAINER: ILlmApplication<"chatgpt"> = typia.llm.application<

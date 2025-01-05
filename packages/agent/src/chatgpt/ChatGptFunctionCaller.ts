@@ -1,5 +1,6 @@
 import {
   HttpLlm,
+  IChatGptSchema,
   IHttpConnection,
   IHttpLlmApplication,
   IHttpLlmFunction,
@@ -8,8 +9,10 @@ import {
 import OpenAI from "openai";
 
 import { IChatGptService } from "../structures/IChatGptService";
+import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatFunctionPrompt } from "../structures/INestiaChatFunctionPrompt";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
+import { INestiaChatTextPrompt } from "../structures/INestiaChatTextPrompt";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
 export namespace ChatGptFunctionCaller {
@@ -19,13 +22,14 @@ export namespace ChatGptFunctionCaller {
     application: IHttpLlmApplication<"chatgpt">;
     functions: IHttpLlmFunction<"chatgpt">[];
     histories: INestiaChatPrompt[];
+    dispatch: (event: INestiaChatEvent) => void;
     content: string;
     retry: number;
   }
 
   export const execute = async (
     props: IProps,
-  ): Promise<INestiaChatFunctionPrompt[]> => {
+  ): Promise<INestiaChatPrompt[]> => {
     //----
     // EXECUTE CHATGPT API
     //----
@@ -38,8 +42,12 @@ export namespace ChatGptFunctionCaller {
             {
               role: "system",
               content: [
-                "You are a helpful assistant.",
+                "You are a helpful assistant for tool calling.",
+                "",
                 "Use the supplied tools to assist the user.",
+                "",
+                "If user's conversations are not enough to compose the arguments,",
+                "you can ask the user for more information.",
               ].join("\n"),
             },
             // PREVIOUS HISTORIES
@@ -71,20 +79,40 @@ export namespace ChatGptFunctionCaller {
     //----
     // PROCESS COMPLETION
     //----
-    const functionCalls: IFunctionCall[] = [];
-    for (const choice of completion.choices)
+    const closures: Array<() => Promise<INestiaChatPrompt>> = [];
+    for (const choice of completion.choices) {
       for (const tc of choice.message.tool_calls ?? []) {
-        if (tc.type !== "function") continue;
-        const func: IHttpLlmFunction<"chatgpt"> | undefined =
-          props.functions.find((func) => func.name === tc.function.name);
-        if (func === undefined) continue;
-        functionCalls.push({
-          id: tc.id,
-          function: func,
-          input: JSON.parse(tc.function.arguments),
-        });
+        if (tc.type === "function") {
+          const func: IHttpLlmFunction<"chatgpt"> | undefined =
+            props.functions.find((func) => func.name === tc.function.name);
+          if (func === undefined) continue;
+          closures.push(() =>
+            propagate(
+              props,
+              {
+                id: tc.id,
+                function: func,
+                input: JSON.parse(tc.function.arguments),
+              },
+              9,
+            ),
+          );
+        }
       }
-    return Promise.all(functionCalls.map((fc) => propagate(props, fc, 0)));
+      if (
+        choice.message.role === "assistant" &&
+        !!choice.message.content?.length
+      )
+        closures.push(
+          async () =>
+            ({
+              kind: "text",
+              role: "assistant",
+              text: choice.message.content!,
+            }) satisfies INestiaChatTextPrompt,
+        );
+    }
+    return Promise.all(closures.map((fn) => fn()));
   };
 
   const propagate = async (
@@ -93,34 +121,44 @@ export namespace ChatGptFunctionCaller {
     retry: number,
   ): Promise<INestiaChatFunctionPrompt> => {
     try {
+      props.dispatch({
+        type: "call",
+        function: call.function,
+        arguments: call.input,
+      });
       const response: IHttpResponse = await HttpLlm.propagate({
         connection: props.connection,
         application: props.application,
         function: call.function,
         input: call.input,
       });
-      return (
-        (response.status === 400 &&
-        retry++ < props.retry &&
-        typeof response.body === "object" &&
-        response.body !== null
-          ? await correct(props, call, retry, response.body)
-          : null) ?? {
-          kind: "function",
-          role: "assistant",
-          function: call.function,
-          id: call.id,
-          input: call.input,
-          response: response,
-        }
-      );
+      const result: INestiaChatFunctionPrompt = (response.status === 400 &&
+      retry++ < props.retry &&
+      typeof response.body === "object" &&
+      response.body !== null
+        ? await correct(props, call, retry, response.body)
+        : null) ?? {
+        kind: "function",
+        role: "assistant",
+        function: call.function,
+        id: call.id,
+        arguments: call.input,
+        response: response,
+      };
+      props.dispatch({
+        type: "complete",
+        function: call.function,
+        arguments: result.arguments,
+        response: result.response,
+      });
+      return result;
     } catch (error) {
       return {
         kind: "function",
         role: "assistant",
         function: call.function,
         id: call.id,
-        input: call.input,
+        arguments: call.input,
         response: {
           status: 500,
           headers: {},
@@ -179,19 +217,16 @@ export namespace ChatGptFunctionCaller {
             } satisfies OpenAI.ChatCompletionAssistantMessageParam,
             {
               role: "tool",
-              content: "Type error detected",
+              content:
+                typeof error === "string" ? error : JSON.stringify(error),
               tool_call_id: call.id,
             } satisfies OpenAI.ChatCompletionToolMessageParam,
             {
-              role: "assistant",
+              role: "system",
               content: [
                 "You A.I. assistant has composed wrong typed arguments.",
-                "Here is the detailed list of type errors. Review and correct them",
-                "at the next function calling.",
                 "",
-                "```json",
-                JSON.stringify(error, null, 2),
-                "```",
+                "Correct it at the next function calling.",
               ].join("\n"),
             },
           ],
@@ -202,7 +237,16 @@ export namespace ChatGptFunctionCaller {
               function: {
                 name: call.function.name,
                 description: call.function.description,
-                parameters: call.function.parameters as any,
+                parameters: (call.function.separated
+                  ? (call.function.separated?.llm ??
+                    ({
+                      $defs: {},
+                      type: "object",
+                      properties: {},
+                      additionalProperties: false,
+                      required: [],
+                    } satisfies IChatGptSchema.IParameters))
+                  : call.function.parameters) as any,
               },
             },
           ],

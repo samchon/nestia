@@ -21,11 +21,16 @@ export namespace ChatGptReturnValueDescriber {
           messages: [
             // SYTEM PROMPT
             {
-              role: "system",
+              role: "assistant",
               content: [
                 "You are a helpful assistant describing return values of function calls.",
                 "",
                 "Here is the list of function call histories. Please describe them.",
+                "just by one conversation.",
+                "",
+                "Also, its content format must be markdown. If required, utilize the",
+                "mermaid syntax for drawing some diagrams. When image contents are,",
+                "just put them through the markdown image syntax.",
               ].join("\n"),
             },
             // PREVIOUS FUNCTION CALLING HISTORIES

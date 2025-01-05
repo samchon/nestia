@@ -1,5 +1,4 @@
-import { NestiaChatAgent } from "@nestia/agent";
-import { DynamicExecutor } from "@nestia/e2e";
+import { INestiaChatPrompt, NestiaChatAgent } from "@nestia/agent";
 import {
   HttpLlm,
   IHttpConnection,
@@ -15,6 +14,13 @@ import OpenAI from "openai";
 import typia from "typia";
 
 import { TestGlobal } from "./TestGlobal";
+import { ConsoleScanner } from "./utils/ConsoleScanner";
+
+const trace = (...args: any[]): void => {
+  console.log("----------------------------------------------");
+  console.log(...args);
+  console.log("----------------------------------------------");
+};
 
 const main = async (): Promise<void> => {
   if (!TestGlobal.env.CHATGPT_API_KEY?.length) return;
@@ -31,8 +37,10 @@ const main = async (): Promise<void> => {
     model: "chatgpt",
     document,
   });
-  application.functions = application.functions.filter((f) =>
-    f.path.startsWith("/shoppings/customers"),
+  application.functions = application.functions.filter(
+    (f) =>
+      // f.path.startsWith("/shoppings/customers"),
+      f.path === "/shoppings/customers/sales" && f.method === "patch",
   );
 
   // HANDSHAKE WITH SHOPPING BACKEND
@@ -67,37 +75,29 @@ const main = async (): Promise<void> => {
     connection,
     application,
   });
+  agent.on("initialize", () => console.log(chalk.greenBright("Initialized")));
+  agent.on("select", (e) =>
+    console.log(chalk.cyanBright("selected"), e.function.name),
+  );
+  agent.on("call", (e) =>
+    console.log(chalk.blueBright("called"), e.function.name),
+  );
+  agent.on("cancel", (e) =>
+    console.log(chalk.redBright("canceled"), e.function.name),
+  );
 
-  const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
-    prefix: "test_",
-    location: __dirname + "/features",
-    parameters: () => [agent],
-    onComplete: (exec) => {
-      const trace = (str: string) =>
-        console.log(`  - ${chalk.green(exec.name)}: ${str}`);
-      if (exec.error === null) {
-        const elapsed: number =
-          new Date(exec.completed_at).getTime() -
-          new Date(exec.started_at).getTime();
-        trace(`${chalk.yellow(elapsed.toLocaleString())} ms`);
-      } else trace(chalk.red(exec.error.name));
-    },
-  });
+  // START CONVERSATION
+  while (true) {
+    const content: string = await ConsoleScanner.read("Input: ");
+    if (content === "exit") break;
 
-  const exceptions: Error[] = report.executions
-    .filter((exec) => exec.error !== null)
-    .map((exec) => exec.error!);
-  if (exceptions.length === 0) {
-    console.log("Success");
-    console.log("Elapsed time", report.time.toLocaleString(), `ms`);
-  } else {
-    for (const exp of exceptions) console.log(exp);
-    console.log("Failed");
-    console.log("Elapsed time", report.time.toLocaleString(), `ms`);
-    process.exit(-1);
+    const histories: INestiaChatPrompt[] = await agent.conversate(content);
+    for (const h of histories)
+      if (h.kind === "text")
+        trace(chalk.yellow("Text"), chalk.blueBright(h.role), "\n\n", h.text);
   }
 };
 main().catch((error) => {
-  console.error(error);
+  console.log(error);
   process.exit(-1);
 });

@@ -5,6 +5,6 @@ export interface INestiaChatFunctionPrompt {
   role: "assistant";
   function: IHttpLlmFunction<"chatgpt">;
   id: string;
-  input: object;
+  arguments: object;
   response: IHttpResponse;
 }

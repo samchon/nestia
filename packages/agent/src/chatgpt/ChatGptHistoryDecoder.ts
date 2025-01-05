@@ -15,35 +15,25 @@ export namespace ChatGptHistoryDecoder {
       ];
     return [
       {
+        role: "assistant",
+        tool_calls: [
+          {
+            type: "function",
+            id: history.id,
+            function: {
+              name: history.function.name,
+              arguments: JSON.stringify(history.arguments),
+            },
+          },
+        ],
+      },
+      {
         role: "tool",
         tool_call_id: history.id,
-        content: [
-          "You A.I. agent has called a function by tool calling.",
-          "Here is the metadata of the function.",
-          "",
-          "```json",
-          JSON.stringify(
-            {
-              name: history.function.name,
-              description: history.function.description,
-              parameters: history.function.parameters,
-            },
-            null,
-            2,
-          ),
-          "```",
-          "And as a result of the tool calling, you have assigned the following arguments.",
-          "",
-          "```json",
-          JSON.stringify(history.input, null, 2),
-          "```",
-          "",
-          "At last, the actual function returned the below value.",
-          "",
-          "```json",
-          JSON.stringify(history.response, null, 2),
-          "```",
-        ].join("\n"),
+        content:
+          typeof history.response.body === "string"
+            ? history.response.body
+            : JSON.stringify(history.response.body),
       },
     ];
   };
