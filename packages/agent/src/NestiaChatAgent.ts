@@ -32,11 +32,23 @@ export namespace NestiaChatAgent {
   export interface IProps {
     application: IHttpLlmApplication<"chatgpt">;
     service: IChatGptService;
-    histories?: INestiaChatPrompt[];
     connection: IHttpConnection;
-    config?: Partial<IConfig>;
+    histories?: INestiaChatPrompt[] | undefined;
+    config?: IConfig | undefined;
   }
+
   export interface IConfig {
+    retry?: number;
     capacity?: number;
+    eliticism?: boolean;
+    systemPrompt?: Partial<ISytemPrompt>;
+  }
+
+  export interface ISytemPrompt {
+    initial?: (histories: INestiaChatPrompt[]) => string;
+    select?: (histories: INestiaChatPrompt[]) => string;
+    cancel?: (histories: INestiaChatPrompt[]) => string;
+    execute?: (histories: INestiaChatPrompt[]) => string;
+    describe?: (histories: INestiaChatPrompt.IExecute[]) => string;
   }
 }

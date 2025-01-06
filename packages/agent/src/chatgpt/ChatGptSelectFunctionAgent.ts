@@ -7,6 +7,8 @@ import OpenAI from "openai";
 import typia, { IValidation } from "typia";
 import { v4 } from "uuid";
 
+import { NestiaChatAgent } from "../NestiaChatAgent";
+import { NestiaChatAgentConstant } from "../internal/NestiaChatAgentConstant";
 import { IChatGptService } from "../structures/IChatGptService";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatFunctionSelection } from "../structures/INestiaChatFunctionSelection";
@@ -17,15 +19,14 @@ import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
 export namespace ChatGptSelectFunctionAgent {
   export interface IProps {
-    retry: number;
     application: IHttpLlmApplication<"chatgpt">;
     service: IChatGptService;
     histories: INestiaChatPrompt[];
     stack: INestiaChatFunctionSelection[];
     dispatch: (event: INestiaChatEvent) => Promise<void>;
     content: string;
+    config?: NestiaChatAgent.IConfig;
     divide?: IHttpLlmFunction<"chatgpt">[][];
-    eliticism?: boolean;
     completions?: OpenAI.ChatCompletion[];
   }
 
@@ -56,7 +57,9 @@ export namespace ChatGptSelectFunctionAgent {
     // NO FUNCTION SELECTION, SO THAT ONLY TEXT LEFT
     if (stacks.every((s) => s.length === 0)) return prompts[0]!;
     // ELITICISM
-    else if (props.eliticism === true)
+    else if (
+      (props.config?.eliticism ?? NestiaChatAgentConstant.ELITICISM) === true
+    )
       return step(
         props,
         stacks
@@ -165,7 +168,7 @@ export namespace ChatGptSelectFunctionAgent {
     //----
     // VALIDATION
     //----
-    if (retry++ < props.retry) {
+    if (retry++ < (props.config?.retry ?? NestiaChatAgentConstant.RETRY)) {
       const failures: IFailure[] = [];
       for (const choice of completion.choices)
         for (const tc of choice.message.tool_calls ?? []) {

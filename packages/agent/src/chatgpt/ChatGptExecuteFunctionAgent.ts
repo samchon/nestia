@@ -8,6 +8,8 @@ import {
 } from "@samchon/openapi";
 import OpenAI from "openai";
 
+import { NestiaChatAgent } from "../NestiaChatAgent";
+import { NestiaChatAgentConstant } from "../internal/NestiaChatAgentConstant";
 import { IChatGptService } from "../structures/IChatGptService";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
@@ -22,7 +24,7 @@ export namespace ChatGptExecuteFunctionAgent {
     histories: INestiaChatPrompt[];
     dispatch: (event: INestiaChatEvent) => Promise<void>;
     content: string;
-    retry: number;
+    config?: NestiaChatAgent.IConfig | undefined;
   }
 
   export const execute = async (
@@ -46,7 +48,9 @@ export namespace ChatGptExecuteFunctionAgent {
             // SYTEM PROMPT
             {
               role: "system",
-              content: SYSTEM_MESSAGE_OF_ROLE,
+              content:
+                props.config?.systemPrompt?.execute?.(props.histories) ??
+                SYSTEM_PROMPT,
             },
           ],
           // STACKED FUNCTIONS
@@ -127,7 +131,7 @@ export namespace ChatGptExecuteFunctionAgent {
         ((response.status === 400 ||
           response.status === 404 ||
           response.status === 422) &&
-          retry++ < props.retry &&
+          retry++ < (props.config?.retry ?? NestiaChatAgentConstant.RETRY) &&
           typeof response.body) === false;
       const result: INestiaChatPrompt.IExecute = (success === false
         ? await correct(props, call, retry, response.body)
@@ -194,7 +198,9 @@ export namespace ChatGptExecuteFunctionAgent {
             // TYPE CORRECTION
             {
               role: "system",
-              content: SYSTEM_MESSAGE_OF_ROLE,
+              content:
+                props.config?.systemPrompt?.execute?.(props.histories) ??
+                SYSTEM_PROMPT,
             },
             {
               role: "assistant",
@@ -277,7 +283,7 @@ interface IFunctionCall {
   input: object;
 }
 
-const SYSTEM_MESSAGE_OF_ROLE = [
+const SYSTEM_PROMPT = [
   "You are a helpful assistant for tool calling.",
   "",
   "Use the supplied tools to assist the user.",

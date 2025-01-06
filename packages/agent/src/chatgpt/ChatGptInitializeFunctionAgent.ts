@@ -2,6 +2,7 @@ import { ILlmFunction } from "@samchon/openapi";
 import OpenAI from "openai";
 import typia from "typia";
 
+import { NestiaChatAgent } from "../NestiaChatAgent";
 import { IChatGptService } from "../structures/IChatGptService";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
 import { __IChatInitialApplication } from "../structures/internal/__IChatInitialApplication";
@@ -12,6 +13,7 @@ export namespace ChatGptInitializeFunctionAgent {
     service: IChatGptService;
     histories: INestiaChatPrompt[];
     content: string;
+    config?: NestiaChatAgent.IConfig | undefined;
   }
   export interface IOutput {
     mounted: boolean;
@@ -30,11 +32,9 @@ export namespace ChatGptInitializeFunctionAgent {
             {
               // SYTEM PROMPT
               role: "system",
-              content: [
-                "You are a helpful assistant.",
-                "",
-                "Use the supplied tools to assist the user.",
-              ].join("\n"),
+              content:
+                props.config?.systemPrompt?.initial?.(props.histories) ??
+                SYSTEM_PROMPT,
             },
             // PREVIOUS HISTORIES
             ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
@@ -93,3 +93,9 @@ const FUNCTION: ILlmFunction<"chatgpt"> = typia.llm.application<
   __IChatInitialApplication,
   "chatgpt"
 >().functions[0]!;
+
+const SYSTEM_PROMPT = [
+  "You are a helpful assistant.",
+  "",
+  "Use the supplied tools to assist the user.",
+].join("\n");

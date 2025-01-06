@@ -7,6 +7,8 @@ import OpenAI from "openai";
 import typia, { IValidation } from "typia";
 import { v4 } from "uuid";
 
+import { NestiaChatAgent } from "../NestiaChatAgent";
+import { NestiaChatAgentConstant } from "../internal/NestiaChatAgentConstant";
 import { IChatGptService } from "../structures/IChatGptService";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatFunctionSelection } from "../structures/INestiaChatFunctionSelection";
@@ -17,15 +19,14 @@ import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
 export namespace ChatGptCancelFunctionAgent {
   export interface IProps {
-    retry: number;
     application: IHttpLlmApplication<"chatgpt">;
     service: IChatGptService;
     histories: INestiaChatPrompt[];
     stack: INestiaChatFunctionSelection[];
     dispatch: (event: INestiaChatEvent) => Promise<void>;
     content: string;
-    divide?: IHttpLlmFunction<"chatgpt">[][];
-    eliticism?: boolean;
+    divide?: IHttpLlmFunction<"chatgpt">[][] | undefined;
+    config?: NestiaChatAgent.IConfig | undefined;
   }
 
   export const execute = async (
@@ -55,7 +56,9 @@ export namespace ChatGptCancelFunctionAgent {
     // NO FUNCTION SELECTION, SO THAT ONLY TEXT LEFT
     if (stacks.every((s) => s.length === 0)) return prompts[0]!;
     // ELITICISM
-    else if (props.eliticism === true)
+    else if (
+      (props.config?.eliticism ?? NestiaChatAgentConstant.ELITICISM) === true
+    )
       return step(
         props,
         stacks
@@ -156,7 +159,9 @@ export namespace ChatGptCancelFunctionAgent {
             // SYTEM PROMPT
             {
               role: "system",
-              content: SYSTEM_MESSAGE_OF_ROLE,
+              content:
+                props.config?.systemPrompt?.cancel?.(props.histories) ??
+                SYSTEM_PROMPT,
             },
             // TYPE CORRECTIONS
             ...emendMessages(failures ?? []),
@@ -182,7 +187,7 @@ export namespace ChatGptCancelFunctionAgent {
     //----
     // VALIDATION
     //----
-    if (retry++ < props.retry) {
+    if (retry++ < (props.config?.retry ?? NestiaChatAgentConstant.RETRY)) {
       const failures: IFailure[] = [];
       for (const choice of completion.choices)
         for (const tc of choice.message.tool_calls ?? []) {
@@ -285,7 +290,7 @@ interface IFailure {
   validation: IValidation.IFailure;
 }
 
-const SYSTEM_MESSAGE_OF_ROLE: string = [
+const SYSTEM_PROMPT: string = [
   "You are a helpful assistant for selecting functions to call.",
   "",
   "Use the supplied tools to select some functions of `getApiFunctions()` returned",
