@@ -146,6 +146,17 @@ export class ChatGptAgent implements INestiaChatAgent {
     take(this.listeners_, type, () => new Set()).add(listener);
   }
 
+  public off<Type extends INestiaChatEvent.Type>(
+    type: Type,
+    listener: (event: INestiaChatEvent.Mapper[Type]) => void,
+  ): void {
+    const set: Set<Function> | undefined = this.listeners_.get(type);
+    if (set) {
+      set.delete(listener);
+      if (set.size === 0) this.listeners_.delete(type);
+    }
+  }
+
   private async dispatch<Event extends INestiaChatEvent>(
     event: Event,
   ): Promise<void> {
