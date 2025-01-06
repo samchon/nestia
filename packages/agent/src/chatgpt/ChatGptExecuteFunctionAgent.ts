@@ -1,9 +1,11 @@
 import {
+  ChatGptTypeChecker,
   HttpLlm,
   IChatGptSchema,
   IHttpConnection,
   IHttpLlmApplication,
   IHttpLlmFunction,
+  IHttpMigrateRoute,
   IHttpResponse,
 } from "@samchon/openapi";
 import OpenAI from "openai";
@@ -115,6 +117,10 @@ export namespace ChatGptExecuteFunctionAgent {
     call: IFunctionCall,
     retry: number,
   ): Promise<INestiaChatPrompt.IExecute> => {
+    fill({
+      function: call.function,
+      arguments: call.input,
+    });
     try {
       await props.dispatch({
         type: "call",
@@ -273,6 +279,38 @@ export namespace ChatGptExecuteFunctionAgent {
         input: JSON.parse(toolCall.function.arguments),
       },
       retry,
+    );
+  };
+
+  const fill = (props: {
+    function: IHttpLlmFunction<"chatgpt">;
+    arguments: object;
+  }): void => {
+    const route: IHttpMigrateRoute = props.function.route();
+    if (
+      route.body &&
+      route.operation().requestBody?.required === true &&
+      (props.arguments as any).body === undefined &&
+      isObject(
+        props.function.parameters.$defs,
+        props.function.parameters.properties.body!,
+      )
+    )
+      (props.arguments as any).body = {};
+    if (route.query && (props.arguments as any).query === undefined)
+      (props.arguments as any).query = {};
+  };
+
+  const isObject = (
+    $defs: Record<string, IChatGptSchema>,
+    schema: IChatGptSchema,
+  ): boolean => {
+    return (
+      ChatGptTypeChecker.isObject(schema) ||
+      (ChatGptTypeChecker.isReference(schema) &&
+        isObject($defs, $defs[schema.$ref.split("/").at(-1)!]!)) ||
+      (ChatGptTypeChecker.isAnyOf(schema) &&
+        schema.anyOf.every((schema) => isObject($defs, schema)))
     );
   };
 }
