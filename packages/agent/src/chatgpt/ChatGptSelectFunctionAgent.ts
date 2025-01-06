@@ -26,6 +26,7 @@ export namespace ChatGptSelectFunctionAgent {
     content: string;
     divide?: IHttpLlmFunction<"chatgpt">[][];
     eliticism?: boolean;
+    completions?: OpenAI.ChatCompletion[];
   }
 
   export const execute = async (
@@ -159,6 +160,7 @@ export namespace ChatGptSelectFunctionAgent {
         },
         props.service.options,
       );
+    if (props.completions !== undefined) props.completions.push(completion);
 
     //----
     // VALIDATION

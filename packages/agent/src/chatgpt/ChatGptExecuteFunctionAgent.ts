@@ -124,10 +124,11 @@ export namespace ChatGptExecuteFunctionAgent {
         input: call.input,
       });
       const success: boolean =
-        (response.status === 400 ||
-          (response.status === 422 &&
-            retry++ < props.retry &&
-            typeof response.body)) === false;
+        ((response.status === 400 ||
+          response.status === 404 ||
+          response.status === 422) &&
+          retry++ < props.retry &&
+          typeof response.body) === false;
       const result: INestiaChatPrompt.IExecute = (success === false
         ? await correct(props, call, retry, response.body)
         : null) ?? {
