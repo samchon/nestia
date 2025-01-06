@@ -7,7 +7,7 @@ import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
 import { __IChatInitialApplication } from "../structures/internal/__IChatInitialApplication";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
-export namespace ChatGptInitializer {
+export namespace ChatGptInitializeFunctionAgent {
   export interface IProps {
     service: IChatGptService;
     histories: INestiaChatPrompt[];
@@ -32,6 +32,7 @@ export namespace ChatGptInitializer {
               role: "system",
               content: [
                 "You are a helpful assistant.",
+                "",
                 "Use the supplied tools to assist the user.",
               ].join("\n"),
             },

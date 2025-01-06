@@ -10,19 +10,17 @@ import OpenAI from "openai";
 
 import { IChatGptService } from "../structures/IChatGptService";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
-import { INestiaChatFunctionPrompt } from "../structures/INestiaChatFunctionPrompt";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
-import { INestiaChatTextPrompt } from "../structures/INestiaChatTextPrompt";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
-export namespace ChatGptFunctionCaller {
+export namespace ChatGptExecuteFunctionAgent {
   export interface IProps {
     service: IChatGptService;
     connection: IHttpConnection;
     application: IHttpLlmApplication<"chatgpt">;
     functions: IHttpLlmFunction<"chatgpt">[];
     histories: INestiaChatPrompt[];
-    dispatch: (event: INestiaChatEvent) => void;
+    dispatch: (event: INestiaChatEvent) => Promise<void>;
     content: string;
     retry: number;
   }
@@ -38,24 +36,17 @@ export namespace ChatGptFunctionCaller {
         {
           model: props.service.model,
           messages: [
-            // SYTEM PROMPT
-            {
-              role: "system",
-              content: [
-                "You are a helpful assistant for tool calling.",
-                "",
-                "Use the supplied tools to assist the user.",
-                "",
-                "If user's conversations are not enough to compose the arguments,",
-                "you can ask the user for more information.",
-              ].join("\n"),
-            },
             // PREVIOUS HISTORIES
             ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
             // USER INPUT
             {
               role: "user",
               content: props.content,
+            },
+            // SYTEM PROMPT
+            {
+              role: "system",
+              content: SYSTEM_MESSAGE_OF_ROLE,
             },
           ],
           // STACKED FUNCTIONS
@@ -71,7 +62,7 @@ export namespace ChatGptFunctionCaller {
               }) as OpenAI.ChatCompletionTool,
           ),
           tool_choice: "auto",
-          parallel_tool_calls: true,
+          parallel_tool_calls: false,
         },
         props.service.options,
       );
@@ -94,7 +85,7 @@ export namespace ChatGptFunctionCaller {
                 function: func,
                 input: JSON.parse(tc.function.arguments),
               },
-              9,
+              0,
             ),
           );
         }
@@ -109,7 +100,7 @@ export namespace ChatGptFunctionCaller {
               kind: "text",
               role: "assistant",
               text: choice.message.content!,
-            }) satisfies INestiaChatTextPrompt,
+            }) satisfies INestiaChatPrompt.IText,
         );
     }
     return Promise.all(closures.map((fn) => fn()));
@@ -119,9 +110,9 @@ export namespace ChatGptFunctionCaller {
     props: IProps,
     call: IFunctionCall,
     retry: number,
-  ): Promise<INestiaChatFunctionPrompt> => {
+  ): Promise<INestiaChatPrompt.IExecute> => {
     try {
-      props.dispatch({
+      await props.dispatch({
         type: "call",
         function: call.function,
         arguments: call.input,
@@ -132,29 +123,32 @@ export namespace ChatGptFunctionCaller {
         function: call.function,
         input: call.input,
       });
-      const result: INestiaChatFunctionPrompt = (response.status === 400 &&
-      retry++ < props.retry &&
-      typeof response.body === "object" &&
-      response.body !== null
+      const success: boolean =
+        (response.status === 400 ||
+          (response.status === 422 &&
+            retry++ < props.retry &&
+            typeof response.body)) === false;
+      const result: INestiaChatPrompt.IExecute = (success === false
         ? await correct(props, call, retry, response.body)
         : null) ?? {
-        kind: "function",
+        kind: "execute",
         role: "assistant",
         function: call.function,
         id: call.id,
         arguments: call.input,
         response: response,
       };
-      props.dispatch({
-        type: "complete",
-        function: call.function,
-        arguments: result.arguments,
-        response: result.response,
-      });
+      if (success === true)
+        await props.dispatch({
+          type: "complete",
+          function: call.function,
+          arguments: result.arguments,
+          response: result.response,
+        });
       return result;
     } catch (error) {
       return {
-        kind: "function",
+        kind: "execute",
         role: "assistant",
         function: call.function,
         id: call.id,
@@ -171,7 +165,7 @@ export namespace ChatGptFunctionCaller {
                 }
               : error,
         },
-      } satisfies INestiaChatFunctionPrompt;
+      } satisfies INestiaChatPrompt.IExecute;
     }
   };
 
@@ -180,7 +174,7 @@ export namespace ChatGptFunctionCaller {
     call: IFunctionCall,
     retry: number,
     error: unknown,
-  ): Promise<INestiaChatFunctionPrompt | null> => {
+  ): Promise<INestiaChatPrompt.IExecute | null> => {
     //----
     // EXECUTE CHATGPT API
     //----
@@ -189,11 +183,6 @@ export namespace ChatGptFunctionCaller {
         {
           model: props.service.model,
           messages: [
-            // SYTEM PROMPT
-            {
-              role: "system",
-              content: "You are a helpful assistant.",
-            },
             // PREVIOUS HISTORIES
             ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
             // USER INPUT
@@ -202,6 +191,10 @@ export namespace ChatGptFunctionCaller {
               content: props.content,
             },
             // TYPE CORRECTION
+            {
+              role: "system",
+              content: SYSTEM_MESSAGE_OF_ROLE,
+            },
             {
               role: "assistant",
               tool_calls: [
@@ -224,7 +217,7 @@ export namespace ChatGptFunctionCaller {
             {
               role: "system",
               content: [
-                "You A.I. assistant has composed wrong typed arguments.",
+                "You A.I. assistant has composed wrong arguments.",
                 "",
                 "Correct it at the next function calling.",
               ].join("\n"),
@@ -282,3 +275,13 @@ interface IFunctionCall {
   function: IHttpLlmFunction<"chatgpt">;
   input: object;
 }
+
+const SYSTEM_MESSAGE_OF_ROLE = [
+  "You are a helpful assistant for tool calling.",
+  "",
+  "Use the supplied tools to assist the user.",
+  "",
+  "If previous messsages are not enough to compose the arguments,",
+  "you can ask the user to write more information. By the way, when asking",
+  "the user to write more informations, make the text concise and clear.",
+].join("\n");

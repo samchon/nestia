@@ -37,10 +37,8 @@ const main = async (): Promise<void> => {
     model: "chatgpt",
     document,
   });
-  application.functions = application.functions.filter(
-    (f) =>
-      // f.path.startsWith("/shoppings/customers"),
-      f.path === "/shoppings/customers/sales" && f.method === "patch",
+  application.functions = application.functions.filter((f) =>
+    f.path.startsWith("/shoppings/customers"),
   );
 
   // HANDSHAKE WITH SHOPPING BACKEND
@@ -69,21 +67,32 @@ const main = async (): Promise<void> => {
     service: {
       api: new OpenAI({
         apiKey: TestGlobal.env.CHATGPT_API_KEY,
+        baseURL: TestGlobal.env.CHATGPT_BASE_URL,
       }),
       model: "gpt-4o",
+      options: TestGlobal.env.CHATGPT_OPTIONS
+        ? JSON.parse(TestGlobal.env.CHATGPT_OPTIONS)
+        : undefined,
     },
     connection,
     application,
   });
   agent.on("initialize", () => console.log(chalk.greenBright("Initialized")));
   agent.on("select", (e) =>
-    console.log(chalk.cyanBright("selected"), e.function.name),
+    console.log(chalk.cyanBright("selected"), e.function.name, e.reason),
   );
   agent.on("call", (e) =>
-    console.log(chalk.blueBright("called"), e.function.name),
+    console.log(chalk.blueBright("call"), e.function.name),
+  );
+  agent.on("complete", (e) =>
+    console.log(
+      chalk.greenBright("completed"),
+      e.function.name,
+      e.response.status,
+    ),
   );
   agent.on("cancel", (e) =>
-    console.log(chalk.redBright("canceled"), e.function.name),
+    console.log(chalk.redBright("canceled"), e.function.name, e.reason),
   );
 
   // START CONVERSATION
@@ -95,6 +104,13 @@ const main = async (): Promise<void> => {
     for (const h of histories)
       if (h.kind === "text")
         trace(chalk.yellow("Text"), chalk.blueBright(h.role), "\n\n", h.text);
+      else if (h.kind === "describe")
+        trace(
+          chalk.whiteBright("Describe"),
+          chalk.blueBright("agent"),
+          "\n\n",
+          h.text,
+        );
   }
 };
 main().catch((error) => {

@@ -14,7 +14,7 @@ export interface __IChatFunctionReference {
 export namespace __IChatFunctionReference {
   export interface IProps {
     /**
-     * List of candidate functions.
+     * List of target functions.
      */
     functions: __IChatFunctionReference[];
   }

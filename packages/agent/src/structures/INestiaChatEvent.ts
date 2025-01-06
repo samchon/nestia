@@ -4,7 +4,7 @@ export type INestiaChatEvent =
   | INestiaChatEvent.IIintializeEvent
   | INestiaChatEvent.ISelectFunctionEvent
   | INestiaChatEvent.ICancelFunctionEvent
-  | INestiaChatEvent.IFuctionCallEvent
+  | INestiaChatEvent.ICallFunctionEvent
   | INestiaChatEvent.IFunctionCompleteEvent;
 export namespace INestiaChatEvent {
   export interface IIintializeEvent {
@@ -23,7 +23,7 @@ export namespace INestiaChatEvent {
     reason: string;
   }
 
-  export interface IFuctionCallEvent {
+  export interface ICallFunctionEvent {
     type: "call";
     function: IHttpLlmFunction<"chatgpt">;
     arguments: object;
@@ -41,7 +41,7 @@ export namespace INestiaChatEvent {
     initialize: IIintializeEvent;
     select: ISelectFunctionEvent;
     cancel: ICancelFunctionEvent;
-    call: IFuctionCallEvent;
+    call: ICallFunctionEvent;
     complete: IFunctionCompleteEvent;
   };
 }
