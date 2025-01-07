@@ -1,0 +1,68 @@
+{
+  "name": "@nestia/agent",
+  "version": "0.1.0",
+  "description": "Super A.I. Chatbot agent by Swagger Document",
+  "main": "lib/index.js",
+  "module": "lib/index.mjs",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "prepare": "ts-patch install && typia patch",
+    "build": "npm run build:main && npm run build:test",
+    "build:main": "rimraf lib && tsc && rollup -c",
+    "build:test": "rimraf bin && tsc -p test/tsconfig.json",
+    "dev": "npm run build:test -- --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/nestia"
+  },
+  "keywords": [
+    "openai",
+    "chatgpt",
+    "anthropic",
+    "claude",
+    "ai",
+    "chatbot",
+    "nestia",
+    "swagger",
+    "openapi"
+  ],
+  "author": "Jeongho Nam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samchon/nestia/issues"
+  },
+  "homepage": "https://nestia.io",
+  "files": [
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "lib",
+    "src"
+  ],
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
+    "@nestia/e2e": "^0.7.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@samchon/shopping-api": "^0.11.0",
+    "@types/node": "^22.10.5",
+    "@types/uuid": "^10.0.0",
+    "chalk": "4.1.2",
+    "dotenv": "^16.3.1",
+    "dotenv-expand": "^10.0.0",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.29.1",
+    "ts-patch": "^3.3.0",
+    "tstl": "^3.0.0",
+    "typescript": "~5.7.2",
+    "typescript-transform-paths": "^3.5.3"
+  },
+  "dependencies": {
+    "@samchon/openapi": "^2.3.2",
+    "openai": "^4.77.0",
+    "typia": "^7.5.1",
+    "uuid": "^11.0.4"
+  }
+}
