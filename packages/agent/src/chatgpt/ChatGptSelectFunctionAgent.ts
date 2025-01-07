@@ -9,9 +9,11 @@ import { v4 } from "uuid";
 
 import { NestiaChatAgent } from "../NestiaChatAgent";
 import { NestiaChatAgentConstant } from "../internal/NestiaChatAgentConstant";
+import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAggregator";
 import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
 import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
 import { IChatGptService } from "../structures/IChatGptService";
+import { INestiaChatCost } from "../structures/INestiaChatCost";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatFunctionSelection } from "../structures/INestiaChatFunctionSelection";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
@@ -26,6 +28,7 @@ export namespace ChatGptSelectFunctionAgent {
     histories: INestiaChatPrompt[];
     stack: INestiaChatFunctionSelection[];
     dispatch: (event: INestiaChatEvent) => Promise<void>;
+    cost: INestiaChatCost;
     content: string;
     config?: NestiaChatAgent.IConfig;
     divide?: IHttpLlmFunction<"chatgpt">[][];
@@ -170,6 +173,7 @@ export namespace ChatGptSelectFunctionAgent {
         },
         props.service.options,
       );
+    NestiaChatAgentCostAggregator.aggregate(props.cost, completion);
     if (props.completions !== undefined) props.completions.push(completion);
 
     //----

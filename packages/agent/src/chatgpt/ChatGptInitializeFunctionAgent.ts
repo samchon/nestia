@@ -3,9 +3,11 @@ import OpenAI from "openai";
 import typia from "typia";
 
 import { NestiaChatAgent } from "../NestiaChatAgent";
+import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAggregator";
 import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
 import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
 import { IChatGptService } from "../structures/IChatGptService";
+import { INestiaChatCost } from "../structures/INestiaChatCost";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
 import { __IChatInitialApplication } from "../structures/internal/__IChatInitialApplication";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
@@ -15,6 +17,7 @@ export namespace ChatGptInitializeFunctionAgent {
     service: IChatGptService;
     histories: INestiaChatPrompt[];
     content: string;
+    cost: INestiaChatCost;
     config?: NestiaChatAgent.IConfig | undefined;
   }
   export interface IOutput {
@@ -67,6 +70,7 @@ export namespace ChatGptInitializeFunctionAgent {
         },
         props.service.options,
       );
+    NestiaChatAgentCostAggregator.aggregate(props.cost, completion);
 
     //----
     // PROCESS COMPLETION

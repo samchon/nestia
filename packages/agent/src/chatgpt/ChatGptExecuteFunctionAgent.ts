@@ -12,9 +12,11 @@ import OpenAI from "openai";
 
 import { NestiaChatAgent } from "../NestiaChatAgent";
 import { NestiaChatAgentConstant } from "../internal/NestiaChatAgentConstant";
+import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAggregator";
 import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
 import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
 import { IChatGptService } from "../structures/IChatGptService";
+import { INestiaChatCost } from "../structures/INestiaChatCost";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
@@ -27,6 +29,7 @@ export namespace ChatGptExecuteFunctionAgent {
     functions: IHttpLlmFunction<"chatgpt">[];
     histories: INestiaChatPrompt[];
     dispatch: (event: INestiaChatEvent) => Promise<void>;
+    cost: INestiaChatCost;
     content: string;
     config?: NestiaChatAgent.IConfig | undefined;
   }
@@ -79,6 +82,7 @@ export namespace ChatGptExecuteFunctionAgent {
         },
         props.service.options,
       );
+    NestiaChatAgentCostAggregator.aggregate(props.cost, completion);
 
     //----
     // PROCESS COMPLETION
@@ -273,6 +277,7 @@ export namespace ChatGptExecuteFunctionAgent {
         },
         props.service.options,
       );
+    NestiaChatAgentCostAggregator.aggregate(props.cost, completion);
 
     //----
     // PROCESS COMPLETION

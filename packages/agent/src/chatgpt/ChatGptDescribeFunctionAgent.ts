@@ -1,9 +1,11 @@
 import OpenAI from "openai";
 
 import { NestiaChatAgent } from "../NestiaChatAgent";
+import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAggregator";
 import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
 import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
 import { IChatGptService } from "../structures/IChatGptService";
+import { INestiaChatCost } from "../structures/INestiaChatCost";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
@@ -11,6 +13,7 @@ export namespace ChatGptDescribeFunctionAgent {
   export interface IProps {
     service: IChatGptService;
     histories: INestiaChatPrompt.IExecute[];
+    cost: INestiaChatCost;
     config?: NestiaChatAgent.IConfig;
   }
 
@@ -42,6 +45,8 @@ export namespace ChatGptDescribeFunctionAgent {
         },
         props.service.options,
       );
+    NestiaChatAgentCostAggregator.aggregate(props.cost, completion);
+
     return completion.choices
       .map((choice) =>
         choice.message.role === "assistant" && !!choice.message.content?.length
