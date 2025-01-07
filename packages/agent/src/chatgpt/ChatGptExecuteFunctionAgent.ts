@@ -12,6 +12,8 @@ import OpenAI from "openai";
 
 import { NestiaChatAgent } from "../NestiaChatAgent";
 import { NestiaChatAgentConstant } from "../internal/NestiaChatAgentConstant";
+import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
+import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
 import { IChatGptService } from "../structures/IChatGptService";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
@@ -40,6 +42,11 @@ export namespace ChatGptExecuteFunctionAgent {
         {
           model: props.service.model,
           messages: [
+            // COMMON SYSTEM PROMPT
+            {
+              role: "system",
+              content: NestiaChatAgentDefaultPrompt.write(props.config),
+            } satisfies OpenAI.ChatCompletionSystemMessageParam,
             // PREVIOUS HISTORIES
             ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
             // USER INPUT
@@ -52,7 +59,7 @@ export namespace ChatGptExecuteFunctionAgent {
               role: "system",
               content:
                 props.config?.systemPrompt?.execute?.(props.histories) ??
-                SYSTEM_PROMPT,
+                NestiaChatAgentSystemPrompt.EXECUTE,
             },
           ],
           // STACKED FUNCTIONS
@@ -194,6 +201,11 @@ export namespace ChatGptExecuteFunctionAgent {
         {
           model: props.service.model,
           messages: [
+            // COMMON SYSTEM PROMPT
+            {
+              role: "system",
+              content: NestiaChatAgentDefaultPrompt.write(props.config),
+            } satisfies OpenAI.ChatCompletionSystemMessageParam,
             // PREVIOUS HISTORIES
             ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
             // USER INPUT
@@ -206,7 +218,7 @@ export namespace ChatGptExecuteFunctionAgent {
               role: "system",
               content:
                 props.config?.systemPrompt?.execute?.(props.histories) ??
-                SYSTEM_PROMPT,
+                NestiaChatAgentSystemPrompt.EXECUTE,
             },
             {
               role: "assistant",
@@ -320,13 +332,3 @@ interface IFunctionCall {
   function: IHttpLlmFunction<"chatgpt">;
   input: object;
 }
-
-const SYSTEM_PROMPT = [
-  "You are a helpful assistant for tool calling.",
-  "",
-  "Use the supplied tools to assist the user.",
-  "",
-  "If previous messsages are not enough to compose the arguments,",
-  "you can ask the user to write more information. By the way, when asking",
-  "the user to write more informations, make the text concise and clear.",
-].join("\n");

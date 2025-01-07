@@ -127,6 +127,29 @@ export namespace NestiaChatAgent {
    */
   export interface IConfig {
     /**
+     * Locale of the A.I. chatbot.
+     *
+     * If you configure this property, the A.I. chatbot will conversate with the
+     * given locale. You can get the locale value by
+     *
+     * - Browser: `navigator.language`
+     * - NodeJS: `process.env.LANG.split(".")[0]`
+     *
+     * @default your_locale
+     */
+    locale?: string;
+
+    /**
+     * Timezone of the A.I. chatbot.
+     *
+     * If you configure this property, the A.I. chatbot will consider the given timezone.
+     * You can get the timezone value by `Intl.DateTimeFormat().resolvedOptions().timeZone`.
+     *
+     * @default your_timezone
+     */
+    timezone?: string;
+
+    /**
      * Retry count.
      *
      * If LLM function calling composed arguments are invalid,
@@ -180,7 +203,7 @@ export namespace NestiaChatAgent {
      * System prompt messages if you want to customize the system prompt
      * messages for each situation.
      */
-    systemPrompt?: Partial<ISytemPrompt>;
+    systemPrompt?: ISytemPrompt;
   }
 
   /**
@@ -190,7 +213,8 @@ export namespace NestiaChatAgent {
    * messages for each situation.
    */
   export interface ISytemPrompt {
-    initial?: (histories: INestiaChatPrompt[]) => string;
+    common?: (config?: IConfig | undefined) => string;
+    initialize?: (histories: INestiaChatPrompt[]) => string;
     select?: (histories: INestiaChatPrompt[]) => string;
     cancel?: (histories: INestiaChatPrompt[]) => string;
     execute?: (histories: INestiaChatPrompt[]) => string;

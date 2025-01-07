@@ -1,6 +1,8 @@
 import OpenAI from "openai";
 
 import { NestiaChatAgent } from "../NestiaChatAgent";
+import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
+import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
 import { IChatGptService } from "../structures/IChatGptService";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
@@ -22,6 +24,11 @@ export namespace ChatGptDescribeFunctionAgent {
         {
           model: props.service.model,
           messages: [
+            // COMMON SYSTEM PROMPT
+            {
+              role: "system",
+              content: NestiaChatAgentDefaultPrompt.write(props.config),
+            } satisfies OpenAI.ChatCompletionSystemMessageParam,
             // PREVIOUS FUNCTION CALLING HISTORIES
             ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
             // SYTEM PROMPT
@@ -29,7 +36,7 @@ export namespace ChatGptDescribeFunctionAgent {
               role: "assistant",
               content:
                 props.config?.systemPrompt?.describe?.(props.histories) ??
-                SYSTEM_PROMPT,
+                NestiaChatAgentSystemPrompt.DESCRIBE,
             },
           ],
         },
@@ -49,15 +56,3 @@ export namespace ChatGptDescribeFunctionAgent {
       }));
   };
 }
-
-const SYSTEM_PROMPT = [
-  "You are a helpful assistant describing return values of function calls.",
-  "",
-  "Above messages are the list of function call histories.",
-  "When decribing the return values, please do not too much shortly",
-  "summarize them. Instead, provide detailed descriptions as much as.",
-  "",
-  "Also, its content format must be markdown. If required, utilize the",
-  "mermaid syntax for drawing some diagrams. When image contents are,",
-  "just put them through the markdown image syntax.",
-].join("\n");
