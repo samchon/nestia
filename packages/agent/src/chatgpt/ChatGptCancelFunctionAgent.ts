@@ -9,6 +9,8 @@ import { v4 } from "uuid";
 
 import { NestiaChatAgent } from "../NestiaChatAgent";
 import { NestiaChatAgentConstant } from "../internal/NestiaChatAgentConstant";
+import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
+import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
 import { IChatGptService } from "../structures/IChatGptService";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatFunctionSelection } from "../structures/INestiaChatFunctionSelection";
@@ -125,6 +127,11 @@ export namespace ChatGptCancelFunctionAgent {
         {
           model: props.service.model,
           messages: [
+            // COMMON SYSTEM PROMPT
+            {
+              role: "system",
+              content: NestiaChatAgentDefaultPrompt.write(props.config),
+            } satisfies OpenAI.ChatCompletionSystemMessageParam,
             // CANDIDATE FUNCTIONS
             {
               role: "assistant",
@@ -161,7 +168,7 @@ export namespace ChatGptCancelFunctionAgent {
               role: "system",
               content:
                 props.config?.systemPrompt?.cancel?.(props.histories) ??
-                SYSTEM_PROMPT,
+                NestiaChatAgentSystemPrompt.CANCEL,
             },
             // TYPE CORRECTIONS
             ...emendMessages(failures ?? []),
@@ -289,11 +296,3 @@ interface IFailure {
   name: string;
   validation: IValidation.IFailure;
 }
-
-const SYSTEM_PROMPT: string = [
-  "You are a helpful assistant for selecting functions to call.",
-  "",
-  "Use the supplied tools to select some functions of `getApiFunctions()` returned",
-  "",
-  "If you can't find any proper function to select, just type your own message.",
-].join("\n");

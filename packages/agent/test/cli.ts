@@ -76,6 +76,9 @@ const main = async (): Promise<void> => {
     },
     connection,
     application,
+    config: {
+      locale: "en-US",
+    },
   });
   agent.on("initialize", () => console.log(chalk.greenBright("Initialized")));
   agent.on("select", (e) =>
