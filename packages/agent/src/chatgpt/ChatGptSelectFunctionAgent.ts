@@ -13,10 +13,10 @@ import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAg
 import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
 import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
 import { IChatGptService } from "../structures/IChatGptService";
-import { INestiaChatTokenUsage } from "../structures/INestiaChatCost";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatFunctionSelection } from "../structures/INestiaChatFunctionSelection";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
+import { INestiaChatTokenUsage } from "../structures/INestiaChatTokenUsage";
 import { __IChatFunctionReference } from "../structures/internal/__IChatFunctionReference";
 import { __IChatSelectFunctionsApplication } from "../structures/internal/__IChatSelectFunctionsApplication";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";

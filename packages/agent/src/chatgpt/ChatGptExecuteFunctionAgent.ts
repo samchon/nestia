@@ -16,9 +16,9 @@ import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAg
 import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
 import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
 import { IChatGptService } from "../structures/IChatGptService";
-import { INestiaChatTokenUsage } from "../structures/INestiaChatCost";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
+import { INestiaChatTokenUsage } from "../structures/INestiaChatTokenUsage";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
 export namespace ChatGptExecuteFunctionAgent {

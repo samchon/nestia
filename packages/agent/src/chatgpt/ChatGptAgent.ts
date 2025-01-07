@@ -2,10 +2,10 @@ import { IHttpLlmFunction } from "@samchon/openapi";
 
 import { NestiaChatAgent } from "../NestiaChatAgent";
 import { INestiaChatAgent } from "../structures/INestiaChatAgent";
-import { INestiaChatTokenUsage } from "../structures/INestiaChatCost";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatFunctionSelection } from "../structures/INestiaChatFunctionSelection";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
+import { INestiaChatTokenUsage } from "../structures/INestiaChatTokenUsage";
 import { __IChatSelectFunctionsApplication } from "../structures/internal/__IChatSelectFunctionsApplication";
 import { ChatGptCancelFunctionAgent } from "./ChatGptCancelFunctionAgent";
 import { ChatGptDescribeFunctionAgent } from "./ChatGptDescribeFunctionAgent";

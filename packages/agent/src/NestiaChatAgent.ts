@@ -3,9 +3,9 @@ import { IHttpConnection, IHttpLlmApplication } from "@samchon/openapi";
 import { ChatGptAgent } from "./chatgpt/ChatGptAgent";
 import { IChatGptService } from "./structures/IChatGptService";
 import { INestiaChatAgent } from "./structures/INestiaChatAgent";
-import { INestiaChatTokenUsage } from "./structures/INestiaChatCost";
 import { INestiaChatEvent } from "./structures/INestiaChatEvent";
 import { INestiaChatPrompt } from "./structures/INestiaChatPrompt";
+import { INestiaChatTokenUsage } from "./structures/INestiaChatTokenUsage";
 
 /**
  * Nestia A.I. chatbot agent.

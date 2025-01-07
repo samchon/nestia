@@ -7,8 +7,8 @@ import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAg
 import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
 import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
 import { IChatGptService } from "../structures/IChatGptService";
-import { INestiaChatTokenUsage } from "../structures/INestiaChatCost";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
+import { INestiaChatTokenUsage } from "../structures/INestiaChatTokenUsage";
 import { __IChatInitialApplication } from "../structures/internal/__IChatInitialApplication";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 

@@ -1,6 +1,6 @@
-import { INestiaChatTokenUsage } from "./INestiaChatCost";
 import { INestiaChatEvent } from "./INestiaChatEvent";
 import { INestiaChatPrompt } from "./INestiaChatPrompt";
+import { INestiaChatTokenUsage } from "./INestiaChatTokenUsage";
 
 export interface INestiaChatAgent {
   conversate(content: string): Promise<INestiaChatPrompt[]>;
