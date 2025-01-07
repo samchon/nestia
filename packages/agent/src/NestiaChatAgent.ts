@@ -5,6 +5,7 @@ import { IChatGptService } from "./structures/IChatGptService";
 import { INestiaChatAgent } from "./structures/INestiaChatAgent";
 import { INestiaChatEvent } from "./structures/INestiaChatEvent";
 import { INestiaChatPrompt } from "./structures/INestiaChatPrompt";
+import { INestiaChatTokenUsage } from "./structures/INestiaChatTokenUsage";
 
 /**
  * Nestia A.I. chatbot agent.
@@ -56,6 +57,18 @@ export class NestiaChatAgent implements INestiaChatAgent {
    */
   public getHistories(): INestiaChatPrompt[] {
     return this.agent.getHistories();
+  }
+
+  /**
+   * Get token usage of the A.I. chatbot.
+   *
+   * Entire token usage of the A.I. chatbot during the conversating
+   * with the user by {@link conversate} method callings.
+   *
+   * @returns Cost of the A.I. chatbot
+   */
+  public getTokenUsage(): INestiaChatTokenUsage {
+    return this.agent.getTokenUsage();
   }
 
   /**

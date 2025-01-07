@@ -5,6 +5,7 @@ import { INestiaChatAgent } from "../structures/INestiaChatAgent";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatFunctionSelection } from "../structures/INestiaChatFunctionSelection";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
+import { INestiaChatTokenUsage } from "../structures/INestiaChatTokenUsage";
 import { __IChatSelectFunctionsApplication } from "../structures/internal/__IChatSelectFunctionsApplication";
 import { ChatGptCancelFunctionAgent } from "./ChatGptCancelFunctionAgent";
 import { ChatGptDescribeFunctionAgent } from "./ChatGptDescribeFunctionAgent";
@@ -18,13 +19,31 @@ export class ChatGptAgent implements INestiaChatAgent {
   private readonly listeners_: Map<string, Set<Function>>;
 
   private readonly divide_?: IHttpLlmFunction<"chatgpt">[][] | undefined;
+  private readonly usage_: INestiaChatTokenUsage;
   private initialized_: boolean;
 
   public constructor(private readonly props: NestiaChatAgent.IProps) {
     this.stack_ = [];
     this.histories_ = props.histories ? [...props.histories] : [];
     this.listeners_ = new Map();
+
     this.initialized_ = false;
+    this.usage_ = {
+      total: 0,
+      prompt: {
+        total: 0,
+        audio: 0,
+        cached: 0,
+      },
+      completion: {
+        total: 0,
+        accepted_prediction: 0,
+        audio: 0,
+        reasoning: 0,
+        rejected_prediction: 0,
+      },
+    };
+
     if (
       !!props.config?.capacity &&
       props.application.functions.length > props.config.capacity
@@ -48,6 +67,10 @@ export class ChatGptAgent implements INestiaChatAgent {
     return this.histories_;
   }
 
+  public getTokenUsage(): INestiaChatTokenUsage {
+    return this.usage_;
+  }
+
   public async conversate(content: string): Promise<INestiaChatPrompt[]> {
     const index: number = this.histories_.length;
     const out = () => this.histories_.slice(index);
@@ -59,6 +82,7 @@ export class ChatGptAgent implements INestiaChatAgent {
           service: this.props.service,
           histories: this.histories_,
           config: this.props.config,
+          usage: this.usage_,
           content,
         });
       this.initialized_ ||= output.mounted;
@@ -77,6 +101,7 @@ export class ChatGptAgent implements INestiaChatAgent {
           stack: this.stack_,
           dispatch: (event) => this.dispatch(event),
           config: this.props.config,
+          usage: this.usage_,
           content,
         })),
       );
@@ -91,6 +116,7 @@ export class ChatGptAgent implements INestiaChatAgent {
         dispatch: (event) => this.dispatch(event),
         divide: this.divide_,
         config: this.props.config,
+        usage: this.usage_,
         content,
       })),
     );
@@ -109,6 +135,7 @@ export class ChatGptAgent implements INestiaChatAgent {
           ),
           dispatch: (event) => this.dispatch(event),
           config: this.props.config,
+          usage: this.usage_,
           content,
         });
       this.histories_.push(...prompts);
@@ -132,6 +159,7 @@ export class ChatGptAgent implements INestiaChatAgent {
             service: this.props.service,
             histories: calls,
             config: this.props.config,
+            usage: this.usage_,
           })),
         );
       if (calls.length === 0 || this.stack_.length === 0) break;

@@ -9,12 +9,14 @@ import { v4 } from "uuid";
 
 import { NestiaChatAgent } from "../NestiaChatAgent";
 import { NestiaChatAgentConstant } from "../internal/NestiaChatAgentConstant";
+import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAggregator";
 import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
 import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
 import { IChatGptService } from "../structures/IChatGptService";
 import { INestiaChatEvent } from "../structures/INestiaChatEvent";
 import { INestiaChatFunctionSelection } from "../structures/INestiaChatFunctionSelection";
 import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
+import { INestiaChatTokenUsage } from "../structures/INestiaChatTokenUsage";
 import { __IChatCancelFunctionsApplication } from "../structures/internal/__IChatCancelFunctionsApplication";
 import { __IChatFunctionReference } from "../structures/internal/__IChatFunctionReference";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
@@ -26,6 +28,7 @@ export namespace ChatGptCancelFunctionAgent {
     histories: INestiaChatPrompt[];
     stack: INestiaChatFunctionSelection[];
     dispatch: (event: INestiaChatEvent) => Promise<void>;
+    usage: INestiaChatTokenUsage;
     content: string;
     divide?: IHttpLlmFunction<"chatgpt">[][] | undefined;
     config?: NestiaChatAgent.IConfig | undefined;
@@ -190,6 +193,7 @@ export namespace ChatGptCancelFunctionAgent {
         },
         props.service.options,
       );
+    NestiaChatAgentCostAggregator.aggregate(props.usage, completion);
 
     //----
     // VALIDATION

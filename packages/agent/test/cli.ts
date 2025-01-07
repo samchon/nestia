@@ -69,7 +69,7 @@ const main = async (): Promise<void> => {
         apiKey: TestGlobal.env.CHATGPT_API_KEY,
         baseURL: TestGlobal.env.CHATGPT_BASE_URL,
       }),
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       options: TestGlobal.env.CHATGPT_OPTIONS
         ? JSON.parse(TestGlobal.env.CHATGPT_OPTIONS)
         : undefined,
@@ -114,6 +114,10 @@ const main = async (): Promise<void> => {
           "\n\n",
           h.text,
         );
+    trace(
+      chalk.redBright("tokens"),
+      JSON.stringify(agent.getTokenUsage(), null, 2),
+    );
   }
 };
 main().catch((error) => {
