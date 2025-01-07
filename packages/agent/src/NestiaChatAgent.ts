@@ -3,7 +3,7 @@ import { IHttpConnection, IHttpLlmApplication } from "@samchon/openapi";
 import { ChatGptAgent } from "./chatgpt/ChatGptAgent";
 import { IChatGptService } from "./structures/IChatGptService";
 import { INestiaChatAgent } from "./structures/INestiaChatAgent";
-import { INestiaChatCost } from "./structures/INestiaChatCost";
+import { INestiaChatTokenUsage } from "./structures/INestiaChatCost";
 import { INestiaChatEvent } from "./structures/INestiaChatEvent";
 import { INestiaChatPrompt } from "./structures/INestiaChatPrompt";
 
@@ -60,14 +60,15 @@ export class NestiaChatAgent implements INestiaChatAgent {
   }
 
   /**
-   * Get cost of the A.I. chatbot.
+   * Get token usage of the A.I. chatbot.
    *
-   * Entire cost of the A.I. chatbot during the {@link conversate} function callings.
+   * Entire token usage of the A.I. chatbot during the conversating
+   * with the user by {@link conversate} method callings.
    *
    * @returns Cost of the A.I. chatbot
    */
-  public getCost(): INestiaChatCost {
-    return this.agent.getCost();
+  public getTokenUsage(): INestiaChatTokenUsage {
+    return this.agent.getTokenUsage();
   }
 
   /**

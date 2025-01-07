@@ -114,7 +114,10 @@ const main = async (): Promise<void> => {
           "\n\n",
           h.text,
         );
-    trace(chalk.redBright("cost"), JSON.stringify(agent.getCost(), null, 2));
+    trace(
+      chalk.redBright("tokens"),
+      JSON.stringify(agent.getTokenUsage(), null, 2),
+    );
   }
 };
 main().catch((error) => {

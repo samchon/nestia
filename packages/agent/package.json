@@ -1,6 +1,6 @@
 {
   "name": "@nestia/agent",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Super A.I. Chatbot agent by Swagger Document",
   "main": "lib/index.js",
   "module": "lib/index.mjs",

@@ -1,10 +1,10 @@
 import OpenAI from "openai";
 
-import { INestiaChatCost } from "../structures/INestiaChatCost";
+import { INestiaChatTokenUsage } from "../structures/INestiaChatCost";
 
 export namespace NestiaChatAgentCostAggregator {
   export const aggregate = (
-    cost: INestiaChatCost,
+    cost: INestiaChatTokenUsage,
     completion: OpenAI.ChatCompletion,
   ): void => {
     if (!completion.usage) return;

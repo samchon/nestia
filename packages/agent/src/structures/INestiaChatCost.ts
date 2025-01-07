@@ -1,9 +1,9 @@
-export interface INestiaChatCost {
+export interface INestiaChatTokenUsage {
   total: number;
-  prompt: INestiaChatCost.IPrompt;
-  completion: INestiaChatCost.ICompletion;
+  prompt: INestiaChatTokenUsage.IPrompt;
+  completion: INestiaChatTokenUsage.ICompletion;
 }
-export namespace INestiaChatCost {
+export namespace INestiaChatTokenUsage {
   export interface IPrompt {
     total: number;
     audio: number;

@@ -1,4 +1,4 @@
-import { INestiaChatCost } from "./INestiaChatCost";
+import { INestiaChatTokenUsage } from "./INestiaChatCost";
 import { INestiaChatEvent } from "./INestiaChatEvent";
 import { INestiaChatPrompt } from "./INestiaChatPrompt";
 
@@ -7,7 +7,7 @@ export interface INestiaChatAgent {
 
   getHistories(): INestiaChatPrompt[];
 
-  getCost(): INestiaChatCost;
+  getTokenUsage(): INestiaChatTokenUsage;
 
   on<Type extends INestiaChatEvent.Type>(
     type: Type,
