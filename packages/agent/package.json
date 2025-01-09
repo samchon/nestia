@@ -1,10 +1,10 @@
 {
   "name": "@nestia/agent",
-  "version": "0.2.1",
-  "description": "Super A.I. Chatbot agent by Swagger Document",
+  "version": "0.2.3",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",
+  "description": "Super A.I. Chatbot agent by Swagger Document",
   "scripts": {
     "prepare": "ts-patch install && typia patch",
     "build": "npm run build:main && npm run build:test",

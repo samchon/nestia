@@ -137,6 +137,8 @@ export namespace ChatGptSelectFunctionAgent {
               content: JSON.stringify(
                 candidates.map((func) => ({
                   name: func.name,
+                  method: func.method,
+                  path: func.path,
                   description: func.description,
                 })),
               ),

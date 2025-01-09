@@ -58,10 +58,17 @@ export namespace ChatGptHistoryDecoder {
       {
         role: "tool",
         tool_call_id: history.id,
-        content:
-          typeof history.response.body === "string"
-            ? history.response.body
-            : JSON.stringify(history.response.body),
+        content: JSON.stringify({
+          function: {
+            method: history.function.method,
+            path: history.function.path,
+            description: history.function.description,
+            parameters: history.function.parameters,
+            output: history.function.output,
+          },
+          status: history.response.status,
+          data: history.response.body,
+        }),
       },
     ];
   };
