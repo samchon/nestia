@@ -1,58 +1,43 @@
-import {
-  IHttpLlmApplication,
-  IHttpLlmFunction,
-  ILlmApplication,
-} from "@samchon/openapi";
+import { IHttpLlmFunction, ILlmApplication } from "@samchon/openapi";
 import OpenAI from "openai";
 import typia, { IValidation } from "typia";
 import { v4 } from "uuid";
 
-import { NestiaChatAgent } from "../NestiaChatAgent";
-import { NestiaChatAgentConstant } from "../internal/NestiaChatAgentConstant";
-import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAggregator";
-import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
-import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
-import { IChatGptService } from "../structures/IChatGptService";
-import { INestiaChatEvent } from "../structures/INestiaChatEvent";
-import { INestiaChatFunctionSelection } from "../structures/INestiaChatFunctionSelection";
-import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
-import { INestiaChatTokenUsage } from "../structures/INestiaChatTokenUsage";
+import { NestiaAgentConstant } from "../internal/NestiaAgentConstant";
+import { NestiaAgentDefaultPrompt } from "../internal/NestiaAgentDefaultPrompt";
+import { NestiaAgentPromptFactory } from "../internal/NestiaAgentPromptFactory";
+import { NestiaAgentSystemPrompt } from "../internal/NestiaAgentSystemPrompt";
+import { INestiaAgentContext } from "../structures/INestiaAgentContext";
+import { INestiaAgentController } from "../structures/INestiaAgentController";
+import { INestiaAgentEvent } from "../structures/INestiaAgentEvent";
+import { INestiaAgentOperation } from "../structures/INestiaAgentOperation";
+import { INestiaAgentOperationSelection } from "../structures/INestiaAgentOperationSelection";
+import { INestiaAgentPrompt } from "../structures/INestiaAgentPrompt";
 import { __IChatCancelFunctionsApplication } from "../structures/internal/__IChatCancelFunctionsApplication";
 import { __IChatFunctionReference } from "../structures/internal/__IChatFunctionReference";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
 export namespace ChatGptCancelFunctionAgent {
-  export interface IProps {
-    application: IHttpLlmApplication<"chatgpt">;
-    service: IChatGptService;
-    histories: INestiaChatPrompt[];
-    stack: INestiaChatFunctionSelection[];
-    dispatch: (event: INestiaChatEvent) => Promise<void>;
-    usage: INestiaChatTokenUsage;
-    content: string;
-    divide?: IHttpLlmFunction<"chatgpt">[][] | undefined;
-    config?: NestiaChatAgent.IConfig | undefined;
-  }
-
   export const execute = async (
-    props: IProps,
-  ): Promise<INestiaChatPrompt.ICancel[]> => {
-    if (props.divide === undefined)
-      return step(props, props.application.functions, 0);
+    ctx: INestiaAgentContext,
+  ): Promise<INestiaAgentPrompt.ICancel[]> => {
+    if (ctx.operations.divided === undefined)
+      return step(ctx, ctx.operations.array, 0);
 
-    const stacks: INestiaChatFunctionSelection[][] = props.divide.map(() => []);
-    const events: INestiaChatEvent[] = [];
-    const prompts: INestiaChatPrompt.ICancel[][] = await Promise.all(
-      props.divide.map((candidates, i) =>
+    const stacks: INestiaAgentOperationSelection[][] =
+      ctx.operations.divided.map(() => []);
+    const events: INestiaAgentEvent[] = [];
+    const prompts: INestiaAgentPrompt.ICancel[][] = await Promise.all(
+      ctx.operations.divided.map((operations, i) =>
         step(
           {
-            ...props,
+            ...ctx,
             stack: stacks[i]!,
             dispatch: async (e) => {
               events.push(e);
             },
           },
-          candidates,
+          operations,
           0,
         ),
       ),
@@ -61,144 +46,148 @@ export namespace ChatGptCancelFunctionAgent {
     // NO FUNCTION SELECTION, SO THAT ONLY TEXT LEFT
     if (stacks.every((s) => s.length === 0)) return prompts[0]!;
     // ELITICISM
-    else if (
-      (props.config?.eliticism ?? NestiaChatAgentConstant.ELITICISM) === true
-    )
+    else if ((ctx.config?.eliticism ?? NestiaAgentConstant.ELITICISM) === true)
       return step(
-        props,
+        ctx,
         stacks
-          .map((row) => Array.from(row.values()).map((s) => s.function))
-          .flat(),
+          .flat()
+          .map(
+            (s) =>
+              ctx.operations.group
+                .get(s.controller.name)!
+                .get(s.function.name)!,
+          ),
         0,
       );
 
     // RE-COLLECT SELECT FUNCTION EVENTS
-    const collection: INestiaChatPrompt.ICancel = {
+    const collection: INestiaAgentPrompt.ICancel = {
       id: v4(),
-      kind: "cancel",
-      functions: [],
+      type: "cancel",
+      operations: [],
     };
     for (const e of events)
       if (e.type === "select") {
-        collection.functions.push({
-          function: e.function,
-          reason: e.reason,
-        });
-        await cancelFunction({
-          stack: props.stack,
-          dispatch: props.dispatch,
-          reference: {
-            name: e.function.name,
+        collection.operations.push(
+          NestiaAgentPromptFactory.selection({
+            protocol: e.operation.protocol as "http",
+            controller: e.operation.controller as INestiaAgentController.IHttp,
+            function: e.operation.function as IHttpLlmFunction<"chatgpt">,
             reason: e.reason,
-          },
+            name: e.operation.name,
+          }),
+        );
+        await cancelFunction(ctx, {
+          name: e.operation.name,
+          reason: e.reason,
         });
       }
     return [collection];
   };
 
-  export const cancelFunction = async (props: {
-    stack: INestiaChatFunctionSelection[];
-    reference: __IChatFunctionReference;
-    dispatch: (event: INestiaChatEvent.ICancelFunctionEvent) => Promise<void>;
-  }): Promise<IHttpLlmFunction<"chatgpt"> | null> => {
-    const index: number = props.stack.findIndex(
-      (item) => item.function.name === props.reference.name,
+  export const cancelFunction = async (
+    ctx: INestiaAgentContext,
+    reference: __IChatFunctionReference,
+  ): Promise<INestiaAgentOperationSelection | null> => {
+    const index: number = ctx.stack.findIndex(
+      (item) => item.name === reference.name,
     );
     if (index === -1) return null;
 
-    const item: INestiaChatFunctionSelection = props.stack[index]!;
-    props.stack.splice(index, 1);
-    await props.dispatch({
+    const item: INestiaAgentOperationSelection = ctx.stack[index]!;
+    ctx.stack.splice(index, 1);
+    await ctx.dispatch({
       type: "cancel",
-      function: item.function,
-      reason: props.reference.reason,
+      operation: item,
+      reason: reference.reason,
     });
-    return item.function;
+    return item;
   };
 
   const step = async (
-    props: IProps,
-    candidates: IHttpLlmFunction<"chatgpt">[],
+    ctx: INestiaAgentContext,
+    operations: INestiaAgentOperation[],
     retry: number,
     failures?: IFailure[],
-  ): Promise<INestiaChatPrompt.ICancel[]> => {
+  ): Promise<INestiaAgentPrompt.ICancel[]> => {
     //----
     // EXECUTE CHATGPT API
     //----
-    const completion: OpenAI.ChatCompletion =
-      await props.service.api.chat.completions.create(
+    const completion: OpenAI.ChatCompletion = await ctx.request("cancel", {
+      messages: [
+        // COMMON SYSTEM PROMPT
         {
-          model: props.service.model,
-          messages: [
-            // COMMON SYSTEM PROMPT
+          role: "system",
+          content: NestiaAgentDefaultPrompt.write(ctx.config),
+        } satisfies OpenAI.ChatCompletionSystemMessageParam,
+        // CANDIDATE FUNCTIONS
+        {
+          role: "assistant",
+          tool_calls: [
             {
-              role: "system",
-              content: NestiaChatAgentDefaultPrompt.write(props.config),
-            } satisfies OpenAI.ChatCompletionSystemMessageParam,
-            // CANDIDATE FUNCTIONS
-            {
-              role: "assistant",
-              tool_calls: [
-                {
-                  type: "function",
-                  id: "getApiFunctions",
-                  function: {
-                    name: "getApiFunctions",
-                    arguments: JSON.stringify({}),
-                  },
-                },
-              ],
+              type: "function",
+              id: "getApiFunctions",
+              function: {
+                name: "getApiFunctions",
+                arguments: JSON.stringify({}),
+              },
             },
-            {
-              role: "tool",
-              tool_call_id: "getApiFunctions",
-              content: JSON.stringify(
-                candidates.map((func) => ({
-                  name: func.name,
-                  description: func.description,
-                })),
-              ),
-            },
-            // PREVIOUS HISTORIES
-            ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
-            // USER INPUT
-            {
-              role: "user",
-              content: props.content,
-            },
-            // SYTEM PROMPT
-            {
-              role: "system",
-              content:
-                props.config?.systemPrompt?.cancel?.(props.histories) ??
-                NestiaChatAgentSystemPrompt.CANCEL,
-            },
-            // TYPE CORRECTIONS
-            ...emendMessages(failures ?? []),
           ],
-          // STACK FUNCTIONS
-          tools: CONTAINER.functions.map(
-            (func) =>
-              ({
-                type: "function",
-                function: {
-                  name: func.name,
-                  description: func.description,
-                  parameters: func.parameters as any,
-                },
-              }) satisfies OpenAI.ChatCompletionTool,
-          ),
-          tool_choice: "auto",
-          parallel_tool_calls: true,
         },
-        props.service.options,
-      );
-    NestiaChatAgentCostAggregator.aggregate(props.usage, completion);
+        {
+          role: "tool",
+          tool_call_id: "getApiFunctions",
+          content: JSON.stringify(
+            operations.map((op) => ({
+              name: op.name,
+              description: op.function.description,
+              ...(op.protocol === "http"
+                ? {
+                    method: op.function.method,
+                    path: op.function.path,
+                    tags: op.function.tags,
+                  }
+                : {}),
+            })),
+          ),
+        },
+        // PREVIOUS HISTORIES
+        ...ctx.histories.map(ChatGptHistoryDecoder.decode).flat(),
+        // USER INPUT
+        {
+          role: "user",
+          content: ctx.prompt.text,
+        },
+        // SYTEM PROMPT
+        {
+          role: "system",
+          content:
+            ctx.config?.systemPrompt?.cancel?.(ctx.histories) ??
+            NestiaAgentSystemPrompt.CANCEL,
+        },
+        // TYPE CORRECTIONS
+        ...emendMessages(failures ?? []),
+      ],
+      // STACK FUNCTIONS
+      tools: CONTAINER.functions.map(
+        (func) =>
+          ({
+            type: "function",
+            function: {
+              name: func.name,
+              description: func.description,
+              parameters: func.parameters as any,
+            },
+          }) satisfies OpenAI.ChatCompletionTool,
+      ),
+      tool_choice: "auto",
+      parallel_tool_calls: true,
+    });
 
     //----
     // VALIDATION
     //----
-    if (retry++ < (props.config?.retry ?? NestiaChatAgentConstant.RETRY)) {
+    if (retry++ < (ctx.config?.retry ?? NestiaAgentConstant.RETRY)) {
       const failures: IFailure[] = [];
       for (const choice of completion.choices)
         for (const tc of choice.message.tool_calls ?? []) {
@@ -213,13 +202,13 @@ export namespace ChatGptCancelFunctionAgent {
               validation,
             });
         }
-      if (failures.length > 0) return step(props, candidates, retry, failures);
+      if (failures.length > 0) return step(ctx, operations, retry, failures);
     }
 
     //----
     // PROCESS COMPLETION
     //----
-    const prompts: INestiaChatPrompt.ICancel[] = [];
+    const prompts: INestiaAgentPrompt.ICancel[] = [];
     for (const choice of completion.choices) {
       // TOOL CALLING HANDLER
       if (choice.message.tool_calls)
@@ -230,25 +219,16 @@ export namespace ChatGptCancelFunctionAgent {
           );
           if (typia.is(input) === false) continue;
           else if (tc.function.name === "cancelFunctions") {
-            const collection: INestiaChatPrompt.ICancel = {
+            const collection: INestiaAgentPrompt.ICancel = {
               id: tc.id,
-              kind: "cancel",
-              functions: [],
+              type: "cancel",
+              operations: [],
             };
             for (const reference of input.functions) {
-              const func: IHttpLlmFunction<"chatgpt"> | null =
-                await cancelFunction({
-                  stack: props.stack,
-                  dispatch: props.dispatch,
-                  reference,
-                });
-              if (func !== null)
-                collection.functions.push({
-                  function: func,
-                  reason: reference.reason,
-                });
+              const operation = await cancelFunction(ctx, reference);
+              if (operation !== null) collection.operations.push(operation);
             }
-            if (collection.functions.length !== 0) prompts.push(collection);
+            if (collection.operations.length !== 0) prompts.push(collection);
           }
         }
     }

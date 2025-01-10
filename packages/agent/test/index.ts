@@ -1,4 +1,4 @@
-import { NestiaChatAgent } from "@nestia/agent";
+import { NestiaAgent } from "@nestia/agent";
 import { DynamicExecutor } from "@nestia/e2e";
 import {
   HttpLlm,
@@ -57,15 +57,22 @@ const main = async (): Promise<void> => {
   );
 
   // COMPOSE CHAT AGENT
-  const agent: NestiaChatAgent = new NestiaChatAgent({
-    service: {
+  const agent: NestiaAgent = new NestiaAgent({
+    provider: {
+      type: "chatgpt",
       api: new OpenAI({
         apiKey: TestGlobal.env.CHATGPT_API_KEY,
       }),
       model: "gpt-4o",
     },
-    connection,
-    application,
+    controllers: [
+      {
+        protocol: "http",
+        name: "shopping",
+        application,
+        connection,
+      },
+    ],
   });
 
   const report: DynamicExecutor.IReport = await DynamicExecutor.validate({

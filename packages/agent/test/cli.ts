@@ -1,4 +1,4 @@
-import { INestiaChatPrompt, NestiaChatAgent } from "@nestia/agent";
+import { INestiaAgentPrompt, NestiaAgent } from "@nestia/agent";
 import {
   HttpLlm,
   IHttpConnection,
@@ -70,8 +70,9 @@ const main = async (): Promise<void> => {
   );
 
   // COMPOSE CHAT AGENT
-  const agent: NestiaChatAgent = new NestiaChatAgent({
-    service: {
+  const agent: NestiaAgent = new NestiaAgent({
+    provider: {
+      type: "chatgpt",
       api: new OpenAI({
         apiKey: TestGlobal.env.CHATGPT_API_KEY,
         baseURL: TestGlobal.env.CHATGPT_BASE_URL,
@@ -81,32 +82,42 @@ const main = async (): Promise<void> => {
         ? JSON.parse(TestGlobal.env.CHATGPT_OPTIONS)
         : undefined,
     },
-    connection,
-    application,
+    controllers: [
+      {
+        protocol: "http",
+        name: "shopping",
+        connection,
+        application,
+      },
+    ],
     config: {
       locale: "en-US",
     },
   });
   agent.on("initialize", () => console.log(chalk.greenBright("Initialized")));
   agent.on("select", (e) =>
-    console.log(chalk.cyanBright("selected"), e.function.name, e.reason),
+    console.log(
+      chalk.cyanBright("selected"),
+      e.operation.function.name,
+      e.reason,
+    ),
   );
   agent.on("call", (e) =>
-    console.log(chalk.blueBright("call"), e.function.name),
+    console.log(chalk.blueBright("call"), e.operation.function.name),
   );
-  agent.on("complete", (e) => {
+  agent.on("execute", (e) => {
     console.log(
-      chalk.greenBright("completed"),
-      e.function.name,
-      e.response.status,
+      chalk.greenBright("execute"),
+      e.operation.function.name,
+      e.value.status,
     ),
       fs.writeFileSync(
-        `${TestGlobal.ROOT}/logs/${e.function.name}.log`,
+        `${TestGlobal.ROOT}/logs/${e.operation.function.name}.log`,
         JSON.stringify(
           {
             type: "function",
             arguments: e.arguments,
-            response: e.response,
+            response: e.value,
           },
           null,
           2,
@@ -115,7 +126,11 @@ const main = async (): Promise<void> => {
       );
   });
   agent.on("cancel", (e) =>
-    console.log(chalk.redBright("canceled"), e.function.name, e.reason),
+    console.log(
+      chalk.redBright("canceled"),
+      e.operation.function.name,
+      e.reason,
+    ),
   );
 
   // START CONVERSATION
@@ -131,11 +146,11 @@ const main = async (): Promise<void> => {
         JSON.stringify(agent.getTokenUsage(), null, 2),
       );
     else {
-      const histories: INestiaChatPrompt[] = await agent.conversate(content);
-      for (const h of histories)
-        if (h.kind === "text")
+      const histories: INestiaAgentPrompt[] = await agent.conversate(content);
+      for (const h of histories.slice(1))
+        if (h.type === "text")
           trace(chalk.yellow("Text"), chalk.blueBright(h.role), "\n\n", h.text);
-        else if (h.kind === "describe")
+        else if (h.type === "describe")
           trace(
             chalk.whiteBright("Describe"),
             chalk.blueBright("agent"),

@@ -2,105 +2,94 @@ import {
   ChatGptTypeChecker,
   HttpLlm,
   IChatGptSchema,
-  IHttpConnection,
-  IHttpLlmApplication,
-  IHttpLlmFunction,
   IHttpMigrateRoute,
   IHttpResponse,
 } from "@samchon/openapi";
 import OpenAI from "openai";
+import { IValidation } from "typia";
 
-import { NestiaChatAgent } from "../NestiaChatAgent";
-import { NestiaChatAgentConstant } from "../internal/NestiaChatAgentConstant";
-import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAggregator";
-import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
-import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
-import { IChatGptService } from "../structures/IChatGptService";
-import { INestiaChatEvent } from "../structures/INestiaChatEvent";
-import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
-import { INestiaChatTokenUsage } from "../structures/INestiaChatTokenUsage";
+import { NestiaAgentConstant } from "../internal/NestiaAgentConstant";
+import { NestiaAgentDefaultPrompt } from "../internal/NestiaAgentDefaultPrompt";
+import { NestiaAgentPromptFactory } from "../internal/NestiaAgentPromptFactory";
+import { NestiaAgentSystemPrompt } from "../internal/NestiaAgentSystemPrompt";
+import { INestiaAgentContext } from "../structures/INestiaAgentContext";
+import { INestiaAgentEvent } from "../structures/INestiaAgentEvent";
+import { INestiaAgentOperation } from "../structures/INestiaAgentOperation";
+import { INestiaAgentPrompt } from "../structures/INestiaAgentPrompt";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
 export namespace ChatGptExecuteFunctionAgent {
-  export interface IProps {
-    service: IChatGptService;
-    connection: IHttpConnection;
-    application: IHttpLlmApplication<"chatgpt">;
-    functions: IHttpLlmFunction<"chatgpt">[];
-    histories: INestiaChatPrompt[];
-    dispatch: (event: INestiaChatEvent) => Promise<void>;
-    usage: INestiaChatTokenUsage;
-    content: string;
-    config?: NestiaChatAgent.IConfig | undefined;
-  }
-
   export const execute = async (
-    props: IProps,
-  ): Promise<INestiaChatPrompt[]> => {
+    ctx: INestiaAgentContext,
+  ): Promise<INestiaAgentPrompt[]> => {
     //----
     // EXECUTE CHATGPT API
     //----
-    const completion: OpenAI.ChatCompletion =
-      await props.service.api.chat.completions.create(
+    const completion: OpenAI.ChatCompletion = await ctx.request("execute", {
+      messages: [
+        // COMMON SYSTEM PROMPT
         {
-          model: props.service.model,
-          messages: [
-            // COMMON SYSTEM PROMPT
-            {
-              role: "system",
-              content: NestiaChatAgentDefaultPrompt.write(props.config),
-            } satisfies OpenAI.ChatCompletionSystemMessageParam,
-            // PREVIOUS HISTORIES
-            ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
-            // USER INPUT
-            {
-              role: "user",
-              content: props.content,
-            },
-            // SYTEM PROMPT
-            {
-              role: "system",
-              content:
-                props.config?.systemPrompt?.execute?.(props.histories) ??
-                NestiaChatAgentSystemPrompt.EXECUTE,
-            },
-          ],
-          // STACKED FUNCTIONS
-          tools: props.functions.map(
-            (func) =>
-              ({
-                type: "function",
-                function: {
-                  name: func.name,
-                  description: func.description,
-                  parameters: func.parameters as any,
-                },
-              }) as OpenAI.ChatCompletionTool,
-          ),
-          tool_choice: "auto",
-          parallel_tool_calls: false,
+          role: "system",
+          content: NestiaAgentDefaultPrompt.write(ctx.config),
+        } satisfies OpenAI.ChatCompletionSystemMessageParam,
+        // PREVIOUS HISTORIES
+        ...ctx.histories.map(ChatGptHistoryDecoder.decode).flat(),
+        // USER INPUT
+        {
+          role: "user",
+          content: ctx.prompt.text,
         },
-        props.service.options,
-      );
-    NestiaChatAgentCostAggregator.aggregate(props.usage, completion);
+        // SYTEM PROMPT
+        {
+          role: "system",
+          content:
+            ctx.config?.systemPrompt?.execute?.(ctx.histories) ??
+            NestiaAgentSystemPrompt.EXECUTE,
+        },
+      ],
+      // STACKED FUNCTIONS
+      tools: ctx.stack.map(
+        (op) =>
+          ({
+            type: "function",
+            function: {
+              name: op.name,
+              description: op.function.description,
+              parameters: (op.function.separated
+                ? (op.function.separated.llm ??
+                  ({
+                    type: "object",
+                    properties: {},
+                    required: [],
+                    additionalProperties: false,
+                    $defs: {},
+                  } satisfies IChatGptSchema.IParameters))
+                : op.function.parameters) as Record<string, any>,
+            },
+          }) as OpenAI.ChatCompletionTool,
+      ),
+      tool_choice: "auto",
+      parallel_tool_calls: false,
+    });
 
     //----
     // PROCESS COMPLETION
     //----
-    const closures: Array<() => Promise<INestiaChatPrompt>> = [];
+    const closures: Array<() => Promise<INestiaAgentPrompt>> = [];
     for (const choice of completion.choices) {
       for (const tc of choice.message.tool_calls ?? []) {
         if (tc.type === "function") {
-          const func: IHttpLlmFunction<"chatgpt"> | undefined =
-            props.functions.find((func) => func.name === tc.function.name);
-          if (func === undefined) continue;
+          const operation: INestiaAgentOperation | undefined =
+            ctx.operations.flat.get(tc.function.name);
+          if (operation === undefined) continue;
           closures.push(() =>
             propagate(
-              props,
+              ctx,
               {
+                type: "call",
                 id: tc.id,
-                function: func,
-                input: JSON.parse(tc.function.arguments),
+                operation,
+                arguments: JSON.parse(tc.function.arguments),
               },
               0,
             ),
@@ -114,71 +103,151 @@ export namespace ChatGptExecuteFunctionAgent {
         closures.push(
           async () =>
             ({
-              kind: "text",
+              type: "text",
               role: "assistant",
               text: choice.message.content!,
-            }) satisfies INestiaChatPrompt.IText,
+            }) satisfies INestiaAgentPrompt.IText,
         );
     }
     return Promise.all(closures.map((fn) => fn()));
   };
 
   const propagate = async (
-    props: IProps,
-    call: IFunctionCall,
+    ctx: INestiaAgentContext,
+    call: INestiaAgentEvent.ICall,
     retry: number,
-  ): Promise<INestiaChatPrompt.IExecute> => {
-    fill({
-      function: call.function,
-      arguments: call.input,
-    });
-    try {
-      await props.dispatch({
-        type: "call",
-        function: call.function,
-        arguments: call.input,
+  ): Promise<INestiaAgentPrompt.IExecute> => {
+    if (call.operation.protocol === "http")
+      fillHttpArguments({
+        operation: call.operation,
+        arguments: call.arguments,
       });
-      const response: IHttpResponse = await HttpLlm.propagate({
-        connection: props.connection,
-        application: props.application,
-        function: call.function,
-        input: call.input,
-      });
-      const success: boolean =
-        ((response.status === 400 ||
-          response.status === 404 ||
-          response.status === 422) &&
-          retry++ < (props.config?.retry ?? NestiaChatAgentConstant.RETRY) &&
-          typeof response.body) === false;
-      const result: INestiaChatPrompt.IExecute = (success === false
-        ? await correct(props, call, retry, response.body)
-        : null) ?? {
-        kind: "execute",
-        role: "assistant",
-        function: call.function,
-        id: call.id,
-        arguments: call.input,
-        response: response,
-      };
-      if (success === true)
-        await props.dispatch({
-          type: "complete",
-          function: call.function,
-          arguments: result.arguments,
-          response: result.response,
+    await ctx.dispatch(call);
+
+    if (call.operation.protocol === "http") {
+      //----
+      // HTTP PROTOCOL
+      //----
+      try {
+        // CALL HTTP API
+        const response: IHttpResponse = call.operation.controller.execute
+          ? await call.operation.controller.execute({
+              connection: call.operation.controller.connection,
+              application: call.operation.controller.application,
+              function: call.operation.function,
+              arguments: call.arguments,
+            })
+          : await HttpLlm.propagate({
+              connection: call.operation.controller.connection,
+              application: call.operation.controller.application,
+              function: call.operation.function,
+              input: call.arguments,
+            });
+        // CHECK STATUS
+        const success: boolean =
+          ((response.status === 400 ||
+            response.status === 404 ||
+            response.status === 422) &&
+            retry++ < (ctx.config?.retry ?? NestiaAgentConstant.RETRY) &&
+            typeof response.body) === false;
+        // DISPATCH EVENT
+        const result: INestiaAgentPrompt.IExecute =
+          (success === false
+            ? await correct(ctx, call, retry, response.body)
+            : null) ??
+          NestiaAgentPromptFactory.execute({
+            type: "execute",
+            protocol: "http",
+            controller: call.operation.controller,
+            function: call.operation.function,
+            id: call.id,
+            arguments: call.arguments,
+            value: response,
+          });
+        if (success === true)
+          await ctx.dispatch({
+            type: "execute",
+            id: call.id,
+            operation: call.operation,
+            arguments: result.arguments,
+            value: result.value,
+          });
+        return result;
+      } catch (error) {
+        // DISPATCH ERROR
+        return NestiaAgentPromptFactory.execute({
+          type: "execute",
+          protocol: "http",
+          controller: call.operation.controller,
+          function: call.operation.function,
+          id: call.id,
+          arguments: call.arguments,
+          value: {
+            status: 500,
+            headers: {},
+            body:
+              error instanceof Error
+                ? {
+                    ...error,
+                    name: error.name,
+                    message: error.message,
+                  }
+                : error,
+          },
         });
-      return result;
-    } catch (error) {
-      return {
-        kind: "execute",
-        role: "assistant",
-        function: call.function,
-        id: call.id,
-        arguments: call.input,
-        response: {
-          status: 500,
-          headers: {},
-          body:
+      }
+    } else {
+      //----
+      // CLASS FUNCTION
+      //----
+      // VALIDATE FIRST
+      const check: IValidation<unknown> = call.operation.function.validate(
+        call.arguments,
+      );
+      if (check.success === false)
+        return (
+          (retry++ < (ctx.config?.retry ?? NestiaAgentConstant.RETRY)
+            ? await correct(ctx, call, retry, check.errors)
+            : null) ??
+          NestiaAgentPromptFactory.execute({
+            type: "execute",
+            protocol: "class",
+            controller: call.operation.controller,
+            function: call.operation.function,
+            id: call.id,
+            arguments: call.arguments,
+            value: {
+              name: "TypeGuardError",
+              message: "Invalid arguments.",
+              errors: check.errors,
+            },
+          })
+        );
+      // EXECUTE FUNCTION
+      try {
+        const value: any = await call.operation.controller.execute({
+          application: call.operation.controller.application,
+          function: call.operation.function,
+          arguments: call.arguments,
+        });
+        return NestiaAgentPromptFactory.execute({
+          type: "execute",
+          protocol: "class",
+          controller: call.operation.controller,
+          function: call.operation.function,
+          id: call.id,
+          arguments: call.arguments,
+          value,
+        });
+      } catch (error) {
+        return NestiaAgentPromptFactory.execute({
+          type: "execute",
+          protocol: "class",
+          controller: call.operation.controller,
+          function: call.operation.function,
+          id: call.id,
+          arguments: call.arguments,
+          value:
             error instanceof Error
               ? {
                   ...error,
@@ -186,98 +255,91 @@ export namespace ChatGptExecuteFunctionAgent {
                   message: error.message,
                 }
               : error,
-        },
-      } satisfies INestiaChatPrompt.IExecute;
+        });
+      }
     }
   };
 
   const correct = async (
-    props: IProps,
-    call: IFunctionCall,
+    ctx: INestiaAgentContext,
+    call: INestiaAgentEvent.ICall,
     retry: number,
     error: unknown,
-  ): Promise<INestiaChatPrompt.IExecute | null> => {
+  ): Promise<INestiaAgentPrompt.IExecute | null> => {
     //----
     // EXECUTE CHATGPT API
     //----
-    const completion: OpenAI.ChatCompletion =
-      await props.service.api.chat.completions.create(
+    const completion: OpenAI.ChatCompletion = await ctx.request("execute", {
+      messages: [
+        // COMMON SYSTEM PROMPT
         {
-          model: props.service.model,
-          messages: [
-            // COMMON SYSTEM PROMPT
-            {
-              role: "system",
-              content: NestiaChatAgentDefaultPrompt.write(props.config),
-            } satisfies OpenAI.ChatCompletionSystemMessageParam,
-            // PREVIOUS HISTORIES
-            ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
-            // USER INPUT
-            {
-              role: "user",
-              content: props.content,
-            },
-            // TYPE CORRECTION
-            {
-              role: "system",
-              content:
-                props.config?.systemPrompt?.execute?.(props.histories) ??
-                NestiaChatAgentSystemPrompt.EXECUTE,
-            },
-            {
-              role: "assistant",
-              tool_calls: [
-                {
-                  type: "function",
-                  id: call.id,
-                  function: {
-                    name: call.function.name,
-                    arguments: JSON.stringify(call.input),
-                  },
-                } satisfies OpenAI.ChatCompletionMessageToolCall,
-              ],
-            } satisfies OpenAI.ChatCompletionAssistantMessageParam,
-            {
-              role: "tool",
-              content:
-                typeof error === "string" ? error : JSON.stringify(error),
-              tool_call_id: call.id,
-            } satisfies OpenAI.ChatCompletionToolMessageParam,
-            {
-              role: "system",
-              content: [
-                "You A.I. assistant has composed wrong arguments.",
-                "",
-                "Correct it at the next function calling.",
-              ].join("\n"),
-            },
-          ],
-          // STACK FUNCTIONS
-          tools: [
+          role: "system",
+          content: NestiaAgentDefaultPrompt.write(ctx.config),
+        } satisfies OpenAI.ChatCompletionSystemMessageParam,
+        // PREVIOUS HISTORIES
+        ...ctx.histories.map(ChatGptHistoryDecoder.decode).flat(),
+        // USER INPUT
+        {
+          role: "user",
+          content: ctx.prompt.text,
+        },
+        // TYPE CORRECTION
+        {
+          role: "system",
+          content:
+            ctx.config?.systemPrompt?.execute?.(ctx.histories) ??
+            NestiaAgentSystemPrompt.EXECUTE,
+        },
+        {
+          role: "assistant",
+          tool_calls: [
             {
               type: "function",
+              id: call.id,
               function: {
-                name: call.function.name,
-                description: call.function.description,
-                parameters: (call.function.separated
-                  ? (call.function.separated?.llm ??
-                    ({
-                      $defs: {},
-                      type: "object",
-                      properties: {},
-                      additionalProperties: false,
-                      required: [],
-                    } satisfies IChatGptSchema.IParameters))
-                  : call.function.parameters) as any,
+                name: call.operation.name,
+                arguments: JSON.stringify(call.arguments),
               },
-            },
+            } satisfies OpenAI.ChatCompletionMessageToolCall,
           ],
-          tool_choice: "auto",
-          parallel_tool_calls: false,
+        } satisfies OpenAI.ChatCompletionAssistantMessageParam,
+        {
+          role: "tool",
+          content: typeof error === "string" ? error : JSON.stringify(error),
+          tool_call_id: call.id,
+        } satisfies OpenAI.ChatCompletionToolMessageParam,
+        {
+          role: "system",
+          content: [
+            "You A.I. assistant has composed wrong arguments.",
+            "",
+            "Correct it at the next function calling.",
+          ].join("\n"),
         },
-        props.service.options,
-      );
-    NestiaChatAgentCostAggregator.aggregate(props.usage, completion);
+      ],
+      // STACK FUNCTIONS
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: call.operation.name,
+            description: call.operation.function.description,
+            parameters: (call.operation.function.separated
+              ? (call.operation.function.separated?.llm ??
+                ({
+                  $defs: {},
+                  type: "object",
+                  properties: {},
+                  additionalProperties: false,
+                  required: [],
+                } satisfies IChatGptSchema.IParameters))
+              : call.operation.function.parameters) as any,
+          },
+        },
+      ],
+      tool_choice: "auto",
+      parallel_tool_calls: false,
+    });
 
     //----
     // PROCESS COMPLETION
@@ -285,32 +347,35 @@ export namespace ChatGptExecuteFunctionAgent {
     const toolCall: OpenAI.ChatCompletionMessageToolCall | undefined = (
       completion.choices[0]?.message.tool_calls ?? []
     ).find(
-      (tc) => tc.type === "function" && tc.function.name === call.function.name,
+      (tc) =>
+        tc.type === "function" && tc.function.name === call.operation.name,
     );
     if (toolCall === undefined) return null;
     return propagate(
-      props,
+      ctx,
       {
         id: toolCall.id,
-        function: call.function,
-        input: JSON.parse(toolCall.function.arguments),
+        type: "call",
+        operation: call.operation,
+        arguments: JSON.parse(toolCall.function.arguments),
       },
       retry,
     );
   };
 
-  const fill = (props: {
-    function: IHttpLlmFunction<"chatgpt">;
+  const fillHttpArguments = (props: {
+    operation: INestiaAgentOperation;
     arguments: object;
   }): void => {
-    const route: IHttpMigrateRoute = props.function.route();
+    if (props.operation.protocol !== "http") return;
+    const route: IHttpMigrateRoute = props.operation.function.route();
     if (
       route.body &&
       route.operation().requestBody?.required === true &&
       (props.arguments as any).body === undefined &&
       isObject(
-        props.function.parameters.$defs,
-        props.function.parameters.properties.body!,
+        props.operation.function.parameters.$defs,
+        props.operation.function.parameters.properties.body!,
       )
     )
       (props.arguments as any).body = {};
@@ -330,10 +395,4 @@ export namespace ChatGptExecuteFunctionAgent {
         schema.anyOf.every((schema) => isObject($defs, schema)))
     );
   };
-}
-
-interface IFunctionCall {
-  id: string;
-  function: IHttpLlmFunction<"chatgpt">;
-  input: object;
 }

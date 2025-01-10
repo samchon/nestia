@@ -1,52 +1,35 @@
 import OpenAI from "openai";
 
-import { NestiaChatAgent } from "../NestiaChatAgent";
-import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAggregator";
-import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
-import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
-import { IChatGptService } from "../structures/IChatGptService";
-import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
-import { INestiaChatTokenUsage } from "../structures/INestiaChatTokenUsage";
+import { NestiaAgentDefaultPrompt } from "../internal/NestiaAgentDefaultPrompt";
+import { NestiaAgentSystemPrompt } from "../internal/NestiaAgentSystemPrompt";
+import { INestiaAgentContext } from "../structures/INestiaAgentContext";
+import { INestiaAgentPrompt } from "../structures/INestiaAgentPrompt";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
 export namespace ChatGptDescribeFunctionAgent {
-  export interface IProps {
-    service: IChatGptService;
-    histories: INestiaChatPrompt.IExecute[];
-    usage: INestiaChatTokenUsage;
-    config?: NestiaChatAgent.IConfig;
-  }
-
   export const execute = async (
-    props: IProps,
-  ): Promise<INestiaChatPrompt.IDescribe[]> => {
-    if (props.histories.length === 0) return [];
-
-    const completion: OpenAI.ChatCompletion =
-      await props.service.api.chat.completions.create(
+    ctx: INestiaAgentContext,
+    histories: INestiaAgentPrompt.IExecute[],
+  ): Promise<INestiaAgentPrompt.IDescribe[]> => {
+    if (histories.length === 0) return [];
+    const completion: OpenAI.ChatCompletion = await ctx.request("describe", {
+      messages: [
+        // COMMON SYSTEM PROMPT
         {
-          model: props.service.model,
-          messages: [
-            // COMMON SYSTEM PROMPT
-            {
-              role: "system",
-              content: NestiaChatAgentDefaultPrompt.write(props.config),
-            } satisfies OpenAI.ChatCompletionSystemMessageParam,
-            // PREVIOUS FUNCTION CALLING HISTORIES
-            ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
-            // SYTEM PROMPT
-            {
-              role: "assistant",
-              content:
-                props.config?.systemPrompt?.describe?.(props.histories) ??
-                NestiaChatAgentSystemPrompt.DESCRIBE,
-            },
-          ],
+          role: "system",
+          content: NestiaAgentDefaultPrompt.write(ctx.config),
+        } satisfies OpenAI.ChatCompletionSystemMessageParam,
+        // FUNCTION CALLING HISTORIES
+        ...histories.map(ChatGptHistoryDecoder.decode).flat(),
+        // SYTEM PROMPT
+        {
+          role: "assistant",
+          content:
+            ctx.config?.systemPrompt?.describe?.(histories) ??
+            NestiaAgentSystemPrompt.DESCRIBE,
         },
-        props.service.options,
-      );
-    NestiaChatAgentCostAggregator.aggregate(props.usage, completion);
-
+      ],
+    });
     return completion.choices
       .map((choice) =>
         choice.message.role === "assistant" && !!choice.message.content?.length
@@ -54,10 +37,13 @@ export namespace ChatGptDescribeFunctionAgent {
           : null,
       )
       .filter((str) => str !== null)
-      .map((content) => ({
-        kind: "describe",
-        executions: props.histories,
-        text: content,
-      }));
+      .map(
+        (content) =>
+          ({
+            type: "describe",
+            executions: histories,
+            text: content,
+          }) satisfies INestiaAgentPrompt.IDescribe,
+      );
   };
 }
