@@ -1,10 +1,10 @@
 {
-  "name": "@nestia/editor",
-  "version": "4.4.0-dev.20241216-3",
+  "name": "@nestia/chat",
+  "version": "0.2.1",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",
-  "description": "Swagger-UI + Cloud TypeScript Editor",
+  "description": "Super A.I. Chatbot application by Swagger Document",
   "scripts": {
     "build": "npm run build:static && npm run build:lib",
     "build:static": "rimraf dist && tsc -b && vite build",
@@ -21,7 +21,6 @@
     "openapi",
     "swagger",
     "generator",
-    "cloud",
     "typescript",
     "editor",
     "sdk",
@@ -36,9 +35,8 @@
   "homepage": "https://nestia.io",
   "dependencies": {
     "@mui/material": "^5.15.6",
-    "@nestia/migrate": "workspace:^",
-    "@samchon/openapi": "^2.3.1",
-    "@stackblitz/sdk": "^1.11.0",
+    "@nestia/agent": "workspace:^",
+    "@samchon/openapi": "^2.3.2",
     "js-yaml": "^4.1.0",
     "prettier": "3.3.3",
     "react-mui-fileuploader": "^0.5.2",

@@ -1,21 +1,19 @@
-import { NestiaChatAgent } from "../NestiaChatAgent";
-import { NestiaChatAgentSystemPrompt } from "./NestiaChatAgentSystemPrompt";
+import { INestiaAgentConfig } from "../structures/INestiaAgentConfig";
+import { NestiaAgentSystemPrompt } from "./NestiaAgentSystemPrompt";
 import { Singleton } from "./Singleton";
 
-export namespace NestiaChatAgentDefaultPrompt {
-  export const write = (
-    config?: NestiaChatAgent.IConfig | undefined,
-  ): string => {
+export namespace NestiaAgentDefaultPrompt {
+  export const write = (config?: INestiaAgentConfig): string => {
     if (config?.systemPrompt?.common)
       return config?.systemPrompt?.common(config);
 
     const locale: string = config?.locale ?? getLocale.get();
     const timezone: string = config?.timezone ?? getTimezone.get();
 
-    return NestiaChatAgentSystemPrompt.COMMON.replace(
-      "${locale}",
-      locale,
-    ).replace("${timezone}", timezone);
+    return NestiaAgentSystemPrompt.COMMON.replace("${locale}", locale).replace(
+      "${timezone}",
+      timezone,
+    );
   };
 }
 

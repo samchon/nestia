@@ -1,6 +1,6 @@
 {
   "name": "@nestia/agent",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",
@@ -11,7 +11,8 @@
     "build:main": "rimraf lib && npm run build:prompt && tsc && rollup -c",
     "build:test": "rimraf bin && tsc -p test/tsconfig.json",
     "build:prompt": "ts-node build/prompt.ts",
-    "dev": "npm run build:prompt && npm run build:test -- --watch"
+    "dev": "npm run build:prompt && npm run build:test -- --watch",
+    "eslint": "eslint ./**/*.ts"
   },
   "repository": {
     "type": "git",
@@ -39,30 +40,32 @@
     "LICENSE",
     "package.json",
     "lib",
+    "prompts",
     "src"
   ],
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@nestia/e2e": "^0.7.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
     "@samchon/shopping-api": "^0.11.0",
     "@types/node": "^22.10.5",
     "@types/uuid": "^10.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.57.0",
-    "@typescript-eslint/parser": "^5.57.0",
     "chalk": "4.1.2",
     "dotenv": "^16.3.1",
     "dotenv-expand": "^10.0.0",
+    "eslint": "^9.17.0",
     "rimraf": "^6.0.1",
     "rollup": "^4.29.1",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.3.0",
     "tstl": "^3.0.0",
     "typescript": "~5.7.2",
+    "typescript-eslint": "^8.18.2",
     "typescript-transform-paths": "^3.5.3"
   },
   "dependencies": {
-    "@samchon/openapi": "^2.3.2",
+    "@samchon/openapi": "^2.3.4",
     "openai": "^4.77.0",
     "typia": "^7.5.1",
     "uuid": "^11.0.4"

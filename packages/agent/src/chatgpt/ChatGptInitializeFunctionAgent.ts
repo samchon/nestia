@@ -2,101 +2,83 @@ import { ILlmFunction } from "@samchon/openapi";
 import OpenAI from "openai";
 import typia from "typia";
 
-import { NestiaChatAgent } from "../NestiaChatAgent";
-import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAggregator";
-import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
-import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
-import { IChatGptService } from "../structures/IChatGptService";
-import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
-import { INestiaChatTokenUsage } from "../structures/INestiaChatTokenUsage";
+import { NestiaAgentDefaultPrompt } from "../internal/NestiaAgentDefaultPrompt";
+import { NestiaAgentSystemPrompt } from "../internal/NestiaAgentSystemPrompt";
+import { INestiaAgentContext } from "../structures/INestiaAgentContext";
+import { INestiaAgentPrompt } from "../structures/INestiaAgentPrompt";
 import { __IChatInitialApplication } from "../structures/internal/__IChatInitialApplication";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
 export namespace ChatGptInitializeFunctionAgent {
-  export interface IProps {
-    service: IChatGptService;
-    histories: INestiaChatPrompt[];
-    content: string;
-    usage: INestiaChatTokenUsage;
-    config?: NestiaChatAgent.IConfig | undefined;
-  }
-  export interface IOutput {
-    mounted: boolean;
-    prompts: INestiaChatPrompt[];
-  }
-
-  export const execute = async (props: IProps): Promise<IOutput> => {
+  export const execute = async (
+    ctx: INestiaAgentContext,
+  ): Promise<INestiaAgentPrompt[]> => {
     //----
     // EXECUTE CHATGPT API
     //----
-    const completion: OpenAI.ChatCompletion =
-      await props.service.api.chat.completions.create(
+    const completion: OpenAI.ChatCompletion = await ctx.request("initialize", {
+      messages: [
+        // COMMON SYSTEM PROMPT
         {
-          model: props.service.model,
-          messages: [
-            // COMMON SYSTEM PROMPT
-            {
-              role: "system",
-              content: NestiaChatAgentDefaultPrompt.write(props.config),
-            } satisfies OpenAI.ChatCompletionSystemMessageParam,
-            // PREVIOUS HISTORIES
-            ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
-            // USER INPUT
-            {
-              role: "user",
-              content: props.content,
-            },
-            {
-              // SYTEM PROMPT
-              role: "system",
-              content:
-                props.config?.systemPrompt?.initialize?.(props.histories) ??
-                NestiaChatAgentSystemPrompt.INITIALIZE,
-            },
-          ],
-          // GETTER FUNCTION
-          tools: [
-            {
-              type: "function",
-              function: {
-                name: FUNCTION.name,
-                description: FUNCTION.description,
-                parameters: FUNCTION.parameters as any,
-              },
-            },
-          ],
-          tool_choice: "auto",
-          parallel_tool_calls: false,
+          role: "system",
+          content: NestiaAgentDefaultPrompt.write(ctx.config),
+        } satisfies OpenAI.ChatCompletionSystemMessageParam,
+        // PREVIOUS HISTORIES
+        ...ctx.histories.map(ChatGptHistoryDecoder.decode).flat(),
+        // USER INPUT
+        {
+          role: "user",
+          content: ctx.prompt.text,
         },
-        props.service.options,
-      );
-    NestiaChatAgentCostAggregator.aggregate(props.usage, completion);
+        {
+          // SYTEM PROMPT
+          role: "system",
+          content:
+            ctx.config?.systemPrompt?.initialize?.(ctx.histories) ??
+            NestiaAgentSystemPrompt.INITIALIZE,
+        },
+      ],
+      // GETTER FUNCTION
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: FUNCTION.name,
+            description: FUNCTION.description,
+            parameters: FUNCTION.parameters as any,
+          },
+        },
+      ],
+      tool_choice: "auto",
+      parallel_tool_calls: false,
+    });
 
     //----
     // PROCESS COMPLETION
     //----
-    const prompts: INestiaChatPrompt[] = [];
+    const prompts: INestiaAgentPrompt[] = [];
     for (const choice of completion.choices) {
       if (
         choice.message.role === "assistant" &&
         !!choice.message.content?.length
       )
         prompts.push({
-          kind: "text",
+          type: "text",
           role: "assistant",
           text: choice.message.content,
         });
     }
-    return {
-      mounted: completion.choices.some(
+    if (
+      completion.choices.some(
         (c) =>
           !!c.message.tool_calls?.some(
             (tc) =>
               tc.type === "function" && tc.function.name === FUNCTION.name,
           ),
-      ),
-      prompts,
-    };
+      )
+    )
+      await ctx.initialize();
+    return prompts;
   };
 }
 

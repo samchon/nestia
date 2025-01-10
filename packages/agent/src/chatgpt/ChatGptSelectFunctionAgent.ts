@@ -1,59 +1,43 @@
-import {
-  IHttpLlmApplication,
-  IHttpLlmFunction,
-  ILlmApplication,
-} from "@samchon/openapi";
+import { IHttpLlmFunction, ILlmApplication } from "@samchon/openapi";
 import OpenAI from "openai";
 import typia, { IValidation } from "typia";
 import { v4 } from "uuid";
 
-import { NestiaChatAgent } from "../NestiaChatAgent";
-import { NestiaChatAgentConstant } from "../internal/NestiaChatAgentConstant";
-import { NestiaChatAgentCostAggregator } from "../internal/NestiaChatAgentCostAggregator";
-import { NestiaChatAgentDefaultPrompt } from "../internal/NestiaChatAgentDefaultPrompt";
-import { NestiaChatAgentSystemPrompt } from "../internal/NestiaChatAgentSystemPrompt";
-import { IChatGptService } from "../structures/IChatGptService";
-import { INestiaChatEvent } from "../structures/INestiaChatEvent";
-import { INestiaChatFunctionSelection } from "../structures/INestiaChatFunctionSelection";
-import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
-import { INestiaChatTokenUsage } from "../structures/INestiaChatTokenUsage";
+import { NestiaAgentConstant } from "../internal/NestiaAgentConstant";
+import { NestiaAgentDefaultPrompt } from "../internal/NestiaAgentDefaultPrompt";
+import { NestiaAgentPromptFactory } from "../internal/NestiaAgentPromptFactory";
+import { NestiaAgentSystemPrompt } from "../internal/NestiaAgentSystemPrompt";
+import { INestiaAgentContext } from "../structures/INestiaAgentContext";
+import { INestiaAgentController } from "../structures/INestiaAgentController";
+import { INestiaAgentEvent } from "../structures/INestiaAgentEvent";
+import { INestiaAgentOperation } from "../structures/INestiaAgentOperation";
+import { INestiaAgentOperationSelection } from "../structures/INestiaAgentOperationSelection";
+import { INestiaAgentPrompt } from "../structures/INestiaAgentPrompt";
 import { __IChatFunctionReference } from "../structures/internal/__IChatFunctionReference";
 import { __IChatSelectFunctionsApplication } from "../structures/internal/__IChatSelectFunctionsApplication";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
 export namespace ChatGptSelectFunctionAgent {
-  export interface IProps {
-    application: IHttpLlmApplication<"chatgpt">;
-    service: IChatGptService;
-    histories: INestiaChatPrompt[];
-    stack: INestiaChatFunctionSelection[];
-    dispatch: (event: INestiaChatEvent) => Promise<void>;
-    usage: INestiaChatTokenUsage;
-    content: string;
-    config?: NestiaChatAgent.IConfig;
-    divide?: IHttpLlmFunction<"chatgpt">[][];
-    completions?: OpenAI.ChatCompletion[];
-  }
-
   export const execute = async (
-    props: IProps,
-  ): Promise<INestiaChatPrompt[]> => {
-    if (props.divide === undefined)
-      return step(props, props.application.functions, 0);
+    ctx: INestiaAgentContext,
+  ): Promise<INestiaAgentPrompt[]> => {
+    if (ctx.operations.divided === undefined)
+      return step(ctx, ctx.operations.array, 0);
 
-    const stacks: INestiaChatFunctionSelection[][] = props.divide.map(() => []);
-    const events: INestiaChatEvent[] = [];
-    const prompts: INestiaChatPrompt[][] = await Promise.all(
-      props.divide.map((candidates, i) =>
+    const stacks: INestiaAgentOperationSelection[][] =
+      ctx.operations.divided.map(() => []);
+    const events: INestiaAgentEvent[] = [];
+    const prompts: INestiaAgentPrompt[][] = await Promise.all(
+      ctx.operations.divided.map((operations, i) =>
         step(
           {
-            ...props,
+            ...ctx,
             stack: stacks[i]!,
             dispatch: async (e) => {
               events.push(e);
             },
           },
-          candidates,
+          operations,
           0,
         ),
       ),
@@ -62,126 +46,127 @@ export namespace ChatGptSelectFunctionAgent {
     // NO FUNCTION SELECTION, SO THAT ONLY TEXT LEFT
     if (stacks.every((s) => s.length === 0)) return prompts[0]!;
     // ELITICISM
-    else if (
-      (props.config?.eliticism ?? NestiaChatAgentConstant.ELITICISM) === true
-    )
+    else if ((ctx.config?.eliticism ?? NestiaAgentConstant.ELITICISM) === true)
       return step(
-        props,
+        ctx,
         stacks
-          .map((row) => Array.from(row.values()).map((s) => s.function))
-          .flat(),
+          .flat()
+          .map(
+            (s) =>
+              ctx.operations.group
+                .get(s.controller.name)!
+                .get(s.function.name)!,
+          ),
         0,
       );
 
     // RE-COLLECT SELECT FUNCTION EVENTS
-    const collection: INestiaChatPrompt.ISelect = {
+    const collection: INestiaAgentPrompt.ISelect = {
       id: v4(),
-      kind: "select",
-      functions: [],
+      type: "select",
+      operations: [],
     };
     for (const e of events)
       if (e.type === "select") {
-        collection.functions.push({
-          function: e.function,
-          reason: e.reason,
-        });
-        await selectFunction({
-          application: props.application,
-          stack: props.stack,
-          dispatch: props.dispatch,
-          reference: {
-            name: e.function.name,
+        collection.operations.push(
+          NestiaAgentPromptFactory.selection({
+            protocol: e.operation.protocol as "http",
+            controller: e.operation.controller as INestiaAgentController.IHttp,
+            function: e.operation.function as IHttpLlmFunction<"chatgpt">,
             reason: e.reason,
-          },
+            name: e.operation.name,
+          }),
+        );
+        await selectFunction(ctx, {
+          name: e.operation.name,
+          reason: e.reason,
         });
       }
     return [collection];
   };
 
   const step = async (
-    props: IProps,
-    candidates: IHttpLlmFunction<"chatgpt">[],
+    ctx: INestiaAgentContext,
+    operations: INestiaAgentOperation[],
     retry: number,
     failures?: IFailure[],
-  ): Promise<INestiaChatPrompt[]> => {
+  ): Promise<INestiaAgentPrompt[]> => {
     //----
     // EXECUTE CHATGPT API
     //----
-    const completion: OpenAI.ChatCompletion =
-      await props.service.api.chat.completions.create(
+    const completion: OpenAI.ChatCompletion = await ctx.request("select", {
+      messages: [
+        // COMMON SYSTEM PROMPT
         {
-          model: props.service.model,
-          messages: [
-            // COMMON SYSTEM PROMPT
+          role: "system",
+          content: NestiaAgentDefaultPrompt.write(ctx.config),
+        } satisfies OpenAI.ChatCompletionSystemMessageParam,
+        // CANDIDATE FUNCTIONS
+        {
+          role: "assistant",
+          tool_calls: [
             {
-              role: "system",
-              content: NestiaChatAgentDefaultPrompt.write(props.config),
-            } satisfies OpenAI.ChatCompletionSystemMessageParam,
-            // CANDIDATE FUNCTIONS
-            {
-              role: "assistant",
-              tool_calls: [
-                {
-                  type: "function",
-                  id: "getApiFunctions",
-                  function: {
-                    name: "getApiFunctions",
-                    arguments: JSON.stringify({}),
-                  },
-                },
-              ],
+              type: "function",
+              id: "getApiFunctions",
+              function: {
+                name: "getApiFunctions",
+                arguments: JSON.stringify({}),
+              },
             },
-            {
-              role: "tool",
-              tool_call_id: "getApiFunctions",
-              content: JSON.stringify(
-                candidates.map((func) => ({
-                  name: func.name,
-                  method: func.method,
-                  path: func.path,
-                  description: func.description,
-                })),
-              ),
-            },
-            // PREVIOUS HISTORIES
-            ...props.histories.map(ChatGptHistoryDecoder.decode).flat(),
-            // USER INPUT
-            {
-              role: "user",
-              content: props.content,
-            },
-            // SYTEM PROMPT
-            {
-              role: "system",
-              content: NestiaChatAgentSystemPrompt.SELECT,
-            },
-            // TYPE CORRECTIONS
-            ...emendMessages(failures ?? []),
           ],
-          // STACK FUNCTIONS
-          tools: CONTAINER.functions.map(
-            (func) =>
-              ({
-                type: "function",
-                function: {
-                  name: func.name,
-                  description: func.description,
-                  parameters: func.parameters as any,
-                },
-              }) satisfies OpenAI.ChatCompletionTool,
-          ),
-          tool_choice: "auto",
-          parallel_tool_calls: false,
         },
-        props.service.options,
-      );
-    NestiaChatAgentCostAggregator.aggregate(props.usage, completion);
-    if (props.completions !== undefined) props.completions.push(completion);
+        {
+          role: "tool",
+          tool_call_id: "getApiFunctions",
+          content: JSON.stringify(
+            operations.map((op) => ({
+              name: op.name,
+              description: op.function.description,
+              ...(op.protocol === "http"
+                ? {
+                    method: op.function.method,
+                    path: op.function.path,
+                    tags: op.function.tags,
+                  }
+                : {}),
+            })),
+          ),
+        },
+        // PREVIOUS HISTORIES
+        ...ctx.histories.map(ChatGptHistoryDecoder.decode).flat(),
+        // USER INPUT
+        {
+          role: "user",
+          content: ctx.prompt.text,
+        },
+        // SYTEM PROMPT
+        {
+          role: "system",
+          content: NestiaAgentSystemPrompt.SELECT,
+        },
+        // TYPE CORRECTIONS
+        ...emendMessages(failures ?? []),
+      ],
+      // STACK FUNCTIONS
+      tools: CONTAINER.functions.map(
+        (func) =>
+          ({
+            type: "function",
+            function: {
+              name: func.name,
+              description: func.description,
+              parameters: func.parameters as any,
+            },
+          }) satisfies OpenAI.ChatCompletionTool,
+      ),
+      tool_choice: "auto",
+      parallel_tool_calls: false,
+    });
 
     //----
     // VALIDATION
     //----
-    if (retry++ < (props.config?.retry ?? NestiaChatAgentConstant.RETRY)) {
+    if (retry++ < (ctx.config?.retry ?? NestiaAgentConstant.RETRY)) {
       const failures: IFailure[] = [];
       for (const choice of completion.choices)
         for (const tc of choice.message.tool_calls ?? []) {
@@ -196,13 +181,13 @@ export namespace ChatGptSelectFunctionAgent {
               validation,
             });
         }
-      if (failures.length > 0) return step(props, candidates, retry, failures);
+      if (failures.length > 0) return step(ctx, operations, retry, failures);
     }
 
     //----
     // PROCESS COMPLETION
     //----
-    const prompts: INestiaChatPrompt[] = [];
+    const prompts: INestiaAgentPrompt[] = [];
     for (const choice of completion.choices) {
       // TOOL CALLING HANDLER
       if (choice.message.tool_calls)
@@ -214,26 +199,27 @@ export namespace ChatGptSelectFunctionAgent {
           );
           if (typia.is(input) === false) continue;
           else if (tc.function.name === "selectFunctions") {
-            const collection: INestiaChatPrompt.ISelect = {
+            const collection: INestiaAgentPrompt.ISelect = {
               id: tc.id,
-              kind: "select",
-              functions: [],
+              type: "select",
+              operations: [],
             };
             for (const reference of input.functions) {
-              const func: IHttpLlmFunction<"chatgpt"> | null =
-                await selectFunction({
-                  application: props.application,
-                  stack: props.stack,
-                  dispatch: props.dispatch,
-                  reference,
-                });
-              if (func !== null)
-                collection.functions.push({
-                  function: func,
-                  reason: reference.reason,
-                });
+              const operation: INestiaAgentOperation | null =
+                await selectFunction(ctx, reference);
+              if (operation !== null)
+                collection.operations.push(
+                  NestiaAgentPromptFactory.selection({
+                    protocol: operation.protocol as "http",
+                    controller:
+                      operation.controller as INestiaAgentController.IHttp,
+                    function: operation.function as IHttpLlmFunction<"chatgpt">,
+                    name: operation.name,
+                    reason: reference.reason,
+                  }),
+                );
             }
-            if (collection.functions.length !== 0) prompts.push(collection);
+            if (collection.operations.length !== 0) prompts.push(collection);
           }
         }
 
@@ -243,7 +229,7 @@ export namespace ChatGptSelectFunctionAgent {
         !!choice.message.content?.length
       )
         prompts.push({
-          kind: "text",
+          type: "text",
           role: "assistant",
           text: choice.message.content,
         });
@@ -251,28 +237,29 @@ export namespace ChatGptSelectFunctionAgent {
     return prompts;
   };
 
-  const selectFunction = async (props: {
-    application: IHttpLlmApplication<"chatgpt">;
-    stack: INestiaChatFunctionSelection[];
-    reference: __IChatFunctionReference;
-    dispatch: (event: INestiaChatEvent.ISelectFunctionEvent) => Promise<void>;
-  }): Promise<IHttpLlmFunction<"chatgpt"> | null> => {
-    const func: IHttpLlmFunction<"chatgpt"> | undefined =
-      props.application.functions.find(
-        (func) => func.name === props.reference.name,
-      );
-    if (func === undefined) return null;
+  const selectFunction = async (
+    ctx: INestiaAgentContext,
+    reference: __IChatFunctionReference,
+  ): Promise<INestiaAgentOperation | null> => {
+    const operation: INestiaAgentOperation | undefined =
+      ctx.operations.flat.get(reference.name);
+    if (operation === undefined) return null;
 
-    props.stack.push({
-      function: func,
-      reason: props.reference.reason,
-    });
-    await props.dispatch({
+    ctx.stack.push(
+      NestiaAgentPromptFactory.selection({
+        protocol: operation.protocol as "http",
+        controller: operation.controller as INestiaAgentController.IHttp,
+        function: operation.function as IHttpLlmFunction<"chatgpt">,
+        name: reference.name,
+        reason: reference.reason,
+      }),
+    );
+    await ctx.dispatch({
       type: "select",
-      function: func,
-      reason: props.reference.reason,
+      reason: reference.reason,
+      operation,
     });
-    return func;
+    return operation;
   };
 
   const emendMessages = (

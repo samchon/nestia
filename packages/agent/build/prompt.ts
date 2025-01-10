@@ -18,12 +18,12 @@ const main = async (): Promise<void> => {
       .trim();
   }
   await fs.promises.writeFile(
-    `${__dirname}/../src/internal/NestiaChatAgentSystemPrompt.ts`,
+    `${__dirname}/../src/internal/NestiaAgentSystemPrompt.ts`,
     [
-      `export namespace NestiaChatAgentSystemPrompt {`,
+      `export namespace NestiaAgentSystemPrompt {`,
       ...Object.entries(record).map(
         ([key, value]) =>
-          `  export const ${key.toUpperCase()} = ${JSON.stringify(value)};`,
+          `  export const ${key.toUpperCase()} =\n    ${JSON.stringify(value)};`,
       ),
       `}`,
       "",

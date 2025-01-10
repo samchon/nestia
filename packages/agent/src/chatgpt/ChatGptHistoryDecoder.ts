@@ -1,21 +1,21 @@
 import OpenAI from "openai";
 
-import { INestiaChatPrompt } from "../structures/INestiaChatPrompt";
+import { INestiaAgentPrompt } from "../structures/INestiaAgentPrompt";
 
 export namespace ChatGptHistoryDecoder {
   export const decode = (
-    history: INestiaChatPrompt,
+    history: INestiaAgentPrompt,
   ): OpenAI.ChatCompletionMessageParam[] => {
     // NO NEED TO DECODE DESCRIBE
-    if (history.kind === "describe") return [];
-    else if (history.kind === "text")
+    if (history.type === "describe") return [];
+    else if (history.type === "text")
       return [
         {
           role: history.role,
           content: history.text,
         },
       ];
-    else if (history.kind === "select" || history.kind === "cancel")
+    else if (history.type === "select" || history.type === "cancel")
       return [
         {
           role: "assistant",
@@ -24,9 +24,9 @@ export namespace ChatGptHistoryDecoder {
               type: "function",
               id: history.id,
               function: {
-                name: `${history.kind}Functions`,
+                name: `${history.type}Functions`,
                 arguments: JSON.stringify({
-                  functions: history.functions.map((t) => ({
+                  functions: history.operations.map((t) => ({
                     name: t.function.name,
                     reason: t.reason,
                   })),
@@ -60,14 +60,25 @@ export namespace ChatGptHistoryDecoder {
         tool_call_id: history.id,
         content: JSON.stringify({
           function: {
-            method: history.function.method,
-            path: history.function.path,
+            protocol: history.protocol,
             description: history.function.description,
             parameters: history.function.parameters,
             output: history.function.output,
+            ...(history.protocol === "http"
+              ? {
+                  method: history.function.method,
+                  path: history.function.path,
+                }
+              : {}),
           },
-          status: history.response.status,
-          data: history.response.body,
+          ...(history.protocol === "http"
+            ? {
+                status: history.value.status,
+                data: history.value.body,
+              }
+            : {
+                value: history.value,
+              }),
         }),
       },
     ];
