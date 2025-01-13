@@ -36,7 +36,7 @@
   "dependencies": {
     "@mui/icons-material": "^6.3.1",
     "@mui/material": "^5.15.6",
-    "@nestia/agent": "^0.3.6",
+    "@nestia/agent": "workspace:^",
     "@samchon/openapi": "^2.4.0",
     "html2canvas": "^1.4.1",
     "js-file-download": "^0.4.12",
