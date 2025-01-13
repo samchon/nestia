@@ -34,7 +34,7 @@
   "dependencies": {
     "@nestia/core": "workspace:^",
     "@nestia/fetcher": "workspace:^",
-    "@samchon/openapi": "^2.3.1",
+    "@samchon/openapi": "^2.4.0",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",
@@ -44,7 +44,7 @@
     "tsconfck": "^2.1.2",
     "tsconfig-paths": "^4.1.1",
     "tstl": "^3.0.0",
-    "typia": "^7.5.1"
+    "typia": "^7.6.0"
   },
   "peerDependencies": {
     "@nestia/core": ">=4.5.0-dev.20241218-2",
@@ -53,7 +53,7 @@
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
     "ts-node": ">=10.6.0",
-    "typia": ">=7.5.1 <8.0.0"
+    "typia": ">=7.6.0 <8.0.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
