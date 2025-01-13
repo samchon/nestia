@@ -2,6 +2,7 @@ import OpenAI from "openai";
 
 import { NestiaAgentSource } from "../typings/NestiaAgentSource";
 import { INestiaAgentOperation } from "./INestiaAgentOperation";
+import { INestiaAgentPrompt } from "./INestiaAgentPrompt";
 
 /**
  * Nestia A.I. chatbot event.
@@ -17,6 +18,8 @@ export type INestiaAgentEvent =
   | INestiaAgentEvent.ICancel
   | INestiaAgentEvent.ICall
   | INestiaAgentEvent.IExecute
+  | INestiaAgentEvent.IDescribe
+  | INestiaAgentEvent.IText
   | INestiaAgentEvent.IRequest
   | INestiaAgentEvent.IResponse;
 export namespace INestiaAgentEvent {
@@ -27,6 +30,8 @@ export namespace INestiaAgentEvent {
     cancel: ICancel;
     call: ICall;
     execute: IExecute;
+    describe: IDescribe;
+    text: IText;
     request: IRequest;
     response: IResponse;
   };
@@ -128,6 +133,40 @@ export namespace INestiaAgentEvent {
      * Return value.
      */
     value: any;
+  }
+
+  /**
+   * Event of description.
+   *
+   * Event decribing return values of LLM function callings.
+   */
+  export interface IDescribe extends IBase<"describe"> {
+    /**
+     * Executions of the LLM function calling.
+     *
+     * This prompt describes the return value of them.
+     */
+    executions: INestiaAgentPrompt.IExecute[];
+
+    /**
+     * Description text.
+     */
+    text: string;
+  }
+
+  /**
+   * Event of text message.
+   */
+  export interface IText extends IBase<"text"> {
+    /**
+     * Role of the orator.
+     */
+    role: "assistant" | "user";
+
+    /**
+     * The text content.
+     */
+    text: string;
   }
 
   /**

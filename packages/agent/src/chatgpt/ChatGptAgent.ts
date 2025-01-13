@@ -28,7 +28,7 @@ export namespace ChatGptAgent {
 
     // FUNCTION CALLING LOOP
     while (true) {
-      // CALL FUNCTIONS
+      // EXECUTE FUNCTIONS
       const prompts: INestiaAgentPrompt[] =
         await ChatGptExecuteFunctionAgent.execute(ctx);
       histories.push(...prompts);

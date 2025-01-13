@@ -227,12 +227,15 @@ export namespace ChatGptSelectFunctionAgent {
       if (
         choice.message.role === "assistant" &&
         !!choice.message.content?.length
-      )
-        prompts.push({
+      ) {
+        const text: INestiaAgentPrompt.IText = {
           type: "text",
           role: "assistant",
           text: choice.message.content,
-        });
+        };
+        prompts.push(text);
+        await ctx.dispatch(text);
+      }
     }
     return prompts;
   };

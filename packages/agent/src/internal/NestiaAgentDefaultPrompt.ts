@@ -30,6 +30,7 @@ const getTimezone = new Singleton(
 const isNode = new Singleton(() => {
   const isObject = (obj: any) => typeof obj === "object" && obj !== null;
   return (
+    typeof global === "object" &&
     isObject(global) &&
     isObject(global.process) &&
     isObject(global.process.versions) &&

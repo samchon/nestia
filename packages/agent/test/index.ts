@@ -19,7 +19,7 @@ import { TestGlobal } from "./TestGlobal";
 const main = async (): Promise<void> => {
   if (!TestGlobal.env.CHATGPT_API_KEY?.length) return;
 
-  // GET LLM APPLICATION SCHEMA
+  // COMPOSE LLM APPLICATION SCHEMA
   const swagger:
     | SwaggerV2.IDocument
     | OpenApiV3.IDocument

@@ -58,6 +58,7 @@ export namespace NestiaAgentPromptTransformer {
       controller: operation.controller,
       function: operation.function,
       id: props.input.id,
+      name: props.input.name,
       arguments: props.input.arguments,
       value: props.input.value,
     });

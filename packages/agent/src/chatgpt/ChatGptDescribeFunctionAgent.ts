@@ -30,7 +30,7 @@ export namespace ChatGptDescribeFunctionAgent {
         },
       ],
     });
-    return completion.choices
+    const descriptions: INestiaAgentPrompt.IDescribe[] = completion.choices
       .map((choice) =>
         choice.message.role === "assistant" && !!choice.message.content?.length
           ? choice.message.content
@@ -45,5 +45,7 @@ export namespace ChatGptDescribeFunctionAgent {
             text: content,
           }) satisfies INestiaAgentPrompt.IDescribe,
       );
+    for (const describe of descriptions) await ctx.dispatch(describe);
+    return descriptions;
   };
 }

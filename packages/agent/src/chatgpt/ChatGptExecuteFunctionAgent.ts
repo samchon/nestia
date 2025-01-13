@@ -16,6 +16,7 @@ import { INestiaAgentContext } from "../structures/INestiaAgentContext";
 import { INestiaAgentEvent } from "../structures/INestiaAgentEvent";
 import { INestiaAgentOperation } from "../structures/INestiaAgentOperation";
 import { INestiaAgentPrompt } from "../structures/INestiaAgentPrompt";
+import { ChatGptCancelFunctionAgent } from "./ChatGptCancelFunctionAgent";
 import { ChatGptHistoryDecoder } from "./ChatGptHistoryDecoder";
 
 export namespace ChatGptExecuteFunctionAgent {
@@ -75,24 +76,74 @@ export namespace ChatGptExecuteFunctionAgent {
     //----
     // PROCESS COMPLETION
     //----
-    const closures: Array<() => Promise<INestiaAgentPrompt>> = [];
+    const closures: Array<
+      () => Promise<
+        Array<
+          | INestiaAgentPrompt.IExecute
+          | INestiaAgentPrompt.ICancel
+          | INestiaAgentPrompt.IText
+        >
+      >
+    > = [];
     for (const choice of completion.choices) {
       for (const tc of choice.message.tool_calls ?? []) {
         if (tc.type === "function") {
           const operation: INestiaAgentOperation | undefined =
             ctx.operations.flat.get(tc.function.name);
           if (operation === undefined) continue;
-          closures.push(() =>
-            propagate(
-              ctx,
-              {
+          closures.push(
+            async (): Promise<
+              [INestiaAgentPrompt.IExecute, INestiaAgentPrompt.ICancel]
+            > => {
+              const call: INestiaAgentEvent.ICall = {
                 type: "call",
                 id: tc.id,
                 operation,
                 arguments: JSON.parse(tc.function.arguments),
-              },
-              0,
-            ),
+              };
+              if (call.operation.protocol === "http")
+                fillHttpArguments({
+                  operation: call.operation,
+                  arguments: call.arguments,
+                });
+              await ctx.dispatch(call);
+
+              const execute: INestiaAgentPrompt.IExecute = await propagate(
+                ctx,
+                call,
+                0,
+              );
+              await ctx.dispatch({
+                type: "execute",
+                id: call.id,
+                operation: call.operation,
+                arguments: execute.arguments,
+                value: execute.value,
+              });
+
+              await ChatGptCancelFunctionAgent.cancelFunction(ctx, {
+                name: call.operation.name,
+                reason: "completed",
+              });
+              await ctx.dispatch({
+                type: "cancel",
+                operation: call.operation,
+                reason: "complete",
+              });
+              return [
+                execute,
+                {
+                  type: "cancel",
+                  id: call.id,
+                  operations: [
+                    NestiaAgentPromptFactory.selection({
+                      ...call.operation,
+                      reason: "complete",
+                    }),
+                  ],
+                } satisfies INestiaAgentPrompt.ICancel,
+              ] as const;
+            },
           );
         }
       }
@@ -100,16 +151,17 @@ export namespace ChatGptExecuteFunctionAgent {
         choice.message.role === "assistant" &&
         !!choice.message.content?.length
       )
-        closures.push(
-          async () =>
-            ({
-              type: "text",
-              role: "assistant",
-              text: choice.message.content!,
-            }) satisfies INestiaAgentPrompt.IText,
-        );
+        closures.push(async () => {
+          const value: INestiaAgentPrompt.IText = {
+            type: "text",
+            role: "assistant",
+            text: choice.message.content!,
+          };
+          await ctx.dispatch(value);
+          return [value];
+        });
     }
-    return Promise.all(closures.map((fn) => fn()));
+    return (await Promise.all(closures.map((fn) => fn()))).flat();
   };
 
   const propagate = async (
@@ -117,13 +169,6 @@ export namespace ChatGptExecuteFunctionAgent {
     call: INestiaAgentEvent.ICall,
     retry: number,
   ): Promise<INestiaAgentPrompt.IExecute> => {
-    if (call.operation.protocol === "http")
-      fillHttpArguments({
-        operation: call.operation,
-        arguments: call.arguments,
-      });
-    await ctx.dispatch(call);
-
     if (call.operation.protocol === "http") {
       //----
       // HTTP PROTOCOL
@@ -151,28 +196,21 @@ export namespace ChatGptExecuteFunctionAgent {
             retry++ < (ctx.config?.retry ?? NestiaAgentConstant.RETRY) &&
             typeof response.body) === false;
         // DISPATCH EVENT
-        const result: INestiaAgentPrompt.IExecute =
+        return (
           (success === false
             ? await correct(ctx, call, retry, response.body)
             : null) ??
-          NestiaAgentPromptFactory.execute({
+          (await NestiaAgentPromptFactory.execute({
             type: "execute",
             protocol: "http",
             controller: call.operation.controller,
             function: call.operation.function,
             id: call.id,
+            name: call.operation.name,
             arguments: call.arguments,
             value: response,
-          });
-        if (success === true)
-          await ctx.dispatch({
-            type: "execute",
-            id: call.id,
-            operation: call.operation,
-            arguments: result.arguments,
-            value: result.value,
-          });
-        return result;
+          }))
+        );
       } catch (error) {
         // DISPATCH ERROR
         return NestiaAgentPromptFactory.execute({
@@ -181,6 +219,7 @@ export namespace ChatGptExecuteFunctionAgent {
           controller: call.operation.controller,
           function: call.operation.function,
           id: call.id,
+          name: call.operation.name,
           arguments: call.arguments,
           value: {
             status: 500,
@@ -215,6 +254,7 @@ export namespace ChatGptExecuteFunctionAgent {
             controller: call.operation.controller,
             function: call.operation.function,
             id: call.id,
+            name: call.operation.name,
             arguments: call.arguments,
             value: {
               name: "TypeGuardError",
@@ -236,6 +276,7 @@ export namespace ChatGptExecuteFunctionAgent {
           controller: call.operation.controller,
           function: call.operation.function,
           id: call.id,
+          name: call.operation.name,
           arguments: call.arguments,
           value,
         });
@@ -246,6 +287,7 @@ export namespace ChatGptExecuteFunctionAgent {
           controller: call.operation.controller,
           function: call.operation.function,
           id: call.id,
+          name: call.operation.name,
           arguments: call.arguments,
           value:
             error instanceof Error
