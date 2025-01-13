@@ -1,6 +1,6 @@
 {
   "name": "@nestia/agent",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",
@@ -65,9 +65,9 @@
     "typescript-transform-paths": "^3.5.3"
   },
   "dependencies": {
-    "@samchon/openapi": "^2.3.4",
+    "@samchon/openapi": "^2.4.0",
     "openai": "^4.77.0",
-    "typia": "^7.5.1",
+    "typia": "^7.6.0",
     "uuid": "^11.0.4"
   }
 }
