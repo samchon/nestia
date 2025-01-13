@@ -100,6 +100,8 @@ export class NestiaAgent {
       role: "user",
       text: content,
     };
+    await this.dispatch(prompt);
+
     const newbie: INestiaAgentPrompt[] = await ChatGptAgent.execute({
       // APPLICATION
       operations: this.operations_,

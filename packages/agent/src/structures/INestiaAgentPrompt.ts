@@ -99,6 +99,14 @@ export namespace INestiaAgentPrompt {
       id: string;
 
       /**
+       * Identifier name of the function.
+       *
+       * If {@link NestiaAgent} has multiple {@link INestiaAgentController}s,
+       * the `name` can be different from target function's name.
+       */
+      name: string;
+
+      /**
        * Arguments of the LLM function calling.
        */
       arguments: object;
