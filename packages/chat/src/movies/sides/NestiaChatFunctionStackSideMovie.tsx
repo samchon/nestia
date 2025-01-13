@@ -7,7 +7,8 @@ import {
 } from "@mui/material";
 import { INestiaAgentOperationSelection } from "@nestia/agent";
 import React from "react";
-import Markdown from "react-markdown";
+
+import { MarkdownViewer } from "../../components/MarkdownViewer";
 
 export const NestiaChatFunctionStackSideMovie = (
   props: NestiaChatFunctionStackSideMovie.IProps,
@@ -30,7 +31,7 @@ export const NestiaChatFunctionStackSideMovie = (
             {select.reason}
             <br />
             <br />
-            <Markdown>{select.function.description}</Markdown>
+            <MarkdownViewer>{select.function.description}</MarkdownViewer>
           </AccordionDetails>
         </Accordion>
       ))}

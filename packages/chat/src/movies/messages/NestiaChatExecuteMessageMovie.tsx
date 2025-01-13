@@ -1,7 +1,8 @@
 import { Typography } from "@mui/material";
 import { INestiaAgentPrompt } from "@nestia/agent";
 import React from "react";
-import Markdown from "react-markdown";
+
+import { MarkdownViewer } from "../../components/MarkdownViewer";
 
 export const NestiaChatExecuteMessageMovie = ({
   execute,
@@ -11,19 +12,19 @@ export const NestiaChatExecuteMessageMovie = ({
       <Typography variant="h5"> {getTitle(execute)} </Typography>
       <hr />
       <Typography variant="h6"> Description </Typography>
-      <Markdown>{execute.function.description}</Markdown>
+      <MarkdownViewer>{execute.function.description}</MarkdownViewer>
       <br />
       <Typography variant="h6"> Arguments </Typography>
-      <Markdown>
+      <MarkdownViewer>
         {["```json", JSON.stringify(execute.arguments, null, 2), "```"].join(
           "\n",
         )}
-      </Markdown>
+      </MarkdownViewer>
       <br />
       <Typography variant="h6"> Return Value </Typography>
-      <Markdown>
+      <MarkdownViewer>
         {["```json", JSON.stringify(execute.value, null, 2), "```"].join("\n")}
-      </Markdown>
+      </MarkdownViewer>
     </React.Fragment>
   );
 };

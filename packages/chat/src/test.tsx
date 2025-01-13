@@ -10,7 +10,6 @@ import {
 } from "@samchon/openapi";
 import ShoppingApi from "@samchon/shopping-api";
 import OpenAI from "openai";
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { NestiaChatApplication } from "./NestiaChatApplication";
@@ -54,7 +53,6 @@ const main = async (): Promise<void> => {
   );
 
   // COMPOSE CHAT AGENT
-  console.log(import.meta.env);
   const agent: NestiaAgent = new NestiaAgent({
     provider: {
       type: "chatgpt",
@@ -74,9 +72,7 @@ const main = async (): Promise<void> => {
     ],
   });
   createRoot(window.document.getElementById("root")!).render(
-    <StrictMode>
-      <NestiaChatApplication agent={agent} />
-    </StrictMode>,
+    <NestiaChatApplication agent={agent} />,
   );
 };
 main().catch(console.error);

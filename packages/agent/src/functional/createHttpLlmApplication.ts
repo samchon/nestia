@@ -15,7 +15,7 @@ export const createHttpLlmApplication = (props: {
     | OpenApiV3.IDocument
     | OpenApiV3_1.IDocument
     | OpenApi.IDocument;
-  options?: IHttpLlmApplication.IOptions<"chatgpt">;
+  options?: Partial<IHttpLlmApplication.IOptions<"chatgpt">>;
 }): IValidation<IHttpLlmApplication<"chatgpt">> => {
   const inspect: IValidation<
     | SwaggerV2.IDocument

@@ -1,26 +1,38 @@
-import { Card, CardContent, Typography } from "@mui/material";
+import { Face, SmartToy } from "@mui/icons-material";
+import { Card, CardContent, Chip } from "@mui/material";
 import { INestiaAgentPrompt } from "@nestia/agent";
-import Markdown from "react-markdown";
+
+import { MarkdownViewer } from "../../components/MarkdownViewer";
 
 export const NestiaChatTextMessageMovie = ({
   prompt,
 }: NestiaChatTextMessageMovie.IProps) => {
   return (
-    <div style={{ width: "100%" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: prompt.role === "user" ? "flex-end" : "flex-start",
+      }}
+    >
       <Card
         elevation={3}
         style={{
-          marginTop: 25,
-          marginBottom: 25,
-          textAlign: prompt.role === "user" ? "right" : undefined,
+          marginTop: 15,
+          marginBottom: 15,
           marginLeft: prompt.role === "user" ? 200 : undefined,
           marginRight: prompt.role === "assistant" ? 200 : undefined,
+          textAlign: prompt.role === "user" ? "right" : "left",
+          backgroundColor: prompt.role === "user" ? "lightyellow" : undefined,
         }}
       >
         <CardContent>
-          <Typography variant="h5">{prompt.role}</Typography>
-          <hr />
-          <Markdown>{prompt.text}</Markdown>
+          <Chip
+            icon={prompt.role === "user" ? <Face /> : <SmartToy />}
+            label={prompt.role === "user" ? "User" : "Assistant"}
+            variant="outlined"
+            color={prompt.role === "user" ? "primary" : "success"}
+          />
+          <MarkdownViewer>{prompt.text}</MarkdownViewer>
         </CardContent>
       </Card>
     </div>
