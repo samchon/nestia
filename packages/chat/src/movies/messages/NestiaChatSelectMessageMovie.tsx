@@ -1,4 +1,4 @@
-import { Description, ExpandMore } from "@mui/icons-material";
+import { ExpandMore, Grading } from "@mui/icons-material";
 import {
   Button,
   Card,
@@ -7,15 +7,14 @@ import {
   Chip,
   Collapse,
 } from "@mui/material";
-import { INestiaAgentPrompt } from "@nestia/agent";
+import { INestiaAgentOperationSelection } from "@nestia/agent";
 import { useState } from "react";
 
 import { MarkdownViewer } from "../../components/MarkdownViewer";
-import { NestiaChatExecuteMessageMovie } from "./NestiaChatExecuteMessageMovie";
 
-export const NestiaChatDescribeMessageMovie = ({
-  prompt,
-}: NestiaChatDescribeMessageMovie.IProps) => {
+export const NestiaChatSelectMessageMovie = ({
+  selection,
+}: NestiaChatSelectMessageMovie.IProps) => {
   const [expanded, setExpanded] = useState(false);
   return (
     <Card
@@ -28,12 +27,25 @@ export const NestiaChatDescribeMessageMovie = ({
     >
       <CardContent>
         <Chip
-          icon={<Description />}
-          label="Function Describer"
+          icon={<Grading />}
+          label="Function Selector"
           variant="outlined"
-          color="secondary"
+          color="warning"
         />
-        <MarkdownViewer>{prompt.text}</MarkdownViewer>
+        <br />
+        <br />
+        Operation:
+        {selection.protocol === "http" ? (
+          <ul>
+            <li>{selection.function.method.toUpperCase()}</li>
+            <li>{selection.function.path}</li>
+          </ul>
+        ) : (
+          <ul>
+            <li>{selection.function.name}</li>
+          </ul>
+        )}
+        <MarkdownViewer>{selection.reason}</MarkdownViewer>
       </CardContent>
       <CardActions style={{ textAlign: "right" }}>
         <Button
@@ -46,21 +58,19 @@ export const NestiaChatDescribeMessageMovie = ({
             />
           }
         >
-          {expanded ? "Hide Function Calls" : "Show Function Calls"}
+          {expanded ? "Hide Function Description" : "Show Function Description"}
         </Button>
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          {prompt.executions.map((execute) => (
-            <NestiaChatExecuteMessageMovie execute={execute} />
-          ))}
+          <MarkdownViewer>{selection.function.description}</MarkdownViewer>
         </CardContent>
       </Collapse>
     </Card>
   );
 };
-export namespace NestiaChatDescribeMessageMovie {
+export namespace NestiaChatSelectMessageMovie {
   export interface IProps {
-    prompt: INestiaAgentPrompt.IDescribe;
+    selection: INestiaAgentOperationSelection;
   }
 }

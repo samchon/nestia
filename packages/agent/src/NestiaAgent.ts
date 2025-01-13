@@ -5,11 +5,13 @@ import { NestiaAgentCostAggregator } from "./internal/NestiaAgentCostAggregator"
 import { NestiaAgentOperationComposer } from "./internal/NestiaAgentOperationComposer";
 import { NestiaAgentPromptTransformer } from "./internal/NestiaAgentPromptTransformer";
 import { __map_take } from "./internal/__map_take";
+import { INestiaAgentController } from "./structures/INestiaAgentController";
 import { INestiaAgentEvent } from "./structures/INestiaAgentEvent";
 import { INestiaAgentOperationCollection } from "./structures/INestiaAgentOperationCollection";
 import { INestiaAgentOperationSelection } from "./structures/INestiaAgentOperationSelection";
 import { INestiaAgentPrompt } from "./structures/INestiaAgentPrompt";
 import { INestiaAgentProps } from "./structures/INestiaAgentProps";
+import { INestiaAgentProvider } from "./structures/INestiaAgentProvider";
 import { INestiaAgentTokenUsage } from "./structures/INestiaAgentTokenUsage";
 
 /**
@@ -153,6 +155,23 @@ export class NestiaAgent {
     });
     this.prompt_histories_.push(prompt, ...newbie);
     return [prompt, ...newbie];
+  }
+
+  /**
+   * Get LLM Provider.
+   */
+  public getProvider(): INestiaAgentProvider {
+    return this.props.provider;
+  }
+
+  /**
+   * Get controllers.
+   *
+   * Get list of controllers, which are the collection of functions that
+   * the "Super A.I. Chatbot" can execute.
+   */
+  public getControllers(): ReadonlyArray<INestiaAgentController> {
+    return this.props.controllers;
   }
 
   /**

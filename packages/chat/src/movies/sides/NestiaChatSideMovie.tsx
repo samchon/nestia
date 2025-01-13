@@ -1,5 +1,7 @@
+import { Typography } from "@mui/material";
 import {
   INestiaAgentOperationSelection,
+  INestiaAgentProvider,
   INestiaAgentTokenUsage,
 } from "@nestia/agent";
 
@@ -13,6 +15,14 @@ export const NestiaChatSideMovie = (props: NestiaChatSideMovie.IProps) => {
         padding: 25,
       }}
     >
+      <Typography variant="h5">Agent Information</Typography>
+      <hr />
+      <ul>
+        <li> Provider: {props.provider.type} </li>
+        <li> Model: {props.provider.model} </li>
+      </ul>
+      <br />
+      <br />
       <NestiaChatTokenUsageSideMovie usage={props.usage} />
       <br />
       <br />
@@ -22,6 +32,7 @@ export const NestiaChatSideMovie = (props: NestiaChatSideMovie.IProps) => {
 };
 export namespace NestiaChatSideMovie {
   export interface IProps {
+    provider: INestiaAgentProvider;
     usage: INestiaAgentTokenUsage;
     selections: INestiaAgentOperationSelection[];
   }
