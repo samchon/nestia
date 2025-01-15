@@ -4,7 +4,6 @@ import {
   AppBar,
   Button,
   Container,
-  Grid,
   Input,
   Toolbar,
   Typography,
@@ -23,11 +22,16 @@ import { NestiaChatMessageMovie } from "./messages/NestiaChatMessageMovie";
 import { NestiaChatSideMovie } from "./sides/NestiaChatSideMovie";
 
 export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
-  const bodyRef = useRef<HTMLDivElement>(null);
+  const upperDivRef = useRef<HTMLDivElement>(null);
+  const middleDivRef = useRef<HTMLDivElement>(null);
+  const bottomDivRef = useRef<HTMLDivElement>(null);
+  const bodyContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const [text, setText] = useState("");
   const [histories, setHistories] = useState(agent.getPromptHistories());
   const [tokenUsage, setTokenUsage] = useState(agent.getTokenUsage());
+  const [height, setHeight] = useState(122);
 
   const [enabled, setEnabled] = useState(true);
   const [selections, setSelections] = useState<
@@ -38,11 +42,7 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
   const getSelections = () => selections;
 
   useEffect(() => {
-    (
-      document.getElementById("conversate_input") as
-        | HTMLInputElement
-        | undefined
-    )?.select();
+    if (inputRef.current !== null) inputRef.current.select();
     agent.on("text", async (evt) => setHistories([...getHistories(), evt]));
     agent.on("describe", async (evt) => setHistories([...getHistories(), evt]));
     agent.on("select", async (evt) => {
@@ -74,13 +74,29 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
 
   const handleKeyUp = async (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter" && event.shiftKey === false) {
-      await conversate();
+      if (enabled === false) event.preventDefault();
+      else await conversate();
     }
+  };
+
+  const handleResize = () => {
+    setTimeout(() => {
+      if (
+        upperDivRef.current === null ||
+        middleDivRef.current === null ||
+        bottomDivRef.current === null
+      )
+        return;
+      const newHeight: number =
+        upperDivRef.current.clientHeight + bottomDivRef.current.clientHeight;
+      if (newHeight !== height) setHeight(newHeight);
+    });
   };
 
   const conversate = async () => {
     setText("");
     setEnabled(false);
+    handleResize();
     await agent.conversate(text);
 
     setEnabled(true);
@@ -109,28 +125,27 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
   };
 
   const capture = async () => {
-    if (bodyRef.current === null) return;
+    if (bodyContainerRef.current === null) return;
 
-    // const cloned = bodyRef.current.cloneNode(true) as HTMLDivElement;
-    // document.body.appendChild(cloned);
-
-    const canvas: HTMLCanvasElement = await html2canvas(bodyRef.current, {
-      scrollX: 0,
-      scrollY: 0,
-      width: bodyRef.current.scrollWidth,
-      height: bodyRef.current.scrollHeight,
-      useCORS: true,
-    });
+    const canvas: HTMLCanvasElement = await html2canvas(
+      bodyContainerRef.current,
+      {
+        scrollX: 0,
+        scrollY: 0,
+        width: bodyContainerRef.current.scrollWidth,
+        height: bodyContainerRef.current.scrollHeight,
+        useCORS: true,
+      },
+    );
     canvas.toBlob((blob) => {
       if (blob === null) return;
       fileDownload(blob, "nestia-chat-screenshot.png");
-      // document.body.removeChild(cloned);
     });
   };
 
   return (
-    <React.Fragment>
-      <AppBar position="relative" component="div">
+    <div style={{ width: "100%", height: "100%" }}>
+      <AppBar ref={upperDivRef} position="relative" component="div">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Nestia A.I. Chatbot
@@ -140,59 +155,69 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
           </Button>
         </Toolbar>
       </AppBar>
-      <Grid container spacing={0}>
-        <Grid item xs={7} id="chatbot-left-grid">
-          <div
-            style={{
-              paddingBottom: 50,
-              overflowY: "scroll",
-              height: "calc(100vh - 182px)",
-              backgroundColor: "lightblue",
-            }}
-          >
-            <Container
-              ref={bodyRef}
-              id="chat-body-container"
-              maxWidth={false}
-              style={{
-                backgroundColor: "lightblue",
-                marginBottom: 15,
-              }}
-            >
-              {histories
-                .map((prompt) => <NestiaChatMessageMovie prompt={prompt} />)
-                .filter((elem) => elem !== null)}
-            </Container>
-          </div>
-        </Grid>
-        <Grid item xs={5}>
+      <div
+        ref={middleDivRef}
+        style={{
+          width: "100%",
+          height: `calc(100% - ${height}px)`,
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        <div
+          style={{
+            paddingBottom: 50,
+            width: `calc(100% - ${RIGHT_WIDTH}px)`,
+            overflowY: "scroll",
+            backgroundColor: "lightblue",
+          }}
+        >
           <Container
-            maxWidth={false}
+            ref={bodyContainerRef}
             style={{
-              paddingBottom: 50,
-              overflowY: "scroll",
-              height: "calc(100vh - 130px)",
-              backgroundColor: "#eeeeee",
+              marginBottom: 15,
             }}
           >
+            {histories
+              .map((prompt) => <NestiaChatMessageMovie prompt={prompt} />)
+              .filter((elem) => elem !== null)}
+          </Container>
+        </div>
+        <div
+          style={{
+            paddingBottom: 50,
+            width: RIGHT_WIDTH,
+            overflowY: "auto",
+            backgroundColor: "#eeeeee",
+          }}
+        >
+          <Container maxWidth={false}>
             <NestiaChatSideMovie
               provider={agent.getProvider()}
               usage={tokenUsage}
               selections={selections}
             />
           </Container>
-        </Grid>
-      </Grid>
-      <AppBar position="static" component="div" color="inherit">
+        </div>
+      </div>
+      <AppBar
+        ref={bottomDivRef}
+        position="static"
+        component="div"
+        color="inherit"
+      >
         <Toolbar>
           <Input
-            id="conversate_input"
+            inputRef={inputRef}
             fullWidth
             placeholder="Conversate with A.I. Chatbot"
             value={text}
             multiline={true}
             onKeyUp={handleKeyUp}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              handleResize();
+            }}
           />
           <Button
             variant="contained"
@@ -205,7 +230,7 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
           </Button>
         </Toolbar>
       </AppBar>
-    </React.Fragment>
+    </div>
   );
 };
 export namespace NestiaChatMovie {
@@ -213,3 +238,5 @@ export namespace NestiaChatMovie {
     agent: NestiaAgent;
   }
 }
+
+const RIGHT_WIDTH = 500;
