@@ -33,7 +33,7 @@ const main = async (): Promise<void> => {
 
   // HANDSHAKE WITH SHOPPING BACKEND
   const connection: IHttpConnection = {
-    host: "http://localhost:37001",
+    host: "https://shopping-be.wrtn.ai/",
   };
   await ShoppingApi.functional.shoppings.customers.authenticate.create(
     connection,
