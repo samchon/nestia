@@ -70,6 +70,9 @@ const main = async (): Promise<void> => {
         connection,
       },
     ],
+    config: {
+      locale: "en-US",
+    },
   });
   createRoot(window.document.getElementById("root")!).render(
     <NestiaChatApplication agent={agent} />,
