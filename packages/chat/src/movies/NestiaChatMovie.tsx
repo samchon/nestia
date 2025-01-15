@@ -11,6 +11,7 @@ import {
 import {
   INestiaAgentOperationSelection,
   INestiaAgentPrompt,
+  INestiaAgentTokenUsage,
   NestiaAgent,
 } from "@nestia/agent";
 import html2canvas from "html2canvas";
@@ -29,47 +30,50 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [text, setText] = useState("");
-  const [histories, setHistories] = useState(agent.getPromptHistories());
-  const [tokenUsage, setTokenUsage] = useState(agent.getTokenUsage());
+  const [histories, setHistories] = useState<INestiaAgentPrompt[]>(
+    agent.getPromptHistories().slice(),
+  );
+  const [tokenUsage, setTokenUsage] = useState<INestiaAgentTokenUsage>(
+    JSON.parse(JSON.stringify(agent.getTokenUsage())),
+  );
   const [height, setHeight] = useState(122);
-
   const [enabled, setEnabled] = useState(true);
   const [selections, setSelections] = useState<
     INestiaAgentOperationSelection[]
   >([]);
 
-  const getHistories = () => histories;
-  const getSelections = () => selections;
-
   useEffect(() => {
     if (inputRef.current !== null) inputRef.current.select();
-    agent.on("text", async (evt) => setHistories([...getHistories(), evt]));
-    agent.on("describe", async (evt) => setHistories([...getHistories(), evt]));
-    agent.on("select", async (evt) => {
-      setHistories([
-        ...getHistories(),
-        {
-          type: "select",
-          id: "something",
-          operations: [
-            {
-              ...evt.operation,
-              reason: evt.reason,
-              toJSON: () => ({}) as any,
-            } satisfies INestiaAgentOperationSelection,
-          ],
-        } satisfies INestiaAgentPrompt.ISelect,
-      ]);
-      setSelections([
-        ...getSelections(),
-        {
-          ...evt.operation,
-          reason: evt.reason,
-          toJSON: () => ({}) as any,
-        } satisfies INestiaAgentOperationSelection,
-      ]);
+    agent.on("text", (evt) => {
+      histories.push(evt);
+      setHistories(histories);
     });
-    setTokenUsage(JSON.parse(JSON.stringify(agent.getTokenUsage())));
+    agent.on("describe", (evt) => {
+      histories.push(evt);
+      setHistories(histories);
+    });
+    agent.on("select", (evt) => {
+      histories.push({
+        type: "select",
+        id: "something",
+        operations: [
+          {
+            ...evt.operation,
+            reason: evt.reason,
+            toJSON: () => ({}) as any,
+          } satisfies INestiaAgentOperationSelection,
+        ],
+      });
+      setHistories(histories);
+
+      selections.push({
+        ...evt.operation,
+        reason: evt.reason,
+        toJSON: () => ({}) as any,
+      } satisfies INestiaAgentOperationSelection);
+      setSelections(selections);
+    });
+    setTokenUsage(agent.getTokenUsage());
   }, []);
 
   const handleKeyUp = async (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -99,9 +103,11 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
     handleResize();
     await agent.conversate(text);
 
+    histories.splice(0, histories.length);
+    histories.push(...agent.getPromptHistories());
+    setHistories(histories);
+    setTokenUsage(agent.getTokenUsage());
     setEnabled(true);
-    setHistories(agent.getPromptHistories().slice());
-    setTokenUsage(JSON.parse(JSON.stringify(agent.getTokenUsage())));
 
     const selections: INestiaAgentOperationSelection[] = agent
       .getPromptHistories()

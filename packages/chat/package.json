@@ -1,6 +1,6 @@
 {
   "name": "@nestia/chat",
-  "version": "0.1.2",
+  "version": "0.2.1",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",
@@ -11,7 +11,8 @@
     "build:lib": "rimraf lib && tsc --project tsconfig.lib.json && rollup -c",
     "dev": "vite",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "node build/deploy.js"
   },
   "repository": {
     "type": "git",
