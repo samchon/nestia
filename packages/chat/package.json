@@ -1,6 +1,6 @@
 {
   "name": "@nestia/chat",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",
@@ -85,6 +85,6 @@
     "dist",
     "lib",
     "src",
-    "!src/test.ts"
+    "!src/shopping.ts"
   ]
 }

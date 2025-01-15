@@ -40,7 +40,7 @@ const main = async (): Promise<void> => {
     {
       channel_code: "samchon",
       external_user: null,
-      href: "htts://127.0.0.1/NodeJS",
+      href: "https://127.0.0.1/NodeJS",
       referrer: null,
     },
   );
