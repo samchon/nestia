@@ -64,7 +64,7 @@ export namespace EncryptedModule {
     password: IEncryptionPassword | IEncryptionPassword.Closure,
     options: Omit<Parameters<typeof Module>[0], "controllers"> = {},
     isTsNode?: boolean,
-  ): Promise<object> {
+  ) {
     // LOAD CONTROLLERS
     const controllers: Creator<object>[] = await load_controllers(
       path,

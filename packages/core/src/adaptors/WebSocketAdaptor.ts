@@ -175,7 +175,7 @@ const visitController = async (props: {
 }): Promise<void> => {
   if (
     ArrayUtil.has(
-      Reflect.getMetadataKeys(props.controller.metatype),
+      Reflect.getMetadataKeys(props.controller.metatype as Function),
       PATH_METADATA,
       HOST_METADATA,
       SCOPE_OPTIONS_METADATA,
@@ -187,12 +187,12 @@ const visitController = async (props: {
   const controller: IController = {
     name: props.controller.name,
     instance: props.controller.instance,
-    constructor: props.controller.metatype,
+    constructor: props.controller.metatype as Function,
     prototype: Object.getPrototypeOf(props.controller.instance),
     prefixes: (() => {
       const value: string | string[] = Reflect.getMetadata(
         PATH_METADATA,
-        props.controller.metatype,
+        props.controller.metatype as object,
       );
       if (typeof value === "string") return [value];
       else if (value.length === 0) return [""];
@@ -200,7 +200,10 @@ const visitController = async (props: {
     })(),
     versions: props.config.versioning
       ? VersioningStrategy.cast(
-          Reflect.getMetadata(VERSION_METADATA, props.controller.metatype),
+          Reflect.getMetadata(
+            VERSION_METADATA,
+            props.controller.metatype as Function,
+          ),
         )
       : undefined,
     modulePrefix: props.modulePrefix,
