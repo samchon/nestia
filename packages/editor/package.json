@@ -1,9 +1,10 @@
 {
   "name": "@nestia/editor",
   "version": "4.4.0-dev.20241216-3",
-  "typings": "lib/index.d.ts",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
+  "typings": "lib/index.d.ts",
+  "description": "Swagger-UI + Cloud TypeScript Editor",
   "scripts": {
     "build": "npm run build:static && npm run build:lib",
     "build:static": "rimraf dist && tsc -b && vite build",
@@ -20,6 +21,7 @@
     "openapi",
     "swagger",
     "generator",
+    "cloud",
     "typescript",
     "editor",
     "sdk",
@@ -35,12 +37,12 @@
   "dependencies": {
     "@mui/material": "^5.15.6",
     "@nestia/migrate": "workspace:^",
-    "@samchon/openapi": "^2.3.1",
+    "@samchon/openapi": "^2.4.0",
     "@stackblitz/sdk": "^1.11.0",
     "js-yaml": "^4.1.0",
     "prettier": "3.3.3",
     "react-mui-fileuploader": "^0.5.2",
-    "typia": "^7.5.1"
+    "typia": "^7.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",

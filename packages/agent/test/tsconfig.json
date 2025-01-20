@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2015",
+    "outDir": "../bin",
+    "paths": {
+      "@nestia/agent": ["../src/index.ts"],
+      "@nestia/agent/lib/*": ["../src/*"],
+    },
+    "plugins": [
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typia/lib/transform" },
+    ],
+  },
+  "include": ["../src", "./"],
+}

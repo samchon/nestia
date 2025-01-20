@@ -41,7 +41,7 @@
     "@nestia/sdk": "workspace:^",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.11.16",
-    "rimraf": "^3.0.2",
+    "rimraf": "^6.0.1",
     "typescript": "~5.7.2"
   },
   "files": [
