@@ -1,4 +1,3 @@
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
   AccordionDetails,
@@ -19,7 +18,7 @@ export const NestiaChatFunctionStackSideMovie = (
       <hr />
       {props.selections.map((select) => (
         <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <AccordionSummary>
             <Typography component="h6">
               {select.protocol === "http"
                 ? `${select.function.method.toUpperCase()} ${select.function.path}`

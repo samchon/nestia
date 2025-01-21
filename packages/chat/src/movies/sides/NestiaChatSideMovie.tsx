@@ -1,5 +1,6 @@
 import { Typography } from "@mui/material";
 import {
+  INestiaAgentConfig,
   INestiaAgentOperationSelection,
   INestiaAgentProvider,
   INestiaAgentTokenUsage,
@@ -20,6 +21,12 @@ export const NestiaChatSideMovie = (props: NestiaChatSideMovie.IProps) => {
       <ul>
         <li> Provider: {props.provider.type} </li>
         <li> Model: {props.provider.model} </li>
+        <li> Locale: {props.config?.locale ?? navigator.language} </li>
+        <li>
+          Timezone:{" "}
+          {props.config?.timezone ??
+            Intl.DateTimeFormat().resolvedOptions().timeZone}
+        </li>
       </ul>
       <br />
       <br />
@@ -33,6 +40,7 @@ export const NestiaChatSideMovie = (props: NestiaChatSideMovie.IProps) => {
 export namespace NestiaChatSideMovie {
   export interface IProps {
     provider: INestiaAgentProvider;
+    config: INestiaAgentConfig | undefined;
     usage: INestiaAgentTokenUsage;
     selections: INestiaAgentOperationSelection[];
   }

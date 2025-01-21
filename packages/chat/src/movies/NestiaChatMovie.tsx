@@ -1,5 +1,3 @@
-import { AddAPhoto } from "@mui/icons-material";
-import SendIcon from "@mui/icons-material/Send";
 import {
   AppBar,
   Button,
@@ -27,6 +25,7 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
   const middleDivRef = useRef<HTMLDivElement>(null);
   const bottomDivRef = useRef<HTMLDivElement>(null);
   const bodyContainerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [text, setText] = useState("");
@@ -156,7 +155,7 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Nestia A.I. Chatbot
           </Typography>
-          <Button color="inherit" startIcon={<AddAPhoto />} onClick={capture}>
+          <Button color="inherit" onClick={capture}>
             Capture
           </Button>
         </Toolbar>
@@ -190,6 +189,7 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
           </Container>
         </div>
         <div
+          ref={scrollRef}
           style={{
             paddingBottom: 50,
             width: RIGHT_WIDTH,
@@ -200,6 +200,7 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
           <Container maxWidth={false}>
             <NestiaChatSideMovie
               provider={agent.getProvider()}
+              config={agent.getConfig()}
               usage={tokenUsage}
               selections={selections}
             />
@@ -228,7 +229,6 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
           <Button
             variant="contained"
             style={{ marginLeft: 10 }}
-            startIcon={<SendIcon />}
             disabled={!enabled}
             onClick={conversate}
           >
