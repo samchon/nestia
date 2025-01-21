@@ -2,7 +2,6 @@ export default {
   index: {
     title: "Introduction",
     type: "page",
-    hidden: true,
     display: "hidden",
     theme: {
       layout: "full",
@@ -15,5 +14,15 @@ export default {
   playground: {
     title: "💻 Playground",
     type: "page",
+  },
+  chat: {
+    title: "💬 Nestia Super A.I. Chatbot",
+    display: "hidden",
+    href: "/chat/",
+  },
+  editor: {
+    title: "🛠️ Nestia Editor",
+    display: "hidden",
+    href: "/editor/",
   },
 };

@@ -1,5 +1,7 @@
 import Script from "next/script";
 
+import "../src/styles/unset.css";
+
 export default function Nextra({ Component, pageProps }) {
   const getLayout = Component.getLayout || ((page) => page);
   return (
