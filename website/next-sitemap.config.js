@@ -1,5 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
-module.exports = {
+const sitemapConfig = {
   siteUrl: "https://nestia.io",
   generateRobotsTxt: true,
 };
+export default sitemapConfig;

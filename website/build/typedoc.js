@@ -1,5 +1,10 @@
-const cp = require("child_process");
-const fs = require("fs");
+import cp from "child_process";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 for (const pack of ["benchmark", "core", "e2e", "fetcher"]) {
   const location = `${__dirname}/../../packages/${pack}`;
