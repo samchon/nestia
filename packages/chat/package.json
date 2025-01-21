@@ -1,18 +1,18 @@
 {
   "name": "@nestia/chat",
-  "version": "0.2.1",
-  "main": "lib/index.js",
-  "module": "lib/index.mjs",
-  "typings": "lib/index.d.ts",
+  "version": "0.2.4",
+  "type": "module",
+  "main": "./lib/index.mjs",
+  "typings": "./lib/index.d.ts",
   "description": "Super A.I. Chatbot application by Swagger Document",
   "scripts": {
     "build": "npm run build:static && npm run build:lib",
     "build:static": "rimraf dist && tsc -b && vite build",
-    "build:lib": "rimraf lib && tsc --project tsconfig.lib.json && rollup -c",
+    "build:lib": "rimraf lib && tsc --project tsconfig.lib.json --emitDeclarationOnly && rollup -c",
     "dev": "vite",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "node build/deploy.js"
+    "deploy": "node build/deploy.mjs"
   },
   "repository": {
     "type": "git",
@@ -35,20 +35,12 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@mui/icons-material": "^6.3.1",
-    "@mui/material": "^5.15.6",
-    "@nestia/agent": "workspace:^",
+    "@mui/material": "^6.4.0",
+    "@nestia/agent": "^0.3.7",
     "@samchon/openapi": "^2.4.0",
     "html2canvas": "^1.4.1",
     "js-file-download": "^0.4.12",
-    "js-yaml": "^4.1.0",
-    "prettier": "3.3.3",
-    "react-json-editor-ajrm": "^2.5.14",
     "react-markdown": "^9.0.3",
-    "react-mui-fileuploader": "^0.5.2",
-    "rehype-raw": "^7.0.0",
-    "rehype-stringify": "^10.0.1",
-    "remark-mermaid-plugin": "^1.0.2",
     "typia": "^7.6.0"
   },
   "devDependencies": {
@@ -64,7 +56,6 @@
     "@types/node": "^22.10.5",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
-    "@types/react-json-editor-ajrm": "^2.5.6",
     "@vitejs/plugin-react": "^4.3.3",
     "eslint": "^9.13.0",
     "eslint-plugin-react-hooks": "^5.0.0",
@@ -73,6 +64,7 @@
     "openai": "^4.77.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "rimraf": "^6.0.1",
     "rollup": "^4.24.2",
     "ts-node": "^10.9.2",
     "typescript": "~5.7.2",
