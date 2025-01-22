@@ -15,11 +15,6 @@ export default {
     title: "💻 Playground",
     type: "page",
   },
-  chat: {
-    title: "💬 Nestia Super A.I. Chatbot",
-    display: "hidden",
-    href: "/chat/",
-  },
   editor: {
     title: "🛠️ Nestia Editor",
     display: "hidden",

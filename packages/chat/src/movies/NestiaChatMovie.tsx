@@ -1,3 +1,5 @@
+import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
+import SendIcon from "@mui/icons-material/Send";
 import {
   AppBar,
   Button,
@@ -155,8 +157,12 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Nestia A.I. Chatbot
           </Typography>
-          <Button color="inherit" onClick={capture}>
-            Capture
+          <Button
+            color="inherit"
+            startIcon={<AddAPhotoIcon />}
+            onClick={capture}
+          >
+            Screenshot Capture
           </Button>
         </Toolbar>
       </AppBar>
@@ -229,6 +235,7 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
           <Button
             variant="contained"
             style={{ marginLeft: 10 }}
+            startIcon={<SendIcon />}
             disabled={!enabled}
             onClick={conversate}
           >
