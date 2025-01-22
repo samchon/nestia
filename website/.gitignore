@@ -2,6 +2,7 @@
 node_modules/
 out/
 public/api/
+public/chat/
 typedoc-json/
 
 public/downloads

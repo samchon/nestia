@@ -5,6 +5,7 @@ import { NestiaAgentCostAggregator } from "./internal/NestiaAgentCostAggregator"
 import { NestiaAgentOperationComposer } from "./internal/NestiaAgentOperationComposer";
 import { NestiaAgentPromptTransformer } from "./internal/NestiaAgentPromptTransformer";
 import { __map_take } from "./internal/__map_take";
+import { INestiaAgentConfig } from "./structures/INestiaAgentConfig";
 import { INestiaAgentController } from "./structures/INestiaAgentController";
 import { INestiaAgentEvent } from "./structures/INestiaAgentEvent";
 import { INestiaAgentOperationCollection } from "./structures/INestiaAgentOperationCollection";
@@ -155,6 +156,13 @@ export class NestiaAgent {
     });
     this.prompt_histories_.push(prompt, ...newbie);
     return [prompt, ...newbie];
+  }
+
+  /**
+   * Get configuration.
+   */
+  public getConfig(): INestiaAgentConfig | undefined {
+    return this.props.config;
   }
 
   /**

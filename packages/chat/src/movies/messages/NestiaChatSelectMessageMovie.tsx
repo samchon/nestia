@@ -1,4 +1,4 @@
-import { ExpandMore, Grading } from "@mui/icons-material";
+import GradingIcon from "@mui/icons-material/Grading";
 import {
   Button,
   Card,
@@ -27,7 +27,7 @@ export const NestiaChatSelectMessageMovie = ({
     >
       <CardContent>
         <Chip
-          icon={<Grading />}
+          icon={<GradingIcon />}
           label="Function Selector"
           variant="outlined"
           color="warning"
@@ -48,16 +48,7 @@ export const NestiaChatSelectMessageMovie = ({
         <MarkdownViewer>{selection.reason}</MarkdownViewer>
       </CardContent>
       <CardActions style={{ textAlign: "right" }}>
-        <Button
-          onClick={() => setExpanded(!expanded)}
-          startIcon={
-            <ExpandMore
-              style={{
-                transform: `rotate(${expanded ? 180 : 0}deg)`,
-              }}
-            />
-          }
-        >
+        <Button onClick={() => setExpanded(!expanded)}>
           {expanded ? "Hide Function Description" : "Show Function Description"}
         </Button>
       </CardActions>

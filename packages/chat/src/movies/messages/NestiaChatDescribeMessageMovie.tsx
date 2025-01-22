@@ -1,4 +1,4 @@
-import { Description, ExpandMore } from "@mui/icons-material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Button,
   Card,
@@ -27,24 +27,19 @@ export const NestiaChatDescribeMessageMovie = ({
       }}
     >
       <CardContent>
-        <Chip
-          icon={<Description />}
-          label="Function Describer"
-          variant="outlined"
-          color="secondary"
-        />
+        <Chip label="Function Describer" variant="outlined" color="secondary" />
         <MarkdownViewer>{prompt.text}</MarkdownViewer>
       </CardContent>
       <CardActions style={{ textAlign: "right" }}>
         <Button
-          onClick={() => setExpanded(!expanded)}
           startIcon={
-            <ExpandMore
+            <ExpandMoreIcon
               style={{
                 transform: `rotate(${expanded ? 180 : 0}deg)`,
               }}
             />
           }
+          onClick={() => setExpanded(!expanded)}
         >
           {expanded ? "Hide Function Calls" : "Show Function Calls"}
         </Button>

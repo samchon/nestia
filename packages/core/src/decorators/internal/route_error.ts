@@ -29,7 +29,7 @@ export function route_error(
     error.path =
       (request as express.Request).path ??
       (request as FastifyRequest).routeOptions?.url ??
-      (request as FastifyRequest).routerPath;
+      (request as any).routerPath;
   } catch {}
 
   setTimeout(() => {

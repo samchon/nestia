@@ -14,7 +14,7 @@ import OpenAI from "openai";
 import React, { useState } from "react";
 import JsonInput from "react-json-editor-ajrm";
 // @ts-ignore
-import locale from "react-json-editor-ajrm/locale/en";
+import locale from "react-json-editor-ajrm/locale/en.js";
 
 import { NestiaChatApplication } from "./NestiaChatApplication";
 import { NestiaChatFileUploadMovie } from "./movies/uploader/NestiaChatFileUploadMovie";

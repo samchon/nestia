@@ -28,7 +28,7 @@ export namespace DynamicModule {
     path: string | string[] | { include: string[]; exclude?: string[] },
     metadata: Omit<ModuleMetadata, "controllers"> = {},
     isTsNode?: boolean,
-  ): Promise<object> {
+  ) {
     // LOAD CONTROLLERS
     const controllers: Creator<object>[] = await load_controllers(
       path,

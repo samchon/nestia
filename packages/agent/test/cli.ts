@@ -27,19 +27,17 @@ const main = async (): Promise<void> => {
   if (!TestGlobal.env.CHATGPT_API_KEY?.length) return;
 
   // GET LLM APPLICATION SCHEMA
-  const swagger:
-    | SwaggerV2.IDocument
-    | OpenApiV3.IDocument
-    | OpenApiV3_1.IDocument = JSON.parse(
-    await fs.promises.readFile(
-      `${TestGlobal.ROOT}/../../../shopping-backend/packages/api/swagger.json`,
-      "utf8",
-    ),
-  );
-  const document: OpenApi.IDocument = OpenApi.convert(typia.assert(swagger));
   const application: IHttpLlmApplication<"chatgpt"> = HttpLlm.application({
     model: "chatgpt",
-    document,
+    document: OpenApi.convert(
+      typia.json.assertParse<
+        SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument
+      >(
+        await fetch(`http://127.0.0.1:37001/editor/swagger.json`).then((r) =>
+          r.text(),
+        ),
+      ),
+    ),
     options: {
       reference: true,
     },
@@ -50,7 +48,7 @@ const main = async (): Promise<void> => {
 
   // HANDSHAKE WITH SHOPPING BACKEND
   const connection: IHttpConnection = {
-    host: "http://localhost:37001",
+    host: "http://127.0.0.1:37001",
   };
   await ShoppingApi.functional.shoppings.customers.authenticate.create(
     connection,

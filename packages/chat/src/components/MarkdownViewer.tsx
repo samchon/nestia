@@ -8,6 +8,18 @@ export const MarkdownViewer = (props: MarkdownViewer.IProps) => {
     <Markdown
       remarkPlugins={[remarkMermaidPlugin as any]}
       rehypePlugins={[rehypeRaw, rehypeStringify]}
+      components={{
+        img: ({ ...props }) => (
+          <img
+            {...props}
+            style={{
+              display: "block",
+              maxWidth: "100%",
+              height: "auto",
+            }}
+          />
+        ),
+      }}
     >
       {props.children}
     </Markdown>

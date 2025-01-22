@@ -1,6 +1,11 @@
-const cp = require("child_process");
-const fs = require("fs");
-const JsZip = require("jszip");
+import cp from "child_process";
+import fs from "fs";
+import JsZip from "jszip";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const MIGRATE = `${__dirname}/../../packages/migrate`;
 const EDITOR = `${__dirname}/../../packages/editor`;

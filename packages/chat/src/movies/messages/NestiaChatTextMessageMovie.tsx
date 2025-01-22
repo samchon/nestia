@@ -1,4 +1,5 @@
-import { Face, SmartToy } from "@mui/icons-material";
+import FaceIcon from "@mui/icons-material/Face";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
 import { Card, CardContent, Chip } from "@mui/material";
 import { INestiaAgentPrompt } from "@nestia/agent";
 
@@ -27,7 +28,7 @@ export const NestiaChatTextMessageMovie = ({
       >
         <CardContent>
           <Chip
-            icon={prompt.role === "user" ? <Face /> : <SmartToy />}
+            icon={prompt.role === "user" ? <FaceIcon /> : <SmartToyIcon />}
             label={prompt.role === "user" ? "User" : "Assistant"}
             variant="outlined"
             color={prompt.role === "user" ? "primary" : "success"}

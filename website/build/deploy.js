@@ -1,5 +1,5 @@
-const cp = require("child_process");
-const deploy = require("gh-pages");
+import cp from "child_process";
+import deploy from "gh-pages";
 
 cp.execSync("npm run build", { stdio: "inherit" });
 
