@@ -1,3 +1,4 @@
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Button,
   Card,
@@ -30,7 +31,16 @@ export const NestiaChatDescribeMessageMovie = ({
         <MarkdownViewer>{prompt.text}</MarkdownViewer>
       </CardContent>
       <CardActions style={{ textAlign: "right" }}>
-        <Button onClick={() => setExpanded(!expanded)}>
+        <Button
+          startIcon={
+            <ExpandMoreIcon
+              style={{
+                transform: `rotate(${expanded ? 180 : 0}deg)`,
+              }}
+            />
+          }
+          onClick={() => setExpanded(!expanded)}
+        >
           {expanded ? "Hide Function Calls" : "Show Function Calls"}
         </Button>
       </CardActions>

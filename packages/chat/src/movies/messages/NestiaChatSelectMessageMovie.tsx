@@ -1,3 +1,4 @@
+import GradingIcon from "@mui/icons-material/Grading";
 import {
   Button,
   Card,
@@ -25,7 +26,12 @@ export const NestiaChatSelectMessageMovie = ({
       }}
     >
       <CardContent>
-        <Chip label="Function Selector" variant="outlined" color="warning" />
+        <Chip
+          icon={<GradingIcon />}
+          label="Function Selector"
+          variant="outlined"
+          color="warning"
+        />
         <br />
         <br />
         Operation:

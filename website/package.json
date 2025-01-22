@@ -5,9 +5,10 @@
   "description": "Nestia Guide Documents",
   "private": true,
   "scripts": {
-    "build": "rimraf .next && rimraf .out && node build/editor && node build/typedoc && next build && node build/sitemap",
+    "build": "rimraf .next && rimraf .out && node build/chat && node build/editor && node build/typedoc && next build && node build/sitemap",
     "deploy": "node build/deploy",
-    "dev": "next dev"
+    "dev": "next dev",
+    "prepare": "node build/chat"
   },
   "repository": {
     "type": "git",
@@ -24,11 +25,8 @@
     "@mui/icons-material": "^6.4.0",
     "@mui/material": "^6.4.0",
     "@mui/system": "^6.4.0",
-    "@nestia/agent": "^0.3.7",
-    "@nestia/chat": "^0.2.4",
     "@nestia/editor": "^4.6.1",
     "@samchon/openapi": "^2.4.0",
-    "@samchon/shopping-api": "^0.14.0",
     "next": "14.2.21",
     "nextra": "^3.2.4",
     "nextra-theme-docs": "^3.2.4",
