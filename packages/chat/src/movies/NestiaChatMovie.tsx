@@ -30,6 +30,7 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [error, setError] = useState<Error | null>(null);
   const [text, setText] = useState("");
   const [histories, setHistories] = useState<INestiaAgentPrompt[]>(
     agent.getPromptHistories().slice(),
@@ -102,7 +103,14 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
     setText("");
     setEnabled(false);
     handleResize();
-    await agent.conversate(text);
+    try {
+      await agent.conversate(text);
+    } catch (error) {
+      console.log(error);
+      if (error instanceof Error) setError(error);
+      else setError(new Error("Unknown error"));
+      return;
+    }
 
     histories.splice(0, histories.length);
     histories.push(...agent.getPromptHistories());
@@ -209,6 +217,7 @@ export const NestiaChatMovie = ({ agent }: NestiaChatMovie.IProps) => {
               config={agent.getConfig()}
               usage={tokenUsage}
               selections={selections}
+              error={error}
             />
           </Container>
         </div>
@@ -252,4 +261,4 @@ export namespace NestiaChatMovie {
   }
 }
 
-const RIGHT_WIDTH = 500;
+const RIGHT_WIDTH = 450;

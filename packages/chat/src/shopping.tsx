@@ -86,6 +86,9 @@ function ShoppingChatApplication() {
             connection,
           },
         ],
+        config: {
+          locale,
+        },
       }),
     );
   };
@@ -95,6 +98,7 @@ function ShoppingChatApplication() {
       style={{
         width: "100%",
         height: "100%",
+        overflow: agent ? undefined : "auto",
       }}
     >
       {agent ? (
@@ -128,6 +132,8 @@ function ShoppingChatApplication() {
             defaultValue={apiKey}
             label="OpenAI API Key"
             variant="outlined"
+            placeholder="Your OpenAI API Key"
+            error={apiKey.length === 0}
           />
           <br />
           <RadioGroup
@@ -154,6 +160,7 @@ function ShoppingChatApplication() {
             defaultValue={locale}
             label="Locale"
             variant="outlined"
+            error={locale.length === 0}
           />
           <br />
           <TextField
@@ -161,6 +168,7 @@ function ShoppingChatApplication() {
             defaultValue={name}
             label="Name"
             variant="outlined"
+            error={name.length === 0}
           />
           <br />
           <TextField
@@ -168,6 +176,7 @@ function ShoppingChatApplication() {
             defaultValue={mobile}
             label="Mobile"
             variant="outlined"
+            error={mobile.length === 0}
           />
           <br />
           <br />
@@ -177,10 +186,16 @@ function ShoppingChatApplication() {
             variant="contained"
             color={"info"}
             size="large"
-            disabled={progress}
+            disabled={
+              progress ||
+              apiKey.length === 0 ||
+              locale.length === 0 ||
+              name.length === 0 ||
+              mobile.length === 0
+            }
             onClick={() => startChatApplication()}
           >
-            {"Start A.I. Chatbot"}
+            {progress ? "Starting..." : "Start A.I. Chatbot"}
           </Button>
         </FormControl>
       )}
