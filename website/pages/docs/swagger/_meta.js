@@ -1,7 +1,6 @@
 export default {
-  config: "Configuration",
-  migrate: "Migration from Swagger",
-  editor: "Cloud Swagger Editor",
+  index: "Swagger Builder",
   chat: "A.I. Chat with Swagger",
-  documentation: "Documentation",
+  editor: "Cloud Swagger Editor",
+  documentation: "Documentation Strategy",
 };

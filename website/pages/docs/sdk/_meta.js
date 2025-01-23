@@ -1,9 +1,9 @@
 export default {
-  index: "How to Build",
+  index: "SDK Builder",
+  documentation: "Documentation Strategy",
   simulator: "Mockup Simulator",
   e2e: "E2E Test Functions",
   distribute: "Distribution",
-  documentation: "Documentation",
 
   // LEGACY PAGES
   sdk: {
