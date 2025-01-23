@@ -25,8 +25,8 @@ export const NestiaChatUploader = (props: NestiaChatUploader.IProps) => {
   const [headers, setHeaders] = useState<Record<string, string>>({
     Authorization: "YOUR_SERVER_API_KEY",
   });
-  const [model, setModel] = useState("gpt-4o");
-  const [apiKey, setApiKey] = useState("YOUR-OPENAI-API-KEY");
+  const [model, setModel] = useState("gpt-4o-mini");
+  const [apiKey, setApiKey] = useState("");
 
   // RESULT
   const [application, setApplication] =
@@ -80,10 +80,10 @@ export const NestiaChatUploader = (props: NestiaChatUploader.IProps) => {
   };
 
   return (
-    <React.Fragment>
+    <div style={props.style}>
       <NestiaChatFileUploadMovie onChange={handleApplication} />
       <br />
-      <FormControl fullWidth style={{ paddingLeft: 15 }}>
+      <FormControl fullWidth>
         <Typography variant="h6">HTTP Connection</Typography>
         <br />
         <TextField
@@ -91,6 +91,8 @@ export const NestiaChatUploader = (props: NestiaChatUploader.IProps) => {
           defaultValue={host}
           label="Host URL"
           variant="outlined"
+          placeholder="Server URL"
+          error={host.length === 0}
         />
         <br />
         <FormLabel> Headers </FormLabel>
@@ -119,12 +121,12 @@ export const NestiaChatUploader = (props: NestiaChatUploader.IProps) => {
           onChange={(_e, value) => setModel(value)}
           style={{ paddingLeft: 15 }}
         >
-          <FormControlLabel value="gpt-4o" control={<Radio />} label="GPT-4o" />
           <FormControlLabel
             value="gpt-4o-mini"
             control={<Radio />}
             label="GPT-4o Mini"
           />
+          <FormControlLabel value="gpt-4o" control={<Radio />} label="GPT-4o" />
         </RadioGroup>
         <br />
         <TextField
@@ -132,6 +134,8 @@ export const NestiaChatUploader = (props: NestiaChatUploader.IProps) => {
           defaultValue={apiKey}
           label="OpenAI API Key"
           variant="outlined"
+          placeholder="Your OpenAI API Key"
+          error={apiKey.length === 0}
         />
       </FormControl>
       <br />
@@ -142,16 +146,23 @@ export const NestiaChatUploader = (props: NestiaChatUploader.IProps) => {
         variant="contained"
         color={"info"}
         size="large"
-        disabled={progress === true || document === null}
+        disabled={
+          progress === true ||
+          document === null ||
+          application === null ||
+          host.length === 0 ||
+          apiKey.length === 0
+        }
         onClick={() => open()}
       >
         {progress ? "Generating..." : "Generate Editor"}
       </Button>
-    </React.Fragment>
+    </div>
   );
 };
 export namespace NestiaChatUploader {
   export interface IProps {
+    style?: React.CSSProperties;
     onError?: (error: string) => void;
     onSuccess: (element: JSX.Element) => void;
   }

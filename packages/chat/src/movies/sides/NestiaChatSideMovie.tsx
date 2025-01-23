@@ -16,6 +16,21 @@ export const NestiaChatSideMovie = (props: NestiaChatSideMovie.IProps) => {
         padding: 25,
       }}
     >
+      {props.error !== null ? (
+        <>
+          <Typography variant="h5" color="error">
+            OpenAI Error
+          </Typography>
+          <hr />
+          {props.error.message}
+          <br />
+          <br />
+          Your OpenAI API key may not valid.
+          <br />
+          <br />
+          <br />
+        </>
+      ) : null}
       <Typography variant="h5">Agent Information</Typography>
       <hr />
       <ul>
@@ -43,5 +58,6 @@ export namespace NestiaChatSideMovie {
     config: INestiaAgentConfig | undefined;
     usage: INestiaAgentTokenUsage;
     selections: INestiaAgentOperationSelection[];
+    error: Error | null;
   }
 }
