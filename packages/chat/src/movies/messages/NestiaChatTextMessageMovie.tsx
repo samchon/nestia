@@ -20,8 +20,8 @@ export const NestiaChatTextMessageMovie = ({
         style={{
           marginTop: 15,
           marginBottom: 15,
-          marginLeft: prompt.role === "user" ? 200 : undefined,
-          marginRight: prompt.role === "assistant" ? 200 : undefined,
+          marginLeft: prompt.role === "user" ? "15%" : undefined,
+          marginRight: prompt.role === "assistant" ? "15%" : undefined,
           textAlign: prompt.role === "user" ? "right" : "left",
           backgroundColor: prompt.role === "user" ? "lightyellow" : undefined,
         }}
