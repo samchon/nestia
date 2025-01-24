@@ -3,6 +3,7 @@ import docs_meta from "../../../pages/docs/_meta.js";
 import docs_core_meta from "../../../pages/docs/core/_meta.js";
 import docs_e2e_meta from "../../../pages/docs/e2e/_meta.js";
 import docs_sdk_meta from "../../../pages/docs/sdk/_meta.js";
+import docs_swagger_meta from "../../../pages/docs/swagger/_meta.js";
 export const pageMap = [{
   data: meta
 }, {
@@ -104,7 +105,7 @@ export const pageMap = [{
     name: "migrate",
     route: "/docs/migrate",
     frontMatter: {
-      "sidebarTitle": "Migrate"
+      "sidebarTitle": "Editor"
     }
   }, {
     name: "pure",
@@ -118,16 +119,34 @@ export const pageMap = [{
     children: [{
       data: docs_sdk_meta
     }, {
+      name: "distribute",
+      route: "/docs/sdk/distribute",
+      frontMatter: {
+        "sidebarTitle": "Distribute"
+      }
+    }, {
       name: "e2e",
       route: "/docs/sdk/e2e",
       frontMatter: {
         "sidebarTitle": "E2e"
       }
     }, {
+      name: "index",
+      route: "/docs/sdk",
+      frontMatter: {
+        "sidebarTitle": "Index"
+      }
+    }, {
       name: "sdk",
       route: "/docs/sdk/sdk",
       frontMatter: {
         "sidebarTitle": "Sdk"
+      }
+    }, {
+      name: "simulate",
+      route: "/docs/sdk/simulate",
+      frontMatter: {
+        "sidebarTitle": "Simulate"
       }
     }, {
       name: "simulator",
@@ -148,6 +167,36 @@ export const pageMap = [{
     frontMatter: {
       "sidebarTitle": "Setup"
     }
+  }, {
+    name: "swagger",
+    route: "/docs/swagger",
+    children: [{
+      data: docs_swagger_meta
+    }, {
+      name: "chat",
+      route: "/docs/swagger/chat",
+      frontMatter: {
+        "sidebarTitle": "Chat"
+      }
+    }, {
+      name: "editor",
+      route: "/docs/swagger/editor",
+      frontMatter: {
+        "sidebarTitle": "Editor"
+      }
+    }, {
+      name: "index",
+      route: "/docs/swagger",
+      frontMatter: {
+        "sidebarTitle": "Index"
+      }
+    }, {
+      name: "strategy",
+      route: "/docs/swagger/strategy",
+      frontMatter: {
+        "sidebarTitle": "Strategy"
+      }
+    }]
   }]
 }, {
   name: "index",

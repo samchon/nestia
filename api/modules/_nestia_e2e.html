@@ -1,22 +1,31 @@
 <!DOCTYPE html><html class="default" lang="en" data-base=".."><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@nestia/e2e | Nestia API Documents</title><meta name="description" content="Documentation for Nestia API Documents"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script><script async src="../assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search"><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="../assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">Nestia API Documents</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb"><li><a href="../modules.html">Nestia API Documents</a></li><li><a href="_nestia_e2e.html">@nestia/e2e</a></li></ul><h1>Module @nestia/e2e</h1></div><section class="tsd-panel tsd-typography"><a id="nestia" class="tsd-anchor"></a><h1 class="tsd-anchor-link">Nestia<a href="#nestia" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h1><p><img src="https://nestia.io/logo.png" alt="Nestia Logo"></p>
 <p><a href="https://github.com/samchon/nestia/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="GitHub license"></a>
-<a href="https://www.npmjs.com/package/@nestia/core"><img src="https://img.shields.io/npm/v/@nestia/core.svg" alt="npm version"></a>
-<a href="https://www.npmjs.com/package/@nestia/core"><img src="https://img.shields.io/npm/dm/@nestia/core.svg" alt="Downloads"></a>
+<a href="https://www.npmjs.com/package/@nestia/fetcher"><img src="https://img.shields.io/npm/v/@nestia/fetcher.svg" alt="npm version"></a>
+<a href="https://www.npmjs.com/package/@nestia/fetcher"><img src="https://img.shields.io/npm/dm/@nestia/fetcher.svg" alt="Downloads"></a>
 <a href="https://github.com/samchon/nestia/actions?query=workflow%3Abuild"><img src="https://github.com/samchon/nestia/workflows/build/badge.svg" alt="Build Status"></a>
-<a href="https://nestia.io/docs/"><img src="https://img.shields.io/badge/guide-documents-forestgreen" alt="Guide Documents"></a></p>
+<a href="https://nestia.io/docs/"><img src="https://img.shields.io/badge/guide-documents-forestgreen" alt="Guide Documents"></a>
+<a href="https://discord.gg/E94XhzrUCZ"><img src="https://img.shields.io/badge/discord-samchon-d91965?style=flat&amp;labelColor=5866f2&amp;logo=discord&amp;logoColor=white&amp;link=https://discord.gg/E94XhzrUCZ" alt="Discord Badge"></a></p>
 <p>Nestia is a set of helper libraries for NestJS, supporting below features:</p>
 <ul>
-<li><code>@nestia/core</code>: super-fast decorators</li>
+<li><code>@nestia/core</code>:
+<ul>
+<li>Super-fast/easy decorators</li>
+<li>Advanced WebSocket routes</li>
+</ul>
+</li>
 <li><code>@nestia/sdk</code>:
 <ul>
-<li>Swagger generator evolved than ever</li>
+<li>Swagger generator, more evolved than ever</li>
 <li>SDK library generator for clients</li>
 <li>Mockup Simulator for client applications</li>
 <li>Automatic E2E test functions generator</li>
 </ul>
 </li>
-<li><code>@nestia/migrate</code>: migration from Swagger to NestJS</li>
-<li><code>nestia</code>: just CLI (command line interface) tool</li>
+<li><code>@nestia/e2e</code>: Test program utilizing e2e test functions</li>
+<li><code>@nestia/benchmark</code>: Benchmark program using e2e test functions</li>
+<li><code>@nestia/chat</code>: Super A.I. Chatbot by Swagger document</li>
+<li><code>@nestia/editor</code>: Swagger-UI with Online TypeScript Editor</li>
+<li><code>nestia</code>: Just CLI (command line interface) tool</li>
 </ul>
 <div class="tsd-alert tsd-alert-note"><div class="tsd-alert-title"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><use href="../assets/icons.svg#icon-alertNote"></use></svg><span>Note</span></div><p></p>
 <ul>
@@ -29,8 +38,8 @@
 </li>
 <li>Software Development Kit
 <ul>
-<li>SDK is a collection of <code>fetch</code> functions with type definitions like <a href="https://trpc.io/">tRPC</a></li>
-<li>Mockup simulator means embedded backend simulator in SDK
+<li>Collection of typed <code>fetch</code> functions with DTO structures like <a href="https://trpc.io/">tRPC</a></li>
+<li>Mockup simulator means embedded backend simulator in the SDK
 <ul>
 <li>similar with <a href="https://mswjs.io/">msw</a>, but fully automated</li>
 </ul>
@@ -55,25 +64,42 @@
 <a id="📖-features" class="tsd-anchor"></a><h3 class="tsd-anchor-link">📖 Features<a href="#📖-features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
 <li>Core Library
 <ul>
-<li><a href="https://nestia.io/docs/core/TypedRoute/">TypedRoute</a></li>
-<li><a href="https://nestia.io/docs/core/TypedBody/">TypedBody</a></li>
-<li><a href="https://nestia.io/docs/core/TypedParam/">TypedParam</a></li>
-<li><a href="https://nestia.io/docs/core/TypedRoute/">TypedQuery</a></li>
-<li><a href="https://nestia.io/docs/core/TypedHeaders/">TypedHeaders</a></li>
-<li><a href="https://nestia.io/docs/core/TypedException/">TypedException</a></li>
+<li><a href="https://nestia.io/docs/core/WebSocketRoute"><code>@WebSocketRoute</code></a></li>
+<li><a href="https://nestia.io/docs/core/TypedRoute/"><code>@TypedRoute</code></a></li>
+<li><a href="https://nestia.io/docs/core/TypedBody/"><strong><code>@TypedBody</code></strong></a></li>
+<li><a href="https://nestia.io/docs/core/TypedParam/"><code>@TypedParam</code></a></li>
+<li><a href="https://nestia.io/docs/core/TypedQuery/"><code>@TypedQuery</code></a></li>
+<li><a href="https://nestia.io/docs/core/TypedFormData/"><code>@TypedFormData</code></a></li>
+<li><a href="https://nestia.io/docs/core/TypedHeaders/"><code>@TypedHeaders</code></a></li>
+<li><a href="https://nestia.io/docs/core/TypedException/"><code>@TypedException</code></a></li>
 </ul>
 </li>
-<li>Generators
+<li>Software Development Kit
 <ul>
-<li><a href="https://nestia.io/docs/sdk/swagger/">Swagger Documents</a></li>
-<li><a href="https://nestia.io/docs/sdk/sdk/">SDK Library</a></li>
-<li><a href="https://nestia.io/docs/sdk/e2e/">E2E Functions</a></li>
-<li><a href="https://nestia.io/docs/sdk/simulator/">Mockup Simulator</a></li>
+<li><a href="https://nestia.io/docs/sdk/">SDK Builder</a></li>
+<li><a href="https://nestia.io/docs/sdk/simulate/">Mockup Simulator</a></li>
+<li><a href="https://nestia.io/docs/sdk/e2e/">E2E Test Functions</a></li>
+<li><a href="https://nestia.io/docs/sdk/distribute/">Distribution</a></li>
 </ul>
 </li>
-<li><a href="https://nestia.io/docs/migrate/">Swagger to NestJS</a></li>
+<li>Swagger Document
+<ul>
+<li><a href="https://nestia.io/docs/swagger/">Swagger Builder</a></li>
+<li><a href="https://nestia.io/docs/swagger/chat/"><strong>A.I. Chatbot by Swagger</strong></a></li>
+<li><a href="https://nestia.io/docs/swagger/editor/">Cloud Swagger Editor</a></li>
+<li><a href="https://nestia.io/docs/swagger/strategy/">Documentation Strategy</a></li>
+</ul>
+</li>
+<li>E2E Testing
+<ul>
+<li><a href="https://nestia.io/docs/e2e/why/">Why E2E Test?</a></li>
+<li><a href="https://nestia.io/docs/e2e/development/">Test Program Development</a></li>
+<li><a href="https://nestia.io/docs/e2e/benchmark/">Performance Benchmark</a></li>
+</ul>
+</li>
 </ul>
 <a id="🔗-appendix" class="tsd-anchor"></a><h3 class="tsd-anchor-link">🔗 Appendix<a href="#🔗-appendix" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><a href="https://nestia.io/api">API Documents</a></li>
 <li><a href="https://github.com/samchon/nestia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz">⇲ Benchmark Result</a></li>
 <li><a href="https://dev.to/samchon/series/22751">⇲ <code>dev.to</code> Articles</a></li>
 </ul>
