@@ -14,7 +14,7 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
     - Super-fast/easy decorators
     - Advanced WebSocket routes
   - `@nestia/sdk`:
-    - Swagger generator evolved than ever
+    - Swagger generator, more evolved than ever
     - SDK library generator for clients
     - Mockup Simulator for client applications
     - Automatic E2E test functions generator
