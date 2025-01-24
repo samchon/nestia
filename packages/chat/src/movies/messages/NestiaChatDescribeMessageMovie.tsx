@@ -23,7 +23,7 @@ export const NestiaChatDescribeMessageMovie = ({
       style={{
         marginTop: 15,
         marginBottom: 15,
-        marginRight: 200,
+        marginRight: "15%",
       }}
     >
       <CardContent>

@@ -1,6 +1,6 @@
 {
   "name": "@nestia/chat",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "type": "module",
   "main": "./lib/index.mjs",
   "typings": "./lib/index.d.ts",
@@ -37,8 +37,8 @@
   "dependencies": {
     "@mui/icons-material": "^6.4.1",
     "@mui/material": "^6.4.0",
-    "@nestia/agent": "^0.3.7",
-    "@samchon/openapi": "^2.4.0",
+    "@nestia/agent": "workspace:^",
+    "@samchon/openapi": "^2.4.1",
     "html2canvas": "^1.4.1",
     "js-file-download": "^0.4.12",
     "js-yaml": "^4.1.0",
@@ -58,7 +58,7 @@
     "@nestjs/platform-fastify": "^11.0.2",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
-    "@samchon/shopping-api": "^0.11.0",
+    "@samchon/shopping-api": "^0.14.1",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.10.5",
     "@types/react": "^18.3.11",
