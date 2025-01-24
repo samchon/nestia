@@ -1,18 +1,30 @@
 export default {
+  // GETTINIG STARTED
   index: "🙋🏻‍♂️ Introduction",
   setup: "📦 Setup",
   pure: "⛲ Pure TypeScript",
 
+  // CORE FEATURES
   "-- features": {
     type: "separator",
     title: "📖 Features",
   },
   core: "Core Library",
-  sdk: "Generators",
+  sdk: "S/W Development Kit",
+  swagger: "Swagger Document",
   e2e: "E2E Testing",
-  migrate: "Migration from Swagger",
-  editor: "TypeScript Swagger Editor",
 
+  // LEGACY PAGES
+  migrate: {
+    title: "Migration from Swagger",
+    display: "hidden",
+  },
+  editor: {
+    title: "TypeScript Swagger Editor",
+    display: "hidden",
+  },
+
+  // APPENDIX
   "-- appendix": {
     type: "separator",
     title: "🔗 Appendix",

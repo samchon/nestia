@@ -1,0 +1,473 @@
+import FaceIcon from "@mui/icons-material/Face";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
+import { Card, CardContent, Chip } from "@mui/material";
+import { Callout, Tabs } from 'nextra/components'
+
+## Preface
+<br/>
+<div 
+  style={{
+    width: "100%",
+    padding: 15,
+    backgroundColor: "lightblue",
+  }}
+>
+  <div 
+    style={{
+      display: "flex",
+      justifyContent: "flex-end",
+    }}
+  >
+    <Card 
+      elevation={3}
+      style={{
+        marginTop: 10,
+        marginBottom: 10,
+        marginLeft: "10%",
+        textAlign: "right",
+        backgroundColor: "lightyellow",
+      }}
+    >
+      <CardContent>
+        <Chip 
+          icon={<FaceIcon />} 
+          label={<b><u>User</u></b>} 
+          variant="outlined" 
+          color="primary" 
+        />
+        What you can do? Introduce yourself, please.
+      </CardContent>
+    </Card>
+  </div>
+  <div 
+    style={{
+      display: "flex",
+      justifyContent: "flex-start",
+    }}>
+    <Card 
+      elevation={3}
+      style={{
+        marginTop: 10,
+        marginBottom: 10,
+        marginRight: "10%",
+      }}
+    >
+      <CardContent>
+        <Chip 
+          icon={<SmartToyIcon />} 
+          label={<b><u>Assistant</u></b>} 
+          variant="outlined" 
+          color="success" 
+        />
+I can assist you with various functions related to shopping, including:
+
+1. **Order Management**
+   - Create new orders from a shopping cart or directly without a cart.
+   - List your existing orders.
+   - Get detailed information about a specific order.
+2. **Coupons and Discounts**
+   - List available coupons.
+   - Get details about specific coupons.
+   - Create new coupon tickets.
+3. **Sales and Reviews**
+   - List and get details about sales.
+   - Write questions and reviews for sales.
+
+If you have a specific action in mind or need help in a certain area, just let me know!
+      </CardContent>
+    </Card>
+  </div>
+</div>
+
+Chat with your backend server.
+
+You can build a Super A.I. chatbot application from swagger documents performing the LLM function calling.
+
+The super A.I. chatbot selects proper functions defined in the swagger document by analyzing conversation contexts with user. And then the super A.I. chatbot requests the user to write arguments for the selected functions by conversation text, and actually calls the API function with the arguments.
+
+If the swagger file you provide contains a reasonable level of functions, DTO schemas, and descriptions, everything is ready. Just deliver the swagger file to the Nestia A.I. Chatbot, you can start conversation with your backend server calling the API functions by chatting text.
+
+
+
+
+## Demonstration
+<br/>
+<iframe src="https://www.youtube.com/embed/m47p4iJ90Ms?si=cvgfckN25GJhjLTB" 
+        title="Shopping A.I. Chatbot built with Nestia" 
+        width="100%" 
+        height="600" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" 
+        allowfullscreen></iframe>
+
+- Shopping A.I. Chatbot Application: [https://nestia.io/chat/shopping](/chat/shopping)
+- Shopping Backend Repository: https://github.com/samchon/shopping-backend
+- Shopping Swagger Document (`@nestia/editor`): https://shopping-be.wrtn.ai/editor/
+
+The above demonstration video shows Shopping A.I. chatbot built with Nestia.
+
+As you can see, just by delivering only swagger document of the shopping backend server, the shopping A.I. chatbot automatically composed. And in the Shopping A.I. chatbot, the user can search products, and take orders just by conversation text.
+
+No special coding, no special configuration. Just deliver your swagger document.
+
+
+
+
+## Application Setup
+<Tabs items={['npm', 'pnpm', 'yarn']}>
+  <Tabs.Tab>
+```bash filename="Terminal"
+npm install @nestia/agent @nestia/chat @samchon/openapi openai
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal"
+pnpm install @nestia/agent @nestia/chat @samchon/openapi openai
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal"
+yarn @nestia/agent @nestia/chat @samchon/openapi openai
+```
+  </Tabs.Tab>
+</Tabs>
+
+Install `@nestia/chat` and its dependencies.
+
+  - `@nestia/chat`
+  - `@nestia/agent`
+  - `@samchon/openapi`
+  - `openai`
+
+To make the super A.I. chatbot, you need to install the above libraries. All of them except `@nestia/chat` are in the dependencies of the `@nestia/chat`, but it would better to install them explicitly for the safe frontend application development.
+
+<Tabs items={['Conceptual Code', 'Actual Code']}>
+  <Tabs.Tab>
+```typescript filename="src/shopping.tsx" showLineNumbers
+import { NestiaAgent } from "@nestia/agent";
+import { NestiaChatApplication } from "@nestia/chat";
+import {
+  HttpLlm,
+  IHttpConnection,
+  IHttpLlmApplication,
+  OpenApi,
+} from "@samchon/openapi";
+import { OpenAI } from "openai";
+import { createRoot } from "react-dom/client";
+
+const main = async (): Promise<void> => {
+  // COMPOSE LLM APPLICATION SCHEMA
+  const application: IHttpLlmApplication<"chatgpt"> = HttpLlm.application({
+    model: "chatgpt",
+    document: OpenApi.convert(
+      await fetch(
+        "https://raw.githubusercontent.com/samchon/shopping-backend/refs/heads/master/packages/api/customer.swagger.json",
+      ).then((r) => r.json()),
+    ),
+  });
+  
+  // CREATE NESTIA AGENT
+  const agent: NestiaAgent = new NestiaAgent({
+    provider: {
+      type: "chatgpt",
+      api: new OpenAI({
+        apiKey: "YOUR-OPENAI-API-KEY",
+        dangerouslyAllowBrowser: true,
+      }),
+      model: "gpt-4o-mini",
+    },
+    controllers: [
+      {
+        protocol: "http",
+        name: "shopping",
+        application,
+        connection: {
+          host: "https://shopping-be.wrtn.ai",
+        },
+      },
+    ],
+  });
+
+  // RENDER CHAT APPLICATION
+  createRoot(window.document.getElementById("root")!).render(
+    <NestiaChatApplication agent={agent} />,
+  );
+};
+main().catch(console.error);
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```typescript filename="src/shopping.tsx" showLineNumbers
+import {
+  Button,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  Link,
+  Radio,
+  RadioGroup,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { NestiaAgent } from "@nestia/agent";
+import {
+  HttpLlm,
+  IHttpConnection,
+  IHttpLlmApplication,
+  OpenApi,
+} from "@samchon/openapi";
+import ShoppingApi from "@samchon/shopping-api";
+import OpenAI from "openai";
+import { useState } from "react";
+import { createRoot } from "react-dom/client";
+
+import { NestiaChatApplication } from "./NestiaChatApplication";
+
+function ShoppingChatApplication() {
+  const [apiKey, setApiKey] = useState("");
+  const [model, setModel] = useState("gpt-4o-mini");
+
+  const [locale, setLocale] = useState(window.navigator.language);
+  const [name, setName] = useState("John Doe");
+  const [mobile, setMobile] = useState("821012345678");
+
+  const [agent, setAgent] = useState<NestiaAgent | null>(null);
+  const [progress, setProgress] = useState(false);
+
+  const startChatApplication = async () => {
+    setProgress(true);
+    // PREPARE LLM APPLICATION
+    const application: IHttpLlmApplication<"chatgpt"> = HttpLlm.application({
+      model: "chatgpt",
+      document: OpenApi.convert(
+        await fetch(
+          "https://raw.githubusercontent.com/samchon/shopping-backend/refs/heads/master/packages/api/customer.swagger.json",
+        ).then((r) => r.json()),
+      ),
+    });
+
+    // HANDLESHAKE WITH SHOPPING BACKEND
+    const connection: IHttpConnection = {
+      host: "https://shopping-be.wrtn.ai",
+    };
+    await ShoppingApi.functional.shoppings.customers.authenticate.create(
+      connection,
+      {
+        channel_code: "samchon",
+        external_user: null,
+        href: window.location.href,
+        referrer: window.document.referrer,
+      },
+    );
+    await ShoppingApi.functional.shoppings.customers.authenticate.activate(
+      connection,
+      {
+        mobile,
+        name,
+      },
+    );
+
+    // COMPOSE CHAT AGENT
+    setAgent(
+      new NestiaAgent({
+        provider: {
+          type: "chatgpt",
+          api: new OpenAI({
+            apiKey,
+            dangerouslyAllowBrowser: true,
+          }),
+          model: "gpt-4o-mini",
+        },
+        controllers: [
+          {
+            protocol: "http",
+            name: "shopping",
+            application,
+            connection,
+          },
+        ],
+        config: {
+          locale,
+        },
+      }),
+    );
+  };
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        overflow: agent ? undefined : "auto",
+      }}
+    >
+      {agent ? (
+        <NestiaChatApplication agent={agent} />
+      ) : (
+        <FormControl
+          style={{
+            width: "calc(100% - 60px)",
+            padding: 15,
+            margin: 15,
+          }}
+        >
+          <Typography variant="h4">Shopping A.I. Chatbot</Typography>
+          <br />
+          <Divider />
+          <br />
+          Demonstration of Nestia A.I. Chatbot with Shopping Backend API.
+          <br />
+          <br />
+          <Link
+            href="https://github.com/samchon/shopping-backend"
+            target="_blank"
+          >
+            https://github.com/samchon/shopping-backend
+          </Link>
+          <br />
+          <br />
+          <Typography variant="h6"> OpenAI Configuration </Typography>
+          <TextField
+            onChange={(e) => setApiKey(e.target.value)}
+            defaultValue={apiKey}
+            label="OpenAI API Key"
+            variant="outlined"
+            placeholder="Your OpenAI API Key"
+            error={apiKey.length === 0}
+          />
+          <br />
+          <RadioGroup
+            defaultValue={model}
+            onChange={(_e, value) => setModel(value)}
+            style={{ paddingLeft: 15 }}
+          >
+            <FormControlLabel
+              control={<Radio />}
+              label="GPT-4o Mini"
+              value="gpt-4o-mini"
+            />
+            <FormControlLabel
+              control={<Radio />}
+              label="GPT-4o"
+              value="gpt-4o"
+            />
+          </RadioGroup>
+          <br />
+          <Typography variant="h6"> Membership Information </Typography>
+          <br />
+          <TextField
+            onChange={(e) => setLocale(e.target.value)}
+            defaultValue={locale}
+            label="Locale"
+            variant="outlined"
+            error={locale.length === 0}
+          />
+          <br />
+          <TextField
+            onChange={(e) => setName(e.target.value)}
+            defaultValue={name}
+            label="Name"
+            variant="outlined"
+            error={name.length === 0}
+          />
+          <br />
+          <TextField
+            onChange={(e) => setMobile(e.target.value)}
+            defaultValue={mobile}
+            label="Mobile"
+            variant="outlined"
+            error={mobile.length === 0}
+          />
+          <br />
+          <br />
+          <Button
+            component="a"
+            fullWidth
+            variant="contained"
+            color={"info"}
+            size="large"
+            disabled={
+              progress ||
+              apiKey.length === 0 ||
+              locale.length === 0 ||
+              name.length === 0 ||
+              mobile.length === 0
+            }
+            onClick={() => startChatApplication()}
+          >
+            {progress ? "Starting..." : "Start A.I. Chatbot"}
+          </Button>
+        </FormControl>
+      )}
+    </div>
+  );
+}
+
+const main = async (): Promise<void> => {
+  createRoot(window.document.getElementById("root")!).render(
+    <ShoppingChatApplication />,
+  );
+};
+main().catch(console.error);
+```
+  </Tabs.Tab>
+</Tabs>
+
+After setup, import and compose the A.I. chatbot like above.
+
+The first thing you should do is composing `OpenApi.IDocument` typed object from your swagger document. The `OpenApi.IDocument` is an emended version of the OpenAPI v3.1 specification for the normalization. You can do it through `OpenApi.convert()` function.
+
+After that, you have to compose the `IHttpLlmApplication` typed object from the `HttpLlm.application()` function. The `IHttpLlmApplication` object is a schema for the LLM function calling. As current Nestia supports only the OpenAI (The type name is chatgpt to avoid confusion due to the similar names `openapi`/`openai`), you should set the `model` property to `"chatgpt"`.
+
+At last, create an `NestiaAgent` instance. The `IHttpLlmApplication` is a type of controller to the `NestiaAgent`, and OpenAI client is a type of provider in the `NestiaAgent` concept. After composing the `NestiaAgent`, you can directly create the A.I. chatbot frontend application with the `<NestiaChatApplication agent={agent} />` statement.
+
+<Callout type="info">
+**OpenAPI conversion process**
+
+You can learn more about the schema conversion process in the [`@samchon/openapi`](https://github.com/samchon/openapi) repository. 
+
+```mermaid
+flowchart
+  subgraph "OpenAPI Specification"
+    v20("Swagger v2.0") --upgrades--> emended[["<b><u>OpenAPI v3.1 (emended)</u></b>"]]
+    v30("OpenAPI v3.0") --upgrades--> emended
+    v31("OpenAPI v3.1") --emends--> emended
+  end
+  subgraph "OpenAPI Generator"
+    emended --normalizes--> migration[["Migration Schema"]]
+    migration --"Artificial Intelligence"--> lfc{{"<b>LLM Function Calling</b>"}}
+    lfc --"OpenAI"--> chatgpt("<b><u>ChatGPT</u></b>")
+    lfc --"Anthropic"--> claude("Claude")
+    lfc --"Google"--> gemini("Gemini")
+    lfc --"Meta"--> llama("Llama")
+  end
+```
+</Callout>
+
+
+
+
+## Make Your A.I. Chatbot
+Above `@nestia/agent` and `@nestia/chat` libraries are just for testing and demonstration. I've made them to prove a conncept that every backend servers providing swagger documents can be conversed with the A.I. chatbot, and `nestia` is especially efficient for the A.I. chatbot development purpose.
+
+However, `@nestia/agent` support only OpenAI, and has not optimized for specific purpose. As it has not been optimized without any RAG (Retrieval Augmented Generation) models, it may consume a lot of LLM cost than what you may expected. Therefore, use the `@nestia/agent` for studying the A.I. chatbot development, or just demonstrating your backend server before production development.
+
+  - Source Codes:
+    - `@nestia/agent`: https://github.com/samchon/nestia/tree/master/packages/agent
+    - `@nestia/chat`: https://github.com/samchon/nestia/tree/master/packages/chat
+
+
+
+
+## Wrtn OS
+[![Wrtn Logo](/images/sponsors/wrtn-logo.png)](https://wrtnlabs.io)
+
+> https://wrtnlabs.io
+
+The new era of software development.
+
+If you are not familiar with LLM (Large Language Moodel) development or RAG implementation, you can take another option. Prepare your swagger document file, and visit WrtnLabs homepage https://wrtnlabs.io. You can create your own A.I. chatbot with "Wrtn OS", and re-distribute it as you want. The A.I. assistant in the Wrtn OS is much more optimized and cost efficient than the `@nestia/agent`, and it is fully open sourced.
+
+Also, you can sell your swagger document (backend API functions) in the "Wrtn Store", so that let other users to create their own A.I. chatbot with your backend API functions. Conversely, you can purchase the functions you need to create an A.I. chatbot from the store. If you have create an A.I. chatbot with only the functions purchased in the Wrtn Store, it is the no coding development.
+
+I think this is a new way of software development, and a new way of software distribution. It is a new era of software development, and I hope you to be a part of it.

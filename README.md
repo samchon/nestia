@@ -20,7 +20,7 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
     - Automatic E2E test functions generator
   - `@nestia/e2e`: Test program utilizing e2e test functions
   - `@nestia/benchmark`: Benchmark program using e2e test functions
-  - `@nestia/migrate`: OpenAPI generator from Swagger to NestJS/SDK
+  - `@nestia/chat`: Super A.I. Chatbot by Swagger document
   - `@nestia/editor`: Swagger-UI with Online TypeScript Editor
   - `nestia`: Just CLI (command line interface) tool
 
@@ -62,24 +62,28 @@ Check out the document in the [website](https://nestia.io/docs/):
 
 ### 📖 Features
   - Core Library
-    - [WebSocketRoute](https://nestia.io/docs/core/WebSocketRoute)
-    - [TypedRoute](https://nestia.io/docs/core/TypedRoute/)
-    - [TypedBody](https://nestia.io/docs/core/TypedBody/)
-    - [TypedParam](https://nestia.io/docs/core/TypedParam/)
-    - [TypedQuery](https://nestia.io/docs/core/TypedQuery/)
-    - [TypedHeaders](https://nestia.io/docs/core/TypedHeaders/)
-    - [TypedException](https://nestia.io/docs/core/TypedException/)
-  - Generators
-    - [Swagger Documents](https://nestia.io/docs/sdk/swagger/)
-    - [Software Development Kit](https://nestia.io/docs/sdk/sdk/)
-    - [E2E Functions](https://nestia.io/docs/sdk/e2e/)
-    - [Mockup Simulator](https://nestia.io/docs/sdk/simulator/)
+    - [`@WebSocketRoute`](https://nestia.io/docs/core/WebSocketRoute)
+    - [`@TypedRoute`](https://nestia.io/docs/core/TypedRoute/)
+    - [**`@TypedBody`**](https://nestia.io/docs/core/TypedBody/)
+    - [`@TypedParam`](https://nestia.io/docs/core/TypedParam/)
+    - [`@TypedQuery`](https://nestia.io/docs/core/TypedQuery/)
+    - [`@TypedFormData`](https://nestia.io/docs/core/TypedFormData/)
+    - [`@TypedHeaders`](https://nestia.io/docs/core/TypedHeaders/)
+    - [`@TypedException`](https://nestia.io/docs/core/TypedException/)
+  - Software Development Kit
+    - [SDK Builder](https://nestia.io/docs/sdk/)
+    - [Mockup Simulator](https://nestia.io/docs/sdk/simulate/)
+    - [E2E Test Functions](https://nestia.io/docs/sdk/e2e/)
+    - [Distribution](https://nestia.io/docs/sdk/distribute/)
+  - Swagger Document
+    - [Swagger Builder](https://nestia.io/docs/swagger/)
+    - [**A.I. Chatbot by Swagger**](https://nestia.io/docs/swagger/chat/)
+    - [Cloud Swagger Editor](https://nestia.io/docs/swagger/editor/)
+    - [Documentation Strategy](https://nestia.io/docs/swagger/strategy/)
   - E2E Testing
     - [Why E2E Test?](https://nestia.io/docs/e2e/why/)
     - [Test Program Development](https://nestia.io/docs/e2e/development/)
     - [Performance Benchmark](https://nestia.io/docs/e2e/benchmark/)
-  - [Swagger to NestJS](https://nestia.io/docs/migrate/)
-  - [TypeScript Swagger Editor](https://nestia.io/docs/editor/)
 
 ### 🔗 Appendix
   - [API Documents](https://nestia.io/api)
