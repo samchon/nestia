@@ -1,7 +1,6 @@
 export default {
   index: "SDK Builder",
-  documentation: "Documentation Strategy",
-  simulator: "Mockup Simulator",
+  simulate: "Mockup Simulator",
   e2e: "E2E Test Functions",
   distribute: "Distribution",
 
@@ -12,6 +11,10 @@ export default {
   },
   swagger: {
     title: "Swagger Generator",
+    display: "hidden",
+  },
+  simulator: {
+    title: "Mockup Simulator",
     display: "hidden",
   },
 };

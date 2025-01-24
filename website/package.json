@@ -31,8 +31,7 @@
     "nextra": "^3.2.4",
     "nextra-theme-docs": "^3.2.4",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-material-ui-carousel": "^3.4.2"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/node": "18.11.10",

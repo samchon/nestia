@@ -1,9 +1,83 @@
+import FaceIcon from "@mui/icons-material/Face";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
+import { Card, CardContent, Chip } from "@mui/material";
 import { Callout, Tabs } from 'nextra/components'
-import Carousel from "react-material-ui-carousel"
 
 ## Preface
-<Carousel cycleNavigation={true} navButtonsAlwaysVisible={true}>
-</Carousel>
+<br/>
+<div 
+  style={{
+    width: "100%",
+    padding: 15,
+    backgroundColor: "lightblue",
+  }}
+>
+  <div 
+    style={{
+      display: "flex",
+      justifyContent: "flex-end",
+    }}
+  >
+    <Card 
+      elevation={3}
+      style={{
+        marginTop: 10,
+        marginBottom: 10,
+        marginLeft: "10%",
+        textAlign: "right",
+        backgroundColor: "lightyellow",
+      }}
+    >
+      <CardContent>
+        <Chip 
+          icon={<FaceIcon />} 
+          label={<b><u>User</u></b>} 
+          variant="outlined" 
+          color="primary" 
+        />
+        What you can do? Introduce yourself, please.
+      </CardContent>
+    </Card>
+  </div>
+  <div 
+    style={{
+      display: "flex",
+      justifyContent: "flex-start",
+    }}>
+    <Card 
+      elevation={3}
+      style={{
+        marginTop: 10,
+        marginBottom: 10,
+        marginRight: "10%",
+      }}
+    >
+      <CardContent>
+        <Chip 
+          icon={<SmartToyIcon />} 
+          label={<b><u>Assistant</u></b>} 
+          variant="outlined" 
+          color="success" 
+        />
+I can assist you with various functions related to shopping, including:
+
+1. **Order Management**
+   - Create new orders from a shopping cart or directly without a cart.
+   - List your existing orders.
+   - Get detailed information about a specific order.
+2. **Coupons and Discounts**
+   - List available coupons.
+   - Get details about specific coupons.
+   - Create new coupon tickets.
+3. **Sales and Reviews**
+   - List and get details about sales.
+   - Write questions and reviews for sales.
+
+If you have a specific action in mind or need help in a certain area, just let me know!
+      </CardContent>
+    </Card>
+  </div>
+</div>
 
 Chat with your backend server.
 
@@ -13,36 +87,29 @@ The super A.I. chatbot selects proper functions defined in the swagger document 
 
 If the swagger file you provide contains a reasonable level of functions, DTO schemas, and descriptions, everything is ready. Just deliver the swagger file to the Nestia A.I. Chatbot, you can start conversation with your backend server calling the API functions by chatting text.
 
-<Callout type="info">
-**LLM Function Calling** and **Structured Output**
-
-LLM selects proper function and fill arguments.
-
-In nowadays, most LLM (Large Language Model) like OpenAI are supporting "function calling" feature. The "LLM function calling" means that LLM automatically selects a proper function and fills parameter values from conversation with the user (may by chatting text).
-
-Structured output is another feature of LLM. The "structured output" means that LLM automatically transforms the output conversation into a structured data format like JSON.
-
-- https://platform.openai.com/docs/guides/function-calling
-- https://platform.openai.com/docs/guides/structured-outputs
-</Callout>
-
 
 
 
 ## Demonstration
-<iframe src="/videos/shopping.mp4" 
+<br/>
+<iframe src="https://www.youtube.com/embed/m47p4iJ90Ms?si=cvgfckN25GJhjLTB" 
+        title="Shopping A.I. Chatbot built with Nestia" 
         width="100%" 
-        height="600" />
+        height="600" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" 
+        allowfullscreen></iframe>
 
-- Shopping A.I. Chatbot: [https://nestia.io/chat/shopping](/chat/shopping)
+- Shopping A.I. Chatbot Application: [https://nestia.io/chat/shopping](/chat/shopping)
 - Shopping Backend Repository: https://github.com/samchon/shopping-backend
-- Swagger Document (`@nestia/editor`): https://shopping-be.wrtn.ai/editor/
+- Shopping Swagger Document (`@nestia/editor`): https://shopping-be.wrtn.ai/editor/
 
 The above demonstration video shows Shopping A.I. chatbot built with Nestia.
 
 As you can see, just by delivering only swagger document of the shopping backend server, the shopping A.I. chatbot automatically composed. And in the Shopping A.I. chatbot, the user can search products, and take orders just by conversation text.
 
 No special coding, no special configuration. Just deliver your swagger document.
+
 
 
 
@@ -380,7 +447,4 @@ flowchart
 
 
 
-## Agent Library
-```bash filename="Terminal"
-npm install @nestia/agent
-```
+## Make Your A.I. Chatbot
