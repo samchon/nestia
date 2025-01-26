@@ -2,9 +2,9 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import { Button, Grid, Typography } from "@mui/material";
 import { ReactNode } from "react";
+import React from "react";
 
 import ProductHeroLayout from "../../components/home/ProductHeroLayout";
-import React from "react";
 
 const BLUE = "rgb(0, 200, 255)";
 const CYAN = "rgb(80, 200, 0)";
