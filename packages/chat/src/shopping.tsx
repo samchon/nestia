@@ -21,7 +21,7 @@ import OpenAI from "openai";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 
-import { NestiaChatApplication } from "./NestiaChatApplication";
+import { NestiaChatApplication } from "./applications/NestiaChatApplication";
 
 function ShoppingChatApplication() {
   const [apiKey, setApiKey] = useState("");

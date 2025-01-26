@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 
-import { NestiaChatUploader } from "./NestiaChatUploader";
+import { NestiaChatUploader } from "./applications/NestiaChatUploader";
 
 createRoot(window.document.getElementById("root")!).render(
   <NestiaChatUploader
