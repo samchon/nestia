@@ -5,8 +5,9 @@ import HomeCodeBlock from "../../components/home/HomeCodeBlock";
 import HomeStrengthSectionMovie from "./HomeStrengthSectionMovie";
 
 const BLUE = "rgb(0, 200, 255)";
-const CYAN = "rgb(80, 200, 0)";
+const GREEN = "rgb(80, 200, 0)";
 const PURPLE = "rgb(191, 64, 191)";
+const YELLOW = "#DEC20B";
 
 const sections: HomeStrengthSectionMovie.Props[] = [
   {
@@ -16,7 +17,7 @@ const sections: HomeStrengthSectionMovie.Props[] = [
         <span style={{ color: PURPLE }}>@</span>
         <span style={{ color: BLUE }}>TypedBody()</span>
         <span style={{ color: "gray" }}>{" input: "}</span>
-        <span style={{ color: CYAN }}>IArticleCreate</span>
+        <span style={{ color: GREEN }}>IArticleCreate</span>
       </React.Fragment>
     ),
     description: (
@@ -55,14 +56,14 @@ const sections: HomeStrengthSectionMovie.Props[] = [
       </React.Fragment>
     ),
     image: "/images/home/sdk.png",
-    href: "/docs/sdk/sdk",
+    href: "/docs/sdk",
   },
   {
     title: "Mockup Simulator",
     subTitle: (
       <React.Fragment>
         <span style={{ color: "gray" }}>{"{ "}</span>
-        <span style={{ color: CYAN }}>{"simulate: "}</span>
+        <span style={{ color: GREEN }}>{"simulate: "}</span>
         <span style={{ color: BLUE }}>{"true"}</span>
         <span style={{ color: "gray" }}>{" }"}</span>
       </React.Fragment>
@@ -71,7 +72,7 @@ const sections: HomeStrengthSectionMovie.Props[] = [
       <React.Fragment>
         <p>Mockup Simulator embedded in SDK.</p>
         <br />
-        <p>Simulates validation and response of the backend.</p>
+        <p>Simulates backend API.</p>
         <br />
         <p>
           Based on{" "}
@@ -80,30 +81,60 @@ const sections: HomeStrengthSectionMovie.Props[] = [
             <span style={{ color: "gray" }}>.</span>
             <span style={{ color: PURPLE }}>assert</span>
             <span style={{ color: "gray" }}>{"<"}</span>
-            <span style={{ color: CYAN }}>T</span>
-            <span style={{ color: "gray" }}>{">()"}</span>
-          </i>{" "}
-          and{" "}
+            <span style={{ color: GREEN }}>T</span>
+            <span style={{ color: "gray" }}>{">"}</span>
+          </i>
+          ,{" "}
           <i>
             <span style={{ color: BLUE }}>typia</span>
             <span style={{ color: "gray" }}>.</span>
             <span style={{ color: PURPLE }}>random</span>
             <span style={{ color: "gray" }}>{"<"}</span>
-            <span style={{ color: CYAN }}>T</span>
-            <span style={{ color: "gray" }}>{">()"}</span>
+            <span style={{ color: GREEN }}>T</span>
+            <span style={{ color: "gray" }}>{">"}</span>
           </i>
         </p>
       </React.Fragment>
     ),
     image: "/images/home/random.png",
-    href: "/docs/sdk/simulator",
+    href: "/docs/sdk/simulate",
   },
   {
-    title: "TS OpenAPI Generator",
-    subTitle: <HomeCodeBlock>npx @nestia/migrate</HomeCodeBlock>,
+    title: "WebSocket RPC",
+    subTitle: (
+      <React.Fragment>
+        <span style={{ color: PURPLE }}>@</span>
+        <span style={{ color: BLUE }}>{"WebSocketRoute"}</span>
+        {"."}
+        <span style={{ color: YELLOW }}>{"Acceptor()"}</span>
+      </React.Fragment>
+    ),
     description: (
       <React.Fragment>
-        <p>Web based TypeScript Editor</p>
+        <p>WebSocket RPC with NestJS.</p>
+        <br />
+        <p>
+          Much easier than <HomeCodeBlock>@WebSocketGateway()</HomeCodeBlock>.
+        </p>
+        <br />
+        <p>Supports SDK library generation</p>
+      </React.Fragment>
+    ),
+    image: "/images/home/websocket.svg",
+    href: "/docs/core/WebSocketRoute",
+  },
+  {
+    title: "TypeScript Swagger Editor",
+    subTitle: (
+      <React.Fragment>
+        <span style={{ color: BLUE }}>TypeScript IDE</span>
+        {" + "}
+        <span style={{ color: GREEN }}>Swagger/UI</span>
+      </React.Fragment>
+    ),
+    description: (
+      <React.Fragment>
+        <p>Web based TypeScript Editor IDE</p>
         <br />
         <p>Swagger to NestJS/SDK</p>
         <br />
@@ -111,7 +142,28 @@ const sections: HomeStrengthSectionMovie.Props[] = [
       </React.Fragment>
     ),
     image: "/images/home/swagger.png",
-    href: "/docs/editor",
+    href: "/docs/swagger/editor",
+  },
+  {
+    title: "Super A.I. Chatbot",
+    subTitle: (
+      <React.Fragment>
+        <span style={{ color: BLUE }}>A.I. Chatbot</span>
+        {" by "}
+        <span style={{ color: GREEN }}>Swagger Document</span>
+      </React.Fragment>
+    ),
+    description: (
+      <React.Fragment>
+        <p>Swagger operations to LLM function schemas</p>
+        <br />
+        <p>Converse your backend server to A.I. chatbot</p>
+        <br />
+        <p>The best tool for A.I. chatbot development</p>
+      </React.Fragment>
+    ),
+    image: "/images/home/openai.svg",
+    href: "/docs/swagger/chat",
   },
 ];
 
