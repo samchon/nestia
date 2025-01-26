@@ -16,8 +16,8 @@ import JsonInput from "react-json-editor-ajrm";
 // @ts-ignore
 import locale from "react-json-editor-ajrm/locale/en.js";
 
+import { NestiaChatFileUploadMovie } from "../movies/uploader/NestiaChatFileUploadMovie";
 import { NestiaChatApplication } from "./NestiaChatApplication";
-import { NestiaChatFileUploadMovie } from "./movies/uploader/NestiaChatFileUploadMovie";
 
 export const NestiaChatUploader = (props: NestiaChatUploader.IProps) => {
   // PARAMETERS
