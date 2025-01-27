@@ -722,8 +722,8 @@ As you can see, above `IBbsArticle.ICreate` and `IBbsArticle.IUpdate` interfaces
   "LLM Application Schema",
 ]}>
   <Tabs.Tab>
-```typescript filename="src/controllers/shoppings/customers/ShoppingCustomerSaleController.ts" showLineNumbers {29, 43, 57}
-import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
+```typescript filename="src/controllers/shoppings/customers/ShoppingCustomerSaleController.ts" showLineNumbers {29, 43, 58}
+import { HumanRoute, TypedBody, TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { tags } from "typia";
 
@@ -779,8 +779,8 @@ export class BbsArticleController {
    * Erases an article from the DB.
    *
    * @param id Target article's {@link IBbsArticle.id}
-   * @human
    */
+  @HumanRoute()
   @TypedRoute.Delete(":id")
   public async erase(
     @TypedParam("id") id: string & tags.Format<"uuid">,
@@ -1024,28 +1024,6 @@ export class BbsArticleController {
       },
       "description": "Read an article.\n\nReads an article from the DB.",
       "tags": []
-    },
-    {
-      "method": "delete",
-      "path": "/bbs/articles/{id}",
-      "name": "bbs_articles_erase",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "description": " Target article's {@link IBbsArticle.id }\n\n\n@format uuid",
-            "type": "string"
-          }
-        },
-        "additionalProperties": false,
-        "required": [
-          "id"
-        ],
-        "$defs": {}
-      },
-      "output": {},
-      "description": "Erase an article.\n\nErases an article from the DB.",
-      "tags": []
     }
   ],
   "errors": []
@@ -1056,7 +1034,7 @@ export class BbsArticleController {
 
 Hiding some API functions by comment tag.
 
-If you write `@hidden` or `@internal` comment tag on a controller method, it would be hidden in the Swagger Document. And if you write `@human` comment tag on a controller method, it would be shown in the Swwagger Document, but would be hidden in the LLM Application Schema.
+If you write `@hidden` or `@internal` comment tag on a controller method, it would be hidden in the Swagger Document. And if you adjust `@HumanRoute()` decorator to a controller method, it would be shown in the Swagger Document, but would be hidden in the LLM Application Schema.
 
 When you need to hide some internal functions from Swagger Document, or block [A.I. chatbot](./chat) to call some prohibited functions that must be called by human manually.
 
