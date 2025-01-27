@@ -2,96 +2,88 @@ import { Callout, Tabs } from 'nextra/components'
 
 ## Description Comment
 <Tabs items={[
-  "TypeScript Source Code", 
-  "Compiled JavaScript File",
-  "Console Output"]}>
+  "API Controller",
+  "DTO Interface",
+  "Swagger Document",
+  "LLM Application Schema",
+]}>
   <Tabs.Tab>
-```typescript filename="example/src/llm.application.bbs.ts" showLineNumbers {11, 15-17} copy
-import { ILlmApplication, ILlmFunction } from "@samchon/openapi";
-import typia, { tags } from "typia";
+```typescript filename="src/controllers/BbsArticleController.ts" showLineNumbers
+import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import { tags } from "typia";
 
-const app: ILlmApplication<"chatgpt"> = typia.llm.application<
-  BbsArticleController,
-  "chatgpt"
->();
-const func: ILlmFunction<"chatgpt"> | undefined = app.functions.find(
-  func => func.name === "create"
-);
-console.log(func?.description);
+import { IBbsArticle } from "../api/structures/IBbsArticle";
 
-interface BbsArticleController {
+@Controller("bbs/articles")
+export class BbsArticleController {
   /**
    * Create a new article.
    *
    * Writes a new article and archives it into the DB.
    *
-   * @param props Properties of create function
+   * @param input Information of the article to create
    * @returns Newly created article
    */
-  create(props: {
-    /**
-     * Information of the article to create
-     */
-    input: IBbsArticle.ICreate;
-  }): Promise<IBbsArticle>;
+  @TypedRoute.Post()
+  public async create(
+    @TypedBody() input: IBbsArticle.ICreate
+  ): Promise<IBbsArticle>;
 
   /**
    * Update an article.
    *
    * Updates an article with new content.
    *
-   * @param props Properties of update function
+   * @param id Target article's {@link IBbsArticle.id}
    * @param input New content to update
    */
-  update(props: {
-    /**
-     * Target article's {@link IBbsArticle.id}.
-     */
-    id: string & tags.Format<"uuid">;
-
-    /**
-     * New content to update.
-     */
-    input: IBbsArticle.IUpdate;
-  }): Promise<void>;
+  @TypedRoute.Put(":id")
+  public async update(
+    @TypedParam("id") id: string & tags.Format<"uuid">,
+    @TypedBody() input: IBbsArticle.IUpdate,
+  ): Promise<void>;
 
   /**
    * Erase an article.
    *
    * Erases an article from the DB.
    *
-   * @param props Properties of erase function
+   * @param id Target article's {@link IBbsArticle.id}
    */
-  erase(props: {
-    /**
-     * Target article's {@link IBbsArticle.id}.
-     */
-    id: string & tags.Format<"uuid">;
-  }): Promise<void>;
+  @TypedRoute.Delete(":id")
+  public async erase(
+    @TypedParam("id") id: string & tags.Format<"uuid">,
+  ): Promise<void>;
 }
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```typescript filename="src/api/structures/IBbsArticle.ts" showLineNumbers
+import { tags } from "typia";
 
 /**
  * Article entity.
  *
  * `IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System).
  */
-interface IBbsArticle extends IBbsArticle.ICreate {
+export interface IBbsArticle extends IBbsArticle.ICreate {
   /**
    * Primary Key.
    */
   id: string & tags.Format<"uuid">;
-
+ 
   /**
    * Creation time of the article.
    */
   created_at: string & tags.Format<"date-time">;
-
+ 
   /**
    * Last updated time of the article.
    */
   updated_at: string & tags.Format<"date-time">;
 }
-namespace IBbsArticle {
+export namespace IBbsArticle {
   /**
    * Information of the article to create.
    */
@@ -102,14 +94,14 @@ namespace IBbsArticle {
      * Representative title of the article.
      */
     title: string;
-
+ 
     /**
      * Content body.
      *
      * Content body of the article writtn in the markdown format.
      */
     body: string;
-
+ 
     /**
      * Thumbnail image URI.
      *
@@ -121,7 +113,7 @@ namespace IBbsArticle {
       | null
       | (string & tags.Format<"uri"> & tags.ContentMediaType<"image/*">);
   }
-
+ 
   /**
    * Information of the article to update.
    *
@@ -132,234 +124,488 @@ namespace IBbsArticle {
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```javascript filename="example/src/llm.application.bbs.js" showLineNumbers
-import typia from "typia";
-const app = {
-  model: "chatgpt",
-  options: {
-    reference: false,
-    strict: false,
-    separate: null,
-  },
-  functions: [
+```json filename="swagger.json" showLineNumbers
+{
+  "openapi": "3.1.0",
+  "servers": [
     {
-      name: "create",
-      parameters: {
-        description: " Properties of create function",
-        type: "object",
-        properties: {
-          input: {
-            description:
-              "Information of the article to create.\n\n------------------------------\n\nDescription of the current {@link IBbsArticle.ICreate} type:\n\n> Information of the article to create.\n\n------------------------------\n\nDescription of the parent {@link IBbsArticle} type:\n\n> Article entity.\n> \n> `IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System).",
-            type: "object",
-            properties: {
-              title: {
-                title: "Title of the article",
-                description:
-                  "Title of the article.\n\nRepresentative title of the article.",
-                type: "string",
-              },
-              body: {
-                title: "Content body",
-                description:
-                  "Content body.\n\nContent body of the article writtn in the markdown format.",
-                type: "string",
-              },
-              thumbnail: {
-                title: "Thumbnail image URI",
-                description:
-                  "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
-                anyOf: [
-                  {
-                    type: "null",
-                  },
-                  {
-                    type: "string",
-                    description: "@format uri\n@contentMediaType image/*",
-                  },
-                ],
-              },
+      "url": "http://localhost:37001",
+      "description": "Local Server"
+    }
+  ],
+  "info": {
+    "version": "0.1.0",
+    "title": "@samchon/bbs-api",
+    "description": "BBS Backend API",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/bbs/articles": {
+      "post": {
+        "summary": "Create a new article",
+        "description": "Create a new article.\n\nWrites a new article and archives it into the DB.",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "Information of the article to create",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.ICreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Newly created article",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "create"
+        ],
+        "x-samchon-controller": "BbsArticleController"
+      }
+    },
+    "/bbs/articles/{id}": {
+      "put": {
+        "summary": "Update an article",
+        "description": "Update an article.\n\nUpdates an article with new content.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             },
-            required: ["title", "body", "thumbnail"],
+            "required": true,
+            "description": " Target article's {@link IBbsArticle.id }"
+          }
+        ],
+        "requestBody": {
+          "description": "New content to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartialIBbsArticle.ICreate"
+              }
+            }
           },
+          "required": true
         },
-        required: ["input"],
-        additionalProperties: false,
-        $defs: {},
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "update"
+        ],
+        "x-samchon-controller": "BbsArticleController"
       },
-      output: {
-        description:
-          "Article entity.\n\n`IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System).",
-        type: "object",
-        properties: {
-          id: {
-            title: "Primary Key",
-            description: "Primary Key.\n\n\n@format uuid",
-            type: "string",
-          },
-          created_at: {
-            title: "Creation time of the article",
-            description: "Creation time of the article.\n\n\n@format date-time",
-            type: "string",
-          },
-          updated_at: {
-            title: "Last updated time of the article",
-            description:
-              "Last updated time of the article.\n\n\n@format date-time",
-            type: "string",
-          },
-          title: {
-            title: "Title of the article",
-            description:
-              "Title of the article.\n\nRepresentative title of the article.",
-            type: "string",
-          },
-          body: {
-            title: "Content body",
-            description:
-              "Content body.\n\nContent body of the article writtn in the markdown format.",
-            type: "string",
-          },
-          thumbnail: {
-            title: "Thumbnail image URI",
-            description:
-              "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
-            anyOf: [
-              {
-                type: "null",
-              },
-              {
-                type: "string",
-                description: "@format uri\n@contentMediaType image/*",
-              },
-            ],
-          },
+      "delete": {
+        "summary": "Erase an article",
+        "description": "Erase an article.\n\nErases an article from the DB.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "description": " Target article's {@link IBbsArticle.id }"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
+          }
         },
-        required: [
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "erase"
+        ],
+        "x-samchon-controller": "BbsArticleController"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IBbsArticle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Primary Key",
+            "description": "Primary Key."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation time of the article",
+            "description": "Creation time of the article."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last updated time of the article",
+            "description": "Last updated time of the article."
+          },
+          "title": {
+            "type": "string",
+            "title": "Title of the article",
+            "description": "Title of the article.\n\nRepresentative title of the article."
+          },
+          "body": {
+            "type": "string",
+            "title": "Content body",
+            "description": "Content body.\n\nContent body of the article writtn in the markdown format."
+          },
+          "thumbnail": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "uri",
+                "contentMediaType": "image/*"
+              }
+            ],
+            "title": "Thumbnail image URI",
+            "description": "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article."
+          }
+        },
+        "required": [
           "id",
           "created_at",
           "updated_at",
           "title",
           "body",
-          "thumbnail",
+          "thumbnail"
         ],
+        "description": "Article entity.\n\n`IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System)."
       },
-      description:
-        "Create a new article.\n\nWrites a new article and archives it into the DB.",
-    },
-    {
-      name: "update",
-      parameters: {
-        description: " Properties of update function",
-        type: "object",
-        properties: {
-          id: {
-            title: "Target article's {@link IBbsArticle.id}",
-            description:
-              "Target article's {@link IBbsArticle.id}.\n\n\n@format uuid",
-            type: "string",
+      "IBbsArticle.ICreate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title of the article",
+            "description": "Title of the article.\n\nRepresentative title of the article."
           },
-          input: {
-            description:
-              "Make all properties in T optional\n\n------------------------------\n\nDescription of the current {@link PartialIBbsArticle.ICreate} type:\n\n> Make all properties in T optional",
-            type: "object",
-            properties: {
-              title: {
-                title: "Title of the article",
-                description:
-                  "Title of the article.\n\nRepresentative title of the article.",
-                type: "string",
-              },
-              body: {
-                title: "Content body",
-                description:
-                  "Content body.\n\nContent body of the article writtn in the markdown format.",
-                type: "string",
-              },
-              thumbnail: {
-                title: "Thumbnail image URI",
-                description:
-                  "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
-                anyOf: [
-                  {
-                    type: "null",
-                  },
-                  {
-                    type: "string",
-                    description: "@format uri\n@contentMediaType image/*",
-                  },
-                ],
-              },
-            },
-            required: [],
+          "body": {
+            "type": "string",
+            "title": "Content body",
+            "description": "Content body.\n\nContent body of the article writtn in the markdown format."
           },
+          "thumbnail": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "uri",
+                "contentMediaType": "image/*"
+              }
+            ],
+            "title": "Thumbnail image URI",
+            "description": "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article."
+          }
         },
-        required: ["id", "input"],
-        additionalProperties: false,
-        $defs: {},
+        "required": [
+          "title",
+          "body",
+          "thumbnail"
+        ],
+        "description": "Information of the article to create."
       },
-      description: "Update an article.\n\nUpdates an article with new content.",
-    },
-    {
-      name: "erase",
-      parameters: {
-        description: " Properties of erase function",
-        type: "object",
-        properties: {
-          id: {
-            title: "Target article's {@link IBbsArticle.id}",
-            description:
-              "Target article's {@link IBbsArticle.id}.\n\n\n@format uuid",
-            type: "string",
+      "PartialIBbsArticle.ICreate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title of the article",
+            "description": "Title of the article.\n\nRepresentative title of the article."
           },
+          "body": {
+            "type": "string",
+            "title": "Content body",
+            "description": "Content body.\n\nContent body of the article writtn in the markdown format."
+          },
+          "thumbnail": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "uri",
+                "contentMediaType": "image/*"
+              }
+            ],
+            "title": "Thumbnail image URI",
+            "description": "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article."
+          }
         },
-        required: ["id"],
-        additionalProperties: false,
-        $defs: {},
-      },
-      description: "Erase an article.\n\nErases an article from the DB.",
-    },
-  ],
-};
-const func = app.functions.find((func) => func.name === "create");
-console.log(func?.description);
-console.log(func?.parameters.description);
-console.log(func?.output?.description);
+        "required": [],
+        "description": "Make all properties in T optional"
+      }
+    }
+  },
+  "tags": [],
+  "x-samchon-emended": true
+}
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```bash filename="Terminal"
-Create a new article.
-
-Writes a new article and archives it into the DB.
+```json filename="llm.application.json" showLineNumbers
+{
+  "model": "chatgpt",
+  "options": {
+    "reference": false,
+    "strict": false,
+    "separate": null,
+    "maxLength": null
+  },
+  "functions": [
+    {
+      "method": "post",
+      "path": "/bbs/articles",
+      "name": "bbs_articles_create",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "description": "Information of the article to create.\n\n------------------------------\n\nDescription of the current {@link IBbsArticle.ICreate} type:\n\n> Information of the article to create.\n\n------------------------------\n\nDescription of the parent {@link IBbsArticle} type:\n\n> Article entity.\n> \n> `IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System).",
+            "type": "object",
+            "properties": {
+              "title": {
+                "title": "Title of the article",
+                "description": "Title of the article.\n\nRepresentative title of the article.",
+                "type": "string"
+              },
+              "body": {
+                "title": "Content body",
+                "description": "Content body.\n\nContent body of the article writtn in the markdown format.",
+                "type": "string"
+              },
+              "thumbnail": {
+                "title": "Thumbnail image URI",
+                "description": "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "string",
+                    "description": "@format uri\n@contentMediaType image/*"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "title",
+              "body",
+              "thumbnail"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "body"
+        ],
+        "$defs": {}
+      },
+      "output": {
+        "description": "Article entity.\n\n`IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System).",
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Primary Key",
+            "description": "Primary Key.\n\n\n@format uuid",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Creation time of the article",
+            "description": "Creation time of the article.\n\n\n@format date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "title": "Last updated time of the article",
+            "description": "Last updated time of the article.\n\n\n@format date-time",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title of the article",
+            "description": "Title of the article.\n\nRepresentative title of the article.",
+            "type": "string"
+          },
+          "body": {
+            "title": "Content body",
+            "description": "Content body.\n\nContent body of the article writtn in the markdown format.",
+            "type": "string"
+          },
+          "thumbnail": {
+            "title": "Thumbnail image URI",
+            "description": "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "description": "@format uri\n@contentMediaType image/*"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "title",
+          "body",
+          "thumbnail"
+        ]
+      },
+      "description": "Create a new article.\n\nWrites a new article and archives it into the DB.",
+      "tags": []
+    },
+    {
+      "method": "put",
+      "path": "/bbs/articles/{id}",
+      "name": "bbs_articles_update",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": " Target article's {@link IBbsArticle.id }\n\n\n@format uuid",
+            "type": "string"
+          },
+          "body": {
+            "description": "Make all properties in T optional\n\n------------------------------\n\nDescription of the current {@link PartialIBbsArticle.ICreate} type:\n\n> Make all properties in T optional",
+            "type": "object",
+            "properties": {
+              "title": {
+                "title": "Title of the article",
+                "description": "Title of the article.\n\nRepresentative title of the article.",
+                "type": "string"
+              },
+              "body": {
+                "title": "Content body",
+                "description": "Content body.\n\nContent body of the article writtn in the markdown format.",
+                "type": "string"
+              },
+              "thumbnail": {
+                "title": "Thumbnail image URI",
+                "description": "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "string",
+                    "description": "@format uri\n@contentMediaType image/*"
+                  }
+                ]
+              }
+            },
+            "required": []
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "body"
+        ],
+        "$defs": {}
+      },
+      "output": {},
+      "description": "Update an article.\n\nUpdates an article with new content.",
+      "tags": []
+    },
+    {
+      "method": "delete",
+      "path": "/bbs/articles/{id}",
+      "name": "bbs_articles_erase",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": " Target article's {@link IBbsArticle.id }\n\n\n@format uuid",
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ],
+        "$defs": {}
+      },
+      "output": {},
+      "description": "Erase an article.\n\nErases an article from the DB.",
+      "tags": []
+    }
+  ],
+  "errors": []
+}
 ```
   </Tabs.Tab>
 </Tabs>
 
-Here is the example code utilizing the `typia.llm.application<App, Model>()` function.
+Write descriptions as comments on controller methods, and DTO interfaces. 
 
-As you can see, above example code is writing detailed descriptions for every functions and their parameter/return types. Such detailed descriptions are very important to teach the purpose of the function to the LLM (Language Large Model), and LLM actually determines which function to call by the description. Therefore, don’t forget to writing detailed descriptions. It’s very import feature for the LLM function calling.
+The descrption comments would be transformed into the `description`, `summary` and `title` fields of the Swagger Document. And some special comment tags like `@param` and `@returns` would fill the adequate properties of the Swagger Document. If you're using `nestia` for the the [A.I. chatbot](./chat) development purpose, such detailed descriptions are very important to teach the purpose of the function to the LLM (Language Large Model), and LLM actually determines which function to call by the description.
 
-Also, `ILlmFunction` type which has only `description` property about the comment, but `ILlmSchema` has two descriptive properties; `description` and `title`. The `title` property of the `ILlmSchema` can be filled by two ways. The first way is closing the first line of the description comment with a period (`.`). By the way, this way's `description` property would be the entire description comment even including the first line. 
+Also, `OpenApi.IOperation` type has two descriptive properties `summary` and `description`. And the `OpenApi.IJsonSchema` has similar categorized two properties `title` and `description`. Both `summary` and `title` can be filled with two ways. The first way is closing the first line of the description comment with a period (`.`). By the way, this way's `description` property would be the entire description comment even including the first line composing the `summary` or `title` field.
 
-If you don't want that, you can adapt the second way that writing `@title {string}` comment tag. In that case, the `title` value would not be contained in the `description` value. For reference, it is possible to fill the `description` property of the `ILlmSchema` by the comment tag `@description`, but you have to take care of the indentation like below.
+If you don’t want that, you can adapt the second way that writing `@summary {string}` or `@title {string}` comment tag. In that case, the title value would not be contained in the description value. For reference, it is possible to fill the description property of the ILlmSchema by the comment tag `@description`, but you have to take care of the indentation like below.
 
-```typescript filename="src/structures/IMember.ts" showLineNumbers
-interface IMember {
+```typescript filename="src/api/structures/IMember.ts" showLineNumbers
+export interface IMember {
   /**
    * Primary Key.
    * 
    * Above "Primary Key" would be the title of LLM schema. 
    */
   id: string;
-
+ 
   /**
    * Below "Age of the member" would be the title of LLM schema.
    * 
    * @title Age of the member
    */
   age: number;
-
+ 
   /**
    * @title Email address of the member
    * @description The description property also can be filled by 
@@ -375,45 +621,35 @@ interface IMember {
 
 ## Namespace Strategy
 <Tabs items={[
-  "TypeScript Source Code", 
-  "Compiled JavaScript File",
-  "Console Output"]}>
+  "TypeScript Source Code",
+  "Description in LLM Application Schema",
+]}>
   <Tabs.Tab>
-```typescript filename="example/src/llm.application.bbs.ts" showLineNumbers {11, 13-18, 35-38, 65-70} copy
-import { ILlmApplication, ILlmFunction } from "@samchon/openapi";
-import typia, { tags } from "typia";
-
-const app: ILlmApplication<"chatgpt"> = typia.llm.application<
-  BbsArticleController,
-  "chatgpt",
->();
-const func: ILlmFunction<"chatgpt"> | undefined = app.functions.find(
-  func => func.name === "create"
-);
-console.log(func?.parameters.properties.input?.description);
+```typescript filename="src/api/structures/IBbsArticle.ts" showLineNumbers {25-28, 55-60}
+import { tags } from "typia";
 
 /**
  * Article entity.
  *
  * `IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System).
  */
-interface IBbsArticle extends IBbsArticle.ICreate {
+export interface IBbsArticle extends IBbsArticle.ICreate {
   /**
    * Primary Key.
    */
   id: string & tags.Format<"uuid">;
-
+ 
   /**
    * Creation time of the article.
    */
   created_at: string & tags.Format<"date-time">;
-
+ 
   /**
    * Last updated time of the article.
    */
   updated_at: string & tags.Format<"date-time">;
 }
-namespace IBbsArticle {
+export namespace IBbsArticle {
   /**
    * Information of the article to create.
    */
@@ -424,14 +660,14 @@ namespace IBbsArticle {
      * Representative title of the article.
      */
     title: string;
-
+ 
     /**
      * Content body.
      *
      * Content body of the article writtn in the markdown format.
      */
     body: string;
-
+ 
     /**
      * Thumbnail image URI.
      *
@@ -443,7 +679,7 @@ namespace IBbsArticle {
       | null
       | (string & tags.Format<"uri"> & tags.ContentMediaType<"image/*">);
   }
-
+ 
   /**
    * Information of the article to update.
    *
@@ -451,564 +687,368 @@ namespace IBbsArticle {
    */
   export type IUpdate = Partial<ICreate>;
 }
-
-interface BbsArticleController {
-  /**
-   * Create a new article.
-   *
-   * Writes a new article and archives it into the DB.
-   *
-   * @param props Properties of create function
-   * @returns Newly created article
-   */
-  create(props: {
-    /**
-     * Information of the article to create
-     */
-    input: IBbsArticle.ICreate;
-  }): Promise<IBbsArticle>;
-
-  /**
-   * Update an article.
-   *
-   * Updates an article with new content.
-   *
-   * @param props Properties of update function
-   * @param input New content to update
-   */
-  update(props: {
-    /**
-     * Target article's {@link IBbsArticle.id}.
-     */
-    id: string & tags.Format<"uuid">;
-
-    /**
-     * New content to update.
-     */
-    input: IBbsArticle.IUpdate;
-  }): Promise<void>;
-
-  /**
-   * Erase an article.
-   *
-   * Erases an article from the DB.
-   *
-   * @param props Properties of erase function
-   */
-  erase(props: {
-    /**
-     * Target article's {@link IBbsArticle.id}.
-     */
-    id: string & tags.Format<"uuid">;
-  }): Promise<void>;
-}
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```javascript filename="example/src/llm.application.bbs.js" showLineNumbers
-import typia from "typia";
-const app = {
-  model: "chatgpt",
-  options: {
-    reference: false,
-    strict: false,
-    separate: null,
-  },
-  functions: [
-    {
-      name: "create",
-      parameters: {
-        description: " Properties of create function",
-        type: "object",
-        properties: {
-          input: {
-            description:
-              "Information of the article to create.\n\n------------------------------\n\nDescription of the current {@link IBbsArticle.ICreate} type:\n\n> Information of the article to create.\n\n------------------------------\n\nDescription of the parent {@link IBbsArticle} type:\n\n> Article entity.\n> \n> `IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System).",
-            type: "object",
-            properties: {
-              title: {
-                title: "Title of the article",
-                description:
-                  "Title of the article.\n\nRepresentative title of the article.",
-                type: "string",
-              },
-              body: {
-                title: "Content body",
-                description:
-                  "Content body.\n\nContent body of the article writtn in the markdown format.",
-                type: "string",
-              },
-              thumbnail: {
-                title: "Thumbnail image URI",
-                description:
-                  "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
-                anyOf: [
-                  {
-                    type: "null",
-                  },
-                  {
-                    type: "string",
-                    description: "@format uri\n@contentMediaType image/*",
-                  },
-                ],
-              },
-            },
-            required: ["title", "body", "thumbnail"],
-          },
-        },
-        required: ["input"],
-        additionalProperties: false,
-        $defs: {},
-      },
-      output: {
-        description:
-          "Article entity.\n\n`IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System).",
-        type: "object",
-        properties: {
-          id: {
-            title: "Primary Key",
-            description: "Primary Key.\n\n\n@format uuid",
-            type: "string",
-          },
-          created_at: {
-            title: "Creation time of the article",
-            description: "Creation time of the article.\n\n\n@format date-time",
-            type: "string",
-          },
-          updated_at: {
-            title: "Last updated time of the article",
-            description:
-              "Last updated time of the article.\n\n\n@format date-time",
-            type: "string",
-          },
-          title: {
-            title: "Title of the article",
-            description:
-              "Title of the article.\n\nRepresentative title of the article.",
-            type: "string",
-          },
-          body: {
-            title: "Content body",
-            description:
-              "Content body.\n\nContent body of the article writtn in the markdown format.",
-            type: "string",
-          },
-          thumbnail: {
-            title: "Thumbnail image URI",
-            description:
-              "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
-            anyOf: [
-              {
-                type: "null",
-              },
-              {
-                type: "string",
-                description: "@format uri\n@contentMediaType image/*",
-              },
-            ],
-          },
-        },
-        required: [
-          "id",
-          "created_at",
-          "updated_at",
-          "title",
-          "body",
-          "thumbnail",
-        ],
-      },
-      description:
-        "Create a new article.\n\nWrites a new article and archives it into the DB.",
-    },
-    {
-      name: "update",
-      parameters: {
-        description: " Properties of update function",
-        type: "object",
-        properties: {
-          id: {
-            title: "Target article's {@link IBbsArticle.id}",
-            description:
-              "Target article's {@link IBbsArticle.id}.\n\n\n@format uuid",
-            type: "string",
-          },
-          input: {
-            description:
-              "Make all properties in T optional\n\n------------------------------\n\nDescription of the current {@link PartialIBbsArticle.ICreate} type:\n\n> Make all properties in T optional",
-            type: "object",
-            properties: {
-              title: {
-                title: "Title of the article",
-                description:
-                  "Title of the article.\n\nRepresentative title of the article.",
-                type: "string",
-              },
-              body: {
-                title: "Content body",
-                description:
-                  "Content body.\n\nContent body of the article writtn in the markdown format.",
-                type: "string",
-              },
-              thumbnail: {
-                title: "Thumbnail image URI",
-                description:
-                  "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
-                anyOf: [
-                  {
-                    type: "null",
-                  },
-                  {
-                    type: "string",
-                    description: "@format uri\n@contentMediaType image/*",
-                  },
-                ],
-              },
-            },
-            required: [],
-          },
-        },
-        required: ["id", "input"],
-        additionalProperties: false,
-        $defs: {},
-      },
-      description: "Update an article.\n\nUpdates an article with new content.",
-    },
-    {
-      name: "erase",
-      parameters: {
-        description: " Properties of erase function",
-        type: "object",
-        properties: {
-          id: {
-            title: "Target article's {@link IBbsArticle.id}",
-            description:
-              "Target article's {@link IBbsArticle.id}.\n\n\n@format uuid",
-            type: "string",
-          },
-        },
-        required: ["id"],
-        additionalProperties: false,
-        $defs: {},
-      },
-      description: "Erase an article.\n\nErases an article from the DB.",
-    },
-  ],
-};
-const func = app.functions.find((func) => func.name === "create");
-console.log(func?.parameters.properties.input?.description);
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash filename="Terminal"
+```md filename="Description" showLineNumbers
 Information of the article to create.
-
+ 
 ------------------------------
-
+ 
 Description of the current {@link IBbsArticle.ICreate} type:
-
+ 
 Information of the article to create.
-
+ 
 > Description of the parent {@link IBbsArticle} type: Article entity.
 > 
-> `IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System).
+> `IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System
 ```
   </Tabs.Tab>
 </Tabs>
 
-`typia.llm.application<App, Model>()` copies the parent namespaced type description comment to the children types. `typia` calls this comment writing strategy as namespace documentation, and it is recommended for the efficient documentation.
+If you're using `nestia` for the [A.I. chatbot](./chat) development purpose, the namespace strategy is very important.
 
-As you can see from the above example, `BbsArticleController` has many CRUD functions about the `IBbsArticle` namespaced type. By the way, the above `IBbsArticle.ICreate` and `IBbsArticle.IUpdate` types are not repeating same description comments about the `IBbsArticle` type. Instead, just writing the short description comment about them, and just compose the LLM function calling application schema.
+When you compose an `IHttpLlmApplication` / `IHttpLlmFunction` schema from a Swagger Document, it copies the parent namespaced type description comment to the children types. If you utilize this namespace strategy properly, you can make the LLM function calling schema more informative and undeerstandable minimizing the duplicated description comments.
 
-In that case, the `IBbsArticle` type's description comment would be copied to the `IBbsArticle.ICreate` and `IBbsArticle.IUpdate` types like above "Console Output" case. It's a good strategy to avoid repeating same description comments, and also to deliver enough information to the LLM function calling.
+As you can see, above `IBbsArticle.ICreate` and `IBbsArticle.IUpdate` interfaces are the children of the `IBbsArticle` interface. And the `IBbsArticle` interface has a detailed description comment about the article. In this case, the description comment of the `IBbsArticle` interface would be copied to the `IBbsArticle.ICreate` and `IBbsArticle.IUpdate` interfaces. Therefore, you don't need to write the same description comment on the children interfaces again.
+
 
 
 
 ## Function Hiding
 <Tabs items={[
-    "TypeScript Source Code",
-    "Compiled JavaScript File",
-  ]}>
+  "API Controller",
+  "Swagger Document",
+  "LLM Application Schema",
+]}>
   <Tabs.Tab>
-```typescript filename="example/src/llm.application.hideden.ts" showLineNumbers {38, 54, 74}
-import {
-  ClaudeTypeChecker,
-  ILlmApplication,
-  ILlmSchema,
-} from "@samchon/openapi";
-import typia, { tags } from "typia";
+```typescript filename="src/controllers/shoppings/customers/ShoppingCustomerSaleController.ts" showLineNumbers {29, 43, 58}
+import { HumanRoute, TypedBody, TypedParam, TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import { tags } from "typia";
 
-const app: ILlmApplication<"chatgpt"> = typia.llm.application<
-  BbsArticleController,
-  "chatgpt"
->();
+import { IBbsArticle } from "../api/structures/IBbsArticle";
 
-console.log(app);
-
-interface BbsArticleController {
-  /**
-   * Create a new article.
-   *
-   * Writes a new article and archives it into the DB.
-   *
-   * @param props Properties of create function
-   * @returns Newly created article
-   */
-  create(props: {
-    /**
-     * Information of the article to create
-     */
-    input: IBbsArticle.ICreate;
-  }): Promise<IBbsArticle>;
-
+@Controller("bbs/articles")
+export class BbsArticleController {
   /**
    * Read an article.
    * 
    * Reads an article from the DB.
    * 
-   * @param props Properties of read function
+   * @param id Target article's {@link IBbsArticle.id}
    * @returns The article
+   */
+  @TypedRoute.Get(":id")
+  public async at(
+    @TypedParam("id") id: string & tags.Format<"uuid">,
+  ): Promise<IBbsArticle>;
+
+  /**
+   * Create a new article.
+   *
+   * Writes a new article and archives it into the DB.
+   *
+   * @param input Information of the article to create
+   * @returns Newly created article
    * @hidden
    */
-  at(props: {
-    /**
-     * Target article's {@link IBbsArticle.id}.
-     */
-    id: string & tags.Format<"uuid">;
-  }): Promise<IBbsArticle>;
+  @TypedRoute.Post()
+  public async create(
+    @TypedBody() input: IBbsArticle.ICreate
+  ): Promise<IBbsArticle>;
 
   /**
    * Update an article.
    *
    * Updates an article with new content.
    *
-   * @param props Properties of update function
+   * @param id Target article's {@link IBbsArticle.id}
    * @param input New content to update
    * @internal
    */
-  update(props: {
-    /**
-     * Target article's {@link IBbsArticle.id}.
-     */
-    id: string & tags.Format<"uuid">;
-
-    /**
-     * New content to update.
-     */
-    input: IBbsArticle.IUpdate;
-  }): Promise<void>;
+  @TypedRoute.Put(":id")
+  public async update(
+    @TypedParam("id") id: string & tags.Format<"uuid">,
+    @TypedBody() input: IBbsArticle.IUpdate,
+  ): Promise<void>;
 
   /**
    * Erase an article.
    *
    * Erases an article from the DB.
    *
-   * @param props Properties of erase function
-   * @human
+   * @param id Target article's {@link IBbsArticle.id}
    */
-  erase(props: {
-    /**
-     * Target article's {@link IBbsArticle.id}.
-     */
-    id: string & tags.Format<"uuid">;
-  }): Promise<void>;
+  @HumanRoute()
+  @TypedRoute.Delete(":id")
+  public async erase(
+    @TypedParam("id") id: string & tags.Format<"uuid">,
+  ): Promise<void>;
 }
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```javascript filename="example/bin/llm.application.hideden.js" showLineNumbers
-import typia from "typia";
-const app = {
-  model: "chatgpt",
-  options: {
-    reference: false,
-    separate: null,
-  },
-  functions: [
+```json filename="swagger.json" showLineNumbers
+{
+  "openapi": "3.1.0",
+  "servers": [
     {
-      name: "create",
-      parameters: {
-        type: "object",
-        properties: {
-          input: {
-            description:
-              "Information of the article to create.\n\n------------------------------\n\nDescription of the current {@link IBbsArticle.ICreate} type:\n\n> Information of the article to create.\n\n------------------------------\n\nDescription of the parent {@link IBbsArticle} type:\n\n> Article entity.\n> \n> `IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System).",
-            type: "object",
-            properties: {
-              title: {
-                title: "Title of the article",
-                description:
-                  "Title of the article.\n\nRepresentative title of the article.",
-                type: "string",
-              },
-              body: {
-                title: "Content body",
-                description:
-                  "Content body.\n\nContent body of the article writtn in the markdown format.",
-                type: "string",
-              },
-              thumbnail: {
-                title: "Thumbnail image URI",
-                description:
-                  "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
-                anyOf: [
-                  {
-                    type: "null",
-                  },
-                  {
-                    type: "string",
-                    description: "@format uri\n@contentMediaType image/*",
-                  },
-                ],
-              },
+      "url": "http://localhost:37001",
+      "description": "Local Server"
+    }
+  ],
+  "info": {
+    "version": "0.1.0",
+    "title": "@ORGANIZATION/PROJECT",
+    "description": "Starter kit of Nestia",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/bbs/articles/{id}": {
+      "get": {
+        "summary": "Read an article",
+        "description": "Read an article.\n\nReads an article from the DB.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             },
-            required: ["title", "body", "thumbnail"],
-            additionalProperties: false,
-          },
+            "required": true,
+            "description": " Target article's {@link IBbsArticle.id }"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The article",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                }
+              }
+            }
+          }
         },
-        required: ["input"],
-        additionalProperties: false,
-        $defs: {},
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "at"
+        ],
+        "x-samchon-controller": "BbsArticleController"
       },
-      output: {
-        description:
-          "Article entity.\n\n`IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System).",
-        type: "object",
-        properties: {
-          id: {
-            title: "Primary Key",
-            description: "Primary Key.\n\n\n@format uuid",
-            type: "string",
-          },
-          created_at: {
-            title: "Creation time of the article",
-            description: "Creation time of the article.\n\n\n@format date-time",
-            type: "string",
-          },
-          updated_at: {
-            title: "Last updated time of the article",
-            description:
-              "Last updated time of the article.\n\n\n@format date-time",
-            type: "string",
-          },
-          title: {
-            title: "Title of the article",
-            description:
-              "Title of the article.\n\nRepresentative title of the article.",
-            type: "string",
-          },
-          body: {
-            title: "Content body",
-            description:
-              "Content body.\n\nContent body of the article writtn in the markdown format.",
-            type: "string",
-          },
-          thumbnail: {
-            title: "Thumbnail image URI",
-            description:
-              "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
-            anyOf: [
-              {
-                type: "null",
-              },
-              {
-                type: "string",
-                description: "@format uri\n@contentMediaType image/*",
-              },
-            ],
-          },
+      "delete": {
+        "summary": "Erase an article",
+        "description": "Erase an article.\n\nErases an article from the DB.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "description": " Target article's {@link IBbsArticle.id }"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
+          }
         },
-        required: [
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "erase"
+        ],
+        "x-samchon-controller": "BbsArticleController"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IBbsArticle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Primary Key",
+            "description": "Primary Key."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation time of the article",
+            "description": "Creation time of the article."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last updated time of the article",
+            "description": "Last updated time of the article."
+          },
+          "title": {
+            "type": "string",
+            "title": "Title of the article",
+            "description": "Title of the article.\n\nRepresentative title of the article."
+          },
+          "body": {
+            "type": "string",
+            "title": "Content body",
+            "description": "Content body.\n\nContent body of the article writtn in the markdown format."
+          },
+          "thumbnail": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "uri",
+                "contentMediaType": "image/*"
+              }
+            ],
+            "title": "Thumbnail image URI",
+            "description": "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article."
+          }
+        },
+        "required": [
           "id",
           "created_at",
           "updated_at",
           "title",
           "body",
-          "thumbnail",
+          "thumbnail"
         ],
-        additionalProperties: false,
-      },
-      description:
-        "Create a new article.\n\nWrites a new article and archives it into the DB.",
-      strict: true,
-    },
+        "description": "Article entity.\n\n`IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System)."
+      }
+    }
+  },
+  "tags": [],
+  "x-samchon-emended": true
+}
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```json filename="llm.application.json" showLineNumbers
+{
+  "model": "chatgpt",
+  "options": {
+    "reference": false,
+    "strict": false,
+    "separate": null,
+    "maxLength": null
+  },
+  "functions": [
     {
-      name: "update",
-      parameters: {
-        type: "object",
-        properties: {
-          id: {
-            title: "Target article's {@link IBbsArticle.id}",
-            description:
-              "Target article's {@link IBbsArticle.id}.\n\n\n@format uuid",
-            type: "string",
-          },
-          input: {
-            description:
-              "Make all properties in T optional\n\n------------------------------\n\nDescription of the current {@link PartialIBbsArticle.ICreate} type:\n\n> Make all properties in T optional",
-            type: "object",
-            properties: {
-              title: {
-                title: "Title of the article",
-                description:
-                  "Title of the article.\n\nRepresentative title of the article.",
-                type: "string",
-              },
-              body: {
-                title: "Content body",
-                description:
-                  "Content body.\n\nContent body of the article writtn in the markdown format.",
-                type: "string",
-              },
-              thumbnail: {
-                title: "Thumbnail image URI",
-                description:
-                  "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
-                anyOf: [
-                  {
-                    type: "null",
-                  },
-                  {
-                    type: "string",
-                    description: "@format uri\n@contentMediaType image/*",
-                  },
-                ],
-              },
-            },
-            required: ["title", "body", "thumbnail"],
-            additionalProperties: false,
-          },
+      "method": "get",
+      "path": "/bbs/articles/{id}",
+      "name": "bbs_articles_at",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": " Target article's {@link IBbsArticle.id }\n\n\n@format uuid",
+            "type": "string"
+          }
         },
-        required: ["id", "input"],
-        additionalProperties: false,
-        $defs: {},
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ],
+        "$defs": {}
       },
-      description: "Update an article.\n\nUpdates an article with new content.",
-      strict: true,
-    },
+      "output": {
+        "description": "Article entity.\n\n`IBbsArticle` is an entity representing an article in the BBS (Bulletin Board System).",
+        "type": "object",
+        "properties": {
+          "id": {
+            "title": "Primary Key",
+            "description": "Primary Key.\n\n\n@format uuid",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Creation time of the article",
+            "description": "Creation time of the article.\n\n\n@format date-time",
+            "type": "string"
+          },
+          "updated_at": {
+            "title": "Last updated time of the article",
+            "description": "Last updated time of the article.\n\n\n@format date-time",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title of the article",
+            "description": "Title of the article.\n\nRepresentative title of the article.",
+            "type": "string"
+          },
+          "body": {
+            "title": "Content body",
+            "description": "Content body.\n\nContent body of the article writtn in the markdown format.",
+            "type": "string"
+          },
+          "thumbnail": {
+            "title": "Thumbnail image URI",
+            "description": "Thumbnail image URI.\n\nThumbnail image URI which can represent the article.\n\nIf configured as `null`, it means that no thumbnail image in the article.",
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "description": "@format uri\n@contentMediaType image/*"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "title",
+          "body",
+          "thumbnail"
+        ]
+      },
+      "description": "Read an article.\n\nReads an article from the DB.",
+      "tags": []
+    }
   ],
-};
-console.log(app);
+  "errors": []
+}
 ```
   </Tabs.Tab>
 </Tabs>
 
-Hiding some functions by comment tag.
+Hiding some API functions by comment tag.
 
-If you write `@hidden`, `@human` or `@internal` tag onto a function description comment, the function would not participate in the LLM (Large Language Model) function calling application composition. `ILlmFunction` schema does not be genrated in the `ILlmApplication.functions` collection.
+If you write `@hidden` or `@internal` comment tag on a controller method, it would be hidden in the Swagger Document. And if you adjust `@HumanRoute()` decorator to a controller method, it would be shown in the Swagger Document, but would be hidden in the LLM Application Schema.
 
-It's a good feature to hide some internal functions, so that avoiding the LLM function calling.
+When you need to hide some internal functions from Swagger Document, or block [A.I. chatbot](./chat) to call some prohibited functions that must be called by human manually.
 
 
 
 
 ## Specialization
-<Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
+<Tabs items={[
+  "TypeScript Source Code", 
+  "Generated JSON Schema"
+]}>
   <Tabs.Tab>
-```typescript copy filename="examples/src/llm-schema.ts" showLineNumbers
-import { IChatGptSchema } from "@samchon/openapi";
-import typia, { tags } from "typia";
-
-export const schema: IChatGptSchema = typia.llm.schema<Special, "claude">();
+```typescript filename="src/api/structures/ISpecial.ts" showLineNumbers
+import { tags } from "typia";
 
 interface Special {
   /**
@@ -1018,7 +1058,7 @@ interface Special {
    * @deprecated
    */
   type: number & tags.Type<"int32">;
-
+ 
   /**
    * Internal tagged property never be shown in JSON schema.
    *
@@ -1027,7 +1067,7 @@ interface Special {
    * @internal
    */
   internal: number[];
-
+ 
   /**
    * Hidden tagged property never be shown in JSON schema.
    *
@@ -1036,7 +1076,7 @@ interface Special {
    * @hidden
    */
   hidden: boolean;
-
+ 
   /**
    * You can limit the range of number.
    *
@@ -1044,7 +1084,7 @@ interface Special {
    * @maximum 100
    */
   number?: number;
-
+ 
   /**
    * You can limit the length of string.
    *
@@ -1055,21 +1095,21 @@ interface Special {
       | (tags.MinLength<3> & tags.MaxLength<24>)
       | (tags.MinLength<40> & tags.MaxLength<100>)
     );
-
+ 
   /**
    * You can limit the pattern of string.
    *
    * @pattern ^[a-z]+$
    */
   pattern: string;
-
+ 
   /**
    * You can limit the format of string.
    *
    * @format date-time
    */
   format: string | null;
-
+ 
   /**
    * In the Array case, possible to restrict its elements.
    */
@@ -1078,142 +1118,97 @@ interface Special {
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```javascript filename="examples/bin/llm-schema.js" showLineNumbers
-import typia from "typia";
-export const schema = {
-  type: "object",
-  properties: {
-    type: {
-      type: "integer",
-      deprecated: true,
-      title: "Unsigned integer",
-      description: "Deprecated tags are just used for marking.",
-    },
-    number: {
-      type: "number",
-      exclusiveMinimum: true,
-      minimum: 19,
-      maximum: 100,
-      title: "You can limit the range of number",
-      description: "You can limit the range of number.",
-    },
-    string: {
-      oneOf: [
-        {
-          type: "string",
-          minLength: 3,
-          maxLength: 24,
+```json filename="swagger.json" showLineNumbers
+{
+  "components": {
+    "schemas": {
+      "Special": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "integer",
+            "deprecated": true,
+            "title": "Unsigned integer",
+            "description": "Deprecated tags are just used for marking."       
+          },
+          "number": {
+            "type": "number",
+            "exclusiveMinimum": true,
+            "minimum": 19,
+            "maximum": 100,
+            "title": "You can limit the range of number",
+            "description": "You can limit the range of number."
+          },
+          "string": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 24
+              },
+              {
+                "type": "string",
+                "minLength": 40,
+                "maxLength": 100
+              }
+            ],
+            "title": "You can limit the length of string",
+            "description": "You can limit the length of string.\n\nAlso, multi
+ple range conditions are also possible."
+          },
+          "pattern": {
+            "type": "string",
+            "pattern": "^[a-z]+$",
+            "title": "You can limit the pattern of string",
+            "description": "You can limit the pattern of string."
+          },
+          "format": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "date-time"
+              }
+            ],
+            "title": "You can limit the format of string",
+            "description": "You can limit the format of string."
+          },
+          "array": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "minItems": 3,
+            "title": "In the Array case, possible to restrict its elements",  
+            "description": "In the Array case, possible to restrict its elemen
+ts."
+          }
         },
-        {
-          type: "string",
-          minLength: 40,
-          maxLength: 100,
-        },
-      ],
-      title: "You can limit the length of string",
-      description:
-        "You can limit the length of string.\n\nAlso, multiple range conditions are also possible.",
-    },
-    pattern: {
-      type: "string",
-      pattern: "^[a-z]+$",
-      title: "You can limit the pattern of string",
-      description: "You can limit the pattern of string.",
-    },
-    format: {
-      oneOf: [
-        {
-          type: "string",
-          format: "date-time",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "You can limit the format of string",
-      description: "You can limit the format of string.",
-    },
-    array: {
-      type: "array",
-      items: {
-        type: "string",
-        format: "uuid",
-      },
-      minItems: 3,
-      title: "In the Array case, possible to restrict its elements",
-      description: "In the Array case, possible to restrict its elements.",
-    },
-  },
-  required: ["type", "string", "pattern", "format", "array"],
-  additionalProperties: false,
-};
+        "required": [
+          "type",
+          "string",
+          "pattern",
+          "format",
+          "array"
+        ]
+      }
+    }
+  }
+}
 ```
   </Tabs.Tab>
 </Tabs>
 
-You can utilize [type tags](../validators/tags/#type-tags) (or [validator's comment tags](../validators/tags/#comment-tags)) to constructing special fields of JSON schema. 
+You can utilize [type tags](https://typia.io/docs/validators/tags/#type-tags) (or [validator’s comment tags](https://typia.io/docs/validators/tags/#comment-tags)) to constructing special fields of JSON schema.
 
-If you write any comment on a property, it would fill the `IJsonSchema.description` value. Also, there're special comment tags only for JSON schema definition that are different with [validator's comment tags](../validators/tags/#comment-tags) like below.
+If you write any comment on a property, it would fill the IJsonSchema.description value. Also, there’re special comment tags only for JSON schema definition that are different with [validator’s comment tags](https://typia.io/docs/validators/tags/#comment-tags) like below.
 
   - `@deprecated`
   - `@hidden`
   - `@internal`
   - `@title {string}`
 
-Let's see how those [type tags](../validators/tags/#type-tags), comment tags and description comments are working with example code.
-
-
-
-
-## Customization
-If what you want is not just filling regular properties of LLM schema specification, but to adding custom properties into the JSON schema definition, you can do it through the `tags.TagBase.schema` property type or `tags.JsonSchemaPlugin` type. 
-
-For reference, the custom property must be started with `x-` prefix. It's a rule of LLM schema.
-
-<Tabs items={['TypeScript Source Code', 'Compiled JavaScript File']}>
-  <Tabs.Tab>
-```typescript copy filename="examples/src/llm-schema-custom.ts" copy showLineNumbers {7-9, 13, 17-18}
-import typia, { tags } from "typia";
- 
-type Monetary<Value extends string> = tags.TagBase<{
-  target: "number";
-  kind: "monetary";
-  value: Value;
-  schema: {
-    "x-monetary": Value;
-  };
-}>;
-
-type Placeholder<Value extends string> = tags.JsonSchemaPlugin<{
-  "x-placeholder": Value;
-}>;
-
-interface IAccount {
-  code: string & Placeholder<"Write you account code please">;
-  balance: number & Monetary<"dollar">;
-};
- 
-typia.llm.schema<IAccount, "chatgpt">();
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```javascript copy filename="examples/bin/llm-schema-custom.js" showLineNumbers {7, 11}
-import typia from "typia";
-({
-  type: "object",
-  properties: {
-    code: {
-      type: "string",
-      "x-placeholder": "Write you account code please",
-    },
-    balance: {
-      type: "number",
-      "x-monetary": "dollar",
-    },
-  },
-  required: ["code", "balance"],
-  additionalProperties: false,
-});
-```
-  </Tabs.Tab>
-</Tabs>
+Let’s see how those [type tags](https://typia.io/docs/validators/tags/#type-tags), comment tags and description comments are working with example code.
