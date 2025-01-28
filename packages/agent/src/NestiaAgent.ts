@@ -18,10 +18,27 @@ import { INestiaAgentTokenUsage } from "./structures/INestiaAgentTokenUsage";
 /**
  * Nestia A.I. chatbot agent.
  *
- * `NestiaChatAgent` is a facade class for the A.I. chatbot agent
+ * `NestiaChatAgent` is a facade class for the super A.I. chatbot agent
  * which performs the {@link converstate user's conversation function}
  * with LLM (Large Language Model) function calling and manages the
  * {@link getPromptHistories prompt histories}.
+ *
+ * To understand and compose the `NestiaAgent` class exactly, reference
+ * below types concentrating on the documentation comments please.
+ * Especially, you have to be careful about the {@link INestiaAgentProps}
+ * type which is used in the {@link constructor} function.
+ *
+ * - Constructors
+ *   - {@link INestiaAgentProps}
+ *   - {@link INestiaAgentProvider}
+ *   - {@link INestiaAgentController}
+ *   - {@link INestiaAgentConfig}
+ *   - {@link INestiaAgentSystemPrompt}
+ * - Accessors
+ *   - {@link INestiaAgentOperation}
+ *   - {@link INestiaAgentPrompt}
+ *   - {@link INestiaAgentEvent}
+ *   - {@link INestiaAgentTokenUsage}
  *
  * @author Jeongho Nam - https://github.com/samchon
  */
