@@ -1,3 +1,4 @@
+import UnpluginTypia from "@ryoppippi/unplugin-typia/vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -13,6 +14,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: path.resolve(__dirname, "index.html"),
+        "bbs/index": path.resolve(__dirname, "bbs/index.html"),
         "shopping/index.html": path.resolve(__dirname, "shopping/index.html"),
       },
     },
@@ -25,5 +27,8 @@ export default defineConfig({
         return html.replace(`crossorigin`, "");
       },
     },
+    UnpluginTypia({
+      tsconfig: path.resolve(__dirname, "tsconfig.json"),
+    }),
   ],
 });
