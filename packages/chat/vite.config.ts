@@ -1,4 +1,4 @@
-import UnpluginTypia from "@ryoppippi/unplugin-typia/vite";
+import typia from "@ryoppippi/unplugin-typia/vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -27,8 +27,6 @@ export default defineConfig({
         return html.replace(`crossorigin`, "");
       },
     },
-    UnpluginTypia({
-      tsconfig: path.resolve(__dirname, "tsconfig.json"),
-    }),
+    typia(),
   ],
 });

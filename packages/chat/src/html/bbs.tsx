@@ -14,8 +14,8 @@ import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import typia from "typia";
 
-import { NestiaChatApplication } from "./applications/NestiaChatApplication";
-import { BbsArticleService } from "./bbs/BbsArticleService";
+import { NestiaChatApplication } from "../applications/NestiaChatApplication";
+import { BbsArticleService } from "../services/BbsArticleService";
 
 function BbsChatApplication() {
   const [apiKey, setApiKey] = useState("");
@@ -77,7 +77,7 @@ function BbsChatApplication() {
           <br />
           <Divider />
           <br />
-          Demonstration of Nestia A.I. Chatbot with TypeScript Class.
+          Demonstration of Nestia A.I. Chatbot with TypeScript Controller Class.
           <br />
           <br />
           <Typography variant="h6"> OpenAI Configuration </Typography>
