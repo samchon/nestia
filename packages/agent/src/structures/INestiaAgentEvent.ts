@@ -8,7 +8,8 @@ import { INestiaAgentPrompt } from "./INestiaAgentPrompt";
  * Nestia A.I. chatbot event.
  *
  * `INestiaAgentEvent` is an union type of all possible events that can
- * be emitted by the A.I. chatbot of the {@link NestiaAgent} class.
+ * be emitted by the A.I. chatbot of the {@link NestiaAgent} class. You
+ * can discriminate the subtype by checking the {@link type} property.
  *
  * @author Jeongho Nam - https://github.com/samchon
  */

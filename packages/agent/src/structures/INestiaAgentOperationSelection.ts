@@ -6,6 +6,14 @@ import { INestiaAgentController } from "./INestiaAgentController";
 /**
  * Nestia agent operation selection.
  *
+ * `INestiaAgentOperationSelection` is a type represents an operation
+ * which has been selected by the A.I. chatbot of {@link NestiaAgent}
+ * class for the LLM (Large Language Model) function calling with
+ * detailed {@link reason} of the selection (or cancellation).
+ *
+ * Also, `INestiaAgentOperationSelection` is an union type that can
+ * specify a subtype by checking the {@link protocol} property.
+ *
  * @author Jeongho Nam - https://github.com/samchon
  */
 export type INestiaAgentOperationSelection =

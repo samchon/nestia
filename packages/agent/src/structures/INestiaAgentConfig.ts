@@ -3,6 +3,17 @@ import { INestiaAgentSystemPrompt } from "./INestiaAgentSystemPrompt";
 /**
  * Configuration for Nestia Agent.
  *
+ * `INestiaAgentConfig` is an interface that defines the configuration
+ * properties of the {@link NestiaAgent}. With this configuration, you
+ * can set the user's locale, timezone, and some of system prompts.
+ *
+ * Also, you can affect to the LLM function selecing/calling logic by
+ * configuring additional properties. For an example, if you configure the
+ * {@link capacity} property, the A.I. chatbot will divide the functions
+ * into the several groups with the configured capacity and select proper
+ * functions to call by operating the multiple LLM function selecting
+ * agents parallelly.
+ *
  * @author Jeongho Nam - https://github.com/samchon
  */
 export interface INestiaAgentConfig {
