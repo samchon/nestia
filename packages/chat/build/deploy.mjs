@@ -44,14 +44,18 @@ const main = async () => {
       cwd: `${__dirname}/..`,
       stdio: "inherit",
     });
-  execute("npm run build");
-  execute(`npm publish --tag ${tag}`);
-
-  await fs.promises.writeFile(
-    `${__dirname}/../package.json`,
-    JSON.stringify(packageJson, null, 2),
-    "utf8",
-  );
+  try {
+    execute("npm run build");
+    execute(`npm publish --tag ${tag}`);
+  } catch (error) {
+    throw error;
+  } finally {
+    await fs.promises.writeFile(
+      `${__dirname}/../package.json`,
+      JSON.stringify(packageJson, null, 2),
+      "utf8",
+    );
+  }
 };
 main().catch((error) => {
   console.log(error);
