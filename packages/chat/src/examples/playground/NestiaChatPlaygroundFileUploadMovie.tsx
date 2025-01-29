@@ -9,8 +9,8 @@ import FileUpload from "react-mui-fileuploader";
 import { ExtendedFileProps } from "react-mui-fileuploader/dist/types/index.types";
 import { IValidation } from "typia";
 
-export const NestiaChatFileUploadMovie = (
-  props: NestiaChatFileUploadMovie.IProps,
+export const NestiaChatPlaygroundFileUploadMovie = (
+  props: NestiaChatPlaygroundFileUploadMovie.IProps,
 ) => {
   const [elements, setElements] = React.useState<ExtendedFileProps[]>([]);
   const onChange = async (array: ExtendedFileProps[]) => {
@@ -67,7 +67,7 @@ export const NestiaChatFileUploadMovie = (
     />
   );
 };
-export namespace NestiaChatFileUploadMovie {
+export namespace NestiaChatPlaygroundFileUploadMovie {
   export interface IProps {
     onChange: (
       application: IHttpLlmApplication<"chatgpt"> | null,

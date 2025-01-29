@@ -16,10 +16,12 @@ import JsonInput from "react-json-editor-ajrm";
 // @ts-ignore
 import locale from "react-json-editor-ajrm/locale/en.js";
 
-import { NestiaChatFileUploadMovie } from "../movies/uploader/NestiaChatFileUploadMovie";
-import { NestiaChatApplication } from "./NestiaChatApplication";
+import { NestiaChatApplication } from "../../NestiaChatApplication";
+import { NestiaChatPlaygroundFileUploadMovie } from "./NestiaChatPlaygroundFileUploadMovie";
 
-export const NestiaChatUploader = (props: NestiaChatUploader.IProps) => {
+export const NestiaChatPlaygroundApplication = (
+  props: NestiaChatPlaygroundApplication.IProps,
+) => {
   // PARAMETERS
   const [host, setHost] = useState("http://localhost:37001");
   const [headers, setHeaders] = useState<Record<string, string>>({
@@ -81,7 +83,7 @@ export const NestiaChatUploader = (props: NestiaChatUploader.IProps) => {
 
   return (
     <div style={props.style}>
-      <NestiaChatFileUploadMovie onChange={handleApplication} />
+      <NestiaChatPlaygroundFileUploadMovie onChange={handleApplication} />
       <br />
       <FormControl fullWidth>
         <Typography variant="h6">HTTP Connection</Typography>
@@ -155,12 +157,12 @@ export const NestiaChatUploader = (props: NestiaChatUploader.IProps) => {
         }
         onClick={() => open()}
       >
-        {progress ? "Generating..." : "Generate Editor"}
+        {progress ? "Generating..." : "Generate A.I. Chatbot"}
       </Button>
     </div>
   );
 };
-export namespace NestiaChatUploader {
+export namespace NestiaChatPlaygroundApplication {
   export interface IProps {
     style?: React.CSSProperties;
     onError?: (error: string) => void;

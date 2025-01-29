@@ -9,21 +9,15 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { NestiaAgent } from "@nestia/agent";
-import {
-  HttpLlm,
-  IHttpConnection,
-  IHttpLlmApplication,
-  OpenApi,
-} from "@samchon/openapi";
+import { IHttpConnection } from "@samchon/openapi";
 import ShoppingApi from "@samchon/shopping-api";
 import OpenAI from "openai";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 
-import { NestiaChatApplication } from "../applications/NestiaChatApplication";
+import { ShoppingChatApplication } from "./ShoppingChatApplication";
 
-function ShoppingChatApplication() {
+const Application = () => {
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("gpt-4o-mini");
 
@@ -31,20 +25,11 @@ function ShoppingChatApplication() {
   const [name, setName] = useState("John Doe");
   const [mobile, setMobile] = useState("821012345678");
 
-  const [agent, setAgent] = useState<NestiaAgent | null>(null);
   const [progress, setProgress] = useState(false);
+  const [next, setNext] = useState<ShoppingChatApplication.IProps | null>(null);
 
   const startChatApplication = async () => {
     setProgress(true);
-    // PREPARE LLM APPLICATION
-    const application: IHttpLlmApplication<"chatgpt"> = HttpLlm.application({
-      model: "chatgpt",
-      document: OpenApi.convert(
-        await fetch(
-          "https://raw.githubusercontent.com/samchon/shopping-backend/refs/heads/master/packages/api/customer.swagger.json",
-        ).then((r) => r.json()),
-      ),
-    });
 
     // HANDLESHAKE WITH SHOPPING BACKEND
     const connection: IHttpConnection = {
@@ -67,30 +52,17 @@ function ShoppingChatApplication() {
       },
     );
 
-    // COMPOSE CHAT AGENT
-    setAgent(
-      new NestiaAgent({
-        provider: {
-          type: "chatgpt",
-          api: new OpenAI({
-            apiKey,
-            dangerouslyAllowBrowser: true,
-          }),
-          model: "gpt-4o-mini",
-        },
-        controllers: [
-          {
-            protocol: "http",
-            name: "shopping",
-            application,
-            connection,
-          },
-        ],
-        config: {
-          locale,
-        },
+    // ADVANCE TO THE NEXT STEP
+    setNext({
+      api: new OpenAI({
+        apiKey,
+        dangerouslyAllowBrowser: true,
       }),
-    );
+      connection,
+      name,
+      mobile,
+      locale,
+    });
   };
 
   return (
@@ -98,11 +70,11 @@ function ShoppingChatApplication() {
       style={{
         width: "100%",
         height: "100%",
-        overflow: agent ? undefined : "auto",
+        overflow: next !== null ? undefined : "auto",
       }}
     >
-      {agent ? (
-        <NestiaChatApplication agent={agent} />
+      {next !== null ? (
+        <ShoppingChatApplication {...next} />
       ) : (
         <FormControl
           style={{
@@ -201,11 +173,6 @@ function ShoppingChatApplication() {
       )}
     </div>
   );
-}
-
-const main = async (): Promise<void> => {
-  createRoot(window.document.getElementById("root")!).render(
-    <ShoppingChatApplication />,
-  );
 };
-main().catch(console.error);
+
+createRoot(window.document.getElementById("root")!).render(<Application />);

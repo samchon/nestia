@@ -1,6 +1,6 @@
 import { NestiaAgent } from "@nestia/agent";
 
-import { NestiaChatMovie } from "../movies/NestiaChatMovie";
+import { NestiaChatMovie } from "./movies/NestiaChatMovie";
 
 export const NestiaChatApplication = ({
   agent,
