@@ -1,9 +1,9 @@
 import { createRoot } from "react-dom/client";
 
-import { NestiaChatUploader } from "../applications/NestiaChatUploader";
+import { NestiaChatPlaygroundApplication } from "./NestiaChatPlaygroundApplication";
 
 createRoot(window.document.getElementById("root")!).render(
-  <NestiaChatUploader
+  <NestiaChatPlaygroundApplication
     style={{
       width: "calc(100% - 30px)",
       height: "calc(100% - 30px)",

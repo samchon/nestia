@@ -8,52 +8,18 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { NestiaAgent } from "@nestia/agent";
-import OpenAI from "openai";
+import agent from "@nestia/agent";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import typia from "typia";
 
-import { NestiaChatApplication } from "../applications/NestiaChatApplication";
-import { BbsArticleService } from "../services/BbsArticleService";
+import { BbsChatApplication } from "./BbsChatApplication";
 
-function BbsChatApplication() {
+function Application() {
   const [apiKey, setApiKey] = useState("");
-  const [model, setModel] = useState("gpt-4o-mini");
+  const [model, setModel] = useState<"gpt-4o" | "gpt-4o-mini">("gpt-4o-mini");
   const [locale, setLocale] = useState(window.navigator.language);
 
-  const [agent, setAgent] = useState<NestiaAgent | null>(null);
-
-  const startChatApplication = (): void => {
-    const service: BbsArticleService = new BbsArticleService();
-    const agent: NestiaAgent = new NestiaAgent({
-      provider: {
-        type: "chatgpt",
-        api: new OpenAI({
-          apiKey,
-          dangerouslyAllowBrowser: true,
-        }),
-        model: "gpt-4o-mini",
-      },
-      controllers: [
-        {
-          protocol: "class",
-          name: "bbs",
-          application: typia.llm.applicationOfValidate<
-            BbsArticleService,
-            "chatgpt"
-          >(),
-          execute: async (props) => {
-            return (service as any)[props.function.name](props.arguments);
-          },
-        },
-      ],
-      config: {
-        locale,
-      },
-    });
-    setAgent(agent);
-  };
+  const [start, setStart] = useState(false);
 
   return (
     <div
@@ -63,8 +29,8 @@ function BbsChatApplication() {
         overflow: agent ? undefined : "auto",
       }}
     >
-      {agent ? (
-        <NestiaChatApplication agent={agent} />
+      {start === true ? (
+        <BbsChatApplication apiKey={apiKey} model={model} locale={locale} />
       ) : (
         <FormControl
           style={{
@@ -92,7 +58,7 @@ function BbsChatApplication() {
           <br />
           <RadioGroup
             defaultValue={model}
-            onChange={(_e, value) => setModel(value)}
+            onChange={(_e, value) => setModel(value as "gpt-4o-mini")}
             style={{ paddingLeft: 15 }}
           >
             <FormControlLabel
@@ -125,7 +91,7 @@ function BbsChatApplication() {
             color={"info"}
             size="large"
             disabled={apiKey.length === 0 || locale.length === 0}
-            onClick={() => startChatApplication()}
+            onClick={() => setStart(true)}
           >
             Start A.I. Chatbot
           </Button>
@@ -135,9 +101,4 @@ function BbsChatApplication() {
   );
 }
 
-const main = async (): Promise<void> => {
-  createRoot(window.document.getElementById("root")!).render(
-    <BbsChatApplication />,
-  );
-};
-main().catch(console.error);
+createRoot(window.document.getElementById("root")!).render(<Application />);

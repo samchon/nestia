@@ -1,1 +1,1 @@
-export * from "./applications/NestiaChatApplication";
+export * from "./NestiaChatApplication";
