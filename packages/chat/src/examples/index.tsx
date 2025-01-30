@@ -22,9 +22,7 @@ const Section = (props: {
 }) => (
   <ListItem alignItems="flex-start">
     <ListItemButton href={props.href}>
-      <ListItemAvatar>
-        <FeaturedPlayListIcon />
-      </ListItemAvatar>
+      <ListItemAvatar>{props.icon}</ListItemAvatar>
       <ListItemText
         primary={props.title}
         secondary={

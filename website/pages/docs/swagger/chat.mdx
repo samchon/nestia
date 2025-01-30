@@ -16,11 +16,11 @@ import { Callout, Tabs } from 'nextra/components'
 
 The above demonstration video shows Shopping A.I. chatbot built with Nestia.
 
-As you can see, just by delivering only swagger document of the shopping backend server, the shopping A.I. chatbot automatically composed. And in the Shopping A.I. chatbot, the user can search products, and take orders just by conversation texts.
+As you can see, in the Shopping A.I. chatbot application, the user can do everything written in the Swagger documents just by conversation texts. Searching products, taking orders, checking delivery status, user can do these things by chatting texts.
 
-No special coding and configuration required. Just deliver your swagger document. Then you can start conversation with your backend server performing the LLM (Large Language Model) function calling. The super A.I. chatbot selects proper functions defined in the swagger document by analyzing conversation contexts with user. And then the super A.I. chatbot requests the user to write arguments for the selected functions by conversation text, and actually calls the API function with the arguments.
+Just by delivering the Swagger document, Super A.I. chatbot performing the LLM (Large Language Model) function calling is automatically commposed. The Super A.I. chatbot will select proper functions defined in the Swagger document by analyzing conversation contexts with the user. And then Super A.I. chatbot requests the user to write arguments for the selected functions by connversation text, and actually calls the API function with the argument. This is the key concept of the Nestia A.I. chatbot.loc
 
-If the swagger file you provide contains enough and reasonable level of functions, DTO schemas, and descriptions, everything is ready. Just put the swagger file to the Nestia A.I. Chatbot, you can start conversation with your backend server calling the API functions by chatting text.
+In other words, every backend servers providing Swagger documents can be conversed to the A.I. chatbot. In the new A.I. era, you don't need to develop GUI (Graphical User Interface) application more. Just prepare swagger document, and let the A.I. chatbot to do the rest. The A.I. chatbot can replace your new GUI application, and it can be more efficient and user-friendly than the traditional GUI applications.
 
 
 
@@ -30,7 +30,7 @@ If the swagger file you provide contains enough and reasonable level of function
 
 You can test your backend server's A.I. chatbot with the following playground.
 
-Upload your Swagger document file to the [playground website](https://nestia.io/chat/playground), and start conversation with your backend server. If your backend server's documentation is well written so that the A.I. chatbot quality is satisfiable, you can start your own A.I. chatbot service from the next section [**Application Setup**](#application-setup).
+Upload your Swagger document file to the [playground website](https://nestia.io/chat/playground), and start conversation with your backend server. If your backend server's documentation is well written so that the A.I. chatbot quality is satisfiable, you can start your own A.I. chatbot service from the next section [#Application Setup](#application-setup).
 
 
 
@@ -61,7 +61,7 @@ Install `@nestia/chat` and its dependencies.
   - `@samchon/openapi`
   - `openai`
 
-To make the super A.I. chatbot, you need to install the above libraries. All of them except `@nestia/chat` are in the dependencies of the `@nestia/chat`, but it would better to install them explicitly for the safe frontend application development.
+To make the Super A.I. chatbot, you need to install the above libraries. All of them except `@nestia/chat` are in the dependencies of the `@nestia/chat`, but it would better to install them explicitly for the safe frontend application development.
 
 ```typescript filename="src/ShoppingChatApplication.tsx" showLineNumbers {20-27, 59}
 import { NestiaAgent } from "@nestia/agent";
