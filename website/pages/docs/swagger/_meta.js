@@ -1,6 +1,6 @@
 export default {
   index: "Swagger Builder",
-  chat: "A.I. Chat by Swagger",
+  chat: "A.I. Chatbot",
   editor: "Cloud Swagger Editor",
   strategy: "Documentation Strategy",
 };
