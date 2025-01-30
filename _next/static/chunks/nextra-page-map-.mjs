@@ -20,49 +20,49 @@ export const pageMap = [{
       name: "TypedBody",
       route: "/docs/core/TypedBody",
       frontMatter: {
-        "sidebarTitle": "Typedbody"
+        "title": "Guide Documents > Core Library > TypedBody"
       }
     }, {
       name: "TypedException",
       route: "/docs/core/TypedException",
       frontMatter: {
-        "sidebarTitle": "Typedexception"
+        "title": "Guide Documents > Core Library > TypedException"
       }
     }, {
       name: "TypedFormData",
       route: "/docs/core/TypedFormData",
       frontMatter: {
-        "sidebarTitle": "Typedformdata"
+        "title": "Guide Documents > Core Library > TypedFormData"
       }
     }, {
       name: "TypedHeaders",
       route: "/docs/core/TypedHeaders",
       frontMatter: {
-        "sidebarTitle": "Typedheaders"
+        "title": "Guide Documents > Core Library > TypedHeaders"
       }
     }, {
       name: "TypedParam",
       route: "/docs/core/TypedParam",
       frontMatter: {
-        "sidebarTitle": "Typedparam"
+        "title": "Guide Documents > Core Library > TypedParam"
       }
     }, {
       name: "TypedQuery",
       route: "/docs/core/TypedQuery",
       frontMatter: {
-        "sidebarTitle": "Typedquery"
+        "title": "Guide Documents > Core Library > TypedQuery"
       }
     }, {
       name: "TypedRoute",
       route: "/docs/core/TypedRoute",
       frontMatter: {
-        "sidebarTitle": "Typedroute"
+        "title": "Docs > Core Library > TypedRoute"
       }
     }, {
       name: "WebSocketRoute",
       route: "/docs/core/WebSocketRoute",
       frontMatter: {
-        "sidebarTitle": "Websocketroute"
+        "title": "Guide Documents > Core Library > WebSocketRoute"
       }
     }]
   }, {
@@ -74,44 +74,44 @@ export const pageMap = [{
       name: "benchmark",
       route: "/docs/e2e/benchmark",
       frontMatter: {
-        "sidebarTitle": "Benchmark"
+        "title": "Guide Documents > E2E Testing > Benchmark"
       }
     }, {
       name: "development",
       route: "/docs/e2e/development",
       frontMatter: {
-        "sidebarTitle": "Development"
+        "title": "Guide Documents > E2E Testing > Test Program Development"
       }
     }, {
       name: "why",
       route: "/docs/e2e/why",
       frontMatter: {
-        "sidebarTitle": "Why"
+        "title": "Guide Documents > E2E Testing > Why E2E Test?"
       }
     }]
   }, {
     name: "editor",
     route: "/docs/editor",
     frontMatter: {
-      "sidebarTitle": "Editor"
+      "title": "Guide Documents > TypeScript Swagger Editor"
     }
   }, {
     name: "index",
     route: "/docs",
     frontMatter: {
-      "sidebarTitle": "Index"
+      "title": "Guide Documents > Introduction"
     }
   }, {
     name: "migrate",
     route: "/docs/migrate",
     frontMatter: {
-      "sidebarTitle": "Editor"
+      "title": "Guide Documents > Migration from Swagger to NestJS"
     }
   }, {
     name: "pure",
     route: "/docs/pure",
     frontMatter: {
-      "sidebarTitle": "Pure"
+      "title": "Guide Documents > Pure TypeScript Type"
     }
   }, {
     name: "sdk",
@@ -122,50 +122,50 @@ export const pageMap = [{
       name: "distribute",
       route: "/docs/sdk/distribute",
       frontMatter: {
-        "sidebarTitle": "Distribute"
+        "title": "Guide Documents > S/W Development Kit > Distribution"
       }
     }, {
       name: "e2e",
       route: "/docs/sdk/e2e",
       frontMatter: {
-        "sidebarTitle": "E2e"
+        "title": "Guide Documents > S/W Development Kit > E2E Test Functions"
       }
     }, {
       name: "index",
       route: "/docs/sdk",
       frontMatter: {
-        "sidebarTitle": "Index"
+        "title": "Guide Documents > S/W Development Kit"
       }
     }, {
       name: "sdk",
       route: "/docs/sdk/sdk",
       frontMatter: {
-        "sidebarTitle": "Sdk"
+        "title": "Guide Documents > S/W Development Kit"
       }
     }, {
       name: "simulate",
       route: "/docs/sdk/simulate",
       frontMatter: {
-        "sidebarTitle": "Simulate"
+        "title": "Guide Documents > S/W Development Kit > Mockup Simulator"
       }
     }, {
       name: "simulator",
       route: "/docs/sdk/simulator",
       frontMatter: {
-        "sidebarTitle": "Simulator"
+        "title": "Guide Documents > S/W Development Kit > Mockup Simulator"
       }
     }, {
       name: "swagger",
       route: "/docs/sdk/swagger",
       frontMatter: {
-        "sidebarTitle": "Swagger"
+        "title": "Guide Documents > S/W Development Kit > Swagger Document"
       }
     }]
   }, {
     name: "setup",
     route: "/docs/setup",
     frontMatter: {
-      "sidebarTitle": "Setup"
+      "title": "Guide Documents > Setup"
     }
   }, {
     name: "swagger",
@@ -176,25 +176,25 @@ export const pageMap = [{
       name: "chat",
       route: "/docs/swagger/chat",
       frontMatter: {
-        "sidebarTitle": "Chat"
+        "title": "Guide Documents > Swagger Document > A.I. Chatbot"
       }
     }, {
       name: "editor",
       route: "/docs/swagger/editor",
       frontMatter: {
-        "sidebarTitle": "Editor"
+        "title": "Guide Documents > Swagger Document > TypeScript Swagger Editor"
       }
     }, {
       name: "index",
       route: "/docs/swagger",
       frontMatter: {
-        "sidebarTitle": "Index"
+        "title": "Guide Documents > Swagger Document"
       }
     }, {
       name: "strategy",
       route: "/docs/swagger/strategy",
       frontMatter: {
-        "sidebarTitle": "Strategy"
+        "title": "Guide Documents > Swagger Document > Documentation Strategy"
       }
     }]
   }]
@@ -202,6 +202,6 @@ export const pageMap = [{
   name: "index",
   route: "/",
   frontMatter: {
-    "sidebarTitle": "Index"
+    "title": "Home"
   }
 }];
