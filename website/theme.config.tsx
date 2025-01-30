@@ -44,7 +44,10 @@ const config: DocsThemeConfig = {
     const config = useConfig();
     return (
       <>
-        <title>Nestia Guide Documents - {config.title}</title>
+        <title>
+          {"Nestia > "}
+          {config.title}
+        </title>
         <link rel="manifest" href="/favicon/site.webmanifest" />
         {/* ICONS */}
         <link
