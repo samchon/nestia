@@ -76,9 +76,10 @@ const Application = () => {
               </p>
               <p>
                 This example project has been developed to prove a key concept
-                of <code>nestia/agent</code> that every backen servers providing
-                Swagger documents can be conversed with the A.I. chatbot. You
-                can search products, and take orders just by conversation texts.
+                of <code>nestia/agent</code> that every backend servers
+                providing Swagger documents can be conversed with the A.I.
+                chatbot. You can search products, and take orders just by
+                conversation texts.
               </p>
               <p>
                 If you've developed a backend server, then you can chat with the
