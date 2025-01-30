@@ -204,14 +204,4 @@ export const pageMap = [{
   frontMatter: {
     "sidebarTitle": "Index"
   }
-}, {
-  name: "playground",
-  route: "/playground",
-  children: [{
-    name: "index",
-    route: "/playground",
-    frontMatter: {
-      "sidebarTitle": "Index"
-    }
-  }]
 }];
