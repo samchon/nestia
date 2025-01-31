@@ -26,7 +26,7 @@ export default {
         newWindow: true,
       },
       chat: {
-        title: "📦 A.I. Chatbot",
+        title: "🤖 A.I. Chatbot",
         href: "/chat/playground",
         newWindow: true,
       },
