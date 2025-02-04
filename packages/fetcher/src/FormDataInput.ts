@@ -7,7 +7,7 @@
  *
  * You know what? In the React Native environment, `File` class is not supported.
  * Therefore, when composing a `FormData` request, you have to put the URI address
- * of the local filesystem with file name and contet type that is represented by the
+ * of the local filesystem with file name and content type that is represented by the
  * {@link FormDataInput.IFileProps} type.
  *
  * This `FormDataInput<T>` type is designed for that purpose. If the property value

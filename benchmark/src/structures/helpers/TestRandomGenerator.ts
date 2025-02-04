@@ -44,8 +44,8 @@ export namespace TestRandomGenerator {
     array[integer(0, array.length - 1)]!;
 
   /* -----------------------------------------------------------
-        SECIAL FORMATS
-    ----------------------------------------------------------- */
+    SPECIAL FORMATS
+  ----------------------------------------------------------- */
   export const uuid = () =>
     "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
       const r = (Math.random() * 16) | 0;

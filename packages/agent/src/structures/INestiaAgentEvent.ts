@@ -81,7 +81,7 @@ export namespace INestiaAgentEvent {
      * has been cancelled.
      *
      * For reference, if the A.I. chatbot successfully completes the LLM
-     * function calling, the reason of the fnction cancellation will be
+     * function calling, the reason of the function cancellation will be
      * "complete".
      */
     reason: string;
@@ -139,7 +139,7 @@ export namespace INestiaAgentEvent {
   /**
    * Event of description.
    *
-   * Event decribing return values of LLM function callings.
+   * Event describing return values of LLM function callings.
    */
   export interface IDescribe extends IBase<"describe"> {
     /**

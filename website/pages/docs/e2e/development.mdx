@@ -6,9 +6,9 @@ import { Tabs } from 'nextra/components'
 ## Outline
 Test your backend server with e2e test functions.
 
-If you've succeded to generate [SDK library by `@nestia/sdk`](../sdk/sdk), you can utilize the SDK library to implement e2e test functions. As the SDK library ensures types safety for remote API calls, you can develop much more efficient and safer test program than unit testing case.
+If you've succeeded to generate [SDK library by `@nestia/sdk`](../sdk/sdk), you can utilize the SDK library to implement e2e test functions. As the SDK library ensures types safety for remote API calls, you can develop much more efficient and safer test program than unit testing case.
 
-If you want to pre-exprience the test program utliizng the e2e test functions of `@nestia/sdk`, visit below playground website.
+If you want to pre-experience the test program utliizng the e2e test functions of `@nestia/sdk`, visit below playground website.
 
 💻 [https://stackblitz.com/~/github.com/samchon/nestia-start](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,test/index.ts,test/features/api/bbs/test_api_bbs_article_create.ts!&view=editor)
 
@@ -69,7 +69,7 @@ async function main(): Promise<void> {
   await backend.open();
 
   //----
-  // CLINET CONNECTOR
+  // CLIENT CONNECTOR
   //----
   // DO TEST
   const connection: api.IConnection = {
@@ -312,7 +312,7 @@ Developing e2e test functions are very easy. Just make e2e based test function u
 
 Also, make the function to have parameter(s) configured in the servant program of the benchmark. As above test functions are examples of playground project that has configured to have only one `connection` parameter, All of them have the only one parameter `connection`.
 
-After composing these e2e test functions, just execute the test main program. In the playground project, it can be exeucted by `npm run test` command. The test program will run these e2e test functions, and report if some bugs be occured.
+After composing these e2e test functions, just execute the test main program. In the playground project, it can be executed by `npm run test` command. The test program will run these e2e test functions, and report if some bugs be occurred.
 
 ```bash
 git clone https://github.com/samchon/nestia-start

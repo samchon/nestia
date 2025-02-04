@@ -3,7 +3,7 @@ import * as nest from "@nestjs/common";
 import typia from "typia";
 
 /**
- * test clone dto type using Parital Util type
+ * test clone dto type using Partial Util type
  */
 @nest.Controller("partial-dto-test")
 export class PartialDTOTestController {

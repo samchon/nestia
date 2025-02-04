@@ -31,7 +31,7 @@ export namespace ChatGptInitializeFunctionAgent {
           content: ctx.prompt.text,
         },
         {
-          // SYTEM PROMPT
+          // SYSTEM PROMPT
           role: "system",
           content:
             ctx.config?.systemPrompt?.initialize?.(ctx.histories) ??

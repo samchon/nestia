@@ -44,7 +44,7 @@ export namespace ISystem {
     author: ICommit.IUser;
     committer: ICommit.IUser;
     authored_at: string;
-    commited_at: string;
+    committed_at: string;
     notes?: string;
     tags: string[];
   }

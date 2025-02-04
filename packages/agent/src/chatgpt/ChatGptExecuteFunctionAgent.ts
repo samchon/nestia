@@ -40,7 +40,7 @@ export namespace ChatGptExecuteFunctionAgent {
           role: "user",
           content: ctx.prompt.text,
         },
-        // SYTEM PROMPT
+        // SYSTEM PROMPT
         {
           role: "system",
           content:

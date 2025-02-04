@@ -39,7 +39,7 @@ const bundle = async ({ mode, repository, exceptions, transform }) => {
       cwd: ASSETS,
     });
 
-    // REMOVE VUNLERABLE FILES
+    // REMOVE VULNERABLE FILES
     for (const location of exceptions ?? [])
       await fs.promises.rm(`${template}/${location}`, { recursive: true });
   };

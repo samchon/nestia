@@ -587,7 +587,7 @@ export namespace IBbsArticle {
 
 Write descriptions as comments on controller methods, and DTO interfaces. 
 
-The descrption comments would be transformed into the `description`, `summary` and `title` fields of the Swagger Document. And some special comment tags like `@param` and `@returns` would fill the adequate properties of the Swagger Document. If you're using `nestia` for the the [A.I. chatbot](./chat) development purpose, such detailed descriptions are very important to teach the purpose of the function to the LLM (Language Large Model), and LLM actually determines which function to call by the description.
+The description comments would be transformed into the `description`, `summary` and `title` fields of the Swagger Document. And some special comment tags like `@param` and `@returns` would fill the adequate properties of the Swagger Document. If you're using `nestia` for the the [A.I. chatbot](./chat) development purpose, such detailed descriptions are very important to teach the purpose of the function to the LLM (Language Large Model), and LLM actually determines which function to call by the description.
 
 Also, `OpenApi.IOperation` type has two descriptive properties `summary` and `description`. And the `OpenApi.IJsonSchema` has similar categorized two properties `title` and `description`. Both `summary` and `title` can be filled with two ways. The first way is closing the first line of the description comment with a period (`.`). By the way, this way's `description` property would be the entire description comment even including the first line composing the `summary` or `title` field.
 
@@ -1186,8 +1186,7 @@ ple range conditions are also possible."
             },
             "minItems": 3,
             "title": "In the Array case, possible to restrict its elements",  
-            "description": "In the Array case, possible to restrict its elemen
-ts."
+            "description": "In the Array case, possible to restrict its elements."
           }
         },
         "required": [

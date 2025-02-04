@@ -8,7 +8,7 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
 import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
 import { FilePrinter } from "../utils/FilePrinter";
-import { MigrateApiSimulatationProgrammer } from "./MigrateApiSimulatationProgrammer";
+import { MigrateApiSimulationProgrammer } from "./MigrateApiSimulationProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
@@ -30,10 +30,10 @@ export namespace MigrateApiNamespaceProgrammer {
           writePath(components)(importer)(route),
           ...(config.simulate
             ? [
-                MigrateApiSimulatationProgrammer.random(components)(importer)(
+                MigrateApiSimulationProgrammer.random(components)(importer)(
                   route,
                 ),
-                MigrateApiSimulatationProgrammer.simulate(components)(importer)(
+                MigrateApiSimulationProgrammer.simulate(components)(importer)(
                   route,
                 ),
               ]
@@ -197,11 +197,11 @@ export namespace MigrateApiNamespaceProgrammer {
         );
       const template = () => {
         const path: string = getPath(route);
-        const splitted: string[] = path.split(":");
-        if (splitted.length === 1) return ts.factory.createStringLiteral(path);
+        const split: string[] = path.split(":");
+        if (split.length === 1) return ts.factory.createStringLiteral(path);
         return ts.factory.createTemplateExpression(
-          ts.factory.createTemplateHead(splitted[0]),
-          splitted.slice(1).map((s, i, arr) => {
+          ts.factory.createTemplateHead(split[0]),
+          split.slice(1).map((s, i, arr) => {
             const name: string = s.split("/")[0];
             return ts.factory.createTemplateSpan(
               ts.factory.createCallExpression(

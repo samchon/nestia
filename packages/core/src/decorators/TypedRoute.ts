@@ -123,7 +123,7 @@ export namespace TypedRoute {
     path: string;
 
     /**
-     * Validation error informations with detailed reasons.
+     * Validation error information with detailed reasons.
      */
     errors: IValidation.IError[];
 

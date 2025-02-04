@@ -9132,7 +9132,7 @@
           "authored_at": {
             "type": "string"
           },
-          "commited_at": {
+          "committed_at": {
             "type": "string"
           },
           "notes": {
@@ -9155,7 +9155,7 @@
           "author",
           "committer",
           "authored_at",
-          "commited_at",
+          "committed_at",
           "tags"
         ],
         "description": "Git commit info."

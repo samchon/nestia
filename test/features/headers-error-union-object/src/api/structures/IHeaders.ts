@@ -10,5 +10,5 @@ interface Type1 {
 }
 
 interface Type2 {
-  "x-somthing": boolean;
+  "x-something": boolean;
 }

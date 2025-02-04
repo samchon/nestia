@@ -17,7 +17,7 @@ Besides, `nestia` needs only pure TypeScript type. You don't need to define any 
 ## Demonstration
 If you're confusing how DTO of `NestJS` and `nestia` are different, just see example codes below.
 
-At first, look at the first (*`Triple duplicated NestJS DTO`*) tab, and find the `BbsArticle.files` property, enhanced by blue coloured blocks. Looking at the `files` property, how do you feel? Just defining an array object type, you've to call 7 decorator functions. If you take any mistake when using the decorator like omitting `isArray` property, it would be a critical runtime error.
+At first, look at the first (*`Triple duplicated NestJS DTO`*) tab, and find the `BbsArticle.files` property, enhanced by blue colored blocks. Looking at the `files` property, how do you feel? Just defining an array object type, you've to call 7 decorator functions. If you take any mistake when using the decorator like omitting `isArray` property, it would be a critical runtime error.
 
 Besides, `nestia` needs only one line. Click the second (*`Pure Nestia DTO`*) tab, and find the `IAttachmentFile.files` property. Only one line being used, and `IBbsArticle` and `IAttachment` types are not even class, but just interface types. Comparing it to the first tab, how do you feel? Isn't it more simple and readable?
 
@@ -191,7 +191,7 @@ My answer is: "Yes, it is possible due to `nestia` analyzes your server code, an
 
 When compiling, `nestia` travels your NestJS server codes, and analyzes DTO definitions. And then, `nestia` writes optimal code to the compiled JavaScript file. In the `@TypedBody()` case, `nestia` transforms it to optimal validation code for the `IBbsArticle.IStore` type. Also, `nestia` transforms `@TypedRoute.Post()` function to optimal JSON serialization code for the `IBbsArticle` type.
 
-Such compile time optimization is called AOT (Ahead of Time) compilation. And this is the secret why `nestia` can do everything with only pure TypeScript type. Read below example codes, and just look how JavaScript file being compiled. Then you may understand why `nestia` is much easier, and futhermore much faster.
+Such compile time optimization is called AOT (Ahead of Time) compilation. And this is the secret why `nestia` can do everything with only pure TypeScript type. Read below example codes, and just look how JavaScript file being compiled. Then you may understand why `nestia` is much easier, and furthermore much faster.
 
   - Runtime validator is **20,000x** faster than `class-validator`
   - JSON serialization is **200x faster** than `class-transformer`

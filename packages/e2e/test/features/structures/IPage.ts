@@ -56,7 +56,7 @@ export namespace IPage {
     /**
      * Limit per a page.
      *
-     * @defualt 100
+     * @default 100
      */
     limit?: number;
   }

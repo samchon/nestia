@@ -147,7 +147,7 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
               <CircularProgress size={100} color="success" />
               <br />
               <br />
-              Generating SDK funtions...
+              Generating SDK functions...
               <br />
               <ul>
                 <li>

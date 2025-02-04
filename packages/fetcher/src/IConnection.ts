@@ -88,7 +88,7 @@ export interface IConnection<
 }
 export namespace IConnection {
   /**
-   * Addiotional options for the `fetch` function.
+   * Additional options for the `fetch` function.
    *
    * Almost same with {@link RequestInit} type of the {@link fetch} function,
    * but `body`, `headers` and `method` properties are omitted.

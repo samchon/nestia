@@ -21,7 +21,7 @@ export namespace ChatGptDescribeFunctionAgent {
         } satisfies OpenAI.ChatCompletionSystemMessageParam,
         // FUNCTION CALLING HISTORIES
         ...histories.map(ChatGptHistoryDecoder.decode).flat(),
-        // SYTEM PROMPT
+        // SYSTEM PROMPT
         {
           role: "assistant",
           content:

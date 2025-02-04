@@ -60,7 +60,7 @@ export namespace SwaggerOperationResponseComposer {
         };
     }
 
-    // SUCESS
+    // SUCCESS
     const description: string | undefined =
       SwaggerDescriptionComposer.descriptionFromJsDocTag({
         jsDocTags: props.route.jsDocTags,

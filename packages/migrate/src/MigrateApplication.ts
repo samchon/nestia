@@ -81,16 +81,16 @@ export class MigrateApplication {
 
   private finalize(
     config: MigrateApplication.IConfig,
-    outupt: MigrateApplication.IOutput,
+    output: MigrateApplication.IOutput,
   ): MigrateApplication.IOutput {
     if (config.package)
-      outupt.files = outupt.files.map((file) => ({
+      output.files = output.files.map((file) => ({
         ...file,
         content: file.content
           .split(`@ORGANIZATION/PROJECT`)
           .join(config.package),
       }));
-    return outupt;
+    return output;
   }
 }
 export namespace MigrateApplication {

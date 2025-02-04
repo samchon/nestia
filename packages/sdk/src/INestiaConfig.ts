@@ -137,7 +137,7 @@ export interface INestiaConfig {
    *
    * This option would make your SDK library compilation time a little bit slower,
    * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
-   * safety even in the rumtime level.
+   * safety even in the runtime level.
    *
    * @default false
    */
@@ -238,7 +238,7 @@ export namespace INestiaConfig {
      * the tag name is used in the API routes. In that case, the tag name
      * would be used without description.
      *
-     * Of course, if you've written a comment like `@tag {name} {descrition}`,
+     * Of course, if you've written a comment like `@tag {name} {description}`,
      * you can entirely replace this property specification.
      */
     tags?: OpenApi.IDocument.ITag[];

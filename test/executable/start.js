@@ -39,7 +39,7 @@ const feature = (name) => {
     } catch {
       return;
     }
-    throw new Error("compile error must be occured.");
+    throw new Error("compile error must be occurred.");
   }
 
   // GENERATE SWAGGER & OPENAI & SDK & E2E

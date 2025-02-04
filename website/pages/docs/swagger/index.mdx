@@ -379,7 +379,7 @@ export interface INestiaConfig {
    *
    * This option would make your SDK library compilation time a little bit slower,
    * but would enhance JSON serialization speed 10x faster. Also, it can ensure type
-   * safety even in the rumtime level.
+   * safety even in the runtime level.
    *
    * @default false
    */
@@ -466,7 +466,7 @@ export namespace INestiaConfig {
      * the tag name is used in the API routes. In that case, the tag name
      * would be used without description.
      *
-     * Of course, if you've written a comment like `@tag {name} {descrition}`,
+     * Of course, if you've written a comment like `@tag {name} {description}`,
      * you can entirely replace this property specification.
      */
     tags?: OpenApi.IDocument.ITag[];
@@ -639,7 +639,7 @@ Additionally, you can configure the `swagger` property in the `nestia.config.ts`
   - `swagger.security`: Security schemes.
   - `swagger.tags`: List of tag names with description.
   - `swagger.decompose`: Whether to decompose query DTO as individual parameters.
-  - `swagger.operationId`: Operation ID genereator.
+  - `swagger.operationId`: Operation ID generator.
 
 For reference, if you do not configure `swagger.info` property or omit some members of the information instance, `@nestia/sdk` will utilize your `package.json` file content instead. For example, if you omit the `swagger.info.version`, your `package.json` file's `version` property would be written instead.
 
@@ -714,7 +714,7 @@ export namespace INestiaConfig {
      * the tag name is used in the API routes. In that case, the tag name
      * would be used without description.
      *
-     * Of course, if you've written a comment like `@tag {name} {descrition}`,
+     * Of course, if you've written a comment like `@tag {name} {description}`,
      * you can entirely replace this property specification.
      */
     tags?: OpenApi.IDocument.ITag[];
@@ -766,7 +766,7 @@ Also, if you have a special `tsconfig.json` file or the project file is not loca
 
 ## Special Tags
 ### NestJS Decorators
-Swagger generator fo `@nestia/sdk` supports some NestJS decorators. Here is the list of them. 
+Swagger generator for `@nestia/sdk` supports some NestJS decorators. Here is the list of them. 
 
   - `@nestjs/common`
     - `@Header()`
@@ -802,7 +802,7 @@ Swagger generator `@nestia/sdk` supports three type of comment tags for controll
 
 At first, `@internal`, `@hidden` and `@ignore` tags are used to hide the controller method from the Swagger Documents. When you use one of them, the controller method would not be written in the `swagger.json` file. Otherwise, the `@deprecated` tag is used to mark the controller method as deprecated. When you use it, Swagger Editor will show the deprecated message about the route method like below.
 
-Also, the `@summary` tag is used to write short description of the endpoint. By the way, the `@summary` tag can be replaced by writing top sentence ends with `.` symbol. The other one, `@tag {name} {description?}` tag is used for only groupping. If you fill the `description` part, it would be shown in the Swagger-UI.
+Also, the `@summary` tag is used to write short description of the endpoint. By the way, the `@summary` tag can be replaced by writing top sentence ends with `.` symbol. The other one, `@tag {name} {description?}` tag is used for only grouping. If you fill the `description` part, it would be shown in the Swagger-UI.
 
 The last one, `@security` is a tag for security scheme. It specifies target security scheme by writing its key like `@security {key}`. If target scheme type is OAuth2, and it has configured scopes, you can specify the scopes by writing scopes at the backward like `@security {key} read write`. 
 
