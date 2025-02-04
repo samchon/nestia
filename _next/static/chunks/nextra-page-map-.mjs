@@ -176,7 +176,7 @@ export const pageMap = [{
       name: "chat",
       route: "/docs/swagger/chat",
       frontMatter: {
-        "title": "Guide Documents > Swagger Document > A.I. Chatbot"
+        "title": "Guide Documents > Swagger Document > AI Chatbot Development"
       }
     }, {
       name: "editor",
