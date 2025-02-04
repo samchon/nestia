@@ -1,5 +1,6 @@
 import GitHubIcon from "@mui/icons-material/GitHub";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import SpeakerNotesIcon from "@mui/icons-material/SpeakerNotes";
 import { Button, Grid, Typography } from "@mui/material";
 import { ReactNode } from "react";
 import React from "react";
@@ -84,6 +85,12 @@ const HomeHeroMovie = () => (
         title="Guide Documents"
         icon={<MenuBookIcon />}
         href="/docs"
+        color="info"
+      />
+      <QuickButton
+        title="Document Chatbot"
+        icon={<SpeakerNotesIcon />}
+        href="https://gurubase.io/g/nestia"
         color="info"
       />
       <QuickButton
