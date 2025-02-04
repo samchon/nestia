@@ -4,7 +4,7 @@ import { Driver, WorkerConnector, WorkerServer } from "tgrid";
 import { HashMap, hash, sleep_for } from "tstl";
 
 import { IBenchmarkEvent } from "./IBenchmarkEvent";
-import { DynamicBenchmarWriter } from "./internal/DynamicBenchmarkReporter";
+import { DynamicBenchmarkReporter } from "./internal/DynamicBenchmarkReporter";
 import { IBenchmarkMaster } from "./internal/IBenchmarkMaster";
 import { IBenchmarkServant } from "./internal/IBenchmarkServant";
 
@@ -109,7 +109,7 @@ export namespace DynamicBenchmarker {
   }
 
   /**
-   * Properties of the servant progrma.
+   * Properties of the servant program.
    */
   export interface IServantProps<Parameters extends any[]> {
     /**
@@ -308,7 +308,7 @@ export namespace DynamicBenchmarker {
    * @returns Markdown content
    */
   export const markdown = (report: DynamicBenchmarker.IReport): string =>
-    DynamicBenchmarWriter.markdown(report);
+    DynamicBenchmarkReporter.markdown(report);
 
   const execute =
     <Parameters extends any[]>(ctx: {
@@ -343,7 +343,7 @@ export namespace DynamicBenchmarker {
                     metadata: fe.route,
                     status: fe.status,
                     started_at: fe.started_at.toISOString(),
-                    repond_at: fe.respond_at?.toISOString() ?? null,
+                    respond_at: fe.respond_at?.toISOString() ?? null,
                     completed_at: fe.completed_at.toISOString(),
                     success: true,
                   };

@@ -7,7 +7,7 @@ import { Creator } from "../typings/Creator";
  * Exception manager for HTTP server.
  *
  * `ExceptionManager` is an utility class who can insert or erase custom error class with
- * its convertion method to a regular {@link nest.HttpException} instance.
+ * its conversion method to a regular {@link nest.HttpException} instance.
  *
  * If you define an API function through {@link TypedRoute} or {@link EncryptedRoute}
  * instead of the basic router decorator functions like {@link nest.Get} or

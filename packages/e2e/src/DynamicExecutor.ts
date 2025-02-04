@@ -88,7 +88,7 @@ export namespace DynamicExecutor {
     wrapper?: (
       name: string,
       closure: Closure<Parameters, Ret>,
-      paramters: Parameters,
+      parameters: Parameters,
     ) => Promise<any>;
 
     /**
@@ -134,7 +134,7 @@ export namespace DynamicExecutor {
     location: string;
 
     /**
-     * Error when occured.
+     * Error when occurred.
      */
     error: Error | null;
 

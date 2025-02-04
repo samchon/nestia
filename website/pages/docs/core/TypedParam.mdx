@@ -238,7 +238,7 @@ exports.ParametersController = ParametersController = __decorate(
   </Tabs.Tab>
 </Tabs>
 
-Just call `@TypedParam()` function on the path paremeter, that's all.
+Just call `@TypedParam()` function on the path parameter, that's all.
 
 If you want to special parameter type like `"uint32"` or `"uuid"`, utilize [type tags of `typia`](https://typia.io/docs/validators/tags).
 
@@ -260,7 +260,7 @@ Also, `@TypedParam()` allows nullable like `number | null`, but undefindable typ
   - `number | null` is allowed
   - `string | undefined` is prohibited
 
-If you violate above condition, and try to declare object or union type, compilation error would be occured:
+If you violate above condition, and try to declare object or union type, compilation error would be occurred:
 
 ```bash
 Error on nestia.core.TypedParam(): only atomic type is allowed

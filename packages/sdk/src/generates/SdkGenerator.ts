@@ -65,7 +65,7 @@ export namespace SdkGenerator {
     if (app.project.config.clone === true) return errors;
     for (const route of app.routes)
       if (route.protocol === "http")
-        validateImplicity({
+        validateImplicit({
           config: app.project.config,
           errors,
           route,
@@ -73,7 +73,7 @@ export namespace SdkGenerator {
     return errors;
   };
 
-  const validateImplicity = (props: {
+  const validateImplicit = (props: {
     config: INestiaConfig;
     errors: IReflectOperationError[];
     route: ITypedHttpRoute;

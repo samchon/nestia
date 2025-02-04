@@ -38,7 +38,7 @@ export namespace SdkHttpRouteProgrammer {
       : [];
     const tagComments: string[] = [];
 
-    // PARMAETERS
+    // PARAMETERS
     for (const p of route.parameters) {
       if (p.category === "headers") continue;
 

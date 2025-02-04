@@ -4,7 +4,7 @@
  * Exception decorator.
  *
  * `TypedException` is a decorator function describing HTTP exception and its type
- * which could be occured in the method.
+ * which could be occurred in the method.
  *
  * For reference, this decorator function does not affect to the method's behavior,
  * but only affects to the swagger documents generation. Also, it does not affect to
@@ -22,7 +22,7 @@ export function TypedException(props: TypedException.IProps<unknown>): never;
  * Exception decorator.
  *
  * `TypedException` is a decorator function describing HTTP exception and its type
- * which could be occured in the method.
+ * which could be occurred in the method.
  *
  * For reference, this decorator function does not affect to the method's behavior,
  * but only affects to the swagger documents generation. Also, it does not affect to
@@ -45,7 +45,7 @@ export function TypedException(
  * Exception decorator.
  *
  * `TypedException` is a decorator function describing HTTP exception and its type
- * which could be occured in the method.
+ * which could be occurred in the method.
  *
  * For reference, this decorator function does not affect to the method's behavior,
  * but only affects to the swagger documents generation. Also, it does not affect to
@@ -65,7 +65,7 @@ export function TypedException<T>(
  * Exception decorator.
  *
  * `TypedException` is a decorator function describing HTTP exception and its type
- * which could be occured in the method.
+ * which could be occurred in the method.
  *
  * For reference, this decorator function does not affect to the method's behavior,
  * but only affects to the swagger documents generation. Also, it does not affect to

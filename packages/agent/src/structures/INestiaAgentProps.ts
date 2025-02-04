@@ -17,11 +17,11 @@ import { INestiaAgentProvider } from "./INestiaAgentProvider";
  * OpenAI with its API key and client API. And then, you have to define
  * the {@link controllers} serving the functions to call. The controllers
  * are separated by two protocols; HTTP API and TypeScript class. At last,
- * you can {@link config}ure the agent by setting the locale, timezone,
+ * you can {@link config configure} the agent by setting the locale, timezone,
  * and some of system prompts.
  *
  * Additionally, if you want to start from the previous A.I. chatbot
- * session, you can accomplish it by assinging the previous prompt
+ * session, you can accomplish it by assigning the previous prompt
  * histories to the {@link histories} property.
  *
  * @author Jeongho Nam - https://github.com/samchon

@@ -139,7 +139,7 @@ export namespace ChatGptSelectFunctionAgent {
           role: "user",
           content: ctx.prompt.text,
         },
-        // SYTEM PROMPT
+        // SYSTEM PROMPT
         {
           role: "system",
           content: NestiaAgentSystemPrompt.SELECT,

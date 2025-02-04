@@ -42,7 +42,7 @@ export namespace GenericAnalyzer {
           dict.set(paramType, usageType);
         });
 
-        // RECUSRIVE EXPLORATION
+        // RECURSIVE EXPLORATION
         explore(checker, dict, superNode);
       }
   }

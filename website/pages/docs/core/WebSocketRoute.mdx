@@ -273,7 +273,7 @@ Note that, never forget to defining the `@WebSocketRoute.Acceptor()` decorated p
   - `Provider`: Service provider for client
   - `Listener`: Remote service provider from client
 
-Also, the `Driver<IListener>` is a type of the remote provider by client. If you call any function of the remote provider, your function call request will be sent to the remote client, and returned value would be recived from the client asynchronouly. 
+Also, the `Driver<IListener>` is a type of the remote provider by client. If you call any function of the remote provider, your function call request will be sent to the remote client, and returned value would be received from the client asynchronouly. 
 
 Therefore, the `Driver<T>` type converts every functions' return type to be `Promise<R>`. In the client side, your `Provider` would be also wrapped into the `Driver<Provider>`, so that client can call your functions asynchronously, too.
 
@@ -304,7 +304,7 @@ export class CalculateController {
   /**
    * Start advanced calculator.
    *
-   * Start advanced calculator through WebSocket with additional informations.
+   * Start advanced calculator through WebSocket with additional information.
    *
    * @param id ID to assign
    * @param header Header information
@@ -569,7 +569,7 @@ import type { IMemo } from "../../structures/IMemo";
 /**
  * Start advanced calculator.
  *
- * Start advanced calculator through WebSocket with additional informations.
+ * Start advanced calculator through WebSocket with additional information.
  *
  * @param id ID to assign
  * @param memo Memo to archive
@@ -644,7 +644,7 @@ export class CalculateController {
   /**
    * Start advanced calculator.
    *
-   * Start advanced calculator through WebSocket with additional informations.
+   * Start advanced calculator through WebSocket with additional information.
    *
    * @param id ID to assign
    * @param header Header information
@@ -756,14 +756,14 @@ Also, `@WebSocketRoute.Param()` allows nullable like `number | null`, but undefi
   - `number | null` is allowed
   - `string | undefined` is prohibited
 
-If you violate above condition, and try to declare object or union type, compilation error would be occured:
+If you violate above condition, and try to declare object or union type, compilation error would be occurred:
 
 ```bash
 Error on nestia.core.WebSocketRoute.Param(): only atomic type is allowed
 ```
 
 ### `@WebSocketRoute.Query()`
-When using `@WebSocketRoute.Query()`, you've to follow such restrction.
+When using `@WebSocketRoute.Query()`, you've to follow such restriction.
 
 At first, type of `@WebSocketRoute.Query()` must be a pure **object type**. It does not allow union type. Also, nullable and undefindable types are not allowed, either. Note that, query parameter type must be a sole **object type** without any extra definition.
 

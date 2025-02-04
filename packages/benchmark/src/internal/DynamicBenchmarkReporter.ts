@@ -2,7 +2,7 @@ import os from "os";
 
 import { DynamicBenchmarker } from "../DynamicBenchmarker";
 
-export namespace DynamicBenchmarWriter {
+export namespace DynamicBenchmarkReporter {
   export const markdown = (report: DynamicBenchmarker.IReport): string => {
     const format = (value: number | null) =>
       value === null ? "N/A" : (Math.floor(value * 100) / 100).toLocaleString();

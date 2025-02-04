@@ -11,7 +11,7 @@ export const test_expired = async (connection: IConnection) => {
     TestValidator.equals("response")(response.data)("EXPIRED_PERMISSION");
   else throw Error("unexpected response");
 };
-export const test_requred = async (connection: IConnection) => {
+export const test_required = async (connection: IConnection) => {
   const response = await test(connection, "REQUIRED_PERMISSION");
   if (response.status === 401)
     TestValidator.equals("response")(response.data)("REQUIRED_PERMISSION");

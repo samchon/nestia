@@ -47,7 +47,7 @@ export namespace IBbsArticle {
 
 export interface IAttachmentFile {
   /**
-   * @minLengt 1
+   * @minLength 1
    * @maxLength 255
    */
   name: string | null;

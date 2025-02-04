@@ -2,7 +2,7 @@ import { Controller, Head, Header, Options } from "@nestjs/common";
 
 @Controller("method")
 export class MethodController {
-  @Header("something", "interseting")
+  @Header("something", "interesting")
   @Head("head")
   public head(): void {}
 

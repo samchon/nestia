@@ -67,11 +67,11 @@ export namespace RandomGenerator {
   /**
    * Generate random content.
    *
-   * @param paragraphes Number of paragraphes
+   * @param paragraphs Number of paragraphs
    * @returns Currying function
    */
   export const content =
-    (paragraphes: number = randint(3, 8)) =>
+    (paragraphs: number = randint(3, 8)) =>
     /**
      * @param sentenceMin Minimum number of sentences in a paragraph
      * @param sentenceMax Maximum number of sentences in a paragraph
@@ -84,7 +84,7 @@ export namespace RandomGenerator {
      * @returns Content generator
      */
     (wordMin: number = 1, wordMax: number = 7): string =>
-      new Array(paragraphes)
+      new Array(paragraphs)
         .fill("")
         .map(() =>
           paragraph(randint(sentenceMin, sentenceMax))(wordMin, wordMax),

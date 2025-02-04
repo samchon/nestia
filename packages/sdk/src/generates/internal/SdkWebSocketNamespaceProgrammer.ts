@@ -138,12 +138,11 @@ export namespace SdkWebSocketNamespaceProgrammer {
       return out(ts.factory.createStringLiteral(route.path));
 
     const template = () => {
-      const splitted: string[] = route.path.split(":");
-      if (splitted.length === 1)
-        return ts.factory.createStringLiteral(route.path);
+      const split: string[] = route.path.split(":");
+      if (split.length === 1) return ts.factory.createStringLiteral(route.path);
       return ts.factory.createTemplateExpression(
-        ts.factory.createTemplateHead(splitted[0]),
-        splitted.slice(1).map((s, i, arr) => {
+        ts.factory.createTemplateHead(split[0]),
+        split.slice(1).map((s, i, arr) => {
           const name: string = s.split("/")[0];
           return ts.factory.createTemplateSpan(
             ts.factory.createCallExpression(

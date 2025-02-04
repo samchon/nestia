@@ -33,7 +33,7 @@ import { validate_request_query } from "./internal/validate_request_query";
  *
  * Furthermore, if you build SDK (Software Development Kit) library through
  * `@nestia/sdk`, you can make safe WebSocket client taking advantages of
- * TypeScript type hints and checkings.
+ * TypeScript type hints and checks.
  *
  * @param path Path(s) of the WebSocket request
  * @returns Method decorator

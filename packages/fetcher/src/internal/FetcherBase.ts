@@ -68,7 +68,7 @@ export namespace FetcherBase {
       stringify?: (input: Input) => string,
     ): Promise<IPropagation<any, any>> => {
       //----
-      // REQUEST MESSSAGE
+      // REQUEST MESSAGE
       //----
       // METHOD & HEADERS
       const headers: Record<string, IConnection.HeaderValue | undefined> = {
@@ -114,7 +114,7 @@ export namespace FetcherBase {
         );
 
       //----
-      // RESPONSE MESSSAGE
+      // RESPONSE MESSAGE
       //----
       // URL SPECIFICATION
       const path: string =
