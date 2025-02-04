@@ -17,7 +17,7 @@ const QuickButton = (props: {
   icon?: ReactNode;
   color: "info" | "warning" | "success";
 }) => (
-  <Grid item xs={12} md={6}>
+  <Grid item xs={12} md={4}>
     <Button
       color={props.color}
       variant="outlined"
@@ -91,7 +91,7 @@ const HomeHeroMovie = () => (
         title="Document Chatbot"
         icon={<SpeakerNotesIcon />}
         href="https://gurubase.io/g/nestia"
-        color="info"
+        color="warning"
       />
       <QuickButton
         title="Github Repository"
