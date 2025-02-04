@@ -5,8 +5,8 @@
 [![npm version](https://img.shields.io/npm/v/@nestia/fetcher.svg)](https://www.npmjs.com/package/@nestia/fetcher)
 [![Downloads](https://img.shields.io/npm/dm/@nestia/fetcher.svg)](https://www.npmjs.com/package/@nestia/fetcher)
 [![Build Status](https://github.com/samchon/nestia/workflows/build/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Abuild)
-[![Guide Documents](https://img.shields.io/badge/guide-documents-forestgreen)](https://nestia.io/docs/)
-[![Gurubase](https://img.shields.io/badge/Gurubase-Ask%20Nestia%20Guru-006BFF)](https://gurubase.io/g/nestia)
+[![Guide Documents](https://img.shields.io/badge/Guide-Documents-forestgreen)](https://nestia.io/docs/)
+[![Gurubase](https://img.shields.io/badge/Gurubase-Document%20Chatbot-006BFF)](https://gurubase.io/g/nestia)
 [![Discord Badge](https://img.shields.io/badge/discord-samchon-d91965?style=flat&labelColor=5866f2&logo=discord&logoColor=white&link=https://discord.gg/E94XhzrUCZ)](https://discord.gg/E94XhzrUCZ)
 
 Nestia is a set of helper libraries for NestJS, supporting below features:
@@ -78,7 +78,7 @@ Check out the document in the [website](https://nestia.io/docs/):
     - [Distribution](https://nestia.io/docs/sdk/distribute/)
   - Swagger Document
     - [Swagger Builder](https://nestia.io/docs/swagger/)
-    - [**A.I. Chatbot by Swagger**](https://nestia.io/docs/swagger/chat/)
+    - [**AI Chatbot Development**](https://nestia.io/docs/swagger/chat/)
     - [Cloud Swagger Editor](https://nestia.io/docs/swagger/editor/)
     - [Documentation Strategy](https://nestia.io/docs/swagger/strategy/)
   - E2E Testing
