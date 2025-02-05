@@ -1,6 +1,6 @@
 {
   "name": "@nestia/chat",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "type": "module",
   "main": "./lib/index.mjs",
   "typings": "./lib/index.d.ts",
@@ -46,7 +46,7 @@
     "rehype-raw": "^7.0.0",
     "rehype-stringify": "^10.0.1",
     "remark-mermaid-plugin": "^1.0.2",
-    "typia": "^7.6.0",
+    "typia": "^7.6.2",
     "uuid": "^11.0.5"
   },
   "devDependencies": {
@@ -71,7 +71,7 @@
     "eslint-plugin-react-refresh": "^0.4.13",
     "globals": "^15.11.0",
     "js-yaml": "^4.1.0",
-    "openai": "^4.77.3",
+    "openai": "^4.82.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-json-editor-ajrm": "^2.5.14",

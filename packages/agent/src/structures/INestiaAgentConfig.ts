@@ -69,7 +69,7 @@ export interface INestiaAgentConfig {
    * capacity and select proper functions to call by operating the multiple
    * LLM function selecting agents parallelly.
    *
-   * @default 0
+   * @default 100
    */
   capacity?: number;
 

@@ -13,7 +13,7 @@ export interface __IChatSelectFunctionsApplication {
    * requested to call many different functions, you A.I. agent have to assign
    * them all into the `functions` property.
    *
-   * Also, if you A.I. agent can't speciify a specific function to call due to lack
+   * Also, if you A.I. agent can't specify a specific function to call due to lack
    * of specificity or homogeneity of candidate functions, just assign all of them
    * by in the` functions` property` too. Instead, when you A.I. agent can specify
    * a specific function to call, the others would be eliminated.
