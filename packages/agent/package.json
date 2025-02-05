@@ -1,6 +1,6 @@
 {
   "name": "@nestia/agent",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",
@@ -43,6 +43,17 @@
     "prompts",
     "src"
   ],
+  "peerDependencies": {
+    "openai": ">=4.0.0",
+    "@samchon/openapi": ">=2.4.2",
+    "typia": ">=7.6.3"
+  },
+  "dependencies": {
+    "@samchon/openapi": "^2.4.2",
+    "openai": "^4.0.0",
+    "typia": "^7.6.3",
+    "uuid": "^11.0.4"
+  },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@nestia/e2e": "^0.7.0",
@@ -63,11 +74,5 @@
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.18.2",
     "typescript-transform-paths": "^3.5.3"
-  },
-  "dependencies": {
-    "@samchon/openapi": "^2.4.2",
-    "openai": "^4.82.0",
-    "typia": "^7.6.3",
-    "uuid": "^11.0.4"
   }
 }
