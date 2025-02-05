@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 cp.execSync("git pull", {
   cwd: `${__dirname}/../../packages/openapi`,
-  stdio: "ignore",
+  stdio: "inherit",
 });
 
 for (const pack of [
@@ -30,11 +30,11 @@ for (const pack of [
     ].join(" "),
     {
       cwd: `${__dirname}/..`,
-      stdio: "ignore",
+      stdio: "inherit",
     },
   );
 }
 cp.execSync(`npx typedoc --entryPointStrategy merge "typedoc-json/*.json"`, {
   cwd: `${__dirname}/..`,
-  stdio: "ignore",
+  stdio: "inherit",
 });
