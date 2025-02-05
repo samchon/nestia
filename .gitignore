@@ -2,6 +2,7 @@ bin/
 lib/
 node_modules/
 
+packages/openapi
 packages/*/*.tgz
 packages/*/docs
 package-lock.json

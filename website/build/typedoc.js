@@ -6,8 +6,8 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-cp.execSync("git pull", {
-  cwd: `${__dirname}/../../packages/openapi`,
+cp.execSync("git clone https://github.com/samchon/openapi", {
+  cwd: `${__dirname}/../../packages`,
   stdio: "inherit",
 });
 
@@ -34,7 +34,9 @@ for (const pack of [
     },
   );
 }
+
 cp.execSync(`npx typedoc --entryPointStrategy merge "typedoc-json/*.json"`, {
   cwd: `${__dirname}/..`,
   stdio: "inherit",
 });
+fs.rmSync(`${__dirname}/../../packages/openapi`, { recursive: true });
