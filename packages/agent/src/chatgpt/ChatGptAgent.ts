@@ -39,8 +39,8 @@ export namespace ChatGptAgent {
       );
       for (const e of executes)
         await ChatGptCancelFunctionAgent.cancelFunction(ctx, {
-          name: e.function.name,
           reason: "completed",
+          name: e.function.name,
         });
       histories.push(
         ...(await ChatGptDescribeFunctionAgent.execute(ctx, executes)),
