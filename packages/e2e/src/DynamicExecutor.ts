@@ -92,6 +92,18 @@ export namespace DynamicExecutor {
     ) => Promise<any>;
 
     /**
+     * Number of simultaneous requests.
+     *
+     * The number of requests to be executed simultaneously.
+     *
+     * If you configure a value greater than one, the dynamic executor will
+     * process the functions concurrently with the given capacity value.
+     *
+     * @default 1
+     */
+    simultaneous?: number;
+
+    /**
      * Extension of dynamic functions.
      *
      * @default js
@@ -189,35 +201,47 @@ export namespace DynamicExecutor {
       };
 
       const executor = execute(props)(report)(assert);
-      const iterator = iterate(props.extension ?? "js")(executor);
-      await iterator(props.location);
-
+      const processes: Array<() => Promise<void>> = await iterate({
+        extension: props.extension ?? "js",
+        location: props.location,
+        executor,
+      });
+      await Promise.all(
+        new Array(props.simultaneous ?? 1).fill(0).map(async () => {
+          while (processes.length !== 0) {
+            const task = processes.shift();
+            await task?.();
+          }
+        }),
+      );
       report.time = Date.now() - report.time;
       return report;
     };
 
-  const iterate =
-    (extension: string) =>
-    <Arguments extends any[]>(
-      executor: (path: string, modulo: Module<Arguments>) => Promise<void>,
-    ) => {
-      const visitor = async (path: string): Promise<void> => {
-        const directory: string[] = await fs.promises.readdir(path);
-        for (const file of directory) {
-          const location: string = NodePath.resolve(`${path}/${file}`);
-          const stats: fs.Stats = await fs.promises.lstat(location);
+  const iterate = async <Arguments extends any[]>(props: {
+    location: string;
+    extension: string;
+    executor: (path: string, modulo: Module<Arguments>) => Promise<void>;
+  }): Promise<Array<() => Promise<void>>> => {
+    const container: Array<() => Promise<void>> = [];
+    const visitor = async (path: string): Promise<void> => {
+      const directory: string[] = await fs.promises.readdir(path);
+      for (const file of directory) {
+        const location: string = NodePath.resolve(`${path}/${file}`);
+        const stats: fs.Stats = await fs.promises.lstat(location);
 
-          if (stats.isDirectory() === true) {
-            await visitor(location);
-            continue;
-          } else if (file.substr(-3) !== `.${extension}`) continue;
+        if (stats.isDirectory() === true) {
+          await visitor(location);
+          continue;
+        } else if (file.substr(-3) !== `.${props.extension}`) continue;
 
-          const modulo: Module<Arguments> = await import(location);
-          await executor(location, modulo);
-        }
-      };
-      return visitor;
+        const modulo: Module<Arguments> = await import(location);
+        container.push(() => props.executor(location, modulo));
+      }
     };
+    await visitor(props.location);
+    return container;
+  };
 
   const execute =
     <Arguments extends any[]>(props: IProps<Arguments>) =>
