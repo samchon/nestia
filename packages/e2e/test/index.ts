@@ -11,6 +11,7 @@ async function main(): Promise<void> {
         new Date(exec.started_at).getTime();
       console.log(` - ${exec.name}: ${elapsed.toLocaleString()} ms`);
     },
+    simultaneous: 1,
   });
   console.log(`Elapsed time: ${report.time.toLocaleString()} ms`);
 }
