@@ -3,8 +3,7 @@ node_modules/
 out/
 public/api/
 public/chat/
-typedoc-json/*.json
-!typedoc-json/openapi.json
+typedoc-json/
 
 public/downloads
 public/robots.txt
