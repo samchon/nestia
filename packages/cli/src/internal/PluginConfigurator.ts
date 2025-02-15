@@ -85,7 +85,7 @@ export namespace PluginConfigurator {
          *   - "equals": Use typia.equals() function
          *   - "validateEquals": Use typia.validateEquals() function
          */
-                            "validate": "assert",
+                            "validate": "validate",
 
         /**
          * Validate JSON typed response body.
