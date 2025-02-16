@@ -31,7 +31,10 @@ const main = async () => {
       name: "openapi",
       url: "https://samchon.github.io/openapi/api/openapi.json",
     },
-    { name: "typia", url: "https://typia.io/api/typia.json" },
+    {
+      name: "typia",
+      url: "https://typia.io/api/typia.json",
+    },
   ])
     await fs.promises.writeFile(
       `${__dirname}/../typedoc-json/${name}.json`,
@@ -40,10 +43,13 @@ const main = async () => {
     );
 
   // MERGE JSON FILES
-  cp.execSync(`npx typedoc --entryPointStrategy merge "typedoc-json/*.json"`, {
-    cwd: `${__dirname}/..`,
-    stdio: "inherit",
-  });
+  cp.execSync(
+    `npx typedoc --entryPointStrategy merge "typedoc-json/*.json" --hostedBaseUrl https://nestia.io/api/`,
+    {
+      cwd: `${__dirname}/..`,
+      stdio: "inherit",
+    },
+  );
 };
 main().catch((error) => {
   console.error(error);
