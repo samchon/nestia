@@ -1,5 +1,4 @@
 import ts from "typescript";
-import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { IMetadataTypeTag } from "typia/lib/schemas/metadata/IMetadataTypeTag";
 
@@ -19,28 +18,11 @@ export namespace SdkTypeTagProgrammer {
           library: `typia/lib/tags/${instance}`,
           instance,
         }),
-        instance === "Example"
-          ? []
-          : [
-              ts.factory.createLiteralTypeNode(
-                typeof tag.value === "boolean"
-                  ? tag.value
-                    ? ts.factory.createTrue()
-                    : ts.factory.createFalse()
-                  : typeof tag.value === "bigint"
-                    ? tag.value < BigInt(0)
-                      ? ts.factory.createPrefixUnaryExpression(
-                          ts.SyntaxKind.MinusToken,
-                          ts.factory.createBigIntLiteral(
-                            (-tag.value).toString(),
-                          ),
-                        )
-                      : ts.factory.createBigIntLiteral(tag.value.toString())
-                    : typeof tag.value === "number"
-                      ? ExpressionFactory.number(tag.value)
-                      : ts.factory.createStringLiteral(tag.value),
-              ),
-            ],
+        [
+          ts.factory.createLiteralTypeNode(
+            LiteralFactory.write(tag.value) as any,
+          ),
+        ],
       );
     return ts.factory.createTypeReferenceNode(
       importer.external({
