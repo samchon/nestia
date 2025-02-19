@@ -1,40 +1,15 @@
+import { tags } from "typia";
+
 export interface IBbsArticle {
-  /**
-   * @format uuid
-   */
-  id: string;
-
-  /**
-   * @minLength 3
-   * @maxLength 50
-   */
-  title: string;
-
+  id: string & tags.Format<"uuid">;
+  title: string & tags.MinLength<3> & tags.MaxLength<50>;
   body: string;
-
   files: IAttachmentFile[];
-
-  /**
-   * @format date-time
-   */
-  created_at: string;
+  created_at: string & tags.Format<"date-time">;
 }
 
 export interface IAttachmentFile {
-  /**
-   * @minLength 1
-   * @maxLength 255
-   */
-  name: string | null;
-
-  /**
-   * @minLength 1
-   * @maxLength 8
-   */
-  extension: string | null;
-
-  /**
-   * @format uri
-   */
+  name: string & tags.MaxLength<255> & tags.Example<"logo">;
+  extension: null | (string & tags.MinLength<1> & tags.MaxLength<8>);
   url: string;
 }
