@@ -146,6 +146,11 @@ export namespace DynamicExecutor {
     location: string;
 
     /**
+     * Returned value from the function.
+     */
+    value: unknown;
+
+    /**
      * Error when occurred.
      */
     error: Error | null;
@@ -256,15 +261,16 @@ export namespace DynamicExecutor {
         )
           continue;
 
-        const func = async () => {
+        const func = () => {
           if (props.wrapper !== undefined)
-            await props.wrapper(key, closure, props.parameters(key));
-          else await closure(...props.parameters(key));
+            return props.wrapper(key, closure, props.parameters(key));
+          else return closure(...props.parameters(key));
         };
 
         const result: IExecution = {
           name: key,
           location,
+          value: undefined,
           error: null,
           started_at: new Date().toISOString(),
           completed_at: new Date().toISOString(),
@@ -272,7 +278,7 @@ export namespace DynamicExecutor {
         report.executions.push(result);
 
         try {
-          await func();
+          result.value = await func();
           result.completed_at = new Date().toISOString();
         } catch (exp) {
           result.error = exp as Error;
