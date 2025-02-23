@@ -1,6 +1,6 @@
 {
   "name": "@nestia/benchmark",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "NestJS Performance Benchmark Program",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -9,7 +9,7 @@
     "build:main": "rimraf lib && tsc",
     "build:test": "rimraf bin && tsc -p test/tsconfig.json",
     "dev": "npm run build:test -- --watch",
-    "prepare": "ts-patch install && typia patch",
+    "prepare": "ts-patch install",
     "test": "node bin/test"
   },
   "keywords": [
@@ -34,7 +34,7 @@
     "ts-patch": "^3.3.0",
     "typescript": "~5.7.2",
     "typescript-transform-paths": "^3.4.7",
-    "typia": "^7.6.0",
+    "typia": "^8.0.0-dev.20250222",
     "uuid": "^10.0.0"
   },
   "dependencies": {

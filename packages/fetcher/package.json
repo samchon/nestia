@@ -26,8 +26,8 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@samchon/openapi": "^2.4.0",
-    "typia": "^7.6.0"
+    "@samchon/openapi": "^3.0.0-dev.20250222",
+    "typia": "^8.0.0-dev.20250222"
   },
   "peerDependencies": {
     "typescript": ">= 4.8.0"
@@ -37,8 +37,7 @@
     "@typescript-eslint/eslint-plugin": "^5.46.1",
     "@typescript-eslint/parser": "^5.46.1",
     "rimraf": "^6.0.1",
-    "typescript": "~5.7.2",
-    "typia": "^7.6.0"
+    "typescript": "~5.7.2"
   },
   "files": [
     "README.md",

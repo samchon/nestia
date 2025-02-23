@@ -116,9 +116,9 @@ export namespace TypedBodyProgrammer {
     //----
     const category = props.context.options.validate;
     // NORMAL
-    if (category === "is") return check("is")(false)(IsProgrammer.write);
-    else if (category === "validate")
-      return check("validate")(false)(ValidateProgrammer.write);
+    if (category === "assert")
+      return check("assert")(false)(AssertProgrammer.write);
+    else if (category === "is") return check("is")(false)(IsProgrammer.write);
     // STRICT
     else if (category === "validateEquals")
       return check("validate")(true)(ValidateProgrammer.write);
@@ -137,6 +137,6 @@ export namespace TypedBodyProgrammer {
     else if (category === "validatePrune")
       return misc("validate")(MiscValidatePruneProgrammer.write);
     // DEFAULT
-    return check("assert")(false)(AssertProgrammer.write);
+    return check("validate")(false)(ValidateProgrammer.write);
   };
 }
