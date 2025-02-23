@@ -39,7 +39,7 @@
     "@nestia/fetcher": "workspace:^",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
-    "@samchon/openapi": "^3.0.0-dev.20250222",
+    "@samchon/openapi": "3.0.0-dev.20250222",
     "detect-ts-node": "^1.0.5",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",

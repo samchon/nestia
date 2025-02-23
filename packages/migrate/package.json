@@ -72,7 +72,7 @@
   },
   "dependencies": {
     "@nestia/sdk": "workspace:^",
-    "@samchon/openapi": "^3.0.0-dev.20250222",
+    "@samchon/openapi": "3.0.0-dev.20250222",
     "commander": "10.0.0",
     "inquirer": "8.2.5",
     "prettier": "^3.2.5",
