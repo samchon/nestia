@@ -42,6 +42,7 @@
     "@nestia/e2e": "workspace:^",
     "@nestia/fetcher": "workspace:^",
     "@nestjs/common": "^11.0.2",
+    "@nestia/sdk": "workspace:^",
     "@nestjs/core": "^11.0.2",
     "@nestjs/platform-express": "^11.0.2",
     "@nestjs/platform-fastify": "^11.0.2",
@@ -71,7 +72,6 @@
     "typescript-transform-paths": "^3.5.2"
   },
   "dependencies": {
-    "@nestia/sdk": "workspace:^",
     "@samchon/openapi": "3.0.0-dev.20250222",
     "commander": "10.0.0",
     "inquirer": "8.2.5",
