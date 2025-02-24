@@ -24,11 +24,11 @@ jobs:
           version: 8
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --force
 
       - name: Build
         run: npm run build
 
       - name: test
         working-directory: ./test
-        run: pnpm install && npm start -- --skipBuild
+        run: pnpm install --force && npm start -- --skipBuild

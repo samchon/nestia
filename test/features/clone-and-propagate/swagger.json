@@ -699,35 +699,6 @@
         "x-samchon-controller": "HealthController"
       }
     },
-    "/multipart": {
-      "post": {
-        "tags": [],
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/IMultipart"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {}
-            }
-          }
-        },
-        "x-samchon-accessor": [
-          "multipart",
-          "post"
-        ],
-        "x-samchon-controller": "MultipartController"
-      }
-    },
     "/objectLiteral": {
       "get": {
         "tags": [],
@@ -2689,62 +2660,6 @@
         "required": [
           "title",
           "body",
-          "files"
-        ]
-      },
-      "IMultipart": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "strings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "number": {
-            "type": "number"
-          },
-          "integers": {
-            "type": "array",
-            "items": {
-              "type": "integer"
-            }
-          },
-          "blob": {
-            "type": "string",
-            "format": "binary"
-          },
-          "blobs": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "binary"
-            }
-          },
-          "file": {
-            "type": "string",
-            "format": "binary"
-          },
-          "files": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "binary"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "strings",
-          "number",
-          "integers",
-          "blob",
-          "blobs",
-          "file",
           "files"
         ]
       },

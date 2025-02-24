@@ -10,7 +10,7 @@ export function TypedBody(): ParameterDecorator;
 
 Request body decorator **20,000x** faster, even **easy to use**.
 
-`@TypedBody()` is a decorator function parsing `application/json` typed request body, and validates the request body value type through [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function. If the request body is not following the promised type, 400 bad request error would be thrown.
+`@TypedBody()` is a decorator function parsing `application/json` typed request body, and validates the request body value type through [`typia.validate<T>()`](https://typia.io/docs/validators/validate) function. If the request body is not following the promised type, 400 bad request error would be thrown.
 
 It is almost same with original `@Body()` function of `NestJS`, however, 20,000x faster. 
 
@@ -596,7 +596,7 @@ Such optimization is called AOT (Ahead of Time) compilation, and it is the secre
 ## Special Tags
 You can enhance validation logic, of `@TypedBody()`, through special tags.
 
-You know what? `@TypedBody()` utilizes [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function for request body data validation, and the [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function supports additional type checking logics through type and comment tags. For reference, "Type Tag" means a intersection type with atomic type and special tag type of `typia` like `number & tags.Type<"uint32">`, and "Comment Tag" means a comment starting from `@` symbol following `@${name} ${value}` format.
+You know what? `@TypedBody()` utilizes [`typia.validate<T>()`](https://typia.io/docs/validators/validate) function for request body data validation, and the [`typia.validate<T>()`](https://typia.io/docs/validators/validate) function supports additional type checking logics through type and comment tags. For reference, "Type Tag" means a intersection type with atomic type and special tag type of `typia` like `number & tags.Type<"uint32">`, and "Comment Tag" means a comment starting from `@` symbol following `@${name} ${value}` format.
 
 With those type and comment tags, you can add additional validation logics. If you want to add a custom validation logic, you also can do it. Read below Guide Docments of [typia](https://typia.io), and see the example code. You may understand how to utilize such type and comment tags, in a few minutes.
 
@@ -705,7 +705,7 @@ For reference, such encryption spec is not supported in the [Swagger-UI](../sdk/
       { "transform": "typia/lib/transform" },
       {
         "transform": "@nestia/core/lib/transform",
-        "validate": "assert",
+        "validate": "validate",
         // "llm": {
         //   "model": "chatgpt",
         //   "strict": true,
@@ -718,7 +718,7 @@ For reference, such encryption spec is not supported in the [Swagger-UI](../sdk/
 
 Change type validation function to another one.
 
-If you configure `validate` property of plugin defined in the `tsconfig.json` file, you can change the `@TypedBody()` to use another validation function instead of the default [`typia.assert<T>`](https://typia.io/docs/validators/assert) function. For example, if you want to use [`typia.validateEquals<T>()`](https://typia.io/docs/validators/validate/#validateequals-function) function instead, then set the `validate` property to `validateEquals`.
+If you configure `validate` property of plugin defined in the `tsconfig.json` file, you can change the `@TypedBody()` to use another validation function instead of the default [`typia.validate<T>`](https://typia.io/docs/validators/validate) function. For example, if you want to use [`typia.validateEquals<T>()`](https://typia.io/docs/validators/validate/#validateequals-function) function instead, then set the `validate` property to `validateEquals`.
 
 Below is the list of available validation functions.
 
@@ -751,9 +751,9 @@ Super-fast and super-safe.
 
 `Nestia` utilizes [typia](https://typia.io/docs/), and `NestJS` uses `class-validator`. One thing amazing is, `typia` is maximum 20,000x faster than `class-validator` of `NestJS`. Color of `class-transformer` is skyblue, and can you find the skyblue color in the below benchmark graph? It may hard to find because `class-validator` is extremely slow.
 
-![Assert Function Benchmark](https://github.com/samchon/typia/raw/master/benchmark/results/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics/images/assert.svg)
+![Validate Function Benchmark](https://github.com/samchon/typia/raw/master/benchmark/results/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics/images/validate.svg)
 
-> Measured on [AMD R9-7940HS, Rog Flow X13](https://github.com/samchon/typia/tree/master/benchmark/results/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics#assert)
+> Measured on [AMD R9-7940HS, Rog Flow X13](https://github.com/samchon/typia/tree/master/benchmark/results/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics#validate)
 
 Furthermore, while other libraries can't validate complicate union types, `typia` can validate every TypeScript types. However, in the `class-validator` case, it always be failed when any type of complicate comes. I can't understand why `NestJS` has adopted such slow and unstable library.
 
