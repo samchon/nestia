@@ -48,7 +48,7 @@
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.3",
     "tgrid": "^1.1.0",
-    "typia": "^8.0.0-dev.20250224",
+    "typia": "^8.0.0-dev.20250225",
     "ws": "^7.5.3"
   },
   "peerDependencies": {

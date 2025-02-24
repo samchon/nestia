@@ -6,6 +6,5 @@ packages/openapi
 packages/*/*.tgz
 packages/*/docs
 package-lock.json
-pnpm-lock.yaml
 *.log
 .env
