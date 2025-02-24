@@ -6,7 +6,7 @@ const execute = (name) => {
   console.log("=========================================");
 
   process.chdir(`${__dirname}/../packages/${name}`);
-  cp.execSync("npm run build", { stdio: "inherit" });
+  cp.execSync("pnpm run build", { stdio: "inherit" });
 };
 
 const build = async (packages) => {
