@@ -27,7 +27,7 @@
   "homepage": "https://nestia.io",
   "devDependencies": {
     "@nestia/sdk": "workspace:^",
-    "@nestjs/swagger": "^11.0.4",
+    "@nestjs/swagger": "^11.0.5",
     "@types/express": "^4.17.17",
     "@types/multer": "^1.4.12",
     "@types/node": "20.11.16",
