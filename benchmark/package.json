@@ -42,7 +42,7 @@
     "reflect-metadata": "^0.2.2",
     "tgrid": "^1.1.0",
     "tstl": "^3.0.0",
-    "typia": "^8.0.0-dev.20250225"
+    "typia": "^8.0.0-dev.20250301"
   },
   "devDependencies": {
     "@types/autocannon": "^7.9.0",
@@ -53,6 +53,6 @@
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.1",
     "ts-patch": "^3.3.0",
-    "typescript": "~5.7.2"
+    "typescript": "~5.8.2"
   }
 }

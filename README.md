@@ -21,7 +21,6 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
     - Automatic E2E test functions generator
   - `@nestia/e2e`: Test program utilizing e2e test functions
   - `@nestia/benchmark`: Benchmark program using e2e test functions
-  - `@nestia/chat`: Super A.I. Chatbot by Swagger document
   - `@nestia/editor`: Swagger-UI with Online TypeScript Editor
   - `nestia`: Just CLI (command line interface) tool
 
