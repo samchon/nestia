@@ -1,6 +1,4 @@
-cp ../README.md ../packages/agent/README.md
 cp ../README.md ../packages/benchmark/README.md
-cp ../README.md ../packages/chat/README.md
 cp ../README.md ../packages/cli/README.md
 cp ../README.md ../packages/core/README.md
 cp ../README.md ../packages/e2e/README.md

@@ -332,7 +332,7 @@ npx nestia setup --manager yarn
   </Tabs.Tab>
 </Tabs>
 
-After installing `nestia` like above, and ensuring the `prepare` script is something similar to `ts-patch install && typia patch` you have to modify the `tsconfig.lib.json` on each package to be similar to the below.
+After installing `nestia` like above, and ensuring the `prepare` script is something similar to `ts-patch install` you have to modify the `tsconfig.lib.json` on each package to be similar to the below.
 
 ```json filename="tsconfig.lib.json" showLineNumbers copy
 {
@@ -345,7 +345,7 @@ After installing `nestia` like above, and ensuring the `prepare` script is somet
       { "transform": "typia/lib/transform" },
       { 
         "transform": "@nestia/core/lib/transform",
-        "validate": "assert",
+        "validate": "validate",
         "stringify": "assert", 
       },
       { "transform": "@nestia/sdk/lib/transform" }, // for runtime swagger composition
@@ -436,7 +436,7 @@ If you want to install `nestia` manually, you have to install `ts-node` and `ts-
       { "transform": "typia/lib/transform" },
       { 
         "transform": "@nestia/core/lib/transform",
-        "validate": "assert",
+        "validate": "validate",
         "stringify": "assert", 
       },
       { "transform": "@nestia/sdk/lib/transform" }, // for runtime swagger composition

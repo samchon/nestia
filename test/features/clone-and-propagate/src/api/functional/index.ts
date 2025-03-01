@@ -10,7 +10,6 @@ export * as arrayRecursiveUnionImplicit from "./arrayRecursiveUnionImplicit";
 export * as arraySimple from "./arraySimple";
 export * as bbs from "./bbs";
 export * as health from "./health";
-export * as multipart from "./multipart";
 export * as objectLiteral from "./objectLiteral";
 export * as objectSimple from "./objectSimple";
 export * as objectUnionExplicit from "./objectUnionExplicit";
