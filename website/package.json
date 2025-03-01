@@ -5,10 +5,9 @@
   "description": "Nestia Guide Documents",
   "private": true,
   "scripts": {
-    "build": "rimraf .next && rimraf .out && node build/chat && node build/editor && node build/typedoc && next build && node build/sitemap",
+    "build": "rimraf .next && rimraf .out && node build/editor && node build/typedoc && next build && node build/sitemap",
     "deploy": "node build/deploy",
-    "dev": "next dev",
-    "prepare": "node build/chat"
+    "dev": "next dev"
   },
   "repository": {
     "type": "git",
