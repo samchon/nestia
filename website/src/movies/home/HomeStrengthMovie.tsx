@@ -148,7 +148,7 @@ const sections: HomeStrengthSectionMovie.Props[] = [
     title: "Super A.I. Chatbot",
     subTitle: (
       <React.Fragment>
-        <span style={{ color: BLUE }}>A.I. Chatbot</span>
+        <span style={{ color: BLUE }}>Agentic AI</span>
         {" by "}
         <span style={{ color: GREEN }}>Swagger Document</span>
       </React.Fragment>

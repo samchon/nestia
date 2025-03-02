@@ -3,7 +3,102 @@ title: Guide Documents > Swagger Document > AI Chatbot Development
 ---
 import { Callout, Tabs } from 'nextra/components'
 
-## Super A.I. Chatbot
+## Agentica
+![agentica-conceptual-diagram](https://github.com/user-attachments/assets/d7ebbd1f-04d3-4b0d-9e2a-234e29dd6c57)
+
+https://github.com/wrtnlabs/agentica
+
+The simplest **Agentic AI** framework, specialized in **LLM Function Calling**.
+
+With `@agentica`, you can build Agentic AI chatbot only with Swagger document built by [`@nestia/sdk`](/docs/swagger). Complex agent workflows and graphs required in conventional AI agent development are not necessary in `@agentica`. Only with the Swagger document, `@agentica` will do everything with the function calling.
+
+Look at below demonstration, and feel how `@agentica` is powerful. Now, you can let users to search and purchase products only with conversation texts. The backend API functions would be adequately called in the AI chatbot with LLM function calling.
+
+<Callout type="info">
+`@nestia/agent` had been migrated to `@agentica/*` for enhancements and separation to multiple packages extending the functionalities.
+</Callout>
+
+<Tabs items={["Pseudo Code", "Real Code"]}>
+  <Tabs.Tab>
+```typescript showLineNumbers {6-8}
+import { Agentica } from "@agentica/core";
+import typia from "typia";
+
+const agent = new Agentica({
+  controllers: [
+    await fetch(
+      "https://shopping-be.wrtn.ai/editor/swagger.json",
+    ).then(r => r.json()),
+    typia.llm.application<ShoppingCounselor>(),
+    typia.llm.application<ShoppingPolicy>(),
+    typia.llm.application<ShoppingSearchRag>(),
+  ],
+});
+await agent.conversate("I wanna buy MacBook Pro");
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```typescript showLineNumbers {16-23}
+import { Agentica } from "@agentica/core";
+import { OpenApi, HttpLlm } from "@samchon/openapi";
+import typia from "typia";
+
+const main = async (): Promise<void> => {
+  const agent = new Agentica({
+    model: "chatgpt",
+    vendor: {
+      api: new OpenAI({ secretKey: "*****" }),
+      model: "gpt-4o-mini",
+    },
+    controllers: [
+      {
+        protocol: "http",
+        name: "shopping",
+        application: HttpLlm.application({
+          model: "chatgpt",
+          document: OpenApi.convert(
+            await fetch(
+              "https://shopping-be.wrtn.ai/editor/swagger.json",
+            ).then(r => r.json()),
+          ),
+        }),
+        connection: {
+          host: "https://shopping-be.wrtn.ai",
+          headers: {
+            Authorization: "Bearer *****",
+          },
+        },
+      },
+      {
+        protocol: "class",
+        name: "counselor",
+        application: 
+          typia.llm.application<ShoppingCounselor, "chatgpt">(),
+        execute: new ShoppingCounselor(),
+      },
+      {
+        protocol: "class",
+        name: "policy",
+        application: 
+          typia.llm.application<ShoppingPolicy, "chatgpt">(),
+        execute: new ShoppingPolicy(),
+      },
+      {
+        protocol: "class",
+        name: "rag",
+        application: 
+          typia.llm.application<ShoppingSearchRag, "chatgpt">(),
+        execute: new ShoppingSearchRag(),
+      },
+    ],
+  });
+  await agent.conversate("I wanna buy MacBook Pro");
+};
+main().catch(console.error);
+```
+  </Tabs.Tab>
+</Tabs>
+
 <br/>
 <iframe src="https://www.youtube.com/embed/m47p4iJ90Ms?si=cvgfckN25GJhjLTB" 
         title="Shopping A.I. Chatbot built with Nestia" 
@@ -17,14 +112,6 @@ import { Callout, Tabs } from 'nextra/components'
   - Shopping Backend Repository: https://github.com/samchon/shopping-backend
   - Shopping Swagger Document (`@nestia/editor`): [https://nestia.io/editor/?url=...](https://nestia.io/editor/?simulate=true&e2e=true&url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fshopping-backend%2Frefs%2Fheads%2Fmaster%2Fpackages%2Fapi%2Fswagger.json)
 
-The above demonstration video shows Shopping A.I. chatbot built with Nestia.
-
-As you can see, in the Shopping A.I. chatbot application, the user can do everything written in the Swagger documents just by conversation texts. Searching products, taking orders, checking delivery status, user can do these things by chatting texts.
-
-Just by delivering the Swagger document, Super A.I. chatbot performing the LLM (Large Language Model) function calling is automatically composed. The Super A.I. chatbot will select proper functions defined in the Swagger document by analyzing conversation contexts with the user. And then Super A.I. chatbot requests the user to write arguments for the selected functions by conversation texts, and actually calls the API function with the argument. This is the key concept of the Nestia A.I. chatbot.
-
-In other words, every backend servers providing Swagger documents can be conversed to the A.I. chatbot. In the new A.I. era, no more need to dedicate GUI (Graphical User Interface) application development like before. Prepare Swagger document, and let the A.I. chatbot to do the rest. Even though the A.I. chatbot can't conquer every frontend developments, it can replace many things, and more efficient and user-friendly than the traditional GUI applications.
-
 
 
 
@@ -33,166 +120,164 @@ In other words, every backend servers providing Swagger documents can be convers
 
 You can test your backend server's A.I. chatbot with the following playground.
 
-Upload your Swagger document file to the [playground website](https://nestia.io/chat/playground), and start conversation with your backend server. If your backend server's documentation is well written so that the A.I. chatbot quality is satisfiable, you can start your own A.I. chatbot service from the next section [#Application Setup](#application-setup).
+Upload your Swagger document file to the [playground website](https://nestia.io/chat/playground), and start conversation with your backend server. If your backend server's documentation is well written so that the A.I. chatbot quality is satisfiable, you can start your own A.I. chatbot service with `@agentica`.
 
 
 
 
-## Application Setup
-<Tabs items={['npm', 'pnpm', 'yarn']}>
-  <Tabs.Tab>
-```bash filename="Terminal"
-npm install @nestia/agent @nestia/chat @samchon/openapi openai
+## Principles
+### Agent Strategy
+```mermaid
+sequenceDiagram
+actor User
+actor Agent
+participant Selector
+participant Caller
+participant Describer
+activate User
+User-->>Agent: Conversate:<br/>user says
+activate Agent
+Agent->>Selector: Deliver conversation text
+activate Selector
+deactivate User
+Note over Selector: Select or remove candidate functions
+alt No candidate
+  Selector->>Agent: Talk like plain ChatGPT
+  deactivate Selector
+  Agent->>User: Conversate:<br/>agent says
+  activate User
+  deactivate User
+end
+deactivate Agent
+loop Candidate functions exist
+  activate Agent
+  Agent->>Caller: Deliver conversation text
+  activate Caller
+  alt Contexts are enough
+    Note over Caller: Call fulfilled functions
+    Caller->>Describer: Function call histories
+    deactivate Caller
+    activate Describer
+    Describer->>Agent: Describe function calls
+    deactivate Describer
+    Agent->>User: Conversate:<br/>agent describes
+    activate User
+    deactivate User
+  else Contexts are not enough
+    break
+      Caller->>Agent: Request more information
+    end
+    Agent->>User: Conversate:<br/>agent requests
+    activate User
+    deactivate User
+  end
+  deactivate Agent
+end
 ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash filename="Terminal"
-pnpm install @nestia/agent @nestia/chat @samchon/openapi openai
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash filename="Terminal"
-yarn add @nestia/agent @nestia/chat @samchon/openapi openai
-```
-  </Tabs.Tab>
-</Tabs>
 
-Install `@nestia/chat` and its dependencies.
+When user says, `@agentica/core` delivers the conversation text to the `selector` agent, and let the `selector` agent to find (or cancel) candidate functions from the context. If the `selector` agent could not find any candidate function to call and there is not any candidate function previously selected either, the `selector` agent will work just like a plain ChatGPT.
 
-  - `@nestia/chat`
-  - `@nestia/agent`
-  - `@samchon/openapi`
-  - `openai`
+And `@agentica/core` enters to a loop statement until the candidate functions to be empty. In the loop statement, `caller` agent tries to LLM function calling by analyzing the user's conversation text. If context is enough to compose arguments of candidate functions, the `caller` agent actually calls the target functions, and let `decriber` agent to explain the function calling results. Otherwise the context is not enough to compose arguments, `caller` agent requests more information to user.
 
-To make the Super A.I. chatbot, you need to install the above libraries. All of them except `@nestia/chat` are in the dependencies of the `@nestia/chat`, but it would better to install them explicitly for the safe frontend application development.
+Such LLM (Large Language Model) function calling strategy separating `selector`, `caller`, and `describer` is the key logic of `@agentica/core`.
 
-```typescript filename="src/ShoppingChatApplication.tsx" showLineNumbers {20-27, 59}
-import { NestiaAgent } from "@nestia/agent";
-  import { NestiaChatApplication } from "@nestia/chat";
-import {
-  HttpLlm,
-  IHttpConnection,
-  IHttpLlmApplication,
-  OpenApi,
-} from "@samchon/openapi";
-import OpenAI from "openai";
-import { useEffect, useState } from "react";
+### Validation Feedback
+```typescript
+import { FunctionCall } from "pseudo";
+import { ILlmFunction, IValidation } from "typia";
 
-export const ShoppingChatApplication = (
-  props: ShoppingChatApplication.IProps,
-) => {
-  const [application, setApplication] =
-    useState<IHttpLlmApplication<"chatgpt"> | null>(null);
-  useEffect(() => {
-    (async () => {
-      setApplication(
-        HttpLlm.application({
-          model: "chatgpt",
-          document: OpenApi.convert(
-            await fetch(
-              "https://raw.githubusercontent.com/samchon/shopping-backend/refs/heads/master/packages/api/customer.swagger.json",
-            ).then((r) => r.json()),
-          ),
-        }),
-      );
-    })().catch(console.error);
-  }, []);
-  if (application === null)
-    return (
-      <div>
-        <h2>Loading Swagger document</h2>
-        <hr />
-        <p>Wait for a moment please.</p>
-        <p>Loading Swagger document...</p>
-      </div>
+export const correctFunctionCall = (p: {
+  call: FunctionCall;
+  functions: Array<ILlmFunction<"chatgpt">>;
+  retry: (reason: string, errors?: IValidation.IError[]) => Promise<unknown>;
+}): Promise<unknown> => {
+  // FIND FUNCTION
+  const func: ILlmFunction<"chatgpt"> | undefined =
+    p.functions.find((f) => f.name === p.call.name);
+  if (func === undefined) {
+    // never happened in my experience
+    return p.retry(
+      "Unable to find the matched function name. Try it again.",
     );
-
-  const agent: NestiaAgent = new NestiaAgent({
-    provider: {
-      type: "chatgpt",
-      api: props.api,
-      model: "gpt-4o-mini",
-    },
-    controllers: [
-      {
-        protocol: "http",
-        name: "main",
-        application,
-        connection: props.connection,
-      },
-    ],
-    config: {
-      locale: props.locale,
-    },
-  });
-  return <NestiaChatApplication agent={agent} />;
-};
-export namespace ShoppingChatApplication {
-  export interface IProps {
-    api: OpenAI;
-    connection: IHttpConnection;
-    name: string;
-    mobile: string;
-    locale?: string;
   }
+
+  // VALIDATE
+  const result: IValidation<unknown> = func.validate(p.call.arguments);
+  if (result.success === false) {
+    // 1st trial: 50% (gpt-4o-mini in shopping mall chatbot)
+    // 2nd trial with validation feedback: 99%
+    // 3nd trial with validation feedback again: never have failed
+    return p.retry(
+      "Type errors are detected. Correct it through validation errors",
+      {
+        errors: result.errors,
+      },
+    );
+  }
+  return result.data;
 }
 ```
 
-After setup, import and compose the A.I. chatbot like above.
+Is LLM function calling perfect? 
 
-The first thing you should do is composing `OpenApi.IDocument` typed object from your swagger document. The `OpenApi.IDocument` is an emended version of the OpenAPI v3.1 specification for the normalization. You can do it through `OpenApi.convert()` function.
+The answer is not, and LLM (Large Language Model) vendors like OpenAI take a lot of type level mistakes when composing the arguments of the target function to call. Even though an LLM function calling schema has defined an `Array<string>` type, LLM often fills it just by a `string` typed value.
 
-After that, you have to compose the `IHttpLlmApplication` typed object from the `HttpLlm.application()` function. The `IHttpLlmApplication` object is a schema for the LLM function calling. As current Nestia supports only the OpenAI (The type name is chatgpt to avoid confusion due to the similar names `openapi`/`openai`), you should set the `model` property to `"chatgpt"`.
+Therefore, when developing an LLM function calling agent, the validation feedback process is essentially required. If LLM takes a type level mistake on arguments composition, the agent must feedback the most detailed validation errors, and let the LLM to retry the function calling referencing the validation errors.
 
-At last, create an `NestiaAgent` instance. The `IHttpLlmApplication` is a type of controller to the `NestiaAgent`, and OpenAI client is a type of provider in the `NestiaAgent` concept. After composing the `NestiaAgent`, you can directly create the A.I. chatbot frontend application with the `<NestiaChatApplication agent={agent} />` statement.
+About the validation feedback, `@agentica/core` is utilizing [`typia.validate<T>()`](https://typia.io/docs/validators/validate) and [`typia.llm.application<Class, Model>()`](https://typia.io/docs/llm/application/#application) functions. They construct validation logic by analyzing TypeScript source codes and types in the compilation level, so that detailed and accurate than any other validators like below.
 
-<Callout type="info">
-**OpenAPI conversion process**
+Such validation feedback strategy and combination with `typia` runtime validator, `@agentica/core` has achieved the most ideal LLM function calling. In my experience, when using OpenAI's `gpt-4o-mini` model, it tends to construct invalid function calling arguments at the first trial about 50% of the time. By the way, if correct it through validation feedback with `typia`, success rate soars to 99%. And I've never had a failure when trying validation feedback twice.
 
-You can learn more about the schema conversion process in the [`@samchon/openapi`](https://github.com/samchon/openapi) repository. 
+Components               | `typia` | `TypeBox` | `ajv` | `io-ts` | `zod` | `C.V.`
+-------------------------|--------|-----------|-------|---------|-------|------------------
+**Easy to use**          | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ 
+[Object (simple)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectSimple.ts)          | ✔ | ✔ | ✔ | ✔ | ✔ | ✔
+[Object (hierarchical)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectHierarchical.ts)    | ✔ | ✔ | ✔ | ✔ | ✔ | ✔
+[Object (recursive)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectRecursive.ts)       | ✔ | ❌ | ✔ | ✔ | ✔ | ✔ | ✔
+[Object (union, implicit)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectUnionImplicit.ts) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[Object (union, explicit)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectUnionExplicit.ts) | ✔ | ✔ | ✔ | ✔ | ✔ | ❌
+[Object (additional tags)](https://github.com/samchon/typia/#comment-tags)        | ✔ | ✔ | ✔ | ✔ | ✔ | ✔
+[Object (template literal types)](https://github.com/samchon/typia/blob/master/test/src/structures/TemplateUnion.ts) | ✔ | ✔ | ✔ | ❌ | ❌ | ❌
+[Object (dynamic properties)](https://github.com/samchon/typia/blob/master/test/src/structures/DynamicTemplate.ts) | ✔ | ✔ | ✔ | ❌ | ❌ | ❌
+[Array (rest tuple)](https://github.com/samchon/typia/blob/master/test/src/structures/TupleRestAtomic.ts) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[Array (hierarchical)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayHierarchical.ts)     | ✔ | ✔ | ✔ | ✔ | ✔ | ✔
+[Array (recursive)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRecursive.ts)        | ✔ | ✔ | ✔ | ✔ | ✔ | ❌
+[Array (recursive, union)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRecursiveUnionExplicit.ts) | ✔ | ✔ | ❌ | ✔ | ✔ | ❌
+[Array (R+U, implicit)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRecursiveUnionImplicit.ts)    | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[Array (repeated)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRepeatedNullable.ts)    | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[Array (repeated, union)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRepeatedUnionWithTuple.ts)    | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[**Ultimate Union Type**](https://github.com/samchon/typia/blob/master/test/src/structures/UltimateUnion.ts)  | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
 
+> `C.V.` means `class-validator`
+
+### OpenAPI Specification
 ```mermaid
 flowchart
   subgraph "OpenAPI Specification"
-    v20("Swagger v2.0") --upgrades--> emended[["<b><u>OpenAPI v3.1 (emended)</u></b>"]]
+    v20("Swagger v2.0") --upgrades--> emended[["OpenAPI v3.1 (emended)"]]
     v30("OpenAPI v3.0") --upgrades--> emended
     v31("OpenAPI v3.1") --emends--> emended
   end
   subgraph "OpenAPI Generator"
     emended --normalizes--> migration[["Migration Schema"]]
-    migration --"Artificial Intelligence"--> lfc{{"<b>LLM Function Calling</b>"}}
-    lfc --"OpenAI"--> chatgpt("<b><u>ChatGPT</u></b>")
+    migration --"Artificial Intelligence"--> lfc{{"LLM Function Calling"}}
+    lfc --"OpenAI"--> chatgpt("ChatGPT")
     lfc --"Anthropic"--> claude("Claude")
     lfc --"Google"--> gemini("Gemini")
     lfc --"Meta"--> llama("Llama")
   end
 ```
-</Callout>
 
+`@agentica/core` obtains LLM function calling schemas from both Swagger/OpenAPI documents and TypeScript class types. The TypeScript class type can be converted to LLM function calling schema by [`typia.llm.application<Class, Model>()`](https://typia.io/docs/llm/application#application) function. Then how about OpenAPI document? How Swagger document can be LLM function calling schema.
 
+The secret is in the above diagram. 
 
+In the OpenAPI specification, there are three versions with different definitions. And even in the same version, there are too much ambiguous and duplicated expressions. To resolve these problems, [`@samchon/openapi`](https://github.com/samchon/openapi) is transforming every OpenAPI documents to v3.1 emended specification. The `@samchon/openapi`'s emended v3.1 specification has removed every ambiguous and duplicated expressions for clarity.
 
-## Make Your A.I. Chatbot
-Above `@nestia/agent` and `@nestia/chat` libraries are just for testing and demonstration. I've made them to prove a conncept that every backend servers providing swagger documents can be conversed with the A.I. chatbot, and `nestia` is especially efficient for the A.I. chatbot development purpose.
+With the v3.1 emended OpenAPI document, `@samchon/openapi` converts it to a migration schema that is near to the function structure. And as the last step, the migration schema will be transformed to a specific LLM vendor's function calling schema. LLM function calling schemas are composed like this way.
 
-However, `@nestia/agent` support only OpenAI, and has not optimized for specific purpose. As it has not been optimized without any RAG (Retrieval Augmented Generation) models, it may consume a lot of LLM cost than what you may expected. Therefore, use the `@nestia/agent` for studying the A.I. chatbot development, or just demonstrating your backend server before production development.
-
-  - Source Codes:
-    - `@nestia/agent`: https://github.com/samchon/nestia/tree/master/packages/agent
-    - `@nestia/chat`: https://github.com/samchon/nestia/tree/master/packages/chat
-
-
-
-
-## Wrtn OS
-[![Wrtn Logo](/images/sponsors/wrtn-logo.png)](https://wrtnlabs.io)
-
-> https://wrtnlabs.io
-
-The new era of software development.
-
-If you are not familiar with LLM (Large Language Model) development or RAG implementation, you can take another option. Prepare your swagger document file, and visit WrtnLabs homepage https://wrtnlabs.io. You can create your own A.I. chatbot with "Wrtn OS", and re-distribute it as you want. The A.I. assistant in the Wrtn OS is much more optimized and cost efficient than the `@nestia/agent`, and it is fully open sourced.
-
-Also, you can sell your swagger document (backend API functions) in the "Wrtn Store", so that let other users to create their own A.I. chatbot with your backend API functions. Conversely, you can purchase the functions you need to create an A.I. chatbot from the store. If you have create an A.I. chatbot with only the functions purchased in the Wrtn Store, it is the no coding development.
-
-I think this is a new way of software development, and a new way of software distribution. It is a new era of software development, and I hope you to be a part of it.
+> **Why do not directly convert, but intermediate?**
+>
+> If directly convert from each version of OpenAPI specification to specific LLM's function calling schema, I have to make much more converters increased by cartesian product. In current models, number of converters would be 12 = 3 x 4.
+>
+> However, if define intermediate schema, number of converters are shrunk to plus operation. In current models, I just need to develop only (7 = 3 + 4) converters, and this is the reason why I've defined intermediate specification. This way is economic.
