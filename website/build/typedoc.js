@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 const main = async () => {
   // BUILD PACKAGES
-  for (const pack of ["agent", "benchmark", "core", "e2e", "fetcher"]) {
+  for (const pack of ["benchmark", "core", "e2e", "fetcher"]) {
     const location = `${__dirname}/../../packages/${pack}`;
     if (fs.existsSync(`${location}/node_modules`) === false)
       cp.execSync("pnpm install", { cwd: location, stdio: "ignore" });
