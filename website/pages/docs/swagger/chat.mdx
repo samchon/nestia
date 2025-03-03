@@ -47,7 +47,7 @@ const main = async (): Promise<void> => {
   const agent = new Agentica({
     model: "chatgpt",
     vendor: {
-      api: new OpenAI({ secretKey: "*****" }),
+      api: new OpenAI({ apiKey: "*****" }),
       model: "gpt-4o-mini",
     },
     controllers: [
