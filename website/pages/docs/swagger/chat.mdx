@@ -120,7 +120,67 @@ main().catch(console.error);
 
 You can test your backend server's A.I. chatbot with the following playground.
 
-Upload your Swagger document file to the [playground website](https://nestia.io/chat/playground), and start conversation with your backend server. If your backend server's documentation is well written so that the A.I. chatbot quality is satisfiable, you can start your own A.I. chatbot service with `@agentica`.
+Upload your Swagger document file to the [playground website](https://nestia.io/chat/playground), and start conversation with your backend server. If your backend server's documentation is well written so that the A.I. chatbot quality is satisfiable, you can start your own A.I. chatbot development with `@agentica`.
+
+
+
+
+## Backend Development
+### Setup
+```bash filename="Terminal"
+npm install @agentica/core @agentica/rpc @samchon/openapi tgrid
+```
+
+Install above packages on your NestJS project.
+
+The first package `@agentica/core` is the core package of `@agentica` framework. It provides Agentic AI that is based on the LLM function calling. And `@agentica/rpc` is the package for the WebSocket RPC (Remote Procedure Call) combining with [`TGrid`](https://tgrid.com).
+
+The last package [`@samchon/openapi`](https://github.com/samchon/openapi) is a library for converting OpenAPI document to LLM functioni calling schema.
+
+### Bootstrap
+```typescript filename="src/index.ts" showLineNumbers
+const app: INestApplication = await NestFactory.create(AppModule);
+await WebSocketAdaptor.upgrade(app);
+```
+
+Call `WebSocketAdaptor.upgrade()` function to the NestJS application instance.
+
+It will upgrade the NestJS backend server to be compatible with WebSocet protocol.
+
+### API Controller
+```typescript filename="src/controllers/ChatController.ts" showLineNumbers
+import { AgenticaRpcService, IAgenticaRpcListener } from "@agentica/rpc";
+import { WebSocketRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import { WebSocketAcceptor } from "tgrid";
+
+@Controller("chat")
+export class ChatController {
+  @WebSocketRoute()
+  public async start(
+    @WebSocketRoute.Acceptor()
+    acceptor: WebSocketAcceptor<
+      null, // header
+      AgenticaRpcService,
+      IAgenticaRpcListener
+    >,
+  ): Promise<void> {
+    const agent = new Agentica({ ... })
+    await acceptor.accept(
+      new AgenticaRpcService({
+        agent,
+        listener: acceptor.getDriver(),
+      }),
+    );
+  }
+}
+```
+
+At last, define a WebSocket route to a specific controller function.
+
+When a client connects to the server with `ws://localhost:3001/chat` like URL, Agentica made chatbot would be composed and Super AI cahtbot conversation will be started.
+
+And following the guide of [`@WebSocketRoute`](/docs/core/WebSocketRoute) document, build SDK (Software Development Kit) library for the client, so that complete the AI chatbot development.
 
 
 
