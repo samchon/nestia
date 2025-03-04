@@ -729,7 +729,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: ^8.0.0
-        version: 8.0.0(@samchon/openapi@3.0.0)(typescript@5.7.3)
+        version: 8.0.0(@samchon/openapi@3.0.0)(typescript@5.8.2)
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
@@ -760,16 +760,16 @@ importers:
         version: link:../packages/cli
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@20.11.16)(typescript@5.7.3)
+        version: 10.9.2(@types/node@20.11.16)(typescript@5.8.2)
       ts-patch:
         specifier: ~3.3.0
         version: 3.3.0
       typescript:
-        specifier: ~5.7.3
-        version: 5.7.3
+        specifier: ~5.8.2
+        version: 5.8.2
       typescript-transform-paths:
         specifier: ^3.5.3
-        version: 3.5.3(typescript@5.7.3)
+        version: 3.5.3(typescript@5.8.2)
 
 packages:
 
@@ -4030,11 +4030,6 @@ packages:
     resolution: {integrity: sha512-5y2l2iPKNHKOj08/1i+02+ljBVUhWcXQLXomiOXCmNpiTuSxIkj0dM1LUE7OOAt53+/6KidY+sFTCP781J64Eg==}
     peerDependencies:
       typescript: '>=3.6.5'
-
-  typescript@5.7.3:
-    resolution: {integrity: sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
 
   typescript@5.8.2:
     resolution: {integrity: sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==}
@@ -7855,24 +7850,6 @@ snapshots:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
-  ts-node@10.9.2(@types/node@20.11.16)(typescript@5.7.3):
-    dependencies:
-      '@cspotcode/source-map-support': 0.8.1
-      '@tsconfig/node10': 1.0.11
-      '@tsconfig/node12': 1.0.11
-      '@tsconfig/node14': 1.0.3
-      '@tsconfig/node16': 1.0.4
-      '@types/node': 20.11.16
-      acorn: 8.14.0
-      acorn-walk: 8.3.4
-      arg: 4.1.3
-      create-require: 1.1.1
-      diff: 4.0.2
-      make-error: 1.3.6
-      typescript: 5.7.3
-      v8-compile-cache-lib: 3.0.1
-      yn: 3.1.1
-
   ts-node@10.9.2(@types/node@20.11.16)(typescript@5.8.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
@@ -7972,17 +7949,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  typescript-transform-paths@3.5.3(typescript@5.7.3):
-    dependencies:
-      minimatch: 9.0.5
-      typescript: 5.7.3
-
   typescript-transform-paths@3.5.3(typescript@5.8.2):
     dependencies:
       minimatch: 9.0.5
       typescript: 5.8.2
-
-  typescript@5.7.3: {}
 
   typescript@5.8.2: {}
 
@@ -7995,16 +7965,6 @@ snapshots:
       package-manager-detector: 0.2.10
       randexp: 0.5.3
       typescript: 5.8.2
-
-  typia@8.0.0(@samchon/openapi@3.0.0)(typescript@5.7.3):
-    dependencies:
-      '@samchon/openapi': 3.0.0
-      commander: 10.0.0
-      comment-json: 4.2.5
-      inquirer: 8.2.5
-      package-manager-detector: 0.2.10
-      randexp: 0.5.3
-      typescript: 5.7.3
 
   typia@8.0.0(@samchon/openapi@3.0.0)(typescript@5.8.2):
     dependencies:
