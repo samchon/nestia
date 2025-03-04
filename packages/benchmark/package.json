@@ -1,6 +1,7 @@
 {
+  "private": true,
   "name": "@nestia/benchmark",
-  "version": "0.4.0",
+  "version": "0.4.3",
   "description": "NestJS Performance Benchmark Program",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -21,6 +22,11 @@
   ],
   "author": "Jeongho Nam",
   "license": "MIT",
+  "dependencies": {
+    "@nestia/fetcher": "workspace:^",
+    "tgrid": "^1.1.0",
+    "tstl": "^3.0.0"
+  },
   "devDependencies": {
     "@nestia/core": "workspace:^",
     "@nestia/e2e": "workspace:^",
@@ -36,11 +42,6 @@
     "typescript-transform-paths": "^3.4.7",
     "typia": "^8.0.0",
     "uuid": "^10.0.0"
-  },
-  "dependencies": {
-    "@nestia/fetcher": "workspace:^",
-    "tgrid": "^1.1.0",
-    "tstl": "^3.0.0"
   },
   "files": [
     "lib",
