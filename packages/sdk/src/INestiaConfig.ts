@@ -1,5 +1,5 @@
 import type { INestApplication } from "@nestjs/common";
-import { OpenApi } from "@samchon/openapi";
+import type { OpenApi } from "@samchon/openapi";
 
 /**
  * Definition for the `nestia.config.ts` file.
