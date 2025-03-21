@@ -728,8 +728,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typia:
-        specifier: ^8.0.0
-        version: 8.0.0(@samchon/openapi@3.0.0)(typescript@5.8.2)
+        specifier: ^8.0.2
+        version: 8.0.2(@samchon/openapi@3.0.0)(typescript@5.8.2)
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
@@ -768,8 +768,8 @@ importers:
         specifier: ~5.8.2
         version: 5.8.2
       typescript-transform-paths:
-        specifier: ^3.5.3
-        version: 3.5.3(typescript@5.8.2)
+        specifier: ^3.5.4
+        version: 3.5.4(typescript@5.8.2)
 
 packages:
 
@@ -4031,6 +4031,11 @@ packages:
     peerDependencies:
       typescript: '>=3.6.5'
 
+  typescript-transform-paths@3.5.4:
+    resolution: {integrity: sha512-Yw/cLiwAlaTIYvO3wbCqiBIppTzsY45CBi1y+oedjtgcGMIy4xmI9ylkFiDlX2jqMqA1SY58vFPI4Y8VKkBCpA==}
+    peerDependencies:
+      typescript: '>=3.6.5'
+
   typescript@5.8.2:
     resolution: {integrity: sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==}
     engines: {node: '>=14.17'}
@@ -4045,6 +4050,13 @@ packages:
 
   typia@8.0.0:
     resolution: {integrity: sha512-ulYqugl0rXStArmFBxTxwC796gW4KkRas7wy7hOYwtRulxfBOJlurZMZ9MA8lN9LrgOpX/bnW0bW3w75ws6wIA==}
+    hasBin: true
+    peerDependencies:
+      '@samchon/openapi': '>=3.0.0 <4.0.0'
+      typescript: '>=4.8.0 <5.9.0'
+
+  typia@8.0.2:
+    resolution: {integrity: sha512-xDacELBticuXx17TtPWhSd1thyE2MF74LZhhDoCFkpCKhiElnB40X/Jb3zMLRx86WUkqCH60rwm3ghaJdBs7hA==}
     hasBin: true
     peerDependencies:
       '@samchon/openapi': '>=3.0.0 <4.0.0'
@@ -7954,6 +7966,11 @@ snapshots:
       minimatch: 9.0.5
       typescript: 5.8.2
 
+  typescript-transform-paths@3.5.4(typescript@5.8.2):
+    dependencies:
+      minimatch: 9.0.5
+      typescript: 5.8.2
+
   typescript@5.8.2: {}
 
   typia@7.6.4(@samchon/openapi@3.0.0)(typescript@5.8.2):
@@ -7967,6 +7984,16 @@ snapshots:
       typescript: 5.8.2
 
   typia@8.0.0(@samchon/openapi@3.0.0)(typescript@5.8.2):
+    dependencies:
+      '@samchon/openapi': 3.0.0
+      commander: 10.0.0
+      comment-json: 4.2.5
+      inquirer: 8.2.5
+      package-manager-detector: 0.2.10
+      randexp: 0.5.3
+      typescript: 5.8.2
+
+  typia@8.0.2(@samchon/openapi@3.0.0)(typescript@5.8.2):
     dependencies:
       '@samchon/openapi': 3.0.0
       commander: 10.0.0

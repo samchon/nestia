@@ -7,7 +7,8 @@ export const json_equal_to =
       (accessor: string) =>
       (x: any) =>
       (y: any): void => {
-        if (typeof x !== typeof y) container.push(accessor);
+        if (typeof x === "function" || typeof y === "function") return;
+        else if (typeof x !== typeof y) container.push(accessor);
         else if (x instanceof Array)
           if (!(y instanceof Array)) container.push(accessor);
           else array(accessor)(x)(y);
