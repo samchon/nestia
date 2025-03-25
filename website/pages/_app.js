@@ -21,7 +21,7 @@ export default function Nextra({ Component, pageProps }) {
       <Script
         async
         src="https://widget.gurubase.io/widget.latest.min.js"
-        data-widget-id="weqJNUWZcHQ3E50DfTmnP5O9t9mXdNumeglUEPNRFlM"
+        data-widget-id="HVLr8t1Bl24uyjbA2DeIAz7CmRTzzyvmDiEUxxeQeqg"
         data-text="Ask AI"
         data-margins='{"bottom": "1rem", "right": "1rem"}'
         data-light-mode="true"
