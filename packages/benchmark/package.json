@@ -1,6 +1,6 @@
 {
   "name": "@nestia/benchmark",
-  "version": "6.0.0",
+  "version": "6.0.1-dev.20250406",
   "description": "NestJS Performance Benchmark Program",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -47,7 +47,7 @@
     "ts-patch": "^3.3.0",
     "typescript": "~5.8.2",
     "typescript-transform-paths": "^3.4.7",
-    "typia": "^9.0.0",
+    "typia": "^9.0.1",
     "uuid": "^10.0.0"
   },
   "files": [
