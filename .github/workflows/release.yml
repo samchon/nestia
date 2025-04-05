@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Publish to npm
-        run: npm run package:latest
+        run: pnpm run package:latest --migrate
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH }}
       - name: Website

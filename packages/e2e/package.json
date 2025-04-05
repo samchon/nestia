@@ -1,6 +1,6 @@
 {
   "name": "@nestia/e2e",
-  "version": "0.8.3",
+  "version": "6.0.0-dev.20250406-5",
   "description": "E2E test utilify functions",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -41,7 +41,7 @@
     "ts-patch": "^3.3.0",
     "typescript": "~5.8.2",
     "typescript-transform-paths": "^3.4.7",
-    "typia": "^8.0.0"
+    "typia": "^9.0.0-dev.20250406"
   },
   "files": [
     "lib",

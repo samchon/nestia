@@ -37,19 +37,19 @@
   "dependencies": {
     "@mui/material": "^5.15.6",
     "@nestia/migrate": "workspace:^",
-    "@samchon/openapi": "^3.0.0",
+    "@samchon/openapi": "^4.0.0-dev.20250406",
     "@stackblitz/sdk": "^1.11.0",
     "js-yaml": "^4.1.0",
     "prettier": "3.3.3",
     "react-mui-fileuploader": "^0.5.2",
-    "typia": "^7.6.0"
+    "typia": "^9.0.0-dev.20250406"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
-    "@nestjs/common": "^11.0.2",
-    "@nestjs/core": "^11.0.2",
-    "@nestjs/platform-express": "^11.0.2",
-    "@nestjs/platform-fastify": "^11.0.2",
+    "@nestjs/common": "^11.0.13",
+    "@nestjs/core": "^11.0.13",
+    "@nestjs/platform-express": "^11.0.13",
+    "@nestjs/platform-fastify": "^11.0.13",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
     "@types/js-yaml": "^4.0.9",
