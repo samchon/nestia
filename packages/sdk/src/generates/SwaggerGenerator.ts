@@ -182,7 +182,7 @@ export namespace SwaggerGenerator {
         securitySchemes: config.security,
       },
       tags: config.tags ?? [],
-      "x-samchon-emended": true,
+      "x-samchon-emended-v4": true,
     };
   };
 

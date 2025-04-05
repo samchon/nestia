@@ -17,13 +17,17 @@ const setup = ({ tag, name, directory, version }) => {
 
   // SET DEPENDENCIES
   const rollbacks = [];
-  if (info.dependencies)
-    for (const key of Object.keys(info.dependencies)) {
-      if (key.startsWith("@nestia") && !!version(key.replace("@nestia/", ""))) {
-        info.dependencies[key] = `^${version(key.replace("@nestia/", ""))}`;
-        rollbacks.push(() => (info.dependencies[key] = `workspace:^`));
+  for (const deps of [info.dependencies, info.devDependencies])
+    if (deps)
+      for (const key of Object.keys(deps)) {
+        if (
+          key.startsWith("@nestia") &&
+          !!version(key.replace("@nestia/", ""))
+        ) {
+          deps[key] = `^${version(key.replace("@nestia/", ""))}`;
+          rollbacks.push(() => (deps[key] = `workspace:^`));
+        }
       }
-    }
   for (const key of Object.keys(info.peerDependencies ?? {}))
     if (key.startsWith("@nestia") && !!version(key.replace("@nestia/", "")))
       info.peerDependencies[key] = `>=${version(key.replace("@nestia/", ""))}`;
@@ -84,7 +88,6 @@ const publish = async ({ tag, packages, version }) => {
       tag,
       version,
       name: pack,
-      version,
     });
     await new Promise((resolve) => setTimeout(resolve, 1_000));
   }

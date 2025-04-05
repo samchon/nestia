@@ -536,7 +536,8 @@
                   "type": "null"
                 },
                 {
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0
                 }
               ]
             },
@@ -551,7 +552,8 @@
                   "type": "null"
                 },
                 {
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0
                 }
               ]
             },
@@ -754,7 +756,8 @@
                             "format": "email"
                           },
                           "age": {
-                            "type": "integer"
+                            "type": "integer",
+                            "minimum": 0
                           }
                         },
                         "required": [
@@ -2509,16 +2512,20 @@
         "type": "object",
         "properties": {
           "current": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "limit": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "records": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "pages": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           }
         },
         "required": [
@@ -2538,7 +2545,8 @@
                 "type": "null"
               },
               {
-                "type": "integer"
+                "type": "integer",
+                "minimum": 0
               }
             ]
           },
@@ -2548,7 +2556,8 @@
                 "type": "null"
               },
               {
-                "type": "integer"
+                "type": "integer",
+                "minimum": 0
               }
             ]
           }
@@ -2681,7 +2690,8 @@
                 "format": "email"
               },
               "age": {
-                "type": "integer"
+                "type": "integer",
+                "minimum": 0
               }
             },
             "required": [
@@ -3290,6 +3300,7 @@
           },
           "id": {
             "type": "integer",
+            "minimum": 0,
             "title": "Primary key",
             "description": "Primary key."
           },
@@ -3650,5 +3661,5 @@
     }
   },
   "tags": [],
-  "x-samchon-emended": true
+  "x-samchon-emended-v4": true
 }

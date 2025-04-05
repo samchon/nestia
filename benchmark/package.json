@@ -27,10 +27,10 @@
   "homepage": "https://nestia.io",
   "dependencies": {
     "@nestia/core": "workspace:^",
-    "@nestjs/common": "^11.0.2",
-    "@nestjs/core": "^11.0.2",
-    "@nestjs/platform-express": "^11.0.2",
-    "@nestjs/platform-fastify": "^11.0.2",
+    "@nestjs/common": "^11.0.13",
+    "@nestjs/core": "^11.0.13",
+    "@nestjs/platform-express": "^11.0.13",
+    "@nestjs/platform-fastify": "^11.0.13",
     "autocannon": "^7.15.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
@@ -42,7 +42,7 @@
     "reflect-metadata": "^0.2.2",
     "tgrid": "^1.1.0",
     "tstl": "^3.0.0",
-    "typia": "^8.0.0"
+    "typia": "^9.0.0"
   },
   "devDependencies": {
     "@types/autocannon": "^7.9.0",

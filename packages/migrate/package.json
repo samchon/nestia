@@ -41,11 +41,11 @@
     "@nestia/core": "workspace:^",
     "@nestia/e2e": "workspace:^",
     "@nestia/fetcher": "workspace:^",
-    "@nestjs/common": "^11.0.2",
+    "@nestjs/common": "^11.0.13",
     "@nestia/sdk": "workspace:^",
-    "@nestjs/core": "^11.0.2",
-    "@nestjs/platform-express": "^11.0.2",
-    "@nestjs/platform-fastify": "^11.0.2",
+    "@nestjs/core": "^11.0.13",
+    "@nestjs/platform-express": "^11.0.13",
+    "@nestjs/platform-fastify": "^11.0.13",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
@@ -72,13 +72,13 @@
     "typescript-transform-paths": "^3.5.2"
   },
   "dependencies": {
-    "@samchon/openapi": "^3.0.0",
+    "@samchon/openapi": "^4.0.0",
     "commander": "10.0.0",
     "inquirer": "8.2.5",
     "prettier": "^3.2.5",
     "tstl": "^3.0.0",
     "typescript": "~5.8.2",
-    "typia": "^8.0.0"
+    "typia": "^9.0.0"
   },
   "files": [
     "lib",

@@ -3,6 +3,8 @@ const { build } = require("./build");
 const { migrate } = require("./migrate");
 const { publish } = require("./publish");
 
+const PACKAGES = ["fetcher", "core", "sdk", "e2e", "benchmark"];
+
 const main = async () => {
   await build();
   if (process.argv[2] === "publish") {
@@ -10,9 +12,8 @@ const main = async () => {
     const tag = index === -1 ? "next" : process.argv[index + 1];
     await publish({
       tag,
-      version: (name) =>
-        ["fetcher", "core", "sdk"].includes(name) ? version : null,
-      packages: ["fetcher", "core", "sdk"],
+      version: (name) => (PACKAGES.includes(name) ? version : null),
+      packages: PACKAGES,
     });
     if (tag === "latest" || process.argv.includes("--migrate"))
       await migrate({
