@@ -39,7 +39,7 @@
     "ts-patch": "^3.3.0",
     "typescript": "~5.8.2",
     "typescript-transform-paths": "^3.4.7",
-    "typia": "^9.0.0-dev.20250406",
+    "typia": "^9.0.0",
     "uuid": "^10.0.0"
   },
   "files": [
