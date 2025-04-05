@@ -12,7 +12,8 @@ const main = async () => {
     const tag = index === -1 ? "next" : process.argv[index + 1];
     await publish({
       tag,
-      version: (name) => (PACKAGES.includes(name) ? version : null),
+      version: (name) =>
+        ["nestia", ...PACKAGES].includes(name) ? version : null,
       packages: PACKAGES,
     });
     if (tag === "latest" || process.argv.includes("--migrate"))

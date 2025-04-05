@@ -1,6 +1,6 @@
 {
   "name": "@nestia/benchmark",
-  "version": "6.0.0-dev.20250406-5",
+  "version": "6.0.0",
   "description": "NestJS Performance Benchmark Program",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -21,6 +21,14 @@
   ],
   "author": "Jeongho Nam",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samchon/nestia/issues"
+  },
+  "homepage": "https://nestia.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/nestia"
+  },
   "dependencies": {
     "@nestia/fetcher": "workspace:^",
     "tgrid": "^1.1.0",

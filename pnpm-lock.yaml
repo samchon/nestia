@@ -456,8 +456,8 @@ importers:
   packages/migrate:
     dependencies:
       '@samchon/openapi':
-        specifier: ^4.0.0-dev.20250406
-        version: 4.0.0-dev.20250405-4
+        specifier: ^4.0.0
+        version: 4.0.0
       commander:
         specifier: 10.0.0
         version: 10.0.0
@@ -474,8 +474,8 @@ importers:
         specifier: ~5.8.2
         version: 5.8.3
       typia:
-        specifier: ^9.0.0-dev.20250406
-        version: 9.0.0-dev.20250405-4(@samchon/openapi@4.0.0-dev.20250405-4)(typescript@5.8.3)
+        specifier: ^9.0.0
+        version: 9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3)
     devDependencies:
       '@nestia/benchmark':
         specifier: workspace:^
@@ -586,8 +586,8 @@ importers:
         specifier: workspace:^
         version: link:../fetcher
       '@samchon/openapi':
-        specifier: ^4.0.0-dev.20250406
-        version: 4.0.0-dev.20250405-4
+        specifier: ^4.0.0
+        version: 4.0.0
       cli:
         specifier: ^1.0.1
         version: 1.0.1
@@ -619,8 +619,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typia:
-        specifier: ^9.0.0-dev.20250406
-        version: 9.0.0-dev.20250405-4(@samchon/openapi@4.0.0-dev.20250405-4)(typescript@5.8.3)
+        specifier: ^9.0.0
+        version: 9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3)
     devDependencies:
       '@nestjs/common':
         specifier: ^11.0.13
@@ -1578,9 +1578,6 @@ packages:
 
   '@samchon/openapi@4.0.0':
     resolution: {integrity: sha512-fzji+KTrLqb3rD6RZID7N1cTN7aDwd0KAq0fP4rl2p1dHEy3uybqS7bP9BjMWP10k0DvFaS+P+g8+a/PA0FyZw==}
-
-  '@samchon/openapi@4.0.0-dev.20250405-4':
-    resolution: {integrity: sha512-M/E52w5vgvJ1B3SLJezRBDuCc7O8odBBUVmt4D8ZN27AyW02bEJARsP8gcOoE+2Tpy8twmfRhTPmXaGkipxb1g==}
 
   '@scarf/scarf@1.4.0':
     resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
@@ -4037,13 +4034,6 @@ packages:
       '@samchon/openapi': '>=4.0.0 <5.0.0'
       typescript: '>=4.8.0 <5.9.0'
 
-  typia@9.0.0-dev.20250405-4:
-    resolution: {integrity: sha512-z3qo/Ph9PVP6le+RVxw3WZkBv0Xg5wLhbJ/pnJAvuYcv3twRAs7vVPQPxBCA/vQX3hshDBqUOKDXB4065kD83w==}
-    hasBin: true
-    peerDependencies:
-      '@samchon/openapi': '>=4.0.0 <5.0.0'
-      typescript: '>=4.8.0 <5.9.0'
-
   uid@2.0.2:
     resolution: {integrity: sha512-u3xV3X7uzvi5b1MncmZo3i2Aw222Zk1keqLA1YkHldREkAhAqi65wuPfe7lHx8H/Wzy+8CE7S7uS3jekIM5s8g==}
     engines: {node: '>=8'}
@@ -5029,8 +5019,6 @@ snapshots:
     optional: true
 
   '@samchon/openapi@4.0.0': {}
-
-  '@samchon/openapi@4.0.0-dev.20250405-4': {}
 
   '@scarf/scarf@1.4.0': {}
 
@@ -7947,16 +7935,6 @@ snapshots:
   typia@9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3):
     dependencies:
       '@samchon/openapi': 4.0.0
-      commander: 10.0.0
-      comment-json: 4.2.5
-      inquirer: 8.2.5
-      package-manager-detector: 0.2.11
-      randexp: 0.5.3
-      typescript: 5.8.3
-
-  typia@9.0.0-dev.20250405-4(@samchon/openapi@4.0.0-dev.20250405-4)(typescript@5.8.3):
-    dependencies:
-      '@samchon/openapi': 4.0.0-dev.20250405-4
       commander: 10.0.0
       comment-json: 4.2.5
       inquirer: 8.2.5

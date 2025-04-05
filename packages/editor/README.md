@@ -5,7 +5,8 @@
 [![npm version](https://img.shields.io/npm/v/@nestia/fetcher.svg)](https://www.npmjs.com/package/@nestia/fetcher)
 [![Downloads](https://img.shields.io/npm/dm/@nestia/fetcher.svg)](https://www.npmjs.com/package/@nestia/fetcher)
 [![Build Status](https://github.com/samchon/nestia/workflows/build/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Abuild)
-[![Guide Documents](https://img.shields.io/badge/guide-documents-forestgreen)](https://nestia.io/docs/)
+[![Guide Documents](https://img.shields.io/badge/Guide-Documents-forestgreen)](https://nestia.io/docs/)
+[![Gurubase](https://img.shields.io/badge/Gurubase-Document%20Chatbot-006BFF)](https://gurubase.io/g/nestia)
 [![Discord Badge](https://img.shields.io/badge/discord-samchon-d91965?style=flat&labelColor=5866f2&logo=discord&logoColor=white&link=https://discord.gg/E94XhzrUCZ)](https://discord.gg/E94XhzrUCZ)
 
 Nestia is a set of helper libraries for NestJS, supporting below features:
@@ -14,14 +15,14 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
     - Super-fast/easy decorators
     - Advanced WebSocket routes
   - `@nestia/sdk`:
-    - Swagger generator evolved than ever
+    - Swagger generator, more evolved than ever
     - SDK library generator for clients
     - Mockup Simulator for client applications
     - Automatic E2E test functions generator
   - `@nestia/e2e`: Test program utilizing e2e test functions
   - `@nestia/benchmark`: Benchmark program using e2e test functions
-  - `@nestia/migrate`: OpenAPI generator from Swagger to NestJS/SDK
   - `@nestia/editor`: Swagger-UI with Online TypeScript Editor
+  - `@agentica`: Agentic AI library specialized in LLM function calling
   - `nestia`: Just CLI (command line interface) tool
 
 > [!NOTE]
@@ -62,24 +63,28 @@ Check out the document in the [website](https://nestia.io/docs/):
 
 ### 📖 Features
   - Core Library
-    - [WebSocketRoute](https://nestia.io/docs/core/WebSocketRoute)
-    - [TypedRoute](https://nestia.io/docs/core/TypedRoute/)
-    - [TypedBody](https://nestia.io/docs/core/TypedBody/)
-    - [TypedParam](https://nestia.io/docs/core/TypedParam/)
-    - [TypedQuery](https://nestia.io/docs/core/TypedQuery/)
-    - [TypedHeaders](https://nestia.io/docs/core/TypedHeaders/)
-    - [TypedException](https://nestia.io/docs/core/TypedException/)
-  - Generators
-    - [Swagger Documents](https://nestia.io/docs/sdk/swagger/)
-    - [Software Development Kit](https://nestia.io/docs/sdk/sdk/)
-    - [E2E Functions](https://nestia.io/docs/sdk/e2e/)
-    - [Mockup Simulator](https://nestia.io/docs/sdk/simulator/)
+    - [`@WebSocketRoute`](https://nestia.io/docs/core/WebSocketRoute)
+    - [`@TypedRoute`](https://nestia.io/docs/core/TypedRoute/)
+    - [**`@TypedBody`**](https://nestia.io/docs/core/TypedBody/)
+    - [`@TypedParam`](https://nestia.io/docs/core/TypedParam/)
+    - [`@TypedQuery`](https://nestia.io/docs/core/TypedQuery/)
+    - [`@TypedFormData`](https://nestia.io/docs/core/TypedFormData/)
+    - [`@TypedHeaders`](https://nestia.io/docs/core/TypedHeaders/)
+    - [`@TypedException`](https://nestia.io/docs/core/TypedException/)
+  - Software Development Kit
+    - [SDK Builder](https://nestia.io/docs/sdk/)
+    - [Mockup Simulator](https://nestia.io/docs/sdk/simulate/)
+    - [E2E Test Functions](https://nestia.io/docs/sdk/e2e/)
+    - [Distribution](https://nestia.io/docs/sdk/distribute/)
+  - Swagger Document
+    - [Swagger Builder](https://nestia.io/docs/swagger/)
+    - [**AI Chatbot Development**](https://nestia.io/docs/swagger/chat/)
+    - [Cloud Swagger Editor](https://nestia.io/docs/swagger/editor/)
+    - [Documentation Strategy](https://nestia.io/docs/swagger/strategy/)
   - E2E Testing
     - [Why E2E Test?](https://nestia.io/docs/e2e/why/)
     - [Test Program Development](https://nestia.io/docs/e2e/development/)
     - [Performance Benchmark](https://nestia.io/docs/e2e/benchmark/)
-  - [Swagger to NestJS](https://nestia.io/docs/migrate/)
-  - [TypeScript Swagger Editor](https://nestia.io/docs/editor/)
 
 ### 🔗 Appendix
   - [API Documents](https://nestia.io/api)
