@@ -75,8 +75,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typia:
-        specifier: ^9.0.0
-        version: 9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3)
+        specifier: ^9.0.1
+        version: 9.0.1(@samchon/openapi@4.0.0)(typescript@5.8.3)
     devDependencies:
       '@types/autocannon':
         specifier: ^7.9.0
@@ -155,8 +155,8 @@ importers:
         specifier: ^3.4.7
         version: 3.5.5(typescript@5.8.3)
       typia:
-        specifier: ^9.0.0
-        version: 9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3)
+        specifier: ^9.0.1
+        version: 9.0.1(@samchon/openapi@4.0.0)(typescript@5.8.3)
       uuid:
         specifier: ^10.0.0
         version: 10.0.0
@@ -234,8 +234,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0
       typia:
-        specifier: ^9.0.0
-        version: 9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3)
+        specifier: ^9.0.1
+        version: 9.0.1(@samchon/openapi@4.0.0)(typescript@5.8.3)
       ws:
         specifier: ^7.5.3
         version: 7.5.10
@@ -328,8 +328,8 @@ importers:
         specifier: ^3.4.7
         version: 3.5.5(typescript@5.8.3)
       typia:
-        specifier: ^9.0.0
-        version: 9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3)
+        specifier: ^9.0.1
+        version: 9.0.1(@samchon/openapi@4.0.0)(typescript@5.8.3)
 
   packages/editor:
     dependencies:
@@ -355,8 +355,8 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(@emotion/react@11.14.0(@types/react@18.3.20)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.20)(react@18.3.1))(@types/react@18.3.20)(react@18.3.1))(@mui/icons-material@5.17.1(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@18.3.20)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.20)(react@18.3.1))(@types/react@18.3.20)(react@18.3.1))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.20)(react@18.3.1))(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@18.3.20)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.20)(react@18.3.1))(@types/react@18.3.20)(react@18.3.1))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.20)(prop-types@15.8.1)
       typia:
-        specifier: ^9.0.0
-        version: 9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3)
+        specifier: ^9.0.1
+        version: 9.0.1(@samchon/openapi@4.0.0)(typescript@5.8.3)
     devDependencies:
       '@eslint/js':
         specifier: ^9.13.0
@@ -434,8 +434,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       typia:
-        specifier: ^9.0.0
-        version: 9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3)
+        specifier: ^9.0.1
+        version: 9.0.1(@samchon/openapi@4.0.0)(typescript@5.8.3)
     devDependencies:
       '@types/node':
         specifier: ^18.11.14
@@ -474,8 +474,8 @@ importers:
         specifier: ~5.8.2
         version: 5.8.3
       typia:
-        specifier: ^9.0.0
-        version: 9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3)
+        specifier: ^9.0.1
+        version: 9.0.1(@samchon/openapi@4.0.0)(typescript@5.8.3)
     devDependencies:
       '@nestia/benchmark':
         specifier: workspace:^
@@ -619,8 +619,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typia:
-        specifier: ^9.0.0
-        version: 9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3)
+        specifier: ^9.0.1
+        version: 9.0.1(@samchon/openapi@4.0.0)(typescript@5.8.3)
     devDependencies:
       '@nestjs/common':
         specifier: ^11.0.13
@@ -646,9 +646,6 @@ importers:
       '@types/ts-expose-internals':
         specifier: npm:ts-expose-internals@5.4.5
         version: ts-expose-internals@5.4.5
-      '@types/uuid':
-        specifier: ^9.0.0
-        version: 9.0.8
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.46.1
         version: 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3)
@@ -676,9 +673,6 @@ importers:
       typescript-transform-paths:
         specifier: ^3.4.4
         version: 3.5.5(typescript@5.8.3)
-      uuid:
-        specifier: ^9.0.0
-        version: 9.0.1
 
   test:
     dependencies:
@@ -728,8 +722,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typia:
-        specifier: ^9.0.0
-        version: 9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3)
+        specifier: ^9.0.1
+        version: 9.0.1(@samchon/openapi@4.0.0)(typescript@5.8.3)
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
@@ -4027,8 +4021,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typia@9.0.0:
-    resolution: {integrity: sha512-fp/dx+21juNnNGjfVx3GgVJ8StOwQN7TAD3hHYsRdBX3PLX7syAShvEbVmJR0FivaNyJC9vmUqCHcNPPE7uleg==}
+  typia@9.0.1:
+    resolution: {integrity: sha512-ubx0/jugX1PbNT07jpKI/7+eW4RSe3t9QueIqFDza2Dpmfgb3Epa/YY0IDkLWshzXV1/OjBQh8cADM617xDUnw==}
     hasBin: true
     peerDependencies:
       '@samchon/openapi': '>=4.0.0 <5.0.0'
@@ -7932,7 +7926,7 @@ snapshots:
 
   typescript@5.8.3: {}
 
-  typia@9.0.0(@samchon/openapi@4.0.0)(typescript@5.8.3):
+  typia@9.0.1(@samchon/openapi@4.0.0)(typescript@5.8.3):
     dependencies:
       '@samchon/openapi': 4.0.0
       commander: 10.0.0
