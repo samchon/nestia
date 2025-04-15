@@ -27,7 +27,7 @@
   "homepage": "https://nestia.io",
   "dependencies": {
     "@nestia/core": "workspace:^",
-    "@nestjs/common": "^11.0.13",
+    "@nestjs/common": "^11.0.16",
     "@nestjs/core": "^11.0.13",
     "@nestjs/platform-express": "^11.0.13",
     "@nestjs/platform-fastify": "^11.0.13",

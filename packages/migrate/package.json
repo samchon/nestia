@@ -41,7 +41,7 @@
     "@nestia/core": "workspace:^",
     "@nestia/e2e": "workspace:^",
     "@nestia/fetcher": "workspace:^",
-    "@nestjs/common": "^11.0.13",
+    "@nestjs/common": "^11.0.16",
     "@nestia/sdk": "workspace:^",
     "@nestjs/core": "^11.0.13",
     "@nestjs/platform-express": "^11.0.13",

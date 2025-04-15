@@ -37,7 +37,7 @@
   "homepage": "https://nestia.io",
   "dependencies": {
     "@nestia/fetcher": "workspace:^",
-    "@nestjs/common": ">=7.0.1",
+    "@nestjs/common": ">=11.0.16",
     "@nestjs/core": ">=7.0.1",
     "@samchon/openapi": "^4.0.0",
     "detect-ts-node": "^1.0.5",
@@ -53,13 +53,13 @@
   },
   "peerDependencies": {
     "@nestia/fetcher": ">=6.0.1-dev.20250406",
-    "@nestjs/common": ">=7.0.1",
+    "@nestjs/common": ">=11.0.16",
     "@nestjs/core": ">=7.0.1",
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.3"
   },
   "devDependencies": {
-    "@nestjs/common": "^11.0.13",
+    "@nestjs/common": "^11.0.16",
     "@nestjs/core": "^11.0.13",
     "@types/express": "^4.17.15",
     "@types/glob": "^7.2.0",
