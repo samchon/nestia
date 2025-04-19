@@ -50,7 +50,7 @@
     "@nestjs/platform-fastify": "^11.0.20",
     "@samchon/openapi": "^4.1.0",
     "express": "^4.21.1",
-    "fastify": "^5.1.0",
+    "fastify": "^5.3.2",
     "fastify-multer": "^2.0.3",
     "multer": "^1.4.5-lts.1",
     "tgrid": "^1.1.0",
