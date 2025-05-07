@@ -399,7 +399,8 @@ const constant = (name: string) => (expression: ts.Expression) =>
       ts.NodeFlags.Const,
     ),
   );
-const getPath = (route: IHttpMigrateRoute) => "/" + route.emendedPath;
+const getPath = (route: IHttpMigrateRoute) =>
+  (route.emendedPath.startsWith("/") ? "" : "/") + route.emendedPath;
 const local = (name: string) => (type: string) => (expression: ts.Expression) =>
   ts.factory.createVariableStatement(
     [],

@@ -93,6 +93,7 @@ const main = async () => {
     exceptions: [
       ".git",
       ".github/dependabot.yml",
+      ".github/workflows/dependabot-automerge.yml",
       "src/api/functional",
       "src/controllers",
       "src/MyModule.ts",
@@ -110,6 +111,7 @@ const main = async () => {
       ".git",
       ".github/dependabot.yml",
       ".github/workflows/build.yml",
+      ".github/workflows/dependabot-automerge.yml",
       "src/functional",
       "src/structures",
       "test/features",

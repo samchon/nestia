@@ -29,7 +29,7 @@ export namespace MigrateControllerAnalyzer {
       const splitPath = (r: IHttpMigrateRoute): string[] =>
         r.emendedPath.split("/");
       const splitLocation = (r: IHttpMigrateRoute): string[] =>
-        splitPath(r).filter((s) => s[0] !== ":");
+        splitPath(r).filter((s) => s.length !== 0 && s[0] !== ":");
 
       const minPath: string[] = splitPath(col.routes[0]);
       const minLocation: string[] = splitLocation(col.routes[0]);
@@ -38,7 +38,7 @@ export namespace MigrateControllerAnalyzer {
         minLocation.splice(getSplitIndex(minLocation, splitLocation(r)));
       }
       col.path = minPath.join("/");
-      col.location = "src/controllers/" + minLocation.join("/");
+      col.location = `src/controllers/${minLocation.join("/")}`;
     }
     return controllers;
   };
