@@ -38,7 +38,7 @@ export class WebSocketAdaptor {
       this.ws.close(() => resolve());
     });
 
-  protected constructor(app: INestApplication, operations: IOperator[]) {
+  private constructor(app: INestApplication, operations: IOperator[]) {
     this.operators = operations;
     this.ws = new WebSocket.Server({ noServer: true });
     this.http = app.getHttpServer();
