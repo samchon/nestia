@@ -48,14 +48,14 @@
     "@nestjs/core": "^11.1.0",
     "@nestjs/platform-express": "^11.1.0",
     "@nestjs/platform-fastify": "^11.1.0",
-    "@samchon/openapi": "^4.2.0",
+    "@samchon/openapi": "^4.3.0",
     "express": "^4.21.1",
     "fastify": "^5.3.2",
     "fastify-multer": "^2.0.3",
     "multer": "^1.4.5-lts.1",
     "tgrid": "^1.1.0",
     "tstl": "^3.0.0",
-    "typia": "^9.2.0",
+    "typia": "^9.3.0",
     "uuid": "^9.0.1"
   }
 }
