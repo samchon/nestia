@@ -75,8 +75,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typia:
-        specifier: ^9.0.1
-        version: 9.3.1(@samchon/openapi@4.3.2-dev.20250520)(typescript@5.8.3)
+        specifier: ^9.3.1
+        version: 9.3.1(@samchon/openapi@4.3.2)(typescript@5.8.3)
     devDependencies:
       '@types/autocannon':
         specifier: ^7.9.0
@@ -103,7 +103,7 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0
       typescript:
-        specifier: ~5.8.2
+        specifier: ~5.8.3
         version: 5.8.3
 
   packages/benchmark:
@@ -149,14 +149,14 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0
       typescript:
-        specifier: ~5.8.2
+        specifier: ~5.8.3
         version: 5.8.3
       typescript-transform-paths:
         specifier: ^3.4.7
         version: 3.5.5(typescript@5.8.3)
       typia:
-        specifier: ^9.0.1
-        version: 9.3.1(@samchon/openapi@4.3.2-dev.20250520)(typescript@5.8.3)
+        specifier: ^9.3.1
+        version: 9.3.1(@samchon/openapi@4.3.2)(typescript@5.8.3)
       uuid:
         specifier: ^10.0.0
         version: 10.0.0
@@ -192,7 +192,7 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       typescript:
-        specifier: ~5.8.2
+        specifier: ~5.8.3
         version: 5.8.3
 
   packages/core:
@@ -207,8 +207,8 @@ importers:
         specifier: '>=7.0.1'
         version: 11.1.1(@nestjs/common@11.1.1(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@samchon/openapi':
-        specifier: ^4.0.0
-        version: 4.3.1
+        specifier: ^4.3.2
+        version: 4.3.2
       detect-ts-node:
         specifier: ^1.0.5
         version: 1.0.5
@@ -234,8 +234,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0
       typia:
-        specifier: ^9.0.1
-        version: 9.3.1(@samchon/openapi@4.3.1)(typescript@5.8.3)
+        specifier: ^9.3.1
+        version: 9.3.1(@samchon/openapi@4.3.2)(typescript@5.8.3)
       ws:
         specifier: ^7.5.3
         version: 7.5.10
@@ -295,7 +295,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typescript:
-        specifier: ~5.8.2
+        specifier: ~5.8.3
         version: 5.8.3
 
   packages/e2e:
@@ -322,14 +322,14 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0
       typescript:
-        specifier: ~5.8.2
+        specifier: ~5.8.3
         version: 5.8.3
       typescript-transform-paths:
         specifier: ^3.4.7
         version: 3.5.5(typescript@5.8.3)
       typia:
-        specifier: ^9.0.1
-        version: 9.3.1(@samchon/openapi@4.3.2-dev.20250520)(typescript@5.8.3)
+        specifier: ^9.3.1
+        version: 9.3.1(@samchon/openapi@4.3.2)(typescript@5.8.3)
 
   packages/editor:
     dependencies:
@@ -340,8 +340,8 @@ importers:
         specifier: workspace:^
         version: link:../migrate
       '@samchon/openapi':
-        specifier: ^4.0.0
-        version: 4.3.1
+        specifier: ^4.3.2
+        version: 4.3.2
       '@stackblitz/sdk':
         specifier: ^1.11.0
         version: 1.11.0
@@ -355,8 +355,8 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react@18.3.1))(@mui/icons-material@5.17.1(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.21)(react@18.3.1))(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react@18.3.1))(@types/react@18.3.21)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.21)(prop-types@15.8.1)
       typia:
-        specifier: ^9.0.1
-        version: 9.3.1(@samchon/openapi@4.3.1)(typescript@5.8.3)
+        specifier: ^9.3.1
+        version: 9.3.1(@samchon/openapi@4.3.2)(typescript@5.8.3)
     devDependencies:
       '@eslint/js':
         specifier: ^9.13.0
@@ -419,7 +419,7 @@ importers:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@22.15.19)(typescript@5.8.3)
       typescript:
-        specifier: ~5.8.2
+        specifier: ~5.8.3
         version: 5.8.3
       typescript-eslint:
         specifier: ^8.10.0
@@ -431,11 +431,11 @@ importers:
   packages/fetcher:
     dependencies:
       '@samchon/openapi':
-        specifier: ^4.0.0
-        version: 4.3.1
+        specifier: ^4.3.2
+        version: 4.3.2
       typia:
-        specifier: ^9.0.1
-        version: 9.3.1(@samchon/openapi@4.3.1)(typescript@5.8.3)
+        specifier: ^9.3.1
+        version: 9.3.1(@samchon/openapi@4.3.2)(typescript@5.8.3)
     devDependencies:
       '@types/node':
         specifier: ^18.11.14
@@ -450,14 +450,14 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       typescript:
-        specifier: ~5.8.2
+        specifier: ~5.8.3
         version: 5.8.3
 
   packages/migrate:
     dependencies:
       '@samchon/openapi':
-        specifier: 4.3.2-dev.20250520
-        version: 4.3.2-dev.20250520
+        specifier: 4.3.2
+        version: 4.3.2
       commander:
         specifier: 10.0.0
         version: 10.0.0
@@ -474,11 +474,11 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typescript:
-        specifier: ~5.8.2
+        specifier: ~5.8.3
         version: 5.8.3
       typia:
-        specifier: ^9.0.1
-        version: 9.3.1(@samchon/openapi@4.3.2-dev.20250520)(typescript@5.8.3)
+        specifier: ^9.3.1
+        version: 9.3.1(@samchon/openapi@4.3.2)(typescript@5.8.3)
     devDependencies:
       '@nestia/benchmark':
         specifier: workspace:^
@@ -589,8 +589,8 @@ importers:
         specifier: workspace:^
         version: link:../fetcher
       '@samchon/openapi':
-        specifier: ^4.0.0
-        version: 4.3.1
+        specifier: ^4.3.2
+        version: 4.3.2
       cli:
         specifier: ^1.0.1
         version: 1.0.1
@@ -622,8 +622,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       typia:
-        specifier: ^9.0.1
-        version: 9.3.1(@samchon/openapi@4.3.1)(typescript@5.8.3)
+        specifier: ^9.3.1
+        version: 9.3.1(@samchon/openapi@4.3.2)(typescript@5.8.3)
     devDependencies:
       '@nestjs/common':
         specifier: ^11.0.13
@@ -671,7 +671,7 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0
       typescript:
-        specifier: ~5.8.2
+        specifier: ~5.8.3
         version: 5.8.3
       typescript-transform-paths:
         specifier: ^3.4.4
@@ -728,8 +728,8 @@ importers:
         specifier: ^9.3.0
         version: 9.3.1(@samchon/openapi@4.3.1)(typescript@5.8.3)
       uuid:
-        specifier: ^9.0.1
-        version: 9.0.1
+        specifier: ^10.0.0
+        version: 10.0.0
     devDependencies:
       '@nestia/sdk':
         specifier: workspace:^
@@ -762,7 +762,7 @@ importers:
         specifier: ~3.3.0
         version: 3.3.0
       typescript:
-        specifier: ~5.8.2
+        specifier: ~5.8.3
         version: 5.8.3
       typescript-transform-paths:
         specifier: ^3.5.5
@@ -1572,8 +1572,8 @@ packages:
   '@samchon/openapi@4.3.1':
     resolution: {integrity: sha512-oNvCJWRbN+Z+i0H6X4lfDffsJg/gG3MJ0zBVqwOJq1Th24OcqgyWsvoXj4EY4AMYZedgBjyPYYXhs802Zb72Vw==}
 
-  '@samchon/openapi@4.3.2-dev.20250520':
-    resolution: {integrity: sha512-J5Ab6/TVLkKGBOMALFpIGsv0qrFIhC5tTsjMBSbVusr0BC4E0YaxZNV5l1ubcHAflvIR3/EhX8Fuh4Ciqy1KxA==}
+  '@samchon/openapi@4.3.2':
+    resolution: {integrity: sha512-9F/UPYiXHlzoCpHumFKir6o1UKby0kPYc5A8kGRUt+mcpJOEaSM0+PC2OstDpwPR+DENBaWK21myEDEGhD9TQQ==}
 
   '@scarf/scarf@1.4.0':
     resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
@@ -4225,10 +4225,6 @@ packages:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
 
-  uuid@9.0.1:
-    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
-    hasBin: true
-
   v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
 
@@ -5158,7 +5154,7 @@ snapshots:
 
   '@samchon/openapi@4.3.1': {}
 
-  '@samchon/openapi@4.3.2-dev.20250520': {}
+  '@samchon/openapi@4.3.2': {}
 
   '@scarf/scarf@1.4.0': {}
 
@@ -8307,9 +8303,9 @@ snapshots:
       randexp: 0.5.3
       typescript: 5.8.3
 
-  typia@9.3.1(@samchon/openapi@4.3.2-dev.20250520)(typescript@5.8.3):
+  typia@9.3.1(@samchon/openapi@4.3.2)(typescript@5.8.3):
     dependencies:
-      '@samchon/openapi': 4.3.2-dev.20250520
+      '@samchon/openapi': 4.3.2
       '@standard-schema/spec': 1.0.0
       commander: 10.0.0
       comment-json: 4.2.5
@@ -8362,8 +8358,6 @@ snapshots:
   uuid@10.0.0: {}
 
   uuid@8.3.2: {}
-
-  uuid@9.0.1: {}
 
   v8-compile-cache-lib@3.0.1: {}
 
