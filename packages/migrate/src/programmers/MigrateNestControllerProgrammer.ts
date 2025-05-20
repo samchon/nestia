@@ -1,6 +1,7 @@
 import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 
+import { MigrateApplication } from "../MigrateApplication";
 import { IHttpMigrateController } from "../structures/IHttpMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
@@ -9,6 +10,7 @@ import { MigrateNestMethodProgrammer } from "./MigrateNestMethodProgrammer";
 
 export namespace MigrateNestControllerProgrammer {
   export const write =
+    (config: MigrateApplication.IConfig) =>
     (components: OpenApi.IComponents) =>
     (controller: IHttpMigrateController): ts.Statement[] => {
       const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
@@ -35,9 +37,9 @@ export namespace MigrateNestControllerProgrammer {
         controller.routes
           .map((route, index) => [
             ...(index !== 0 ? [FilePrinter.newLine() as any] : []),
-            MigrateNestMethodProgrammer.write(components)(importer)(controller)(
-              route,
-            ),
+            MigrateNestMethodProgrammer.write(config)(components)(importer)(
+              controller,
+            )(route),
           ])
           .flat(),
       );

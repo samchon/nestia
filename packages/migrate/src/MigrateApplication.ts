@@ -40,6 +40,7 @@ export class MigrateApplication {
       document: this.document,
       simulate: config.simulate,
       e2e: config.e2e,
+      author: config.author,
     });
     const output: MigrateApplication.IOutput = {
       program,
@@ -66,6 +67,7 @@ export class MigrateApplication {
       document: this.document,
       simulate: config.simulate,
       e2e: config.e2e,
+      author: config.author,
     });
     const output: MigrateApplication.IOutput = {
       program,
@@ -114,5 +116,9 @@ export namespace MigrateApplication {
     simulate: boolean;
     e2e: boolean;
     package?: string;
+    author?: {
+      tag: string;
+      value: string;
+    };
   }
 }
