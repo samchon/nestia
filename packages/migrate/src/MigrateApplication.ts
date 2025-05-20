@@ -44,7 +44,13 @@ export class MigrateApplication {
     const output: MigrateApplication.IOutput = {
       program,
       files: [
-        ...NEST_TEMPLATE,
+        ...NEST_TEMPLATE.filter(
+          (f) =>
+            f.location.startsWith("src/api/structures") === false &&
+            f.location.startsWith("src/api/functional") === false &&
+            f.location.startsWith("src/api/controllers") === false &&
+            f.location.startsWith("test/features") === false,
+        ),
         ...MigrateNestProgrammer.write(program),
         ...MigrateApiProgrammer.write(program),
         ...(config.e2e ? MigrateE2eProgrammer.write(program) : []),
@@ -64,7 +70,12 @@ export class MigrateApplication {
     const output: MigrateApplication.IOutput = {
       program,
       files: [
-        ...SDK_TEMPLATE,
+        ...SDK_TEMPLATE.filter(
+          (f) =>
+            f.location.startsWith("src/structures") === false &&
+            f.location.startsWith("src/functional") === false &&
+            f.location.startsWith("test/features") === false,
+        ),
         ...MigrateApiProgrammer.write(program),
         MigrateApiStartProgrammer.write(program),
         ...(config.e2e ? MigrateE2eProgrammer.write(program) : []),
