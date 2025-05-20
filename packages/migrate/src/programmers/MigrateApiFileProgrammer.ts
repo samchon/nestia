@@ -2,6 +2,7 @@ import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 
 import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
+import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateApiFunctionProgrammer } from "./MigrateApiFunctionProgrammer";
 import { MigrateApiNamespaceProgrammer } from "./MigrateApiNamespaceProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -19,6 +20,7 @@ export namespace MigrateApiFileProgrammer {
       const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
       const statements: ts.Statement[] = props.routes
         .map((route) => [
+          FilePrinter.newLine(),
           MigrateApiFunctionProgrammer.write(config)(components)(importer)(
             route,
           ),

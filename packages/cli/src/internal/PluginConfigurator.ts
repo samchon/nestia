@@ -37,6 +37,9 @@ export namespace PluginConfigurator {
       | undefined;
     const strictNullChecks: boolean | undefined =
       compilerOptions.strictNullChecks as boolean | undefined;
+    const skipLibCheck: boolean | undefined = compilerOptions.skipLibCheck as
+      | boolean
+      | undefined;
     const core: comments.CommentObject | undefined = plugins.find(
       (p) =>
         typeof p === "object" &&
@@ -60,11 +63,13 @@ export namespace PluginConfigurator {
       (strict === true || strictNullChecks === true) &&
       core !== undefined &&
       typia !== undefined &&
-      swagger !== undefined
+      swagger !== undefined &&
+      skipLibCheck === true
     )
       return;
 
     // DO CONFIGURE
+    compilerOptions.skipLibCheck = true;
     compilerOptions.strictNullChecks = true;
     if (strict === undefined && strictNullChecks === undefined)
       compilerOptions.strict = true;

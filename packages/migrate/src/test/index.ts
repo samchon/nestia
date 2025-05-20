@@ -1,25 +1,15 @@
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import cp from "child_process";
 import fs from "fs";
-import { format } from "prettier";
 import { IValidation } from "typia";
 
 import { MigrateApplication } from "../MigrateApplication";
 import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
+import { MigrateCommander } from "../internal/MigrateCommander";
 import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
 
 const INPUT: string = `${__dirname}/../../assets/input`;
 const OUTPUT: string = `${__dirname}/../../assets/output`;
-
-const beautify = async (script: string): Promise<string> => {
-  try {
-    return await format(script, {
-      parser: "typescript",
-    });
-  } catch {
-    return script;
-  }
-};
 
 const measure =
   (title: string) =>
@@ -62,7 +52,11 @@ const execute =
         await MigrateFileArchiver.archive({
           mkdir: fs.promises.mkdir,
           writeFile: async (file, content) =>
-            fs.promises.writeFile(file, await beautify(content), "utf-8"),
+            fs.promises.writeFile(
+              file,
+              await MigrateCommander.beautify(content),
+              "utf-8",
+            ),
         })(directory)(files);
         cp.execSync(`npx tsc -p ${directory}/tsconfig.json`, {
           stdio: "ignore",

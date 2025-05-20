@@ -1,7 +1,9 @@
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
+import sortImport from "@trivago/prettier-plugin-sort-imports";
 import fs from "fs";
 import path from "path";
 import { format } from "prettier";
+import jsDoc from "prettier-plugin-jsdoc";
 import typia, { IValidation, tags } from "typia";
 
 import { MigrateApplication } from "../MigrateApplication";
@@ -69,10 +71,16 @@ export namespace MigrateCommander {
     })(options.output)(program.files);
   };
 
-  const beautify = async (script: string): Promise<string> => {
+  export const beautify = async (script: string): Promise<string> => {
     try {
       return await format(script, {
         parser: "typescript",
+        plugins: [sortImport, jsDoc],
+        importOrder: ["<THIRD_PARTY_MODULES>", "^[./]"],
+        importOrderSeparation: true,
+        importOrderSortSpecifiers: true,
+        importOrderParserPlugins: ["decorators-legacy", "typescript", "jsx"],
+        bracketSpacing: true,
       });
     } catch {
       return script;

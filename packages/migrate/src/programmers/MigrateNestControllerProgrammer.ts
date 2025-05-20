@@ -32,9 +32,14 @@ export namespace MigrateNestControllerProgrammer {
         controller.name,
         [],
         [],
-        controller.routes.map(
-          MigrateNestMethodProgrammer.write(components)(importer)(controller),
-        ),
+        controller.routes
+          .map((route, index) => [
+            ...(index !== 0 ? [FilePrinter.newLine() as any] : []),
+            MigrateNestMethodProgrammer.write(components)(importer)(controller)(
+              route,
+            ),
+          ])
+          .flat(),
       );
       return [
         ...importer.toStatements(
