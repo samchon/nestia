@@ -25,7 +25,7 @@ export namespace MigrateNestProgrammer {
       ...controllers.map((c) => ({
         location: c.location,
         file: `${c.name}.ts`,
-        statements: MigrateNestControllerProgrammer.write(
+        statements: MigrateNestControllerProgrammer.write(program)(
           program.document.components,
         )(c),
       })),

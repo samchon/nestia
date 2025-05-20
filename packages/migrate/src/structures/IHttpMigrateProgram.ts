@@ -12,11 +12,19 @@ export namespace IHttpMigrateProgram {
     simulate: boolean;
     e2e: boolean;
     document: OpenApi.IDocument;
+    author?: {
+      tag: string;
+      value: string;
+    };
   }
   export interface IConfig {
     mode: "nest" | "sdk";
     simulate: boolean;
     e2e: boolean;
+    author?: {
+      tag: string;
+      value: string;
+    };
   }
   export interface IError {
     method: string;
