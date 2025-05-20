@@ -76,6 +76,7 @@ export namespace MigrateNestProgrammer {
           ),
         );
       }
+      output.push(FilePrinter.newLine());
       return output;
     };
 }

@@ -36,7 +36,7 @@
     "nestia": "workspace:^",
     "ts-node": "^10.9.2",
     "ts-patch": "~3.3.0",
-    "typescript": "~5.8.2",
+    "typescript": "~5.8.3",
     "typescript-transform-paths": "^3.5.5"
   },
   "dependencies": {
@@ -56,6 +56,6 @@
     "tgrid": "^1.1.0",
     "tstl": "^3.0.0",
     "typia": "^9.3.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.3.1"
   }
 }

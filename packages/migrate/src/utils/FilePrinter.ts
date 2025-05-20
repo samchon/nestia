@@ -23,7 +23,9 @@ export namespace FilePrinter {
     top?: string;
   }): string => {
     const script: string = ts
-      .createPrinter()
+      .createPrinter({
+        newLine: ts.NewLineKind.LineFeed,
+      })
       .printFile(
         ts.factory.createSourceFile(
           props.statements,

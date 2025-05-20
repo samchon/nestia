@@ -256,12 +256,17 @@ export namespace MigrateSchemaProgrammer {
     (schema: OpenApi.IJsonSchema.IObject): ts.TypeNode => {
       const regular = () =>
         ts.factory.createTypeLiteralNode(
-          Object.entries(schema.properties ?? []).map(([key, value]) =>
-            writeRegularProperty(components)(importer)(schema.required ?? [])(
-              key,
-              value,
-            ),
-          ),
+          Object.entries(schema.properties ?? [])
+            .map(([key, value], index) => [
+              ...(index !== 0
+                ? [ts.factory.createIdentifier("\n") as any]
+                : []),
+              writeRegularProperty(components)(importer)(schema.required ?? [])(
+                key,
+                value,
+              ),
+            ])
+            .flat(),
         );
       const dynamic = () =>
         ts.factory.createTypeLiteralNode([

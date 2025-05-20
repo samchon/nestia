@@ -85,7 +85,7 @@ export namespace MigrateApiProgrammer {
     (modulo: MigrateDtoProgrammer.IModule): ts.Statement[] => {
       const output: ts.Statement[] = [];
       if (modulo.programmer !== null) output.push(modulo.programmer(importer));
-      if (modulo.children.size) {
+      if (modulo.children.size !== 0) {
         const internal: ts.Statement[] = [];
         for (const child of modulo.children.values())
           internal.push(...iterate(importer)(child));
@@ -98,6 +98,7 @@ export namespace MigrateApiProgrammer {
           ),
         );
       }
+      output.push(FilePrinter.newLine());
       return output;
     };
 }
