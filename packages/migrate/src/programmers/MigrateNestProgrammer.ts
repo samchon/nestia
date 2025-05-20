@@ -30,7 +30,9 @@ export namespace MigrateNestProgrammer {
         )(c),
       })),
       ...[
-        ...MigrateDtoProgrammer.compose(program.document.components).entries(),
+        ...MigrateDtoProgrammer.compose(program)(
+          program.document.components,
+        ).entries(),
       ].map(([key, value]) => ({
         location: "src/api/structures",
         file: `${key}.ts`,

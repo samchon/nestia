@@ -51,7 +51,7 @@ export namespace MigrateApiProgrammer {
     if (program.mode === "sdk")
       output.push(
         ...[
-          ...MigrateDtoProgrammer.compose(
+          ...MigrateDtoProgrammer.compose(program)(
             program.document.components,
           ).entries(),
         ].map(([key, value]) => ({
