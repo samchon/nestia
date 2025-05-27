@@ -48,7 +48,7 @@
     "@nestjs/core": "^11.1.2",
     "@nestjs/platform-express": "^11.1.2",
     "@nestjs/platform-fastify": "^11.1.2",
-    "@samchon/openapi": "^4.3.0",
+    "@samchon/openapi": "^4.3.3",
     "express": "^4.21.1",
     "fastify": "^5.3.2",
     "fastify-multer": "^2.0.3",
