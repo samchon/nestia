@@ -1,13 +1,12 @@
-import { OpenApi } from "@samchon/openapi";
+import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
-import { MigrateApplication } from "../MigrateApplication";
-import { IHttpMigrateController } from "../structures/IHttpMigrateController";
-import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
+import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
+import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -15,10 +14,10 @@ import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
 export namespace MigrateNestMethodProgrammer {
   export const write =
-    (config: MigrateApplication.IConfig) =>
+    (config: INestiaMigrateConfig) =>
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (controller: IHttpMigrateController) =>
+    (controller: INestiaMigrateController) =>
     (route: IHttpMigrateRoute): ts.MethodDeclaration => {
       const output: ts.TypeNode = route.success
         ? MigrateSchemaProgrammer.write(components)(importer)(
@@ -74,7 +73,7 @@ export namespace MigrateNestMethodProgrammer {
     };
 
   const writeDescription =
-    (config: MigrateApplication.IConfig) =>
+    (config: INestiaMigrateConfig) =>
     (method: IHttpMigrateRoute): string =>
       [
         method.comment(),
@@ -84,7 +83,7 @@ export namespace MigrateNestMethodProgrammer {
   const writeMethodDecorators =
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
-    (controller: IHttpMigrateController) =>
+    (controller: INestiaMigrateController) =>
     (route: IHttpMigrateRoute): ts.Decorator[] => {
       const external =
         (lib: string) =>

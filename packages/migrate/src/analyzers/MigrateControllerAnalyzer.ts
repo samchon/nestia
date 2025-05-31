@@ -1,14 +1,14 @@
 import { IHttpMigrateRoute } from "@samchon/openapi";
 
-import { IHttpMigrateController } from "../structures/IHttpMigrateController";
+import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
 
 export namespace MigrateControllerAnalyzer {
   export const analyze = (props: {
     routes: IHttpMigrateRoute[];
-  }): IHttpMigrateController[] => {
-    const collection: Map<string, IHttpMigrateController> = new Map();
+  }): INestiaMigrateController[] => {
+    const collection: Map<string, INestiaMigrateController> = new Map();
     for (const route of props.routes) {
       const name: string =
         route.operation()["x-samchon-controller"] ??
@@ -24,7 +24,7 @@ export namespace MigrateControllerAnalyzer {
       })).routes.push(route);
     }
 
-    const controllers: IHttpMigrateController[] = [...collection.values()];
+    const controllers: INestiaMigrateController[] = [...collection.values()];
     for (const col of controllers) {
       const splitPath = (r: IHttpMigrateRoute): string[] =>
         r.emendedPath.split("/");

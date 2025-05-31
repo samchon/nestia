@@ -2,7 +2,7 @@ import { OpenApi } from "@samchon/openapi";
 import { IPointer } from "tstl";
 import ts from "typescript";
 
-import { MigrateApplication } from "../MigrateApplication";
+import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
@@ -19,7 +19,7 @@ export namespace MigrateDtoProgrammer {
   }
 
   export const compose =
-    (config: MigrateApplication.IConfig) =>
+    (config: INestiaMigrateConfig) =>
     (components: OpenApi.IComponents): Map<string, IModule> => {
       const dict: Map<string, IModule> = new Map();
       for (const [key, value] of Object.entries(components.schemas ?? {})) {
@@ -59,7 +59,7 @@ export namespace MigrateDtoProgrammer {
     };
 
   const writeAlias =
-    (config: MigrateApplication.IConfig) =>
+    (config: INestiaMigrateConfig) =>
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (key: string, value: OpenApi.IJsonSchema) =>
@@ -75,7 +75,7 @@ export namespace MigrateDtoProgrammer {
 }
 
 const writeComment =
-  (config: MigrateApplication.IConfig) =>
+  (config: INestiaMigrateConfig) =>
   (schema: OpenApi.IJsonSchema, top: boolean): string =>
     [
       ...(schema.description?.length ? [schema.description] : []),

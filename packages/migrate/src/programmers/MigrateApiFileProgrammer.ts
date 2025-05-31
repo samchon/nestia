@@ -1,7 +1,7 @@
 import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 
-import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
+import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateApiFunctionProgrammer } from "./MigrateApiFunctionProgrammer";
 import { MigrateApiNamespaceProgrammer } from "./MigrateApiNamespaceProgrammer";
@@ -14,7 +14,7 @@ export namespace MigrateApiFileProgrammer {
     children: Set<string>;
   }
   export const write =
-    (config: IHttpMigrateProgram.IConfig) =>
+    (config: INestiaMigrateConfig) =>
     (components: OpenApi.IComponents) =>
     (props: IProps): ts.Statement[] => {
       const importer: MigrateImportProgrammer = new MigrateImportProgrammer();

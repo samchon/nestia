@@ -1,8 +1,8 @@
 import { OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 
-import { MigrateApplication } from "../MigrateApplication";
-import { IHttpMigrateController } from "../structures/IHttpMigrateController";
+import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
+import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -10,9 +10,9 @@ import { MigrateNestMethodProgrammer } from "./MigrateNestMethodProgrammer";
 
 export namespace MigrateNestControllerProgrammer {
   export const write =
-    (config: MigrateApplication.IConfig) =>
+    (config: INestiaMigrateConfig) =>
     (components: OpenApi.IComponents) =>
-    (controller: IHttpMigrateController): ts.Statement[] => {
+    (controller: INestiaMigrateController): ts.Statement[] => {
       const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
       const $class = ts.factory.createClassDeclaration(
         [

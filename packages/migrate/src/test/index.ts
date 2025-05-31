@@ -3,10 +3,10 @@ import cp from "child_process";
 import fs from "fs";
 import { IValidation } from "typia";
 
-import { MigrateApplication } from "../MigrateApplication";
+import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
 import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
 import { MigrateCommander } from "../internal/MigrateCommander";
-import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
+import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 
 const INPUT: string = `${__dirname}/../../assets/input`;
 const OUTPUT: string = `${__dirname}/../../assets/output`;
@@ -21,53 +21,51 @@ const measure =
     return time;
   };
 
-const execute =
-  (config: IHttpMigrateProgram.IConfig) =>
-  (project: string) =>
-  (
-    document: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument,
-  ): Promise<number> =>
-    measure(`${project}-${config.mode}-${config.simulate}-${config.e2e}`)(
-      async () => {
-        const directory = `${OUTPUT}/${project}-${config.mode}-${config.simulate}-${config.e2e}`;
-        const result: IValidation<MigrateApplication> =
-          await MigrateApplication.create(document);
-        if (result.success === false)
-          throw new Error(
-            `Invalid swagger file (must follow the OpenAPI 3.0 spec).`,
-          );
+const execute = (
+  mode: "nest" | "sdk",
+  config: INestiaMigrateConfig,
+  project: string,
+  document: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument,
+): Promise<number> =>
+  measure(`${project}-${mode}-${config.simulate}-${config.e2e}`)(async () => {
+    const directory = `${OUTPUT}/${project}-${mode}-${config.simulate}-${config.e2e}`;
+    const result: IValidation<NestiaMigrateApplication> =
+      await NestiaMigrateApplication.validate(document);
+    if (result.success === false)
+      throw new Error(
+        `Invalid swagger file (must follow the OpenAPI 3.0 spec).`,
+      );
 
-        const app: MigrateApplication = result.data;
-        const { files } =
-          config.mode === "nest"
-            ? app.nest({
-                ...config,
-                package: project,
-              })
-            : app.sdk({
-                ...config,
-                package: project,
-              });
+    const app: NestiaMigrateApplication = result.data;
+    const { files } =
+      mode === "nest"
+        ? app.nest({
+            ...config,
+            package: project,
+          })
+        : app.sdk({
+            ...config,
+            package: project,
+          });
 
-        await MigrateFileArchiver.archive({
-          mkdir: fs.promises.mkdir,
-          writeFile: async (file, content) =>
-            fs.promises.writeFile(
-              file,
-              await MigrateCommander.beautify(content),
-              "utf-8",
-            ),
-        })(directory)(files);
-        cp.execSync(`npx tsc -p ${directory}/tsconfig.json`, {
-          stdio: "ignore",
-          cwd: directory,
-        });
-        cp.execSync(`npx tsc -p ${directory}/test/tsconfig.json`, {
-          stdio: "ignore",
-          cwd: directory,
-        });
-      },
-    );
+    await MigrateFileArchiver.archive({
+      mkdir: fs.promises.mkdir,
+      writeFile: async (file, content) =>
+        fs.promises.writeFile(
+          file,
+          await MigrateCommander.beautify(content),
+          "utf-8",
+        ),
+    })(directory)(files);
+    cp.execSync(`npx tsc -p ${directory}/tsconfig.json`, {
+      stdio: "ignore",
+      cwd: directory,
+    });
+    cp.execSync(`npx tsc -p ${directory}/test/tsconfig.json`, {
+      stdio: "ignore",
+      cwd: directory,
+    });
+  });
 
 const iterate = async (directory: string): Promise<void> => {
   const filter = (() => {
@@ -94,11 +92,15 @@ const iterate = async (directory: string): Promise<void> => {
         ["sdk", true],
         ["sdk", false],
       ] as const)
-        await execute({
+        await execute(
           mode,
-          simulate: flag,
-          e2e: flag,
-        })(project)(document);
+          {
+            simulate: flag,
+            e2e: flag,
+          },
+          project,
+          document,
+        );
     }
   }
 };

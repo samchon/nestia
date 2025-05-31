@@ -1,4 +1,10 @@
-import { OpenApi, OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
+import {
+  IHttpMigrateApplication,
+  OpenApi,
+  OpenApiV3,
+  OpenApiV3_1,
+  SwaggerV2,
+} from "@samchon/openapi";
 import typia, { IValidation } from "typia";
 
 import { MigrateApplicationAnalyzer } from "./analyzers/MigrateApplicationAnalyzer";
@@ -8,19 +14,32 @@ import { MigrateApiProgrammer } from "./programmers/MigrateApiProgrammer";
 import { MigrateApiStartProgrammer } from "./programmers/MigrateApiStartProgrammer";
 import { MigrateE2eProgrammer } from "./programmers/MigrateE2eProgrammer";
 import { MigrateNestProgrammer } from "./programmers/MigrateNestProgrammer";
-import { IHttpMigrateFile } from "./structures/IHttpMigrateFile";
-import { IHttpMigrateProgram } from "./structures/IHttpMigrateProgram";
+import { INestiaMigrateConfig } from "./structures/INestiaMigrateConfig";
+import { INestiaMigrateContext } from "./structures/INestiaMigrateContext";
+import { INestiaMigrateFile } from "./structures/INestiaMigrateFile";
 
-export class MigrateApplication {
-  private constructor(public readonly document: OpenApi.IDocument) {}
+export class NestiaMigrateApplication {
+  public constructor(public readonly document: OpenApi.IDocument) {}
 
-  public static create(
+  public static assert(
     document:
       | SwaggerV2.IDocument
       | OpenApiV3.IDocument
       | OpenApiV3_1.IDocument
       | OpenApi.IDocument,
-  ): IValidation<MigrateApplication> {
+  ): NestiaMigrateApplication {
+    return new NestiaMigrateApplication(
+      OpenApi.convert(typia.assert(document)),
+    );
+  }
+
+  public static validate(
+    document:
+      | SwaggerV2.IDocument
+      | OpenApiV3.IDocument
+      | OpenApiV3_1.IDocument
+      | OpenApi.IDocument,
+  ): IValidation<NestiaMigrateApplication> {
     const result: IValidation<
       | SwaggerV2.IDocument
       | OpenApiV3.IDocument
@@ -30,20 +49,22 @@ export class MigrateApplication {
     if (result.success === false) return result;
     return {
       success: true,
-      data: new MigrateApplication(OpenApi.convert(document)),
+      data: new NestiaMigrateApplication(OpenApi.convert(document)),
     };
   }
 
-  public nest(config: MigrateApplication.IConfig): MigrateApplication.IOutput {
-    const program: IHttpMigrateProgram = MigrateApplicationAnalyzer.analyze({
-      mode: "nest",
-      document: this.document,
-      simulate: config.simulate,
-      e2e: config.e2e,
-      author: config.author,
-    });
+  public nest(config: INestiaMigrateConfig): MigrateApplication.IOutput {
+    const program: INestiaMigrateContext = MigrateApplicationAnalyzer.analyze(
+      "nest",
+      this.document,
+      {
+        simulate: config.simulate,
+        e2e: config.e2e,
+        author: config.author,
+      },
+    );
     const output: MigrateApplication.IOutput = {
-      program,
+      context: program,
       files: [
         ...NEST_TEMPLATE.filter(
           (f) =>
@@ -61,16 +82,14 @@ export class MigrateApplication {
     return this.finalize(config, output);
   }
 
-  public sdk(config: MigrateApplication.IConfig): MigrateApplication.IOutput {
-    const program: IHttpMigrateProgram = MigrateApplicationAnalyzer.analyze({
-      mode: "sdk",
-      document: this.document,
-      simulate: config.simulate,
-      e2e: config.e2e,
-      author: config.author,
-    });
+  public sdk(config: INestiaMigrateConfig): MigrateApplication.IOutput {
+    const program: INestiaMigrateContext = MigrateApplicationAnalyzer.analyze(
+      "sdk",
+      this.document,
+      config,
+    );
     const output: MigrateApplication.IOutput = {
-      program,
+      context: program,
       files: [
         ...SDK_TEMPLATE.filter(
           (f) =>
@@ -93,7 +112,7 @@ export class MigrateApplication {
   }
 
   private finalize(
-    config: MigrateApplication.IConfig,
+    config: INestiaMigrateConfig,
     output: MigrateApplication.IOutput,
   ): MigrateApplication.IOutput {
     if (config.package)
@@ -108,17 +127,8 @@ export class MigrateApplication {
 }
 export namespace MigrateApplication {
   export interface IOutput {
-    program: IHttpMigrateProgram;
-    files: IHttpMigrateFile[];
-    errors: IHttpMigrateProgram.IError[];
-  }
-  export interface IConfig {
-    simulate: boolean;
-    e2e: boolean;
-    package?: string;
-    author?: {
-      tag: string;
-      value: string;
-    };
+    context: INestiaMigrateContext;
+    files: INestiaMigrateFile[];
+    errors: IHttpMigrateApplication.IError[];
   }
 }

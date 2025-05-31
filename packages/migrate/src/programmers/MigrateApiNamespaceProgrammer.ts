@@ -1,12 +1,11 @@
-import { OpenApi } from "@samchon/openapi";
+import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
-import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
-import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
+import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateApiSimulationProgrammer } from "./MigrateApiSimulationProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -14,7 +13,7 @@ import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
 export namespace MigrateApiNamespaceProgrammer {
   export const write =
-    (config: IHttpMigrateProgram.IConfig) =>
+    (config: INestiaMigrateConfig) =>
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (route: IHttpMigrateRoute): ts.ModuleDeclaration => {

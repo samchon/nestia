@@ -1,17 +1,15 @@
-import { OpenApi } from "@samchon/openapi";
+import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
-import { MigrateApplication } from "../MigrateApplication";
-import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
-import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
+import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
 export namespace MigrateApiFunctionProgrammer {
   export const write =
-    (config: IHttpMigrateProgram.IConfig) =>
+    (config: INestiaMigrateConfig) =>
     (components: OpenApi.IComponents) =>
     (importer: MigrateImportProgrammer) =>
     (route: IHttpMigrateRoute): ts.FunctionDeclaration =>
@@ -92,7 +90,7 @@ export namespace MigrateApiFunctionProgrammer {
     ];
 
   const writeDescription =
-    (config: MigrateApplication.IConfig) =>
+    (config: INestiaMigrateConfig) =>
     (route: IHttpMigrateRoute): string =>
       [
         route.comment(),
@@ -101,7 +99,7 @@ export namespace MigrateApiFunctionProgrammer {
       ].join("\n");
 
   const writeBody =
-    (config: IHttpMigrateProgram.IConfig) =>
+    (config: INestiaMigrateConfig) =>
     (importer: MigrateImportProgrammer) =>
     (route: IHttpMigrateRoute): ts.Statement[] => {
       const encrypted: boolean = !!route.success?.["x-nestia-encrypted"];

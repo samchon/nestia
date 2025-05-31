@@ -1,9 +1,9 @@
 import ts from "typescript";
 
 import { MigrateControllerAnalyzer } from "../analyzers/MigrateControllerAnalyzer";
-import { IHttpMigrateController } from "../structures/IHttpMigrateController";
-import { IHttpMigrateFile } from "../structures/IHttpMigrateFile";
-import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
+import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
+import { INestiaMigrateController } from "../structures/INestiaMigrateController";
+import { INestiaMigrateFile } from "../structures/INestiaMigrateFile";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateDtoProgrammer } from "./MigrateDtoProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -11,8 +11,10 @@ import { MigrateNestControllerProgrammer } from "./MigrateNestControllerProgramm
 import { MigrateNestModuleProgrammer } from "./MigrateNestModuleProgrammer";
 
 export namespace MigrateNestProgrammer {
-  export const write = (program: IHttpMigrateProgram): IHttpMigrateFile[] => {
-    const controllers: IHttpMigrateController[] =
+  export const write = (
+    program: INestiaMigrateContext,
+  ): INestiaMigrateFile[] => {
+    const controllers: INestiaMigrateController[] =
       MigrateControllerAnalyzer.analyze({
         routes: program.routes,
       });
@@ -25,12 +27,12 @@ export namespace MigrateNestProgrammer {
       ...controllers.map((c) => ({
         location: c.location,
         file: `${c.name}.ts`,
-        statements: MigrateNestControllerProgrammer.write(program)(
+        statements: MigrateNestControllerProgrammer.write(program.config)(
           program.document.components,
         )(c),
       })),
       ...[
-        ...MigrateDtoProgrammer.compose(program)(
+        ...MigrateDtoProgrammer.compose(program.config)(
           program.document.components,
         ).entries(),
       ].map(([key, value]) => ({
