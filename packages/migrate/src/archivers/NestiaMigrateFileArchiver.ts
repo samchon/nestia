@@ -1,4 +1,3 @@
-import path from "path";
 import { VariadicSingleton } from "tstl";
 
 export namespace NestiaMigrateFileArchiver {
@@ -8,11 +7,10 @@ export namespace NestiaMigrateFileArchiver {
     root: string;
     files: Record<string, string>;
   }): Promise<void> => {
-    const root: string = path.resolve(props.root);
     const mkdir = new VariadicSingleton(
       async (location: string): Promise<void> => {
         try {
-          await props.mkdir(path.resolve(`${root}/${location}`));
+          await props.mkdir(`${props.root}/${location}`);
         } catch {}
       },
     );
@@ -23,8 +21,8 @@ export namespace NestiaMigrateFileArchiver {
       for (const s of sequence) await mkdir.get(s);
     };
     for (const [key, value] of Object.entries(props.files)) {
-      await iterate(path.dirname(key));
-      await props.writeFile(path.join(root, key), value);
+      await iterate(key.split("/").slice(0, -1).join("/"));
+      await props.writeFile(`${props.root}/${key}`, value);
     }
   };
 }
