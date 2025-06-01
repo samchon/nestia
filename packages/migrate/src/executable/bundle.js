@@ -52,14 +52,12 @@ const bundle = async ({ mode, repository, exceptions, transform }) => {
       if (stats.isDirectory()) await iterate(collection)(absolute);
       else {
         const content = await fs.promises.readFile(absolute, "utf-8");
-        collection.push({
-          location: (() => {
-            const str = location.replace(template, "");
+        collection[
+          (() => {
+            const str = absolute.replace(template, "");
             return str[0] === "/" ? str.substring(1) : str;
-          })(),
-          file,
-          content,
-        });
+          })()
+        ] = content;
       }
     }
   };
@@ -67,7 +65,7 @@ const bundle = async ({ mode, repository, exceptions, transform }) => {
   const archive = async (collection) => {
     const name = `${mode.toUpperCase()}_TEMPLATE`;
     const body = JSON.stringify(collection, null, 2);
-    const content = `export const ${name} = ${body}`;
+    const content = `export const ${name}: Record<string, string> = ${body}`;
 
     try {
       await fs.promises.mkdir(`${ROOT}/src/bundles`);
@@ -79,10 +77,12 @@ const bundle = async ({ mode, repository, exceptions, transform }) => {
     );
   };
 
-  const collection = [];
+  const collection = {};
   await clone();
   await iterate(collection)(template);
-  if (transform) for (const it of collection) transform(it);
+  if (transform)
+    for (const [key, value] of Object.entries(collection))
+      collection[key] = transform(key, value);
   await archive(collection);
 };
 
@@ -100,8 +100,9 @@ const main = async () => {
       "src/providers",
       "test/features",
     ],
-    transform: (it) => {
-      if (it.file === "package.json") it.content = update(it.content);
+    transform: (key, value) => {
+      if (key === "package.json") return update(value);
+      return value;
     },
   });
   await bundle({
@@ -116,8 +117,9 @@ const main = async () => {
       "src/structures",
       "test/features",
     ],
-    transform: (it) => {
-      if (it.file === "package.json") it.content = update(it.content);
+    transform: (key, value) => {
+      if (key === "package.json") return update(value);
+      return value;
     },
   });
 };

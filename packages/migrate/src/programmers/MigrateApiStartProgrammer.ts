@@ -5,13 +5,14 @@ import { StatementFactory } from "typia/lib/factories/StatementFactory";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
-import { INestiaMigrateFile } from "../structures/INestiaMigrateFile";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateE2eFunctionProgrammer } from "./MigrateE2eFileProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateApiStartProgrammer {
-  export const write = (program: INestiaMigrateContext): INestiaMigrateFile => {
+  export const write = (
+    program: INestiaMigrateContext,
+  ): Record<string, string> => {
     const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
     const main: ts.VariableStatement = writeMain(program.config)(
       program.document,
@@ -42,9 +43,7 @@ export namespace MigrateApiStartProgrammer {
       ts.factory.createExpressionStatement(writeStarter()),
     ];
     return {
-      location: `test`,
-      file: "start.ts",
-      content: FilePrinter.write({ statements }),
+      "test/start.ts": FilePrinter.write({ statements }),
     };
   };
 

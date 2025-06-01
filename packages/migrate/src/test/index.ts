@@ -4,8 +4,8 @@ import fs from "fs";
 import { IValidation } from "typia";
 
 import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
-import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
-import { MigrateCommander } from "../internal/MigrateCommander";
+import { NestiaMigrateFileArchiver } from "../archivers/NestiaMigrateFileArchiver";
+import { NestiaMigrateCommander } from "../executable/NestiaMigrateCommander";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 
 const INPUT: string = `${__dirname}/../../assets/input`;
@@ -37,7 +37,7 @@ const execute = (
       );
 
     const app: NestiaMigrateApplication = result.data;
-    const { files } =
+    const files: Record<string, string> =
       mode === "nest"
         ? app.nest({
             ...config,
@@ -48,15 +48,17 @@ const execute = (
             package: project,
           });
 
-    await MigrateFileArchiver.archive({
+    await NestiaMigrateFileArchiver.archive({
       mkdir: fs.promises.mkdir,
       writeFile: async (file, content) =>
         fs.promises.writeFile(
           file,
-          await MigrateCommander.beautify(content),
+          await NestiaMigrateCommander.beautify(content),
           "utf-8",
         ),
-    })(directory)(files);
+      root: directory,
+      files,
+    });
     cp.execSync(`npx tsc -p ${directory}/tsconfig.json`, {
       stdio: "ignore",
       cwd: directory,

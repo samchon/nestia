@@ -3,7 +3,6 @@ import ts from "typescript";
 import { MigrateControllerAnalyzer } from "../analyzers/MigrateControllerAnalyzer";
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
-import { INestiaMigrateFile } from "../structures/INestiaMigrateFile";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateDtoProgrammer } from "./MigrateDtoProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
@@ -13,38 +12,40 @@ import { MigrateNestModuleProgrammer } from "./MigrateNestModuleProgrammer";
 export namespace MigrateNestProgrammer {
   export const write = (
     program: INestiaMigrateContext,
-  ): INestiaMigrateFile[] => {
+  ): Record<string, string> => {
     const controllers: INestiaMigrateController[] =
       MigrateControllerAnalyzer.analyze({
         routes: program.routes,
       });
-    return [
-      {
-        location: "src",
-        file: "MyModule.ts",
-        statements: MigrateNestModuleProgrammer.write(controllers),
-      },
-      ...controllers.map((c) => ({
-        location: c.location,
-        file: `${c.name}.ts`,
-        statements: MigrateNestControllerProgrammer.write(program.config)(
-          program.document.components,
-        )(c),
-      })),
+    const statements: [string, ts.Statement[]][] = [
+      ["src/MyModule.ts", MigrateNestModuleProgrammer.write(controllers)],
+      ...controllers.map(
+        (c) =>
+          [
+            `${c.location}/${c.name}.ts`,
+            MigrateNestControllerProgrammer.write(program.config)(
+              program.document.components,
+            )(c),
+          ] satisfies [string, ts.Statement[]],
+      ),
       ...[
         ...MigrateDtoProgrammer.compose(program.config)(
           program.document.components,
         ).entries(),
-      ].map(([key, value]) => ({
-        location: "src/api/structures",
-        file: `${key}.ts`,
-        statements: writeDtoFile(key, value),
-      })),
-    ].map((o) => ({
-      location: o.location,
-      file: o.file,
-      content: FilePrinter.write({ statements: o.statements }),
-    }));
+      ].map(
+        ([key, value]) =>
+          [`src/api/structures/${key}.ts`, writeDtoFile(key, value)] satisfies [
+            string,
+            ts.Statement[],
+          ],
+      ),
+    ];
+    return Object.fromEntries(
+      statements.map(([key, value]) => [
+        key,
+        FilePrinter.write({ statements: value }),
+      ]),
+    );
   };
 
   const writeDtoFile = (

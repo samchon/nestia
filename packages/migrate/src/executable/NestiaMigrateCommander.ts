@@ -7,14 +7,15 @@ import jsDoc from "prettier-plugin-jsdoc";
 import typia, { IValidation, tags } from "typia";
 
 import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
-import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
-import { MigrateInquirer } from "./MigrateInquirer";
+import { NestiaMigrateFileArchiver } from "../archivers/NestiaMigrateFileArchiver";
+import { NestiaMigrateInquirer } from "./NestiaMigrateInquirer";
 
-export namespace MigrateCommander {
+export namespace NestiaMigrateCommander {
   export const main = async (): Promise<void> => {
     const resolve = (str: string | undefined) =>
       str ? path.resolve(str).split("\\").join("/") : undefined;
-    const options: MigrateInquirer.IOutput = await MigrateInquirer.parse();
+    const options: NestiaMigrateInquirer.IOutput =
+      await NestiaMigrateInquirer.parse();
 
     // VALIDATE OUTPUT DIRECTORY
     const parent: string = resolve(options.output + "/..")!;
@@ -56,19 +57,21 @@ export namespace MigrateCommander {
     }
 
     const app: NestiaMigrateApplication = result.data;
-    const program =
+    const files: Record<string, string> =
       options.mode === "nest" ? app.nest(options) : app.sdk(options);
-    if (program.errors)
-      for (const error of program.errors)
+    if (app.getErrors())
+      for (const error of app.getErrors())
         console.error(
           `Failed to migrate ${error.method} ${error.path}`,
           ...error.messages.map((msg) => `  - ${msg}`),
         );
-    await MigrateFileArchiver.archive({
+    await NestiaMigrateFileArchiver.archive({
       mkdir: fs.promises.mkdir,
       writeFile: async (file, content) =>
         fs.promises.writeFile(file, await beautify(content), "utf-8"),
-    })(options.output)(program.files);
+      root: options.output,
+      files,
+    });
   };
 
   export const beautify = async (script: string): Promise<string> => {

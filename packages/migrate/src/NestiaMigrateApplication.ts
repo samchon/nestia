@@ -1,4 +1,5 @@
 import {
+  HttpMigration,
   IHttpMigrateApplication,
   OpenApi,
   OpenApiV3,
@@ -19,7 +20,11 @@ import { INestiaMigrateContext } from "./structures/INestiaMigrateContext";
 import { INestiaMigrateFile } from "./structures/INestiaMigrateFile";
 
 export class NestiaMigrateApplication {
-  public constructor(public readonly document: OpenApi.IDocument) {}
+  private readonly application_: IHttpMigrateApplication;
+
+  public constructor(public readonly document: OpenApi.IDocument) {
+    this.application_ = HttpMigration.application(document);
+  }
 
   public static assert(
     document:
@@ -53,8 +58,12 @@ export class NestiaMigrateApplication {
     };
   }
 
-  public nest(config: INestiaMigrateConfig): MigrateApplication.IOutput {
-    const program: INestiaMigrateContext = MigrateApplicationAnalyzer.analyze(
+  public getErrors(): IHttpMigrateApplication.IError[] {
+    return this.application_.errors;
+  }
+
+  public nest(config: INestiaMigrateConfig): Record<string, string> {
+    const context: INestiaMigrateContext = MigrateApplicationAnalyzer.analyze(
       "nest",
       this.document,
       {
@@ -63,66 +72,56 @@ export class NestiaMigrateApplication {
         author: config.author,
       },
     );
-    const output: MigrateApplication.IOutput = {
-      context: program,
-      files: [
-        ...NEST_TEMPLATE.filter(
-          (f) =>
-            f.location.startsWith("src/api/structures") === false &&
-            f.location.startsWith("src/api/functional") === false &&
-            f.location.startsWith("src/api/controllers") === false &&
-            f.location.startsWith("test/features") === false,
+    const files: Record<string, string> = {
+      ...Object.fromEntries(
+        Object.entries(NEST_TEMPLATE).filter(
+          ([key]) =>
+            key.startsWith("src/api/structures") === false &&
+            key.startsWith("src/api/functional") === false &&
+            key.startsWith("src/api/controllers") === false &&
+            key.startsWith("test/features") === false,
         ),
-        ...MigrateNestProgrammer.write(program),
-        ...MigrateApiProgrammer.write(program),
-        ...(config.e2e ? MigrateE2eProgrammer.write(program) : []),
-      ],
-      errors: program.errors,
+      ),
+      ...MigrateNestProgrammer.write(context),
+      ...MigrateApiProgrammer.write(context),
+      ...(config.e2e ? MigrateE2eProgrammer.write(context) : {}),
     };
-    return this.finalize(config, output);
+    return config.package ? this.rename(config.package, files) : files;
   }
 
-  public sdk(config: INestiaMigrateConfig): MigrateApplication.IOutput {
+  public sdk(config: INestiaMigrateConfig): Record<string, string> {
     const program: INestiaMigrateContext = MigrateApplicationAnalyzer.analyze(
       "sdk",
       this.document,
       config,
     );
-    const output: MigrateApplication.IOutput = {
-      context: program,
-      files: [
-        ...SDK_TEMPLATE.filter(
-          (f) =>
-            f.location.startsWith("src/structures") === false &&
-            f.location.startsWith("src/functional") === false &&
-            f.location.startsWith("test/features") === false,
+    const files: Record<string, string> = {
+      ...Object.fromEntries(
+        Object.entries(SDK_TEMPLATE).filter(
+          ([key]) =>
+            key.startsWith("src/structures") === false &&
+            key.startsWith("src/functional") === false &&
+            key.startsWith("test/features") === false,
         ),
-        ...MigrateApiProgrammer.write(program),
-        MigrateApiStartProgrammer.write(program),
-        ...(config.e2e ? MigrateE2eProgrammer.write(program) : []),
-        {
-          location: "",
-          file: "swagger.json",
-          content: JSON.stringify(this.document, null, 2),
-        },
-      ],
-      errors: program.errors,
+      ),
+      ...MigrateApiProgrammer.write(program),
+      ...MigrateApiStartProgrammer.write(program),
+      ...(config.e2e ? MigrateE2eProgrammer.write(program) : {}),
+      "swagger.json": JSON.stringify(this.document, null, 2),
     };
-    return this.finalize(config, output);
+    return config.package ? this.rename(config.package, files) : files;
   }
 
-  private finalize(
-    config: INestiaMigrateConfig,
-    output: MigrateApplication.IOutput,
-  ): MigrateApplication.IOutput {
-    if (config.package)
-      output.files = output.files.map((file) => ({
-        ...file,
-        content: file.content
-          .split(`@ORGANIZATION/PROJECT`)
-          .join(config.package),
-      }));
-    return output;
+  private rename(
+    slug: string,
+    files: Record<string, string>,
+  ): Record<string, string> {
+    return Object.fromEntries(
+      Object.entries(files).map(([key, value]) => [
+        key,
+        value.split(`@ORGANIZATION/PROJECT`).join(slug),
+      ]),
+    );
   }
 }
 export namespace MigrateApplication {
