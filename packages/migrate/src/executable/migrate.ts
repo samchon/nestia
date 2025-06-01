@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import { MigrateCommander } from "../internal/MigrateCommander";
+import { NestiaMigrateCommander } from "./NestiaMigrateCommander";
 
-MigrateCommander.main().catch((exp) => {
+NestiaMigrateCommander.main().catch((exp) => {
   console.error(exp);
   process.exit(-1);
 });

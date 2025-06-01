@@ -8,8 +8,14 @@ import { MigrateE2eFunctionProgrammer } from "./MigrateE2eFileProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateE2eProgrammer {
-  export const write = (program: INestiaMigrateContext): INestiaMigrateFile[] =>
-    program.routes.map(writeFile(program.document.components));
+  export const write = (
+    program: INestiaMigrateContext,
+  ): Record<string, string> =>
+    Object.fromEntries(
+      program.routes
+        .map(writeFile(program.document.components))
+        .map((r) => [`${r.location}/${r.file}`, r.content]),
+    );
 
   const writeFile =
     (components: OpenApi.IComponents) =>

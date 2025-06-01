@@ -2,7 +2,6 @@ import { HashMap, hash } from "tstl";
 import ts from "typescript";
 
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
-import { INestiaMigrateFile } from "../structures/INestiaMigrateFile";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateApiFileProgrammer } from "./MigrateApiFileProgrammer";
 import { MigrateDtoProgrammer } from "./MigrateDtoProgrammer";
@@ -11,7 +10,7 @@ import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 export namespace MigrateApiProgrammer {
   export const write = (
     program: INestiaMigrateContext,
-  ): INestiaMigrateFile[] => {
+  ): Record<string, string> => {
     const dict: HashMap<string[], MigrateApiFileProgrammer.IProps> =
       new HashMap(
         (x) => hash(x.join(".")),
@@ -41,30 +40,24 @@ export namespace MigrateApiProgrammer {
     }
 
     // DO GENERATE
-    const output: INestiaMigrateFile[] = [...dict].map(({ second: props }) => ({
-      location: `src/${program.mode === "nest" ? "api/" : ""}functional/${props.namespace.join("/")}`,
-      file: "index.ts",
-      content: FilePrinter.write({
-        statements: MigrateApiFileProgrammer.write(program.config)(
-          program.document.components,
-        )(props),
-      }),
-    }));
-    if (program.mode === "sdk")
-      output.push(
-        ...[
-          ...MigrateDtoProgrammer.compose(program.config)(
+    const files: Record<string, string> = Object.fromEntries(
+      dict.toJSON().map(({ second: value }) => [
+        `src/${program.mode === "nest" ? "api/" : ""}functional/${value.namespace.join("/")}/index.ts`,
+        FilePrinter.write({
+          statements: MigrateApiFileProgrammer.write(program.config)(
             program.document.components,
-          ).entries(),
-        ].map(([key, value]) => ({
-          location: "src/structures",
-          file: `${key}.ts`,
-          content: FilePrinter.write({
-            statements: writeDtoFile(key, value),
-          }),
-        })),
-      );
-    return output;
+          )(value),
+        }),
+      ]),
+    );
+    if (program.mode === "sdk")
+      for (const [key, value] of MigrateDtoProgrammer.compose(program.config)(
+        program.document.components,
+      ).entries())
+        files[`src/structures/${key}.ts`] = FilePrinter.write({
+          statements: writeDtoFile(key, value),
+        });
+    return files;
   };
 
   const writeDtoFile = (
@@ -74,7 +67,6 @@ export namespace MigrateApiProgrammer {
     const importer = new MigrateImportProgrammer();
     const statements: ts.Statement[] = iterate(importer)(modulo);
     if (statements.length === 0) return [];
-
     return [
       ...importer.toStatements((name) => `./${name}`, key),
       ...(importer.empty() ? [] : [FilePrinter.newLine()]),

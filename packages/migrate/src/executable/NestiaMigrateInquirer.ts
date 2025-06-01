@@ -1,7 +1,7 @@
 import commander from "commander";
 import inquirer from "inquirer";
 
-export namespace MigrateInquirer {
+export namespace NestiaMigrateInquirer {
   export interface IOutput {
     mode: "nest" | "sdk";
     input: string;
