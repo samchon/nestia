@@ -1,15 +1,17 @@
 import { HashMap, hash } from "tstl";
 import ts from "typescript";
 
-import { IHttpMigrateFile } from "../structures/IHttpMigrateFile";
-import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
+import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
+import { INestiaMigrateFile } from "../structures/INestiaMigrateFile";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateApiFileProgrammer } from "./MigrateApiFileProgrammer";
 import { MigrateDtoProgrammer } from "./MigrateDtoProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateApiProgrammer {
-  export const write = (program: IHttpMigrateProgram): IHttpMigrateFile[] => {
+  export const write = (
+    program: INestiaMigrateContext,
+  ): INestiaMigrateFile[] => {
     const dict: HashMap<string[], MigrateApiFileProgrammer.IProps> =
       new HashMap(
         (x) => hash(x.join(".")),
@@ -39,11 +41,11 @@ export namespace MigrateApiProgrammer {
     }
 
     // DO GENERATE
-    const output: IHttpMigrateFile[] = [...dict].map(({ second: props }) => ({
+    const output: INestiaMigrateFile[] = [...dict].map(({ second: props }) => ({
       location: `src/${program.mode === "nest" ? "api/" : ""}functional/${props.namespace.join("/")}`,
       file: "index.ts",
       content: FilePrinter.write({
-        statements: MigrateApiFileProgrammer.write(program)(
+        statements: MigrateApiFileProgrammer.write(program.config)(
           program.document.components,
         )(props),
       }),
@@ -51,7 +53,7 @@ export namespace MigrateApiProgrammer {
     if (program.mode === "sdk")
       output.push(
         ...[
-          ...MigrateDtoProgrammer.compose(program)(
+          ...MigrateDtoProgrammer.compose(program.config)(
             program.document.components,
           ).entries(),
         ].map(([key, value]) => ({

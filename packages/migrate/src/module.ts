@@ -1,8 +1,8 @@
-export * from "./MigrateApplication";
+export * from "./NestiaMigrateApplication";
 
 export * from "./analyzers/MigrateApplicationAnalyzer";
 
 export * from "./archivers/MigrateFileArchiver";
 
-export * from "./structures/IHttpMigrateProgram";
-export * from "./structures/IHttpMigrateSchema";
+export * from "./structures/INestiaMigrateContext";
+export * from "./structures/INestiaMigrateSchema";

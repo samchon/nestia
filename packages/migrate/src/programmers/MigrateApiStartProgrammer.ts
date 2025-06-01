@@ -1,21 +1,21 @@
-import { OpenApi } from "@samchon/openapi";
+import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
 
-import { IHttpMigrateFile } from "../structures/IHttpMigrateFile";
-import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
-import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
+import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
+import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
+import { INestiaMigrateFile } from "../structures/INestiaMigrateFile";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateE2eFunctionProgrammer } from "./MigrateE2eFileProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateApiStartProgrammer {
-  export const write = (program: IHttpMigrateProgram): IHttpMigrateFile => {
+  export const write = (program: INestiaMigrateContext): INestiaMigrateFile => {
     const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
-    const main: ts.VariableStatement = writeMain(program)(program.document)(
-      importer,
-    )(pick(program.routes));
+    const main: ts.VariableStatement = writeMain(program.config)(
+      program.document,
+    )(importer)(pick(program.routes));
     const statements: ts.Statement[] = [
       ...importer.toStatements(
         (name) => `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,
@@ -49,7 +49,7 @@ export namespace MigrateApiStartProgrammer {
   };
 
   const writeMain =
-    (config: IHttpMigrateProgram.IConfig) =>
+    (config: INestiaMigrateConfig) =>
     (document: OpenApi.IDocument) =>
     (importer: MigrateImportProgrammer) =>
     (route: IHttpMigrateRoute): ts.VariableStatement =>
@@ -74,7 +74,7 @@ export namespace MigrateApiStartProgrammer {
       });
 
   const writeConnection =
-    (config: IHttpMigrateProgram.IConfig) =>
+    (config: INestiaMigrateConfig) =>
     (document: OpenApi.IDocument) =>
     (importer: MigrateImportProgrammer): ts.VariableStatement =>
       ts.factory.createVariableStatement(

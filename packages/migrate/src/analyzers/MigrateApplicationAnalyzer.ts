@@ -1,16 +1,24 @@
-import { HttpMigration, IHttpMigrateApplication } from "@samchon/openapi";
+import {
+  HttpMigration,
+  IHttpMigrateApplication,
+  OpenApi,
+} from "@samchon/openapi";
 
-import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
+import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
+import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 
 export namespace MigrateApplicationAnalyzer {
   export const analyze = (
-    props: IHttpMigrateProgram.IProps,
-  ): IHttpMigrateProgram => {
-    const application: IHttpMigrateApplication = HttpMigration.application(
-      props.document,
-    );
+    mode: "nest" | "sdk",
+    document: OpenApi.IDocument,
+    config: INestiaMigrateConfig,
+  ): INestiaMigrateContext => {
+    const application: IHttpMigrateApplication =
+      HttpMigration.application(document);
     return {
-      ...props,
+      mode,
+      document,
+      config,
       routes: application.routes,
       errors: application.errors,
     };

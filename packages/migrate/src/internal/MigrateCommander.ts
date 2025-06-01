@@ -6,7 +6,7 @@ import { format } from "prettier";
 import jsDoc from "prettier-plugin-jsdoc";
 import typia, { IValidation, tags } from "typia";
 
-import { MigrateApplication } from "../MigrateApplication";
+import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
 import { MigrateFileArchiver } from "../archivers/MigrateFileArchiver";
 import { MigrateInquirer } from "./MigrateInquirer";
 
@@ -46,8 +46,8 @@ export namespace MigrateCommander {
       return JSON.parse(content);
     })();
 
-    const result: IValidation<MigrateApplication> =
-      MigrateApplication.create(document);
+    const result: IValidation<NestiaMigrateApplication> =
+      NestiaMigrateApplication.validate(document);
     if (result.success === false) {
       console.log(result.errors);
       throw new Error(
@@ -55,7 +55,7 @@ export namespace MigrateCommander {
       );
     }
 
-    const app: MigrateApplication = result.data;
+    const app: NestiaMigrateApplication = result.data;
     const program =
       options.mode === "nest" ? app.nest(options) : app.sdk(options);
     if (program.errors)

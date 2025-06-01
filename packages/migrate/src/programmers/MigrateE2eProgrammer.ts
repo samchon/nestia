@@ -1,20 +1,19 @@
-import { OpenApi } from "@samchon/openapi";
+import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 
-import { IHttpMigrateFile } from "../structures/IHttpMigrateFile";
-import { IHttpMigrateProgram } from "../structures/IHttpMigrateProgram";
-import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
+import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
+import { INestiaMigrateFile } from "../structures/INestiaMigrateFile";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateE2eFunctionProgrammer } from "./MigrateE2eFileProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateE2eProgrammer {
-  export const write = (program: IHttpMigrateProgram): IHttpMigrateFile[] =>
+  export const write = (program: INestiaMigrateContext): INestiaMigrateFile[] =>
     program.routes.map(writeFile(program.document.components));
 
   const writeFile =
     (components: OpenApi.IComponents) =>
-    (route: IHttpMigrateRoute): IHttpMigrateFile => {
+    (route: IHttpMigrateRoute): INestiaMigrateFile => {
       const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
       const func: ts.FunctionDeclaration =
         MigrateE2eFunctionProgrammer.write(components)(importer)(route);

@@ -1,10 +1,9 @@
-import { OpenApi } from "@samchon/openapi";
+import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
-import { IHttpMigrateRoute } from "../structures/IHttpMigrateRoute";
 import { MigrateApiFunctionProgrammer } from "./MigrateApiFunctionProgrammer";
 import { MigrateApiNamespaceProgrammer } from "./MigrateApiNamespaceProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
