@@ -5,7 +5,7 @@ import { IValidation } from "typia";
 
 import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
 import { NestiaMigrateFileArchiver } from "../archivers/NestiaMigrateFileArchiver";
-// import { NestiaMigrateCommander } from "../executable/NestiaMigrateCommander";
+import { NestiaMigrateCommander } from "../executable/NestiaMigrateCommander";
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 
 const INPUT: string = `${__dirname}/../../assets/input`;
@@ -53,8 +53,7 @@ const execute = (
       writeFile: async (file, content) =>
         fs.promises.writeFile(
           file,
-          content,
-          // await NestiaMigrateCommander.beautify(content),
+          await NestiaMigrateCommander.beautify(content),
           "utf-8",
         ),
       root: directory,
