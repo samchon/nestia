@@ -9,11 +9,13 @@ export namespace NestiaMigrateFileArchiver {
     files: Record<string, string>;
   }): Promise<void> => {
     const root: string = path.resolve(props.root);
-    const mkdir = new VariadicSingleton(async (location: string) => {
-      try {
-        await props.mkdir(`${root}/${location}`);
-      } catch {}
-    });
+    const mkdir = new VariadicSingleton(
+      async (location: string): Promise<void> => {
+        try {
+          await props.mkdir(path.resolve(`${root}/${location}`));
+        } catch {}
+      },
+    );
     const iterate = async (location: string): Promise<void> => {
       const sequence: string[] = location
         .split("/")
