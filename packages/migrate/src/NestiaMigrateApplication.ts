@@ -8,7 +8,6 @@ import {
 } from "@samchon/openapi";
 import typia, { IValidation } from "typia";
 
-import { MigrateApplicationAnalyzer } from "./analyzers/MigrateApplicationAnalyzer";
 import { NEST_TEMPLATE } from "./bundles/NEST_TEMPLATE";
 import { SDK_TEMPLATE } from "./bundles/SDK_TEMPLATE";
 import { MigrateApiProgrammer } from "./programmers/MigrateApiProgrammer";
@@ -63,7 +62,7 @@ export class NestiaMigrateApplication {
   }
 
   public nest(config: INestiaMigrateConfig): Record<string, string> {
-    const context: INestiaMigrateContext = MigrateApplicationAnalyzer.analyze(
+    const context: INestiaMigrateContext = createContext(
       "nest",
       this.document,
       {
@@ -90,7 +89,7 @@ export class NestiaMigrateApplication {
   }
 
   public sdk(config: INestiaMigrateConfig): Record<string, string> {
-    const program: INestiaMigrateContext = MigrateApplicationAnalyzer.analyze(
+    const context: INestiaMigrateContext = createContext(
       "sdk",
       this.document,
       config,
@@ -104,9 +103,9 @@ export class NestiaMigrateApplication {
             key.startsWith("test/features") === false,
         ),
       ),
-      ...MigrateApiProgrammer.write(program),
-      ...MigrateApiStartProgrammer.write(program),
-      ...(config.e2e ? MigrateE2eProgrammer.write(program) : {}),
+      ...MigrateApiProgrammer.write(context),
+      ...MigrateApiStartProgrammer.write(context),
+      ...(config.e2e ? MigrateE2eProgrammer.write(context) : {}),
       "swagger.json": JSON.stringify(this.document, null, 2),
     };
     return config.package ? this.rename(config.package, files) : files;
@@ -131,3 +130,19 @@ export namespace MigrateApplication {
     errors: IHttpMigrateApplication.IError[];
   }
 }
+
+const createContext = (
+  mode: "nest" | "sdk",
+  document: OpenApi.IDocument,
+  config: INestiaMigrateConfig,
+): INestiaMigrateContext => {
+  const application: IHttpMigrateApplication =
+    HttpMigration.application(document);
+  return {
+    mode,
+    document,
+    config,
+    routes: application.routes,
+    errors: application.errors,
+  };
+};

@@ -9,16 +9,18 @@ import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateApiProgrammer {
   export const write = (
-    program: INestiaMigrateContext,
+    context: INestiaMigrateContext,
   ): Record<string, string> => {
     const dict: HashMap<string[], MigrateApiFileProgrammer.IProps> =
       new HashMap(
         (x) => hash(x.join(".")),
         (x, y) => x.length === y.length && x.join(".") === y.join("."),
       );
-    for (const route of program.routes) {
+    for (const route of context.routes) {
       const namespace: string[] = route.accessor.slice(0, -1);
       let last: MigrateApiFileProgrammer.IProps = dict.take(namespace, () => ({
+        config: context.config,
+        components: context.document.components,
         namespace,
         routes: [],
         children: new Set(),
@@ -29,6 +31,8 @@ export namespace MigrateApiProgrammer {
         const props: MigrateApiFileProgrammer.IProps = dict.take(
           partial,
           () => ({
+            config: context.config,
+            components: context.document.components,
             namespace: partial,
             children: new Set(),
             routes: [],
@@ -42,18 +46,21 @@ export namespace MigrateApiProgrammer {
     // DO GENERATE
     const files: Record<string, string> = Object.fromEntries(
       dict.toJSON().map(({ second: value }) => [
-        `src/${program.mode === "nest" ? "api/" : ""}functional/${value.namespace.join("/")}/index.ts`,
+        `src/${context.mode === "nest" ? "api/" : ""}functional/${value.namespace.join("/")}/index.ts`,
         FilePrinter.write({
-          statements: MigrateApiFileProgrammer.write(program.config)(
-            program.document.components,
-          )(value),
+          statements: MigrateApiFileProgrammer.write({
+            ...value,
+            config: context.config,
+            components: context.document.components,
+          }),
         }),
       ]),
     );
-    if (program.mode === "sdk")
-      for (const [key, value] of MigrateDtoProgrammer.compose(program.config)(
-        program.document.components,
-      ).entries())
+    if (context.mode === "sdk")
+      for (const [key, value] of MigrateDtoProgrammer.compose({
+        config: context.config,
+        components: context.document.components,
+      }).entries())
         files[`src/structures/${key}.ts`] = FilePrinter.write({
           statements: writeDtoFile(key, value),
         });

@@ -5,23 +5,23 @@ import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
 
 export namespace MigrateControllerAnalyzer {
-  export const analyze = (props: {
-    routes: IHttpMigrateRoute[];
-  }): INestiaMigrateController[] => {
+  export const analyze = (
+    routes: IHttpMigrateRoute[],
+  ): INestiaMigrateController[] => {
     const collection: Map<string, INestiaMigrateController> = new Map();
-    for (const route of props.routes) {
+    for (const r of routes) {
       const name: string =
-        route.operation()["x-samchon-controller"] ??
-        (route.accessor.length <= 1
+        r.operation()["x-samchon-controller"] ??
+        (r.accessor.length <= 1
           ? "__App"
-          : route.accessor.slice(0, -1).map(StringUtil.capitalize).join("")) +
+          : r.accessor.slice(0, -1).map(StringUtil.capitalize).join("")) +
           "Controller";
       MapUtil.take(collection)(name)(() => ({
         name,
         path: "@lazy",
         location: "@lazy",
         routes: [],
-      })).routes.push(route);
+      })).routes.push(r);
     }
 
     const controllers: INestiaMigrateController[] = [...collection.values()];

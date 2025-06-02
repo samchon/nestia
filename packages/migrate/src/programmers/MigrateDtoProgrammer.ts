@@ -18,22 +18,23 @@ export namespace MigrateDtoProgrammer {
       | ((importer: MigrateImportProgrammer) => ts.TypeAliasDeclaration);
   }
 
-  export const compose =
-    (config: INestiaMigrateConfig) =>
-    (components: OpenApi.IComponents): Map<string, IModule> => {
-      const dict: Map<string, IModule> = new Map();
-      for (const [key, value] of Object.entries(components.schemas ?? {})) {
-        const emendedKey: string = key
-          .split("/")
-          .filter((str) => str.length !== 0)
-          .map(StringUtil.escapeNonVariable)
-          .join("");
-        prepare(dict)(emendedKey)((importer) =>
-          writeAlias(config)(components)(importer)(emendedKey, value),
-        );
-      }
-      return dict;
-    };
+  export const compose = (props: {
+    config: INestiaMigrateConfig;
+    components: OpenApi.IComponents;
+  }): Map<string, IModule> => {
+    const dict: Map<string, IModule> = new Map();
+    for (const [key, value] of Object.entries(props.components.schemas ?? {})) {
+      const emendedKey: string = key
+        .split("/")
+        .filter((str) => str.length !== 0)
+        .map(StringUtil.escapeNonVariable)
+        .join("");
+      prepare(dict)(emendedKey)((importer) =>
+        writeAlias(props.config)(props.components)(importer)(emendedKey, value),
+      );
+    }
+    return dict;
+  };
 
   const prepare =
     (dict: Map<string, IModule>) =>
@@ -68,7 +69,11 @@ export namespace MigrateDtoProgrammer {
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
           key.split(".").at(-1)!,
           [],
-          MigrateSchemaProgrammer.write(components)(importer)(value),
+          MigrateSchemaProgrammer.write({
+            components,
+            importer,
+            schema: value,
+          }),
         ),
         writeComment(config)(value, key.indexOf(".") === -1),
       );
