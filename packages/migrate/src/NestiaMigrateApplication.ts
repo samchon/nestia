@@ -65,11 +65,7 @@ export class NestiaMigrateApplication {
     const context: INestiaMigrateContext = createContext(
       "nest",
       this.document,
-      {
-        simulate: config.simulate,
-        e2e: config.e2e,
-        author: config.author,
-      },
+      config,
     );
     const files: Record<string, string> = {
       ...Object.fromEntries(

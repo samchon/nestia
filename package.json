@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/station",
-  "version": "6.0.6",
+  "version": "7.0.0-dev.20250604",
   "description": "Nestia station",
   "scripts": {
     "build": "node deploy build",

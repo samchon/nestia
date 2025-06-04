@@ -15,6 +15,7 @@ export namespace MigrateApiFileProgrammer {
     routes: IHttpMigrateRoute[];
     children: Set<string>;
   }
+
   export const write = (props: IProps): ts.Statement[] => {
     const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
     const statements: ts.Statement[] = props.routes

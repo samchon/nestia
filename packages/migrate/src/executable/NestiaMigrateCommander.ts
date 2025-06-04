@@ -19,11 +19,12 @@ export namespace NestiaMigrateCommander {
 
     // VALIDATE OUTPUT DIRECTORY
     const parent: string = resolve(options.output + "/..")!;
-    if (fs.existsSync(options.output)) halt("Output directory already exists.");
+    if (fs.existsSync(options.output))
+      halt("Response directory already exists.");
     else if (fs.existsSync(parent) === false)
-      halt("Output directory's parent directory does not exist.");
+      halt("Response directory's parent directory does not exist.");
     else if (fs.statSync(parent).isDirectory() === false)
-      halt("Output directory's parent is not a directory.");
+      halt("Response directory's parent is not a directory.");
 
     // READ SWAGGER
     const document:
