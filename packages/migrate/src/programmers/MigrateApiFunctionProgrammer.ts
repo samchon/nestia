@@ -30,7 +30,7 @@ export namespace MigrateApiFunctionProgrammer {
           ts.factory.createTypeReferenceNode(
             ctx.route.success === null
               ? "void"
-              : `${ctx.route.accessor.at(-1)!}.Output`,
+              : `${ctx.route.accessor.at(-1)!}.Response`,
           ),
         ]),
         ts.factory.createBlock(writeBody(ctx), true),
@@ -40,8 +40,8 @@ export namespace MigrateApiFunctionProgrammer {
 
   export const writeParameterDeclarations = (
     ctx: IContext,
-  ): ts.ParameterDeclaration[] => [
-    IdentifierFactory.parameter(
+  ): ts.ParameterDeclaration[] => {
+    const connection: ts.ParameterDeclaration = IdentifierFactory.parameter(
       "connection",
       ts.factory.createTypeReferenceNode(
         ctx.importer.external({
@@ -57,43 +57,65 @@ export namespace MigrateApiFunctionProgrammer {
             ]
           : undefined,
       ),
-    ),
-    ...ctx.route.parameters.map((p) =>
-      IdentifierFactory.parameter(
-        p.key,
-        MigrateSchemaProgrammer.write({
-          components: ctx.components,
-          importer: ctx.importer,
-          schema: p.schema,
-        }),
+    );
+    if (ctx.config.keyword === true) {
+      const isProps: boolean =
+        ctx.route.parameters.length > 0 ||
+        !!ctx.route.query ||
+        !!ctx.route.body;
+      if (isProps === false) return [connection];
+      return [
+        connection,
+        ts.factory.createParameterDeclaration(
+          undefined,
+          undefined,
+          "props",
+          undefined,
+          ts.factory.createTypeReferenceNode(
+            `${ctx.route.accessor.at(-1)!}.IProps`,
+          ),
+        ),
+      ];
+    }
+    return [
+      connection,
+      ...ctx.route.parameters.map((p) =>
+        IdentifierFactory.parameter(
+          p.key,
+          MigrateSchemaProgrammer.write({
+            components: ctx.components,
+            importer: ctx.importer,
+            schema: p.schema,
+          }),
+        ),
       ),
-    ),
-    ...(ctx.route.query
-      ? [
-          IdentifierFactory.parameter(
-            ctx.route.query.key,
-            ts.factory.createTypeReferenceNode(
-              `${ctx.route.accessor.at(-1)!}.Query`,
+      ...(ctx.route.query
+        ? [
+            IdentifierFactory.parameter(
+              ctx.route.query.key,
+              ts.factory.createTypeReferenceNode(
+                `${ctx.route.accessor.at(-1)!}.Query`,
+              ),
             ),
-          ),
-        ]
-      : []),
-    ...(ctx.route.body
-      ? [
-          IdentifierFactory.parameter(
-            ctx.route.body.key,
-            ts.factory.createTypeReferenceNode(
-              `${ctx.route.accessor.at(-1)!}.Input`,
+          ]
+        : []),
+      ...(ctx.route.body
+        ? [
+            IdentifierFactory.parameter(
+              ctx.route.body.key,
+              ts.factory.createTypeReferenceNode(
+                `${ctx.route.accessor.at(-1)!}.RequestBody`,
+              ),
+              (ctx.route.body.type === "application/json" ||
+                ctx.route.body.type === "text/plain") &&
+                ctx.route.operation().requestBody?.required === false
+                ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
+                : undefined,
             ),
-            (ctx.route.body.type === "application/json" ||
-              ctx.route.body.type === "text/plain") &&
-              ctx.route.operation().requestBody?.required === false
-              ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
-              : undefined,
-          ),
-        ]
-      : []),
-  ];
+          ]
+        : []),
+    ];
+  };
 
   const writeDescription = (
     config: INestiaMigrateConfig,
@@ -109,7 +131,14 @@ export namespace MigrateApiFunctionProgrammer {
     const encrypted: boolean = !!ctx.route.success?.["x-nestia-encrypted"];
     const contentType: string = ctx.route.body?.type ?? "application/json";
 
-    const caller = () =>
+    const property = (name: string): ts.Expression =>
+      ctx.config.keyword === true
+        ? ts.factory.createPropertyAccessExpression(
+            ts.factory.createIdentifier("props"),
+            name,
+          )
+        : ts.factory.createIdentifier(name);
+    const fetch = () =>
       ts.factory.createCallExpression(
         IdentifierFactory.access(
           ts.factory.createIdentifier(
@@ -167,14 +196,7 @@ export namespace MigrateApiFunctionProgrammer {
                     "path",
                   ),
                   undefined,
-                  [
-                    ...ctx.route.parameters.map((p) =>
-                      ts.factory.createIdentifier(p.key),
-                    ),
-                    ...(ctx.route.query
-                      ? [ts.factory.createIdentifier(ctx.route.query.key)]
-                      : []),
-                  ],
+                  getArguments(ctx, false),
                 ),
               ),
               ts.factory.createPropertyAssignment(
@@ -184,13 +206,11 @@ export namespace MigrateApiFunctionProgrammer {
             ],
             true,
           ),
-          ...(ctx.route.body
-            ? [ts.factory.createIdentifier(ctx.route.body.key)]
-            : []),
+          ...(ctx.route.body ? [property(ctx.route.body.key)] : []),
         ],
       );
     if (ctx.config.simulate !== true)
-      return [ts.factory.createReturnStatement(caller())];
+      return [ts.factory.createReturnStatement(fetch())];
     return [
       ts.factory.createReturnStatement(
         ts.factory.createConditionalExpression(
@@ -202,16 +222,34 @@ export namespace MigrateApiFunctionProgrammer {
             ),
             [],
             [
-              "connection",
-              ...ctx.route.parameters.map((p) => p.key),
-              ...(ctx.route.query ? [ctx.route.query.key] : []),
-              ...(ctx.route.body ? [ctx.route.body.key] : []),
-            ].map((key) => ts.factory.createIdentifier(key)),
+              ts.factory.createIdentifier("connection"),
+              ...getArguments(ctx, true),
+            ],
           ),
           undefined,
-          caller(),
+          fetch(),
         ),
       ),
+    ];
+  };
+
+  const getArguments = (ctx: IContext, body: boolean): ts.Expression[] => {
+    if (
+      ctx.route.parameters.length === 0 &&
+      ctx.route.query === null &&
+      (body === false || ctx.route.body === null)
+    )
+      return [];
+    if (ctx.config.keyword === true)
+      return [ts.factory.createIdentifier("props")];
+    return [
+      ...ctx.route.parameters.map((p) => ts.factory.createIdentifier(p.key)),
+      ...(ctx.route.query
+        ? [ts.factory.createIdentifier(ctx.route.query.key)]
+        : []),
+      ...(body && ctx.route.body
+        ? [ts.factory.createIdentifier(ctx.route.body.key)]
+        : []),
     ];
   };
 }

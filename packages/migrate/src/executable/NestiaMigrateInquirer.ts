@@ -70,7 +70,7 @@ export namespace NestiaMigrateInquirer {
         (value) => (value === "NestJS" ? "nest" : "sdk"),
       );
       partial.input ??= await input("input")("Swagger file location");
-      partial.output ??= await input("output")("Output directory path");
+      partial.output ??= await input("output")("Response directory path");
       partial.package ??= await input("package")("Package name");
       if (partial.simulate)
         partial.simulate = (partial.simulate as any) === "true";

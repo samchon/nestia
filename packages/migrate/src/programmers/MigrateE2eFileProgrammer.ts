@@ -2,11 +2,13 @@ import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
+import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
 
 export namespace MigrateE2eFunctionProgrammer {
   export interface IContext {
+    config: INestiaMigrateConfig;
     components: OpenApi.IComponents;
     importer: MigrateImportProgrammer;
     route: IHttpMigrateRoute;
@@ -81,39 +83,55 @@ export namespace MigrateE2eFunctionProgrammer {
     ),
   ];
 
-  const writeCallExpressionn = (ctx: IContext): ts.CallExpression =>
-    ts.factory.createCallExpression(
-      ts.factory.createPropertyAccessExpression(
-        ts.factory.createIdentifier("api.functional"),
-        ts.factory.createIdentifier(ctx.route.accessor.join(".")),
-      ),
-      undefined,
-      [
-        ts.factory.createIdentifier("connection"),
-        ...[...ctx.route.parameters, ctx.route.query!, ctx.route.body!]
-          .filter((p) => !!p)
-          .map((p) =>
-            ts.factory.createCallExpression(
-              ts.factory.createPropertyAccessExpression(
-                ts.factory.createIdentifier(
-                  ctx.importer.external({
-                    type: "default",
-                    library: "typia",
-                    name: "typia",
-                  }),
-                ),
-                "random",
-              ),
-              [
-                MigrateSchemaProgrammer.write({
-                  components: ctx.components,
-                  importer: ctx.importer,
-                  schema: p.schema,
-                }),
-              ],
-              undefined,
-            ),
-          ),
-      ],
+  const writeCallExpressionn = (ctx: IContext): ts.CallExpression => {
+    const fetch = ts.factory.createPropertyAccessExpression(
+      ts.factory.createIdentifier("api.functional"),
+      ts.factory.createIdentifier(ctx.route.accessor.join(".")),
     );
+    const connection = ts.factory.createIdentifier("connection");
+    const random = ts.factory.createPropertyAccessExpression(
+      ts.factory.createIdentifier(
+        ctx.importer.external({
+          type: "default",
+          library: "typia",
+          name: "typia",
+        }),
+      ),
+      "random",
+    );
+    if (
+      ctx.config.keyword === true &&
+      (!!ctx.route.parameters.length || !!ctx.route.query || !!ctx.route.body)
+    )
+      return ts.factory.createCallExpression(fetch, undefined, [
+        connection,
+        ts.factory.createCallExpression(
+          random,
+          [
+            ts.factory.createTypeReferenceNode(
+              ["api", "functional", ...ctx.route.accessor, "IProps"].join("."),
+            ),
+          ],
+          [],
+        ),
+      ]);
+    return ts.factory.createCallExpression(fetch, undefined, [
+      connection,
+      ...[...ctx.route.parameters, ctx.route.query!, ctx.route.body!]
+        .filter((p) => !!p)
+        .map((p) =>
+          ts.factory.createCallExpression(
+            random,
+            [
+              MigrateSchemaProgrammer.write({
+                components: ctx.components,
+                importer: ctx.importer,
+                schema: p.schema,
+              }),
+            ],
+            undefined,
+          ),
+        ),
+    ]);
+  };
 }

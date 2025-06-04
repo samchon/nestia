@@ -26,9 +26,10 @@ const execute = (
   config: INestiaMigrateConfig,
   project: string,
   document: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument,
-): Promise<number> =>
-  measure(`${project}-${mode}-${config.simulate}-${config.e2e}`)(async () => {
-    const directory = `${OUTPUT}/${project}-${mode}-${config.simulate}-${config.e2e}`;
+): Promise<number> => {
+  const title: string = `${project}-${mode}-${config.keyword ? "keyword" : "positional"}`;
+  return measure(title)(async () => {
+    const directory = `${OUTPUT}/${title}`;
     const result: IValidation<NestiaMigrateApplication> =
       await NestiaMigrateApplication.validate(document);
     if (result.success === false)
@@ -68,6 +69,7 @@ const execute = (
       cwd: directory,
     });
   });
+};
 
 const iterate = async (directory: string): Promise<void> => {
   const filter = (() => {
@@ -91,14 +93,16 @@ const iterate = async (directory: string): Promise<void> => {
       );
       for (const [mode, flag] of [
         ["nest", true],
+        ["nest", false],
         ["sdk", true],
         ["sdk", false],
       ] as const)
         await execute(
           mode,
           {
-            simulate: flag,
-            e2e: flag,
+            keyword: flag,
+            simulate: true,
+            e2e: true,
           },
           project,
           document,

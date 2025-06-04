@@ -8,19 +8,17 @@ import { MigrateDtoProgrammer } from "./MigrateDtoProgrammer";
 import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateApiProgrammer {
-  export const write = (
-    context: INestiaMigrateContext,
-  ): Record<string, string> => {
+  export const write = (ctx: INestiaMigrateContext): Record<string, string> => {
     const dict: HashMap<string[], MigrateApiFileProgrammer.IProps> =
       new HashMap(
         (x) => hash(x.join(".")),
         (x, y) => x.length === y.length && x.join(".") === y.join("."),
       );
-    for (const route of context.routes) {
+    for (const route of ctx.routes) {
       const namespace: string[] = route.accessor.slice(0, -1);
       let last: MigrateApiFileProgrammer.IProps = dict.take(namespace, () => ({
-        config: context.config,
-        components: context.document.components,
+        config: ctx.config,
+        components: ctx.document.components,
         namespace,
         routes: [],
         children: new Set(),
@@ -31,8 +29,8 @@ export namespace MigrateApiProgrammer {
         const props: MigrateApiFileProgrammer.IProps = dict.take(
           partial,
           () => ({
-            config: context.config,
-            components: context.document.components,
+            config: ctx.config,
+            components: ctx.document.components,
             namespace: partial,
             children: new Set(),
             routes: [],
@@ -46,20 +44,20 @@ export namespace MigrateApiProgrammer {
     // DO GENERATE
     const files: Record<string, string> = Object.fromEntries(
       dict.toJSON().map(({ second: value }) => [
-        `src/${context.mode === "nest" ? "api/" : ""}functional/${value.namespace.join("/")}/index.ts`,
+        `src/${ctx.mode === "nest" ? "api/" : ""}functional/${value.namespace.join("/")}/index.ts`,
         FilePrinter.write({
           statements: MigrateApiFileProgrammer.write({
             ...value,
-            config: context.config,
-            components: context.document.components,
+            config: ctx.config,
+            components: ctx.document.components,
           }),
         }),
       ]),
     );
-    if (context.mode === "sdk")
+    if (ctx.mode === "sdk")
       for (const [key, value] of MigrateDtoProgrammer.compose({
-        config: context.config,
-        components: context.document.components,
+        config: ctx.config,
+        components: ctx.document.components,
       }).entries())
         files[`src/structures/${key}.ts`] = FilePrinter.write({
           statements: writeDtoFile(key, value),
@@ -72,7 +70,7 @@ export namespace MigrateApiProgrammer {
     modulo: MigrateDtoProgrammer.IModule,
   ): ts.Statement[] => {
     const importer = new MigrateImportProgrammer();
-    const statements: ts.Statement[] = iterate(importer)(modulo);
+    const statements: ts.Statement[] = iterate(importer, modulo);
     if (statements.length === 0) return [];
     return [
       ...importer.toStatements((name) => `./${name}`, key),
@@ -81,25 +79,26 @@ export namespace MigrateApiProgrammer {
     ];
   };
 
-  const iterate =
-    (importer: MigrateImportProgrammer) =>
-    (modulo: MigrateDtoProgrammer.IModule): ts.Statement[] => {
-      const output: ts.Statement[] = [];
-      if (modulo.programmer !== null) output.push(modulo.programmer(importer));
-      if (modulo.children.size !== 0) {
-        const internal: ts.Statement[] = [];
-        for (const child of modulo.children.values())
-          internal.push(...iterate(importer)(child));
-        output.push(
-          ts.factory.createModuleDeclaration(
-            [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-            ts.factory.createIdentifier(modulo.name),
-            ts.factory.createModuleBlock(internal),
-            ts.NodeFlags.Namespace,
-          ),
-        );
-      }
-      output.push(FilePrinter.newLine());
-      return output;
-    };
+  const iterate = (
+    importer: MigrateImportProgrammer,
+    modulo: MigrateDtoProgrammer.IModule,
+  ): ts.Statement[] => {
+    const output: ts.Statement[] = [];
+    if (modulo.programmer !== null) output.push(modulo.programmer(importer));
+    if (modulo.children.size !== 0) {
+      const internal: ts.Statement[] = [];
+      for (const child of modulo.children.values())
+        internal.push(...iterate(importer, child));
+      output.push(
+        ts.factory.createModuleDeclaration(
+          [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+          ts.factory.createIdentifier(modulo.name),
+          ts.factory.createModuleBlock(internal),
+          ts.NodeFlags.Namespace,
+        ),
+      );
+    }
+    output.push(FilePrinter.newLine());
+    return output;
+  };
 }

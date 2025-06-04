@@ -65,6 +65,7 @@ export namespace MigrateApiStartProgrammer {
           [
             writeConnection(ctx, importer),
             ...MigrateE2eFunctionProgrammer.writeBody({
+              config: ctx.config,
               components: ctx.document.components,
               importer,
               route,

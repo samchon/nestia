@@ -104,7 +104,7 @@ export namespace MigrateApiSimulationProgrammer {
         undefined,
         MigrateApiFunctionProgrammer.writeParameterDeclarations(ctx),
         ts.factory.createTypeReferenceNode(
-          ctx.route.success ? "Output" : "void",
+          ctx.route.success ? "Response" : "void",
         ),
         undefined,
         ts.factory.createBlock(
@@ -116,6 +116,13 @@ export namespace MigrateApiSimulationProgrammer {
   };
 
   const assert = (ctx: IContext): ts.Statement[] => {
+    const property = (key: string) =>
+      ctx.config.keyword === true
+        ? ts.factory.createPropertyAccessExpression(
+            ts.factory.createIdentifier("props"),
+            key,
+          )
+        : ts.factory.createIdentifier(key);
     const parameters = [
       ...ctx.route.parameters.map((p) => ({
         category: "param",
@@ -183,6 +190,7 @@ export namespace MigrateApiSimulationProgrammer {
               ts.factory.createPropertyAssignment(
                 "path",
                 MigrateApiNamespaceProgrammer.writePathCallExpression(
+                  ctx.config,
                   ctx.route,
                 ),
               ),
@@ -232,9 +240,9 @@ export namespace MigrateApiSimulationProgrammer {
                 ),
                 undefined,
                 [
-                  ts.factory.createIdentifier(
-                    p.category === "headers" ? "connection.headers" : p.name,
-                  ),
+                  p.category === "headers"
+                    ? ts.factory.createIdentifier("connection.headers")
+                    : property(p.name),
                 ],
               ),
             ),

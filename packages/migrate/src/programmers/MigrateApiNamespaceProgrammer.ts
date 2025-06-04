@@ -20,7 +20,7 @@ export namespace MigrateApiNamespaceProgrammer {
   }
 
   export const write = (ctx: IContext): ts.ModuleDeclaration => {
-    const types = writeTypes(ctx);
+    const types: ts.TypeAliasDeclaration[] = writeTypes(ctx);
     return ts.factory.createModuleDeclaration(
       [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
       ts.factory.createIdentifier(ctx.route.accessor.at(-1)!),
@@ -29,8 +29,8 @@ export namespace MigrateApiNamespaceProgrammer {
         ...(types.length ? [FilePrinter.newLine()] : []),
         writeMetadata(ctx),
         FilePrinter.newLine(),
-        writePath(ctx),
-        ...(ctx.config.simulate
+        writePathFunction(ctx),
+        ...(ctx.config.simulate === true
           ? [
               MigrateApiSimulationProgrammer.random(ctx),
               MigrateApiSimulationProgrammer.simulate(ctx),
@@ -41,14 +41,20 @@ export namespace MigrateApiNamespaceProgrammer {
     );
   };
 
-  export const writePathCallExpression = (route: IHttpMigrateRoute) =>
+  export const writePathCallExpression = (
+    config: INestiaMigrateConfig,
+    route: IHttpMigrateRoute,
+  ) =>
     ts.factory.createCallExpression(
       ts.factory.createIdentifier(`${route.accessor.at(-1)!}.path`),
       undefined,
-      [
-        ...route.parameters.map((p) => ts.factory.createIdentifier(p.key)),
-        ...(route.query ? [ts.factory.createIdentifier(route.query.key)] : []),
-      ],
+      route.parameters.length === 0 && route.query === null
+        ? []
+        : config.keyword === true
+          ? [ts.factory.createIdentifier("props")]
+          : [...route.parameters, ...(route.query ? [route.query] : [])].map(
+              (p) => ts.factory.createIdentifier(p.key),
+            ),
     );
 
   const writeTypes = (ctx: IContext): ts.TypeAliasDeclaration[] => {
@@ -71,6 +77,34 @@ export namespace MigrateApiNamespaceProgrammer {
           schema: ctx.route.headers.schema,
         }),
       );
+    if (
+      ctx.config.keyword === true &&
+      (ctx.route.parameters.length > 0 || ctx.route.query || ctx.route.body)
+    )
+      declare(
+        "IProps",
+        MigrateSchemaProgrammer.write({
+          components: ctx.components,
+          importer: ctx.importer,
+          schema: {
+            type: "object",
+            properties: Object.fromEntries([
+              ...ctx.route.parameters.map((p) => [p.key, p.schema]),
+              ...(ctx.route.query
+                ? [[ctx.route.query.key, ctx.route.query.schema]]
+                : []),
+              ...(ctx.route.body
+                ? [[ctx.route.body.key, ctx.route.body.schema]]
+                : []),
+            ]),
+            required: [
+              ...ctx.route.parameters.map((p) => p.key),
+              ...(ctx.route.query ? [ctx.route.query.key] : []),
+              ...(ctx.route.body ? [ctx.route.body.key] : []),
+            ],
+          },
+        }),
+      );
     if (ctx.route.query)
       declare(
         "Query",
@@ -82,7 +116,7 @@ export namespace MigrateApiNamespaceProgrammer {
       );
     if (ctx.route.body)
       declare(
-        "Input",
+        "RequestBody",
         MigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,
@@ -91,7 +125,7 @@ export namespace MigrateApiNamespaceProgrammer {
       );
     if (ctx.route.success)
       declare(
-        "Output",
+        "Response",
         MigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,
@@ -166,35 +200,69 @@ export namespace MigrateApiNamespaceProgrammer {
       ),
     );
 
-  const writePath = (ctx: IContext): ts.VariableStatement => {
+  const writePathFunction = (ctx: IContext): ts.VariableStatement => {
+    const empty: boolean =
+      ctx.route.parameters.length === 0 && ctx.route.query === null;
+    const property = (key: string) =>
+      ctx.config.keyword === true
+        ? ts.factory.createPropertyAccessExpression(
+            ts.factory.createIdentifier("p"),
+            key,
+          )
+        : ts.factory.createIdentifier(key);
     const out = (body: ts.ConciseBody) =>
       constant(
         "path",
         ts.factory.createArrowFunction(
           [],
           [],
-          [
-            ...ctx.route.parameters.map((p) =>
-              IdentifierFactory.parameter(
-                p.key,
-                MigrateSchemaProgrammer.write({
-                  components: ctx.components,
-                  importer: ctx.importer,
-                  schema: p.schema,
-                }),
-              ),
-            ),
-            ...(ctx.route.query
+          empty
+            ? []
+            : ctx.config.keyword === true
               ? [
                   IdentifierFactory.parameter(
-                    ctx.route.query.key,
-                    ts.factory.createTypeReferenceNode(
-                      `${ctx.route.accessor.at(-1)!}.Query`,
-                    ),
+                    "p",
+                    MigrateSchemaProgrammer.write({
+                      components: ctx.components,
+                      importer: ctx.importer,
+                      schema: {
+                        type: "object",
+                        properties: Object.fromEntries([
+                          ...ctx.route.parameters.map((p) => [p.key, p.schema]),
+                          ...(ctx.route.query
+                            ? [[ctx.route.query.key, ctx.route.query.schema]]
+                            : []),
+                        ]),
+                        required: [
+                          ...ctx.route.parameters.map((p) => p.key),
+                          ...(ctx.route.query ? [ctx.route.query.key] : []),
+                        ],
+                      },
+                    }),
                   ),
                 ]
-              : []),
-          ],
+              : [
+                  ...ctx.route.parameters.map((p) =>
+                    IdentifierFactory.parameter(
+                      p.key,
+                      MigrateSchemaProgrammer.write({
+                        components: ctx.components,
+                        importer: ctx.importer,
+                        schema: p.schema,
+                      }),
+                    ),
+                  ),
+                  ...(ctx.route.query
+                    ? [
+                        IdentifierFactory.parameter(
+                          ctx.route.query.key,
+                          ts.factory.createTypeReferenceNode(
+                            `${ctx.route.accessor.at(-1)!}.Query`,
+                          ),
+                        ),
+                      ]
+                    : []),
+                ],
           undefined,
           undefined,
           body,
@@ -214,7 +282,7 @@ export namespace MigrateApiNamespaceProgrammer {
               undefined,
               [
                 ts.factory.createBinaryExpression(
-                  ts.factory.createIdentifier(
+                  property(
                     ctx.route.parameters.find((p) => p.name === name)!.key,
                   ),
                   ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
@@ -279,7 +347,7 @@ export namespace MigrateApiNamespaceProgrammer {
               undefined,
               [
                 ts.factory.createAsExpression(
-                  ts.factory.createIdentifier(ctx.route.query.key),
+                  property(ctx.route.query.key),
                   TypeFactory.keyword("any"),
                 ),
               ],
@@ -410,6 +478,7 @@ const constant = (name: string, expression: ts.Expression) =>
       ts.NodeFlags.Const,
     ),
   );
+
 const getPath = (route: IHttpMigrateRoute) =>
   (route.emendedPath.startsWith("/") ? "" : "/") + route.emendedPath;
 
