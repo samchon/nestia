@@ -11,27 +11,28 @@ import { MigrateNestModuleProgrammer } from "./MigrateNestModuleProgrammer";
 
 export namespace MigrateNestProgrammer {
   export const write = (
-    program: INestiaMigrateContext,
+    context: INestiaMigrateContext,
   ): Record<string, string> => {
     const controllers: INestiaMigrateController[] =
-      MigrateControllerAnalyzer.analyze({
-        routes: program.routes,
-      });
+      MigrateControllerAnalyzer.analyze(context.routes);
     const statements: [string, ts.Statement[]][] = [
       ["src/MyModule.ts", MigrateNestModuleProgrammer.write(controllers)],
       ...controllers.map(
         (c) =>
           [
             `${c.location}/${c.name}.ts`,
-            MigrateNestControllerProgrammer.write(program.config)(
-              program.document.components,
-            )(c),
+            MigrateNestControllerProgrammer.write({
+              config: context.config,
+              components: context.document.components,
+              controller: c,
+            }),
           ] satisfies [string, ts.Statement[]],
       ),
       ...[
-        ...MigrateDtoProgrammer.compose(program.config)(
-          program.document.components,
-        ).entries(),
+        ...MigrateDtoProgrammer.compose({
+          config: context.config,
+          components: context.document.components,
+        }).entries(),
       ].map(
         ([key, value]) =>
           [`src/api/structures/${key}.ts`, writeDtoFile(key, value)] satisfies [

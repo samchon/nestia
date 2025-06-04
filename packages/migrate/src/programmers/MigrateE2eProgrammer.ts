@@ -13,27 +13,31 @@ export namespace MigrateE2eProgrammer {
   ): Record<string, string> =>
     Object.fromEntries(
       program.routes
-        .map(writeFile(program.document.components))
+        .map((r) => writeFile(program.document.components, r))
         .map((r) => [`${r.location}/${r.file}`, r.content]),
     );
 
-  const writeFile =
-    (components: OpenApi.IComponents) =>
-    (route: IHttpMigrateRoute): INestiaMigrateFile => {
-      const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
-      const func: ts.FunctionDeclaration =
-        MigrateE2eFunctionProgrammer.write(components)(importer)(route);
-      const statements: ts.Statement[] = [
-        ...importer.toStatements(
-          (name) => `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,
-        ),
-        FilePrinter.newLine(),
-        func,
-      ];
-      return {
-        location: `test/features/api`,
-        file: `${["test", "api", ...route.accessor].join("_")}.ts`,
-        content: FilePrinter.write({ statements }),
-      };
+  const writeFile = (
+    components: OpenApi.IComponents,
+    route: IHttpMigrateRoute,
+  ): INestiaMigrateFile => {
+    const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
+    const func: ts.FunctionDeclaration = MigrateE2eFunctionProgrammer.write({
+      components,
+      importer,
+      route,
+    });
+    const statements: ts.Statement[] = [
+      ...importer.toStatements(
+        (name) => `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,
+      ),
+      FilePrinter.newLine(),
+      func,
+    ];
+    return {
+      location: `test/features/api`,
+      file: `${["test", "api", ...route.accessor].join("_")}.ts`,
+      content: FilePrinter.write({ statements }),
     };
+  };
 }

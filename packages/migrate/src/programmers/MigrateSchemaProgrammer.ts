@@ -14,339 +14,434 @@ export namespace MigrateSchemaProgrammer {
   /* -----------------------------------------------------------
     FACADE
   ----------------------------------------------------------- */
-  export const write =
-    (components: OpenApi.IComponents) =>
-    (importer: MigrateImportProgrammer) =>
-    (schema: OpenApi.IJsonSchema): ts.TypeNode => {
-      // CONSIDER ANY TYPE CASE
-      const union: ts.TypeNode[] = [];
-      if (OpenApiTypeChecker.isUnknown(schema))
-        return TypeFactory.keyword("any");
+  export const write = (props: {
+    components: OpenApi.IComponents;
+    importer: MigrateImportProgrammer;
+    schema: OpenApi.IJsonSchema;
+  }): ts.TypeNode => {
+    // CONSIDER ANY TYPE CASE
+    const union: ts.TypeNode[] = [];
+    if (OpenApiTypeChecker.isUnknown(props.schema))
+      return TypeFactory.keyword("any");
 
-      // ITERATION
-      const type: ts.TypeNode = (() => {
-        // ATOMIC
-        if (OpenApiTypeChecker.isConstant(schema))
-          return writeConstant(importer)(schema);
-        else if (OpenApiTypeChecker.isBoolean(schema))
-          return writeBoolean(importer)(schema);
-        else if (OpenApiTypeChecker.isInteger(schema))
-          return writeInteger(importer)(schema);
-        else if (OpenApiTypeChecker.isNumber(schema))
-          return writeNumber(importer)(schema);
-        else if (OpenApiTypeChecker.isString(schema))
-          return writeString(importer)(schema);
-        // INSTANCES
-        else if (OpenApiTypeChecker.isArray(schema))
-          return writeArray(components)(importer)(schema);
-        else if (OpenApiTypeChecker.isTuple(schema))
-          return writeTuple(components)(importer)(schema);
-        else if (OpenApiTypeChecker.isObject(schema))
-          return writeObject(components)(importer)(schema);
-        else if (OpenApiTypeChecker.isReference(schema))
-          return writeReference(importer)(schema);
-        // UNION
-        else if (OpenApiTypeChecker.isOneOf(schema))
-          return writeUnion(components)(importer)(schema.oneOf);
-        else if (OpenApiTypeChecker.isNull(schema)) return createNode("null");
-        else return TypeFactory.keyword("any");
-      })();
-      union.push(type);
+    // ITERATION
+    const type: ts.TypeNode = (() => {
+      // ATOMIC
+      if (OpenApiTypeChecker.isConstant(props.schema))
+        return writeConstant({
+          importer: props.importer,
+          schema: props.schema,
+        });
+      else if (OpenApiTypeChecker.isBoolean(props.schema))
+        return writeBoolean({
+          importer: props.importer,
+          schema: props.schema,
+        });
+      else if (OpenApiTypeChecker.isInteger(props.schema))
+        return writeInteger({
+          importer: props.importer,
+          schema: props.schema,
+        });
+      else if (OpenApiTypeChecker.isNumber(props.schema))
+        return writeNumber({
+          importer: props.importer,
+          schema: props.schema,
+        });
+      else if (OpenApiTypeChecker.isString(props.schema))
+        return writeString({
+          importer: props.importer,
+          schema: props.schema,
+        });
+      // INSTANCES
+      else if (OpenApiTypeChecker.isArray(props.schema))
+        return writeArray({
+          components: props.components,
+          importer: props.importer,
+          schema: props.schema,
+        });
+      else if (OpenApiTypeChecker.isTuple(props.schema))
+        return writeTuple({
+          components: props.components,
+          importer: props.importer,
+          schema: props.schema,
+        });
+      else if (OpenApiTypeChecker.isObject(props.schema))
+        return writeObject({
+          components: props.components,
+          importer: props.importer,
+          schema: props.schema,
+        });
+      else if (OpenApiTypeChecker.isReference(props.schema))
+        return writeReference({
+          importer: props.importer,
+          schema: props.schema,
+        });
+      // UNION
+      else if (OpenApiTypeChecker.isOneOf(props.schema))
+        return writeUnion({
+          components: props.components,
+          importer: props.importer,
+          elements: props.schema.oneOf,
+        });
+      else if (OpenApiTypeChecker.isNull(props.schema))
+        return createNode("null");
+      else return TypeFactory.keyword("any");
+    })();
+    union.push(type);
 
-      // DETERMINE
-      if (union.length === 0) return TypeFactory.keyword("any");
-      else if (union.length === 1) return union[0];
-      return ts.factory.createUnionTypeNode(union);
-    };
+    // DETERMINE
+    if (union.length === 0) return TypeFactory.keyword("any");
+    else if (union.length === 1) return union[0];
+    return ts.factory.createUnionTypeNode(union);
+  };
 
   /* -----------------------------------------------------------
     ATOMICS
   ----------------------------------------------------------- */
-  const writeConstant =
-    (importer: MigrateImportProgrammer) =>
-    (schema: OpenApi.IJsonSchema.IConstant): ts.TypeNode => {
-      const intersection: ts.TypeNode[] = [
-        ts.factory.createLiteralTypeNode(
-          typeof schema.const === "boolean"
-            ? schema.const === true
-              ? ts.factory.createTrue()
-              : ts.factory.createFalse()
-            : typeof schema.const === "number"
-              ? schema.const < 0
-                ? ts.factory.createPrefixUnaryExpression(
-                    ts.SyntaxKind.MinusToken,
-                    ts.factory.createNumericLiteral(-schema.const),
-                  )
-                : ts.factory.createNumericLiteral(schema.const)
-              : ts.factory.createStringLiteral(schema.const),
-        ),
-      ];
-      writePlugin({
-        importer,
-        regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IConstant>(),
-        intersection,
-      })(schema);
-      return intersection.length === 1
-        ? intersection[0]
-        : ts.factory.createIntersectionTypeNode(intersection);
-    };
+  const writeConstant = (props: {
+    importer: MigrateImportProgrammer;
+    schema: OpenApi.IJsonSchema.IConstant;
+  }): ts.TypeNode => {
+    const intersection: ts.TypeNode[] = [
+      ts.factory.createLiteralTypeNode(
+        typeof props.schema.const === "boolean"
+          ? props.schema.const === true
+            ? ts.factory.createTrue()
+            : ts.factory.createFalse()
+          : typeof props.schema.const === "number"
+            ? props.schema.const < 0
+              ? ts.factory.createPrefixUnaryExpression(
+                  ts.SyntaxKind.MinusToken,
+                  ts.factory.createNumericLiteral(-props.schema.const),
+                )
+              : ts.factory.createNumericLiteral(props.schema.const)
+            : ts.factory.createStringLiteral(props.schema.const),
+      ),
+    ];
+    writePlugin({
+      importer: props.importer,
+      schema: props.schema,
+      regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IConstant>(),
+      intersection,
+    });
+    return intersection.length === 1
+      ? intersection[0]
+      : ts.factory.createIntersectionTypeNode(intersection);
+  };
 
-  const writeBoolean =
-    (importer: MigrateImportProgrammer) =>
-    (schema: OpenApi.IJsonSchema.IBoolean): ts.TypeNode => {
-      const intersection: ts.TypeNode[] = [TypeFactory.keyword("boolean")];
-      writePlugin({
-        importer,
-        regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IBoolean>(),
-        intersection,
-      })(schema);
-      return intersection.length === 1
-        ? intersection[0]
-        : ts.factory.createIntersectionTypeNode(intersection);
-    };
+  const writeBoolean = (props: {
+    importer: MigrateImportProgrammer;
+    schema: OpenApi.IJsonSchema.IBoolean;
+  }): ts.TypeNode => {
+    const intersection: ts.TypeNode[] = [TypeFactory.keyword("boolean")];
+    writePlugin({
+      importer: props.importer,
+      regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IBoolean>(),
+      intersection,
+      schema: props.schema,
+    });
+    return intersection.length === 1
+      ? intersection[0]
+      : ts.factory.createIntersectionTypeNode(intersection);
+  };
 
-  const writeInteger =
-    (importer: MigrateImportProgrammer) =>
-    (schema: OpenApi.IJsonSchema.IInteger): ts.TypeNode =>
-      writeNumeric(() => [
+  const writeInteger = (props: {
+    importer: MigrateImportProgrammer;
+    schema: OpenApi.IJsonSchema.IInteger;
+  }): ts.TypeNode =>
+    writeNumeric({
+      factory: () => [
         TypeFactory.keyword("number"),
-        importer.tag("Type", "int32"),
-      ])(importer)(schema);
+        props.importer.tag("Type", "int32"),
+      ],
+      importer: props.importer,
+      schema: props.schema,
+    });
 
-  const writeNumber =
-    (importer: MigrateImportProgrammer) =>
-    (schema: OpenApi.IJsonSchema.INumber): ts.TypeNode =>
-      writeNumeric(() => [TypeFactory.keyword("number")])(importer)(schema);
+  const writeNumber = (props: {
+    importer: MigrateImportProgrammer;
+    schema: OpenApi.IJsonSchema.INumber;
+  }): ts.TypeNode =>
+    writeNumeric({
+      factory: () => [TypeFactory.keyword("number")],
+      importer: props.importer,
+      schema: props.schema,
+    });
 
-  const writeNumeric =
-    (factory: () => ts.TypeNode[]) =>
-    (importer: MigrateImportProgrammer) =>
-    (
-      schema: OpenApi.IJsonSchema.IInteger | OpenApi.IJsonSchema.INumber,
-    ): ts.TypeNode => {
-      const intersection: ts.TypeNode[] = factory();
-      if (schema.default !== undefined)
-        intersection.push(importer.tag("Default", schema.default));
-      if (schema.minimum !== undefined)
-        intersection.push(
-          importer.tag(
-            schema.exclusiveMinimum ? "ExclusiveMinimum" : "Minimum",
-            schema.minimum,
-          ),
-        );
-      if (schema.maximum !== undefined)
-        intersection.push(
-          importer.tag(
-            schema.exclusiveMaximum ? "ExclusiveMaximum" : "Maximum",
-            schema.maximum,
-          ),
-        );
-      if (schema.multipleOf !== undefined)
-        intersection.push(importer.tag("MultipleOf", schema.multipleOf));
-      writePlugin({
-        importer,
-        regular: typia.misc.literals<keyof OpenApi.IJsonSchema.INumber>(),
-        intersection,
-      })(schema);
-      return intersection.length === 1
-        ? intersection[0]
-        : ts.factory.createIntersectionTypeNode(intersection);
-    };
+  const writeNumeric = (props: {
+    factory: () => ts.TypeNode[];
+    importer: MigrateImportProgrammer;
+    schema: OpenApi.IJsonSchema.IInteger | OpenApi.IJsonSchema.INumber;
+  }): ts.TypeNode => {
+    const intersection: ts.TypeNode[] = props.factory();
+    if (props.schema.default !== undefined)
+      intersection.push(props.importer.tag("Default", props.schema.default));
+    if (props.schema.minimum !== undefined)
+      intersection.push(
+        props.importer.tag(
+          props.schema.exclusiveMinimum ? "ExclusiveMinimum" : "Minimum",
+          props.schema.minimum,
+        ),
+      );
+    if (props.schema.maximum !== undefined)
+      intersection.push(
+        props.importer.tag(
+          props.schema.exclusiveMaximum ? "ExclusiveMaximum" : "Maximum",
+          props.schema.maximum,
+        ),
+      );
+    if (props.schema.multipleOf !== undefined)
+      intersection.push(
+        props.importer.tag("MultipleOf", props.schema.multipleOf),
+      );
+    writePlugin({
+      importer: props.importer,
+      regular: typia.misc.literals<keyof OpenApi.IJsonSchema.INumber>(),
+      intersection,
+      schema: props.schema,
+    });
+    return intersection.length === 1
+      ? intersection[0]
+      : ts.factory.createIntersectionTypeNode(intersection);
+  };
 
-  const writeString =
-    (importer: MigrateImportProgrammer) =>
-    (schema: OpenApi.IJsonSchema.IString): ts.TypeNode => {
-      if (schema.format === "binary")
-        return ts.factory.createTypeReferenceNode("File");
+  const writeString = (props: {
+    importer: MigrateImportProgrammer;
+    schema: OpenApi.IJsonSchema.IString;
+  }): ts.TypeNode => {
+    if (props.schema.format === "binary")
+      return ts.factory.createTypeReferenceNode("File");
 
-      const intersection: ts.TypeNode[] = [TypeFactory.keyword("string")];
-      if (schema.default !== undefined)
-        intersection.push(importer.tag("Default", schema.default));
-      if (schema.minLength !== undefined)
-        intersection.push(importer.tag("MinLength", schema.minLength));
-      if (schema.maxLength !== undefined)
-        intersection.push(importer.tag("MaxLength", schema.maxLength));
-      if (schema.pattern !== undefined)
-        intersection.push(importer.tag("Pattern", schema.pattern));
-      if (
-        schema.format !== undefined &&
-        (FormatCheatSheet as Record<string, string>)[schema.format] !==
-          undefined
-      )
-        intersection.push(importer.tag("Format", schema.format));
-      if (schema.contentMediaType !== undefined)
-        intersection.push(
-          importer.tag("ContentMediaType", schema.contentMediaType),
-        );
-      writePlugin({
-        importer,
-        regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IString>(),
-        intersection,
-      })(schema);
-      return intersection.length === 1
-        ? intersection[0]
-        : ts.factory.createIntersectionTypeNode(intersection);
-    };
+    const intersection: ts.TypeNode[] = [TypeFactory.keyword("string")];
+    if (props.schema.default !== undefined)
+      intersection.push(props.importer.tag("Default", props.schema.default));
+    if (props.schema.minLength !== undefined)
+      intersection.push(
+        props.importer.tag("MinLength", props.schema.minLength),
+      );
+    if (props.schema.maxLength !== undefined)
+      intersection.push(
+        props.importer.tag("MaxLength", props.schema.maxLength),
+      );
+    if (props.schema.pattern !== undefined)
+      intersection.push(props.importer.tag("Pattern", props.schema.pattern));
+    if (
+      props.schema.format !== undefined &&
+      (FormatCheatSheet as Record<string, string>)[props.schema.format] !==
+        undefined
+    )
+      intersection.push(props.importer.tag("Format", props.schema.format));
+    if (props.schema.contentMediaType !== undefined)
+      intersection.push(
+        props.importer.tag("ContentMediaType", props.schema.contentMediaType),
+      );
+    writePlugin({
+      importer: props.importer,
+      regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IString>(),
+      intersection,
+      schema: props.schema,
+    });
+    return intersection.length === 1
+      ? intersection[0]
+      : ts.factory.createIntersectionTypeNode(intersection);
+  };
 
   /* -----------------------------------------------------------
     INSTANCES
   ----------------------------------------------------------- */
-  const writeArray =
-    (components: OpenApi.IComponents) =>
-    (importer: MigrateImportProgrammer) =>
-    (schema: OpenApi.IJsonSchema.IArray): ts.TypeNode => {
-      const intersection: ts.TypeNode[] = [
-        ts.factory.createArrayTypeNode(
-          write(components)(importer)(schema.items),
-        ),
-      ];
-      if (schema.minItems !== undefined)
-        intersection.push(importer.tag("MinItems", schema.minItems));
-      if (schema.maxItems !== undefined)
-        intersection.push(importer.tag("MaxItems", schema.maxItems));
-      if (schema.uniqueItems === true)
-        intersection.push(importer.tag("UniqueItems"));
-      writePlugin({
-        importer,
-        regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IArray>(),
-        intersection,
-      })(schema);
-      return intersection.length === 1
-        ? intersection[0]
-        : ts.factory.createIntersectionTypeNode(intersection);
-    };
+  const writeArray = (props: {
+    components: OpenApi.IComponents;
+    importer: MigrateImportProgrammer;
+    schema: OpenApi.IJsonSchema.IArray;
+  }): ts.TypeNode => {
+    const intersection: ts.TypeNode[] = [
+      ts.factory.createArrayTypeNode(
+        write({
+          components: props.components,
+          importer: props.importer,
+          schema: props.schema.items,
+        }),
+      ),
+    ];
+    if (props.schema.minItems !== undefined)
+      intersection.push(props.importer.tag("MinItems", props.schema.minItems));
+    if (props.schema.maxItems !== undefined)
+      intersection.push(props.importer.tag("MaxItems", props.schema.maxItems));
+    if (props.schema.uniqueItems === true)
+      intersection.push(props.importer.tag("UniqueItems"));
+    writePlugin({
+      importer: props.importer,
+      regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IArray>(),
+      intersection,
+      schema: props.schema,
+    });
+    return intersection.length === 1
+      ? intersection[0]
+      : ts.factory.createIntersectionTypeNode(intersection);
+  };
 
-  const writeTuple =
-    (components: OpenApi.IComponents) =>
-    (importer: MigrateImportProgrammer) =>
-    (schema: OpenApi.IJsonSchema.ITuple): ts.TypeNode => {
-      const tuple: ts.TypeNode = ts.factory.createTupleTypeNode([
-        ...schema.prefixItems.map(write(components)(importer)),
-        ...(typeof schema.additionalItems === "object" &&
-        schema.additionalItems !== null
+  const writeTuple = (props: {
+    components: OpenApi.IComponents;
+    importer: MigrateImportProgrammer;
+    schema: OpenApi.IJsonSchema.ITuple;
+  }): ts.TypeNode => {
+    const tuple: ts.TypeNode = ts.factory.createTupleTypeNode([
+      ...props.schema.prefixItems.map((item) =>
+        write({
+          components: props.components,
+          importer: props.importer,
+          schema: item,
+        }),
+      ),
+      ...(typeof props.schema.additionalItems === "object" &&
+      props.schema.additionalItems !== null
+        ? [
+            ts.factory.createRestTypeNode(
+              write({
+                components: props.components,
+                importer: props.importer,
+                schema: props.schema.additionalItems,
+              }),
+            ),
+          ]
+        : props.schema.additionalItems === true
           ? [
               ts.factory.createRestTypeNode(
-                write(components)(importer)(schema.additionalItems),
+                ts.factory.createArrayTypeNode(
+                  ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
+                ),
               ),
             ]
-          : schema.additionalItems === true
-            ? [
-                ts.factory.createRestTypeNode(
-                  ts.factory.createArrayTypeNode(
-                    ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
-                  ),
-                ),
-              ]
-            : []),
+          : []),
+    ]);
+    const intersection: ts.TypeNode[] = [tuple];
+    writePlugin({
+      importer: props.importer,
+      regular: typia.misc.literals<keyof OpenApi.IJsonSchema.ITuple>(),
+      intersection,
+      schema: props.schema,
+    });
+    return intersection.length === 1
+      ? intersection[0]
+      : ts.factory.createIntersectionTypeNode(intersection);
+  };
+
+  const writeObject = (props: {
+    components: OpenApi.IComponents;
+    importer: MigrateImportProgrammer;
+    schema: OpenApi.IJsonSchema.IObject;
+  }): ts.TypeNode => {
+    const regular = () =>
+      ts.factory.createTypeLiteralNode(
+        Object.entries(props.schema.properties ?? [])
+          .map(([key, value], index) => [
+            ...(index !== 0 ? [ts.factory.createIdentifier("\n") as any] : []),
+            writeRegularProperty({
+              components: props.components,
+              importer: props.importer,
+              required: props.schema.required ?? [],
+              key,
+              value,
+            }),
+          ])
+          .flat(),
+      );
+    const dynamic = () =>
+      ts.factory.createTypeLiteralNode([
+        writeDynamicProperty({
+          components: props.components,
+          importer: props.importer,
+          schema: props.schema.additionalProperties as OpenApi.IJsonSchema,
+        }),
       ]);
-      const intersection: ts.TypeNode[] = [tuple];
-      writePlugin({
-        importer,
-        regular: typia.misc.literals<keyof OpenApi.IJsonSchema.ITuple>(),
-        intersection,
-      })(schema);
-      return intersection.length === 1
-        ? intersection[0]
-        : ts.factory.createIntersectionTypeNode(intersection);
-    };
+    return !!props.schema.properties?.length &&
+      typeof props.schema.additionalProperties === "object"
+      ? ts.factory.createIntersectionTypeNode([regular(), dynamic()])
+      : typeof props.schema.additionalProperties === "object"
+        ? dynamic()
+        : regular();
+  };
 
-  const writeObject =
-    (components: OpenApi.IComponents) =>
-    (importer: MigrateImportProgrammer) =>
-    (schema: OpenApi.IJsonSchema.IObject): ts.TypeNode => {
-      const regular = () =>
-        ts.factory.createTypeLiteralNode(
-          Object.entries(schema.properties ?? [])
-            .map(([key, value], index) => [
-              ...(index !== 0
-                ? [ts.factory.createIdentifier("\n") as any]
-                : []),
-              writeRegularProperty(components)(importer)(schema.required ?? [])(
-                key,
-                value,
-              ),
-            ])
-            .flat(),
-        );
-      const dynamic = () =>
-        ts.factory.createTypeLiteralNode([
-          writeDynamicProperty(components)(importer)(
-            schema.additionalProperties as OpenApi.IJsonSchema,
+  const writeRegularProperty = (props: {
+    components: OpenApi.IComponents;
+    importer: MigrateImportProgrammer;
+    required: string[];
+    key: string;
+    value: OpenApi.IJsonSchema;
+  }) =>
+    FilePrinter.description(
+      ts.factory.createPropertySignature(
+        undefined,
+        Escaper.variable(props.key)
+          ? ts.factory.createIdentifier(props.key)
+          : ts.factory.createStringLiteral(props.key),
+        props.required.includes(props.key)
+          ? undefined
+          : ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+        write({
+          components: props.components,
+          importer: props.importer,
+          schema: props.value,
+        }),
+      ),
+      writeComment(props.value),
+    );
+
+  const writeDynamicProperty = (props: {
+    components: OpenApi.IComponents;
+    importer: MigrateImportProgrammer;
+    schema: OpenApi.IJsonSchema;
+  }) =>
+    FilePrinter.description(
+      ts.factory.createIndexSignature(
+        undefined,
+        [
+          ts.factory.createParameterDeclaration(
+            undefined,
+            undefined,
+            ts.factory.createIdentifier("key"),
+            undefined,
+            TypeFactory.keyword("string"),
           ),
-        ]);
-      return !!schema.properties?.length &&
-        typeof schema.additionalProperties === "object"
-        ? ts.factory.createIntersectionTypeNode([regular(), dynamic()])
-        : typeof schema.additionalProperties === "object"
-          ? dynamic()
-          : regular();
-    };
+        ],
+        write(props),
+      ),
+      writeComment(props.schema),
+    );
 
-  const writeRegularProperty =
-    (components: OpenApi.IComponents) =>
-    (importer: MigrateImportProgrammer) =>
-    (required: string[]) =>
-    (key: string, value: OpenApi.IJsonSchema) =>
-      FilePrinter.description(
-        ts.factory.createPropertySignature(
-          undefined,
-          Escaper.variable(key)
-            ? ts.factory.createIdentifier(key)
-            : ts.factory.createStringLiteral(key),
-          required.includes(key)
-            ? undefined
-            : ts.factory.createToken(ts.SyntaxKind.QuestionToken),
-          write(components)(importer)(value),
-        ),
-        writeComment(value),
-      );
-
-  const writeDynamicProperty =
-    (components: OpenApi.IComponents) =>
-    (importer: MigrateImportProgrammer) =>
-    (value: OpenApi.IJsonSchema) =>
-      FilePrinter.description(
-        ts.factory.createIndexSignature(
-          undefined,
-          [
-            ts.factory.createParameterDeclaration(
-              undefined,
-              undefined,
-              ts.factory.createIdentifier("key"),
-              undefined,
-              TypeFactory.keyword("string"),
-            ),
-          ],
-          write(components)(importer)(value),
-        ),
-        writeComment(value),
-      );
-
-  const writeReference =
-    (importer: MigrateImportProgrammer) =>
-    (
-      schema: OpenApi.IJsonSchema.IReference,
-    ): ts.TypeReferenceNode | ts.KeywordTypeNode => {
-      if (schema.$ref.startsWith("#/components/schemas") === false)
-        return TypeFactory.keyword("any");
-      const name: string = schema.$ref
-        .split("/")
-        .slice(3)
-        .filter((str) => str.length !== 0)
-        .map(StringUtil.escapeNonVariable)
-        .join("");
-      if (name === "") return TypeFactory.keyword("any");
-      return importer.dto(name);
-    };
+  const writeReference = (props: {
+    importer: MigrateImportProgrammer;
+    schema: OpenApi.IJsonSchema.IReference;
+  }): ts.TypeReferenceNode | ts.KeywordTypeNode => {
+    if (props.schema.$ref.startsWith("#/components/schemas") === false)
+      return TypeFactory.keyword("any");
+    const name: string = props.schema.$ref
+      .split("/")
+      .slice(3)
+      .filter((str) => str.length !== 0)
+      .map(StringUtil.escapeNonVariable)
+      .join("");
+    if (name === "") return TypeFactory.keyword("any");
+    return props.importer.dto(name);
+  };
 
   /* -----------------------------------------------------------
     UNIONS
   ----------------------------------------------------------- */
-  const writeUnion =
-    (components: OpenApi.IComponents) =>
-    (importer: MigrateImportProgrammer) =>
-    (elements: OpenApi.IJsonSchema[]): ts.UnionTypeNode =>
-      ts.factory.createUnionTypeNode(elements.map(write(components)(importer)));
+  const writeUnion = (props: {
+    components: OpenApi.IComponents;
+    importer: MigrateImportProgrammer;
+    elements: OpenApi.IJsonSchema[];
+  }): ts.UnionTypeNode =>
+    ts.factory.createUnionTypeNode(
+      props.elements.map((schema) =>
+        write({
+          components: props.components,
+          importer: props.importer,
+          schema,
+        }),
+      ),
+    );
 }
 const createNode = (text: string) => ts.factory.createTypeReferenceNode(text);
 const writeComment = (schema: OpenApi.IJsonSchema): string =>
@@ -362,17 +457,16 @@ const writeComment = (schema: OpenApi.IJsonSchema): string =>
     .join("\n")
     .split("*/")
     .join("*\\/");
-const writePlugin =
-  (props: {
-    importer: MigrateImportProgrammer;
-    regular: string[];
-    intersection: ts.TypeNode[];
-  }) =>
-  (schema: any) => {
-    const extra: any = {};
-    for (const [key, value] of Object.entries(schema))
-      if (value !== undefined && false === props.regular.includes(key))
-        extra[key] = value;
-    if (Object.keys(extra).length !== 0)
-      props.intersection.push(props.importer.tag("JsonSchemaPlugin", extra));
-  };
+const writePlugin = (props: {
+  importer: MigrateImportProgrammer;
+  regular: string[];
+  intersection: ts.TypeNode[];
+  schema: Record<string, any>;
+}) => {
+  const extra: any = {};
+  for (const [key, value] of Object.entries(props.schema))
+    if (value !== undefined && false === props.regular.includes(key))
+      extra[key] = value;
+  if (Object.keys(extra).length !== 0)
+    props.intersection.push(props.importer.tag("JsonSchemaPlugin", extra));
+};

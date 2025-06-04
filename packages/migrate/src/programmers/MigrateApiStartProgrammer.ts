@@ -1,9 +1,8 @@
-import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
+import { IHttpMigrateRoute } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 import { StatementFactory } from "typia/lib/factories/StatementFactory";
 
-import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MigrateE2eFunctionProgrammer } from "./MigrateE2eFileProgrammer";
@@ -11,12 +10,14 @@ import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
 
 export namespace MigrateApiStartProgrammer {
   export const write = (
-    program: INestiaMigrateContext,
+    context: INestiaMigrateContext,
   ): Record<string, string> => {
     const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
-    const main: ts.VariableStatement = writeMain(program.config)(
-      program.document,
-    )(importer)(pick(program.routes));
+    const main: ts.VariableStatement = writeMain(
+      context,
+      importer,
+      pick(context.routes),
+    );
     const statements: ts.Statement[] = [
       ...importer.toStatements(
         (name) => `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,
@@ -47,92 +48,94 @@ export namespace MigrateApiStartProgrammer {
     };
   };
 
-  const writeMain =
-    (config: INestiaMigrateConfig) =>
-    (document: OpenApi.IDocument) =>
-    (importer: MigrateImportProgrammer) =>
-    (route: IHttpMigrateRoute): ts.VariableStatement =>
-      StatementFactory.constant({
-        name: "main",
-        value: ts.factory.createArrowFunction(
-          [ts.factory.createToken(ts.SyntaxKind.AsyncKeyword)],
-          undefined,
-          [],
-          undefined,
-          undefined,
-          ts.factory.createBlock(
-            [
-              writeConnection(config)(document)(importer),
-              ...MigrateE2eFunctionProgrammer.writeBody(document.components)(
-                importer,
-              )(route),
-            ],
-            true,
-          ),
-        ),
-      });
-
-  const writeConnection =
-    (config: INestiaMigrateConfig) =>
-    (document: OpenApi.IDocument) =>
-    (importer: MigrateImportProgrammer): ts.VariableStatement =>
-      ts.factory.createVariableStatement(
+  const writeMain = (
+    ctx: INestiaMigrateContext,
+    importer: MigrateImportProgrammer,
+    route: IHttpMigrateRoute,
+  ): ts.VariableStatement =>
+    StatementFactory.constant({
+      name: "main",
+      value: ts.factory.createArrowFunction(
+        [ts.factory.createToken(ts.SyntaxKind.AsyncKeyword)],
         undefined,
-        ts.factory.createVariableDeclarationList(
+        [],
+        undefined,
+        undefined,
+        ts.factory.createBlock(
           [
-            ts.factory.createVariableDeclaration(
-              "connection",
-              undefined,
-              ts.factory.createTypeReferenceNode(
-                ts.factory.createQualifiedName(
-                  ts.factory.createIdentifier(
-                    importer.external({
-                      type: "default",
-                      library: "@ORGANIZATION/PROJECT-api",
-                      name: "api",
-                    }),
-                  ),
-                  ts.factory.createIdentifier("IConnection"),
+            writeConnection(ctx, importer),
+            ...MigrateE2eFunctionProgrammer.writeBody({
+              components: ctx.document.components,
+              importer,
+              route,
+            }),
+          ],
+          true,
+        ),
+      ),
+    });
+
+  const writeConnection = (
+    ctx: INestiaMigrateContext,
+    importer: MigrateImportProgrammer,
+  ): ts.VariableStatement =>
+    ts.factory.createVariableStatement(
+      undefined,
+      ts.factory.createVariableDeclarationList(
+        [
+          ts.factory.createVariableDeclaration(
+            "connection",
+            undefined,
+            ts.factory.createTypeReferenceNode(
+              ts.factory.createQualifiedName(
+                ts.factory.createIdentifier(
+                  importer.external({
+                    type: "default",
+                    library: "@ORGANIZATION/PROJECT-api",
+                    name: "api",
+                  }),
                 ),
-              ),
-              ts.factory.createObjectLiteralExpression(
-                [
-                  ts.factory.createSpreadAssignment(
-                    ts.factory.createCallExpression(
-                      ts.factory.createPropertyAccessExpression(
-                        ts.factory.createIdentifier("TestGlobal"),
-                        "connection",
-                      ),
-                      undefined,
-                      undefined,
-                    ),
-                  ),
-                  ...(document.servers?.[0]?.url?.length
-                    ? [
-                        ts.factory.createPropertyAssignment(
-                          "host",
-                          ts.factory.createStringLiteral(
-                            document.servers[0].url,
-                          ),
-                        ),
-                      ]
-                    : []),
-                  ...(config.simulate === true
-                    ? [
-                        ts.factory.createPropertyAssignment(
-                          "simulate",
-                          ts.factory.createTrue(),
-                        ),
-                      ]
-                    : []),
-                ],
-                true,
+                ts.factory.createIdentifier("IConnection"),
               ),
             ),
-          ],
-          ts.NodeFlags.Const,
-        ),
-      );
+            ts.factory.createObjectLiteralExpression(
+              [
+                ts.factory.createSpreadAssignment(
+                  ts.factory.createCallExpression(
+                    ts.factory.createPropertyAccessExpression(
+                      ts.factory.createIdentifier("TestGlobal"),
+                      "connection",
+                    ),
+                    undefined,
+                    undefined,
+                  ),
+                ),
+                ...(ctx.document.servers?.[0]?.url?.length
+                  ? [
+                      ts.factory.createPropertyAssignment(
+                        "host",
+                        ts.factory.createStringLiteral(
+                          ctx.document.servers[0].url,
+                        ),
+                      ),
+                    ]
+                  : []),
+                ...(ctx.config.simulate === true
+                  ? [
+                      ts.factory.createPropertyAssignment(
+                        "simulate",
+                        ts.factory.createTrue(),
+                      ),
+                    ]
+                  : []),
+              ],
+              true,
+            ),
+          ),
+        ],
+        ts.NodeFlags.Const,
+      ),
+    );
 
   const writeStarter = (): ts.CallExpression =>
     ts.factory.createCallExpression(
