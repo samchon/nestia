@@ -8,15 +8,15 @@ import { Escaper } from "typia/lib/utils/Escaper";
 import { FilePrinter } from "../utils/FilePrinter";
 import { OpenApiTypeChecker } from "../utils/OpenApiTypeChecker";
 import { StringUtil } from "../utils/StringUtil";
-import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
+import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 
-export namespace MigrateSchemaProgrammer {
+export namespace NestiaMigrateSchemaProgrammer {
   /* -----------------------------------------------------------
     FACADE
   ----------------------------------------------------------- */
   export const write = (props: {
     components: OpenApi.IComponents;
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema;
   }): ts.TypeNode => {
     // CONSIDER ANY TYPE CASE
@@ -99,7 +99,7 @@ export namespace MigrateSchemaProgrammer {
     ATOMICS
   ----------------------------------------------------------- */
   const writeConstant = (props: {
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.IConstant;
   }): ts.TypeNode => {
     const intersection: ts.TypeNode[] = [
@@ -130,7 +130,7 @@ export namespace MigrateSchemaProgrammer {
   };
 
   const writeBoolean = (props: {
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.IBoolean;
   }): ts.TypeNode => {
     const intersection: ts.TypeNode[] = [TypeFactory.keyword("boolean")];
@@ -146,7 +146,7 @@ export namespace MigrateSchemaProgrammer {
   };
 
   const writeInteger = (props: {
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.IInteger;
   }): ts.TypeNode =>
     writeNumeric({
@@ -159,7 +159,7 @@ export namespace MigrateSchemaProgrammer {
     });
 
   const writeNumber = (props: {
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.INumber;
   }): ts.TypeNode =>
     writeNumeric({
@@ -170,7 +170,7 @@ export namespace MigrateSchemaProgrammer {
 
   const writeNumeric = (props: {
     factory: () => ts.TypeNode[];
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.IInteger | OpenApi.IJsonSchema.INumber;
   }): ts.TypeNode => {
     const intersection: ts.TypeNode[] = props.factory();
@@ -206,7 +206,7 @@ export namespace MigrateSchemaProgrammer {
   };
 
   const writeString = (props: {
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.IString;
   }): ts.TypeNode => {
     if (props.schema.format === "binary")
@@ -251,7 +251,7 @@ export namespace MigrateSchemaProgrammer {
   ----------------------------------------------------------- */
   const writeArray = (props: {
     components: OpenApi.IComponents;
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.IArray;
   }): ts.TypeNode => {
     const intersection: ts.TypeNode[] = [
@@ -282,7 +282,7 @@ export namespace MigrateSchemaProgrammer {
 
   const writeTuple = (props: {
     components: OpenApi.IComponents;
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.ITuple;
   }): ts.TypeNode => {
     const tuple: ts.TypeNode = ts.factory.createTupleTypeNode([
@@ -328,14 +328,17 @@ export namespace MigrateSchemaProgrammer {
 
   const writeObject = (props: {
     components: OpenApi.IComponents;
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.IObject;
   }): ts.TypeNode => {
     const regular = () =>
       ts.factory.createTypeLiteralNode(
         Object.entries(props.schema.properties ?? [])
           .map(([key, value], index) => [
-            ...(index !== 0 ? [ts.factory.createIdentifier("\n") as any] : []),
+            ...(index !== 0 &&
+            (!!value.title?.length || !!value.description?.length)
+              ? [ts.factory.createIdentifier("\n") as any]
+              : []),
             writeRegularProperty({
               components: props.components,
               importer: props.importer,
@@ -364,7 +367,7 @@ export namespace MigrateSchemaProgrammer {
 
   const writeRegularProperty = (props: {
     components: OpenApi.IComponents;
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     required: string[];
     key: string;
     value: OpenApi.IJsonSchema;
@@ -389,7 +392,7 @@ export namespace MigrateSchemaProgrammer {
 
   const writeDynamicProperty = (props: {
     components: OpenApi.IComponents;
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema;
   }) =>
     FilePrinter.description(
@@ -410,7 +413,7 @@ export namespace MigrateSchemaProgrammer {
     );
 
   const writeReference = (props: {
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.IReference;
   }): ts.TypeReferenceNode | ts.KeywordTypeNode => {
     if (props.schema.$ref.startsWith("#/components/schemas") === false)
@@ -430,7 +433,7 @@ export namespace MigrateSchemaProgrammer {
   ----------------------------------------------------------- */
   const writeUnion = (props: {
     components: OpenApi.IComponents;
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     elements: OpenApi.IJsonSchema[];
   }): ts.UnionTypeNode =>
     ts.factory.createUnionTypeNode(
@@ -458,7 +461,7 @@ const writeComment = (schema: OpenApi.IJsonSchema): string =>
     .split("*/")
     .join("*\\/");
 const writePlugin = (props: {
-  importer: MigrateImportProgrammer;
+  importer: NestiaMigrateImportProgrammer;
   regular: string[];
   intersection: ts.TypeNode[];
   schema: Record<string, any>;

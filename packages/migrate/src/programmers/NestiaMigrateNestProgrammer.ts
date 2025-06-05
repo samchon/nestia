@@ -1,27 +1,27 @@
 import ts from "typescript";
 
-import { MigrateControllerAnalyzer } from "../analyzers/MigrateControllerAnalyzer";
+import { NestiaMigrateControllerAnalyzer } from "../analyzers/NestiaMigrateControllerAnalyzer";
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
-import { MigrateDtoProgrammer } from "./MigrateDtoProgrammer";
-import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
-import { MigrateNestControllerProgrammer } from "./MigrateNestControllerProgrammer";
-import { MigrateNestModuleProgrammer } from "./MigrateNestModuleProgrammer";
+import { NestiaMigrateDtoProgrammer } from "./NestiaMigrateDtoProgrammer";
+import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
+import { NestiaMigrateNestControllerProgrammer } from "./NestiaMigrateNestControllerProgrammer";
+import { NestiaMigrateNestModuleProgrammer } from "./NestiaMigrateNestModuleProgrammer";
 
-export namespace MigrateNestProgrammer {
+export namespace NestiaMigrateNestProgrammer {
   export const write = (
     context: INestiaMigrateContext,
   ): Record<string, string> => {
     const controllers: INestiaMigrateController[] =
-      MigrateControllerAnalyzer.analyze(context.routes);
+      NestiaMigrateControllerAnalyzer.analyze(context.routes);
     const statements: [string, ts.Statement[]][] = [
-      ["src/MyModule.ts", MigrateNestModuleProgrammer.write(controllers)],
+      ["src/MyModule.ts", NestiaMigrateNestModuleProgrammer.write(controllers)],
       ...controllers.map(
         (c) =>
           [
             `${c.location}/${c.name}.ts`,
-            MigrateNestControllerProgrammer.write({
+            NestiaMigrateNestControllerProgrammer.write({
               config: context.config,
               components: context.document.components,
               controller: c,
@@ -29,7 +29,7 @@ export namespace MigrateNestProgrammer {
           ] satisfies [string, ts.Statement[]],
       ),
       ...[
-        ...MigrateDtoProgrammer.compose({
+        ...NestiaMigrateDtoProgrammer.compose({
           config: context.config,
           components: context.document.components,
         }).entries(),
@@ -51,9 +51,9 @@ export namespace MigrateNestProgrammer {
 
   const writeDtoFile = (
     key: string,
-    modulo: MigrateDtoProgrammer.IModule,
+    modulo: NestiaMigrateDtoProgrammer.IModule,
   ): ts.Statement[] => {
-    const importer = new MigrateImportProgrammer();
+    const importer = new NestiaMigrateImportProgrammer();
     const statements: ts.Statement[] = iterate(importer)(modulo);
     if (statements.length === 0) return [];
 
@@ -65,8 +65,8 @@ export namespace MigrateNestProgrammer {
   };
 
   const iterate =
-    (importer: MigrateImportProgrammer) =>
-    (modulo: MigrateDtoProgrammer.IModule): ts.Statement[] => {
+    (importer: NestiaMigrateImportProgrammer) =>
+    (modulo: NestiaMigrateDtoProgrammer.IModule): ts.Statement[] => {
       const output: ts.Statement[] = [];
       if (modulo.programmer !== null) output.push(modulo.programmer(importer));
       if (modulo.children.size) {

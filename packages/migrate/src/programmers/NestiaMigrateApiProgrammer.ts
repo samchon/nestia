@@ -3,30 +3,33 @@ import ts from "typescript";
 
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 import { FilePrinter } from "../utils/FilePrinter";
-import { MigrateApiFileProgrammer } from "./MigrateApiFileProgrammer";
-import { MigrateDtoProgrammer } from "./MigrateDtoProgrammer";
-import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
+import { NestiaMigrateApiFileProgrammer } from "./NestiaMigrateApiFileProgrammer";
+import { NestiaMigrateDtoProgrammer } from "./NestiaMigrateDtoProgrammer";
+import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 
-export namespace MigrateApiProgrammer {
+export namespace NestiaMigrateApiProgrammer {
   export const write = (ctx: INestiaMigrateContext): Record<string, string> => {
-    const dict: HashMap<string[], MigrateApiFileProgrammer.IProps> =
+    const dict: HashMap<string[], NestiaMigrateApiFileProgrammer.IProps> =
       new HashMap(
         (x) => hash(x.join(".")),
         (x, y) => x.length === y.length && x.join(".") === y.join("."),
       );
     for (const route of ctx.routes) {
       const namespace: string[] = route.accessor.slice(0, -1);
-      let last: MigrateApiFileProgrammer.IProps = dict.take(namespace, () => ({
-        config: ctx.config,
-        components: ctx.document.components,
+      let last: NestiaMigrateApiFileProgrammer.IProps = dict.take(
         namespace,
-        routes: [],
-        children: new Set(),
-      }));
+        () => ({
+          config: ctx.config,
+          components: ctx.document.components,
+          namespace,
+          routes: [],
+          children: new Set(),
+        }),
+      );
       last.routes.push(route);
       namespace.forEach((_s, i, array) => {
         const partial: string[] = namespace.slice(0, array.length - i - 1);
-        const props: MigrateApiFileProgrammer.IProps = dict.take(
+        const props: NestiaMigrateApiFileProgrammer.IProps = dict.take(
           partial,
           () => ({
             config: ctx.config,
@@ -46,7 +49,7 @@ export namespace MigrateApiProgrammer {
       dict.toJSON().map(({ second: value }) => [
         `src/${ctx.mode === "nest" ? "api/" : ""}functional/${value.namespace.join("/")}/index.ts`,
         FilePrinter.write({
-          statements: MigrateApiFileProgrammer.write({
+          statements: NestiaMigrateApiFileProgrammer.write({
             ...value,
             config: ctx.config,
             components: ctx.document.components,
@@ -55,7 +58,7 @@ export namespace MigrateApiProgrammer {
       ]),
     );
     if (ctx.mode === "sdk")
-      for (const [key, value] of MigrateDtoProgrammer.compose({
+      for (const [key, value] of NestiaMigrateDtoProgrammer.compose({
         config: ctx.config,
         components: ctx.document.components,
       }).entries())
@@ -67,9 +70,9 @@ export namespace MigrateApiProgrammer {
 
   const writeDtoFile = (
     key: string,
-    modulo: MigrateDtoProgrammer.IModule,
+    modulo: NestiaMigrateDtoProgrammer.IModule,
   ): ts.Statement[] => {
-    const importer = new MigrateImportProgrammer();
+    const importer = new NestiaMigrateImportProgrammer();
     const statements: ts.Statement[] = iterate(importer, modulo);
     if (statements.length === 0) return [];
     return [
@@ -80,8 +83,8 @@ export namespace MigrateApiProgrammer {
   };
 
   const iterate = (
-    importer: MigrateImportProgrammer,
-    modulo: MigrateDtoProgrammer.IModule,
+    importer: NestiaMigrateImportProgrammer,
+    modulo: NestiaMigrateDtoProgrammer.IModule,
   ): ts.Statement[] => {
     const output: ts.Statement[] = [];
     if (modulo.programmer !== null) output.push(modulo.programmer(importer));

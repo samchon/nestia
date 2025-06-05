@@ -5,10 +5,10 @@ import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
-import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
-import { MigrateNestMethodProgrammer } from "./MigrateNestMethodProgrammer";
+import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
+import { NestiaMigrateNestMethodProgrammer } from "./NestiaMigrateNestMethodProgrammer";
 
-export namespace MigrateNestControllerProgrammer {
+export namespace NestiaMigrateNestControllerProgrammer {
   export interface IProps {
     config: INestiaMigrateConfig;
     components: OpenApi.IComponents;
@@ -16,7 +16,8 @@ export namespace MigrateNestControllerProgrammer {
   }
 
   export const write = (props: IProps): ts.Statement[] => {
-    const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
+    const importer: NestiaMigrateImportProgrammer =
+      new NestiaMigrateImportProgrammer();
     const $class = ts.factory.createClassDeclaration(
       [
         ts.factory.createDecorator(
@@ -40,7 +41,7 @@ export namespace MigrateNestControllerProgrammer {
       props.controller.routes
         .map((route, index) => [
           ...(index !== 0 ? [FilePrinter.newLine() as any] : []),
-          MigrateNestMethodProgrammer.write({
+          NestiaMigrateNestMethodProgrammer.write({
             config: props.config,
             components: props.components,
             controller: props.controller,

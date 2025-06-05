@@ -9,21 +9,21 @@ import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
-import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
-import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
+import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
+import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
-export namespace MigrateNestMethodProgrammer {
+export namespace NestiaMigrateNestMethodProgrammer {
   export interface IContext {
     config: INestiaMigrateConfig;
     components: OpenApi.IComponents;
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     controller: INestiaMigrateController;
     route: IHttpMigrateRoute;
   }
 
   export const write = (ctx: IContext): ts.MethodDeclaration => {
     const output: ts.TypeNode = ctx.route.success
-      ? MigrateSchemaProgrammer.write({
+      ? NestiaMigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,
           schema: ctx.route.success.schema,
@@ -174,7 +174,7 @@ export namespace MigrateNestMethodProgrammer {
           ts.factory.createCallExpression(
             external("@nestia/core", "TypedException"),
             [
-              MigrateSchemaProgrammer.write({
+              NestiaMigrateSchemaProgrammer.write({
                 components: ctx.components,
                 importer: ctx.importer,
                 schema: value.schema,
@@ -220,7 +220,7 @@ export namespace MigrateNestMethodProgrammer {
         undefined,
         p.key,
         undefined,
-        MigrateSchemaProgrammer.write({
+        NestiaMigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,
           schema: p.schema,
@@ -314,7 +314,7 @@ export namespace MigrateNestMethodProgrammer {
       arguments: ts.Expression[];
     }) =>
     (components: OpenApi.IComponents) =>
-    (importer: MigrateImportProgrammer) =>
+    (importer: NestiaMigrateImportProgrammer) =>
     (props: {
       schema: OpenApi.IJsonSchema;
       required: boolean;
@@ -349,7 +349,7 @@ export namespace MigrateNestMethodProgrammer {
         props.required === false
           ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
           : undefined,
-        MigrateSchemaProgrammer.write({
+        NestiaMigrateSchemaProgrammer.write({
           components,
           importer,
           schema: props.schema,
@@ -359,7 +359,7 @@ export namespace MigrateNestMethodProgrammer {
 
   const writeExampleDecorators =
     (kind: "Response" | "Parameter") =>
-    (importer: MigrateImportProgrammer) =>
+    (importer: NestiaMigrateImportProgrammer) =>
     (media: {
       example?: any;
       examples?: Record<string, any>;

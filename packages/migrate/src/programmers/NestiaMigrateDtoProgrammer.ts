@@ -6,16 +6,16 @@ import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
-import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
-import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
+import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
+import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
-export namespace MigrateDtoProgrammer {
+export namespace NestiaMigrateDtoProgrammer {
   export interface IModule {
     name: string;
     children: Map<string, IModule>;
     programmer:
       | null
-      | ((importer: MigrateImportProgrammer) => ts.TypeAliasDeclaration);
+      | ((importer: NestiaMigrateImportProgrammer) => ts.TypeAliasDeclaration);
   }
 
   export const compose = (props: {
@@ -41,7 +41,7 @@ export namespace MigrateDtoProgrammer {
     (name: string) =>
     (
       programmer: (
-        importer: MigrateImportProgrammer,
+        importer: NestiaMigrateImportProgrammer,
       ) => ts.TypeAliasDeclaration,
     ) => {
       const accessors: string[] = name.split(".");
@@ -62,14 +62,14 @@ export namespace MigrateDtoProgrammer {
   const writeAlias =
     (config: INestiaMigrateConfig) =>
     (components: OpenApi.IComponents) =>
-    (importer: MigrateImportProgrammer) =>
+    (importer: NestiaMigrateImportProgrammer) =>
     (key: string, value: OpenApi.IJsonSchema) =>
       FilePrinter.description(
         ts.factory.createTypeAliasDeclaration(
           [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
           key.split(".").at(-1)!,
           [],
-          MigrateSchemaProgrammer.write({
+          NestiaMigrateSchemaProgrammer.write({
             components,
             importer,
             schema: value,

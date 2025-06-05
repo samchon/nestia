@@ -3,7 +3,7 @@ import ts from "typescript";
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";
 
-export namespace MigrateNestModuleProgrammer {
+export namespace NestiaMigrateNestModuleProgrammer {
   export const write = (
     controllers: INestiaMigrateController[],
   ): ts.Statement[] => [

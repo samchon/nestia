@@ -10,10 +10,10 @@ import typia, { IValidation } from "typia";
 
 import { NEST_TEMPLATE } from "./bundles/NEST_TEMPLATE";
 import { SDK_TEMPLATE } from "./bundles/SDK_TEMPLATE";
-import { MigrateApiProgrammer } from "./programmers/MigrateApiProgrammer";
-import { MigrateApiStartProgrammer } from "./programmers/MigrateApiStartProgrammer";
-import { MigrateE2eProgrammer } from "./programmers/MigrateE2eProgrammer";
-import { MigrateNestProgrammer } from "./programmers/MigrateNestProgrammer";
+import { NestiaMigrateApiProgrammer } from "./programmers/NestiaMigrateApiProgrammer";
+import { NestiaMigrateApiStartProgrammer } from "./programmers/NestiaMigrateApiStartProgrammer";
+import { NestiaMigrateE2eProgrammer } from "./programmers/NestiaMigrateE2eProgrammer";
+import { NestiaMigrateNestProgrammer } from "./programmers/NestiaMigrateNestProgrammer";
 import { INestiaMigrateConfig } from "./structures/INestiaMigrateConfig";
 import { INestiaMigrateContext } from "./structures/INestiaMigrateContext";
 import { INestiaMigrateFile } from "./structures/INestiaMigrateFile";
@@ -77,9 +77,9 @@ export class NestiaMigrateApplication {
             key.startsWith("test/features") === false,
         ),
       ),
-      ...MigrateNestProgrammer.write(context),
-      ...MigrateApiProgrammer.write(context),
-      ...(config.e2e ? MigrateE2eProgrammer.write(context) : {}),
+      ...NestiaMigrateNestProgrammer.write(context),
+      ...NestiaMigrateApiProgrammer.write(context),
+      ...(config.e2e ? NestiaMigrateE2eProgrammer.write(context) : {}),
     };
     return config.package ? this.rename(config.package, files) : files;
   }
@@ -99,9 +99,9 @@ export class NestiaMigrateApplication {
             key.startsWith("test/features") === false,
         ),
       ),
-      ...MigrateApiProgrammer.write(context),
-      ...MigrateApiStartProgrammer.write(context),
-      ...(config.e2e ? MigrateE2eProgrammer.write(context) : {}),
+      ...NestiaMigrateApiProgrammer.write(context),
+      ...NestiaMigrateApiStartProgrammer.write(context),
+      ...(config.e2e ? NestiaMigrateE2eProgrammer.write(context) : {}),
       "swagger.json": JSON.stringify(this.document, null, 2),
     };
     return config.package ? this.rename(config.package, files) : files;

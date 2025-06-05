@@ -7,15 +7,15 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
-import { MigrateApiSimulationProgrammer } from "./MigrateApiSimulationProgrammer";
-import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
-import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
+import { NestiaMigrateApiSimulationProgrammer } from "./NestiaMigrateApiSimulationProgrammer";
+import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
+import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
-export namespace MigrateApiNamespaceProgrammer {
+export namespace NestiaMigrateApiNamespaceProgrammer {
   export interface IContext {
     config: INestiaMigrateConfig;
     components: OpenApi.IComponents;
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     route: IHttpMigrateRoute;
   }
 
@@ -32,8 +32,8 @@ export namespace MigrateApiNamespaceProgrammer {
         writePathFunction(ctx),
         ...(ctx.config.simulate === true
           ? [
-              MigrateApiSimulationProgrammer.random(ctx),
-              MigrateApiSimulationProgrammer.simulate(ctx),
+              NestiaMigrateApiSimulationProgrammer.random(ctx),
+              NestiaMigrateApiSimulationProgrammer.simulate(ctx),
             ]
           : []),
       ]),
@@ -71,7 +71,7 @@ export namespace MigrateApiNamespaceProgrammer {
     if (ctx.route.headers)
       declare(
         "Headers",
-        MigrateSchemaProgrammer.write({
+        NestiaMigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,
           schema: ctx.route.headers.schema,
@@ -83,18 +83,42 @@ export namespace MigrateApiNamespaceProgrammer {
     )
       declare(
         "IProps",
-        MigrateSchemaProgrammer.write({
+        NestiaMigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,
           schema: {
             type: "object",
             properties: Object.fromEntries([
-              ...ctx.route.parameters.map((p) => [p.key, p.schema]),
+              ...ctx.route.parameters.map((p) => [
+                p.key,
+                {
+                  ...p.schema,
+                  title: p.parameter().title,
+                  description: p.parameter().description,
+                },
+              ]),
               ...(ctx.route.query
-                ? [[ctx.route.query.key, ctx.route.query.schema]]
+                ? [
+                    [
+                      ctx.route.query.key,
+                      {
+                        ...ctx.route.query.schema,
+                        title: ctx.route.query.title(),
+                        description: ctx.route.query.description(),
+                      },
+                    ],
+                  ]
                 : []),
               ...(ctx.route.body
-                ? [[ctx.route.body.key, ctx.route.body.schema]]
+                ? [
+                    [
+                      ctx.route.body.key,
+                      {
+                        ...ctx.route.body.schema,
+                        description: ctx.route.body.description(),
+                      },
+                    ],
+                  ]
                 : []),
             ]),
             required: [
@@ -108,7 +132,7 @@ export namespace MigrateApiNamespaceProgrammer {
     if (ctx.route.query)
       declare(
         "Query",
-        MigrateSchemaProgrammer.write({
+        NestiaMigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,
           schema: ctx.route.query.schema,
@@ -117,7 +141,7 @@ export namespace MigrateApiNamespaceProgrammer {
     if (ctx.route.body)
       declare(
         "RequestBody",
-        MigrateSchemaProgrammer.write({
+        NestiaMigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,
           schema: ctx.route.body.schema,
@@ -126,7 +150,7 @@ export namespace MigrateApiNamespaceProgrammer {
     if (ctx.route.success)
       declare(
         "Response",
-        MigrateSchemaProgrammer.write({
+        NestiaMigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,
           schema: ctx.route.success.schema,
@@ -180,7 +204,7 @@ export namespace MigrateApiNamespaceProgrammer {
                         })}.http.createAssertQuery`,
                       ),
                       [
-                        MigrateSchemaProgrammer.write({
+                        NestiaMigrateSchemaProgrammer.write({
                           components: ctx.components,
                           importer: ctx.importer,
                           schema: ctx.route.success.schema,
@@ -222,7 +246,7 @@ export namespace MigrateApiNamespaceProgrammer {
               ? [
                   IdentifierFactory.parameter(
                     "p",
-                    MigrateSchemaProgrammer.write({
+                    NestiaMigrateSchemaProgrammer.write({
                       components: ctx.components,
                       importer: ctx.importer,
                       schema: {
@@ -245,7 +269,7 @@ export namespace MigrateApiNamespaceProgrammer {
                   ...ctx.route.parameters.map((p) =>
                     IdentifierFactory.parameter(
                       p.key,
-                      MigrateSchemaProgrammer.write({
+                      NestiaMigrateSchemaProgrammer.write({
                         components: ctx.components,
                         importer: ctx.importer,
                         schema: p.schema,

@@ -1,16 +1,17 @@
 import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
+import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
-import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
-import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
+import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
+import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
-export namespace MigrateE2eFunctionProgrammer {
+export namespace NestiaMigrateE2eFunctionProgrammer {
   export interface IContext {
     config: INestiaMigrateConfig;
     components: OpenApi.IComponents;
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     route: IHttpMigrateRoute;
   }
 
@@ -53,7 +54,7 @@ export namespace MigrateE2eFunctionProgrammer {
             "output",
             undefined,
             ctx.route.success
-              ? MigrateSchemaProgrammer.write({
+              ? NestiaMigrateSchemaProgrammer.write({
                   components: ctx.components,
                   importer: ctx.importer,
                   schema: ctx.route.success.schema,
@@ -89,6 +90,13 @@ export namespace MigrateE2eFunctionProgrammer {
       ts.factory.createIdentifier(ctx.route.accessor.join(".")),
     );
     const connection = ts.factory.createIdentifier("connection");
+    if (
+      ctx.route.parameters.length === 0 &&
+      ctx.route.query === null &&
+      ctx.route.body === null
+    )
+      return ts.factory.createCallExpression(fetch, undefined, [connection]);
+
     const random = ts.factory.createPropertyAccessExpression(
       ts.factory.createIdentifier(
         ctx.importer.external({
@@ -99,31 +107,39 @@ export namespace MigrateE2eFunctionProgrammer {
       ),
       "random",
     );
-    if (
-      ctx.config.keyword === true &&
-      (!!ctx.route.parameters.length || !!ctx.route.query || !!ctx.route.body)
-    )
+    if (ctx.config.keyword === true)
       return ts.factory.createCallExpression(fetch, undefined, [
         connection,
-        ts.factory.createCallExpression(
-          random,
-          [
-            ts.factory.createTypeReferenceNode(
-              ["api", "functional", ...ctx.route.accessor, "IProps"].join("."),
-            ),
-          ],
-          [],
+        LiteralFactory.write(
+          Object.fromEntries(
+            [...ctx.route.parameters, ctx.route.query, ctx.route.body]
+              .filter((x) => x !== null)
+              .map(({ key, schema: value }) => [
+                key,
+                ts.factory.createCallExpression(
+                  random,
+                  [
+                    NestiaMigrateSchemaProgrammer.write({
+                      components: ctx.components,
+                      importer: ctx.importer,
+                      schema: value,
+                    }),
+                  ],
+                  undefined,
+                ),
+              ]),
+          ),
         ),
       ]);
     return ts.factory.createCallExpression(fetch, undefined, [
       connection,
-      ...[...ctx.route.parameters, ctx.route.query!, ctx.route.body!]
+      ...[...ctx.route.parameters, ctx.route.query, ctx.route.body]
         .filter((p) => !!p)
         .map((p) =>
           ts.factory.createCallExpression(
             random,
             [
-              MigrateSchemaProgrammer.write({
+              NestiaMigrateSchemaProgrammer.write({
                 components: ctx.components,
                 importer: ctx.importer,
                 schema: p.schema,

@@ -5,22 +5,22 @@ import { StatementFactory } from "typia/lib/factories/StatementFactory";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
-import { MigrateApiFunctionProgrammer } from "./MigrateApiFunctionProgrammer";
-import { MigrateApiNamespaceProgrammer } from "./MigrateApiNamespaceProgrammer";
-import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
-import { MigrateSchemaProgrammer } from "./MigrateSchemaProgrammer";
+import { NestiaMigrateApiFunctionProgrammer } from "./NestiaMigrateApiFunctionProgrammer";
+import { NestiaMigrateApiNamespaceProgrammer } from "./NestiaMigrateApiNamespaceProgrammer";
+import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
+import { NestiaMigrateSchemaProgrammer } from "./NestiaMigrateSchemaProgrammer";
 
-export namespace MigrateApiSimulationProgrammer {
+export namespace NestiaMigrateApiSimulationProgrammer {
   export interface IContext {
     config: INestiaMigrateConfig;
     components: OpenApi.IComponents;
-    importer: MigrateImportProgrammer;
+    importer: NestiaMigrateImportProgrammer;
     route: IHttpMigrateRoute;
   }
 
   export const random = (ctx: IContext) => {
     const output = ctx.route.success
-      ? MigrateSchemaProgrammer.write({
+      ? NestiaMigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,
           schema: ctx.route.success.schema,
@@ -102,7 +102,7 @@ export namespace MigrateApiSimulationProgrammer {
       ts.factory.createArrowFunction(
         undefined,
         undefined,
-        MigrateApiFunctionProgrammer.writeParameterDeclarations(ctx),
+        NestiaMigrateApiFunctionProgrammer.writeParameterDeclarations(ctx),
         ts.factory.createTypeReferenceNode(
           ctx.route.success ? "Response" : "void",
         ),
@@ -127,7 +127,7 @@ export namespace MigrateApiSimulationProgrammer {
       ...ctx.route.parameters.map((p) => ({
         category: "param",
         name: p.key,
-        schema: MigrateSchemaProgrammer.write({
+        schema: NestiaMigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,
           schema: p.schema,
@@ -138,7 +138,7 @@ export namespace MigrateApiSimulationProgrammer {
             {
               category: "query",
               name: ctx.route.query.key,
-              schema: MigrateSchemaProgrammer.write({
+              schema: NestiaMigrateSchemaProgrammer.write({
                 components: ctx.components,
                 importer: ctx.importer,
                 schema: ctx.route.query.schema,
@@ -151,7 +151,7 @@ export namespace MigrateApiSimulationProgrammer {
             {
               category: "body",
               name: ctx.route.body.key,
-              schema: MigrateSchemaProgrammer.write({
+              schema: NestiaMigrateSchemaProgrammer.write({
                 components: ctx.components,
                 importer: ctx.importer,
                 schema: ctx.route.body.schema,
@@ -189,7 +189,7 @@ export namespace MigrateApiSimulationProgrammer {
               ),
               ts.factory.createPropertyAssignment(
                 "path",
-                MigrateApiNamespaceProgrammer.writePathCallExpression(
+                NestiaMigrateApiNamespaceProgrammer.writePathCallExpression(
                   ctx.config,
                   ctx.route,
                 ),
@@ -254,7 +254,7 @@ export namespace MigrateApiSimulationProgrammer {
   };
 
   const tryAndCatch = (
-    importer: MigrateImportProgrammer,
+    importer: NestiaMigrateImportProgrammer,
     individual: ts.Statement[],
   ) =>
     ts.factory.createTryStatement(

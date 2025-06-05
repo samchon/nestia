@@ -4,7 +4,7 @@ import { INestiaMigrateController } from "../structures/INestiaMigrateController
 import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
 
-export namespace MigrateControllerAnalyzer {
+export namespace NestiaMigrateControllerAnalyzer {
   export const analyze = (
     routes: IHttpMigrateRoute[],
   ): INestiaMigrateController[] => {
