@@ -60,7 +60,7 @@
     "dotenv": "^16.3.1",
     "dotenv-expand": "^10.0.0",
     "express": "^4.19.2",
-    "multer": "^2.0.0",
+    "multer": "^2.0.1",
     "rimraf": "^6.0.1",
     "rollup": "^4.24.3",
     "serialize-error": "^4.1.0",
