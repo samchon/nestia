@@ -57,15 +57,6 @@ export class ImportDictionary {
   }
 
   public toStatements(outDir: string): ts.Statement[] {
-    console.log("---------------------------");
-    console.log(this.file);
-    for (const it of this.components_)
-      console.log(
-        it.first.first,
-        it.first.second,
-        Array.from(it.second.elements),
-      );
-    console.log("---------------------------");
     const external: ts.ImportDeclaration[] = [];
     const internal: ts.ImportDeclaration[] = [];
 
