@@ -65,7 +65,7 @@ export namespace SdkHttpSimulationProgrammer {
       props: {
         headers: ITypedHttpRouteParameter.IHeaders | undefined;
         query: ITypedHttpRouteParameter.IQuery | undefined;
-        input: ITypedHttpRouteParameter.IBody | undefined;
+        body: ITypedHttpRouteParameter.IBody | undefined;
       },
     ): ts.VariableStatement => {
       const output: boolean =
@@ -117,28 +117,42 @@ export namespace SdkHttpSimulationProgrammer {
                   : [],
               ),
             ),
-            ...route.parameters
-              .filter((p) => p.category !== "headers")
-              .map((p) =>
-                ts.factory.createParameterDeclaration(
-                  [],
-                  undefined,
-                  p.name,
-                  p.metadata.optional
-                    ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
-                    : undefined,
-                  project.config.primitive !== false &&
-                    (p === props.query || p === props.input)
-                    ? ts.factory.createTypeReferenceNode(
-                        `${route.name}.${p === props.query ? "Query" : "Input"}`,
-                      )
-                    : project.config.clone === true
-                      ? SdkAliasCollection.from(project)(importer)(p.metadata)
-                      : SdkAliasCollection.name(p),
-                ),
-              ),
+            ...(project.config.keyword === true &&
+            route.parameters.filter((p) => p.category !== "headers").length !==
+              0
+              ? [
+                  ts.factory.createParameterDeclaration(
+                    [],
+                    undefined,
+                    "props",
+                    undefined,
+                    ts.factory.createTypeReferenceNode("IProps"),
+                  ),
+                ]
+              : route.parameters
+                  .filter((p) => p.category !== "headers")
+                  .map((p) =>
+                    ts.factory.createParameterDeclaration(
+                      [],
+                      undefined,
+                      p.name,
+                      p.metadata.optional
+                        ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
+                        : undefined,
+                      project.config.primitive !== false &&
+                        (p === props.query || p === props.body)
+                        ? ts.factory.createTypeReferenceNode(
+                            `${route.name}.${p === props.query ? "Query" : "RequestBody"}`,
+                          )
+                        : project.config.clone === true
+                          ? SdkAliasCollection.from(project)(importer)(
+                              p.metadata,
+                            )
+                          : SdkAliasCollection.name(p),
+                    ),
+                  )),
           ],
-          ts.factory.createTypeReferenceNode(output ? "Output" : "void"),
+          ts.factory.createTypeReferenceNode(output ? "Response" : "void"),
           undefined,
           ts.factory.createBlock(
             [
@@ -169,7 +183,7 @@ export namespace SdkHttpSimulationProgrammer {
                         ],
                         true,
                       ),
-                      ts.factory.createTypeReferenceNode("Output"),
+                      ts.factory.createTypeReferenceNode("Response"),
                     )
                   : caller(),
               ),
@@ -189,6 +203,10 @@ export namespace SdkHttpSimulationProgrammer {
       );
       if (parameters.length === 0) return [];
 
+      const access = (key: string) =>
+        project.config.keyword === true
+          ? IdentifierFactory.access(ts.factory.createIdentifier("props"), key)
+          : ts.factory.createIdentifier(key);
       const typia = SdkImportWizard.typia(importer);
       const validator = StatementFactory.constant({
         name: "assert",
@@ -220,11 +238,17 @@ export namespace SdkHttpSimulationProgrammer {
                   ts.factory.createCallExpression(
                     ts.factory.createIdentifier("path"),
                     undefined,
-                    route.parameters
-                      .filter(
+                    project.config.keyword === true &&
+                      route.parameters.filter(
                         (p) => p.category === "param" || p.category === "query",
-                      )
-                      .map((p) => ts.factory.createIdentifier(p.name)),
+                      ).length !== 0
+                      ? [ts.factory.createIdentifier("props")]
+                      : route.parameters
+                          .filter(
+                            (p) =>
+                              p.category === "param" || p.category === "query",
+                          )
+                          .map((p) => ts.factory.createIdentifier(p.name)),
                   ),
                 ),
                 ts.factory.createPropertyAssignment(
@@ -266,7 +290,7 @@ export namespace SdkHttpSimulationProgrammer {
                     "assert",
                   ),
                   undefined,
-                  [ts.factory.createIdentifier(p.name)],
+                  [access(p.name)],
                 ),
               ),
             ],

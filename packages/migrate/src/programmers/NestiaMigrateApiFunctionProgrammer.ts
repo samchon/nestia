@@ -135,13 +135,10 @@ export namespace NestiaMigrateApiFunctionProgrammer {
     const encrypted: boolean = !!ctx.route.success?.["x-nestia-encrypted"];
     const contentType: string = ctx.route.body?.type ?? "application/json";
 
-    const property = (name: string): ts.Expression =>
+    const property = (key: string): ts.Expression =>
       ctx.config.keyword === true
-        ? ts.factory.createPropertyAccessExpression(
-            ts.factory.createIdentifier("props"),
-            name,
-          )
-        : ts.factory.createIdentifier(name);
+        ? IdentifierFactory.access(ts.factory.createIdentifier("props"), key)
+        : ts.factory.createIdentifier(key);
     const fetch = () =>
       ts.factory.createCallExpression(
         IdentifierFactory.access(
@@ -244,7 +241,7 @@ export namespace NestiaMigrateApiFunctionProgrammer {
       (body === false || ctx.route.body === null)
     )
       return [];
-    if (ctx.config.keyword === true)
+    else if (ctx.config.keyword === true)
       return [ts.factory.createIdentifier("props")];
     return [
       ...ctx.route.parameters.map((p) => ts.factory.createIdentifier(p.key)),

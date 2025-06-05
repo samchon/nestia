@@ -118,10 +118,7 @@ export namespace NestiaMigrateApiSimulationProgrammer {
   const assert = (ctx: IContext): ts.Statement[] => {
     const property = (key: string) =>
       ctx.config.keyword === true
-        ? ts.factory.createPropertyAccessExpression(
-            ts.factory.createIdentifier("props"),
-            key,
-          )
+        ? IdentifierFactory.access(ts.factory.createIdentifier("props"), key)
         : ts.factory.createIdentifier(key);
     const parameters = [
       ...ctx.route.parameters.map((p) => ({

@@ -26,6 +26,25 @@ export namespace SdkAliasCollection {
     (metadata: Metadata) =>
       SdkTypeProgrammer.write(project)(importer)(metadata);
 
+  export const props =
+    (project: INestiaProject) =>
+    (importer: ImportDictionary) =>
+    (route: ITypedHttpRoute): ts.TypeNode =>
+      ts.factory.createTypeLiteralNode(
+        route.parameters
+          .filter((p) => p.category !== "headers")
+          .map((param) =>
+            ts.factory.createPropertySignature(
+              undefined,
+              param.name,
+              param.metadata.isRequired() === false
+                ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
+                : undefined,
+              SdkTypeProgrammer.write(project)(importer)(param.metadata),
+            ),
+          ),
+      );
+
   export const headers =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
@@ -62,7 +81,7 @@ export namespace SdkAliasCollection {
       );
     };
 
-  export const input =
+  export const body =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (param: ITypedHttpRouteParameter.IBody): ts.TypeNode => {
@@ -91,7 +110,7 @@ export namespace SdkAliasCollection {
       );
     };
 
-  export const output =
+  export const response =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.TypeNode => {
@@ -160,7 +179,7 @@ export namespace SdkAliasCollection {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.TypeNode =>
-      output({
+      response({
         ...project,
         config: {
           ...project.config,

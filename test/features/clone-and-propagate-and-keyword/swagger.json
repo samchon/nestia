@@ -1,0 +1,3665 @@
+{
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://github.com/samchon/nestia",
+      "description": "insert your server url"
+    }
+  ],
+  "info": {
+    "version": "1.0.0",
+    "title": "@samchon/nestia-test",
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/arrayRecursive": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ICategory"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursive",
+          "index"
+        ],
+        "x-samchon-controller": "ArrayRecursiveController"
+      },
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICategory"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICategory"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursive",
+          "store"
+        ],
+        "x-samchon-controller": "ArrayRecursiveController"
+      }
+    },
+    "/arrayRecursive/{id}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICategory"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursive",
+          "at"
+        ],
+        "x-samchon-controller": "ArrayRecursiveController"
+      }
+    },
+    "/arrayRecursiveUnionExplicit": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/IDirectory"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IImageFile"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ITextFile"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IZipFile"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IShortcut"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursiveUnionExplicit",
+          "index"
+        ],
+        "x-samchon-controller": "ArrayRecursiveUnionExplicitController"
+      },
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/IDirectory"
+                  },
+                  {
+                    "$ref": "#/components/schemas/IImageFile"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ITextFile"
+                  },
+                  {
+                    "$ref": "#/components/schemas/IZipFile"
+                  },
+                  {
+                    "$ref": "#/components/schemas/IShortcut"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/IDirectory"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IImageFile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ITextFile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IZipFile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IShortcut"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursiveUnionExplicit",
+          "store"
+        ],
+        "x-samchon-controller": "ArrayRecursiveUnionExplicitController"
+      }
+    },
+    "/arrayRecursiveUnionExplicit/{id}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/IDirectory"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IImageFile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ITextFile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IZipFile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IShortcut"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursiveUnionExplicit",
+          "at"
+        ],
+        "x-samchon-controller": "ArrayRecursiveUnionExplicitController"
+      }
+    },
+    "/arrayRecursiveUnionImplicit": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/IDirectory.o1"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ISharedDirectory"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IImageFile.o1"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ITextFile.o1"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IZipFile.o1"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IShortcut.o1"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursiveUnionImplicit",
+          "index"
+        ],
+        "x-samchon-controller": "ArrayRecursiveUnionImplicitController"
+      },
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/IDirectory.o1"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ISharedDirectory"
+                  },
+                  {
+                    "$ref": "#/components/schemas/IImageFile.o1"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ITextFile.o1"
+                  },
+                  {
+                    "$ref": "#/components/schemas/IZipFile.o1"
+                  },
+                  {
+                    "$ref": "#/components/schemas/IShortcut.o1"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/IDirectory.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ISharedDirectory"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IImageFile.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ITextFile.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IZipFile.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IShortcut.o1"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursiveUnionImplicit",
+          "store"
+        ],
+        "x-samchon-controller": "ArrayRecursiveUnionImplicitController"
+      }
+    },
+    "/arrayRecursiveUnionImplicit/{id}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/IDirectory.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ISharedDirectory"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IImageFile.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ITextFile.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IZipFile.o1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IShortcut.o1"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "arrayRecursiveUnionImplicit",
+          "at"
+        ],
+        "x-samchon-controller": "ArrayRecursiveUnionImplicitController"
+      }
+    },
+    "/arraySimple": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IPerson"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "arraySimple",
+          "index"
+        ],
+        "x-samchon-controller": "ArraySimpleController"
+      },
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IPerson"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPerson"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "arraySimple",
+          "store"
+        ],
+        "x-samchon-controller": "ArraySimpleController"
+      }
+    },
+    "/arraySimple/{id}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPerson"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "arraySimple",
+          "at"
+        ],
+        "x-samchon-controller": "ArraySimpleController"
+      }
+    },
+    "/bbs/articles/{section}": {
+      "get": {
+        "summary": "List up summarized articles",
+        "description": "List up summarized articles.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "section",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " Target section"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated articles with summarization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPageIBbsArticle.ISummary"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "index"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
+      },
+      "post": {
+        "summary": "Store a new article",
+        "description": "Store a new article.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "section",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " Section code"
+          }
+        ],
+        "requestBody": {
+          "description": "Content to store",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Newly archived article",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "store"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
+      }
+    },
+    "/bbs/articles/{section}/{id}": {
+      "put": {
+        "summary": "Update an article",
+        "description": "Update an article.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "section",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": " Section code"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "description": " Target article ID"
+          }
+        ],
+        "requestBody": {
+          "description": "Content to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBbsArticle.IStore"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBbsArticle"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "bbs",
+          "articles",
+          "update"
+        ],
+        "x-samchon-controller": "BbsArticlesController"
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "health",
+          "get"
+        ],
+        "x-samchon-controller": "HealthController"
+      }
+    },
+    "/objectLiteral": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ObjectLietral"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "objectLiteral",
+          "index"
+        ],
+        "x-samchon-controller": "ObjectLiteralController"
+      }
+    },
+    "/objectLiteral/literal": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "member": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "email": {
+                            "type": "string",
+                            "format": "email"
+                          },
+                          "age": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "email",
+                          "age"
+                        ]
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "member",
+                      "created_at"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "objectLiteral",
+          "literal",
+          "literals"
+        ],
+        "x-samchon-controller": "ObjectLiteralController"
+      }
+    },
+    "/objectSimple": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IBox3D"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "objectSimple",
+          "index"
+        ],
+        "x-samchon-controller": "ObjectSimpleController"
+      },
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBox3D"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBox3D"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "objectSimple",
+          "store"
+        ],
+        "x-samchon-controller": "ObjectSimpleController"
+      }
+    },
+    "/objectSimple/{id}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IBox3D"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "objectSimple",
+          "at"
+        ],
+        "x-samchon-controller": "ObjectSimpleController"
+      }
+    },
+    "/objectUnionExplicit": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/DiscriminatorpointIPoint"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DiscriminatorlineILine"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DiscriminatortriangleITriangle"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DiscriminatorrectangleIRectangle"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DiscriminatorpolylineIPolyline"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DiscriminatorpolygonIPolygon"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DiscriminatorcircleICircle"
+                      }
+                    ],
+                    "discriminator": {
+                      "propertyName": "type",
+                      "mapping": {
+                        "point": "#/components/schemas/DiscriminatorpointIPoint",
+                        "line": "#/components/schemas/DiscriminatorlineILine",
+                        "triangle": "#/components/schemas/DiscriminatortriangleITriangle",
+                        "rectangle": "#/components/schemas/DiscriminatorrectangleIRectangle",
+                        "polyline": "#/components/schemas/DiscriminatorpolylineIPolyline",
+                        "polygon": "#/components/schemas/DiscriminatorpolygonIPolygon",
+                        "circle": "#/components/schemas/DiscriminatorcircleICircle"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "objectUnionExplicit",
+          "get"
+        ],
+        "x-samchon-controller": "ObjectUnionExplicitController"
+      }
+    },
+    "/objectUnionImplicitControllere": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/IPoint.o1"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ILine"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ITriangle"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IRectangle"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IPolyline.o1"
+                      },
+                      {
+                        "$ref": "#/components/schemas/IPolygon"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ICircle"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "objectUnionImplicitControllere",
+          "get"
+        ],
+        "x-samchon-controller": "ObjectUnionImplicitController"
+      }
+    },
+    "/performance/cpu": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/process.global.NodeJS.CpuUsage"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "performance",
+          "cpu"
+        ],
+        "x-samchon-controller": "PerformanceController"
+      }
+    },
+    "/performance/memory": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/process.global.NodeJS.MemoryUsage"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "performance",
+          "memory"
+        ],
+        "x-samchon-controller": "PerformanceController"
+      }
+    },
+    "/performance/resource": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/process.global.NodeJS.ResourceUsage"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "performance",
+          "resource"
+        ],
+        "x-samchon-controller": "PerformanceController"
+      }
+    },
+    "/sellers/authenticate/join": {
+      "post": {
+        "summary": "Join as a seller",
+        "description": "Join as a seller.",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "## Warning\n\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nInformation of yours",
+          "content": {
+            "text/plain": {
+              "schema": {
+                "$ref": "#/components/schemas/ISeller.IJoin"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": true
+        },
+        "responses": {
+          "201": {
+            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.Post](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nInformation of newly joined seller",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ISeller.IAuthorized"
+                }
+              }
+            },
+            "x-nestia-encrypted": true
+          }
+        },
+        "x-samchon-accessor": [
+          "sellers",
+          "authenticate",
+          "join"
+        ],
+        "x-samchon-controller": "SellerAuthenticateController"
+      }
+    },
+    "/sellers/authenticate/login": {
+      "post": {
+        "summary": "Log-in as a seller",
+        "description": "Log-in as a seller.",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "## Warning\n\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nEmail and password",
+          "content": {
+            "text/plain": {
+              "schema": {
+                "$ref": "#/components/schemas/ISeller.ILogin"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": true
+        },
+        "responses": {
+          "201": {
+            "description": "## Warning\n\nResponse data have been encrypted.\n\nThe response body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedRoute.Post](https://github.com/samchon/@nestia/core#encryptedroute) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nInformation of the seller",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ISeller.IAuthorized"
+                }
+              }
+            },
+            "x-nestia-encrypted": true
+          }
+        },
+        "x-samchon-accessor": [
+          "sellers",
+          "authenticate",
+          "login"
+        ],
+        "x-samchon-controller": "SellerAuthenticateController"
+      }
+    },
+    "/sellers/authenticate/password/change": {
+      "patch": {
+        "summary": "Change password",
+        "description": "Change password.",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "description": "## Warning\n\nRequest body must be encrypted.\n\nThe request body data would be encrypted as \"AES-128(256) / CBC mode / PKCS#5 Padding / Base64 Encoding\", through the [EncryptedBody](https://github.com/samchon/@nestia/core#encryptedbody) component.\n\nTherefore, just utilize this swagger editor only for referencing. If you need to call the real API, using [SDK](https://github.com/samchon/nestia#software-development-kit) would be much better.\n\n----------------\n\nOld and new passwords",
+          "content": {
+            "text/plain": {
+              "schema": {
+                "$ref": "#/components/schemas/ISeller.IChangePassword"
+              }
+            }
+          },
+          "required": true,
+          "x-nestia-encrypted": true
+        },
+        "responses": {
+          "200": {
+            "description": "Empty object",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "sellers",
+          "authenticate",
+          "password",
+          "change"
+        ],
+        "x-samchon-controller": "SellerAuthenticateController"
+      }
+    },
+    "/sellers/authenticate/exit": {
+      "delete": {
+        "summary": "Erase the seller by itself",
+        "description": "Erase the seller by itself.",
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "sellers",
+          "authenticate",
+          "exit"
+        ],
+        "x-samchon-controller": "SellerAuthenticateController"
+      }
+    },
+    "/template": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Template"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "template",
+          "index"
+        ],
+        "x-samchon-controller": "TemplateController"
+      },
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Template"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Template"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "template",
+          "store"
+        ],
+        "x-samchon-controller": "TemplateController"
+      }
+    },
+    "/template/{id}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Template"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "template",
+          "at"
+        ],
+        "x-samchon-controller": "TemplateController"
+      }
+    },
+    "/tupleHierarchicalController": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          },
+                          {
+                            "type": "array",
+                            "prefixItems": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "array",
+                                "prefixItems": [
+                                  {
+                                    "type": "boolean"
+                                  },
+                                  {
+                                    "type": "string"
+                                  }
+                                ],
+                                "additionalItems": false
+                              }
+                            ],
+                            "additionalItems": false
+                          }
+                        ],
+                        "additionalItems": false
+                      },
+                      {
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "array",
+                                    "prefixItems": [
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "array",
+                                        "prefixItems": [
+                                          {
+                                            "type": "boolean"
+                                          },
+                                          {
+                                            "type": "string"
+                                          }
+                                        ],
+                                        "additionalItems": false
+                                      }
+                                    ],
+                                    "additionalItems": false
+                                  }
+                                }
+                              ],
+                              "additionalItems": false
+                            }
+                          }
+                        ],
+                        "additionalItems": false
+                      }
+                    ],
+                    "additionalItems": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "tupleHierarchicalController",
+          "index"
+        ],
+        "x-samchon-controller": "TupleHierarchicalController"
+      },
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "array",
+                            "prefixItems": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ],
+                            "additionalItems": false
+                          }
+                        ],
+                        "additionalItems": false
+                      }
+                    ],
+                    "additionalItems": false
+                  },
+                  {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "prefixItems": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "prefixItems": [
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "number"
+                                  },
+                                  {
+                                    "type": "array",
+                                    "prefixItems": [
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ],
+                                    "additionalItems": false
+                                  }
+                                ],
+                                "additionalItems": false
+                              }
+                            }
+                          ],
+                          "additionalItems": false
+                        }
+                      }
+                    ],
+                    "additionalItems": false
+                  }
+                ],
+                "additionalItems": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "array",
+                          "prefixItems": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "string"
+                                }
+                              ],
+                              "additionalItems": false
+                            }
+                          ],
+                          "additionalItems": false
+                        }
+                      ],
+                      "additionalItems": false
+                    },
+                    {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "prefixItems": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "prefixItems": [
+                                        {
+                                          "type": "boolean"
+                                        },
+                                        {
+                                          "type": "string"
+                                        }
+                                      ],
+                                      "additionalItems": false
+                                    }
+                                  ],
+                                  "additionalItems": false
+                                }
+                              }
+                            ],
+                            "additionalItems": false
+                          }
+                        }
+                      ],
+                      "additionalItems": false
+                    }
+                  ],
+                  "additionalItems": false
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "tupleHierarchicalController",
+          "store"
+        ],
+        "x-samchon-controller": "TupleHierarchicalController"
+      }
+    },
+    "/tupleHierarchicalController/{id}": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "array",
+                          "prefixItems": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "string"
+                                }
+                              ],
+                              "additionalItems": false
+                            }
+                          ],
+                          "additionalItems": false
+                        }
+                      ],
+                      "additionalItems": false
+                    },
+                    {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "prefixItems": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "array",
+                                      "prefixItems": [
+                                        {
+                                          "type": "boolean"
+                                        },
+                                        {
+                                          "type": "string"
+                                        }
+                                      ],
+                                      "additionalItems": false
+                                    }
+                                  ],
+                                  "additionalItems": false
+                                }
+                              }
+                            ],
+                            "additionalItems": false
+                          }
+                        }
+                      ],
+                      "additionalItems": false
+                    }
+                  ],
+                  "additionalItems": false
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "tupleHierarchicalController",
+          "at"
+        ],
+        "x-samchon-controller": "TupleHierarchicalController"
+      }
+    },
+    "/users/{user_id}/oauth": {
+      "get": {
+        "summary": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types",
+        "description": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.\n- When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type.",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "oauth_type",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "const": "google"
+                },
+                {
+                  "const": "github"
+                },
+                {
+                  "const": "kakao"
+                }
+              ]
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IAuthentication.IProfile"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "const": "404 Not Found"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "users",
+          "oauth",
+          "getOauthProfile"
+        ],
+        "x-samchon-controller": "UsersController"
+      }
+    },
+    "/users/{user_id}/user": {
+      "get": {
+        "summary": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types",
+        "description": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.\n- When propagation mode being used with `@TypedException<T>()` decorator, target `T` type had not been cloned.\n- When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type.\n- check optional query DTO\n- when use HttpCode decorator, sdk build fail code",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "user_type",
+            "in": "query",
+            "schema": {
+              "oneOf": [
+                {
+                  "const": "admin"
+                },
+                {
+                  "const": "default"
+                },
+                {
+                  "const": "seller"
+                }
+              ]
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IUser"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "const": "404 Not Found"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "users",
+          "user",
+          "getUserProfile"
+        ],
+        "x-samchon-controller": "UsersController"
+      },
+      "post": {
+        "description": "- check optional, nullable property",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartialPickIUsernameemailoptional_attrnullable_attr"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IUser"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "users",
+          "user",
+          "updateUserProfile"
+        ],
+        "x-samchon-controller": "UsersController"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ICategory": {
+        "type": "object",
+        "properties": {
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ICategory"
+            }
+          },
+          "id": {
+            "type": "number"
+          },
+          "code": {
+            "type": "string"
+          },
+          "sequence": {
+            "type": "number"
+          },
+          "created_at": {
+            "$ref": "#/components/schemas/ITimestamp"
+          }
+        },
+        "required": [
+          "children",
+          "id",
+          "code",
+          "sequence",
+          "created_at"
+        ]
+      },
+      "ITimestamp": {
+        "type": "object",
+        "properties": {
+          "time": {
+            "type": "number"
+          },
+          "zone": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "time",
+          "zone"
+        ]
+      },
+      "IDirectory": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/IDirectory"
+                },
+                {
+                  "$ref": "#/components/schemas/IImageFile"
+                },
+                {
+                  "$ref": "#/components/schemas/ITextFile"
+                },
+                {
+                  "$ref": "#/components/schemas/IZipFile"
+                },
+                {
+                  "$ref": "#/components/schemas/IShortcut"
+                }
+              ]
+            }
+          },
+          "type": {
+            "const": "directory"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "children",
+          "type"
+        ]
+      },
+      "IImageFile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "url": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "type": {
+            "const": "file"
+          },
+          "extension": {
+            "const": "jpg"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "width",
+          "height",
+          "url",
+          "size",
+          "type",
+          "extension"
+        ]
+      },
+      "ITextFile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "content": {
+            "type": "string"
+          },
+          "type": {
+            "const": "file"
+          },
+          "extension": {
+            "const": "txt"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "size",
+          "content",
+          "type",
+          "extension"
+        ]
+      },
+      "IZipFile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "count": {
+            "type": "number"
+          },
+          "type": {
+            "const": "file"
+          },
+          "extension": {
+            "const": "zip"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "size",
+          "count",
+          "type",
+          "extension"
+        ]
+      },
+      "IShortcut": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "target": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/IDirectory"
+              },
+              {
+                "$ref": "#/components/schemas/IImageFile"
+              },
+              {
+                "$ref": "#/components/schemas/ITextFile"
+              },
+              {
+                "$ref": "#/components/schemas/IZipFile"
+              },
+              {
+                "$ref": "#/components/schemas/IShortcut"
+              }
+            ]
+          },
+          "type": {
+            "const": "file"
+          },
+          "extension": {
+            "const": "lnk"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "target",
+          "type",
+          "extension"
+        ]
+      },
+      "IDirectory.o1": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/IDirectory.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/ISharedDirectory"
+                },
+                {
+                  "$ref": "#/components/schemas/IImageFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/ITextFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/IZipFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/IShortcut.o1"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "children"
+        ]
+      },
+      "ISharedDirectory": {
+        "type": "object",
+        "properties": {
+          "access": {
+            "oneOf": [
+              {
+                "const": "read"
+              },
+              {
+                "const": "write"
+              }
+            ]
+          },
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/IDirectory.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/ISharedDirectory"
+                },
+                {
+                  "$ref": "#/components/schemas/IImageFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/ITextFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/IZipFile.o1"
+                },
+                {
+                  "$ref": "#/components/schemas/IShortcut.o1"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "access",
+          "id",
+          "name",
+          "path",
+          "children"
+        ]
+      },
+      "IImageFile.o1": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "url": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "width",
+          "height",
+          "url",
+          "size"
+        ]
+      },
+      "ITextFile.o1": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "size",
+          "content"
+        ]
+      },
+      "IZipFile.o1": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "size",
+          "count"
+        ]
+      },
+      "IShortcut.o1": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "target": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/IDirectory.o1"
+              },
+              {
+                "$ref": "#/components/schemas/ISharedDirectory"
+              },
+              {
+                "$ref": "#/components/schemas/IImageFile.o1"
+              },
+              {
+                "$ref": "#/components/schemas/ITextFile.o1"
+              },
+              {
+                "$ref": "#/components/schemas/IZipFile.o1"
+              },
+              {
+                "$ref": "#/components/schemas/IShortcut.o1"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "path",
+          "target"
+        ]
+      },
+      "IPerson": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "hobbies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IHobby"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "hobbies"
+        ]
+      },
+      "IHobby": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "body",
+          "rank"
+        ]
+      },
+      "IPageIBbsArticle.ISummary": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IBbsArticle.ISummary"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/IPage.IPagination"
+          }
+        },
+        "required": [
+          "data",
+          "pagination"
+        ]
+      },
+      "IBbsArticle.ISummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "section": {
+            "type": "string"
+          },
+          "writer": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "section",
+          "writer",
+          "title",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "IPage.IPagination": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "records": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pages": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "current",
+          "limit",
+          "records",
+          "pages"
+        ],
+        "description": "Page information."
+      },
+      "IPage.IRequest": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "integer",
+                "minimum": 0
+              }
+            ]
+          },
+          "limit": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "integer",
+                "minimum": 0
+              }
+            ]
+          }
+        },
+        "required": [],
+        "description": "Page request data"
+      },
+      "IBbsArticle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "section": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "section",
+          "created_at",
+          "updated_at",
+          "title",
+          "body",
+          "files"
+        ],
+        "description": "Article info."
+      },
+      "IAttachmentFile": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255
+              }
+            ]
+          },
+          "extension": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8
+              }
+            ]
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "name",
+          "extension",
+          "url"
+        ],
+        "description": "Attachment file."
+      },
+      "IBbsArticle.IStore": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "body": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IAttachmentFile"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "body",
+          "files"
+        ]
+      },
+      "ObjectLietral": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "member": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "email": {
+                "type": "string",
+                "format": "email"
+              },
+              "age": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "id",
+              "email",
+              "age"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "member",
+          "created_at"
+        ]
+      },
+      "IBox3D": {
+        "type": "object",
+        "properties": {
+          "scale": {
+            "$ref": "#/components/schemas/IPoint3D"
+          },
+          "position": {
+            "$ref": "#/components/schemas/IPoint3D"
+          },
+          "rotate": {
+            "$ref": "#/components/schemas/IPoint3D"
+          },
+          "pivot": {
+            "$ref": "#/components/schemas/IPoint3D"
+          }
+        },
+        "required": [
+          "scale",
+          "position",
+          "rotate",
+          "pivot"
+        ]
+      },
+      "IPoint3D": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "z"
+        ]
+      },
+      "DiscriminatorpointIPoint": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "type": {
+            "const": "point"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "type"
+        ]
+      },
+      "DiscriminatorlineILine": {
+        "type": "object",
+        "properties": {
+          "p1": {
+            "$ref": "#/components/schemas/IPoint"
+          },
+          "p2": {
+            "$ref": "#/components/schemas/IPoint"
+          },
+          "type": {
+            "const": "line"
+          }
+        },
+        "required": [
+          "p1",
+          "p2",
+          "type"
+        ]
+      },
+      "IPoint": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ]
+      },
+      "DiscriminatortriangleITriangle": {
+        "type": "object",
+        "properties": {
+          "p1": {
+            "$ref": "#/components/schemas/IPoint"
+          },
+          "p2": {
+            "$ref": "#/components/schemas/IPoint"
+          },
+          "p3": {
+            "$ref": "#/components/schemas/IPoint"
+          },
+          "type": {
+            "const": "triangle"
+          }
+        },
+        "required": [
+          "p1",
+          "p2",
+          "p3",
+          "type"
+        ]
+      },
+      "DiscriminatorrectangleIRectangle": {
+        "type": "object",
+        "properties": {
+          "p1": {
+            "$ref": "#/components/schemas/IPoint"
+          },
+          "p2": {
+            "$ref": "#/components/schemas/IPoint"
+          },
+          "p3": {
+            "$ref": "#/components/schemas/IPoint"
+          },
+          "p4": {
+            "$ref": "#/components/schemas/IPoint"
+          },
+          "type": {
+            "const": "rectangle"
+          }
+        },
+        "required": [
+          "p1",
+          "p2",
+          "p3",
+          "p4",
+          "type"
+        ]
+      },
+      "DiscriminatorpolylineIPolyline": {
+        "type": "object",
+        "properties": {
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPoint"
+            }
+          },
+          "type": {
+            "const": "polyline"
+          }
+        },
+        "required": [
+          "points",
+          "type"
+        ]
+      },
+      "DiscriminatorpolygonIPolygon": {
+        "type": "object",
+        "properties": {
+          "outer": {
+            "$ref": "#/components/schemas/IPolyline"
+          },
+          "inner": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPolyline"
+            }
+          },
+          "type": {
+            "const": "polygon"
+          }
+        },
+        "required": [
+          "outer",
+          "inner",
+          "type"
+        ]
+      },
+      "IPolyline": {
+        "type": "object",
+        "properties": {
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPoint"
+            }
+          }
+        },
+        "required": [
+          "points"
+        ]
+      },
+      "DiscriminatorcircleICircle": {
+        "type": "object",
+        "properties": {
+          "centroid": {
+            "$ref": "#/components/schemas/IPoint"
+          },
+          "radius": {
+            "type": "number"
+          },
+          "type": {
+            "const": "circle"
+          }
+        },
+        "required": [
+          "centroid",
+          "radius",
+          "type"
+        ]
+      },
+      "IPoint.o1": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "slope": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ]
+      },
+      "ILine": {
+        "type": "object",
+        "properties": {
+          "p1": {
+            "$ref": "#/components/schemas/IPoint.o1"
+          },
+          "p2": {
+            "$ref": "#/components/schemas/IPoint.o1"
+          },
+          "width": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "distance": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "p1",
+          "p2"
+        ]
+      },
+      "ITriangle": {
+        "type": "object",
+        "properties": {
+          "p1": {
+            "$ref": "#/components/schemas/IPoint.o1"
+          },
+          "p2": {
+            "$ref": "#/components/schemas/IPoint.o1"
+          },
+          "p3": {
+            "$ref": "#/components/schemas/IPoint.o1"
+          },
+          "width": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "height": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "area": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "p1",
+          "p2",
+          "p3"
+        ]
+      },
+      "IRectangle": {
+        "type": "object",
+        "properties": {
+          "p1": {
+            "$ref": "#/components/schemas/IPoint.o1"
+          },
+          "p2": {
+            "$ref": "#/components/schemas/IPoint.o1"
+          },
+          "p3": {
+            "$ref": "#/components/schemas/IPoint.o1"
+          },
+          "p4": {
+            "$ref": "#/components/schemas/IPoint.o1"
+          },
+          "width": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "height": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "area": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "p1",
+          "p2",
+          "p3",
+          "p4"
+        ]
+      },
+      "IPolyline.o1": {
+        "type": "object",
+        "properties": {
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPoint.o1"
+            }
+          },
+          "length": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "points"
+        ]
+      },
+      "IPolygon": {
+        "type": "object",
+        "properties": {
+          "outer": {
+            "$ref": "#/components/schemas/IPolyline.o1"
+          },
+          "inner": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IPolyline.o1"
+            }
+          },
+          "area": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "outer"
+        ]
+      },
+      "ICircle": {
+        "type": "object",
+        "properties": {
+          "centroid": {
+            "$ref": "#/components/schemas/IPoint.o1"
+          },
+          "radius": {
+            "type": "number"
+          },
+          "area": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "radius"
+        ]
+      },
+      "process.global.NodeJS.CpuUsage": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "number"
+          },
+          "system": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "user",
+          "system"
+        ]
+      },
+      "process.global.NodeJS.MemoryUsage": {
+        "type": "object",
+        "properties": {
+          "rss": {
+            "type": "number"
+          },
+          "heapTotal": {
+            "type": "number"
+          },
+          "heapUsed": {
+            "type": "number"
+          },
+          "external": {
+            "type": "number"
+          },
+          "arrayBuffers": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rss",
+          "heapTotal",
+          "heapUsed",
+          "external",
+          "arrayBuffers"
+        ]
+      },
+      "process.global.NodeJS.ResourceUsage": {
+        "type": "object",
+        "properties": {
+          "fsRead": {
+            "type": "number"
+          },
+          "fsWrite": {
+            "type": "number"
+          },
+          "involuntaryContextSwitches": {
+            "type": "number"
+          },
+          "ipcReceived": {
+            "type": "number"
+          },
+          "ipcSent": {
+            "type": "number"
+          },
+          "majorPageFault": {
+            "type": "number"
+          },
+          "maxRSS": {
+            "type": "number"
+          },
+          "minorPageFault": {
+            "type": "number"
+          },
+          "sharedMemorySize": {
+            "type": "number"
+          },
+          "signalsCount": {
+            "type": "number"
+          },
+          "swappedOut": {
+            "type": "number"
+          },
+          "systemCPUTime": {
+            "type": "number"
+          },
+          "unsharedDataSize": {
+            "type": "number"
+          },
+          "unsharedStackSize": {
+            "type": "number"
+          },
+          "userCPUTime": {
+            "type": "number"
+          },
+          "voluntaryContextSwitches": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "fsRead",
+          "fsWrite",
+          "involuntaryContextSwitches",
+          "ipcReceived",
+          "ipcSent",
+          "majorPageFault",
+          "maxRSS",
+          "minorPageFault",
+          "sharedMemorySize",
+          "signalsCount",
+          "swappedOut",
+          "systemCPUTime",
+          "unsharedDataSize",
+          "unsharedStackSize",
+          "userCPUTime",
+          "voluntaryContextSwitches"
+        ]
+      },
+      "ISeller.IAuthorized": {
+        "type": "object",
+        "properties": {
+          "authorization": {
+            "type": "object",
+            "properties": {
+              "token": {
+                "type": "string"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "token",
+              "expires_at"
+            ]
+          },
+          "id": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Primary key",
+            "description": "Primary key."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email address",
+            "description": "Email address."
+          },
+          "name": {
+            "type": "string",
+            "title": "Name of the seller",
+            "description": "Name of the seller."
+          },
+          "mobile": {
+            "type": "string",
+            "title": "Mobile number of the seller",
+            "description": "Mobile number of the seller."
+          },
+          "company": {
+            "type": "string",
+            "title": "Belonged company name",
+            "description": "Belonged company name."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Joined time",
+            "description": "Joined time."
+          }
+        },
+        "required": [
+          "authorization",
+          "id",
+          "email",
+          "name",
+          "mobile",
+          "company",
+          "created_at"
+        ]
+      },
+      "ISeller.IJoin": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "name",
+          "mobile",
+          "company"
+        ]
+      },
+      "ISeller.ILogin": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "ISeller.IChangePassword": {
+        "type": "object",
+        "properties": {
+          "old_password": {
+            "type": "string"
+          },
+          "new_password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "old_password",
+          "new_password"
+        ]
+      },
+      "Template": {
+        "type": "object",
+        "properties": {
+          "prefix": {
+            "type": "string",
+            "pattern": "^(prefix_(.*))"
+          },
+          "postfix": {
+            "type": "string",
+            "pattern": "((.*)_postfix)$"
+          },
+          "middle_string": {
+            "type": "string",
+            "pattern": "^(the_(.*)_value)$"
+          },
+          "middle_string_empty": {
+            "type": "string",
+            "pattern": "^(the_(.*)_value)$"
+          },
+          "middle_numeric": {
+            "type": "string",
+            "pattern": "^(the_[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?_value)$"
+          },
+          "middle_boolean": {
+            "oneOf": [
+              {
+                "const": "the_false_value"
+              },
+              {
+                "const": "the_true_value"
+              }
+            ]
+          },
+          "ipv4": {
+            "type": "string",
+            "pattern": "^([+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?\\.[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?\\.[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?\\.[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)$"
+          },
+          "email": {
+            "type": "string",
+            "pattern": "((.*)@(.*)\\.(.*))"
+          },
+          "combined": {
+            "type": "string",
+            "pattern": "^((the_1_value_with_label_A_(.*)_[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?_4)|(the_2_value_with_label_A_(.*)_[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?_4)|(the_3_value_with_label_A_(.*)_[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?_4))$"
+          },
+          "nosubstitution": {
+            "const": "something"
+          }
+        },
+        "required": [
+          "prefix",
+          "postfix",
+          "middle_string",
+          "middle_string_empty",
+          "middle_numeric",
+          "middle_boolean",
+          "ipv4",
+          "email",
+          "combined",
+          "nosubstitution"
+        ]
+      },
+      "IAuthentication.IProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "email"
+              }
+            ]
+          },
+          "oauth_type": {
+            "oneOf": [
+              {
+                "const": "google"
+              },
+              {
+                "const": "github"
+              },
+              {
+                "const": "kakao"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "oauth_type"
+        ]
+      },
+      "IAuthentication": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string"
+          },
+          "oauth_type": {
+            "oneOf": [
+              {
+                "const": "google"
+              },
+              {
+                "const": "github"
+              },
+              {
+                "const": "kakao"
+              }
+            ]
+          }
+        },
+        "required": [
+          "user_id",
+          "oauth_type"
+        ]
+      },
+      "IUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "email"
+              }
+            ]
+          },
+          "optional_attr": {
+            "type": "string"
+          },
+          "undefindable_attr": {
+            "type": "string"
+          },
+          "both_optional_and_undefindable": {
+            "type": "string"
+          },
+          "nullable_attr": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "optional_and_nullable_attr": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "user_type": {
+            "oneOf": [
+              {
+                "const": "admin"
+              },
+              {
+                "const": "default"
+              },
+              {
+                "const": "seller"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "nullable_attr",
+          "user_type"
+        ]
+      },
+      "IUser.ISearch": {
+        "type": "object",
+        "properties": {
+          "user_type": {
+            "oneOf": [
+              {
+                "const": "admin"
+              },
+              {
+                "const": "default"
+              },
+              {
+                "const": "seller"
+              }
+            ]
+          }
+        },
+        "required": []
+      },
+      "PartialPickIUsernameemailoptional_attrnullable_attr": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "format": "email"
+              }
+            ]
+          },
+          "optional_attr": {
+            "type": "string"
+          },
+          "nullable_attr": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [],
+        "description": "Make all properties in T optional"
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "apiKey"
+      }
+    }
+  },
+  "tags": [],
+  "x-samchon-emended-v4": true
+}

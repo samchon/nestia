@@ -88,7 +88,7 @@ export namespace SdkWebSocketRouteProgrammer {
           ),
         ],
         ts.factory.createTypeReferenceNode("Promise", [
-          ts.factory.createTypeReferenceNode(`${route.name}.Output`),
+          ts.factory.createTypeReferenceNode(`${route.name}.Response`),
         ]),
         ts.factory.createBlock(writeFunctionBody(importer)(route), true),
       );

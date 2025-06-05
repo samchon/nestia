@@ -57,9 +57,9 @@ export namespace SdkTypeProgrammer {
           object.type.name.startsWith("__object.")
         )
           union.push(write_object(project)(importer)(object.type));
-        else union.push(write_alias(project)(importer)(object.type));
+        else union.push(writeAlias(project)(importer)(object.type));
       for (const alias of meta.aliases)
-        union.push(write_alias(project)(importer)(alias.type));
+        union.push(writeAlias(project)(importer)(alias.type));
       for (const native of meta.natives)
         if (native.name === "Blob" || native.name === "File")
           union.push(write_native(native.name));
@@ -285,7 +285,7 @@ export namespace SdkTypeProgrammer {
         ),
       ]);
 
-  const write_alias =
+  const writeAlias =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (meta: MetadataAliasType | MetadataObjectType): ts.TypeNode => {

@@ -5,20 +5,20 @@ export namespace ArrayUtil {
     );
   }
 
-  export async function asyncMap<Input, Output>(
-    array: Input[],
-    closure: (input: Input) => Promise<Output>,
-  ): Promise<Output[]> {
-    const ret: Output[] = [];
+  export async function asyncMap<X, Y>(
+    array: X[],
+    closure: (input: X) => Promise<Y>,
+  ): Promise<Y[]> {
+    const ret: Y[] = [];
     for (const elem of array) ret.push(await closure(elem));
     return ret;
   }
 
-  export async function asyncFilter<Input>(
-    array: Input[],
-    closure: (input: Input) => Promise<boolean>,
-  ): Promise<Input[]> {
-    const ret: Input[] = [];
+  export async function asyncFilter<T>(
+    array: T[],
+    closure: (input: T) => Promise<boolean>,
+  ): Promise<T[]> {
+    const ret: T[] = [];
     for (const elem of array)
       if ((await closure(elem)) === true) ret.push(elem);
     return ret;
