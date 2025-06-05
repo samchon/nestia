@@ -47,6 +47,8 @@ async function getAsset(): Promise<IAsset | null> {
   const query: URLSearchParams = new URLSearchParams(
     index === -1 ? "" : window.location.href.substring(index + 1),
   );
+  if (query.has("uploader")) return null;
+
   const url: string | null =
     query.get("url") ??
     (await findSwagger("./swagger.json")) ??
@@ -56,6 +58,8 @@ async function getAsset(): Promise<IAsset | null> {
   const mode: string | null = query.get("mode");
   const packageName: string | null =
     query.get("package") ?? (window as any).package;
+  const keyword: boolean | string | null =
+    query.get("keyword") ?? (window as any).keyword;
   const simulate: boolean | string | null =
     query.get("simulate") ?? (window as any).simulate;
   const e2e: boolean | string | null = query.get("e2e") ?? (window as any).e2e;
@@ -63,6 +67,10 @@ async function getAsset(): Promise<IAsset | null> {
     mode: mode === "nest" ? "nest" : "sdk",
     package: packageName ?? "@ORGANIZATION/PROJECT",
     url,
+    keyword:
+      keyword !== null
+        ? keyword === true || keyword === "true" || keyword === "1"
+        : false,
     simulate:
       simulate !== null
         ? simulate === true || simulate === "true" || simulate === "1"
@@ -80,6 +88,7 @@ interface IAsset {
   mode: "nest" | "sdk";
   package: string;
   url: string;
+  keyword: boolean;
   simulate: boolean;
   e2e: boolean;
 }

@@ -51,6 +51,7 @@ export function NestiaEditorIframe(props: NestiaEditorIframe.IProps) {
           try {
             return await NestiaEditorComposer[props.mode ?? "sdk"]({
               document,
+              keyword: props.keyword ?? true,
               simulate: props.simulate ?? true,
               e2e: props.e2e ?? true,
               package: props.package ?? "@ORGANIZATION/PROJECT",
@@ -192,17 +193,14 @@ export namespace NestiaEditorIframe {
       | OpenApiV3.IDocument
       | OpenApiV3_1.IDocument;
     package?: string;
+    keyword?: boolean;
     simulate?: boolean;
     e2e?: boolean;
 
-    /**
-     * @internal
-     */
+    /** @internal */
     mode?: "nest" | "sdk";
 
-    /**
-     * @internal
-     */
+    /** @internal */
     files?: Record<string, string>;
   }
 }

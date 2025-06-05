@@ -6,6 +6,7 @@ export namespace NestiaMigrateInquirer {
     mode: "nest" | "sdk";
     input: string;
     output: string;
+    keyword: boolean;
     simulate: boolean;
     e2e: boolean;
     package: string;
@@ -19,7 +20,8 @@ export namespace NestiaMigrateInquirer {
       "location of target swagger.json file",
     );
     commander.program.option("--output [directory]", "output directory path");
-    commander.program.option("--simulate", "Mockup simulator");
+    commander.program.option("--keyword [boolean]", "Keyword parameter mode");
+    commander.program.option("--simulate [boolean]", "Mockup simulator");
     commander.program.option("--e2e [boolean]", "Generate E2E tests");
     commander.program.option("--package [name]", "Package name");
 
@@ -72,12 +74,27 @@ export namespace NestiaMigrateInquirer {
       partial.input ??= await input("input")("Swagger file location");
       partial.output ??= await input("output")("Response directory path");
       partial.package ??= await input("package")("Package name");
+      partial.keyword ??=
+        (await select("keyword")("Keyword parameter mode")([
+          "true",
+          "false",
+        ])) === "true";
+
+      if (partial.keyword)
+        partial.keyword = (partial.keyword as any) === "true";
+      else
+        partial.keyword =
+          (await select("keyword")("Keyword parameter mode")([
+            "true",
+            "false",
+          ])) === "true";
       if (partial.simulate)
         partial.simulate = (partial.simulate as any) === "true";
       else
         partial.simulate =
           (await select("simulate")("Mokup Simulator")(["true", "false"])) ===
           "true";
+
       if (partial.e2e) partial.e2e = (partial.e2e as any) === "true";
       else
         partial.e2e =
