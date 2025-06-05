@@ -1,5 +1,6 @@
-import { MigrateApplication } from "@nestia/migrate";
+import { NestiaMigrateApplication } from "@nestia/migrate";
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
+import * as jsDoc from "prettier-plugin-jsdoc";
 import * as prettierEsTreePlugin from "prettier/plugins/estree";
 import * as prettierTsPlugin from "prettier/plugins/typescript";
 import { format } from "prettier/standalone";
@@ -9,11 +10,10 @@ export namespace NestiaEditorComposer {
   export interface IProps {
     document: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument;
     e2e: boolean;
+    keyword: boolean;
     simulate: boolean;
     package?: string;
-    /**
-     * @internal
-     */
+    /** @internal */
     files?: Record<string, string>;
   }
   export interface IOutput {
@@ -42,7 +42,7 @@ export namespace NestiaEditorComposer {
     (config: {
       openFile: string;
       startScript: string[];
-      migrate: (app: MigrateApplication) => MigrateApplication.IOutput;
+      migrate: (app: NestiaMigrateApplication) => Record<string, string>;
     }) =>
     async (props: IProps): Promise<IValidation<IOutput>> => {
       if (props.files !== undefined)
@@ -54,18 +54,18 @@ export namespace NestiaEditorComposer {
             startScript: config.startScript,
           },
         };
-      const result: IValidation<MigrateApplication> =
-        await MigrateApplication.create(props.document);
+      const result: IValidation<NestiaMigrateApplication> =
+        await NestiaMigrateApplication.validate(props.document);
       if (result.success === false) return result;
 
-      const app: MigrateApplication = result.data;
-      const { files } = config.migrate(app);
-      for (const f of files)
-        if (f.file.substring(f.file.length - 3) === ".ts")
+      const app: NestiaMigrateApplication = result.data;
+      const files: Record<string, string> = config.migrate(app);
+      for (const [key, value] of Object.entries(files))
+        if (key.substring(key.length - 3) === ".ts")
           try {
-            f.content = await format(f.content, {
+            files[key] = await format(value, {
               parser: "typescript",
-              plugins: [prettierEsTreePlugin, prettierTsPlugin],
+              plugins: [prettierEsTreePlugin, prettierTsPlugin, jsDoc],
             });
           } catch (exp) {
             console.log(exp);
@@ -73,15 +73,7 @@ export namespace NestiaEditorComposer {
       return {
         success: true,
         data: {
-          files: Object.fromEntries(
-            files.map(
-              (f) =>
-                [
-                  [f.location, f.location.length ? "/" : "", f.file].join(""),
-                  f.content,
-                ] as const,
-            ),
-          ),
+          files,
           openFile: config.openFile,
           startScript: config.startScript,
         },

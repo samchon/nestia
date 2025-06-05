@@ -18,6 +18,7 @@ import { NestiaEditorFileUploader } from "./internal/NestiaEditorFileUploader";
 export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
   // PARAMETERS
   const [mode, setMode] = React.useState<"nest" | "sdk">("sdk");
+  const [keyword, setKeyword] = React.useState(true);
   const [simulate, setSimulate] = React.useState(true);
   const [e2e, setE2e] = React.useState(true);
   const [name, setName] = React.useState("@ORGINIZATION/PROJECT");
@@ -51,6 +52,7 @@ export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
     try {
       const result = await NestiaEditorComposer[mode]({
         document,
+        keyword,
         e2e,
         simulate,
         package: name,
@@ -106,6 +108,13 @@ export function NestiaEditorUploader(props: NestiaEditorUploader.IProps) {
           />
         </RadioGroup>
         <FormLabel style={{ paddingTop: 20 }}> Options </FormLabel>
+        <FormControlLabel
+          label="Keyword Parameter"
+          style={{ paddingTop: 5, paddingLeft: 15 }}
+          control={
+            <Switch checked={keyword} onChange={() => setKeyword(!keyword)} />
+          }
+        />
         <FormControlLabel
           label="Mockup Simulator"
           style={{ paddingTop: 5, paddingLeft: 15 }}
