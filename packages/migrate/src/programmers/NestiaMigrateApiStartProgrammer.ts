@@ -5,14 +5,15 @@ import { StatementFactory } from "typia/lib/factories/StatementFactory";
 
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 import { FilePrinter } from "../utils/FilePrinter";
-import { MigrateE2eFunctionProgrammer } from "./MigrateE2eFileProgrammer";
-import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
+import { NestiaMigrateE2eFunctionProgrammer } from "./NestiaMigrateE2eFileProgrammer";
+import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 
-export namespace MigrateApiStartProgrammer {
+export namespace NestiaMigrateApiStartProgrammer {
   export const write = (
     context: INestiaMigrateContext,
   ): Record<string, string> => {
-    const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
+    const importer: NestiaMigrateImportProgrammer =
+      new NestiaMigrateImportProgrammer();
     const main: ts.VariableStatement = writeMain(
       context,
       importer,
@@ -50,7 +51,7 @@ export namespace MigrateApiStartProgrammer {
 
   const writeMain = (
     ctx: INestiaMigrateContext,
-    importer: MigrateImportProgrammer,
+    importer: NestiaMigrateImportProgrammer,
     route: IHttpMigrateRoute,
   ): ts.VariableStatement =>
     StatementFactory.constant({
@@ -64,7 +65,7 @@ export namespace MigrateApiStartProgrammer {
         ts.factory.createBlock(
           [
             writeConnection(ctx, importer),
-            ...MigrateE2eFunctionProgrammer.writeBody({
+            ...NestiaMigrateE2eFunctionProgrammer.writeBody({
               config: ctx.config,
               components: ctx.document.components,
               importer,
@@ -78,7 +79,7 @@ export namespace MigrateApiStartProgrammer {
 
   const writeConnection = (
     ctx: INestiaMigrateContext,
-    importer: MigrateImportProgrammer,
+    importer: NestiaMigrateImportProgrammer,
   ): ts.VariableStatement =>
     ts.factory.createVariableStatement(
       undefined,

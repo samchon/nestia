@@ -3,11 +3,11 @@ import ts from "typescript";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
-import { MigrateApiFunctionProgrammer } from "./MigrateApiFunctionProgrammer";
-import { MigrateApiNamespaceProgrammer } from "./MigrateApiNamespaceProgrammer";
-import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
+import { NestiaMigrateApiFunctionProgrammer } from "./NestiaMigrateApiFunctionProgrammer";
+import { NestiaMigrateApiNamespaceProgrammer } from "./NestiaMigrateApiNamespaceProgrammer";
+import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 
-export namespace MigrateApiFileProgrammer {
+export namespace NestiaMigrateApiFileProgrammer {
   export interface IProps {
     config: INestiaMigrateConfig;
     components: OpenApi.IComponents;
@@ -17,17 +17,18 @@ export namespace MigrateApiFileProgrammer {
   }
 
   export const write = (props: IProps): ts.Statement[] => {
-    const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
+    const importer: NestiaMigrateImportProgrammer =
+      new NestiaMigrateImportProgrammer();
     const statements: ts.Statement[] = props.routes
       .map((route) => [
         FilePrinter.newLine(),
-        MigrateApiFunctionProgrammer.write({
+        NestiaMigrateApiFunctionProgrammer.write({
           config: props.config,
           components: props.components,
           importer,
           route,
         }),
-        MigrateApiNamespaceProgrammer.write({
+        NestiaMigrateApiNamespaceProgrammer.write({
           config: props.config,
           components: props.components,
           importer,

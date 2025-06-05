@@ -5,10 +5,10 @@ import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 import { INestiaMigrateFile } from "../structures/INestiaMigrateFile";
 import { FilePrinter } from "../utils/FilePrinter";
-import { MigrateE2eFunctionProgrammer } from "./MigrateE2eFileProgrammer";
-import { MigrateImportProgrammer } from "./MigrateImportProgrammer";
+import { NestiaMigrateE2eFunctionProgrammer } from "./NestiaMigrateE2eFileProgrammer";
+import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 
-export namespace MigrateE2eProgrammer {
+export namespace NestiaMigrateE2eProgrammer {
   export const write = (ctx: INestiaMigrateContext): Record<string, string> =>
     Object.fromEntries(
       ctx.routes
@@ -21,13 +21,15 @@ export namespace MigrateE2eProgrammer {
     components: OpenApi.IComponents,
     route: IHttpMigrateRoute,
   ): INestiaMigrateFile => {
-    const importer: MigrateImportProgrammer = new MigrateImportProgrammer();
-    const func: ts.FunctionDeclaration = MigrateE2eFunctionProgrammer.write({
-      config,
-      components,
-      importer,
-      route,
-    });
+    const importer: NestiaMigrateImportProgrammer =
+      new NestiaMigrateImportProgrammer();
+    const func: ts.FunctionDeclaration =
+      NestiaMigrateE2eFunctionProgrammer.write({
+        config,
+        components,
+        importer,
+        route,
+      });
     const statements: ts.Statement[] = [
       ...importer.toStatements(
         (name) => `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,
