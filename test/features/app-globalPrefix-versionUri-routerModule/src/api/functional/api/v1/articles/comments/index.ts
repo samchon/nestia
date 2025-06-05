@@ -22,7 +22,7 @@ export async function index(
   section: string,
   articleId: string & Format<"uuid">,
   query: index.Query,
-): Promise<index.Output> {
+): Promise<index.Response> {
   return PlainFetcher.fetch(connection, {
     ...index.METADATA,
     template: index.METADATA.path,
@@ -31,7 +31,7 @@ export async function index(
 }
 export namespace index {
   export type Query = Resolved<IPage.IRequest>;
-  export type Output = Primitive<IPage<IBbsComment>>;
+  export type Response = Primitive<IPage<IBbsComment>>;
 
   export const METADATA = {
     method: "GET",
@@ -72,7 +72,7 @@ export async function at(
   section: string,
   articleId: string & Format<"uuid">,
   id: string & Format<"uuid">,
-): Promise<at.Output> {
+): Promise<at.Response> {
   return PlainFetcher.fetch(connection, {
     ...at.METADATA,
     template: at.METADATA.path,
@@ -80,7 +80,7 @@ export async function at(
   });
 }
 export namespace at {
-  export type Output = Primitive<IBbsComment>;
+  export type Response = Primitive<IBbsComment>;
 
   export const METADATA = {
     method: "GET",
@@ -110,8 +110,8 @@ export async function store(
   connection: IConnection,
   section: string,
   articleId: string & Format<"uuid">,
-  input: store.Input,
-): Promise<store.Output> {
+  input: store.RequestBody,
+): Promise<store.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -129,8 +129,8 @@ export async function store(
   );
 }
 export namespace store {
-  export type Input = Resolved<IBbsComment.IStore>;
-  export type Output = Primitive<IBbsComment>;
+  export type RequestBody = Resolved<IBbsComment.IStore>;
+  export type Response = Primitive<IBbsComment>;
 
   export const METADATA = {
     method: "POST",
@@ -160,8 +160,8 @@ export async function update(
   section: string,
   articleId: string & Format<"uuid">,
   id: string & Format<"uuid">,
-  input: update.Input,
-): Promise<update.Output> {
+  input: update.RequestBody,
+): Promise<update.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -179,8 +179,8 @@ export async function update(
   );
 }
 export namespace update {
-  export type Input = Resolved<IBbsComment.IStore>;
-  export type Output = Primitive<IBbsComment>;
+  export type RequestBody = Resolved<IBbsComment.IStore>;
+  export type Response = Primitive<IBbsComment>;
 
   export const METADATA = {
     method: "PUT",

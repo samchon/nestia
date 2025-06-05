@@ -19,7 +19,7 @@ import type { IBbsArticle } from "../../../structures/IBbsArticle";
 export async function at(
   connection: IConnection,
   id: string & Format<"uuid">,
-): Promise<at.Output> {
+): Promise<at.Response> {
   return PlainFetcher.fetch(connection, {
     ...at.METADATA,
     template: at.METADATA.path,
@@ -27,7 +27,7 @@ export async function at(
   });
 }
 export namespace at {
-  export type Output = Primitive<IBbsArticle>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "GET",

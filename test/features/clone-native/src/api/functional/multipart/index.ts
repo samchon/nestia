@@ -16,7 +16,7 @@ import type { IMultipart } from "../../structures/IMultipart";
  */
 export async function post(
   connection: IConnection,
-  body: post.Input,
+  body: post.RequestBody,
 ): Promise<void> {
   return PlainFetcher.fetch(
     connection,
@@ -29,7 +29,7 @@ export async function post(
   );
 }
 export namespace post {
-  export type Input = FormDataInput<IMultipart>;
+  export type RequestBody = FormDataInput<IMultipart>;
 
   export const METADATA = {
     method: "POST",

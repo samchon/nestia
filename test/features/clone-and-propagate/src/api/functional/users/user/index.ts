@@ -30,7 +30,7 @@ export async function getUserProfile(
   connection: IConnection,
   user_id: string,
   query: getUserProfile.Query,
-): Promise<getUserProfile.Output> {
+): Promise<getUserProfile.Response> {
   return !!connection.simulate
     ? getUserProfile.simulate(connection, user_id, query)
     : PlainFetcher.propagate<any>(connection, {
@@ -41,7 +41,7 @@ export async function getUserProfile(
 }
 export namespace getUserProfile {
   export type Query = IUser.ISearch;
-  export type Output = IPropagation<
+  export type Response = IPropagation<
     {
       202: IUser;
       404: "404 Not Found";
@@ -79,7 +79,7 @@ export namespace getUserProfile {
     connection: IConnection,
     user_id: string,
     query: getUserProfile.Query,
-  ): Output => {
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -109,7 +109,7 @@ export namespace getUserProfile {
           ? connection.simulate
           : undefined,
       ),
-    } as Output;
+    } as Response;
   };
 }
 
@@ -122,8 +122,8 @@ export namespace getUserProfile {
 export async function updateUserProfile(
   connection: IConnection,
   user_id: string,
-  body: updateUserProfile.Input,
-): Promise<updateUserProfile.Output> {
+  body: updateUserProfile.RequestBody,
+): Promise<updateUserProfile.Response> {
   return !!connection.simulate
     ? updateUserProfile.simulate(connection, user_id, body)
     : PlainFetcher.propagate<any, any>(
@@ -143,8 +143,8 @@ export async function updateUserProfile(
       );
 }
 export namespace updateUserProfile {
-  export type Input = PartialPickIUsernameemailoptional_attrnullable_attr;
-  export type Output = IPropagation<
+  export type RequestBody = PartialPickIUsernameemailoptional_attrnullable_attr;
+  export type Response = IPropagation<
     {
       201: IUser;
     },
@@ -173,8 +173,8 @@ export namespace updateUserProfile {
   export const simulate = (
     connection: IConnection,
     user_id: string,
-    body: updateUserProfile.Input,
-  ): Output => {
+    body: updateUserProfile.RequestBody,
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -204,6 +204,6 @@ export namespace updateUserProfile {
           ? connection.simulate
           : undefined,
       ),
-    } as Output;
+    } as Response;
   };
 }

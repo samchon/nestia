@@ -22,7 +22,7 @@ import type { IHeaders } from "../../structures/IHeaders";
 export async function emplace(
   connection: IConnection<emplace.Headers>,
   section: string,
-): Promise<emplace.Output> {
+): Promise<emplace.Response> {
   return !!connection.simulate
     ? emplace.simulate(connection, section)
     : PlainFetcher.fetch(connection, {
@@ -33,7 +33,7 @@ export async function emplace(
 }
 export namespace emplace {
   export type Headers = Resolved<IHeaders>;
-  export type Output = Primitive<IHeaders>;
+  export type Response = Primitive<IHeaders>;
 
   export const METADATA = {
     method: "PATCH",
@@ -54,7 +54,7 @@ export namespace emplace {
   export const simulate = (
     connection: IConnection<emplace.Headers>,
     section: string,
-  ): Output => {
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -78,8 +78,8 @@ export namespace emplace {
 export async function store(
   connection: IConnection<store.Headers>,
   section: string,
-  input: store.Input,
-): Promise<store.Output> {
+  input: store.RequestBody,
+): Promise<store.Response> {
   return !!connection.simulate
     ? store.simulate(connection, section, input)
     : PlainFetcher.fetch(
@@ -100,8 +100,8 @@ export async function store(
 }
 export namespace store {
   export type Headers = Resolved<IHeaders>;
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -126,8 +126,8 @@ export namespace store {
   export const simulate = (
     connection: IConnection<store.Headers>,
     section: string,
-    input: store.Input,
-  ): Output => {
+    input: store.RequestBody,
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -153,7 +153,7 @@ export async function update(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-  input: update.Input,
+  input: update.RequestBody,
 ): Promise<void> {
   return !!connection.simulate
     ? update.simulate(connection, section, id, input)
@@ -174,7 +174,7 @@ export async function update(
       );
 }
 export namespace update {
-  export type Input = Resolved<IBbsArticle.IStore>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
 
   export const METADATA = {
     method: "PUT",
@@ -198,7 +198,7 @@ export namespace update {
     connection: IConnection,
     section: string,
     id: string & Format<"uuid">,
-    input: update.Input,
+    input: update.RequestBody,
   ): void => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

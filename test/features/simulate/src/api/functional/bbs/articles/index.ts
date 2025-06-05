@@ -28,8 +28,8 @@ import type { IPage } from "../../../structures/IPage";
 export async function index(
   connection: IConnection,
   section: null | string,
-  input: index.Input,
-): Promise<index.Output> {
+  input: index.RequestBody,
+): Promise<index.Response> {
   return !!connection.simulate
     ? index.simulate(connection, section, input)
     : PlainFetcher.fetch(
@@ -49,8 +49,8 @@ export async function index(
       );
 }
 export namespace index {
-  export type Input = Resolved<IPage.IRequest>;
-  export type Output = Primitive<IPage<IBbsArticle.ISummary>>;
+  export type RequestBody = Resolved<IPage.IRequest>;
+  export type Response = Primitive<IPage<IBbsArticle.ISummary>>;
 
   export const METADATA = {
     method: "PATCH",
@@ -75,8 +75,8 @@ export namespace index {
   export const simulate = (
     connection: IConnection,
     section: null | string,
-    input: index.Input,
-  ): Output => {
+    input: index.RequestBody,
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -108,7 +108,7 @@ export async function query(
   connection: IConnection,
   section: null | string,
   input: query.Query,
-): Promise<query.Output> {
+): Promise<query.Response> {
   return !!connection.simulate
     ? query.simulate(connection, section, input)
     : PlainFetcher.fetch(connection, {
@@ -119,7 +119,7 @@ export async function query(
 }
 export namespace query {
   export type Query = Resolved<IPage.IRequest>;
-  export type Output = Primitive<IPage<IBbsArticle.ISummary>>;
+  export type Response = Primitive<IPage<IBbsArticle.ISummary>>;
 
   export const METADATA = {
     method: "GET",
@@ -152,7 +152,7 @@ export namespace query {
     connection: IConnection,
     section: null | string,
     input: query.Query,
-  ): Output => {
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -184,7 +184,7 @@ export async function at(
   connection: IConnection,
   section: string,
   id: null | (string & Format<"uuid">),
-): Promise<at.Output> {
+): Promise<at.Response> {
   return !!connection.simulate
     ? at.simulate(connection, section, id)
     : PlainFetcher.fetch(connection, {
@@ -194,7 +194,7 @@ export async function at(
       });
 }
 export namespace at {
-  export type Output = Primitive<IBbsArticle>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "GET",
@@ -217,7 +217,7 @@ export namespace at {
     connection: IConnection,
     section: string,
     id: null | (string & Format<"uuid">),
-  ): Output => {
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -249,7 +249,7 @@ export async function first(
   connection: IConnection,
   section: string,
   date: string & Format<"date">,
-): Promise<first.Output> {
+): Promise<first.Response> {
   return !!connection.simulate
     ? first.simulate(connection, section, date)
     : PlainFetcher.fetch(connection, {
@@ -259,7 +259,7 @@ export async function first(
       });
 }
 export namespace first {
-  export type Output = Primitive<IBbsArticle>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "GET",
@@ -282,7 +282,7 @@ export namespace first {
     connection: IConnection,
     section: string,
     date: string & Format<"date">,
-  ): Output => {
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -313,8 +313,8 @@ export namespace first {
 export async function store(
   connection: IConnection,
   section: string,
-  input: store.Input,
-): Promise<store.Output> {
+  input: store.RequestBody,
+): Promise<store.Response> {
   return !!connection.simulate
     ? store.simulate(connection, section, input)
     : PlainFetcher.fetch(
@@ -334,8 +334,8 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -360,8 +360,8 @@ export namespace store {
   export const simulate = (
     connection: IConnection,
     section: string,
-    input: store.Input,
-  ): Output => {
+    input: store.RequestBody,
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -394,8 +394,8 @@ export async function update(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-  input: update.Input,
-): Promise<update.Output> {
+  input: update.RequestBody,
+): Promise<update.Response> {
   return !!connection.simulate
     ? update.simulate(connection, section, id, input)
     : PlainFetcher.fetch(
@@ -415,8 +415,8 @@ export async function update(
       );
 }
 export namespace update {
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "PUT",
@@ -442,8 +442,8 @@ export namespace update {
     connection: IConnection,
     section: string,
     id: string & Format<"uuid">,
-    input: update.Input,
-  ): Output => {
+    input: update.RequestBody,
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

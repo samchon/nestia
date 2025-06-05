@@ -18,7 +18,7 @@ export * as bbs from "./bbs";
  */
 export async function getHello(
   connection: IConnection,
-): Promise<getHello.Output> {
+): Promise<getHello.Response> {
   return PlainFetcher.fetch(connection, {
     ...getHello.METADATA,
     template: getHello.METADATA.path,
@@ -26,7 +26,7 @@ export async function getHello(
   });
 }
 export namespace getHello {
-  export type Output = GetHelloResponseDto;
+  export type Response = GetHelloResponseDto;
 
   export const METADATA = {
     method: "GET",

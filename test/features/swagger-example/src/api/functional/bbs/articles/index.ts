@@ -25,8 +25,8 @@ import type { IBbsArticle } from "../../../structures/IBbsArticle";
  */
 export async function create(
   connection: IConnection,
-  input: create.Input,
-): Promise<create.Output> {
+  input: create.RequestBody,
+): Promise<create.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -44,8 +44,8 @@ export async function create(
   );
 }
 export namespace create {
-  export type Input = Resolved<IBbsArticle.ICreate>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.ICreate>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -72,8 +72,8 @@ export namespace create {
 export async function update(
   connection: IConnection,
   id: string & Format<"uuid">,
-  input: update.Input,
-): Promise<update.Output> {
+  input: update.RequestBody,
+): Promise<update.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -91,8 +91,8 @@ export async function update(
   );
 }
 export namespace update {
-  export type Input = Resolved<Partial<IBbsArticle.ICreate>>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<Partial<IBbsArticle.ICreate>>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "PUT",

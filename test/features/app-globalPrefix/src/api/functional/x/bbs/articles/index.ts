@@ -23,7 +23,7 @@ export async function index(
   connection: IConnection,
   section: string,
   query: index.Query,
-): Promise<index.Output> {
+): Promise<index.Response> {
   return PlainFetcher.fetch(connection, {
     ...index.METADATA,
     template: index.METADATA.path,
@@ -32,7 +32,7 @@ export async function index(
 }
 export namespace index {
   export type Query = Resolved<IPage.IRequest>;
-  export type Output = Primitive<IPage<IBbsArticle.ISummary>>;
+  export type Response = Primitive<IPage<IBbsArticle.ISummary>>;
 
   export const METADATA = {
     method: "GET",
@@ -68,7 +68,7 @@ export async function at(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-): Promise<at.Output> {
+): Promise<at.Response> {
   return PlainFetcher.fetch(connection, {
     ...at.METADATA,
     template: at.METADATA.path,
@@ -76,7 +76,7 @@ export async function at(
   });
 }
 export namespace at {
-  export type Output = Primitive<IBbsArticle>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "GET",
@@ -107,8 +107,8 @@ export namespace at {
 export async function store(
   connection: IConnection,
   section: string,
-  input: store.Input,
-): Promise<store.Output> {
+  input: store.RequestBody,
+): Promise<store.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -126,8 +126,8 @@ export async function store(
   );
 }
 export namespace store {
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -163,8 +163,8 @@ export async function update(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-  input: update.Input,
-): Promise<update.Output> {
+  input: update.RequestBody,
+): Promise<update.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -182,8 +182,8 @@ export async function update(
   );
 }
 export namespace update {
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "PUT",

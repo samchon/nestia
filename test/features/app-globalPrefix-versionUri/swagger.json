@@ -84,7 +84,8 @@
                   "type": "null"
                 },
                 {
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0
                 }
               ]
             },
@@ -99,7 +100,8 @@
                   "type": "null"
                 },
                 {
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0
                 }
               ]
             },
@@ -150,7 +152,8 @@
                   "type": "null"
                 },
                 {
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0
                 }
               ]
             },
@@ -165,7 +168,8 @@
                   "type": "null"
                 },
                 {
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0
                 }
               ]
             },
@@ -216,7 +220,8 @@
                   "type": "null"
                 },
                 {
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0
                 }
               ]
             },
@@ -231,7 +236,8 @@
                   "type": "null"
                 },
                 {
-                  "type": "integer"
+                  "type": "integer",
+                  "minimum": 0
                 }
               ]
             },
@@ -601,16 +607,20 @@
         "type": "object",
         "properties": {
           "current": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "limit": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "records": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "pages": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           }
         },
         "required": [
@@ -630,7 +640,8 @@
                 "type": "null"
               },
               {
-                "type": "integer"
+                "type": "integer",
+                "minimum": 0
               }
             ]
           },
@@ -640,7 +651,8 @@
                 "type": "null"
               },
               {
-                "type": "integer"
+                "type": "integer",
+                "minimum": 0
               }
             ]
           }

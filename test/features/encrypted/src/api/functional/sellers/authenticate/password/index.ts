@@ -22,7 +22,7 @@ import type { ISeller } from "../../../../structures/ISeller";
  */
 export async function change(
   connection: IConnection,
-  input: change.Input,
+  input: change.RequestBody,
 ): Promise<void> {
   return EncryptedFetcher.fetch(
     {
@@ -41,7 +41,7 @@ export async function change(
   );
 }
 export namespace change {
-  export type Input = Resolved<ISeller.IChangePassword>;
+  export type RequestBody = Resolved<ISeller.IChangePassword>;
 
   export const METADATA = {
     method: "PATCH",

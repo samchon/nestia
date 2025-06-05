@@ -16,7 +16,7 @@ import type { Primitive } from "typia";
 export async function boolean(
   connection: IConnection,
   value: false | true,
-): Promise<boolean.Output> {
+): Promise<boolean.Response> {
   return PlainFetcher.fetch(connection, {
     ...boolean.METADATA,
     template: boolean.METADATA.path,
@@ -24,7 +24,7 @@ export async function boolean(
   });
 }
 export namespace boolean {
-  export type Output = Primitive<false | true>;
+  export type Response = Primitive<false | true>;
 
   export const METADATA = {
     method: "GET",
@@ -49,7 +49,7 @@ export namespace boolean {
 export async function number(
   connection: IConnection,
   value: number,
-): Promise<number.Output> {
+): Promise<number.Response> {
   return PlainFetcher.fetch(connection, {
     ...number.METADATA,
     template: number.METADATA.path,
@@ -57,7 +57,7 @@ export async function number(
   });
 }
 export namespace number {
-  export type Output = Primitive<number>;
+  export type Response = Primitive<number>;
 
   export const METADATA = {
     method: "GET",
@@ -82,7 +82,7 @@ export namespace number {
 export async function string(
   connection: IConnection,
   value: string,
-): Promise<string.Output> {
+): Promise<string.Response> {
   return PlainFetcher.fetch(connection, {
     ...string.METADATA,
     template: string.METADATA.path,
@@ -90,7 +90,7 @@ export async function string(
   });
 }
 export namespace string {
-  export type Output = Primitive<string>;
+  export type Response = Primitive<string>;
 
   export const METADATA = {
     method: "GET",
@@ -115,7 +115,7 @@ export namespace string {
 export async function nullable(
   connection: IConnection,
   value: null | string,
-): Promise<nullable.Output> {
+): Promise<nullable.Response> {
   return PlainFetcher.fetch(connection, {
     ...nullable.METADATA,
     template: nullable.METADATA.path,
@@ -123,7 +123,7 @@ export async function nullable(
   });
 }
 export namespace nullable {
-  export type Output = Primitive<null | string>;
+  export type Response = Primitive<null | string>;
 
   export const METADATA = {
     method: "GET",
@@ -148,7 +148,7 @@ export namespace nullable {
 export async function literal(
   connection: IConnection,
   value: "A" | "B" | "C",
-): Promise<literal.Output> {
+): Promise<literal.Response> {
   return PlainFetcher.fetch(connection, {
     ...literal.METADATA,
     template: literal.METADATA.path,
@@ -156,7 +156,7 @@ export async function literal(
   });
 }
 export namespace literal {
-  export type Output = Primitive<"A" | "B" | "C">;
+  export type Response = Primitive<"A" | "B" | "C">;
 
   export const METADATA = {
     method: "GET",

@@ -30,8 +30,8 @@ import type { IBbsArticle } from "../../../structures/IBbsArticle";
 export async function store(
   connection: IConnection,
   section: string,
-  input: store.Input,
-): Promise<store.Output> {
+  input: store.RequestBody,
+): Promise<store.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -49,8 +49,8 @@ export async function store(
   );
 }
 export namespace store {
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -94,8 +94,8 @@ export async function update(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-  input: update.Input,
-): Promise<update.Output> {
+  input: update.RequestBody,
+): Promise<update.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -113,8 +113,8 @@ export async function update(
   );
 }
 export namespace update {
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "PUT",

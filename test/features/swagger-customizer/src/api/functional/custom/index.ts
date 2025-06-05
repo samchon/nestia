@@ -18,7 +18,7 @@ export async function customize(
   connection: IConnection,
   __key: number,
   __value: string,
-): Promise<customize.Output> {
+): Promise<customize.Response> {
   return PlainFetcher.fetch(connection, {
     ...customize.METADATA,
     template: customize.METADATA.path,
@@ -26,7 +26,7 @@ export async function customize(
   });
 }
 export namespace customize {
-  export type Output = Primitive<string>;
+  export type Response = Primitive<string>;
 
   export const METADATA = {
     method: "GET",
@@ -51,7 +51,7 @@ export namespace customize {
 export async function normal(
   connection: IConnection,
   id: string & Format<"uuid">,
-): Promise<normal.Output> {
+): Promise<normal.Response> {
   return PlainFetcher.fetch(connection, {
     ...normal.METADATA,
     template: normal.METADATA.path,
@@ -59,7 +59,7 @@ export async function normal(
   });
 }
 export namespace normal {
-  export type Output = Primitive<string>;
+  export type Response = Primitive<string>;
 
   export const METADATA = {
     method: "GET",

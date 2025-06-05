@@ -24,8 +24,8 @@ import type { ISeller } from "../../../../structures/ISeller";
  */
 export async function change(
   connection: IConnection,
-  input: change.Input,
-): Promise<change.Output> {
+  input: change.RequestBody,
+): Promise<change.Response> {
   return !!connection.simulate
     ? change.simulate(connection, input)
     : EncryptedFetcher.propagate<any, any>(
@@ -45,8 +45,8 @@ export async function change(
       );
 }
 export namespace change {
-  export type Input = ISeller.IChangePassword;
-  export type Output = IPropagation<
+  export type RequestBody = ISeller.IChangePassword;
+  export type Response = IPropagation<
     {
       200: void;
     },
@@ -72,8 +72,8 @@ export namespace change {
     typia.random<void>(g);
   export const simulate = (
     connection: IConnection,
-    input: change.Input,
-  ): Output => {
+    input: change.RequestBody,
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -102,6 +102,6 @@ export namespace change {
           ? connection.simulate
           : undefined,
       ),
-    } as Output;
+    } as Response;
   };
 }

@@ -27,8 +27,8 @@ import type { IUnprocessibleEntity } from "../../structures/IUnprocessibleEntity
 export async function typed(
   connection: IConnection,
   section: string,
-  input: typed.Input,
-): Promise<typed.Output> {
+  input: typed.RequestBody,
+): Promise<typed.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -46,8 +46,8 @@ export async function typed(
   );
 }
 export namespace typed {
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -76,7 +76,7 @@ export namespace typed {
 export async function union(
   connection: IConnection,
   section: string,
-): Promise<union.Output> {
+): Promise<union.Response> {
   return PlainFetcher.fetch(connection, {
     ...union.METADATA,
     template: union.METADATA.path,
@@ -84,7 +84,7 @@ export async function union(
   });
 }
 export namespace union {
-  export type Output = Primitive<
+  export type Response = Primitive<
     INotFound | IUnprocessibleEntity | IBbsArticle
   >;
 
@@ -115,8 +115,8 @@ export namespace union {
 export async function tags(
   connection: IConnection,
   section: string,
-  input: tags.Input,
-): Promise<tags.Output> {
+  input: tags.RequestBody,
+): Promise<tags.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -134,8 +134,8 @@ export async function tags(
   );
 }
 export namespace tags {
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -167,8 +167,8 @@ export namespace tags {
 export async function composite(
   connection: IConnection,
   section: string,
-  input: composite.Input,
-): Promise<composite.Output> {
+  input: composite.RequestBody,
+): Promise<composite.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -186,8 +186,8 @@ export async function composite(
   );
 }
 export namespace composite {
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
