@@ -207,16 +207,20 @@
         "type": "object",
         "properties": {
           "current": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "limit": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "records": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "pages": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           }
         },
         "required": [
@@ -232,10 +236,12 @@
         "properties": {
           "page": {
             "type": "integer",
+            "minimum": 0,
             "nullable": true
           },
           "limit": {
             "type": "integer",
+            "minimum": 0,
             "nullable": true
           }
         },
@@ -457,6 +463,7 @@
             "in": "query",
             "schema": {
               "type": "integer",
+              "minimum": 0,
               "nullable": true
             },
             "required": false
@@ -466,6 +473,7 @@
             "in": "query",
             "schema": {
               "type": "integer",
+              "minimum": 0,
               "nullable": true
             },
             "required": false
@@ -659,6 +667,7 @@
             "in": "query",
             "schema": {
               "type": "integer",
+              "minimum": 0,
               "nullable": true
             },
             "required": false
@@ -668,6 +677,7 @@
             "in": "query",
             "schema": {
               "type": "integer",
+              "minimum": 0,
               "nullable": true
             },
             "required": false

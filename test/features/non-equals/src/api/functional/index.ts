@@ -20,8 +20,8 @@ export * as performance from "./performance";
  */
 export async function request(
   connection: IConnection,
-  input: request.Input,
-): Promise<request.Output> {
+  input: request.RequestBody,
+): Promise<request.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -39,8 +39,8 @@ export async function request(
   );
 }
 export namespace request {
-  export type Input = Resolved<IRequestDto>;
-  export type Output = Primitive<IRequestDto>;
+  export type RequestBody = Resolved<IRequestDto>;
+  export type Response = Primitive<IRequestDto>;
 
   export const METADATA = {
     method: "POST",

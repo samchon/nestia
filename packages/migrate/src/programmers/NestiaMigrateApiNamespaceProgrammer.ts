@@ -68,15 +68,6 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
           type,
         ),
       );
-    if (ctx.route.headers)
-      declare(
-        "Headers",
-        NestiaMigrateSchemaProgrammer.write({
-          components: ctx.components,
-          importer: ctx.importer,
-          schema: ctx.route.headers.schema,
-        }),
-      );
     if (
       ctx.config.keyword === true &&
       (ctx.route.parameters.length > 0 || ctx.route.query || ctx.route.body)
@@ -127,6 +118,15 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
               ...(ctx.route.body ? [ctx.route.body.key] : []),
             ],
           },
+        }),
+      );
+    if (ctx.route.headers)
+      declare(
+        "Headers",
+        NestiaMigrateSchemaProgrammer.write({
+          components: ctx.components,
+          importer: ctx.importer,
+          schema: ctx.route.headers.schema,
         }),
       );
     if (ctx.route.query)
@@ -229,10 +229,7 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
       ctx.route.parameters.length === 0 && ctx.route.query === null;
     const property = (key: string) =>
       ctx.config.keyword === true
-        ? ts.factory.createPropertyAccessExpression(
-            ts.factory.createIdentifier("p"),
-            key,
-          )
+        ? IdentifierFactory.access(ts.factory.createIdentifier("p"), key)
         : ts.factory.createIdentifier(key);
     const out = (body: ts.ConciseBody) =>
       constant(

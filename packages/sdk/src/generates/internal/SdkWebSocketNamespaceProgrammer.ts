@@ -39,7 +39,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
         );
 
       declare(
-        "Output",
+        "Response",
         ts.factory.createTypeLiteralNode([
           ts.factory.createPropertySignature(
             undefined,

@@ -29,8 +29,8 @@ import type { IGoogleTokenActivate } from "../../../../../structures/IGoogleToke
 export async function single(
   connection: IConnection,
   accountCode: string,
-  input: single.Input,
-): Promise<single.Output> {
+  input: single.RequestBody,
+): Promise<single.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -48,8 +48,8 @@ export async function single(
   );
 }
 export namespace single {
-  export type Input = Resolved<IGoogleDriveImageSingleUpload>;
-  export type Output = Primitive<IGoogleDriveFile>;
+  export type RequestBody = Resolved<IGoogleDriveImageSingleUpload>;
+  export type Response = Primitive<IGoogleDriveFile>;
 
   export const METADATA = {
     method: "POST",
@@ -77,7 +77,7 @@ export namespace single {
 export async function activate(
   connection: IConnection,
   accountCode: string,
-  input: activate.Input,
+  input: activate.RequestBody,
 ): Promise<void> {
   return PlainFetcher.fetch(
     {
@@ -96,7 +96,9 @@ export async function activate(
   );
 }
 export namespace activate {
-  export type Input = Resolved<IGoogleTokenActivate<"google-auth", never>>;
+  export type RequestBody = Resolved<
+    IGoogleTokenActivate<"google-auth", never>
+  >;
 
   export const METADATA = {
     method: "POST",

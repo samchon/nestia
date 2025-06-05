@@ -26,7 +26,7 @@ export async function getOauthProfile(
   connection: IConnection,
   user_id: string,
   query: getOauthProfile.Query,
-): Promise<getOauthProfile.Output> {
+): Promise<getOauthProfile.Response> {
   return !!connection.simulate
     ? getOauthProfile.simulate(connection, user_id, query)
     : PlainFetcher.propagate<any>(connection, {
@@ -37,7 +37,7 @@ export async function getOauthProfile(
 }
 export namespace getOauthProfile {
   export type Query = IAuthentication;
-  export type Output = IPropagation<
+  export type Response = IPropagation<
     {
       200: IAuthentication.IProfile;
       404: "404 Not Found";
@@ -76,7 +76,7 @@ export namespace getOauthProfile {
     connection: IConnection,
     user_id: string,
     query: getOauthProfile.Query,
-  ): Output => {
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -106,6 +106,6 @@ export namespace getOauthProfile {
           ? connection.simulate
           : undefined,
       ),
-    } as Output;
+    } as Response;
   };
 }

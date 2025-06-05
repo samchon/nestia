@@ -28,8 +28,8 @@ export * as password from "./password";
  */
 export async function join(
   connection: IConnection,
-  input: join.Input,
-): Promise<join.Output> {
+  input: join.RequestBody,
+): Promise<join.Response> {
   const output: Primitive<ISeller.IAuthorized> = !!connection.simulate
     ? join.simulate(connection, input)
     : await EncryptedFetcher.fetch(
@@ -52,8 +52,8 @@ export async function join(
   return output;
 }
 export namespace join {
-  export type Input = Resolved<ISeller.IJoin>;
-  export type Output = Primitive<ISeller.IAuthorized>;
+  export type RequestBody = Resolved<ISeller.IJoin>;
+  export type Response = Primitive<ISeller.IAuthorized>;
 
   export const METADATA = {
     method: "POST",
@@ -76,8 +76,8 @@ export namespace join {
     typia.random<Primitive<ISeller.IAuthorized>>(g);
   export const simulate = (
     connection: IConnection,
-    input: join.Input,
-  ): Output => {
+    input: join.RequestBody,
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -106,8 +106,8 @@ export namespace join {
  */
 export async function login(
   connection: IConnection,
-  input: login.Input,
-): Promise<login.Output> {
+  input: login.RequestBody,
+): Promise<login.Response> {
   const output: Primitive<ISeller.IAuthorized> = !!connection.simulate
     ? login.simulate(connection, input)
     : await EncryptedFetcher.fetch(
@@ -130,8 +130,8 @@ export async function login(
   return output;
 }
 export namespace login {
-  export type Input = Resolved<ISeller.ILogin>;
-  export type Output = Primitive<ISeller.IAuthorized>;
+  export type RequestBody = Resolved<ISeller.ILogin>;
+  export type Response = Primitive<ISeller.IAuthorized>;
 
   export const METADATA = {
     method: "POST",
@@ -154,8 +154,8 @@ export namespace login {
     typia.random<Primitive<ISeller.IAuthorized>>(g);
   export const simulate = (
     connection: IConnection,
-    input: login.Input,
-  ): Output => {
+    input: login.RequestBody,
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

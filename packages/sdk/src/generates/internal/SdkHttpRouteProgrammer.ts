@@ -1,6 +1,7 @@
 import ts from "typescript";
 import { IJsDocTagInfo } from "typia";
 
+import { INestiaConfig } from "../../INestiaConfig";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { FilePrinter } from "./FilePrinter";
@@ -20,18 +21,18 @@ export namespace SdkHttpRouteProgrammer {
         query: route.parameters
           .filter((p) => p.category === "query")
           .find((p) => p.field === null),
-        input: route.parameters.find((p) => p.category === "body"),
+        body: route.parameters.find((p) => p.category === "body"),
       };
       return [
         FilePrinter.description(
           SdkHttpFunctionProgrammer.write(project)(importer)(route, props),
-          describe(route),
+          describe(project.config, route),
         ),
         SdkHttpNamespaceProgrammer.write(project)(importer)(route, props),
       ];
     };
 
-  const describe = (route: ITypedHttpRoute): string => {
+  const describe = (config: INestiaConfig, route: ITypedHttpRoute): string => {
     // MAIN DESCRIPTION
     const descriptionComments: string[] = route.description
       ? route.description.split("\n")
@@ -52,8 +53,9 @@ export namespace SdkHttpRouteProgrammer {
           .substring(p.name.length);
       if (!description?.length) continue;
 
+      const name: string = config.keyword === true ? `props.${p.name}` : p.name;
       tagComments.push(
-        `@param ${p.name} ${description
+        `@param ${name} ${description
           .split("\n")
           .map((str) => str.trim())
           .map((str, i) => {

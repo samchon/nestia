@@ -26,7 +26,7 @@ export async function composite(
   connection: IConnection,
   value: string,
   value2: string,
-): Promise<composite.Output> {
+): Promise<composite.Response> {
   return PlainFetcher.fetch(connection, {
     ...composite.METADATA,
     template: composite.METADATA.path,
@@ -34,7 +34,7 @@ export async function composite(
   });
 }
 export namespace composite {
-  export type Output = Primitive<string>;
+  export type Response = Primitive<string>;
 
   export const METADATA = {
     method: "GET",
@@ -65,7 +65,7 @@ export namespace composite {
 export async function boolean(
   connection: IConnection,
   value: false | true,
-): Promise<boolean.Output> {
+): Promise<boolean.Response> {
   return PlainFetcher.fetch(connection, {
     ...boolean.METADATA,
     template: boolean.METADATA.path,
@@ -73,7 +73,7 @@ export async function boolean(
   });
 }
 export namespace boolean {
-  export type Output = Primitive<false | true>;
+  export type Response = Primitive<false | true>;
 
   export const METADATA = {
     method: "GET",
@@ -99,7 +99,7 @@ export namespace boolean {
 export async function number(
   connection: IConnection,
   value: number,
-): Promise<number.Output> {
+): Promise<number.Response> {
   return PlainFetcher.fetch(connection, {
     ...number.METADATA,
     template: number.METADATA.path,
@@ -107,7 +107,7 @@ export async function number(
   });
 }
 export namespace number {
-  export type Output = Primitive<number>;
+  export type Response = Primitive<number>;
 
   export const METADATA = {
     method: "GET",
@@ -133,7 +133,7 @@ export namespace number {
 export async function bigint(
   connection: IConnection,
   value: bigint,
-): Promise<bigint.Output> {
+): Promise<bigint.Response> {
   return PlainFetcher.fetch(connection, {
     ...bigint.METADATA,
     template: bigint.METADATA.path,
@@ -141,7 +141,7 @@ export async function bigint(
   });
 }
 export namespace bigint {
-  export type Output = Primitive<number>;
+  export type Response = Primitive<number>;
 
   export const METADATA = {
     method: "GET",
@@ -167,7 +167,7 @@ export namespace bigint {
 export async function string(
   connection: IConnection,
   value: string,
-): Promise<string.Output> {
+): Promise<string.Response> {
   return PlainFetcher.fetch(connection, {
     ...string.METADATA,
     template: string.METADATA.path,
@@ -175,7 +175,7 @@ export async function string(
   });
 }
 export namespace string {
-  export type Output = Primitive<string>;
+  export type Response = Primitive<string>;
 
   export const METADATA = {
     method: "GET",
@@ -200,7 +200,7 @@ export namespace string {
 export async function nullable(
   connection: IConnection,
   value: null | string,
-): Promise<nullable.Output> {
+): Promise<nullable.Response> {
   return PlainFetcher.fetch(connection, {
     ...nullable.METADATA,
     template: nullable.METADATA.path,
@@ -208,7 +208,7 @@ export async function nullable(
   });
 }
 export namespace nullable {
-  export type Output = Primitive<null | string>;
+  export type Response = Primitive<null | string>;
 
   export const METADATA = {
     method: "GET",
@@ -233,7 +233,7 @@ export namespace nullable {
 export async function literal(
   connection: IConnection,
   value: "A" | "B" | "C",
-): Promise<literal.Output> {
+): Promise<literal.Response> {
   return PlainFetcher.fetch(connection, {
     ...literal.METADATA,
     template: literal.METADATA.path,
@@ -241,7 +241,7 @@ export async function literal(
   });
 }
 export namespace literal {
-  export type Output = Primitive<"A" | "B" | "C">;
+  export type Response = Primitive<"A" | "B" | "C">;
 
   export const METADATA = {
     method: "GET",
@@ -266,7 +266,7 @@ export namespace literal {
 export async function uuid(
   connection: IConnection,
   value: string & Format<"uuid">,
-): Promise<uuid.Output> {
+): Promise<uuid.Response> {
   return PlainFetcher.fetch(connection, {
     ...uuid.METADATA,
     template: uuid.METADATA.path,
@@ -274,7 +274,7 @@ export async function uuid(
   });
 }
 export namespace uuid {
-  export type Output = Primitive<string>;
+  export type Response = Primitive<string>;
 
   export const METADATA = {
     method: "GET",
@@ -299,7 +299,7 @@ export namespace uuid {
 export async function date(
   connection: IConnection,
   value: string & Format<"date">,
-): Promise<date.Output> {
+): Promise<date.Response> {
   return PlainFetcher.fetch(connection, {
     ...date.METADATA,
     template: date.METADATA.path,
@@ -307,7 +307,7 @@ export async function date(
   });
 }
 export namespace date {
-  export type Output = Primitive<string>;
+  export type Response = Primitive<string>;
 
   export const METADATA = {
     method: "GET",
@@ -332,7 +332,7 @@ export namespace date {
 export async function uuid_nullable(
   connection: IConnection,
   value: null | (string & Format<"uuid">),
-): Promise<uuid_nullable.Output> {
+): Promise<uuid_nullable.Response> {
   return PlainFetcher.fetch(connection, {
     ...uuid_nullable.METADATA,
     template: uuid_nullable.METADATA.path,
@@ -340,7 +340,7 @@ export async function uuid_nullable(
   });
 }
 export namespace uuid_nullable {
-  export type Output = Primitive<null | string>;
+  export type Response = Primitive<null | string>;
 
   export const METADATA = {
     method: "GET",
@@ -365,7 +365,7 @@ export namespace uuid_nullable {
 export async function date_nullable(
   connection: IConnection,
   value: null | (string & Format<"date">),
-): Promise<date_nullable.Output> {
+): Promise<date_nullable.Response> {
   return PlainFetcher.fetch(connection, {
     ...date_nullable.METADATA,
     template: date_nullable.METADATA.path,
@@ -373,7 +373,7 @@ export async function date_nullable(
   });
 }
 export namespace date_nullable {
-  export type Output = Primitive<null | string>;
+  export type Response = Primitive<null | string>;
 
   export const METADATA = {
     method: "GET",

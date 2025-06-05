@@ -26,8 +26,8 @@ import type { IPage } from "../../../../structures/IPage";
 export async function index(
   connection: IConnection,
   section: null | string,
-  input: index.Input,
-): Promise<index.Output> {
+  input: index.RequestBody,
+): Promise<index.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -45,8 +45,8 @@ export async function index(
   );
 }
 export namespace index {
-  export type Input = Resolved<IPage.IRequest>;
-  export type Output = Primitive<IPage<IBbsArticle.ISummary>>;
+  export type RequestBody = Resolved<IPage.IRequest>;
+  export type Response = Primitive<IPage<IBbsArticle.ISummary>>;
 
   export const METADATA = {
     method: "PATCH",
@@ -81,7 +81,7 @@ export async function $catch(
   connection: IConnection,
   section: null | string,
   input: $catch.Query,
-): Promise<$catch.Output> {
+): Promise<$catch.Response> {
   return PlainFetcher.fetch(connection, {
     ...$catch.METADATA,
     template: $catch.METADATA.path,
@@ -90,7 +90,7 @@ export async function $catch(
 }
 export namespace $catch {
   export type Query = Resolved<IPage.IRequest>;
-  export type Output = Primitive<IPage<IBbsArticle.ISummary>>;
+  export type Response = Primitive<IPage<IBbsArticle.ISummary>>;
 
   export const METADATA = {
     method: "GET",
@@ -132,7 +132,7 @@ export async function at(
   connection: IConnection,
   section: string,
   id: null | (string & Format<"uuid">),
-): Promise<at.Output> {
+): Promise<at.Response> {
   return PlainFetcher.fetch(connection, {
     ...at.METADATA,
     template: at.METADATA.path,
@@ -140,7 +140,7 @@ export async function at(
   });
 }
 export namespace at {
-  export type Output = Primitive<IBbsArticle>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "GET",
@@ -172,7 +172,7 @@ export async function $new(
   connection: IConnection,
   section: string,
   date: string & Format<"date">,
-): Promise<$new.Output> {
+): Promise<$new.Response> {
   return PlainFetcher.fetch(connection, {
     ...$new.METADATA,
     template: $new.METADATA.path,
@@ -180,7 +180,7 @@ export async function $new(
   });
 }
 export namespace $new {
-  export type Output = Primitive<IBbsArticle>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "GET",
@@ -211,8 +211,8 @@ export namespace $new {
 export async function store(
   connection: IConnection,
   section: string,
-  input: store.Input,
-): Promise<store.Output> {
+  input: store.RequestBody,
+): Promise<store.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -230,8 +230,8 @@ export async function store(
   );
 }
 export namespace store {
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -267,8 +267,8 @@ export async function update(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-  input: update.Input,
-): Promise<update.Output> {
+  input: update.RequestBody,
+): Promise<update.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -286,8 +286,8 @@ export async function update(
   );
 }
 export namespace update {
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "PUT",

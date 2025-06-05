@@ -21,7 +21,7 @@ export async function index(
   connection: IConnection,
   section: string,
   query: index.Query,
-): Promise<index.Output> {
+): Promise<index.Response> {
   return PlainFetcher.fetch(connection, {
     ...index.METADATA,
     template: index.METADATA.path,
@@ -30,7 +30,7 @@ export async function index(
 }
 export namespace index {
   export type Query = Resolved<IPage.IRequest>;
-  export type Output = Primitive<IPage<IBbsArticle.ISummary>>;
+  export type Response = Primitive<IPage<IBbsArticle.ISummary>>;
 
   export const METADATA = {
     method: "GET",
@@ -66,7 +66,7 @@ export async function at(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-): Promise<at.Output> {
+): Promise<at.Response> {
   return PlainFetcher.fetch(connection, {
     ...at.METADATA,
     template: at.METADATA.path,
@@ -74,7 +74,7 @@ export async function at(
   });
 }
 export namespace at {
-  export type Output = Primitive<IBbsArticle>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "GET",

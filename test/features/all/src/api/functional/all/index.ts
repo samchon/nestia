@@ -26,8 +26,8 @@ import type { IBbsArticle } from "../../structures/IBbsArticle";
  */
 export async function store(
   connection: IConnection,
-  input: store.Input,
-): Promise<store.Output> {
+  input: store.RequestBody,
+): Promise<store.Response> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -45,8 +45,8 @@ export async function store(
   );
 }
 export namespace store {
-  export type Input = Resolved<IBbsArticle.IStore>;
-  export type Output = Primitive<IBbsArticle>;
+  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",

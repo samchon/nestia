@@ -21,7 +21,7 @@ export * as partial_type from "./partial_type";
  */
 export async function original(
   connection: IConnection,
-): Promise<original.Output> {
+): Promise<original.Response> {
   return !!connection.simulate
     ? original.simulate(connection)
     : PlainFetcher.propagate<any>(connection, {
@@ -31,7 +31,7 @@ export async function original(
       });
 }
 export namespace original {
-  export type Output = IPropagation<
+  export type Response = IPropagation<
     {
       200: IOriginal;
     },
@@ -53,7 +53,7 @@ export namespace original {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IOriginal> => typia.random<IOriginal>(g);
-  export const simulate = (connection: IConnection): Output => {
+  export const simulate = (connection: IConnection): Response => {
     return {
       success: true,
       status: 200,
@@ -65,6 +65,6 @@ export namespace original {
           ? connection.simulate
           : undefined,
       ),
-    } as Output;
+    } as Response;
   };
 }

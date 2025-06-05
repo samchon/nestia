@@ -25,8 +25,8 @@ import type { Format } from "typia/lib/tags/Format";
  */
 export async function store(
   connection: IConnection,
-  input: store.Input,
-): Promise<store.Output> {
+  input: store.RequestBody,
+): Promise<store.Response> {
   return !!connection.simulate
     ? store.simulate(connection, input)
     : PlainFetcher.fetch(
@@ -46,11 +46,11 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input = {
+  export type RequestBody = {
     title: string;
     body: string;
   };
-  export type Output = {
+  export type Response = {
     id: string;
     title: string;
     body: string;
@@ -85,8 +85,8 @@ export namespace store {
     }>(g);
   export const simulate = (
     connection: IConnection,
-    input: store.Input,
-  ): Output => {
+    input: store.RequestBody,
+  ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -110,7 +110,7 @@ export namespace store {
 export async function update(
   connection: IConnection,
   id: string & Format<"uuid">,
-  input: update.Input,
+  input: update.RequestBody,
 ): Promise<void> {
   return !!connection.simulate
     ? update.simulate(connection, id, input)
@@ -131,7 +131,7 @@ export async function update(
       );
 }
 export namespace update {
-  export type Input = {
+  export type RequestBody = {
     title: string;
     body: string;
   };
@@ -157,7 +157,7 @@ export namespace update {
   export const simulate = (
     connection: IConnection,
     id: string & Format<"uuid">,
-    input: update.Input,
+    input: update.RequestBody,
   ): void => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

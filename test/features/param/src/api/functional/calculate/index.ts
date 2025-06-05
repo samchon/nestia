@@ -22,7 +22,7 @@ export async function connect(
   connection: IConnection<connect.Header>,
   id: string & Format<"uuid">,
   provider: connect.Provider,
-): Promise<connect.Output> {
+): Promise<connect.Response> {
   const connector: WebSocketConnector<
     connect.Header,
     connect.Provider,
@@ -38,7 +38,7 @@ export async function connect(
   };
 }
 export namespace connect {
-  export type Output = {
+  export type Response = {
     connector: WebSocketConnector<Header, Provider, Listener>;
     driver: Driver<Listener>;
   };
