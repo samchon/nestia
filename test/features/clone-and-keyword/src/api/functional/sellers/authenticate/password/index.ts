@@ -46,6 +46,9 @@ export async function change(
 }
 export namespace change {
   export type IProps = {
+    /**
+     * Old and new passwords
+     */
     input: Body;
   };
   export type Body = ISeller.IChangePassword;

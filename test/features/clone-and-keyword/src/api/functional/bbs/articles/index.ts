@@ -40,7 +40,14 @@ export async function index(
 }
 export namespace index {
   export type IProps = {
+    /**
+     * Target section
+     */
     section: string;
+
+    /**
+     * Pagination query
+     */
     query: Query;
   };
   export type Query = IPage.IRequest;
@@ -128,7 +135,14 @@ export async function store(
 }
 export namespace store {
   export type IProps = {
+    /**
+     * Section code
+     */
     section: string;
+
+    /**
+     * Content to store
+     */
     input: Body;
   };
   export type Body = IBbsArticle.IStore;
@@ -209,8 +223,19 @@ export async function update(
 }
 export namespace update {
   export type IProps = {
+    /**
+     * Section code
+     */
     section: string;
+
+    /**
+     * Target article ID
+     */
     id: string & Format<"uuid">;
+
+    /**
+     * Content to update
+     */
     input: Body;
   };
   export type Body = IBbsArticle.IStore;

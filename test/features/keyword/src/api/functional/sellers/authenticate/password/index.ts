@@ -22,9 +22,7 @@ import type { ISeller } from "../../../../structures/ISeller";
  */
 export async function change(
   connection: IConnection,
-  props: {
-    input: change.Body;
-  },
+  props: change.IProps,
 ): Promise<void> {
   return EncryptedFetcher.fetch(
     {
@@ -43,6 +41,12 @@ export async function change(
   );
 }
 export namespace change {
+  export type IProps = {
+    /**
+     * Old and new passwords
+     */
+    input: Body;
+  };
   export type Body = Primitive<ISeller.IChangePassword>;
 
   export const METADATA = {

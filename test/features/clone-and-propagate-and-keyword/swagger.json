@@ -2570,14 +2570,20 @@
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "title": "Primary Key",
+            "description": "Primary Key."
           },
           "section": {
-            "type": "string"
+            "type": "string",
+            "title": "Belonged section code",
+            "description": "Belonged section code."
           },
           "created_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "title": "Creation time",
+            "description": "Creation time."
           },
           "updated_at": {
             "type": "string",

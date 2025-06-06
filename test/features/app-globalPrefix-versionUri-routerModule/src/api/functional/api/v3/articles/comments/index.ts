@@ -47,7 +47,7 @@ export namespace index {
   export const path = (
     section: string,
     articleId: string & Format<"uuid">,
-    query: index.Query,
+    query: Query,
   ) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))

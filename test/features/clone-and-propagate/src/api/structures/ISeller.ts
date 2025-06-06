@@ -7,26 +7,32 @@ export namespace ISeller {
       token: string;
       expires_at: string & Format<"date-time">;
     };
+
     /**
      * Primary key.
      */
     id: number & Type<"uint32">;
+
     /**
      * Email address.
      */
     email: string & Format<"email">;
+
     /**
      * Name of the seller.
      */
     name: string;
+
     /**
      * Mobile number of the seller.
      */
     mobile: string;
+
     /**
      * Belonged company name.
      */
     company: string;
+
     /**
      * Joined time.
      */
