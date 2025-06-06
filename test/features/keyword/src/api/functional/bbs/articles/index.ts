@@ -19,10 +19,7 @@ import type { IPage } from "../../../structures/IPage";
  */
 export async function index(
   connection: IConnection,
-  props: {
-    section: string;
-    query: index.Query;
-  },
+  props: index.IProps,
 ): Promise<index.Response> {
   return PlainFetcher.fetch(connection, {
     ...index.METADATA,
@@ -31,6 +28,10 @@ export async function index(
   });
 }
 export namespace index {
+  export type IProps = {
+    section: string;
+    query: Query;
+  };
   export type Query = Resolved<IPage.IRequest>;
   export type Response = Primitive<IPage<IBbsArticle.ISummary>>;
 
@@ -45,7 +46,7 @@ export namespace index {
     status: 200,
   } as const;
 
-  export const path = (p: { section: string; query: index.Query }) => {
+  export const path = (p: { section: string; query: Query }) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(p.query as any))
       if (undefined === value) continue;
@@ -72,10 +73,7 @@ export namespace index {
  */
 export async function store(
   connection: IConnection,
-  props: {
-    section: string;
-    input: store.Body;
-  },
+  props: store.IProps,
 ): Promise<store.Response> {
   return PlainFetcher.fetch(
     {
@@ -94,6 +92,17 @@ export async function store(
   );
 }
 export namespace store {
+  export type IProps = {
+    /**
+     * Section code
+     */
+    section: string;
+
+    /**
+     * Content to store
+     */
+    input: Body;
+  };
   export type Body = Primitive<IBbsArticle.IStore>;
   export type Response = Primitive<IBbsArticle>;
 
@@ -129,11 +138,7 @@ export namespace store {
  */
 export async function update(
   connection: IConnection,
-  props: {
-    section: string;
-    id: string & Format<"uuid">;
-    input: update.Body;
-  },
+  props: update.IProps,
 ): Promise<update.Response> {
   return PlainFetcher.fetch(
     {
@@ -152,6 +157,22 @@ export async function update(
   );
 }
 export namespace update {
+  export type IProps = {
+    /**
+     * Section code
+     */
+    section: string;
+
+    /**
+     * Target article ID
+     */
+    id: string & Format<"uuid">;
+
+    /**
+     * Content to update
+     */
+    input: Body;
+  };
   export type Body = Primitive<IBbsArticle.IStore>;
   export type Response = Primitive<IBbsArticle>;
 

@@ -148,7 +148,7 @@ export namespace typedQuery {
     status: 200,
   } as const;
 
-  export const path = (file: typedQuery.Query) => {
+  export const path = (file: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(file as any))
       if (undefined === value) continue;

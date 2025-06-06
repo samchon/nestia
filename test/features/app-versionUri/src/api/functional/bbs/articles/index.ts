@@ -42,7 +42,7 @@ export namespace index {
     status: 200,
   } as const;
 
-  export const path = (section: string, query: index.Query) => {
+  export const path = (section: string, query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;

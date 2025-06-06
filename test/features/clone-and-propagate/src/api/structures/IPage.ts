@@ -4,25 +4,17 @@ export namespace IPage {
   /**
    * Page information.
    */
-  export type IPagination =
-    /**
-     * Page information.
-     */
-    {
-      current: number & Type<"uint32">;
-      limit: number & Type<"uint32">;
-      records: number & Type<"uint32">;
-      pages: number & Type<"uint32">;
-    };
+  export type IPagination = {
+    current: number & Type<"uint32">;
+    limit: number & Type<"uint32">;
+    records: number & Type<"uint32">;
+    pages: number & Type<"uint32">;
+  };
   /**
    * Page request data
    */
-  export type IRequest =
-    /**
-     * Page request data
-     */
-    {
-      page?: null | undefined | (number & Type<"uint32">);
-      limit?: null | undefined | (number & Type<"uint32">);
-    };
+  export type IRequest = {
+    page?: null | undefined | (number & Type<"uint32">);
+    limit?: null | undefined | (number & Type<"uint32">);
+  };
 }

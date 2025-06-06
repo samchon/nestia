@@ -103,7 +103,7 @@ export namespace $catch {
     status: 200,
   } as const;
 
-  export const path = (section: null | string, input: $catch.Query) => {
+  export const path = (section: null | string, input: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(input as any))
       if (undefined === value) continue;

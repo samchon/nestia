@@ -53,6 +53,9 @@ export async function join(
 }
 export namespace join {
   export type IProps = {
+    /**
+     * Information of yours
+     */
     input: Body;
   };
   export type Body = ISeller.IJoin;
@@ -133,6 +136,9 @@ export async function login(
 }
 export namespace login {
   export type IProps = {
+    /**
+     * Email and password
+     */
     input: Body;
   };
   export type Body = ISeller.ILogin;
