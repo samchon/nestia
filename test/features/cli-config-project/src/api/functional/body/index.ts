@@ -7,7 +7,7 @@
 import type { IConnection } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive, Resolved } from "typia";
 import typia from "typia";
 
 import type { IBbsArticle } from "../../structures/IBbsArticle";
@@ -26,7 +26,7 @@ import type { IBbsArticle } from "../../structures/IBbsArticle";
  */
 export async function store(
   connection: IConnection,
-  input: store.RequestBody,
+  input: store.Body,
 ): Promise<store.Response> {
   return !!connection.simulate
     ? store.simulate(connection, input)
@@ -47,7 +47,7 @@ export async function store(
       );
 }
 export namespace store {
-  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -71,7 +71,7 @@ export namespace store {
     typia.random<Primitive<IBbsArticle>>(g);
   export const simulate = (
     connection: IConnection,
-    input: store.RequestBody,
+    input: store.Body,
   ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

@@ -21,8 +21,28 @@ export namespace SdkHttpFunctionProgrammer {
         query: ITypedHttpRouteParameter.IQuery | undefined;
         body: ITypedHttpRouteParameter.IBody | undefined;
       },
-    ): ts.FunctionDeclaration =>
-      ts.factory.createFunctionDeclaration(
+    ): ts.FunctionDeclaration => {
+      interface IProperty {
+        key: string;
+        type: ts.TypeNode;
+        optional: boolean;
+      }
+      const properties: IProperty[] = route.parameters
+        .filter((p) => p.category !== "headers")
+        .map((p) => ({
+          key: p.name,
+          type:
+            project.config.primitive !== false &&
+            (p === props.query || p === props.body)
+              ? ts.factory.createTypeReferenceNode(
+                  `${route.name}.${p === props.query ? "Query" : "Body"}`,
+                )
+              : project.config.clone === true
+                ? SdkAliasCollection.from(project)(importer)(p.metadata)
+                : SdkAliasCollection.name(p),
+          optional: p.metadata.optional,
+        }));
+      return ts.factory.createFunctionDeclaration(
         [
           ts.factory.createModifier(ts.SyntaxKind.ExportKeyword),
           ts.factory.createModifier(ts.SyntaxKind.AsyncKeyword),
@@ -40,8 +60,7 @@ export namespace SdkHttpFunctionProgrammer {
                 : undefined,
             ),
           ),
-          ...(project.config.keyword === true &&
-          route.parameters.filter((p) => p.category !== "headers").length !== 0
+          ...(project.config.keyword === true && properties.length !== 0
             ? [
                 ts.factory.createParameterDeclaration(
                   [],
@@ -51,26 +70,17 @@ export namespace SdkHttpFunctionProgrammer {
                   ts.factory.createTypeReferenceNode(`${route.name}.IProps`),
                 ),
               ]
-            : route.parameters
-                .filter((p) => p.category !== "headers")
-                .map((p) =>
-                  ts.factory.createParameterDeclaration(
-                    [],
-                    undefined,
-                    p.name,
-                    p.metadata.optional === true
-                      ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
-                      : undefined,
-                    project.config.primitive !== false &&
-                      (p === props.query || p === props.body)
-                      ? ts.factory.createTypeReferenceNode(
-                          `${route.name}.${p === props.query ? "Query" : "RequestBody"}`,
-                        )
-                      : project.config.clone === true
-                        ? SdkAliasCollection.from(project)(importer)(p.metadata)
-                        : SdkAliasCollection.name(p),
-                  ),
-                )),
+            : properties.map((p) =>
+                ts.factory.createParameterDeclaration(
+                  [],
+                  undefined,
+                  p.key,
+                  p.optional === true
+                    ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
+                    : undefined,
+                  p.type,
+                ),
+              )),
         ],
         ts.factory.createTypeReferenceNode("Promise", [
           project.config.propagate === true ||
@@ -83,6 +93,7 @@ export namespace SdkHttpFunctionProgrammer {
           true,
         ),
       );
+    };
 
   const writeBody =
     (project: INestiaProject) =>

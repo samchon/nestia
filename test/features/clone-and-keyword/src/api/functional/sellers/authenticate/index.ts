@@ -53,9 +53,9 @@ export async function join(
 }
 export namespace join {
   export type IProps = {
-    input: ISeller.IJoin;
+    input: Body;
   };
-  export type RequestBody = ISeller.IJoin;
+  export type Body = ISeller.IJoin;
   export type Response = ISeller.IAuthorized;
 
   export const METADATA = {
@@ -133,9 +133,9 @@ export async function login(
 }
 export namespace login {
   export type IProps = {
-    input: ISeller.ILogin;
+    input: Body;
   };
-  export type RequestBody = ISeller.ILogin;
+  export type Body = ISeller.ILogin;
   export type Response = ISeller.IAuthorized;
 
   export const METADATA = {

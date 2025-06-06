@@ -1,6 +1,6 @@
 {
   "name": "@nestia/editor",
-  "version": "6.0.0",
+  "version": "7.0.0-dev.20250606",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
   "typings": "lib/index.d.ts",

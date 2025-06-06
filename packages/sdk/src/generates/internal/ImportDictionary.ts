@@ -57,11 +57,15 @@ export class ImportDictionary {
   }
 
   public toStatements(outDir: string): ts.Statement[] {
+    outDir = path.resolve(outDir);
     const external: ts.ImportDeclaration[] = [];
     const internal: ts.ImportDeclaration[] = [];
 
     const locator = (str: string) => {
-      const location: string = path.relative(outDir, str).split("\\").join("/");
+      const location: string = path
+        .relative(outDir, str)
+        .split(path.sep)
+        .join("/");
       const index: number = location.lastIndexOf(NODE_MODULES);
       return index === -1
         ? location.startsWith("..")

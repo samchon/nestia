@@ -159,14 +159,9 @@ export async function store(
 }
 export namespace store {
   export type IProps = {
-    body: IDirectory | IImageFile | ITextFile | IZipFile | IShortcut;
+    body: Body;
   };
-  export type RequestBody =
-    | IDirectory
-    | IImageFile
-    | ITextFile
-    | IZipFile
-    | IShortcut;
+  export type Body = IDirectory | IImageFile | ITextFile | IZipFile | IShortcut;
   export type Response =
     | IDirectory
     | IImageFile

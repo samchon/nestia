@@ -110,7 +110,7 @@ export async function store(
   connection: IConnection,
   section: string,
   articleId: string & Format<"uuid">,
-  input: store.RequestBody,
+  input: store.Body,
 ): Promise<store.Response> {
   return PlainFetcher.fetch(
     {
@@ -129,7 +129,7 @@ export async function store(
   );
 }
 export namespace store {
-  export type RequestBody = Resolved<IBbsComment.IStore>;
+  export type Body = Primitive<IBbsComment.IStore>;
   export type Response = Primitive<IBbsComment>;
 
   export const METADATA = {
@@ -160,7 +160,7 @@ export async function update(
   section: string,
   articleId: string & Format<"uuid">,
   id: string & Format<"uuid">,
-  input: update.RequestBody,
+  input: update.Body,
 ): Promise<update.Response> {
   return PlainFetcher.fetch(
     {
@@ -179,7 +179,7 @@ export async function update(
   );
 }
 export namespace update {
-  export type RequestBody = Resolved<IBbsComment.IStore>;
+  export type Body = Primitive<IBbsComment.IStore>;
   export type Response = Primitive<IBbsComment>;
 
   export const METADATA = {

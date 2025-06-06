@@ -190,7 +190,7 @@ export namespace at {
  */
 export async function store(
   connection: IConnection,
-  body: store.RequestBody,
+  body: store.Body,
 ): Promise<store.Response> {
   return !!connection.simulate
     ? store.simulate(connection, body)
@@ -211,7 +211,7 @@ export async function store(
       );
 }
 export namespace store {
-  export type RequestBody = [
+  export type Body = [
     boolean,
     null,
     number,
@@ -268,7 +268,7 @@ export namespace store {
     >(g);
   export const simulate = (
     connection: IConnection,
-    body: store.RequestBody,
+    body: store.Body,
   ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

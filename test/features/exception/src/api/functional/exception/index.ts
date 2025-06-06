@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive } from "typia";
 import type { TypeGuardError } from "typia/lib/TypeGuardError";
 
 import type { IBbsArticle } from "../../structures/IBbsArticle";
@@ -27,7 +27,7 @@ import type { IUnprocessibleEntity } from "../../structures/IUnprocessibleEntity
 export async function typed(
   connection: IConnection,
   section: string,
-  input: typed.RequestBody,
+  input: typed.Body,
 ): Promise<typed.Response> {
   return PlainFetcher.fetch(
     {
@@ -46,7 +46,7 @@ export async function typed(
   );
 }
 export namespace typed {
-  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -115,7 +115,7 @@ export namespace union {
 export async function tags(
   connection: IConnection,
   section: string,
-  input: tags.RequestBody,
+  input: tags.Body,
 ): Promise<tags.Response> {
   return PlainFetcher.fetch(
     {
@@ -134,7 +134,7 @@ export async function tags(
   );
 }
 export namespace tags {
-  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -167,7 +167,7 @@ export namespace tags {
 export async function composite(
   connection: IConnection,
   section: string,
-  input: composite.RequestBody,
+  input: composite.Body,
 ): Promise<composite.Response> {
   return PlainFetcher.fetch(
     {
@@ -186,7 +186,7 @@ export async function composite(
   );
 }
 export namespace composite {
-  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {

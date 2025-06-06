@@ -201,7 +201,7 @@ export namespace composite {
  */
 export async function body(
   connection: IConnection,
-  query: body.RequestBody,
+  query: body.Body,
 ): Promise<body.Response> {
   return PlainFetcher.fetch(
     {
@@ -220,7 +220,7 @@ export async function body(
   );
 }
 export namespace body {
-  export type RequestBody = Resolved<IQuery>;
+  export type Body = Resolved<IQuery>;
   export type Response = Resolved<IQuery>;
 
   export const METADATA = {
@@ -248,7 +248,7 @@ export namespace body {
  */
 export async function big(
   connection: IConnection,
-  input: big.RequestBody,
+  input: big.Body,
 ): Promise<big.Response> {
   return PlainFetcher.fetch(
     {
@@ -267,7 +267,7 @@ export async function big(
   );
 }
 export namespace big {
-  export type RequestBody = Resolved<IBigQuery>;
+  export type Body = Resolved<IBigQuery>;
   export type Response = Resolved<IBigQuery>;
 
   export const METADATA = {

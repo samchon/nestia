@@ -174,9 +174,9 @@ export async function store(
 }
 export namespace store {
   export type IProps = {
-    body: ICategory;
+    body: Body;
   };
-  export type RequestBody = ICategory;
+  export type Body = ICategory;
   export type Response = IPropagation<
     {
       201: ICategory;

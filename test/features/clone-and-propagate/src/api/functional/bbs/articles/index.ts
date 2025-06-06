@@ -59,7 +59,7 @@ export namespace index {
     status: 200,
   } as const;
 
-  export const path = (section: string, query: index.Query) => {
+  export const path = (section: string, query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;
@@ -127,7 +127,7 @@ export namespace index {
 export async function store(
   connection: IConnection,
   section: string,
-  input: store.RequestBody,
+  input: store.Body,
 ): Promise<store.Response> {
   return !!connection.simulate
     ? store.simulate(connection, section, input)
@@ -148,7 +148,7 @@ export async function store(
       );
 }
 export namespace store {
-  export type RequestBody = IBbsArticle.IStore;
+  export type Body = IBbsArticle.IStore;
   export type Response = IPropagation<
     {
       201: IBbsArticle;
@@ -178,7 +178,7 @@ export namespace store {
   export const simulate = (
     connection: IConnection,
     section: string,
-    input: store.RequestBody,
+    input: store.Body,
   ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -229,7 +229,7 @@ export async function update(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-  input: update.RequestBody,
+  input: update.Body,
 ): Promise<update.Response> {
   return !!connection.simulate
     ? update.simulate(connection, section, id, input)
@@ -250,7 +250,7 @@ export async function update(
       );
 }
 export namespace update {
-  export type RequestBody = IBbsArticle.IStore;
+  export type Body = IBbsArticle.IStore;
   export type Response = IPropagation<
     {
       200: IBbsArticle;
@@ -281,7 +281,7 @@ export namespace update {
     connection: IConnection,
     section: string,
     id: string & Format<"uuid">,
-    input: update.RequestBody,
+    input: update.Body,
   ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

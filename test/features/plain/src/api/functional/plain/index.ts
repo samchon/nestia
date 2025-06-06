@@ -17,7 +17,7 @@ import typia from "typia";
  */
 export async function string(
   connection: IConnection,
-  body: string.RequestBody,
+  body: string.Body,
 ): Promise<string.Response> {
   return !!connection.simulate
     ? string.simulate(connection, body)
@@ -38,7 +38,7 @@ export async function string(
       );
 }
 export namespace string {
-  export type RequestBody = Resolved<string>;
+  export type Body = Resolved<string>;
   export type Response = Resolved<string>;
 
   export const METADATA = {
@@ -61,7 +61,7 @@ export namespace string {
   ): Resolved<Resolved<string>> => typia.random<Resolved<string>>(g);
   export const simulate = (
     connection: IConnection,
-    body: string.RequestBody,
+    body: string.Body,
   ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -85,7 +85,7 @@ export namespace string {
  */
 export async function template(
   connection: IConnection,
-  body: template.RequestBody,
+  body: template.Body,
 ): Promise<template.Response> {
   return !!connection.simulate
     ? template.simulate(connection, body)
@@ -106,7 +106,7 @@ export async function template(
       );
 }
 export namespace template {
-  export type RequestBody = Resolved<
+  export type Body = Resolved<
     | `something_${number}_interesting_${string}_is_not_false_it?`
     | `something_${number}_interesting_${string}_is_not_true_it?`
   >;
@@ -132,7 +132,7 @@ export namespace template {
   ): Resolved<Resolved<string>> => typia.random<Resolved<string>>(g);
   export const simulate = (
     connection: IConnection,
-    body: template.RequestBody,
+    body: template.Body,
   ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -156,7 +156,7 @@ export namespace template {
  */
 export async function constant(
   connection: IConnection,
-  body: constant.RequestBody,
+  body: constant.Body,
 ): Promise<constant.Response> {
   return !!connection.simulate
     ? constant.simulate(connection, body)
@@ -177,7 +177,7 @@ export async function constant(
       );
 }
 export namespace constant {
-  export type RequestBody = Resolved<"A" | "B" | "C">;
+  export type Body = Resolved<"A" | "B" | "C">;
   export type Response = Resolved<string>;
 
   export const METADATA = {
@@ -200,7 +200,7 @@ export namespace constant {
   ): Resolved<Resolved<string>> => typia.random<Resolved<string>>(g);
   export const simulate = (
     connection: IConnection,
-    body: constant.RequestBody,
+    body: constant.Body,
   ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

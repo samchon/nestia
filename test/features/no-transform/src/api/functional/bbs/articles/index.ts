@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive } from "typia";
 import type { Format } from "typia/lib/tags/Format";
 
 import type { IBbsArticle } from "../../../structures/IBbsArticle";
@@ -22,7 +22,7 @@ export * as comments from "./comments";
 export async function index(
   connection: IConnection,
   section: string,
-  input: index.RequestBody,
+  input: index.Body,
 ): Promise<index.Response> {
   return PlainFetcher.fetch(
     {
@@ -41,7 +41,7 @@ export async function index(
   );
 }
 export namespace index {
-  export type RequestBody = Resolved<IPage.IRequest>;
+  export type Body = Primitive<IPage.IRequest>;
   export type Response = Primitive<IPage<IBbsArticle.ISummary>>;
 
   export const METADATA = {
@@ -110,7 +110,7 @@ export namespace at {
 export async function store(
   connection: IConnection,
   section: string,
-  input: store.RequestBody,
+  input: store.Body,
 ): Promise<store.Response> {
   return PlainFetcher.fetch(
     {
@@ -129,7 +129,7 @@ export async function store(
   );
 }
 export namespace store {
-  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -166,7 +166,7 @@ export async function update(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-  input: update.RequestBody,
+  input: update.Body,
 ): Promise<update.Response> {
   return PlainFetcher.fetch(
     {
@@ -185,7 +185,7 @@ export async function update(
   );
 }
 export namespace update {
-  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {

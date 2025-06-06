@@ -41,7 +41,7 @@ export async function index(
 export namespace index {
   export type IProps = {
     section: string;
-    query: IPage.IRequest;
+    query: Query;
   };
   export type Query = IPage.IRequest;
   export type Response = IPageIBbsArticle.ISummary;
@@ -57,7 +57,7 @@ export namespace index {
     status: 200,
   } as const;
 
-  export const path = (p: { section: string; query: index.Query }) => {
+  export const path = (p: { section: string; query: Query }) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(p.query as any))
       if (undefined === value) continue;
@@ -129,9 +129,9 @@ export async function store(
 export namespace store {
   export type IProps = {
     section: string;
-    input: IBbsArticle.IStore;
+    input: Body;
   };
-  export type RequestBody = IBbsArticle.IStore;
+  export type Body = IBbsArticle.IStore;
   export type Response = IBbsArticle;
 
   export const METADATA = {
@@ -211,9 +211,9 @@ export namespace update {
   export type IProps = {
     section: string;
     id: string & Format<"uuid">;
-    input: IBbsArticle.IStore;
+    input: Body;
   };
-  export type RequestBody = IBbsArticle.IStore;
+  export type Body = IBbsArticle.IStore;
   export type Response = IBbsArticle;
 
   export const METADATA = {

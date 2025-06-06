@@ -104,7 +104,7 @@ export namespace NestiaMigrateApiFunctionProgrammer {
             IdentifierFactory.parameter(
               ctx.route.body.key,
               ts.factory.createTypeReferenceNode(
-                `${ctx.route.accessor.at(-1)!}.RequestBody`,
+                `${ctx.route.accessor.at(-1)!}.Body`,
               ),
               (ctx.route.body.type === "application/json" ||
                 ctx.route.body.type === "text/plain") &&

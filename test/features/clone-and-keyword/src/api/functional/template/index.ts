@@ -140,9 +140,9 @@ export async function store(
 }
 export namespace store {
   export type IProps = {
-    body: Template;
+    body: Body;
   };
-  export type RequestBody = Template;
+  export type Body = Template;
   export type Response = Template;
 
   export const METADATA = {

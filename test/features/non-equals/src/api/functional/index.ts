@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive } from "typia";
 
 import type { IRequestDto } from "../structures/IRequestDto";
 
@@ -20,7 +20,7 @@ export * as performance from "./performance";
  */
 export async function request(
   connection: IConnection,
-  input: request.RequestBody,
+  input: request.Body,
 ): Promise<request.Response> {
   return PlainFetcher.fetch(
     {
@@ -39,7 +39,7 @@ export async function request(
   );
 }
 export namespace request {
-  export type RequestBody = Resolved<IRequestDto>;
+  export type Body = Primitive<IRequestDto>;
   export type Response = Primitive<IRequestDto>;
 
   export const METADATA = {

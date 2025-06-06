@@ -140,7 +140,7 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
       );
     if (ctx.route.body)
       declare(
-        "RequestBody",
+        "Body",
         NestiaMigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,

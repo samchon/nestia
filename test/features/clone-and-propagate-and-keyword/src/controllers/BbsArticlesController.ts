@@ -81,17 +81,13 @@ interface IPage<T> {
   pagination: IPage.IPagination;
 }
 namespace IPage {
-  /**
-   * Page request data
-   */
+  /** Page request data */
   export interface IRequest {
     page?: null | (number & tags.Type<"uint32">);
     limit?: null | (number & tags.Type<"uint32">);
   }
 
-  /**
-   * Page information.
-   */
+  /** Page information. */
   export interface IPagination {
     current: number & tags.Type<"uint32">;
     limit: number & tags.Type<"uint32">;
@@ -100,16 +96,17 @@ namespace IPage {
   }
 }
 
-/**
- * Article info.
- */
+/** Article info. */
 interface IBbsArticle extends IBbsArticle.IStore {
+  /** Primary Key. */
   id: string & tags.Format<"uuid">;
+
+  /** Belonged section code. */
   section: string;
+
+  /** Creation time. */
   created_at: string & tags.Format<"date-time">;
-  /**
-   * @format date-time
-   */
+  /** @format date-time */
   updated_at: string;
 }
 namespace IBbsArticle {
@@ -125,16 +122,12 @@ namespace IBbsArticle {
     writer: string;
     title: string & tags.MinLength<3> & tags.MaxLength<50>;
     created_at: string & tags.Format<"date-time">;
-    /**
-     * @format date-time
-     */
+    /** @format date-time */
     updated_at: string;
   }
 }
 
-/**
- * Attachment file.
- */
+/** Attachment file. */
 interface IAttachmentFile {
   name: null | (string & tags.MinLength<1> & tags.MaxLength<255>);
   extension: null | (string & tags.MinLength<1> & tags.MaxLength<8>);

@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive, Resolved } from "typia";
 
 import type { IBodyOptional } from "../../../structures/IBodyOptional";
 
@@ -17,7 +17,9 @@ import type { IBodyOptional } from "../../../structures/IBodyOptional";
  */
 export async function json(
   connection: IConnection,
-  props: json.IProps,
+  props: {
+    body?: json.Body;
+  },
 ): Promise<json.Response> {
   return PlainFetcher.fetch(
     {
@@ -36,10 +38,7 @@ export async function json(
   );
 }
 export namespace json {
-  export type IProps = {
-    body?: undefined | IBodyOptional;
-  };
-  export type RequestBody = Resolved<undefined | IBodyOptional>;
+  export type Body = Primitive<undefined | IBodyOptional>;
   export type Response = Primitive<IBodyOptional>;
 
   export const METADATA = {
@@ -66,7 +65,9 @@ export namespace json {
  */
 export async function plain(
   connection: IConnection,
-  props: plain.IProps,
+  props: {
+    body?: plain.Body;
+  },
 ): Promise<plain.Response> {
   return PlainFetcher.fetch(
     {
@@ -85,10 +86,7 @@ export async function plain(
   );
 }
 export namespace plain {
-  export type IProps = {
-    body?: undefined | string;
-  };
-  export type RequestBody = Resolved<string>;
+  export type Body = Resolved<string>;
   export type Response = Primitive<string>;
 
   export const METADATA = {
