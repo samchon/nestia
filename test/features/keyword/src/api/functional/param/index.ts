@@ -15,7 +15,9 @@ import type { Primitive } from "typia";
  */
 export async function boolean(
   connection: IConnection,
-  props: boolean.IProps,
+  props: {
+    value: false | true;
+  },
 ): Promise<boolean.Response> {
   return PlainFetcher.fetch(connection, {
     ...boolean.METADATA,
@@ -24,9 +26,6 @@ export async function boolean(
   });
 }
 export namespace boolean {
-  export type IProps = {
-    value: boolean;
-  };
   export type Response = Primitive<false | true>;
 
   export const METADATA = {
@@ -51,7 +50,9 @@ export namespace boolean {
  */
 export async function number(
   connection: IConnection,
-  props: number.IProps,
+  props: {
+    value: number;
+  },
 ): Promise<number.Response> {
   return PlainFetcher.fetch(connection, {
     ...number.METADATA,
@@ -60,9 +61,6 @@ export async function number(
   });
 }
 export namespace number {
-  export type IProps = {
-    value: number;
-  };
   export type Response = Primitive<number>;
 
   export const METADATA = {
@@ -87,7 +85,9 @@ export namespace number {
  */
 export async function string(
   connection: IConnection,
-  props: string.IProps,
+  props: {
+    value: string;
+  },
 ): Promise<string.Response> {
   return PlainFetcher.fetch(connection, {
     ...string.METADATA,
@@ -96,9 +96,6 @@ export async function string(
   });
 }
 export namespace string {
-  export type IProps = {
-    value: string;
-  };
   export type Response = Primitive<string>;
 
   export const METADATA = {
@@ -123,7 +120,9 @@ export namespace string {
  */
 export async function nullable(
   connection: IConnection,
-  props: nullable.IProps,
+  props: {
+    value: null | string;
+  },
 ): Promise<nullable.Response> {
   return PlainFetcher.fetch(connection, {
     ...nullable.METADATA,
@@ -132,9 +131,6 @@ export async function nullable(
   });
 }
 export namespace nullable {
-  export type IProps = {
-    value: null | string;
-  };
   export type Response = Primitive<null | string>;
 
   export const METADATA = {
@@ -159,7 +155,9 @@ export namespace nullable {
  */
 export async function literal(
   connection: IConnection,
-  props: literal.IProps,
+  props: {
+    value: "A" | "B" | "C";
+  },
 ): Promise<literal.Response> {
   return PlainFetcher.fetch(connection, {
     ...literal.METADATA,
@@ -168,9 +166,6 @@ export async function literal(
   });
 }
 export namespace literal {
-  export type IProps = {
-    value: "A" | "B" | "C";
-  };
   export type Response = Primitive<"A" | "B" | "C">;
 
   export const METADATA = {

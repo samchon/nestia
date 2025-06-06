@@ -37,7 +37,7 @@ export async function getOauthProfile(
 export namespace getOauthProfile {
   export type IProps = {
     user_id: string;
-    query: IAuthentication;
+    query: Query;
   };
   export type Query = IAuthentication;
   export type Response = IPropagation<
@@ -59,10 +59,7 @@ export namespace getOauthProfile {
     status: 200,
   } as const;
 
-  export const path = (p: {
-    user_id: string;
-    query: getOauthProfile.Query;
-  }) => {
+  export const path = (p: { user_id: string; query: Query }) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(p.query as any))
       if (undefined === value) continue;

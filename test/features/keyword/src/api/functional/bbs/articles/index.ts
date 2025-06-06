@@ -19,7 +19,10 @@ import type { IPage } from "../../../structures/IPage";
  */
 export async function index(
   connection: IConnection,
-  props: index.IProps,
+  props: {
+    section: string;
+    query: index.Query;
+  },
 ): Promise<index.Response> {
   return PlainFetcher.fetch(connection, {
     ...index.METADATA,
@@ -28,10 +31,6 @@ export async function index(
   });
 }
 export namespace index {
-  export type IProps = {
-    section: string;
-    query: IPage.IRequest;
-  };
   export type Query = Resolved<IPage.IRequest>;
   export type Response = Primitive<IPage<IBbsArticle.ISummary>>;
 
@@ -73,7 +72,10 @@ export namespace index {
  */
 export async function store(
   connection: IConnection,
-  props: store.IProps,
+  props: {
+    section: string;
+    input: store.Body;
+  },
 ): Promise<store.Response> {
   return PlainFetcher.fetch(
     {
@@ -92,11 +94,7 @@ export async function store(
   );
 }
 export namespace store {
-  export type IProps = {
-    section: string;
-    input: IBbsArticle.IStore;
-  };
-  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -131,7 +129,11 @@ export namespace store {
  */
 export async function update(
   connection: IConnection,
-  props: update.IProps,
+  props: {
+    section: string;
+    id: string & Format<"uuid">;
+    input: update.Body;
+  },
 ): Promise<update.Response> {
   return PlainFetcher.fetch(
     {
@@ -150,12 +152,7 @@ export async function update(
   );
 }
 export namespace update {
-  export type IProps = {
-    section: string;
-    id: string & Format<"uuid">;
-    input: IBbsArticle.IStore;
-  };
-  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {

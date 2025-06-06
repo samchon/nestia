@@ -1,13 +1,12 @@
 import ts from "typescript";
-import typia from "typia";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 import { INestiaProject } from "../../structures/INestiaProject";
-import { IReflectHttpOperationParameter } from "../../structures/IReflectHttpOperationParameter";
 import { IReflectType } from "../../structures/IReflectType";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
+import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
@@ -33,16 +32,41 @@ export namespace SdkAliasCollection {
       ts.factory.createTypeLiteralNode(
         route.parameters
           .filter((p) => p.category !== "headers")
-          .map((param) =>
-            ts.factory.createPropertySignature(
-              undefined,
-              param.name,
-              param.metadata.isRequired() === false
-                ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
-                : undefined,
-              SdkTypeProgrammer.write(project)(importer)(param.metadata),
-            ),
-          ),
+          .map((param) => {
+            const signature: ts.PropertySignature =
+              ts.factory.createPropertySignature(
+                undefined,
+                param.name,
+                param.metadata.isRequired() === false
+                  ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
+                  : undefined,
+                param.category === "body"
+                  ? ts.factory.createTypeReferenceNode("Body")
+                  : param.category === "query" && param.field === null
+                    ? ts.factory.createTypeReferenceNode("Query")
+                    : SdkTypeProgrammer.write(project)(importer)(
+                        param.metadata,
+                      ),
+              );
+            const description: string | null =
+              param.description ??
+              route.jsDocTags
+                ?.find(
+                  (tag) =>
+                    tag.name === "param" &&
+                    tag.text?.[0]?.kind === "parameterName" &&
+                    tag.text?.[0]?.text === param.name,
+                )
+                ?.text?.find((t) => t.kind === "text")?.text ??
+              null;
+            return description?.length
+              ? [
+                  ts.factory.createIdentifier("\n") as any,
+                  FilePrinter.description(signature, description),
+                ]
+              : [signature];
+          })
+          .flat(),
       );
 
   export const headers =
@@ -100,9 +124,7 @@ export namespace SdkAliasCollection {
           type: true,
           library: "typia",
           instance:
-            typia.is<IReflectHttpOperationParameter.IBody>(param) &&
-            (param.contentType === "application/json" ||
-              param.encrypted === true)
+            param.contentType === "application/json" || param.encrypted === true
               ? "Primitive"
               : "Resolved",
         }),

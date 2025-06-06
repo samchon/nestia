@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
-import type { Resolved } from "typia";
+import type { Primitive } from "typia";
 
 import type { ISeller } from "../../../../structures/ISeller";
 
@@ -22,7 +22,9 @@ import type { ISeller } from "../../../../structures/ISeller";
  */
 export async function change(
   connection: IConnection,
-  props: change.IProps,
+  props: {
+    input: change.Body;
+  },
 ): Promise<void> {
   return EncryptedFetcher.fetch(
     {
@@ -41,10 +43,7 @@ export async function change(
   );
 }
 export namespace change {
-  export type IProps = {
-    input: ISeller.IChangePassword;
-  };
-  export type RequestBody = Resolved<ISeller.IChangePassword>;
+  export type Body = Primitive<ISeller.IChangePassword>;
 
   export const METADATA = {
     method: "PATCH",

@@ -93,10 +93,7 @@ export namespace SdkHttpNamespaceProgrammer {
           SdkAliasCollection.query(project)(importer)(props.query),
         );
       if (props.body !== undefined)
-        declare(
-          "RequestBody",
-          SdkAliasCollection.body(project)(importer)(props.body),
-        );
+        declare("Body", SdkAliasCollection.body(project)(importer)(props.body));
       if (
         project.config.propagate === true ||
         route.success.metadata.size() !== 0
@@ -221,10 +218,10 @@ export namespace SdkHttpNamespaceProgrammer {
           p === query
             ? p.metadata.isRequired() === false
               ? ts.factory.createUnionTypeNode([
-                  ts.factory.createTypeReferenceNode(`${route.name}.Query`),
+                  ts.factory.createTypeReferenceNode(`Query`),
                   ts.factory.createTypeReferenceNode("undefined"),
                 ])
-              : ts.factory.createTypeReferenceNode(`${route.name}.Query`)
+              : ts.factory.createTypeReferenceNode(`Query`)
             : project.config.clone === true
               ? SdkAliasCollection.from(project)(importer)(p.metadata)
               : SdkAliasCollection.name(p),
@@ -511,7 +508,7 @@ export namespace SdkHttpNamespaceProgrammer {
           [
             IdentifierFactory.parameter(
               "input",
-              ts.factory.createTypeReferenceNode("RequestBody"),
+              ts.factory.createTypeReferenceNode("Body"),
             ),
           ],
           undefined,

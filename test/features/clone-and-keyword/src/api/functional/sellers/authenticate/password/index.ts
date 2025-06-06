@@ -46,9 +46,9 @@ export async function change(
 }
 export namespace change {
   export type IProps = {
-    input: ISeller.IChangePassword;
+    input: Body;
   };
-  export type RequestBody = ISeller.IChangePassword;
+  export type Body = ISeller.IChangePassword;
 
   export const METADATA = {
     method: "PATCH",

@@ -60,9 +60,12 @@ export async function join(
 }
 export namespace join {
   export type IProps = {
-    input: ISeller.IJoin;
+    /**
+     * Information of yours
+     */
+    input: Body;
   };
-  export type RequestBody = ISeller.IJoin;
+  export type Body = ISeller.IJoin;
   export type Response = IPropagation<
     {
       201: ISeller.IAuthorized;
@@ -169,9 +172,12 @@ export async function login(
 }
 export namespace login {
   export type IProps = {
-    input: ISeller.ILogin;
+    /**
+     * Email and password
+     */
+    input: Body;
   };
-  export type RequestBody = ISeller.ILogin;
+  export type Body = ISeller.ILogin;
   export type Response = IPropagation<
     {
       201: ISeller.IAuthorized;

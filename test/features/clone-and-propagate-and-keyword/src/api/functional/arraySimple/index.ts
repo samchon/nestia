@@ -175,9 +175,9 @@ export async function store(
 }
 export namespace store {
   export type IProps = {
-    body: IPerson;
+    body: Body;
   };
-  export type RequestBody = IPerson;
+  export type Body = IPerson;
   export type Response = IPropagation<
     {
       201: IPerson;

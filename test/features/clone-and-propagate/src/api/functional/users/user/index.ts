@@ -60,7 +60,7 @@ export namespace getUserProfile {
     status: 202,
   } as const;
 
-  export const path = (user_id: string, query: getUserProfile.Query) => {
+  export const path = (user_id: string, query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;
@@ -122,7 +122,7 @@ export namespace getUserProfile {
 export async function updateUserProfile(
   connection: IConnection,
   user_id: string,
-  body: updateUserProfile.RequestBody,
+  body: updateUserProfile.Body,
 ): Promise<updateUserProfile.Response> {
   return !!connection.simulate
     ? updateUserProfile.simulate(connection, user_id, body)
@@ -143,7 +143,7 @@ export async function updateUserProfile(
       );
 }
 export namespace updateUserProfile {
-  export type RequestBody = PartialPickIUsernameemailoptional_attrnullable_attr;
+  export type Body = PartialPickIUsernameemailoptional_attrnullable_attr;
   export type Response = IPropagation<
     {
       201: IUser;
@@ -173,7 +173,7 @@ export namespace updateUserProfile {
   export const simulate = (
     connection: IConnection,
     user_id: string,
-    body: updateUserProfile.RequestBody,
+    body: updateUserProfile.Body,
   ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

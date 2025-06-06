@@ -192,15 +192,9 @@ export async function store(
 }
 export namespace store {
   export type IProps = {
-    body:
-      | IDirectory.o1
-      | ISharedDirectory
-      | IImageFile.o1
-      | ITextFile.o1
-      | IZipFile.o1
-      | IShortcut.o1;
+    body: Body;
   };
-  export type RequestBody =
+  export type Body =
     | IDirectory.o1
     | ISharedDirectory
     | IImageFile.o1

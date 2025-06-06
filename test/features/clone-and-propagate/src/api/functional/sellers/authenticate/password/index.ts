@@ -24,7 +24,7 @@ import type { ISeller } from "../../../../structures/ISeller";
  */
 export async function change(
   connection: IConnection,
-  input: change.RequestBody,
+  input: change.Body,
 ): Promise<change.Response> {
   return !!connection.simulate
     ? change.simulate(connection, input)
@@ -45,7 +45,7 @@ export async function change(
       );
 }
 export namespace change {
-  export type RequestBody = ISeller.IChangePassword;
+  export type Body = ISeller.IChangePassword;
   export type Response = IPropagation<
     {
       200: void;
@@ -72,7 +72,7 @@ export namespace change {
     typia.random<void>(g);
   export const simulate = (
     connection: IConnection,
-    input: change.RequestBody,
+    input: change.Body,
   ): Response => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

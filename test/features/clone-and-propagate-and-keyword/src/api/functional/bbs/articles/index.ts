@@ -40,8 +40,15 @@ export async function index(
 }
 export namespace index {
   export type IProps = {
+    /**
+     * Target section
+     */
     section: string;
-    query: IPage.IRequest;
+
+    /**
+     * Pagination query
+     */
+    query: Query;
   };
   export type Query = IPage.IRequest;
   export type Response = IPropagation<
@@ -62,7 +69,7 @@ export namespace index {
     status: 200,
   } as const;
 
-  export const path = (p: { section: string; query: index.Query }) => {
+  export const path = (p: { section: string; query: Query }) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(p.query as any))
       if (undefined === value) continue;
@@ -150,10 +157,17 @@ export async function store(
 }
 export namespace store {
   export type IProps = {
+    /**
+     * Section code
+     */
     section: string;
-    input: IBbsArticle.IStore;
+
+    /**
+     * Content to store
+     */
+    input: Body;
   };
-  export type RequestBody = IBbsArticle.IStore;
+  export type Body = IBbsArticle.IStore;
   export type Response = IPropagation<
     {
       201: IBbsArticle;
@@ -253,11 +267,22 @@ export async function update(
 }
 export namespace update {
   export type IProps = {
+    /**
+     * Section code
+     */
     section: string;
+
+    /**
+     * Target article ID
+     */
     id: string & Format<"uuid">;
-    input: IBbsArticle.IStore;
+
+    /**
+     * Content to update
+     */
+    input: Body;
   };
-  export type RequestBody = IBbsArticle.IStore;
+  export type Body = IBbsArticle.IStore;
   export type Response = IPropagation<
     {
       200: IBbsArticle;

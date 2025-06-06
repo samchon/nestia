@@ -41,7 +41,7 @@ export async function getUserProfile(
 export namespace getUserProfile {
   export type IProps = {
     user_id: string;
-    query: IUser.ISearch;
+    query: Query;
   };
   export type Query = IUser.ISearch;
   export type Response = IUser;
@@ -57,7 +57,7 @@ export namespace getUserProfile {
     status: 202,
   } as const;
 
-  export const path = (p: { user_id: string; query: getUserProfile.Query }) => {
+  export const path = (p: { user_id: string; query: Query }) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(p.query as any))
       if (undefined === value) continue;
@@ -123,9 +123,9 @@ export async function updateUserProfile(
 export namespace updateUserProfile {
   export type IProps = {
     user_id: string;
-    body: PartialPickIUsernameemailoptional_attrnullable_attr;
+    body: Body;
   };
-  export type RequestBody = PartialPickIUsernameemailoptional_attrnullable_attr;
+  export type Body = PartialPickIUsernameemailoptional_attrnullable_attr;
   export type Response = IUser;
 
   export const METADATA = {

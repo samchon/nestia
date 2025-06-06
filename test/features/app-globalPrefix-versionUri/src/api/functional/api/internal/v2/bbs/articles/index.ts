@@ -73,7 +73,7 @@ export async function update(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-  input: update.RequestBody,
+  input: update.Body,
 ): Promise<update.Response> {
   return PlainFetcher.fetch(
     {
@@ -92,7 +92,7 @@ export async function update(
   );
 }
 export namespace update {
-  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {

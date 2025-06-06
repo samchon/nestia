@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive, Resolved } from "typia";
 import type { Format } from "typia/lib/tags/Format";
 
 import type {
@@ -21,7 +21,7 @@ import type {
  */
 export async function typedBody(
   connection: IConnection,
-  input: typedBody.RequestBody,
+  input: typedBody.Body,
 ): Promise<typedBody.Response> {
   return PlainFetcher.fetch(
     {
@@ -40,7 +40,7 @@ export async function typedBody(
   );
 }
 export namespace typedBody {
-  export type RequestBody = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Response = Primitive<IBbsArticle>;
 
   export const METADATA = {

@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection, IPropagation } from "@nestia/fetcher";
 import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive } from "typia";
 
 import type { IForbidden } from "../../structures/IForbidden";
 import type { IMember } from "../../structures/IMember";
@@ -22,7 +22,7 @@ import type { INotFound } from "../../structures/INotFound";
  */
 export async function login(
   connection: IConnection,
-  input: login.RequestBody,
+  input: login.Body,
 ): Promise<login.Response> {
   return EncryptedFetcher.propagate<any, any>(
     {
@@ -41,7 +41,7 @@ export async function login(
   );
 }
 export namespace login {
-  export type RequestBody = Resolved<IMember.ILogin>;
+  export type Body = Primitive<IMember.ILogin>;
   export type Response = IPropagation<
     {
       201: Primitive<IMember>;

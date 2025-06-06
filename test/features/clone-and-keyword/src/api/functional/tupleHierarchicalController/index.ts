@@ -184,15 +184,9 @@ export async function store(
 }
 export namespace store {
   export type IProps = {
-    body: [
-      boolean,
-      null,
-      number,
-      [boolean, null, [number, [boolean, string]]],
-      [number, [string, boolean, [number, number, [boolean, string]][]][]],
-    ];
+    body: Body;
   };
-  export type RequestBody = [
+  export type Body = [
     boolean,
     null,
     number,

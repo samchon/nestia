@@ -75,19 +75,16 @@ export namespace SdkTypeProgrammer {
     (object: MetadataObjectType): ts.TypeNode => {
       const regular = object.properties.filter((p) => p.key.isSoleLiteral());
       const dynamic = object.properties.filter((p) => !p.key.isSoleLiteral());
-      return FilePrinter.description(
-        regular.length && dynamic.length
-          ? ts.factory.createIntersectionTypeNode([
-              write_regular_property(project)(importer)(regular),
-              ...dynamic.map(write_dynamic_property(project)(importer)),
-            ])
-          : dynamic.length
-            ? ts.factory.createIntersectionTypeNode(
-                dynamic.map(write_dynamic_property(project)(importer)),
-              )
-            : write_regular_property(project)(importer)(regular),
-        writeComment([])(object.description ?? null, object.jsDocTags),
-      );
+      return regular.length && dynamic.length
+        ? ts.factory.createIntersectionTypeNode([
+            write_regular_property(project)(importer)(regular),
+            ...dynamic.map(write_dynamic_property(project)(importer)),
+          ])
+        : dynamic.length
+          ? ts.factory.createIntersectionTypeNode(
+              dynamic.map(write_dynamic_property(project)(importer)),
+            )
+          : write_regular_property(project)(importer)(regular);
     };
 
   const write_escaped =
@@ -238,25 +235,35 @@ export namespace SdkTypeProgrammer {
     (importer: ImportDictionary) =>
     (properties: MetadataProperty[]): ts.TypeLiteralNode =>
       ts.factory.createTypeLiteralNode(
-        properties.map((p) =>
-          FilePrinter.description(
-            ts.factory.createPropertySignature(
-              undefined,
-              Escaper.variable(String(p.key.constants[0].values[0].value))
-                ? ts.factory.createIdentifier(
-                    String(p.key.constants[0].values[0].value),
-                  )
-                : ts.factory.createStringLiteral(
-                    String(p.key.constants[0].values[0].value),
-                  ),
-              p.value.isRequired() === false
-                ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
-                : undefined,
-              SdkTypeProgrammer.write(project)(importer)(p.value),
-            ),
-            writeComment(p.value.atomics)(p.description, p.jsDocTags),
-          ),
-        ),
+        properties
+          .map((p) => {
+            const description: string = writeComment(p.value.atomics)(
+              p.description,
+              p.jsDocTags,
+            );
+            const signature: ts.PropertySignature =
+              ts.factory.createPropertySignature(
+                undefined,
+                Escaper.variable(String(p.key.constants[0].values[0].value))
+                  ? ts.factory.createIdentifier(
+                      String(p.key.constants[0].values[0].value),
+                    )
+                  : ts.factory.createStringLiteral(
+                      String(p.key.constants[0].values[0].value),
+                    ),
+                p.value.isRequired() === false
+                  ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
+                  : undefined,
+                SdkTypeProgrammer.write(project)(importer)(p.value),
+              );
+            return !!description.length
+              ? [
+                  ts.factory.createIdentifier("\n") as any,
+                  FilePrinter.description(signature, description),
+                ]
+              : signature;
+          })
+          .flat(),
       );
 
   const write_dynamic_property =

@@ -30,14 +30,14 @@ export namespace SdkHttpCloneProgrammer {
         prepare({
           dict,
           name: k,
-          programmer: (importer) => write_object(app.project)(importer)(v),
+          programmer: (importer) => writeObject(app.project)(importer)(v),
         });
     for (const [k, v] of app.collection.aliases.entries())
       if (StringUtil.isImplicit(k) === false)
         prepare({
           dict,
           name: k,
-          programmer: (importer) => write_alias(app.project)(importer)(v),
+          programmer: (importer) => writeAlias(app.project)(importer)(v),
         });
     return dict;
   };
@@ -64,7 +64,7 @@ export namespace SdkHttpCloneProgrammer {
     return modulo!;
   };
 
-  const write_alias =
+  const writeAlias =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (alias: MetadataAliasType): ts.TypeAliasDeclaration =>
@@ -78,7 +78,7 @@ export namespace SdkHttpCloneProgrammer {
         writeComment([])(alias.description, alias.jsDocTags),
       );
 
-  const write_object =
+  const writeObject =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (object: MetadataObjectType): ts.TypeAliasDeclaration => {

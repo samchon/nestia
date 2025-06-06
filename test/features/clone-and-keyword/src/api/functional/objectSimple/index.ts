@@ -140,9 +140,9 @@ export async function store(
 }
 export namespace store {
   export type IProps = {
-    body: IBox3D;
+    body: Body;
   };
-  export type RequestBody = IBox3D;
+  export type Body = IBox3D;
   export type Response = IBox3D;
 
   export const METADATA = {
