@@ -16,7 +16,7 @@ export namespace SdkWebSocketParameterProgrammer {
     provider: boolean;
     prefix: boolean;
   }): IEntry[] => {
-    const prefix: string = props.prefix ? "" : `${props.route.name}.`;
+    const prefix: string = props.prefix ? `${props.route.name}.` : "";
     return [
       ...props.route.pathParameters.map((p) => ({
         key: p.name,
