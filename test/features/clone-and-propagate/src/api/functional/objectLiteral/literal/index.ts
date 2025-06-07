@@ -18,7 +18,7 @@ import type { Type } from "typia/lib/tags/Type";
  */
 export async function literals(
   connection: IConnection,
-): Promise<literals.Response> {
+): Promise<literals.Output> {
   return !!connection.simulate
     ? literals.simulate(connection)
     : PlainFetcher.propagate<any>(connection, {
@@ -28,7 +28,7 @@ export async function literals(
       });
 }
 export namespace literals {
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       200: {
         id: string;
@@ -79,7 +79,7 @@ export namespace literals {
         created_at: string & Format<"date-time">;
       }[]
     >(g);
-  export const simulate = (connection: IConnection): Response => {
+  export const simulate = (connection: IConnection): Output => {
     return {
       success: true,
       status: 200,
@@ -91,6 +91,6 @@ export namespace literals {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }

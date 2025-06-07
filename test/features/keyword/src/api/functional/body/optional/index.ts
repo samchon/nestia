@@ -17,8 +17,8 @@ import type { IBodyOptional } from "../../../structures/IBodyOptional";
  */
 export async function json(
   connection: IConnection,
-  props: json.IProps,
-): Promise<json.Response> {
+  props: json.Props,
+): Promise<json.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -36,11 +36,11 @@ export async function json(
   );
 }
 export namespace json {
-  export type IProps = {
+  export type Props = {
     body?: Body;
   };
   export type Body = Primitive<undefined | IBodyOptional>;
-  export type Response = Primitive<IBodyOptional>;
+  export type Output = Primitive<IBodyOptional>;
 
   export const METADATA = {
     method: "POST",
@@ -66,8 +66,8 @@ export namespace json {
  */
 export async function plain(
   connection: IConnection,
-  props: plain.IProps,
-): Promise<plain.Response> {
+  props: plain.Props,
+): Promise<plain.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -85,11 +85,11 @@ export async function plain(
   );
 }
 export namespace plain {
-  export type IProps = {
+  export type Props = {
     body?: Body;
   };
   export type Body = Resolved<string>;
-  export type Response = Primitive<string>;
+  export type Output = Primitive<string>;
 
   export const METADATA = {
     method: "POST",

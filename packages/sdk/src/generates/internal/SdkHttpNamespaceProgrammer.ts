@@ -81,7 +81,10 @@ export namespace SdkHttpNamespaceProgrammer {
         project.config.keyword === true &&
         route.parameters.filter((p) => p.category !== "headers").length !== 0
       )
-        declare("IProps", SdkAliasCollection.props(project)(importer)(route));
+        declare(
+          "Props",
+          SdkAliasCollection.httpProps(project)(importer)(route),
+        );
       if (props.headers !== undefined)
         declare(
           "Headers",
@@ -99,7 +102,7 @@ export namespace SdkHttpNamespaceProgrammer {
         route.success.metadata.size() !== 0
       )
         declare(
-          "Response",
+          "Output",
           SdkAliasCollection.response(project)(importer)(route),
         );
       return array;
@@ -207,10 +210,10 @@ export namespace SdkHttpNamespaceProgrammer {
             (param) => param.category === "param" || param.category === "query",
           ),
         ],
+        path: route.parameters.filter((param) => param.category === "param"),
         query: route.parameters
           .filter((param) => param.category === "query")
           .filter((param) => param.field !== null),
-        path: route.parameters.filter((param) => param.category === "param"),
       };
       const properties: IProperty[] = g.total.map((p) => ({
         key: p.name,

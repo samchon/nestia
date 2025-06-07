@@ -145,7 +145,7 @@ export namespace SdkHttpSimulationProgrammer {
                     undefined,
                     "props",
                     undefined,
-                    ts.factory.createTypeReferenceNode("IProps"),
+                    ts.factory.createTypeReferenceNode("Props"),
                   ),
                 ]
               : properties.map((p) =>
@@ -160,7 +160,7 @@ export namespace SdkHttpSimulationProgrammer {
                   ),
                 )),
           ],
-          ts.factory.createTypeReferenceNode(output ? "Response" : "void"),
+          ts.factory.createTypeReferenceNode(output ? "Output" : "void"),
           undefined,
           ts.factory.createBlock(
             [
@@ -191,7 +191,7 @@ export namespace SdkHttpSimulationProgrammer {
                         ],
                         true,
                       ),
-                      ts.factory.createTypeReferenceNode("Response"),
+                      ts.factory.createTypeReferenceNode("Output"),
                     )
                   : caller(),
               ),

@@ -29,7 +29,7 @@ export * as password from "./password";
 export async function join(
   connection: IConnection,
   input: join.Body,
-): Promise<join.Response> {
+): Promise<join.Output> {
   const output: Primitive<ISeller.IAuthorized> = !!connection.simulate
     ? join.simulate(connection, input)
     : await EncryptedFetcher.fetch(
@@ -53,7 +53,7 @@ export async function join(
 }
 export namespace join {
   export type Body = Primitive<ISeller.IJoin>;
-  export type Response = Primitive<ISeller.IAuthorized>;
+  export type Output = Primitive<ISeller.IAuthorized>;
 
   export const METADATA = {
     method: "POST",
@@ -77,7 +77,7 @@ export namespace join {
   export const simulate = (
     connection: IConnection,
     input: join.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -107,7 +107,7 @@ export namespace join {
 export async function login(
   connection: IConnection,
   input: login.Body,
-): Promise<login.Response> {
+): Promise<login.Output> {
   const output: Primitive<ISeller.IAuthorized> = !!connection.simulate
     ? login.simulate(connection, input)
     : await EncryptedFetcher.fetch(
@@ -131,7 +131,7 @@ export async function login(
 }
 export namespace login {
   export type Body = Primitive<ISeller.ILogin>;
-  export type Response = Primitive<ISeller.IAuthorized>;
+  export type Output = Primitive<ISeller.IAuthorized>;
 
   export const METADATA = {
     method: "POST",
@@ -155,7 +155,7 @@ export namespace login {
   export const simulate = (
     connection: IConnection,
     input: login.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

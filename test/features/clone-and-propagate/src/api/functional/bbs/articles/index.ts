@@ -30,7 +30,7 @@ export async function index(
   connection: IConnection,
   section: string,
   query: index.Query,
-): Promise<index.Response> {
+): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection, section, query)
     : PlainFetcher.propagate<any>(connection, {
@@ -41,7 +41,7 @@ export async function index(
 }
 export namespace index {
   export type Query = IPage.IRequest;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       200: IPageIBbsArticle.ISummary;
     },
@@ -79,7 +79,7 @@ export namespace index {
     connection: IConnection,
     section: string,
     query: index.Query,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -109,7 +109,7 @@ export namespace index {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }
 
@@ -128,7 +128,7 @@ export async function store(
   connection: IConnection,
   section: string,
   input: store.Body,
-): Promise<store.Response> {
+): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, section, input)
     : PlainFetcher.propagate<any, any>(
@@ -149,7 +149,7 @@ export async function store(
 }
 export namespace store {
   export type Body = IBbsArticle.IStore;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       201: IBbsArticle;
     },
@@ -179,7 +179,7 @@ export namespace store {
     connection: IConnection,
     section: string,
     input: store.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -209,7 +209,7 @@ export namespace store {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }
 
@@ -230,7 +230,7 @@ export async function update(
   section: string,
   id: string & Format<"uuid">,
   input: update.Body,
-): Promise<update.Response> {
+): Promise<update.Output> {
   return !!connection.simulate
     ? update.simulate(connection, section, id, input)
     : PlainFetcher.propagate<any, any>(
@@ -251,7 +251,7 @@ export async function update(
 }
 export namespace update {
   export type Body = IBbsArticle.IStore;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       200: IBbsArticle;
     },
@@ -282,7 +282,7 @@ export namespace update {
     section: string,
     id: string & Format<"uuid">,
     input: update.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -313,6 +313,6 @@ export namespace update {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }

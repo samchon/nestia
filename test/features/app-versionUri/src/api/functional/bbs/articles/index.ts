@@ -20,7 +20,7 @@ export async function index(
   connection: IConnection,
   section: string,
   query: index.Query,
-): Promise<index.Response> {
+): Promise<index.Output> {
   return PlainFetcher.fetch(connection, {
     ...index.METADATA,
     template: index.METADATA.path,
@@ -29,7 +29,7 @@ export async function index(
 }
 export namespace index {
   export type Query = Resolved<IPage.IRequest>;
-  export type Response = Primitive<IPage<IBbsArticle.ISummary>>;
+  export type Output = Primitive<IPage<IBbsArticle.ISummary>>;
 
   export const METADATA = {
     method: "GET",
@@ -71,7 +71,7 @@ export async function store(
   connection: IConnection,
   section: string,
   input: store.Body,
-): Promise<store.Response> {
+): Promise<store.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -90,7 +90,7 @@ export async function store(
 }
 export namespace store {
   export type Body = Primitive<IBbsArticle.IStore>;
-  export type Response = Primitive<IBbsArticle>;
+  export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",

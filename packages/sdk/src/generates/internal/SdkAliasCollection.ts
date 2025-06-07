@@ -6,6 +6,7 @@ import { INestiaProject } from "../../structures/INestiaProject";
 import { IReflectType } from "../../structures/IReflectType";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
+import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
@@ -25,7 +26,7 @@ export namespace SdkAliasCollection {
     (metadata: Metadata) =>
       SdkTypeProgrammer.write(project)(importer)(metadata);
 
-  export const props =
+  export const httpProps =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.TypeNode =>
@@ -68,6 +69,28 @@ export namespace SdkAliasCollection {
           })
           .flat(),
       );
+
+  export const websocketProps = (route: ITypedWebSocketRoute): ts.TypeNode =>
+    ts.factory.createTypeLiteralNode([
+      ...route.parameters
+        .filter((p) => p.category === "param" || p.category === "query")
+        .map((p) =>
+          ts.factory.createPropertySignature(
+            undefined,
+            p.name,
+            undefined,
+            p.category === "query"
+              ? ts.factory.createTypeReferenceNode("Query")
+              : SdkAliasCollection.name(p),
+          ),
+        ),
+      ts.factory.createPropertySignature(
+        undefined,
+        "provider",
+        undefined,
+        ts.factory.createTypeReferenceNode("Provider"),
+      ),
+    ]);
 
   export const headers =
     (project: INestiaProject) =>

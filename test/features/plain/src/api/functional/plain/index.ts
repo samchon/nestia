@@ -18,7 +18,7 @@ import typia from "typia";
 export async function string(
   connection: IConnection,
   body: string.Body,
-): Promise<string.Response> {
+): Promise<string.Output> {
   return !!connection.simulate
     ? string.simulate(connection, body)
     : PlainFetcher.fetch(
@@ -39,7 +39,7 @@ export async function string(
 }
 export namespace string {
   export type Body = Resolved<string>;
-  export type Response = Resolved<string>;
+  export type Output = Resolved<string>;
 
   export const METADATA = {
     method: "POST",
@@ -62,7 +62,7 @@ export namespace string {
   export const simulate = (
     connection: IConnection,
     body: string.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -86,7 +86,7 @@ export namespace string {
 export async function template(
   connection: IConnection,
   body: template.Body,
-): Promise<template.Response> {
+): Promise<template.Output> {
   return !!connection.simulate
     ? template.simulate(connection, body)
     : PlainFetcher.fetch(
@@ -110,7 +110,7 @@ export namespace template {
     | `something_${number}_interesting_${string}_is_not_false_it?`
     | `something_${number}_interesting_${string}_is_not_true_it?`
   >;
-  export type Response = Resolved<string>;
+  export type Output = Resolved<string>;
 
   export const METADATA = {
     method: "POST",
@@ -133,7 +133,7 @@ export namespace template {
   export const simulate = (
     connection: IConnection,
     body: template.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -157,7 +157,7 @@ export namespace template {
 export async function constant(
   connection: IConnection,
   body: constant.Body,
-): Promise<constant.Response> {
+): Promise<constant.Output> {
   return !!connection.simulate
     ? constant.simulate(connection, body)
     : PlainFetcher.fetch(
@@ -178,7 +178,7 @@ export async function constant(
 }
 export namespace constant {
   export type Body = Resolved<"A" | "B" | "C">;
-  export type Response = Resolved<string>;
+  export type Output = Resolved<string>;
 
   export const METADATA = {
     method: "POST",
@@ -201,7 +201,7 @@ export namespace constant {
   export const simulate = (
     connection: IConnection,
     body: constant.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

@@ -21,7 +21,7 @@ import type { IQuery } from "../../structures/IQuery";
 export async function typed(
   connection: IConnection,
   query: typed.Query,
-): Promise<typed.Response> {
+): Promise<typed.Output> {
   return PlainFetcher.fetch(connection, {
     ...typed.METADATA,
     template: typed.METADATA.path,
@@ -30,7 +30,7 @@ export async function typed(
 }
 export namespace typed {
   export type Query = Resolved<IQuery>;
-  export type Response = Primitive<IQuery>;
+  export type Output = Primitive<IQuery>;
 
   export const METADATA = {
     method: "GET",
@@ -65,7 +65,7 @@ export namespace typed {
 export async function nest(
   connection: IConnection,
   query: nest.Query,
-): Promise<nest.Response> {
+): Promise<nest.Output> {
   return PlainFetcher.fetch(connection, {
     ...nest.METADATA,
     template: nest.METADATA.path,
@@ -74,7 +74,7 @@ export async function nest(
 }
 export namespace nest {
   export type Query = Resolved<INestQuery>;
-  export type Response = Primitive<IQuery>;
+  export type Output = Primitive<IQuery>;
 
   export const METADATA = {
     method: "GET",
@@ -109,7 +109,7 @@ export namespace nest {
 export async function individual(
   connection: IConnection,
   id: string,
-): Promise<individual.Response> {
+): Promise<individual.Output> {
   return PlainFetcher.fetch(connection, {
     ...individual.METADATA,
     template: individual.METADATA.path,
@@ -117,7 +117,7 @@ export async function individual(
   });
 }
 export namespace individual {
-  export type Response = Primitive<string>;
+  export type Output = Primitive<string>;
 
   export const METADATA = {
     method: "GET",
@@ -155,7 +155,7 @@ export async function composite(
   connection: IConnection,
   atomic: string,
   query: composite.Query,
-): Promise<composite.Response> {
+): Promise<composite.Output> {
   return PlainFetcher.fetch(connection, {
     ...composite.METADATA,
     template: composite.METADATA.path,
@@ -164,7 +164,7 @@ export async function composite(
 }
 export namespace composite {
   export type Query = Resolved<Omit<IQuery, "atomic">>;
-  export type Response = Primitive<IQuery>;
+  export type Output = Primitive<IQuery>;
 
   export const METADATA = {
     method: "GET",
@@ -202,7 +202,7 @@ export namespace composite {
 export async function body(
   connection: IConnection,
   query: body.Body,
-): Promise<body.Response> {
+): Promise<body.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -221,7 +221,7 @@ export async function body(
 }
 export namespace body {
   export type Body = Resolved<IQuery>;
-  export type Response = Resolved<IQuery>;
+  export type Output = Resolved<IQuery>;
 
   export const METADATA = {
     method: "POST",
@@ -249,7 +249,7 @@ export namespace body {
 export async function big(
   connection: IConnection,
   input: big.Body,
-): Promise<big.Response> {
+): Promise<big.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -268,7 +268,7 @@ export async function big(
 }
 export namespace big {
   export type Body = Resolved<IBigQuery>;
-  export type Response = Resolved<IBigQuery>;
+  export type Output = Resolved<IBigQuery>;
 
   export const METADATA = {
     method: "POST",

@@ -28,8 +28,8 @@ import type { IPageIBbsArticle } from "../../../structures/IPageIBbsArticle";
  */
 export async function index(
   connection: IConnection,
-  props: index.IProps,
-): Promise<index.Response> {
+  props: index.Props,
+): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection, props)
     : PlainFetcher.propagate<any>(connection, {
@@ -39,7 +39,7 @@ export async function index(
       });
 }
 export namespace index {
-  export type IProps = {
+  export type Props = {
     /**
      * Target section
      */
@@ -51,7 +51,7 @@ export namespace index {
     query: Query;
   };
   export type Query = IPage.IRequest;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       200: IPageIBbsArticle.ISummary;
     },
@@ -85,10 +85,7 @@ export namespace index {
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IPageIBbsArticle.ISummary> =>
     typia.random<IPageIBbsArticle.ISummary>(g);
-  export const simulate = (
-    connection: IConnection,
-    props: IProps,
-  ): Response => {
+  export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -118,7 +115,7 @@ export namespace index {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }
 
@@ -135,8 +132,8 @@ export namespace index {
  */
 export async function store(
   connection: IConnection,
-  props: store.IProps,
-): Promise<store.Response> {
+  props: store.Props,
+): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, props)
     : PlainFetcher.propagate<any, any>(
@@ -156,7 +153,7 @@ export async function store(
       );
 }
 export namespace store {
-  export type IProps = {
+  export type Props = {
     /**
      * Section code
      */
@@ -168,7 +165,7 @@ export namespace store {
     input: Body;
   };
   export type Body = IBbsArticle.IStore;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       201: IBbsArticle;
     },
@@ -194,10 +191,7 @@ export namespace store {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
-  export const simulate = (
-    connection: IConnection,
-    props: IProps,
-  ): Response => {
+  export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -227,7 +221,7 @@ export namespace store {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }
 
@@ -245,8 +239,8 @@ export namespace store {
  */
 export async function update(
   connection: IConnection,
-  props: update.IProps,
-): Promise<update.Response> {
+  props: update.Props,
+): Promise<update.Output> {
   return !!connection.simulate
     ? update.simulate(connection, props)
     : PlainFetcher.propagate<any, any>(
@@ -266,7 +260,7 @@ export async function update(
       );
 }
 export namespace update {
-  export type IProps = {
+  export type Props = {
     /**
      * Section code
      */
@@ -283,7 +277,7 @@ export namespace update {
     input: Body;
   };
   export type Body = IBbsArticle.IStore;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       200: IBbsArticle;
     },
@@ -309,10 +303,7 @@ export namespace update {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
-  export const simulate = (
-    connection: IConnection,
-    props: IProps,
-  ): Response => {
+  export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -343,6 +334,6 @@ export namespace update {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }

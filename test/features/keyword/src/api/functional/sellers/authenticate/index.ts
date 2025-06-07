@@ -26,8 +26,8 @@ export * as password from "./password";
  */
 export async function join(
   connection: IConnection,
-  props: join.IProps,
-): Promise<join.Response> {
+  props: join.Props,
+): Promise<join.Output> {
   const output: Primitive<ISeller.IAuthorized> = await EncryptedFetcher.fetch(
     {
       ...connection,
@@ -48,14 +48,14 @@ export async function join(
   return output;
 }
 export namespace join {
-  export type IProps = {
+  export type Props = {
     /**
      * Information of yours
      */
     input: Body;
   };
   export type Body = Primitive<ISeller.IJoin>;
-  export type Response = Primitive<ISeller.IAuthorized>;
+  export type Output = Primitive<ISeller.IAuthorized>;
 
   export const METADATA = {
     method: "POST",
@@ -87,8 +87,8 @@ export namespace join {
  */
 export async function login(
   connection: IConnection,
-  props: login.IProps,
-): Promise<login.Response> {
+  props: login.Props,
+): Promise<login.Output> {
   const output: Primitive<ISeller.IAuthorized> = await EncryptedFetcher.fetch(
     {
       ...connection,
@@ -109,14 +109,14 @@ export async function login(
   return output;
 }
 export namespace login {
-  export type IProps = {
+  export type Props = {
     /**
      * Email and password
      */
     input: Body;
   };
   export type Body = Primitive<ISeller.ILogin>;
-  export type Response = Primitive<ISeller.IAuthorized>;
+  export type Output = Primitive<ISeller.IAuthorized>;
 
   export const METADATA = {
     method: "POST",

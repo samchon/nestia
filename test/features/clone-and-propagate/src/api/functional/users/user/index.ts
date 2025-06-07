@@ -30,7 +30,7 @@ export async function getUserProfile(
   connection: IConnection,
   user_id: string,
   query: getUserProfile.Query,
-): Promise<getUserProfile.Response> {
+): Promise<getUserProfile.Output> {
   return !!connection.simulate
     ? getUserProfile.simulate(connection, user_id, query)
     : PlainFetcher.propagate<any>(connection, {
@@ -41,7 +41,7 @@ export async function getUserProfile(
 }
 export namespace getUserProfile {
   export type Query = IUser.ISearch;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       202: IUser;
       404: "404 Not Found";
@@ -79,7 +79,7 @@ export namespace getUserProfile {
     connection: IConnection,
     user_id: string,
     query: getUserProfile.Query,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -109,7 +109,7 @@ export namespace getUserProfile {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }
 
@@ -123,7 +123,7 @@ export async function updateUserProfile(
   connection: IConnection,
   user_id: string,
   body: updateUserProfile.Body,
-): Promise<updateUserProfile.Response> {
+): Promise<updateUserProfile.Output> {
   return !!connection.simulate
     ? updateUserProfile.simulate(connection, user_id, body)
     : PlainFetcher.propagate<any, any>(
@@ -144,7 +144,7 @@ export async function updateUserProfile(
 }
 export namespace updateUserProfile {
   export type Body = PartialPickIUsernameemailoptional_attrnullable_attr;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       201: IUser;
     },
@@ -174,7 +174,7 @@ export namespace updateUserProfile {
     connection: IConnection,
     user_id: string,
     body: updateUserProfile.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -204,6 +204,6 @@ export namespace updateUserProfile {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }

@@ -73,7 +73,7 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
       (ctx.route.parameters.length > 0 || ctx.route.query || ctx.route.body)
     )
       declare(
-        "IProps",
+        "Props",
         NestiaMigrateSchemaProgrammer.write({
           components: ctx.components,
           importer: ctx.importer,

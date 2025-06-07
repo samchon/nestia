@@ -18,7 +18,7 @@ import type { Type } from "typia/lib/tags/Type";
  */
 export async function literals(
   connection: IConnection,
-): Promise<literals.Response> {
+): Promise<literals.Output> {
   return !!connection.simulate
     ? literals.simulate(connection)
     : PlainFetcher.fetch(connection, {
@@ -28,7 +28,7 @@ export async function literals(
       });
 }
 export namespace literals {
-  export type Response = {
+  export type Output = {
     id: string;
     member: {
       id: string & Format<"uuid">;
@@ -74,7 +74,7 @@ export namespace literals {
         created_at: string & Format<"date-time">;
       }[]
     >(g);
-  export const simulate = (connection: IConnection): Response => {
+  export const simulate = (connection: IConnection): Output => {
     return random(
       "object" === typeof connection.simulate && null !== connection.simulate
         ? connection.simulate

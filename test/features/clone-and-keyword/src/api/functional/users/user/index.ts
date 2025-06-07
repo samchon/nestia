@@ -28,8 +28,8 @@ import type { PartialPickIUsernameemailoptional_attrnullable_attr } from "../../
  */
 export async function getUserProfile(
   connection: IConnection,
-  props: getUserProfile.IProps,
-): Promise<getUserProfile.Response> {
+  props: getUserProfile.Props,
+): Promise<getUserProfile.Output> {
   return !!connection.simulate
     ? getUserProfile.simulate(connection, props)
     : PlainFetcher.fetch(connection, {
@@ -39,12 +39,12 @@ export async function getUserProfile(
       });
 }
 export namespace getUserProfile {
-  export type IProps = {
+  export type Props = {
     user_id: string;
     query: Query;
   };
   export type Query = IUser.ISearch;
-  export type Response = IUser;
+  export type Output = IUser;
 
   export const METADATA = {
     method: "GET",
@@ -72,10 +72,7 @@ export namespace getUserProfile {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IUser> => typia.random<IUser>(g);
-  export const simulate = (
-    connection: IConnection,
-    props: IProps,
-  ): Response => {
+  export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -100,8 +97,8 @@ export namespace getUserProfile {
  */
 export async function updateUserProfile(
   connection: IConnection,
-  props: updateUserProfile.IProps,
-): Promise<updateUserProfile.Response> {
+  props: updateUserProfile.Props,
+): Promise<updateUserProfile.Output> {
   return !!connection.simulate
     ? updateUserProfile.simulate(connection, props)
     : PlainFetcher.fetch(
@@ -121,12 +118,12 @@ export async function updateUserProfile(
       );
 }
 export namespace updateUserProfile {
-  export type IProps = {
+  export type Props = {
     user_id: string;
     body: Body;
   };
   export type Body = PartialPickIUsernameemailoptional_attrnullable_attr;
-  export type Response = IUser;
+  export type Output = IUser;
 
   export const METADATA = {
     method: "POST",
@@ -147,10 +144,7 @@ export namespace updateUserProfile {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IUser> => typia.random<IUser>(g);
-  export const simulate = (
-    connection: IConnection,
-    props: IProps,
-  ): Response => {
+  export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

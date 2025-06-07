@@ -22,7 +22,7 @@ import type { IAuth } from "../../structures/IAuth";
  */
 export async function account(
   connection: IConnection,
-): Promise<account.Response> {
+): Promise<account.Output> {
   return PlainFetcher.fetch(connection, {
     ...account.METADATA,
     template: account.METADATA.path,
@@ -30,7 +30,7 @@ export async function account(
   });
 }
 export namespace account {
-  export type Response = IAuth.IAccount;
+  export type Output = IAuth.IAccount;
 
   export const METADATA = {
     method: "GET",
