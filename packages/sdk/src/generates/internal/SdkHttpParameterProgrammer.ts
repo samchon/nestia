@@ -38,6 +38,7 @@ export namespace SdkHttpParameterProgrammer {
     route: ITypedHttpRoute;
     body: boolean;
     prefix: boolean | string;
+    e2e?: boolean;
   }): IEntry[] => {
     if (
       props.route.pathParameters.length === 0 &&
@@ -71,7 +72,14 @@ export namespace SdkHttpParameterProgrammer {
             {
               key: props.route.queryObject.name,
               required: props.route.queryObject.metadata.isRequired(),
-              type: ts.factory.createTypeReferenceNode(`${prefix}Query`),
+              type:
+                props.e2e === true
+                  ? props.project.config.clone === true
+                    ? SdkAliasCollection.from(props.project)(props.importer)(
+                        props.route.queryObject.metadata,
+                      )
+                    : SdkAliasCollection.name(props.route.queryObject)
+                  : ts.factory.createTypeReferenceNode(`${prefix}Query`),
               parameter: props.route.queryObject,
             },
           ]
@@ -81,7 +89,14 @@ export namespace SdkHttpParameterProgrammer {
             {
               key: props.route.body.name,
               required: props.route.body.metadata.isRequired(),
-              type: ts.factory.createTypeReferenceNode(`${prefix}Body`),
+              type:
+                props.e2e === true
+                  ? props.project.config.clone === true
+                    ? SdkAliasCollection.from(props.project)(props.importer)(
+                        props.route.body.metadata,
+                      )
+                    : SdkAliasCollection.name(props.route.body)
+                  : ts.factory.createTypeReferenceNode(`${prefix}Body`),
               parameter: props.route.body,
             },
           ]

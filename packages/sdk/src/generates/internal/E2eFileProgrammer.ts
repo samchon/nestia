@@ -113,6 +113,7 @@ export namespace E2eFileProgrammer {
         importer,
         route,
         body: true,
+        e2e: true,
         prefix: ["api", "functional", ...route.accessor].join(".") + ".",
       });
       const fetch = ts.factory.createCallExpression(
