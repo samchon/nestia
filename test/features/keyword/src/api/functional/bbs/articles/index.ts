@@ -19,8 +19,8 @@ import type { IPage } from "../../../structures/IPage";
  */
 export async function index(
   connection: IConnection,
-  props: index.IProps,
-): Promise<index.Response> {
+  props: index.Props,
+): Promise<index.Output> {
   return PlainFetcher.fetch(connection, {
     ...index.METADATA,
     template: index.METADATA.path,
@@ -28,12 +28,12 @@ export async function index(
   });
 }
 export namespace index {
-  export type IProps = {
+  export type Props = {
     section: string;
     query: Query;
   };
   export type Query = Resolved<IPage.IRequest>;
-  export type Response = Primitive<IPage<IBbsArticle.ISummary>>;
+  export type Output = Primitive<IPage<IBbsArticle.ISummary>>;
 
   export const METADATA = {
     method: "GET",
@@ -73,8 +73,8 @@ export namespace index {
  */
 export async function store(
   connection: IConnection,
-  props: store.IProps,
-): Promise<store.Response> {
+  props: store.Props,
+): Promise<store.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -92,7 +92,7 @@ export async function store(
   );
 }
 export namespace store {
-  export type IProps = {
+  export type Props = {
     /**
      * Section code
      */
@@ -104,7 +104,7 @@ export namespace store {
     input: Body;
   };
   export type Body = Primitive<IBbsArticle.IStore>;
-  export type Response = Primitive<IBbsArticle>;
+  export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -138,8 +138,8 @@ export namespace store {
  */
 export async function update(
   connection: IConnection,
-  props: update.IProps,
-): Promise<update.Response> {
+  props: update.Props,
+): Promise<update.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -157,7 +157,7 @@ export async function update(
   );
 }
 export namespace update {
-  export type IProps = {
+  export type Props = {
     /**
      * Section code
      */
@@ -174,7 +174,7 @@ export namespace update {
     input: Body;
   };
   export type Body = Primitive<IBbsArticle.IStore>;
-  export type Response = Primitive<IBbsArticle>;
+  export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "PUT",

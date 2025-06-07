@@ -22,7 +22,7 @@ export async function index(
   section: string,
   articleId: string & Format<"uuid">,
   query: index.Query,
-): Promise<index.Response> {
+): Promise<index.Output> {
   return PlainFetcher.fetch(connection, {
     ...index.METADATA,
     template: index.METADATA.path,
@@ -31,7 +31,7 @@ export async function index(
 }
 export namespace index {
   export type Query = Resolved<IPage.IRequest>;
-  export type Response = Primitive<IPage<IBbsComment>>;
+  export type Output = Primitive<IPage<IBbsComment>>;
 
   export const METADATA = {
     method: "GET",
@@ -72,7 +72,7 @@ export async function at(
   section: string,
   articleId: string & Format<"uuid">,
   id: string & Format<"uuid">,
-): Promise<at.Response> {
+): Promise<at.Output> {
   return PlainFetcher.fetch(connection, {
     ...at.METADATA,
     template: at.METADATA.path,
@@ -80,7 +80,7 @@ export async function at(
   });
 }
 export namespace at {
-  export type Response = Primitive<IBbsComment>;
+  export type Output = Primitive<IBbsComment>;
 
   export const METADATA = {
     method: "GET",
@@ -111,7 +111,7 @@ export async function store(
   section: string,
   articleId: string & Format<"uuid">,
   input: store.Body,
-): Promise<store.Response> {
+): Promise<store.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -130,7 +130,7 @@ export async function store(
 }
 export namespace store {
   export type Body = Primitive<IBbsComment.IStore>;
-  export type Response = Primitive<IBbsComment>;
+  export type Output = Primitive<IBbsComment>;
 
   export const METADATA = {
     method: "POST",
@@ -161,7 +161,7 @@ export async function update(
   articleId: string & Format<"uuid">,
   id: string & Format<"uuid">,
   input: update.Body,
-): Promise<update.Response> {
+): Promise<update.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -180,7 +180,7 @@ export async function update(
 }
 export namespace update {
   export type Body = Primitive<IBbsComment.IStore>;
-  export type Response = Primitive<IBbsComment>;
+  export type Output = Primitive<IBbsComment>;
 
   export const METADATA = {
     method: "PUT",

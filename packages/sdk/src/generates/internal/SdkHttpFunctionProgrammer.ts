@@ -67,7 +67,7 @@ export namespace SdkHttpFunctionProgrammer {
                   undefined,
                   "props",
                   undefined,
-                  ts.factory.createTypeReferenceNode(`${route.name}.IProps`),
+                  ts.factory.createTypeReferenceNode(`${route.name}.Props`),
                 ),
               ]
             : properties.map((p) =>
@@ -85,7 +85,7 @@ export namespace SdkHttpFunctionProgrammer {
         ts.factory.createTypeReferenceNode("Promise", [
           project.config.propagate === true ||
           route.success.metadata.size() !== 0
-            ? ts.factory.createTypeReferenceNode(`${route.name}.Response`)
+            ? ts.factory.createTypeReferenceNode(`${route.name}.Output`)
             : ts.factory.createTypeReferenceNode("void"),
         ]),
         ts.factory.createBlock(

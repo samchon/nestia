@@ -30,7 +30,7 @@ export async function single(
   connection: IConnection,
   accountCode: string,
   input: single.Body,
-): Promise<single.Response> {
+): Promise<single.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -49,7 +49,7 @@ export async function single(
 }
 export namespace single {
   export type Body = Primitive<IGoogleDriveImageSingleUpload>;
-  export type Response = Primitive<IGoogleDriveFile>;
+  export type Output = Primitive<IGoogleDriveFile>;
 
   export const METADATA = {
     method: "POST",

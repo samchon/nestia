@@ -25,7 +25,7 @@ import type { ISeller } from "../../../../structures/ISeller";
 export async function change(
   connection: IConnection,
   input: change.Body,
-): Promise<change.Response> {
+): Promise<change.Output> {
   return !!connection.simulate
     ? change.simulate(connection, input)
     : EncryptedFetcher.propagate<any, any>(
@@ -46,7 +46,7 @@ export async function change(
 }
 export namespace change {
   export type Body = ISeller.IChangePassword;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       200: void;
     },
@@ -73,7 +73,7 @@ export namespace change {
   export const simulate = (
     connection: IConnection,
     input: change.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -102,6 +102,6 @@ export namespace change {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }

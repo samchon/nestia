@@ -26,7 +26,7 @@ import type { Format } from "typia/lib/tags/Format";
 export async function store(
   connection: IConnection,
   input: store.Body,
-): Promise<store.Response> {
+): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, input)
     : PlainFetcher.fetch(
@@ -50,7 +50,7 @@ export namespace store {
     title: string;
     body: string;
   };
-  export type Response = {
+  export type Output = {
     id: string;
     title: string;
     body: string;
@@ -86,7 +86,7 @@ export namespace store {
   export const simulate = (
     connection: IConnection,
     input: store.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

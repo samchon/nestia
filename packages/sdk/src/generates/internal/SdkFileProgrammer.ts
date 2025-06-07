@@ -86,7 +86,7 @@ export namespace SdkFileProgrammer {
         statements.push(
           ...(route.protocol === "http"
             ? SdkHttpRouteProgrammer.write(project)(importer)(route)
-            : SdkWebSocketRouteProgrammer.write(importer)(route)),
+            : SdkWebSocketRouteProgrammer.write(project)(importer)(route)),
         );
         if (i !== directory.routes.length - 1)
           statements.push(FilePrinter.enter());

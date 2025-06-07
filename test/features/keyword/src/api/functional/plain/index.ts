@@ -15,8 +15,8 @@ import type { Resolved } from "typia";
  */
 export async function send(
   connection: IConnection,
-  props: send.IProps,
-): Promise<send.Response> {
+  props: send.Props,
+): Promise<send.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -34,11 +34,11 @@ export async function send(
   );
 }
 export namespace send {
-  export type IProps = {
+  export type Props = {
     body: Body;
   };
   export type Body = Resolved<string>;
-  export type Response = Resolved<string>;
+  export type Output = Resolved<string>;
 
   export const METADATA = {
     method: "POST",

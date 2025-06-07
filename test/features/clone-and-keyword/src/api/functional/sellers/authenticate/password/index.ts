@@ -24,7 +24,7 @@ import type { ISeller } from "../../../../structures/ISeller";
  */
 export async function change(
   connection: IConnection,
-  props: change.IProps,
+  props: change.Props,
 ): Promise<void> {
   return !!connection.simulate
     ? change.simulate(connection, props)
@@ -45,7 +45,7 @@ export async function change(
       );
 }
 export namespace change {
-  export type IProps = {
+  export type Props = {
     /**
      * Old and new passwords
      */
@@ -70,7 +70,7 @@ export namespace change {
   export const path = () => "/sellers/authenticate/password/change";
   export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
     typia.random<void>(g);
-  export const simulate = (connection: IConnection, props: IProps): void => {
+  export const simulate = (connection: IConnection, props: Props): void => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

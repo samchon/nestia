@@ -21,7 +21,7 @@ export * as performance from "./performance";
 export async function request(
   connection: IConnection,
   input: request.Body,
-): Promise<request.Response> {
+): Promise<request.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -40,7 +40,7 @@ export async function request(
 }
 export namespace request {
   export type Body = Primitive<IRequestDto>;
-  export type Response = Primitive<IRequestDto>;
+  export type Output = Primitive<IRequestDto>;
 
   export const METADATA = {
     method: "POST",

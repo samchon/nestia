@@ -28,7 +28,7 @@ export async function typed(
   connection: IConnection,
   section: string,
   input: typed.Body,
-): Promise<typed.Response> {
+): Promise<typed.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -47,7 +47,7 @@ export async function typed(
 }
 export namespace typed {
   export type Body = Primitive<IBbsArticle.IStore>;
-  export type Response = Primitive<IBbsArticle>;
+  export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -76,7 +76,7 @@ export namespace typed {
 export async function union(
   connection: IConnection,
   section: string,
-): Promise<union.Response> {
+): Promise<union.Output> {
   return PlainFetcher.fetch(connection, {
     ...union.METADATA,
     template: union.METADATA.path,
@@ -84,7 +84,7 @@ export async function union(
   });
 }
 export namespace union {
-  export type Response = Primitive<
+  export type Output = Primitive<
     INotFound | IUnprocessibleEntity | IBbsArticle
   >;
 
@@ -116,7 +116,7 @@ export async function tags(
   connection: IConnection,
   section: string,
   input: tags.Body,
-): Promise<tags.Response> {
+): Promise<tags.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -135,7 +135,7 @@ export async function tags(
 }
 export namespace tags {
   export type Body = Primitive<IBbsArticle.IStore>;
-  export type Response = Primitive<IBbsArticle>;
+  export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -168,7 +168,7 @@ export async function composite(
   connection: IConnection,
   section: string,
   input: composite.Body,
-): Promise<composite.Response> {
+): Promise<composite.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -187,7 +187,7 @@ export async function composite(
 }
 export namespace composite {
   export type Body = Primitive<IBbsArticle.IStore>;
-  export type Response = Primitive<IBbsArticle>;
+  export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",

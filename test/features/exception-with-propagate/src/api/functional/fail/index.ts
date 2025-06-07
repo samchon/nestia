@@ -16,7 +16,7 @@ import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 export async function get(
   connection: IConnection,
   error_type: "EXPIRED_PERMISSION" | "INVALID_PERMISSION",
-): Promise<get.Response> {
+): Promise<get.Output> {
   return PlainFetcher.propagate<any>(connection, {
     ...get.METADATA,
     template: get.METADATA.path,
@@ -24,7 +24,7 @@ export async function get(
   });
 }
 export namespace get {
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       200: number;
       401: "EXPIRED_PERMISSION" | "INVALID_PERMISSION";
@@ -60,7 +60,7 @@ export async function composite(
     | "EXPIRED_PERMISSION"
     | "INVALID_PERMISSION"
     | "REQUIRED_PERMISSION",
-): Promise<composite.Response> {
+): Promise<composite.Output> {
   return PlainFetcher.propagate<any>(connection, {
     ...composite.METADATA,
     template: composite.METADATA.path,
@@ -68,7 +68,7 @@ export async function composite(
   });
 }
 export namespace composite {
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       200: number;
       401: "EXPIRED_PERMISSION" | "INVALID_PERMISSION" | "REQUIRED_PERMISSION";

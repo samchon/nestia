@@ -23,7 +23,7 @@ import type { INotFound } from "../../structures/INotFound";
 export async function login(
   connection: IConnection,
   input: login.Body,
-): Promise<login.Response> {
+): Promise<login.Output> {
   return EncryptedFetcher.propagate<any, any>(
     {
       ...connection,
@@ -42,7 +42,7 @@ export async function login(
 }
 export namespace login {
   export type Body = Primitive<IMember.ILogin>;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       201: Primitive<IMember>;
       403: Primitive<IForbidden>;

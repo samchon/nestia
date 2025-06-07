@@ -31,7 +31,7 @@ export async function store(
   connection: IConnection,
   section: string,
   input: store.Body,
-): Promise<store.Response> {
+): Promise<store.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -50,7 +50,7 @@ export async function store(
 }
 export namespace store {
   export type Body = Primitive<IBbsArticle.IStore>;
-  export type Response = Primitive<IBbsArticle>;
+  export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -95,7 +95,7 @@ export async function update(
   section: string,
   id: string & Format<"uuid">,
   input: update.Body,
-): Promise<update.Response> {
+): Promise<update.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -114,7 +114,7 @@ export async function update(
 }
 export namespace update {
   export type Body = Primitive<IBbsArticle.IStore>;
-  export type Response = Primitive<IBbsArticle>;
+  export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "PUT",

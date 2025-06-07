@@ -21,7 +21,7 @@ import type { IPartialInterface } from "../../../structures/IPartialInterface";
 export async function partialInterface(
   connection: IConnection,
   body: partialInterface.Body,
-): Promise<partialInterface.Response> {
+): Promise<partialInterface.Output> {
   return !!connection.simulate
     ? partialInterface.simulate(connection, body)
     : PlainFetcher.propagate<any, any>(
@@ -42,7 +42,7 @@ export async function partialInterface(
 }
 export namespace partialInterface {
   export type Body = IOriginal.IPartialInterface;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       201: IPartialInterface;
     },
@@ -70,7 +70,7 @@ export namespace partialInterface {
   export const simulate = (
     connection: IConnection,
     body: partialInterface.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -99,6 +99,6 @@ export namespace partialInterface {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }

@@ -24,8 +24,8 @@ import type { IAuthentication } from "../../../structures/IAuthentication";
  */
 export async function getOauthProfile(
   connection: IConnection,
-  props: getOauthProfile.IProps,
-): Promise<getOauthProfile.Response> {
+  props: getOauthProfile.Props,
+): Promise<getOauthProfile.Output> {
   return !!connection.simulate
     ? getOauthProfile.simulate(connection, props)
     : PlainFetcher.propagate<any>(connection, {
@@ -35,12 +35,12 @@ export async function getOauthProfile(
       });
 }
 export namespace getOauthProfile {
-  export type IProps = {
+  export type Props = {
     user_id: string;
     query: Query;
   };
   export type Query = IAuthentication;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       200: IAuthentication.IProfile;
       404: "404 Not Found";
@@ -75,10 +75,7 @@ export namespace getOauthProfile {
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IAuthentication.IProfile> =>
     typia.random<IAuthentication.IProfile>(g);
-  export const simulate = (
-    connection: IConnection,
-    props: IProps,
-  ): Response => {
+  export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -108,6 +105,6 @@ export namespace getOauthProfile {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }

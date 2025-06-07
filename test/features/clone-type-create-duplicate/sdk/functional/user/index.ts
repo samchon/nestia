@@ -24,7 +24,7 @@ import type { IUser } from "../../structures/IUser";
  */
 export async function profile(
   connection: IConnection,
-): Promise<profile.Response> {
+): Promise<profile.Output> {
   return PlainFetcher.fetch(connection, {
     ...profile.METADATA,
     template: profile.METADATA.path,
@@ -32,7 +32,7 @@ export async function profile(
   });
 }
 export namespace profile {
-  export type Response = IUser.IProfile.o1;
+  export type Output = IUser.IProfile.o1;
 
   export const METADATA = {
     method: "GET",

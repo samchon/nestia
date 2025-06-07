@@ -21,7 +21,7 @@ import type { PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_a
 export async function partialType(
   connection: IConnection,
   body: partialType.Body,
-): Promise<partialType.Response> {
+): Promise<partialType.Output> {
   return !!connection.simulate
     ? partialType.simulate(connection, body)
     : PlainFetcher.propagate<any, any>(
@@ -43,7 +43,7 @@ export async function partialType(
 export namespace partialType {
   export type Body =
     PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr;
-  export type Response = IPropagation<
+  export type Output = IPropagation<
     {
       201: PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr;
     },
@@ -74,7 +74,7 @@ export namespace partialType {
   export const simulate = (
     connection: IConnection,
     body: partialType.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -103,6 +103,6 @@ export namespace partialType {
           ? connection.simulate
           : undefined,
       ),
-    } as Response;
+    } as Output;
   };
 }

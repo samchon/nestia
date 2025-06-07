@@ -72,7 +72,7 @@ export namespace NestiaMigrateApiFunctionProgrammer {
           "props",
           undefined,
           ts.factory.createTypeReferenceNode(
-            `${ctx.route.accessor.at(-1)!}.IProps`,
+            `${ctx.route.accessor.at(-1)!}.Props`,
           ),
         ),
       ];

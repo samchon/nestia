@@ -22,7 +22,7 @@ import type {
 export async function typedBody(
   connection: IConnection,
   input: typedBody.Body,
-): Promise<typedBody.Response> {
+): Promise<typedBody.Output> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -41,7 +41,7 @@ export async function typedBody(
 }
 export namespace typedBody {
   export type Body = Primitive<IBbsArticle.IStore>;
-  export type Response = Primitive<IBbsArticle>;
+  export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -126,7 +126,7 @@ export namespace typedParam {
 export async function typedQuery(
   connection: IConnection,
   file: typedQuery.Query,
-): Promise<typedQuery.Response> {
+): Promise<typedQuery.Output> {
   return PlainFetcher.fetch(connection, {
     ...typedQuery.METADATA,
     template: typedQuery.METADATA.path,
@@ -135,7 +135,7 @@ export async function typedQuery(
 }
 export namespace typedQuery {
   export type Query = Resolved<IAttachmentFile>;
-  export type Response = Primitive<IAttachmentFile>;
+  export type Output = Primitive<IAttachmentFile>;
 
   export const METADATA = {
     method: "GET",

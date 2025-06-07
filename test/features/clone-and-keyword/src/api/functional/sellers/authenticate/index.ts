@@ -28,8 +28,8 @@ export * as password from "./password";
  */
 export async function join(
   connection: IConnection,
-  props: join.IProps,
-): Promise<join.Response> {
+  props: join.Props,
+): Promise<join.Output> {
   const output: ISeller.IAuthorized = !!connection.simulate
     ? join.simulate(connection, props)
     : await EncryptedFetcher.fetch(
@@ -52,14 +52,14 @@ export async function join(
   return output;
 }
 export namespace join {
-  export type IProps = {
+  export type Props = {
     /**
      * Information of yours
      */
     input: Body;
   };
   export type Body = ISeller.IJoin;
-  export type Response = ISeller.IAuthorized;
+  export type Output = ISeller.IAuthorized;
 
   export const METADATA = {
     method: "POST",
@@ -79,10 +79,7 @@ export namespace join {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<ISeller.IAuthorized> => typia.random<ISeller.IAuthorized>(g);
-  export const simulate = (
-    connection: IConnection,
-    props: IProps,
-  ): Response => {
+  export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -111,8 +108,8 @@ export namespace join {
  */
 export async function login(
   connection: IConnection,
-  props: login.IProps,
-): Promise<login.Response> {
+  props: login.Props,
+): Promise<login.Output> {
   const output: ISeller.IAuthorized = !!connection.simulate
     ? login.simulate(connection, props)
     : await EncryptedFetcher.fetch(
@@ -135,14 +132,14 @@ export async function login(
   return output;
 }
 export namespace login {
-  export type IProps = {
+  export type Props = {
     /**
      * Email and password
      */
     input: Body;
   };
   export type Body = ISeller.ILogin;
-  export type Response = ISeller.IAuthorized;
+  export type Output = ISeller.IAuthorized;
 
   export const METADATA = {
     method: "POST",
@@ -162,10 +159,7 @@ export namespace login {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<ISeller.IAuthorized> => typia.random<ISeller.IAuthorized>(g);
-  export const simulate = (
-    connection: IConnection,
-    props: IProps,
-  ): Response => {
+  export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

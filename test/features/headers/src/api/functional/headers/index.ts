@@ -22,7 +22,7 @@ import type { IHeaders } from "../../structures/IHeaders";
 export async function emplace(
   connection: IConnection<emplace.Headers>,
   section: string,
-): Promise<emplace.Response> {
+): Promise<emplace.Output> {
   return !!connection.simulate
     ? emplace.simulate(connection, section)
     : PlainFetcher.fetch(connection, {
@@ -33,7 +33,7 @@ export async function emplace(
 }
 export namespace emplace {
   export type Headers = Resolved<IHeaders>;
-  export type Response = Resolved<IHeaders>;
+  export type Output = Resolved<IHeaders>;
 
   export const METADATA = {
     method: "PATCH",
@@ -55,7 +55,7 @@ export namespace emplace {
   export const simulate = (
     connection: IConnection<emplace.Headers>,
     section: string,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -86,7 +86,7 @@ export async function store(
   connection: IConnection<store.Headers>,
   section: string,
   input: store.Body,
-): Promise<store.Response> {
+): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, section, input)
     : PlainFetcher.fetch(
@@ -108,7 +108,7 @@ export async function store(
 export namespace store {
   export type Headers = Resolved<IHeaders>;
   export type Body = Primitive<IBbsArticle.IStore>;
-  export type Response = Primitive<IBbsArticle>;
+  export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -134,7 +134,7 @@ export namespace store {
     connection: IConnection<store.Headers>,
     section: string,
     input: store.Body,
-  ): Response => {
+  ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
