@@ -197,10 +197,7 @@ export namespace store {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IPerson> => typia.random<IPerson>(g);
-  export const simulate = (
-    connection: IConnection,
-    body: store.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

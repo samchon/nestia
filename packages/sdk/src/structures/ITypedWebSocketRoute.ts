@@ -13,7 +13,11 @@ export interface ITypedWebSocketRoute {
   accessor: string[];
   function: Function;
   versions: Array<string | typeof VERSION_NEUTRAL> | undefined;
-  parameters: ITypedWebSocketRouteParameter[];
+  acceptor: ITypedWebSocketRouteParameter.IAcceptor;
+  header: ITypedWebSocketRouteParameter.IHeader | null;
+  pathParameters: ITypedWebSocketRouteParameter.IParam[];
+  query: ITypedWebSocketRouteParameter.IQuery | null;
+  driver: ITypedWebSocketRouteParameter.IDriver | null;
   imports: IReflectTypeImport[];
   description: string | null;
   jsDocTags: ts.JSDocTagInfo[];

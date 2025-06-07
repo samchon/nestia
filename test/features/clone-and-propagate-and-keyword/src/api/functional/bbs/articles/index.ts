@@ -69,14 +69,14 @@ export namespace index {
     status: 200,
   } as const;
 
-  export const path = (p: { section: string; query: Query }) => {
+  export const path = (props: Props) => {
     const variables: URLSearchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(p.query as any))
+    for (const [key, value] of Object.entries(props.query as any))
       if (undefined === value) continue;
       else if (Array.isArray(value))
         value.forEach((elem: any) => variables.append(key, String(elem)));
       else variables.set(key, String(value));
-    const location: string = `/bbs/articles/${encodeURIComponent(p.section?.toString() ?? "null")}`;
+    const location: string = `/bbs/articles/${encodeURIComponent(props.section?.toString() ?? "null")}`;
     return 0 === variables.size
       ? location
       : `${location}?${variables.toString()}`;
@@ -186,8 +186,8 @@ export namespace store {
     status: 201,
   } as const;
 
-  export const path = (p: { section: string }) =>
-    `/bbs/articles/${encodeURIComponent(p.section?.toString() ?? "null")}`;
+  export const path = (props: Omit<Props, "input">) =>
+    `/bbs/articles/${encodeURIComponent(props.section?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
@@ -298,8 +298,8 @@ export namespace update {
     status: 200,
   } as const;
 
-  export const path = (p: { section: string; id: string & Format<"uuid"> }) =>
-    `/bbs/articles/${encodeURIComponent(p.section?.toString() ?? "null")}/${encodeURIComponent(p.id?.toString() ?? "null")}`;
+  export const path = (props: Omit<Props, "input">) =>
+    `/bbs/articles/${encodeURIComponent(props.section?.toString() ?? "null")}/${encodeURIComponent(props.id?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);

@@ -159,16 +159,34 @@ export namespace TypedHttpRouteAnalyzer {
       props.errors.push(...errors);
       return [];
     }
-    return props.paths.map((path) => ({
-      ...props.operation,
-      controller: props.controller,
-      path,
-      accessor: [...PathUtil.accessors(path), props.operation.name],
-      exceptions,
-      parameters,
-      success,
-      extensions: props.operation.extensions,
-    }));
+    return props.paths.map(
+      (path) =>
+        ({
+          ...props.operation,
+          controller: props.controller,
+          path,
+          accessor: [...PathUtil.accessors(path), props.operation.name],
+          exceptions,
+          pathParameters: parameters.filter((p) => p.category === "param"),
+          queryParameters: parameters
+            .filter((p) => p.category === "query")
+            .filter((p) => p.field !== null),
+          headerParameters: parameters
+            .filter((p) => p.category === "headers")
+            .filter((p) => p.field !== null),
+          queryObject:
+            parameters
+              .filter((p) => p.category === "query")
+              .filter((p) => p.field === null)[0] ?? null,
+          body: parameters.filter((p) => p.category === "body")[0] ?? null,
+          headerObject:
+            parameters
+              .filter((p) => p.category === "headers")
+              .filter((p) => p.field !== null)[0] ?? null,
+          success,
+          extensions: props.operation.extensions,
+        }) satisfies ITypedHttpRoute,
+    );
   };
 }
 

@@ -18,15 +18,7 @@ export const test_api_tupleHierarchicalController_store = async (
     },
     201
   > = await api.functional.tupleHierarchicalController.store(connection, {
-    body: typia.random<
-      [
-        boolean,
-        null,
-        number,
-        [boolean, null, [number, [boolean, string]]],
-        [number, [string, boolean, [number, number, [boolean, string]][]][]],
-      ]
-    >(),
+    body: typia.random<api.functional.tupleHierarchicalController.store.Body>(),
   });
   typia.assert(output);
 };

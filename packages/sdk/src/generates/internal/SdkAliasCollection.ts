@@ -9,6 +9,7 @@ import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParame
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
+import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkAliasCollection {
@@ -31,32 +32,31 @@ export namespace SdkAliasCollection {
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.TypeNode =>
       ts.factory.createTypeLiteralNode(
-        route.parameters
-          .filter((p) => p.category !== "headers")
-          .map((param) => {
+        SdkHttpParameterProgrammer.getEntries({
+          project,
+          importer,
+          route,
+          body: true,
+          prefix: false,
+        })
+          .map((e) => {
             const signature: ts.PropertySignature =
               ts.factory.createPropertySignature(
                 undefined,
-                param.name,
-                param.metadata.isRequired() === false
-                  ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
-                  : undefined,
-                param.category === "body"
-                  ? ts.factory.createTypeReferenceNode("Body")
-                  : param.category === "query" && param.field === null
-                    ? ts.factory.createTypeReferenceNode("Query")
-                    : SdkTypeProgrammer.write(project)(importer)(
-                        param.metadata,
-                      ),
+                e.key,
+                e.required
+                  ? undefined
+                  : ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+                e.type,
               );
             const description: string | null =
-              param.description ??
+              e.parameter.description ??
               route.jsDocTags
                 ?.find(
                   (tag) =>
                     tag.name === "param" &&
                     tag.text?.[0]?.kind === "parameterName" &&
-                    tag.text?.[0]?.text === param.name,
+                    tag.text?.[0]?.text === e.key,
                 )
                 ?.text?.find((t) => t.kind === "text")?.text ??
               null;
@@ -72,18 +72,24 @@ export namespace SdkAliasCollection {
 
   export const websocketProps = (route: ITypedWebSocketRoute): ts.TypeNode =>
     ts.factory.createTypeLiteralNode([
-      ...route.parameters
-        .filter((p) => p.category === "param" || p.category === "query")
-        .map((p) =>
-          ts.factory.createPropertySignature(
-            undefined,
-            p.name,
-            undefined,
-            p.category === "query"
-              ? ts.factory.createTypeReferenceNode("Query")
-              : SdkAliasCollection.name(p),
-          ),
+      ...route.pathParameters.map((p) =>
+        ts.factory.createPropertySignature(
+          undefined,
+          p.name,
+          undefined,
+          SdkAliasCollection.name(p),
         ),
+      ),
+      ...(route.query
+        ? [
+            ts.factory.createPropertySignature(
+              undefined,
+              "query",
+              undefined,
+              ts.factory.createTypeReferenceNode("Query"),
+            ),
+          ]
+        : []),
       ts.factory.createPropertySignature(
         undefined,
         "provider",

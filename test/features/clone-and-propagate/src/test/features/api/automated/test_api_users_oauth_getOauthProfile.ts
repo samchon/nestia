@@ -16,7 +16,7 @@ export const test_api_users_oauth_getOauthProfile = async (
   > = await api.functional.users.oauth.getOauthProfile(
     connection,
     typia.random<string>(),
-    typia.random<IAuthentication>(),
+    typia.random<api.functional.users.oauth.getOauthProfile.Query>(),
   );
   typia.assert(output);
 };

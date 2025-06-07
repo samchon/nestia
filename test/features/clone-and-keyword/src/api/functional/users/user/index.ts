@@ -57,14 +57,14 @@ export namespace getUserProfile {
     status: 202,
   } as const;
 
-  export const path = (p: { user_id: string; query: Query }) => {
+  export const path = (props: Props) => {
     const variables: URLSearchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(p.query as any))
+    for (const [key, value] of Object.entries(props.query as any))
       if (undefined === value) continue;
       else if (Array.isArray(value))
         value.forEach((elem: any) => variables.append(key, String(elem)));
       else variables.set(key, String(value));
-    const location: string = `/users/${encodeURIComponent(p.user_id?.toString() ?? "null")}/user`;
+    const location: string = `/users/${encodeURIComponent(props.user_id?.toString() ?? "null")}/user`;
     return 0 === variables.size
       ? location
       : `${location}?${variables.toString()}`;
@@ -139,8 +139,8 @@ export namespace updateUserProfile {
     status: 201,
   } as const;
 
-  export const path = (p: { user_id: string }) =>
-    `/users/${encodeURIComponent(p.user_id?.toString() ?? "null")}/user`;
+  export const path = (props: Omit<Props, "body">) =>
+    `/users/${encodeURIComponent(props.user_id?.toString() ?? "null")}/user`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IUser> => typia.random<IUser>(g);

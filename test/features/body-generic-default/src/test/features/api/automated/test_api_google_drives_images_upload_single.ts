@@ -12,7 +12,7 @@ export const test_api_google_drives_images_upload_single = async (
     await api.functional.google.drives.images.upload.single(
       connection,
       typia.random<string>(),
-      typia.random<IGoogleDriveImageSingleUpload>(),
+      typia.random<api.functional.google.drives.images.upload.single.Body>(),
     );
   typia.assert(output);
 };

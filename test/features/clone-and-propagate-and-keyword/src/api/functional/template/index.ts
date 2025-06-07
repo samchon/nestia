@@ -104,8 +104,8 @@ export namespace at {
     status: 200,
   } as const;
 
-  export const path = (p: { id: number }) =>
-    `/template/${encodeURIComponent(p.id?.toString() ?? "null")}`;
+  export const path = (props: Props) =>
+    `/template/${encodeURIComponent(props.id?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Template> => typia.random<Template>(g);

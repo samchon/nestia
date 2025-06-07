@@ -14,7 +14,7 @@ export const test_api_sellers_authenticate_login = async (
     201
   > = await api.functional.sellers.authenticate.login(
     connection,
-    typia.random<ISeller.ILogin>(),
+    typia.random<api.functional.sellers.authenticate.login.Body>(),
   );
   typia.assert(output);
 };

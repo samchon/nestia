@@ -13,7 +13,7 @@ export const test_api_x_bbs_articles_comments_store = async (
       connection,
       typia.random<string>(),
       typia.random<string & Format<"uuid">>(),
-      typia.random<IBbsComment.IStore>(),
+      typia.random<api.functional.x.bbs.articles.comments.store.Body>(),
     );
   typia.assert(output);
 };

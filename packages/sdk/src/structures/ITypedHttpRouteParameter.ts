@@ -6,7 +6,7 @@ import { IReflectType } from "./IReflectType";
 export type ITypedHttpRouteParameter =
   | ITypedHttpRouteParameter.IBody
   | ITypedHttpRouteParameter.IHeaders
-  | ITypedHttpRouteParameter.IParam
+  | ITypedHttpRouteParameter.IPath
   | ITypedHttpRouteParameter.IQuery;
 export namespace ITypedHttpRouteParameter {
   export interface IBody extends IBase<"body"> {
@@ -20,7 +20,7 @@ export namespace ITypedHttpRouteParameter {
   export interface IHeaders extends IBase<"headers"> {
     field: string | null;
   }
-  export interface IParam extends IBase<"param"> {
+  export interface IPath extends IBase<"param"> {
     field: string;
   }
   export interface IQuery extends IBase<"query"> {
