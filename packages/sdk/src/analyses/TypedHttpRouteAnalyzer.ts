@@ -182,7 +182,7 @@ export namespace TypedHttpRouteAnalyzer {
           headerObject:
             parameters
               .filter((p) => p.category === "headers")
-              .filter((p) => p.field !== null)[0] ?? null,
+              .filter((p) => p.field === null)[0] ?? null,
           success,
           extensions: props.operation.extensions,
         }) satisfies ITypedHttpRoute,

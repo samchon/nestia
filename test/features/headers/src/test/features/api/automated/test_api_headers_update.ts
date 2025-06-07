@@ -9,7 +9,7 @@ export const test_api_headers_update = async (connection: api.IConnection) => {
     connection,
     typia.random<string>(),
     typia.random<string & Format<"uuid">>(),
-    typia.random<IBbsArticle.IStore>(),
+    typia.random<api.functional.headers.update.Body>(),
   );
   typia.assert(output);
 };

@@ -15,7 +15,7 @@ export const test_api_headers_store = async (connection: api.IConnection) => {
       },
     },
     typia.random<string>(),
-    typia.random<IBbsArticle.IStore>(),
+    typia.random<api.functional.headers.store.Body>(),
   );
   typia.assert(output);
 };

@@ -20,18 +20,18 @@
         "tags": [],
         "parameters": [
           {
-            "name": "headers",
-            "in": "header",
-            "schema": {
-              "$ref": "#/components/schemas/IHeaders"
-            },
-            "required": true
-          },
-          {
             "name": "section",
             "in": "path",
             "schema": {
               "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "headers",
+            "in": "header",
+            "schema": {
+              "$ref": "#/components/schemas/IHeaders"
             },
             "required": true
           }
@@ -60,15 +60,6 @@
         "tags": [],
         "parameters": [
           {
-            "name": "headers",
-            "in": "header",
-            "schema": {
-              "$ref": "#/components/schemas/IHeaders"
-            },
-            "description": " Headers for authentication",
-            "required": true
-          },
-          {
             "name": "section",
             "in": "path",
             "schema": {
@@ -76,6 +67,15 @@
             },
             "required": true,
             "description": " Target section code"
+          },
+          {
+            "name": "headers",
+            "in": "header",
+            "schema": {
+              "$ref": "#/components/schemas/IHeaders"
+            },
+            "description": " Headers for authentication",
+            "required": true
           }
         ],
         "requestBody": {
@@ -131,15 +131,6 @@
             },
             "required": true,
             "description": " Target article id"
-          },
-          {
-            "name": "x-name",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            },
-            "description": " Name in header for authentication",
-            "required": true
           }
         ],
         "requestBody": {
