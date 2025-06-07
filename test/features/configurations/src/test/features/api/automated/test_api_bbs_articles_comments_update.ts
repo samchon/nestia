@@ -14,7 +14,7 @@ export const test_api_bbs_articles_comments_update = async (
       typia.random<string>(),
       typia.random<string & Format<"uuid">>(),
       typia.random<string & Format<"uuid">>(),
-      typia.random<IBbsComment.IStore>(),
+      typia.random<api.functional.bbs.articles.comments.update.Body>(),
     );
   typia.assert(output);
 };

@@ -85,10 +85,7 @@ export namespace join {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<ISeller.IAuthorized> => typia.random<ISeller.IAuthorized>(g);
-  export const simulate = (
-    connection: IConnection,
-    input: join.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, input: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -191,10 +188,7 @@ export namespace login {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<ISeller.IAuthorized> => typia.random<ISeller.IAuthorized>(g);
-  export const simulate = (
-    connection: IConnection,
-    input: login.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, input: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

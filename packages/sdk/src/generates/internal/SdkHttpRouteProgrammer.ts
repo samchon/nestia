@@ -8,29 +8,19 @@ import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkHttpFunctionProgrammer } from "./SdkHttpFunctionProgrammer";
 import { SdkHttpNamespaceProgrammer } from "./SdkHttpNamespaceProgrammer";
+import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 
 export namespace SdkHttpRouteProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.Statement[] => {
-      const props = {
-        headers: route.parameters
-          .filter((p) => p.category === "headers")
-          .find((p) => p.field === null),
-        query: route.parameters
-          .filter((p) => p.category === "query")
-          .find((p) => p.field === null),
-        body: route.parameters.find((p) => p.category === "body"),
-      };
-      return [
-        FilePrinter.description(
-          SdkHttpFunctionProgrammer.write(project)(importer)(route, props),
-          describe(project.config, route),
-        ),
-        SdkHttpNamespaceProgrammer.write(project)(importer)(route, props),
-      ];
-    };
+    (route: ITypedHttpRoute): ts.Statement[] => [
+      FilePrinter.description(
+        SdkHttpFunctionProgrammer.write(project)(importer)(route),
+        describe(project.config, route),
+      ),
+      SdkHttpNamespaceProgrammer.write(project)(importer)(route),
+    ];
 
   const describe = (config: INestiaConfig, route: ITypedHttpRoute): string => {
     // MAIN DESCRIPTION
@@ -40,9 +30,7 @@ export namespace SdkHttpRouteProgrammer {
     const tagComments: string[] = [];
 
     // PARAMETERS
-    for (const p of route.parameters) {
-      if (p.category === "headers") continue;
-
+    for (const p of SdkHttpParameterProgrammer.getSignificant(route, true)) {
       const description: string | undefined =
         p.description ??
         p.jsDocTags.find((tag) => tag.name === "description")?.text?.[0].text ??

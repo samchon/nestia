@@ -87,8 +87,8 @@ export namespace at {
     status: 200,
   } as const;
 
-  export const path = (p: { id: number }) =>
-    `/arrayRecursive/${encodeURIComponent(p.id?.toString() ?? "null")}`;
+  export const path = (props: Props) =>
+    `/arrayRecursive/${encodeURIComponent(props.id?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<ICategory> => typia.random<ICategory>(g);

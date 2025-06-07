@@ -7,9 +7,9 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
-import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
+import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
 
 export namespace SdkHttpSimulationProgrammer {
@@ -60,14 +60,7 @@ export namespace SdkHttpSimulationProgrammer {
   export const simulate =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (
-      route: ITypedHttpRoute,
-      props: {
-        headers: ITypedHttpRouteParameter.IHeaders | undefined;
-        query: ITypedHttpRouteParameter.IQuery | undefined;
-        body: ITypedHttpRouteParameter.IBody | undefined;
-      },
-    ): ts.VariableStatement => {
+    (route: ITypedHttpRoute): ts.VariableStatement => {
       const output: boolean =
         project.config.propagate === true ||
         route.success.metadata.size() !== 0;
@@ -96,28 +89,6 @@ export namespace SdkHttpSimulationProgrammer {
             ),
           ],
         );
-
-      interface IProperty {
-        key: string;
-        type: ts.TypeNode;
-        optional: boolean;
-      }
-      const properties: IProperty[] = route.parameters
-        .filter((p) => p.category !== "headers")
-        .map((p) => ({
-          key: p.name,
-          type:
-            project.config.primitive !== false &&
-            (p === props.query || p === props.body)
-              ? ts.factory.createTypeReferenceNode(
-                  `${route.name}.${p === props.query ? "Query" : "Body"}`,
-                )
-              : project.config.clone === true
-                ? SdkAliasCollection.from(project)(importer)(p.metadata)
-                : SdkAliasCollection.name(p),
-          optional: p.metadata.optional,
-        }));
-
       return constant("simulate")(
         ts.factory.createArrowFunction(
           undefined,
@@ -127,9 +98,7 @@ export namespace SdkHttpSimulationProgrammer {
               "connection",
               ts.factory.createTypeReferenceNode(
                 SdkImportWizard.IConnection(importer),
-                route.parameters.some(
-                  (p) => p.category === "headers" && p.field === null,
-                )
+                route.headerObject
                   ? [
                       ts.factory.createTypeReferenceNode(
                         `${route.name}.Headers`,
@@ -138,27 +107,13 @@ export namespace SdkHttpSimulationProgrammer {
                   : [],
               ),
             ),
-            ...(project.config.keyword === true && properties.length !== 0
-              ? [
-                  ts.factory.createParameterDeclaration(
-                    [],
-                    undefined,
-                    "props",
-                    undefined,
-                    ts.factory.createTypeReferenceNode("Props"),
-                  ),
-                ]
-              : properties.map((p) =>
-                  ts.factory.createParameterDeclaration(
-                    [],
-                    undefined,
-                    p.key,
-                    p.optional === true
-                      ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
-                      : undefined,
-                    p.type,
-                  ),
-                )),
+            ...SdkHttpParameterProgrammer.getParameterDeclarations({
+              project,
+              importer,
+              route,
+              body: true,
+              prefix: false,
+            }),
           ],
           ts.factory.createTypeReferenceNode(output ? "Output" : "void"),
           undefined,
@@ -206,15 +161,9 @@ export namespace SdkHttpSimulationProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.Statement[] => {
-      const parameters = route.parameters.filter(
-        (p) => p.category !== "headers",
-      );
+      const parameters = SdkHttpParameterProgrammer.getSignificant(route, true);
       if (parameters.length === 0) return [];
 
-      const access = (key: string) =>
-        project.config.keyword === true
-          ? IdentifierFactory.access(ts.factory.createIdentifier("props"), key)
-          : ts.factory.createIdentifier(key);
       const typia = SdkImportWizard.typia(importer);
       const validator = StatementFactory.constant({
         name: "assert",
@@ -246,17 +195,11 @@ export namespace SdkHttpSimulationProgrammer {
                   ts.factory.createCallExpression(
                     ts.factory.createIdentifier("path"),
                     undefined,
-                    project.config.keyword === true &&
-                      route.parameters.filter(
-                        (p) => p.category === "param" || p.category === "query",
-                      ).length !== 0
-                      ? [ts.factory.createIdentifier("props")]
-                      : route.parameters
-                          .filter(
-                            (p) =>
-                              p.category === "param" || p.category === "query",
-                          )
-                          .map((p) => ts.factory.createIdentifier(p.name)),
+                    SdkHttpParameterProgrammer.getArguments({
+                      project,
+                      route,
+                      body: false,
+                    }),
                   ),
                 ),
                 ts.factory.createPropertyAssignment(
@@ -298,14 +241,17 @@ export namespace SdkHttpSimulationProgrammer {
                     "assert",
                   ),
                   undefined,
-                  [access(p.name)],
+                  [
+                    project.config.keyword === true
+                      ? ts.factory.createIdentifier(`props.${p.name}`)
+                      : ts.factory.createIdentifier(p.name),
+                  ],
                 ),
               ),
             ],
           ),
         )
         .map(ts.factory.createExpressionStatement);
-
       return [
         validator,
         ...(project.config.propagate !== true

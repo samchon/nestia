@@ -5,10 +5,10 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
-import { ITypedWebSocketRouteParameter } from "../../structures/ITypedWebSocketRouteParameter";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
+import { SdkWebSocketParameterProgrammer } from "./SdkWebSocketParameterProgrammer";
 
 export namespace SdkWebSocketNamespaceProgrammer {
   export const write =
@@ -79,108 +79,56 @@ export namespace SdkWebSocketNamespaceProgrammer {
         ]),
       );
 
-      const acceptor: ITypedWebSocketRouteParameter.IAcceptor =
-        route.parameters.find((x) => x.category === "acceptor")!;
-      const query: ITypedWebSocketRouteParameter.IQuery | undefined =
-        route.parameters.find((x) => x.category === "query");
-      const driver: ITypedWebSocketRouteParameter.IDriver | undefined =
-        route.parameters.find((x) => x.category === "driver");
       declare(
         "Header",
         SdkAliasCollection.name({
-          type: (route.parameters.find((x) => x.category === "header")?.type ??
-            acceptor.type.typeArguments?.[0])!,
+          type: (route.header?.type ?? route.acceptor.type.typeArguments?.[0])!,
         }),
       );
       declare(
         "Provider",
         SdkAliasCollection.name({
           type:
-            driver?.type.typeArguments?.[0] ??
-            acceptor.type.typeArguments?.[2]!,
+            route.driver?.type.typeArguments?.[0] ??
+            route.acceptor.type.typeArguments?.[2]!,
         }),
       );
       declare(
         "Listener",
         SdkAliasCollection.name({
-          type: acceptor.type.typeArguments?.[1]!,
+          type: route.acceptor.type.typeArguments?.[1]!,
         }),
       );
-      if (query) declare("Query", SdkAliasCollection.name(query));
+      if (route.query) declare("Query", SdkAliasCollection.name(route.query));
       return output;
     };
 
   const writePath =
     (project: INestiaProject) =>
     (route: ITypedWebSocketRoute): ts.VariableStatement => {
-      const pathParams: ITypedWebSocketRouteParameter.IParam[] =
-        route.parameters.filter(
-          (p) => p.category === "param",
-        ) as ITypedWebSocketRouteParameter.IParam[];
-      const query: ITypedWebSocketRouteParameter.IQuery | undefined =
-        route.parameters.find((p) => p.category === "query");
-      const total: Array<
-        | ITypedWebSocketRouteParameter.IParam
-        | ITypedWebSocketRouteParameter.IQuery
-      > = [...pathParams, ...(query ? [query] : [])];
-
-      interface IProperty {
-        key: string;
-        value: ts.TypeNode;
-      }
-      const properties: IProperty[] = [
-        ...pathParams.map((p) => ({
-          key: p.name,
-          value: SdkAliasCollection.name(p),
-        })),
-        ...(query
-          ? [
-              {
-                key: query.name,
-                value: ts.factory.createTypeReferenceNode(
-                  `${route.name}.Query`,
-                ),
-              },
-            ]
-          : []),
-      ];
-
       const out = (body: ts.ConciseBody) =>
         constant("path")(
           ts.factory.createArrowFunction(
             [],
             [],
-            project.config.keyword === true && properties.length !== 0
-              ? [
-                  IdentifierFactory.parameter(
-                    "p",
-                    ts.factory.createTypeLiteralNode(
-                      properties.map((p) =>
-                        ts.factory.createPropertySignature(
-                          undefined,
-                          p.key,
-                          undefined,
-                          p.value,
-                        ),
-                      ),
-                    ),
-                  ),
-                ]
-              : properties.map((p) =>
-                  IdentifierFactory.parameter(p.key, p.value),
-                ),
+            SdkWebSocketParameterProgrammer.getParameterDeclarations({
+              project,
+              route,
+              provider: false,
+              prefix: false,
+            }),
             undefined,
             undefined,
             body,
           ),
         );
-      if (total.length === 0)
+      if (route.pathParameters.length === 0 && route.query === null)
         return out(ts.factory.createStringLiteral(route.path));
 
       const access = (key: string) =>
         project.config.keyword === true
           ? ts.factory.createPropertyAccessExpression(
-              ts.factory.createIdentifier("p"),
+              ts.factory.createIdentifier("props"),
               key,
             )
           : ts.factory.createIdentifier(key);
@@ -200,7 +148,10 @@ export namespace SdkWebSocketNamespaceProgrammer {
                   ts.factory.createBinaryExpression(
                     ts.factory.createCallChain(
                       ts.factory.createPropertyAccessChain(
-                        access(pathParams.find((p) => p.field === name)!.name),
+                        access(
+                          route.pathParameters.find((p) => p.field === name)!
+                            .name,
+                        ),
                         ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
                         "toString",
                       ),
@@ -220,11 +171,13 @@ export namespace SdkWebSocketNamespaceProgrammer {
           }),
         );
       };
-      if (query === undefined) return out(template());
+      if (route.query === null) return out(template());
 
       const block = (expr: ts.Expression) => {
         const computeName = (str: string): string =>
-          total.find((p) => p.name === str) !== undefined
+          [...route.pathParameters, ...(route.query ? [route.query] : [])].find(
+            (p) => p.name === str,
+          ) !== undefined
             ? computeName("_" + str)
             : str;
         const variables: string = computeName("variables");
@@ -377,7 +330,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
           true,
         );
       };
-      return out(block(access(query.name)));
+      return out(block(access(route.query.name)));
     };
 }
 

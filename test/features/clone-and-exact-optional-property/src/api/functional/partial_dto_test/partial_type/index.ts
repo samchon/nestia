@@ -71,10 +71,7 @@ export namespace partialType {
     typia.random<PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr>(
       g,
     );
-  export const simulate = (
-    connection: IConnection,
-    body: partialType.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

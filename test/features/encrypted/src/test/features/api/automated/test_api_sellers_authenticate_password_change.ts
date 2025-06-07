@@ -8,7 +8,7 @@ export const test_api_sellers_authenticate_password_change = async (
 ) => {
   const output = await api.functional.sellers.authenticate.password.change(
     connection,
-    typia.random<ISeller.IChangePassword>(),
+    typia.random<api.functional.sellers.authenticate.password.change.Body>(),
   );
   typia.assert(output);
 };

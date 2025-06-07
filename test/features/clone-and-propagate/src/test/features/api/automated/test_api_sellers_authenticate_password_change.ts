@@ -2,7 +2,6 @@ import type { IPropagation } from "@nestia/fetcher";
 import typia from "typia";
 
 import api from "../../../../api";
-import type { ISeller } from "../../../../api/structures/ISeller";
 
 export const test_api_sellers_authenticate_password_change = async (
   connection: api.IConnection,
@@ -14,7 +13,7 @@ export const test_api_sellers_authenticate_password_change = async (
     200
   > = await api.functional.sellers.authenticate.password.change(
     connection,
-    typia.random<ISeller.IChangePassword>(),
+    typia.random<api.functional.sellers.authenticate.password.change.Body>(),
   );
   typia.assert(output);
 };

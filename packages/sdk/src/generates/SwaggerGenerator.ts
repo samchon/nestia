@@ -10,8 +10,8 @@ import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 import { INestiaConfig } from "../INestiaConfig";
 import { ITypedApplication } from "../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
-import { ITypedHttpRouteParameter } from "../structures/ITypedHttpRouteParameter";
 import { FileRetriever } from "../utils/FileRetriever";
+import { SdkHttpParameterProgrammer } from "./internal/SdkHttpParameterProgrammer";
 import { SwaggerOperationComposer } from "./internal/SwaggerOperationComposer";
 
 export namespace SwaggerGenerator {
@@ -79,7 +79,7 @@ export namespace SwaggerGenerator {
     const metadatas: Metadata[] = routes
       .map((r) => [
         r.success.metadata,
-        ...r.parameters.map((p) => p.metadata),
+        ...SdkHttpParameterProgrammer.getAll(r).map((p) => p.metadata),
         ...Object.values(r.exceptions).map((e) => e.metadata),
       ])
       .flat()
@@ -128,9 +128,7 @@ export namespace SwaggerGenerator {
               | string
               | {
                   type: string;
-                  /**
-                   * @format uri
-                   */
+                  /** @format uri */
                   url: string;
                 };
           }>(content);
@@ -267,15 +265,9 @@ export namespace SwaggerGenerator {
     for (const fn of customizers) fn();
   };
 
-  const getPath = (route: {
-    path: string;
-    parameters: ITypedHttpRouteParameter[];
-  }): string => {
+  const getPath = (route: ITypedHttpRoute): string => {
     let str: string = route.path;
-    const filtered: ITypedHttpRouteParameter.IParam[] = route.parameters.filter(
-      (param) => param.category === "param",
-    );
-    for (const param of filtered)
+    for (const param of route.pathParameters)
       str = str.replace(`:${param.field}`, `{${param.field}}`);
     return str;
   };

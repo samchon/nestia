@@ -7,10 +7,10 @@ import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
-import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
+import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkHttpSimulationProgrammer } from "./SdkHttpSimulationProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
 
@@ -18,37 +18,28 @@ export namespace SdkHttpNamespaceProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (
-      route: ITypedHttpRoute,
-      props: {
-        headers: ITypedHttpRouteParameter.IHeaders | undefined;
-        query: ITypedHttpRouteParameter.IQuery | undefined;
-        body: ITypedHttpRouteParameter.IBody | undefined;
-      },
-    ): ts.ModuleDeclaration => {
-      const types = writeTypes(project)(importer)(route, props);
+    (route: ITypedHttpRoute): ts.ModuleDeclaration => {
+      const types: ts.TypeAliasDeclaration[] =
+        writeTypes(project)(importer)(route);
       return ts.factory.createModuleDeclaration(
         [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
         ts.factory.createIdentifier(route.name),
         ts.factory.createModuleBlock([
           ...types,
           ...(types.length ? [FilePrinter.enter()] : []),
-          writeMetadata(project)(importer)(route, props),
+          writeMetadata(project)(importer)(route),
           FilePrinter.enter(),
-          writePath(project)(importer)(route, props.query),
+          writePath(project)(importer)(route),
           ...(project.config.simulate
             ? [
                 SdkHttpSimulationProgrammer.random(project)(importer)(route),
-                SdkHttpSimulationProgrammer.simulate(project)(importer)(
-                  route,
-                  props,
-                ),
+                SdkHttpSimulationProgrammer.simulate(project)(importer)(route),
               ]
             : []),
           ...(project.config.json &&
-          props.body !== undefined &&
-          (props.body.contentType === "application/json" ||
-            props.body.encrypted === true)
+          route.body &&
+          (route.body.contentType === "application/json" ||
+            route.body.encrypted === true)
             ? [writeStringify(project)(importer)]
             : []),
         ]),
@@ -59,14 +50,7 @@ export namespace SdkHttpNamespaceProgrammer {
   const writeTypes =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (
-      route: ITypedHttpRoute,
-      props: {
-        headers: ITypedHttpRouteParameter.IHeaders | undefined;
-        query: ITypedHttpRouteParameter.IQuery | undefined;
-        body: ITypedHttpRouteParameter.IBody | undefined;
-      },
-    ): ts.TypeAliasDeclaration[] => {
+    (route: ITypedHttpRoute): ts.TypeAliasDeclaration[] => {
       const array: ts.TypeAliasDeclaration[] = [];
       const declare = (name: string, type: ts.TypeNode) =>
         array.push(
@@ -79,24 +63,24 @@ export namespace SdkHttpNamespaceProgrammer {
         );
       if (
         project.config.keyword === true &&
-        route.parameters.filter((p) => p.category !== "headers").length !== 0
+        SdkHttpParameterProgrammer.getSignificant(route, true).length !== 0
       )
         declare(
           "Props",
           SdkAliasCollection.httpProps(project)(importer)(route),
         );
-      if (props.headers !== undefined)
+      if (route.headerObject)
         declare(
           "Headers",
-          SdkAliasCollection.headers(project)(importer)(props.headers),
+          SdkAliasCollection.headers(project)(importer)(route.headerObject),
         );
-      if (props.query !== undefined)
+      if (route.queryObject)
         declare(
           "Query",
-          SdkAliasCollection.query(project)(importer)(props.query),
+          SdkAliasCollection.query(project)(importer)(route.queryObject),
         );
-      if (props.body !== undefined)
-        declare("Body", SdkAliasCollection.body(project)(importer)(props.body));
+      if (route.body)
+        declare("Body", SdkAliasCollection.body(project)(importer)(route.body));
       if (
         project.config.propagate === true ||
         route.success.metadata.size() !== 0
@@ -111,14 +95,7 @@ export namespace SdkHttpNamespaceProgrammer {
   const writeMetadata =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (
-      route: ITypedHttpRoute,
-      props: {
-        headers: ITypedHttpRouteParameter.IHeaders | undefined;
-        query: ITypedHttpRouteParameter.IQuery | undefined;
-        body: ITypedHttpRouteParameter.IBody | undefined;
-      },
-    ): ts.VariableStatement =>
+    (route: ITypedHttpRoute): ts.VariableStatement =>
       constant("METADATA")(
         ts.factory.createAsExpression(
           ts.factory.createObjectLiteralExpression(
@@ -133,12 +110,12 @@ export namespace SdkHttpNamespaceProgrammer {
               ),
               ts.factory.createPropertyAssignment(
                 "request",
-                props.body
+                route.body
                   ? LiteralFactory.write(
-                      props.body !== undefined
+                      route.body !== undefined
                         ? {
-                            type: props.body.contentType,
-                            encrypted: !!props.body.encrypted,
+                            type: route.body.contentType,
+                            encrypted: !!route.body.encrypted,
                           }
                         : {
                             type: "application/json",
@@ -195,79 +172,33 @@ export namespace SdkHttpNamespaceProgrammer {
   const writePath =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (
-      route: ITypedHttpRoute,
-      query: ITypedHttpRouteParameter.IQuery | undefined,
-    ): ts.VariableStatement => {
-      interface IProperty {
-        key: string;
-        value: ts.TypeNode;
-        required: boolean;
-      }
-      const g = {
-        total: [
-          ...route.parameters.filter(
-            (param) => param.category === "param" || param.category === "query",
-          ),
-        ],
-        path: route.parameters.filter((param) => param.category === "param"),
-        query: route.parameters
-          .filter((param) => param.category === "query")
-          .filter((param) => param.field !== null),
-      };
-      const properties: IProperty[] = g.total.map((p) => ({
-        key: p.name,
-        value:
-          p === query
-            ? p.metadata.isRequired() === false
-              ? ts.factory.createUnionTypeNode([
-                  ts.factory.createTypeReferenceNode(`Query`),
-                  ts.factory.createTypeReferenceNode("undefined"),
-                ])
-              : ts.factory.createTypeReferenceNode(`Query`)
-            : project.config.clone === true
-              ? SdkAliasCollection.from(project)(importer)(p.metadata)
-              : SdkAliasCollection.name(p),
-        required: p.metadata.isRequired(),
-      }));
+    (route: ITypedHttpRoute): ts.VariableStatement => {
       const out = (body: ts.ConciseBody) =>
         constant("path")(
           ts.factory.createArrowFunction(
             [],
             [],
-            project.config.keyword === true && properties.length !== 0
-              ? [
-                  IdentifierFactory.parameter(
-                    "p",
-                    ts.factory.createTypeLiteralNode(
-                      properties.map((p) =>
-                        ts.factory.createPropertySignature(
-                          undefined,
-                          p.key,
-                          p.required
-                            ? undefined
-                            : ts.factory.createToken(
-                                ts.SyntaxKind.QuestionToken,
-                              ),
-                          p.value,
-                        ),
-                      ),
-                    ),
-                  ),
-                ]
-              : properties.map((p) =>
-                  IdentifierFactory.parameter(p.key, p.value),
-                ),
+            SdkHttpParameterProgrammer.getParameterDeclarations({
+              project,
+              importer,
+              route,
+              body: false,
+              prefix: false,
+            }),
             undefined,
             undefined,
             body,
           ),
         );
-      if (g.total.length === 0)
+      const parameters = SdkHttpParameterProgrammer.getSignificant(
+        route,
+        false,
+      );
+      if (parameters.length === 0)
         return out(ts.factory.createStringLiteral(route.path));
 
       const access = (name: string) =>
-        project.config.keyword === true ? `p.${name}` : name;
+        project.config.keyword === true ? `props.${name}` : name;
       const template = () => {
         const split: string[] = route.path.split(":");
         if (split.length === 1)
@@ -285,7 +216,10 @@ export namespace SdkHttpNamespaceProgrammer {
                     ts.factory.createCallChain(
                       ts.factory.createPropertyAccessChain(
                         ts.factory.createIdentifier(
-                          access(g.path.find((p) => p.field === name)!.name),
+                          access(
+                            route.pathParameters.find((p) => p.field === name)!
+                              .name,
+                          ),
                         ),
                         ts.factory.createToken(ts.SyntaxKind.QuestionDotToken),
                         "toString",
@@ -306,11 +240,12 @@ export namespace SdkHttpNamespaceProgrammer {
           }),
         );
       };
-      if (query === undefined && g.query.length === 0) return out(template());
+      if (route.queryObject === null && route.queryParameters.length === 0)
+        return out(template());
 
       const block = (expr: ts.Expression) => {
         const computeName = (str: string): string =>
-          g.total.find((p) => p.name === str) !== undefined
+          parameters.find((p) => p.name === str) !== undefined
             ? computeName("_" + str)
             : str;
         const variables: string = computeName("variables");
@@ -463,30 +398,32 @@ export namespace SdkHttpNamespaceProgrammer {
           true,
         );
       };
-      if (query !== undefined && g.query.length === 0)
+      if (route.queryObject !== null && route.queryParameters.length === 0)
         return out(
           block(
-            query.metadata.isRequired() === false
+            route.queryObject.metadata.isRequired() === false
               ? ts.factory.createBinaryExpression(
-                  ts.factory.createIdentifier(query.name),
+                  ts.factory.createIdentifier(route.queryObject.name),
                   ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
                   ts.factory.createObjectLiteralExpression([], false),
                 )
-              : ts.factory.createIdentifier(access(query.name)),
+              : ts.factory.createIdentifier(access(route.queryObject.name)),
           ),
         );
       return out(
         block(
           ts.factory.createObjectLiteralExpression(
             [
-              ...(query
+              ...(route.queryObject
                 ? [
                     ts.factory.createSpreadAssignment(
-                      ts.factory.createIdentifier(access(query.name)),
+                      ts.factory.createIdentifier(
+                        access(route.queryObject.name),
+                      ),
                     ),
                   ]
                 : []),
-              ...g.query.map((q) =>
+              ...route.queryParameters.map((q) =>
                 ts.factory.createPropertyAssignment(
                   Escaper.variable(q.field!)
                     ? q.field!

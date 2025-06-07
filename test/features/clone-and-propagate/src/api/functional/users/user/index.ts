@@ -78,7 +78,7 @@ export namespace getUserProfile {
   export const simulate = (
     connection: IConnection,
     user_id: string,
-    query: getUserProfile.Query,
+    query: Query,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -173,7 +173,7 @@ export namespace updateUserProfile {
   export const simulate = (
     connection: IConnection,
     user_id: string,
-    body: updateUserProfile.Body,
+    body: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

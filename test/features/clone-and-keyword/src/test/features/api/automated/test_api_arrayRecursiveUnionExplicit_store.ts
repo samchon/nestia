@@ -12,9 +12,7 @@ export const test_api_arrayRecursiveUnionExplicit_store = async (
 ) => {
   const output: IDirectory | IImageFile | ITextFile | IZipFile | IShortcut =
     await api.functional.arrayRecursiveUnionExplicit.store(connection, {
-      body: typia.random<
-        IDirectory | IImageFile | ITextFile | IZipFile | IShortcut
-      >(),
+      body: typia.random<api.functional.arrayRecursiveUnionExplicit.store.Body>(),
     });
   typia.assert(output);
 };

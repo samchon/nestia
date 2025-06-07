@@ -7,10 +7,7 @@ export const test_api_body_update = async (connection: api.IConnection) => {
   const output = await api.functional.body.update(
     connection,
     typia.random<string & Format<"uuid">>(),
-    typia.random<{
-      title: string;
-      body: string;
-    }>(),
+    typia.random<api.functional.body.update.Body>(),
   );
   typia.assert(output);
 };

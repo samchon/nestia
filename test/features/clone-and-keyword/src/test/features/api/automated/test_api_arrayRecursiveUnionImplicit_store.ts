@@ -20,14 +20,7 @@ export const test_api_arrayRecursiveUnionImplicit_store = async (
     | IShortcut.o1 = await api.functional.arrayRecursiveUnionImplicit.store(
     connection,
     {
-      body: typia.random<
-        | IDirectory.o1
-        | ISharedDirectory
-        | IImageFile.o1
-        | ITextFile.o1
-        | IZipFile.o1
-        | IShortcut.o1
-      >(),
+      body: typia.random<api.functional.arrayRecursiveUnionImplicit.store.Body>(),
     },
   );
   typia.assert(output);

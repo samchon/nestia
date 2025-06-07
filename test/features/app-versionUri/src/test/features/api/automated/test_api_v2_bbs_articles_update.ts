@@ -13,7 +13,7 @@ export const test_api_v2_bbs_articles_update = async (
       connection,
       typia.random<string>(),
       typia.random<string & Format<"uuid">>(),
-      typia.random<IBbsArticle.IStore>(),
+      typia.random<api.functional.v2.bbs.articles.update.Body>(),
     );
   typia.assert(output);
 };

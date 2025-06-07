@@ -266,10 +266,7 @@ export namespace store {
         [number, [string, boolean, [number, number, [boolean, string]][]][]],
       ]
     >(g);
-  export const simulate = (
-    connection: IConnection,
-    body: store.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
