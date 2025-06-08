@@ -38,7 +38,7 @@ export namespace NestiaMigrateControllerAnalyzer {
         minLocation.splice(getSplitIndex(minLocation, splitLocation(r)));
       }
       col.path = minPath.join("/");
-      col.location = `src/controllers/${minLocation.join("/")}`;
+      col.location = ["src", "controllers", ...minLocation].join("/");
     }
     return controllers;
   };
