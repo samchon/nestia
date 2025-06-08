@@ -12,7 +12,7 @@ export const test_api_api_v1_bbs_articles_index = async (
     await api.functional.api.v1.bbs.articles.index(
       connection,
       typia.random<string>(),
-      typia.random<api.functional.api.v1.bbs.articles.index.Query>(),
+      typia.random<IPage.IRequest>(),
     );
   typia.assert(output);
 };

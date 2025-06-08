@@ -11,7 +11,7 @@ export const test_api_template_store = async (connection: api.IConnection) => {
     },
     201
   > = await api.functional.template.store(connection, {
-    body: typia.random<api.functional.template.store.Body>(),
+    body: typia.random<Template>(),
   });
   typia.assert(output);
 };

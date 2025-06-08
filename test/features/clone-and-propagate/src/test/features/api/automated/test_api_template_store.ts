@@ -10,9 +10,6 @@ export const test_api_template_store = async (connection: api.IConnection) => {
       201: Template;
     },
     201
-  > = await api.functional.template.store(
-    connection,
-    typia.random<api.functional.template.store.Body>(),
-  );
+  > = await api.functional.template.store(connection, typia.random<Template>());
   typia.assert(output);
 };

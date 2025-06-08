@@ -20,6 +20,14 @@
         "tags": [],
         "parameters": [
           {
+            "name": "section",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
             "name": "x-category",
             "in": "header",
             "schema": {
@@ -72,14 +80,6 @@
               "items": {
                 "type": "boolean"
               }
-            },
-            "required": true
-          },
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
             },
             "required": true
           }
@@ -106,6 +106,14 @@
         "tags": [],
         "parameters": [
           {
+            "name": "section",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
             "name": "x-category",
             "in": "header",
             "schema": {
@@ -158,14 +166,6 @@
               "items": {
                 "type": "boolean"
               }
-            },
-            "required": true
-          },
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
             },
             "required": true
           }
@@ -217,14 +217,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            },
-            "required": true
-          },
-          {
-            "name": "x-name",
-            "in": "header",
-            "schema": {
-              "type": "string"
             },
             "required": true
           }

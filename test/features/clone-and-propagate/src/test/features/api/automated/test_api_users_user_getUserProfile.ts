@@ -16,7 +16,7 @@ export const test_api_users_user_getUserProfile = async (
   > = await api.functional.users.user.getUserProfile(
     connection,
     typia.random<string>(),
-    typia.random<api.functional.users.user.getUserProfile.Query>(),
+    typia.random<IUser.ISearch>(),
   );
   typia.assert(output);
 };

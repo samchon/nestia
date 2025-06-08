@@ -2,6 +2,7 @@ import type { IPropagation } from "@nestia/fetcher";
 import typia from "typia";
 
 import api from "../../../../api";
+import type { IPage } from "../../../../api/structures/IPage";
 import type { IPageIBbsArticle } from "../../../../api/structures/IPageIBbsArticle";
 
 export const test_api_bbs_articles_index = async (
@@ -15,7 +16,7 @@ export const test_api_bbs_articles_index = async (
   > = await api.functional.bbs.articles.index(
     connection,
     typia.random<string>(),
-    typia.random<api.functional.bbs.articles.index.Query>(),
+    typia.random<IPage.IRequest>(),
   );
   typia.assert(output);
 };

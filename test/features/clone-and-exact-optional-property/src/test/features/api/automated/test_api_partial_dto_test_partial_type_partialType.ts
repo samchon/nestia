@@ -3,6 +3,7 @@ import typia from "typia";
 
 import api from "../../../../api";
 import type { PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr } from "../../../../api/structures/PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr";
+import type { PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr } from "../../../../api/structures/PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr";
 
 export const test_api_partial_dto_test_partial_type_partialType = async (
   connection: api.IConnection,
@@ -14,7 +15,7 @@ export const test_api_partial_dto_test_partial_type_partialType = async (
     201
   > = await api.functional.partial_dto_test.partial_type.partialType(
     connection,
-    typia.random<api.functional.partial_dto_test.partial_type.partialType.Body>(),
+    typia.random<PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr>(),
   );
   typia.assert(output);
 };

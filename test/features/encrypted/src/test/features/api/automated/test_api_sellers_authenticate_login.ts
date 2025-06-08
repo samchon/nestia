@@ -10,7 +10,7 @@ export const test_api_sellers_authenticate_login = async (
   const output: Primitive<ISeller.IAuthorized> =
     await api.functional.sellers.authenticate.login(
       connection,
-      typia.random<api.functional.sellers.authenticate.login.Body>(),
+      typia.random<ISeller.ILogin>(),
     );
   typia.assert(output);
 };

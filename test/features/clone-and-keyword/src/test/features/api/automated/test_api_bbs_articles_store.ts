@@ -10,7 +10,7 @@ export const test_api_bbs_articles_store = async (
     connection,
     {
       section: typia.random<string>(),
-      input: typia.random<api.functional.bbs.articles.store.Body>(),
+      input: typia.random<IBbsArticle.IStore>(),
     },
   );
   typia.assert(output);

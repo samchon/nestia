@@ -11,7 +11,7 @@ export const test_api_x_bbs_articles_store = async (
     await api.functional.x.bbs.articles.store(
       connection,
       typia.random<string>(),
-      typia.random<api.functional.x.bbs.articles.store.Body>(),
+      typia.random<IBbsArticle.IStore>(),
     );
   typia.assert(output);
 };

@@ -7,7 +7,7 @@ export const test_api_objectSimple_store = async (
   connection: api.IConnection,
 ) => {
   const output: IBox3D = await api.functional.objectSimple.store(connection, {
-    body: typia.random<api.functional.objectSimple.store.Body>(),
+    body: typia.random<IBox3D>(),
   });
   typia.assert(output);
 };

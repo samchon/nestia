@@ -13,7 +13,7 @@ export const test_api_arraySimple_store = async (
     },
     201
   > = await api.functional.arraySimple.store(connection, {
-    body: typia.random<api.functional.arraySimple.store.Body>(),
+    body: typia.random<IPerson>(),
   });
   typia.assert(output);
 };

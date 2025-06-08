@@ -14,7 +14,7 @@ export const test_api_api_v2_articles_comments_index = async (
       connection,
       typia.random<string>(),
       typia.random<string & Format<"uuid">>(),
-      typia.random<api.functional.api.v2.articles.comments.index.Query>(),
+      typia.random<IPage.IRequest>(),
     );
   typia.assert(output);
 };

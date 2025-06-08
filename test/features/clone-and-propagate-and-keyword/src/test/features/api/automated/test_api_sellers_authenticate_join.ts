@@ -13,7 +13,7 @@ export const test_api_sellers_authenticate_join = async (
     },
     201
   > = await api.functional.sellers.authenticate.join(connection, {
-    input: typia.random<api.functional.sellers.authenticate.join.Body>(),
+    input: typia.random<ISeller.IJoin>(),
   });
   typia.assert(output);
 };

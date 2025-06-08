@@ -24,7 +24,14 @@ export const test_api_arrayRecursiveUnionImplicit_store = async (
     },
     201
   > = await api.functional.arrayRecursiveUnionImplicit.store(connection, {
-    body: typia.random<api.functional.arrayRecursiveUnionImplicit.store.Body>(),
+    body: typia.random<
+      | IDirectory.o1
+      | ISharedDirectory
+      | IImageFile.o1
+      | ITextFile.o1
+      | IZipFile.o1
+      | IShortcut.o1
+    >(),
   });
   typia.assert(output);
 };

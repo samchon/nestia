@@ -126,7 +126,7 @@ export namespace store {
   export const simulate = (
     connection: IConnection<store.Headers>,
     section: string,
-    input: store.Body,
+    input: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -198,7 +198,7 @@ export namespace update {
     connection: IConnection,
     section: string,
     id: string & Format<"uuid">,
-    input: update.Body,
+    input: Body,
   ): void => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

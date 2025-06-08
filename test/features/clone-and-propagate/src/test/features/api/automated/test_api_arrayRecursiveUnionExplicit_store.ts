@@ -18,7 +18,7 @@ export const test_api_arrayRecursiveUnionExplicit_store = async (
     201
   > = await api.functional.arrayRecursiveUnionExplicit.store(
     connection,
-    typia.random<api.functional.arrayRecursiveUnionExplicit.store.Body>(),
+    typia.random<IDirectory | IImageFile | ITextFile | IZipFile | IShortcut>(),
   );
   typia.assert(output);
 };

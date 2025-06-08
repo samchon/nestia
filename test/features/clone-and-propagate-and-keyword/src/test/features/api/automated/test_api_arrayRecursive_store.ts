@@ -13,7 +13,7 @@ export const test_api_arrayRecursive_store = async (
     },
     201
   > = await api.functional.arrayRecursive.store(connection, {
-    body: typia.random<api.functional.arrayRecursive.store.Body>(),
+    body: typia.random<ICategory>(),
   });
   typia.assert(output);
 };

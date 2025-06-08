@@ -9,7 +9,10 @@ export const test_api_body_store = async (connection: api.IConnection) => {
     body: string;
   } = await api.functional.body.store(
     connection,
-    typia.random<api.functional.body.store.Body>(),
+    typia.random<{
+      title: string;
+      body: string;
+    }>(),
   );
   typia.assert(output);
 };
