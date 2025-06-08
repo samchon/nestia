@@ -229,7 +229,7 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
       ctx.route.parameters.length === 0 && ctx.route.query === null;
     const property = (key: string) =>
       ctx.config.keyword === true
-        ? IdentifierFactory.access(ts.factory.createIdentifier("p"), key)
+        ? IdentifierFactory.access(ts.factory.createIdentifier("props"), key)
         : ts.factory.createIdentifier(key);
     const out = (body: ts.ConciseBody) =>
       constant(
@@ -242,24 +242,15 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
             : ctx.config.keyword === true
               ? [
                   IdentifierFactory.parameter(
-                    "p",
-                    NestiaMigrateSchemaProgrammer.write({
-                      components: ctx.components,
-                      importer: ctx.importer,
-                      schema: {
-                        type: "object",
-                        properties: Object.fromEntries([
-                          ...ctx.route.parameters.map((p) => [p.key, p.schema]),
-                          ...(ctx.route.query
-                            ? [[ctx.route.query.key, ctx.route.query.schema]]
-                            : []),
-                        ]),
-                        required: [
-                          ...ctx.route.parameters.map((p) => p.key),
-                          ...(ctx.route.query ? [ctx.route.query.key] : []),
-                        ],
-                      },
-                    }),
+                    "props",
+                    ctx.route.body
+                      ? ts.factory.createTypeReferenceNode("Omit", [
+                          ts.factory.createTypeReferenceNode("Props"),
+                          ts.factory.createLiteralTypeNode(
+                            ts.factory.createStringLiteral(ctx.route.body.key),
+                          ),
+                        ])
+                      : ts.factory.createTypeReferenceNode("Props"),
                   ),
                 ]
               : [
