@@ -272,10 +272,7 @@ export namespace store {
       | IZipFile.o1
       | IShortcut.o1
     >(g);
-  export const simulate = (
-    connection: IConnection,
-    body: store.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

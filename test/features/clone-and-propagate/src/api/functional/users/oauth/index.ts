@@ -75,7 +75,7 @@ export namespace getOauthProfile {
   export const simulate = (
     connection: IConnection,
     user_id: string,
-    query: getOauthProfile.Query,
+    query: Query,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

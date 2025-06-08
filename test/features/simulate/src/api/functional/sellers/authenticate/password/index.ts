@@ -64,10 +64,7 @@ export namespace change {
   export const path = () => "/sellers/authenticate/password/change";
   export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
     typia.random<void>(g);
-  export const simulate = (
-    connection: IConnection,
-    input: change.Body,
-  ): void => {
+  export const simulate = (connection: IConnection, input: Body): void => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

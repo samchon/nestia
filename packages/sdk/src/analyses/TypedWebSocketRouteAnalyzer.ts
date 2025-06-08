@@ -14,5 +14,20 @@ export namespace TypedWebSocketRouteAnalyzer {
       controller: props.controller,
       path,
       accessor: [...PathUtil.accessors(path), props.operation.name],
+      header:
+        props.operation.parameters.filter((p) => p.category === "header")[0] ??
+        null,
+      pathParameters: props.operation.parameters.filter(
+        (p) => p.category === "param",
+      ),
+      query:
+        props.operation.parameters.filter((p) => p.category === "query")[0] ??
+        null,
+      acceptor: props.operation.parameters.filter(
+        (p) => p.category === "acceptor",
+      )[0]!,
+      driver:
+        props.operation.parameters.filter((p) => p.category === "driver")[0] ??
+        null,
     }));
 }

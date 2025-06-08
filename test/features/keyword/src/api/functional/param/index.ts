@@ -25,7 +25,7 @@ export async function boolean(
 }
 export namespace boolean {
   export type Props = {
-    value: boolean;
+    value: false | true;
   };
   export type Output = Primitive<false | true>;
 
@@ -40,8 +40,8 @@ export namespace boolean {
     status: 200,
   } as const;
 
-  export const path = (p: { value: false | true }) =>
-    `/param/${encodeURIComponent(p.value?.toString() ?? "null")}/boolean`;
+  export const path = (props: Props) =>
+    `/param/${encodeURIComponent(props.value?.toString() ?? "null")}/boolean`;
 }
 
 /**
@@ -76,8 +76,8 @@ export namespace number {
     status: 200,
   } as const;
 
-  export const path = (p: { value: number }) =>
-    `/param/${encodeURIComponent(p.value?.toString() ?? "null")}/number`;
+  export const path = (props: Props) =>
+    `/param/${encodeURIComponent(props.value?.toString() ?? "null")}/number`;
 }
 
 /**
@@ -112,8 +112,8 @@ export namespace string {
     status: 200,
   } as const;
 
-  export const path = (p: { value: string }) =>
-    `/param/${encodeURIComponent(p.value?.toString() ?? "null")}/string`;
+  export const path = (props: Props) =>
+    `/param/${encodeURIComponent(props.value?.toString() ?? "null")}/string`;
 }
 
 /**
@@ -148,8 +148,8 @@ export namespace nullable {
     status: 200,
   } as const;
 
-  export const path = (p: { value: null | string }) =>
-    `/param/${encodeURIComponent(p.value?.toString() ?? "null")}/nullable`;
+  export const path = (props: Props) =>
+    `/param/${encodeURIComponent(props.value?.toString() ?? "null")}/nullable`;
 }
 
 /**
@@ -184,6 +184,6 @@ export namespace literal {
     status: 200,
   } as const;
 
-  export const path = (p: { value: "A" | "B" | "C" }) =>
-    `/param/${encodeURIComponent(p.value?.toString() ?? "null")}/literal`;
+  export const path = (props: Props) =>
+    `/param/${encodeURIComponent(props.value?.toString() ?? "null")}/literal`;
 }

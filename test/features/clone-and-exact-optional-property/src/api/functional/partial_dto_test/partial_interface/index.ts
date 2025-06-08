@@ -67,10 +67,7 @@ export namespace partialInterface {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IPartialInterface> => typia.random<IPartialInterface>(g);
-  export const simulate = (
-    connection: IConnection,
-    body: partialInterface.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

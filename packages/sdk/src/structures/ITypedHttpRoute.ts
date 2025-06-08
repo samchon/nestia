@@ -14,12 +14,23 @@ export interface ITypedHttpRoute {
   method: string;
   path: string;
   accessor: string[];
-  parameters: ITypedHttpRouteParameter[];
+
+  // PARAMETERS
+  pathParameters: ITypedHttpRouteParameter.IPath[];
+  queryParameters: ITypedHttpRouteParameter.IQuery[];
+  headerParameters: ITypedHttpRouteParameter.IHeaders[];
+  queryObject: ITypedHttpRouteParameter.IQuery | null;
+  headerObject: ITypedHttpRouteParameter.IHeaders | null;
+  body: ITypedHttpRouteParameter.IBody | null;
+
+  // RESPONSES
   success: ITypedHttpRouteSuccess;
   exceptions: Record<
     number | "2XX" | "3XX" | "4XX" | "5XX",
     ITypedHttpRouteException
   >;
+
+  // ADDITIONAL INFORMATION
   security: Record<string, string[]>[];
   tags: string[];
   imports: IReflectTypeImport[];

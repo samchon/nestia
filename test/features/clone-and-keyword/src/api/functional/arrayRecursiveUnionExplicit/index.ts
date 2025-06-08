@@ -105,8 +105,8 @@ export namespace at {
     status: 200,
   } as const;
 
-  export const path = (p: { id: number }) =>
-    `/arrayRecursiveUnionExplicit/${encodeURIComponent(p.id?.toString() ?? "null")}`;
+  export const path = (props: Props) =>
+    `/arrayRecursiveUnionExplicit/${encodeURIComponent(props.id?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IDirectory | IImageFile | ITextFile | IZipFile | IShortcut> =>

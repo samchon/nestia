@@ -53,7 +53,7 @@ export namespace SwaggerOperationParameterComposer {
   };
 
   export const path = (
-    props: Omit<IProps<ITypedHttpRouteParameter.IParam>, "config" | "document">,
+    props: Omit<IProps<ITypedHttpRouteParameter.IPath>, "config" | "document">,
   ): OpenApi.IOperation.IParameter => ({
     name: props.parameter.field,
     in: "path",

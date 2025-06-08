@@ -7,6 +7,7 @@ import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
+import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
 
 export namespace E2eFileProgrammer {
@@ -66,14 +67,11 @@ export namespace E2eFileProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute) => {
-      const headers = route.parameters.find(
-        (p) => p.category === "headers" && p.field === null,
-      );
       const random = IdentifierFactory.access(
         ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
         "random",
       );
-      const connection = headers
+      const connection = route.headerObject
         ? ts.factory.createObjectLiteralExpression(
             [
               ts.factory.createSpreadAssignment(
@@ -95,9 +93,9 @@ export namespace E2eFileProgrammer {
                         [
                           project.config.clone === true
                             ? SdkAliasCollection.from(project)(importer)(
-                                headers.metadata,
+                                route.headerObject.metadata,
                               )
-                            : SdkAliasCollection.name(headers),
+                            : SdkAliasCollection.name(route.headerObject),
                         ],
                         undefined,
                       ),
@@ -110,6 +108,14 @@ export namespace E2eFileProgrammer {
             true,
           )
         : ts.factory.createIdentifier("connection");
+      const entries = SdkHttpParameterProgrammer.getEntries({
+        project,
+        importer,
+        route,
+        body: true,
+        e2e: true,
+        prefix: ["api", "functional", ...route.accessor].join(".") + ".",
+      });
       const fetch = ts.factory.createCallExpression(
         ts.factory.createIdentifier(
           ["api", "functional", ...route.accessor].join("."),
@@ -117,53 +123,38 @@ export namespace E2eFileProgrammer {
         undefined,
         [
           connection,
-          ...(project.config.keyword === true &&
-          route.parameters.filter((p) => p.category !== "headers").length !== 0
+          ...(project.config.keyword === true && entries.length !== 0
             ? [
                 LiteralFactory.write(
                   Object.fromEntries(
-                    route.parameters
-                      .filter((p) => p.category !== "headers")
-                      .map((p) => [
-                        p.name,
-                        ts.factory.createCallExpression(
-                          IdentifierFactory.access(
-                            ts.factory.createIdentifier(
-                              SdkImportWizard.typia(importer),
-                            ),
-                            "random",
+                    entries.map((e) => [
+                      e.key,
+                      ts.factory.createCallExpression(
+                        IdentifierFactory.access(
+                          ts.factory.createIdentifier(
+                            SdkImportWizard.typia(importer),
                           ),
-                          [
-                            project.config.clone === true
-                              ? SdkAliasCollection.from(project)(importer)(
-                                  p.metadata,
-                                )
-                              : SdkAliasCollection.name(p),
-                          ],
-                          undefined,
+                          "random",
                         ),
-                      ]),
+                        [e.type],
+                        undefined,
+                      ),
+                    ]),
                   ),
                 ),
               ]
-            : route.parameters
-                .filter((p) => p.category !== "headers")
-                .map((p) =>
-                  ts.factory.createCallExpression(
-                    IdentifierFactory.access(
-                      ts.factory.createIdentifier(
-                        SdkImportWizard.typia(importer),
-                      ),
-                      "random",
+            : entries.map((e) =>
+                ts.factory.createCallExpression(
+                  IdentifierFactory.access(
+                    ts.factory.createIdentifier(
+                      SdkImportWizard.typia(importer),
                     ),
-                    [
-                      project.config.clone === true
-                        ? SdkAliasCollection.from(project)(importer)(p.metadata)
-                        : SdkAliasCollection.name(p),
-                    ],
-                    undefined,
+                    "random",
                   ),
-                )),
+                  [e.type],
+                  undefined,
+                ),
+              )),
         ],
       );
       const assert = ts.factory.createCallExpression(

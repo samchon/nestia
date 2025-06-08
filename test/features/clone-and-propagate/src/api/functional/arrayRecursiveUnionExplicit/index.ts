@@ -202,10 +202,7 @@ export namespace store {
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IDirectory | IImageFile | ITextFile | IZipFile | IShortcut> =>
     typia.random<IDirectory | IImageFile | ITextFile | IZipFile | IShortcut>(g);
-  export const simulate = (
-    connection: IConnection,
-    body: store.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

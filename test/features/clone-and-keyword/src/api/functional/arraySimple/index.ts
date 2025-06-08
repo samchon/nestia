@@ -88,8 +88,8 @@ export namespace at {
     status: 200,
   } as const;
 
-  export const path = (p: { id: string & Format<"uuid"> }) =>
-    `/arraySimple/${encodeURIComponent(p.id?.toString() ?? "null")}`;
+  export const path = (props: Props) =>
+    `/arraySimple/${encodeURIComponent(props.id?.toString() ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IPerson> => typia.random<IPerson>(g);

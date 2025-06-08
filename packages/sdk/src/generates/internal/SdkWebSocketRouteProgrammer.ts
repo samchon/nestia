@@ -6,9 +6,9 @@ import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
-import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkWebSocketNamespaceProgrammer } from "./SdkWebSocketNamespaceProgrammer";
+import { SdkWebSocketParameterProgrammer } from "./SdkWebSocketParameterProgrammer";
 
 export namespace SdkWebSocketRouteProgrammer {
   export const write =
@@ -32,7 +32,7 @@ export namespace SdkWebSocketRouteProgrammer {
     const tags: IJsDocTagInfo[] = route.jsDocTags.filter(
       (tag) =>
         tag.name !== "param" ||
-        route.parameters
+        [...route.pathParameters, ...(route.query ? [route.query] : [])]
           .filter((p) => p.category === "param" || p.category === "query")
           .some((p) => p.name === tag.text?.[0]?.text),
     );
@@ -59,25 +59,6 @@ export namespace SdkWebSocketRouteProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedWebSocketRoute): ts.FunctionDeclaration => {
-      interface IProperty {
-        key: string;
-        value: ts.TypeNode;
-      }
-      const properties: IProperty[] = [
-        ...route.parameters
-          .filter((p) => p.category === "param" || p.category === "query")
-          .map((p) => ({
-            key: p.name,
-            value:
-              p.category === "param"
-                ? SdkAliasCollection.name(p)
-                : ts.factory.createTypeReferenceNode(`${route.name}.Query`),
-          })),
-        {
-          key: "provider",
-          value: ts.factory.createTypeReferenceNode(`${route.name}.Provider`),
-        },
-      ];
       return ts.factory.createFunctionDeclaration(
         [
           ts.factory.createModifier(ts.SyntaxKind.ExportKeyword),
@@ -86,32 +67,21 @@ export namespace SdkWebSocketRouteProgrammer {
         undefined,
         route.name,
         undefined,
-        project.config.keyword === true
-          ? [
-              IdentifierFactory.parameter(
-                "connection",
-                ts.factory.createTypeReferenceNode(
-                  SdkImportWizard.IConnection(importer),
-                  [ts.factory.createTypeReferenceNode(`${route.name}.Header`)],
-                ),
-              ),
-              IdentifierFactory.parameter(
-                "props",
-                ts.factory.createTypeReferenceNode(`${route.name}.Props`),
-              ),
-            ]
-          : [
-              IdentifierFactory.parameter(
-                "connection",
-                ts.factory.createTypeReferenceNode(
-                  SdkImportWizard.IConnection(importer),
-                  [ts.factory.createTypeReferenceNode(`${route.name}.Header`)],
-                ),
-              ),
-              ...properties.map((p) =>
-                IdentifierFactory.parameter(p.key, p.value),
-              ),
-            ],
+        [
+          IdentifierFactory.parameter(
+            "connection",
+            ts.factory.createTypeReferenceNode(
+              SdkImportWizard.IConnection(importer),
+              [ts.factory.createTypeReferenceNode(`${route.name}.Header`)],
+            ),
+          ),
+          ...SdkWebSocketParameterProgrammer.getParameterDeclarations({
+            project,
+            route,
+            provider: true,
+            prefix: true,
+          }),
+        ],
         ts.factory.createTypeReferenceNode("Promise", [
           ts.factory.createTypeReferenceNode(`${route.name}.Output`),
         ]),
@@ -190,18 +160,15 @@ export namespace SdkWebSocketRouteProgrammer {
                     ),
                     [],
                     project.config.keyword === true &&
-                      route.parameters.filter(
-                        (p) => p.category === "param" || p.category === "query",
-                      ).length !== 0
+                      SdkWebSocketParameterProgrammer.isPathEmpty(route) ===
+                        false
                       ? [ts.factory.createIdentifier("props")]
-                      : [
-                          ...route.parameters.filter(
-                            (p) => p.category === "param",
-                          ),
-                          ...route.parameters.filter(
-                            (p) => p.category === "query",
-                          ),
-                        ].map((p) => ts.factory.createIdentifier(p.name)),
+                      : SdkWebSocketParameterProgrammer.getEntries({
+                          project,
+                          route,
+                          provider: false,
+                          prefix: true,
+                        }).map((p) => ts.factory.createIdentifier(p.key)),
                   ),
                 ),
               ],

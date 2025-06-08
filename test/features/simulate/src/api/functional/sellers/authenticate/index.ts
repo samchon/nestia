@@ -74,10 +74,7 @@ export namespace join {
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Primitive<ISeller.IAuthorized>> =>
     typia.random<Primitive<ISeller.IAuthorized>>(g);
-  export const simulate = (
-    connection: IConnection,
-    input: join.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, input: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -152,10 +149,7 @@ export namespace login {
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Primitive<ISeller.IAuthorized>> =>
     typia.random<Primitive<ISeller.IAuthorized>>(g);
-  export const simulate = (
-    connection: IConnection,
-    input: login.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, input: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
