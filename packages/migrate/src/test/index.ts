@@ -53,7 +53,7 @@ const execute = (
         key.startsWith("/") || key.startsWith("./") || key.includes("//"),
     );
     if (invalidPaths.length > 0) {
-      for (const key of Object.keys(files)) console.log(key);
+      for (const key of invalidPaths) console.log(key);
       throw new Error(
         `Invalid file paths: ${invalidPaths.join(", ")}\n` +
           `Please check the generated files.`,
