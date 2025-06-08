@@ -59,7 +59,7 @@ export namespace index {
     status: 200,
   } as const;
 
-  export const path = (section: string, query: index.Query) => {
+  export const path = (section: string, query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;
@@ -78,7 +78,7 @@ export namespace index {
   export const simulate = (
     connection: IConnection,
     section: string,
-    query: index.Query,
+    query: Query,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -127,7 +127,7 @@ export namespace index {
 export async function store(
   connection: IConnection,
   section: string,
-  input: store.Input,
+  input: store.Body,
 ): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, section, input)
@@ -148,7 +148,7 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input = IBbsArticle.IStore;
+  export type Body = IBbsArticle.IStore;
   export type Output = IPropagation<
     {
       201: IBbsArticle;
@@ -178,7 +178,7 @@ export namespace store {
   export const simulate = (
     connection: IConnection,
     section: string,
-    input: store.Input,
+    input: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -229,7 +229,7 @@ export async function update(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-  input: update.Input,
+  input: update.Body,
 ): Promise<update.Output> {
   return !!connection.simulate
     ? update.simulate(connection, section, id, input)
@@ -250,7 +250,7 @@ export async function update(
       );
 }
 export namespace update {
-  export type Input = IBbsArticle.IStore;
+  export type Body = IBbsArticle.IStore;
   export type Output = IPropagation<
     {
       200: IBbsArticle;
@@ -281,7 +281,7 @@ export namespace update {
     connection: IConnection,
     section: string,
     id: string & Format<"uuid">,
-    input: update.Input,
+    input: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

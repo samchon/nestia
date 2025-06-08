@@ -20,7 +20,7 @@ import type { IPartialInterface } from "../../../structures/IPartialInterface";
  */
 export async function partialInterface(
   connection: IConnection,
-  body: partialInterface.Input,
+  body: partialInterface.Body,
 ): Promise<partialInterface.Output> {
   return !!connection.simulate
     ? partialInterface.simulate(connection, body)
@@ -41,7 +41,7 @@ export async function partialInterface(
       );
 }
 export namespace partialInterface {
-  export type Input = IOriginal.IPartialInterface;
+  export type Body = IOriginal.IPartialInterface;
   export type Output = IPropagation<
     {
       201: IPartialInterface;
@@ -67,10 +67,7 @@ export namespace partialInterface {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IPartialInterface> => typia.random<IPartialInterface>(g);
-  export const simulate = (
-    connection: IConnection,
-    body: partialInterface.Input,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

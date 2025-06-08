@@ -15,10 +15,11 @@ export class ImportDictionary {
   }
 
   public external(props: ImportDictionary.IExternalProps): string {
+    const key: string = `node_modules/${props.library}`;
     const composition: IComposition = this.components_.take(
-      new Pair(`node_modules/${props.library}`, props.type),
+      new Pair(key, props.type),
       () => ({
-        location: `node_modules/${props.library}`,
+        location: key,
         elements: new HashSet(),
         default: false,
         type: props.type,
@@ -30,13 +31,15 @@ export class ImportDictionary {
   }
 
   public internal(props: ImportDictionary.IInternalProps): string {
-    const file: string = (() => {
-      if (props.file.substring(props.file.length - 5) === ".d.ts")
-        return props.file.substring(0, props.file.length - 5);
-      else if (props.file.substring(props.file.length - 3) === ".ts")
-        return props.file.substring(0, props.file.length - 3);
-      return props.file;
-    })();
+    const file: string = normalize(
+      (() => {
+        if (props.file.substring(props.file.length - 5) === ".d.ts")
+          return props.file.substring(0, props.file.length - 5);
+        else if (props.file.substring(props.file.length - 3) === ".ts")
+          return props.file.substring(0, props.file.length - 3);
+        return props.file;
+      })(),
+    );
     const composition: IComposition = this.components_.take(
       new Pair(file, props.type),
       () => ({
@@ -54,11 +57,15 @@ export class ImportDictionary {
   }
 
   public toStatements(outDir: string): ts.Statement[] {
+    outDir = path.resolve(outDir);
     const external: ts.ImportDeclaration[] = [];
     const internal: ts.ImportDeclaration[] = [];
 
     const locator = (str: string) => {
-      const location: string = path.relative(outDir, str).split("\\").join("/");
+      const location: string = path
+        .relative(outDir, str)
+        .split(path.sep)
+        .join("/");
       const index: number = location.lastIndexOf(NODE_MODULES);
       return index === -1
         ? location.startsWith("..")
@@ -145,3 +152,12 @@ interface IComposition {
 }
 
 const NODE_MODULES = "node_modules/";
+
+const normalize = (file: string): string => {
+  file = path.resolve(file);
+  if (file.includes(`node_modules${path.sep}`))
+    file =
+      "node_modules/" +
+      file.split(`node_modules${path.sep}`).at(-1)!.split(path.sep).join("/");
+  return file;
+};

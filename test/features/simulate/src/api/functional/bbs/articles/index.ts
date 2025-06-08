@@ -7,7 +7,7 @@
 import type { IConnection } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive, Resolved } from "typia";
 import typia from "typia";
 import type { Format } from "typia/lib/tags/Format";
 
@@ -28,7 +28,7 @@ import type { IPage } from "../../../structures/IPage";
 export async function index(
   connection: IConnection,
   section: null | string,
-  input: index.Input,
+  input: index.Body,
 ): Promise<index.Output> {
   return !!connection.simulate
     ? index.simulate(connection, section, input)
@@ -49,7 +49,7 @@ export async function index(
       );
 }
 export namespace index {
-  export type Input = Resolved<IPage.IRequest>;
+  export type Body = Primitive<IPage.IRequest>;
   export type Output = Primitive<IPage<IBbsArticle.ISummary>>;
 
   export const METADATA = {
@@ -75,7 +75,7 @@ export namespace index {
   export const simulate = (
     connection: IConnection,
     section: null | string,
-    input: index.Input,
+    input: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -132,7 +132,7 @@ export namespace query {
     status: 200,
   } as const;
 
-  export const path = (section: null | string, input: query.Query) => {
+  export const path = (section: null | string, input: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(input as any))
       if (undefined === value) continue;
@@ -151,7 +151,7 @@ export namespace query {
   export const simulate = (
     connection: IConnection,
     section: null | string,
-    input: query.Query,
+    input: Query,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -313,7 +313,7 @@ export namespace first {
 export async function store(
   connection: IConnection,
   section: string,
-  input: store.Input,
+  input: store.Body,
 ): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, section, input)
@@ -334,7 +334,7 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -360,7 +360,7 @@ export namespace store {
   export const simulate = (
     connection: IConnection,
     section: string,
-    input: store.Input,
+    input: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -394,7 +394,7 @@ export async function update(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-  input: update.Input,
+  input: update.Body,
 ): Promise<update.Output> {
   return !!connection.simulate
     ? update.simulate(connection, section, id, input)
@@ -415,7 +415,7 @@ export async function update(
       );
 }
 export namespace update {
-  export type Input = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -442,7 +442,7 @@ export namespace update {
     connection: IConnection,
     section: string,
     id: string & Format<"uuid">,
-    input: update.Input,
+    input: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

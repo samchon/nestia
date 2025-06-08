@@ -1,37 +1,28 @@
 import ts from "typescript";
 import { IJsDocTagInfo } from "typia";
 
+import { INestiaConfig } from "../../INestiaConfig";
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkHttpFunctionProgrammer } from "./SdkHttpFunctionProgrammer";
 import { SdkHttpNamespaceProgrammer } from "./SdkHttpNamespaceProgrammer";
+import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 
 export namespace SdkHttpRouteProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.Statement[] => {
-      const props = {
-        headers: route.parameters
-          .filter((p) => p.category === "headers")
-          .find((p) => p.field === null),
-        query: route.parameters
-          .filter((p) => p.category === "query")
-          .find((p) => p.field === null),
-        input: route.parameters.find((p) => p.category === "body"),
-      };
-      return [
-        FilePrinter.description(
-          SdkHttpFunctionProgrammer.write(project)(importer)(route, props),
-          describe(route),
-        ),
-        SdkHttpNamespaceProgrammer.write(project)(importer)(route, props),
-      ];
-    };
+    (route: ITypedHttpRoute): ts.Statement[] => [
+      FilePrinter.description(
+        SdkHttpFunctionProgrammer.write(project)(importer)(route),
+        describe(project.config, route),
+      ),
+      SdkHttpNamespaceProgrammer.write(project)(importer)(route),
+    ];
 
-  const describe = (route: ITypedHttpRoute): string => {
+  const describe = (config: INestiaConfig, route: ITypedHttpRoute): string => {
     // MAIN DESCRIPTION
     const descriptionComments: string[] = route.description
       ? route.description.split("\n")
@@ -39,9 +30,7 @@ export namespace SdkHttpRouteProgrammer {
     const tagComments: string[] = [];
 
     // PARAMETERS
-    for (const p of route.parameters) {
-      if (p.category === "headers") continue;
-
+    for (const p of SdkHttpParameterProgrammer.getSignificant(route, true)) {
       const description: string | undefined =
         p.description ??
         p.jsDocTags.find((tag) => tag.name === "description")?.text?.[0].text ??
@@ -52,8 +41,9 @@ export namespace SdkHttpRouteProgrammer {
           .substring(p.name.length);
       if (!description?.length) continue;
 
+      const name: string = config.keyword === true ? `props.${p.name}` : p.name;
       tagComments.push(
-        `@param ${p.name} ${description
+        `@param ${name} ${description
           .split("\n")
           .map((str) => str.trim())
           .map((str, i) => {

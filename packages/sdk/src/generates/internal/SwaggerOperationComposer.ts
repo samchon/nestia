@@ -4,7 +4,6 @@ import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 import { INestiaConfig } from "../../INestiaConfig";
 import { SecurityAnalyzer } from "../../analyses/SecurityAnalyzer";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
-import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
 import { SwaggerOperationParameterComposer } from "./SwaggerOperationParameterComposer";
 import { SwaggerOperationResponseComposer } from "./SwaggerOperationResponseComposer";
@@ -16,10 +15,6 @@ export namespace SwaggerOperationComposer {
     schema: (metadata: Metadata) => OpenApi.IJsonSchema | undefined;
     route: ITypedHttpRoute;
   }): OpenApi.IOperation => {
-    // FIND REQUEST BODY
-    const body: ITypedHttpRouteParameter.IBody | undefined =
-      props.route.parameters.find((param) => param.category === "body");
-
     // COMPOSE TAGS
     const tags: Set<string> = new Set([
       ...props.route.controller.tags,
@@ -88,7 +83,12 @@ export namespace SwaggerOperationComposer {
           method: props.route.method as "GET",
           path: props.route.path,
         }),
-      parameters: props.route.parameters
+      parameters: [
+        ...props.route.pathParameters,
+        ...props.route.queryParameters,
+        ...(props.route.queryObject ? [props.route.queryObject] : []),
+        ...(props.route.headerObject ? [props.route.headerObject] : []),
+      ]
         .map((p) =>
           SwaggerOperationParameterComposer.compose({
             config: props.config,
@@ -99,11 +99,11 @@ export namespace SwaggerOperationComposer {
           }),
         )
         .flat(),
-      requestBody: body
+      requestBody: props.route.body
         ? SwaggerOperationParameterComposer.body({
-            schema: props.schema(body.metadata)!,
+            schema: props.schema(props.route.body.metadata)!,
             jsDocTags: props.route.jsDocTags,
-            parameter: body,
+            parameter: props.route.body,
           })
         : undefined,
       responses: SwaggerOperationResponseComposer.compose({

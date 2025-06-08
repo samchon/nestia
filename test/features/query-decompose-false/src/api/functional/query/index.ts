@@ -41,7 +41,7 @@ export namespace typed {
     status: 200,
   } as const;
 
-  export const path = (query: typed.Query) => {
+  export const path = (query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;
@@ -85,7 +85,7 @@ export namespace nest {
     status: 200,
   } as const;
 
-  export const path = (query: nest.Query) => {
+  export const path = (query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;
@@ -131,7 +131,7 @@ export namespace individual {
   export const path = (id: string) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries({
-      id,
+      id: id,
     } as any))
       if (undefined === value) continue;
       else if (Array.isArray(value))
@@ -175,11 +175,11 @@ export namespace composite {
     status: 200,
   } as const;
 
-  export const path = (atomic: string, query: composite.Query) => {
+  export const path = (atomic: string, query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries({
       ...query,
-      atomic,
+      atomic: atomic,
     } as any))
       if (undefined === value) continue;
       else if (Array.isArray(value))

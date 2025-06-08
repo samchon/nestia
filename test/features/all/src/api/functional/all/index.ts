@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive } from "typia";
 
 import type { IBbsArticle } from "../../structures/IBbsArticle";
 
@@ -26,7 +26,7 @@ import type { IBbsArticle } from "../../structures/IBbsArticle";
  */
 export async function store(
   connection: IConnection,
-  input: store.Input,
+  input: store.Body,
 ): Promise<store.Output> {
   return PlainFetcher.fetch(
     {
@@ -45,7 +45,7 @@ export async function store(
   );
 }
 export namespace store {
-  export type Input = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {

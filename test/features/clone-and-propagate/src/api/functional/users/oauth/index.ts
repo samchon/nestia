@@ -56,7 +56,7 @@ export namespace getOauthProfile {
     status: 200,
   } as const;
 
-  export const path = (user_id: string, query: getOauthProfile.Query) => {
+  export const path = (user_id: string, query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;
@@ -75,7 +75,7 @@ export namespace getOauthProfile {
   export const simulate = (
     connection: IConnection,
     user_id: string,
-    query: getOauthProfile.Query,
+    query: Query,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

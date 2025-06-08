@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive } from "typia";
 import type { Format } from "typia/lib/tags/Format";
 
 import type { IBbsArticle } from "../../../structures/IBbsArticle";
@@ -25,7 +25,7 @@ import type { IBbsArticle } from "../../../structures/IBbsArticle";
  */
 export async function create(
   connection: IConnection,
-  input: create.Input,
+  input: create.Body,
 ): Promise<create.Output> {
   return PlainFetcher.fetch(
     {
@@ -44,7 +44,7 @@ export async function create(
   );
 }
 export namespace create {
-  export type Input = Resolved<IBbsArticle.ICreate>;
+  export type Body = Primitive<IBbsArticle.ICreate>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -72,7 +72,7 @@ export namespace create {
 export async function update(
   connection: IConnection,
   id: string & Format<"uuid">,
-  input: update.Input,
+  input: update.Body,
 ): Promise<update.Output> {
   return PlainFetcher.fetch(
     {
@@ -91,7 +91,7 @@ export async function update(
   );
 }
 export namespace update {
-  export type Input = Resolved<Partial<IBbsArticle.ICreate>>;
+  export type Body = Primitive<Partial<IBbsArticle.ICreate>>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {

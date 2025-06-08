@@ -2,22 +2,24 @@ import ts from "typescript";
 import { IJsDocTagInfo } from "typia";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
+import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
 import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
-import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkImportWizard } from "./SdkImportWizard";
 import { SdkWebSocketNamespaceProgrammer } from "./SdkWebSocketNamespaceProgrammer";
+import { SdkWebSocketParameterProgrammer } from "./SdkWebSocketParameterProgrammer";
 
 export namespace SdkWebSocketRouteProgrammer {
   export const write =
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedWebSocketRoute): ts.Statement[] => [
       FilePrinter.description(
-        writeFunction(importer)(route),
+        writeFunction(project)(importer)(route),
         writeDescription(route),
       ),
-      SdkWebSocketNamespaceProgrammer.write(importer)(route),
+      SdkWebSocketNamespaceProgrammer.write(project)(importer)(route),
     ];
 
   const writeDescription = (route: ITypedWebSocketRoute): string => {
@@ -30,7 +32,7 @@ export namespace SdkWebSocketRouteProgrammer {
     const tags: IJsDocTagInfo[] = route.jsDocTags.filter(
       (tag) =>
         tag.name !== "param" ||
-        route.parameters
+        [...route.pathParameters, ...(route.query ? [route.query] : [])]
           .filter((p) => p.category === "param" || p.category === "query")
           .some((p) => p.name === tag.text?.[0]?.text),
     );
@@ -54,9 +56,10 @@ export namespace SdkWebSocketRouteProgrammer {
   };
 
   const writeFunction =
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedWebSocketRoute): ts.FunctionDeclaration =>
-      ts.factory.createFunctionDeclaration(
+    (route: ITypedWebSocketRoute): ts.FunctionDeclaration => {
+      return ts.factory.createFunctionDeclaration(
         [
           ts.factory.createModifier(ts.SyntaxKind.ExportKeyword),
           ts.factory.createModifier(ts.SyntaxKind.AsyncKeyword),
@@ -72,125 +75,136 @@ export namespace SdkWebSocketRouteProgrammer {
               [ts.factory.createTypeReferenceNode(`${route.name}.Header`)],
             ),
           ),
-          ...route.parameters
-            .filter((p) => p.category === "param" || p.category === "query")
-            .map((p) =>
-              IdentifierFactory.parameter(
-                p.name,
-                p.category === "param"
-                  ? SdkAliasCollection.name(p)
-                  : ts.factory.createTypeReferenceNode(`${route.name}.Query`),
-              ),
-            ),
-          IdentifierFactory.parameter(
-            "provider",
-            ts.factory.createTypeReferenceNode(`${route.name}.Provider`),
-          ),
+          ...SdkWebSocketParameterProgrammer.getParameterDeclarations({
+            project,
+            route,
+            provider: true,
+            prefix: true,
+          }),
         ],
         ts.factory.createTypeReferenceNode("Promise", [
           ts.factory.createTypeReferenceNode(`${route.name}.Output`),
         ]),
-        ts.factory.createBlock(writeFunctionBody(importer)(route), true),
+        ts.factory.createBlock(
+          writeFunctionBody(project)(importer)(route),
+          true,
+        ),
       );
+    };
 
   const writeFunctionBody =
+    (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedWebSocketRoute): ts.Statement[] => [
-      local("connector")(
-        ts.factory.createTypeReferenceNode(
-          importer.external({
-            type: false,
-            library: "tgrid",
-            instance: "WebSocketConnector",
-          }),
-          [
-            ts.factory.createTypeReferenceNode(`${route.name}.Header`),
-            ts.factory.createTypeReferenceNode(`${route.name}.Provider`),
-            ts.factory.createTypeReferenceNode(`${route.name}.Listener`),
-          ],
-        ),
-      )(
-        ts.factory.createNewExpression(
-          ts.factory.createIdentifier(
+    (route: ITypedWebSocketRoute): ts.Statement[] => {
+      const access = (key: string) =>
+        project.config.keyword === true
+          ? ts.factory.createPropertyAccessExpression(
+              ts.factory.createIdentifier("props"),
+              key,
+            )
+          : ts.factory.createIdentifier(key);
+      return [
+        local("connector")(
+          ts.factory.createTypeReferenceNode(
             importer.external({
               type: false,
               library: "tgrid",
               instance: "WebSocketConnector",
             }),
+            [
+              ts.factory.createTypeReferenceNode(`${route.name}.Header`),
+              ts.factory.createTypeReferenceNode(`${route.name}.Provider`),
+              ts.factory.createTypeReferenceNode(`${route.name}.Listener`),
+            ],
           ),
-          undefined,
-          [
-            ts.factory.createAsExpression(
-              ts.factory.createBinaryExpression(
-                ts.factory.createPropertyAccessExpression(
-                  ts.factory.createIdentifier("connection"),
-                  "headers",
-                ),
-                ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
-                ts.factory.createObjectLiteralExpression([], false),
-              ),
-              ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
-            ),
-            ts.factory.createIdentifier("provider"),
-          ],
-        ),
-      ),
-      ts.factory.createExpressionStatement(
-        ts.factory.createAwaitExpression(
-          ts.factory.createCallExpression(
-            ts.factory.createPropertyAccessExpression(
-              ts.factory.createIdentifier("connector"),
-              "connect",
+        )(
+          ts.factory.createNewExpression(
+            ts.factory.createIdentifier(
+              importer.external({
+                type: false,
+                library: "tgrid",
+                instance: "WebSocketConnector",
+              }),
             ),
             undefined,
             [
-              joinPath(
-                ts.factory.createCallExpression(
+              ts.factory.createAsExpression(
+                ts.factory.createBinaryExpression(
                   ts.factory.createPropertyAccessExpression(
-                    ts.factory.createIdentifier(route.name),
-                    "path",
+                    ts.factory.createIdentifier("connection"),
+                    "headers",
                   ),
-                  [],
-                  route.parameters
-                    .filter(
-                      (p) => p.category === "param" || p.category === "query",
-                    )
-                    .map((x) => ts.factory.createIdentifier(x.name)),
+                  ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
+                  ts.factory.createObjectLiteralExpression([], false),
                 ),
+                ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
               ),
+              access("provider"),
             ],
           ),
         ),
-      ),
-      local("driver")(
-        ts.factory.createTypeReferenceNode(
-          importer.external({
-            type: true,
-            library: "tgrid",
-            instance: "Driver",
-          }),
-          [ts.factory.createTypeReferenceNode(`${route.name}.Listener`)],
-        ),
-      )(
-        ts.factory.createCallExpression(
-          ts.factory.createPropertyAccessExpression(
-            ts.factory.createIdentifier("connector"),
-            "getDriver",
+        ts.factory.createExpressionStatement(
+          ts.factory.createAwaitExpression(
+            ts.factory.createCallExpression(
+              ts.factory.createPropertyAccessExpression(
+                ts.factory.createIdentifier("connector"),
+                "connect",
+              ),
+              undefined,
+              [
+                joinPath(
+                  ts.factory.createCallExpression(
+                    ts.factory.createPropertyAccessExpression(
+                      ts.factory.createIdentifier(route.name),
+                      "path",
+                    ),
+                    [],
+                    project.config.keyword === true &&
+                      SdkWebSocketParameterProgrammer.isPathEmpty(route) ===
+                        false
+                      ? [ts.factory.createIdentifier("props")]
+                      : SdkWebSocketParameterProgrammer.getEntries({
+                          project,
+                          route,
+                          provider: false,
+                          prefix: true,
+                        }).map((p) => ts.factory.createIdentifier(p.key)),
+                  ),
+                ),
+              ],
+            ),
           ),
-          undefined,
-          undefined,
         ),
-      ),
-      ts.factory.createReturnStatement(
-        ts.factory.createObjectLiteralExpression(
-          [
-            ts.factory.createShorthandPropertyAssignment("connector"),
-            ts.factory.createShorthandPropertyAssignment("driver"),
-          ],
-          true,
+        local("driver")(
+          ts.factory.createTypeReferenceNode(
+            importer.external({
+              type: true,
+              library: "tgrid",
+              instance: "Driver",
+            }),
+            [ts.factory.createTypeReferenceNode(`${route.name}.Listener`)],
+          ),
+        )(
+          ts.factory.createCallExpression(
+            ts.factory.createPropertyAccessExpression(
+              ts.factory.createIdentifier("connector"),
+              "getDriver",
+            ),
+            undefined,
+            undefined,
+          ),
         ),
-      ),
-    ];
+        ts.factory.createReturnStatement(
+          ts.factory.createObjectLiteralExpression(
+            [
+              ts.factory.createShorthandPropertyAssignment("connector"),
+              ts.factory.createShorthandPropertyAssignment("driver"),
+            ],
+            true,
+          ),
+        ),
+      ];
+    };
 }
 
 const local =

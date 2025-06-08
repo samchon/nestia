@@ -43,7 +43,7 @@ export namespace typed {
     status: 200,
   } as const;
 
-  export const path = (query: typed.Query) => {
+  export const path = (query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;
@@ -87,7 +87,7 @@ export namespace nest {
     status: 200,
   } as const;
 
-  export const path = (query: nest.Query) => {
+  export const path = (query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;
@@ -133,7 +133,7 @@ export namespace individual {
   export const path = (id: string) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries({
-      id,
+      id: id,
     } as any))
       if (undefined === value) continue;
       else if (Array.isArray(value))
@@ -177,11 +177,11 @@ export namespace composite {
     status: 200,
   } as const;
 
-  export const path = (atomic: string, query: composite.Query) => {
+  export const path = (atomic: string, query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries({
       ...query,
-      atomic,
+      atomic: atomic,
     } as any))
       if (undefined === value) continue;
       else if (Array.isArray(value))
@@ -201,7 +201,7 @@ export namespace composite {
  */
 export async function body(
   connection: IConnection,
-  query: body.Input,
+  query: body.Body,
 ): Promise<body.Output> {
   return PlainFetcher.fetch(
     {
@@ -220,7 +220,7 @@ export async function body(
   );
 }
 export namespace body {
-  export type Input = Resolved<IQuery>;
+  export type Body = Resolved<IQuery>;
   export type Output = Resolved<IQuery>;
 
   export const METADATA = {
@@ -248,7 +248,7 @@ export namespace body {
  */
 export async function big(
   connection: IConnection,
-  input: big.Input,
+  input: big.Body,
 ): Promise<big.Output> {
   return PlainFetcher.fetch(
     {
@@ -267,7 +267,7 @@ export async function big(
   );
 }
 export namespace big {
-  export type Input = Resolved<IBigQuery>;
+  export type Body = Resolved<IBigQuery>;
   export type Output = Resolved<IBigQuery>;
 
   export const METADATA = {

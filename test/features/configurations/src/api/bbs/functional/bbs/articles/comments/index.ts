@@ -47,7 +47,7 @@ export namespace index {
   export const path = (
     section: string,
     articleId: string & Format<"uuid">,
-    query: index.Query,
+    query: Query,
   ) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
@@ -110,7 +110,7 @@ export async function store(
   connection: IConnection,
   section: string,
   articleId: string & Format<"uuid">,
-  input: store.Input,
+  input: store.Body,
 ): Promise<store.Output> {
   return PlainFetcher.fetch(
     {
@@ -129,7 +129,7 @@ export async function store(
   );
 }
 export namespace store {
-  export type Input = Resolved<IBbsComment.IStore>;
+  export type Body = Primitive<IBbsComment.IStore>;
   export type Output = Primitive<IBbsComment>;
 
   export const METADATA = {
@@ -160,7 +160,7 @@ export async function update(
   section: string,
   articleId: string & Format<"uuid">,
   id: string & Format<"uuid">,
-  input: update.Input,
+  input: update.Body,
 ): Promise<update.Output> {
   return PlainFetcher.fetch(
     {
@@ -179,7 +179,7 @@ export async function update(
   );
 }
 export namespace update {
-  export type Input = Resolved<IBbsComment.IStore>;
+  export type Body = Primitive<IBbsComment.IStore>;
   export type Output = Primitive<IBbsComment>;
 
   export const METADATA = {

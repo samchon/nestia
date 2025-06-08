@@ -198,7 +198,7 @@ export namespace at {
  */
 export async function store(
   connection: IConnection,
-  body: store.Input,
+  body: store.Body,
 ): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, body)
@@ -219,7 +219,7 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input =
+  export type Body =
     | IDirectory.o1
     | ISharedDirectory
     | IImageFile.o1
@@ -272,10 +272,7 @@ export namespace store {
       | IZipFile.o1
       | IShortcut.o1
     >(g);
-  export const simulate = (
-    connection: IConnection,
-    body: store.Input,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

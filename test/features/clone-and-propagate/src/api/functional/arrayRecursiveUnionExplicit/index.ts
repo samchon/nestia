@@ -154,7 +154,7 @@ export namespace at {
  */
 export async function store(
   connection: IConnection,
-  body: store.Input,
+  body: store.Body,
 ): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, body)
@@ -175,12 +175,7 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input =
-    | IDirectory
-    | IImageFile
-    | ITextFile
-    | IZipFile
-    | IShortcut;
+  export type Body = IDirectory | IImageFile | ITextFile | IZipFile | IShortcut;
   export type Output = IPropagation<
     {
       201: IDirectory | IImageFile | ITextFile | IZipFile | IShortcut;
@@ -207,10 +202,7 @@ export namespace store {
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IDirectory | IImageFile | ITextFile | IZipFile | IShortcut> =>
     typia.random<IDirectory | IImageFile | ITextFile | IZipFile | IShortcut>(g);
-  export const simulate = (
-    connection: IConnection,
-    body: store.Input,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

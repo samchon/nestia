@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive } from "typia";
 
 import type { IGoogleDriveFile } from "../../../../../structures/IGoogleDriveFile";
 import type { IGoogleDriveImageSingleUpload } from "../../../../../structures/IGoogleDriveImageSingleUpload";
@@ -29,7 +29,7 @@ import type { IGoogleTokenActivate } from "../../../../../structures/IGoogleToke
 export async function single(
   connection: IConnection,
   accountCode: string,
-  input: single.Input,
+  input: single.Body,
 ): Promise<single.Output> {
   return PlainFetcher.fetch(
     {
@@ -48,7 +48,7 @@ export async function single(
   );
 }
 export namespace single {
-  export type Input = Resolved<IGoogleDriveImageSingleUpload>;
+  export type Body = Primitive<IGoogleDriveImageSingleUpload>;
   export type Output = Primitive<IGoogleDriveFile>;
 
   export const METADATA = {
@@ -77,7 +77,7 @@ export namespace single {
 export async function activate(
   connection: IConnection,
   accountCode: string,
-  input: activate.Input,
+  input: activate.Body,
 ): Promise<void> {
   return PlainFetcher.fetch(
     {
@@ -96,7 +96,7 @@ export async function activate(
   );
 }
 export namespace activate {
-  export type Input = Resolved<IGoogleTokenActivate<"google-auth", never>>;
+  export type Body = Primitive<IGoogleTokenActivate<"google-auth", never>>;
 
   export const METADATA = {
     method: "POST",

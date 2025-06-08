@@ -10,6 +10,7 @@ import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { CloneGenerator } from "./CloneGenerator";
 import { SdkDistributionComposer } from "./internal/SdkDistributionComposer";
 import { SdkFileProgrammer } from "./internal/SdkFileProgrammer";
+import { SdkHttpParameterProgrammer } from "./internal/SdkHttpParameterProgrammer";
 
 export namespace SdkGenerator {
   export const generate = async (app: ITypedApplication): Promise<void> => {
@@ -78,7 +79,7 @@ export namespace SdkGenerator {
     errors: IReflectOperationError[];
     route: ITypedHttpRoute;
   }): void => {
-    for (const p of props.route.parameters) {
+    for (const p of SdkHttpParameterProgrammer.getAll(props.route)) {
       if (isImplicitType(p.type))
         props.errors.push({
           file: props.route.controller.file,

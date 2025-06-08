@@ -28,7 +28,7 @@ export * as password from "./password";
  */
 export async function join(
   connection: IConnection,
-  input: join.Input,
+  input: join.Body,
 ): Promise<join.Output> {
   const output: IPropagation<
     {
@@ -59,7 +59,7 @@ export async function join(
   return output;
 }
 export namespace join {
-  export type Input = ISeller.IJoin;
+  export type Body = ISeller.IJoin;
   export type Output = IPropagation<
     {
       201: ISeller.IAuthorized;
@@ -85,10 +85,7 @@ export namespace join {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<ISeller.IAuthorized> => typia.random<ISeller.IAuthorized>(g);
-  export const simulate = (
-    connection: IConnection,
-    input: join.Input,
-  ): Output => {
+  export const simulate = (connection: IConnection, input: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -134,7 +131,7 @@ export namespace join {
  */
 export async function login(
   connection: IConnection,
-  input: login.Input,
+  input: login.Body,
 ): Promise<login.Output> {
   const output: IPropagation<
     {
@@ -165,7 +162,7 @@ export async function login(
   return output;
 }
 export namespace login {
-  export type Input = ISeller.ILogin;
+  export type Body = ISeller.ILogin;
   export type Output = IPropagation<
     {
       201: ISeller.IAuthorized;
@@ -191,10 +188,7 @@ export namespace login {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<ISeller.IAuthorized> => typia.random<ISeller.IAuthorized>(g);
-  export const simulate = (
-    connection: IConnection,
-    input: login.Input,
-  ): Output => {
+  export const simulate = (connection: IConnection, input: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

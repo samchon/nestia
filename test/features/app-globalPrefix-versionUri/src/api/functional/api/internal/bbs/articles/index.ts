@@ -42,7 +42,7 @@ export namespace index {
     status: 200,
   } as const;
 
-  export const path = (section: string, query: index.Query) => {
+  export const path = (section: string, query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;
@@ -70,7 +70,7 @@ export namespace index {
 export async function store(
   connection: IConnection,
   section: string,
-  input: store.Input,
+  input: store.Body,
 ): Promise<store.Output> {
   return PlainFetcher.fetch(
     {
@@ -89,7 +89,7 @@ export async function store(
   );
 }
 export namespace store {
-  export type Input = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {

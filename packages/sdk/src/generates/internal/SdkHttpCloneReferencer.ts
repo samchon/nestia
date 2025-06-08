@@ -4,6 +4,7 @@ import { IReflectType } from "../../structures/IReflectType";
 import { ITypedApplication } from "../../structures/ITypedApplication";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { StringUtil } from "../../utils/StringUtil";
+import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 
 export namespace SdkHttpCloneReferencer {
   export const replace = (app: ITypedApplication): void => {
@@ -21,7 +22,10 @@ export namespace SdkHttpCloneReferencer {
     route: ITypedHttpRoute;
   }): void => {
     const unique: Set<string> = new Set();
-    for (const p of props.route.parameters)
+    for (const p of SdkHttpParameterProgrammer.getSignificant(
+      props.route,
+      true,
+    ))
       visitType({
         unique,
         metadata: p.metadata,

@@ -1,0 +1,17 @@
+import typia from "typia";
+
+import api from "../../../../api";
+import type { IUser } from "../../../../api/structures/IUser";
+
+export const test_api_users_user_getUserProfile = async (
+  connection: api.IConnection,
+) => {
+  const output: IUser = await api.functional.users.user.getUserProfile(
+    connection,
+    {
+      user_id: typia.random<string>(),
+      query: typia.random<IUser.ISearch>(),
+    },
+  );
+  typia.assert(output);
+};

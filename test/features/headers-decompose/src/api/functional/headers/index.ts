@@ -78,7 +78,7 @@ export namespace emplace {
 export async function store(
   connection: IConnection<store.Headers>,
   section: string,
-  input: store.Input,
+  input: store.Body,
 ): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, section, input)
@@ -100,7 +100,7 @@ export async function store(
 }
 export namespace store {
   export type Headers = Resolved<IHeaders>;
-  export type Input = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -126,7 +126,7 @@ export namespace store {
   export const simulate = (
     connection: IConnection<store.Headers>,
     section: string,
-    input: store.Input,
+    input: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -153,7 +153,7 @@ export async function update(
   connection: IConnection,
   section: string,
   id: string & Format<"uuid">,
-  input: update.Input,
+  input: update.Body,
 ): Promise<void> {
   return !!connection.simulate
     ? update.simulate(connection, section, id, input)
@@ -174,7 +174,7 @@ export async function update(
       );
 }
 export namespace update {
-  export type Input = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
 
   export const METADATA = {
     method: "PUT",
@@ -198,7 +198,7 @@ export namespace update {
     connection: IConnection,
     section: string,
     id: string & Format<"uuid">,
-    input: update.Input,
+    input: Body,
   ): void => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,

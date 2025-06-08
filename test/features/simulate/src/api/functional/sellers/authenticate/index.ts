@@ -28,7 +28,7 @@ export * as password from "./password";
  */
 export async function join(
   connection: IConnection,
-  input: join.Input,
+  input: join.Body,
 ): Promise<join.Output> {
   const output: Primitive<ISeller.IAuthorized> = !!connection.simulate
     ? join.simulate(connection, input)
@@ -52,7 +52,7 @@ export async function join(
   return output;
 }
 export namespace join {
-  export type Input = Resolved<ISeller.IJoin>;
+  export type Body = Primitive<ISeller.IJoin>;
   export type Output = Primitive<ISeller.IAuthorized>;
 
   export const METADATA = {
@@ -74,10 +74,7 @@ export namespace join {
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Primitive<ISeller.IAuthorized>> =>
     typia.random<Primitive<ISeller.IAuthorized>>(g);
-  export const simulate = (
-    connection: IConnection,
-    input: join.Input,
-  ): Output => {
+  export const simulate = (connection: IConnection, input: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -106,7 +103,7 @@ export namespace join {
  */
 export async function login(
   connection: IConnection,
-  input: login.Input,
+  input: login.Body,
 ): Promise<login.Output> {
   const output: Primitive<ISeller.IAuthorized> = !!connection.simulate
     ? login.simulate(connection, input)
@@ -130,7 +127,7 @@ export async function login(
   return output;
 }
 export namespace login {
-  export type Input = Resolved<ISeller.ILogin>;
+  export type Body = Primitive<ISeller.ILogin>;
   export type Output = Primitive<ISeller.IAuthorized>;
 
   export const METADATA = {
@@ -152,10 +149,7 @@ export namespace login {
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Primitive<ISeller.IAuthorized>> =>
     typia.random<Primitive<ISeller.IAuthorized>>(g);
-  export const simulate = (
-    connection: IConnection,
-    input: login.Input,
-  ): Output => {
+  export const simulate = (connection: IConnection, input: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

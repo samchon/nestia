@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive } from "typia";
 import type { TypeGuardError } from "typia/lib/TypeGuardError";
 
 import type { IBbsArticle } from "../../structures/IBbsArticle";
@@ -27,7 +27,7 @@ import type { IUnprocessibleEntity } from "../../structures/IUnprocessibleEntity
 export async function typed(
   connection: IConnection,
   section: string,
-  input: typed.Input,
+  input: typed.Body,
 ): Promise<typed.Output> {
   return PlainFetcher.fetch(
     {
@@ -46,7 +46,7 @@ export async function typed(
   );
 }
 export namespace typed {
-  export type Input = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -115,7 +115,7 @@ export namespace union {
 export async function tags(
   connection: IConnection,
   section: string,
-  input: tags.Input,
+  input: tags.Body,
 ): Promise<tags.Output> {
   return PlainFetcher.fetch(
     {
@@ -134,7 +134,7 @@ export async function tags(
   );
 }
 export namespace tags {
-  export type Input = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
@@ -167,7 +167,7 @@ export namespace tags {
 export async function composite(
   connection: IConnection,
   section: string,
-  input: composite.Input,
+  input: composite.Body,
 ): Promise<composite.Output> {
   return PlainFetcher.fetch(
     {
@@ -186,7 +186,7 @@ export async function composite(
   );
 }
 export namespace composite {
-  export type Input = Resolved<IBbsArticle.IStore>;
+  export type Body = Primitive<IBbsArticle.IStore>;
   export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {

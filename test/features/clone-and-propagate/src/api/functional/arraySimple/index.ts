@@ -150,7 +150,7 @@ export namespace at {
  */
 export async function store(
   connection: IConnection,
-  body: store.Input,
+  body: store.Body,
 ): Promise<store.Output> {
   return !!connection.simulate
     ? store.simulate(connection, body)
@@ -171,7 +171,7 @@ export async function store(
       );
 }
 export namespace store {
-  export type Input = IPerson;
+  export type Body = IPerson;
   export type Output = IPropagation<
     {
       201: IPerson;
@@ -197,10 +197,7 @@ export namespace store {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<IPerson> => typia.random<IPerson>(g);
-  export const simulate = (
-    connection: IConnection,
-    body: store.Input,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

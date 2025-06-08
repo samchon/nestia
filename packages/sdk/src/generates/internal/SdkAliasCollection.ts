@@ -1,14 +1,15 @@
 import ts from "typescript";
-import typia from "typia";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 import { INestiaProject } from "../../structures/INestiaProject";
-import { IReflectHttpOperationParameter } from "../../structures/IReflectHttpOperationParameter";
 import { IReflectType } from "../../structures/IReflectType";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
+import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
+import { FilePrinter } from "./FilePrinter";
 import { ImportDictionary } from "./ImportDictionary";
+import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkAliasCollection {
@@ -25,6 +26,77 @@ export namespace SdkAliasCollection {
     (importer: ImportDictionary) =>
     (metadata: Metadata) =>
       SdkTypeProgrammer.write(project)(importer)(metadata);
+
+  export const httpProps =
+    (project: INestiaProject) =>
+    (importer: ImportDictionary) =>
+    (route: ITypedHttpRoute): ts.TypeNode =>
+      ts.factory.createTypeLiteralNode(
+        SdkHttpParameterProgrammer.getEntries({
+          project,
+          importer,
+          route,
+          body: true,
+          prefix: false,
+        })
+          .map((e) => {
+            const signature: ts.PropertySignature =
+              ts.factory.createPropertySignature(
+                undefined,
+                e.key,
+                e.required
+                  ? undefined
+                  : ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+                e.type,
+              );
+            const description: string | null =
+              e.parameter.description ??
+              route.jsDocTags
+                ?.find(
+                  (tag) =>
+                    tag.name === "param" &&
+                    tag.text?.[0]?.kind === "parameterName" &&
+                    tag.text?.[0]?.text === e.key,
+                )
+                ?.text?.find((t) => t.kind === "text")?.text ??
+              null;
+            return description?.length
+              ? [
+                  ts.factory.createIdentifier("\n") as any,
+                  FilePrinter.description(signature, description),
+                ]
+              : [signature];
+          })
+          .flat(),
+      );
+
+  export const websocketProps = (route: ITypedWebSocketRoute): ts.TypeNode =>
+    ts.factory.createTypeLiteralNode([
+      ...route.pathParameters.map((p) =>
+        ts.factory.createPropertySignature(
+          undefined,
+          p.name,
+          undefined,
+          SdkAliasCollection.name(p),
+        ),
+      ),
+      ...(route.query
+        ? [
+            ts.factory.createPropertySignature(
+              undefined,
+              "query",
+              undefined,
+              ts.factory.createTypeReferenceNode("Query"),
+            ),
+          ]
+        : []),
+      ts.factory.createPropertySignature(
+        undefined,
+        "provider",
+        undefined,
+        ts.factory.createTypeReferenceNode("Provider"),
+      ),
+    ]);
 
   export const headers =
     (project: INestiaProject) =>
@@ -62,7 +134,7 @@ export namespace SdkAliasCollection {
       );
     };
 
-  export const input =
+  export const body =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (param: ITypedHttpRouteParameter.IBody): ts.TypeNode => {
@@ -81,9 +153,7 @@ export namespace SdkAliasCollection {
           type: true,
           library: "typia",
           instance:
-            typia.is<IReflectHttpOperationParameter.IBody>(param) &&
-            (param.contentType === "application/json" ||
-              param.encrypted === true)
+            param.contentType === "application/json" || param.encrypted === true
               ? "Primitive"
               : "Resolved",
         }),
@@ -91,7 +161,7 @@ export namespace SdkAliasCollection {
       );
     };
 
-  export const output =
+  export const response =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.TypeNode => {
@@ -160,7 +230,7 @@ export namespace SdkAliasCollection {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.TypeNode =>
-      output({
+      response({
         ...project,
         config: {
           ...project.config,

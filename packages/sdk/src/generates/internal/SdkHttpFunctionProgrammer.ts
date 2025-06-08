@@ -4,25 +4,18 @@ import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
-import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";
 import { StringUtil } from "../../utils/StringUtil";
 import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
+import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
 
 export namespace SdkHttpFunctionProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (
-      route: ITypedHttpRoute,
-      props: {
-        headers: ITypedHttpRouteParameter.IHeaders | undefined;
-        query: ITypedHttpRouteParameter.IQuery | undefined;
-        input: ITypedHttpRouteParameter.IBody | undefined;
-      },
-    ): ts.FunctionDeclaration =>
-      ts.factory.createFunctionDeclaration(
+    (route: ITypedHttpRoute): ts.FunctionDeclaration => {
+      return ts.factory.createFunctionDeclaration(
         [
           ts.factory.createModifier(ts.SyntaxKind.ExportKeyword),
           ts.factory.createModifier(ts.SyntaxKind.AsyncKeyword),
@@ -35,31 +28,18 @@ export namespace SdkHttpFunctionProgrammer {
             "connection",
             ts.factory.createTypeReferenceNode(
               SdkImportWizard.IConnection(importer),
-              props.headers
+              route.headerObject !== null
                 ? [ts.factory.createTypeReferenceNode(`${route.name}.Headers`)]
                 : undefined,
             ),
           ),
-          ...route.parameters
-            .filter((p) => p.category !== "headers")
-            .map((p) =>
-              ts.factory.createParameterDeclaration(
-                [],
-                undefined,
-                p.name,
-                p.metadata.optional === true
-                  ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
-                  : undefined,
-                project.config.primitive !== false &&
-                  (p === props.query || p === props.input)
-                  ? ts.factory.createTypeReferenceNode(
-                      `${route.name}.${p === props.query ? "Query" : "Input"}`,
-                    )
-                  : project.config.clone === true
-                    ? SdkAliasCollection.from(project)(importer)(p.metadata)
-                    : SdkAliasCollection.name(p),
-              ),
-            ),
+          ...SdkHttpParameterProgrammer.getParameterDeclarations({
+            project,
+            importer,
+            route,
+            body: true,
+            prefix: true,
+          }),
         ],
         ts.factory.createTypeReferenceNode("Promise", [
           project.config.propagate === true ||
@@ -67,29 +47,24 @@ export namespace SdkHttpFunctionProgrammer {
             ? ts.factory.createTypeReferenceNode(`${route.name}.Output`)
             : ts.factory.createTypeReferenceNode("void"),
         ]),
-        ts.factory.createBlock(
-          write_body(project)(importer)(route, props),
-          true,
-        ),
+        ts.factory.createBlock(writeBody(project)(importer)(route), true),
       );
+    };
 
-  const write_body =
+  const writeBody =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (
-      route: ITypedHttpRoute,
-      props: {
-        headers: ITypedHttpRouteParameter.IHeaders | undefined;
-        query: ITypedHttpRouteParameter.IQuery | undefined;
-        input: ITypedHttpRouteParameter.IBody | undefined;
-      },
-    ): ts.Statement[] => {
-      const caller = () =>
+    (route: ITypedHttpRoute): ts.Statement[] => {
+      const access = (name: string): ts.Expression =>
+        project.config.keyword === true
+          ? IdentifierFactory.access(ts.factory.createIdentifier("props"), name)
+          : ts.factory.createIdentifier(name);
+      const fetch = () =>
         ts.factory.createCallExpression(
           IdentifierFactory.access(
             ts.factory.createIdentifier(
               SdkImportWizard.Fetcher(
-                !!props.input?.encrypted || route.success.encrypted,
+                !!route.body?.encrypted || route.success.encrypted,
               )(importer),
             ),
             project.config.propagate ? "propagate" : "fetch",
@@ -101,7 +76,7 @@ export namespace SdkHttpFunctionProgrammer {
               : [TypeFactory.keyword("any"), TypeFactory.keyword("any")]
             : undefined,
           [
-            props.input && props.input.contentType !== "multipart/form-data"
+            route.body && route.body.contentType !== "multipart/form-data"
               ? ts.factory.createObjectLiteralExpression(
                   [
                     ts.factory.createSpreadAssignment(
@@ -120,7 +95,7 @@ export namespace SdkHttpFunctionProgrammer {
                           ts.factory.createPropertyAssignment(
                             ts.factory.createStringLiteral("Content-Type"),
                             ts.factory.createStringLiteral(
-                              props.input?.contentType ?? "application/json",
+                              route.body?.contentType ?? "application/json",
                             ),
                           ),
                         ],
@@ -157,23 +132,21 @@ export namespace SdkHttpFunctionProgrammer {
                       "path",
                     ),
                     undefined,
-                    route.parameters
-                      .filter(
-                        (p) => p.category === "param" || p.category === "query",
-                      )
-                      .map((p) => ts.factory.createIdentifier(p.name)),
+                    SdkHttpParameterProgrammer.getArguments({
+                      project,
+                      route,
+                      body: false,
+                    }),
                   ),
                 ),
               ],
               true,
             ),
-            ...(props.input
-              ? [ts.factory.createIdentifier(props.input.name)]
-              : []),
+            ...(route.body ? [access(route.body.name)] : []),
             ...(project.config.json &&
-            props.input !== undefined &&
-            (props.input.contentType === "application/json" ||
-              props.input.encrypted === true)
+            route.body !== null &&
+            (route.body.contentType === "application/json" ||
+              route.body.encrypted === true)
               ? [ts.factory.createIdentifier(`${route.name}.stringify`)]
               : []),
           ],
@@ -188,47 +161,47 @@ export namespace SdkHttpFunctionProgrammer {
                 [],
                 [
                   ts.factory.createIdentifier("connection"),
-                  ...route.parameters
-                    .filter((p) => p.category !== "headers")
-                    .map((p) => ts.factory.createIdentifier(p.name)),
+                  ...SdkHttpParameterProgrammer.getArguments({
+                    project,
+                    route,
+                    body: true,
+                  }),
                 ],
               ),
               undefined,
-              awaiter ? ts.factory.createAwaitExpression(caller()) : caller(),
+              awaiter ? ts.factory.createAwaitExpression(fetch()) : fetch(),
             )
           : awaiter
-            ? ts.factory.createAwaitExpression(caller())
-            : caller();
+            ? ts.factory.createAwaitExpression(fetch())
+            : fetch();
       return [
         ...(project.config.assert
-          ? route.parameters
-              .filter((p) => p.category !== "headers")
-              .map((p) =>
-                ts.factory.createExpressionStatement(
-                  ts.factory.createCallExpression(
-                    IdentifierFactory.access(
-                      ts.factory.createIdentifier(
-                        SdkImportWizard.typia(importer),
-                      ),
-                      "assert",
+          ? SdkHttpParameterProgrammer.getSignificant(route, true).map((p) =>
+              ts.factory.createExpressionStatement(
+                ts.factory.createCallExpression(
+                  IdentifierFactory.access(
+                    ts.factory.createIdentifier(
+                      SdkImportWizard.typia(importer),
                     ),
-                    [
-                      ts.factory.createTypeQueryNode(
-                        ts.factory.createIdentifier(p.name),
-                      ),
-                    ],
-                    [ts.factory.createIdentifier(p.name)],
+                    "assert",
                   ),
+                  [
+                    ts.factory.createTypeQueryNode(
+                      ts.factory.createIdentifier(p.name),
+                    ),
+                  ],
+                  [ts.factory.createIdentifier(p.name)],
                 ),
-              )
+              ),
+            )
           : []),
         ...(route.success.setHeaders.length === 0
           ? [ts.factory.createReturnStatement(output(false))]
-          : write_set_headers(project)(importer)(route)(output(true))),
+          : writeSetHeaders(project)(importer)(route)(output(true))),
       ];
     };
 
-  const write_set_headers =
+  const writeSetHeaders =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute) =>
@@ -237,7 +210,9 @@ export namespace SdkHttpFunctionProgrammer {
         x[0] === "[" ? `${x}${y}` : `${x}.${y}`;
       const output: string = StringUtil.escapeDuplicate([
         "connection",
-        ...route.parameters.map((p) => p.name),
+        ...SdkHttpParameterProgrammer.getSignificant(route, true).map(
+          (p) => p.name,
+        ),
       ])("output");
       const headers: string = accessor("connection")("headers");
       const data: string = project.config.propagate
@@ -277,7 +252,7 @@ export namespace SdkHttpFunctionProgrammer {
               ts.factory.createVariableDeclaration(
                 output,
                 undefined,
-                SdkAliasCollection.output(project)(importer)(route),
+                SdkAliasCollection.response(project)(importer)(route),
                 condition,
               ),
             ],

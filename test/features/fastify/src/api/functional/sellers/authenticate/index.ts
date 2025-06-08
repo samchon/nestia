@@ -7,7 +7,7 @@
 import type { IConnection } from "@nestia/fetcher";
 import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Primitive, Resolved } from "typia";
+import type { Primitive } from "typia";
 
 import type { ISeller } from "../../../structures/ISeller";
 
@@ -26,7 +26,7 @@ export * as password from "./password";
  */
 export async function join(
   connection: IConnection,
-  input: join.Input,
+  input: join.Body,
 ): Promise<join.Output> {
   const output: Primitive<ISeller.IAuthorized> = await EncryptedFetcher.fetch(
     {
@@ -48,7 +48,7 @@ export async function join(
   return output;
 }
 export namespace join {
-  export type Input = Resolved<ISeller.IJoin>;
+  export type Body = Primitive<ISeller.IJoin>;
   export type Output = Primitive<ISeller.IAuthorized>;
 
   export const METADATA = {
@@ -81,7 +81,7 @@ export namespace join {
  */
 export async function login(
   connection: IConnection,
-  input: login.Input,
+  input: login.Body,
 ): Promise<login.Output> {
   const output: Primitive<ISeller.IAuthorized> = await EncryptedFetcher.fetch(
     {
@@ -103,7 +103,7 @@ export async function login(
   return output;
 }
 export namespace login {
-  export type Input = Resolved<ISeller.ILogin>;
+  export type Body = Primitive<ISeller.ILogin>;
   export type Output = Primitive<ISeller.IAuthorized>;
 
   export const METADATA = {
