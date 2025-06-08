@@ -48,6 +48,17 @@ const execute = (
             ...config,
             package: project,
           });
+    const invalidPaths: string[] = Object.keys(files).filter(
+      (key) =>
+        key.startsWith("/") || key.startsWith("./") || key.includes("//"),
+    );
+    if (invalidPaths.length > 0) {
+      for (const key of Object.keys(files)) console.log(key);
+      throw new Error(
+        `Invalid file paths: ${invalidPaths.join(", ")}\n` +
+          `Please check the generated files.`,
+      );
+    }
 
     await NestiaMigrateFileArchiver.archive({
       mkdir: fs.promises.mkdir,
@@ -116,4 +127,7 @@ const main = async () => {
   await fs.promises.mkdir(OUTPUT);
   await iterate(INPUT);
 };
-main();
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
