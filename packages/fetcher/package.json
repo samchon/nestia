@@ -1,6 +1,6 @@
 {
   "name": "@nestia/fetcher",
-  "version": "7.0.0-dev.20250606",
+  "version": "7.0.0-dev.20250607",
   "description": "Fetcher library of Nestia SDK",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
