@@ -27,7 +27,7 @@ export async function connect(
     connect.Listener
   > = new WebSocketConnector(connection.headers ?? ({} as any), props.provider);
   await connector.connect(
-    `${connection.host.endsWith("/") ? connection.host.substring(0, connection.host.length - 1) : connection.host}${connect.path(props)}`,
+    `${connection.host.endsWith("/") ? connection.host.substring(0, connection.host.length - 1) : connection.host}${connect.path()}`,
   );
   const driver: Driver<connect.Listener> = connector.getDriver();
   return {

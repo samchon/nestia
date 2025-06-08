@@ -59,10 +59,7 @@ export namespace string {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Resolved<string>> => typia.random<Resolved<string>>(g);
-  export const simulate = (
-    connection: IConnection,
-    body: string.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -130,10 +127,7 @@ export namespace template {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Resolved<string>> => typia.random<Resolved<string>>(g);
-  export const simulate = (
-    connection: IConnection,
-    body: template.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,
@@ -198,10 +192,7 @@ export namespace constant {
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
   ): Resolved<Resolved<string>> => typia.random<Resolved<string>>(g);
-  export const simulate = (
-    connection: IConnection,
-    body: constant.Body,
-  ): Output => {
+  export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
       host: connection.host,

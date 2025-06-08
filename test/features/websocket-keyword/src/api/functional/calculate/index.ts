@@ -76,9 +76,9 @@ export async function composite(
 }
 export namespace composite {
   export type Props = {
-    query: Query;
     id: string & Format<"uri">;
     nickname: string;
+    query: Query;
     provider: Provider;
   };
   export type Output = {
@@ -90,18 +90,14 @@ export namespace composite {
   export type Listener = ICompositeCalculator;
   export type Query = ICalcReferrer;
 
-  export const path = (p: {
-    id: string & Format<"uri">;
-    nickname: string;
-    query: composite.Query;
-  }) => {
+  export const path = (props: Omit<Props, "provider">) => {
     const variables: URLSearchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(p.query as any))
+    for (const [key, value] of Object.entries(props.query as any))
       if (undefined === value) continue;
       else if (Array.isArray(value))
         value.forEach((elem: any) => variables.append(key, String(elem)));
       else variables.set(key, String(value));
-    const location: string = `/calculate/composite/${encodeURIComponent(p.id?.toString() ?? "null")}/${encodeURIComponent(p.nickname?.toString() ?? "null")}`;
+    const location: string = `/calculate/composite/${encodeURIComponent(props.id?.toString() ?? "null")}/${encodeURIComponent(props.nickname?.toString() ?? "null")}`;
     return 0 === variables.size
       ? location
       : `${location}?${variables.toString()}`;

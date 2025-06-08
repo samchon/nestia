@@ -49,7 +49,7 @@ export namespace connect {
   export type Listener = ICalculator;
   export type Query = IQuery;
 
-  export const path = (id: string & Format<"uuid">, query: connect.Query) => {
+  export const path = (id: string & Format<"uuid">, query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;

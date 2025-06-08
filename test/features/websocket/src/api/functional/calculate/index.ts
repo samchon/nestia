@@ -58,9 +58,9 @@ export namespace health {
  */
 export async function composite(
   connection: IConnection<composite.Header>,
-  query: composite.Query,
   id: string & Format<"uri">,
   nickname: string,
+  query: composite.Query,
   provider: composite.Provider,
 ): Promise<composite.Output> {
   const connector: WebSocketConnector<
@@ -90,7 +90,7 @@ export namespace composite {
   export const path = (
     id: string & Format<"uri">,
     nickname: string,
-    query: composite.Query,
+    query: Query,
   ) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))

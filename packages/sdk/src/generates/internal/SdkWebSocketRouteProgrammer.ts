@@ -159,7 +159,9 @@ export namespace SdkWebSocketRouteProgrammer {
                       "path",
                     ),
                     [],
-                    project.config.keyword === true
+                    project.config.keyword === true &&
+                      SdkWebSocketParameterProgrammer.isPathEmpty(route) ===
+                        false
                       ? [ts.factory.createIdentifier("props")]
                       : SdkWebSocketParameterProgrammer.getEntries({
                           project,

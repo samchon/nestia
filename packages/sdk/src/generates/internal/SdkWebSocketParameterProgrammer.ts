@@ -81,4 +81,7 @@ export namespace SdkWebSocketParameterProgrammer {
       ),
     );
   };
+
+  export const isPathEmpty = (route: ITypedWebSocketRoute): boolean =>
+    route.pathParameters.length === 0 && route.query === null;
 }

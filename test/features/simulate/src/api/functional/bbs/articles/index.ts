@@ -75,7 +75,7 @@ export namespace index {
   export const simulate = (
     connection: IConnection,
     section: null | string,
-    input: index.Body,
+    input: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -151,7 +151,7 @@ export namespace query {
   export const simulate = (
     connection: IConnection,
     section: null | string,
-    input: query.Query,
+    input: Query,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -360,7 +360,7 @@ export namespace store {
   export const simulate = (
     connection: IConnection,
     section: string,
-    input: store.Body,
+    input: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -442,7 +442,7 @@ export namespace update {
     connection: IConnection,
     section: string,
     id: string & Format<"uuid">,
-    input: update.Body,
+    input: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
