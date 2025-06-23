@@ -9,7 +9,7 @@ async function main(): Promise<void> {
       const elapsed: number =
         new Date(exec.completed_at).getTime() -
         new Date(exec.started_at).getTime();
-      console.log(` - ${exec.name}: ${elapsed.toLocaleString()} ms`);
+      console.log(` - ${exec.context.executed}/${exec.context.total} ${exec.name}: ${elapsed.toLocaleString()} ms`);
     },
     simultaneous: 1,
   });
