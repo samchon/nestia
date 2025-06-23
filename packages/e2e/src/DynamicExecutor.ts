@@ -164,6 +164,44 @@ export namespace DynamicExecutor {
      * Completion time.
      */
     completed_at: string;
+
+    /**
+     * Context of the test execution.
+     */
+    context: IContext;
+  }
+
+  /**
+   * The context of a test execution.
+   * @author sunrabbit123 - https://github.com/sunrabbit123
+   */
+  export interface IContext {
+    /**
+     * Total number of test functions.
+     */
+    total: number;
+
+    /**
+     * Number of test functions executed.
+     *
+     * Contains both success and failure.
+     */
+    executed: number;
+
+    /**
+     * Number of test functions failed.
+     */
+    failed: number;
+
+    /**
+     * Number of test functions succeeded.
+     */
+    succeeded: number;
+
+    /**
+     * Start time of the test program.
+     */
+    started_at: string;
   }
 
   /**
@@ -205,11 +243,15 @@ export namespace DynamicExecutor {
         executions: [],
       };
 
+      const isExecuteTarget = (functionName: string, functionValue: unknown): boolean => {
+        return functionName.startsWith(props.prefix) || typeof functionValue === "function" || (typeof props.filter === "function" && props.filter(functionName) === true)
+      }
       const executor = execute(props)(report)(assert);
       const processes: Array<() => Promise<void>> = await iterate({
         extension: props.extension ?? "js",
         location: props.location,
         executor,
+        isExecuteTarget,
       });
       await Promise.all(
         new Array(props.simultaneous ?? 1).fill(0).map(async () => {
@@ -226,8 +268,16 @@ export namespace DynamicExecutor {
   const iterate = async <Arguments extends any[]>(props: {
     location: string;
     extension: string;
-    executor: (path: string, modulo: Module<Arguments>) => Promise<void>;
+    executor: (path: string, modulo: Module<Arguments>, context: IContext) => Promise<void>;
+    isExecuteTarget: (functionName: string, functionValue: unknown) => boolean;
   }): Promise<Array<() => Promise<void>>> => {
+    const context: IContext = {
+      total: 0,
+      executed: 0,
+      failed: 0,
+      succeeded: 0,
+      started_at: new Date().toISOString(),
+    };
     const container: Array<() => Promise<void>> = [];
     const visitor = async (path: string): Promise<void> => {
       const directory: string[] = await fs.promises.readdir(path);
@@ -241,7 +291,11 @@ export namespace DynamicExecutor {
         } else if (file.substr(-3) !== `.${props.extension}`) continue;
 
         const modulo: Module<Arguments> = await import(location);
-        container.push(() => props.executor(location, modulo));
+        Object.entries(modulo).forEach(([key, closure]) => {
+          if (!props.isExecuteTarget(key, closure)) return;
+          context.total++;
+          container.push(() => props.executor(location, modulo, context));
+        });
       }
     };
     await visitor(props.location);
@@ -252,15 +306,8 @@ export namespace DynamicExecutor {
     <Arguments extends any[]>(props: IProps<Arguments>) =>
     (report: IReport) =>
     (assert: boolean) =>
-    async (location: string, modulo: Module<Arguments>): Promise<void> => {
+    async (location: string, modulo: Module<Arguments>, context: IContext): Promise<void> => {
       for (const [key, closure] of Object.entries(modulo)) {
-        if (
-          key.substring(0, props.prefix.length) !== props.prefix ||
-          typeof closure !== "function" ||
-          (props.filter && props.filter(key) === false)
-        )
-          continue;
-
         const func = () => {
           if (props.wrapper !== undefined)
             return props.wrapper(key, closure, props.parameters(key));
@@ -274,22 +321,28 @@ export namespace DynamicExecutor {
           error: null,
           started_at: new Date().toISOString(),
           completed_at: new Date().toISOString(),
+          context,
         };
         report.executions.push(result);
 
         try {
           result.value = await func();
           result.completed_at = new Date().toISOString();
+          context.succeeded++;
         } catch (exp) {
           result.error = exp as Error;
+          context.failed++;
           if (assert === true) throw exp;
         } finally {
+          context.executed++;
           result.completed_at = new Date().toISOString();
+
+          // copy for immutable
+          result.context = { ...context };
           if (props.onComplete) props.onComplete(result);
         }
       }
     };
-
   interface Module<Arguments extends any[]> {
     [key: string]: Closure<Arguments>;
   }
