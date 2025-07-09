@@ -118,12 +118,58 @@ export namespace TestValidator {
   export const equals =
     (title: string, exception: (key: string) => boolean = () => false) =>
     <T>(x: T) =>
-    (y: T) => {
+    (y: T | null | undefined) => {
       const diff: string[] = json_equal_to(exception)(x)(y);
       if (diff.length)
         throw new Error(
           [
             `Bug on ${title}: found different values - [${diff.join(", ")}]:`,
+            "\n",
+            JSON.stringify({ x, y }, null, 2),
+          ].join("\n"),
+        );
+    };
+
+  /**
+   * Validates deep inequality between two values using JSON comparison.
+   *
+   * Performs recursive comparison of objects and arrays to ensure they are NOT
+   * equal. Supports an optional exception filter to ignore specific keys during
+   * comparison. Useful for validating that data has changed, objects are
+   * different, or mutations have occurred.
+   *
+   * @example
+   *   ```typescript
+   *   // Basic inequality
+   *   TestValidator.notEquals("user should be different after update")(originalUser)(updatedUser);
+   *
+   *   // Ignore timestamps in comparison
+   *   TestValidator.notEquals("user data should differ", (key) => key === "updatedAt")(
+   *     originalUser
+   *   )(modifiedUser);
+   *
+   *   // Validate state changes
+   *   const validateStateChange = TestValidator.notEquals("state should have changed");
+   *   validateStateChange(initialState)(currentState);
+   *   ```;
+   *
+   * @param title - Descriptive title used in error messages when values are
+   *   equal
+   * @param exception - Optional filter function to exclude specific keys from
+   *   comparison
+   * @returns A currying function chain: first accepts expected value, then
+   *   actual value
+   * @throws Error when values are equal (indicating validation failure)
+   */
+  export const notEquals =
+    (title: string, exception: (key: string) => boolean = () => false) =>
+    <T>(x: T) =>
+    (y: T | null | undefined) => {
+      const diff: string[] = json_equal_to(exception)(x)(y);
+      if (diff.length === 0)
+        throw new Error(
+          [
+            `Bug on ${title}: values should be different but are equal:`,
             "\n",
             JSON.stringify({ x, y }, null, 2),
           ].join("\n"),

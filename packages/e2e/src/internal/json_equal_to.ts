@@ -1,7 +1,7 @@
 export const json_equal_to =
   (exception: (key: string) => boolean) =>
   <T>(x: T) =>
-  (y: T): string[] => {
+  (y: T | null | undefined): string[] => {
     const container: string[] = [];
     const iterate =
       (accessor: string) =>
