@@ -93,6 +93,21 @@ export namespace TestValidator {
    * exception filter to ignore specific keys during comparison. Useful for
    * validating API responses, data transformations, and object state changes.
    *
+   * **Type Safety Notes:**
+   *
+   * - The generic type T is inferred from the `actual` parameter (first in the
+   *   currying chain)
+   * - The `expected` parameter must be assignable to `T | null | undefined`
+   * - For objects, `expected` must have the same or subset of properties as
+   *   `actual`
+   * - For union types like `string | null`, ensure proper type compatibility:
+   *
+   *   ```typescript
+   *   const x: string | null;
+   *   TestValidator.equals("works")(x)(null);        // ✅ Works: null is assignable to string | null
+   *   TestValidator.equals("error")(null)(x);        // ❌ Error: x might be string, but expected is null
+   * ```
+   *
    * @example
    *   ```typescript
    *   // Basic equality
@@ -106,6 +121,10 @@ export namespace TestValidator {
    *   // Validate API response structure
    *   const validateResponse = TestValidator.equals("API response structure");
    *   validateResponse({ id: 1, name: "John" })({ id: 1, name: "John" });
+   *
+   *   // Type-safe nullable comparisons
+   *   const nullableData: { name: string } | null = getData();
+   *   TestValidator.equals("nullable check")(nullableData)(null); // ✅ Safe
    *   ```;
    *
    * @param title - Descriptive title used in error messages when values differ
@@ -117,15 +136,15 @@ export namespace TestValidator {
    */
   export const equals =
     (title: string, exception: (key: string) => boolean = () => false) =>
-    <T>(x: T) =>
-    (y: T | null | undefined) => {
-      const diff: string[] = json_equal_to(exception)(x)(y);
+    <T>(actual: T) =>
+    (expected: T | null | undefined) => {
+      const diff: string[] = json_equal_to(exception)(actual)(expected);
       if (diff.length)
         throw new Error(
           [
             `Bug on ${title}: found different values - [${diff.join(", ")}]:`,
             "\n",
-            JSON.stringify({ x, y }, null, 2),
+            JSON.stringify({ actual, expected }, null, 2),
           ].join("\n"),
         );
     };
@@ -137,6 +156,21 @@ export namespace TestValidator {
    * equal. Supports an optional exception filter to ignore specific keys during
    * comparison. Useful for validating that data has changed, objects are
    * different, or mutations have occurred.
+   *
+   * **Type Safety Notes:**
+   *
+   * - The generic type T is inferred from the `actual` parameter (first in the
+   *   currying chain)
+   * - The `expected` parameter must be assignable to `T | null | undefined`
+   * - For objects, `expected` must have the same or subset of properties as
+   *   `actual`
+   * - For union types like `string | null`, ensure proper type compatibility:
+   *
+   *   ```typescript
+   *   const x: string | null;
+   *   TestValidator.notEquals("works")(x)(null);     // ✅ Works: null is assignable to string | null
+   *   TestValidator.notEquals("error")(null)(x);     // ❌ Error: x might be string, but expected is null
+   * ```
    *
    * @example
    *   ```typescript
@@ -151,6 +185,10 @@ export namespace TestValidator {
    *   // Validate state changes
    *   const validateStateChange = TestValidator.notEquals("state should have changed");
    *   validateStateChange(initialState)(currentState);
+   *
+   *   // Type-safe nullable comparisons
+   *   const mutableData: { count: number } | null = getMutableData();
+   *   TestValidator.notEquals("should have changed")(mutableData)(null); // ✅ Safe
    *   ```;
    *
    * @param title - Descriptive title used in error messages when values are
@@ -163,15 +201,15 @@ export namespace TestValidator {
    */
   export const notEquals =
     (title: string, exception: (key: string) => boolean = () => false) =>
-    <T>(x: T) =>
-    (y: T | null | undefined) => {
-      const diff: string[] = json_equal_to(exception)(x)(y);
+    <T>(actual: T) =>
+    (expected: T | null | undefined) => {
+      const diff: string[] = json_equal_to(exception)(actual)(expected);
       if (diff.length === 0)
         throw new Error(
           [
             `Bug on ${title}: values should be different but are equal:`,
             "\n",
-            JSON.stringify({ x, y }, null, 2),
+            JSON.stringify({ actual, expected }, null, 2),
           ].join("\n"),
         );
     };
