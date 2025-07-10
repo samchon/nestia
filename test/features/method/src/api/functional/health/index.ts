@@ -37,8 +37,7 @@ export namespace get {
 
   export const path = () => "/health";
   export const random = (): Resolved<void> => typia.random<void>();
-  export const simulate = (connection: IConnection): void => {
-    connection;
+  export const simulate = (_connection: IConnection): void => {
     return random();
   };
 }

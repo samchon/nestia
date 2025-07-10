@@ -34,8 +34,7 @@ export namespace head {
 
   export const path = () => "/method/head";
   export const random = (): Resolved<void> => typia.random<void>();
-  export const simulate = (connection: IConnection): void => {
-    connection;
+  export const simulate = (_connection: IConnection): void => {
     return random();
   };
 }

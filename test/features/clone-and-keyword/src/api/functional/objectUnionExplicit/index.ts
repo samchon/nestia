@@ -76,8 +76,7 @@ export namespace get {
         | DiscriminatorcircleICircle
       )[]
     >();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return random();
   };
 }

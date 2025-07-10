@@ -42,8 +42,7 @@ export namespace index {
 
   export const path = () => "/template";
   export const random = (): Resolved<Template[]> => typia.random<Template[]>();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return random();
   };
 }
