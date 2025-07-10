@@ -39,7 +39,7 @@
     "@nestia/fetcher": "workspace:^",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
-    "@samchon/openapi": "^4.3.3",
+    "@samchon/openapi": "^4.5.0",
     "detect-ts-node": "^1.0.5",
     "get-function-location": "^2.0.0",
     "glob": "^7.2.0",
@@ -48,15 +48,17 @@
     "reflect-metadata": ">=0.1.12",
     "rxjs": ">=6.0.3",
     "tgrid": "^1.1.0",
-    "typia": "^9.3.1",
+    "typia": "^9.5.0",
     "ws": "^7.5.3"
   },
   "peerDependencies": {
     "@nestia/fetcher": ">=7.0.0-dev.20250608",
     "@nestjs/common": ">=7.0.1",
     "@nestjs/core": ">=7.0.1",
+    "@samchon/openapi": ">=4.5.0 <5.0.0",
     "reflect-metadata": ">=0.1.12",
-    "rxjs": ">=6.0.3"
+    "rxjs": ">=6.0.3",
+    "typia": ">=9.5.0 <10.0.0"
   },
   "devDependencies": {
     "@nestjs/common": "^11.0.13",
