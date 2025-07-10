@@ -57,8 +57,7 @@ export namespace index {
     typia.random<
       (IDirectory | IImageFile | ITextFile | IZipFile | IShortcut)[]
     >();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return random();
   };
 }

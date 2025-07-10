@@ -43,8 +43,7 @@ export namespace index {
   export const path = () => "/arrayRecursive";
   export const random = (): Resolved<ICategory[]> =>
     typia.random<ICategory[]>();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return random();
   };
 }

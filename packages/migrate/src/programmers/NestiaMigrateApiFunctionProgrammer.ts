@@ -40,9 +40,10 @@ export namespace NestiaMigrateApiFunctionProgrammer {
 
   export const writeParameterDeclarations = (
     ctx: IContext,
+    connectionName?: string,
   ): ts.ParameterDeclaration[] => {
     const connection: ts.ParameterDeclaration = IdentifierFactory.parameter(
-      "connection",
+      connectionName ?? "connection",
       ts.factory.createTypeReferenceNode(
         ctx.importer.external({
           type: "instance",

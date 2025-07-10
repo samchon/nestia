@@ -51,8 +51,7 @@ export namespace get {
   export const path = () => "/performance";
   export const random = (): Resolved<Primitive<IPerformance>> =>
     typia.random<Primitive<IPerformance>>();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return random();
   };
 }

@@ -64,7 +64,14 @@ export namespace NestiaMigrateApiSimulationProgrammer {
       ts.factory.createArrowFunction(
         undefined,
         undefined,
-        NestiaMigrateApiFunctionProgrammer.writeParameterDeclarations(ctx),
+        NestiaMigrateApiFunctionProgrammer.writeParameterDeclarations(
+          ctx,
+          ctx.route.parameters.length === 0 &&
+            ctx.route.query === null &&
+            ctx.route.body === null
+            ? "_connection"
+            : undefined,
+        ),
         ts.factory.createTypeReferenceNode(
           ctx.route.success ? "Response" : "void",
         ),
@@ -119,12 +126,7 @@ export namespace NestiaMigrateApiSimulationProgrammer {
           ]
         : []),
     ];
-    if (parameters.length === 0)
-      return [
-        ts.factory.createExpressionStatement(
-          ts.factory.createIdentifier("connection"),
-        ),
-      ];
+    if (parameters.length === 0) return [];
 
     const validator = StatementFactory.constant({
       name: "assert",

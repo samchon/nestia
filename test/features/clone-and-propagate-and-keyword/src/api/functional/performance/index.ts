@@ -47,8 +47,7 @@ export namespace cpu {
   export const path = () => "/performance/cpu";
   export const random = (): Resolved<process.global.NodeJS.CpuUsage> =>
     typia.random<process.global.NodeJS.CpuUsage>();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return {
       success: true,
       status: 200,
@@ -96,8 +95,7 @@ export namespace memory {
   export const path = () => "/performance/memory";
   export const random = (): Resolved<process.global.NodeJS.MemoryUsage> =>
     typia.random<process.global.NodeJS.MemoryUsage>();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return {
       success: true,
       status: 200,
@@ -147,8 +145,7 @@ export namespace resource {
   export const path = () => "/performance/resource";
   export const random = (): Resolved<process.global.NodeJS.ResourceUsage> =>
     typia.random<process.global.NodeJS.ResourceUsage>();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return {
       success: true,
       status: 200,

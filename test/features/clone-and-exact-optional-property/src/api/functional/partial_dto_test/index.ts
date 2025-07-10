@@ -51,8 +51,7 @@ export namespace original {
 
   export const path = () => "/partial-dto-test/original";
   export const random = (): Resolved<IOriginal> => typia.random<IOriginal>();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return {
       success: true,
       status: 200,

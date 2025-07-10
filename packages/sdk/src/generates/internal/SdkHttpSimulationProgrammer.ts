@@ -61,7 +61,10 @@ export namespace SdkHttpSimulationProgrammer {
           undefined,
           [
             IdentifierFactory.parameter(
-              "connection",
+              SdkHttpParameterProgrammer.getSignificant(route, true).length !==
+                0
+                ? "connection"
+                : "_connection",
               ts.factory.createTypeReferenceNode(
                 SdkImportWizard.IConnection(importer),
                 route.headerObject
@@ -128,12 +131,7 @@ export namespace SdkHttpSimulationProgrammer {
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.Statement[] => {
       const parameters = SdkHttpParameterProgrammer.getSignificant(route, true);
-      if (parameters.length === 0)
-        return [
-          ts.factory.createExpressionStatement(
-            ts.factory.createIdentifier("connection"),
-          ),
-        ];
+      if (parameters.length === 0) return [];
 
       const typia = SdkImportWizard.typia(importer);
       const validator = StatementFactory.constant({

@@ -68,8 +68,7 @@ export namespace index {
         [number, [string, boolean, [number, number, [boolean, string]][]][]],
       ][]
     >();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return {
       success: true,
       status: 200,

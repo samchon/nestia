@@ -43,8 +43,7 @@ export namespace index {
 
   export const path = () => "/arraySimple";
   export const random = (): Resolved<IPerson[]> => typia.random<IPerson[]>();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return random();
   };
 }

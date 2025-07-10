@@ -47,8 +47,7 @@ export namespace index {
 
   export const path = () => "/objectSimple";
   export const random = (): Resolved<IBox3D[]> => typia.random<IBox3D[]>();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return {
       success: true,
       status: 200,

@@ -77,8 +77,7 @@ export namespace literals {
         created_at: string & Format<"date-time">;
       }[]
     >();
-  export const simulate = (connection: IConnection): Output => {
-    connection;
+  export const simulate = (_connection: IConnection): Output => {
     return {
       success: true,
       status: 200,
