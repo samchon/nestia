@@ -154,7 +154,10 @@ export namespace SdkHttpFunctionProgrammer {
       const output = (awaiter: boolean) =>
         project.config.simulate
           ? ts.factory.createConditionalExpression(
-              ts.factory.createIdentifier("!!connection.simulate"),
+              ts.factory.createStrictEquality(
+                ts.factory.createTrue(),
+                ts.factory.createIdentifier("connection.simulate"),
+              ),
               undefined,
               ts.factory.createCallExpression(
                 ts.factory.createIdentifier(`${route.name}.simulate`),

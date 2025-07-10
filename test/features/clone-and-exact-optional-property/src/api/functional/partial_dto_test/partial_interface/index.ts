@@ -7,8 +7,8 @@
 import type { IConnection, IPropagation, HttpError } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import typia from "typia";
 import type { Resolved } from "typia";
+import typia from "typia";
 
 import type { IOriginal } from "../../../structures/IOriginal";
 import type { IPartialInterface } from "../../../structures/IPartialInterface";
@@ -22,7 +22,7 @@ export async function partialInterface(
   connection: IConnection,
   body: partialInterface.Body,
 ): Promise<partialInterface.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? partialInterface.simulate(connection, body)
     : PlainFetcher.propagate<any, any>(
         {
@@ -64,9 +64,8 @@ export namespace partialInterface {
   } as const;
 
   export const path = () => "/partial-dto-test/partial-interface";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IPartialInterface> => typia.random<IPartialInterface>(g);
+  export const random = (): Resolved<IPartialInterface> =>
+    typia.random<IPartialInterface>();
   export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -91,11 +90,7 @@ export namespace partialInterface {
       headers: {
         "Content-Type": "application/json",
       },
-      data: random(
-        "object" === typeof connection.simulate && null !== connection.simulate
-          ? connection.simulate
-          : undefined,
-      ),
+      data: random(),
     } as Output;
   };
 }

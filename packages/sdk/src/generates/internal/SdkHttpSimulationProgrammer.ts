@@ -22,22 +22,7 @@ export namespace SdkHttpSimulationProgrammer {
         ts.factory.createArrowFunction(
           undefined,
           undefined,
-          [
-            ts.factory.createParameterDeclaration(
-              undefined,
-              undefined,
-              "g",
-              ts.factory.createToken(ts.SyntaxKind.QuestionToken),
-              ts.factory.createTypeReferenceNode(
-                ts.factory.createIdentifier("Partial"),
-                [
-                  ts.factory.createTypeReferenceNode(
-                    `${SdkImportWizard.typia(importer)}.IRandomGenerator`,
-                  ),
-                ],
-              ),
-            ),
-          ],
+          [],
           project.config.primitive === false
             ? output
             : ts.factory.createTypeReferenceNode(
@@ -51,7 +36,7 @@ export namespace SdkHttpSimulationProgrammer {
               "random",
             ),
             [output],
-            [ts.factory.createIdentifier("g")],
+            undefined,
           ),
         ),
       );
@@ -68,26 +53,7 @@ export namespace SdkHttpSimulationProgrammer {
         ts.factory.createCallExpression(
           ts.factory.createIdentifier("random"),
           undefined,
-          [
-            ts.factory.createConditionalExpression(
-              ts.factory.createLogicalAnd(
-                ts.factory.createStrictEquality(
-                  ts.factory.createStringLiteral("object"),
-                  ts.factory.createTypeOfExpression(
-                    ts.factory.createIdentifier("connection.simulate"),
-                  ),
-                ),
-                ts.factory.createStrictInequality(
-                  ts.factory.createNull(),
-                  ts.factory.createIdentifier("connection.simulate"),
-                ),
-              ),
-              undefined,
-              ts.factory.createIdentifier("connection.simulate"),
-              undefined,
-              ts.factory.createIdentifier("undefined"),
-            ),
-          ],
+          undefined,
         );
       return constant("simulate")(
         ts.factory.createArrowFunction(
@@ -162,7 +128,12 @@ export namespace SdkHttpSimulationProgrammer {
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.Statement[] => {
       const parameters = SdkHttpParameterProgrammer.getSignificant(route, true);
-      if (parameters.length === 0) return [];
+      if (parameters.length === 0)
+        return [
+          ts.factory.createExpressionStatement(
+            ts.factory.createIdentifier("connection"),
+          ),
+        ];
 
       const typia = SdkImportWizard.typia(importer);
       const validator = StatementFactory.constant({

@@ -28,7 +28,7 @@ export async function store(
   connection: IConnection,
   input: store.Body,
 ): Promise<store.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? store.simulate(connection, input)
     : PlainFetcher.fetch(
         {
@@ -65,10 +65,8 @@ export namespace store {
   } as const;
 
   export const path = () => "/body";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IBbsArticle>> =>
-    typia.random<Primitive<IBbsArticle>>(g);
+  export const random = (): Resolved<Primitive<IBbsArticle>> =>
+    typia.random<Primitive<IBbsArticle>>();
   export const simulate = (connection: IConnection, input: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -77,10 +75,6 @@ export namespace store {
       contentType: "application/json",
     });
     assert.body(() => typia.assert(input));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }

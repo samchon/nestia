@@ -19,7 +19,7 @@ export async function string(
   connection: IConnection,
   body: string.Body,
 ): Promise<string.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? string.simulate(connection, body)
     : PlainFetcher.fetch(
         {
@@ -56,9 +56,8 @@ export namespace string {
   } as const;
 
   export const path = () => "/plain/string";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Resolved<string>> => typia.random<Resolved<string>>(g);
+  export const random = (): Resolved<Resolved<string>> =>
+    typia.random<Resolved<string>>();
   export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -67,11 +66,7 @@ export namespace string {
       contentType: "text/plain",
     });
     assert.body(() => typia.assert(body));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }
 
@@ -84,7 +79,7 @@ export async function template(
   connection: IConnection,
   body: template.Body,
 ): Promise<template.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? template.simulate(connection, body)
     : PlainFetcher.fetch(
         {
@@ -124,9 +119,8 @@ export namespace template {
   } as const;
 
   export const path = () => "/plain/template";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Resolved<string>> => typia.random<Resolved<string>>(g);
+  export const random = (): Resolved<Resolved<string>> =>
+    typia.random<Resolved<string>>();
   export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -135,11 +129,7 @@ export namespace template {
       contentType: "text/plain",
     });
     assert.body(() => typia.assert(body));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }
 
@@ -152,7 +142,7 @@ export async function constant(
   connection: IConnection,
   body: constant.Body,
 ): Promise<constant.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? constant.simulate(connection, body)
     : PlainFetcher.fetch(
         {
@@ -189,9 +179,8 @@ export namespace constant {
   } as const;
 
   export const path = () => "/plain/constant";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Resolved<string>> => typia.random<Resolved<string>>(g);
+  export const random = (): Resolved<Resolved<string>> =>
+    typia.random<Resolved<string>>();
   export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -200,10 +189,6 @@ export namespace constant {
       contentType: "text/plain",
     });
     assert.body(() => typia.assert(body));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }

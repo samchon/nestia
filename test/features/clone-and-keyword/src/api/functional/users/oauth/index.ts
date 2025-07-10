@@ -7,8 +7,8 @@
 import type { IConnection } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import typia from "typia";
 import type { Resolved } from "typia";
+import typia from "typia";
 
 import type { IAuthentication } from "../../../structures/IAuthentication";
 
@@ -26,7 +26,7 @@ export async function getOauthProfile(
   connection: IConnection,
   props: getOauthProfile.Props,
 ): Promise<getOauthProfile.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? getOauthProfile.simulate(connection, props)
     : PlainFetcher.fetch(connection, {
         ...getOauthProfile.METADATA,
@@ -65,10 +65,8 @@ export namespace getOauthProfile {
       ? location
       : `${location}?${variables.toString()}`;
   };
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IAuthentication.IProfile> =>
-    typia.random<IAuthentication.IProfile>(g);
+  export const random = (): Resolved<IAuthentication.IProfile> =>
+    typia.random<IAuthentication.IProfile>();
   export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -78,10 +76,6 @@ export namespace getOauthProfile {
     });
     assert.param("user_id")(() => typia.assert(props.user_id));
     assert.query(() => typia.assert(props.query));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }

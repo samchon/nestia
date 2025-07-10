@@ -349,32 +349,26 @@
           },
           "id": {
             "type": "number",
-            "title": "Primary key",
             "description": "Primary key."
           },
           "email": {
             "type": "string",
-            "title": "Email address",
             "description": "Email address."
           },
           "name": {
             "type": "string",
-            "title": "Name of the seller",
             "description": "Name of the seller."
           },
           "mobile": {
             "type": "string",
-            "title": "Mobile number of the seller",
             "description": "Mobile number of the seller."
           },
           "company": {
             "type": "string",
-            "title": "Belonged company name",
             "description": "Belonged company name."
           },
           "created_at": {
             "type": "string",
-            "title": "Joined time",
             "description": "Joined time."
           }
         },

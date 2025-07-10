@@ -31,26 +31,7 @@ export namespace NestiaMigrateApiSimulationProgrammer {
       ts.factory.createArrowFunction(
         undefined,
         undefined,
-        [
-          ts.factory.createParameterDeclaration(
-            undefined,
-            undefined,
-            "g",
-            ts.factory.createToken(ts.SyntaxKind.QuestionToken),
-            ts.factory.createTypeReferenceNode(
-              ts.factory.createIdentifier("Partial"),
-              [
-                ts.factory.createTypeReferenceNode(
-                  `${ctx.importer.external({
-                    type: "default",
-                    library: "typia",
-                    name: "typia",
-                  })}.IRandomGenerator`,
-                ),
-              ],
-            ),
-          ),
-        ],
+        [],
         output,
         undefined,
         ts.factory.createCallExpression(
@@ -65,7 +46,7 @@ export namespace NestiaMigrateApiSimulationProgrammer {
             "random",
           ),
           [output],
-          [ts.factory.createIdentifier("g")],
+          undefined,
         ),
       ),
     );
@@ -76,26 +57,7 @@ export namespace NestiaMigrateApiSimulationProgrammer {
       ts.factory.createCallExpression(
         ts.factory.createIdentifier("random"),
         undefined,
-        [
-          ts.factory.createConditionalExpression(
-            ts.factory.createLogicalAnd(
-              ts.factory.createStrictEquality(
-                ts.factory.createStringLiteral("object"),
-                ts.factory.createTypeOfExpression(
-                  ts.factory.createIdentifier("connection.simulate"),
-                ),
-              ),
-              ts.factory.createStrictInequality(
-                ts.factory.createNull(),
-                ts.factory.createIdentifier("connection.simulate"),
-              ),
-            ),
-            undefined,
-            ts.factory.createIdentifier("connection.simulate"),
-            undefined,
-            ts.factory.createIdentifier("undefined"),
-          ),
-        ],
+        undefined,
       );
     return constant(
       "simulate",
@@ -157,7 +119,12 @@ export namespace NestiaMigrateApiSimulationProgrammer {
           ]
         : []),
     ];
-    if (parameters.length === 0) return [];
+    if (parameters.length === 0)
+      return [
+        ts.factory.createExpressionStatement(
+          ts.factory.createIdentifier("connection"),
+        ),
+      ];
 
     const validator = StatementFactory.constant({
       name: "assert",

@@ -7,8 +7,8 @@
 import type { IConnection } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import typia from "typia";
 import type { Resolved } from "typia";
+import typia from "typia";
 import type { Format } from "typia/lib/tags/Format";
 
 import type { IBbsArticle } from "../../../structures/IBbsArticle";
@@ -30,7 +30,7 @@ export async function index(
   connection: IConnection,
   props: index.Props,
 ): Promise<index.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? index.simulate(connection, props)
     : PlainFetcher.fetch(connection, {
         ...index.METADATA,
@@ -76,10 +76,8 @@ export namespace index {
       ? location
       : `${location}?${variables.toString()}`;
   };
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IPageIBbsArticle.ISummary> =>
-    typia.random<IPageIBbsArticle.ISummary>(g);
+  export const random = (): Resolved<IPageIBbsArticle.ISummary> =>
+    typia.random<IPageIBbsArticle.ISummary>();
   export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -89,11 +87,7 @@ export namespace index {
     });
     assert.param("section")(() => typia.assert(props.section));
     assert.query(() => typia.assert(props.query));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }
 
@@ -112,7 +106,7 @@ export async function store(
   connection: IConnection,
   props: store.Props,
 ): Promise<store.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? store.simulate(connection, props)
     : PlainFetcher.fetch(
         {
@@ -161,9 +155,8 @@ export namespace store {
 
   export const path = (props: Omit<Props, "input">) =>
     `/bbs/articles/${encodeURIComponent(props.section?.toString() ?? "null")}`;
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
+  export const random = (): Resolved<IBbsArticle> =>
+    typia.random<IBbsArticle>();
   export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -173,11 +166,7 @@ export namespace store {
     });
     assert.param("section")(() => typia.assert(props.section));
     assert.body(() => typia.assert(props.input));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }
 
@@ -197,7 +186,7 @@ export async function update(
   connection: IConnection,
   props: update.Props,
 ): Promise<update.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? update.simulate(connection, props)
     : PlainFetcher.fetch(
         {
@@ -251,9 +240,8 @@ export namespace update {
 
   export const path = (props: Omit<Props, "input">) =>
     `/bbs/articles/${encodeURIComponent(props.section?.toString() ?? "null")}/${encodeURIComponent(props.id?.toString() ?? "null")}`;
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
+  export const random = (): Resolved<IBbsArticle> =>
+    typia.random<IBbsArticle>();
   export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -264,10 +252,6 @@ export namespace update {
     assert.param("section")(() => typia.assert(props.section));
     assert.param("id")(() => typia.assert(props.id));
     assert.body(() => typia.assert(props.input));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }

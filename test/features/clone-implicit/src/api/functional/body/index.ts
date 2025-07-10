@@ -7,8 +7,8 @@
 import type { IConnection } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import typia from "typia";
 import type { Resolved } from "typia";
+import typia from "typia";
 import type { Format } from "typia/lib/tags/Format";
 
 /**
@@ -27,7 +27,7 @@ export async function store(
   connection: IConnection,
   input: store.Body,
 ): Promise<store.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? store.simulate(connection, input)
     : PlainFetcher.fetch(
         {
@@ -71,9 +71,7 @@ export namespace store {
   } as const;
 
   export const path = () => "/body";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<{
+  export const random = (): Resolved<{
     id: string;
     title: string;
     body: string;
@@ -82,7 +80,7 @@ export namespace store {
       id: string;
       title: string;
       body: string;
-    }>(g);
+    }>();
   export const simulate = (connection: IConnection, input: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -91,11 +89,7 @@ export namespace store {
       contentType: "application/json",
     });
     assert.body(() => typia.assert(input));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }
 
@@ -109,7 +103,7 @@ export async function update(
   id: string & Format<"uuid">,
   input: update.Body,
 ): Promise<void> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? update.simulate(connection, id, input)
     : PlainFetcher.fetch(
         {
@@ -149,8 +143,7 @@ export namespace update {
 
   export const path = (id: string & Format<"uuid">) =>
     `/body/${encodeURIComponent(id?.toString() ?? "null")}`;
-  export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
-    typia.random<void>(g);
+  export const random = (): Resolved<void> => typia.random<void>();
   export const simulate = (
     connection: IConnection,
     id: string & Format<"uuid">,
@@ -164,10 +157,6 @@ export namespace update {
     });
     assert.param("id")(() => typia.assert(id));
     assert.body(() => typia.assert(input));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }
