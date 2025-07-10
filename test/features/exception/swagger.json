@@ -451,16 +451,20 @@
         "type": "object",
         "properties": {
           "method": {
-            "type": "string"
+            "type": "string",
+            "description": "The name of the typia method that threw this error."
           },
           "path": {
-            "type": "string"
+            "type": "string",
+            "description": "The access path to the property where the assertion error occurred.\n\nUses dot notation to indicate the path for nested object properties.\nMay be `undefined` if the error occurred at the root level."
           },
           "expected": {
-            "type": "string"
+            "type": "string",
+            "description": "String representation of the expected type at the error location.\n\nRepresents TypeScript types as strings, including detailed type information\nfor complex types."
           },
-          "value": {},
-          "fake_expected_typed_value_": {},
+          "value": {
+            "description": "The actual value that failed assertion.\n\nStores the actual value at the error path as-is.\nUseful for debugging by comparing the expected type with the actual value."
+          },
           "name": {
             "type": "string"
           },
@@ -477,7 +481,8 @@
           "value",
           "name",
           "message"
-        ]
+        ],
+        "description": "Custom error class thrown when runtime assertion fails in `typia.assert<T>()` function.\n\nThis error is thrown by the `typia.assert<T>()` function when the input value\ndoesn't match the expected type.\n\nThe error provides detailed information about the first assertion failure encountered,\nincluding the access path where the error occurred, the expected type, and the actual value."
       },
       "INotFound": {
         "type": "object",

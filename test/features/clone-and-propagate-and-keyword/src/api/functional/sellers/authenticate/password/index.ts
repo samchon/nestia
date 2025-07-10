@@ -7,8 +7,8 @@
 import type { IConnection, IPropagation, HttpError } from "@nestia/fetcher";
 import { EncryptedFetcher } from "@nestia/fetcher/lib/EncryptedFetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
-import typia from "typia";
 import type { Resolved } from "typia";
+import typia from "typia";
 
 import type { ISeller } from "../../../../structures/ISeller";
 
@@ -26,7 +26,7 @@ export async function change(
   connection: IConnection,
   props: change.Props,
 ): Promise<change.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? change.simulate(connection, props)
     : EncryptedFetcher.propagate<any, any>(
         {
@@ -74,8 +74,7 @@ export namespace change {
   } as const;
 
   export const path = () => "/sellers/authenticate/password/change";
-  export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
-    typia.random<void>(g);
+  export const random = (): Resolved<void> => typia.random<void>();
   export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -100,11 +99,7 @@ export namespace change {
       headers: {
         "Content-Type": "application/json",
       },
-      data: random(
-        "object" === typeof connection.simulate && null !== connection.simulate
-          ? connection.simulate
-          : undefined,
-      ),
+      data: random(),
     } as Output;
   };
 }

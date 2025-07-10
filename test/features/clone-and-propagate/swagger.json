@@ -3301,34 +3301,28 @@
           "id": {
             "type": "integer",
             "minimum": 0,
-            "title": "Primary key",
             "description": "Primary key."
           },
           "email": {
             "type": "string",
             "format": "email",
-            "title": "Email address",
             "description": "Email address."
           },
           "name": {
             "type": "string",
-            "title": "Name of the seller",
             "description": "Name of the seller."
           },
           "mobile": {
             "type": "string",
-            "title": "Mobile number of the seller",
             "description": "Mobile number of the seller."
           },
           "company": {
             "type": "string",
-            "title": "Belonged company name",
             "description": "Belonged company name."
           },
           "created_at": {
             "type": "string",
             "format": "date-time",
-            "title": "Joined time",
             "description": "Joined time."
           }
         },

@@ -7,8 +7,8 @@
 import type { IConnection, IPropagation, HttpError } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import typia from "typia";
 import type { Resolved } from "typia";
+import typia from "typia";
 import type { Format } from "typia/lib/tags/Format";
 
 import type { IBbsArticle } from "../../../structures/IBbsArticle";
@@ -31,7 +31,7 @@ export async function index(
   section: string,
   query: index.Query,
 ): Promise<index.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? index.simulate(connection, section, query)
     : PlainFetcher.propagate<any>(connection, {
         ...index.METADATA,
@@ -71,10 +71,8 @@ export namespace index {
       ? location
       : `${location}?${variables.toString()}`;
   };
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IPageIBbsArticle.ISummary> =>
-    typia.random<IPageIBbsArticle.ISummary>(g);
+  export const random = (): Resolved<IPageIBbsArticle.ISummary> =>
+    typia.random<IPageIBbsArticle.ISummary>();
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -104,11 +102,7 @@ export namespace index {
       headers: {
         "Content-Type": "application/json",
       },
-      data: random(
-        "object" === typeof connection.simulate && null !== connection.simulate
-          ? connection.simulate
-          : undefined,
-      ),
+      data: random(),
     } as Output;
   };
 }
@@ -129,7 +123,7 @@ export async function store(
   section: string,
   input: store.Body,
 ): Promise<store.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? store.simulate(connection, section, input)
     : PlainFetcher.propagate<any, any>(
         {
@@ -172,9 +166,8 @@ export namespace store {
 
   export const path = (section: string) =>
     `/bbs/articles/${encodeURIComponent(section?.toString() ?? "null")}`;
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
+  export const random = (): Resolved<IBbsArticle> =>
+    typia.random<IBbsArticle>();
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -204,11 +197,7 @@ export namespace store {
       headers: {
         "Content-Type": "application/json",
       },
-      data: random(
-        "object" === typeof connection.simulate && null !== connection.simulate
-          ? connection.simulate
-          : undefined,
-      ),
+      data: random(),
     } as Output;
   };
 }
@@ -231,7 +220,7 @@ export async function update(
   id: string & Format<"uuid">,
   input: update.Body,
 ): Promise<update.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? update.simulate(connection, section, id, input)
     : PlainFetcher.propagate<any, any>(
         {
@@ -274,9 +263,8 @@ export namespace update {
 
   export const path = (section: string, id: string & Format<"uuid">) =>
     `/bbs/articles/${encodeURIComponent(section?.toString() ?? "null")}/${encodeURIComponent(id?.toString() ?? "null")}`;
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IBbsArticle> => typia.random<IBbsArticle>(g);
+  export const random = (): Resolved<IBbsArticle> =>
+    typia.random<IBbsArticle>();
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -308,11 +296,7 @@ export namespace update {
       headers: {
         "Content-Type": "application/json",
       },
-      data: random(
-        "object" === typeof connection.simulate && null !== connection.simulate
-          ? connection.simulate
-          : undefined,
-      ),
+      data: random(),
     } as Output;
   };
 }

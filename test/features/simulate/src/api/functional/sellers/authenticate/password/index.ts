@@ -26,7 +26,7 @@ export async function change(
   connection: IConnection,
   input: change.Body,
 ): Promise<void> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? change.simulate(connection, input)
     : EncryptedFetcher.fetch(
         {
@@ -62,8 +62,7 @@ export namespace change {
   } as const;
 
   export const path = () => "/sellers/authenticate/password/change";
-  export const random = (g?: Partial<typia.IRandomGenerator>): Resolved<void> =>
-    typia.random<void>(g);
+  export const random = (): Resolved<void> => typia.random<void>();
   export const simulate = (connection: IConnection, input: Body): void => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -72,10 +71,6 @@ export namespace change {
       contentType: "application/json",
     });
     assert.body(() => typia.assert(input));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }

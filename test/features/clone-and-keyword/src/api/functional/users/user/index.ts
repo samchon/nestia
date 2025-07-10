@@ -7,8 +7,8 @@
 import type { IConnection } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import typia from "typia";
 import type { Resolved } from "typia";
+import typia from "typia";
 
 import type { IUser } from "../../../structures/IUser";
 import type { PartialPickIUsernameemailoptional_attrnullable_attr } from "../../../structures/PartialPickIUsernameemailoptional_attrnullable_attr";
@@ -30,7 +30,7 @@ export async function getUserProfile(
   connection: IConnection,
   props: getUserProfile.Props,
 ): Promise<getUserProfile.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? getUserProfile.simulate(connection, props)
     : PlainFetcher.fetch(connection, {
         ...getUserProfile.METADATA,
@@ -69,9 +69,7 @@ export namespace getUserProfile {
       ? location
       : `${location}?${variables.toString()}`;
   };
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IUser> => typia.random<IUser>(g);
+  export const random = (): Resolved<IUser> => typia.random<IUser>();
   export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -81,11 +79,7 @@ export namespace getUserProfile {
     });
     assert.param("user_id")(() => typia.assert(props.user_id));
     assert.query(() => typia.assert(props.query));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }
 
@@ -99,7 +93,7 @@ export async function updateUserProfile(
   connection: IConnection,
   props: updateUserProfile.Props,
 ): Promise<updateUserProfile.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? updateUserProfile.simulate(connection, props)
     : PlainFetcher.fetch(
         {
@@ -141,9 +135,7 @@ export namespace updateUserProfile {
 
   export const path = (props: Omit<Props, "body">) =>
     `/users/${encodeURIComponent(props.user_id?.toString() ?? "null")}/user`;
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IUser> => typia.random<IUser>(g);
+  export const random = (): Resolved<IUser> => typia.random<IUser>();
   export const simulate = (connection: IConnection, props: Props): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -153,10 +145,6 @@ export namespace updateUserProfile {
     });
     assert.param("user_id")(() => typia.assert(props.user_id));
     assert.body(() => typia.assert(props.body));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }

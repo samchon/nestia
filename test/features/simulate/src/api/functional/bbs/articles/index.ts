@@ -30,7 +30,7 @@ export async function index(
   section: null | string,
   input: index.Body,
 ): Promise<index.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? index.simulate(connection, section, input)
     : PlainFetcher.fetch(
         {
@@ -68,10 +68,8 @@ export namespace index {
 
   export const path = (section: null | string) =>
     `/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles`;
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IPage<IBbsArticle.ISummary>>> =>
-    typia.random<Primitive<IPage<IBbsArticle.ISummary>>>(g);
+  export const random = (): Resolved<Primitive<IPage<IBbsArticle.ISummary>>> =>
+    typia.random<Primitive<IPage<IBbsArticle.ISummary>>>();
   export const simulate = (
     connection: IConnection,
     section: null | string,
@@ -85,11 +83,7 @@ export namespace index {
     });
     assert.param("section")(() => typia.assert(section));
     assert.body(() => typia.assert(input));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }
 
@@ -109,7 +103,7 @@ export async function query(
   section: null | string,
   input: query.Query,
 ): Promise<query.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? query.simulate(connection, section, input)
     : PlainFetcher.fetch(connection, {
         ...query.METADATA,
@@ -144,10 +138,8 @@ export namespace query {
       ? location
       : `${location}?${variables.toString()}`;
   };
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IPage<IBbsArticle.ISummary>>> =>
-    typia.random<Primitive<IPage<IBbsArticle.ISummary>>>(g);
+  export const random = (): Resolved<Primitive<IPage<IBbsArticle.ISummary>>> =>
+    typia.random<Primitive<IPage<IBbsArticle.ISummary>>>();
   export const simulate = (
     connection: IConnection,
     section: null | string,
@@ -161,11 +153,7 @@ export namespace query {
     });
     assert.param("section")(() => typia.assert(section));
     assert.query(() => typia.assert(input));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }
 
@@ -185,7 +173,7 @@ export async function at(
   section: string,
   id: null | (string & Format<"uuid">),
 ): Promise<at.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? at.simulate(connection, section, id)
     : PlainFetcher.fetch(connection, {
         ...at.METADATA,
@@ -209,10 +197,8 @@ export namespace at {
 
   export const path = (section: string, id: null | (string & Format<"uuid">)) =>
     `/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(id?.toString() ?? "null")}`;
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IBbsArticle>> =>
-    typia.random<Primitive<IBbsArticle>>(g);
+  export const random = (): Resolved<Primitive<IBbsArticle>> =>
+    typia.random<Primitive<IBbsArticle>>();
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -226,11 +212,7 @@ export namespace at {
     });
     assert.param("section")(() => typia.assert(section));
     assert.param("id")(() => typia.assert(id));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }
 
@@ -250,7 +232,7 @@ export async function first(
   section: string,
   date: string & Format<"date">,
 ): Promise<first.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? first.simulate(connection, section, date)
     : PlainFetcher.fetch(connection, {
         ...first.METADATA,
@@ -274,10 +256,8 @@ export namespace first {
 
   export const path = (section: string, date: string & Format<"date">) =>
     `/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles/first/${encodeURIComponent(date?.toString() ?? "null")}`;
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IBbsArticle>> =>
-    typia.random<Primitive<IBbsArticle>>(g);
+  export const random = (): Resolved<Primitive<IBbsArticle>> =>
+    typia.random<Primitive<IBbsArticle>>();
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -291,11 +271,7 @@ export namespace first {
     });
     assert.param("section")(() => typia.assert(section));
     assert.param("date")(() => typia.assert(date));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }
 
@@ -315,7 +291,7 @@ export async function store(
   section: string,
   input: store.Body,
 ): Promise<store.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? store.simulate(connection, section, input)
     : PlainFetcher.fetch(
         {
@@ -353,10 +329,8 @@ export namespace store {
 
   export const path = (section: string) =>
     `/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles`;
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IBbsArticle>> =>
-    typia.random<Primitive<IBbsArticle>>(g);
+  export const random = (): Resolved<Primitive<IBbsArticle>> =>
+    typia.random<Primitive<IBbsArticle>>();
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -370,11 +344,7 @@ export namespace store {
     });
     assert.param("section")(() => typia.assert(section));
     assert.body(() => typia.assert(input));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }
 
@@ -396,7 +366,7 @@ export async function update(
   id: string & Format<"uuid">,
   input: update.Body,
 ): Promise<update.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? update.simulate(connection, section, id, input)
     : PlainFetcher.fetch(
         {
@@ -434,10 +404,8 @@ export namespace update {
 
   export const path = (section: string, id: string & Format<"uuid">) =>
     `/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(id?.toString() ?? "null")}`;
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<Primitive<IBbsArticle>> =>
-    typia.random<Primitive<IBbsArticle>>(g);
+  export const random = (): Resolved<Primitive<IBbsArticle>> =>
+    typia.random<Primitive<IBbsArticle>>();
   export const simulate = (
     connection: IConnection,
     section: string,
@@ -453,10 +421,6 @@ export namespace update {
     assert.param("section")(() => typia.assert(section));
     assert.param("id")(() => typia.assert(id));
     assert.body(() => typia.assert(input));
-    return random(
-      "object" === typeof connection.simulate && null !== connection.simulate
-        ? connection.simulate
-        : undefined,
-    );
+    return random();
   };
 }

@@ -7,8 +7,8 @@
 import type { IConnection, IPropagation, HttpError } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import typia from "typia";
 import type { Resolved } from "typia";
+import typia from "typia";
 
 import type { PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr } from "../../../structures/PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr";
 import type { PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr } from "../../../structures/PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr";
@@ -22,7 +22,7 @@ export async function partialType(
   connection: IConnection,
   body: partialType.Body,
 ): Promise<partialType.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? partialType.simulate(connection, body)
     : PlainFetcher.propagate<any, any>(
         {
@@ -65,12 +65,9 @@ export namespace partialType {
   } as const;
 
   export const path = () => "/partial-dto-test/partial-type";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr> =>
-    typia.random<PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr>(
-      g,
-    );
+  export const random =
+    (): Resolved<PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr> =>
+      typia.random<PartialPickIOriginalbemailcreated_atoriginal_optionalundefinable_attr>();
   export const simulate = (connection: IConnection, body: Body): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -95,11 +92,7 @@ export namespace partialType {
       headers: {
         "Content-Type": "application/json",
       },
-      data: random(
-        "object" === typeof connection.simulate && null !== connection.simulate
-          ? connection.simulate
-          : undefined,
-      ),
+      data: random(),
     } as Output;
   };
 }

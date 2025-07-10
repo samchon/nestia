@@ -6,8 +6,8 @@
 //================================================================
 import type { IConnection, IPropagation } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import typia from "typia";
 import type { Resolved } from "typia";
+import typia from "typia";
 
 import type { IOriginal } from "../../structures/IOriginal";
 
@@ -22,7 +22,7 @@ export * as partial_type from "./partial_type";
 export async function original(
   connection: IConnection,
 ): Promise<original.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? original.simulate(connection)
     : PlainFetcher.propagate<any>(connection, {
         ...original.METADATA,
@@ -50,21 +50,16 @@ export namespace original {
   } as const;
 
   export const path = () => "/partial-dto-test/original";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<IOriginal> => typia.random<IOriginal>(g);
+  export const random = (): Resolved<IOriginal> => typia.random<IOriginal>();
   export const simulate = (connection: IConnection): Output => {
+    connection;
     return {
       success: true,
       status: 200,
       headers: {
         "Content-Type": "application/json",
       },
-      data: random(
-        "object" === typeof connection.simulate && null !== connection.simulate
-          ? connection.simulate
-          : undefined,
-      ),
+      data: random(),
     } as Output;
   };
 }

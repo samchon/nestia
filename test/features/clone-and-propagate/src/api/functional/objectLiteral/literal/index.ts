@@ -6,8 +6,8 @@
 //================================================================
 import type { IConnection, IPropagation } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import typia from "typia";
 import type { Resolved } from "typia";
+import typia from "typia";
 import type { Format } from "typia/lib/tags/Format";
 import type { Type } from "typia/lib/tags/Type";
 
@@ -19,7 +19,7 @@ import type { Type } from "typia/lib/tags/Type";
 export async function literals(
   connection: IConnection,
 ): Promise<literals.Output> {
-  return !!connection.simulate
+  return true === connection.simulate
     ? literals.simulate(connection)
     : PlainFetcher.propagate<any>(connection, {
         ...literals.METADATA,
@@ -55,9 +55,7 @@ export namespace literals {
   } as const;
 
   export const path = () => "/objectLiteral/literal";
-  export const random = (
-    g?: Partial<typia.IRandomGenerator>,
-  ): Resolved<
+  export const random = (): Resolved<
     {
       id: string;
       member: {
@@ -78,19 +76,16 @@ export namespace literals {
         };
         created_at: string & Format<"date-time">;
       }[]
-    >(g);
+    >();
   export const simulate = (connection: IConnection): Output => {
+    connection;
     return {
       success: true,
       status: 200,
       headers: {
         "Content-Type": "application/json",
       },
-      data: random(
-        "object" === typeof connection.simulate && null !== connection.simulate
-          ? connection.simulate
-          : undefined,
-      ),
+      data: random(),
     } as Output;
   };
 }
