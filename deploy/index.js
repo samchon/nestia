@@ -3,7 +3,7 @@ const { build } = require("./build");
 const { migrate } = require("./migrate");
 const { publish } = require("./publish");
 
-const PACKAGES = ["fetcher", "core", "sdk", "e2e", "benchmark"];
+const PACKAGES = ["cli", "fetcher", "core", "sdk", "e2e", "benchmark"];
 
 const main = async () => {
   await build();
