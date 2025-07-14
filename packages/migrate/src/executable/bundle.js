@@ -12,11 +12,7 @@ const update = (content) => {
     parsed.devDependencies ?? {},
   ])
     for (const key of Object.keys(record))
-      if (
-        key === "@nestia/core" ||
-        key === "@nestia/fetcher" ||
-        key === "@nestia/sdk"
-      )
+      if (key.startsWith("@nestia/") || key === "nestia")
         record[key] = `^${version}`;
   return JSON.stringify(parsed, null, 2);
 };

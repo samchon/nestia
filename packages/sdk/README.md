@@ -22,7 +22,8 @@ Nestia is a set of helper libraries for NestJS, supporting below features:
   - `@nestia/e2e`: Test program utilizing e2e test functions
   - `@nestia/benchmark`: Benchmark program using e2e test functions
   - `@nestia/editor`: Swagger-UI with Online TypeScript Editor
-  - `@agentica`: Agentic AI library specialized in LLM function calling
+  - [`@agentica`](https://github.com/wrtnlabs/agentica): Agentic AI library specialized in LLM function calling
+  - [`@autobe`](https://github.com/wrtnlabs/autobe): Vibe coding agent generating NestJS application
   - `nestia`: Just CLI (command line interface) tool
 
 > [!NOTE]

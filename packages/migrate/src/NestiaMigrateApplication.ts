@@ -80,6 +80,14 @@ export class NestiaMigrateApplication {
       ...NestiaMigrateNestProgrammer.write(context),
       ...NestiaMigrateApiProgrammer.write(context),
       ...(config.e2e ? NestiaMigrateE2eProgrammer.write(context) : {}),
+      ...(config.keyword === false
+        ? {
+            "nestia.config.ts": NEST_TEMPLATE["nestia.config.ts"].replace(
+              "keyword: true",
+              "keyword: false",
+            ),
+          }
+        : {}),
     };
     return config.package ? this.rename(config.package, files) : files;
   }
