@@ -709,6 +709,9 @@ importers:
       '@samchon/openapi':
         specifier: ^4.5.0
         version: 4.5.0
+      embed-typescript:
+        specifier: ^1.1.0
+        version: 1.1.0(typescript@5.8.3)
       express:
         specifier: ^4.21.1
         version: 4.21.2
@@ -2588,6 +2591,12 @@ packages:
 
   electron-to-chromium@1.5.181:
     resolution: {integrity: sha512-+ISMj8OIQ+0qEeDj14Rt8WwcTOiqHyAB+5bnK1K7xNNLjBJ4hRCQfUkw8RWtcLbfBzDwc15ZnKH0c7SNOfwiyA==}
+
+  embed-typescript@1.1.0:
+    resolution: {integrity: sha512-MHEb5/zSKoxfShHEdjMBnZL9RQEl6qHcl3Pw4UN3C99Ru+Ul9fiySxyD6R1eYkQ9S++HhSL98krp+euHvczN9w==}
+    hasBin: true
+    peerDependencies:
+      typescript: '>=5.0.0 <6.0.0'
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -6429,6 +6438,11 @@ snapshots:
   ee-first@1.1.1: {}
 
   electron-to-chromium@1.5.181: {}
+
+  embed-typescript@1.1.0(typescript@5.8.3):
+    dependencies:
+      tstl: 3.0.0
+      typescript: 5.8.3
 
   emoji-regex@8.0.0: {}
 
