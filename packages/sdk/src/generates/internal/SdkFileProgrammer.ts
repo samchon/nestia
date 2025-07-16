@@ -76,13 +76,7 @@ export namespace SdkFileProgrammer {
       );
       directory.routes.forEach((route, i) => {
         if (!(project.config.clone === true && route.protocol === "http"))
-          for (const tuple of route.imports)
-            for (const instance of tuple.instances)
-              importer.internal({
-                file: tuple.file,
-                instance,
-                type: true,
-              });
+          importer.declarations(route.imports);
         statements.push(
           ...(route.protocol === "http"
             ? SdkHttpRouteProgrammer.write(project)(importer)(route)

@@ -52,9 +52,10 @@ export namespace SdkWebSocketNamespaceProgrammer {
             undefined,
             ts.factory.createTypeReferenceNode(
               importer.external({
-                type: false,
-                library: "tgrid",
-                instance: "WebSocketConnector",
+                declaration: false,
+                file: "tgrid",
+                type: "element",
+                name: "WebSocketConnector",
               }),
               [
                 ts.factory.createTypeReferenceNode("Header"),
@@ -69,9 +70,10 @@ export namespace SdkWebSocketNamespaceProgrammer {
             undefined,
             ts.factory.createTypeReferenceNode(
               importer.external({
-                type: true,
-                library: "tgrid",
-                instance: "Driver",
+                declaration: true,
+                file: "tgrid",
+                type: "element",
+                name: "Driver",
               }),
               [ts.factory.createTypeReferenceNode("Listener")],
             ),

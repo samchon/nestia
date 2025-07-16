@@ -101,7 +101,7 @@ export namespace ReflectHttpOperationAnalyzer {
         errors,
       }),
       tags: Reflect.getMetadata("swagger/apiUseTags", props.function) ?? [],
-      imports: ImportAnalyzer.unique(
+      imports: ImportAnalyzer.merge(
         [
           ...props.metadata.parameters
             .filter((x) => parameters.some((y) => x.index === y.index))

@@ -47,7 +47,9 @@ export namespace SdkHttpCloneReferencer {
     });
     props.route.imports = Array.from(unique).map((str) => ({
       file: `${props.directory}/${str}`,
-      instances: [str],
+      asterisk: null,
+      default: null,
+      elements: [str],
     }));
   };
 

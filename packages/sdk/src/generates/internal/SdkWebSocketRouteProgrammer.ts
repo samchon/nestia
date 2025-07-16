@@ -107,9 +107,10 @@ export namespace SdkWebSocketRouteProgrammer {
         local("connector")(
           ts.factory.createTypeReferenceNode(
             importer.external({
-              type: false,
-              library: "tgrid",
-              instance: "WebSocketConnector",
+              declaration: false,
+              file: "tgrid",
+              type: "element",
+              name: "WebSocketConnector",
             }),
             [
               ts.factory.createTypeReferenceNode(`${route.name}.Header`),
@@ -121,9 +122,10 @@ export namespace SdkWebSocketRouteProgrammer {
           ts.factory.createNewExpression(
             ts.factory.createIdentifier(
               importer.external({
-                type: false,
-                library: "tgrid",
-                instance: "WebSocketConnector",
+                declaration: false,
+                file: "tgrid",
+                type: "element",
+                name: "WebSocketConnector",
               }),
             ),
             undefined,
@@ -178,9 +180,10 @@ export namespace SdkWebSocketRouteProgrammer {
         local("driver")(
           ts.factory.createTypeReferenceNode(
             importer.external({
-              type: true,
-              library: "tgrid",
-              instance: "Driver",
+              declaration: true,
+              file: "tgrid",
+              type: "element",
+              name: "Driver",
             }),
             [ts.factory.createTypeReferenceNode(`${route.name}.Listener`)],
           ),

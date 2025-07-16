@@ -1,6 +1,5 @@
 import typia from "typia";
 import type { Primitive } from "typia";
-import type { Format } from "typia/lib/tags/Format";
 
 import api from "../../../../api";
 import type { IBbsArticle } from "../../../../api/structures/IBbsArticle";

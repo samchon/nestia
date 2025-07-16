@@ -1,7 +1,7 @@
 import { IJsDocTagInfo } from "typia";
 
 import { IReflectController } from "./IReflectController";
-import { IReflectTypeImport } from "./IReflectTypeImport";
+import { IReflectImport } from "./IReflectImport";
 import { ITypedHttpRouteException } from "./ITypedHttpRouteException";
 import { ITypedHttpRouteParameter } from "./ITypedHttpRouteParameter";
 import { ITypedHttpRouteSuccess } from "./ITypedHttpRouteSuccess";
@@ -33,7 +33,7 @@ export interface ITypedHttpRoute {
   // ADDITIONAL INFORMATION
   security: Record<string, string[]>[];
   tags: string[];
-  imports: IReflectTypeImport[];
+  imports: IReflectImport[];
   description: string | null;
   jsDocTags: IJsDocTagInfo[];
   operationId: string | undefined;

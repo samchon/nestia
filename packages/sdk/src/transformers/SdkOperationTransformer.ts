@@ -6,6 +6,8 @@ import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { GenericAnalyzer } from "../analyses/GenericAnalyzer";
+import { ImportAnalyzer } from "../analyses/ImportAnalyzer";
+import { IReflectImport } from "../structures/IReflectImport";
 import { IOperationMetadata } from "./IOperationMetadata";
 import { ISdkOperationTransformerContext } from "./ISdkOperationTransformerContext";
 import { SdkOperationProgrammer } from "./SdkOperationProgrammer";
@@ -29,6 +31,7 @@ export namespace SdkOperationTransformer {
           (node) =>
             iterateNode({
               context,
+              imports: new Singleton(() => ImportAnalyzer.analyze(file)),
               visitor,
               node,
             }),
@@ -62,6 +65,7 @@ export namespace SdkOperationTransformer {
 
   const iterateNode = (props: {
     context: ISdkOperationTransformerContext;
+    imports: Singleton<IReflectImport[]>;
     visitor: IVisitor;
     node: ts.Node;
   }): ts.Node =>
@@ -77,6 +81,7 @@ export namespace SdkOperationTransformer {
 
   const transformNode = (props: {
     context: ISdkOperationTransformerContext;
+    imports: Singleton<IReflectImport[]>;
     visitor: IVisitor;
     node: ts.Node;
   }): ts.Node => {
@@ -91,6 +96,7 @@ export namespace SdkOperationTransformer {
   const transformClass = (props: {
     context: ISdkOperationTransformerContext;
     visitor: IVisitor;
+    imports: Singleton<IReflectImport[]>;
     node: ts.ClassDeclaration;
   }): ts.ClassDeclaration => {
     const generics: WeakMap<ts.Type, ts.Type> = GenericAnalyzer.analyze(
@@ -134,6 +140,7 @@ export namespace SdkOperationTransformer {
   const transformMethod = (props: {
     context: ISdkOperationTransformerContext;
     visitor: IVisitor;
+    imports: Singleton<IReflectImport[]>;
     class: ts.ClassDeclaration;
     generics: WeakMap<ts.Type, ts.Type>;
     node: ts.MethodDeclaration;

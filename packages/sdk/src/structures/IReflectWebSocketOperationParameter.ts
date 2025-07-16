@@ -1,7 +1,7 @@
 import { IJsDocTagInfo } from "typia";
 
+import { IReflectImport } from "./IReflectImport";
 import { IReflectType } from "./IReflectType";
-import { IReflectTypeImport } from "./IReflectTypeImport";
 
 export type IReflectWebSocketOperationParameter =
   | IReflectWebSocketOperationParameter.IAcceptor
@@ -22,14 +22,12 @@ export namespace IReflectWebSocketOperationParameter {
     name: string;
     index: number;
     type: IReflectType;
-    imports: IReflectTypeImport[];
+    imports: IReflectImport[];
     description: string | null;
     jsDocTags: IJsDocTagInfo[];
   }
 
-  /**
-   * @internal
-   */
+  /** @internal */
   export interface IPreconfigured {
     category: "acceptor" | "driver" | "header" | "param" | "query";
     index: number;

@@ -6,8 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
-import type { Format } from "typia/lib/tags/Format";
+import type { Primitive, Resolved } from "typia";
 
 import type { IBbsArticle } from "../../../structures/IBbsArticle";
 import type { IPage } from "../../../structures/IPage";

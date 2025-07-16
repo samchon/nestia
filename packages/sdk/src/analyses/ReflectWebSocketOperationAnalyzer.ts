@@ -2,7 +2,7 @@ import { ranges } from "tstl";
 
 import { INestiaProject } from "../structures/INestiaProject";
 import { IReflectController } from "../structures/IReflectController";
-import { IReflectTypeImport } from "../structures/IReflectTypeImport";
+import { IReflectImport } from "../structures/IReflectImport";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
 import { IReflectWebSocketOperationParameter } from "../structures/IReflectWebSocketOperationParameter";
 import { IOperationMetadata } from "../transformers/IOperationMetadata";
@@ -50,7 +50,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
         ].join("\n"),
       );
 
-    const imports: IReflectTypeImport[] = [];
+    const imports: IReflectImport[] = [];
     const parameters: IReflectWebSocketOperationParameter[] = preconfigured
       .map((p) => {
         // METADATA INFO
@@ -164,7 +164,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
       function: ctx.function,
       versions: ReflectMetadataAnalyzer.versions(ctx.function),
       parameters,
-      imports: ImportAnalyzer.unique(imports),
+      imports: ImportAnalyzer.merge(imports),
       description: ctx.metadata.description ?? null,
       jsDocTags: ctx.metadata.jsDocTags,
     };

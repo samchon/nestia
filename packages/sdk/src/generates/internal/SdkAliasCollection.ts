@@ -108,9 +108,10 @@ export namespace SdkAliasCollection {
       if (project.config.primitive === false) return type;
       return ts.factory.createTypeReferenceNode(
         importer.external({
-          type: true,
-          library: "typia",
-          instance: "Resolved",
+          file: "typia",
+          declaration: true,
+          type: "element",
+          name: "Resolved",
         }),
         [type],
       );
@@ -126,9 +127,10 @@ export namespace SdkAliasCollection {
       if (project.config.primitive === false) return type;
       return ts.factory.createTypeReferenceNode(
         importer.external({
-          type: true,
-          library: "typia",
-          instance: "Resolved",
+          file: "typia",
+          declaration: true,
+          type: "element",
+          name: "Resolved",
         }),
         [type],
       );
@@ -150,9 +152,10 @@ export namespace SdkAliasCollection {
       else if (project.config.primitive === false) return type;
       return ts.factory.createTypeReferenceNode(
         importer.external({
-          type: true,
-          library: "typia",
-          instance:
+          file: "typia",
+          declaration: true,
+          type: "element",
+          name:
             param.contentType === "application/json" || param.encrypted === true
               ? "Primitive"
               : "Resolved",
@@ -173,9 +176,10 @@ export namespace SdkAliasCollection {
             : project.config.primitive !== false
               ? ts.factory.createTypeReferenceNode(
                   importer.external({
-                    type: true,
-                    library: "typia",
-                    instance:
+                    file: "typia",
+                    declaration: true,
+                    type: "element",
+                    name:
                       route.success.contentType === "application/json" ||
                       route.success.encrypted === true
                         ? "Primitive"
@@ -200,9 +204,10 @@ export namespace SdkAliasCollection {
       ];
       return ts.factory.createTypeReferenceNode(
         importer.external({
-          type: true,
-          library: "@nestia/fetcher",
-          instance: "IPropagation",
+          file: "@nestia/fetcher",
+          declaration: true,
+          type: "element",
+          name: "IPropagation",
         }),
         [
           ts.factory.createTypeLiteralNode(
@@ -241,9 +246,10 @@ export namespace SdkAliasCollection {
   const formDataInput = (importer: ImportDictionary) => (type: ts.TypeNode) =>
     ts.factory.createTypeReferenceNode(
       importer.external({
-        type: true,
-        library: "@nestia/fetcher",
-        instance: "FormDataInput",
+        file: "@nestia/fetcher",
+        declaration: true,
+        type: "element",
+        name: "FormDataInput",
       }),
       [type],
     );

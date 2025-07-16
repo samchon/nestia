@@ -377,8 +377,9 @@ const importInternalFile =
     if (importer.file === `${project.config.output}/structures/${top}.ts`)
       return;
     importer.internal({
-      type: true,
+      declaration: true,
       file: `${project.config.output}/structures/${name.split(".")[0]}`,
-      instance: top,
+      type: "element",
+      name: top,
     });
   };

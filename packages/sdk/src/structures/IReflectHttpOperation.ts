@@ -4,7 +4,7 @@ import { IJsDocTagInfo } from "typia";
 import { IReflectHttpOperationException } from "./IReflectHttpOperationException";
 import { IReflectHttpOperationParameter } from "./IReflectHttpOperationParameter";
 import { IReflectHttpOperationSuccess } from "./IReflectHttpOperationSuccess";
-import { IReflectTypeImport } from "./IReflectTypeImport";
+import { IReflectImport } from "./IReflectImport";
 
 export interface IReflectHttpOperation {
   protocol: "http";
@@ -18,7 +18,7 @@ export interface IReflectHttpOperation {
   exceptions: Record<string, IReflectHttpOperationException>;
   security: Record<string, string[]>[];
   tags: string[];
-  imports: IReflectTypeImport[];
+  imports: IReflectImport[];
   operationId: string | undefined;
   description: string | null;
   jsDocTags: IJsDocTagInfo[];

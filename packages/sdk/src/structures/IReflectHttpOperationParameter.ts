@@ -42,18 +42,14 @@ export namespace IReflectHttpOperationParameter {
     jsDocTags: IJsDocTagInfo[];
   }
 
-  /**
-   * @internal
-   */
+  /** @internal */
   export type IPreconfigured =
     | IPreconfigured.IBody
     | IPreconfigured.IHeaders
     | IPreconfigured.IParam
     | IPreconfigured.IQuery;
 
-  /**
-   * @internal
-   */
+  /** @internal */
   export namespace IPreconfigured {
     export interface IBody extends IBase<"body"> {
       field?: string;

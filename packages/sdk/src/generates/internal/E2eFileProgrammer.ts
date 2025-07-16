@@ -18,18 +18,11 @@ export namespace E2eFileProgrammer {
       const importer: ImportDictionary = new ImportDictionary(
         `${props.current}/${getFunctionName(route)}.ts`,
       );
-      if (project.config.clone !== true)
-        for (const tuple of route.imports)
-          for (const instance of tuple.instances)
-            importer.internal({
-              file: tuple.file,
-              type: true,
-              instance,
-            });
+      if (project.config.clone !== true) importer.declarations(route.imports);
       importer.internal({
-        type: false,
         file: props.api,
-        instance: null,
+        declaration: false,
+        type: "default",
         name: "api",
       });
 

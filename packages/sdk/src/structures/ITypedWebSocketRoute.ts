@@ -2,7 +2,7 @@ import { VERSION_NEUTRAL } from "@nestjs/common";
 import ts from "typescript";
 
 import { IReflectController } from "./IReflectController";
-import { IReflectTypeImport } from "./IReflectTypeImport";
+import { IReflectImport } from "./IReflectImport";
 import { ITypedWebSocketRouteParameter } from "./ITypedWebSocketRouteParameter";
 
 export interface ITypedWebSocketRoute {
@@ -18,7 +18,7 @@ export interface ITypedWebSocketRoute {
   pathParameters: ITypedWebSocketRouteParameter.IParam[];
   query: ITypedWebSocketRouteParameter.IQuery | null;
   driver: ITypedWebSocketRouteParameter.IDriver | null;
-  imports: IReflectTypeImport[];
+  imports: IReflectImport[];
   description: string | null;
   jsDocTags: ts.JSDocTagInfo[];
 }
