@@ -8,7 +8,6 @@ import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import type { Primitive, tags } from "typia";
 
-import type { IBbsArticle } from "../../../controllers/TypedBodyController";
 import type { IBbsArticle } from "../../structures/IBbsArticle";
 
 /**

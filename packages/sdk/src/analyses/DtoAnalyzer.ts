@@ -92,13 +92,14 @@ export namespace DtoAnalyzer {
           asterisk: null,
         });
     if (name !== "Promise" && matched === false) {
-      const symbol: ts.Symbol | undefined = ctx.checker.getSymbolAtLocation(
-        typeNode.typeName,
-      );
+      const symbol: ts.Symbol | undefined = name.includes(".")
+        ? ctx.checker.getSymbolAtLocation(typeNode.typeName)
+        : ctx.checker.getTypeAtLocation(typeNode).getSymbol();
       if (symbol !== undefined)
         exploreNotFound(ctx, {
           symbol,
           prefix,
+          name,
         });
     }
 
@@ -121,13 +122,14 @@ export namespace DtoAnalyzer {
     props: {
       symbol: ts.Symbol;
       prefix: string;
+      name: string;
     },
   ): void => {
     // GET SOURCE FILE
     const sourceFile: ts.SourceFile | undefined =
       props.symbol.declarations?.[0]?.getSourceFile();
     if (sourceFile === undefined) return;
-    else if (sourceFile.fileName.indexOf("/typescript/lib") === -1)
+    if (sourceFile.fileName.indexOf("/typescript/lib") === -1)
       ctx.container.push({
         file: sourceFile.fileName,
         asterisk: null,
