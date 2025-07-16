@@ -1,5 +1,5 @@
+import type { Primitive, tags } from "typia";
 import typia from "typia";
-import type { Primitive } from "typia";
 
 import api from "../../../../api";
 import type { IBbsComment } from "../../../../api/structures/IBbsComment";
@@ -12,7 +12,7 @@ export const test_api_bbs_articles_comments_index = async (
     await api.functional.bbs.articles.comments.index(
       connection,
       typia.random<string>(),
-      typia.random<string & Format<"uuid">>(),
+      typia.random<string & tags.Format<"uuid">>(),
       typia.random<IPage.IRequest>(),
     );
   typia.assert(output);

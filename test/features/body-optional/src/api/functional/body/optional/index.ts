@@ -36,7 +36,7 @@ export async function json(
   );
 }
 export namespace json {
-  export type Body = Primitive<undefined | IBodyOptional>;
+  export type Body = Primitive<IBodyOptional | undefined>;
   export type Output = Primitive<IBodyOptional>;
 
   export const METADATA = {

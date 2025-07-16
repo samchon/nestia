@@ -72,7 +72,7 @@ export async function update(
   connection: IConnection,
   id: string & tags.Format<"uuid">,
   input: update.Body,
-): Promise<update.Output> {
+): Promise<void> {
   return PlainFetcher.fetch(
     {
       ...connection,
@@ -91,7 +91,6 @@ export async function update(
 }
 export namespace update {
   export type Body = Primitive<IBbsArticle.IUpdate>;
-  export type Output = Primitive<void>;
 
   export const METADATA = {
     method: "PUT",

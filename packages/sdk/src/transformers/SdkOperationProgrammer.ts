@@ -3,6 +3,7 @@ import ts from "typescript";
 import { CommentFactory } from "typia/lib/factories/CommentFactory";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
+import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 import { MetadataObjectType } from "typia/lib/schemas/metadata/MetadataObjectType";
 import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
@@ -22,32 +23,39 @@ export namespace SdkOperationProgrammer {
     symbol: ts.Symbol | undefined;
     exceptions: ts.TypeNode[];
   }
-  export const write = (p: IProps): IOperationMetadata => ({
-    parameters: p.node.parameters.map((parameter, index) =>
-      writeParameter({
+  export const write = (p: IProps): IOperationMetadata => {
+    return {
+      parameters: p.node.parameters.map((parameter, index) =>
+        writeParameter({
+          context: p.context,
+          imports: p.imports,
+          parameter,
+          index,
+        }),
+      ),
+      success: writeResponse({
         context: p.context,
         imports: p.imports,
-        parameter,
-        index,
+        typeNode: p.node.type ? getReturnTypeNode(p.node.type) : null,
+        type: getReturnType({
+          checker: p.context.checker,
+          signature: p.context.checker.getSignatureFromDeclaration(p.node),
+        }),
       }),
-    ),
-    success: writeResponse({
-      context: p.context,
-      imports: p.imports,
-      typeNode: p.node.type ? escapePromise(p.node.type) : null,
-    }),
-    exceptions: p.exceptions.map((e) =>
-      writeResponse({
-        context: p.context,
-        imports: p.imports,
-        typeNode: e,
-      }),
-    ),
-    jsDocTags: p.symbol?.getJsDocTags() ?? [],
-    description: p.symbol
-      ? (CommentFactory.description(p.symbol) ?? null)
-      : null,
-  });
+      exceptions: p.exceptions.map((e) =>
+        writeResponse({
+          context: p.context,
+          imports: p.imports,
+          typeNode: e,
+          type: p.context.checker.getTypeFromTypeNode(e),
+        }),
+      ),
+      jsDocTags: p.symbol?.getJsDocTags() ?? [],
+      description: p.symbol
+        ? (CommentFactory.description(p.symbol) ?? null)
+        : null,
+    };
+  };
 
   const writeParameter = (props: {
     context: ISdkOperationTransformerContext;
@@ -61,6 +69,10 @@ export namespace SdkOperationProgrammer {
       context: props.context,
       imports: props.imports,
       typeNode: props.parameter.type ?? null,
+      type:
+        props.context.checker.getTypeFromTypeNode(
+          props.parameter.type ?? TypeFactory.keyword("any"),
+        ) ?? null,
     });
     const optional: boolean = props.parameter.questionToken !== undefined;
     if (common.primitive.success)
@@ -81,6 +93,7 @@ export namespace SdkOperationProgrammer {
     context: ISdkOperationTransformerContext;
     imports: Singleton<IReflectImport[]>;
     typeNode: ts.TypeNode | null;
+    type: ts.Type | null;
   }): IOperationMetadata.IResponse => {
     const analyzed: DtoAnalyzer.IOutput | null = p.typeNode
       ? DtoAnalyzer.analyze({
@@ -102,9 +115,7 @@ export namespace SdkOperationProgrammer {
           absorb: true,
         },
         collection: p.context.collection,
-        type: p.typeNode
-          ? p.context.checker.getTypeFromTypeNode(p.typeNode)
-          : null,
+        type: p.type,
       }),
     );
     return {
@@ -196,10 +207,26 @@ const join = ({
   return `${object.name}[${JSON.stringify(key)}]`;
 };
 
-const escapePromise = (node: ts.TypeNode): ts.TypeNode | null => {
+const getReturnTypeNode = (node: ts.TypeNode): ts.TypeNode | null => {
   if (ts.isTypeReferenceNode(node)) {
     const typeName: string = node.typeName.getText();
     if (typeName === "Promise") return node.typeArguments?.[0] ?? null;
   }
   return node;
+};
+
+const getReturnType = (p: {
+  checker: ts.TypeChecker;
+  signature: ts.Signature | undefined;
+}): ts.Type | null => {
+  const type: ts.Type | null =
+    (p.signature && p.checker.getReturnTypeOfSignature(p.signature)) ?? null;
+  if (type === null) return null;
+  else if (type.symbol?.name === "Promise") {
+    const generic: readonly ts.Type[] = p.checker.getTypeArguments(
+      type as ts.TypeReference,
+    );
+    return generic[0] ?? null;
+  }
+  return type;
 };

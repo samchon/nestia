@@ -6,8 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
-import type { Format } from "typia/lib/tags/Format";
+import type { Primitive, Resolved, tags } from "typia";
 
 import type { IBbsArticle } from "../../../../../../structures/IBbsArticle";
 import type { IPage } from "../../../../../../structures/IPage";
@@ -65,7 +64,7 @@ export namespace index {
 export async function at(
   connection: IConnection,
   section: string,
-  id: string & Format<"uuid">,
+  id: string & tags.Format<"uuid">,
 ): Promise<at.Output> {
   return PlainFetcher.fetch(connection, {
     ...at.METADATA,
@@ -87,6 +86,6 @@ export namespace at {
     status: 200,
   } as const;
 
-  export const path = (section: string, id: string & Format<"uuid">) =>
+  export const path = (section: string, id: string & tags.Format<"uuid">) =>
     `/api/internal/v1/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(id?.toString() ?? "null")}`;
 }

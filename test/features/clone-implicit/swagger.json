@@ -48,27 +48,7 @@
           "201": {
             "description": "Newly archived article",
             "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "body": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "title",
-                    "body"
-                  ]
-                }
-              }
+              "application/json": {}
             }
           }
         },

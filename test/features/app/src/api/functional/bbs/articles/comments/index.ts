@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Primitive, Resolved } from "typia";
+import type { Primitive, Resolved, tags } from "typia";
 
 import type { IBbsComment } from "../../../../structures/IBbsComment";
 import type { IPage } from "../../../../structures/IPage";
@@ -19,7 +19,7 @@ import type { IPage } from "../../../../structures/IPage";
 export async function index(
   connection: IConnection,
   section: string,
-  articleId: string & Format<"uuid">,
+  articleId: string & tags.Format<"uuid">,
   query: index.Query,
 ): Promise<index.Output> {
   return PlainFetcher.fetch(connection, {
@@ -45,7 +45,7 @@ export namespace index {
 
   export const path = (
     section: string,
-    articleId: string & Format<"uuid">,
+    articleId: string & tags.Format<"uuid">,
     query: Query,
   ) => {
     const variables: URLSearchParams = new URLSearchParams();
@@ -69,8 +69,8 @@ export namespace index {
 export async function at(
   connection: IConnection,
   section: string,
-  articleId: string & Format<"uuid">,
-  id: string & Format<"uuid">,
+  articleId: string & tags.Format<"uuid">,
+  id: string & tags.Format<"uuid">,
 ): Promise<at.Output> {
   return PlainFetcher.fetch(connection, {
     ...at.METADATA,
@@ -94,8 +94,8 @@ export namespace at {
 
   export const path = (
     section: string,
-    articleId: string & Format<"uuid">,
-    id: string & Format<"uuid">,
+    articleId: string & tags.Format<"uuid">,
+    id: string & tags.Format<"uuid">,
   ) =>
     `/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(articleId?.toString() ?? "null")}/comments/${encodeURIComponent(id?.toString() ?? "null")}`;
 }
@@ -108,7 +108,7 @@ export namespace at {
 export async function store(
   connection: IConnection,
   section: string,
-  articleId: string & Format<"uuid">,
+  articleId: string & tags.Format<"uuid">,
   input: store.Body,
 ): Promise<store.Output> {
   return PlainFetcher.fetch(
@@ -145,7 +145,10 @@ export namespace store {
     status: 201,
   } as const;
 
-  export const path = (section: string, articleId: string & Format<"uuid">) =>
+  export const path = (
+    section: string,
+    articleId: string & tags.Format<"uuid">,
+  ) =>
     `/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(articleId?.toString() ?? "null")}/comments`;
 }
 
@@ -157,8 +160,8 @@ export namespace store {
 export async function update(
   connection: IConnection,
   section: string,
-  articleId: string & Format<"uuid">,
-  id: string & Format<"uuid">,
+  articleId: string & tags.Format<"uuid">,
+  id: string & tags.Format<"uuid">,
   input: update.Body,
 ): Promise<update.Output> {
   return PlainFetcher.fetch(
@@ -197,8 +200,8 @@ export namespace update {
 
   export const path = (
     section: string,
-    articleId: string & Format<"uuid">,
-    id: string & Format<"uuid">,
+    articleId: string & tags.Format<"uuid">,
+    id: string & tags.Format<"uuid">,
   ) =>
     `/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(articleId?.toString() ?? "null")}/comments/${encodeURIComponent(id?.toString() ?? "null")}`;
 }
