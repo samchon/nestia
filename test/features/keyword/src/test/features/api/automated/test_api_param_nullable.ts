@@ -4,10 +4,10 @@ import type { Primitive } from "typia";
 import api from "../../../../api";
 
 export const test_api_param_nullable = async (connection: api.IConnection) => {
-  const output: Primitive<null | string> = await api.functional.param.nullable(
+  const output: Primitive<string | null> = await api.functional.param.nullable(
     connection,
     {
-      value: typia.random<null | string>(),
+      value: typia.random<string | null>(),
     },
   );
   typia.assert(output);

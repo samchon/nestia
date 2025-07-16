@@ -11,7 +11,7 @@ export const test_api_bbs_$package_articles_$catch = async (
   const output: Primitive<IPage<IBbsArticle.ISummary>> =
     await api.functional.bbs.$package.articles.$catch(
       connection,
-      typia.random<null | string>(),
+      typia.random<string | null>(),
       typia.random<IPage.IRequest>(),
     );
   typia.assert(output);

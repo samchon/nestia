@@ -6,8 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Primitive } from "typia";
-import type { Format } from "typia/lib/tags/Format";
+import type { Primitive, tags } from "typia";
 
 /**
  * Composite path parameters.
@@ -64,7 +63,7 @@ export namespace composite {
  */
 export async function boolean(
   connection: IConnection,
-  value: false | true,
+  value: boolean,
 ): Promise<boolean.Output> {
   return PlainFetcher.fetch(connection, {
     ...boolean.METADATA,
@@ -73,7 +72,7 @@ export async function boolean(
   });
 }
 export namespace boolean {
-  export type Output = Primitive<false | true>;
+  export type Output = Primitive<boolean>;
 
   export const METADATA = {
     method: "GET",
@@ -86,7 +85,7 @@ export namespace boolean {
     status: 200,
   } as const;
 
-  export const path = (value: false | true) =>
+  export const path = (value: boolean) =>
     `/param/${encodeURIComponent(value?.toString() ?? "null")}/boolean`;
 }
 
@@ -199,7 +198,7 @@ export namespace string {
  */
 export async function nullable(
   connection: IConnection,
-  value: null | string,
+  value: string | null,
 ): Promise<nullable.Output> {
   return PlainFetcher.fetch(connection, {
     ...nullable.METADATA,
@@ -208,7 +207,7 @@ export async function nullable(
   });
 }
 export namespace nullable {
-  export type Output = Primitive<null | string>;
+  export type Output = Primitive<string | null>;
 
   export const METADATA = {
     method: "GET",
@@ -221,7 +220,7 @@ export namespace nullable {
     status: 200,
   } as const;
 
-  export const path = (value: null | string) =>
+  export const path = (value: string | null) =>
     `/param/${encodeURIComponent(value?.toString() ?? "null")}/nullable`;
 }
 
@@ -265,7 +264,7 @@ export namespace literal {
  */
 export async function uuid(
   connection: IConnection,
-  value: string & Format<"uuid">,
+  value: string & tags.Format<"uuid">,
 ): Promise<uuid.Output> {
   return PlainFetcher.fetch(connection, {
     ...uuid.METADATA,
@@ -287,7 +286,7 @@ export namespace uuid {
     status: 200,
   } as const;
 
-  export const path = (value: string & Format<"uuid">) =>
+  export const path = (value: string & tags.Format<"uuid">) =>
     `/param/${encodeURIComponent(value?.toString() ?? "null")}/uuid`;
 }
 
@@ -298,7 +297,7 @@ export namespace uuid {
  */
 export async function date(
   connection: IConnection,
-  value: string & Format<"date">,
+  value: string & tags.Format<"date">,
 ): Promise<date.Output> {
   return PlainFetcher.fetch(connection, {
     ...date.METADATA,
@@ -320,7 +319,7 @@ export namespace date {
     status: 200,
   } as const;
 
-  export const path = (value: string & Format<"date">) =>
+  export const path = (value: string & tags.Format<"date">) =>
     `/param/${encodeURIComponent(value?.toString() ?? "null")}/date`;
 }
 
@@ -331,7 +330,7 @@ export namespace date {
  */
 export async function uuid_nullable(
   connection: IConnection,
-  value: null | (string & Format<"uuid">),
+  value: (string & tags.Format<"uuid">) | null,
 ): Promise<uuid_nullable.Output> {
   return PlainFetcher.fetch(connection, {
     ...uuid_nullable.METADATA,
@@ -340,7 +339,7 @@ export async function uuid_nullable(
   });
 }
 export namespace uuid_nullable {
-  export type Output = Primitive<null | string>;
+  export type Output = Primitive<string | null>;
 
   export const METADATA = {
     method: "GET",
@@ -353,7 +352,7 @@ export namespace uuid_nullable {
     status: 200,
   } as const;
 
-  export const path = (value: null | (string & Format<"uuid">)) =>
+  export const path = (value: (string & tags.Format<"uuid">) | null) =>
     `/param/${encodeURIComponent(value?.toString() ?? "null")}/uuid_nullable`;
 }
 
@@ -364,7 +363,7 @@ export namespace uuid_nullable {
  */
 export async function date_nullable(
   connection: IConnection,
-  value: null | (string & Format<"date">),
+  value: (string & tags.Format<"date">) | null,
 ): Promise<date_nullable.Output> {
   return PlainFetcher.fetch(connection, {
     ...date_nullable.METADATA,
@@ -373,7 +372,7 @@ export async function date_nullable(
   });
 }
 export namespace date_nullable {
-  export type Output = Primitive<null | string>;
+  export type Output = Primitive<string | null>;
 
   export const METADATA = {
     method: "GET",
@@ -386,6 +385,6 @@ export namespace date_nullable {
     status: 200,
   } as const;
 
-  export const path = (value: null | (string & Format<"date">)) =>
+  export const path = (value: (string & tags.Format<"date">) | null) =>
     `/param/${encodeURIComponent(value?.toString() ?? "null")}/date_nullable`;
 }

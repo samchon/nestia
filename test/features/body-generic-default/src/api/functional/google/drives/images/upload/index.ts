@@ -96,7 +96,7 @@ export async function activate(
   );
 }
 export namespace activate {
-  export type Body = Primitive<IGoogleTokenActivate<"google-auth", never>>;
+  export type Body = Primitive<IGoogleTokenActivate<"google-auth">>;
 
   export const METADATA = {
     method: "POST",

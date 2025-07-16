@@ -6,8 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Primitive } from "typia";
-import type { Format } from "typia/lib/tags/Format";
+import type { Primitive, tags } from "typia";
 
 /**
  * @controller CustomController.customize
@@ -50,7 +49,7 @@ export namespace customize {
  */
 export async function normal(
   connection: IConnection,
-  id: string & Format<"uuid">,
+  id: string & tags.Format<"uuid">,
 ): Promise<normal.Output> {
   return PlainFetcher.fetch(connection, {
     ...normal.METADATA,
@@ -72,6 +71,6 @@ export namespace normal {
     status: 200,
   } as const;
 
-  export const path = (id: string & Format<"uuid">) =>
+  export const path = (id: string & tags.Format<"uuid">) =>
     `/custom/${encodeURIComponent(id?.toString() ?? "null")}/normal`;
 }

@@ -39,7 +39,7 @@ export namespace json {
   export type Props = {
     body?: Body;
   };
-  export type Body = Primitive<undefined | IBodyOptional>;
+  export type Body = Primitive<IBodyOptional | undefined>;
   export type Output = Primitive<IBodyOptional>;
 
   export const METADATA = {

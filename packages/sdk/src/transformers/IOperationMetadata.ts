@@ -3,8 +3,8 @@ import { IMetadata } from "typia/lib/schemas/metadata/IMetadata";
 import { IMetadataComponents } from "typia/lib/schemas/metadata/IMetadataComponents";
 import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
 
+import { IReflectImport } from "../structures/IReflectImport";
 import { IReflectType } from "../structures/IReflectType";
-import { IReflectTypeImport } from "../structures/IReflectTypeImport";
 
 export interface IOperationMetadata {
   parameters: IOperationMetadata.IParameter[];
@@ -22,13 +22,13 @@ export namespace IOperationMetadata {
   }
   export interface IResponse {
     type: IReflectType | null;
-    imports: IReflectTypeImport[];
+    imports: IReflectImport[];
     primitive: ValidationPipe<ISchema, IError>;
     resolved: ValidationPipe<ISchema, IError>;
   }
   export interface IException {
     type: IReflectType | null;
-    imports: IReflectTypeImport[];
+    imports: IReflectImport[];
     primitive: ValidationPipe<ISchema, IError>;
   }
 

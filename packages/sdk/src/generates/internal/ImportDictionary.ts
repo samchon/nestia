@@ -1,12 +1,21 @@
 import path from "path";
-import { HashMap, HashSet, Pair } from "tstl";
+import { HashMap, TreeSet, hash } from "tstl";
 import ts from "typescript";
 
+import { ImportAnalyzer } from "../../analyses/ImportAnalyzer";
+import { IReflectImport } from "../../structures/IReflectImport";
 import { FilePrinter } from "./FilePrinter";
 
 export class ImportDictionary {
-  private readonly components_: HashMap<Pair<string, boolean>, IComposition> =
-    new HashMap();
+  private readonly components_: HashMap<ICompositeKey, ICompositeValue> =
+    new HashMap(
+      (key) => hash(key.file, key.declaration, key.asterisk, key.default),
+      (a, b) =>
+        a.file === b.file &&
+        a.declaration === b.declaration &&
+        a.asterisk === b.asterisk &&
+        a.default === b.default,
+    );
 
   public constructor(public readonly file: string) {}
 
@@ -14,23 +23,42 @@ export class ImportDictionary {
     return this.components_.empty();
   }
 
-  public external(props: ImportDictionary.IExternalProps): string {
-    const key: string = `node_modules/${props.library}`;
-    const composition: IComposition = this.components_.take(
-      new Pair(key, props.type),
-      () => ({
-        location: key,
-        elements: new HashSet(),
-        default: false,
-        type: props.type,
-      }),
-    );
-    if (props.instance === null) composition.default = true;
-    else composition.elements.insert(props.instance);
-    return props.instance ?? props.library;
+  public declarations(imports: IReflectImport[]): void {
+    imports = ImportAnalyzer.merge(imports);
+    for (const imp of imports) {
+      if (imp.asterisk !== null)
+        this.internal({
+          type: "asterisk",
+          file: imp.file,
+          name: imp.asterisk,
+          declaration: true,
+        });
+      if (imp.default !== null)
+        this.internal({
+          type: "default",
+          file: imp.file,
+          name: imp.default,
+          declaration: true,
+        });
+      for (const elem of imp.elements)
+        this.internal({
+          type: "element",
+          file: imp.file,
+          name: elem,
+          declaration: true,
+        });
+    }
   }
 
-  public internal(props: ImportDictionary.IInternalProps): string {
+  public external(props: ImportDictionary.IProps): string {
+    const file: string = `node_modules/${props.file}`;
+    return this.internal({
+      ...props,
+      file,
+    });
+  }
+
+  public internal(props: ImportDictionary.IProps): string {
     const file: string = normalize(
       (() => {
         if (props.file.substring(props.file.length - 5) === ".d.ts")
@@ -40,27 +68,25 @@ export class ImportDictionary {
         return props.file;
       })(),
     );
-    const composition: IComposition = this.components_.take(
-      new Pair(file, props.type),
-      () => ({
-        location: file,
-        elements: new HashSet(),
-        default: false,
-        type: props.type,
-      }),
-    );
-    if (props.instance === null) {
-      composition.default = true;
-      if (props.name) composition.name = props.name;
-    } else composition.elements.insert(props.instance);
-    return props.instance ?? file;
+    const key: ICompositeKey = {
+      file: file,
+      declaration: props.declaration,
+      asterisk: props.type === "asterisk" ? props.name : null,
+      default: props.type === "default" ? props.name : null,
+    };
+    const value: ICompositeValue = this.components_.take(key, () => ({
+      ...key,
+      elements: new TreeSet<string>(),
+    }));
+    if (props.type === "element") value.elements.insert(props.name);
+    return props.name;
   }
 
   public toStatements(outDir: string): ts.Statement[] {
     outDir = path.resolve(outDir);
+
     const external: ts.ImportDeclaration[] = [];
     const internal: ts.ImportDeclaration[] = [];
-
     const locator = (str: string) => {
       const location: string = path
         .relative(outDir, str)
@@ -76,48 +102,26 @@ export class ImportDictionary {
     const enroll =
       (filter: (str: string) => boolean) =>
       (container: ts.ImportDeclaration[]) => {
-        const compositions: IComposition[] = this.components_
+        const compositions: ICompositeValue[] = this.components_
           .toJSON()
-          .filter((c) => filter(c.second.location))
-          .map((e) => ({
-            ...e.second,
-            location: locator(e.second.location),
-          }))
-          .sort((a, b) => a.location.localeCompare(b.location));
-        for (const c of compositions) {
-          const brackets: string[] = [];
-          if (c.default) brackets.push(c.name ?? c.location);
-          if (c.elements.empty() === false)
-            brackets.push(
-              `{ ${c.elements
-                .toJSON()
-                .sort((a, b) => a.localeCompare(b))
-                .join(", ")} }`,
-            );
+          .filter((c) => filter(c.second.file))
+          .map(
+            (e) =>
+              ({
+                ...e.second,
+                file: locator(e.second.file),
+              }) satisfies ICompositeValue,
+          )
+          .sort((a, b) => a.file.localeCompare(b.file));
+        for (const c of compositions)
           container.push(
             ts.factory.createImportDeclaration(
               undefined,
-              ts.factory.createImportClause(
-                c.type,
-                c.default
-                  ? ts.factory.createIdentifier(c.name ?? c.location)
-                  : undefined,
-                c.elements.empty() === false
-                  ? ts.factory.createNamedImports(
-                      [...c.elements].map((elem) =>
-                        ts.factory.createImportSpecifier(
-                          false,
-                          undefined,
-                          ts.factory.createIdentifier(elem),
-                        ),
-                      ),
-                    )
-                  : undefined,
-              ),
-              ts.factory.createStringLiteral(c.location),
+              this.toImportClaude(c),
+              ts.factory.createStringLiteral(c.file),
+              undefined,
             ),
           );
-        }
       };
 
     enroll((str) => str.indexOf(NODE_MODULES) !== -1)(external);
@@ -128,27 +132,50 @@ export class ImportDictionary {
       ...internal,
     ];
   }
+
+  private toImportClaude(c: ICompositeValue): ts.ImportClause {
+    if (c.asterisk !== null)
+      return ts.factory.createImportClause(
+        c.declaration,
+        undefined,
+        ts.factory.createNamespaceImport(
+          ts.factory.createIdentifier(c.asterisk),
+        ),
+      );
+    return ts.factory.createImportClause(
+      c.declaration,
+      c.default !== null ? ts.factory.createIdentifier(c.default) : undefined,
+      c.elements.size() !== 0
+        ? ts.factory.createNamedImports(
+            Array.from(c.elements).map((elem) =>
+              ts.factory.createImportSpecifier(
+                false,
+                undefined,
+                ts.factory.createIdentifier(elem),
+              ),
+            ),
+          )
+        : undefined,
+    );
+  }
 }
 export namespace ImportDictionary {
-  export interface IExternalProps {
-    type: boolean;
-    library: string;
-    instance: string | null;
-  }
-  export interface IInternalProps {
-    type: boolean;
+  export interface IProps {
+    type: "default" | "element" | "asterisk";
     file: string;
-    instance: string | null;
-    name?: string | null;
+    name: string;
+    declaration: boolean;
   }
 }
 
-interface IComposition {
-  location: string;
-  type: boolean;
-  default: boolean;
-  name?: string;
-  elements: HashSet<string>;
+interface ICompositeKey {
+  file: string;
+  declaration: boolean;
+  asterisk: string | null;
+  default: string | null;
+}
+interface ICompositeValue extends ICompositeKey {
+  elements: TreeSet<string>;
 }
 
 const NODE_MODULES = "node_modules/";

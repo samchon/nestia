@@ -7,9 +7,8 @@
 import type { IConnection } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Primitive, Resolved } from "typia";
+import type { Primitive, Resolved, tags } from "typia";
 import typia from "typia";
-import type { Format } from "typia/lib/tags/Format";
 
 import type { IBbsArticle } from "../../../structures/IBbsArticle";
 import type { IPage } from "../../../structures/IPage";
@@ -27,7 +26,7 @@ import type { IPage } from "../../../structures/IPage";
  */
 export async function index(
   connection: IConnection,
-  section: null | string,
+  section: string | null,
   input: index.Body,
 ): Promise<index.Output> {
   return true === connection.simulate
@@ -66,13 +65,13 @@ export namespace index {
     status: 200,
   } as const;
 
-  export const path = (section: null | string) =>
+  export const path = (section: string | null) =>
     `/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles`;
   export const random = (): Resolved<Primitive<IPage<IBbsArticle.ISummary>>> =>
     typia.random<Primitive<IPage<IBbsArticle.ISummary>>>();
   export const simulate = (
     connection: IConnection,
-    section: null | string,
+    section: string | null,
     input: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({
@@ -100,7 +99,7 @@ export namespace index {
  */
 export async function query(
   connection: IConnection,
-  section: null | string,
+  section: string | null,
   input: query.Query,
 ): Promise<query.Output> {
   return true === connection.simulate
@@ -126,7 +125,7 @@ export namespace query {
     status: 200,
   } as const;
 
-  export const path = (section: null | string, input: Query) => {
+  export const path = (section: string | null, input: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(input as any))
       if (undefined === value) continue;
@@ -142,7 +141,7 @@ export namespace query {
     typia.random<Primitive<IPage<IBbsArticle.ISummary>>>();
   export const simulate = (
     connection: IConnection,
-    section: null | string,
+    section: string | null,
     input: Query,
   ): Output => {
     const assert = NestiaSimulator.assert({
@@ -171,7 +170,7 @@ export namespace query {
 export async function at(
   connection: IConnection,
   section: string,
-  id: null | (string & Format<"uuid">),
+  id: (string & tags.Format<"uuid">) | null,
 ): Promise<at.Output> {
   return true === connection.simulate
     ? at.simulate(connection, section, id)
@@ -195,14 +194,17 @@ export namespace at {
     status: 200,
   } as const;
 
-  export const path = (section: string, id: null | (string & Format<"uuid">)) =>
+  export const path = (
+    section: string,
+    id: (string & tags.Format<"uuid">) | null,
+  ) =>
     `/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(id?.toString() ?? "null")}`;
   export const random = (): Resolved<Primitive<IBbsArticle>> =>
     typia.random<Primitive<IBbsArticle>>();
   export const simulate = (
     connection: IConnection,
     section: string,
-    id: null | (string & Format<"uuid">),
+    id: (string & tags.Format<"uuid">) | null,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -230,7 +232,7 @@ export namespace at {
 export async function first(
   connection: IConnection,
   section: string,
-  date: string & Format<"date">,
+  date: string & tags.Format<"date">,
 ): Promise<first.Output> {
   return true === connection.simulate
     ? first.simulate(connection, section, date)
@@ -254,14 +256,14 @@ export namespace first {
     status: 200,
   } as const;
 
-  export const path = (section: string, date: string & Format<"date">) =>
+  export const path = (section: string, date: string & tags.Format<"date">) =>
     `/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles/first/${encodeURIComponent(date?.toString() ?? "null")}`;
   export const random = (): Resolved<Primitive<IBbsArticle>> =>
     typia.random<Primitive<IBbsArticle>>();
   export const simulate = (
     connection: IConnection,
     section: string,
-    date: string & Format<"date">,
+    date: string & tags.Format<"date">,
   ): Output => {
     const assert = NestiaSimulator.assert({
       method: METADATA.method,
@@ -363,7 +365,7 @@ export namespace store {
 export async function update(
   connection: IConnection,
   section: string,
-  id: string & Format<"uuid">,
+  id: string & tags.Format<"uuid">,
   input: update.Body,
 ): Promise<update.Output> {
   return true === connection.simulate
@@ -402,14 +404,14 @@ export namespace update {
     status: 200,
   } as const;
 
-  export const path = (section: string, id: string & Format<"uuid">) =>
+  export const path = (section: string, id: string & tags.Format<"uuid">) =>
     `/bbs/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(id?.toString() ?? "null")}`;
   export const random = (): Resolved<Primitive<IBbsArticle>> =>
     typia.random<Primitive<IBbsArticle>>();
   export const simulate = (
     connection: IConnection,
     section: string,
-    id: string & Format<"uuid">,
+    id: string & tags.Format<"uuid">,
     input: Body,
   ): Output => {
     const assert = NestiaSimulator.assert({

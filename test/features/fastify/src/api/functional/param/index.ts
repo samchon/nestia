@@ -15,7 +15,7 @@ import type { Primitive } from "typia";
  */
 export async function boolean(
   connection: IConnection,
-  value: false | true,
+  value: boolean,
 ): Promise<boolean.Output> {
   return PlainFetcher.fetch(connection, {
     ...boolean.METADATA,
@@ -24,7 +24,7 @@ export async function boolean(
   });
 }
 export namespace boolean {
-  export type Output = Primitive<false | true>;
+  export type Output = Primitive<boolean>;
 
   export const METADATA = {
     method: "GET",
@@ -37,7 +37,7 @@ export namespace boolean {
     status: 200,
   } as const;
 
-  export const path = (value: false | true) =>
+  export const path = (value: boolean) =>
     `/param/${encodeURIComponent(value?.toString() ?? "null")}/boolean`;
 }
 
@@ -114,7 +114,7 @@ export namespace string {
  */
 export async function nullable(
   connection: IConnection,
-  value: null | string,
+  value: string | null,
 ): Promise<nullable.Output> {
   return PlainFetcher.fetch(connection, {
     ...nullable.METADATA,
@@ -123,7 +123,7 @@ export async function nullable(
   });
 }
 export namespace nullable {
-  export type Output = Primitive<null | string>;
+  export type Output = Primitive<string | null>;
 
   export const METADATA = {
     method: "GET",
@@ -136,7 +136,7 @@ export namespace nullable {
     status: 200,
   } as const;
 
-  export const path = (value: null | string) =>
+  export const path = (value: string | null) =>
     `/param/${encodeURIComponent(value?.toString() ?? "null")}/nullable`;
 }
 

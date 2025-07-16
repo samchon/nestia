@@ -6,50 +6,57 @@ export namespace SdkImportWizard {
 
   export const HttpError = (importer: ImportDictionary) =>
     importer.external({
-      type: true,
-      library: "@nestia/fetcher",
-      instance: "HttpError",
+      declaration: true,
+      file: "@nestia/fetcher",
+      type: "element",
+      name: "HttpError",
     });
 
   export const IConnection = (importer: ImportDictionary) =>
     importer.external({
-      type: true,
-      library: "@nestia/fetcher",
-      instance: "IConnection",
+      declaration: true,
+      file: "@nestia/fetcher",
+      type: "element",
+      name: "IConnection",
     });
 
   export const Primitive = (importer: ImportDictionary) =>
     importer.external({
-      type: true,
-      library: "typia",
-      instance: "Primitive",
+      declaration: true,
+      file: "typia",
+      type: "element",
+      name: "Primitive",
     });
 
   export const Resolved = (importer: ImportDictionary) =>
     importer.external({
-      type: true,
-      library: "typia",
-      instance: "Resolved",
+      declaration: true,
+      file: "typia",
+      type: "element",
+      name: "Resolved",
     });
 
   export const typia = (importer: ImportDictionary) =>
     importer.external({
-      type: false,
-      library: "typia",
-      instance: null,
+      declaration: false,
+      file: "typia",
+      type: "default",
+      name: "typia",
     });
 }
 
 const PlainFetcher = (importer: ImportDictionary) =>
   importer.external({
-    type: false,
-    library: "@nestia/fetcher/lib/PlainFetcher",
-    instance: "PlainFetcher",
+    declaration: false,
+    file: "@nestia/fetcher/lib/PlainFetcher",
+    type: "element",
+    name: "PlainFetcher",
   });
 
 const EncryptedFetcher = (importer: ImportDictionary) =>
   importer.external({
-    type: false,
-    library: "@nestia/fetcher/lib/EncryptedFetcher",
-    instance: "EncryptedFetcher",
+    declaration: false,
+    file: "@nestia/fetcher/lib/EncryptedFetcher",
+    type: "element",
+    name: "EncryptedFetcher",
   });

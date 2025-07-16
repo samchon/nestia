@@ -98,10 +98,8 @@ export async function template(
       );
 }
 export namespace template {
-  export type Body = Resolved<
-    | `something_${number}_interesting_${string}_is_not_false_it?`
-    | `something_${number}_interesting_${string}_is_not_true_it?`
-  >;
+  export type Body =
+    Resolved<`something_${number}_interesting_${string}_is_not_${boolean}_it?`>;
   export type Output = Resolved<string>;
 
   export const METADATA = {

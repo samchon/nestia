@@ -9,7 +9,7 @@ export const test_api_body_optional_json = async (
 ) => {
   const output: Primitive<IBodyOptional> =
     await api.functional.body.optional.json(connection, {
-      body: typia.random<undefined | IBodyOptional>(),
+      body: typia.random<IBodyOptional | undefined>(),
     });
   typia.assert(output);
 };

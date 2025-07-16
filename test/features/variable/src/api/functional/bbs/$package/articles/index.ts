@@ -6,8 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Primitive, Resolved } from "typia";
-import type { Format } from "typia/lib/tags/Format";
+import type { Primitive, Resolved, tags } from "typia";
 
 import type { IBbsArticle } from "../../../../structures/IBbsArticle";
 import type { IPage } from "../../../../structures/IPage";
@@ -25,7 +24,7 @@ import type { IPage } from "../../../../structures/IPage";
  */
 export async function index(
   connection: IConnection,
-  section: null | string,
+  section: string | null,
   input: index.Body,
 ): Promise<index.Output> {
   return PlainFetcher.fetch(
@@ -62,7 +61,7 @@ export namespace index {
     status: 200,
   } as const;
 
-  export const path = (section: null | string) =>
+  export const path = (section: string | null) =>
     `/bbs/package/${encodeURIComponent(section?.toString() ?? "null")}/articles`;
 }
 
@@ -79,7 +78,7 @@ export namespace index {
  */
 export async function $catch(
   connection: IConnection,
-  section: null | string,
+  section: string | null,
   input: $catch.Query,
 ): Promise<$catch.Output> {
   return PlainFetcher.fetch(connection, {
@@ -103,7 +102,7 @@ export namespace $catch {
     status: 200,
   } as const;
 
-  export const path = (section: null | string, input: Query) => {
+  export const path = (section: string | null, input: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(input as any))
       if (undefined === value) continue;
@@ -131,7 +130,7 @@ export namespace $catch {
 export async function at(
   connection: IConnection,
   section: string,
-  id: null | (string & Format<"uuid">),
+  id: (string & tags.Format<"uuid">) | null,
 ): Promise<at.Output> {
   return PlainFetcher.fetch(connection, {
     ...at.METADATA,
@@ -153,7 +152,10 @@ export namespace at {
     status: 200,
   } as const;
 
-  export const path = (section: string, id: null | (string & Format<"uuid">)) =>
+  export const path = (
+    section: string,
+    id: (string & tags.Format<"uuid">) | null,
+  ) =>
     `/bbs/package/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(id?.toString() ?? "null")}`;
 }
 
@@ -171,7 +173,7 @@ export namespace at {
 export async function $new(
   connection: IConnection,
   section: string,
-  date: string & Format<"date">,
+  date: string & tags.Format<"date">,
 ): Promise<$new.Output> {
   return PlainFetcher.fetch(connection, {
     ...$new.METADATA,
@@ -193,7 +195,7 @@ export namespace $new {
     status: 200,
   } as const;
 
-  export const path = (section: string, date: string & Format<"date">) =>
+  export const path = (section: string, date: string & tags.Format<"date">) =>
     `/bbs/package/${encodeURIComponent(section?.toString() ?? "null")}/articles/new/${encodeURIComponent(date?.toString() ?? "null")}`;
 }
 
@@ -266,7 +268,7 @@ export namespace store {
 export async function update(
   connection: IConnection,
   section: string,
-  id: string & Format<"uuid">,
+  id: string & tags.Format<"uuid">,
   input: update.Body,
 ): Promise<update.Output> {
   return PlainFetcher.fetch(
@@ -303,7 +305,7 @@ export namespace update {
     status: 200,
   } as const;
 
-  export const path = (section: string, id: string & Format<"uuid">) =>
+  export const path = (section: string, id: string & tags.Format<"uuid">) =>
     `/bbs/package/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(id?.toString() ?? "null")}`;
 }
 
@@ -320,7 +322,7 @@ export namespace update {
 export async function $$delete(
   connection: IConnection,
   section: string,
-  id: string & Format<"uuid">,
+  id: string & tags.Format<"uuid">,
 ): Promise<void> {
   return PlainFetcher.fetch(connection, {
     ...$$delete.METADATA,
@@ -340,7 +342,7 @@ export namespace $$delete {
     status: 200,
   } as const;
 
-  export const path = (section: string, id: string & Format<"uuid">) =>
+  export const path = (section: string, id: string & tags.Format<"uuid">) =>
     `/bbs/package/${encodeURIComponent(section?.toString() ?? "null")}/articles/${encodeURIComponent(id?.toString() ?? "null")}`;
 }
 

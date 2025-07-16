@@ -5,8 +5,8 @@
  */
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
+import type { Driver, WebSocketAcceptor } from "tgrid";
 import { WebSocketConnector } from "tgrid";
-import type { Driver } from "tgrid";
 
 import type { ICalculator } from "../../interfaces/ICalculator";
 import type { IListener } from "../../interfaces/IListener";

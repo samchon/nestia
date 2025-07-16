@@ -6,8 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Primitive } from "typia";
-import type { Format } from "typia/lib/tags/Format";
+import type { Primitive, tags } from "typia";
 
 import type { IBbsArticle } from "../../../structures/IBbsArticle";
 
@@ -80,7 +79,7 @@ export namespace store {
 export async function update(
   connection: IConnection,
   section: string,
-  id: string & Format<"uuid">,
+  id: string & tags.Format<"uuid">,
   input: update.Body,
 ): Promise<update.Output> {
   return PlainFetcher.fetch(
@@ -117,6 +116,6 @@ export namespace update {
     status: 200,
   } as const;
 
-  export const path = (section: string, id: string & Format<"uuid">) =>
+  export const path = (section: string, id: string & tags.Format<"uuid">) =>
     `/bbs/articles/${encodeURIComponent(section?.toString() ?? "null")}/${encodeURIComponent(id?.toString() ?? "null")}`;
 }

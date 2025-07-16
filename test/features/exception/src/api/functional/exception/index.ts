@@ -6,8 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Primitive } from "typia";
-import type { TypeGuardError } from "typia/lib/TypeGuardError";
+import type { Primitive, TypeGuardError } from "typia";
 
 import type { IBbsArticle } from "../../structures/IBbsArticle";
 import type { IExceptional } from "../../structures/IExceptional";
@@ -85,7 +84,7 @@ export async function union(
 }
 export namespace union {
   export type Output = Primitive<
-    INotFound | IUnprocessibleEntity | IBbsArticle
+    IBbsArticle | INotFound | IUnprocessibleEntity
   >;
 
   export const METADATA = {

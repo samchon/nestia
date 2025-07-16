@@ -6,10 +6,9 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
+import type { Driver, WebSocketAcceptor } from "tgrid";
 import { WebSocketConnector } from "tgrid";
-import type { Driver } from "tgrid";
-import type { Primitive } from "typia";
-import type { Format } from "typia/lib/tags/Format";
+import type { Primitive, tags } from "typia";
 
 import type { ICalcConfig } from "../../interfaces/ICalcConfig";
 import type { ICalcEventListener } from "../../interfaces/ICalcEventListener";
@@ -58,7 +57,7 @@ export namespace health {
  */
 export async function composite(
   connection: IConnection<composite.Header>,
-  id: string & Format<"uri">,
+  id: string & tags.Format<"uri">,
   nickname: string,
   query: composite.Query,
   provider: composite.Provider,
@@ -88,7 +87,7 @@ export namespace composite {
   export type Query = ICalcReferrer;
 
   export const path = (
-    id: string & Format<"uri">,
+    id: string & tags.Format<"uri">,
     nickname: string,
     query: Query,
   ) => {

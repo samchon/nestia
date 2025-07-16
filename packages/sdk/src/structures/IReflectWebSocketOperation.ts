@@ -1,7 +1,7 @@
 import { VERSION_NEUTRAL } from "@nestjs/common";
 import ts from "typescript";
 
-import { IReflectTypeImport } from "./IReflectTypeImport";
+import { IReflectImport } from "./IReflectImport";
 import { IReflectWebSocketOperationParameter } from "./IReflectWebSocketOperationParameter";
 
 export interface IReflectWebSocketOperation {
@@ -11,7 +11,7 @@ export interface IReflectWebSocketOperation {
   function: Function;
   versions: Array<string | typeof VERSION_NEUTRAL> | undefined;
   parameters: IReflectWebSocketOperationParameter[];
-  imports: IReflectTypeImport[];
+  imports: IReflectImport[];
   description: string | null;
   jsDocTags: ts.JSDocTagInfo[];
 }

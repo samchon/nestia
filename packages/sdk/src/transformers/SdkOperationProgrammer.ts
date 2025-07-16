@@ -1,3 +1,4 @@
+import { Singleton } from "tstl";
 import ts from "typescript";
 import { CommentFactory } from "typia/lib/factories/CommentFactory";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
@@ -8,7 +9,8 @@ import { MetadataObjectType } from "typia/lib/schemas/metadata/MetadataObjectTyp
 import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
 import { Escaper } from "typia/lib/utils/Escaper";
 
-import { ImportAnalyzer } from "../analyses/ImportAnalyzer";
+import { DtoAnalyzer } from "../analyses/DtoAnalyzer";
+import { IReflectImport } from "../structures/IReflectImport";
 import { MetadataUtil } from "../utils/MetadataUtil";
 import { IOperationMetadata } from "./IOperationMetadata";
 import { ISdkOperationTransformerContext } from "./ISdkOperationTransformerContext";
@@ -16,7 +18,7 @@ import { ISdkOperationTransformerContext } from "./ISdkOperationTransformerConte
 export namespace SdkOperationProgrammer {
   export interface IProps {
     context: ISdkOperationTransformerContext;
-    generics: WeakMap<ts.Type, ts.Type>;
+    imports: Singleton<IReflectImport[]>;
     node: ts.MethodDeclaration;
     symbol: ts.Symbol | undefined;
     exceptions: ts.TypeNode[];
@@ -26,14 +28,15 @@ export namespace SdkOperationProgrammer {
       parameters: p.node.parameters.map((parameter, index) =>
         writeParameter({
           context: p.context,
-          generics: p.generics,
+          imports: p.imports,
           parameter,
           index,
         }),
       ),
       success: writeResponse({
         context: p.context,
-        generics: p.generics,
+        imports: p.imports,
+        typeNode: p.node.type ? getReturnTypeNode(p.node.type) : null,
         type: getReturnType({
           checker: p.context.checker,
           signature: p.context.checker.getSignatureFromDeclaration(p.node),
@@ -42,7 +45,8 @@ export namespace SdkOperationProgrammer {
       exceptions: p.exceptions.map((e) =>
         writeResponse({
           context: p.context,
-          generics: p.generics,
+          imports: p.imports,
+          typeNode: e,
           type: p.context.checker.getTypeFromTypeNode(e),
         }),
       ),
@@ -55,7 +59,7 @@ export namespace SdkOperationProgrammer {
 
   const writeParameter = (props: {
     context: ISdkOperationTransformerContext;
-    generics: WeakMap<ts.Type, ts.Type>;
+    imports: Singleton<IReflectImport[]>;
     parameter: ts.ParameterDeclaration;
     index: number;
   }): IOperationMetadata.IParameter => {
@@ -63,7 +67,8 @@ export namespace SdkOperationProgrammer {
       props.context.checker.getSymbolAtLocation(props.parameter);
     const common: IOperationMetadata.IResponse = writeResponse({
       context: props.context,
-      generics: props.generics,
+      imports: props.imports,
+      typeNode: props.parameter.type ?? null,
       type:
         props.context.checker.getTypeFromTypeNode(
           props.parameter.type ?? TypeFactory.keyword("any"),
@@ -86,15 +91,26 @@ export namespace SdkOperationProgrammer {
 
   const writeResponse = (p: {
     context: ISdkOperationTransformerContext;
-    generics: WeakMap<ts.Type, ts.Type>;
+    imports: Singleton<IReflectImport[]>;
+    typeNode: ts.TypeNode | null;
     type: ts.Type | null;
   }): IOperationMetadata.IResponse => {
-    const analyzed: ImportAnalyzer.IOutput = p.type
-      ? ImportAnalyzer.analyze(p.context.checker, p.generics, p.type)
-      : {
-          type: { name: "any" },
-          imports: [],
-        };
+    const analyzed: DtoAnalyzer.IOutput | null = p.typeNode
+      ? DtoAnalyzer.analyzeNode({
+          checker: p.context.checker,
+          imports: p.imports.get(),
+          typeNode: p.typeNode,
+        })
+      : p.type
+        ? DtoAnalyzer.analyzeType({
+            checker: p.context.checker,
+            imports: p.imports.get(),
+            type: p.type,
+          })
+        : {
+            type: { name: "any" },
+            imports: [],
+          };
     const [primitive, resolved] = [true, false].map((escape) =>
       MetadataFactory.analyze({
         checker: p.context.checker,
@@ -109,7 +125,12 @@ export namespace SdkOperationProgrammer {
       }),
     );
     return {
-      ...analyzed,
+      ...(analyzed
+        ? analyzed
+        : {
+            imports: [],
+            type: null,
+          }),
       primitive: writeSchema({
         collection: p.context.collection,
         result: primitive,
@@ -166,22 +187,6 @@ export namespace SdkOperationProgrammer {
       },
     };
   };
-
-  const getReturnType = (p: {
-    checker: ts.TypeChecker;
-    signature: ts.Signature | undefined;
-  }): ts.Type | null => {
-    const type: ts.Type | null =
-      (p.signature && p.checker.getReturnTypeOfSignature(p.signature)) ?? null;
-    if (type === null) return null;
-    else if (type.symbol?.name === "Promise") {
-      const generic: readonly ts.Type[] = p.checker.getTypeArguments(
-        type as ts.TypeReference,
-      );
-      return generic[0] ?? null;
-    }
-    return type;
-  };
 }
 
 const iterateVisited = (metadata: Metadata): Set<string> => {
@@ -206,4 +211,28 @@ const join = ({
   else if (typeof key === "object") return `${object.name}[key]`;
   else if (Escaper.variable(key)) return `${object.name}.${key}`;
   return `${object.name}[${JSON.stringify(key)}]`;
+};
+
+const getReturnTypeNode = (node: ts.TypeNode): ts.TypeNode | null => {
+  if (ts.isTypeReferenceNode(node)) {
+    const typeName: string = node.typeName.getText();
+    if (typeName === "Promise") return node.typeArguments?.[0] ?? null;
+  }
+  return node;
+};
+
+const getReturnType = (p: {
+  checker: ts.TypeChecker;
+  signature: ts.Signature | undefined;
+}): ts.Type | null => {
+  const type: ts.Type | null =
+    (p.signature && p.checker.getReturnTypeOfSignature(p.signature)) ?? null;
+  if (type === null) return null;
+  else if (type.symbol?.name === "Promise") {
+    const generic: readonly ts.Type[] = p.checker.getTypeArguments(
+      type as ts.TypeReference,
+    );
+    return generic[0] ?? null;
+  }
+  return type;
 };

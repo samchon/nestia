@@ -6,8 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Primitive } from "typia";
-import type { Format } from "typia/lib/tags/Format";
+import type { Primitive, tags } from "typia";
 
 import type { IBbsArticle } from "../../structures/IBbsArticle";
 
@@ -44,8 +43,8 @@ export async function store(
   );
 }
 export namespace store {
-  export type Body = Primitive<IBbsArticle.IStore<string>>;
-  export type Output = Primitive<IBbsArticle<string>>;
+  export type Body = Primitive<IBbsArticle.IStore>;
+  export type Output = Primitive<IBbsArticle>;
 
   export const METADATA = {
     method: "POST",
@@ -71,7 +70,7 @@ export namespace store {
  */
 export async function update(
   connection: IConnection,
-  id: string & Format<"uuid">,
+  id: string & tags.Format<"uuid">,
   input: update.Body,
 ): Promise<void> {
   return PlainFetcher.fetch(
@@ -91,7 +90,7 @@ export async function update(
   );
 }
 export namespace update {
-  export type Body = Primitive<Partial<IBbsArticle.IStore<string>>>;
+  export type Body = Primitive<IBbsArticle.IUpdate>;
 
   export const METADATA = {
     method: "PUT",
@@ -107,6 +106,6 @@ export namespace update {
     status: 200,
   } as const;
 
-  export const path = (id: string & Format<"uuid">) =>
+  export const path = (id: string & tags.Format<"uuid">) =>
     `/body/${encodeURIComponent(id?.toString() ?? "null")}`;
 }

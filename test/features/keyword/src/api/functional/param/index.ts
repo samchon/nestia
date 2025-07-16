@@ -25,9 +25,9 @@ export async function boolean(
 }
 export namespace boolean {
   export type Props = {
-    value: false | true;
+    value: boolean;
   };
-  export type Output = Primitive<false | true>;
+  export type Output = Primitive<boolean>;
 
   export const METADATA = {
     method: "GET",
@@ -133,9 +133,9 @@ export async function nullable(
 }
 export namespace nullable {
   export type Props = {
-    value: null | string;
+    value: string | null;
   };
-  export type Output = Primitive<null | string>;
+  export type Output = Primitive<string | null>;
 
   export const METADATA = {
     method: "GET",

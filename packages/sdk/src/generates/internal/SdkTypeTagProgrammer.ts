@@ -10,13 +10,14 @@ export namespace SdkTypeTagProgrammer {
     from: "object" | "array" | "boolean" | "number" | "bigint" | "string",
     tag: IMetadataTypeTag,
   ) => {
-    const instance: string = tag.name.split("<")[0];
-    if (PREDEFINED[from]?.has(instance) === true)
+    const name: string = tag.name.split("<")[0];
+    if (PREDEFINED[from]?.has(name) === true)
       return ts.factory.createTypeReferenceNode(
         importer.external({
-          type: true,
-          library: `typia/lib/tags/${instance}`,
-          instance,
+          declaration: true,
+          file: `typia/lib/tags/${name}`,
+          type: "element",
+          name: name,
         }),
         [
           ts.factory.createLiteralTypeNode(
@@ -26,9 +27,10 @@ export namespace SdkTypeTagProgrammer {
       );
     return ts.factory.createTypeReferenceNode(
       importer.external({
-        type: true,
-        library: `typia/lib/tags/TagBase`,
-        instance: "TagBase",
+        declaration: true,
+        file: `typia/lib/tags/TagBase`,
+        type: "element",
+        name: "TagBase",
       }),
       [
         ts.factory.createLiteralTypeNode(

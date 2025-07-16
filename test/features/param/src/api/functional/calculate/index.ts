@@ -5,9 +5,9 @@
  */
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
+import type { Driver, WebSocketAcceptor } from "tgrid";
 import { WebSocketConnector } from "tgrid";
-import type { Driver } from "tgrid";
-import type { Format } from "typia/lib/tags/Format";
+import type { tags } from "typia";
 
 import type { ICalculator } from "../../structures/ICalculator";
 import type { IListener } from "../../structures/IListener";
@@ -20,7 +20,7 @@ import type { IPrecision } from "../../structures/IPrecision";
  */
 export async function connect(
   connection: IConnection<connect.Header>,
-  id: string & Format<"uuid">,
+  id: string & tags.Format<"uuid">,
   provider: connect.Provider,
 ): Promise<connect.Output> {
   const connector: WebSocketConnector<
@@ -46,6 +46,6 @@ export namespace connect {
   export type Provider = IListener;
   export type Listener = ICalculator;
 
-  export const path = (id: string & Format<"uuid">) =>
+  export const path = (id: string & tags.Format<"uuid">) =>
     `/calculate/${encodeURIComponent(id?.toString() ?? "null")}`;
 }
