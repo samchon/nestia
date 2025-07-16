@@ -7,17 +7,17 @@ import api from "../../../../api";
 import type { INothing } from "../../../../api/structures/INothing";
 import type { ISomething } from "../../../../api/structures/ISomething";
 
-export const test_api_pnpm_config = async (connection: api.IConnection) => {
+export const test_api_external_config = async (connection: api.IConnection) => {
   const output: IPropagation<
     {
-      201: Primitive<INestiaConfig.ISwaggerConfig>;
+      201: Primitive<INestiaConfig>;
     },
     201
-  > = await api.functional.pnpm.config(
+  > = await api.functional.external.config(
     connection,
     typia.random<string & tags.Format<"uuid">>(),
-    typia.random<Partial<ISomething.IQuery>>(),
-    typia.random<INothing.IBody>(),
+    typia.random<Partial<INothing>>(),
+    typia.random<ISomething>(),
   );
   typia.assert(output);
 };

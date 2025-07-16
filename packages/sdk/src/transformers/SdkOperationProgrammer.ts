@@ -18,39 +18,36 @@ export namespace SdkOperationProgrammer {
   export interface IProps {
     context: ISdkOperationTransformerContext;
     imports: Singleton<IReflectImport[]>;
-    generics: WeakMap<ts.Type, ts.Type>;
     node: ts.MethodDeclaration;
     symbol: ts.Symbol | undefined;
     exceptions: ts.TypeNode[];
   }
-  export const write = (p: IProps): IOperationMetadata => {
-    return {
-      parameters: p.node.parameters.map((parameter, index) =>
-        writeParameter({
-          context: p.context,
-          imports: p.imports,
-          parameter,
-          index,
-        }),
-      ),
-      success: writeResponse({
+  export const write = (p: IProps): IOperationMetadata => ({
+    parameters: p.node.parameters.map((parameter, index) =>
+      writeParameter({
         context: p.context,
         imports: p.imports,
-        typeNode: p.node.type ?? null,
+        parameter,
+        index,
       }),
-      exceptions: p.exceptions.map((e) =>
-        writeResponse({
-          context: p.context,
-          imports: p.imports,
-          typeNode: e,
-        }),
-      ),
-      jsDocTags: p.symbol?.getJsDocTags() ?? [],
-      description: p.symbol
-        ? (CommentFactory.description(p.symbol) ?? null)
-        : null,
-    };
-  };
+    ),
+    success: writeResponse({
+      context: p.context,
+      imports: p.imports,
+      typeNode: p.node.type ? escapePromise(p.node.type) : null,
+    }),
+    exceptions: p.exceptions.map((e) =>
+      writeResponse({
+        context: p.context,
+        imports: p.imports,
+        typeNode: e,
+      }),
+    ),
+    jsDocTags: p.symbol?.getJsDocTags() ?? [],
+    description: p.symbol
+      ? (CommentFactory.description(p.symbol) ?? null)
+      : null,
+  });
 
   const writeParameter = (props: {
     context: ISdkOperationTransformerContext;
@@ -197,4 +194,12 @@ const join = ({
   else if (typeof key === "object") return `${object.name}[key]`;
   else if (Escaper.variable(key)) return `${object.name}.${key}`;
   return `${object.name}[${JSON.stringify(key)}]`;
+};
+
+const escapePromise = (node: ts.TypeNode): ts.TypeNode | null => {
+  if (ts.isTypeReferenceNode(node)) {
+    const typeName: string = node.typeName.getText();
+    if (typeName === "Promise") return node.typeArguments?.[0] ?? null;
+  }
+  return node;
 };

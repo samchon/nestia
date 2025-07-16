@@ -6,11 +6,11 @@
 //================================================================
 import type { IConnection, IPropagation } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { INestiaConfig } from "@nestia/sdk";
-import type { Primitive, Resolved, tags } from "typia";
+import type { Format } from "typia/lib/tags/Format";
 
-import type { INothing } from "../../structures/INothing";
+import type { INestiaConfig } from "../../structures/INestiaConfig";
 import type { ISomething } from "../../structures/ISomething";
+import type { PartialINothing } from "../../structures/PartialINothing";
 
 /**
  * @controller ExternalController.config
@@ -19,7 +19,7 @@ import type { ISomething } from "../../structures/ISomething";
  */
 export async function config(
   connection: IConnection,
-  id: string & tags.Format<"uuid">,
+  id: string & Format<"uuid">,
   query: config.Query,
   body: config.Body,
 ): Promise<config.Output> {
@@ -40,11 +40,11 @@ export async function config(
   );
 }
 export namespace config {
-  export type Query = Resolved<Partial<INothing>>;
-  export type Body = Primitive<ISomething>;
+  export type Query = PartialINothing;
+  export type Body = ISomething;
   export type Output = IPropagation<
     {
-      201: Primitive<INestiaConfig>;
+      201: INestiaConfig;
     },
     201
   >;
@@ -63,7 +63,7 @@ export namespace config {
     status: 201,
   } as const;
 
-  export const path = (id: string & tags.Format<"uuid">, query: Query) => {
+  export const path = (id: string & Format<"uuid">, query: Query) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;

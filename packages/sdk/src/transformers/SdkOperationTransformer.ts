@@ -5,7 +5,6 @@ import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
-import { GenericAnalyzer } from "../analyses/GenericAnalyzer";
 import { ImportAnalyzer } from "../analyses/ImportAnalyzer";
 import { IReflectImport } from "../structures/IReflectImport";
 import { IOperationMetadata } from "./IOperationMetadata";
@@ -99,11 +98,6 @@ export namespace SdkOperationTransformer {
     imports: Singleton<IReflectImport[]>;
     node: ts.ClassDeclaration;
   }): ts.ClassDeclaration => {
-    const generics: WeakMap<ts.Type, ts.Type> = GenericAnalyzer.analyze(
-      props.context.checker,
-      props.node,
-    );
-
     // TO AVOID COMMENT COMPILATION BUG
     const symbolDict: Map<string, ts.Symbol> = new Map();
     const classType: ts.InterfaceType = props.context.checker.getTypeAtLocation(
@@ -127,7 +121,6 @@ export namespace SdkOperationTransformer {
         ts.isMethodDeclaration(m)
           ? transformMethod({
               ...props,
-              generics,
               class: props.node,
               node: m,
               symbol: symbolDict.get(m.name.getText()),
@@ -142,7 +135,6 @@ export namespace SdkOperationTransformer {
     visitor: IVisitor;
     imports: Singleton<IReflectImport[]>;
     class: ts.ClassDeclaration;
-    generics: WeakMap<ts.Type, ts.Type>;
     node: ts.MethodDeclaration;
     symbol: ts.Symbol | undefined;
   }): ts.MethodDeclaration => {
