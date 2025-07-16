@@ -7,8 +7,6 @@
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 
-import type { PubkeyInput } from "../../../../controllers/TransactionController";
-
 /**
  * @controller TransactionController.findTransactionsByUser
  * @path GET /transaction/user/:pubkey

@@ -1,6 +1,5 @@
+import type { Primitive, tags } from "typia";
 import typia from "typia";
-import type { Primitive } from "typia";
-import type { Format } from "typia/lib/tags/Format";
 
 import api from "../../../../api";
 import type { IBbsArticle } from "../../../../api/structures/IBbsArticle";
@@ -12,7 +11,7 @@ export const test_api_bbs_$package_articles_$new = async (
     await api.functional.bbs.$package.articles.$new(
       connection,
       typia.random<string>(),
-      typia.random<string & Format<"date">>(),
+      typia.random<string & tags.Format<"date">>(),
     );
   typia.assert(output);
 };

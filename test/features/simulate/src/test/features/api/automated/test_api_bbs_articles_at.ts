@@ -1,5 +1,5 @@
+import type { Primitive, tags } from "typia";
 import typia from "typia";
-import type { Primitive } from "typia";
 
 import api from "../../../../api";
 import type { IBbsArticle } from "../../../../api/structures/IBbsArticle";
