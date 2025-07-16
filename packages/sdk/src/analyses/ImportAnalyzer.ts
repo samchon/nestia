@@ -125,7 +125,7 @@ export namespace ImportAnalyzer {
     const sourceFile: ts.SourceFile | undefined =
       symbol.declarations?.[0]?.getSourceFile();
     if (sourceFile === undefined) return { name };
-    else if (sourceFile.fileName.indexOf("typescript/lib") === -1) {
+    else if (sourceFile.fileName.indexOf("/typescript/lib") === -1) {
       const set: Set<string> = MapUtil.take(
         props.imports,
         sourceFile.fileName,
@@ -136,7 +136,7 @@ export namespace ImportAnalyzer {
 
     // CHECK GENERIC
     const generic: readonly ts.Type[] = type.aliasSymbol
-      ? type.aliasTypeArguments ?? []
+      ? (type.aliasTypeArguments ?? [])
       : props.checker.getTypeArguments(type as ts.TypeReference);
     return generic.length
       ? name === "Promise"
