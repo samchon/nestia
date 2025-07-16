@@ -92,15 +92,9 @@ export namespace DtoAnalyzer {
           asterisk: null,
         });
     if (name !== "Promise" && matched === false) {
-      // const type: ts.Type = escapeType(
-      //   ctx.checker,
-      //   ctx.checker.getTypeFromTypeNode(typeNode),
-      // );
       const symbol: ts.Symbol | undefined = ctx.checker.getSymbolAtLocation(
         typeNode.typeName,
       );
-      //type.aliasSymbol ?? type.symbol;
-      if (name === "IBbsArticle.IUpdate") console.log(symbol);
       if (symbol !== undefined)
         exploreNotFound(ctx, {
           symbol,
