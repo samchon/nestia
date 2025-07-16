@@ -8,7 +8,7 @@ export namespace DtoAnalyzer {
   export interface IProps {
     checker: ts.TypeChecker;
     imports: IReflectImport[];
-    type: ts.Type;
+    typeNode: ts.TypeNode;
   }
   export interface IOutput {
     imports: IReflectImport[];
@@ -24,7 +24,7 @@ export namespace DtoAnalyzer {
           imports: props.imports,
           container,
         },
-        escape(props.checker, props.type),
+        props.typeNode,
       );
       return {
         type,
@@ -35,31 +35,33 @@ export namespace DtoAnalyzer {
     }
   };
 
-  type IContext = Omit<IProps, "type"> & {
+  type IContext = Omit<IProps, "typeNode"> & {
     container: IReflectImport[];
   };
 
-  const explore = (ctx: IContext, type: ts.Type): IReflectType => {
+  const explore = (ctx: IContext, typeNode: ts.TypeNode): IReflectType => {
     // Analyze symbol, and take special cares
-    const symbol: ts.Symbol | undefined = type.aliasSymbol ?? type.symbol;
-    if (type.aliasSymbol === undefined && type.isUnionOrIntersection())
+    if (ts.isIntersectionTypeNode(typeNode))
       return {
-        name: type.types
+        name: typeNode.types
           .map((child) => explore(ctx, child))
           .map(getEscapedText)
-          .join(type.isIntersection() ? " & " : " | "),
+          .join(" & "),
       };
-    else if (symbol === undefined)
+    else if (ts.isUnionTypeNode(typeNode))
       return {
-        name: ctx.checker.typeToString(
-          type,
-          undefined,
-          ts.TypeFormatFlags.NoTruncation,
-        ),
+        name: typeNode.types
+          .map((child) => explore(ctx, child))
+          .map(getEscapedText)
+          .join(" | "),
+      };
+    else if (ts.isTypeReferenceNode(typeNode) === false)
+      return {
+        name: typeNode.getText(),
       };
 
     // Find matched import statement
-    const name: string = getNameOfSymbol(symbol);
+    const name: string = typeNode.typeName.getText();
     const prefix: string = name.split(".")[0];
 
     let matched: boolean = false;
@@ -89,19 +91,22 @@ export namespace DtoAnalyzer {
           elements: [prefix],
           asterisk: null,
         });
-    if (matched === false) exploreNotFound(ctx, symbol, prefix);
+    if (name !== "Promise" && matched === false) {
+      const type: ts.Type = ctx.checker.getTypeFromTypeNode(typeNode);
+      const symbol: ts.Symbol | undefined = type.aliasSymbol ?? type.symbol;
+      if (symbol !== undefined) exploreNotFound(ctx, symbol, prefix);
+    }
 
     // Finalize with generic arguments
-    const generic: readonly ts.Type[] = type.aliasSymbol
-      ? (type.aliasTypeArguments ?? [])
-      : ctx.checker.getTypeArguments(type as ts.TypeReference);
-    if (generic.length !== 0) {
-      if (name === "Promise") return explore(ctx, generic[0]);
-      else
-        return {
-          name,
-          typeArguments: generic.map((child) => explore(ctx, child)),
-        };
+    if (!!typeNode.typeArguments?.length) {
+      const top: ts.TypeNode = typeNode.typeArguments[0];
+      if (name === "Promise") return explore(ctx, top);
+      return {
+        name,
+        typeArguments: typeNode.typeArguments.map((child) =>
+          explore(ctx, child),
+        ),
+      };
     }
     return { name };
   };
@@ -124,34 +129,6 @@ export namespace DtoAnalyzer {
       });
   };
 }
-
-const escape = (checker: ts.TypeChecker, type: ts.Type): ts.Type => {
-  if (type.symbol && getNameOfSymbol(type.symbol) === "Promise") {
-    const generic: readonly ts.Type[] = checker.getTypeArguments(
-      type as ts.TypeReference,
-    );
-    if (generic.length !== 1)
-      throw new Error(
-        "Error on ImportAnalyzer.analyze(): invalid promise type.",
-      );
-    type = generic[0];
-  }
-  return type;
-};
-
-const getNameOfSymbol = (symbol: ts.Symbol): string =>
-  exploreName(
-    symbol.escapedName.toString(),
-    symbol.getDeclarations()?.[0]?.parent,
-  );
-
-const exploreName = (name: string, decl?: ts.Node): string =>
-  decl && ts.isModuleBlock(decl)
-    ? exploreName(
-        `${decl.parent.name.getFullText().trim()}.${name}`,
-        decl.parent.parent,
-      )
-    : name;
 
 const getEscapedText = (type: IReflectType): string =>
   type.typeArguments

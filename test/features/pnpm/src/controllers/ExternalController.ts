@@ -12,7 +12,7 @@ export class ExternalController {
   @TypedRoute.Post("config/:id")
   public async config(
     @TypedParam("id") id: string & tags.Format<"uuid">,
-    @TypedQuery() query: INothing,
+    @TypedQuery() query: Partial<INothing>,
     @TypedBody() body: ISomething,
   ): Promise<INestiaConfig> {
     id;

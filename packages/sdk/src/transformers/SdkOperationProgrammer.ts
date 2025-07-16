@@ -3,7 +3,6 @@ import ts from "typescript";
 import { CommentFactory } from "typia/lib/factories/CommentFactory";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
-import { TypeFactory } from "typia/lib/factories/TypeFactory";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 import { MetadataObjectType } from "typia/lib/schemas/metadata/MetadataObjectType";
 import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
@@ -37,16 +36,13 @@ export namespace SdkOperationProgrammer {
       success: writeResponse({
         context: p.context,
         imports: p.imports,
-        type: getReturnType({
-          checker: p.context.checker,
-          signature: p.context.checker.getSignatureFromDeclaration(p.node),
-        }),
+        typeNode: p.node.type ?? null,
       }),
       exceptions: p.exceptions.map((e) =>
         writeResponse({
           context: p.context,
           imports: p.imports,
-          type: p.context.checker.getTypeFromTypeNode(e),
+          typeNode: e,
         }),
       ),
       jsDocTags: p.symbol?.getJsDocTags() ?? [],
@@ -67,10 +63,7 @@ export namespace SdkOperationProgrammer {
     const common: IOperationMetadata.IResponse = writeResponse({
       context: props.context,
       imports: props.imports,
-      type:
-        props.context.checker.getTypeFromTypeNode(
-          props.parameter.type ?? TypeFactory.keyword("any"),
-        ) ?? null,
+      typeNode: props.parameter.type ?? null,
     });
     const optional: boolean = props.parameter.questionToken !== undefined;
     if (common.primitive.success)
@@ -90,13 +83,13 @@ export namespace SdkOperationProgrammer {
   const writeResponse = (p: {
     context: ISdkOperationTransformerContext;
     imports: Singleton<IReflectImport[]>;
-    type: ts.Type | null;
+    typeNode: ts.TypeNode | null;
   }): IOperationMetadata.IResponse => {
-    const analyzed: DtoAnalyzer.IOutput | null = p.type
+    const analyzed: DtoAnalyzer.IOutput | null = p.typeNode
       ? DtoAnalyzer.analyze({
           checker: p.context.checker,
           imports: p.imports.get(),
-          type: p.type,
+          typeNode: p.typeNode,
         })
       : {
           type: { name: "any" },
@@ -112,7 +105,9 @@ export namespace SdkOperationProgrammer {
           absorb: true,
         },
         collection: p.context.collection,
-        type: p.type,
+        type: p.typeNode
+          ? p.context.checker.getTypeFromTypeNode(p.typeNode)
+          : null,
       }),
     );
     return {
@@ -177,22 +172,6 @@ export namespace SdkOperationProgrammer {
         metadata: p.result.data.toJSON(),
       },
     };
-  };
-
-  const getReturnType = (p: {
-    checker: ts.TypeChecker;
-    signature: ts.Signature | undefined;
-  }): ts.Type | null => {
-    const type: ts.Type | null =
-      (p.signature && p.checker.getReturnTypeOfSignature(p.signature)) ?? null;
-    if (type === null) return null;
-    else if (type.symbol?.name === "Promise") {
-      const generic: readonly ts.Type[] = p.checker.getTypeArguments(
-        type as ts.TypeReference,
-      );
-      return generic[0] ?? null;
-    }
-    return type;
   };
 }
 
