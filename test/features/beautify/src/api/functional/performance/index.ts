@@ -8,7 +8,7 @@ import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
 import type { Primitive } from "typia";
 
-import type { IPerformance } from "../../structures/IPerformance";
+import type { IPerformance } from "../../../controllers/PerformanceController";
 
 /**
  * Get server performance info.

@@ -92,9 +92,20 @@ export namespace DtoAnalyzer {
           asterisk: null,
         });
     if (name !== "Promise" && matched === false) {
-      const type: ts.Type = ctx.checker.getTypeFromTypeNode(typeNode);
-      const symbol: ts.Symbol | undefined = type.aliasSymbol ?? type.symbol;
-      if (symbol !== undefined) exploreNotFound(ctx, symbol, prefix);
+      // const type: ts.Type = escapeType(
+      //   ctx.checker,
+      //   ctx.checker.getTypeFromTypeNode(typeNode),
+      // );
+      const symbol: ts.Symbol | undefined = ctx.checker.getSymbolAtLocation(
+        typeNode.typeName,
+      );
+      //type.aliasSymbol ?? type.symbol;
+      if (name === "IBbsArticle.IUpdate") console.log(symbol);
+      if (symbol !== undefined)
+        exploreNotFound(ctx, {
+          symbol,
+          prefix,
+        });
     }
 
     // Finalize with generic arguments
@@ -113,19 +124,21 @@ export namespace DtoAnalyzer {
 
   const exploreNotFound = (
     ctx: IContext,
-    symbol: ts.Symbol,
-    prefix: string,
+    props: {
+      symbol: ts.Symbol;
+      prefix: string;
+    },
   ): void => {
     // GET SOURCE FILE
     const sourceFile: ts.SourceFile | undefined =
-      symbol.declarations?.[0]?.getSourceFile();
+      props.symbol.declarations?.[0]?.getSourceFile();
     if (sourceFile === undefined) return;
     else if (sourceFile.fileName.indexOf("/typescript/lib") === -1)
       ctx.container.push({
         file: sourceFile.fileName,
         asterisk: null,
         default: null,
-        elements: [prefix],
+        elements: [props.prefix],
       });
   };
 }
