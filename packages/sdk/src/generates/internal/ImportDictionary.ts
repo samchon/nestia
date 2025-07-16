@@ -9,7 +9,7 @@ import { FilePrinter } from "./FilePrinter";
 export class ImportDictionary {
   private readonly components_: HashMap<ICompositeKey, ICompositeValue> =
     new HashMap(
-      (key) => hash(key.file, key.declaration, key.asterisk, key.declaration),
+      (key) => hash(key.file, key.declaration, key.asterisk, key.default),
       (a, b) =>
         a.file === b.file &&
         a.declaration === b.declaration &&
