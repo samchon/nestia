@@ -15,7 +15,7 @@ export const test_api_pnpm_config = async (connection: api.IConnection) => {
     201
   > = await api.functional.pnpm.config(
     connection,
-    typia.random<string & tags.Format<"uuid">>(),
+    typia.random<(string & tags.Format<"uuid">) | null>(),
     typia.random<Partial<ISomething.IQuery>>(),
     typia.random<INothing.IBody>(),
   );

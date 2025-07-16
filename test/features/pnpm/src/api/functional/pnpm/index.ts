@@ -19,7 +19,7 @@ import type { ISomething } from "../../structures/ISomething";
  */
 export async function config(
   connection: IConnection,
-  id: string & tags.Format<"uuid">,
+  id: (string & tags.Format<"uuid">) | null,
   query: config.Query,
   body: config.Body,
 ): Promise<config.Output> {
@@ -63,7 +63,10 @@ export namespace config {
     status: 201,
   } as const;
 
-  export const path = (id: string & tags.Format<"uuid">, query: Query) => {
+  export const path = (
+    id: (string & tags.Format<"uuid">) | null,
+    query: Query,
+  ) => {
     const variables: URLSearchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(query as any))
       if (undefined === value) continue;
@@ -92,7 +95,7 @@ export async function reset(connection: IConnection): Promise<reset.Output> {
 export namespace reset {
   export type Output = IPropagation<
     {
-      200: Primitive<void>;
+      200: void;
     },
     200
   >;

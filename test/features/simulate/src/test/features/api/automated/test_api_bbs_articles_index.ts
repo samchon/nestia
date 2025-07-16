@@ -11,7 +11,7 @@ export const test_api_bbs_articles_index = async (
   const output: Primitive<IPage<IBbsArticle.ISummary>> =
     await api.functional.bbs.articles.index(
       connection,
-      typia.random<null | string>(),
+      typia.random<string | null>(),
       typia.random<IPage.IRequest>(),
     );
   typia.assert(output);

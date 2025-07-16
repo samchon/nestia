@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive, Resolved } from "typia";
 import typia from "typia";
 
 import type { IBigQuery } from "../../structures/IBigQuery";

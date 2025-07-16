@@ -80,6 +80,26 @@ export namespace DtoAnalyzer {
           .map(getEscapedText)
           .join(" | "),
       };
+    else if (ts.isParenthesizedTypeNode(typeNode))
+      return {
+        name: `(${exploreNode(ctx, typeNode.type).name})`,
+      };
+    else if (ts.isTypeOperatorNode(typeNode)) {
+      const prefix: string | null =
+        typeNode.operator === ts.SyntaxKind.KeyOfKeyword
+          ? "keyof"
+          : typeNode.operator === ts.SyntaxKind.UniqueKeyword
+            ? "unique"
+            : typeNode.operator === ts.SyntaxKind.ReadonlyKeyword
+              ? "readonly"
+              : null;
+      if (prefix === null)
+        return exploreType(ctx, ctx.checker.getTypeFromTypeNode(typeNode));
+      return {
+        name: `${prefix} ${exploreNode(ctx, typeNode.type).name}`,
+      };
+    } else if (ts.isTypePredicateNode(typeNode) || ts.isTypeQueryNode(typeNode))
+      return exploreType(ctx, ctx.checker.getTypeFromTypeNode(typeNode));
     else if (ts.isTypeReferenceNode(typeNode) === false)
       return {
         name: typeNode.getText(),

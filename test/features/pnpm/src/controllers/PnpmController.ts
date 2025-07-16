@@ -11,7 +11,7 @@ import { INothing } from "../api/structures/INothing";
 export class PnpmController {
   @TypedRoute.Post("config/:id")
   public async config(
-    @TypedParam("id") id: string & tags.Format<"uuid">,
+    @TypedParam("id") id: (string & tags.Format<"uuid">) | null,
     @TypedQuery() query: Partial<ISomething.IQuery>,
     @TypedBody() body: INothing.IBody,
   ): Promise<INestiaConfig.ISwaggerConfig> {

@@ -25,7 +25,6 @@ export namespace E2eFileProgrammer {
         type: "default",
         name: "api",
       });
-
       const functor: ts.Statement = generateFunctor(project)(importer)(route);
       await FilePrinter.write({
         location: importer.file,
