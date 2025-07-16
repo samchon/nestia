@@ -6,7 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { IEmbedTypeScriptResult } from "embed-typescript/lib/IEmbedTypeScriptResult";
+import type { IEmbedTypeScriptResult } from "embed-typescript";
 import type { Primitive } from "typia";
 
 /**

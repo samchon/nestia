@@ -96,15 +96,21 @@ export namespace SdkOperationProgrammer {
     type: ts.Type | null;
   }): IOperationMetadata.IResponse => {
     const analyzed: DtoAnalyzer.IOutput | null = p.typeNode
-      ? DtoAnalyzer.analyze({
+      ? DtoAnalyzer.analyzeNode({
           checker: p.context.checker,
           imports: p.imports.get(),
           typeNode: p.typeNode,
         })
-      : {
-          type: { name: "any" },
-          imports: [],
-        };
+      : p.type
+        ? DtoAnalyzer.analyzeType({
+            checker: p.context.checker,
+            imports: p.imports.get(),
+            type: p.type,
+          })
+        : {
+            type: { name: "any" },
+            imports: [],
+          };
     const [primitive, resolved] = [true, false].map((escape) =>
       MetadataFactory.analyze({
         checker: p.context.checker,

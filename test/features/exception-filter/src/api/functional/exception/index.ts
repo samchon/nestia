@@ -6,12 +6,11 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Primitive, Resolved } from "typia";
-import type { Format } from "typia/lib/tags/Format";
+import type { Primitive, Resolved, tags } from "typia";
 
 import type {
-  IBbsArticle,
   IAttachmentFile,
+  IBbsArticle,
 } from "../../structures/IBbsArticle";
 
 /**
@@ -94,7 +93,7 @@ export namespace typedManual {
  */
 export async function typedParam(
   connection: IConnection,
-  id: string & Format<"uuid">,
+  id: string & tags.Format<"uuid">,
 ): Promise<void> {
   return PlainFetcher.fetch(connection, {
     ...typedParam.METADATA,
@@ -114,7 +113,7 @@ export namespace typedParam {
     status: 200,
   } as const;
 
-  export const path = (id: string & Format<"uuid">) =>
+  export const path = (id: string & tags.Format<"uuid">) =>
     `/exception/${encodeURIComponent(id?.toString() ?? "null")}/typedParam`;
 }
 

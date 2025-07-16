@@ -7,9 +7,8 @@
 import type { IConnection } from "@nestia/fetcher";
 import { NestiaSimulator } from "@nestia/fetcher/lib/NestiaSimulator";
 import { PlainFetcher } from "@nestia/fetcher/lib/PlainFetcher";
-import type { Resolved, Primitive } from "typia";
+import type { Primitive, Resolved, tags } from "typia";
 import typia from "typia";
-import type { Format } from "typia/lib/tags/Format";
 
 import type { IBbsArticle } from "../../structures/IBbsArticle";
 import type { IHeaders } from "../../structures/IHeaders";
@@ -155,7 +154,7 @@ export namespace store {
 export async function update(
   connection: IConnection,
   section: string,
-  id: string & Format<"uuid">,
+  id: string & tags.Format<"uuid">,
   input: update.Body,
 ): Promise<void> {
   return true === connection.simulate
@@ -193,13 +192,13 @@ export namespace update {
     status: 200,
   } as const;
 
-  export const path = (section: string, id: string & Format<"uuid">) =>
+  export const path = (section: string, id: string & tags.Format<"uuid">) =>
     `/headers/${encodeURIComponent(section?.toString() ?? "null")}/${encodeURIComponent(id?.toString() ?? "null")}`;
   export const random = (): Resolved<void> => typia.random<void>();
   export const simulate = (
     connection: IConnection,
     section: string,
-    id: string & Format<"uuid">,
+    id: string & tags.Format<"uuid">,
     input: Body,
   ): void => {
     const assert = NestiaSimulator.assert({
