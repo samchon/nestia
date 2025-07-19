@@ -136,12 +136,8 @@ export namespace DtoAnalyzer {
           default: null,
           elements: [prefix],
         });
-    if (prefix !== "Promise" && matched === false) {
-      const symbol: ts.Symbol | undefined = name.includes(".")
-        ? ctx.checker.getSymbolAtLocation(typeNode.typeName)
-        : ctx.checker.getTypeAtLocation(typeNode).getSymbol();
-      if (symbol !== undefined) emplaceSymbol(ctx, symbol, prefix);
-    }
+    if (prefix !== "Promise" && matched === false)
+      return exploreType(ctx, ctx.checker.getTypeFromTypeNode(typeNode));
 
     // Finalize with generic arguments
     if (!!typeNode.typeArguments?.length) {
