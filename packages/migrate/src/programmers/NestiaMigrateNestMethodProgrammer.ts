@@ -42,37 +42,38 @@ export namespace NestiaMigrateNestMethodProgrammer {
       undefined,
       writeParameters(ctx),
       ts.factory.createTypeReferenceNode("Promise", [output]),
-      ts.factory.createBlock(
-        [
-          ...[
-            ...ctx.route.parameters.map((p) => p.key),
-            ...(ctx.route.headers ? ["headers"] : []),
-            ...(ctx.route.query ? ["query"] : []),
-            ...(ctx.route.body ? ["body"] : []),
-          ].map((str) =>
-            ts.factory.createExpressionStatement(
-              ts.factory.createIdentifier(str),
-            ),
-          ),
-          ts.factory.createReturnStatement(
-            ts.factory.createCallExpression(
-              IdentifierFactory.access(
-                ts.factory.createIdentifier(
-                  ctx.importer.external({
-                    type: "default",
-                    library: "typia",
-                    name: "typia",
-                  }),
-                ),
-                "random",
+      ctx.config.programmer?.controllerMethod?.(ctx.route) ??
+        ts.factory.createBlock(
+          [
+            ...[
+              ...ctx.route.parameters.map((p) => p.key),
+              ...(ctx.route.headers ? ["headers"] : []),
+              ...(ctx.route.query ? ["query"] : []),
+              ...(ctx.route.body ? ["body"] : []),
+            ].map((str) =>
+              ts.factory.createExpressionStatement(
+                ts.factory.createIdentifier(str),
               ),
-              [output],
-              undefined,
             ),
-          ),
-        ],
-        true,
-      ),
+            ts.factory.createReturnStatement(
+              ts.factory.createCallExpression(
+                IdentifierFactory.access(
+                  ts.factory.createIdentifier(
+                    ctx.importer.external({
+                      type: "default",
+                      library: "typia",
+                      name: "typia",
+                    }),
+                  ),
+                  "random",
+                ),
+                [output],
+                undefined,
+              ),
+            ),
+          ],
+          true,
+        ),
     );
     return FilePrinter.description(
       method,

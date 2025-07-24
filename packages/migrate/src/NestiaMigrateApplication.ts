@@ -21,6 +21,9 @@ import { INestiaMigrateFile } from "./structures/INestiaMigrateFile";
 export class NestiaMigrateApplication {
   private readonly data_: IHttpMigrateApplication;
 
+  /* -----------------------------------------------------------
+    CONSTRUCTORS
+  ----------------------------------------------------------- */
   public constructor(public readonly document: OpenApi.IDocument) {
     this.data_ = HttpMigration.application(document);
   }
@@ -57,10 +60,14 @@ export class NestiaMigrateApplication {
     };
   }
 
+  /* -----------------------------------------------------------
+    ACCESSORS
+  ----------------------------------------------------------- */
   public getData(): IHttpMigrateApplication {
     return this.data_;
   }
 
+  /** @deprecated */
   public getErrors(): IHttpMigrateApplication.IError[] {
     return this.data_.errors;
   }
@@ -93,7 +100,7 @@ export class NestiaMigrateApplication {
           }
         : {}),
     };
-    return config.package ? this.rename(config.package, files) : files;
+    return config.package ? renameSlug(config.package, files) : files;
   }
 
   public sdk(config: INestiaMigrateConfig): Record<string, string> {
@@ -116,19 +123,7 @@ export class NestiaMigrateApplication {
       ...(config.e2e ? NestiaMigrateE2eProgrammer.write(context) : {}),
       "swagger.json": JSON.stringify(this.document, null, 2),
     };
-    return config.package ? this.rename(config.package, files) : files;
-  }
-
-  private rename(
-    slug: string,
-    files: Record<string, string>,
-  ): Record<string, string> {
-    return Object.fromEntries(
-      Object.entries(files).map(([key, value]) => [
-        key,
-        value.split(`@ORGANIZATION/PROJECT`).join(slug),
-      ]),
-    );
+    return config.package ? renameSlug(config.package, files) : files;
   }
 }
 export namespace MigrateApplication {
@@ -149,4 +144,16 @@ const createContext = (
     application,
     config,
   };
+};
+
+const renameSlug = (
+  slug: string,
+  files: Record<string, string>,
+): Record<string, string> => {
+  return Object.fromEntries(
+    Object.entries(files).map(([key, value]) => [
+      key,
+      value.split(`@ORGANIZATION/PROJECT`).join(slug),
+    ]),
+  );
 };

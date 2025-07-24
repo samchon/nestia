@@ -1,3 +1,6 @@
+import { IHttpMigrateRoute } from "@samchon/openapi";
+import ts from "typescript";
+
 export interface INestiaMigrateConfig {
   simulate: boolean;
   e2e: boolean;
@@ -6,5 +9,8 @@ export interface INestiaMigrateConfig {
   author?: {
     tag: string;
     value: string;
+  };
+  programmer?: {
+    controllerMethod?: (route: IHttpMigrateRoute) => ts.Block;
   };
 }
