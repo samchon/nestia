@@ -57,6 +57,10 @@ export class NestiaMigrateApplication {
     };
   }
 
+  public getData(): IHttpMigrateApplication {
+    return this.application_;
+  }
+
   public getErrors(): IHttpMigrateApplication.IError[] {
     return this.application_.errors;
   }
