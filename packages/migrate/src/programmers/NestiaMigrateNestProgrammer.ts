@@ -14,7 +14,7 @@ export namespace NestiaMigrateNestProgrammer {
     context: INestiaMigrateContext,
   ): Record<string, string> => {
     const controllers: INestiaMigrateController[] =
-      NestiaMigrateControllerAnalyzer.analyze(context.routes);
+      NestiaMigrateControllerAnalyzer.analyze(context.application.routes);
     const statements: [string, ts.Statement[]][] = [
       ["src/MyModule.ts", NestiaMigrateNestModuleProgrammer.write(controllers)],
       ...controllers.map(
@@ -23,7 +23,7 @@ export namespace NestiaMigrateNestProgrammer {
             `${c.location}/${c.name}.ts`,
             NestiaMigrateNestControllerProgrammer.write({
               config: context.config,
-              components: context.document.components,
+              components: context.application.document().components,
               controller: c,
             }),
           ] satisfies [string, ts.Statement[]],
@@ -31,7 +31,7 @@ export namespace NestiaMigrateNestProgrammer {
       ...[
         ...NestiaMigrateDtoProgrammer.compose({
           config: context.config,
-          components: context.document.components,
+          components: context.application.document().components,
         }).entries(),
       ].map(
         ([key, value]) =>

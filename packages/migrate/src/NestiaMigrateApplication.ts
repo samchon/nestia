@@ -19,10 +19,10 @@ import { INestiaMigrateContext } from "./structures/INestiaMigrateContext";
 import { INestiaMigrateFile } from "./structures/INestiaMigrateFile";
 
 export class NestiaMigrateApplication {
-  private readonly application_: IHttpMigrateApplication;
+  private readonly data_: IHttpMigrateApplication;
 
   public constructor(public readonly document: OpenApi.IDocument) {
-    this.application_ = HttpMigration.application(document);
+    this.data_ = HttpMigration.application(document);
   }
 
   public static assert(
@@ -57,14 +57,18 @@ export class NestiaMigrateApplication {
     };
   }
 
+  public getData(): IHttpMigrateApplication {
+    return this.data_;
+  }
+
   public getErrors(): IHttpMigrateApplication.IError[] {
-    return this.application_.errors;
+    return this.data_.errors;
   }
 
   public nest(config: INestiaMigrateConfig): Record<string, string> {
     const context: INestiaMigrateContext = createContext(
       "nest",
-      this.document,
+      this.data_,
       config,
     );
     const files: Record<string, string> = {
@@ -95,7 +99,7 @@ export class NestiaMigrateApplication {
   public sdk(config: INestiaMigrateConfig): Record<string, string> {
     const context: INestiaMigrateContext = createContext(
       "sdk",
-      this.document,
+      this.data_,
       config,
     );
     const files: Record<string, string> = {
@@ -137,16 +141,12 @@ export namespace MigrateApplication {
 
 const createContext = (
   mode: "nest" | "sdk",
-  document: OpenApi.IDocument,
+  application: IHttpMigrateApplication,
   config: INestiaMigrateConfig,
 ): INestiaMigrateContext => {
-  const application: IHttpMigrateApplication =
-    HttpMigration.application(document);
   return {
     mode,
-    document,
+    application,
     config,
-    routes: application.routes,
-    errors: application.errors,
   };
 };
