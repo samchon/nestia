@@ -41,7 +41,10 @@ export namespace NestiaMigrateNestControllerProgrammer {
       props.controller.routes
         .map((route, index) => [
           ...(index !== 0 ? [FilePrinter.newLine() as any] : []),
-          NestiaMigrateNestMethodProgrammer.write({
+          (
+            props.config.programmer?.controllerMethod ??
+            NestiaMigrateNestMethodProgrammer.write
+          )({
             config: props.config,
             components: props.components,
             controller: props.controller,

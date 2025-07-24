@@ -42,38 +42,37 @@ export namespace NestiaMigrateNestMethodProgrammer {
       undefined,
       writeParameters(ctx),
       ts.factory.createTypeReferenceNode("Promise", [output]),
-      ctx.config.programmer?.controllerMethod?.(ctx) ??
-        ts.factory.createBlock(
-          [
-            ...[
-              ...ctx.route.parameters.map((p) => p.key),
-              ...(ctx.route.headers ? ["headers"] : []),
-              ...(ctx.route.query ? ["query"] : []),
-              ...(ctx.route.body ? ["body"] : []),
-            ].map((str) =>
-              ts.factory.createExpressionStatement(
-                ts.factory.createIdentifier(str),
-              ),
+      ts.factory.createBlock(
+        [
+          ...[
+            ...ctx.route.parameters.map((p) => p.key),
+            ...(ctx.route.headers ? ["headers"] : []),
+            ...(ctx.route.query ? ["query"] : []),
+            ...(ctx.route.body ? ["body"] : []),
+          ].map((str) =>
+            ts.factory.createExpressionStatement(
+              ts.factory.createIdentifier(str),
             ),
-            ts.factory.createReturnStatement(
-              ts.factory.createCallExpression(
-                IdentifierFactory.access(
-                  ts.factory.createIdentifier(
-                    ctx.importer.external({
-                      type: "default",
-                      library: "typia",
-                      name: "typia",
-                    }),
-                  ),
-                  "random",
+          ),
+          ts.factory.createReturnStatement(
+            ts.factory.createCallExpression(
+              IdentifierFactory.access(
+                ts.factory.createIdentifier(
+                  ctx.importer.external({
+                    type: "default",
+                    library: "typia",
+                    name: "typia",
+                  }),
                 ),
-                [output],
-                undefined,
+                "random",
               ),
+              [output],
+              undefined,
             ),
-          ],
-          true,
-        ),
+          ),
+        ],
+        true,
+      ),
     );
     return FilePrinter.description(
       method,

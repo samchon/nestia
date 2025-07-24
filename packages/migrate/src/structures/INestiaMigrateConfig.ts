@@ -14,6 +14,6 @@ export interface INestiaMigrateConfig {
   programmer?: {
     controllerMethod?: (
       ctx: NestiaMigrateNestMethodProgrammer.IContext,
-    ) => ts.Block;
+    ) => ts.MethodDeclaration;
   };
 }
