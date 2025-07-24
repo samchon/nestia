@@ -11,8 +11,10 @@ import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 export namespace NestiaMigrateE2eProgrammer {
   export const write = (ctx: INestiaMigrateContext): Record<string, string> =>
     Object.fromEntries(
-      ctx.routes
-        .map((r) => writeFile(ctx.config, ctx.document.components, r))
+      ctx.application.routes
+        .map((r) =>
+          writeFile(ctx.config, ctx.application.document().components, r),
+        )
         .map((r) => [`${r.location}/${r.file}`, r.content]),
     );
 

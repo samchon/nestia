@@ -17,7 +17,7 @@ export namespace NestiaMigrateApiStartProgrammer {
     const main: ts.VariableStatement = writeMain(
       context,
       importer,
-      pick(context.routes),
+      pick(context.application.routes),
     );
     const statements: ts.Statement[] = [
       ...importer.toStatements(
@@ -67,7 +67,7 @@ export namespace NestiaMigrateApiStartProgrammer {
             writeConnection(ctx, importer),
             ...NestiaMigrateE2eFunctionProgrammer.writeBody({
               config: ctx.config,
-              components: ctx.document.components,
+              components: ctx.application.document().components,
               importer,
               route,
             }),
@@ -112,12 +112,12 @@ export namespace NestiaMigrateApiStartProgrammer {
                     undefined,
                   ),
                 ),
-                ...(ctx.document.servers?.[0]?.url?.length
+                ...(ctx.application.document().servers?.[0]?.url?.length
                   ? [
                       ts.factory.createPropertyAssignment(
                         "host",
                         ts.factory.createStringLiteral(
-                          ctx.document.servers[0].url,
+                          ctx.application.document().servers![0].url,
                         ),
                       ),
                     ]

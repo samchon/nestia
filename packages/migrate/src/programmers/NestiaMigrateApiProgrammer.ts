@@ -14,13 +14,13 @@ export namespace NestiaMigrateApiProgrammer {
         (x) => hash(x.join(".")),
         (x, y) => x.length === y.length && x.join(".") === y.join("."),
       );
-    for (const route of ctx.routes) {
+    for (const route of ctx.application.routes) {
       const namespace: string[] = route.accessor.slice(0, -1);
       let last: NestiaMigrateApiFileProgrammer.IProps = dict.take(
         namespace,
         () => ({
           config: ctx.config,
-          components: ctx.document.components,
+          components: ctx.application.document().components,
           namespace,
           routes: [],
           children: new Set(),
@@ -33,7 +33,7 @@ export namespace NestiaMigrateApiProgrammer {
           partial,
           () => ({
             config: ctx.config,
-            components: ctx.document.components,
+            components: ctx.application.document().components,
             namespace: partial,
             children: new Set(),
             routes: [],
@@ -52,7 +52,7 @@ export namespace NestiaMigrateApiProgrammer {
           statements: NestiaMigrateApiFileProgrammer.write({
             ...value,
             config: ctx.config,
-            components: ctx.document.components,
+            components: ctx.application.document().components,
           }),
         }),
       ]),
@@ -60,7 +60,7 @@ export namespace NestiaMigrateApiProgrammer {
     if (ctx.mode === "sdk")
       for (const [key, value] of NestiaMigrateDtoProgrammer.compose({
         config: ctx.config,
-        components: ctx.document.components,
+        components: ctx.application.document().components,
       }).entries())
         files[`src/structures/${key}.ts`] = FilePrinter.write({
           statements: writeDtoFile(key, value),
