@@ -42,7 +42,7 @@ export namespace NestiaMigrateNestMethodProgrammer {
       undefined,
       writeParameters(ctx),
       ts.factory.createTypeReferenceNode("Promise", [output]),
-      ctx.config.programmer?.controllerMethod?.(ctx.route) ??
+      ctx.config.programmer?.controllerMethod?.(ctx) ??
         ts.factory.createBlock(
           [
             ...[
