@@ -19,10 +19,10 @@ import { INestiaMigrateContext } from "./structures/INestiaMigrateContext";
 import { INestiaMigrateFile } from "./structures/INestiaMigrateFile";
 
 export class NestiaMigrateApplication {
-  private readonly application_: IHttpMigrateApplication;
+  private readonly data_: IHttpMigrateApplication;
 
   public constructor(public readonly document: OpenApi.IDocument) {
-    this.application_ = HttpMigration.application(document);
+    this.data_ = HttpMigration.application(document);
   }
 
   public static assert(
@@ -58,11 +58,11 @@ export class NestiaMigrateApplication {
   }
 
   public getData(): IHttpMigrateApplication {
-    return this.application_;
+    return this.data_;
   }
 
   public getErrors(): IHttpMigrateApplication.IError[] {
-    return this.application_.errors;
+    return this.data_.errors;
   }
 
   public nest(config: INestiaMigrateConfig): Record<string, string> {
