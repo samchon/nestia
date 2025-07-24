@@ -60,8 +60,8 @@ export namespace NestiaMigrateCommander {
     const app: NestiaMigrateApplication = result.data;
     const files: Record<string, string> =
       options.mode === "nest" ? app.nest(options) : app.sdk(options);
-    if (app.getErrors())
-      for (const error of app.getErrors())
+    if (app.getData().errors)
+      for (const error of app.getData().errors)
         console.error(
           `Failed to migrate ${error.method} ${error.path}`,
           ...error.messages.map((msg) => `  - ${msg}`),
