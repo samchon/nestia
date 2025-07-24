@@ -1,5 +1,6 @@
-import { IHttpMigrateRoute } from "@samchon/openapi";
 import ts from "typescript";
+
+import { NestiaMigrateNestMethodProgrammer } from "../programmers/NestiaMigrateNestMethodProgrammer";
 
 export interface INestiaMigrateConfig {
   simulate: boolean;
@@ -11,6 +12,8 @@ export interface INestiaMigrateConfig {
     value: string;
   };
   programmer?: {
-    controllerMethod?: (route: IHttpMigrateRoute) => ts.Block;
+    controllerMethod?: (
+      ctx: NestiaMigrateNestMethodProgrammer.IContext,
+    ) => ts.Block;
   };
 }
