@@ -1,4 +1,4 @@
-export type * from "./IConnection";
+export * from "./IConnection";
 export * from "./Primitive";
 export * from "./HttpError";
 

@@ -1,1 +1,1 @@
-export type { Primitive } from "typia";
+export { Primitive } from "@nestia/fetcher";
