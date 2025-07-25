@@ -246,9 +246,6 @@ importers:
       '@types/express':
         specifier: ^4.17.15
         version: 4.17.23
-      '@types/glob':
-        specifier: ^8.1.0
-        version: 8.1.0
       '@types/inquirer':
         specifier: ^9.0.3
         version: 9.0.8
@@ -643,9 +640,6 @@ importers:
       '@types/express':
         specifier: ^4.17.15
         version: 4.17.23
-      '@types/glob':
-        specifier: ^8.1.0
-        version: 8.1.0
       '@types/node':
         specifier: ^18.11.15
         version: 18.19.119
@@ -1780,9 +1774,6 @@ packages:
   '@types/geojson@7946.0.16':
     resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
 
-  '@types/glob@8.1.0':
-    resolution: {integrity: sha512-IO+MJPVhoqz+28h1qLAcBEH2+xHMK6MTyHJc7MTnnYb6wsoLR29POVGJ7LycmVXIqyy/4/2ShP5sUwTXuOwb/w==}
-
   '@types/http-errors@2.0.5':
     resolution: {integrity: sha512-r8Tayk8HJnX0FztbZN7oVqGccWgw98T/0neJphO91KkmOzug1KkofZURD4UaD5uH8AqcFLfdPErnBod0u71/qg==}
 
@@ -1800,9 +1791,6 @@ packages:
 
   '@types/mime@1.3.5':
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
-
-  '@types/minimatch@5.1.2':
-    resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
 
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
@@ -5427,11 +5415,6 @@ snapshots:
 
   '@types/geojson@7946.0.16': {}
 
-  '@types/glob@8.1.0':
-    dependencies:
-      '@types/minimatch': 5.1.2
-      '@types/node': 18.19.119
-
   '@types/http-errors@2.0.5': {}
 
   '@types/inquirer@9.0.8':
@@ -5448,8 +5431,6 @@ snapshots:
       '@types/unist': 3.0.3
 
   '@types/mime@1.3.5': {}
-
-  '@types/minimatch@5.1.2': {}
 
   '@types/ms@2.1.0': {}
 

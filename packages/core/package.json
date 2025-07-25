@@ -64,7 +64,6 @@
     "@nestjs/common": "^11.0.13",
     "@nestjs/core": "^11.0.13",
     "@types/express": "^4.17.15",
-    "@types/glob": "^8.1.0",
     "@types/inquirer": "^9.0.3",
     "@types/multer": "^1.4.12",
     "@types/ts-expose-internals": "npm:ts-expose-internals@5.4.5",
