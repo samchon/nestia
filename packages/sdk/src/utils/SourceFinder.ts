@@ -1,5 +1,5 @@
 import fs from "fs";
-import glob from "glob";
+import { glob } from "glob";
 import path from "path";
 
 export namespace SourceFinder {
@@ -51,13 +51,10 @@ export namespace SourceFinder {
       }
     };
 
-  const _Glob = (pattern: string): Promise<string[]> =>
-    new Promise((resolve, reject) => {
-      glob(pattern, (err, matches) => {
-        if (err) reject(err);
-        else resolve(matches.map((str) => path.resolve(str)));
-      });
-    });
+  const _Glob = async (pattern: string): Promise<string[]> => {
+    const matches = await glob(pattern);
+    return matches.map((str) => path.resolve(str));
+  };
 
   const _Is_file = (pattern: string): boolean =>
     pattern.endsWith(".ts") &&
