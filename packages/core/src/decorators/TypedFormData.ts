@@ -18,32 +18,34 @@ import { validate_request_form_data } from "./internal/validate_request_form_dat
  * `multipart/form-data` content type. It automatically casts property type
  * following its DTO definition, and performs the type validation too.
  *
- * Also, `TypedFormData.Body()` is much easier and type safer than `@nest.UploadFile()`.
- * If you're considering the [SDK library](https://nestia.io/docs/sdk/sdk) generation,
- * only `TypedFormData.Body()` can do it. Therefore, I recommend you to use
+ * Also, `TypedFormData.Body()` is much easier and type safer than
+ * `@nest.UploadFile()`. If you're considering the [SDK
+ * library](https://nestia.io/docs/sdk/sdk) generation, only
+ * `TypedFormData.Body()` can do it. Therefore, I recommend you to use
  * `TypedFormData.Body()` instead of the `@nest.UploadFile()` function.
  *
- * For reference, target type `T` must follow such restriction. Of course, if actual
- * form-data values are different with their promised type `T`,
+ * For reference, target type `T` must follow such restriction. Of course, if
+ * actual form-data values are different with their promised type `T`,
  * `BadRequestException` error (status code: 400) would be thrown.
  *
  * 1. Type `T` must be an object type
  * 2. Do not allow dynamic property
- * 3. Only `boolean`, `bigint`, `number`, `string`, `Blob`, `File` or their array types are allowed
+ * 3. Only `boolean`, `bigint`, `number`, `string`, `Blob`, `File` or their array
+ *    types are allowed
  * 4. By the way, union type never be not allowed
  *
- * By the way, if you're using `fastify`, you have to setup `fastify-multer`
- * and configure like below when composing the NestJS application. If you don't do
+ * By the way, if you're using `fastify`, you have to setup `fastify-multer` and
+ * configure like below when composing the NestJS application. If you don't do
  * that, `@TypedFormData.Body()` will not work properly, and throw 500 internal
  * server error when `Blob` or `File` type being utilized.
  *
  * ```typescript
- * import fastifyMulter from "fastify-multer";
  * import { NestFactory } from "@nestjs/core";
  * import {
  *   FastifyAdapter,
- *   NestFastifyApplication
+ *   NestFastifyApplication,
  * } from "@nestjs/platform-fastify";
+ * import fastifyMulter from "fastify-multer";
  *
  * export async function main() {
  *   const app = await NestFactory.create<NestFastifyApplication>(
@@ -55,8 +57,8 @@ import { validate_request_form_data } from "./internal/validate_request_form_dat
  * }
  * ```
  *
- * @todo Change to ReadableStream through configuring storage engine of multer
  * @author Jeongho Nam - https://github.com/samchon
+ * @todo Change to ReadableStream through configuring storage engine of multer
  */
 export namespace TypedFormData {
   /**
@@ -67,16 +69,14 @@ export namespace TypedFormData {
    * Much easier and type safer than `@nest.UploadFile()` decorator.
    *
    * @param factory Factory function ncreating the `multer` or `fastify-multer`
-   *                instance. In the factory function, you also can specify the
-   *                multer composition options like `storage` engine.
+   *   instance. In the factory function, you also can specify the multer
+   *   composition options like `storage` engine.
    */
   export function Body<Multer extends IMulterBase>(
     factory: () => Multer | Promise<Multer>,
   ): ParameterDecorator;
 
-  /**
-   * @internal
-   */
+  /** @internal */
   export function Body<T extends object>(
     factory: () => Promise<IMulterBase>,
     props?: IRequestFormDataProps<T> | undefined,
@@ -111,9 +111,7 @@ export namespace TypedFormData {
     })();
   }
 
-  /**
-   * Base type of the `multer` or `fastify-multer`.
-   */
+  /** Base type of the `multer` or `fastify-multer`. */
   export interface IMulterBase {
     single(fieldName: string): any;
     array(fieldName: string, maxCount?: number): any;
@@ -123,9 +121,7 @@ export namespace TypedFormData {
   }
 }
 
-/**
- * @internal
- */
+/** @internal */
 const decode = <T>(
   multer: ExpressMulter.Multer,
   props: IRequestFormDataProps<T>,
@@ -159,9 +155,7 @@ const decode = <T>(
   };
 };
 
-/**
- * @internal
- */
+/** @internal */
 const parseFiles =
   (data: FormData) =>
   (files: Express.Multer.File[] | Record<string, Express.Multer.File[]>) => {
@@ -169,24 +163,30 @@ const parseFiles =
       for (const file of files)
         data.append(
           file.fieldname,
-          new File([file.buffer], file.originalname, {
-            type: file.mimetype,
-          }),
+          new File(
+            [file.buffer satisfies Uint8Array as any],
+            file.originalname,
+            {
+              type: file.mimetype,
+            },
+          ),
         );
     else
       for (const [key, value] of Object.entries(files))
         for (const file of value)
           data.append(
             key,
-            new File([file.buffer], file.originalname, {
-              type: file.mimetype,
-            }),
+            new File(
+              [file.buffer satisfies Uint8Array as any],
+              file.originalname,
+              {
+                type: file.mimetype,
+              },
+            ),
           );
   };
 
-/**
- * @internal
- */
+/** @internal */
 const isMultipartFormData = (text?: string): boolean =>
   text !== undefined &&
   text
