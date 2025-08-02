@@ -45,9 +45,9 @@
     "nestia": "workspace:^",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.3.0",
-    "typescript": "~5.8.3",
+    "typescript": "~5.9.2",
     "typescript-transform-paths": "^3.4.7",
-    "typia": "^9.5.0",
+    "typia": "^9.6.1",
     "uuid": "^10.0.0"
   },
   "files": [
