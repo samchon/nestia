@@ -1,44 +1,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
- * Recursively walk a JSON object and invoke a callback function
- * on each `{ "$ref" : "path" }` object found
+ * Recursively walk a JSON object and invoke a callback function on each `{
+ * "$ref" : "path" }` object found
  */
 
 /**
- * Represents a JSON Reference object, such as
- * `{"$ref": "#/components/schemas/problemResponse" }`
+ * Represents a JSON Reference object, such as `{"$ref":
+ * "#/components/schemas/problemResponse" }`
  */
 export interface RefObject {
   $ref: string;
 }
 
-/**
- * JsonNode represents a node within the OpenAPI object
- */
+/** JsonNode represents a node within the OpenAPI object */
 export type JsonNode = object | [] | string | boolean | null | number;
 
 /** A JSON Schema object in an API def */
 export type SchemaObject = object;
 
-/**
- * Function signature for the visitRefObjects callback
- */
+/** Function signature for the visitRefObjects callback */
 export type RefVisitor = (node: RefObject) => JsonNode;
-/**
- * Function signature for the visitSchemaObjects callback
- */
+/** Function signature for the visitSchemaObjects callback */
 export type SchemaVisitor = (node: SchemaObject) => SchemaObject;
 
-/**
-/**
- * Function signature for the walkObject callback
- */
+/** /** Function signature for the walkObject callback */
 export type ObjectVisitor = (node: object) => JsonNode;
 
-/**
- * Test if a JSON node is a `{ $ref: "uri" }` object
- */
+/** Test if a JSON node is a `{ $ref: "uri" }` object */
 export function isRef(node: any): boolean {
   return (
     node !== null &&
@@ -50,10 +39,12 @@ export function isRef(node: any): boolean {
 
 /**
  * Walk a JSON object and apply `schemaCallback` when a JSON schema is found.
- * JSON Schema objects are items in components/schemas or in an item named `schema`
- * @param node a node in the OpenAPI document
- * @param schemaCallback the function to call on JSON schema objects
- * @return the modified (annotated) node
+ * JSON Schema objects are items in components/schemas or in an item named
+ * `schema`
+ *
+ * @param node A node in the OpenAPI document
+ * @param schemaCallback The function to call on JSON schema objects
+ * @returns The modified (annotated) node
  */
 export function visitSchemaObjects(
   node: any,
@@ -81,10 +72,12 @@ export function visitSchemaObjects(
 }
 
 /**
- * Walk a JSON object and apply `refCallback` when a JSON `{$ref: url }` is found
- * @param node a node in the OpenAPI document
- * @param refCallback the function to call on JSON `$ref` objects
- * @return the modified (annotated) node
+ * Walk a JSON object and apply `refCallback` when a JSON `{$ref: url }` is
+ * found
+ *
+ * @param node A node in the OpenAPI document
+ * @param refCallback The function to call on JSON `$ref` objects
+ * @returns The modified (annotated) node
  */
 export function visitRefObjects(node: any, refCallback: RefVisitor): any {
   const objectVisitor = (node: object): JsonNode => {
@@ -97,11 +90,13 @@ export function visitRefObjects(node: any, refCallback: RefVisitor): any {
 }
 
 /**
- * Walk a JSON object or array and apply objectCallback when a JSON object is found
- * @param node a node in the OpenAPI document
- * @param objectCallback the function to call on JSON objects
- * @param nav tracks where we are in the original document
- * @return the modified (annotated) node
+ * Walk a JSON object or array and apply objectCallback when a JSON object is
+ * found
+ *
+ * @param node A node in the OpenAPI document
+ * @param objectCallback The function to call on JSON objects
+ * @param nav Tracks where we are in the original document
+ * @returns The modified (annotated) node
  */
 export function walkObject(
   node: object,

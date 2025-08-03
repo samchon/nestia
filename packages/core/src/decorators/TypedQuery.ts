@@ -27,12 +27,13 @@ import { validate_request_query } from "./internal/validate_request_query";
 /**
  * Type safe URL query decorator.
  *
- * `TypedQuery` is a decorator function that can parse URL query string. It is almost
- * same with {@link nest.Query}, but it can automatically cast property type following
- * its DTO definition. Also, `TypedQuery` performs type validation.
+ * `TypedQuery` is a decorator function that can parse URL query string. It is
+ * almost same with {@link nest.Query}, but it can automatically cast property
+ * type following its DTO definition. Also, `TypedQuery` performs type
+ * validation.
  *
- * For reference, target type `T` must follow such restriction. Also, if
- * actual URL query parameter values are different with their promised type `T`,
+ * For reference, target type `T` must follow such restriction. Also, if actual
+ * URL query parameter values are different with their promised type `T`,
  * `BadRequestException` error (status code: 400) would be thrown.
  *
  * 1. Type `T` must be an object type
@@ -40,8 +41,8 @@ import { validate_request_query } from "./internal/validate_request_query";
  * 3. Only `boolean`, `bigint`, `number`, `string` or their array types are allowed
  * 4. By the way, union type never be not allowed
  *
- * @returns Parameter decorator
  * @author Jeongho Nam - https://github.com/samchon
+ * @returns Parameter decorator
  */
 export function TypedQuery<T extends object>(
   validator?: IRequestQueryValidator<T>,
@@ -133,9 +134,7 @@ export namespace TypedQuery {
    */
   export const Delete = Generator("Delete");
 
-  /**
-   * @internal
-   */
+  /** @internal */
   function Generator(method: "Get" | "Post" | "Put" | "Patch" | "Delete") {
     function route(path?: string | string[]): MethodDecorator;
     function route<T>(stringify?: IResponseBodyQuerifier<T>): MethodDecorator;
@@ -167,17 +166,13 @@ export namespace TypedQuery {
         (deco as any)[key] = value;
 }
 
-/**
- * @internal
- */
+/** @internal */
 function tail(url: string): string {
   const index: number = url.indexOf("?");
   return index === -1 ? "" : url.substring(index + 1);
 }
 
-/**
- * @internal
- */
+/** @internal */
 function isApplicationQuery(text?: string): boolean {
   return (
     text !== undefined &&
@@ -188,9 +183,7 @@ function isApplicationQuery(text?: string): boolean {
   );
 }
 
-/**
- * @internal
- */
+/** @internal */
 class FakeURLSearchParams {
   public constructor(private readonly target: Record<string, string[]>) {}
 
@@ -213,9 +206,7 @@ class FakeURLSearchParams {
   }
 }
 
-/**
- * @internal
- */
+/** @internal */
 class TypedQueryRouteInterceptor implements NestInterceptor {
   public constructor(
     private readonly toSearchParams: (input: any) => URLSearchParams,
@@ -233,9 +224,7 @@ class TypedQueryRouteInterceptor implements NestInterceptor {
   }
 }
 
-/**
- * @internal
- */
+/** @internal */
 const ROUTERS = {
   Get,
   Post,

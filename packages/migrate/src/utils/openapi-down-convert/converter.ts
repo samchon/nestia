@@ -19,30 +19,29 @@ interface OpenAPI3 {
 
 /** Options for the converter instantiation */
 export interface ConverterOptions {
-  /** if `true`, log conversion transformations to stderr  */
+  /** If `true`, log conversion transformations to stderr */
   verbose?: boolean;
-  /** if `true`, remove `id` values in schema examples, to bypass
-   * [Spectral issue 2081](https://github.com/stoplightio/spectral/issues/2081)
+  /**
+   * If `true`, remove `id` values in schema examples, to bypass [Spectral issue
+   * 2081](https://github.com/stoplightio/spectral/issues/2081)
    */
   deleteExampleWithId?: boolean;
   /** If `true`, replace a `$ref` object that has siblings into an `allOf` */
   allOfTransform?: boolean;
 
-  /**
-   * The authorizationUrl for openIdConnect -> oauth2 transformation
-   */
+  /** The authorizationUrl for openIdConnect -> oauth2 transformation */
   authorizationUrl?: string;
   /** The tokenUrl for openIdConnect -> oauth2 transformation */
   tokenUrl?: string;
-  /** Name of YAML/JSON file with scope descriptions.
-   * This is a simple map in the format
-   * `{ scope1: "description of scope1", ... }`
+  /**
+   * Name of YAML/JSON file with scope descriptions. This is a simple map in the
+   * format `{ scope1: "description of scope1", ... }`
    */
   scopeDescriptionFile?: string;
-  /** Earlier versions of the tool converted $comment to x-comment
-   * in JSON Schemas. The tool now deletes $comment values by default.
-   * Use this option to preserve the conversion and not delete
-   * comments.
+  /**
+   * Earlier versions of the tool converted $comment to x-comment in JSON
+   * Schemas. The tool now deletes $comment values by default. Use this option
+   * to preserve the conversion and not delete comments.
    */
   convertSchemaComments?: boolean;
 }
@@ -61,7 +60,9 @@ export class Converter {
 
   /**
    * Construct a new Converter
-   * @throws Error if the scopeDescriptionFile (if specified) cannot be read or parsed as YAML/JSON
+   *
+   * @throws Error if the scopeDescriptionFile (if specified) cannot be read or
+   *   parsed as YAML/JSON
    */
   constructor(openapiDocument: object, options?: ConverterOptions) {
     this.openapi30 = Converter.deepClone(openapiDocument) as OpenAPI3;
@@ -75,7 +76,9 @@ export class Converter {
     this.convertSchemaComments = !!options?.convertSchemaComments;
   }
 
-  /** Load the scopes.yaml file and save in this.scopeDescriptions
+  /**
+   * Load the scopes.yaml file and save in this.scopeDescriptions
+   *
    * @throws Error if the file cannot be read or parsed as YAML/JSON
    */
   private loadScopeDescriptions(scopeDescriptionFile?: string) {
@@ -85,8 +88,9 @@ export class Converter {
   }
 
   /**
-   * Log a message  to console.warn stream if verbose is true
-   * @param message parameters for console.warn
+   * Log a message to console.warn stream if verbose is true
+   *
+   * @param message Parameters for console.warn
    */
   private log(...message: any[]) {
     if (this.verbose) {
@@ -95,9 +99,10 @@ export class Converter {
   }
 
   /**
-   * Log a message  to console.warn stream. Prefix the message string with `Warning: `
-   * if it does not already have that text.
-   * @param message parameters for console.warn
+   * Log a message to console.warn stream. Prefix the message string with
+   * `Warning: ` if it does not already have that text.
+   *
+   * @param message Parameters for console.warn
    */
   private warn(...message: any[]) {
     if (!message[0].startsWith("Warning")) {
@@ -107,10 +112,11 @@ export class Converter {
   }
 
   /**
-   * Log an error message to `console.error` stream. Prefix the message string with `Error: `
-   * if it does not already start with `'Error'`. Increments the `returnCode`, causing
-   * the CLI to throw an Error when done.
-   * @param message parameters for `console.error`
+   * Log an error message to `console.error` stream. Prefix the message string
+   * with `Error: ` if it does not already start with `'Error'`. Increments the
+   * `returnCode`, causing the CLI to throw an Error when done.
+   *
+   * @param message Parameters for `console.error`
    */
   private error(...message: any[]) {
     if (!message[0].startsWith("Error")) {
@@ -122,7 +128,8 @@ export class Converter {
 
   /**
    * Convert the OpenAPI document to 3.0
-   * @returns the converted document. The input is not modified.
+   *
+   * @returns The converted document. The input is not modified.
    */
   public convert(): object {
     this.log("Converting from OpenAPI 3.1 to 3.0");
@@ -153,8 +160,8 @@ export class Converter {
 
   /**
    * OpenAPI 3.1 uses JSON Schema 2020-12 which allows schema `examples`;
-   * OpenAPI 3.0 uses JSON Scheme Draft 7 which only allows `example`.
-   * Replace all `examples` with `example`, using `examples[0]`
+   * OpenAPI 3.0 uses JSON Scheme Draft 7 which only allows `example`. Replace
+   * all `examples` with `example`, using `examples[0]`
    */
   convertJsonSchemaExamples() {
     const schemaVisitor: SchemaVisitor = (schema: any): SchemaObject => {
@@ -205,9 +212,9 @@ export class Converter {
   }
 
   /**
-   * OpenAPI 3.1 uses JSON Schema 2020-12 which allows `const`
-   * OpenAPI 3.0 uses JSON Scheme Draft 7 which only allows `enum`.
-   * Replace all `const: value` with `enum: [ value ]`
+   * OpenAPI 3.1 uses JSON Schema 2020-12 which allows `const` OpenAPI 3.0 uses
+   * JSON Scheme Draft 7 which only allows `enum`. Replace all `const: value`
+   * with `enum: [ value ]`
    */
   convertConstToEnum() {
     const schemaVisitor: SchemaVisitor = (schema: any): SchemaObject => {
@@ -223,8 +230,8 @@ export class Converter {
   }
 
   /**
-   * Convert 2-element type arrays containing 'null' to
-   * string type and `nullable: true`
+   * Convert 2-element type arrays containing 'null' to string type and
+   * `nullable: true`
    */
   convertNullableTypeArray() {
     const schemaVisitor: SchemaVisitor = (schema: any): SchemaObject => {
@@ -298,15 +305,15 @@ export class Converter {
 
   /**
    * Convert
-   * ```
-   * contentMediaType: 'application/octet-stream'
-   * ```
-   * to
-   * ```
-   * format: binary
-   * ```
-   * in `type: string` schemas.
-   * Warn if schema has a `format` already and it is not `binary`.
+   *
+   *     contentMediaType: "application/octet-stream";
+   *
+   * To
+   *
+   *     format: binary;
+   *
+   * In `type: string` schemas. Warn if schema has a `format` already and it is
+   * not `binary`.
    */
   convertJsonSchemaContentMediaType() {
     const schemaVisitor: SchemaVisitor = (schema: any): SchemaObject => {
@@ -342,15 +349,15 @@ export class Converter {
 
   /**
    * Convert
-   * ```
-   * contentEncoding: base64
-   * ```
-   * to
-   * ```
-   * format: byte
-   * ```
-   * in `type: string` schemas. It is an error if the schema has a `format` already
-   * and it is not `byte`.
+   *
+   *     contentEncoding: base64;
+   *
+   * To
+   *
+   *     format: byte;
+   *
+   * In `type: string` schemas. It is an error if the schema has a `format`
+   * already and it is not `byte`.
    */
   convertJsonSchemaContentEncoding() {
     const schemaVisitor: SchemaVisitor = (schema: any): SchemaObject => {
@@ -394,11 +401,10 @@ export class Converter {
   }
 
   /**
-   * OpenAPI 3.1 defines a new `openIdConnect` security scheme.
-   * Down-convert the scheme to `oauth2` / authorization code flow.
-   * Collect all the scopes used in any security requirements within
-   * operations and add them to the scheme. Also define the
-   * URLs to the `authorizationUrl` and `tokenUrl` of `oauth2`.
+   * OpenAPI 3.1 defines a new `openIdConnect` security scheme. Down-convert the
+   * scheme to `oauth2` / authorization code flow. Collect all the scopes used
+   * in any security requirements within operations and add them to the scheme.
+   * Also define the URLs to the `authorizationUrl` and `tokenUrl` of `oauth2`.
    */
   convertSecuritySchemes() {
     const oauth2Scopes = (schemeName: string): object => {
@@ -454,9 +460,11 @@ export class Converter {
   }
 
   /**
-   * Find remaining OpenAPI 3.0 [Reference Objects](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#referenceObject)
-   * and down convert them to [JSON Reference](https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-03) objects
-   * with _only_ a `$ref` property.
+   * Find remaining OpenAPI 3.0 [Reference
+   * Objects](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#referenceObject)
+   * and down convert them to [JSON
+   * Reference](https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-03)
+   * objects with _only_ a `$ref` property.
    */
   simplifyNonSchemaRef() {
     visitRefObjects(this.openapi30, (node: any): JsonNode => {
@@ -489,10 +497,11 @@ export class Converter {
 
   convertSchemaRef() {
     /**
-     * In a JSON Schema, replace `{ blah blah, $ref: "uri"}`
-     * with `{ blah blah, allOf: [ $ref: "uri" ]}`
-     * @param object an object that may contain JSON schemas (directly
-     * or in sub-objects)
+     * In a JSON Schema, replace `{ blah blah, $ref: "uri"}` with `{ blah blah,
+     * allOf: [ $ref: "uri" ]}`
+     *
+     * @param object An object that may contain JSON schemas (directly or in
+     *   sub-objects)
      */
     const simplifyRefObjectsInSchemas = (
       object: SchemaObject,

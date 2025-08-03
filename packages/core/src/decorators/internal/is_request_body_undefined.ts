@@ -1,9 +1,7 @@
 import type express from "express";
 import type { FastifyRequest } from "fastify";
 
-/**
- * @internal
- */
+/** @internal */
 export const is_request_body_undefined = (
   request: express.Request | FastifyRequest,
 ): boolean =>

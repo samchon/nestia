@@ -9,8 +9,8 @@ import { tags } from "typia";
  * - `number & Placeholder<"Some placeholder text">`
  * - `string & Placeholder<"Some placeholder text">`
  *
- * @reference https://typia.io/docs/json/schema/#customization
  * @author Samchon
+ * @reference https://typia.io/docs/json/schema/#customization
  */
 export type Placeholder<Value extends string> = tags.TagBase<{
   target: "boolean" | "number" | "string";

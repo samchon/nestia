@@ -19,11 +19,10 @@ export class HeadersController {
   /**
    * Store a new article.
    *
+   * @author Samchon
    * @param headers Headers for authentication
    * @param section Target section code
    * @returns Store article
-   *
-   * @author Samchon
    */
   @core.TypedRoute.Post()
   public store(
@@ -40,12 +39,11 @@ export class HeadersController {
   /**
    * Update an article.
    *
+   * @author Samchon
    * @param section Target section code
    * @param id Target article id
    * @param name Name in header for authentication
    * @param input Content to update
-   *
-   * @author Samchon
    */
   @core.TypedRoute.Put(":id")
   public update(

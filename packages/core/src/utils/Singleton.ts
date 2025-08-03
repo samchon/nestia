@@ -1,6 +1,4 @@
-/**
- * @internal
- */
+/** @internal */
 export class Singleton<T> {
   private value_: T | object;
 
@@ -14,7 +12,5 @@ export class Singleton<T> {
   }
 }
 
-/**
- * @internal
- */
+/** @internal */
 const NOT_MOUNTED_YET = {};

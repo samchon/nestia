@@ -24,7 +24,7 @@ export namespace PlainFetcher {
    *
    * @param connection Connection information for the remote HTTP server
    * @param route Route information about the target API
-   * @return Nothing because of `HEAD` method
+   * @returns Nothing because of `HEAD` method
    */
   export function fetch(
     connection: IConnection,
@@ -36,7 +36,7 @@ export namespace PlainFetcher {
    *
    * @param connection Connection information for the remote HTTP server
    * @param route Route information about the target API
-   * @return Response body data from the remote API
+   * @returns Response body data from the remote API
    */
   export function fetch<Output>(
     connection: IConnection,
@@ -48,7 +48,7 @@ export namespace PlainFetcher {
    *
    * @param connection Connection information for the remote HTTP server
    * @param route Route information about the target API
-   * @return Response body data from the remote API
+   * @returns Response body data from the remote API
    */
   export function fetch<Input, Output>(
     connection: IConnection,

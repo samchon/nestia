@@ -8,7 +8,7 @@ export class SellerAuthenticateController {
    * Join as a seller.
    *
    * @param input Information of yours
-   * @return Information of newly joined seller
+   * @returns Information of newly joined seller
    * @setHeader authorization.token Authorization
    */
   @core.EncryptedRoute.Post("join")
@@ -28,7 +28,7 @@ export class SellerAuthenticateController {
    * Log-in as a seller.
    *
    * @param input Email and password
-   * @return Information of the seller
+   * @returns Information of the seller
    * @assignHeaders authorization
    */
   @core.EncryptedRoute.Post("login")
@@ -45,7 +45,7 @@ export class SellerAuthenticateController {
    * Change password.
    *
    * @param input Old and new passwords
-   * @return Empty object
+   * @returns Empty object
    */
   @nest.Patch("password/change")
   public async change(
@@ -54,45 +54,29 @@ export class SellerAuthenticateController {
     input;
   }
 
-  /**
-   * Erase the seller by itself.
-   */
+  /** Erase the seller by itself. */
   @nest.Delete("exit")
   public async exit(): Promise<void> {}
 }
 
-/**
- * Seller information.
- */
+/** Seller information. */
 interface ISeller {
-  /**
-   * Primary key.
-   */
+  /** Primary key. */
   id: number & tags.Type<"uint32">;
 
-  /**
-   * Email address.
-   */
+  /** Email address. */
   email: string & tags.Format<"email">;
 
-  /**
-   * Name of the seller.
-   */
+  /** Name of the seller. */
   name: string;
 
-  /**
-   * Mobile number of the seller.
-   */
+  /** Mobile number of the seller. */
   mobile: string;
 
-  /**
-   * Belonged company name.
-   */
+  /** Belonged company name. */
   company: string;
 
-  /**
-   * Joined time.
-   */
+  /** Joined time. */
   created_at: string & tags.Format<"date-time">;
 }
 

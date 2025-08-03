@@ -4,8 +4,8 @@ import NodePath from "path";
 /**
  * Dynamic Executor running prefixed functions.
  *
- * `DynamicExecutor` runs every (or some filtered) prefixed functions
- * in a specific directory.
+ * `DynamicExecutor` runs every (or some filtered) prefixed functions in a
+ * specific directory.
  *
  * For reference, it's useful for test program development of a backend server.
  * Just write test functions under a directory, and just specify it.
@@ -15,9 +15,12 @@ import NodePath from "path";
  *
  * When you want to see some utilization cases, see the below example links.
  *
- * @example https://github.com/samchon/nestia-start/blob/master/test/index.ts
- * @example https://github.com/samchon/backend/blob/master/test/index.ts
  * @author Jeongho Nam - https://github.com/samchon
+ * @example
+ *   https://github.com/samchon/nestia-start/blob/master/test/index.ts
+ *
+ * @example
+ *   https://github.com/samchon/backend/blob/master/test/index.ts
  */
 export namespace DynamicExecutor {
   /**
@@ -30,22 +33,19 @@ export namespace DynamicExecutor {
     (...args: Arguments): Promise<Ret>;
   }
 
-  /**
-   * Options for dynamic executor.
-   */
+  /** Options for dynamic executor. */
   export interface IProps<Parameters extends any[], Ret = any> {
     /**
      * Prefix of function name.
      *
      * Every prefixed function will be executed.
      *
-     * In other words, if a function name doesn't start with the prefix, then it would never be executed.
+     * In other words, if a function name doesn't start with the prefix, then it
+     * would never be executed.
      */
     prefix: string;
 
-    /**
-     * Location of the test functions.
-     */
+    /** Location of the test functions. */
     location: string;
 
     /**
@@ -76,9 +76,9 @@ export namespace DynamicExecutor {
     /**
      * Wrapper of test function.
      *
-     * If you specify this `wrapper` property,  every dynamic functions
-     * loaded and called by this `DynamicExecutor` would be wrapped by
-     * the `wrapper` function.
+     * If you specify this `wrapper` property, every dynamic functions loaded
+     * and called by this `DynamicExecutor` would be wrapped by the `wrapper`
+     * function.
      *
      * @param name Function name
      * @param closure Function to be executed
@@ -111,67 +111,45 @@ export namespace DynamicExecutor {
     extension?: string;
   }
 
-  /**
-   * Report, result of dynamic execution.
-   */
+  /** Report, result of dynamic execution. */
   export interface IReport {
-    /**
-     * Location path of dynamic functions.
-     */
+    /** Location path of dynamic functions. */
     location: string;
 
-    /**
-     * Execution results of dynamic functions.
-     */
+    /** Execution results of dynamic functions. */
     executions: IExecution[];
 
-    /**
-     * Total elapsed time.
-     */
+    /** Total elapsed time. */
     time: number;
   }
 
-  /**
-   * Execution of a test function.
-   */
+  /** Execution of a test function. */
   export interface IExecution {
-    /**
-     * Name of function.
-     */
+    /** Name of function. */
     name: string;
 
-    /**
-     * Location path of the function.
-     */
+    /** Location path of the function. */
     location: string;
 
-    /**
-     * Returned value from the function.
-     */
+    /** Returned value from the function. */
     value: unknown;
 
-    /**
-     * Error when occurred.
-     */
+    /** Error when occurred. */
     error: Error | null;
 
-    /**
-     * Elapsed time.
-     */
+    /** Elapsed time. */
     started_at: string;
 
-    /**
-     * Completion time.
-     */
+    /** Completion time. */
     completed_at: string;
   }
 
   /**
    * Prepare dynamic executor in strict mode.
    *
-   * In strict mode, if any error occurs, the program will be terminated directly.
-   * Otherwise, {@link validate} mode does not terminate when error occurs, but
-   * just archive the error log.
+   * In strict mode, if any error occurs, the program will be terminated
+   * directly. Otherwise, {@link validate} mode does not terminate when error
+   * occurs, but just archive the error log.
    *
    * @param props Properties of dynamic execution
    * @returns Report of dynamic test functions execution

@@ -14,7 +14,6 @@ export class BbsArticlesController {
    * @param section Section code
    * @param input Content to store
    * @returns Newly archived article
-   *
    * @tag public Some description describing public group...
    * @tag write Write accessor
    * @summary Public API
@@ -38,14 +37,14 @@ export class BbsArticlesController {
    *
    * Would be marked as "deprecated".
    *
-   * For reference, top sentence "Deprecated API." can replace the `@summary` tag.
+   * For reference, top sentence "Deprecated API." can replace the `@summary`
+   * tag.
    *
+   * @deprecated
    * @param section Section code
    * @param id Target article ID
    * @param input Content to update
    * @returns Updated content
-   *
-   * @deprecated
    * @operationId updateArticle
    * @security basic
    * @security bearer

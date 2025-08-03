@@ -4,9 +4,7 @@ import typia, { IValidation, TypeGuardError } from "typia";
 import { IResponseBodyQuerifier } from "../../options/IResponseBodyQuerifier";
 import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
 
-/**
- * @internal
- */
+/** @internal */
 export const get_path_and_querify =
   (method: string) =>
   (
@@ -23,9 +21,7 @@ export const get_path_and_querify =
     return [path ?? undefined, take(method)(functor)];
   };
 
-/**
- * @internal
- */
+/** @internal */
 const take =
   (method: string) =>
   <T>(functor?: IResponseBodyQuerifier<T> | null) => {
@@ -42,9 +38,7 @@ const take =
     );
   };
 
-/**
- * @internal
- */
+/** @internal */
 const querify = (input: Record<string, any>): URLSearchParams => {
   const output: URLSearchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(input))
@@ -55,9 +49,7 @@ const querify = (input: Record<string, any>): URLSearchParams => {
   return output;
 };
 
-/**
- * @internal
- */
+/** @internal */
 const assert =
   <T>(closure: (data: T) => URLSearchParams) =>
   (data: T) => {
@@ -76,9 +68,7 @@ const assert =
     }
   };
 
-/**
- * @internal
- */
+/** @internal */
 const is =
   <T>(closure: (data: T) => URLSearchParams | null) =>
   (data: T) => {
@@ -87,9 +77,7 @@ const is =
     return result;
   };
 
-/**
- * @internal
- */
+/** @internal */
 const validate =
   <T>(closure: (data: T) => IValidation<URLSearchParams>) =>
   (data: T) => {
@@ -102,7 +90,5 @@ const validate =
     return result.data;
   };
 
-/**
- * @internal
- */
+/** @internal */
 const MESSAGE = "Response body data is not following the promised type.";

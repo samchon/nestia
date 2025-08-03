@@ -8,11 +8,10 @@ export class TypedBodyControlleer {
   /**
    * Store an article.
    *
+   * @author Samchon
    * @param request Request object from express. Must be disappeared in SDK
    * @param input Content to store
    * @returns Newly archived article
-   *
-   * @author Samchon
    * @warning This is an fake API
    */
   @core.TypedRoute.Post()

@@ -7,13 +7,13 @@ import { SwaggerCustomizer } from "./SwaggerCustomizer";
  * schema composer (of [`@samchon/openapi`](https://github.com/samchon/openapi))
  * excludes the API.
  *
- * In other words, if you adjust the `@HumanRoute()` decorator to the API,
- * the API never participates in the LLM function calling. When calling the
+ * In other words, if you adjust the `@HumanRoute()` decorator to the API, the
+ * API never participates in the LLM function calling. When calling the
  * {@link HttpLlm.application} function, matched {@link IHttpLlmFunction} data
  * never be composed.
  *
- * @returns Method decorator
  * @author Jeongho Nam - https://github.com/samchon
+ * @returns Method decorator
  */
 export function HumanRoute(): MethodDecorator {
   return SwaggerCustomizer((props) => {

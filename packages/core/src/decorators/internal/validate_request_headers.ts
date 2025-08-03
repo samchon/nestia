@@ -4,9 +4,7 @@ import typia, { IValidation, TypeGuardError } from "typia";
 import { IRequestHeadersValidator } from "../../options/IRequestHeadersValidator";
 import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
 
-/**
- * @internal
- */
+/** @internal */
 export const validate_request_headers = <T>(
   validator?: IRequestHeadersValidator<T>,
 ): ((input: Record<string, string | string[] | undefined>) => T | Error) => {
@@ -21,9 +19,7 @@ export const validate_request_headers = <T>(
     new Error(`Error on nestia.core.TypedHeaders(): invalid typed validator.`);
 };
 
-/**
- * @internal
- */
+/** @internal */
 const assert =
   <T>(closure: (input: Record<string, string | string[] | undefined>) => T) =>
   (
@@ -45,9 +41,7 @@ const assert =
     }
   };
 
-/**
- * @internal
- */
+/** @internal */
 const is =
   <T>(
     closure: (input: Record<string, string | string[] | undefined>) => T | null,
@@ -59,9 +53,7 @@ const is =
     return result !== null ? result : new BadRequestException(MESSAGE);
   };
 
-/**
- * @internal
- */
+/** @internal */
 const validate =
   <T>(
     closure: (
@@ -80,7 +72,5 @@ const validate =
         });
   };
 
-/**
- * @internal
- */
+/** @internal */
 const MESSAGE = "Request headers data is not following the promised type.";

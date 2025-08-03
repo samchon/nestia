@@ -3,43 +3,27 @@ export interface IPage<T> {
   pagination: IPage.IPagination;
 }
 export namespace IPage {
-  /**
-   * Page request data
-   */
+  /** Page request data */
   export interface IRequest {
-    /**
-     * @type uint
-     */
+    /** @type uint */
     page?: number | null;
 
-    /**
-     * @type uint
-     */
+    /** @type uint */
     limit?: number | null;
   }
 
-  /**
-   * Page information.
-   */
+  /** Page information. */
   export interface IPagination {
-    /**
-     * @type uint
-     */
+    /** @type uint */
     current: number;
 
-    /**
-     * @type uint
-     */
+    /** @type uint */
     limit: number;
 
-    /**
-     * @type uint
-     */
+    /** @type uint */
     records: number;
 
-    /**
-     * @type uint
-     */
+    /** @type uint */
     pages: number;
   }
 }

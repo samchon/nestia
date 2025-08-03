@@ -10,7 +10,7 @@ export class SellerAuthenticateController {
    * Join as a seller.
    *
    * @param input Information of yours
-   * @return Information of newly joined seller
+   * @returns Information of newly joined seller
    * @setHeader authorization.token Authorization
    */
   @core.EncryptedRoute.Post("join")
@@ -30,7 +30,7 @@ export class SellerAuthenticateController {
    * Log-in as a seller.
    *
    * @param input Email and password
-   * @return Information of the seller
+   * @returns Information of the seller
    * @assignHeaders authorization
    */
   @core.EncryptedRoute.Post("login")
@@ -47,7 +47,7 @@ export class SellerAuthenticateController {
    * Change password.
    *
    * @param input Old and new passwords
-   * @return Empty object
+   * @returns Empty object
    */
   @nest.Patch("password/change")
   public async change(
@@ -56,9 +56,7 @@ export class SellerAuthenticateController {
     input;
   }
 
-  /**
-   * Erase the seller by itself.
-   */
+  /** Erase the seller by itself. */
   @nest.Delete("exit")
   public async exit(): Promise<void> {}
 }

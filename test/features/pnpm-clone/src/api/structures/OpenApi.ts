@@ -6,32 +6,20 @@ import type { Recordstringstring } from "./Recordstringstring";
 
 export namespace OpenApi {
   export namespace IDocument {
-    /**
-     * Contact information for the exposed API.
-     */
+    /** Contact information for the exposed API. */
     export type IContact = {
-      /**
-       * The identifying name of the contact person/organization.
-       */
+      /** The identifying name of the contact person/organization. */
       name?: undefined | string;
 
-      /**
-       * The URL pointing to the contact information.
-       */
+      /** The URL pointing to the contact information. */
       url?: undefined | string;
 
-      /**
-       * The email address of the contact person/organization.
-       */
+      /** The email address of the contact person/organization. */
       email?: undefined | (string & Format<"email">);
     };
-    /**
-     * License information for the exposed API.
-     */
+    /** License information for the exposed API. */
     export type ILicense = {
-      /**
-       * The license name used for the API.
-       */
+      /** The license name used for the API. */
       name: string;
 
       /**
@@ -41,9 +29,7 @@ export namespace OpenApi {
        */
       identifier?: undefined | string;
 
-      /**
-       * A URL to the license used for the API.
-       */
+      /** A URL to the license used for the API. */
       url?: undefined | string;
     };
     /**
@@ -58,29 +44,19 @@ export namespace OpenApi {
      * structure and describe the tag name in the {@link description} property.
      */
     export type ITag = {
-      /**
-       * The name of the tag.
-       */
+      /** The name of the tag. */
       name: string;
 
-      /**
-       * An optional string describing the tag.
-       */
+      /** An optional string describing the tag. */
       description?: undefined | string;
     };
   }
-  /**
-   * The remote server that provides the API.
-   */
+  /** The remote server that provides the API. */
   export type IServer = {
-    /**
-     * A URL to the target host.
-     */
+    /** A URL to the target host. */
     url: string;
 
-    /**
-     * An optional string describing the target server.
-     */
+    /** An optional string describing the target server. */
     description?: undefined | string;
 
     /**
@@ -92,56 +68,40 @@ export namespace OpenApi {
     variables?: undefined | RecordstringOpenApi.IServer.IVariable;
   };
   export namespace IServer {
-    /**
-     * A variable for the server URL template.
-     */
+    /** A variable for the server URL template. */
     export type IVariable = {
-      /**
-       * Default value to use for substitution.
-       */
+      /** Default value to use for substitution. */
       default: string;
 
-      /**
-       * List of available values for the variable.
-       */
+      /** List of available values for the variable. */
       enum?: undefined | string[];
 
-      /**
-       * An optional description for the server variable.
-       */
+      /** An optional description for the server variable. */
       description?: undefined | string;
     };
   }
   export namespace ISecurityScheme {
-    /**
-     * Normal API key type.
-     */
+    /** Normal API key type. */
     export type IApiKey = {
       type: "apiKey";
       in?: undefined | "header" | "query" | "cookie";
       name?: undefined | string;
       description?: undefined | string;
     };
-    /**
-     * HTTP basic authentication type.
-     */
+    /** HTTP basic authentication type. */
     export type IHttpBasic = {
       type: "http";
       scheme: "basic";
       description?: undefined | string;
     };
-    /**
-     * HTTP bearer authentication type.
-     */
+    /** HTTP bearer authentication type. */
     export type IHttpBearer = {
       type: "http";
       scheme: "bearer";
       bearerFormat?: undefined | string;
       description?: undefined | string;
     };
-    /**
-     * OAuth2 authentication type.
-     */
+    /** OAuth2 authentication type. */
     export type IOAuth2 = {
       type: "oauth2";
       flows: OpenApi.ISecurityScheme.IOAuth2.IFlowSet;

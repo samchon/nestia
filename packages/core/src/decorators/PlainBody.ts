@@ -13,12 +13,13 @@ import { validate_request_body } from "./internal/validate_request_body";
 /**
  * Plain body decorator.
  *
- * `PlainBody` is a decorator function getting full body text from the HTTP request.
+ * `PlainBody` is a decorator function getting full body text from the HTTP
+ * request.
  *
- * If you adjust the regular {@link Body} decorator function to the body parameter,
- * you can't get the full body text because the {@link Body} tries to convert the
- * body text to JSON object. Therefore, `@nestia/core` provides this `PlainBody`
- * decorator function to get the full body text.
+ * If you adjust the regular {@link Body} decorator function to the body
+ * parameter, you can't get the full body text because the {@link Body} tries to
+ * convert the body text to JSON object. Therefore, `@nestia/core` provides this
+ * `PlainBody` decorator function to get the full body text.
  *
  * ```typescript
  * \@TypedRoute.Post("memo")
@@ -28,14 +29,12 @@ import { validate_request_body } from "./internal/validate_request_body";
  *     ): void;
  * ```
  *
- * @return Parameter decorator
  * @author Jeongho Nam - https://github.com/samchon
+ * @returns Parameter decorator
  */
 export function PlainBody(): ParameterDecorator;
 
-/**
- * @internal
- */
+/** @internal */
 export function PlainBody(
   assert?: (input: unknown) => string,
 ): ParameterDecorator {
@@ -68,9 +67,7 @@ export function PlainBody(
   })();
 }
 
-/**
- * @internal
- */
+/** @internal */
 const isTextPlain = (text?: string): boolean =>
   text !== undefined &&
   text

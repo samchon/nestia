@@ -4,9 +4,7 @@ import type { MinLength } from "typia/lib/tags/MinLength";
 
 import type { IAttachmentFile } from "./IAttachmentFile";
 
-/**
- * Article info.
- */
+/** Article info. */
 export type IBbsArticle = {
   id: string & Format<"uuid">;
   section: string;

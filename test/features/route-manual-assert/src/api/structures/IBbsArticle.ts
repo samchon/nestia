@@ -1,7 +1,5 @@
 export interface IBbsArticle {
-  /**
-   * @format uuid
-   */
+  /** @format uuid */
   id: string;
 
   /**
@@ -14,9 +12,7 @@ export interface IBbsArticle {
 
   files: IAttachmentFile[];
 
-  /**
-   * @format date-time
-   */
+  /** @format date-time */
   created_at: string;
 }
 
@@ -33,8 +29,6 @@ export interface IAttachmentFile {
    */
   extension: string | null;
 
-  /**
-   * @format uri
-   */
+  /** @format uri */
   url: string;
 }

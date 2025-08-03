@@ -49,9 +49,7 @@ export interface INestiaConfig {
    */
   distribute?: string;
 
-  /**
-   * @default false
-   */
+  /** @default false */
   keyword?: boolean;
 
   /**

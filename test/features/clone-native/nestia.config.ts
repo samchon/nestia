@@ -16,4 +16,3 @@ export const NESTIA_CONFIG: INestiaConfig = {
   },
 };
 export default NESTIA_CONFIG;
-

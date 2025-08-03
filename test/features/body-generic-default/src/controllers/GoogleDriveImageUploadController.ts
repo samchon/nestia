@@ -16,7 +16,6 @@ export class GoogleDriveImageUploadController {
    * @param accountCode 구글 계정명
    * @param input 단일 이미지 파일 업로드 정보
    * @returns 업로드 완료된 구글 드라이브 파일 정보
-   *
    * @tag Google
    */
   @TypedRoute.Post("single")

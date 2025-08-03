@@ -1,7 +1,5 @@
 export interface IDateDefined {
-  /**
-   * @format date-time
-   */
+  /** @format date-time */
   string: string;
 
   date: Date;

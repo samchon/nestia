@@ -4,9 +4,7 @@ import typia, { IValidation, TypeGuardError } from "typia";
 import { IRequestFormDataProps } from "../../options/IRequestFormDataProps";
 import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
 
-/**
- * @internal
- */
+/** @internal */
 export const validate_request_form_data = <T>(
   props?: IRequestFormDataProps<T>,
 ): ((value: FormData) => T | Error) => {
@@ -24,9 +22,7 @@ export const validate_request_form_data = <T>(
     );
 };
 
-/**
- * @internal
- */
+/** @internal */
 const assert =
   <T>(closure: (input: FormData) => T) =>
   (input: FormData): T | BadRequestException => {
@@ -46,9 +42,7 @@ const assert =
     }
   };
 
-/**
- * @internal
- */
+/** @internal */
 const is =
   <T>(closure: (input: FormData) => T | null) =>
   (input: FormData): T | BadRequestException => {
@@ -56,9 +50,7 @@ const is =
     return result !== null ? result : new BadRequestException(MESSAGE);
   };
 
-/**
- * @internal
- */
+/** @internal */
 const validate =
   <T>(closure: (input: FormData) => IValidation<T>) =>
   (input: FormData): T | BadRequestException => {
@@ -71,7 +63,5 @@ const validate =
         });
   };
 
-/**
- * @internal
- */
+/** @internal */
 const MESSAGE = "Request multipart data is not following the promised type.";

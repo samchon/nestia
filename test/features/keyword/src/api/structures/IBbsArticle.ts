@@ -1,14 +1,10 @@
 export interface IBbsArticle extends IBbsArticle.IStore {
-  /**
-   * @format uuid
-   */
+  /** @format uuid */
   id: string;
 
   section: string;
 
-  /**
-   * @format date-time
-   */
+  /** @format date-time */
   created_at: string;
 }
 export namespace IBbsArticle {
@@ -23,9 +19,7 @@ export namespace IBbsArticle {
   }
 
   export interface ISummary {
-    /**
-     * @format uuid
-     */
+    /** @format uuid */
     id: string;
 
     section: string;
@@ -38,9 +32,7 @@ export namespace IBbsArticle {
      */
     title: string;
 
-    /**
-     * @format date-time
-     */
+    /** @format date-time */
     created_at: string;
   }
 }
@@ -58,8 +50,6 @@ export interface IAttachmentFile {
    */
   extension: string | null;
 
-  /**
-   * @format uri
-   */
+  /** @format uri */
   url: string;
 }

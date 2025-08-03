@@ -2,10 +2,11 @@ import { NoTransformConfigurationError } from "@nestia/core/lib/decorators/NoTra
 import { DynamicExecutor } from "@nestia/e2e";
 
 // prettier-ignore
+import { Backend } from "../Backend";
+
 NoTransformConfigurationError.throws = false;
 
 // prettier-ignore
-import { Backend } from "../Backend";
 
 async function main(): Promise<void> {
   const server: Backend = new Backend();

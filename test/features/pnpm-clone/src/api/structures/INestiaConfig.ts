@@ -3,9 +3,7 @@ import type { PartialOpenApi } from "./PartialOpenApi";
 import type { RecordstringOpenApi } from "./RecordstringOpenApi";
 
 export namespace INestiaConfig {
-  /**
-   * Building `swagger.json` is also possible.
-   */
+  /** Building `swagger.json` is also possible. */
   export type ISwaggerConfig = {
     /**
      * Response path of the `swagger.json`.
@@ -60,9 +58,7 @@ export namespace INestiaConfig {
      */
     info?: undefined | PartialOpenApi.IDocument.IInfo;
 
-    /**
-     * List of server addresses.
-     */
+    /** List of server addresses. */
     servers?: undefined | OpenApi.IServer[];
 
     /**

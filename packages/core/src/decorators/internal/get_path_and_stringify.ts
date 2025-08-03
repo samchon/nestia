@@ -5,9 +5,7 @@ import { IResponseBodyStringifier } from "../../options/IResponseBodyStringifier
 import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
 import { TypedRoute } from "../TypedRoute";
 
-/**
- * @internal
- */
+/** @internal */
 export const get_path_and_stringify =
   (logger: () => (log: TypedRoute.IValidateErrorLog) => void) =>
   (method: string) =>
@@ -28,9 +26,7 @@ export const get_path_and_stringify =
     return [path ?? undefined, take(logger)(method)(functor)];
   };
 
-/**
- * @internal
- */
+/** @internal */
 const take =
   (logger: () => (log: TypedRoute.IValidateErrorLog) => void) =>
   (method: string) =>
@@ -53,9 +49,7 @@ const take =
     );
   };
 
-/**
- * @internal
- */
+/** @internal */
 const assert =
   <T>(closure: (data: T) => string) =>
   (data: T): string => {
@@ -74,9 +68,7 @@ const assert =
     }
   };
 
-/**
- * @internal
- */
+/** @internal */
 const is =
   <T>(closure: (data: T) => string | null) =>
   (data: T, _method: string, _path: string) => {
@@ -85,9 +77,7 @@ const is =
     return result;
   };
 
-/**
- * @internal
- */
+/** @internal */
 const validate =
   <T>(closure: (data: T) => IValidation<string>) =>
   (data: T, _method: string, _path: string): string => {
@@ -116,7 +106,5 @@ const validateLog =
     return JSON.stringify(data);
   };
 
-/**
- * @internal
- */
+/** @internal */
 const MESSAGE = "Response body data is not following the promised type.";

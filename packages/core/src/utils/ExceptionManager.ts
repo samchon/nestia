@@ -6,24 +6,27 @@ import { Creator } from "../typings/Creator";
 /**
  * Exception manager for HTTP server.
  *
- * `ExceptionManager` is an utility class who can insert or erase custom error class with
- * its conversion method to a regular {@link nest.HttpException} instance.
+ * `ExceptionManager` is an utility class who can insert or erase custom error
+ * class with its conversion method to a regular {@link nest.HttpException}
+ * instance.
  *
- * If you define an API function through {@link TypedRoute} or {@link EncryptedRoute}
- * instead of the basic router decorator functions like {@link nest.Get} or
- * {@link nest.Post} and the API function throws a custom error whose class has been
- * {@link ExceptionManager.insert inserted} in this `EntityManager`, the error would be
- * automatically converted to the regular {@link nest.HttpException} instance by the
- * {@link ExceptionManager.Closure} function.
+ * If you define an API function through {@link TypedRoute} or
+ * {@link EncryptedRoute} instead of the basic router decorator functions like
+ * {@link nest.Get} or {@link nest.Post} and the API function throws a custom
+ * error whose class has been {@link ExceptionManager.insert inserted} in this
+ * `EntityManager`, the error would be automatically converted to the regular
+ * {@link nest.HttpException} instance by the {@link ExceptionManager.Closure}
+ * function.
  *
- * Therefore, with this `ExceptionManager` and {@link TypedRoute} or {@link EncryptedRoute},
- * you can manage your custom error classes much systemtically. You can avoid 500 internal
- * server error or hard coding implementation about the custom error classes.
+ * Therefore, with this `ExceptionManager` and {@link TypedRoute} or
+ * {@link EncryptedRoute}, you can manage your custom error classes much
+ * systemtically. You can avoid 500 internal server error or hard coding
+ * implementation about the custom error classes.
  *
  * Below error classes are defaultly configured in this `ExceptionManager`
  *
- *   - `typia.TypeGuardError`
- *   - `@nestia/fetcher.HttpError`
+ * - `typia.TypeGuardError`
+ * - `@nestia/fetcher.HttpError`
  *
  * @author Jeongho Nam - https://github.com/samchon
  */
@@ -31,7 +34,8 @@ export namespace ExceptionManager {
   /**
    * Insert an error class with converter.
    *
-   * If you've inserted an duplicated error class, the closure would be overwritten.
+   * If you've inserted an duplicated error class, the closure would be
+   * overwritten.
    *
    * @param creator Target error class
    * @param closure A closure function converting to the `HttpException` class
@@ -70,32 +74,31 @@ export namespace ExceptionManager {
   }
 
   /**
-   * Type of a closure function converting to the regular {@link nest.HttpException}.
+   * Type of a closure function converting to the regular
+   * {@link nest.HttpException}.
    *
-   * `ExceptionManager.Closure` is a type of closure function who are converting from
-   * custom error to the regular {@link nest.HttpException} instance. It would be used
-   * in the {@link ExceptionManager} with {@link TypedRoute} or {@link EncryptedRoute}.
+   * `ExceptionManager.Closure` is a type of closure function who are converting
+   * from custom error to the regular {@link nest.HttpException} instance. It
+   * would be used in the {@link ExceptionManager} with {@link TypedRoute} or
+   * {@link EncryptedRoute}.
    */
   export interface Closure<T extends Error> {
     /**
      * Error converter.
      *
-     * Convert from custom error to the regular {@link nest.HttpException} instance.
+     * Convert from custom error to the regular {@link nest.HttpException}
+     * instance.
      *
      * @param exception Custom error instance
-     * @return Regular {@link nest.HttpException} instance
+     * @returns Regular {@link nest.HttpException} instance
      */
     (exception: T): HttpException;
   }
 
-  /**
-   * @internal
-   */
+  /** @internal */
   export const tuples: Array<[Creator<any>, Closure<any>]> = [];
 
-  /**
-   * @internal
-   */
+  /** @internal */
   export const listeners: Set<(error: any) => any> = new Set();
 }
 

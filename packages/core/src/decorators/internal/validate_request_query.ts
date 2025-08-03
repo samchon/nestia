@@ -4,9 +4,7 @@ import typia, { IValidation, TypeGuardError } from "typia";
 import { IRequestQueryValidator } from "../../options/IRequestQueryValidator";
 import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
 
-/**
- * @internal
- */
+/** @internal */
 export const validate_request_query =
   (method: string) =>
   <T>(validator?: IRequestQueryValidator<T>) => {
@@ -21,9 +19,7 @@ export const validate_request_query =
       new Error(`Error on nestia.core.${method}(): invalid typed validator.`);
   };
 
-/**
- * @internal
- */
+/** @internal */
 const assert =
   <T>(closure: (input: URLSearchParams) => T) =>
   (input: URLSearchParams): T | BadRequestException => {
@@ -43,9 +39,7 @@ const assert =
     }
   };
 
-/**
- * @internal
- */
+/** @internal */
 const is =
   <T>(closure: (input: URLSearchParams) => T | null) =>
   (input: URLSearchParams): T | BadRequestException => {
@@ -53,9 +47,7 @@ const is =
     return result !== null ? result : new BadRequestException(MESSAGE);
   };
 
-/**
- * @internal
- */
+/** @internal */
 const validate =
   <T>(closure: (input: URLSearchParams) => IValidation<T>) =>
   (input: URLSearchParams): T | BadRequestException => {
@@ -68,7 +60,5 @@ const validate =
         });
   };
 
-/**
- * @internal
- */
+/** @internal */
 const MESSAGE = "Request query data is not following the promised type.";

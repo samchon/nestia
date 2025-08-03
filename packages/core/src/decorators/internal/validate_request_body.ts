@@ -4,9 +4,7 @@ import typia, { IValidation, TypeGuardError } from "typia";
 import { IRequestBodyValidator } from "../../options/IRequestBodyValidator";
 import { NoTransformConfigurationError } from "../NoTransformConfigurationError";
 
-/**
- * @internal
- */
+/** @internal */
 export const validate_request_body =
   (method: string) =>
   <T>(validator?: IRequestBodyValidator<T>): ((input: T) => Error | null) => {
@@ -20,9 +18,7 @@ export const validate_request_body =
       new Error(`Error on nestia.core.${method}(): invalid typed validator.`);
   };
 
-/**
- * @internal
- */
+/** @internal */
 const assert =
   <T>(closure: (data: T) => T) =>
   (input: T) => {
@@ -43,9 +39,7 @@ const assert =
     }
   };
 
-/**
- * @internal
- */
+/** @internal */
 const is =
   <T>(closure: (data: T) => boolean) =>
   (input: T) => {
@@ -53,9 +47,7 @@ const is =
     return success ? null : new BadRequestException(MESSAGE);
   };
 
-/**
- * @internal
- */
+/** @internal */
 const validate =
   <T>(closure: (data: T) => IValidation<T>) =>
   (input: T) => {
@@ -68,7 +60,5 @@ const validate =
         });
   };
 
-/**
- * @internal
- */
+/** @internal */
 const MESSAGE = "Request body data is not following the promised type.";

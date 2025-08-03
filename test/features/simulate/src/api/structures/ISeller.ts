@@ -4,34 +4,22 @@
  * @author Jeongho Nam - https://github.com/samchon
  */
 export interface ISeller {
-  /**
-   * Primary key.
-   */
+  /** Primary key. */
   id: number;
 
-  /**
-   * Email address.
-   */
+  /** Email address. */
   email: string;
 
-  /**
-   * Name of the seller.
-   */
+  /** Name of the seller. */
   name: string;
 
-  /**
-   * Mobile number of the seller.
-   */
+  /** Mobile number of the seller. */
   mobile: string;
 
-  /**
-   * Belonged company name.
-   */
+  /** Belonged company name. */
   company: string;
 
-  /**
-   * Joined time.
-   */
+  /** Joined time. */
   created_at: string;
 }
 

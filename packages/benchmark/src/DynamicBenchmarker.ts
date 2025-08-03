@@ -21,8 +21,8 @@ import { IBenchmarkServant } from "./internal/IBenchmarkServant";
  * Therefore, when you want to benchmark the performance of a backend server,
  * you have to make two programs; one for calling the
  * {@link DynamicBenchmarker.master} function, and the other for calling the
- * {@link DynamicBenchmarker.servant} function. Also, never forget to write
- * the path of the servant program to the
+ * {@link DynamicBenchmarker.servant} function. Also, never forget to write the
+ * path of the servant program to the
  * {@link DynamicBenchmarker.IMasterProps.servant} property.
  *
  * Also, you when you complete the benchmark execution through the
@@ -30,21 +30,20 @@ import { IBenchmarkServant } from "./internal/IBenchmarkServant";
  * functions, you can convert the result to markdown content by using the
  * {@link DynamicBenchmarker.markdown} function.
  *
- * Additionally, if you hope to see some utilization cases,
- * see the below example tagged links.
+ * Additionally, if you hope to see some utilization cases, see the below
+ * example tagged links.
  *
- * @example https://github.com/samchon/nestia-start/blob/master/test/benchmaark/index.ts
- * @example https://github.com/samchon/backend/blob/master/test/benchmark/index.ts
  * @author Jeongho Nam - https://github.com/samchon
+ * @example
+ *   https://github.com/samchon/nestia-start/blob/master/test/benchmaark/index.ts
+ *
+ * @example
+ *   https://github.com/samchon/backend/blob/master/test/benchmark/index.ts
  */
 export namespace DynamicBenchmarker {
-  /**
-   * Properties of the master program.
-   */
+  /** Properties of the master program. */
   export interface IMasterProps {
-    /**
-     * Total count of the requests.
-     */
+    /** Total count of the requests. */
     count: number;
 
     /**
@@ -59,7 +58,8 @@ export namespace DynamicBenchmarker {
      *
      * The number of requests to be executed simultaneously.
      *
-     * This property value would be divided by the {@link threads} in the servants.
+     * This property value would be divided by the {@link threads} in the
+     * servants.
      */
     simultaneous: number;
 
@@ -74,8 +74,8 @@ export namespace DynamicBenchmarker {
     /**
      * Filter function.
      *
-     * The filter function to determine whether to execute the function in
-     * the servant or not.
+     * The filter function to determine whether to execute the function in the
+     * servant or not.
      *
      * @param name Function name
      * @returns Whether to execute the function or not.
@@ -94,9 +94,9 @@ export namespace DynamicBenchmarker {
      *
      * Get the memory usage of the master program.
      *
-     * Specify this property only when your backend server is running on
-     * a different process, so that need to measure the memory usage of
-     * the backend server from other process.
+     * Specify this property only when your backend server is running on a
+     * different process, so that need to measure the memory usage of the
+     * backend server from other process.
      */
     memory?: () => Promise<NodeJS.MemoryUsage>;
 
@@ -108,9 +108,7 @@ export namespace DynamicBenchmarker {
     stdio?: undefined | "overlapped" | "pipe" | "ignore" | "inherit";
   }
 
-  /**
-   * Properties of the servant program.
-   */
+  /** Properties of the servant program. */
   export interface IServantProps<Parameters extends any[]> {
     /**
      * Default connection.
@@ -119,9 +117,7 @@ export namespace DynamicBenchmarker {
      */
     connection: IConnection;
 
-    /**
-     * Location of the benchmark functions.
-     */
+    /** Location of the benchmark functions. */
     location: string;
 
     /**
@@ -129,8 +125,8 @@ export namespace DynamicBenchmarker {
      *
      * Every prefixed function will be executed in the servant.
      *
-     * In other words, if a function name doesn't start with the prefix,
-     * then it would never be executed.
+     * In other words, if a function name doesn't start with the prefix, then it
+     * would never be executed.
      */
     prefix: string;
 
@@ -138,8 +134,8 @@ export namespace DynamicBenchmarker {
      * Get parameters of a function.
      *
      * When composing the parameters, never forget to copy the
-     * {@link IConnection.logger} property of default connection to the
-     * returning parameters.
+     * {@link IConnection.logger} property of default connection to the returning
+     * parameters.
      *
      * @param connection Default connection instance
      * @param name Function name
@@ -147,9 +143,7 @@ export namespace DynamicBenchmarker {
     parameters: (connection: IConnection, name: string) => Parameters;
   }
 
-  /**
-   * Benchmark report.
-   */
+  /** Benchmark report. */
   export interface IReport {
     count: number;
     threads: number;
@@ -184,8 +178,8 @@ export namespace DynamicBenchmarker {
    *
    * Creates a master program that executing the servant programs in parallel.
    *
-   * Note that, {@link IMasterProps.servant} property must be the path of
-   * the servant program executing the {@link servant} function.
+   * Note that, {@link IMasterProps.servant} property must be the path of the
+   * servant program executing the {@link servant} function.
    *
    * @param props Properties of the master program
    * @returns Benchmark report

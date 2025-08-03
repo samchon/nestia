@@ -5,9 +5,7 @@ import { throwError } from "rxjs";
 
 import { ExceptionManager } from "../../utils/ExceptionManager";
 
-/**
- * @internal
- */
+/** @internal */
 export function route_error(
   request: express.Request | FastifyRequest,
   error: any,

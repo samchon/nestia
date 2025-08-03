@@ -15,7 +15,7 @@ export const load_controllers = async (
         : [path],
     exclude:
       typeof path === "object" && !Array.isArray(path)
-        ? path.exclude ?? []
+        ? (path.exclude ?? [])
         : [],
     filter:
       isTsNode === true || EXTENSION === "ts"
@@ -27,9 +27,7 @@ export const load_controllers = async (
   return mount(sources);
 };
 
-/**
- * @internal
- */
+/** @internal */
 async function mount(sources: string[]): Promise<any[]> {
   const controllers: any[] = [];
   for (const file of sources) {
@@ -43,7 +41,5 @@ async function mount(sources: string[]): Promise<any[]> {
   return controllers;
 }
 
-/**
- * @internal
- */
+/** @internal */
 const EXTENSION = is_ts_node ? "ts" : "js";

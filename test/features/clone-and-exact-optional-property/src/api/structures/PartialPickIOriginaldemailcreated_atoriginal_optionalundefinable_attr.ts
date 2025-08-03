@@ -1,8 +1,6 @@
 import type { Format } from "typia/lib/tags/Format";
 
-/**
- * Make all properties in T optional
- */
+/** Make all properties in T optional */
 export type PartialPickIOriginaldemailcreated_atoriginal_optionalundefinable_attr =
   {
     d?: undefined | string;
