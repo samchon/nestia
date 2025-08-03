@@ -14,6 +14,8 @@ import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
  * This programmer generates comprehensive test files that validate the functionality
  * of the migrated API endpoints or SDK functions. The tests include proper setup,
  * execution, and validation of API calls.
+ * 
+ * @author Samchon
  */
 export namespace NestiaMigrateE2eProgrammer {
   /**

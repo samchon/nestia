@@ -19,6 +19,8 @@ import { NestiaMigrateInquirer } from "./NestiaMigrateInquirer";
  * - Reading and parsing OpenAPI/Swagger documents
  * - Generating NestJS or SDK code
  * - Formatting and writing output files
+ * 
+ * @author Samchon
  */
 export namespace NestiaMigrateCommander {
   /**

@@ -5,6 +5,8 @@ import { OpenApi } from "@samchon/openapi";
  * 
  * This interface defines the structure of DTOs that will be generated during
  * the migration process, representing the data schemas from the OpenAPI document.
+ * 
+ * @author Samchon
  */
 export interface INestiaMigrateDto {
   /**

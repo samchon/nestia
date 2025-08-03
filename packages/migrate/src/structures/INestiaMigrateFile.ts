@@ -3,6 +3,8 @@
  * 
  * This interface defines the structure of files that will be generated
  * during the migration process, including their content and metadata.
+ * 
+ * @author Samchon
  */
 export interface INestiaMigrateFile {
   /**

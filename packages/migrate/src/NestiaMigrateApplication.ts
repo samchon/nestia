@@ -25,6 +25,7 @@ import { INestiaMigrateFile } from "./structures/INestiaMigrateFile";
  * and generate corresponding NestJS controllers, DTOs, API clients, and test files.
  * It supports both NestJS backend generation and SDK library generation modes.
  * 
+ * @author Samchon
  * @example
  * ```typescript
  * import { NestiaMigrateApplication } from "@nestia/migrate";
@@ -47,10 +48,6 @@ import { INestiaMigrateFile } from "./structures/INestiaMigrateFile";
  * ```
  */
 export class NestiaMigrateApplication {
-  /**
-   * Internal data containing the parsed HTTP migration application structure.
-   * @private
-   */
   private readonly data_: IHttpMigrateApplication;
 
   /* -----------------------------------------------------------

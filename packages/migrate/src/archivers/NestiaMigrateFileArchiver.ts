@@ -5,6 +5,8 @@ import { VariadicSingleton } from "tstl";
  * 
  * This archiver handles the creation of directory structures and writing of
  * generated files to disk with proper organization and error handling.
+ * 
+ * @author Samchon
  */
 export namespace NestiaMigrateFileArchiver {
   /**

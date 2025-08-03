@@ -8,6 +8,8 @@ import { INestiaMigrateConfig } from "./INestiaMigrateConfig";
  * This interface provides the complete context needed for code generation
  * during the migration process, including the generation mode, parsed
  * application data, and user configuration.
+ * 
+ * @author Samchon
  */
 export interface INestiaMigrateContext {
   /**

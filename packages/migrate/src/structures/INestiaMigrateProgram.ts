@@ -7,6 +7,8 @@ import { INestiaMigrateConfig } from "./INestiaMigrateConfig";
  * 
  * This interface defines the complete output of a migration operation,
  * including the generated files, configuration used, and any errors encountered.
+ * 
+ * @author Samchon
  */
 export interface INestiaMigrateProgram {
   /**

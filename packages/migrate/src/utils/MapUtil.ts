@@ -3,6 +3,8 @@
  * 
  * Provides higher-order functions for working with Maps in a functional style,
  * particularly useful for caching and memoization patterns.
+ * 
+ * @author Samchon
  */
 export namespace MapUtil {
   /**

@@ -3,6 +3,8 @@
  * 
  * Provides functions for string transformation, normalization, and validation
  * commonly needed during code generation and migration processes.
+ * 
+ * @author Samchon
  */
 export namespace StringUtil {
   /**

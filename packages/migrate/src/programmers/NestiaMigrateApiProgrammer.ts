@@ -14,6 +14,8 @@ import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
  * and related utilities that allow consumers to interact with the migrated API.
  * It organizes routes into logical namespaces and generates both functional APIs
  * and type-safe DTOs.
+ * 
+ * @author Samchon
  */
 export namespace NestiaMigrateApiProgrammer {
   /**

@@ -3,6 +3,8 @@
  * 
  * This interface defines the hierarchical structure of schemas
  * that are organized and processed during the migration.
+ * 
+ * @author Samchon
  */
 export interface INestiaMigrateSchema {
   /**

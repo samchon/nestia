@@ -5,6 +5,8 @@ import cp from "child_process";
  * 
  * This wizard handles post-generation setup tasks such as installing
  * dependencies and configuring the generated project for immediate use.
+ * 
+ * @author Samchon
  */
 export namespace SetupWizard {
   /**

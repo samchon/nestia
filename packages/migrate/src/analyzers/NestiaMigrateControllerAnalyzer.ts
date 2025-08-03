@@ -9,6 +9,8 @@ import { StringUtil } from "../utils/StringUtil";
  * 
  * This analyzer processes HTTP routes from OpenAPI specifications and groups them
  * into logical NestJS controller structures based on their paths and operations.
+ * 
+ * @author Samchon
  */
 export namespace NestiaMigrateControllerAnalyzer {
   /**

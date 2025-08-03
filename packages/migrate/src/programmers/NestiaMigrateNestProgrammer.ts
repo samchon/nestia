@@ -15,6 +15,8 @@ import { NestiaMigrateNestModuleProgrammer } from "./NestiaMigrateNestModuleProg
  * This programmer is responsible for generating complete NestJS applications
  * including controllers, modules, DTOs, and other necessary files from
  * OpenAPI specifications.
+ * 
+ * @author Samchon
  */
 export namespace NestiaMigrateNestProgrammer {
   /**

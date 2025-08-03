@@ -7,6 +7,8 @@ import { Escaper } from "typia/lib/utils/Escaper";
  * This factory creates TypeScript AST nodes representing literal types from
  * JavaScript values, useful for generating type-safe constants and literal
  * type definitions in generated code.
+ * 
+ * @author Samchon
  */
 export namespace TypeLiteralFactory {
   /**

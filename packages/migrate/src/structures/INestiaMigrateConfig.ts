@@ -7,6 +7,8 @@ import { NestiaMigrateNestMethodProgrammer } from "../programmers/NestiaMigrateN
  * 
  * This interface defines the options and settings that control how the migration
  * from OpenAPI documents to NestJS applications or SDK libraries is performed.
+ * 
+ * @author Samchon
  */
 export interface INestiaMigrateConfig {
   /**
