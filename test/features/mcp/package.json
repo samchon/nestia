@@ -6,6 +6,7 @@
     "build": "tsc",
     "start": "node lib/main.js",
     "test": "node lib/test.js",
+    "test:full": "node lib/full-test.js",
     "prepare": "ts-patch install && typia patch"
   },
   "dependencies": {

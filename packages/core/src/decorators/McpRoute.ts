@@ -31,13 +31,20 @@ export function McpRoute(config: McpRoute.IConfig): MethodDecorator {
     _propertyKey: string | symbol,
     descriptor: TypedPropertyDescriptor<any>,
   ): TypedPropertyDescriptor<any> {
+    // Generate basic schema if not provided
+    const inputSchema = config.inputSchema || {
+      type: "object",
+      properties: {},
+      description: "Input parameters for " + config.name,
+    };
+
     // Store metadata for reflection
     Reflect.defineMetadata(
       "nestia/McpRoute",
       {
         name: config.name,
         description: config.description,
-        inputSchema: config.inputSchema,
+        inputSchema,
       } satisfies McpRoute.IMcpRouteReflect,
       descriptor.value,
     );
@@ -216,6 +223,17 @@ export function McpController(prefix: string = "mcp") {
     public async callTool(
       @Body() request: McpRoute.IMcpToolCall,
     ): Promise<McpRoute.IMcpToolResult> {
+      // Validate request format
+      if (!request.name) {
+        throw new HttpException(
+          {
+            code: -32602,
+            message: "Missing required parameter: name",
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       let current = Object.getPrototypeOf(this);
       
       // Walk the prototype chain to find the tool
@@ -232,22 +250,39 @@ export function McpController(prefix: string = "mcp") {
 
           if (mcpConfig && mcpConfig.name === request.name) {
             try {
+              // Validate arguments are provided
+              const args = request.arguments || {};
+              
               // Pass the arguments directly as the first parameter
-              const result = await method.apply(this, [request.arguments || {}]);
+              const result = await method.apply(this, [args]);
+              
+              // Ensure result is serializable
+              const serializedResult = typeof result === "string" 
+                ? result 
+                : JSON.stringify(result);
+
               return {
                 content: [
                   {
                     type: "text" as const,
-                    text: JSON.stringify(result),
+                    text: serializedResult,
                   },
                 ],
               };
             } catch (error) {
+              // Handle different types of errors appropriately
+              const errorMessage = error instanceof Error 
+                ? error.message 
+                : String(error);
+              
               return {
                 content: [
                   {
                     type: "text" as const,
-                    text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                    text: JSON.stringify({
+                      error: errorMessage,
+                      type: error instanceof Error ? error.constructor.name : "UnknownError",
+                    }),
                   },
                 ],
                 isError: true,
