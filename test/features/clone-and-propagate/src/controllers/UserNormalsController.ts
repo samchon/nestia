@@ -7,8 +7,11 @@ import { ErrorCode } from "./ErrorCode";
 @nest.Controller("users")
 export class UsersController {
   /**
-   * - When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.
-   * - When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type.
+   * - When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that
+   *   writing only the deepest type even in the top or middle level namespaced
+   *   types.
+   * - When `clone` mode being used in SDK generator, it was not possible to clone
+   *   recursive DTO type.
    */
   @core.TypedException<ErrorCode.NotFound>(404)
   @core.TypedRoute.Get(":user_id/oauth")
@@ -22,11 +25,15 @@ export class UsersController {
   }
 
   /**
-   * - When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.
-   * - When propagation mode being used with `@TypedException<T>()` decorator, target `T` type had not been cloned.
-   * - When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type.
-   * - check optional query DTO
-   * - when use HttpCode decorator, sdk build fail code
+   * - When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that
+   *   writing only the deepest type even in the top or middle level namespaced
+   *   types.
+   * - When propagation mode being used with `@TypedException<T>()` decorator,
+   *   target `T` type had not been cloned.
+   * - When `clone` mode being used in SDK generator, it was not possible to clone
+   *   recursive DTO type.
+   * - Check optional query DTO
+   * - When use HttpCode decorator, sdk build fail code
    */
   @nest.HttpCode(nest.HttpStatus.ACCEPTED)
   @core.TypedException<ErrorCode.NotFound>(404)
@@ -40,9 +47,7 @@ export class UsersController {
     return typia.random<IUser>();
   }
 
-  /**
-   * - check optional, nullable property
-   */
+  /** - Check optional, nullable property */
   @core.TypedRoute.Post(":user_id/user")
   public async updateUserProfile(
     @core.TypedParam("user_id") user_id: string,
@@ -85,7 +90,8 @@ interface IUser {
 namespace IUser {
   export type Type = "admin" | "default" | "seller";
   /**
-   * this type name expected to 'IUpdate', but cloned dto name is 'PartialPickIUsernameemailnullable_attr'
+   * This type name expected to 'IUpdate', but cloned dto name is
+   * 'PartialPickIUsernameemailnullable_attr'
    */
   export type IUpdate = Partial<
     Pick<IUser, "name" | "email" | "nullable_attr" | "optional_attr">

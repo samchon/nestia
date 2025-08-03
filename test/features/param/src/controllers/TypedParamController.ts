@@ -7,10 +7,8 @@ export class TypedParamController {
   /**
    * Composite path parameters.
    *
-   * @param value The first value.
-   *              The first string value.
-   * @param value2 The second value.
-   *               The second string value.
+   * @param value The first value. The first string value.
+   * @param value2 The second value. The second string value.
    * @returns Concatenated string.
    */
   @core.TypedRoute.Get(":value/composite/:value2")
@@ -24,8 +22,7 @@ export class TypedParamController {
   /**
    * Boolean path parameter.
    *
-   * @param value The boolean value.
-   *              The boolean value as a path parameter.
+   * @param value The boolean value. The boolean value as a path parameter.
    * @returns The same boolean value.
    */
   @core.TypedRoute.Get(":value/boolean")
@@ -33,42 +30,33 @@ export class TypedParamController {
     return value;
   }
 
-  /**
-   * The number.
-   */
+  /** The number. */
   @core.TypedRoute.Get(":value/number")
   public number(
-    /**
-     * Description in the parameter.
-     */
+    /** Description in the parameter. */
     @core.TypedParam("value")
     value: number,
   ): number {
     return value;
   }
 
-  /**
-   * The bigint.
-   */
+  /** The bigint. */
   @core.TypedRoute.Get(":value/bigint")
   public bigint(
-    /**
-     * Description in the parameter.
-     */
+    /** Description in the parameter. */
     @core.TypedParam("value")
     value: bigint,
   ): number {
     return Number(value);
   }
 
-  /**
-   * The string.
-   */
+  /** The string. */
   @core.TypedRoute.Get(":value/string")
   public string(
     /**
+     * Yoohoo
+     *
      * @title Yaho
-     * @description Yoohoo
      */
     @core.TypedParam("value") value: string,
   ): string {

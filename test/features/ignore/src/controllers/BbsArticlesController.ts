@@ -9,9 +9,9 @@ export class BbsArticlesController {
   /**
    * Store an article.
    *
+   * @deprecated
    * @param input Content to store
    * @returns Newly archived article
-   * @deprecated
    */
   @TypedRoute.Post()
   public async store(
@@ -24,9 +24,7 @@ export class BbsArticlesController {
     return output;
   }
 
-  /**
-   * @internal
-   */
+  /** @internal */
   @TypedRoute.Put(":id")
   public async update(
     @TypedParam("id") id: string & tags.Format<"uuid">,
@@ -36,9 +34,7 @@ export class BbsArticlesController {
     input;
   }
 
-  /**
-   * @ignore
-   */
+  /** @ignore */
   @TypedRoute.Put(":id")
   public async erase(
     @TypedParam("id") id: string & tags.Format<"uuid">,

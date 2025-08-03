@@ -4,36 +4,24 @@
  * @author Jeongho Nam
  */
 export interface ISystem {
-  /**
-   * Random Unique ID.
-   */
+  /** Random Unique ID. */
   uid: number;
 
-  /**
-   * `process.argv`
-   */
+  /** `process.argv` */
   arguments: string[];
 
-  /**
-   * Git commit info.
-   */
+  /** Git commit info. */
   commit: ISystem.ICommit;
 
-  /**
-   * `package.json`
-   */
+  /** `package.json` */
   package: ISystem.IPackage;
 
-  /**
-   * Creation time of this server.
-   */
+  /** Creation time of this server. */
   created_at: string;
 }
 
 export namespace ISystem {
-  /**
-   * Git commit info.
-   */
+  /** Git commit info. */
   export interface ICommit {
     shortHash: string;
     branch: string;
@@ -49,18 +37,14 @@ export namespace ISystem {
     tags: string[];
   }
   export namespace ICommit {
-    /**
-     * Git user account info.
-     */
+    /** Git user account info. */
     export interface IUser {
       name: string;
       email: string;
     }
   }
 
-  /**
-   * NPM package info.
-   */
+  /** NPM package info. */
   export interface IPackage {
     name: string;
     version: string;

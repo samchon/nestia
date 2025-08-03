@@ -1,10 +1,6 @@
 import core from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import {
-  ApiBasicAuth,
-  ApiBearerAuth,
-  ApiOAuth2,
-} from "@nestjs/swagger";
+import { ApiBasicAuth, ApiBearerAuth, ApiOAuth2 } from "@nestjs/swagger";
 import typia from "typia";
 
 import { IToken } from "@api/lib/structures/IToken";
@@ -17,9 +13,7 @@ export class SecurityController {
     return typia.random<IToken>();
   }
 
-  /**
-   * @security basic
-   */
+  /** @security basic */
   @core.TypedRoute.Get("basic_by_comment")
   public basic_by_comment(): IToken {
     return typia.random<IToken>();
@@ -31,9 +25,7 @@ export class SecurityController {
     return typia.random<IToken>();
   }
 
-  /**
-   * @security bearer
-   */
+  /** @security bearer */
   @core.TypedRoute.Get("bearer_by_comment")
   public bearer_by_comment(): IToken {
     return typia.random<IToken>();
@@ -45,9 +37,7 @@ export class SecurityController {
     return typia.random<IToken>();
   }
 
-  /**
-   * @security oauth2 write:pets read:pets
-   */
+  /** @security oauth2 write:pets read:pets */
   @core.TypedRoute.Get("oauth2_by_comment")
   public oauth2_by_comment(): IToken {
     return typia.random<IToken>();

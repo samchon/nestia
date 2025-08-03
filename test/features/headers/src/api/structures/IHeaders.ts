@@ -3,15 +3,11 @@ export interface IHeaders {
   "x-memo"?: string;
   "x-bigint": bigint;
 
-  /**
-   * @default Samchon
-   */
+  /** @default Samchon */
   "x-nAme"?: string;
   "x-values": number[];
   "x-fLags": boolean[];
 
-  /**
-   * @hidden
-   */
+  /** @ignore */
   "X-Descriptions": string[];
 }

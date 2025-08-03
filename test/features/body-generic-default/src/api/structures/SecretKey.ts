@@ -7,10 +7,10 @@ import { tags } from "typia";
  *
  * - `string & SecretKey<"Some secret">`
  *
+ * @author Jake
  * @template Value Secret Key, 어떤 종류의 인증키가 필요한가
  * @template Scopes 필요한 스코프 리스트, 스코프가 필요없으면 빈 배열을 사용한다
  * @reference https://typia.io/docs/json/schema/#customization
- * @author Jake
  */
 export type SecretKey<
   Value extends string,

@@ -8,9 +8,9 @@ export class HealthController {
    *
    * Just for health checking API liveness.
    *
+   * @author Samchon
    * @tag system
    * @tag health
-   * @author Samchon
    */
   @core.TypedRoute.Get()
   public get(): void {}
