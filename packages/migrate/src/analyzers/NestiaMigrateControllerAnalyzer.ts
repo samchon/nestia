@@ -4,7 +4,36 @@ import { INestiaMigrateController } from "../structures/INestiaMigrateController
 import { MapUtil } from "../utils/MapUtil";
 import { StringUtil } from "../utils/StringUtil";
 
+/**
+ * Namespace containing functions for analyzing and organizing routes into controllers.
+ * 
+ * This analyzer processes HTTP routes from OpenAPI specifications and groups them
+ * into logical NestJS controller structures based on their paths and operations.
+ */
 export namespace NestiaMigrateControllerAnalyzer {
+  /**
+   * Analyzes HTTP routes and groups them into controller structures.
+   * 
+   * Takes an array of HTTP routes and organizes them into logical controller
+   * groupings based on their access patterns, paths, and custom controller
+   * annotations. Each controller gets a name, base path, file location, and
+   * collection of associated routes.
+   * 
+   * @param routes - Array of HTTP routes to analyze and group
+   * @returns Array of controller structures with organized routes
+   * 
+   * @example
+   * ```typescript
+   * const routes = [
+   *   { accessor: ["users", "create"], method: "POST", path: "/users" },
+   *   { accessor: ["users", "findAll"], method: "GET", path: "/users" },
+   *   { accessor: ["posts", "create"], method: "POST", path: "/posts" }
+   * ];
+   * 
+   * const controllers = NestiaMigrateControllerAnalyzer.analyze(routes);
+   * // Returns controllers like UsersController and PostsController
+   * ```
+   */
   export const analyze = (
     routes: IHttpMigrateRoute[],
   ): INestiaMigrateController[] => {
@@ -44,6 +73,17 @@ export namespace NestiaMigrateControllerAnalyzer {
   };
 }
 
+/**
+ * Finds the index where two string arrays start to differ.
+ * 
+ * Compares two string arrays element by element and returns the index
+ * of the first differing element. Used for finding common path prefixes.
+ * 
+ * @param x - First string array
+ * @param y - Second string array  
+ * @returns Index where arrays differ, or the length of the shorter array
+ * @internal
+ */
 const getSplitIndex = (x: string[], y: string[]) => {
   const n: number = Math.min(x.length, y.length);
   for (let i: number = 0; i < n; ++i) if (x[i] !== y[i]) return i;

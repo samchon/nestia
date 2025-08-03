@@ -9,7 +9,26 @@ import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 import { NestiaMigrateNestControllerProgrammer } from "./NestiaMigrateNestControllerProgrammer";
 import { NestiaMigrateNestModuleProgrammer } from "./NestiaMigrateNestModuleProgrammer";
 
+/**
+ * Namespace containing functions for generating NestJS application code.
+ * 
+ * This programmer is responsible for generating complete NestJS applications
+ * including controllers, modules, DTOs, and other necessary files from
+ * OpenAPI specifications.
+ */
 export namespace NestiaMigrateNestProgrammer {
+  /**
+   * Generates all NestJS application files from the migration context.
+   * 
+   * Creates a complete set of NestJS files including:
+   * - Main application module
+   * - Controller classes for each API endpoint group
+   * - DTO classes for request/response types
+   * - Proper import statements and dependencies
+   * 
+   * @param context - The migration context containing application data and configuration
+   * @returns Record mapping file paths to their generated content
+   */
   export const write = (
     context: INestiaMigrateContext,
   ): Record<string, string> => {
@@ -49,6 +68,14 @@ export namespace NestiaMigrateNestProgrammer {
     );
   };
 
+  /**
+   * Generates DTO file content with proper imports and structure.
+   * 
+   * @param key - The DTO module key/name
+   * @param modulo - The DTO module structure to generate
+   * @returns Array of TypeScript statements for the DTO file
+   * @internal
+   */
   const writeDtoFile = (
     key: string,
     modulo: NestiaMigrateDtoProgrammer.IModule,
@@ -64,6 +91,13 @@ export namespace NestiaMigrateNestProgrammer {
     ];
   };
 
+  /**
+   * Recursively iterates through DTO modules to generate TypeScript statements.
+   * 
+   * @param importer - The import programmer for managing dependencies
+   * @returns Function that processes DTO modules and returns statements
+   * @internal
+   */
   const iterate =
     (importer: NestiaMigrateImportProgrammer) =>
     (modulo: NestiaMigrateDtoProgrammer.IModule): ts.Statement[] => {

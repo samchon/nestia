@@ -7,7 +7,27 @@ import { NestiaMigrateApiFileProgrammer } from "./NestiaMigrateApiFileProgrammer
 import { NestiaMigrateDtoProgrammer } from "./NestiaMigrateDtoProgrammer";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 
+/**
+ * Namespace containing functions for generating API-related files.
+ * 
+ * This programmer is responsible for generating API client functions, type definitions,
+ * and related utilities that allow consumers to interact with the migrated API.
+ * It organizes routes into logical namespaces and generates both functional APIs
+ * and type-safe DTOs.
+ */
 export namespace NestiaMigrateApiProgrammer {
+  /**
+   * Generates all API-related files from the migration context.
+   * 
+   * Creates a comprehensive set of files including:
+   * - Functional API client methods organized by namespace
+   * - Type definitions and DTOs for requests/responses
+   * - Proper import management and dependency resolution
+   * - Index files for easy module access
+   * 
+   * @param ctx - The migration context containing application data and configuration
+   * @returns Record mapping file paths to their generated content
+   */
   export const write = (ctx: INestiaMigrateContext): Record<string, string> => {
     const dict: HashMap<string[], NestiaMigrateApiFileProgrammer.IProps> =
       new HashMap(
