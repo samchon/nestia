@@ -1,6 +1,38 @@
 import { VariadicSingleton } from "tstl";
 
+/**
+ * Namespace containing functions for archiving generated files to the file system.
+ * 
+ * This archiver handles the creation of directory structures and writing of
+ * generated files to disk with proper organization and error handling.
+ */
 export namespace NestiaMigrateFileArchiver {
+  /**
+   * Archives generated files to the file system.
+   * 
+   * Creates the necessary directory structure and writes all generated files
+   * to their appropriate locations. Uses efficient directory creation with
+   * memoization to avoid redundant filesystem operations.
+   * 
+   * @param props - Configuration object for the archiving operation
+   * @param props.mkdir - Function to create directories
+   * @param props.writeFile - Function to write file content
+   * @param props.root - Root directory path for the output
+   * @param props.files - Record of file paths to file contents to write
+   * 
+   * @example
+   * ```typescript
+   * await NestiaMigrateFileArchiver.archive({
+   *   mkdir: async (path) => await fs.mkdir(path, { recursive: true }),
+   *   writeFile: async (path, content) => await fs.writeFile(path, content),
+   *   root: "./output",
+   *   files: {
+   *     "src/controllers/UserController.ts": "export class UserController { ... }",
+   *     "src/dtos/CreateUserDto.ts": "export interface CreateUserDto { ... }"
+   *   }
+   * });
+   * ```
+   */
   export const archive = async (props: {
     mkdir: (path: string) => Promise<void>;
     writeFile: (path: string, content: string) => Promise<void>;
