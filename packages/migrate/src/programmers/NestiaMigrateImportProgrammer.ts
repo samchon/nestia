@@ -5,7 +5,7 @@ import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 
 /**
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export class NestiaMigrateImportProgrammer {
   private external_: Map<string, IClause> = new Map();

@@ -25,27 +25,7 @@ import { INestiaMigrateFile } from "./structures/INestiaMigrateFile";
  * and generate corresponding NestJS controllers, DTOs, API clients, and test files.
  * It supports both NestJS backend generation and SDK library generation modes.
  * 
- * @author Samchon
- * @example
- * ```typescript
- * import { NestiaMigrateApplication } from "@nestia/migrate";
- * 
- * // Create application from OpenAPI document
- * const app = new NestiaMigrateApplication(openApiDocument);
- * 
- * // Generate NestJS application files
- * const nestFiles = app.nest({
- *   simulate: true,
- *   e2e: true,
- *   keyword: true
- * });
- * 
- * // Generate SDK library files
- * const sdkFiles = app.sdk({
- *   simulate: false,
- *   e2e: false
- * });
- * ```
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export class NestiaMigrateApplication {
   private readonly data_: IHttpMigrateApplication;
@@ -146,20 +126,6 @@ export class NestiaMigrateApplication {
    * 
    * @param config - Configuration options for the NestJS generation
    * @returns Record of file paths to file contents for the generated NestJS application
-   * 
-   * @example
-   * ```typescript
-   * const files = app.nest({
-   *   simulate: true,      // Include API simulation features
-   *   e2e: true,          // Generate end-to-end test files
-   *   keyword: true,      // Use keyword validation
-   *   package: "@my/api", // Custom package name
-   *   author: {
-   *     tag: "@author",
-   *     value: "John Doe"
-   *   }
-   * });
-   * ```
    */
   public nest(config: INestiaMigrateConfig): Record<string, string> {
     const context: INestiaMigrateContext = createContext(
@@ -200,15 +166,6 @@ export class NestiaMigrateApplication {
    * 
    * @param config - Configuration options for the SDK generation
    * @returns Record of file paths to file contents for the generated SDK library
-   * 
-   * @example
-   * ```typescript
-   * const files = app.sdk({
-   *   simulate: false,     // Exclude simulation features
-   *   e2e: true,          // Generate end-to-end test files
-   *   package: "@my/sdk"  // Custom package name
-   * });
-   * ```
    */
   public sdk(config: INestiaMigrateConfig): Record<string, string> {
     const context: INestiaMigrateContext = createContext(

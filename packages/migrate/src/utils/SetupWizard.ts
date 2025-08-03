@@ -6,7 +6,7 @@ import cp from "child_process";
  * This wizard handles post-generation setup tasks such as installing
  * dependencies and configuring the generated project for immediate use.
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace SetupWizard {
   /**
@@ -17,13 +17,6 @@ export namespace SetupWizard {
    * Currently installs npm dependencies.
    * 
    * @param output - The output directory path where the project was generated
-   * 
-   * @example
-   * ```typescript
-   * // After generating files to ./my-api
-   * SetupWizard.setup("./my-api");
-   * // Executes: npm install in ./my-api directory
-   * ```
    */
   export const setup = (output: string) => {
     execute(output)("npm install");

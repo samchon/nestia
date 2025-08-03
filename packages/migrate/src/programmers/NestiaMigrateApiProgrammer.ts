@@ -15,7 +15,7 @@ import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
  * It organizes routes into logical namespaces and generates both functional APIs
  * and type-safe DTOs.
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace NestiaMigrateApiProgrammer {
   /**

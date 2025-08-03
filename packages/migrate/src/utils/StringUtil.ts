@@ -4,7 +4,7 @@
  * Provides functions for string transformation, normalization, and validation
  * commonly needed during code generation and migration processes.
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace StringUtil {
   /**
@@ -12,12 +12,6 @@ export namespace StringUtil {
    * 
    * @param str - The string to capitalize
    * @returns The capitalized string
-   * 
-   * @example
-   * ```typescript
-   * StringUtil.capitalize("helloWorld"); // "Helloworld"
-   * StringUtil.capitalize("API"); // "Api"
-   * ```
    */
   export const capitalize = (str: string) =>
     str[0].toUpperCase() + str.slice(1).toLowerCase();
@@ -30,12 +24,6 @@ export namespace StringUtil {
    * 
    * @param path - The path string to split and normalize
    * @returns Array of normalized path segments
-   * 
-   * @example
-   * ```typescript
-   * StringUtil.splitWithNormalization("/api/v1/users-list/"); 
-   * // ["api", "v1", "users_list"]
-   * ```
    */
   export const splitWithNormalization = (path: string) =>
     path
@@ -51,13 +39,6 @@ export namespace StringUtil {
    * 
    * @param keep - Array of names to avoid duplicating
    * @returns Function that escapes duplicate names
-   * 
-   * @example
-   * ```typescript
-   * const escaper = StringUtil.escapeDuplicate(["user", "admin"]);
-   * escaper("user"); // "_user"
-   * escaper("guest"); // "guest"
-   * ```
    */
   export const escapeDuplicate =
     (keep: string[]) =>
@@ -72,14 +53,6 @@ export namespace StringUtil {
    * 
    * @param str - The string to convert to a valid variable name
    * @returns A valid TypeScript/JavaScript identifier
-   * 
-   * @example
-   * ```typescript
-   * StringUtil.escapeNonVariable("class"); // "_class"
-   * StringUtil.escapeNonVariable("123name"); // "_123name"
-   * StringUtil.escapeNonVariable("user-name"); // "user_name"
-   * StringUtil.escapeNonVariable(""); // "_empty_"
-   * ```
    */
   export const escapeNonVariable = (str: string): string => {
     str = escape(str);

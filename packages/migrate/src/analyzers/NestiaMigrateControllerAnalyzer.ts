@@ -10,7 +10,7 @@ import { StringUtil } from "../utils/StringUtil";
  * This analyzer processes HTTP routes from OpenAPI specifications and groups them
  * into logical NestJS controller structures based on their paths and operations.
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace NestiaMigrateControllerAnalyzer {
   /**
@@ -23,18 +23,6 @@ export namespace NestiaMigrateControllerAnalyzer {
    * 
    * @param routes - Array of HTTP routes to analyze and group
    * @returns Array of controller structures with organized routes
-   * 
-   * @example
-   * ```typescript
-   * const routes = [
-   *   { accessor: ["users", "create"], method: "POST", path: "/users" },
-   *   { accessor: ["users", "findAll"], method: "GET", path: "/users" },
-   *   { accessor: ["posts", "create"], method: "POST", path: "/posts" }
-   * ];
-   * 
-   * const controllers = NestiaMigrateControllerAnalyzer.analyze(routes);
-   * // Returns controllers like UsersController and PostsController
-   * ```
    */
   export const analyze = (
     routes: IHttpMigrateRoute[],

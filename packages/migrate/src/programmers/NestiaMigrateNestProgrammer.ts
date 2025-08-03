@@ -16,7 +16,7 @@ import { NestiaMigrateNestModuleProgrammer } from "./NestiaMigrateNestModuleProg
  * including controllers, modules, DTOs, and other necessary files from
  * OpenAPI specifications.
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace NestiaMigrateNestProgrammer {
   /**

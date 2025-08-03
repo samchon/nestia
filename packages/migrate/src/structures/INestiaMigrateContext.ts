@@ -9,7 +9,7 @@ import { INestiaMigrateConfig } from "./INestiaMigrateConfig";
  * during the migration process, including the generation mode, parsed
  * application data, and user configuration.
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export interface INestiaMigrateContext {
   /**

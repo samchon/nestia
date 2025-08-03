@@ -15,7 +15,7 @@ import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
  * of the migrated API endpoints or SDK functions. The tests include proper setup,
  * execution, and validation of API calls.
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace NestiaMigrateE2eProgrammer {
   /**

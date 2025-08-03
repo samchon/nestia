@@ -8,7 +8,7 @@ import { Escaper } from "typia/lib/utils/Escaper";
  * JavaScript values, useful for generating type-safe constants and literal
  * type definitions in generated code.
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace TypeLiteralFactory {
   /**
@@ -20,15 +20,6 @@ export namespace TypeLiteralFactory {
    * 
    * @param value - The JavaScript value to convert to a type node
    * @returns TypeScript type node representing the literal type
-   * 
-   * @example
-   * ```typescript
-   * TypeLiteralFactory.generate("hello"); // Creates string literal type "hello"
-   * TypeLiteralFactory.generate(42); // Creates number literal type 42
-   * TypeLiteralFactory.generate({ name: "John", age: 30 }); 
-   * // Creates object literal type { name: "John"; age: 30 }
-   * TypeLiteralFactory.generate([1, 2, 3]); // Creates tuple type [1, 2, 3]
-   * ```
    */
   export const generate = (value: any): ts.TypeNode =>
     typeof value === "boolean"

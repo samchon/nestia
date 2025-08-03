@@ -20,7 +20,7 @@ import { NestiaMigrateInquirer } from "./NestiaMigrateInquirer";
  * - Generating NestJS or SDK code
  * - Formatting and writing output files
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace NestiaMigrateCommander {
   /**

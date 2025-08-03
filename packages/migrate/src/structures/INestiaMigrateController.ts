@@ -6,7 +6,7 @@ import { IHttpMigrateRoute } from "@samchon/openapi";
  * This interface defines the structure of a controller that will be generated
  * during the migration process, including its metadata and associated routes.
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export interface INestiaMigrateController {
   /**

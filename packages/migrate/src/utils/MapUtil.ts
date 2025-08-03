@@ -4,7 +4,7 @@
  * Provides higher-order functions for working with Maps in a functional style,
  * particularly useful for caching and memoization patterns.
  * 
- * @author Samchon
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export namespace MapUtil {
   /**
@@ -16,16 +16,6 @@ export namespace MapUtil {
    * 
    * @param dict - The Map to operate on
    * @returns A function that takes a key and generator function
-   * 
-   * @example
-   * ```typescript
-   * const cache = new Map<string, number>();
-   * const memoizedComputation = MapUtil.take(cache);
-   * 
-   * const getValue = memoizedComputation("key1");
-   * const result = getValue(() => expensiveComputation()); // Computed once
-   * const cached = getValue(() => expensiveComputation()); // Retrieved from cache
-   * ```
    */
   export const take =
     <Key, T>(dict: Map<Key, T>) =>
