@@ -4,7 +4,9 @@ import { IFetchEvent } from "../IFetchEvent";
 import { IFetchRoute } from "../IFetchRoute";
 import { IPropagation } from "../IPropagation";
 
-/** @internal */
+/**
+ * @internal
+ */
 export namespace FetcherBase {
   export interface IProps {
     className: string;
@@ -53,7 +55,9 @@ export namespace FetcherBase {
     ): Promise<IPropagation<any, any>> =>
       _Propagate("propagate")(props)(connection, route, input, stringify);
 
-  /** @internal */
+  /**
+   * @internal
+   */
   const _Propagate =
     (method: string) =>
     (props: IProps) =>
@@ -192,7 +196,9 @@ export namespace FetcherBase {
     };
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 const request_query_body = (input: any): URLSearchParams => {
   const q: URLSearchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(input))
@@ -203,7 +209,9 @@ const request_query_body = (input: any): URLSearchParams => {
   return q;
 };
 
-/** @internal */
+/**
+ * @internal
+ */
 const request_form_data_body = (input: Record<string, any>): FormData => {
   const encoded: FormData = new FormData();
   const append = (key: string) => (value: any) => {
@@ -218,7 +226,9 @@ const request_form_data_body = (input: Record<string, any>): FormData => {
   return encoded;
 };
 
-/** @internal */
+/**
+ * @internal
+ */
 const response_headers_to_object = (
   headers: Headers,
 ): Record<string, string | string[]> => {

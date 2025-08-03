@@ -16,19 +16,17 @@ export namespace NoTransformConfigurationError {
    * If you set this value to `false`, {@link NoTransformConfigurationError} will
    * not throw an error.
    *
-   * Even if you've not configured the plugin transformer of `tsconfig.json`
-   * file, the error will not be thrown and the program will be continued.
-   * Instead, every validations and assertions will be skipped and the value
-   * will be returned as it is. Furthermore, unexpected behaviors may occur.
+   * Even if you've not configured the plugin transformer of `tsconfig.json` file,
+   * the error will not be thrown and the program will be continued. Instead, every
+   * validations and assertions will be skipped and the value will be returned as it is.
+   * Furthermore, unexpected behaviors may occur.
    *
    * Therefore, it is not recommended to set this value to `false` in production
-   * environment. Configure this value to be `false` only when you're debugging
-   * or testing.
+   * environment. Configure this value to be `false` only when you're debugging or testing.
    *
-   * By the way, if you hope the `false` value to be set, you have to do it
-   * before the first. If you configure the `false` value after the
-   * `@nestia/core` decorator functions are composed, the value will not be
-   * applied and the error will be thrown.
+   * By the way, if you hope the `false` value to be set, you have to do it before the first.
+   * If you configure the `false` value after the `@nestia/core` decorator functions are
+   * composed, the value will not be applied and the error will be thrown.
    */
   export let throws = true;
 }

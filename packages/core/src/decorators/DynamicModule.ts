@@ -18,12 +18,11 @@ export namespace DynamicModule {
    *
    * Constructs a module instance with directory path of controller classes.
    *
-   * Every controller classes in the target directory would be dynamically
-   * mounted.
+   * Every controller classes in the target directory would be dynamically mounted.
    *
    * @param path Path of controllers
    * @param metadata Additional metadata except controllers
-   * @returns Module instance
+   * @returns module instance
    */
   export async function mount(
     path: string | string[] | { include: string[]; exclude?: string[] },

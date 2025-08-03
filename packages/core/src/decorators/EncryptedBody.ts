@@ -18,23 +18,23 @@ import { validate_request_body } from "./internal/validate_request_body";
 /**
  * Encrypted body decorator.
  *
- * `EncryptedBody` is a decorator function getting `application/json` typed data
- * from request body which has been encrypted by AES-128/256 algorithm. Also,
+ * `EncryptedBody` is a decorator function getting `application/json` typed data from
+ * request body which has been encrypted by AES-128/256 algorithm. Also,
  * `EncryptedBody` validates the request body data type through
- * [typia](https://github.com/samchon/typia) ad the validation speed is maximum
- * 15,000x times faster than `class-validator`.
+ * [typia](https://github.com/samchon/typia) ad the validation speed is
+ * maximum 15,000x times faster than `class-validator`.
  *
- * For reference, when the request body data is not following the promised type
- * `T`, `BadRequestException` error (status code: 400) would be thrown. Also,
+ * For reference, when the request body data is not following the promised type `T`,
+ * `BadRequestException` error (status code: 400) would be thrown. Also,
  * `EncryptedRoute` decrypts request body using those options.
  *
- * - AES-128/256
- * - CBC mode
- * - PKCS #5 Padding
- * - Base64 Encoding
+ *  - AES-128/256
+ *  - CBC mode
+ *  - PKCS #5 Padding
+ *  - Base64 Encoding
  *
+ * @return Parameter decorator
  * @author Jeongho Nam - https://github.com/samchon
- * @returns Parameter decorator
  */
 export function EncryptedBody<T>(
   validator?: IRequestBodyValidator<T>,
@@ -75,7 +75,9 @@ export function EncryptedBody<T>(
   })();
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 const decrypt = (body: string, key: string, iv: string): string => {
   try {
     return AesPkcs5.decrypt(body, key, iv);
@@ -88,7 +90,9 @@ const decrypt = (body: string, key: string, iv: string): string => {
   }
 };
 
-/** @internal */
+/**
+ * @internal
+ */
 const isTextPlain = (text?: string): boolean =>
   text !== undefined &&
   text

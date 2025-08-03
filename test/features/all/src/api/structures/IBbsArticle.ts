@@ -1,8 +1,12 @@
 export interface IBbsArticle extends IBbsArticle.IStore {
-  /** @format uuid */
+  /**
+   * @format uuid
+   */
   id: string;
 
-  /** @format date-time */
+  /**
+   * @format date-time
+   */
   created_at: string;
 }
 export namespace IBbsArticle {
@@ -30,6 +34,8 @@ export interface IAttachmentFile {
    */
   extension: string | null;
 
-  /** @format uri */
+  /**
+   * @format uri
+   */
   url: string;
 }

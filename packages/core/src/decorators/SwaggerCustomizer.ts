@@ -7,12 +7,12 @@ import { OpenApi } from "@samchon/openapi";
  * customizing the swagger data with `npx nestia swagger` command. Furthermore,
  * it is possible to add plugin properties starting with `x-` characters.
  *
- * In other words, this decorator function does not affect to the runtime, but
- * only for the swagger data customization.
+ * In other words, this decorator function does not affect to the runtime,
+ * but only for the swagger data customization.
  *
- * @author Jeongho Nam - https://github.com/samchon
  * @param closure Callback function which can customize the swagger data
  * @returns Method decorator
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export function SwaggerCustomizer(
   closure: (props: SwaggerCustomizer.IProps) => unknown,
@@ -51,16 +51,24 @@ export namespace SwaggerCustomizer {
    * the swagger data.
    */
   export interface IProps {
-    /** Swagger data. */
+    /**
+     * Swagger data.
+     */
     swagger: OpenApi.IDocument;
 
-    /** Method of the route. */
+    /**
+     * Method of the route.
+     */
     method: string;
 
-    /** Path of the route. */
+    /**
+     * Path of the route.
+     */
     path: string;
 
-    /** Route data. */
+    /**
+     * Route data.
+     */
     route: OpenApi.IOperation;
 
     /**
@@ -80,18 +88,28 @@ export namespace SwaggerCustomizer {
     get(accessor: IAccessor): OpenApi.IOperation | undefined;
   }
 
-  /** Accessor for getting neighbor route data. */
+  /**
+   * Accessor for getting neighbor route data.
+   */
   export interface IAccessor {
-    /** Path of the neighbor route. */
+    /**
+     * Path of the neighbor route.
+     */
     path: string;
 
-    /** Method of the neighbor route. */
+    /**
+     * Method of the neighbor route.
+     */
     method: string;
   }
 
-  /** Endpoint info of the route. */
+  /**
+   * Endpoint info of the route.
+   */
   export interface ISwaggerEndpoint extends IAccessor {
-    /** Route data. */
+    /**
+     * Route data.
+     */
     route: OpenApi.IOperation;
   }
 }

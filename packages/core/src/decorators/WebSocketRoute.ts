@@ -8,15 +8,15 @@ import { validate_request_query } from "./internal/validate_request_query";
 /**
  * WebSocket route decorator.
  *
- * `@WebSocketRoute()` is a route decorator function for WebSocket routes. If
- * you want to define a WebSocket route with this `@WebSocketRoute` decorator,
- * please don't forget to call the {@link WebSocketAdaptor.upgrade} function to
- * the {@link INestApplication} instance.
+ * `@WebSocketRoute()` is a route decorator function for WebSocket routes.
+ * If you want to define a WebSocket route with this `@WebSocketRoute` decorator,
+ * please don't forget to call the {@link WebSocketAdaptor.upgrade} function
+ * to the {@link INestApplication} instance.
  *
- * Also, `WebSocketRoute` is a module containing parameter decorator functions
- * of below for the `@WebSocketRoute` decorated method, at the same time. Note
- * that, every parameters must be decorated by one of the parameter decorators
- * in the `WebSocketRoute` module. One thing more important is,
+ * Also, `WebSocketRoute` is a module containing parameter decorator
+ * functions of below for the `@WebSocketRoute` decorated method, at the same
+ * time. Note that, every parameters must be decorated by one of the parameter
+ * decorators in the `WebSocketRoute` module. One thing more important is,
  * {@link WebSocketRoute.Acceptor} decorated parameter must be defined in the
  * method. If not, it would be both compilation/runtime error.
  *
@@ -28,16 +28,16 @@ import { validate_request_query } from "./internal/validate_request_query";
  *
  * For reference, key difference between `@WebSocketGateway()` of NestJS and
  * `@WebSocketRoute()` of Nestia is, `@WebSocketRoute()` can make multiple
- * WebSocket routes by configuring _paths_, besides `@WebSocketGateway()` can't
- * do it.
+ * WebSocket routes by configuring *paths*, besides `@WebSocketGateway()`
+ * can't do it.
  *
  * Furthermore, if you build SDK (Software Development Kit) library through
  * `@nestia/sdk`, you can make safe WebSocket client taking advantages of
  * TypeScript type hints and checks.
  *
- * @author Jeongho Nam - https://github.com/samchon
  * @param path Path(s) of the WebSocket request
  * @returns Method decorator
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export function WebSocketRoute(
   path?: undefined | string | string[],
@@ -62,8 +62,7 @@ export namespace WebSocketRoute {
    * Acceptor parameter decorator.
    *
    * `@WebSocketRoute.Acceptor()` is a parameter decorator function for the
-   * `WebSocketAcceptor<Header, Provider, Listener>` (of `tgrid`) typed
-   * parameter.
+   * `WebSocketAcceptor<Header, Provider, Listener>` (of `tgrid`) typed parameter.
    *
    * In the controller method decorated by `@WebSocketRoute()` and
    * `@WebSocketRoute.Acceptor()`, call {@link WebSocketAcceptor.accept} function
@@ -72,8 +71,8 @@ export namespace WebSocketRoute {
    * {@link WebSocketAcceptor.rejcet} function instead.
    *
    * For reference, this `@WebSocketRoute.Acceptor()` parameter decorator is
-   * essential for the method decorated by `@WebSocketRoute()` decorator. If you
-   * forget it, it would be both compilation/runtime error.
+   * essential for the method decorated by `@WebSocketRoute()` decorator.
+   * If you forget it, it would be both compilation/runtime error.
    */
   export function Acceptor(): ParameterDecorator {
     return function WebSocketAcceptor(
@@ -99,8 +98,8 @@ export namespace WebSocketRoute {
    * by calling the `Driver<Listener>` instance.
    *
    * For reference, this `@WebSocketRoute.Driver()` decorator is optional, and
-   * can be substituted by `@WebSocketRoute.Acceptor()` decorated parameter by
-   * calling the {@link WebSocketAcceptor.getDriver} function.
+   * can be substituted by `@WebSocketRoute.Acceptor()` decorated parameter
+   * by calling the {@link WebSocketAcceptor.getDriver} function.
    */
   export function Driver(): ParameterDecorator {
     return function WebSocketDriver(
@@ -122,12 +121,12 @@ export namespace WebSocketRoute {
    * WebSocket header with type casting and assertion.
    *
    * For reference, `@WebSocketRoute.Header()` is different with HTTP headers.
-   * It's for WebSocket protocol, especially for TGrid's
-   * {@link WebSocketConnector} and {@link WebSocketAcceptor}'s special header.
+   * It's for WebSocket protocol, especially for TGrid's {@link WebSocketConnector}
+   * and {@link WebSocketAcceptor}'s special header.
    *
-   * Also, this `@WebSocketRoute.Header()` decorator is optional, and can be
-   * substituted by `@WebSocketRoute.Acceptor()` decorated parameter by
-   * accessting to the {@link WebSocketAcceptor.header} property.
+   * Also, this `@WebSocketRoute.Header()` decorator is optional, and
+   * can be substituted by `@WebSocketRoute.Acceptor()` decorated parameter
+   * by accessting to the {@link WebSocketAcceptor.header} property.
    */
   export function Header<T>(
     validator?: IRequestBodyValidator<T>,
@@ -152,9 +151,9 @@ export namespace WebSocketRoute {
    * `@WebSocketRoute.Param()` is a parameter decorator function for the URL
    * parameter with type casting and assertion.
    *
-   * It's almost same with the {@link TypedParam}, but `@WebSocketRoute.Param()`
-   * is only for WebSocket protocol router function decorated by
-   * {@link WebSocketRoute}.
+   * It's almost same with the {@link TypedParam}, but
+   * `@WebSocketRoute.Param()` is only for WebSocket protocol router function
+   * decorated by {@link WebSocketRoute}.
    *
    * @param field URL parameter field name
    */
@@ -186,19 +185,18 @@ export namespace WebSocketRoute {
    * `@WebSocketRoute.Query()` is a parameter decorator function for the URL
    * query string with type casting and assertion.
    *
-   * It is almost same with {@link TypedQuery}, but `@WebSocketRoute.Query()` is
-   * only for WebSocket protocol router function decorated by
-   * {@link WebSocketRoute}.
+   * It is almost same with {@link TypedQuery}, but
+   * `@WebSocketRoute.Query()` is only for WebSocket protocol router function
+   * decorated by {@link WebSocketRoute}.
    *
    * For reference, as same with {@link TypedQuery}, `@WebSocketRoute.Query()`
-   * has same restriction for the target type `T`. If actual URL query parameter
-   * values are different with their promised type `T`, it would be runtime
-   * error.
+   * has same restriction for the target type `T`. If actual URL query
+   * parameter values are different with their promised type `T`,
+   * it would be runtime error.
    *
    * 1. Type `T` must be an object type
    * 2. Do not allow dynamic property
-   * 3. Only `boolean`, `bigint`, `number`, `string` or their array types are
-   *    allowed
+   * 3. Only `boolean`, `bigint`, `number`, `string` or their array types are allowed
    * 4. By the way, union type never be not allowed
    */
   export function Query<T extends object>(
@@ -218,7 +216,9 @@ export namespace WebSocketRoute {
     };
   }
 
-  /** @internal */
+  /**
+   * @internal
+   */
   const emplace = (
     target: Object,
     propertyKey: string | symbol,

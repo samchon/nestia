@@ -12,10 +12,9 @@ import { NoTransformConfigurationError } from "./NoTransformConfigurationError";
 /**
  * Type safe URL parameter decorator.
  *
- * `TypedParam` is a decorator function getting specific typed parameter from
- * the HTTP request URL. It's almost same with the {@link nest.Param}, but
- * `TypedParam` automatically casts parameter value to be following its type,
- * and validates it.
+ * `TypedParam` is a decorator function getting specific typed parameter from the
+ * HTTP request URL. It's almost same with the {@link nest.Param}, but `TypedParam`
+ * automatically casts parameter value to be following its type, and validates it.
  *
  * ```typescript
  * import { tags } from "typia";
@@ -28,9 +27,10 @@ import { NoTransformConfigurationError } from "./NoTransformConfigurationError";
  * ): Promise<void>;
  * ```
  *
- * @author Jeongho Nam - https://github.com/samchon
  * @param name URL Parameter name
  * @returns Parameter decorator
+ *
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export function TypedParam<T extends boolean | bigint | number | string | null>(
   name: string,

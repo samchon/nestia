@@ -3,17 +3,16 @@
  *
  * Exception decorator.
  *
- * `TypedException` is a decorator function describing HTTP exception and its
- * type which could be occurred in the method.
+ * `TypedException` is a decorator function describing HTTP exception and its type
+ * which could be occurred in the method.
  *
- * For reference, this decorator function does not affect to the method's
- * behavior, but only affects to the swagger documents generation. Also, it does
- * not affect to the SDK library generation yet, but will be used in the
- * future.
+ * For reference, this decorator function does not affect to the method's behavior,
+ * but only affects to the swagger documents generation. Also, it does not affect to
+ * the SDK library generation yet, but will be used in the future.
  *
- * @author Jeongho Nam - https://github.com/samchon
  * @param props Properties for the exception
  * @returns Method decorator
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export function TypedException(props: TypedException.IProps<unknown>): never;
 
@@ -22,20 +21,20 @@ export function TypedException(props: TypedException.IProps<unknown>): never;
  *
  * Exception decorator.
  *
- * `TypedException` is a decorator function describing HTTP exception and its
- * type which could be occurred in the method.
+ * `TypedException` is a decorator function describing HTTP exception and its type
+ * which could be occurred in the method.
  *
- * For reference, this decorator function does not affect to the method's
- * behavior, but only affects to the swagger documents generation. Also, it does
- * not affect to the SDK library generation yet, but will be used in the
- * future.
+ * For reference, this decorator function does not affect to the method's behavior,
+ * but only affects to the swagger documents generation. Also, it does not affect to
+ * the SDK library generation yet, but will be used in the future.
  *
- * @author Jeongho Nam - https://github.com/samchon
- * @deprecated Use {@link TypedException.IProps} typed function instead. This
- *   typed function is deprecated and will be removed in the next major update.
  * @param status Status number or pattern like "2XX", "3XX", "4XX", "5XX"
  * @param description Description about the exception
  * @returns Method decorator
+ *
+ * @deprecated Use {@link TypedException.IProps} typed function instead.
+ *             This typed function is deprecated and will be removed in the next major update.
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export function TypedException(
   status: number | "2XX" | "3XX" | "4XX" | "5XX",
@@ -45,18 +44,18 @@ export function TypedException(
 /**
  * Exception decorator.
  *
- * `TypedException` is a decorator function describing HTTP exception and its
- * type which could be occurred in the method.
+ * `TypedException` is a decorator function describing HTTP exception and its type
+ * which could be occurred in the method.
  *
- * For reference, this decorator function does not affect to the method's
- * behavior, but only affects to the swagger documents generation. Also, it does
- * not affect to the SDK library generation yet, but will be used in the
- * future.
+ * For reference, this decorator function does not affect to the method's behavior,
+ * but only affects to the swagger documents generation. Also, it does not affect to
+ * the SDK library generation yet, but will be used in the future.
  *
- * @author Jeongho Nam - https://github.com/samchon
  * @template T Type of the exception
  * @param props Properties for the exception
  * @returns Method decorator
+ *
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export function TypedException<T>(
   props: TypedException.IProps<T>,
@@ -65,28 +64,30 @@ export function TypedException<T>(
 /**
  * Exception decorator.
  *
- * `TypedException` is a decorator function describing HTTP exception and its
- * type which could be occurred in the method.
+ * `TypedException` is a decorator function describing HTTP exception and its type
+ * which could be occurred in the method.
  *
- * For reference, this decorator function does not affect to the method's
- * behavior, but only affects to the swagger documents generation. Also, it does
- * not affect to the SDK library generation yet, but will be used in the
- * future.
+ * For reference, this decorator function does not affect to the method's behavior,
+ * but only affects to the swagger documents generation. Also, it does not affect to
+ * the SDK library generation yet, but will be used in the future.
  *
- * @author Jeongho Nam - https://github.com/samchon
- * @deprecated Use {@link TypedException.IProps} typed function instead. This
- *   typed function is deprecated and will be removed in the next major update.
  * @template T Type of the exception
  * @param status Status number or pattern like "2XX", "3XX", "4XX", "5XX"
  * @param description Description about the exception
  * @returns Method decorator
+ *
+ * @deprecated Use {@link TypedException.IProps} typed function instead.
+ *             This typed function is deprecated and will be removed in the next major update.
+ * @author Jeongho Nam - https://github.com/samchon
  */
 export function TypedException<T>(
   status: number | "2XX" | "3XX" | "4XX" | "5XX",
   description?: string | undefined,
 ): MethodDecorator;
 
-/** @internal */
+/**
+ * @internal
+ */
 export function TypedException<T>(...args: any[]): MethodDecorator {
   const props: TypedException.IProps<T> =
     typeof args[0] === "object"
@@ -118,30 +119,48 @@ export function TypedException<T>(...args: any[]): MethodDecorator {
   };
 }
 export namespace TypedException {
-  /** Properties for the exception. */
+  /**
+   * Properties for the exception.
+   */
   export interface IProps<T> {
-    /** Status number or pattern like "2XX", "3XX", "4XX", "5XX". */
+    /**
+     * Status number or pattern like "2XX", "3XX", "4XX", "5XX".
+     */
     status: number | "2XX" | "3XX" | "4XX" | "5XX";
 
-    /** Description about the exception. */
+    /**
+     * Description about the exception.
+     */
     description?: string | undefined;
 
-    /** Example value. */
+    /**
+     * Example value.
+     */
     example?: T | undefined;
 
-    /** Collection of examples for the exception. */
+    /**
+     * Collection of examples for the exception.
+     */
     examples?: Record<string, IExample<T>> | undefined;
   }
 
-  /** Metadata collected in the {@link IProps.examples}. */
+  /**
+   * Metadata collected in the {@link IProps.examples}.
+   */
   export interface IExample<T> {
-    /** Summary of the example. */
+    /**
+     * Summary of the example.
+     */
     summary?: string | undefined;
 
-    /** Description of the example. */
+    /**
+     * Description of the example.
+     */
     description?: string | undefined;
 
-    /** Value of the example. */
+    /**
+     * Value of the example.
+     */
     value: T;
   }
 }

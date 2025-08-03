@@ -28,21 +28,20 @@ import { route_error } from "./internal/route_error";
 /**
  * Encrypted router decorator functions.
  *
- * `EncryptedRoute` is a module containing router decorator functions which
- * encrypts response body data through AES-128/256 encryption. Furthermore, they
- * can boost up JSON string conversion speed about 50x times faster than
- * `class-transformer`, even type safe through
- * [typia](https://github.com/samchon/typia).
+ * `EncryptedRoute` is a module containing router decorator functions which encrypts
+ * response body data through AES-128/256 encryption. Furthermore, they can boost
+ * up JSON string conversion speed about 50x times faster than `class-transformer`,
+ * even type safe through [typia](https://github.com/samchon/typia).
  *
  * For reference, if you try to invalid data that is not following the promised
- * type `T`, 500 internal server error would be thrown. Also, as
- * `EncryptedRoute` composes JSON string through `typia.assertStringify<T>()`
- * function, it is not possible to modify response data through interceptors.
+ * type `T`, 500 internal server error would be thrown. Also, as `EncryptedRoute`
+ * composes JSON string through `typia.assertStringify<T>()` function, it is not
+ * possible to modify response data through interceptors.
  *
- * - AES-128/256
- * - CBC mode
- * - PKCS #5 Padding
- * - Base64 Encoding
+ *  - AES-128/256
+ *  - CBC mode
+ *  - PKCS #5 Padding
+ *  - Base64 Encoding
  *
  * @author Jeongho Nam - https://github.com/samchon
  */
@@ -90,17 +89,18 @@ export namespace EncryptedRoute {
   /**
    * Set the logger function for the response validation failure.
    *
-   * If you've configured the transformation option to `validate.log` in the
-   * `tsconfig.json` file, then the error log information of the response
-   * validation failure would be logged through this function instead of
-   * throwing the 400 bad request error.
+   * If you've configured the transformation option to `validate.log`
+   * in the `tsconfig.json` file, then the error log information of the
+   * response validation failure would be logged through this function
+   * instead of throwing the 400 bad request error.
    *
-   * By the way, be careful. If you've configured the response transformation
-   * option to be `validate.log`, client may get wrong response data. Therefore,
-   * this way is not recommended in the common backend server case.
+   * By the way, be careful. If you've configured the response
+   * transformation option to be `validate.log`, client may get wrong
+   * response data. Therefore, this way is not recommended in the common
+   * backend server case.
    *
-   * @default console.log
    * @param func Logger function
+   * @default console.log
    */
   export function setValidateErrorLogger(
     func: (log: IValidateErrorLog) => void,
@@ -110,7 +110,9 @@ export namespace EncryptedRoute {
 
   export import IValidateErrorLog = TypedRoute.IValidateErrorLog;
 
-  /** @internal */
+  /**
+   * @internal
+   */
   function Generator(method: "Get" | "Post" | "Put" | "Patch" | "Delete") {
     function route(path?: string | string[]): MethodDecorator;
     function route<T>(
@@ -150,7 +152,9 @@ for (const method of [
     ])
       (deco as any)[key] = value;
 
-/** @internal */
+/**
+ * @internal
+ */
 class EncryptedRouteInterceptor implements NestInterceptor {
   public constructor(
     private readonly method: string,
@@ -203,7 +207,9 @@ class EncryptedRouteInterceptor implements NestInterceptor {
   }
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 const ROUTERS = {
   Get,
   Post,

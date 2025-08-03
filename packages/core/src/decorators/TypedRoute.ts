@@ -22,15 +22,15 @@ import { route_error } from "./internal/route_error";
 /**
  * Type safe router decorator functions.
  *
- * `TypedRoute` is a module containing router decorator functions which can
- * boost up JSON string conversion speed about 200x times faster than
- * `class-transformer`. Furthermore, such JSON string conversion is even type
- * safe through [typia](https://github.com/samchon/typia).
+ * `TypedRoute` is a module containing router decorator functions which can boost up
+ * JSON string conversion speed about 200x times faster than `class-transformer`.
+ * Furthermore, such JSON string conversion is even type safe through
+ * [typia](https://github.com/samchon/typia).
  *
  * For reference, if you try to invalid data that is not following the promised
- * type `T`, 500 internal server error would be thrown. Also, as `TypedRoute`
- * composes JSON string through `typia.assertStringify<T>()` function, it is not
- * possible to modify response data through interceptors.
+ * type `T`, 500 internal server error would be thrown. Also, as `TypedRoute` composes
+ * JSON string through `typia.assertStringify<T>()` function, it is not possible to
+ * modify response data through interceptors.
  *
  * @author Jeongho Nam - https://github.com/samchon
  */
@@ -78,17 +78,18 @@ export namespace TypedRoute {
   /**
    * Set the logger function for the response validation failure.
    *
-   * If you've configured the transformation option to `validate.log` in the
-   * `tsconfig.json` file, then the error log information of the response
-   * validation failure would be logged through this function instead of
-   * throwing the 400 bad request error.
+   * If you've configured the transformation option to `validate.log`
+   * in the `tsconfig.json` file, then the error log information of the
+   * response validation failure would be logged through this function
+   * instead of throwing the 400 bad request error.
    *
-   * By the way, be careful. If you've configured the response transformation
-   * option to be `validate.log`, client may get wrong response data. Therefore,
-   * this way is not recommended in the common backend server case.
+   * By the way, be careful. If you've configured the response
+   * transformation option to be `validate.log`, client may get wrong
+   * response data. Therefore, this way is not recommended in the common
+   * backend server case.
    *
-   * @default console.log
    * @param func Logger function
+   * @default console.log
    */
   export function setValidateErrorLogger(
     func: (log: IValidateErrorLog) => void,
@@ -99,34 +100,47 @@ export namespace TypedRoute {
   /**
    * Error log information of the response validation failure.
    *
-   * `IValidationErrorLog` is a structure representing the error log information
-   * when the returned value from the `@TypedRoute` or `@EncryptedRoute`
-   * decorated controller method is not following the promised type `T`.
+   * `IValidationErrorLog` is a structure representing the error log
+   * information when the returned value from the `@TypedRoute` or
+   * `@EncryptedRoute` decorated controller method is not following
+   * the promised type `T`.
    *
    * If you've configured the transformation option to `validate.log` or
    * `validateEquals.log` in the `tsconfig.json` file, then this error log
    * information `IValidateErrorLog` would be logged through the
-   * {@link setValidateErrorLogger} function instead of throwing the 400 bad
-   * request error.
+   * {@link setValidateErrorLogger} function instead of throwing the
+   * 400 bad request error.
    */
   export interface IValidateErrorLog {
-    /** HTTP method of the request. */
+    /**
+     * HTTP method of the request.
+     */
     method: string;
 
-    /** HTTP path of the request. */
+    /**
+     * HTTP path of the request.
+     */
     path: string;
 
-    /** Validation error information with detailed reasons. */
+    /**
+     * Validation error information with detailed reasons.
+     */
     errors: IValidation.IError[];
 
-    /** Data that is not following the promised type `T`. */
+    /**
+     * Data that is not following the promised type `T`.
+     */
     data: unknown;
   }
 
-  /** @internal */
+  /**
+   * @internal
+   */
   export let __logger: (log: IValidateErrorLog) => void = console.log;
 
-  /** @internal */
+  /**
+   * @internal
+   */
   function Generator(method: "Get" | "Post" | "Put" | "Patch" | "Delete") {
     function route(path?: string | string[]): MethodDecorator;
     function route<T>(stringify?: IResponseBodyStringifier<T>): MethodDecorator;
@@ -163,7 +177,9 @@ for (const method of [
     ])
       (deco as any)[key] = value;
 
-/** @internal */
+/**
+ * @internal
+ */
 class TypedRouteInterceptor implements NestInterceptor {
   public constructor(
     private readonly stringify: (
@@ -186,7 +202,9 @@ class TypedRouteInterceptor implements NestInterceptor {
   }
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 const ROUTERS = {
   Get,
   Post,
