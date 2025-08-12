@@ -486,7 +486,31 @@ const eraseCommentTags = (description: string): string => {
         s.includes("@minItems") === false &&
         s.includes("@maxItems") === false &&
         s.includes("@uniqueItems") === false,
-    )
+const COMMENT_TAGS = [
+  // string
+  "@format",
+  "@pattern",
+  "@length",
+  "@minLength",
+  "@maxLength",
+  "@contentMediaType",
+  // number
+  "@type",
+  "@minimum",
+  "@maximum",
+  "@exclusiveMinimum",
+  "@exclusiveMaximum",
+  "@multipleOf",
+  // array
+  "@items",
+  "@minItems",
+  "@maxItems",
+  "@uniqueItems",
+];
+const eraseCommentTags = (description: string): string => {
+  const lines: string[] = description.split("\n");
+  return lines
+    .filter((s) => COMMENT_TAGS.every(tag => !s.includes(tag)))
     .join("\n");
 };
 const writePlugin = (props: {
