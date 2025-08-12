@@ -447,6 +447,7 @@ export namespace NestiaMigrateSchemaProgrammer {
     );
 }
 const createNode = (text: string) => ts.factory.createTypeReferenceNode(text);
+
 const writeComment = (schema: OpenApi.IJsonSchema): string =>
   [
     ...(schema.description?.length
@@ -462,30 +463,28 @@ const writeComment = (schema: OpenApi.IJsonSchema): string =>
     .join("\n")
     .split("*/")
     .join("*\\/");
+
 const eraseCommentTags = (description: string): string => {
   const lines: string[] = description.split("\n");
   return lines
-    .filter(
-      (s) =>
-        // string
-        s.includes("@format") === false &&
-        s.includes("@pattern") === false &&
-        s.includes("@length") === false &&
-        s.includes("@minLength") === false &&
-        s.includes("@maxLength") === false &&
-        s.includes("@contentMediaType") === false &&
-        // number
-        s.includes("@type") === false &&
-        s.includes("@minimum") === false &&
-        s.includes("@maximum") === false &&
-        s.includes("@exclusiveMinimum") === false &&
-        s.includes("@exclusiveMaximum") === false &&
-        s.includes("@multipleOf") === false &&
-        // array
-        s.includes("@items") === false &&
-        s.includes("@minItems") === false &&
-        s.includes("@maxItems") === false &&
-        s.includes("@uniqueItems") === false,
+    .filter((s) => COMMENT_TAGS.every((tag) => !s.includes(tag)))
+    .join("\n");
+};
+
+const writePlugin = (props: {
+  importer: NestiaMigrateImportProgrammer;
+  regular: string[];
+  intersection: ts.TypeNode[];
+  schema: Record<string, any>;
+}) => {
+  const extra: any = {};
+  for (const [key, value] of Object.entries(props.schema))
+    if (value !== undefined && false === props.regular.includes(key))
+      extra[key] = value;
+  if (Object.keys(extra).length !== 0)
+    props.intersection.push(props.importer.tag("JsonSchemaPlugin", extra));
+};
+
 const COMMENT_TAGS = [
   // string
   "@format",
@@ -507,22 +506,3 @@ const COMMENT_TAGS = [
   "@maxItems",
   "@uniqueItems",
 ];
-const eraseCommentTags = (description: string): string => {
-  const lines: string[] = description.split("\n");
-  return lines
-    .filter((s) => COMMENT_TAGS.every(tag => !s.includes(tag)))
-    .join("\n");
-};
-const writePlugin = (props: {
-  importer: NestiaMigrateImportProgrammer;
-  regular: string[];
-  intersection: ts.TypeNode[];
-  schema: Record<string, any>;
-}) => {
-  const extra: any = {};
-  for (const [key, value] of Object.entries(props.schema))
-    if (value !== undefined && false === props.regular.includes(key))
-      extra[key] = value;
-  if (Object.keys(extra).length !== 0)
-    props.intersection.push(props.importer.tag("JsonSchemaPlugin", extra));
-};
