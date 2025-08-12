@@ -449,7 +449,9 @@ export namespace NestiaMigrateSchemaProgrammer {
 const createNode = (text: string) => ts.factory.createTypeReferenceNode(text);
 const writeComment = (schema: OpenApi.IJsonSchema): string =>
   [
-    ...(schema.description?.length ? [schema.description] : []),
+    ...(schema.description?.length
+      ? [eraseCommentTags(schema.description)]
+      : []),
     ...(schema.description?.length &&
     (schema.title !== undefined || schema.deprecated === true)
       ? [""]
@@ -460,6 +462,33 @@ const writeComment = (schema: OpenApi.IJsonSchema): string =>
     .join("\n")
     .split("*/")
     .join("*\\/");
+const eraseCommentTags = (description: string): string => {
+  const lines: string[] = description.split("\n");
+  return lines
+    .filter(
+      (s) =>
+        // string
+        s.includes("@format") === false &&
+        s.includes("@pattern") === false &&
+        s.includes("@length") === false &&
+        s.includes("@minLength") === false &&
+        s.includes("@maxLength") === false &&
+        s.includes("@contentMediaType") === false &&
+        // number
+        s.includes("@type") === false &&
+        s.includes("@minimum") === false &&
+        s.includes("@maximum") === false &&
+        s.includes("@exclusiveMinimum") === false &&
+        s.includes("@exclusiveMaximum") === false &&
+        s.includes("@multipleOf") === false &&
+        // array
+        s.includes("@items") === false &&
+        s.includes("@minItems") === false &&
+        s.includes("@maxItems") === false &&
+        s.includes("@uniqueItems") === false,
+    )
+    .join("\n");
+};
 const writePlugin = (props: {
   importer: NestiaMigrateImportProgrammer;
   regular: string[];
