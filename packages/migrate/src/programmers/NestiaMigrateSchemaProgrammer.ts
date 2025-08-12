@@ -447,9 +447,12 @@ export namespace NestiaMigrateSchemaProgrammer {
     );
 }
 const createNode = (text: string) => ts.factory.createTypeReferenceNode(text);
+
 const writeComment = (schema: OpenApi.IJsonSchema): string =>
   [
-    ...(schema.description?.length ? [schema.description] : []),
+    ...(schema.description?.length
+      ? [eraseCommentTags(schema.description)]
+      : []),
     ...(schema.description?.length &&
     (schema.title !== undefined || schema.deprecated === true)
       ? [""]
@@ -460,6 +463,14 @@ const writeComment = (schema: OpenApi.IJsonSchema): string =>
     .join("\n")
     .split("*/")
     .join("*\\/");
+
+const eraseCommentTags = (description: string): string => {
+  const lines: string[] = description.split("\n");
+  return lines
+    .filter((s) => COMMENT_TAGS.every((tag) => !s.includes(tag)))
+    .join("\n");
+};
+
 const writePlugin = (props: {
   importer: NestiaMigrateImportProgrammer;
   regular: string[];
@@ -473,3 +484,25 @@ const writePlugin = (props: {
   if (Object.keys(extra).length !== 0)
     props.intersection.push(props.importer.tag("JsonSchemaPlugin", extra));
 };
+
+const COMMENT_TAGS = [
+  // string
+  "@format",
+  "@pattern",
+  "@length",
+  "@minLength",
+  "@maxLength",
+  "@contentMediaType",
+  // number
+  "@type",
+  "@minimum",
+  "@maximum",
+  "@exclusiveMinimum",
+  "@exclusiveMaximum",
+  "@multipleOf",
+  // array
+  "@items",
+  "@minItems",
+  "@maxItems",
+  "@uniqueItems",
+];

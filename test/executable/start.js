@@ -36,6 +36,8 @@ const feature = (name) => {
     try {
       cp.execSync("npx tsc", { stdio: "ignore" });
       generate("all", true);
+      if (fs.existsSync("src/test"))
+        cp.execSync("npx ts-node src/test", { stdio: "ignore" });
     } catch {
       return;
     }
