@@ -207,8 +207,9 @@ export namespace NestiaMigrateApiFunctionProgrammer {
         statements.push(
           ts.factory.createExpressionStatement(
             ts.factory.createBinaryExpression(
-              ts.factory.createIdentifier(
-                accessor("connection.headers")(target),
+              ts.factory.createElementAccessExpression(
+                ts.factory.createIdentifier("connection.headers"),
+                ts.factory.createStringLiteral(target),
               ),
               ts.factory.createToken(ts.SyntaxKind.EqualsToken),
               ts.factory.createIdentifier(accessor("output")(directive.source)),
@@ -316,7 +317,7 @@ export namespace NestiaMigrateApiFunctionProgrammer {
                   "output",
                   undefined,
                   undefined,
-                  fetch(),
+                  ts.factory.createAwaitExpression(fetch()),
                 ),
               ],
               ts.NodeFlags.Const,
@@ -379,7 +380,7 @@ export namespace NestiaMigrateApiFunctionProgrammer {
                     ],
                   ),
                   undefined,
-                  fetch(),
+                  ts.factory.createAwaitExpression(fetch()),
                 ),
               ),
             ],
