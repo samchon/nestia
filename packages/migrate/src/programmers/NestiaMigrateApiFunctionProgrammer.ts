@@ -132,6 +132,95 @@ export namespace NestiaMigrateApiFunctionProgrammer {
     ].join("\n");
   };
 
+  const parseHeaderDirectives = (comment: string): Array<
+    | { type: "setter"; source: string; target?: string }
+    | { type: "assigner"; source: string }
+  > => {
+    const lines = comment.split('\n');
+    const directives: Array<
+      | { type: "setter"; source: string; target?: string }
+      | { type: "assigner"; source: string }
+    > = [];
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('@setHeader ')) {
+        const parts = trimmed.substring('@setHeader '.length).trim().split(/\s+/);
+        if (parts.length >= 1) {
+          directives.push({
+            type: "setter",
+            source: parts[0],
+            target: parts[1],
+          });
+        }
+      } else if (trimmed.startsWith('@assignHeaders ')) {
+        const source = trimmed.substring('@assignHeaders '.length).trim();
+        if (source) {
+          directives.push({
+            type: "assigner",
+            source,
+          });
+        }
+      }
+    }
+
+    return directives;
+  };
+
+  const generateHeaderAssignments = (
+    directives: Array<
+      | { type: "setter"; source: string; target?: string }
+      | { type: "assigner"; source: string }
+    >,
+  ): ts.Statement[] => {
+    if (directives.length === 0) return [];
+
+    const accessor = (x: string) => (y: string) =>
+      x[0] === "[" ? `${x}${y}` : `${x}.${y}`;
+
+    const statements: ts.Statement[] = [
+      ts.factory.createExpressionStatement(
+        ts.factory.createBinaryExpression(
+          ts.factory.createIdentifier("connection.headers"),
+          ts.factory.createToken(ts.SyntaxKind.QuestionQuestionEqualsToken),
+          ts.factory.createObjectLiteralExpression([]),
+        ),
+      ),
+    ];
+
+    for (const directive of directives) {
+      if (directive.type === "assigner") {
+        statements.push(
+          ts.factory.createExpressionStatement(
+            ts.factory.createCallExpression(
+              ts.factory.createIdentifier("Object.assign"),
+              [],
+              [
+                ts.factory.createIdentifier("connection.headers"),
+                ts.factory.createIdentifier(accessor("output")(directive.source)),
+              ],
+            ),
+          ),
+        );
+      } else {
+        const target = directive.target ?? directive.source;
+        statements.push(
+          ts.factory.createExpressionStatement(
+            ts.factory.createBinaryExpression(
+              ts.factory.createIdentifier(
+                accessor("connection.headers")(target),
+              ),
+              ts.factory.createToken(ts.SyntaxKind.EqualsToken),
+              ts.factory.createIdentifier(accessor("output")(directive.source)),
+            ),
+          ),
+        );
+      }
+    }
+
+    return statements;
+  };
+
   const writeBody = (ctx: IContext): ts.Statement[] => {
     const encrypted: boolean = !!ctx.route.success?.["x-nestia-encrypted"];
     const contentType: string = ctx.route.body?.type ?? "application/json";
@@ -211,31 +300,96 @@ export namespace NestiaMigrateApiFunctionProgrammer {
           ...(ctx.route.body ? [property(ctx.route.body.key)] : []),
         ],
       );
-    if (ctx.config.simulate !== true)
-      return [ts.factory.createReturnStatement(fetch())];
-    return [
-      ts.factory.createReturnStatement(
-        ts.factory.createConditionalExpression(
-          ts.factory.createStrictEquality(
-            ts.factory.createTrue(),
-            ts.factory.createIdentifier("connection.simulate"),
-          ),
-          undefined,
-          ts.factory.createCallExpression(
-            ts.factory.createIdentifier(
-              `${ctx.route.accessor.at(-1)!}.simulate`,
-            ),
+
+    const headerDirectives = parseHeaderDirectives(ctx.route.comment());
+    
+    if (ctx.config.simulate !== true) {
+      if (headerDirectives.length === 0) {
+        return [ts.factory.createReturnStatement(fetch())];
+      } else {
+        return [
+          ts.factory.createVariableStatement(
             [],
-            [
-              ts.factory.createIdentifier("connection"),
-              ...getArguments(ctx, true),
-            ],
+            ts.factory.createVariableDeclarationList(
+              [
+                ts.factory.createVariableDeclaration(
+                  "output",
+                  undefined,
+                  undefined,
+                  fetch(),
+                ),
+              ],
+              ts.NodeFlags.Const,
+            ),
           ),
-          undefined,
-          fetch(),
+          ...generateHeaderAssignments(headerDirectives),
+          ts.factory.createReturnStatement(ts.factory.createIdentifier("output")),
+        ];
+      }
+    }
+
+    if (headerDirectives.length === 0) {
+      return [
+        ts.factory.createReturnStatement(
+          ts.factory.createConditionalExpression(
+            ts.factory.createStrictEquality(
+              ts.factory.createTrue(),
+              ts.factory.createIdentifier("connection.simulate"),
+            ),
+            undefined,
+            ts.factory.createCallExpression(
+              ts.factory.createIdentifier(
+                `${ctx.route.accessor.at(-1)!}.simulate`,
+              ),
+              [],
+              [
+                ts.factory.createIdentifier("connection"),
+                ...getArguments(ctx, true),
+              ],
+            ),
+            undefined,
+            fetch(),
+          ),
         ),
-      ),
-    ];
+      ];
+    } else {
+      return [
+        ts.factory.createVariableStatement(
+          [],
+          ts.factory.createVariableDeclarationList(
+            [
+              ts.factory.createVariableDeclaration(
+                "output",
+                undefined,
+                undefined,
+                ts.factory.createConditionalExpression(
+                  ts.factory.createStrictEquality(
+                    ts.factory.createTrue(),
+                    ts.factory.createIdentifier("connection.simulate"),
+                  ),
+                  undefined,
+                  ts.factory.createCallExpression(
+                    ts.factory.createIdentifier(
+                      `${ctx.route.accessor.at(-1)!}.simulate`,
+                    ),
+                    [],
+                    [
+                      ts.factory.createIdentifier("connection"),
+                      ...getArguments(ctx, true),
+                    ],
+                  ),
+                  undefined,
+                  fetch(),
+                ),
+              ),
+            ],
+            ts.NodeFlags.Const,
+          ),
+        ),
+        ...generateHeaderAssignments(headerDirectives),
+        ts.factory.createReturnStatement(ts.factory.createIdentifier("output")),
+      ];
+    }
   };
 
   const getArguments = (ctx: IContext, body: boolean): ts.Expression[] => {
