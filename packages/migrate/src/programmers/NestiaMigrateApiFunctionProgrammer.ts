@@ -1,6 +1,8 @@
 import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
 import ts from "typescript";
 import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
+import { StatementFactory } from "typia/lib/factories/StatementFactory";
+import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
@@ -141,100 +143,141 @@ export namespace NestiaMigrateApiFunctionProgrammer {
         ? IdentifierFactory.access(ts.factory.createIdentifier("props"), key)
         : ts.factory.createIdentifier(key);
     const fetch = () =>
-      ts.factory.createCallExpression(
-        IdentifierFactory.access(
-          ts.factory.createIdentifier(
-            ctx.importer.external({
-              type: "instance",
-              library: `@nestia/fetcher/lib/${encrypted ? "EncryptedFetcher" : "PlainFetcher"}`,
-              name: encrypted ? "EncryptedFetcher" : "PlainFetcher",
-            }),
+      ts.factory.createAwaitExpression(
+        ts.factory.createCallExpression(
+          IdentifierFactory.access(
+            ts.factory.createIdentifier(
+              ctx.importer.external({
+                type: "instance",
+                library: `@nestia/fetcher/lib/${encrypted ? "EncryptedFetcher" : "PlainFetcher"}`,
+                name: encrypted ? "EncryptedFetcher" : "PlainFetcher",
+              }),
+            ),
+            "fetch",
           ),
-          "fetch",
-        ),
-        undefined,
-        [
-          contentType && contentType !== "multipart/form-data"
-            ? ts.factory.createObjectLiteralExpression(
-                [
-                  ts.factory.createSpreadAssignment(
-                    ts.factory.createIdentifier("connection"),
-                  ),
-                  ts.factory.createPropertyAssignment(
-                    "headers",
-                    ts.factory.createObjectLiteralExpression(
-                      [
-                        ts.factory.createSpreadAssignment(
-                          IdentifierFactory.access(
-                            ts.factory.createIdentifier("connection"),
-                            "headers",
-                          ),
-                        ),
-                        ts.factory.createPropertyAssignment(
-                          ts.factory.createStringLiteral("Content-Type"),
-                          ts.factory.createStringLiteral(contentType),
-                        ),
-                      ],
-                      true,
+          undefined,
+          [
+            contentType && contentType !== "multipart/form-data"
+              ? ts.factory.createObjectLiteralExpression(
+                  [
+                    ts.factory.createSpreadAssignment(
+                      ts.factory.createIdentifier("connection"),
                     ),
-                  ),
-                ],
-                true,
-              )
-            : ts.factory.createIdentifier("connection"),
-          ts.factory.createObjectLiteralExpression(
-            [
-              ts.factory.createSpreadAssignment(
-                IdentifierFactory.access(
-                  ts.factory.createIdentifier(ctx.route.accessor.at(-1)!),
-                  "METADATA",
-                ),
-              ),
-              ts.factory.createPropertyAssignment(
-                "path",
-                ts.factory.createCallExpression(
+                    ts.factory.createPropertyAssignment(
+                      "headers",
+                      ts.factory.createObjectLiteralExpression(
+                        [
+                          ts.factory.createSpreadAssignment(
+                            IdentifierFactory.access(
+                              ts.factory.createIdentifier("connection"),
+                              "headers",
+                            ),
+                          ),
+                          ts.factory.createPropertyAssignment(
+                            ts.factory.createStringLiteral("Content-Type"),
+                            ts.factory.createStringLiteral(contentType),
+                          ),
+                        ],
+                        true,
+                      ),
+                    ),
+                  ],
+                  true,
+                )
+              : ts.factory.createIdentifier("connection"),
+            ts.factory.createObjectLiteralExpression(
+              [
+                ts.factory.createSpreadAssignment(
                   IdentifierFactory.access(
                     ts.factory.createIdentifier(ctx.route.accessor.at(-1)!),
-                    "path",
+                    "METADATA",
                   ),
-                  undefined,
-                  getArguments(ctx, false),
                 ),
-              ),
-              ts.factory.createPropertyAssignment(
-                "status",
-                ts.factory.createNull(),
-              ),
-            ],
-            true,
-          ),
-          ...(ctx.route.body ? [property(ctx.route.body.key)] : []),
-        ],
-      );
-    if (ctx.config.simulate !== true)
-      return [ts.factory.createReturnStatement(fetch())];
-    return [
-      ts.factory.createReturnStatement(
-        ts.factory.createConditionalExpression(
-          ts.factory.createStrictEquality(
-            ts.factory.createTrue(),
-            ts.factory.createIdentifier("connection.simulate"),
-          ),
-          undefined,
-          ts.factory.createCallExpression(
-            ts.factory.createIdentifier(
-              `${ctx.route.accessor.at(-1)!}.simulate`,
+                ts.factory.createPropertyAssignment(
+                  "path",
+                  ts.factory.createCallExpression(
+                    IdentifierFactory.access(
+                      ts.factory.createIdentifier(ctx.route.accessor.at(-1)!),
+                      "path",
+                    ),
+                    undefined,
+                    getArguments(ctx, false),
+                  ),
+                ),
+                ts.factory.createPropertyAssignment(
+                  "status",
+                  ts.factory.createNull(),
+                ),
+              ],
+              true,
             ),
-            [],
-            [
-              ts.factory.createIdentifier("connection"),
-              ...getArguments(ctx, true),
-            ],
-          ),
-          undefined,
-          fetch(),
+            ...(ctx.route.body ? [property(ctx.route.body.key)] : []),
+          ],
+        ),
+      );
+
+    const value: ts.Expression =
+      ctx.config.simulate !== true
+        ? fetch()
+        : ts.factory.createConditionalExpression(
+            ts.factory.createStrictEquality(
+              ts.factory.createTrue(),
+              ts.factory.createIdentifier("connection.simulate"),
+            ),
+            undefined,
+            ts.factory.createCallExpression(
+              ts.factory.createIdentifier(
+                `${ctx.route.accessor.at(-1)!}.simulate`,
+              ),
+              [],
+              [
+                ts.factory.createIdentifier("connection"),
+                ...getArguments(ctx, true),
+              ],
+            ),
+            undefined,
+            fetch(),
+          );
+    const headers: Array<IAssignHeader | ISetHeader> = getHeaders(
+      ctx.route.comment(),
+    );
+    if (headers.length === 0) return [ts.factory.createReturnStatement(value)];
+    return [
+      StatementFactory.constant({
+        name: "output",
+        type: ts.factory.createTypeReferenceNode(
+          `${ctx.route.accessor.at(-1)!}.Response`,
+        ),
+        value,
+      }),
+      ts.factory.createExpressionStatement(
+        ts.factory.createBinaryExpression(
+          ts.factory.createIdentifier("connection.headers"),
+          ts.factory.createToken(ts.SyntaxKind.QuestionQuestionEqualsToken),
+          ts.factory.createObjectLiteralExpression([]),
         ),
       ),
+      ...headers.map((h) =>
+        ts.factory.createExpressionStatement(
+          h.type === "assign"
+            ? ts.factory.createCallExpression(
+                ts.factory.createIdentifier("Object.assign"),
+                undefined,
+                [
+                  ts.factory.createIdentifier("connection.headers"),
+                  ts.factory.createIdentifier(`output.${h.accessor}`),
+                ],
+              )
+            : ts.factory.createBinaryExpression(
+                ts.factory.createIdentifier(
+                  `connection.headers${Escaper.variable(h.property) ? `.${h.property}` : `[${JSON.stringify(h.property)}]`}`,
+                ),
+                ts.factory.createToken(ts.SyntaxKind.EqualsToken),
+                ts.factory.createIdentifier(`output.${h.accessor}`),
+              ),
+        ),
+      ),
+      ts.factory.createReturnStatement(ts.factory.createIdentifier("output")),
     ];
   };
 
@@ -257,4 +300,44 @@ export namespace NestiaMigrateApiFunctionProgrammer {
         : []),
     ];
   };
+
+  const getHeaders = (
+    description: string,
+  ): Array<IAssignHeader | ISetHeader> => {
+    const directives: Array<IAssignHeader | ISetHeader> = [];
+    for (const line of description.split("\n").map((l) => l.trim())) {
+      if (line.startsWith("@setHeader ")) {
+        const parts: string[] = line
+          .substring("@setHeader ".length)
+          .trim()
+          .split(/\s+/);
+        if (parts.length >= 2)
+          directives.push({
+            type: "set",
+            accessor: parts[0],
+            property: parts[1],
+          });
+      } else if (line.startsWith("@assignHeaders ")) {
+        const accessor: string = line
+          .substring("@assignHeaders ".length)
+          .trim();
+        if (accessor.length !== 0)
+          directives.push({
+            type: "assign",
+            accessor,
+          });
+      }
+    }
+    return directives;
+  };
+}
+
+interface IAssignHeader {
+  type: "assign";
+  accessor: string;
+}
+interface ISetHeader {
+  type: "set";
+  accessor: string;
+  property: string;
 }
