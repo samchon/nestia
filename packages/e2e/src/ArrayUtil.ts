@@ -79,10 +79,10 @@ export namespace ArrayUtil {
    *   const urls = ['url1', 'url2', 'url3'];
    *
    *   await ArrayUtil.asyncForEach(urls, async (url, index) => {
-   *     console.log(`Processing ${index}: ${url}`);
-   *     const data = await fetch(url);
-   *     await processData(data);
-   *     console.log(`Completed ${index}: ${url}`);
+   *   console.log(`Processing ${index}: ${url}`);
+   *   const data = await fetch(url);
+   *   await processData(data);
+   *   console.log(`Completed ${index}: ${url}`);
    *   });
    *   console.log('All URLs processed sequentially');
    *   ```
@@ -119,11 +119,11 @@ export namespace ArrayUtil {
    *   const userIds = [1, 2, 3, 4, 5];
    *
    *   const userDetails = await ArrayUtil.asyncMap(userIds)(
-   *     async (id, index) => {
-   *       console.log(`Fetching user ${id} (${index + 1}/${userIds.length})`);
-   *       const response = await fetch(`/api/users/${id}`);
-   *       return await response.json();
-   *     }
+   *   async (id, index) => {
+   *   console.log(`Fetching user ${id} (${index + 1}/${userIds.length})`);
+   *   const response = await fetch(`/api/users/${id}`);
+   *   return await response.json();
+   *   }
    *   );
    *   console.log('All users fetched:', userDetails);
    *   ```
@@ -133,22 +133,21 @@ export namespace ArrayUtil {
    * @returns A function that takes a transformation function and returns a
    *   Promise resolving to the transformed array
    */
-  export const asyncMap =
-    <Input>(elements: readonly Input[]) =>
-    async <Output>(
-      closure: (
-        elem: Input,
-        index: number,
-        array: readonly Input[],
-      ) => Promise<Output>,
-    ): Promise<Output[]> => {
-      const ret: Output[] = [];
-      await asyncForEach(elements, async (elem, index, array) => {
-        const output: Output = await closure(elem, index, array);
-        ret.push(output);
-      });
-      return ret;
-    };
+  export const asyncMap = async <Input, Output>(
+    elements: readonly Input[],
+    closure: (
+      elem: Input,
+      index: number,
+      array: readonly Input[],
+    ) => Promise<Output>,
+  ): Promise<Output[]> => {
+    const ret: Output[] = [];
+    await asyncForEach(elements, async (elem, index, array) => {
+      const output: Output = await closure(elem, index, array);
+      ret.push(output);
+    });
+    return ret;
+  };
 
   /**
    * Executes an asynchronous function a specified number of times sequentially.
@@ -189,8 +188,8 @@ export namespace ArrayUtil {
   /**
    * Checks if at least one element in the array satisfies the given condition.
    *
-   * Similar to JavaScript's native some() method. Returns true immediately
-   * when the first element satisfying the condition is found.
+   * Similar to JavaScript's native some() method. Returns true immediately when
+   * the first element satisfying the condition is found.
    *
    * @example
    *   ```typescript
@@ -236,9 +235,9 @@ export namespace ArrayUtil {
    *
    *   // Generate an array of default user objects
    *   const users = ArrayUtil.repeat(3, index => ({
-   *     id: index + 1,
-   *     name: `User${index + 1}`,
-   *     email: `user${index + 1}@example.com`
+   *   id: index + 1,
+   *   name: `User${index + 1}`,
+   *   email: `user${index + 1}@example.com`
    *   }));
    *   console.log(users);
    *   // [
