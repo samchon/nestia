@@ -429,13 +429,14 @@ export namespace TestValidator {
    * @returns A function that accepts search configuration properties
    * @throws Error when API search results don't match manual filtering results
    */
-  export function search<Entity extends IEntity<any>, Request>(
-    title: string,
-    getter: (input: Request) => Promise<Entity[]>,
-    total: Entity[],
-    sampleCount: number = 1,
-  ) {
-    return async <Values extends any[]>(
+  export const search =
+    <Entity extends IEntity<any>, Request>(
+      title: string,
+      getter: (input: Request) => Promise<Entity[]>,
+      total: Entity[],
+      sampleCount: number = 1,
+    ) =>
+    async <Values extends any[]>(
       props: ISearchProps<Entity, Values, Request>,
     ) => {
       const samples: Entity[] = RandomGenerator.sample(total, sampleCount);
@@ -452,7 +453,6 @@ export namespace TestValidator {
         );
       }
     };
-  }
 
   /**
    * Configuration interface for search validation functionality.
@@ -550,39 +550,42 @@ export namespace TestValidator {
    * @throws Error when API results are not properly sorted according to
    *   specification
    */
-  export function sort<
-    T extends object,
-    Fields extends string,
-    Sortable extends Array<`-${Fields}` | `+${Fields}`> = Array<
-      `-${Fields}` | `+${Fields}`
-    >,
-  >(title: string, getter: (sortable: Sortable) => Promise<T[]>) {
-    return (...fields: Fields[]) =>
-      (comp: (x: T, y: T) => number, filter?: (elem: T) => boolean) =>
-      async (direction: "+" | "-", trace: boolean = false) => {
-        let data: T[] = await getter(
-          fields.map((field) => `${direction}${field}` as const) as Sortable,
-        );
-        if (filter) data = data.filter(filter);
+  export const sort =
+    <
+      T extends object,
+      Fields extends string,
+      Sortable extends Array<`-${Fields}` | `+${Fields}`> = Array<
+        `-${Fields}` | `+${Fields}`
+      >,
+    >(
+      title: string,
+      getter: (sortable: Sortable) => Promise<T[]>,
+    ) =>
+    (...fields: Fields[]) =>
+    (comp: (x: T, y: T) => number, filter?: (elem: T) => boolean) =>
+    async (direction: "+" | "-", trace: boolean = false) => {
+      let data: T[] = await getter(
+        fields.map((field) => `${direction}${field}` as const) as Sortable,
+      );
+      if (filter) data = data.filter(filter);
 
-        const reversed: typeof comp =
-          direction === "+" ? comp : (x, y) => comp(y, x);
-        if (is_sorted(data, reversed) === false) {
-          if (
-            fields.length === 1 &&
-            data.length &&
-            (data as any)[0][fields[0]] !== undefined &&
-            trace
-          )
-            console.log(data.map((elem) => (elem as any)[fields[0]]));
-          throw new Error(
-            `Bug on ${title}: wrong sorting on ${direction}(${fields.join(
-              ", ",
-            )}).`,
-          );
-        }
-      };
-  }
+      const reversed: typeof comp =
+        direction === "+" ? comp : (x, y) => comp(y, x);
+      if (is_sorted(data, reversed) === false) {
+        if (
+          fields.length === 1 &&
+          data.length &&
+          (data as any)[0][fields[0]] !== undefined &&
+          trace
+        )
+          console.log(data.map((elem) => (elem as any)[fields[0]]));
+        throw new Error(
+          `Bug on ${title}: wrong sorting on ${direction}(${fields.join(
+            ", ",
+          )}).`,
+        );
+      }
+    };
 
   /**
    * Type alias for sortable field specifications.
@@ -609,10 +612,12 @@ interface IEntity<Type extends string | number | bigint> {
   id: Type;
 }
 
+/** @internal */
 function get_ids<Entity extends IEntity<any>>(entities: Entity[]): string[] {
   return entities.map((entity) => entity.id).sort((x, y) => (x < y ? -1 : 1));
 }
 
+/** @internal */
 function is_promise(input: any): input is Promise<any> {
   return (
     typeof input === "object" &&
@@ -622,6 +627,7 @@ function is_promise(input: any): input is Promise<any> {
   );
 }
 
+/** @internal */
 function is_sorted<T>(data: T[], comp: (x: T, y: T) => number): boolean {
   for (let i: number = 1; i < data.length; ++i)
     if (comp(data[i - 1], data[i]) > 0) return false;
