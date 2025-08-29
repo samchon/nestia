@@ -7,13 +7,14 @@ export const test_api_param_date_nullable = async (
 ): Promise<void> => {
   const date = random();
   const value = await api.functional.param.date_nullable(connection, date);
-  TestValidator.equals("date")(date)(value!);
+  TestValidator.equals("date", date, value!);
 
-  TestValidator.equals("null")(
+  TestValidator.equals(
+    "null",
     await api.functional.param.date_nullable(connection, null),
   )(null);
 
-  await TestValidator.error("invalid")(() =>
+  await TestValidator.error("invalid", () =>
     api.functional.param.date_nullable(connection, "20140102"),
   );
 };

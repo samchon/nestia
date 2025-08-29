@@ -40,10 +40,10 @@ export const test_api_api_v3_websocket_calculate = async (
   try {
     for (const e of expected) {
       const z: number = await driver[e.operator](e.x, e.y);
-      TestValidator.equals("result")(z)(e.z);
+      TestValidator.equals("result", z, e.z);
     }
     await sleep_for(100);
-    TestValidator.equals("events")(events)(expected);
+    TestValidator.equals("events", events, expected);
   } catch (exp) {
     throw exp;
   } finally {

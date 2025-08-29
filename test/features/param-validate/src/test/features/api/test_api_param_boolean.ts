@@ -9,17 +9,21 @@ export const test_api_param_boolean = async (
   const value: boolean = await api.functional.param.boolean(connection, false);
   typia.assert(value);
 
-  TestValidator.equals("false")(false)(
+  TestValidator.equals(
+    "false",
+    false,
     await api.functional.param.boolean(connection, 0 as any),
   );
-  TestValidator.equals("true")(true)(
+  TestValidator.equals(
+    "true",
+    true,
     await api.functional.param.boolean(connection, 1 as any),
   );
 
-  await TestValidator.httpError("number")(400)(() =>
+  await TestValidator.httpError("number", 400, () =>
     api.functional.param.boolean(connection, 2 as any),
   );
-  await TestValidator.httpError("string")(400)(() =>
+  await TestValidator.httpError("string", 400, () =>
     api.functional.param.boolean(connection, "string" as any),
   );
 };

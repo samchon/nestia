@@ -13,5 +13,5 @@ export const test_api_duplicated = async (
   ];
   typia.assertEquals([x, y]);
 
-  TestValidator.equals("duplicated")(x)(y);
+  TestValidator.equals("duplicated", x, y);
 };

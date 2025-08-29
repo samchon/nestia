@@ -5,7 +5,7 @@ import api from "@api";
 export const test_api_query_invalid = async (
   connection: api.IConnection,
 ): Promise<void> => {
-  TestValidator.httpError("invalid")(400)(() =>
+  TestValidator.httpError("invalid")(400, () =>
     api.functional.query.typed(connection, {
       limit: 10,
       enforce: "something" as any,

@@ -29,10 +29,10 @@ const validateBlob =
     const ab: ArrayBuffer = await blob.arrayBuffer();
     const buffer: Buffer = Buffer.from(ab);
 
-    TestValidator.equals("buffer.length")(buffer.length)(999);
-    TestValidator.predicate("values")(() =>
+    TestValidator.equals("buffer.length", buffer.length, 999);
+    TestValidator.predicate("values", () =>
       buffer.every((byte) => byte === value),
     );
     if (blob instanceof File && name !== undefined)
-      TestValidator.equals("file.name")(name)(blob.name);
+      TestValidator.equals("file.name", name, blob.name);
   };

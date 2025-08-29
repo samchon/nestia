@@ -15,7 +15,7 @@ export const test_api_body_invalid = async (
   } catch (error) {
     console.log(error);
   }
-  await TestValidator.httpError("invalid")(400)(() =>
+  await TestValidator.httpError("invalid", 400, () =>
     api.functional.body.store(connection, {
       ...typia.random<IBbsArticle.IStore>(),
       title: null!,

@@ -9,7 +9,7 @@ export const test_api_request = async (
 ): Promise<void> => {
   const input: IRequestDto = { a: "a", b: "b" };
   const output: IRequestDto = await api.functional.request(connection, input);
-  TestValidator.equals("DTO")(input)(output);
+  TestValidator.equals("DTO", input, output);
 
   const surplus: IRequestDto = await api.functional.request(connection, input);
   typia.assertEquals(surplus);

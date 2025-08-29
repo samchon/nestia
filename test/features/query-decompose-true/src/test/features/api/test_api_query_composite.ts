@@ -19,5 +19,8 @@ export const test_api_query_composite = async (
     input,
   );
   typia.assertEquals(result);
-  TestValidator.equals("composite")(result)({ ...input, atomic });
+  TestValidator.equals("composite", result, {
+    ...input,
+    atomic,
+  });
 };

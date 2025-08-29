@@ -32,6 +32,6 @@ export const test_api_multipart = async (
       },
     );
     typia.assertEquals(result);
-    TestValidator.equals("result")(result)(content);
+    TestValidator.equals("result", result, content);
   });
 };

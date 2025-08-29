@@ -20,5 +20,5 @@ export const test_api_query_nest = async (
     atomic: input.atomic ? input.atomic : "null",
   });
   typia.assertEquals(result);
-  TestValidator.equals("nest")(input)(result);
+  TestValidator.equals("nest", input, result);
 };

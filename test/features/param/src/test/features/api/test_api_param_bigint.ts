@@ -12,10 +12,10 @@ export const test_api_param_number = async (
   );
   typia.assert(value);
 
-  await TestValidator.httpError("boolean")(400)(() =>
+  await TestValidator.httpError("boolean", 400, () =>
     api.functional.param.bigint(connection, true as any),
   );
-  await TestValidator.httpError("string")(400)(() =>
+  await TestValidator.httpError("string", 400, () =>
     api.functional.param.bigint(connection, "string" as any),
   );
 };

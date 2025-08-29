@@ -19,5 +19,5 @@ export const test_api_json_body_optional = async (
       method: "POST",
     },
   );
-  TestValidator.equals("status")(response.status)(201);
+  TestValidator.equals("status", response.status, 201);
 };
