@@ -14,8 +14,8 @@ export async function test_api_bbs_article_update(
     "general",
     {
       writer: RandomGenerator.name(),
-      title: RandomGenerator.paragraph(3)(),
-      body: RandomGenerator.content(8)()(),
+      title: RandomGenerator.paragraph(),
+      body: RandomGenerator.content(),
       format: "txt",
       files: [
         {
@@ -35,8 +35,8 @@ export async function test_api_bbs_article_update(
       article.section,
       article.id,
       {
-        title: RandomGenerator.paragraph(3)(),
-        body: RandomGenerator.content(8)()(),
+        title: RandomGenerator.paragraph(),
+        body: RandomGenerator.content(),
         format: "txt",
         files: [],
         password,
@@ -45,14 +45,14 @@ export async function test_api_bbs_article_update(
   article.snapshots.push(content);
 
   // TRY UPDATE WITH WRONG PASSWORD
-  await TestValidator.error("update with wrong password")(() =>
+  await TestValidator.error("update with wrong password", () =>
     api.functional.bbs.articles.update(
       connection,
       article.section,
       article.id,
       {
-        title: RandomGenerator.paragraph(5)(),
-        body: RandomGenerator.content(8)()(),
+        title: RandomGenerator.paragraph(),
+        body: RandomGenerator.content(),
         format: "txt",
         files: [],
         password: v4(),

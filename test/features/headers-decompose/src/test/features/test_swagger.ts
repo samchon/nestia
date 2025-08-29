@@ -5,11 +5,9 @@ export const test_swagger = async () => {
   const headers = content.paths["/headers/{section}"].patch.parameters.filter(
     (p) => p.in === "header",
   );
-  TestValidator.equals("headers")(headers.map((p) => p.name))([
-    "x-category",
-    "x-memo",
-    "x-name",
-    "x-values",
-    "x-flags",
-  ]);
+  TestValidator.equals(
+    "headers",
+    headers.map((p) => p.name),
+    ["x-category", "x-memo", "x-name", "x-values", "x-flags"],
+  );
 };

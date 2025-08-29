@@ -15,9 +15,10 @@ export const generate_random_articles = (
   data: new Array(count).fill("").map(() => ({
     id: RandomGenerator.alphaNumeric(8),
     writer: RandomGenerator.name(),
-    title: RandomGenerator.paragraph()(),
+    title: RandomGenerator.paragraph(),
     created_at: new Date().toISOString(),
-    updated_at: RandomGenerator.date(new Date())(
+    updated_at: RandomGenerator.date(
+      new Date(),
       24 * 60 * 60 * 1000,
     ).toISOString(),
   })),

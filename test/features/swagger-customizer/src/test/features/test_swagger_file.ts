@@ -11,11 +11,13 @@ export const test_swagger_file = async (): Promise<void> => {
   const route: OpenApi.IOperation =
     swagger.paths!["/custom/{key}/{value}/customize"].get!;
 
-  TestValidator.equals("swagger.openapi")(swagger.openapi)("3.1.11");
-  TestValidator.equals("route.description")(route.description)(
+  TestValidator.equals("swagger.openapi", swagger.openapi, "3.1.11");
+  TestValidator.equals(
+    "route.description",
+    route.description,
     "This is a custom description",
   );
-  TestValidator.equals(`route["x-selector"]`)((route as any)["x-selector"])({
+  TestValidator.equals(`route["x-selector"]`, (route as any)["x-selector"], {
     method: "get",
     path: "/custom/{id}/normal",
   });

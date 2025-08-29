@@ -14,11 +14,11 @@ export async function test_api_bbs_article_index_sort(
 ): Promise<void> {
   // GENERATE 100 ARTICLES
   const section: string = "general";
-  await ArrayUtil.asyncRepeat(100)(() =>
+  await ArrayUtil.asyncRepeat(100, () =>
     api.functional.bbs.articles.create(connection, section, {
       writer: RandomGenerator.name(),
-      title: RandomGenerator.paragraph(5)(),
-      body: RandomGenerator.content(8)()(),
+      title: RandomGenerator.paragraph(),
+      body: RandomGenerator.content(),
       format: "txt",
       files: [],
       password: RandomGenerator.alphabets(8),
@@ -26,16 +26,17 @@ export async function test_api_bbs_article_index_sort(
   );
 
   // PREPARE VALIDATOR
-  const validator = TestValidator.sort("BbsArticleProvider.index()")(async (
-    sort: IPage.Sort<IBbsArticle.IRequest.SortableColumns>,
-  ) => {
-    const page: IPage<IBbsArticle.ISummary> =
-      await api.functional.bbs.articles.index(connection, section, {
-        limit: 100,
-        sort,
-      });
-    return page.data;
-  });
+  const validator = TestValidator.sort(
+    "BbsArticleProvider.index()",
+    async (sort: IPage.Sort<IBbsArticle.IRequest.SortableColumns>) => {
+      const page: IPage<IBbsArticle.ISummary> =
+        await api.functional.bbs.articles.index(connection, section, {
+          limit: 100,
+          sort,
+        });
+      return page.data;
+    },
+  );
 
   // DO VALIDATE
   const components = [
