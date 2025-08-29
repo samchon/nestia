@@ -15,7 +15,7 @@ export const test_expired = async (connection: IConnection) => {
 export const test_invalid = async (connection: IConnection) => {
   const response = await test(connection, "INVALID_PERMISSION");
   if (response.status === 401)
-    TestValidator.equals("response")(response.data)("INVALID_PERMISSION");
+    TestValidator.equals("response", response.data, "INVALID_PERMISSION");
   else throw Error("unexpected response");
 };
 
