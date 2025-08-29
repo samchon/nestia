@@ -17,8 +17,8 @@ export const test_api_bbs_article_at = async (
     connection,
     id,
   );
-  TestValidator.error("wrong data")(() => typia.assert(article));
-  TestValidator.equals("logs")(logs)([
+  TestValidator.error("wrong data", () => typia.assert(article));
+  TestValidator.equals("logs", logs, [
     {
       errors: [
         {

@@ -10,21 +10,21 @@ import { json_equal_to } from "./internal/json_equal_to";
  * HTTP error validation, pagination testing, search functionality validation,
  * and sorting validation.
  *
- * All functions follow a currying pattern to enable reusable test
- * configurations and provide detailed error messages for debugging failed
- * assertions.
+ * Most functions use direct parameter passing for simplicity, while some
+ * maintain currying patterns for advanced composition. All provide detailed
+ * error messages for debugging failed assertions.
  *
  * @author Jeongho Nam - https://github.com/samchon
  * @example
  *   ```typescript
  *   // Basic condition testing
- *   TestValidator.predicate("user should be authenticated")(user.isAuthenticated);
+ *   TestValidator.predicate("user should be authenticated", user.isAuthenticated);
  *
  *   // Equality validation
- *   TestValidator.equals("API response should match expected")(expected)(actual);
+ *   TestValidator.equals("API response should match expected", x, y);
  *
  *   // Error validation
- *   TestValidator.error("should throw on invalid input")(() => validateInput(""));
+ *   TestValidator.error("should throw on invalid input", () => assertInput(""));
  *   ```;
  */
 export namespace TestValidator {
@@ -38,53 +38,56 @@ export namespace TestValidator {
    * @example
    *   ```typescript
    *   // Synchronous boolean
-   *   TestValidator.predicate("user should exist")(user !== null);
+   *   TestValidator.predicate("user should exist", user !== null);
    *
    *   // Synchronous function
-   *   TestValidator.predicate("array should be empty")(() => arr.length === 0);
+   *   TestValidator.predicate("array should be empty", () => arr.length === 0);
    *
    *   // Asynchronous function
-   *   await TestValidator.predicate("database should be connected")(
+   *   await TestValidator.predicate("database should be connected",
    *     async () => await db.ping()
    *   );
    *   ```;
    *
    * @param title - Descriptive title used in error messages when validation
    *   fails
-   * @returns A currying function that accepts the condition to validate
+   * @param condition - The condition to validate (boolean, function, or async
+   *   function)
+   * @returns Void or Promise<void> based on the input type
    * @throws Error with descriptive message when condition is not satisfied
    */
-  export const predicate =
-    (title: string) =>
-    <T extends boolean | (() => boolean) | (() => Promise<boolean>)>(
-      condition: T,
-    ): T extends () => Promise<boolean> ? Promise<void> : void => {
-      const message = () =>
-        `Bug on ${title}: expected condition is not satisfied.`;
+  export function predicate<
+    T extends boolean | (() => boolean) | (() => Promise<boolean>),
+  >(
+    title: string,
+    condition: T,
+  ): T extends () => Promise<boolean> ? Promise<void> : void {
+    const message = () =>
+      `Bug on ${title}: expected condition is not satisfied.`;
 
-      // SCALAR
-      if (typeof condition === "boolean") {
-        if (condition !== true) throw new Error(message());
-        return undefined as any;
-      }
+    // SCALAR
+    if (typeof condition === "boolean") {
+      if (condition !== true) throw new Error(message());
+      return undefined as any;
+    }
 
-      // CLOSURE
-      const output: boolean | Promise<boolean> = condition();
-      if (typeof output === "boolean") {
-        if (output !== true) throw new Error(message());
-        return undefined as any;
-      }
+    // CLOSURE
+    const output: boolean | Promise<boolean> = condition();
+    if (typeof output === "boolean") {
+      if (output !== true) throw new Error(message());
+      return undefined as any;
+    }
 
-      // ASYNCHRONOUS
-      return new Promise<void>((resolve, reject) => {
-        output
-          .then((flag) => {
-            if (flag === true) resolve();
-            else reject(message());
-          })
-          .catch(reject);
-      }) as any;
-    };
+    // ASYNCHRONOUS
+    return new Promise<void>((resolve, reject) => {
+      output
+        .then((flag) => {
+          if (flag === true) resolve();
+          else reject(message());
+        })
+        .catch(reject);
+    }) as any;
+  }
 
   /**
    * Validates deep equality between two values using JSON comparison.
@@ -93,61 +96,50 @@ export namespace TestValidator {
    * exception filter to ignore specific keys during comparison. Useful for
    * validating API responses, data transformations, and object state changes.
    *
-   * **Type Safety Notes:**
-   *
-   * - The generic type T is inferred from the `actual` parameter (first in the
-   *   currying chain)
-   * - The `expected` parameter must be assignable to `T | null | undefined`
-   * - For objects, `expected` must have the same or subset of properties as
-   *   `actual`
-   * - For union types like `string | null`, ensure proper type compatibility:
-   *
-   *   ```typescript
-   *   const x: string | null;
-   *   TestValidator.equals("works")(x)(null);        // ✅ Works: null is assignable to string | null
-   *   TestValidator.equals("error")(null)(x);        // ❌ Error: x might be string, but expected is null
-   * ```
-   *
    * @example
    *   ```typescript
    *   // Basic equality
-   *   TestValidator.equals("response should match expected")(expectedUser)(actualUser);
+   *   TestValidator.equals("response should match expected", expectedUser, actualUser);
    *
    *   // Ignore timestamps in comparison
-   *   TestValidator.equals("user data should match", (key) => key === "updatedAt")(
-   *     expectedUser
-   *   )(actualUser);
+   *   TestValidator.equals("user data should match", expectedUser, actualUser,
+   *     (key) => key === "updatedAt"
+   *   );
    *
    *   // Validate API response structure
-   *   const validateResponse = TestValidator.equals("API response structure");
-   *   validateResponse({ id: 1, name: "John" })({ id: 1, name: "John" });
+   *   TestValidator.equals("API response structure",
+   *     { id: 1, name: "John" },
+   *     { id: 1, name: "John" }
+   *   );
    *
    *   // Type-safe nullable comparisons
    *   const nullableData: { name: string } | null = getData();
-   *   TestValidator.equals("nullable check")(nullableData)(null); // ✅ Safe
+   *   TestValidator.equals("nullable check", nullableData, null);
    *   ```;
    *
    * @param title - Descriptive title used in error messages when values differ
+   * @param x - The first value to compare
+   * @param y - The second value to compare (can be null or undefined)
    * @param exception - Optional filter function to exclude specific keys from
    *   comparison
-   * @returns A currying function chain: first accepts expected value, then
-   *   actual value
    * @throws Error with detailed diff information when values are not equal
    */
-  export const equals =
-    (title: string, exception: (key: string) => boolean = () => false) =>
-    <T>(actual: T) =>
-    (expected: T | null | undefined) => {
-      const diff: string[] = json_equal_to(exception)(actual)(expected);
-      if (diff.length)
-        throw new Error(
-          [
-            `Bug on ${title}: found different values - [${diff.join(", ")}]:`,
-            "\n",
-            JSON.stringify({ actual, expected }, null, 2),
-          ].join("\n"),
-        );
-    };
+  export function equals<T>(
+    title: string,
+    x: T,
+    y: T | null | undefined,
+    exception?: (key: string) => boolean,
+  ): void {
+    const diff: string[] = json_equal_to(exception ?? (() => false))(x)(y);
+    if (diff.length)
+      throw new Error(
+        [
+          `Bug on ${title}: found different values - [${diff.join(", ")}]:`,
+          "\n",
+          JSON.stringify({ x, y }, null, 2),
+        ].join("\n"),
+      );
+  }
 
   /**
    * Validates deep inequality between two values using JSON comparison.
@@ -157,62 +149,48 @@ export namespace TestValidator {
    * comparison. Useful for validating that data has changed, objects are
    * different, or mutations have occurred.
    *
-   * **Type Safety Notes:**
-   *
-   * - The generic type T is inferred from the `actual` parameter (first in the
-   *   currying chain)
-   * - The `expected` parameter must be assignable to `T | null | undefined`
-   * - For objects, `expected` must have the same or subset of properties as
-   *   `actual`
-   * - For union types like `string | null`, ensure proper type compatibility:
-   *
-   *   ```typescript
-   *   const x: string | null;
-   *   TestValidator.notEquals("works")(x)(null);     // ✅ Works: null is assignable to string | null
-   *   TestValidator.notEquals("error")(null)(x);     // ❌ Error: x might be string, but expected is null
-   * ```
-   *
    * @example
    *   ```typescript
    *   // Basic inequality
-   *   TestValidator.notEquals("user should be different after update")(originalUser)(updatedUser);
+   *   TestValidator.notEquals("user should be different after update", originalUser, updatedUser);
    *
    *   // Ignore timestamps in comparison
-   *   TestValidator.notEquals("user data should differ", (key) => key === "updatedAt")(
-   *     originalUser
-   *   )(modifiedUser);
+   *   TestValidator.notEquals("user data should differ", originalUser, modifiedUser,
+   *     (key) => key === "updatedAt"
+   *   );
    *
    *   // Validate state changes
-   *   const validateStateChange = TestValidator.notEquals("state should have changed");
-   *   validateStateChange(initialState)(currentState);
+   *   TestValidator.notEquals("state should have changed", initialState, currentState);
    *
    *   // Type-safe nullable comparisons
    *   const mutableData: { count: number } | null = getMutableData();
-   *   TestValidator.notEquals("should have changed")(mutableData)(null); // ✅ Safe
+   *   TestValidator.notEquals("should have changed", mutableData, null);
    *   ```;
    *
    * @param title - Descriptive title used in error messages when values are
    *   equal
+   * @param x - The first value to compare
+   * @param y - The second value to compare (can be null or undefined)
    * @param exception - Optional filter function to exclude specific keys from
    *   comparison
-   * @returns A currying function chain: first accepts expected value, then
-   *   actual value
    * @throws Error when values are equal (indicating validation failure)
    */
-  export const notEquals =
-    (title: string, exception: (key: string) => boolean = () => false) =>
-    <T>(actual: T) =>
-    (expected: T | null | undefined) => {
-      const diff: string[] = json_equal_to(exception)(actual)(expected);
-      if (diff.length === 0)
-        throw new Error(
-          [
-            `Bug on ${title}: values should be different but are equal:`,
-            "\n",
-            JSON.stringify({ actual, expected }, null, 2),
-          ].join("\n"),
-        );
-    };
+  export function notEquals<T>(
+    title: string,
+    x: T,
+    y: T | null | undefined,
+    exception?: (key: string) => boolean,
+  ): void {
+    const diff: string[] = json_equal_to(exception ?? (() => false))(x)(y);
+    if (diff.length === 0)
+      throw new Error(
+        [
+          `Bug on ${title}: values should be different but are equal:`,
+          "\n",
+          JSON.stringify({ x, y }, null, 2),
+        ].join("\n"),
+      );
+  }
 
   /**
    * Validates that a function throws an error or rejects when executed.
@@ -224,41 +202,43 @@ export namespace TestValidator {
    * @example
    *   ```typescript
    *   // Synchronous error validation
-   *   TestValidator.error("should reject invalid email")(
+   *   TestValidator.error("should reject invalid email",
    *     () => validateEmail("invalid-email")
    *   );
    *
    *   // Asynchronous error validation
-   *   await TestValidator.error("should reject unauthorized access")(
+   *   await TestValidator.error("should reject unauthorized access",
    *     async () => await api.functional.getSecretData()
    *   );
    *
    *   // Validate input validation
-   *   TestValidator.error("should throw on empty string")(
+   *   TestValidator.error("should throw on empty string",
    *     () => processRequiredInput("")
    *   );
    *   ```;
    *
    * @param title - Descriptive title used in error messages when no error
    *   occurs
-   * @returns A currying function that accepts the task function to validate
+   * @param task - The function that should throw an error or reject
+   * @returns Void or Promise<void> based on the input type
    * @throws Error when the task function does not throw an error or reject
    */
-  export const error =
-    (title: string) =>
-    <T>(task: () => T): T extends Promise<any> ? Promise<void> : void => {
-      const message = () => `Bug on ${title}: exception must be thrown.`;
-      try {
-        const output: T = task();
-        if (is_promise(output))
-          return new Promise<void>((resolve, reject) =>
-            output.catch(() => resolve()).then(() => reject(message())),
-          ) as any;
-        else throw new Error(message());
-      } catch {
-        return undefined as any;
-      }
-    };
+  export function error<T>(
+    title: string,
+    task: () => T,
+  ): T extends Promise<any> ? Promise<void> : void {
+    const message = () => `Bug on ${title}: exception must be thrown.`;
+    try {
+      const output: T = task();
+      if (is_promise(output))
+        return new Promise<void>((resolve, reject) =>
+          output.catch(() => resolve()).then(() => reject(message())),
+        ) as any;
+      else throw new Error(message());
+    } catch {
+      return undefined as any;
+    }
+  }
 
   /**
    * Validates that a function throws an HTTP error with specific status codes.
@@ -270,119 +250,72 @@ export namespace TestValidator {
    * @example
    *   ```typescript
    *   // Validate 401 Unauthorized
-   *   await TestValidator.httpError("should return 401 for invalid token")(401)(
+   *   await TestValidator.httpError("should return 401 for invalid token", 401,
    *     async () => await api.functional.getProtectedResource("invalid-token")
    *   );
    *
    *   // Validate multiple possible error codes
-   *   await TestValidator.httpError("should return client error")(400, 404, 422)(
+   *   await TestValidator.httpError("should return client error", [400, 404, 422],
    *     async () => await api.functional.updateNonexistentResource(data)
    *   );
    *
    *   // Validate server errors
-   *   TestValidator.httpError("should handle server errors")(500, 502, 503)(
+   *   TestValidator.httpError("should handle server errors", [500, 502, 503],
    *     () => callFaultyEndpoint()
    *   );
    *   ```;
    *
    * @param title - Descriptive title used in error messages
-   * @returns A currying function that accepts status codes, then the task
-   *   function
+   * @param status - Expected status code(s), can be a single number or array
+   * @param task - The function that should throw an HttpError
+   * @returns Void or Promise<void> based on the input type
    * @throws Error when function doesn't throw HttpError or status code doesn't
    *   match
    */
-  export const httpError =
-    (title: string) =>
-    (...statuses: number[]) =>
-    <T>(task: () => T): T extends Promise<any> ? Promise<void> : void => {
-      const message = (actual?: number) =>
-        typeof actual === "number"
-          ? `Bug on ${title}: status code must be ${statuses.join(
-              " or ",
-            )}, but ${actual}.`
-          : `Bug on ${title}: status code must be ${statuses.join(
-              " or ",
-            )}, but succeeded.`;
-      const predicate = (exp: any): Error | null =>
-        typeof exp === "object" &&
-        exp.constructor.name === "HttpError" &&
-        statuses.some((val) => val === exp.status)
-          ? null
-          : new Error(
-              message(
-                typeof exp === "object" && exp.constructor.name === "HttpError"
-                  ? exp.status
-                  : undefined,
-              ),
-            );
-      try {
-        const output: T = task();
-        if (is_promise(output))
-          return new Promise<void>((resolve, reject) =>
-            output
-              .catch((exp) => {
-                const res: Error | null = predicate(exp);
-                if (res) reject(res);
-                else resolve();
-              })
-              .then(() => reject(new Error(message()))),
-          ) as any;
-        else throw new Error(message());
-      } catch (exp) {
-        const res: Error | null = predicate(exp);
-        if (res) throw res;
-        return undefined!;
-      }
-    };
-
-  /**
-   * Safely executes a function and captures any errors without throwing.
-   *
-   * Utility function for error handling in tests. Executes the provided
-   * function and returns any error that occurs, or null if successful. Supports
-   * both synchronous and asynchronous functions. Useful for testing error
-   * conditions without stopping test execution.
-   *
-   * @example
-   *   ```typescript
-   *   // Synchronous error capture
-   *   const error = TestValidator.proceed(() => {
-   *     throw new Error("Something went wrong");
-   *   });
-   *   console.log(error?.message); // "Something went wrong"
-   *
-   *   // Asynchronous error capture
-   *   const asyncError = await TestValidator.proceed(async () => {
-   *     await failingAsyncOperation();
-   *   });
-   *
-   *   // Success case
-   *   const noError = TestValidator.proceed(() => {
-   *     return "success";
-   *   });
-   *   console.log(noError); // null
-   *   ```;
-   *
-   * @param task - Function to execute safely
-   * @returns Error object if function throws/rejects, null if successful
-   */
-  export function proceed(task: () => Promise<any>): Promise<Error | null>;
-  export function proceed(task: () => any): Error | null;
-  export function proceed(
-    task: () => any,
-  ): Promise<Error | null> | (Error | null) {
+  export function httpError<T>(
+    title: string,
+    status: number | number[],
+    task: () => T,
+  ): T extends Promise<any> ? Promise<void> : void {
+    if (typeof status === "number") status = [status];
+    const message = (actual?: number) =>
+      typeof actual === "number"
+        ? `Bug on ${title}: status code must be ${status.join(
+            " or ",
+          )}, but ${actual}.`
+        : `Bug on ${title}: status code must be ${status.join(
+            " or ",
+          )}, but succeeded.`;
+    const predicate = (exp: any): Error | null =>
+      typeof exp === "object" &&
+      exp.constructor.name === "HttpError" &&
+      status.some((val) => val === exp.status)
+        ? null
+        : new Error(
+            message(
+              typeof exp === "object" && exp.constructor.name === "HttpError"
+                ? exp.status
+                : undefined,
+            ),
+          );
     try {
-      const output: any = task();
+      const output: T = task();
       if (is_promise(output))
-        return new Promise<Error | null>((resolve) =>
+        return new Promise<void>((resolve, reject) =>
           output
-            .catch((exp) => resolve(exp as Error))
-            .then(() => resolve(null)),
-        );
+            .catch((exp) => {
+              const res: Error | null = predicate(exp);
+              if (res) reject(res);
+              else resolve();
+            })
+            .then(() => reject(new Error(message()))),
+        ) as any;
+      else throw new Error(message());
     } catch (exp) {
-      return exp as Error;
+      const res: Error | null = predicate(exp);
+      if (res) throw res;
+      return undefined!;
     }
-    return null;
   }
 
   /**
@@ -399,8 +332,7 @@ export namespace TestValidator {
    *   const expectedArticles = await db.articles.findAll({ order: 'created_at DESC' });
    *   const actualArticles = await api.functional.getArticles({ page: 1, limit: 10 });
    *
-   *   TestValidator.index("article pagination order")(expectedArticles)(
-   *     actualArticles,
+   *   TestValidator.index("article pagination order", expectedArticles, actualArticles,
    *     true // enable trace logging
    *   );
    *
@@ -408,42 +340,41 @@ export namespace TestValidator {
    *   const manuallyFilteredUsers = allUsers.filter(u => u.name.includes("John"));
    *   const apiSearchResults = await api.functional.searchUsers({ query: "John" });
    *
-   *   TestValidator.index("user search results")(manuallyFilteredUsers)(
-   *     apiSearchResults
-   *   );
+   *   TestValidator.index("user search results", manuallyFilteredUsers, apiSearchResults);
    *   ```;
    *
    * @param title - Descriptive title used in error messages when order differs
-   * @returns A currying function chain: expected entities, then actual entities
+   * @param expected - The expected entities in correct order
+   * @param gotten - The actual entities returned by the API
+   * @param trace - Optional flag to enable debug logging (default: false)
    * @throws Error when entity order differs between expected and actual results
    */
-  export const index =
-    (title: string) =>
-    <Solution extends IEntity<any>>(expected: Solution[]) =>
-    <Summary extends IEntity<any>>(
-      gotten: Summary[],
-      trace: boolean = false,
-    ): void => {
-      const length: number = Math.min(expected.length, gotten.length);
-      expected = expected.slice(0, length);
-      gotten = gotten.slice(0, length);
+  export const index = <Summary extends IEntity<any>>(
+    title: string,
+    expected: Summary[],
+    gotten: Summary[],
+    trace: boolean = false,
+  ): void => {
+    const length: number = Math.min(expected.length, gotten.length);
+    expected = expected.slice(0, length);
+    gotten = gotten.slice(0, length);
 
-      const xIds: string[] = get_ids(expected).slice(0, length);
-      const yIds: string[] = get_ids(gotten)
-        .filter((id) => id >= xIds[0])
-        .slice(0, length);
+    const xIds: string[] = get_ids(expected).slice(0, length);
+    const yIds: string[] = get_ids(gotten)
+      .filter((id) => id >= xIds[0])
+      .slice(0, length);
 
-      const equals: boolean = xIds.every((x, i) => x === yIds[i]);
-      if (equals === true) return;
-      else if (trace === true)
-        console.log({
-          expected: xIds,
-          gotten: yIds,
-        });
-      throw new Error(
-        `Bug on ${title}: result of the index is different with manual aggregation.`,
-      );
-    };
+    const equals: boolean = xIds.every((x, i) => x === yIds[i]);
+    if (equals === true) return;
+    else if (trace === true)
+      console.log({
+        expected: xIds,
+        gotten: yIds,
+      });
+    throw new Error(
+      `Bug on ${title}: result of the index is different with manual aggregation.`,
+    );
+  };
 
   /**
    * Validates search functionality by testing API results against manual
@@ -456,55 +387,68 @@ export namespace TestValidator {
    *
    * @example
    *   ```typescript
-   *   // Test article search functionality
+   *   // Test article search functionality with exact matching
    *   const allArticles = await db.articles.findAll();
-   *   const searchValidator = TestValidator.search("article search API")(
-   *     (req) => api.searchArticles(req)
-   *   )(allArticles, 5); // test with 5 random samples
+   *   const searchValidator = TestValidator.search(
+   *     "article search API",
+   *     (req) => api.searchArticles(req),
+   *     allArticles,
+   *     5 // test with 5 random samples
+   *   );
    *
+   *   // Test exact match search
    *   await searchValidator({
-   *     fields: ["title", "content"],
-   *     values: (article) => [article.title.split(" ")[0]], // first word
-   *     filter: (article, [keyword]) =>
-   *       article.title.includes(keyword) || article.content.includes(keyword),
+   *     fields: ["title"],
+   *     values: (article) => [article.title], // full title for exact match
+   *     filter: (article, [title]) => article.title === title, // exact match
+   *     request: ([title]) => ({ search: { title } })
+   *   });
+   *
+   *   // Test partial match search with includes
+   *   await searchValidator({
+   *     fields: ["content"],
+   *     values: (article) => [article.content.substring(0, 20)], // partial content
+   *     filter: (article, [keyword]) => article.content.includes(keyword),
    *     request: ([keyword]) => ({ q: keyword })
    *   });
    *
-   *   // Test user search with multiple criteria
-   *   await TestValidator.search("user search with filters")(
-   *     (req) => api.getUsers(req)
-   *   )(allUsers, 3)({
-   *     fields: ["status", "role"],
-   *     values: (user) => [user.status, user.role],
-   *     filter: (user, [status, role]) =>
-   *       user.status === status && user.role === role,
-   *     request: ([status, role]) => ({ status, role })
+   *   // Test multi-field search with exact matching
+   *   await searchValidator({
+   *     fields: ["writer", "title"],
+   *     values: (article) => [article.writer, article.title],
+   *     filter: (article, [writer, title]) =>
+   *       article.writer === writer && article.title === title,
+   *     request: ([writer, title]) => ({ search: { writer, title } })
    *   });
    *   ```;
    *
    * @param title - Descriptive title used in error messages when search fails
-   * @returns A currying function chain: API getter function, then dataset and
-   *   sample count
+   * @param getter - API function that performs the search
+   * @param total - Complete dataset to sample from for testing
+   * @param sampleCount - Number of random samples to test (default: 1)
+   * @returns A function that accepts search configuration properties
    * @throws Error when API search results don't match manual filtering results
    */
   export const search =
-    (title: string) =>
     <Entity extends IEntity<any>, Request>(
+      title: string,
       getter: (input: Request) => Promise<Entity[]>,
+      total: Entity[],
+      sampleCount: number = 1,
     ) =>
-    (total: Entity[], sampleCount: number = 1) =>
     async <Values extends any[]>(
       props: ISearchProps<Entity, Values, Request>,
-    ): Promise<void> => {
-      const samples: Entity[] = RandomGenerator.sample(total)(sampleCount);
+    ) => {
+      const samples: Entity[] = RandomGenerator.sample(total, sampleCount);
       for (const s of samples) {
         const values: Values = props.values(s);
         const filtered: Entity[] = total.filter((entity) =>
           props.filter(entity, values),
         );
         const gotten: Entity[] = await getter(props.request(values));
-
-        TestValidator.index(`${title} (${props.fields.join(", ")})`)(filtered)(
+        TestValidator.index(
+          `${title} (${props.fields.join(", ")})`,
+          filtered,
           gotten,
         );
       }
@@ -566,38 +510,47 @@ export namespace TestValidator {
    *
    * @example
    *   ```typescript
-   *   // Test single field sorting
-   *   const sortValidator = TestValidator.sort("article sorting")(
+   *   // Test single field sorting with GaffComparator
+   *   const sortValidator = TestValidator.sort(
+   *     "article sorting",
    *     (sortable) => api.getArticles({ sort: sortable })
    *   )("created_at")(
-   *     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+   *     GaffComparator.dates((a) => a.created_at)
    *   );
    *
    *   await sortValidator("+"); // ascending
    *   await sortValidator("-"); // descending
    *
-   *   // Test multi-field sorting with filtering
-   *   const userSortValidator = TestValidator.sort("user sorting")(
+   *   // Test multi-field sorting with GaffComparator
+   *   const userSortValidator = TestValidator.sort(
+   *     "user sorting",
    *     (sortable) => api.getUsers({ sort: sortable })
-   *   )("status", "created_at")(
-   *     (a, b) => {
-   *       if (a.status !== b.status) return a.status.localeCompare(b.status);
-   *       return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-   *     },
+   *   )("lastName", "firstName")(
+   *     GaffComparator.strings((user) => [user.lastName, user.firstName]),
    *     (user) => user.isActive // only test active users
    *   );
    *
    *   await userSortValidator("+", true); // ascending with trace logging
+   *
+   *   // Custom comparator for complex logic
+   *   const customSortValidator = TestValidator.sort(
+   *     "custom sorting",
+   *     (sortable) => api.getProducts({ sort: sortable })
+   *   )("price", "rating")(
+   *     (a, b) => {
+   *       const priceDiff = a.price - b.price;
+   *       return priceDiff !== 0 ? priceDiff : b.rating - a.rating; // price asc, rating desc
+   *     }
+   *   );
    *   ```;
    *
    * @param title - Descriptive title used in error messages when sorting fails
-   * @returns A currying function chain: API getter, field names, comparator,
-   *   then direction
+   * @param getter - API function that fetches sorted data
+   * @returns A currying function chain: field names, comparator, then direction
    * @throws Error when API results are not properly sorted according to
    *   specification
    */
   export const sort =
-    (title: string) =>
     <
       T extends object,
       Fields extends string,
@@ -605,6 +558,7 @@ export namespace TestValidator {
         `-${Fields}` | `+${Fields}`
       >,
     >(
+      title: string,
       getter: (sortable: Sortable) => Promise<T[]>,
     ) =>
     (...fields: Fields[]) =>
@@ -658,10 +612,12 @@ interface IEntity<Type extends string | number | bigint> {
   id: Type;
 }
 
+/** @internal */
 function get_ids<Entity extends IEntity<any>>(entities: Entity[]): string[] {
   return entities.map((entity) => entity.id).sort((x, y) => (x < y ? -1 : 1));
 }
 
+/** @internal */
 function is_promise(input: any): input is Promise<any> {
   return (
     typeof input === "object" &&
@@ -671,6 +627,7 @@ function is_promise(input: any): input is Promise<any> {
   );
 }
 
+/** @internal */
 function is_sorted<T>(data: T[], comp: (x: T, y: T) => number): boolean {
   for (let i: number = 1; i < data.length; ++i)
     if (comp(data[i - 1], data[i]) > 0) return false;

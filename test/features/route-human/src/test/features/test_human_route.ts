@@ -15,9 +15,11 @@ export const test_human_route = async (): Promise<void> => {
   const document: OpenApi.IDocument = JSON.parse(
     await fs.promises.readFile(LOCATION, "utf8"),
   );
-  TestValidator.equals("human")(
+  TestValidator.equals(
+    "human",
     document.paths?.["/performance"]?.get?.["x-samchon-human"],
-  )(true);
+    true,
+  );
 
   const application: IHttpLlmApplication<"chatgpt"> = HttpLlm.application({
     model: "chatgpt",
@@ -27,7 +29,7 @@ export const test_human_route = async (): Promise<void> => {
     application.functions.find(
       (func) => func.method === "get" && func.path === "/performance",
     );
-  TestValidator.equals("excluded")(func)(undefined);
+  TestValidator.equals("excluded", func, undefined);
 };
 
 const LOCATION = `${__dirname}/../../../swagger.json`;

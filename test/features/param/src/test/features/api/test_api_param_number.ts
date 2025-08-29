@@ -9,10 +9,10 @@ export const test_api_param_number = async (
   const value: number = await api.functional.param.number(connection, 1);
   typia.assert(value);
 
-  await TestValidator.httpError("boolean")(400)(() =>
+  await TestValidator.httpError("boolean", 400, () =>
     api.functional.param.number(connection, true as any),
   );
-  await TestValidator.httpError("string")(400)(() =>
+  await TestValidator.httpError("string", 400, () =>
     api.functional.param.number(connection, "string" as any),
   );
 };

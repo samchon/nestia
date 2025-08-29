@@ -6,16 +6,19 @@ export const test_swagger = async () => {
     (p) => p.in === "query",
   );
 
-  TestValidator.equals("queries")(queries.map((q) => q.name))([
-    "limit",
-    "enforce",
-    "values",
-    "atomic",
-  ]);
-  TestValidator.equals("not required")(
+  TestValidator.equals(
+    "queries",
+    queries.map((q) => q.name),
+    ["limit", "enforce", "values", "atomic"],
+  );
+  TestValidator.equals(
+    "not required",
     queries.find((q) => q.name === "limit")?.required,
-  )(false);
-  TestValidator.equals("required")(
+    false,
+  );
+  TestValidator.equals(
+    "required",
     queries.find((q) => q.name === "enforce")?.required,
-  )(true);
+    true,
+  );
 };

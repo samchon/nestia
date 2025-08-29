@@ -15,5 +15,5 @@ export const test_api_query_body = async (
   };
   const result: IQuery = await api.functional.query.body(connection, input);
   typia.assertEquals(result);
-  TestValidator.equals("body")(result)(input);
+  TestValidator.equals("body", result, input);
 };

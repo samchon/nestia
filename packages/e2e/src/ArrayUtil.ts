@@ -3,15 +3,15 @@
  *
  * This namespace contains utility functions for array operations including
  * asynchronous processing, filtering, mapping, and repetition tasks implemented
- * in functional programming style. All functions are implemented using currying
- * to enhance reusability and composability.
+ * in functional programming style. Functions use direct parameter passing for
+ * simplicity while maintaining functional programming principles.
  *
  * @author Jeongho Nam - https://github.com/samchon
  * @example
  *   ```typescript
  *   // Asynchronous filtering example
  *   const numbers = [1, 2, 3, 4, 5];
- *   const evenNumbers = await ArrayUtil.asyncFilter(numbers)(
+ *   const evenNumbers = await ArrayUtil.asyncFilter(numbers,
  *     async (num) => num % 2 === 0
  *   );
  *   console.log(evenNumbers); // [2, 4]
@@ -22,9 +22,9 @@ export namespace ArrayUtil {
    * Filters an array by applying an asynchronous predicate function to each
    * element.
    *
-   * This function is implemented in curried form, first taking an array and
-   * then a predicate function. Elements are processed sequentially, ensuring
-   * order is maintained.
+   * Elements are processed sequentially, ensuring order is maintained. The
+   * predicate function receives the element, index, and the full array as
+   * parameters.
    *
    * @example
    *   ```typescript
@@ -34,7 +34,7 @@ export namespace ArrayUtil {
    *     { id: 3, name: 'Charlie', active: true }
    *   ];
    *
-   *   const activeUsers = await ArrayUtil.asyncFilter(users)(
+   *   const activeUsers = await ArrayUtil.asyncFilter(users,
    *     async (user) => {
    *       // Async validation logic (e.g., API call)
    *       await new Promise(resolve => setTimeout(resolve, 100));
@@ -46,25 +46,24 @@ export namespace ArrayUtil {
    *
    * @template Input - The type of elements in the input array
    * @param elements - The readonly array to filter
-   * @returns A function that takes a predicate and returns a Promise resolving
-   *   to the filtered array
+   * @param pred - The asynchronous predicate function to test each element
+   * @returns A Promise resolving to the filtered array
    */
-  export const asyncFilter =
-    <Input>(elements: readonly Input[]) =>
-    async (
-      pred: (
-        elem: Input,
-        index: number,
-        array: readonly Input[],
-      ) => Promise<boolean>,
-    ): Promise<Input[]> => {
-      const ret: Input[] = [];
-      await asyncForEach(elements)(async (elem, index, array) => {
-        const flag: boolean = await pred(elem, index, array);
-        if (flag === true) ret.push(elem);
-      });
-      return ret;
-    };
+  export const asyncFilter = async <Input>(
+    elements: readonly Input[],
+    pred: (
+      elem: Input,
+      index: number,
+      array: readonly Input[],
+    ) => Promise<boolean>,
+  ): Promise<Input[]> => {
+    const ret: Input[] = [];
+    await asyncForEach(elements, async (elem, index, array) => {
+      const flag: boolean = await pred(elem, index, array);
+      if (flag === true) ret.push(elem);
+    });
+    return ret;
+  };
 
   /**
    * Executes an asynchronous function for each element in an array
@@ -79,7 +78,7 @@ export namespace ArrayUtil {
    *   ```typescript
    *   const urls = ['url1', 'url2', 'url3'];
    *
-   *   await ArrayUtil.asyncForEach(urls)(async (url, index) => {
+   *   await ArrayUtil.asyncForEach(urls, async (url, index) => {
    *   console.log(`Processing ${index}: ${url}`);
    *   const data = await fetch(url);
    *   await processData(data);
@@ -90,21 +89,21 @@ export namespace ArrayUtil {
    *
    * @template Input - The type of elements in the input array
    * @param elements - The readonly array to process
-   * @returns A function that takes an async closure and returns a Promise<void>
+   * @param closure - The asynchronous function to execute for each element
+   * @returns A Promise<void> that resolves when all operations complete
    */
-  export const asyncForEach =
-    <Input>(elements: readonly Input[]) =>
-    async (
-      closure: (
-        elem: Input,
-        index: number,
-        array: readonly Input[],
-      ) => Promise<any>,
-    ): Promise<void> => {
-      await asyncRepeat(elements.length)((index) =>
-        closure(elements[index], index, elements),
-      );
-    };
+  export const asyncForEach = async <Input>(
+    elements: readonly Input[],
+    closure: (
+      elem: Input,
+      index: number,
+      array: readonly Input[],
+    ) => Promise<any>,
+  ): Promise<void> => {
+    await asyncRepeat(elements.length, (index) =>
+      closure(elements[index], index, elements),
+    );
+  };
 
   /**
    * Transforms each element of an array using an asynchronous function to
@@ -112,7 +111,8 @@ export namespace ArrayUtil {
    *
    * Similar to JavaScript's native map but processes asynchronous functions
    * sequentially. Each element's transformation is completed before proceeding
-   * to the next element, ensuring order is maintained.
+   * to the next element, ensuring order is maintained. This function still
+   * maintains the currying pattern for composition.
    *
    * @example
    *   ```typescript
@@ -129,27 +129,25 @@ export namespace ArrayUtil {
    *   ```
    *
    * @template Input - The type of elements in the input array
-   * @template Output - The type of elements in the output array
    * @param elements - The readonly array to transform
    * @returns A function that takes a transformation function and returns a
    *   Promise resolving to the transformed array
    */
-  export const asyncMap =
-    <Input>(elements: readonly Input[]) =>
-    async <Output>(
-      closure: (
-        elem: Input,
-        index: number,
-        array: readonly Input[],
-      ) => Promise<Output>,
-    ): Promise<Output[]> => {
-      const ret: Output[] = [];
-      await asyncForEach(elements)(async (elem, index, array) => {
-        const output: Output = await closure(elem, index, array);
-        ret.push(output);
-      });
-      return ret;
-    };
+  export const asyncMap = async <Input, Output>(
+    elements: readonly Input[],
+    closure: (
+      elem: Input,
+      index: number,
+      array: readonly Input[],
+    ) => Promise<Output>,
+  ): Promise<Output[]> => {
+    const ret: Output[] = [];
+    await asyncForEach(elements, async (elem, index, array) => {
+      const output: Output = await closure(elem, index, array);
+      ret.push(output);
+    });
+    return ret;
+  };
 
   /**
    * Executes an asynchronous function a specified number of times sequentially.
@@ -161,7 +159,7 @@ export namespace ArrayUtil {
    * @example
    *   ```typescript
    *   // Generate random data 5 times
-   *   const randomData = await ArrayUtil.asyncRepeat(5)(async (index) => {
+   *   const randomData = await ArrayUtil.asyncRepeat(5, async (index) => {
    *     await new Promise(resolve => setTimeout(resolve, 100)); // Wait 0.1 seconds
    *     return {
    *       id: index,
@@ -172,29 +170,26 @@ export namespace ArrayUtil {
    *   console.log('Generated data:', randomData);
    *   ```;
    *
+   * @template T - The type of the result from each execution
    * @param count - The number of times to repeat (non-negative integer)
-   * @returns A function that takes an async closure and returns a Promise
-   *   resolving to an array of results
+   * @param closure - The asynchronous function to execute repeatedly
+   * @returns A Promise resolving to an array of results
    */
-  export const asyncRepeat =
-    (count: number) =>
-    async <T>(closure: (index: number) => Promise<T>): Promise<T[]> => {
-      const indexes: number[] = new Array(count)
-        .fill(1)
-        .map((_, index) => index);
-
-      const output: T[] = [];
-      for (const index of indexes) output.push(await closure(index));
-
-      return output;
-    };
+  export const asyncRepeat = async <T>(
+    count: number,
+    closure: (index: number) => Promise<T>,
+  ): Promise<T[]> => {
+    const indexes: number[] = new Array(count).fill(1).map((_, index) => index);
+    const output: T[] = [];
+    for (const index of indexes) output.push(await closure(index));
+    return output;
+  };
 
   /**
    * Checks if at least one element in the array satisfies the given condition.
    *
-   * Similar to JavaScript's native some() method but implemented in curried
-   * form for better compatibility with functional programming style. Returns
-   * true immediately when the first element satisfying the condition is found.
+   * Similar to JavaScript's native some() method. Returns true immediately when
+   * the first element satisfying the condition is found.
    *
    * @example
    *   ```typescript
@@ -205,24 +200,25 @@ export namespace ArrayUtil {
    *     { name: 'Orange', price: 80, inStock: true }
    *   ];
    *
-   *   const hasEvenNumber = ArrayUtil.has(numbers)(num => num % 2 === 0);
+   *   const hasEvenNumber = ArrayUtil.has(numbers, num => num % 2 === 0);
    *   console.log(hasEvenNumber); // true (8 exists)
    *
-   *   const hasExpensiveItem = ArrayUtil.has(products)(product => product.price > 90);
+   *   const hasExpensiveItem = ArrayUtil.has(products, product => product.price > 90);
    *   console.log(hasExpensiveItem); // true (Apple costs 100)
    *
-   *   const hasOutOfStock = ArrayUtil.has(products)(product => !product.inStock);
+   *   const hasOutOfStock = ArrayUtil.has(products, product => !product.inStock);
    *   console.log(hasOutOfStock); // true (Banana is out of stock)
    *   ```;
    *
    * @template T - The type of elements in the array
    * @param elements - The readonly array to check
-   * @returns A function that takes a predicate and returns a boolean
+   * @param pred - The predicate function to test elements
+   * @returns Boolean indicating if any element satisfies the condition
    */
-  export const has =
-    <T>(elements: readonly T[]) =>
-    (pred: (elem: T) => boolean): boolean =>
-      elements.find(pred) !== undefined;
+  export const has = <T>(
+    elements: readonly T[],
+    pred: (elem: T) => boolean,
+  ): boolean => elements.find(pred) !== undefined;
 
   /**
    * Executes a function a specified number of times and collects the results
@@ -234,11 +230,11 @@ export namespace ArrayUtil {
    * @example
    *   ```typescript
    *   // Generate an array of squares from 1 to 5
-   *   const squares = ArrayUtil.repeat(5)(index => (index + 1) ** 2);
+   *   const squares = ArrayUtil.repeat(5, index => (index + 1) ** 2);
    *   console.log(squares); // [1, 4, 9, 16, 25]
    *
    *   // Generate an array of default user objects
-   *   const users = ArrayUtil.repeat(3)(index => ({
+   *   const users = ArrayUtil.repeat(3, index => ({
    *   id: index + 1,
    *   name: `User${index + 1}`,
    *   email: `user${index + 1}@example.com`
@@ -251,13 +247,15 @@ export namespace ArrayUtil {
    *   // ]
    *   ```
    *
+   * @template T - The type of the result from each execution
    * @param count - The number of times to repeat (non-negative integer)
-   * @returns A function that takes a closure and returns an array of results
+   * @param closure - The function to execute repeatedly
+   * @returns An array of results
    */
-  export const repeat =
-    (count: number) =>
-    <T>(closure: (index: number) => T): T[] =>
-      new Array(count).fill("").map((_, index) => closure(index));
+  export const repeat = <T>(
+    count: number,
+    closure: (index: number) => T,
+  ): T[] => new Array(count).fill("").map((_, index) => closure(index));
 
   /**
    * Generates all possible subsets of a given array.

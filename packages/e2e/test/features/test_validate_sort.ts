@@ -5,10 +5,10 @@ import { IBbsArticle } from "./structures/IBbsArticle";
 import { IPage } from "./structures/IPage";
 
 export async function test_validate_sort(): Promise<void> {
-  const validator = TestValidator.sort("sort")<
+  const validator = TestValidator.sort<
     IBbsArticle.ISummary,
     IBbsArticle.IRequest.SortableColumns
-  >(async (sort) => {
+  >("sort", async (sort) => {
     const page = await generate({
       sort,
     });

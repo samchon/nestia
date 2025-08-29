@@ -5,12 +5,16 @@ import api from "@api";
 export const test_api_plain_body_optional = async (
   connection: api.IConnection,
 ): Promise<void> => {
-  TestValidator.equals("empty")(
+  TestValidator.equals(
+    "empty",
     await api.functional.body.optional.plain(connection),
-  )("Hello, world!");
-  TestValidator.equals("filled")(
+    "Hello, world!",
+  );
+  TestValidator.equals(
+    "filled",
     await api.functional.body.optional.plain(connection, "something"),
-  )("something");
+    "something",
+  );
 
   const response: Response = await fetch(
     `${connection.host}/body/optional/plain`,
@@ -18,5 +22,5 @@ export const test_api_plain_body_optional = async (
       method: "POST",
     },
   );
-  TestValidator.equals("status")(response.status)(201);
+  TestValidator.equals("status", response.status, 201);
 };

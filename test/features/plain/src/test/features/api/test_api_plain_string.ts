@@ -7,5 +7,5 @@ export const test_api_plan_string = async (
 ): Promise<void> => {
   const x: string = RandomGenerator.alphabets(1_000_000);
   const y: string = await api.functional.plain.string(connection, x);
-  TestValidator.equals("string")(x)(y);
+  TestValidator.equals("string", x, y);
 };

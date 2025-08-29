@@ -20,20 +20,16 @@
  *   const testUser = {
  *     id: RandomGenerator.alphaNumeric(8),
  *     name: RandomGenerator.name(),
- *     bio: RandomGenerator.paragraph(3)(5, 10),
+ *     bio: RandomGenerator.paragraph({ sentences: 3, wordMin: 5, wordMax: 10 }),
  *     phone: RandomGenerator.mobile(),
- *     createdAt: RandomGenerator.date(new Date())(1000 * 60 * 60 * 24 * 30) // 30 days
+ *     createdAt: RandomGenerator.date(new Date(), 1000 * 60 * 60 * 24 * 30) // 30 days
  *   };
  *
  *   // Sample data for testing
- *   const testSample = RandomGenerator.sample(allUsers)(5);
+ *   const testSample = RandomGenerator.sample(allUsers, 5);
  *   ```;
  */
 export namespace RandomGenerator {
-  /* ----------------------------------------------------------------
-        IDENTIFICATIONS
-    ---------------------------------------------------------------- */
-
   /** Character set containing lowercase alphabetical characters a-z */
   const CHARACTERS = "abcdefghijklmnopqrstuvwxyz";
 
@@ -54,9 +50,9 @@ export namespace RandomGenerator {
    *
    * @example
    *   ```typescript
-   *   RandomGenerator.alphabets(5);  // "hello"
-   *   RandomGenerator.alphabets(3);  // "abc"
-   *   RandomGenerator.alphabets(10); // "randomtext"
+   *   RandomGenerator.alphabets(5);  // e.g. "kxqpw"
+   *   RandomGenerator.alphabets(3);  // e.g. "mzr"
+   *   RandomGenerator.alphabets(10); // e.g. "qwertasdfg"
    *
    *   // Generate random CSS class names
    *   const className = `test-${RandomGenerator.alphabets(6)}`;
@@ -85,8 +81,8 @@ export namespace RandomGenerator {
    *
    * @example
    *   ```typescript
-   *   RandomGenerator.alphaNumeric(8);  // "a1b2c3d4"
-   *   RandomGenerator.alphaNumeric(12); // "x9y8z7w6v5u4"
+   *   RandomGenerator.alphaNumeric(8);  // e.g. "a1b2c3d4"
+   *   RandomGenerator.alphaNumeric(12); // e.g. "x9y8z7w6v5u4"
    *
    *   // Generate random API keys
    *   const apiKey = RandomGenerator.alphaNumeric(32);
@@ -118,9 +114,9 @@ export namespace RandomGenerator {
    *
    * @example
    *   ```typescript
-   *   RandomGenerator.name();    // "john doe"
-   *   RandomGenerator.name(1);   // "alice"
-   *   RandomGenerator.name(3);   // "jane mary smith"
+   *   RandomGenerator.name();    // e.g. "lorem ipsum" (2-3 words)
+   *   RandomGenerator.name(1);   // e.g. "dolor" (single word)
+   *   RandomGenerator.name(3);   // e.g. "sit amet consectetur" (3 words)
    *
    *   // Generate test user names
    *   const users = Array.from({ length: 10 }, () => ({
@@ -134,103 +130,146 @@ export namespace RandomGenerator {
    *   ```
    *
    * @param length - Number of words in the name (default: random between 2-3)
-   * @returns A space-separated string resembling a human name
+   * @returns A space-separated string of random words (each 3-7 chars by default)
    */
   export const name = (length: number = randint(2, 3)): string =>
-    paragraph(length)();
+    paragraph({
+      sentences: length,
+    });
 
   /**
    * Generates a random paragraph with configurable sentence structure.
    *
    * Creates a paragraph consisting of a specified number of "sentences"
    * (words). Each sentence is a random alphabetic string, and sentences are
-   * joined with spaces. Returns a currying function to allow configuration of
-   * word length ranges.
+   * joined with spaces. Accepts an optional configuration object for fine-tuned
+   * control over the paragraph structure.
    *
    * @example
    *   ```typescript
-   *   // Generate with default word lengths (3-7 characters)
-   *   RandomGenerator.paragraph(3)();           // "hello world test"
-   *   RandomGenerator.paragraph(5)();           // "lorem ipsum dolor sit amet"
+   *   // Generate with defaults (random 2-5 words, 3-7 characters each)
+   *   RandomGenerator.paragraph();  // e.g. "lorem ipsum dolor"
+   *
+   *   // Specific number of sentences
+   *   RandomGenerator.paragraph({ sentences: 5 });  // "lorem ipsum dolor sit amet"
    *
    *   // Custom word length ranges
-   *   RandomGenerator.paragraph(4)(2, 5);       // "ab cd ef gh"
-   *   RandomGenerator.paragraph(6)(8, 12);      // "verylongword anotherlongword..."
+   *   RandomGenerator.paragraph({ sentences: 4, wordMin: 2, wordMax: 5 });
+   *   // "ab cd ef gh"
    *
    *   // Generate product descriptions
-   *   const description = RandomGenerator.paragraph(8)(4, 8);
+   *   const description = RandomGenerator.paragraph({
+   *     sentences: 8,
+   *     wordMin: 4,
+   *     wordMax: 8
+   *   });
    *
    *   // Create test content for forms
-   *   const placeholder = RandomGenerator.paragraph(3)(5, 10);
-   *
-   *   // Generate variable-length test data
-   *   const testTexts = Array.from({ length: 5 }, (_, i) =>
-   *     RandomGenerator.paragraph(i + 2)(3, 6)
-   *   );
+   *   const placeholder = RandomGenerator.paragraph({
+   *     sentences: 3,
+   *     wordMin: 5,
+   *     wordMax: 10
+   *   });
    *   ```;
    *
-   * @param sentences - Number of sentences (words) in the paragraph (default:
-   *   random 2-5)
-   * @returns A currying function that accepts word length parameters
+   * @param props - Optional configuration object with sentences count and word
+   *   length ranges
+   * @returns A string containing the generated paragraph
    */
-  export const paragraph =
-    (sentences: number = randint(2, 5)) =>
-    (wordMin: number = 3, wordMax: number = 7): string =>
-      new Array(sentences)
-        .fill("")
-        .map(() => alphabets(randint(wordMin, wordMax)))
-        .join(" ");
+  export const paragraph = (
+    props?: Partial<{
+      sentences: number;
+      wordMin: number;
+      wordMax: number;
+    }>,
+  ) =>
+    new Array(props?.sentences ?? randint(2, 5))
+      .fill("")
+      .map(() => alphabets(randint(props?.wordMin ?? 3, props?.wordMax ?? 7)))
+      .join(" ");
 
   /**
    * Generates random multi-paragraph content with customizable structure.
    *
    * Creates content consisting of multiple paragraphs separated by double
-   * newlines. Uses a triple-currying pattern to allow fine-grained control over
-   * content structure: paragraphs count → sentences per paragraph → word
+   * newlines. Accepts an optional configuration object to control content
+   * structure including paragraph count, sentences per paragraph, and word
    * character lengths. Ideal for generating realistic-looking text content for
    * testing.
    *
    * @example
    *   ```typescript
    *   // Generate with all defaults
-   *   const article = RandomGenerator.content()()();
+   *   const article = RandomGenerator.content();
    *
    *   // Specific structure: 5 paragraphs, 15-25 sentences each, 4-8 char words
-   *   const longContent = RandomGenerator.content(5)(15, 25)(4, 8);
+   *   const longContent = RandomGenerator.content({
+   *     paragraphs: 5,
+   *     sentenceMin: 15,
+   *     sentenceMax: 25,
+   *     wordMin: 4,
+   *     wordMax: 8
+   *   });
    *
    *   // Short content with brief sentences
-   *   const shortContent = RandomGenerator.content(2)(5, 8)(2, 4);
+   *   const shortContent = RandomGenerator.content({
+   *     paragraphs: 2,
+   *     sentenceMin: 5,
+   *     sentenceMax: 8,
+   *     wordMin: 2,
+   *     wordMax: 4
+   *   });
    *
    *   // Generate blog post content
    *   const blogPost = {
    *     title: RandomGenerator.name(3),
-   *     content: RandomGenerator.content(4)(10, 20)(3, 7),
-   *     summary: RandomGenerator.paragraph(2)(5, 10)
+   *     content: RandomGenerator.content({
+   *       paragraphs: 4,
+   *       sentenceMin: 10,
+   *       sentenceMax: 20,
+   *       wordMin: 3,
+   *       wordMax: 7
+   *     }),
+   *     summary: RandomGenerator.paragraph({ sentences: 2 })
    *   };
    *
    *   // Create test data for CMS
    *   const pages = Array.from({ length: 10 }, () => ({
    *     id: RandomGenerator.alphaNumeric(8),
-   *     content: RandomGenerator.content(randint(2, 6))(8, 15)(4, 9)
+   *     content: RandomGenerator.content({
+   *       paragraphs: randint(2, 6),
+   *       sentenceMin: 8,
+   *       sentenceMax: 15
+   *     })
    *   }));
-   *
-   *   // Generate email content for testing
-   *   const emailBody = RandomGenerator.content(3)(5, 12)(3, 8);
    *   ```;
    *
-   * @param paragraphs - Number of paragraphs to generate (default: random 3-8)
-   * @returns A currying function that accepts sentence count parameters
+   * @param props - Optional configuration object with paragraph, sentence, and
+   *   word parameters
+   * @returns A string containing the generated multi-paragraph content
    */
-  export const content =
-    (paragraphs: number = randint(3, 8)) =>
-    (sentenceMin: number = 10, sentenceMax: number = 40) =>
-    (wordMin: number = 1, wordMax: number = 7): string =>
-      new Array(paragraphs)
-        .fill("")
-        .map(() =>
-          paragraph(randint(sentenceMin, sentenceMax))(wordMin, wordMax),
-        )
-        .join("\n\n");
+  export const content = (
+    props?: Partial<{
+      paragraphs: number;
+      sentenceMin: number;
+      sentenceMax: number;
+      wordMin: number;
+      wordMax: number;
+    }>,
+  ) =>
+    new Array(props?.paragraphs ?? randint(3, 8))
+      .fill("")
+      .map(() =>
+        paragraph({
+          sentences: randint(
+            props?.sentenceMin ?? 10,
+            props?.sentenceMax ?? 40,
+          ),
+          wordMin: props?.wordMin ?? 1,
+          wordMax: props?.wordMax ?? 7,
+        }),
+      )
+      .join("\n\n");
 
   /**
    * Extracts a random substring from the provided content string.
@@ -244,9 +283,9 @@ export namespace RandomGenerator {
    *   ```typescript
    *   const text = "The quick brown fox jumps over the lazy dog";
    *
-   *   RandomGenerator.substring(text);  // "quick brown fox"
-   *   RandomGenerator.substring(text);  // "jumps over"
-   *   RandomGenerator.substring(text);  // "fox jumps over the lazy"
+   *   RandomGenerator.substring(text);  // e.g. "quick brown fox"
+   *   RandomGenerator.substring(text);  // e.g. "jumps over"
+   *   RandomGenerator.substring(text);  // e.g. "fox jumps over the lazy"
    *
    *   // Generate search terms from content
    *   const searchQuery = RandomGenerator.substring(articleContent);
@@ -282,9 +321,9 @@ export namespace RandomGenerator {
    *
    * @example
    *   ```typescript
-   *   RandomGenerator.mobile();        // "0103341234"
-   *   RandomGenerator.mobile("011");   // "0119876543"
-   *   RandomGenerator.mobile("+82");   // "+8233412345"
+   *   RandomGenerator.mobile();        // e.g. "0103341234" or "01012345678"
+   *   RandomGenerator.mobile("011");   // e.g. "0119876543" or "01112345678" 
+   *   RandomGenerator.mobile("+82");   // e.g. "+823341234" or "+8212345678"
    *
    *   // Generate test user phone numbers
    *   const testUsers = Array.from({ length: 100 }, () => ({
@@ -319,8 +358,7 @@ export namespace RandomGenerator {
   /**
    * Generates a random date within a specified range from a starting point.
    *
-   * Creates a currying function that accepts a range in milliseconds and
-   * returns a random date between the start date and start date + range. The
+   * Returns a random date between the start date and start date + range. The
    * range represents the maximum number of milliseconds to add to the starting
    * date. Useful for generating timestamps, creation dates, or scheduling test
    * data.
@@ -332,33 +370,32 @@ export namespace RandomGenerator {
    *   const oneMonth = 30 * oneDay;
    *
    *   // Random date within the next 30 days
-   *   const futureDate = RandomGenerator.date(now)(oneMonth);
+   *   const futureDate = RandomGenerator.date(now, oneMonth);
    *
    *   // Random date within the past week
    *   const pastWeek = new Date(now.getTime() - 7 * oneDay);
-   *   const recentDate = RandomGenerator.date(pastWeek)(7 * oneDay);
+   *   const recentDate = RandomGenerator.date(pastWeek, 7 * oneDay);
    *
    *   // Generate random creation dates for test data
    *   const startOfYear = new Date(2024, 0, 1);
    *   const endOfYear = new Date(2024, 11, 31).getTime() - startOfYear.getTime();
-   *   const randomCreationDate = RandomGenerator.date(startOfYear)(endOfYear);
+   *   const randomCreationDate = RandomGenerator.date(startOfYear, endOfYear);
    *
    *   // Create test events with random timestamps
    *   const events = Array.from({ length: 50 }, () => ({
    *     id: RandomGenerator.alphaNumeric(8),
    *     title: RandomGenerator.name(2),
-   *     createdAt: RandomGenerator.date(new Date())(oneMonth),
-   *     scheduledFor: RandomGenerator.date(new Date())(oneMonth * 3)
+   *     createdAt: RandomGenerator.date(new Date(), oneMonth),
+   *     scheduledFor: RandomGenerator.date(new Date(), oneMonth * 3)
    *   }));
    *   ```;
    *
    * @param from - The starting date for the random range
-   * @returns A currying function that accepts a range in milliseconds
+   * @param range - The range in milliseconds from the starting date
+   * @returns A random date within the specified range
    */
-  export const date =
-    (from: Date) =>
-    (range: number): Date =>
-      new Date(from.getTime() + randint(0, range));
+  export const date = (from: Date, range: number): Date =>
+    new Date(from.getTime() + randint(0, range));
 
   /**
    * Randomly samples a specified number of unique elements from an array.
@@ -373,37 +410,36 @@ export namespace RandomGenerator {
    *   ```typescript
    *   const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
    *
-   *   RandomGenerator.sample(numbers)(3);  // [2, 7, 9]
-   *   RandomGenerator.sample(numbers)(5);  // [1, 4, 6, 8, 10]
-   *   RandomGenerator.sample(numbers)(15); // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] (capped at array length)
+   *   RandomGenerator.sample(numbers, 3);  // e.g. [2, 7, 9]
+   *   RandomGenerator.sample(numbers, 5);  // e.g. [1, 4, 6, 8, 10]
+   *   RandomGenerator.sample(numbers, 15); // returns all 10 elements (capped at array length)
    *
    *   // Sample users for testing
    *   const allUsers = await getUsersFromDatabase();
-   *   const testUsers = RandomGenerator.sample(allUsers)(10);
+   *   const testUsers = RandomGenerator.sample(allUsers, 10);
    *
    *   // Create random product selections
-   *   const featuredProducts = RandomGenerator.sample(allProducts)(5);
+   *   const featuredProducts = RandomGenerator.sample(allProducts, 5);
    *
    *   // Generate test data subsets
-   *   const validationSet = RandomGenerator.sample(trainingData)(100);
+   *   const validationSet = RandomGenerator.sample(trainingData, 100);
    *
    *   // Random A/B testing groups
-   *   const groupA = RandomGenerator.sample(allParticipants)(50);
+   *   const groupA = RandomGenerator.sample(allParticipants, 50);
    *   const remaining = allParticipants.filter(p => !groupA.includes(p));
-   *   const groupB = RandomGenerator.sample(remaining)(50);
+   *   const groupB = RandomGenerator.sample(remaining, 50);
    *   ```;
    *
    * @param array - The source array to sample from
-   * @returns A currying function that accepts the desired sample count
+   * @param count - The number of elements to sample
+   * @returns An array containing the randomly selected elements
    */
-  export const sample =
-    <T>(array: T[]) =>
-    (count: number): T[] => {
-      count = Math.min(count, array.length);
-      const indexes: Set<number> = new Set();
-      while (indexes.size < count) indexes.add(randint(0, array.length - 1));
-      return Array.from(indexes).map((index) => array[index]);
-    };
+  export const sample = <T>(array: T[], count: number): T[] => {
+    count = Math.min(count, array.length);
+    const indexes: Set<number> = new Set();
+    while (indexes.size < count) indexes.add(randint(0, array.length - 1));
+    return Array.from(indexes).map((index) => array[index]);
+  };
 
   /**
    * Randomly selects a single element from an array.
@@ -418,8 +454,8 @@ export namespace RandomGenerator {
    *   const colors = ['red', 'blue', 'green', 'yellow', 'purple'];
    *   const fruits = ['apple', 'banana', 'orange', 'grape', 'kiwi'];
    *
-   *   RandomGenerator.pick(colors);  // "blue"
-   *   RandomGenerator.pick(fruits);  // "apple"
+   *   RandomGenerator.pick(colors);  // e.g. "blue"
+   *   RandomGenerator.pick(fruits);  // e.g. "apple"
    *
    *   // Select random configuration options
    *   const randomTheme = RandomGenerator.pick(['light', 'dark', 'auto']);
@@ -447,5 +483,6 @@ export namespace RandomGenerator {
   export const pick = <T>(array: T[]): T => array[randint(0, array.length - 1)];
 }
 
+/** @internal */
 const randint = (min: number, max: number): number =>
   Math.floor(Math.random() * (max - min + 1)) + min;

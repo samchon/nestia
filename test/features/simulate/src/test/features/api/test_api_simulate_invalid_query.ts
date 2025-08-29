@@ -7,7 +7,7 @@ import { IPage } from "@api/lib/structures/IPage";
 export const test_api_simulate_invalid_query = (
   connection: api.IConnection,
 ): Promise<void> =>
-  TestValidator.httpError("invalid query")(400)(() =>
+  TestValidator.httpError("invalid query", 400, () =>
     api.functional.bbs.articles.query(
       connection,
       typia.random<Primitive<string>>(),

@@ -5,7 +5,7 @@ import api from "@api";
 export const test_api_simulate_invalid_string = (
   connection: api.IConnection,
 ): Promise<void> =>
-  TestValidator.httpError("invalid string")(400)(() =>
+  TestValidator.httpError("invalid string", 400, () =>
     api.functional.bbs.articles.at(connection, null!, uuid()),
   );
 

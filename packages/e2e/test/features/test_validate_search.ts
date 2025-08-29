@@ -6,7 +6,8 @@ import { IBbsArticle } from "./structures/IBbsArticle";
 export async function test_validate_search(): Promise<void> {
   const { data } = generate_random_articles();
 
-  const search = TestValidator.search("search")(
+  const search = TestValidator.search(
+    "search",
     async (input: IBbsArticle.IRequest) =>
       data.filter((elem) => {
         if (input.search?.writer && !elem.writer.includes(input.search.writer))
@@ -15,7 +16,9 @@ export async function test_validate_search(): Promise<void> {
           return false;
         return true;
       }),
-  )(data, 10);
+    data,
+    10,
+  );
 
   await search({
     fields: ["writer"],

@@ -2,31 +2,31 @@ import { TestValidator } from "@nestia/e2e";
 
 export async function test_validate_http_error(): Promise<void> {
   // ASYNCHRONOUS
-  await TestValidator.httpError("async-400-error")(400)(async () => {
+  await TestValidator.httpError("async-400-error", 400, async () => {
     throw new HttpError("GET", "/", 400, "400 error");
   });
-  await TestValidator.error("async-no-400-error")(() =>
-    TestValidator.httpError("async-no-400-error")(400)(async () => {
+  await TestValidator.error("async-no-400-error", () =>
+    TestValidator.httpError("async-no-400-error", 400, async () => {
       throw new HttpError("GET", "/", 500, "400 error");
     }),
   );
-  await TestValidator.error("async-no-http-error")(() =>
-    TestValidator.httpError("async-no-http-error")(400)(async () => {
+  await TestValidator.error("async-no-http-error", () =>
+    TestValidator.httpError("async-no-http-error", 400, async () => {
       throw new Error("internal server error");
     }),
   );
 
   // SYNCHRONOUS
-  TestValidator.httpError("400-error")(400)(() => {
+  TestValidator.httpError("400-error", 400, () => {
     throw new HttpError("GET", "/", 400, "400 error");
   });
-  TestValidator.error("no-400-error")(() =>
-    TestValidator.httpError("no-400-error")(400)(() => {
+  TestValidator.error("no-400-error", () =>
+    TestValidator.httpError("no-400-error", 400, () => {
       throw new HttpError("GET", "/", 500, "400 error");
     }),
   );
-  TestValidator.error("no-http-error")(() =>
-    TestValidator.httpError("no-http-error")(400)(() => {
+  TestValidator.error("no-http-error", () =>
+    TestValidator.httpError("no-http-error", 400, () => {
       throw new Error("internal server error");
     }),
   );

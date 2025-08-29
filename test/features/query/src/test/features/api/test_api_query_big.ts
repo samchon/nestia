@@ -13,5 +13,5 @@ export const test_api_query_big = async (
   };
   const result: IBigQuery = await api.functional.query.big(connection, input);
   typia.assertEquals(result);
-  TestValidator.equals("null")(input)(result);
+  TestValidator.equals("null", input, result);
 };

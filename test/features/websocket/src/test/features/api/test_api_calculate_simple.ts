@@ -44,10 +44,10 @@ export const test_api_calculate_simple = async (
   try {
     for (const e of expected) {
       const z: number = await driver[e.type](e.input[0], e.input[1]);
-      TestValidator.equals("result")(z)(e.output);
+      TestValidator.equals("result", z, e.output);
     }
     await sleep_for(100);
-    TestValidator.equals("events")(events)(expected);
+    TestValidator.equals("events", events, expected);
   } catch (exp) {
     throw exp;
   } finally {

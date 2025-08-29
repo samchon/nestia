@@ -21,9 +21,9 @@ export const test_api_headers = async (
     "something",
   );
   typia.assertEquals(output);
-  TestValidator.equals("headers")(headers)(output as Required<IHeaders>);
+  TestValidator.equals("headers", headers, output as Required<IHeaders>);
 
-  await TestValidator.error("headers")(() =>
+  await TestValidator.error("headers", () =>
     api.functional.headers.emplace(
       {
         ...connection,

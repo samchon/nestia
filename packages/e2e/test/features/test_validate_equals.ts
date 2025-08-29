@@ -16,11 +16,11 @@ export function test_validate_equals(): void {
   );
 
   // SAME
-  TestValidator.equals("same")(original)(replica);
+  TestValidator.equals("same", original, replica);
 
   // DIFFERENT
   replica.data[0].title += " -> to be different";
-  TestValidator.error("different")(() =>
-    TestValidator.equals("")(original)(replica),
+  TestValidator.error("different", () =>
+    TestValidator.equals("", original, replica),
   );
 }
