@@ -34,12 +34,14 @@
  *   users.sort(GaffComparator.strings(user => [user.lastName, user.firstName]));
  *   events.sort(GaffComparator.dates(event => [event.startDate, event.endDate]));
  *
- *   // Integration with TestValidator
- *   await TestValidator.sort("user sorting")(
+ *   // Integration with TestValidator's currying pattern
+ *   const validator = TestValidator.sort("user sorting",
  *     (sortable) => api.getUsers({ sort: sortable })
  *   )("name", "email")(
  *     GaffComparator.strings(user => [user.name, user.email])
- *   )("+");
+ *   );
+ *   await validator("+"); // ascending
+ *   await validator("-"); // descending
  *   ```;
  */
 export namespace GaffComparator {
@@ -87,12 +89,14 @@ export namespace GaffComparator {
    *   // Complex multi-field: status, then last name, then first name
    *   users.sort(GaffComparator.strings(user => [user.status, user.lastName, user.firstName]));
    *
-   *   // Integration with API sorting validation
-   *   await TestValidator.sort("user name sorting")(
+   *   // Integration with TestValidator sorting validation
+   *   const sortValidator = TestValidator.sort("user name sorting",
    *     (sortFields) => userApi.getUsers({ sort: sortFields })
    *   )("lastName", "firstName")(
    *     GaffComparator.strings(user => [user.lastName, user.firstName])
-   *   )("+");
+   *   );
+   *   await sortValidator("+"); // test ascending order
+   *   await sortValidator("-"); // test descending order
    *   ```;
    *
    * @template T - The type of objects being compared
@@ -165,12 +169,13 @@ export namespace GaffComparator {
    *   // Sort by modification history: created date, then updated date
    *   events.sort(GaffComparator.dates(event => [event.createdAt, event.updatedAt]));
    *
-   *   // Validate API date sorting
-   *   await TestValidator.sort("event chronological sorting")(
+   *   // Validate API date sorting with TestValidator
+   *   const dateValidator = TestValidator.sort("event chronological sorting",
    *     (sortFields) => eventApi.getEvents({ sort: sortFields })
    *   )("startDate")(
    *     GaffComparator.dates(event => event.startDate)
-   *   )("+");
+   *   );
+   *   await dateValidator("+", true); // ascending with trace logging
    *
    *   // Test complex date-based sorting
    *   const sortByEventSchedule = GaffComparator.dates(event => [
@@ -245,12 +250,14 @@ export namespace GaffComparator {
    *   // Sort by inventory priority: low stock first, then by sales
    *   products.sort(GaffComparator.numbers(product => [product.stock, -product.salesCount]));
    *
-   *   // Validate API numerical sorting
-   *   await TestValidator.sort("product price sorting")(
+   *   // Validate API numerical sorting with TestValidator
+   *   const priceValidator = TestValidator.sort("product price sorting",
    *     (sortFields) => productApi.getProducts({ sort: sortFields })
    *   )("price")(
    *     GaffComparator.numbers(product => product.price)
-   *   )("+");
+   *   );
+   *   await priceValidator("+"); // test ascending order
+   *   await priceValidator("-"); // test descending order
    *
    *   // Test multi-criteria sorting
    *   const sortByBusinessValue = GaffComparator.numbers(product => [

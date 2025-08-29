@@ -12,11 +12,11 @@ export class MultipartController {
     @core.TypedFormData.Body(() => Multer()) body: IMultipart,
   ): Promise<IMultipart.IContent> {
     await validateBlob(0)(body.blob);
-    await ArrayUtil.asyncForEach(body.blobs)((blob, i) =>
+    await ArrayUtil.asyncForEach(body.blobs, (blob, i) =>
       validateBlob(i)(blob),
     );
     await validateBlob(1, "first.png")(body.file);
-    await ArrayUtil.asyncForEach(body.files)((file, i) =>
+    await ArrayUtil.asyncForEach(body.files, (file, i) =>
       validateBlob(i, `${i}.png`)(file),
     );
     return body;

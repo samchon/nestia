@@ -7,7 +7,7 @@ import { IMultipart } from "@api/lib/structures/IMultipart";
 export const test_api_multipart = async (
   connection: api.IConnection,
 ): Promise<void> => {
-  await ArrayUtil.asyncRepeat(10)(async () => {
+  await ArrayUtil.asyncRepeat(10, async () => {
     const content: IMultipart.IContent = {
       title: "something",
       description: "nothing, but special",

@@ -387,7 +387,7 @@ export namespace TestValidator {
    *
    * @example
    *   ```typescript
-   *   // Test article search functionality
+   *   // Test article search functionality with exact matching
    *   const allArticles = await db.articles.findAll();
    *   const searchValidator = TestValidator.search(
    *     "article search API",
@@ -396,28 +396,29 @@ export namespace TestValidator {
    *     5 // test with 5 random samples
    *   );
    *
+   *   // Test exact match search
    *   await searchValidator({
-   *     fields: ["title", "content"],
-   *     values: (article) => [article.title.split(" ")[0]], // first word
-   *     filter: (article, [keyword]) =>
-   *       article.title.includes(keyword) || article.content.includes(keyword),
+   *     fields: ["title"],
+   *     values: (article) => [article.title], // full title for exact match
+   *     filter: (article, [title]) => article.title === title, // exact match
+   *     request: ([title]) => ({ search: { title } })
+   *   });
+   *
+   *   // Test partial match search with includes
+   *   await searchValidator({
+   *     fields: ["content"],
+   *     values: (article) => [article.content.substring(0, 20)], // partial content
+   *     filter: (article, [keyword]) => article.content.includes(keyword),
    *     request: ([keyword]) => ({ q: keyword })
    *   });
    *
-   *   // Test user search with multiple criteria
-   *   const validator = TestValidator.search(
-   *     "user search with filters",
-   *     (req) => api.getUsers(req),
-   *     allUsers,
-   *     3
-   *   );
-   *
-   *   await validator({
-   *     fields: ["status", "role"],
-   *     values: (user) => [user.status, user.role],
-   *     filter: (user, [status, role]) =>
-   *       user.status === status && user.role === role,
-   *     request: ([status, role]) => ({ status, role })
+   *   // Test multi-field search with exact matching
+   *   await searchValidator({
+   *     fields: ["writer", "title"],
+   *     values: (article) => [article.writer, article.title],
+   *     filter: (article, [writer, title]) =>
+   *       article.writer === writer && article.title === title,
+   *     request: ([writer, title]) => ({ search: { writer, title } })
    *   });
    *   ```;
    *
@@ -509,30 +510,38 @@ export namespace TestValidator {
    *
    * @example
    *   ```typescript
-   *   // Test single field sorting
+   *   // Test single field sorting with GaffComparator
    *   const sortValidator = TestValidator.sort(
    *     "article sorting",
    *     (sortable) => api.getArticles({ sort: sortable })
    *   )("created_at")(
-   *     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+   *     GaffComparator.dates((a) => a.created_at)
    *   );
    *
    *   await sortValidator("+"); // ascending
    *   await sortValidator("-"); // descending
    *
-   *   // Test multi-field sorting with filtering
+   *   // Test multi-field sorting with GaffComparator
    *   const userSortValidator = TestValidator.sort(
    *     "user sorting",
    *     (sortable) => api.getUsers({ sort: sortable })
-   *   )("status", "created_at")(
-   *     (a, b) => {
-   *       if (a.status !== b.status) return a.status.localeCompare(b.status);
-   *       return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-   *     },
+   *   )("lastName", "firstName")(
+   *     GaffComparator.strings((user) => [user.lastName, user.firstName]),
    *     (user) => user.isActive // only test active users
    *   );
    *
    *   await userSortValidator("+", true); // ascending with trace logging
+   *
+   *   // Custom comparator for complex logic
+   *   const customSortValidator = TestValidator.sort(
+   *     "custom sorting",
+   *     (sortable) => api.getProducts({ sort: sortable })
+   *   )("price", "rating")(
+   *     (a, b) => {
+   *       const priceDiff = a.price - b.price;
+   *       return priceDiff !== 0 ? priceDiff : b.rating - a.rating; // price asc, rating desc
+   *     }
+   *   );
    *   ```;
    *
    * @param title - Descriptive title used in error messages when sorting fails

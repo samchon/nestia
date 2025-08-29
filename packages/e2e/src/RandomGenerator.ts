@@ -50,9 +50,9 @@ export namespace RandomGenerator {
    *
    * @example
    *   ```typescript
-   *   RandomGenerator.alphabets(5);  // "hello"
-   *   RandomGenerator.alphabets(3);  // "abc"
-   *   RandomGenerator.alphabets(10); // "randomtext"
+   *   RandomGenerator.alphabets(5);  // e.g. "kxqpw"
+   *   RandomGenerator.alphabets(3);  // e.g. "mzr"
+   *   RandomGenerator.alphabets(10); // e.g. "qwertasdfg"
    *
    *   // Generate random CSS class names
    *   const className = `test-${RandomGenerator.alphabets(6)}`;
@@ -81,8 +81,8 @@ export namespace RandomGenerator {
    *
    * @example
    *   ```typescript
-   *   RandomGenerator.alphaNumeric(8);  // "a1b2c3d4"
-   *   RandomGenerator.alphaNumeric(12); // "x9y8z7w6v5u4"
+   *   RandomGenerator.alphaNumeric(8);  // e.g. "a1b2c3d4"
+   *   RandomGenerator.alphaNumeric(12); // e.g. "x9y8z7w6v5u4"
    *
    *   // Generate random API keys
    *   const apiKey = RandomGenerator.alphaNumeric(32);
@@ -114,9 +114,9 @@ export namespace RandomGenerator {
    *
    * @example
    *   ```typescript
-   *   RandomGenerator.name();    // "john doe"
-   *   RandomGenerator.name(1);   // "alice"
-   *   RandomGenerator.name(3);   // "jane mary smith"
+   *   RandomGenerator.name();    // e.g. "lorem ipsum" (2-3 words)
+   *   RandomGenerator.name(1);   // e.g. "dolor" (single word)
+   *   RandomGenerator.name(3);   // e.g. "sit amet consectetur" (3 words)
    *
    *   // Generate test user names
    *   const users = Array.from({ length: 10 }, () => ({
@@ -130,7 +130,7 @@ export namespace RandomGenerator {
    *   ```
    *
    * @param length - Number of words in the name (default: random between 2-3)
-   * @returns A space-separated string resembling a human name
+   * @returns A space-separated string of random words (each 3-7 chars by default)
    */
   export const name = (length: number = randint(2, 3)): string =>
     paragraph({
@@ -148,7 +148,7 @@ export namespace RandomGenerator {
    * @example
    *   ```typescript
    *   // Generate with defaults (random 2-5 words, 3-7 characters each)
-   *   RandomGenerator.paragraph();  // "hello world test"
+   *   RandomGenerator.paragraph();  // e.g. "lorem ipsum dolor"
    *
    *   // Specific number of sentences
    *   RandomGenerator.paragraph({ sentences: 5 });  // "lorem ipsum dolor sit amet"
@@ -283,9 +283,9 @@ export namespace RandomGenerator {
    *   ```typescript
    *   const text = "The quick brown fox jumps over the lazy dog";
    *
-   *   RandomGenerator.substring(text);  // "quick brown fox"
-   *   RandomGenerator.substring(text);  // "jumps over"
-   *   RandomGenerator.substring(text);  // "fox jumps over the lazy"
+   *   RandomGenerator.substring(text);  // e.g. "quick brown fox"
+   *   RandomGenerator.substring(text);  // e.g. "jumps over"
+   *   RandomGenerator.substring(text);  // e.g. "fox jumps over the lazy"
    *
    *   // Generate search terms from content
    *   const searchQuery = RandomGenerator.substring(articleContent);
@@ -321,9 +321,9 @@ export namespace RandomGenerator {
    *
    * @example
    *   ```typescript
-   *   RandomGenerator.mobile();        // "0103341234"
-   *   RandomGenerator.mobile("011");   // "0119876543"
-   *   RandomGenerator.mobile("+82");   // "+8233412345"
+   *   RandomGenerator.mobile();        // e.g. "0103341234" or "01012345678"
+   *   RandomGenerator.mobile("011");   // e.g. "0119876543" or "01112345678" 
+   *   RandomGenerator.mobile("+82");   // e.g. "+823341234" or "+8212345678"
    *
    *   // Generate test user phone numbers
    *   const testUsers = Array.from({ length: 100 }, () => ({
@@ -410,9 +410,9 @@ export namespace RandomGenerator {
    *   ```typescript
    *   const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
    *
-   *   RandomGenerator.sample(numbers, 3);  // [2, 7, 9]
-   *   RandomGenerator.sample(numbers, 5);  // [1, 4, 6, 8, 10]
-   *   RandomGenerator.sample(numbers, 15); // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] (capped at array length)
+   *   RandomGenerator.sample(numbers, 3);  // e.g. [2, 7, 9]
+   *   RandomGenerator.sample(numbers, 5);  // e.g. [1, 4, 6, 8, 10]
+   *   RandomGenerator.sample(numbers, 15); // returns all 10 elements (capped at array length)
    *
    *   // Sample users for testing
    *   const allUsers = await getUsersFromDatabase();
@@ -454,8 +454,8 @@ export namespace RandomGenerator {
    *   const colors = ['red', 'blue', 'green', 'yellow', 'purple'];
    *   const fruits = ['apple', 'banana', 'orange', 'grape', 'kiwi'];
    *
-   *   RandomGenerator.pick(colors);  // "blue"
-   *   RandomGenerator.pick(fruits);  // "apple"
+   *   RandomGenerator.pick(colors);  // e.g. "blue"
+   *   RandomGenerator.pick(fruits);  // e.g. "apple"
    *
    *   // Select random configuration options
    *   const randomTheme = RandomGenerator.pick(['light', 'dark', 'auto']);
