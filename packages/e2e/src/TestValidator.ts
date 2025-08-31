@@ -118,25 +118,25 @@ export namespace TestValidator {
    *   ```;
    *
    * @param title - Descriptive title used in error messages when values differ
-   * @param x - The first value to compare
+   * @param X - The first value to compare
    * @param y - The second value to compare (can be null or undefined)
    * @param exception - Optional filter function to exclude specific keys from
    *   comparison
    * @throws Error with detailed diff information when values are not equal
    */
-  export function equals<T>(
+  export function equals<X, Y extends X>(
     title: string,
-    x: T,
-    y: T | null | undefined,
+    X: X,
+    y: Y | null | undefined,
     exception?: (key: string) => boolean,
   ): void {
-    const diff: string[] = json_equal_to(exception ?? (() => false))(x)(y);
+    const diff: string[] = json_equal_to(exception ?? (() => false))(X)(y);
     if (diff.length)
       throw new Error(
         [
           `Bug on ${title}: found different values - [${diff.join(", ")}]:`,
           "\n",
-          JSON.stringify({ x, y }, null, 2),
+          JSON.stringify({ x: X, y }, null, 2),
         ].join("\n"),
       );
   }
@@ -175,10 +175,10 @@ export namespace TestValidator {
    *   comparison
    * @throws Error when values are equal (indicating validation failure)
    */
-  export function notEquals<T>(
+  export function notEquals<X, Y extends X>(
     title: string,
-    x: T,
-    y: T | null | undefined,
+    x: X,
+    y: Y | null | undefined,
     exception?: (key: string) => boolean,
   ): void {
     const diff: string[] = json_equal_to(exception ?? (() => false))(x)(y);
@@ -349,10 +349,10 @@ export namespace TestValidator {
    * @param trace - Optional flag to enable debug logging (default: false)
    * @throws Error when entity order differs between expected and actual results
    */
-  export const index = <Summary extends IEntity<any>>(
+  export const index = <X extends IEntity<any>, Y extends X>(
     title: string,
-    expected: Summary[],
-    gotten: Summary[],
+    expected: X[],
+    gotten: Y[],
     trace: boolean = false,
   ): void => {
     const length: number = Math.min(expected.length, gotten.length);

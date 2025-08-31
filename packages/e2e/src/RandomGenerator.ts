@@ -130,7 +130,8 @@ export namespace RandomGenerator {
    *   ```
    *
    * @param length - Number of words in the name (default: random between 2-3)
-   * @returns A space-separated string of random words (each 3-7 chars by default)
+   * @returns A space-separated string of random words (each 3-7 chars by
+   *   default)
    */
   export const name = (length: number = randint(2, 3)): string =>
     paragraph({
@@ -322,7 +323,7 @@ export namespace RandomGenerator {
    * @example
    *   ```typescript
    *   RandomGenerator.mobile();        // e.g. "0103341234" or "01012345678"
-   *   RandomGenerator.mobile("011");   // e.g. "0119876543" or "01112345678" 
+   *   RandomGenerator.mobile("011");   // e.g. "0119876543" or "01112345678"
    *   RandomGenerator.mobile("+82");   // e.g. "+823341234" or "+8212345678"
    *
    *   // Generate test user phone numbers
@@ -480,7 +481,8 @@ export namespace RandomGenerator {
    * @param array - The source array to pick an element from
    * @returns A randomly selected element from the array
    */
-  export const pick = <T>(array: T[]): T => array[randint(0, array.length - 1)];
+  export const pick = <T>(array: readonly T[]): T =>
+    array[randint(0, array.length - 1)];
 }
 
 /** @internal */
