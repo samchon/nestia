@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "7.1.1-dev.20250714",
+  "version": "8.0.1-dev.20250831",
   "description": "Nestia SDK and Swagger generator",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -47,7 +47,7 @@
     "typia": "^9.6.1"
   },
   "peerDependencies": {
-    "@nestia/core": ">=7.1.1-dev.20250714"
+    "@nestia/core": ">=8.0.1-dev.20250831"
   },
   "devDependencies": {
     "@nestjs/common": "^11.0.13",
