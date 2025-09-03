@@ -479,7 +479,11 @@ const writePlugin = (props: {
 }) => {
   const extra: any = {};
   for (const [key, value] of Object.entries(props.schema))
-    if (value !== undefined && false === props.regular.includes(key))
+    if (
+      value !== undefined &&
+      false === props.regular.includes(key) &&
+      key.startsWith("x-")
+    )
       extra[key] = value;
   if (Object.keys(extra).length !== 0)
     props.intersection.push(props.importer.tag("JsonSchemaPlugin", extra));
