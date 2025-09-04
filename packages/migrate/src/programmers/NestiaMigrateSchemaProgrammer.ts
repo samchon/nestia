@@ -377,7 +377,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       importer: props.importer,
       schema: props.value,
     });
-    FilePrinter.description(
+    return FilePrinter.description(
       ts.factory.createPropertySignature(
         undefined,
         Escaper.variable(props.key)
