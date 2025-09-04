@@ -371,8 +371,13 @@ export namespace NestiaMigrateSchemaProgrammer {
     required: string[];
     key: string;
     value: OpenApi.IJsonSchema;
-  }) =>
-    FilePrinter.description(
+  }) => {
+    const valueTypeNode: ts.TypeNode = write({
+      components: props.components,
+      importer: props.importer,
+      schema: props.value,
+    });
+    return FilePrinter.description(
       ts.factory.createPropertySignature(
         undefined,
         Escaper.variable(props.key)
@@ -381,14 +386,21 @@ export namespace NestiaMigrateSchemaProgrammer {
         props.required.includes(props.key)
           ? undefined
           : ts.factory.createToken(ts.SyntaxKind.QuestionToken),
-        write({
-          components: props.components,
-          importer: props.importer,
-          schema: props.value,
-        }),
+        props.required.includes(props.key)
+          ? valueTypeNode
+          : ts.isUnionTypeNode(valueTypeNode)
+            ? ts.factory.createUnionTypeNode([
+                ...valueTypeNode.types,
+                ts.factory.createTypeReferenceNode("undefined"),
+              ])
+            : ts.factory.createUnionTypeNode([
+                valueTypeNode,
+                ts.factory.createTypeReferenceNode("undefined"),
+              ]),
       ),
       writeComment(props.value),
     );
+  };
 
   const writeDynamicProperty = (props: {
     components: OpenApi.IComponents;
