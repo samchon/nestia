@@ -124,7 +124,7 @@ export namespace TestValidator {
    *   comparison
    * @throws Error with detailed diff information when values are not equal
    */
-  export function equals<X, Y extends X>(
+  export function equals<X, Y extends X = X>(
     title: string,
     X: X,
     y: Y | null | undefined,
@@ -175,7 +175,7 @@ export namespace TestValidator {
    *   comparison
    * @throws Error when values are equal (indicating validation failure)
    */
-  export function notEquals<X, Y extends X>(
+  export function notEquals<X, Y extends X = X>(
     title: string,
     x: X,
     y: Y | null | undefined,
@@ -349,7 +349,7 @@ export namespace TestValidator {
    * @param trace - Optional flag to enable debug logging (default: false)
    * @throws Error when entity order differs between expected and actual results
    */
-  export const index = <X extends IEntity<any>, Y extends X>(
+  export const index = <X extends IEntity<any>, Y extends X = X>(
     title: string,
     expected: X[],
     gotten: Y[],
