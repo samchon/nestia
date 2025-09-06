@@ -72,11 +72,11 @@ const execute = (
       files,
     });
     cp.execSync(`npx tsc -p ${directory}/tsconfig.json`, {
-      stdio: "ignore",
+      stdio: "inherit",
       cwd: directory,
     });
     cp.execSync(`npx tsc -p ${directory}/test/tsconfig.json`, {
-      stdio: "ignore",
+      stdio: "inherit",
       cwd: directory,
     });
   });

@@ -45,7 +45,7 @@ export namespace NestiaMigrateApiFileProgrammer {
           undefined,
           false,
           ts.factory.createNamespaceExport(ts.factory.createIdentifier(child)),
-          ts.factory.createStringLiteral(`./${child}`),
+          ts.factory.createStringLiteral(`./${child}/index`),
           undefined,
         ),
       ),
