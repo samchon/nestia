@@ -62,7 +62,7 @@ export namespace SdkFileProgrammer {
             undefined,
             false,
             ts.factory.createNamespaceExport(ts.factory.createIdentifier(key)),
-            ts.factory.createStringLiteral(`./${key}`),
+            ts.factory.createStringLiteral(`./${key}/index`),
             undefined,
           ),
         );
