@@ -18,7 +18,7 @@ export namespace TypedRouteProgrammer {
     // VALIDATE TYPE
     if (props.context.options.llm)
       JsonMetadataFactory.analyze({
-        method: "@nestia.core.TypedBody",
+        method: "@nestia.core.TypedRoute",
         checker: props.context.checker,
         transformer: props.context.transformer,
         type: props.type,
