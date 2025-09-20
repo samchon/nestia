@@ -40,13 +40,15 @@ export class ImportDictionary {
           name: imp.default,
           declaration: true,
         });
-      for (const elem of imp.elements)
+      for (const elem of imp.elements) {
+        if (elem === "WebSocketAcceptor") continue;
         this.internal({
           type: "element",
           file: imp.file,
           name: elem,
           declaration: true,
         });
+      }
     }
   }
 
