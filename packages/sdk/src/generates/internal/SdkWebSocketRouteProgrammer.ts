@@ -104,6 +104,26 @@ export namespace SdkWebSocketRouteProgrammer {
             )
           : ts.factory.createIdentifier(key);
       return [
+        local("url")(ts.factory.createTypeReferenceNode("string"))(
+          joinPath(
+            ts.factory.createCallExpression(
+              ts.factory.createPropertyAccessExpression(
+                ts.factory.createIdentifier(route.name),
+                "path",
+              ),
+              [],
+              project.config.keyword === true &&
+                SdkWebSocketParameterProgrammer.isPathEmpty(route) === false
+                ? [ts.factory.createIdentifier("props")]
+                : SdkWebSocketParameterProgrammer.getEntries({
+                    project,
+                    route,
+                    provider: false,
+                    prefix: true,
+                  }).map((p) => ts.factory.createIdentifier(p.key)),
+            ),
+          ),
+        ),
         local("connector")(
           ts.factory.createTypeReferenceNode(
             importer.external({
@@ -153,27 +173,7 @@ export namespace SdkWebSocketRouteProgrammer {
                 "connect",
               ),
               undefined,
-              [
-                joinPath(
-                  ts.factory.createCallExpression(
-                    ts.factory.createPropertyAccessExpression(
-                      ts.factory.createIdentifier(route.name),
-                      "path",
-                    ),
-                    [],
-                    project.config.keyword === true &&
-                      SdkWebSocketParameterProgrammer.isPathEmpty(route) ===
-                        false
-                      ? [ts.factory.createIdentifier("props")]
-                      : SdkWebSocketParameterProgrammer.getEntries({
-                          project,
-                          route,
-                          provider: false,
-                          prefix: true,
-                        }).map((p) => ts.factory.createIdentifier(p.key)),
-                  ),
-                ),
-              ],
+              [ts.factory.createIdentifier("url")],
             ),
           ),
         ),
@@ -202,6 +202,26 @@ export namespace SdkWebSocketRouteProgrammer {
             [
               ts.factory.createShorthandPropertyAssignment("connector"),
               ts.factory.createShorthandPropertyAssignment("driver"),
+              ts.factory.createPropertyAssignment(
+                ts.factory.createIdentifier("reconnect"),
+                ts.factory.createArrowFunction(
+                  [ts.factory.createToken(ts.SyntaxKind.AsyncKeyword)],
+                  undefined,
+                  [],
+                  undefined,
+                  ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
+                  ts.factory.createAwaitExpression(
+                    ts.factory.createCallExpression(
+                      ts.factory.createPropertyAccessExpression(
+                        ts.factory.createIdentifier("connector"),
+                        ts.factory.createIdentifier("connect"),
+                      ),
+                      undefined,
+                      [ts.factory.createIdentifier("url")],
+                    ),
+                  ),
+                ),
+              ),
             ],
             true,
           ),

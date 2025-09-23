@@ -78,6 +78,19 @@ export namespace SdkWebSocketNamespaceProgrammer {
               [ts.factory.createTypeReferenceNode("Listener")],
             ),
           ),
+          ts.factory.createPropertySignature(
+            undefined,
+            "reconnect",
+            undefined,
+            ts.factory.createFunctionTypeNode(
+              undefined,
+              [],
+              ts.factory.createTypeReferenceNode(
+                ts.factory.createIdentifier("Promise"),
+                [ts.factory.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword)],
+              ),
+            ),
+          ),
         ]),
       );
 
