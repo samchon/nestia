@@ -63,24 +63,25 @@ export async function composite(
   query: composite.Query,
   provider: composite.Provider,
 ): Promise<composite.Output> {
+  const url: string = `${connection.host.endsWith("/") ? connection.host.substring(0, connection.host.length - 1) : connection.host}${composite.path(id, nickname, query)}`;
   const connector: WebSocketConnector<
     composite.Header,
     composite.Provider,
     composite.Listener
   > = new WebSocketConnector(connection.headers ?? ({} as any), provider);
-  await connector.connect(
-    `${connection.host.endsWith("/") ? connection.host.substring(0, connection.host.length - 1) : connection.host}${composite.path(id, nickname, query)}`,
-  );
+  await connector.connect(url);
   const driver: Driver<composite.Listener> = connector.getDriver();
   return {
     connector,
     driver,
+    reconnect: async () => await connector.connect(url),
   };
 }
 export namespace composite {
   export type Output = {
     connector: WebSocketConnector<Header, Provider, Listener>;
     driver: Driver<Listener>;
+    reconnect: () => Promise<void>;
   };
   export type Header = ICalcConfig;
   export type Provider = ICalcEventListener;
@@ -116,24 +117,25 @@ export async function simple(
   connection: IConnection<simple.Header>,
   provider: simple.Provider,
 ): Promise<simple.Output> {
+  const url: string = `${connection.host.endsWith("/") ? connection.host.substring(0, connection.host.length - 1) : connection.host}${simple.path()}`;
   const connector: WebSocketConnector<
     simple.Header,
     simple.Provider,
     simple.Listener
   > = new WebSocketConnector(connection.headers ?? ({} as any), provider);
-  await connector.connect(
-    `${connection.host.endsWith("/") ? connection.host.substring(0, connection.host.length - 1) : connection.host}${simple.path()}`,
-  );
+  await connector.connect(url);
   const driver: Driver<simple.Listener> = connector.getDriver();
   return {
     connector,
     driver,
+    reconnect: async () => await connector.connect(url),
   };
 }
 export namespace simple {
   export type Output = {
     connector: WebSocketConnector<Header, Provider, Listener>;
     driver: Driver<Listener>;
+    reconnect: () => Promise<void>;
   };
   export type Header = ICalcConfig;
   export type Provider = ICalcEventListener;
@@ -153,24 +155,25 @@ export async function scientific(
   connection: IConnection<scientific.Header>,
   provider: scientific.Provider,
 ): Promise<scientific.Output> {
+  const url: string = `${connection.host.endsWith("/") ? connection.host.substring(0, connection.host.length - 1) : connection.host}${scientific.path()}`;
   const connector: WebSocketConnector<
     scientific.Header,
     scientific.Provider,
     scientific.Listener
   > = new WebSocketConnector(connection.headers ?? ({} as any), provider);
-  await connector.connect(
-    `${connection.host.endsWith("/") ? connection.host.substring(0, connection.host.length - 1) : connection.host}${scientific.path()}`,
-  );
+  await connector.connect(url);
   const driver: Driver<scientific.Listener> = connector.getDriver();
   return {
     connector,
     driver,
+    reconnect: async () => await connector.connect(url),
   };
 }
 export namespace scientific {
   export type Output = {
     connector: WebSocketConnector<Header, Provider, Listener>;
     driver: Driver<Listener>;
+    reconnect: () => Promise<void>;
   };
   export type Header = ICalcConfig;
   export type Provider = ICalcEventListener;
@@ -190,24 +193,25 @@ export async function statistics(
   connection: IConnection<statistics.Header>,
   provider: statistics.Provider,
 ): Promise<statistics.Output> {
+  const url: string = `${connection.host.endsWith("/") ? connection.host.substring(0, connection.host.length - 1) : connection.host}${statistics.path()}`;
   const connector: WebSocketConnector<
     statistics.Header,
     statistics.Provider,
     statistics.Listener
   > = new WebSocketConnector(connection.headers ?? ({} as any), provider);
-  await connector.connect(
-    `${connection.host.endsWith("/") ? connection.host.substring(0, connection.host.length - 1) : connection.host}${statistics.path()}`,
-  );
+  await connector.connect(url);
   const driver: Driver<statistics.Listener> = connector.getDriver();
   return {
     connector,
     driver,
+    reconnect: async () => await connector.connect(url),
   };
 }
 export namespace statistics {
   export type Output = {
     connector: WebSocketConnector<Header, Provider, Listener>;
     driver: Driver<Listener>;
+    reconnect: () => Promise<void>;
   };
   export type Header = ICalcConfig;
   export type Provider = ICalcEventListener;
