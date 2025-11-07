@@ -84,7 +84,6 @@ export namespace NestiaMigrateApiNamespaceProgrammer {
                 p.key,
                 {
                   ...p.schema,
-                  title: p.parameter().title,
                   description: p.parameter().description,
                 },
               ]),

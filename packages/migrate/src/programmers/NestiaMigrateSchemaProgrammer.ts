@@ -1,4 +1,4 @@
-import { OpenApi } from "@samchon/openapi";
+import { OpenApi, OpenApiTypeChecker } from "@samchon/openapi";
 import ts from "typescript";
 import typia from "typia";
 import { TypeFactory } from "typia/lib/factories/TypeFactory";
@@ -6,7 +6,6 @@ import { FormatCheatSheet } from "typia/lib/tags/internal/FormatCheatSheet";
 import { Escaper } from "typia/lib/utils/Escaper";
 
 import { FilePrinter } from "../utils/FilePrinter";
-import { OpenApiTypeChecker } from "../utils/OpenApiTypeChecker";
 import { StringUtil } from "../utils/StringUtil";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
 
