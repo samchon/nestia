@@ -1,6 +1,8 @@
 import type { Format } from "typia/lib/tags/Format";
 
-/** Make all properties in T optional */
+/**
+ * Make all properties in T optional
+ */
 export type PartialPickIUsernameemailoptional_attrnullable_attr = {
   name?: undefined | string;
   email?: null | undefined | (string & Format<"email">);

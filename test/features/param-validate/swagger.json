@@ -70,8 +70,7 @@
               "type": "string"
             },
             "required": true,
-            "title": "The first value",
-            "description": " The first value.\r\nThe first string value."
+            "description": "The first value. The first string value."
           },
           {
             "name": "value2",
@@ -80,8 +79,7 @@
               "type": "string"
             },
             "required": true,
-            "title": "The second value",
-            "description": " The second value.\r\nThe second string value."
+            "description": "The second value. The second string value."
           }
         ],
         "responses": {
@@ -116,8 +114,7 @@
               "type": "boolean"
             },
             "required": true,
-            "title": "The boolean value",
-            "description": " The boolean value.\r\nThe boolean value as a path parameter."
+            "description": "The boolean value. The boolean value as a path parameter."
           }
         ],
         "responses": {

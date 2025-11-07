@@ -456,14 +456,18 @@
           },
           "path": {
             "type": "string",
-            "description": "The access path to the property where the assertion error occurred.\n\nUses dot notation to indicate the path for nested object properties.\nMay be `undefined` if the error occurred at the root level."
+            "description": "The access path to the property where the assertion error occurred.\n\nUses dot notation to indicate the path for nested object properties. May be\n`undefined` if the error occurred at the root level."
           },
           "expected": {
             "type": "string",
             "description": "String representation of the expected type at the error location.\n\nRepresents TypeScript types as strings, including detailed type information\nfor complex types."
           },
           "value": {
-            "description": "The actual value that failed assertion.\n\nStores the actual value at the error path as-is.\nUseful for debugging by comparing the expected type with the actual value."
+            "description": "The actual value that failed assertion.\n\nStores the actual value at the error path as-is. Useful for debugging by\ncomparing the expected type with the actual value."
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional human-readable description of the type guard error\n\nThis field is rarely populated in standard typia type assertion and is\nprimarily intended for specialized AI agent libraries or custom validation\nscenarios that require additional context beyond the technical type\ninformation. Most assertion errors rely solely on the path, expected, and\nvalue fields for comprehensive error reporting."
           },
           "name": {
             "type": "string"
@@ -482,7 +486,7 @@
           "name",
           "message"
         ],
-        "description": "Custom error class thrown when runtime assertion fails in `typia.assert<T>()` function.\n\nThis error is thrown by the `typia.assert<T>()` function when the input value\ndoesn't match the expected type.\n\nThe error provides detailed information about the first assertion failure encountered,\nincluding the access path where the error occurred, the expected type, and the actual value."
+        "description": "Custom error class thrown when runtime assertion fails in `typia.assert<T>()`\nfunction.\n\nThis error is thrown by the `typia.assert<T>()` function when the input value\ndoesn't match the expected type.\n\nThe error provides detailed information about the first assertion failure\nencountered, including the access path where the error occurred, the expected\ntype, and the actual value."
       },
       "INotFound": {
         "type": "object",

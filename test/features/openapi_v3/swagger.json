@@ -510,7 +510,7 @@
               "type": "string"
             },
             "required": true,
-            "description": " Section code"
+            "description": "Section code"
           }
         ],
         "requestBody": {
@@ -597,7 +597,7 @@
               "type": "string"
             },
             "required": true,
-            "description": " Section code"
+            "description": "Section code"
           },
           {
             "name": "id",
@@ -607,7 +607,7 @@
               "format": "uuid"
             },
             "required": true,
-            "description": " Target article ID"
+            "description": "Target article ID"
           }
         ],
         "requestBody": {

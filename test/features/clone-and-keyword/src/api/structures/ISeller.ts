@@ -8,22 +8,34 @@ export namespace ISeller {
       expires_at: string & Format<"date-time">;
     };
 
-    /** Primary key. */
+    /**
+     * Primary key.
+     */
     id: number & Type<"uint32">;
 
-    /** Email address. */
+    /**
+     * Email address.
+     */
     email: string & Format<"email">;
 
-    /** Name of the seller. */
+    /**
+     * Name of the seller.
+     */
     name: string;
 
-    /** Mobile number of the seller. */
+    /**
+     * Mobile number of the seller.
+     */
     mobile: string;
 
-    /** Belonged company name. */
+    /**
+     * Belonged company name.
+     */
     company: string;
 
-    /** Joined time. */
+    /**
+     * Joined time.
+     */
     created_at: string & Format<"date-time">;
   };
   export type IJoin = {

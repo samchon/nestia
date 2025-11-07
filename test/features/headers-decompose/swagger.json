@@ -324,12 +324,19 @@
             "items": {
               "type": "boolean"
             }
+          },
+          "X-descriptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
           "x-category",
           "x-values",
-          "x-flags"
+          "x-flags",
+          "X-descriptions"
         ]
       },
       "IBbsArticle": {

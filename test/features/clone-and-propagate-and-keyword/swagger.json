@@ -525,7 +525,7 @@
               "type": "string"
             },
             "required": true,
-            "description": " Target section"
+            "description": "Target section"
           },
           {
             "name": "page",
@@ -591,7 +591,7 @@
               "type": "string"
             },
             "required": true,
-            "description": " Section code"
+            "description": "Section code"
           }
         ],
         "requestBody": {
@@ -638,7 +638,7 @@
               "type": "string"
             },
             "required": true,
-            "description": " Section code"
+            "description": "Section code"
           },
           {
             "name": "id",
@@ -648,7 +648,7 @@
               "format": "uuid"
             },
             "required": true,
-            "description": " Target article ID"
+            "description": "Target article ID"
           }
         ],
         "requestBody": {
@@ -1755,8 +1755,7 @@
     },
     "/users/{user_id}/oauth": {
       "get": {
-        "summary": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types",
-        "description": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.\n- When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type.",
+        "description": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that\n  writing only the deepest type even in the top or middle level namespaced\n  types.\n- When `clone` mode being used in SDK generator, it was not possible to clone\n  recursive DTO type.",
         "tags": [],
         "parameters": [
           {
@@ -1825,8 +1824,7 @@
     },
     "/users/{user_id}/user": {
       "get": {
-        "summary": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types",
-        "description": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that writing only the deepest type even in the top or middle level namespaced types.\n- When propagation mode being used with `@TypedException<T>()` decorator, target `T` type had not been cloned.\n- When `clone` mode being used in SDK generator, it was not possible to clone recursive DTO type.\n- check optional query DTO\n- when use HttpCode decorator, sdk build fail code",
+        "description": "- When namespaced DTO type comes, `@nestia/sdk` had taken a mistake that\n  writing only the deepest type even in the top or middle level namespaced\n  types.\n- When propagation mode being used with `@TypedException<T>()` decorator,\n  target `T` type had not been cloned.\n- When `clone` mode being used in SDK generator, it was not possible to clone\n  recursive DTO type.\n- Check optional query DTO\n- When use HttpCode decorator, sdk build fail code",
         "tags": [],
         "parameters": [
           {
@@ -1885,7 +1883,7 @@
         "x-samchon-controller": "UsersController"
       },
       "post": {
-        "description": "- check optional, nullable property",
+        "description": "- Check optional, nullable property",
         "tags": [],
         "parameters": [
           {

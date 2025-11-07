@@ -8,7 +8,7 @@ export const test_api_body_update = async (connection: api.IConnection) => {
   const output = await api.functional.body.update(
     connection,
     typia.random<string & tags.Format<"uuid">>(),
-    typia.random<IBbsArticle.IUpdate>(),
+    typia.random<Partial<IBbsArticle.IStore<string>>>(),
   );
   typia.assert(output);
 };

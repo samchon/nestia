@@ -480,7 +480,7 @@
         "parameters": [
           {
             "type": "string",
-            "description": " Section code",
+            "description": "Section code",
             "name": "section",
             "in": "path"
           },
@@ -548,14 +548,14 @@
         "parameters": [
           {
             "type": "string",
-            "description": " Section code",
+            "description": "Section code",
             "name": "section",
             "in": "path"
           },
           {
             "type": "string",
             "format": "uuid",
-            "description": " Target article ID",
+            "description": "Target article ID",
             "name": "id",
             "in": "path"
           },

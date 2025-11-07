@@ -66,7 +66,7 @@
               "type": "string"
             },
             "required": true,
-            "description": " Target section code"
+            "description": "Target section code"
           },
           {
             "name": "headers",
@@ -74,7 +74,7 @@
             "schema": {
               "$ref": "#/components/schemas/IHeaders"
             },
-            "description": " Headers for authentication",
+            "description": "Headers for authentication",
             "required": true
           }
         ],
@@ -120,7 +120,7 @@
               "type": "string"
             },
             "required": true,
-            "description": " Target section code"
+            "description": "Target section code"
           },
           {
             "name": "id",
@@ -130,7 +130,7 @@
               "format": "uuid"
             },
             "required": true,
-            "description": " Target article id"
+            "description": "Target article id"
           }
         ],
         "requestBody": {
@@ -240,13 +240,20 @@
             "items": {
               "type": "boolean"
             }
+          },
+          "X-Descriptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
           "x-category",
           "x-bigint",
           "x-values",
-          "x-fLags"
+          "x-fLags",
+          "X-Descriptions"
         ]
       },
       "IBbsArticle": {

@@ -2,12 +2,16 @@ import type { OpenApi } from "./OpenApi";
 
 export namespace RecordstringOpenApi {
   export namespace IServer {
-    /** Construct a type with a set of properties K of type T */
+    /**
+     * Construct a type with a set of properties K of type T
+     */
     export type IVariable = {
       [key: string]: OpenApi.IServer.IVariable;
     };
   }
-  /** Construct a type with a set of properties K of type T */
+  /**
+   * Construct a type with a set of properties K of type T
+   */
   export type ISecurityScheme = {
     [key: string]:
       | OpenApi.ISecurityScheme.IApiKey
