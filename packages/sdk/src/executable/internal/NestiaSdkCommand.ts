@@ -37,7 +37,7 @@ export namespace NestiaSdkCommand {
       generate: (app) => app.all(),
       validate: () => true,
       solution: [
-        "configure at laest one property of below:",
+        "configure at least one property of below:",
         "",
         "  - INestiaConfig.output",
         "  - INestiaConfig.swagger.output",
