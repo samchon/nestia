@@ -59,24 +59,7 @@ export namespace SwaggerOperationParameterComposer {
     in: "path",
     schema: props.schema,
     required: props.parameter.metadata.isRequired(),
-    ...SwaggerDescriptionComposer.compose({
-      description:
-        props.parameter.description ??
-        props.parameter.jsDocTags.find((tag) => tag.name === "description")
-          ?.text?.[0].text ??
-        props.jsDocTags
-          .find(
-            (tag) =>
-              tag.name === "param" &&
-              tag.text?.[0].text === props.parameter.name,
-          )
-          ?.text?.map((e) => e.text)
-          .join("")
-          .substring(props.parameter.name.length) ??
-        null,
-      jsDocTags: props.parameter.jsDocTags,
-      kind: "title",
-    }),
+    description: parameterDescription(props),
     example: props.parameter.example,
     examples: props.parameter.examples,
   });
@@ -89,6 +72,25 @@ export namespace SwaggerOperationParameterComposer {
     props: IProps<ITypedHttpRouteParameter.IHeaders>,
   ): OpenApi.IOperation.IParameter[] => decomposible(props);
 
+  const parameterDescription = (
+    props: Pick<IProps<ITypedHttpRouteParameter>, "parameter" | "jsDocTags">,
+  ): string | undefined => {
+    return (
+      props.parameter.description ??
+      props.parameter.jsDocTags.find((tag) => tag.name === "description")
+        ?.text?.[0].text ??
+      props.jsDocTags
+        .find(
+          (tag) =>
+            tag.name === "param" && tag.text?.[0].text === props.parameter.name,
+        )
+        ?.text?.map((e) => e.text)
+        .join("")
+        .substring(props.parameter.name.length)
+        .trim()
+    );
+  };
+
   const decomposible = (
     props: IProps<
       ITypedHttpRouteParameter.IHeaders | ITypedHttpRouteParameter.IQuery
@@ -98,24 +100,7 @@ export namespace SwaggerOperationParameterComposer {
       name: props.parameter.field ?? props.parameter.name,
       in: props.parameter.category === "query" ? "query" : "header",
       schema: props.schema,
-      ...SwaggerDescriptionComposer.compose({
-        description:
-          props.parameter.description ??
-          props.parameter.jsDocTags.find((tag) => tag.name === "description")
-            ?.text?.[0].text ??
-          props.jsDocTags
-            .find(
-              (tag) =>
-                tag.name === "param" &&
-                tag.text?.[0].text === props.parameter.name,
-            )
-            ?.text?.map((e) => e.text)
-            .join("")
-            .substring(props.parameter.name.length) ??
-          null,
-        jsDocTags: props.jsDocTags,
-        kind: "title",
-      }),
+      description: parameterDescription(props),
       required: props.parameter.metadata.isRequired(),
       example: props.parameter.example,
       examples: props.parameter.examples,
