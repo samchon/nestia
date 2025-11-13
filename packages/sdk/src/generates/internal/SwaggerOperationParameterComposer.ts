@@ -134,11 +134,7 @@ export namespace SwaggerOperationParameterComposer {
           in: props.parameter.category === "query" ? "query" : "header",
           schema: json.schemas[0],
           required: p.value.isRequired(),
-          ...SwaggerDescriptionComposer.compose({
-            description: p.description ?? null,
-            jsDocTags: p.jsDocTags,
-            kind: "title",
-          }),
+          description: p.description ?? null
         };
       });
   };
