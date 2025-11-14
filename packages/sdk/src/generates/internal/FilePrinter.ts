@@ -11,7 +11,15 @@ export namespace FilePrinter {
     ts.addSyntheticLeadingComment(
       node,
       ts.SyntaxKind.MultiLineCommentTrivia,
-      ["*", ...comment.split("\n").map((str) => ` * ${str}`), ""].join("\n"),
+      [
+        "*",
+        ...comment
+          .split("\r\n")
+          .join("\n")
+          .split("\n")
+          .map((str) => ` * ${str.split("*/").join("*\\/")}`),
+        "",
+      ].join("\n"),
       true,
     );
     return node;
