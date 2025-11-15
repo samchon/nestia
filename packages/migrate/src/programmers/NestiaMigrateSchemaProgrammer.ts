@@ -470,10 +470,7 @@ const writeComment = (schema: OpenApi.IJsonSchema): string =>
       : []),
     ...(schema.title !== undefined ? [`@title ${schema.title}`] : []),
     ...(schema.deprecated === true ? [`@deprecated`] : []),
-  ]
-    .join("\n")
-    .split("*/")
-    .join("*\\/");
+  ].join("\n");
 
 const eraseCommentTags = (description: string): string => {
   const lines: string[] = description.split("\n");
