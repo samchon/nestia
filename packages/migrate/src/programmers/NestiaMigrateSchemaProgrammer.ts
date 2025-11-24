@@ -378,7 +378,9 @@ export namespace NestiaMigrateSchemaProgrammer {
     });
     return FilePrinter.description(
       ts.factory.createPropertySignature(
-        undefined,
+        props.value.readOnly
+          ? [ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword)]
+          : undefined,
         Escaper.variable(props.key)
           ? ts.factory.createIdentifier(props.key)
           : ts.factory.createStringLiteral(props.key),
