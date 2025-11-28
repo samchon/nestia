@@ -9,7 +9,7 @@ export const test_api_google_drives_images_upload_activate = async (
   const output = await api.functional.google.drives.images.upload.activate(
     connection,
     typia.random<string>(),
-    typia.random<IGoogleTokenActivate<"google-auth", never>>(),
+    typia.random<IGoogleTokenActivate<"google-auth", Array<string>>>(),
   );
   typia.assert(output);
 };
