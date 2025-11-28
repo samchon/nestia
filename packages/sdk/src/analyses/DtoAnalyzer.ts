@@ -80,7 +80,13 @@ export namespace DtoAnalyzer {
           .map(getEscapedText)
           .join(" | "),
       };
-    else if (ts.isParenthesizedTypeNode(typeNode))
+    else if (ts.isArrayTypeNode(typeNode)) {
+      const element: IReflectType = exploreNode(ctx, typeNode.elementType);
+      return {
+        name: "Array",
+        typeArguments: [element],
+      };
+    } else if (ts.isParenthesizedTypeNode(typeNode))
       return {
         name: `(${exploreNode(ctx, typeNode.type).name})`,
       };
@@ -163,6 +169,14 @@ export namespace DtoAnalyzer {
           .map((child) => exploreType(ctx, child))
           .map(getEscapedText)
           .join(joiner),
+      };
+    } else if (ctx.checker.isArrayLikeType(type)) {
+      const arrayItem: ts.Type | undefined =
+        ctx.checker.getElementTypeOfArrayType(type);
+      if (arrayItem === undefined) return { name: "Array<any>" };
+      return {
+        name: "Array",
+        typeArguments: [exploreType(ctx, arrayItem)],
       };
     } else if (symbol === undefined)
       return {

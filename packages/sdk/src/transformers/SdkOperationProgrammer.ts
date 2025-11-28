@@ -111,6 +111,7 @@ export namespace SdkOperationProgrammer {
             type: { name: "any" },
             imports: [],
           };
+    console.log("writeResponse", !!p.typeNode, !!p.type, analyzed);
     const [primitive, resolved] = [true, false].map((escape) =>
       MetadataFactory.analyze({
         checker: p.context.checker,
