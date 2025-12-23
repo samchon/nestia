@@ -21,14 +21,12 @@ export const test_human_route = async (): Promise<void> => {
     true,
   );
 
-  const application: IHttpLlmApplication<"chatgpt"> = HttpLlm.application({
-    model: "chatgpt",
+  const application: IHttpLlmApplication = HttpLlm.application({
     document,
   });
-  const func: IHttpLlmFunction<"chatgpt"> | undefined =
-    application.functions.find(
-      (func) => func.method === "get" && func.path === "/performance",
-    );
+  const func: IHttpLlmFunction | undefined = application.functions.find(
+    (func) => func.method === "get" && func.path === "/performance",
+  );
   TestValidator.equals("excluded", func, undefined);
 };
 
