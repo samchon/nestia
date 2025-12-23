@@ -26,13 +26,13 @@ export namespace TypedBodyProgrammer {
       transformer: props.context.transformer,
       type: props.type,
       validate: props.context.options.llm
-        ? LlmSchemaProgrammer.validate({
-            model: props.context.options.llm.model,
-            config: {
-              strict: props.context.options.llm.strict,
-              recursive: props.context.options.llm.recursive,
-            },
-          })
+        ? (metadata) =>
+            LlmSchemaProgrammer.validate({
+              config: {
+                strict: props.context.options.llm?.strict,
+              },
+              metadata,
+            })
         : undefined,
     });
 

@@ -22,13 +22,13 @@ export namespace TypedRouteProgrammer {
         checker: props.context.checker,
         transformer: props.context.transformer,
         type: props.type,
-        validate: LlmSchemaProgrammer.validate({
-          model: props.context.options.llm.model,
-          config: {
-            strict: props.context.options.llm.strict,
-            recursive: props.context.options.llm.recursive,
-          },
-        }),
+        validate: (metadata) =>
+          LlmSchemaProgrammer.validate({
+            config: {
+              strict: props.context.options.llm?.strict,
+            },
+            metadata,
+          }),
       });
 
     // GENERATE STRINGIFY PLAN
