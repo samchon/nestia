@@ -1,4 +1,3 @@
-import { ILlmSchema } from "@samchon/openapi";
 import ts from "typescript";
 import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
 import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
@@ -24,8 +23,7 @@ export namespace TypedQueryBodyProgrammer {
   }): ts.ObjectLiteralExpression => {
     // VALIDATE TYPE
     if (props.context.options.llm) {
-      const llm: INestiaTransformOptions.ILlm<ILlmSchema.Model> =
-        props.context.options.llm;
+      const llm: INestiaTransformOptions.ILlm = props.context.options.llm;
       const result: ValidationPipe<Metadata, MetadataFactory.IError> =
         MetadataFactory.analyze({
           checker: props.context.checker,
@@ -42,12 +40,11 @@ export namespace TypedQueryBodyProgrammer {
               );
               errors.push(
                 ...LlmSchemaProgrammer.validate({
-                  model: llm.model,
                   config: {
                     strict: llm.strict,
-                    recursive: llm.recursive,
                   },
-                })(meta),
+                  metadata: meta,
+                }),
               );
               return errors;
             },

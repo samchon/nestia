@@ -1,9 +1,7 @@
-import { ILlmSchema } from "@samchon/openapi";
-
 export interface INestiaTransformOptions {
   validate?: INestiaTransformOptions.Validate;
   stringify?: INestiaTransformOptions.Stringify | null;
-  llm?: INestiaTransformOptions.ILlm<"chatgpt" | "gemini" | "3.0">;
+  llm?: INestiaTransformOptions.ILlm;
   throws?: boolean;
 }
 export namespace INestiaTransformOptions {
@@ -30,9 +28,7 @@ export namespace INestiaTransformOptions {
     | "validate"
     | "validate.log";
 
-  export interface ILlm<Model extends ILlmSchema.Model> {
-    model: Model;
-    strict?: Model extends "chatgpt" ? boolean : never;
-    recursive?: Model extends "gemini" | "3.0" ? false | number : never;
+  export interface ILlm {
+    strict?: boolean;
   }
 }
