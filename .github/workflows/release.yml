@@ -22,8 +22,6 @@ jobs:
         run: pnpm install
       - name: Publish to npm
         run: pnpm run package:latest --migrate
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH }}
       - name: Website
         uses: JamesIves/github-pages-deploy-action@4.1.3
         with:
