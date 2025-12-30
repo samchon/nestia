@@ -45,7 +45,7 @@
     "@nestjs/common": "^11.0.13",
     "@nestjs/core": "^11.0.13",
     "@nestjs/platform-express": "^11.0.13",
-    "@nestjs/platform-fastify": "^11.0.13",
+    "@nestjs/platform-fastify": "^11.1.10",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.1",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
