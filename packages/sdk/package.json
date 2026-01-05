@@ -37,7 +37,7 @@
     "@samchon/openapi": "^6.0.0",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
-    "glob": "^11.0.3",
+    "glob": "^11.1.0",
     "path-to-regexp": "^6.2.1",
     "prettier": "^3.2.5",
     "ts-node": ">=10.6.0",
