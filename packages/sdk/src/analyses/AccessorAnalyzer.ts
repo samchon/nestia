@@ -34,7 +34,7 @@ export namespace AccessorAnalyzer {
       route.accessor.forEach((accessor, i) => {
         if (Escaper.variable(accessor)) return;
         while (true) {
-          accessor = "$" + accessor;
+          accessor = "_" + accessor;
           const partial: string = [
             ...route.accessor.slice(0, i),
             accessor,
