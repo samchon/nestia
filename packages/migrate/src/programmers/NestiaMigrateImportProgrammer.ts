@@ -4,6 +4,9 @@ import { TypeLiteralFactory } from "../factories/TypeLiteralFactory";
 import { FilePrinter } from "../utils/FilePrinter";
 import { MapUtil } from "../utils/MapUtil";
 
+/**
+ * @author Jeongho Nam - https://github.com/samchon
+ */
 export class NestiaMigrateImportProgrammer {
   private external_: Map<string, IClause> = new Map();
   private dtos_: Set<string> = new Set();

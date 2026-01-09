@@ -10,7 +10,31 @@ import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
 import { NestiaMigrateFileArchiver } from "../archivers/NestiaMigrateFileArchiver";
 import { NestiaMigrateInquirer } from "./NestiaMigrateInquirer";
 
+/**
+ * Namespace containing the main command-line interface logic for Nestia migration.
+ * 
+ * This commander handles the complete migration workflow including:
+ * - Parsing command-line arguments and user input
+ * - Validating input files and output directories
+ * - Reading and parsing OpenAPI/Swagger documents
+ * - Generating NestJS or SDK code
+ * - Formatting and writing output files
+ * 
+ * @author Jeongho Nam - https://github.com/samchon
+ */
 export namespace NestiaMigrateCommander {
+  /**
+   * Main entry point for the command-line migration tool.
+   * 
+   * Orchestrates the complete migration process from start to finish:
+   * 1. Parses user input and options
+   * 2. Validates input files and output directories
+   * 3. Reads and parses the OpenAPI/Swagger document
+   * 4. Generates the target code (NestJS or SDK)
+   * 5. Formats and writes all output files
+   * 
+   * @throws Will terminate the process with error code -1 on any validation or processing errors
+   */
   export const main = async (): Promise<void> => {
     const resolve = (str: string | undefined) =>
       str ? path.resolve(str).split("\\").join("/") : undefined;
