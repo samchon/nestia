@@ -32,10 +32,7 @@ export namespace NestiaMigrateSchemaProgrammer {
           schema: props.schema,
         });
       else if (OpenApiTypeChecker.isBoolean(props.schema))
-        return writeBoolean({
-          importer: props.importer,
-          schema: props.schema,
-        });
+        return writeBoolean();
       else if (OpenApiTypeChecker.isInteger(props.schema))
         return writeInteger({
           importer: props.importer,
@@ -101,48 +98,23 @@ export namespace NestiaMigrateSchemaProgrammer {
     importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.IConstant;
   }): ts.TypeNode => {
-    const intersection: ts.TypeNode[] = [
-      ts.factory.createLiteralTypeNode(
-        typeof props.schema.const === "boolean"
-          ? props.schema.const === true
-            ? ts.factory.createTrue()
-            : ts.factory.createFalse()
-          : typeof props.schema.const === "number"
-            ? props.schema.const < 0
-              ? ts.factory.createPrefixUnaryExpression(
-                  ts.SyntaxKind.MinusToken,
-                  ts.factory.createNumericLiteral(-props.schema.const),
-                )
-              : ts.factory.createNumericLiteral(props.schema.const)
-            : ts.factory.createStringLiteral(props.schema.const),
-      ),
-    ];
-    writePlugin({
-      importer: props.importer,
-      schema: props.schema,
-      regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IConstant>(),
-      intersection,
-    });
-    return intersection.length === 1
-      ? intersection[0]
-      : ts.factory.createIntersectionTypeNode(intersection);
+    return ts.factory.createLiteralTypeNode(
+      typeof props.schema.const === "boolean"
+        ? props.schema.const === true
+          ? ts.factory.createTrue()
+          : ts.factory.createFalse()
+        : typeof props.schema.const === "number"
+          ? props.schema.const < 0
+            ? ts.factory.createPrefixUnaryExpression(
+                ts.SyntaxKind.MinusToken,
+                ts.factory.createNumericLiteral(-props.schema.const),
+              )
+            : ts.factory.createNumericLiteral(props.schema.const)
+          : ts.factory.createStringLiteral(props.schema.const),
+    );
   };
 
-  const writeBoolean = (props: {
-    importer: NestiaMigrateImportProgrammer;
-    schema: OpenApi.IJsonSchema.IBoolean;
-  }): ts.TypeNode => {
-    const intersection: ts.TypeNode[] = [TypeFactory.keyword("boolean")];
-    writePlugin({
-      importer: props.importer,
-      regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IBoolean>(),
-      intersection,
-      schema: props.schema,
-    });
-    return intersection.length === 1
-      ? intersection[0]
-      : ts.factory.createIntersectionTypeNode(intersection);
-  };
+  const writeBoolean = (): ts.TypeNode => TypeFactory.keyword("boolean");
 
   const writeInteger = (props: {
     importer: NestiaMigrateImportProgrammer;
@@ -193,12 +165,6 @@ export namespace NestiaMigrateSchemaProgrammer {
       intersection.push(
         props.importer.tag("MultipleOf", props.schema.multipleOf),
       );
-    writePlugin({
-      importer: props.importer,
-      regular: typia.misc.literals<keyof OpenApi.IJsonSchema.INumber>(),
-      intersection,
-      schema: props.schema,
-    });
     return intersection.length === 1
       ? intersection[0]
       : ts.factory.createIntersectionTypeNode(intersection);
@@ -234,12 +200,6 @@ export namespace NestiaMigrateSchemaProgrammer {
       intersection.push(
         props.importer.tag("ContentMediaType", props.schema.contentMediaType),
       );
-    writePlugin({
-      importer: props.importer,
-      regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IString>(),
-      intersection,
-      schema: props.schema,
-    });
     return intersection.length === 1
       ? intersection[0]
       : ts.factory.createIntersectionTypeNode(intersection);
@@ -268,12 +228,6 @@ export namespace NestiaMigrateSchemaProgrammer {
       intersection.push(props.importer.tag("MaxItems", props.schema.maxItems));
     if (props.schema.uniqueItems === true)
       intersection.push(props.importer.tag("UniqueItems"));
-    writePlugin({
-      importer: props.importer,
-      regular: typia.misc.literals<keyof OpenApi.IJsonSchema.IArray>(),
-      intersection,
-      schema: props.schema,
-    });
     return intersection.length === 1
       ? intersection[0]
       : ts.factory.createIntersectionTypeNode(intersection);
@@ -283,8 +237,8 @@ export namespace NestiaMigrateSchemaProgrammer {
     components: OpenApi.IComponents;
     importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.ITuple;
-  }): ts.TypeNode => {
-    const tuple: ts.TypeNode = ts.factory.createTupleTypeNode([
+  }): ts.TypeNode =>
+    ts.factory.createTupleTypeNode([
       ...props.schema.prefixItems.map((item) =>
         write({
           components: props.components,
@@ -313,17 +267,6 @@ export namespace NestiaMigrateSchemaProgrammer {
             ]
           : []),
     ]);
-    const intersection: ts.TypeNode[] = [tuple];
-    writePlugin({
-      importer: props.importer,
-      regular: typia.misc.literals<keyof OpenApi.IJsonSchema.ITuple>(),
-      intersection,
-      schema: props.schema,
-    });
-    return intersection.length === 1
-      ? intersection[0]
-      : ts.factory.createIntersectionTypeNode(intersection);
-  };
 
   const writeObject = (props: {
     components: OpenApi.IComponents;
@@ -461,42 +404,44 @@ export namespace NestiaMigrateSchemaProgrammer {
 }
 const createNode = (text: string) => ts.factory.createTypeReferenceNode(text);
 
-const writeComment = (schema: OpenApi.IJsonSchema): string =>
-  [
+const writeComment = (schema: OpenApi.IJsonSchema): string => {
+  interface IPlugin {
+    key: string;
+    value: undefined | string | number | boolean;
+  }
+  const plugins: IPlugin[] = [];
+  if (schema.title !== undefined)
+    plugins.push({
+      key: "title",
+      value: schema.title,
+    });
+  if (schema.deprecated === true)
+    plugins.push({
+      key: "deprecated",
+      value: undefined,
+    });
+  for (const [key, value] of Object.entries(schema))
+    if (key.startsWith("x-") && typia.is<boolean | number | string>(value))
+      plugins.push({
+        key,
+        value,
+      });
+  return [
     ...(schema.description?.length
       ? [eraseCommentTags(schema.description)]
       : []),
-    ...(schema.description?.length &&
-    (schema.title !== undefined || schema.deprecated === true)
-      ? [""]
-      : []),
-    ...(schema.title !== undefined ? [`@title ${schema.title}`] : []),
-    ...(schema.deprecated === true ? [`@deprecated`] : []),
+    ...(schema.description?.length && plugins.length !== 0 ? [""] : []),
+    ...plugins.map((p) =>
+      p.value === undefined ? `@${p.key}` : `@${p.key} ${String(p.value)}`,
+    ),
   ].join("\n");
+};
 
 const eraseCommentTags = (description: string): string => {
   const lines: string[] = description.split("\n");
   return lines
     .filter((s) => COMMENT_TAGS.every((tag) => !s.includes(tag)))
     .join("\n");
-};
-
-const writePlugin = (props: {
-  importer: NestiaMigrateImportProgrammer;
-  regular: string[];
-  intersection: ts.TypeNode[];
-  schema: Record<string, any>;
-}) => {
-  const extra: any = {};
-  for (const [key, value] of Object.entries(props.schema))
-    if (
-      value !== undefined &&
-      false === props.regular.includes(key) &&
-      key.startsWith("x-")
-    )
-      extra[key] = value;
-  if (Object.keys(extra).length !== 0)
-    props.intersection.push(props.importer.tag("JsonSchemaPlugin", extra));
 };
 
 const COMMENT_TAGS = [
