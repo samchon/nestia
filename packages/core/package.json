@@ -42,7 +42,7 @@
     "@samchon/openapi": "^6.0.0",
     "detect-ts-node": "^1.0.5",
     "get-function-location": "^2.0.0",
-    "glob": "^11.0.3",
+    "glob": "^11.1.0",
     "path-parser": "^6.1.0",
     "raw-body": "^2.0.0",
     "reflect-metadata": ">=0.1.12",
