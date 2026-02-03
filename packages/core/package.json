@@ -72,7 +72,7 @@
     "commander": "^10.0.0",
     "comment-json": "^4.2.3",
     "eslint-plugin-deprecation": "^1.4.1",
-    "fastify": "^4.28.1",
+    "fastify": "^5.7.3",
     "git-last-commit": "^1.0.1",
     "inquirer": "^8.2.5",
     "rimraf": "^6.0.1",
