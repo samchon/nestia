@@ -2,9 +2,13 @@
   "name": "nestia",
   "version": "9.0.0-dev.20251107-3",
   "description": "Nestia CLI tool",
-  "main": "bin/index.js",
+  "main": "src/index.ts",
   "bin": {
-    "nestia": "bin/index.js"
+    "nestia": "src/index.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
   },
   "scripts": {
     "build": "rimraf bin && tsc",
@@ -50,5 +54,20 @@
     "README.md",
     "LICENSE",
     "package.json"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public",
+    "types": "bin/index.d.ts",
+    "main": "bin/index.js",
+    "exports": {
+      ".": {
+        "types": "./bin/index.d.ts",
+        "default": "./bin/index.js"
+      },
+      "./package.json": "./package.json"
+    },
+    "bin": {
+      "nestia": "./bin/index.js"
+    }
+  }
 }

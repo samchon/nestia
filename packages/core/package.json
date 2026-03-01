@@ -2,8 +2,12 @@
   "name": "@nestia/core",
   "version": "10.0.0",
   "description": "Super-fast validation decorators of NestJS",
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./lib/transform": "./src/transform/index.ts",
+    "./package.json": "./package.json"
+  },
   "tsp": {
     "tscOptions": {
       "parseAllJsDoc": true
@@ -87,5 +91,21 @@
     "package.json",
     "lib",
     "src"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public",
+    "types": "lib/index.d.ts",
+    "main": "lib/index.js",
+    "exports": {
+      ".": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      },
+      "./lib/transform": {
+        "types": "./lib/transform/index.d.ts",
+        "default": "./lib/transform/index.js"
+      },
+      "./package.json": "./package.json"
+    }
+  }
 }

@@ -2,10 +2,13 @@
   "name": "@nestia/sdk",
   "version": "9.0.0-dev.20251107-3",
   "description": "Nestia SDK and Swagger generator",
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
   "bin": {
-    "@nestia/sdk": "lib/executable/sdk.js"
+    "@nestia/sdk": "src/executable/sdk.ts"
   },
   "scripts": {
     "build": "rimraf lib && tsc",
@@ -74,5 +77,20 @@
     "README.md",
     "LICENSE",
     "package.json"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public",
+    "types": "lib/index.d.ts",
+    "main": "lib/index.js",
+    "exports": {
+      ".": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      },
+      "./package.json": "./package.json"
+    },
+    "bin": {
+      "@nestia/sdk": "./lib/executable/sdk.js"
+    }
+  }
 }
