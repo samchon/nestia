@@ -3,6 +3,7 @@
   "name": "@nestia/test-e2e",
   "version": "0.1.0",
   "scripts": {
+    "dev": "tsc --watch",
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
@@ -11,6 +12,7 @@
     "typia": "catalog:samchon"
   },
   "devDependencies": {
+    "@types/node": "catalog:utils",
     "ts-node": "catalog:typescript",
     "typescript": "catalog:typescript"
   },

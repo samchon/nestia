@@ -12,6 +12,7 @@ async function main(): Promise<void> {
       console.log(` - ${exec.name}: ${elapsed.toLocaleString()} ms`);
     },
     simultaneous: 1,
+    extension: "ts",
   });
   console.log(`Elapsed time: ${report.time.toLocaleString()} ms`);
 }

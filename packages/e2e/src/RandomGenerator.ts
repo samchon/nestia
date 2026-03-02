@@ -439,7 +439,7 @@ export namespace RandomGenerator {
     count = Math.min(count, array.length);
     const indexes: Set<number> = new Set();
     while (indexes.size < count) indexes.add(randint(0, array.length - 1));
-    return Array.from(indexes).map((index) => array[index]);
+    return Array.from(indexes).map((i) => array[i]!);
   };
 
   /**
@@ -482,7 +482,7 @@ export namespace RandomGenerator {
    * @returns A randomly selected element from the array
    */
   export const pick = <T>(array: readonly T[]): T =>
-    array[randint(0, array.length - 1)];
+    array[randint(0, array.length - 1)]!;
 }
 
 /** @internal */

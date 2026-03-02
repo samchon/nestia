@@ -19,7 +19,7 @@ export function test_validate_equals(): void {
   TestValidator.equals("same", original, replica);
 
   // DIFFERENT
-  replica.data[0].title += " -> to be different";
+  replica.data[0]!.title += " -> to be different";
   TestValidator.error("different", () =>
     TestValidator.equals("", original, replica),
   );

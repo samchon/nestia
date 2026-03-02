@@ -12,8 +12,8 @@ export async function test_validate_index(): Promise<void> {
       data,
       [
         {
-          ...data[0],
-          id: data[0].id + "sdafasdf",
+          ...data[0]!,
+          id: data[0]!.id + "sdafasdf",
         },
         ...data.slice(1),
       ],
