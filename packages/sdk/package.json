@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build": "rimraf lib && tsc",
-    "dev": "tsc --watch"
+    "dev": "rimraf && tsc --watch"
   },
   "repository": {
     "type": "git",
