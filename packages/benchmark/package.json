@@ -8,11 +8,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "npm run build:main && npm run build:test",
-    "build:main": "rimraf lib && tsc",
-    "build:test": "rimraf bin && tsc -p test/tsconfig.json",
-    "dev": "npm run build:test -- --watch",
-    "prepare": "ts-patch install",
+    "build": "rimraf lib && tsc",
+    "dev": "rimraf lib && tsc --watch",
     "test": "node bin/test"
   },
   "keywords": [
@@ -34,24 +31,13 @@
   },
   "dependencies": {
     "@nestia/fetcher": "workspace:^",
-    "tgrid": "^1.1.0",
-    "tstl": "^3.0.0"
+    "tgrid": "catalog:samchon",
+    "tstl": "catalog:samchon"
   },
   "devDependencies": {
-    "@nestia/core": "workspace:^",
-    "@nestia/e2e": "workspace:^",
-    "@nestia/sdk": "workspace:^",
-    "@nestjs/common": "^11.0.13",
-    "@nestjs/core": "^11.0.13",
-    "@nestjs/platform-express": "^11.0.13",
-    "@types/uuid": "^10.0.0",
-    "nestia": "workspace:^",
-    "ts-node": "^10.9.2",
-    "ts-patch": "^3.3.0",
-    "typescript": "~5.9.3",
-    "typescript-transform-paths": "^3.4.7",
-    "typia": "^11.0.0",
-    "uuid": "^10.0.0"
+    "@types/node": "catalog:utils",
+    "rimraf": "catalog:utils",
+    "typescript": "catalog:typescript"
   },
   "files": [
     "lib",

@@ -32,11 +32,9 @@
     "@samchon/openapi": "^6.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.11.14",
-    "@typescript-eslint/eslint-plugin": "^5.46.1",
-    "@typescript-eslint/parser": "^5.46.1",
-    "rimraf": "^6.0.1",
-    "typescript": "~5.9.3"
+    "@types/node": "catalog:utils",
+    "rimraf": "catalog:utils",
+    "typescript": "catalog:typescript"
   },
   "files": [
     "README.md",

@@ -12,6 +12,7 @@
   },
   "scripts": {
     "build": "rimraf bin && tsc",
+    "dev": "rimraf bin && tsc --watch",
     "package:latest": "npm run build && npm publish --access public --tag latest",
     "package:next": "npm run build && npm publish --access public --tag next"
   },
@@ -44,9 +45,9 @@
     "@nestia/core": "workspace:^",
     "@nestia/sdk": "workspace:^",
     "@types/inquirer": "^9.0.3",
-    "@types/node": "^18.11.16",
-    "rimraf": "^6.0.1",
-    "typescript": "~5.9.3"
+    "@types/node": "catalog:utils",
+    "rimraf": "catalog:utils",
+    "typescript": "catalog:typescript"
   },
   "files": [
     "bin",

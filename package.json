@@ -4,10 +4,12 @@
   "version": "10.0.2",
   "description": "Nestia station",
   "scripts": {
-    "build": "node deploy build",
+    "build": "pnpm --filter=./packages/* -r build",
+    "format": "prettier --write packages/**/*.ts && prettier --write internals/**/*.ts && prettier --write tests/**/*.ts",
+    "test": "pnpm --filter=./tests/test-* -r start",
     "package:latest": "node deploy publish --tag latest",
     "package:next": "node deploy publish --tag next --migrate",
-    "prettier": "prettier packages/*/src/**/*.ts --write && prettier benchmark/**/*.ts && prettier test/**/*.ts --write"
+    "prepare": "ts-patch install"
   },
   "repository": {
     "type": "git",
@@ -21,11 +23,12 @@
   "homepage": "https://nestia.io",
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@types/node": "^22.10.1",
     "prettier": "^3.2.4",
     "prettier-plugin-jsdoc": "^1.3.2",
     "rimraf": "^6.0.1",
-    "sloc": "^0.3.0"
+    "sloc": "^0.3.0",
+    "ts-patch": "catalog:typescript",
+    "typescript": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"
 }

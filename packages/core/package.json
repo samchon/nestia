@@ -15,10 +15,7 @@
   },
   "scripts": {
     "build": "rimraf lib && tsc",
-    "dev": "tsc -p tsconfig.test.json --watch",
-    "eslint": "eslint ./**/*.ts",
-    "eslint:fix": "eslint ./**/*.ts --fix",
-    "prepare": "ts-patch install && typia patch"
+    "dev": "rimraf lib && tsc --watch"
   },
   "repository": {
     "type": "git",
@@ -64,26 +61,23 @@
     "typia": "^11.0.0"
   },
   "devDependencies": {
-    "@nestjs/common": "^11.0.13",
-    "@nestjs/core": "^11.0.13",
+    "@nestjs/common": "catalog:nestjs",
+    "@nestjs/core": "catalog:nestjs",
     "@types/express": "^4.17.15",
     "@types/inquirer": "^9.0.3",
     "@types/multer": "^1.4.12",
     "@types/ts-expose-internals": "npm:ts-expose-internals@5.4.5",
     "@types/ws": "^8.5.10",
-    "@typescript-eslint/eslint-plugin": "^5.46.1",
-    "@typescript-eslint/parser": "^5.46.1",
     "commander": "^10.0.0",
     "comment-json": "^4.2.3",
     "eslint-plugin-deprecation": "^1.4.1",
     "fastify": "^4.28.1",
     "git-last-commit": "^1.0.1",
     "inquirer": "^8.2.5",
-    "rimraf": "^6.0.1",
-    "ts-node": "^10.9.1",
-    "ts-patch": "^3.3.0",
-    "tstl": "^3.0.0",
-    "typescript": "~5.9.3"
+    "rimraf": "catalog:utils",
+    "ts-node": "catalog:typescript",
+    "tstl": "catalog:samchon",
+    "typescript": "catalog:typescript"
   },
   "files": [
     "README.md",

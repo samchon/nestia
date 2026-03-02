@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "name": "@nestia/test-e2e",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@nestia/e2e": "workspace:^",
+    "@nestia/fetcher": "workspace:^",
+    "typia": "catalog:samchon"
+  },
+  "devDependencies": {
+    "ts-node": "catalog:typescript",
+    "typescript": "catalog:typescript"
+  },
+  "packageManager": "pnpm@10.6.4"
+}
