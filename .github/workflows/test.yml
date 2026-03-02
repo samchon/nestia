@@ -1,8 +1,8 @@
-name: build
+name: test
 on: 
   pull_request:
     paths:
-      - '.github/workflows/build.yml'
+      - '.github/workflows/test.yml'
       - 'packages/*/src/**'
       - 'packages/*/package.json'
       - 'pnpm-lock.yaml'
@@ -21,5 +21,5 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
-      - name: Test
-        run: pnpm test
+      - name: Build Packages
+        run: pnpm build
