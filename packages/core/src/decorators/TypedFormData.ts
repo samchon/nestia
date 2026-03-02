@@ -163,26 +163,18 @@ const parseFiles =
       for (const file of files)
         data.append(
           file.fieldname,
-          new File(
-            [file.buffer satisfies Uint8Array as any],
-            file.originalname,
-            {
-              type: file.mimetype,
-            },
-          ),
+          new File([file.buffer as any], file.originalname, {
+            type: file.mimetype,
+          }),
         );
     else
       for (const [key, value] of Object.entries(files))
         for (const file of value)
           data.append(
             key,
-            new File(
-              [file.buffer satisfies Uint8Array as any],
-              file.originalname,
-              {
-                type: file.mimetype,
-              },
-            ),
+            new File([file.buffer as any], file.originalname, {
+              type: file.mimetype,
+            }),
           );
   };
 
