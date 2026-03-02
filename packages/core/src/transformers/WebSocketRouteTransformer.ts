@@ -112,9 +112,9 @@ const LIB_PATH = path.join(
   `WebSocketRoute.d.ts`,
 );
 const MONO_PATH = path.join(
-  "packages",
+  "@nestia",
   "core",
-  "lib",
+  "src",
   "decorators",
-  `WebSocketRoute.d.ts`,
+  `WebSocketRoute.ts`,
 );
