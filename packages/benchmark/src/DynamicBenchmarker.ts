@@ -329,7 +329,7 @@ export namespace DynamicBenchmarker {
             while (entireEvents.length < mass.count) {
               const localEvents: IBenchmarkEvent[] = [];
               const func: IFunction<Parameters> =
-                functions[Math.floor(Math.random() * functions.length)];
+                functions[Math.floor(Math.random() * functions.length)]!;
               const connection: IConnection = {
                 ...ctx.props.connection,
                 logger: async (fe): Promise<void> => {

@@ -33,9 +33,10 @@ export namespace SdkHttpRouteProgrammer {
     for (const p of SdkHttpParameterProgrammer.getSignificant(route, true)) {
       const description: string | undefined =
         p.description ??
-        p.jsDocTags.find((tag) => tag.name === "description")?.text?.[0].text ??
+        p.jsDocTags.find((tag) => tag.name === "description")?.text?.[0]
+          ?.text ??
         route.jsDocTags
-          .find((tag) => tag.name === "param" && tag.text?.[0].text === p.name)
+          .find((tag) => tag.name === "param" && tag.text?.[0]?.text === p.name)
           ?.text?.map((e) => e.text)
           .join("")
           .substring(p.name.length);

@@ -91,7 +91,7 @@ export namespace SwaggerGenerator {
       metadatas,
     });
     const dict: WeakMap<Metadata, OpenApi.IJsonSchema> = new WeakMap();
-    json.schemas.forEach((schema, i) => dict.set(metadatas[i], schema));
+    json.schemas.forEach((schema, i) => dict.set(metadatas[i]!, schema));
     const schema = (metadata: Metadata): OpenApi.IJsonSchema | undefined =>
       dict.get(metadata);
 

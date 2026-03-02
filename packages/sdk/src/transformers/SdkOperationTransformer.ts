@@ -209,7 +209,7 @@ export namespace SdkOperationTransformer {
         )
           return null;
         else if (deco.expression.typeArguments?.length !== 1) return null;
-        return deco.expression.typeArguments[0];
+        return deco.expression.typeArguments[0]!;
       })
       .filter((t) => t !== null);
 }

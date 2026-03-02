@@ -19,14 +19,14 @@ export class NestiaMigrateImportProgrammer {
       default: null,
       instances: new Set(),
     }));
-    const name: string = props.name.split(".")[0];
+    const name: string = props.name.split(".")[0]!;
     if (props.type === "default") clause.default = props.name;
     else clause.instances.add(name);
     return name;
   }
 
   public dto(name: string, namespace?: string): ts.TypeReferenceNode {
-    const file: string = name.split(".")[0];
+    const file: string = name.split(".")[0]!;
     this.dtos_.add(file);
     return ts.factory.createTypeReferenceNode(
       namespace?.length

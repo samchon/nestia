@@ -104,9 +104,9 @@ const FUNCTORS: Record<string, Programmer> = {
       ? [
           ts.factory.createIdentifier("undefined"),
           TypedFormDataBodyProgrammer.generate(props),
-        ]
+        ]!
       : props.arguments.length === 1
-        ? [props.arguments[0], TypedFormDataBodyProgrammer.generate(props)]
+        ? [props.arguments[0]!, TypedFormDataBodyProgrammer.generate(props)]
         : props.arguments,
   PlainBody: (props) =>
     props.arguments.length

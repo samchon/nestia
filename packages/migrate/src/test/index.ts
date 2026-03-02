@@ -86,7 +86,7 @@ const iterate = async (directory: string): Promise<void> => {
   const filter = (() => {
     const only = process.argv.findIndex((str) => str === "--only");
     if (only !== -1 && process.argv.length >= only + 1)
-      return (str: string) => str.includes(process.argv[only + 1]);
+      return (str: string) => str.includes(process.argv[only + 1]!);
     return () => true;
   })();
 

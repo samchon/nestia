@@ -85,11 +85,11 @@ const escape_promise =
       throw new Error(
         "Error on ImportAnalyzer.analyze(): invalid promise type.",
       );
-    return generic[0];
+    return generic[0]!;
   };
 
 const get_name = (symbol: ts.Symbol): string =>
-  explore_name(symbol.getDeclarations()![0].parent)(
+  explore_name(symbol.getDeclarations()![0]!.parent)(
     symbol.escapedName.toString(),
   );
 

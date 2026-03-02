@@ -267,7 +267,7 @@ export namespace SdkHttpFunctionProgrammer {
               ts.factory.createIfStatement(
                 ts.factory.createIdentifier(accessor(output)("success")),
                 assigners.length === 1
-                  ? assigners[0]
+                  ? assigners[0]!
                   : ts.factory.createBlock(assigners, true),
                 undefined,
               ),

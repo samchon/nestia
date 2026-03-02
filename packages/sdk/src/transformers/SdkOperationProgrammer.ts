@@ -133,11 +133,11 @@ export namespace SdkOperationProgrammer {
           }),
       primitive: writeSchema({
         collection: p.context.collection,
-        result: primitive,
+        result: primitive!,
       }),
       resolved: writeSchema({
         collection: p.context.collection,
-        result: resolved,
+        result: resolved!,
       }),
     };
   };

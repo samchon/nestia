@@ -95,7 +95,7 @@ export namespace NestiaSdkCommand {
     else if (argv.length === 1)
       throw new Error(`${props.type} file must be provided`);
 
-    const file: string = argv[index + 1];
+    const file: string = argv[index + 1]!;
     if (file.endsWith(props.extension) === false)
       throw new Error(`${props.type} file must be ${props.extension} file`);
     return file;

@@ -33,7 +33,7 @@ export namespace TypedRouteTransformer {
         const last: ts.Expression =
           props.decorator.expression.arguments[
             props.decorator.expression.arguments.length - 1
-          ];
+          ]!;
         const type: ts.Type = props.context.checker.getTypeAtLocation(last);
         if (isObject(props.context.checker)(type)) return false;
       }

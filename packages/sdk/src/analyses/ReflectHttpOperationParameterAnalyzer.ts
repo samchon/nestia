@@ -258,7 +258,7 @@ export namespace ReflectHttpOperationParameterAnalyzer {
     key: string,
     param: INestParam,
   ): IReflectHttpOperationParameter.IPreconfigured | null => {
-    const symbol: string = key.split(":")[0];
+    const symbol: string = key.split(":")[0]!;
     if (symbol.indexOf("__custom") !== -1) return analyzeCustomParameter(param);
 
     const category:

@@ -31,8 +31,8 @@ export namespace NestiaMigrateControllerAnalyzer {
       const splitLocation = (r: IHttpMigrateRoute): string[] =>
         splitPath(r).filter((s) => s.length !== 0 && s[0] !== ":");
 
-      const minPath: string[] = splitPath(col.routes[0]);
-      const minLocation: string[] = splitLocation(col.routes[0]);
+      const minPath: string[] = splitPath(col.routes[0]!);
+      const minLocation: string[] = splitLocation(col.routes[0]!);
       for (const r of col.routes.slice(1)) {
         minPath.splice(getSplitIndex(minPath, splitPath(r)));
         minLocation.splice(getSplitIndex(minLocation, splitLocation(r)));

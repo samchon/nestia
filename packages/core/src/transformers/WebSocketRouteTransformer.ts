@@ -37,7 +37,7 @@ export namespace WebSocketRouteTransformer {
       ) as ts.Decorator[];
       const category: string | null = (() => {
         if (paramDecos.length !== 1) return null;
-        const decorator: ts.Decorator = paramDecos[0];
+        const decorator: ts.Decorator = paramDecos[0]!;
         const signature: ts.Signature | undefined = ts.isCallExpression(
           decorator.expression,
         )

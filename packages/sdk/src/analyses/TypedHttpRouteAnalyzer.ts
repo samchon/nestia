@@ -139,19 +139,19 @@ export namespace TypedHttpRouteAnalyzer {
         .filter(
           (t) =>
             t.text?.length &&
-            t.text[0].text &&
+            t.text[0]!.text &&
             (t.name === "setHeader" || t.name === "assignHeaders"),
         )
         .map((t) =>
           t.name === "setHeader"
             ? {
                 type: "setter",
-                source: t.text![0].text.split(" ")[0].trim(),
-                target: t.text![0].text.split(" ")[1]?.trim(),
+                source: t.text![0]!.text.split(" ")[0]!.trim(),
+                target: t.text![0]!.text.split(" ")[1]?.trim(),
               }
             : {
                 type: "assigner",
-                source: t.text![0].text,
+                source: t.text![0]!.text,
               },
         ),
     };

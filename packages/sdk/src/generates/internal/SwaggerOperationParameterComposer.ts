@@ -78,11 +78,12 @@ export namespace SwaggerOperationParameterComposer {
     return (
       props.parameter.description ??
       props.parameter.jsDocTags.find((tag) => tag.name === "description")
-        ?.text?.[0].text ??
+        ?.text?.[0]?.text ??
       props.jsDocTags
         .find(
           (tag) =>
-            tag.name === "param" && tag.text?.[0].text === props.parameter.name,
+            tag.name === "param" &&
+            tag.text?.[0]?.text === props.parameter.name,
         )
         ?.text?.map((e) => e.text)
         .join("")
@@ -110,37 +111,35 @@ export namespace SwaggerOperationParameterComposer {
       props.parameter.metadata.objects.length === 0
     )
       return [param];
-    return props.parameter.metadata.objects[0].type.properties
-      .filter((p) =>
-        p.jsDocTags.every(
-          (tag) => tag.name !== "hidden" && tag.name !== "ignore",
-        ),
-      )
-      .map((p) => {
-        const json: IJsonSchemaCollection = JsonSchemasProgrammer.write({
-          version: "3.1",
-          metadatas: [p.value],
-        }) as IJsonSchemaCollection;
-        if (Object.keys(json.components.schemas ?? {}).length !== 0) {
-          props.document.components ??= {};
-          props.document.components.schemas ??= {};
-          Object.assign(
-            props.document.components.schemas,
-            json.components.schemas,
-          );
-        }
-        return {
-          name: p.key.constants[0].values[0].value as string,
-          in: props.parameter.category === "query" ? "query" : "header",
-          schema: json.schemas[0],
-          required: p.value.isRequired(),
-          description: SwaggerDescriptionComposer.compose({
-            description: p.description ?? null,
-            jsDocTags: p.jsDocTags,
-            kind: "title",
-          }).description,
-        };
-      });
+    return props.parameter.metadata.objects[0]!.type.properties.filter((p) =>
+      p.jsDocTags.every(
+        (tag) => tag.name !== "hidden" && tag.name !== "ignore",
+      ),
+    ).map((p) => {
+      const json: IJsonSchemaCollection = JsonSchemasProgrammer.write({
+        version: "3.1",
+        metadatas: [p.value],
+      }) as IJsonSchemaCollection;
+      if (Object.keys(json.components.schemas ?? {}).length !== 0) {
+        props.document.components ??= {};
+        props.document.components.schemas ??= {};
+        Object.assign(
+          props.document.components.schemas,
+          json.components.schemas,
+        );
+      }
+      return {
+        name: p.key.constants[0]!.values[0]!.value as string,
+        in: props.parameter.category === "query" ? "query" : "header",
+        schema: json.schemas[0]!,
+        required: p.value.isRequired(),
+        description: SwaggerDescriptionComposer.compose({
+          description: p.description ?? null,
+          jsDocTags: p.jsDocTags,
+          kind: "title",
+        }).description,
+      };
+    });
   };
 }
 

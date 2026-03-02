@@ -101,7 +101,7 @@ export namespace ImportAnalyzer {
     );
     if (instances.size !== 0) {
       if (defaultImports.length !== 0)
-        defaultImports[0].elements = Array.from(instances).sort();
+        defaultImports[0]!.elements = Array.from(instances).sort();
       else
         defaultImports.push({
           file,
