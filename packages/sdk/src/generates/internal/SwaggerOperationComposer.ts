@@ -22,7 +22,7 @@ export namespace SwaggerOperationComposer {
       ...SwaggerDescriptionComposer.getJsDocTexts({
         jsDocTags: props.route.jsDocTags,
         name: "tag",
-      }).map((t) => t.split(" ")[0]),
+      }).map((t) => t.split(" ")[0]!),
     ]);
     if (tags.size) {
       props.document.tags ??= [];
@@ -57,7 +57,7 @@ export namespace SwaggerOperationComposer {
                   .filter((s) => !!s.length);
                 if (line.length === 0) return {};
                 return {
-                  [line[0]]: line.slice(1),
+                  [line[0]!]: line.slice(1),
                 };
               }),
         )

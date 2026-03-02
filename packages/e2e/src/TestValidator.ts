@@ -361,7 +361,7 @@ export namespace TestValidator {
 
     const xIds: string[] = get_ids(expected).slice(0, length);
     const yIds: string[] = get_ids(gotten)
-      .filter((id) => id >= xIds[0])
+      .filter((id) => id >= xIds[0]!)
       .slice(0, length);
 
     const equals: boolean = xIds.every((x, i) => x === yIds[i]);
@@ -630,6 +630,6 @@ function is_promise(input: any): input is Promise<any> {
 /** @internal */
 function is_sorted<T>(data: T[], comp: (x: T, y: T) => number): boolean {
   for (let i: number = 1; i < data.length; ++i)
-    if (comp(data[i - 1], data[i]) > 0) return false;
+    if (comp(data[i - 1]!, data[i]!) > 0) return false;
   return true;
 }

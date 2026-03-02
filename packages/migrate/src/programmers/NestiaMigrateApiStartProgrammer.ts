@@ -117,7 +117,7 @@ export namespace NestiaMigrateApiStartProgrammer {
                       ts.factory.createPropertyAssignment(
                         "host",
                         ts.factory.createStringLiteral(
-                          ctx.application.document().servers![0].url,
+                          ctx.application.document().servers![0]!.url,
                         ),
                       ),
                     ]
@@ -194,5 +194,5 @@ export namespace NestiaMigrateApiStartProgrammer {
 const pick = <T>(array: T[]): T => {
   const rand: number = Math.random() * array.length;
   const index: number = Math.min(array.length - 1, Math.floor(rand));
-  return array[index];
+  return array[index]!;
 };

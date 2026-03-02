@@ -1,6 +1,0 @@
-{
-  "$schema": "https://typedoc.org/schema.json",
-  "name": "Nestia API Documents",
-  "entryPointStrategy": "packages",
-  "out": "./public/api"
-}

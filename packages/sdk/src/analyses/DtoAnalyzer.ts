@@ -113,7 +113,7 @@ export namespace DtoAnalyzer {
 
     // Find matched import statement
     const name: string = typeNode.typeName.getText();
-    const prefix: string = name.split(".")[0];
+    const prefix: string = name.split(".")[0]!;
 
     let matched: boolean = false;
     const insert = (imp: IReflectImport): void => {
@@ -147,7 +147,7 @@ export namespace DtoAnalyzer {
 
     // Finalize with generic arguments
     if (!!typeNode.typeArguments?.length) {
-      const top: ts.TypeNode = typeNode.typeArguments[0];
+      const top: ts.TypeNode = typeNode.typeArguments[0]!;
       if (name === "Promise") return exploreNode(ctx, top);
       return {
         name,
@@ -189,7 +189,7 @@ export namespace DtoAnalyzer {
 
     // Find matched import statement
     const name: string = getNameOfSymbol(symbol);
-    const prefix: string = name.split(".")[0];
+    const prefix: string = name.split(".")[0]!;
 
     let matched: boolean = false;
     const insert = (imp: IReflectImport): void => {
@@ -213,7 +213,7 @@ export namespace DtoAnalyzer {
       : ctx.checker.getTypeArguments(type as ts.TypeReference);
     return generic.length
       ? name === "Promise"
-        ? exploreType(ctx, generic[0])
+        ? exploreType(ctx, generic[0]!)
         : {
             name,
             typeArguments: generic.map((child) => exploreType(ctx, child)),

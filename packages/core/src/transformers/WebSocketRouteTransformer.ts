@@ -37,7 +37,7 @@ export namespace WebSocketRouteTransformer {
       ) as ts.Decorator[];
       const category: string | null = (() => {
         if (paramDecos.length !== 1) return null;
-        const decorator: ts.Decorator = paramDecos[0];
+        const decorator: ts.Decorator = paramDecos[0]!;
         const signature: ts.Signature | undefined = ts.isCallExpression(
           decorator.expression,
         )
@@ -112,9 +112,9 @@ const LIB_PATH = path.join(
   `WebSocketRoute.d.ts`,
 );
 const MONO_PATH = path.join(
-  "packages",
+  "@nestia",
   "core",
-  "lib",
+  "src",
   "decorators",
-  `WebSocketRoute.d.ts`,
+  `WebSocketRoute.ts`,
 );

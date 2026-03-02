@@ -40,15 +40,13 @@ export namespace TypedFormDataBodyProgrammer {
       });
 
     const files: IRequestFormDataProps.IFile[] =
-      result.data.objects[0].type.properties
-        .filter(
-          (p) =>
-            isFile(p.value) || p.value.arrays.some((a) => isFile(a.type.value)),
-        )
-        .map((p) => ({
-          name: p.key.constants[0].values[0].value as string,
-          limit: !!p.value.natives.length ? 1 : null,
-        }));
+      result.data.objects[0]!.type.properties.filter(
+        (p) =>
+          isFile(p.value) || p.value.arrays.some((a) => isFile(a.type.value)),
+      ).map((p) => ({
+        name: p.key.constants[0]!.values[0]!.value as string,
+        limit: !!p.value.natives.length ? 1 : null,
+      }));
 
     // GENERATE VALIDATION PLAN
     const parameter =

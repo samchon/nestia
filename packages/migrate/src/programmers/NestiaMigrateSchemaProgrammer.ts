@@ -87,7 +87,7 @@ export namespace NestiaMigrateSchemaProgrammer {
 
     // DETERMINE
     if (union.length === 0) return TypeFactory.keyword("any");
-    else if (union.length === 1) return union[0];
+    else if (union.length === 1) return union[0]!;
     return ts.factory.createUnionTypeNode(union);
   };
 
@@ -166,7 +166,7 @@ export namespace NestiaMigrateSchemaProgrammer {
         props.importer.tag("MultipleOf", props.schema.multipleOf),
       );
     return intersection.length === 1
-      ? intersection[0]
+      ? intersection[0]!
       : ts.factory.createIntersectionTypeNode(intersection);
   };
 
@@ -201,7 +201,7 @@ export namespace NestiaMigrateSchemaProgrammer {
         props.importer.tag("ContentMediaType", props.schema.contentMediaType),
       );
     return intersection.length === 1
-      ? intersection[0]
+      ? intersection[0]!
       : ts.factory.createIntersectionTypeNode(intersection);
   };
 
@@ -229,7 +229,7 @@ export namespace NestiaMigrateSchemaProgrammer {
     if (props.schema.uniqueItems === true)
       intersection.push(props.importer.tag("UniqueItems"));
     return intersection.length === 1
-      ? intersection[0]
+      ? intersection[0]!
       : ts.factory.createIntersectionTypeNode(intersection);
   };
 

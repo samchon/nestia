@@ -315,8 +315,8 @@ export namespace NestiaMigrateApiFunctionProgrammer {
         if (parts.length >= 2)
           directives.push({
             type: "set",
-            accessor: parts[0],
-            property: parts[1],
+            accessor: parts[0]!,
+            property: parts[1]!,
           });
       } else if (line.startsWith("@assignHeaders ")) {
         const accessor: string = line

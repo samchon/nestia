@@ -13,7 +13,7 @@ export namespace TypedParamProgrammer {
     // ALREADY BEING TRANSFORMED
     if (props.arguments.length !== 1) return props.arguments;
     return [
-      props.arguments[0],
+      props.arguments[0]!,
       HttpParameterProgrammer.write({
         context: {
           ...props.context,

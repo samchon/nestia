@@ -33,7 +33,7 @@ export namespace TypedRouteTransformer {
         const last: ts.Expression =
           props.decorator.expression.arguments[
             props.decorator.expression.arguments.length - 1
-          ];
+          ]!;
         const type: ts.Type = props.context.checker.getTypeAtLocation(last);
         if (isObject(props.context.checker)(type)) return false;
       }
@@ -80,6 +80,6 @@ export namespace TypedRouteTransformer {
   const CLASSES: string[] = ["EncryptedRoute", "TypedRoute", "TypedQuery"];
   const LIB_PATHS: string[] = CLASSES.map((cla) => [
     path.join("@nestia", "core", "lib", "decorators", `${cla}.d.ts`),
-    path.join("packages", "core", "lib", "decorators", `${cla}.d.ts`),
+    path.join("@nestia", "core", "src", "decorators", `${cla}.ts`),
   ]).flat();
 }

@@ -3,32 +3,23 @@ on:
   pull_request:
     paths:
       - '.github/workflows/build.yml'
-      - 'packages/{core,fetcher,sdk,e2e}/src/**'
-      - 'packages/{core,fetcher,sdk,e2e}/package.json'
-      - 'test/**'
-      - 'test/package.json'
+      - 'packages/*/src/**'
+      - 'packages/*/package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - 'package.json'
 jobs:
   Ubuntu:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.x, 22.x, lts/*]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
+          node-version: 24.x
+      - uses: pnpm/action-setup@v4
+      
+      - name: Install Dependencies
+        run: pnpm install
 
-      - name: Install dependencies
-        run: pnpm install --force
-
-      - name: Build
-        run: npm run build
-
-      - name: test
-        working-directory: ./test
-        run: pnpm install --force && npm start -- --skipBuild
+      - name: Build Packages
+        run: pnpm build

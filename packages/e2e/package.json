@@ -2,16 +2,14 @@
   "name": "@nestia/e2e",
   "version": "9.0.0-dev.20251107-3",
   "description": "E2E test utilify functions",
-  "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
   "scripts": {
-    "build": "npm run build:main && npm run build:test",
-    "build:main": "rimraf lib && tsc",
-    "build:test": "rimraf bin && tsc -p test/tsconfig.json",
-    "dev": "npm run build:test -- --watch",
-    "eslint": "eslint src && eslint test",
-    "prepare": "ts-patch install && typia patch",
-    "test": "node bin/test"
+    "build": "rimraf lib && tsc",
+    "dev": "rimraf lib && tsc --watch"
   },
   "repository": {
     "type": "git",
@@ -32,16 +30,9 @@
   },
   "homepage": "https://nestia.io",
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "^4.0.0",
-    "@types/node": "^18.11.18",
-    "@typescript-eslint/eslint-plugin": "^5.57.0",
-    "@typescript-eslint/parser": "^5.57.0",
-    "rimraf": "^6.0.1",
-    "ts-node": "^10.9.1",
-    "ts-patch": "^3.3.0",
-    "typescript": "~5.9.3",
-    "typescript-transform-paths": "^3.4.7",
-    "typia": "^11.0.0"
+    "@types/node": "catalog:utils",
+    "rimraf": "catalog:utils",
+    "typescript": "catalog:typescript"
   },
   "files": [
     "lib",
@@ -49,5 +40,17 @@
     "README.md",
     "LICENSE",
     "package.json"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public",
+    "types": "lib/index.d.ts",
+    "main": "lib/index.js",
+    "exports": {
+      ".": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      },
+      "./package.json": "./package.json"
+    }
+  }
 }

@@ -65,7 +65,7 @@ export namespace SdkTypeProgrammer {
           union.push(write_native(native.name));
 
       return union.length === 1
-        ? union[0]
+        ? union[0]!
         : ts.factory.createUnionTypeNode(union);
     };
 
@@ -94,7 +94,7 @@ export namespace SdkTypeProgrammer {
       if (
         meta.original.size() === 1 &&
         meta.original.natives.length === 1 &&
-        meta.original.natives[0].name === "Date"
+        meta.original.natives[0]!.name === "Date"
       )
         return ts.factory.createIntersectionTypeNode([
           TypeFactory.keyword("string"),
@@ -136,7 +136,7 @@ export namespace SdkTypeProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (meta: Metadata[]): ts.TypeNode => {
-      const head: boolean = meta[0].isSoleLiteral();
+      const head: boolean = meta[0]!.isSoleLiteral();
       const spans: [ts.TypeNode | null, string | null][] = [];
       for (const elem of meta.slice(head ? 1 : 0)) {
         const last =
@@ -148,12 +148,12 @@ export namespace SdkTypeProgrammer {
           })();
         if (elem.isSoleLiteral())
           if (last[1] === null)
-            last[1] = String(elem.constants[0].values[0].value);
+            last[1] = String(elem.constants[0]!.values[0]!.value);
           else
             spans.push([
               ts.factory.createLiteralTypeNode(
                 ts.factory.createStringLiteral(
-                  String(elem.constants[0].values[0].value),
+                  String(elem.constants[0]!.values[0]!.value),
                 ),
               ),
               null,
@@ -163,7 +163,7 @@ export namespace SdkTypeProgrammer {
       }
       return ts.factory.createTemplateLiteralType(
         ts.factory.createTemplateHead(
-          head ? (meta[0].constants[0].values[0].value as string) : "",
+          head ? (meta[0]!.constants[0]!.values[0]!.value as string) : "",
         ),
         spans
           .filter(([node]) => node !== null)
@@ -244,12 +244,12 @@ export namespace SdkTypeProgrammer {
             const signature: ts.PropertySignature =
               ts.factory.createPropertySignature(
                 undefined,
-                Escaper.variable(String(p.key.constants[0].values[0].value))
+                Escaper.variable(String(p.key.constants[0]!.values[0]!.value))
                   ? ts.factory.createIdentifier(
-                      String(p.key.constants[0].values[0].value),
+                      String(p.key.constants[0]!.values[0]!.value),
                     )
                   : ts.factory.createStringLiteral(
-                      String(p.key.constants[0].values[0].value),
+                      String(p.key.constants[0]!.values[0]!.value),
                     ),
                 p.value.isRequired() === false
                   ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
@@ -318,7 +318,7 @@ export namespace SdkTypeProgrammer {
       else if (matrix.length === 1)
         return ts.factory.createIntersectionTypeNode([
           base,
-          ...matrix[0].map((tag) =>
+          ...matrix[0]!.map((tag) =>
             SdkTypeTagProgrammer.write(importer, from, tag),
           ),
         ]);
@@ -327,7 +327,7 @@ export namespace SdkTypeProgrammer {
         ts.factory.createUnionTypeNode(
           matrix.map((row) =>
             row.length === 1
-              ? SdkTypeTagProgrammer.write(importer, from, row[0])
+              ? SdkTypeTagProgrammer.write(importer, from, row[0]!)
               : ts.factory.createIntersectionTypeNode(
                   row.map((tag) =>
                     SdkTypeTagProgrammer.write(importer, from, tag),
@@ -373,7 +373,7 @@ const importInternalFile =
   (project: INestiaProject) =>
   (importer: ImportDictionary) =>
   (name: string) => {
-    const top = name.split(".")[0];
+    const top: string = name.split(".")[0]!;
     if (importer.file === `${project.config.output}/structures/${top}.ts`)
       return;
     importer.internal({

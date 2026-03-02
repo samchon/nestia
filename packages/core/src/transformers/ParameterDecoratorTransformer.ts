@@ -104,9 +104,9 @@ const FUNCTORS: Record<string, Programmer> = {
       ? [
           ts.factory.createIdentifier("undefined"),
           TypedFormDataBodyProgrammer.generate(props),
-        ]
+        ]!
       : props.arguments.length === 1
-        ? [props.arguments[0], TypedFormDataBodyProgrammer.generate(props)]
+        ? [props.arguments[0]!, TypedFormDataBodyProgrammer.generate(props)]
         : props.arguments,
   PlainBody: (props) =>
     props.arguments.length
@@ -127,7 +127,7 @@ const FUNCTORS: Record<string, Programmer> = {
 };
 
 const LIB_PATH = path.join("@nestia", "core", "lib", "decorators");
-const MONO_PATH = path.join("packages", "core", "lib", "decorators");
+const MONO_PATH = path.join("@nestia", "core", "src", "decorators");
 
 const getName = (symbol: ts.Symbol): string => {
   const parent = symbol.getDeclarations()?.[0]?.parent;

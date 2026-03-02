@@ -1,6 +1,6 @@
 export namespace StringUtil {
   export const capitalize = (str: string) =>
-    str[0].toUpperCase() + str.slice(1).toLowerCase();
+    str[0]!.toUpperCase() + str.slice(1).toLowerCase();
 
   export const splitWithNormalization = (path: string) =>
     path
@@ -30,7 +30,8 @@ export namespace StringUtil {
 const escape = (str: string): string => {
   str = str.trim();
   if (RESERVED.has(str)) return `_${str}`;
-  else if (str.length !== 0 && "0" <= str[0] && str[0] <= "9") str = `_${str}`;
+  else if (str.length !== 0 && "0" <= str[0]! && str[0]! <= "9")
+    str = `_${str}`;
   return str;
 };
 

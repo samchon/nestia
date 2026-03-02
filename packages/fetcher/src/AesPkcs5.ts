@@ -21,7 +21,7 @@ export namespace AesPkcs5 {
    */
   export function encrypt(data: string, key: string, iv: string): string {
     const bytes: number = key.length * 8;
-    const cipher: crypto.Cipher = crypto.createCipheriv(
+    const cipher: crypto.Cipheriv = crypto.createCipheriv(
       `AES-${bytes}-CBC`,
       key,
       iv,
@@ -39,7 +39,7 @@ export namespace AesPkcs5 {
    */
   export function decrypt(data: string, key: string, iv: string): string {
     const bytes: number = key.length * 8;
-    const decipher: crypto.Decipher = crypto.createDecipheriv(
+    const decipher: crypto.Decipheriv = crypto.createDecipheriv(
       `AES-${bytes}-CBC`,
       key,
       iv,

@@ -101,7 +101,7 @@ export namespace ArrayUtil {
     ) => Promise<any>,
   ): Promise<void> => {
     await asyncRepeat(elements.length, (index) =>
-      closure(elements[index], index, elements),
+      closure(elements[index]!, index, elements),
     );
   };
 

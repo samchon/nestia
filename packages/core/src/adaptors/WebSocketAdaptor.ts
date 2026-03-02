@@ -348,7 +348,7 @@ const visitMethod = (props: {
                   if (error !== null) throw error;
                   args.push(input.acceptor.header);
                 } else if (p.category === "param")
-                  args.push(p.assert(input.params[p.field]));
+                  args.push(p.assert(input.params[p.field]!));
                 else if (p.category === "query") {
                   const query: any | Error = p.validate(
                     new URLSearchParams(

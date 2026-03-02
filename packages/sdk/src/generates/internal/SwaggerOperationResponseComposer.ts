@@ -34,7 +34,7 @@ export namespace SwaggerOperationResponseComposer {
       if (text === undefined) continue;
 
       const elements: string[] = text.split(" ").map((str) => str.trim());
-      const status: string = elements[0];
+      const status: string = elements[0]!;
       if (
         isNaN(Number(status)) &&
         status !== "2XX" &&

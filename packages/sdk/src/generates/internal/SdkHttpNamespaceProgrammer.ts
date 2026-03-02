@@ -204,9 +204,9 @@ export namespace SdkHttpNamespaceProgrammer {
         if (split.length === 1)
           return ts.factory.createStringLiteral(route.path);
         return ts.factory.createTemplateExpression(
-          ts.factory.createTemplateHead(split[0]),
+          ts.factory.createTemplateHead(split[0]!),
           split.slice(1).map((s, i, arr) => {
-            const name: string = s.split("/")[0];
+            const name: string = s.split("/")[0]!;
             return ts.factory.createTemplateSpan(
               ts.factory.createCallExpression(
                 ts.factory.createIdentifier("encodeURIComponent"),

@@ -36,7 +36,7 @@ export namespace ReflectHttpOperationAnalyzer {
 
     const errors: IReflectOperationError[] = [];
     const method: string =
-      METHODS[Reflect.getMetadata(METHOD_METADATA, props.function)];
+      METHODS[Reflect.getMetadata(METHOD_METADATA, props.function)]!;
     if (method === undefined || method === "OPTIONS") return null;
 
     const parameters: IReflectHttpOperationParameter[] =
@@ -114,8 +114,8 @@ export namespace ReflectHttpOperationAnalyzer {
       jsDocTags: props.metadata.jsDocTags,
       operationId: props.metadata.jsDocTags
         .find(({ name }) => name === "operationId")
-        ?.text?.[0].text.split(" ")[0]
-        .trim(),
+        ?.text?.[0]?.text.split(" ")[0]
+        ?.trim(),
       extensions: ReflectMetadataAnalyzer.extensions(props.function),
     };
 
