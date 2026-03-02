@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "name": "@nestia/test-benchmark",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "tsc --watch",
+    "start": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@nestia/benchmark": "workspace:^",
+    "@nestia/core": "workspace:^",
+    "@nestia/e2e": "workspace:^",
+    "@nestia/fetcher": "workspace:^",
+    "@nestjs/common": "catalog:nestjs",
+    "@nestjs/core": "catalog:nestjs",
+    "uuid": "catalog:utils",
+    "typia": "catalog:samchon"
+  },
+  "devDependencies": {
+    "@nestia/sdk": "workspace:^",
+    "@types/node": "catalog:utils",
+    "@types/uuid": "catalog:utils",
+    "nestia": "workspace:^",
+    "ts-node": "catalog:typescript",
+    "typescript": "catalog:typescript"
+  },
+  "packageManager": "pnpm@10.6.4"
+}

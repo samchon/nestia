@@ -80,6 +80,6 @@ export namespace TypedRouteTransformer {
   const CLASSES: string[] = ["EncryptedRoute", "TypedRoute", "TypedQuery"];
   const LIB_PATHS: string[] = CLASSES.map((cla) => [
     path.join("@nestia", "core", "lib", "decorators", `${cla}.d.ts`),
-    path.join("@nestia", "core", "src", "decorators", `${cla}.ts`),
+    path.join("packages", "core", "src", "decorators", `${cla}.ts`),
   ]).flat();
 }

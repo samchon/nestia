@@ -1,4 +1,4 @@
-import { IEncryptionPassword } from "@nestia/fetcher/lib/IEncryptionPassword";
+import { IEncryptionPassword } from "@nestia/fetcher";
 import { Module } from "@nestjs/common";
 
 import { Creator } from "../typings/Creator";

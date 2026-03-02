@@ -140,7 +140,7 @@ export namespace SdkHttpSimulationProgrammer {
           IdentifierFactory.access(
             ts.factory.createIdentifier(
               importer.external({
-                file: `@nestia/fetcher/lib/NestiaSimulator`,
+                file: `@nestia/fetcher`,
                 declaration: false,
                 type: "element",
                 name: "NestiaSimulator",

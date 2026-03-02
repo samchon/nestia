@@ -135,7 +135,7 @@ export namespace NestiaMigrateApiSimulationProgrammer {
           ts.factory.createIdentifier(
             ctx.importer.external({
               type: "instance",
-              library: `@nestia/fetcher/lib/NestiaSimulator`,
+              library: `@nestia/fetcher`,
               name: "NestiaSimulator",
             }),
           ),

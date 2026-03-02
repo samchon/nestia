@@ -48,7 +48,7 @@ export namespace SdkImportWizard {
 const PlainFetcher = (importer: ImportDictionary) =>
   importer.external({
     declaration: false,
-    file: "@nestia/fetcher/lib/PlainFetcher",
+    file: "@nestia/fetcher",
     type: "element",
     name: "PlainFetcher",
   });
@@ -56,7 +56,7 @@ const PlainFetcher = (importer: ImportDictionary) =>
 const EncryptedFetcher = (importer: ImportDictionary) =>
   importer.external({
     declaration: false,
-    file: "@nestia/fetcher/lib/EncryptedFetcher",
+    file: "@nestia/fetcher",
     type: "element",
     name: "EncryptedFetcher",
   });

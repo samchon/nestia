@@ -127,7 +127,7 @@ const FUNCTORS: Record<string, Programmer> = {
 };
 
 const LIB_PATH = path.join("@nestia", "core", "lib", "decorators");
-const MONO_PATH = path.join("@nestia", "core", "src", "decorators");
+const MONO_PATH = path.join("packages", "core", "src", "decorators");
 
 const getName = (symbol: ts.Symbol): string => {
   const parent = symbol.getDeclarations()?.[0]?.parent;

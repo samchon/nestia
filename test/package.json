@@ -8,8 +8,7 @@
     "clean": "pnpm uninstall @nestia/core @nestia/e2e @nestia/fetcher @nestia/sdk nestia",
     "errors": "node executable/errors",
     "generate": "node executable/generate",
-    "start": "node executable/start",
-    "prepare": "ts-patch install && typia patch"
+    "start": "node executable/start"
   },
   "repository": {
     "type": "git",

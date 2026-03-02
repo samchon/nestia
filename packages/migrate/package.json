@@ -15,7 +15,7 @@
     "bundle": "node src/executable/bundle.js",
     "dev": "rimraf lib && tsc --watch",
     "package:next": "npm publish --access public --tag next",
-    "prepare": "ts-patch install && typia patch && npm run bundle",
+    "prepare": "npm run bundle",
     "test": "node lib/test"
   },
   "repository": {

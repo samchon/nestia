@@ -150,7 +150,7 @@ export namespace NestiaMigrateApiFunctionProgrammer {
             ts.factory.createIdentifier(
               ctx.importer.external({
                 type: "instance",
-                library: `@nestia/fetcher/lib/${encrypted ? "EncryptedFetcher" : "PlainFetcher"}`,
+                library: `@nestia/fetcher`,
                 name: encrypted ? "EncryptedFetcher" : "PlainFetcher",
               }),
             ),

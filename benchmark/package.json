@@ -7,7 +7,6 @@
   "scripts": {
     "build": "rimraf bin && tsc",
     "generate": "ts-node src/generate && npm run prettier && npm run build",
-    "prepare": "ts-patch install",
     "prettier": "prettier ./src/**/*.ts --write",
     "start": "npm run build && node bin"
   },
