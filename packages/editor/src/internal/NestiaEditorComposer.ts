@@ -1,5 +1,5 @@
 import { NestiaMigrateApplication } from "@nestia/migrate";
-import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
+import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
 import * as prettierEsTreePlugin from "prettier/plugins/estree";
 import * as prettierTsPlugin from "prettier/plugins/typescript";
 import { format } from "prettier/standalone";
