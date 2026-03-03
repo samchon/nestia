@@ -1,9 +1,11 @@
+import {
+  AssertProgrammer,
+  MetadataFactory,
+  MetadataSchema,
+  MetadataStorage,
+  TransformerError,
+} from "@typia/core";
 import ts from "typescript";
-import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
-import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
-import { AssertProgrammer } from "typia/lib/programmers/AssertProgrammer";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
-import { TransformerError } from "typia/lib/transformers/TransformerError";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
 
@@ -22,7 +24,7 @@ export namespace PlainBodyProgrammer {
         absorb: true,
         validate,
       },
-      collection: new MetadataCollection(),
+      components: new MetadataStorage(),
       type: props.type,
     });
     if (result.success === false)
@@ -50,7 +52,7 @@ export namespace PlainBodyProgrammer {
   };
 }
 
-const validate = (metadata: Metadata): string[] => {
+const validate = (metadata: MetadataSchema): string[] => {
   const errors: string[] = [];
   const insert = (msg: string) => errors.push(msg);
 

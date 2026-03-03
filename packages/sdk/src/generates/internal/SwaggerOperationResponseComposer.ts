@@ -1,4 +1,4 @@
-import { OpenApi } from "@samchon/openapi";
+import { OpenApi } from "@typia/interface";
 import { VariadicSingleton } from "tstl";
 import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 

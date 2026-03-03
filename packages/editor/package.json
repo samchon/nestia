@@ -39,8 +39,8 @@
   "dependencies": {
     "@mui/material": "^5.15.6",
     "@nestia/migrate": "workspace:^",
-    "@samchon/openapi": "catalog:samchon",
     "@stackblitz/sdk": "^1.11.0",
+    "@typia/interface": "catalog:samchon",
     "js-yaml": "^4.1.0",
     "prettier": "catalog:typescript",
     "react-mui-fileuploader": "^0.5.2",

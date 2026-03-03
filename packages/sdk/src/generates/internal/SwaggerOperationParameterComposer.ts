@@ -1,4 +1,4 @@
-import { OpenApi } from "@samchon/openapi";
+import { OpenApi } from "@typia/interface";
 import { VariadicSingleton } from "tstl";
 import { IJsDocTagInfo, IJsonSchemaCollection } from "typia";
 import { JsonSchemasProgrammer } from "typia/lib/programmers/json/JsonSchemasProgrammer";

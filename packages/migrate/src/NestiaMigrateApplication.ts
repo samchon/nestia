@@ -1,11 +1,11 @@
 import {
-  HttpMigration,
   IHttpMigrateApplication,
   OpenApi,
   OpenApiV3,
   OpenApiV3_1,
   SwaggerV2,
-} from "@samchon/openapi";
+} from "@typia/interface";
+import { HttpMigration, OpenApiConverter } from "@typia/utils";
 import typia, { IValidation } from "typia";
 
 import { NEST_TEMPLATE } from "./bundles/NEST_TEMPLATE";
@@ -36,7 +36,7 @@ export class NestiaMigrateApplication {
       | OpenApi.IDocument,
   ): NestiaMigrateApplication {
     return new NestiaMigrateApplication(
-      OpenApi.convert(typia.assert(document)),
+      OpenApiConverter.upgradeDocument(typia.assert(document)),
     );
   }
 
@@ -56,7 +56,9 @@ export class NestiaMigrateApplication {
     if (result.success === false) return result;
     return {
       success: true,
-      data: new NestiaMigrateApplication(OpenApi.convert(document)),
+      data: new NestiaMigrateApplication(
+        OpenApiConverter.upgradeDocument(document),
+      ),
     };
   }
 

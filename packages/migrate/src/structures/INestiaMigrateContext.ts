@@ -1,4 +1,4 @@
-import { IHttpMigrateApplication } from "@samchon/openapi";
+import { IHttpMigrateApplication } from "@typia/interface";
 
 import { INestiaMigrateConfig } from "./INestiaMigrateConfig";
 

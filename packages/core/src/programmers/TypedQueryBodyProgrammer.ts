@@ -1,15 +1,17 @@
+import {
+  HttpAssertQueryProgrammer,
+  HttpIsQueryProgrammer,
+  HttpQueryProgrammer,
+  HttpValidateQueryProgrammer,
+  ITypiaContext,
+  LlmSchemaProgrammer,
+  MetadataFactory,
+  MetadataSchema,
+  MetadataStorage,
+  TransformerError,
+} from "@typia/core";
+import { ValidationPipe } from "@typia/interface";
 import ts from "typescript";
-import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
-import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
-import { HttpAssertQueryProgrammer } from "typia/lib/programmers/http/HttpAssertQueryProgrammer";
-import { HttpIsQueryProgrammer } from "typia/lib/programmers/http/HttpIsQueryProgrammer";
-import { HttpQueryProgrammer } from "typia/lib/programmers/http/HttpQueryProgrammer";
-import { HttpValidateQueryProgrammer } from "typia/lib/programmers/http/HttpValidateQueryProgrammer";
-import { LlmSchemaProgrammer } from "typia/lib/programmers/llm/LlmSchemaProgrammer";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
-import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
-import { TransformerError } from "typia/lib/transformers/TransformerError";
-import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
 
 import { INestiaTransformOptions } from "../options/INestiaTransformOptions";
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
@@ -24,7 +26,7 @@ export namespace TypedQueryBodyProgrammer {
     // VALIDATE TYPE
     if (props.context.options.llm) {
       const llm: INestiaTransformOptions.ILlm = props.context.options.llm;
-      const result: ValidationPipe<Metadata, MetadataFactory.IError> =
+      const result: ValidationPipe<MetadataSchema, MetadataFactory.IError> =
         MetadataFactory.analyze({
           checker: props.context.checker,
           transformer: props.context.transformer,
@@ -49,7 +51,7 @@ export namespace TypedQueryBodyProgrammer {
               return errors;
             },
           },
-          collection: new MetadataCollection(),
+          components: new MetadataStorage(),
           type: props.type,
         });
       if (result.success === false)

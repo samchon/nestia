@@ -1,9 +1,7 @@
-import { OpenApi, OpenApiTypeChecker } from "@samchon/openapi";
+import { FormatCheatSheet, TypeFactory } from "@typia/core";
+import { NamingConvention, OpenApiTypeChecker } from "@typia/utils";
 import ts from "typescript";
-import typia from "typia";
-import { TypeFactory } from "typia/lib/factories/TypeFactory";
-import { FormatCheatSheet } from "typia/lib/tags/internal/FormatCheatSheet";
-import { Escaper } from "typia/lib/utils/Escaper";
+import typia, { OpenApi } from "typia";
 
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
@@ -324,7 +322,7 @@ export namespace NestiaMigrateSchemaProgrammer {
         props.value.readOnly
           ? [ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword)]
           : undefined,
-        Escaper.variable(props.key)
+        NamingConvention.variable(props.key)
           ? ts.factory.createIdentifier(props.key)
           : ts.factory.createStringLiteral(props.key),
         props.required.includes(props.key)

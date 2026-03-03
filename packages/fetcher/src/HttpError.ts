@@ -1,1 +1,1 @@
-export { HttpError } from "@samchon/openapi";
+export { HttpError } from "@typia/utils";

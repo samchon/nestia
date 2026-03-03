@@ -1,4 +1,4 @@
-import { IHttpMigrateRoute } from "@samchon/openapi";
+import { IHttpMigrateRoute } from "@typia/interface";
 
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { MapUtil } from "../utils/MapUtil";

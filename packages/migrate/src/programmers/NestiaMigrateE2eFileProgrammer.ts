@@ -1,7 +1,7 @@
-import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
+import { IdentifierFactory, LiteralFactory } from "@typia/core";
+import { IHttpMigrateRoute } from "@typia/interface";
 import ts from "typescript";
-import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
-import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
+import { OpenApi } from "typia";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";

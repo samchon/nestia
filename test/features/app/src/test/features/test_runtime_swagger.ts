@@ -1,4 +1,4 @@
-import { OpenApi } from "@samchon/openapi";
+import { OpenApi } from "@typia/interface";
 import typia from "typia";
 
 export const test_runtime_swagger = async (): Promise<void> => {

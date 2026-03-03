@@ -1,11 +1,13 @@
+import {
+  IProgrammerProps,
+  JsonAssertStringifyProgrammer,
+  JsonIsStringifyProgrammer,
+  JsonMetadataFactory,
+  JsonStringifyProgrammer,
+  JsonValidateStringifyProgrammer,
+  LlmSchemaProgrammer,
+} from "@typia/core";
 import ts from "typescript";
-import { JsonMetadataFactory } from "typia/lib/factories/JsonMetadataFactory";
-import { JsonAssertStringifyProgrammer } from "typia/lib/programmers/json/JsonAssertStringifyProgrammer";
-import { JsonIsStringifyProgrammer } from "typia/lib/programmers/json/JsonIsStringifyProgrammer";
-import { JsonStringifyProgrammer } from "typia/lib/programmers/json/JsonStringifyProgrammer";
-import { JsonValidateStringifyProgrammer } from "typia/lib/programmers/json/JsonValidateStringifyProgrammer";
-import { LlmSchemaProgrammer } from "typia/lib/programmers/llm/LlmSchemaProgrammer";
-import { IProgrammerProps } from "typia/lib/transformers/IProgrammerProps";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
 

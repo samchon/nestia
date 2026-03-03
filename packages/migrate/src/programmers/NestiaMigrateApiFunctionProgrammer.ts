@@ -1,8 +1,7 @@
-import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
+import { IdentifierFactory, StatementFactory } from "@typia/core";
+import { IHttpMigrateRoute, OpenApi } from "@typia/interface";
+import { NamingConvention } from "@typia/utils";
 import ts from "typescript";
-import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
-import { StatementFactory } from "typia/lib/factories/StatementFactory";
-import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";
@@ -271,7 +270,11 @@ export namespace NestiaMigrateApiFunctionProgrammer {
               )
             : ts.factory.createBinaryExpression(
                 ts.factory.createIdentifier(
-                  `connection.headers${Escaper.variable(h.property) ? `.${h.property}` : `[${JSON.stringify(h.property)}]`}`,
+                  `connection.headers${
+                    NamingConvention.variable(h.property)
+                      ? `.${h.property}`
+                      : `[${JSON.stringify(h.property)}]`
+                  }`,
                 ),
                 ts.factory.createToken(ts.SyntaxKind.EqualsToken),
                 ts.factory.createIdentifier(`output.${h.accessor}`),

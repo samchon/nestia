@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
-import { OpenApi } from "@samchon/openapi";
 import { HttpLlm } from "@samchon/openapi/lib/HttpLlm";
 import { IHttpLlmApplication } from "@samchon/openapi/lib/structures/IHttpLlmApplication";
 import { IHttpLlmFunction } from "@samchon/openapi/lib/structures/IHttpLlmFunction";
+import { OpenApi } from "@typia/interface";
 import cp from "child_process";
 import fs from "fs";
 

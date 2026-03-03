@@ -47,8 +47,10 @@
     "rollup": "^4.24.3"
   },
   "dependencies": {
-    "@samchon/openapi": "catalog:samchon",
     "@trivago/prettier-plugin-sort-imports": "catalog:typescript",
+    "@typia/core": "catalog:samchon",
+    "@typia/interface": "catalog:samchon",
+    "@typia/utils": "catalog:samchon",
     "commander": "10.0.0",
     "inquirer": "8.2.5",
     "prettier": "catalog:typescript",

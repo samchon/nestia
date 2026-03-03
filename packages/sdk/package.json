@@ -35,7 +35,8 @@
   "dependencies": {
     "@nestia/core": "workspace:^",
     "@nestia/fetcher": "workspace:^",
-    "@samchon/openapi": "^6.0.0",
+    "@typia/interface": "catalog:samchon",
+    "@typia/utils": "catalog:samchon",
     "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
     "glob": "^11.0.3",
@@ -48,7 +49,7 @@
     "typia": "catalog:samchon"
   },
   "peerDependencies": {
-    "@nestia/core": ">=9.0.0-dev.20251107-3"
+    "@nestia/core": "workspace:^"
   },
   "devDependencies": {
     "@nestjs/common": "catalog:nestjs",

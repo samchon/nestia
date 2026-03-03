@@ -1,5 +1,5 @@
+import { NamingConvention } from "@typia/utils";
 import ts from "typescript";
-import { Escaper } from "typia/lib/utils/Escaper";
 
 export namespace TypeLiteralFactory {
   export const generate = (value: any): ts.TypeNode =>
@@ -46,7 +46,7 @@ export namespace TypeLiteralFactory {
       Object.entries(obj).map(([key, value]) =>
         ts.factory.createPropertySignature(
           undefined,
-          Escaper.variable(key)
+          NamingConvention.variable(key)
             ? ts.factory.createIdentifier(key)
             : ts.factory.createStringLiteral(key),
           undefined,

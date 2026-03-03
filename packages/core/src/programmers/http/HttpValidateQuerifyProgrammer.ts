@@ -1,8 +1,10 @@
+import {
+  ITypiaContext,
+  IdentifierFactory,
+  StatementFactory,
+  ValidateProgrammer,
+} from "@typia/core";
 import ts from "typescript";
-import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
-import { StatementFactory } from "typia/lib/factories/StatementFactory";
-import { ValidateProgrammer } from "typia/lib/programmers/ValidateProgrammer";
-import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
 
 import { HttpQuerifyProgrammer } from "./HttpQuerifyProgrammer";
 

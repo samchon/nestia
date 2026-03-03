@@ -1,5 +1,5 @@
+import { HttpParameterProgrammer } from "@typia/core";
 import ts from "typescript";
-import { HttpParameterProgrammer } from "typia/lib/programmers/http/HttpParameterProgrammer";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
 

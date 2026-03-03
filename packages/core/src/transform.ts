@@ -1,5 +1,5 @@
+import { ITypiaContext } from "@typia/core";
 import ts from "typescript";
-import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
 
 import { INestiaTransformOptions } from "./options/INestiaTransformOptions";
 import { FileTransformer } from "./transformers/FileTransformer";
