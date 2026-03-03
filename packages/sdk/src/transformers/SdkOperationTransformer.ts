@@ -45,9 +45,7 @@ export namespace SdkOperationTransformer {
                 ts.factory.createIdentifier("__OperationMetadata"),
               ),
             ),
-            ts.factory.createStringLiteral(
-              "@nestia/sdk/lib/decorators/OperationMetadata",
-            ),
+            ts.factory.createStringLiteral("@nestia/sdk"),
             undefined,
           ),
           ...file.statements,

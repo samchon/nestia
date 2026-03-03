@@ -12,6 +12,7 @@ export namespace NestiaSdkCommand {
       validate: (config) => !!config.output,
       solution: "configure INestiaConfig.output property.",
     });
+
   export const swagger = () =>
     main({
       title: "Swagger Document",
@@ -19,6 +20,7 @@ export namespace NestiaSdkCommand {
       validate: (config) => !!config.swagger?.output,
       solution: "configure INestiaConfig.swagger property.",
     });
+
   export const e2e = () =>
     main({
       title: "E2E Functions",
@@ -31,6 +33,7 @@ export namespace NestiaSdkCommand {
         "  - INestiaConfig.e2e",
       ].join("\n"),
     });
+
   export const all = () =>
     main({
       title: "everything",
@@ -58,6 +61,7 @@ export namespace NestiaSdkCommand {
           extension: "json",
         }) ?? "tsconfig.json",
       );
+
     const configurations: INestiaConfig[] =
       await NestiaConfigLoader.configurations(
         getFileArgument({
