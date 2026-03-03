@@ -345,9 +345,6 @@ importers:
       '@stackblitz/sdk':
         specifier: ^1.11.0
         version: 1.11.0
-      '@trivago/prettier-plugin-sort-imports':
-        specifier: catalog:typescript
-        version: 4.3.0(prettier@3.8.1)
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.1
