@@ -3,6 +3,8 @@ import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule } from "@nestjs/swagger";
 
+class ApplicationModule {}
+
 const bootstrap = async (): Promise<void> => {
   const app: INestApplication = await NestFactory.create(ApplicationModule);
   const document = await NestiaSwaggerComposer.document(app, {});
@@ -10,5 +12,3 @@ const bootstrap = async (): Promise<void> => {
   await app.listen(37_000);
 };
 bootstrap().catch(console.error);
-
-class ApplicationModule {}

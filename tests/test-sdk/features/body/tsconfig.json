@@ -10,7 +10,10 @@
       // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
       /* Language and Environment */
       "target": "es2016",
-      "lib": ["DOM", "ESNext"], /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+      "lib": [
+        "DOM",
+        "ESNext"
+      ],
       "lib": [
         "DOM",
         "ESNext",

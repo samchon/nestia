@@ -1,6 +1,5 @@
-import { OpenApi } from "@samchon/openapi";
 import fs from "fs";
-import typia, { tags } from "typia";
+import typia, { OpenApi, tags } from "typia";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 

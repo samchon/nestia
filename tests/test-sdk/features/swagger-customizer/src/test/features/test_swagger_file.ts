@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
-import { OpenApi } from "@samchon/openapi";
 import fs from "fs";
+import { OpenApi } from "typia";
 
 export const test_swagger_file = async (): Promise<void> => {
   const content: string = await fs.promises.readFile(

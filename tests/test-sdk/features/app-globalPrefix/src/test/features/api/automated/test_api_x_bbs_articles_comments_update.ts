@@ -1,8 +1,8 @@
+import type { IBbsComment } from "@api/lib/structures/IBbsComment";
 import type { Primitive, tags } from "typia";
 import typia from "typia";
 
 import api from "../../../../api";
-import type { IBbsComment } from "../../../../api/structures/IBbsComment";
 
 export const test_api_x_bbs_articles_comments_update = async (
   connection: api.IConnection,

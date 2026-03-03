@@ -8,6 +8,7 @@
   "dependencies": {
     "@fastify/multipart": "^8.1.0",
     "@nestia/core": "workspace:^",
+    "@samchon/openapi": "^6.0.1",
     "@nestia/e2e": "workspace:^",
     "@nestia/fetcher": "workspace:^",
     "@nestjs/common": "catalog:nestjs",
@@ -15,6 +16,8 @@
     "@nestjs/platform-express": "catalog:nestjs",
     "@nestjs/platform-fastify": "catalog:nestjs",
     "@nestjs/swagger": "^11.2.6",
+    "@typia/interface": "catalog:samchon",
+    "@typia/utils": "catalog:samchon",
     "embed-typescript": "^1.1.0",
     "express": "^4.21.1",
     "fastify": "^5.3.2",

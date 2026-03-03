@@ -1,9 +1,9 @@
+import type { IBbsComment } from "@api/lib/structures/IBbsComment";
+import type { IPage } from "@api/lib/structures/IPage";
 import type { Primitive, tags } from "typia";
 import typia from "typia";
 
 import api from "../../../../api";
-import type { IBbsComment } from "../../../../api/structures/IBbsComment";
-import type { IPage } from "../../../../api/structures/IPage";
 
 export const test_api_api_v3_articles_comments_index = async (
   connection: api.IConnection,

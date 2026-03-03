@@ -1,4 +1,4 @@
-import { SwaggerV2 } from "@samchon/openapi";
+import { SwaggerV2 } from "@typia/interface";
 import typia from "typia";
 
 import swagger from "../../../swagger.json";

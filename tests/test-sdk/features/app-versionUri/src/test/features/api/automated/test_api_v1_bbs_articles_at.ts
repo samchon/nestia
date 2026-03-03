@@ -1,8 +1,8 @@
+import type { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 import type { Primitive, tags } from "typia";
 import typia from "typia";
 
 import api from "../../../../api";
-import type { IBbsArticle } from "../../../../api/structures/IBbsArticle";
 
 export const test_api_v1_bbs_articles_at = async (
   connection: api.IConnection,
