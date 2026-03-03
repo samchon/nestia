@@ -51,7 +51,6 @@
     "commander": "10.0.0",
     "inquirer": "8.2.5",
     "prettier": "^3.8.1",
-    "prettier-plugin-jsdoc": "^1.8.0",
     "tstl": "catalog:samchon",
     "typescript": "catalog:typescript",
     "typia": "catalog:samchon"
