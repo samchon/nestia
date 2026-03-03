@@ -13,6 +13,7 @@
     "@nestia/fetcher": "workspace:^",
     "@nestjs/common": "catalog:nestjs",
     "@nestjs/core": "catalog:nestjs",
+    "@nestjs/platform-express": "catalog:nestjs",
     "typia": "catalog:samchon",
     "uuid": "catalog:utils"
   },

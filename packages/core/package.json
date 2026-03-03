@@ -5,8 +5,9 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./package.json": "./package.json",
     "./lib/transform": "./src/transform.ts",
-    "./package.json": "./package.json"
+    "./src/transform.ts": "./src/transform.ts"
   },
   "tsp": {
     "tscOptions": {
@@ -38,8 +39,6 @@
   "homepage": "https://nestia.io",
   "dependencies": {
     "@nestia/fetcher": "workspace:^",
-    "@nestjs/common": ">=7.0.1",
-    "@nestjs/core": ">=7.0.1",
     "@typia/core": "catalog:samchon",
     "@typia/interface": "catalog:samchon",
     "@typia/utils": "catalog:samchon",
@@ -65,6 +64,7 @@
   "devDependencies": {
     "@nestjs/common": "catalog:nestjs",
     "@nestjs/core": "catalog:nestjs",
+    "@nestjs/platform-express": "catalog:nestjs",
     "@types/express": "^4.17.15",
     "@types/inquirer": "^9.0.3",
     "@types/multer": "^1.4.12",

@@ -5,6 +5,7 @@ import {
   NestiaMigrateFileArchiver,
 } from "@nestia/migrate";
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
+import cp from "child_process";
 import fs from "fs";
 import { IValidation } from "typia";
 
@@ -59,6 +60,16 @@ const execute = (
           `Please check the generated files.`,
       );
     }
+    if (files["tsconfig.json"] !== undefined) {
+      files["tsconfig.json"] = files["tsconfig.json"].replace(
+        "@nestia/core/lib/transform",
+        "@nestia/core/src/transform.ts",
+      );
+      files["tsconfig.json"] = files["tsconfig.json"].replace(
+        "@nestia/sdk/lib/transform",
+        "@nestia/sdk/src/transform.ts",
+      );
+    }
 
     await NestiaMigrateFileArchiver.archive({
       mkdir: fs.promises.mkdir,
@@ -71,20 +82,15 @@ const execute = (
       root: directory,
       files,
     });
-    // cp.execSync(
-    //   `npx cross-env NODE_OPTIONS="--no-experimental-strip-types -r ts-node/register" npx tsc`,
-    //   {
-    //     stdio: "inherit",
-    //     cwd: directory,
-    //   },
-    // );
-    // cp.execSync(
-    //   `npx cross-env NODE_OPTIONS="--no-experimental-strip-types -r ts-node/register" npx tsc -p test/tsconfig.json`,
-    //   {
-    //     stdio: "inherit",
-    //     cwd: directory,
-    //   },
-    // );
+
+    cp.execSync(`pnpm tsc`, {
+      stdio: "inherit",
+      cwd: directory,
+    });
+    cp.execSync(`pnpm tsc -p test/tsconfig.json`, {
+      stdio: "inherit",
+      cwd: directory,
+    });
   });
 };
 
