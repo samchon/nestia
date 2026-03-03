@@ -12,6 +12,12 @@ catalogs:
     '@nestjs/core':
       specifier: ^11.1.4
       version: 11.1.14
+    '@nestjs/platform-express':
+      specifier: ^11.1.4
+      version: 11.1.14
+    '@nestjs/platform-fastify':
+      specifier: ^11.1.4
+      version: 11.1.14
   samchon:
     tgrid:
       specifier: ^1.1.0
@@ -78,16 +84,16 @@ importers:
         specifier: workspace:^
         version: link:../packages/core
       '@nestjs/common':
-        specifier: ^11.0.13
+        specifier: catalog:nestjs
         version: 11.1.14(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core':
-        specifier: ^11.0.13
+        specifier: catalog:nestjs
         version: 11.1.14(@nestjs/common@11.1.14(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.14)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/platform-express':
-        specifier: ^11.0.13
+        specifier: catalog:nestjs
         version: 11.1.14(@nestjs/common@11.1.14(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.14)
       '@nestjs/platform-fastify':
-        specifier: ^11.0.13
+        specifier: catalog:nestjs
         version: 11.1.14(@nestjs/common@11.1.14(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.14)
       autocannon:
         specifier: ^7.15.0
@@ -117,13 +123,13 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
       tgrid:
-        specifier: ^1.1.0
+        specifier: catalog:samchon
         version: 1.2.1
       tstl:
-        specifier: ^3.0.0
+        specifier: catalog:samchon
         version: 3.0.0
       typia:
-        specifier: ^11.0.0
+        specifier: catalog:samchon
         version: 11.0.3(typescript@5.9.3)
     devDependencies:
       '@types/autocannon':
@@ -136,22 +142,22 @@ importers:
         specifier: ^4.17.17
         version: 4.17.25
       '@types/node':
-        specifier: ^20.1.4
-        version: 20.19.35
+        specifier: catalog:utils
+        version: 25.3.3
       '@types/physical-cpu-count':
         specifier: ^2.0.0
         version: 2.0.2
       rimraf:
-        specifier: ^6.0.1
+        specifier: catalog:utils
         version: 6.1.3
       ts-node:
-        specifier: ^10.9.1
-        version: 10.9.2(@types/node@20.19.35)(typescript@5.9.3)
+        specifier: catalog:typescript
+        version: 10.9.2(@types/node@25.3.3)(typescript@5.9.3)
       ts-patch:
-        specifier: ^3.3.0
+        specifier: catalog:typescript
         version: 3.3.0
       typescript:
-        specifier: ~5.9.3
+        specifier: catalog:typescript
         version: 5.9.3
 
   packages/benchmark:
@@ -508,8 +514,8 @@ importers:
         specifier: ^1.4.12
         version: 1.4.13
       '@types/node':
-        specifier: ^20.3.3
-        version: 20.19.35
+        specifier: catalog:utils
+        version: 25.3.3
       '@types/swagger-ui-express':
         specifier: ^4.1.6
         version: 4.1.8
@@ -551,7 +557,7 @@ importers:
         version: 1.2.1
       ts-node:
         specifier: ^10.9.1
-        version: 10.9.2(@types/node@20.19.35)(typescript@5.9.3)
+        version: 10.9.2(@types/node@25.3.3)(typescript@5.9.3)
       ts-patch:
         specifier: ^3.3.0
         version: 3.3.0
@@ -4873,7 +4879,7 @@ snapshots:
 
   '@types/autocannon@7.12.7':
     dependencies:
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
 
   '@types/babel__core@7.20.5':
     dependencies:
@@ -4899,19 +4905,19 @@ snapshots:
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
 
   '@types/cli-progress@3.11.6':
     dependencies:
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
 
   '@types/cli@0.11.25':
     dependencies:
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
 
   '@types/d3-array@3.2.2': {}
 
@@ -5038,7 +5044,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.8':
     dependencies:
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
       '@types/qs': 6.14.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -5115,22 +5121,22 @@ snapshots:
   '@types/send@0.17.6':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
 
   '@types/serve-static@1.15.10':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
       '@types/send': 0.17.6
 
   '@types/serve-static@2.2.0':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
 
   '@types/swagger-ui-express@4.1.8':
     dependencies:
@@ -5139,7 +5145,7 @@ snapshots:
 
   '@types/through@0.0.33':
     dependencies:
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
 
   '@types/unist@3.0.3': {}
 
@@ -5151,15 +5157,15 @@ snapshots:
 
   '@types/websocket@1.0.10':
     dependencies:
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
 
   '@types/ws@7.4.7':
     dependencies:
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 20.19.35
+      '@types/node': 22.19.13
 
   '@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.39.3)(typescript@5.9.3))(eslint@9.39.3)(typescript@5.9.3)':
     dependencies:
@@ -7573,24 +7579,6 @@ snapshots:
       typescript: 5.9.3
 
   ts-expose-internals@5.4.5: {}
-
-  ts-node@10.9.2(@types/node@20.19.35)(typescript@5.9.3):
-    dependencies:
-      '@cspotcode/source-map-support': 0.8.1
-      '@tsconfig/node10': 1.0.12
-      '@tsconfig/node12': 1.0.11
-      '@tsconfig/node14': 1.0.3
-      '@tsconfig/node16': 1.0.4
-      '@types/node': 20.19.35
-      acorn: 8.16.0
-      acorn-walk: 8.3.5
-      arg: 4.1.3
-      create-require: 1.1.1
-      diff: 4.0.4
-      make-error: 1.3.6
-      typescript: 5.9.3
-      v8-compile-cache-lib: 3.0.1
-      yn: 3.1.1
 
   ts-node@10.9.2(@types/node@22.19.13)(typescript@5.9.3):
     dependencies:

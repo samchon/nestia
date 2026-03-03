@@ -1,8 +1,4 @@
 {
   "extends": "../config/tsconfig.nestia.json",
-  "compilerOptions": {
-    "noEmit": false,
-    "outDir": "bin",
-  },
   "include": ["src"],
 }

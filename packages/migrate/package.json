@@ -55,7 +55,7 @@
     "@types/express": "^4.17.21",
     "@types/inquirer": "^9.0.7",
     "@types/multer": "^1.4.12",
-    "@types/node": "^20.3.3",
+    "@types/node": "catalog:utils",
     "@types/swagger-ui-express": "^4.1.6",
     "chalk": "4.1.2",
     "cli-progress": "^3.12.0",
