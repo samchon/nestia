@@ -687,37 +687,21 @@ importers:
       '@nestjs/platform-fastify':
         specifier: catalog:nestjs
         version: 11.1.14(@nestjs/common@11.1.14(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.14)
+      '@types/swagger-ui-express':
+        specifier: ^4.1.8
+        version: 4.1.8
       '@typia/interface':
         specifier: catalog:samchon
         version: 12.0.0-dev.20260303-2
-      typia:
-        specifier: catalog:samchon
-        version: 12.0.0-dev.20260303-2(typescript@5.9.3)
-    devDependencies:
-      '@nestia/sdk':
-        specifier: workspace:^
-        version: link:../../packages/sdk
-      '@types/express':
-        specifier: ^4.17.21
-        version: 4.17.25
-      '@types/inquirer':
-        specifier: ^9.0.7
-        version: 9.0.9
-      '@types/multer':
-        specifier: ^1.4.12
-        version: 1.4.13
-      '@types/node':
-        specifier: catalog:utils
-        version: 25.3.3
       chalk:
         specifier: 4.1.2
         version: 4.1.2
+      cli-progress:
+        specifier: ^3.12.0
+        version: 3.12.0
       commander:
         specifier: 10.0.0
         version: 10.0.0
-      cross-env:
-        specifier: ^10.1.0
-        version: 10.1.0
       dotenv:
         specifier: ^16.3.1
         version: 16.6.1
@@ -733,9 +717,6 @@ importers:
       multer:
         specifier: ^2.0.2
         version: 2.1.0
-      nestia:
-        specifier: workspace:^
-        version: link:../../packages/cli
       serialize-error:
         specifier: ^4.1.0
         version: 4.1.0
@@ -743,17 +724,42 @@ importers:
         specifier: ^0.5.21
         version: 0.5.21
       swagger-ui-express:
-        specifier: ^5.0.0
+        specifier: ^5.0.1
         version: 5.0.1(express@4.22.1)
       tgrid:
         specifier: catalog:samchon
         version: 1.2.1
-      ts-node:
-        specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@5.9.3)
       tstl:
         specifier: catalog:samchon
         version: 3.0.0
+      typia:
+        specifier: catalog:samchon
+        version: 12.0.0-dev.20260303-2(typescript@5.9.3)
+    devDependencies:
+      '@nestia/sdk':
+        specifier: workspace:^
+        version: link:../../packages/sdk
+      '@types/cli-progress':
+        specifier: ^3.11.6
+        version: 3.11.6
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.25
+      '@types/inquirer':
+        specifier: ^9.0.7
+        version: 9.0.9
+      '@types/multer':
+        specifier: ^1.4.12
+        version: 1.4.13
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.3.3
+      nestia:
+        specifier: workspace:^
+        version: link:../../packages/cli
+      ts-node:
+        specifier: catalog:typescript
+        version: 10.9.2(@types/node@25.3.3)(typescript@5.9.3)
       typescript:
         specifier: catalog:typescript
         version: 5.9.3
@@ -1586,6 +1592,9 @@ packages:
   '@types/body-parser@1.19.6':
     resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
 
+  '@types/cli-progress@3.11.6':
+    resolution: {integrity: sha512-cE3+jb9WRlu+uOSAugewNpITJDt1VF8dHOopPO4IABFc3SXYL5WE/+PTz/FCdZRRfIujiWW3n3aMbv1eIGVRWA==}
+
   '@types/cli@0.11.25':
     resolution: {integrity: sha512-dO7U6Q+6f7IIDtPwFe3RGIC7QBKEq6zPmQ2UaNt6NskhrupafbrftJ+PzzfMnxCL+y1oGKMJb7vC6vvSGEIElg==}
 
@@ -1769,6 +1778,9 @@ packages:
 
   '@types/serve-static@1.15.10':
     resolution: {integrity: sha512-tRs1dB+g8Itk72rlSI2ZrW6vZg0YrLI81iQSTkMmOqnqCaNr/8Ek4VwWcN5vZgCYWbg/JJSGBlUaYGAOP73qBw==}
+
+  '@types/swagger-ui-express@4.1.8':
+    resolution: {integrity: sha512-AhZV8/EIreHFmBV5wAs0gzJUNq9JbbSXgJLQubCC0jtIo6prnI9MIRRxnU4MZX9RB9yXxF1V4R7jtLl/Wcj31g==}
 
   '@types/through@0.0.33':
     resolution: {integrity: sha512-HsJ+z3QuETzP3cswwtzt2vEIiHBk/dCcHGhbmG5X3ecnwFD/lPrMpliGXxSCg03L9AhrdwA4Oz/qfspkDW+xGQ==}
@@ -2105,6 +2117,10 @@ packages:
   cli-cursor@3.1.0:
     resolution: {integrity: sha512-I/zHAwsKf9FqGoXM4WWRACob9+SNukZTd94DWF57E4toouRulbCxcUh6RKUEOQlYTHJnzkPMySvPNaaSLNfLZw==}
     engines: {node: '>=8'}
+
+  cli-progress@3.12.0:
+    resolution: {integrity: sha512-tRkV3HJ1ASwm19THiiLIXLO7Im7wlTuKnvkYaTkyoAPefqjNg7W7DHKUlGRxy9vxDvbyCYQkQozvptuMkGCg8A==}
+    engines: {node: '>=4'}
 
   cli-spinners@2.9.2:
     resolution: {integrity: sha512-ywqV+5MmyL4E7ybXgKys4DugZbX0FC6LnwrhjuykIjnK9k8OQacQ7axGKnjDXWNhns0xot3bZI5h55H8yo9cJg==}
@@ -4950,6 +4966,10 @@ snapshots:
       '@types/connect': 3.4.38
       '@types/node': 25.3.3
 
+  '@types/cli-progress@3.11.6':
+    dependencies:
+      '@types/node': 25.3.3
+
   '@types/cli@0.11.25':
     dependencies:
       '@types/node': 25.3.3
@@ -5167,6 +5187,11 @@ snapshots:
       '@types/http-errors': 2.0.5
       '@types/node': 25.3.3
       '@types/send': 0.17.6
+
+  '@types/swagger-ui-express@4.1.8':
+    dependencies:
+      '@types/express': 4.17.25
+      '@types/serve-static': 1.15.10
 
   '@types/through@0.0.33':
     dependencies:
@@ -5596,6 +5621,10 @@ snapshots:
   cli-cursor@3.1.0:
     dependencies:
       restore-cursor: 3.1.0
+
+  cli-progress@3.12.0:
+    dependencies:
+      string-width: 4.2.3
 
   cli-spinners@2.9.2: {}
 
