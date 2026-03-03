@@ -1,4 +1,4 @@
-import { NoTransformConfigurationError } from "@nestia/core/lib/decorators/NoTransformConfigurationError";
+import { NoTransformConfigurationError } from "@nestia/core";
 import fs from "fs";
 import path from "path";
 import { register } from "ts-node";

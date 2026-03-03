@@ -55,7 +55,7 @@ async function main(): Promise<void> {
         `@nestia/sdk has not been installed. Run "npx nestia setup" before.`,
       );
     }
-    await import("@nestia/sdk/lib/executable/sdk" as any);
+    await import("@nestia/sdk/lib/executable/sdk");
   } else halt(USAGE);
 }
 main().catch((exp) => {

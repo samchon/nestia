@@ -46,7 +46,6 @@
     "@nestia/sdk": "workspace:^",
     "@types/inquirer": "^9.0.3",
     "@types/node": "catalog:utils",
-    "@types/ts-expose-internals": "npm:ts-expose-internals@5.4.5",
     "rimraf": "catalog:utils",
     "ts-node": "catalog:typescript",
     "typescript": "catalog:typescript"
