@@ -1,13 +1,15 @@
+import {
+  CommentFactory,
+  MetadataCollection,
+  MetadataFactory,
+  MetadataObjectType,
+  MetadataSchema,
+  TypeFactory,
+} from "@typia/core";
+import { ValidationPipe } from "@typia/interface";
+import { NamingConvention } from "@typia/utils";
 import { Singleton } from "tstl";
 import ts from "typescript";
-import { CommentFactory } from "typia/lib/factories/CommentFactory";
-import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
-import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
-import { TypeFactory } from "typia/lib/factories/TypeFactory";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
-import { MetadataObjectType } from "typia/lib/schemas/metadata/MetadataObjectType";
-import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
-import { Escaper } from "typia/lib/utils/Escaper";
 
 import { DtoAnalyzer } from "../analyses/DtoAnalyzer";
 import { IReflectImport } from "../structures/IReflectImport";
@@ -120,7 +122,7 @@ export namespace SdkOperationProgrammer {
           constant: true,
           absorb: true,
         },
-        collection: p.context.collection,
+        components: p.context.collection,
         type: p.type,
       }),
     );
@@ -144,7 +146,7 @@ export namespace SdkOperationProgrammer {
 
   const writeSchema = (p: {
     collection: MetadataCollection;
-    result: ValidationPipe<Metadata, MetadataFactory.IError>;
+    result: ValidationPipe<MetadataSchema, MetadataFactory.IError>;
   }): ValidationPipe<IOperationMetadata.ISchema, IOperationMetadata.IError> => {
     if (p.result.success === false)
       return {
@@ -189,7 +191,7 @@ export namespace SdkOperationProgrammer {
   };
 }
 
-const iterateVisited = (metadata: Metadata): Set<string> => {
+const iterateVisited = (metadata: MetadataSchema): Set<string> => {
   const names: Set<string> = new Set();
   MetadataUtil.visit((m) => {
     for (const alias of m.aliases) names.add(alias.type.name);
@@ -209,7 +211,7 @@ const join = ({
 }) => {
   if (key === null) return object.name;
   else if (typeof key === "object") return `${object.name}[key]`;
-  else if (Escaper.variable(key)) return `${object.name}.${key}`;
+  else if (NamingConvention.variable(key)) return `${object.name}.${key}`;
   return `${object.name}[${JSON.stringify(key)}]`;
 };
 

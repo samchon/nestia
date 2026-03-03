@@ -1,5 +1,5 @@
+import { MetadataSchema } from "@typia/core";
 import { IJsDocTagInfo } from "typia";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 import { IReflectType } from "./IReflectType";
 
@@ -32,7 +32,7 @@ export namespace ITypedHttpRouteParameter {
     name: string;
     index: number;
     type: IReflectType;
-    metadata: Metadata;
+    metadata: MetadataSchema;
     example?: any;
     examples?: Record<string, any>;
     description: string | null;

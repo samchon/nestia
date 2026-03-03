@@ -5,9 +5,9 @@ import {
   HttpValidateFormDataProgrammer,
   ITypiaContext,
   LiteralFactory,
+  MetadataCollection,
   MetadataFactory,
   MetadataSchema,
-  MetadataStorage,
   TransformerError,
 } from "@typia/core";
 import ts from "typescript";
@@ -22,7 +22,7 @@ export namespace TypedFormDataBodyProgrammer {
     type: ts.Type;
   }): ts.ObjectLiteralExpression => {
     // VALIDATE TYPE
-    const storage: MetadataStorage = new MetadataStorage();
+    const storage: MetadataCollection = new MetadataCollection();
     const result = MetadataFactory.analyze({
       checker: props.context.checker,
       transformer: props.context.transformer,

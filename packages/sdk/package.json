@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./lib/executable/sdk": "./src/executable/sdk.ts"
   },
   "bin": {
     "@nestia/sdk": "src/executable/sdk.ts"
@@ -35,6 +36,7 @@
   "dependencies": {
     "@nestia/core": "workspace:^",
     "@nestia/fetcher": "workspace:^",
+    "@typia/core": "catalog:samchon",
     "@typia/interface": "catalog:samchon",
     "@typia/utils": "catalog:samchon",
     "cli": "^1.0.1",
@@ -77,6 +79,10 @@
       ".": {
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
+      },
+      "./cli": {
+        "types": "./lib/executable/sdk.d.ts",
+        "default": "./lib/executable/sdk.js"
       },
       "./package.json": "./package.json"
     },

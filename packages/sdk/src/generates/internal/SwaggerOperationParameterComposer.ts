@@ -1,7 +1,7 @@
+import { JsonSchemasProgrammer } from "@typia/core";
 import { OpenApi } from "@typia/interface";
 import { VariadicSingleton } from "tstl";
 import { IJsDocTagInfo, IJsonSchemaCollection } from "typia";
-import { JsonSchemasProgrammer } from "typia/lib/programmers/json/JsonSchemasProgrammer";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { ITypedHttpRouteParameter } from "../../structures/ITypedHttpRouteParameter";

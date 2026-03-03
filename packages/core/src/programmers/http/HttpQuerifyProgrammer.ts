@@ -2,10 +2,10 @@ import {
   HttpQueryProgrammer,
   ITypiaContext,
   IdentifierFactory,
+  MetadataCollection,
   MetadataFactory,
   MetadataObject,
   MetadataSchema,
-  MetadataStorage,
   StatementFactory,
   TransformerError,
 } from "@typia/core";
@@ -22,7 +22,7 @@ export namespace HttpQuerifyProgrammer {
     const functor: FunctionProgrammer = new FunctionProgrammer(
       props.modulo.getText(),
     );
-    const storage: MetadataStorage = new MetadataStorage();
+    const storage: MetadataCollection = new MetadataCollection();
     const result = MetadataFactory.analyze({
       checker: props.context.checker,
       transformer: props.context.transformer,

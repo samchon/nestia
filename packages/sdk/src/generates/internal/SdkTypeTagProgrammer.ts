@@ -1,6 +1,6 @@
+import { LiteralFactory } from "@typia/core";
+import { IMetadataTypeTag } from "@typia/interface";
 import ts from "typescript";
-import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
-import { IMetadataTypeTag } from "typia/lib/schemas/metadata/IMetadataTypeTag";
 
 import { ImportDictionary } from "./ImportDictionary";
 

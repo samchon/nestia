@@ -1,6 +1,5 @@
+import { MetadataSchema, TypeFactory } from "@typia/core";
 import ts from "typescript";
-import { TypeFactory } from "typia/lib/factories/TypeFactory";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { IReflectType } from "../../structures/IReflectType";
@@ -24,7 +23,7 @@ export namespace SdkAliasCollection {
   export const from =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (metadata: Metadata) =>
+    (metadata: MetadataSchema) =>
       SdkTypeProgrammer.write(project)(importer)(metadata);
 
   export const httpProps =
@@ -168,7 +167,7 @@ export namespace SdkAliasCollection {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.TypeNode => {
-      const schema = (p: { metadata: Metadata; type: IReflectType }) =>
+      const schema = (p: { metadata: MetadataSchema; type: IReflectType }) =>
         p.metadata.size() === 0
           ? TypeFactory.keyword("void")
           : project.config.clone === true

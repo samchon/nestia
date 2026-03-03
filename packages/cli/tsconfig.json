@@ -2,6 +2,9 @@
   "extends": "../../config/tsconfig.json",
   "compilerOptions": {
     "outDir": "bin",
+    "paths": {
+      "@nestia/sdk/lib/executable/sdk": ["../sdk/src/executable/sdk.ts"]
+    }
   },
   "include": ["src"],
 }

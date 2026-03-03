@@ -1,4 +1,4 @@
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
+import { MetadataSchema } from "@typia/core";
 
 import { IReflectType } from "./IReflectType";
 
@@ -12,7 +12,7 @@ export interface ITypedHttpRouteSuccess {
     | "application/json"
     | null;
   encrypted: boolean;
-  metadata: Metadata;
+  metadata: MetadataSchema;
   example?: any;
   examples?: Record<string, any>;
   setHeaders: Array<

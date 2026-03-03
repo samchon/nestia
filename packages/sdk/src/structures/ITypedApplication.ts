@@ -1,4 +1,4 @@
-import { IMetadataDictionary } from "typia/lib/schemas/metadata/IMetadataDictionary";
+import { IMetadataDictionary } from "@typia/core";
 
 import { INestiaProject } from "./INestiaProject";
 import { ITypedHttpRoute } from "./ITypedHttpRoute";

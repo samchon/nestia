@@ -1,5 +1,5 @@
+import { MetadataSchema } from "@typia/core";
 import { OpenApi } from "@typia/interface";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 import { INestiaConfig } from "../../INestiaConfig";
 import { SecurityAnalyzer } from "../../analyses/SecurityAnalyzer";
@@ -12,7 +12,7 @@ export namespace SwaggerOperationComposer {
   export const compose = (props: {
     config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     document: OpenApi.IDocument;
-    schema: (metadata: Metadata) => OpenApi.IJsonSchema | undefined;
+    schema: (metadata: MetadataSchema) => OpenApi.IJsonSchema | undefined;
     route: ITypedHttpRoute;
   }): OpenApi.IOperation => {
     // COMPOSE TAGS

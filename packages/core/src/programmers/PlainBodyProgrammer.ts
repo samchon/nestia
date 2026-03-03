@@ -1,8 +1,8 @@
 import {
   AssertProgrammer,
+  MetadataCollection,
   MetadataFactory,
   MetadataSchema,
-  MetadataStorage,
   TransformerError,
 } from "@typia/core";
 import ts from "typescript";
@@ -24,7 +24,7 @@ export namespace PlainBodyProgrammer {
         absorb: true,
         validate,
       },
-      components: new MetadataStorage(),
+      components: new MetadataCollection(),
       type: props.type,
     });
     if (result.success === false)

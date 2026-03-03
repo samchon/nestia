@@ -1,6 +1,6 @@
+import { MetadataSchema } from "@typia/core";
 import { OpenApi } from "@typia/interface";
 import { VariadicSingleton } from "tstl";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
 import { StringUtil } from "../../utils/StringUtil";
@@ -8,7 +8,7 @@ import { SwaggerDescriptionComposer } from "./SwaggerDescriptionComposer";
 
 export namespace SwaggerOperationResponseComposer {
   export const compose = (props: {
-    schema: (metadata: Metadata) => OpenApi.IJsonSchema | undefined;
+    schema: (metadata: MetadataSchema) => OpenApi.IJsonSchema | undefined;
     route: ITypedHttpRoute;
   }): Record<string, OpenApi.IOperation.IResponse> => {
     const output: Record<string, OpenApi.IOperation.IResponse> = {};

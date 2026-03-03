@@ -1,11 +1,12 @@
-import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
-import { IMetadata } from "typia/lib/schemas/metadata/IMetadata";
-import { IMetadataComponents } from "typia/lib/schemas/metadata/IMetadataComponents";
-import { IMetadataDictionary } from "typia/lib/schemas/metadata/IMetadataDictionary";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
-import { MetadataComponents } from "typia/lib/schemas/metadata/MetadataComponents";
-import { MetadataObjectType } from "typia/lib/schemas/metadata/MetadataObjectType";
-import { Escaper } from "typia/lib/utils/Escaper";
+import {
+  IMetadataDictionary,
+  MetadataComponents,
+  MetadataFactory,
+  MetadataObjectType,
+  MetadataSchema,
+} from "@typia/core";
+import { NamingConvention } from "@typia/utils";
+import { IMetadataComponents, IMetadataSchema } from "typia";
 
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperation } from "../structures/IReflectHttpOperation";
@@ -64,13 +65,16 @@ export namespace TypedHttpRouteAnalyzer {
     const errors: IReflectOperationError[] = [];
     const cast = (
       next: {
-        metadata: IMetadata;
+        metadata: IMetadataSchema;
         validate: MetadataFactory.Validator;
       },
       from: string,
       escape: boolean,
-    ): Metadata => {
-      const metadata: Metadata = Metadata.from(next.metadata, props.dictionary);
+    ): MetadataSchema => {
+      const metadata: MetadataSchema = MetadataSchema.from(
+        next.metadata,
+        props.dictionary,
+      );
       const metaErrors: MetadataFactory.IError[] = MetadataFactory.validate({
         options: {
           escape,
@@ -199,6 +203,6 @@ const join = ({
 }) => {
   if (key === null) return object.name;
   else if (typeof key === "object") return `${object.name}[key]`;
-  else if (Escaper.variable(key)) return `${object.name}.${key}`;
+  else if (NamingConvention.variable(key)) return `${object.name}.${key}`;
   return `${object.name}[${JSON.stringify(key)}]`;
 };

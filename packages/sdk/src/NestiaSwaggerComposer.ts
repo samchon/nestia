@@ -1,8 +1,10 @@
 import { INestApplication } from "@nestjs/common";
-import { OpenApi, OpenApiV3, SwaggerV2 } from "@samchon/openapi";
+import { IMetadataDictionary } from "@typia/core";
+import { OpenApiV3, SwaggerV2 } from "@typia/interface";
+import { OpenApiConverter } from "@typia/utils";
 import path from "path";
 import { TreeMap } from "tstl";
-import { IMetadataDictionary } from "typia/lib/schemas/metadata/IMetadataDictionary";
+import { OpenApi } from "typia";
 
 import { INestiaConfig } from "./INestiaConfig";
 import { AccessorAnalyzer } from "./analyses/AccessorAnalyzer";
@@ -31,9 +33,9 @@ export namespace NestiaSwaggerComposer {
       document: await SwaggerGenerator.initialize(config),
     });
     return config.openapi === "2.0"
-      ? OpenApi.downgrade(document, "2.0")
+      ? OpenApiConverter.downgradeDocument(document, "2.0")
       : config.openapi === "3.0"
-        ? OpenApi.downgrade(document, "3.0")
+        ? OpenApiConverter.downgradeDocument(document, "3.0")
         : document;
   };
 

@@ -1,4 +1,4 @@
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
+import { MetadataSchema } from "@typia/core";
 
 import { IReflectType } from "./IReflectType";
 
@@ -11,5 +11,5 @@ export interface ITypedHttpRouteException {
 
   // REFLECTED PROPERTIES
   type: IReflectType;
-  metadata: Metadata;
+  metadata: MetadataSchema;
 }

@@ -1,7 +1,7 @@
+import { IMetadataDictionary } from "@typia/core";
 import fs from "fs";
 import path from "path";
 import { HashSet, Pair, TreeMap } from "tstl";
-import { IMetadataDictionary } from "typia/lib/schemas/metadata/IMetadataDictionary";
 
 import { INestiaConfig } from "./INestiaConfig";
 import { AccessorAnalyzer } from "./analyses/AccessorAnalyzer";

@@ -1,11 +1,13 @@
 import { SwaggerExample } from "@nestia/core";
 import { ROUTE_ARGS_METADATA } from "@nestjs/common/constants";
 import { RouteParamtypes } from "@nestjs/common/enums/route-paramtypes.enum";
-import { JsonMetadataFactory } from "typia/lib/factories/JsonMetadataFactory";
-import { HttpFormDataProgrammer } from "typia/lib/programmers/http/HttpFormDataProgrammer";
-import { HttpHeadersProgrammer } from "typia/lib/programmers/http/HttpHeadersProgrammer";
-import { HttpParameterProgrammer } from "typia/lib/programmers/http/HttpParameterProgrammer";
-import { HttpQueryProgrammer } from "typia/lib/programmers/http/HttpQueryProgrammer";
+import {
+  HttpFormDataProgrammer,
+  HttpHeadersProgrammer,
+  HttpParameterProgrammer,
+  HttpQueryProgrammer,
+  JsonMetadataFactory,
+} from "@typia/core";
 
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationParameter } from "../structures/IReflectHttpOperationParameter";

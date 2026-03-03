@@ -1,7 +1,9 @@
+import {
+  IMetadataComponents,
+  IMetadataSchema,
+  ValidationPipe,
+} from "@typia/interface";
 import { IJsDocTagInfo } from "typia";
-import { IMetadata } from "typia/lib/schemas/metadata/IMetadata";
-import { IMetadataComponents } from "typia/lib/schemas/metadata/IMetadataComponents";
-import { ValidationPipe } from "typia/lib/typings/ValidationPipe";
 
 import { IReflectImport } from "../structures/IReflectImport";
 import { IReflectType } from "../structures/IReflectType";
@@ -34,7 +36,7 @@ export namespace IOperationMetadata {
 
   export interface ISchema {
     components: IMetadataComponents;
-    metadata: IMetadata;
+    metadata: IMetadataSchema;
   }
   export interface IError {
     name: string;

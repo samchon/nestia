@@ -4,9 +4,8 @@ import {
   HTTP_CODE_METADATA,
   INTERCEPTORS_METADATA,
 } from "@nestjs/common/constants";
+import { HttpQueryProgrammer, JsonMetadataFactory } from "@typia/core";
 import typia from "typia";
-import { JsonMetadataFactory } from "typia/lib/factories/JsonMetadataFactory";
-import { HttpQueryProgrammer } from "typia/lib/programmers/http/HttpQueryProgrammer";
 
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperationSuccess";
@@ -87,7 +86,7 @@ export namespace ReflectHttpOperationResponseAnalyzer {
       ctx.function,
     );
     return {
-      contentType: contentType,
+      contentType,
       encrypted,
       status:
         getStatus(ctx.function) ?? (ctx.httpMethod === "POST" ? 201 : 200),
@@ -100,8 +99,8 @@ export namespace ReflectHttpOperationResponseAnalyzer {
             ? HttpQueryProgrammer.validate
             : contentType === "text/plain"
               ? TextPlainValidator.validate
-              : (meta) =>
-                  meta.size()
+              : (schema) =>
+                  schema.size()
                     ? ["HEAD method must not have any return value."]
                     : [],
       example: example?.example,

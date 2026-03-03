@@ -1,4 +1,4 @@
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
+import { MetadataSchema } from "@typia/core";
 
 import { IReflectType } from "../../structures/IReflectType";
 import { ITypedApplication } from "../../structures/ITypedApplication";
@@ -55,7 +55,7 @@ export namespace SdkHttpCloneReferencer {
 
   const visitType = (p: {
     unique: Set<string>;
-    metadata: Metadata;
+    metadata: MetadataSchema;
     type: IReflectType;
     name: (key: string) => void;
   }): void => {

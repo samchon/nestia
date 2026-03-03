@@ -1,7 +1,9 @@
-import { IJsDocTagInfo } from "typia";
-import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
-import { IMetadata } from "typia/lib/schemas/metadata/IMetadata";
-import { IMetadataComponents } from "typia/lib/schemas/metadata/IMetadataComponents";
+import { MetadataFactory } from "@typia/core";
+import {
+  IJsDocTagInfo,
+  IMetadataComponents,
+  IMetadataSchema,
+} from "@typia/interface";
 
 import { IReflectType } from "./IReflectType";
 
@@ -33,7 +35,7 @@ export namespace IReflectHttpOperationParameter {
     name: string;
     index: number;
     type: IReflectType;
-    metadata: IMetadata;
+    metadata: IMetadataSchema;
     components: IMetadataComponents;
     validate: MetadataFactory.Validator;
     example?: any;

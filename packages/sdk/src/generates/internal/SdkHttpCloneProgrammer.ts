@@ -1,9 +1,11 @@
+import {
+  MetadataAliasType,
+  MetadataAtomic,
+  MetadataObjectType,
+} from "@typia/core";
 import { IPointer } from "tstl";
 import ts from "typescript";
 import { IJsDocTagInfo } from "typia";
-import { MetadataAliasType } from "typia/lib/schemas/metadata/MetadataAliasType";
-import { MetadataAtomic } from "typia/lib/schemas/metadata/MetadataAtomic";
-import { MetadataObjectType } from "typia/lib/schemas/metadata/MetadataObjectType";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedApplication } from "../../structures/ITypedApplication";

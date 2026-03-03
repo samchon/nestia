@@ -5,9 +5,9 @@ import {
   HttpValidateQueryProgrammer,
   ITypiaContext,
   LlmSchemaProgrammer,
+  MetadataCollection,
   MetadataFactory,
   MetadataSchema,
-  MetadataStorage,
   TransformerError,
 } from "@typia/core";
 import { ValidationPipe } from "@typia/interface";
@@ -51,7 +51,7 @@ export namespace TypedQueryBodyProgrammer {
               return errors;
             },
           },
-          components: new MetadataStorage(),
+          components: new MetadataCollection(),
           type: props.type,
         });
       if (result.success === false)
