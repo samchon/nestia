@@ -1,0 +1,109 @@
+{
+  "openapi": "3.1.11",
+  "servers": [
+    {
+      "url": "https://github.com/samchon/nestia",
+      "description": "insert your server url"
+    }
+  ],
+  "info": {
+    "version": "1.0.0",
+    "title": "@samchon/nestia-test",
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/custom/{key}/{value}/customize": {
+      "get": {
+        "description": "This is a custom description",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          },
+          {
+            "name": "value",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "custom",
+          "customize"
+        ],
+        "x-samchon-controller": "CustomController",
+        "x-selector": {
+          "method": "get",
+          "path": "/custom/{id}/normal"
+        },
+        "x-special-symbol": "Something Special"
+      }
+    },
+    "/custom/{id}/normal": {
+      "get": {
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "custom",
+          "normal"
+        ],
+        "x-samchon-controller": "CustomController",
+        "x-special-symbol": "Something Normal"
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {
+      "bearer": {
+        "type": "apiKey"
+      }
+    }
+  },
+  "tags": [],
+  "x-samchon-emended-v4": true
+}

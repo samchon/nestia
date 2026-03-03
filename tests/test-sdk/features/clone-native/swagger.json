@@ -1,0 +1,155 @@
+{
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://github.com/samchon/nestia",
+      "description": "insert your server url"
+    }
+  ],
+  "info": {
+    "version": "1.0.0",
+    "title": "@samchon/nestia-test",
+    "description": "Test program of Nestia",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "paths": {
+    "/date": {
+      "get": {
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IDateDefined"
+                }
+              }
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "date",
+          "get"
+        ],
+        "x-samchon-controller": "DateController"
+      }
+    },
+    "/multipart": {
+      "post": {
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/IMultipart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {}
+            }
+          }
+        },
+        "x-samchon-accessor": [
+          "multipart",
+          "post"
+        ],
+        "x-samchon-controller": "MultipartController"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IDateDefined": {
+        "type": "object",
+        "properties": {
+          "string": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "string",
+          "date"
+        ]
+      },
+      "IMultipart": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "strings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "number": {
+            "type": "number"
+          },
+          "integers": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "blob": {
+            "type": "string",
+            "format": "binary"
+          },
+          "blobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "file": {
+            "type": "string",
+            "format": "binary"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "strings",
+          "number",
+          "integers",
+          "blob",
+          "blobs",
+          "file",
+          "files"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "apiKey"
+      }
+    }
+  },
+  "tags": [],
+  "x-samchon-emended-v4": true
+}
