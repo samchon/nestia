@@ -378,7 +378,7 @@ const iterate =
       const location: string = `${path}/${file}`;
       const stat: fs.Stats = await fs.promises.stat(location);
       if (stat.isDirectory() === true) await iterate(ctx)(location);
-      else if (file.endsWith(".js") === true) {
+      else if (file.endsWith(__filename.substr(-3)) === true) {
         const modulo = await import(location);
         for (const [key, value] of Object.entries(modulo)) {
           if (typeof value !== "function") continue;

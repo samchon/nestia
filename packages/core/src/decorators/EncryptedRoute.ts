@@ -1,5 +1,4 @@
-import { AesPkcs5 } from "@nestia/fetcher/lib/AesPkcs5";
-import { IEncryptionPassword } from "@nestia/fetcher/lib/IEncryptionPassword";
+import { AesPkcs5, IEncryptionPassword } from "@nestia/fetcher";
 import {
   CallHandler,
   Delete,

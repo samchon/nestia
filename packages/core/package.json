@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./lib/transform": "./src/transform/index.ts",
+    "./lib/transform": "./src/transform.ts",
     "./package.json": "./package.json"
   },
   "tsp": {
@@ -96,8 +96,8 @@
         "default": "./lib/index.js"
       },
       "./lib/transform": {
-        "types": "./lib/transform/index.d.ts",
-        "default": "./lib/transform/index.js"
+        "types": "./lib/transform.d.ts",
+        "default": "./lib/transform.js"
       },
       "./package.json": "./package.json"
     }
