@@ -64,6 +64,7 @@
   "devDependencies": {
     "@nestjs/common": "catalog:nestjs",
     "@nestjs/core": "catalog:nestjs",
+    "@nestjs/platform-express": "catalog:nestjs",
     "@types/express": "^4.17.15",
     "@types/inquirer": "^9.0.3",
     "@types/multer": "^1.4.12",
