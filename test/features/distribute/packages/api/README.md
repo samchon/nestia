@@ -18,7 +18,7 @@ Just import and call some API functions like gif image below:
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/samchon/nestia/blob/master/LICENSE)
 [![npm version](https://img.shields.io/npm/v/@nestia/core.svg)](https://www.npmjs.com/package/@nestia/core)
 [![Downloads](https://img.shields.io/npm/dm/nestia.svg)](https://www.npmjs.com/package/nestia)
-[![Build Status](https://github.com/samchon/nestia/workflows/build/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Abuild)
+[![Build Status](https://github.com/samchon/nestia/workflows/test/badge.svg)](https://github.com/samchon/nestia/actions?query=workflow%3Atest)
 [![Guide Documents](https://img.shields.io/badge/guide-documents-forestgreen)](https://nestia.io/docs/)
 
 [Nestia](https://nestia.io) is a set of helper libraries for NestJS, supporting below features:

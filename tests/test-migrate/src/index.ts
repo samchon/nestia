@@ -1,0 +1,140 @@
+import {
+  INestiaMigrateConfig,
+  NestiaMigrateApplication,
+  NestiaMigrateCommander,
+  NestiaMigrateFileArchiver,
+} from "@nestia/migrate";
+import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
+// import cp from "child_process";
+import fs from "fs";
+import { IValidation } from "typia";
+
+const INPUT: string = `${__dirname}/../assets/input`;
+const OUTPUT: string = `${__dirname}/../assets/output`;
+
+const measure =
+  (title: string) =>
+  async (task: () => Promise<void>): Promise<number> => {
+    process.stdout.write(`  - ${title}: `);
+    const time: number = Date.now();
+    await task();
+    console.log(`${(Date.now() - time).toLocaleString()} ms`);
+    return time;
+  };
+
+const execute = (
+  mode: "nest" | "sdk",
+  config: INestiaMigrateConfig,
+  project: string,
+  document: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument,
+): Promise<number> => {
+  const title: string = `${project}-${mode}-${config.keyword ? "keyword" : "positional"}`;
+  return measure(title)(async () => {
+    const directory = `${OUTPUT}/${title}`;
+    const result: IValidation<NestiaMigrateApplication> =
+      await NestiaMigrateApplication.validate(document);
+    if (result.success === false)
+      throw new Error(
+        `Invalid swagger file (must follow the OpenAPI 3.0 spec).`,
+      );
+
+    const app: NestiaMigrateApplication = result.data;
+    const files: Record<string, string> =
+      mode === "nest"
+        ? app.nest({
+            ...config,
+            package: project,
+          })
+        : app.sdk({
+            ...config,
+            package: project,
+          });
+    const invalidPaths: string[] = Object.keys(files).filter(
+      (key) =>
+        key.startsWith("/") || key.startsWith("./") || key.includes("//"),
+    );
+    if (invalidPaths.length > 0) {
+      for (const key of invalidPaths) console.log(key);
+      throw new Error(
+        `Invalid file paths: ${invalidPaths.join(", ")}\n` +
+          `Please check the generated files.`,
+      );
+    }
+
+    await NestiaMigrateFileArchiver.archive({
+      mkdir: fs.promises.mkdir,
+      writeFile: async (file, content) =>
+        fs.promises.writeFile(
+          file,
+          await NestiaMigrateCommander.beautify(content),
+          "utf-8",
+        ),
+      root: directory,
+      files,
+    });
+    // cp.execSync(
+    //   `npx cross-env NODE_OPTIONS="--no-experimental-strip-types -r ts-node/register" npx tsc`,
+    //   {
+    //     stdio: "inherit",
+    //     cwd: directory,
+    //   },
+    // );
+    // cp.execSync(
+    //   `npx cross-env NODE_OPTIONS="--no-experimental-strip-types -r ts-node/register" npx tsc -p test/tsconfig.json`,
+    //   {
+    //     stdio: "inherit",
+    //     cwd: directory,
+    //   },
+    // );
+  });
+};
+
+const iterate = async (directory: string): Promise<void> => {
+  const filter = (() => {
+    const only = process.argv.findIndex((str) => str === "--only");
+    if (only !== -1 && process.argv.length >= only + 1)
+      return (str: string) => str.includes(process.argv[only + 1]!);
+    return () => true;
+  })();
+
+  for (const file of await fs.promises.readdir(directory)) {
+    const location: string = `${directory}/${file}`;
+    if (fs.statSync(location).isDirectory()) await iterate(location);
+    else if (location.endsWith(".json")) {
+      const project: string = file.substring(0, file.length - 5);
+      if (filter(project) === false) continue;
+      const document:
+        | SwaggerV2.IDocument
+        | OpenApiV3.IDocument
+        | OpenApiV3_1.IDocument = JSON.parse(
+        await fs.promises.readFile(location, "utf8"),
+      );
+      for (const [mode, flag] of [
+        ["nest", true],
+        ["nest", false],
+        ["sdk", true],
+        ["sdk", false],
+      ] as const)
+        await execute(
+          mode,
+          {
+            keyword: flag,
+            simulate: true,
+            e2e: true,
+          },
+          project,
+          document,
+        );
+    }
+  }
+};
+
+const main = async () => {
+  if (fs.existsSync(OUTPUT)) await fs.promises.rm(OUTPUT, { recursive: true });
+  await fs.promises.mkdir(OUTPUT);
+  await iterate(INPUT);
+};
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

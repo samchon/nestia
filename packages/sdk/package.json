@@ -40,7 +40,7 @@
     "get-function-location": "^2.0.0",
     "glob": "^11.0.3",
     "path-to-regexp": "^6.2.1",
-    "prettier": "^3.2.5",
+    "prettier": "catalog:typescript",
     "ts-node": ">=10.6.0",
     "tsconfck": "^2.1.2",
     "tsconfig-paths": "^4.1.1",
