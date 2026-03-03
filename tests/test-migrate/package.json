@@ -16,6 +16,7 @@
     "@nestjs/core": "catalog:nestjs",
     "@nestjs/platform-express": "catalog:nestjs",
     "@nestjs/platform-fastify": "catalog:nestjs",
+    "@typia/interface": "catalog:samchon",
     "typia": "catalog:samchon"
   },
   "devDependencies": {

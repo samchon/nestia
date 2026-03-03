@@ -4,8 +4,7 @@ import {
   NestiaMigrateCommander,
   NestiaMigrateFileArchiver,
 } from "@nestia/migrate";
-import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
-// import cp from "child_process";
+import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
 import fs from "fs";
 import { IValidation } from "typia";
 
