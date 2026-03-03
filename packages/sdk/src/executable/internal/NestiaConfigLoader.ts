@@ -51,16 +51,17 @@ export namespace NestiaConfigLoader {
       ...(compilerOptions.plugins ?? []),
       ...(setup ? [{ transform: "@nestia/sdk/lib/transform" }] : []),
     ];
-    register({
-      emit: false,
-      compilerOptions: {
-        ...compilerOptions,
-        plugins,
-      },
-      require: compilerOptions.baseUrl
-        ? ["tsconfig-paths/register"]
-        : undefined,
-    });
+    if (!(process as any)[Symbol.for("ts-node.register.instance")])
+      register({
+        emit: false,
+        compilerOptions: {
+          ...compilerOptions,
+          plugins,
+        },
+        require: compilerOptions.baseUrl
+          ? ["tsconfig-paths/register"]
+          : undefined,
+      });
 
     const loaded: (INestiaConfig | INestiaConfig[]) & {
       default?: INestiaConfig | INestiaConfig[];
