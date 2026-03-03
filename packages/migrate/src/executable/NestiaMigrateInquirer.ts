@@ -1,5 +1,5 @@
-import commander from "commander";
-import inquirer from "inquirer";
+import { program } from "commander";
+import { createPromptModule } from "inquirer";
 
 export namespace NestiaMigrateInquirer {
   export interface IOutput {
@@ -14,29 +14,29 @@ export namespace NestiaMigrateInquirer {
 
   export const parse = async (): Promise<IOutput> => {
     // PREPARE ASSETS
-    commander.program.option("--mode [nest/sdk]", "migration mode");
-    commander.program.option(
+    program.option("--mode [nest/sdk]", "migration mode");
+    program.option(
       "--input [swagger.json]",
       "location of target swagger.json file",
     );
-    commander.program.option("--output [directory]", "output directory path");
-    commander.program.option("--keyword [boolean]", "Keyword parameter mode");
-    commander.program.option("--simulate [boolean]", "Mockup simulator");
-    commander.program.option("--e2e [boolean]", "Generate E2E tests");
-    commander.program.option("--package [name]", "Package name");
+    program.option("--output [directory]", "output directory path");
+    program.option("--keyword [boolean]", "Keyword parameter mode");
+    program.option("--simulate [boolean]", "Mockup simulator");
+    program.option("--e2e [boolean]", "Generate E2E tests");
+    program.option("--package [name]", "Package name");
 
     // INTERNAL PROCEDURES
     const questioned = { value: false };
     const action = (closure: (options: Partial<IOutput>) => Promise<IOutput>) =>
       new Promise<IOutput>((resolve, reject) => {
-        commander.program.action(async (options) => {
+        program.action(async (options) => {
           try {
             resolve(await closure(options));
           } catch (exp) {
             reject(exp);
           }
         });
-        commander.program.parseAsync().catch(reject);
+        program.parseAsync().catch(reject);
       });
     const select =
       (name: string) =>
@@ -47,7 +47,7 @@ export namespace NestiaMigrateInquirer {
       ): Promise<Choice> => {
         questioned.value = true;
         return (
-          await inquirer.createPromptModule()({
+          await createPromptModule()({
             type: "list",
             name: name,
             message: message,
@@ -58,7 +58,7 @@ export namespace NestiaMigrateInquirer {
       };
     const input = (name: string) => async (message: string) =>
       (
-        await inquirer.createPromptModule()({
+        await createPromptModule()({
           type: "input",
           name,
           message,
