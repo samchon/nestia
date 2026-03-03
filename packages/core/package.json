@@ -6,7 +6,6 @@
   "exports": {
     ".": "./src/index.ts",
     "./lib/transform": "./src/transform.ts",
-    "./src/transform.ts": "./src/transform.ts",
     "./package.json": "./package.json"
   },
   "tsp": {
