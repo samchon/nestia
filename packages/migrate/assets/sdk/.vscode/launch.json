@@ -1,0 +1,23 @@
+{
+  // Use IntelliSense to learn about possible Node.js debug attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "JavaScript Test using SourceMap",
+      "program": "${workspaceRoot}/test/index.ts",
+      "cwd": "${workspaceRoot}",
+      "args": [
+        //----
+        // You can run specific test functions
+        //----
+        // "--include", "something",
+        // "--exclude", "nothing",
+      ],
+      "outFiles": ["${workspaceRoot}/bin/**/*.js"],
+    }
+  ]
+}
