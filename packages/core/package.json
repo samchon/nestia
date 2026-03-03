@@ -39,8 +39,6 @@
   "homepage": "https://nestia.io",
   "dependencies": {
     "@nestia/fetcher": "workspace:^",
-    "@nestjs/common": ">=7.0.1",
-    "@nestjs/core": ">=7.0.1",
     "@typia/core": "catalog:samchon",
     "@typia/interface": "catalog:samchon",
     "@typia/utils": "catalog:samchon",
