@@ -6,8 +6,7 @@
 //================================================================
 import type { IConnection } from "@nestia/fetcher";
 import { NestiaSimulator, PlainFetcher } from "@nestia/fetcher";
-import typia from "typia";
-import type { Format } from "typia/lib/tags/Format";
+import typia, { tags } from "typia";
 
 import type { IBbsArticle } from "../../../structures/bbs/IBbsArticle";
 import type { IPage } from "../../../structures/common/IPage";
@@ -254,7 +253,7 @@ export namespace create {
 export async function update(
   connection: IConnection,
   section: string,
-  id: string & Format<"uuid">,
+  id: string & tags.Format<"uuid">,
   input: IBbsArticle.IUpdate,
 ): Promise<update.Output> {
   return !!connection.simulate
@@ -293,7 +292,7 @@ export namespace update {
     status: null,
   } as const;
 
-  export const path = (section: string, id: string & Format<"uuid">) =>
+  export const path = (section: string, id: string & tags.Format<"uuid">) =>
     `/bbs/articles/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
   export const random = (
     g?: Partial<typia.IRandomGenerator>,
@@ -301,7 +300,7 @@ export namespace update {
   export const simulate = (
     connection: IConnection,
     section: string,
-    id: string & Format<"uuid">,
+    id: string & tags.Format<"uuid">,
     input: IBbsArticle.IUpdate,
   ): Output => {
     const assert = NestiaSimulator.assert({

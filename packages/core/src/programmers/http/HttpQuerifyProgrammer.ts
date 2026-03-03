@@ -1,4 +1,5 @@
 import {
+  FunctionProgrammer,
   HttpQueryProgrammer,
   ITypiaContext,
   IdentifierFactory,
@@ -9,7 +10,6 @@ import {
   StatementFactory,
   TransformerError,
 } from "@typia/core";
-import { FunctionProgrammer } from "@typia/core/lib/programmers/helpers/FunctionProgrammer";
 import ts from "typescript";
 
 export namespace HttpQuerifyProgrammer {

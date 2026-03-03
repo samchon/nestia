@@ -6,7 +6,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json",
-    "./lib/executable/sdk": "./src/executable/sdk.ts"
+    "./lib/executable/sdk": "./src/executable/sdk.ts",
+    "./lib/transform": "./src/transform.ts",
+    "./src/transform.ts": "./src/transform.ts"
   },
   "bin": {
     "@nestia/sdk": "src/executable/sdk.ts"
@@ -80,9 +82,13 @@
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
       },
-      "./cli": {
+      "./lib/executable/sdk": {
         "types": "./lib/executable/sdk.d.ts",
         "default": "./lib/executable/sdk.js"
+      },
+      "./lib/transform": {
+        "types": "./lib/transform.d.ts",
+        "default": "./lib/transform.js"
       },
       "./package.json": "./package.json"
     },
