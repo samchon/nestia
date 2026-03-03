@@ -13,12 +13,17 @@ export namespace SdkTypeTagProgrammer {
     const name: string = tag.name.split("<")[0]!;
     if (PREDEFINED[from]?.has(name) === true)
       return ts.factory.createTypeReferenceNode(
-        importer.external({
-          declaration: true,
-          file: `typia/lib/tags/${name}`,
-          type: "element",
-          name: name,
-        }),
+        ts.factory.createQualifiedName(
+          ts.factory.createIdentifier(
+            importer.external({
+              declaration: true,
+              file: `typia`,
+              type: "element",
+              name: "tags",
+            }),
+          ),
+          ts.factory.createIdentifier(name),
+        ),
         [
           ts.factory.createLiteralTypeNode(
             LiteralFactory.write(tag.value) as any,
@@ -26,12 +31,17 @@ export namespace SdkTypeTagProgrammer {
         ],
       );
     return ts.factory.createTypeReferenceNode(
-      importer.external({
-        declaration: true,
-        file: `typia/lib/tags/TagBase`,
-        type: "element",
-        name: "TagBase",
-      }),
+      ts.factory.createQualifiedName(
+        ts.factory.createIdentifier(
+          importer.external({
+            declaration: true,
+            file: `typia`,
+            type: "element",
+            name: "tags",
+          }),
+        ),
+        ts.factory.createIdentifier("TagBase"),
+      ),
       [
         ts.factory.createLiteralTypeNode(
           LiteralFactory.write({
