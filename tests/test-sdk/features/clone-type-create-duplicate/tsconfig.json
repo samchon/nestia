@@ -79,10 +79,10 @@
           },
           { "transform": "typia/lib/transform" },
           {
-              "transform": "@nestia/core/src/transform.ts",
+              "transform": "@nestia/core/lib/transform",
               "validate": "assertEquals"
           },
-          { "transform": "@nestia/sdk/src/transform.ts" }
+          { "transform": "@nestia/sdk/lib/transform" }
       ],
 
       /* Interop Constraints */
@@ -99,6 +99,7 @@
       // "lib": [],
       // "moduleDetection": "force",
       "target": "ESNext",
+      "lib": ["DOM", "ESNext"],
       "useDefineForClassFields": true,
 
       /* Projects */

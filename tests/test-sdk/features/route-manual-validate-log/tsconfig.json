@@ -9,7 +9,7 @@
       // "disableSolutionSearching": true,                 /* Opt a project out of multi-project reference checking when editing. */
       // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
       /* Language and Environment */
-      "target": "es2016", /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */// "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
+      "target": "es2016", "lib": ["DOM", "ESNext"], /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */// "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
       // "jsx": "preserve",                                /* Specify what JSX code is generated. */
       "experimentalDecorators": true,                   /* Enable experimental support for TC39 stage 2 draft decorators. */
       "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
@@ -93,10 +93,10 @@
         { "transform": "typescript-transform-paths" },
         { "transform": "typia/lib/transform" },
         {
-          "transform": "@nestia/core/src/transform.ts",
+          "transform": "@nestia/core/lib/transform",
           "stringify": "validate.log",
         },
-        { "transform": "@nestia/sdk/src/transform.ts" },
+        { "transform": "@nestia/sdk/lib/transform" },
       ],
     },
     "include": ["src"],
