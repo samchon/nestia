@@ -32,7 +32,7 @@
     "dotenv-expand": "^10.0.0",
     "express": "^4.19.2",
     "inquirer": "8.2.5",
-    "multer": "^2.0.2",
+    "multer": "^2.1.0",
     "nestia": "workspace:^",
     "serialize-error": "^4.1.0",
     "source-map-support": "^0.5.21",
