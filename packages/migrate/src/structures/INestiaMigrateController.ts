@@ -1,4 +1,4 @@
-import { IHttpMigrateRoute } from "@samchon/openapi";
+import { IHttpMigrateRoute } from "@typia/interface";
 
 export interface INestiaMigrateController {
   name: string;

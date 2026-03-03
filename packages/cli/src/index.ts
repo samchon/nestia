@@ -48,14 +48,15 @@ async function main(): Promise<void> {
     type === "e2e" ||
     type === "all"
   ) {
+    const location: string = "@nestia/sdk/lib/executable/sdk";
     try {
-      require.resolve("@nestia/sdk/lib/executable/sdk");
+      require.resolve(location);
     } catch {
       halt(
         `@nestia/sdk has not been installed. Run "npx nestia setup" before.`,
       );
     }
-    await import("@nestia/sdk/lib/executable/sdk");
+    await import(location);
   } else halt(USAGE);
 }
 main().catch((exp) => {

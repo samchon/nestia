@@ -1,6 +1,5 @@
+import { IdentifierFactory, TypeFactory } from "@typia/core";
 import ts from "typescript";
-import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
-import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";

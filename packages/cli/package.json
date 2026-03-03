@@ -4,7 +4,7 @@
   "description": "Nestia CLI tool",
   "main": "src/index.ts",
   "bin": {
-    "nestia": "src/index.ts"
+    "nestia": "src/boot.js"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -47,6 +47,7 @@
     "@types/inquirer": "^9.0.3",
     "@types/node": "catalog:utils",
     "rimraf": "catalog:utils",
+    "ts-node": "catalog:typescript",
     "typescript": "catalog:typescript"
   },
   "files": [

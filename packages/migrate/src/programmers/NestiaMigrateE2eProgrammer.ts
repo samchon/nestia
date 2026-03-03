@@ -1,4 +1,4 @@
-import { IHttpMigrateRoute, OpenApi } from "@samchon/openapi";
+import { IHttpMigrateRoute, OpenApi } from "@typia/interface";
 import ts from "typescript";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";

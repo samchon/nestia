@@ -1,8 +1,8 @@
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
+import { MetadataSchema } from "@typia/core";
 
 export namespace CoreMetadataUtil {
   export const atomics = (
-    meta: Metadata,
+    meta: MetadataSchema,
   ): Set<"boolean" | "bigint" | "number" | "string"> =>
     new Set([
       ...meta.atomics.map((a) => a.type),
@@ -10,7 +10,7 @@ export namespace CoreMetadataUtil {
       ...(meta.templates.length ? (["string"] as const) : []),
     ]);
 
-  export const isUnion = (meta: Metadata): boolean =>
+  export const isUnion = (meta: MetadataSchema): boolean =>
     atomics(meta).size +
       meta.arrays.length +
       meta.tuples.length +

@@ -1,4 +1,4 @@
-import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
+import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
 import cp from "child_process";
 import fs from "fs";
 import { IValidation } from "typia";

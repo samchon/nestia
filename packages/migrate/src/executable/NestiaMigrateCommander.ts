@@ -1,5 +1,5 @@
-import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
 import * as prettierPluginSortImport from "@trivago/prettier-plugin-sort-imports";
+import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
 import fs from "fs";
 import path from "path";
 import { format } from "prettier";

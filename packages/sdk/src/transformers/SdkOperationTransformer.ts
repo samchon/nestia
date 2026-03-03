@@ -1,9 +1,7 @@
+import { LiteralFactory, MetadataCollection, TypeFactory } from "@typia/core";
 import path from "path";
 import { HashSet, Singleton, hash } from "tstl";
 import ts from "typescript";
-import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
-import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
-import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { ImportAnalyzer } from "../analyses/ImportAnalyzer";
 import { IReflectImport } from "../structures/IReflectImport";
@@ -47,9 +45,7 @@ export namespace SdkOperationTransformer {
                 ts.factory.createIdentifier("__OperationMetadata"),
               ),
             ),
-            ts.factory.createStringLiteral(
-              "@nestia/sdk/lib/decorators/OperationMetadata",
-            ),
+            ts.factory.createStringLiteral("@nestia/sdk"),
             undefined,
           ),
           ...file.statements,

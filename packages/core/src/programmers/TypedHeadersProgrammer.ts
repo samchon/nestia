@@ -1,8 +1,10 @@
+import {
+  HttpAssertHeadersProgrammer,
+  HttpIsHeadersProgrammer,
+  HttpValidateHeadersProgrammer,
+  ITypiaContext,
+} from "@typia/core";
 import ts from "typescript";
-import { HttpAssertHeadersProgrammer } from "typia/lib/programmers/http/HttpAssertHeadersProgrammer";
-import { HttpIsHeadersProgrammer } from "typia/lib/programmers/http/HttpIsHeadersProgrammer";
-import { HttpValidateHeadersProgrammer } from "typia/lib/programmers/http/HttpValidateHeadersProgrammer";
-import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
 import { IRequestHeadersValidator } from "../options/IRequestHeadersValidator";

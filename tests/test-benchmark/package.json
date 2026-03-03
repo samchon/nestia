@@ -13,13 +13,14 @@
     "@nestia/fetcher": "workspace:^",
     "@nestjs/common": "catalog:nestjs",
     "@nestjs/core": "catalog:nestjs",
-    "uuid": "catalog:utils",
-    "typia": "catalog:samchon"
+    "typia": "catalog:samchon",
+    "uuid": "catalog:utils"
   },
   "devDependencies": {
     "@nestia/sdk": "workspace:^",
     "@types/node": "catalog:utils",
     "@types/uuid": "catalog:utils",
+    "cross-env": "^10.1.0",
     "nestia": "workspace:^",
     "ts-node": "catalog:typescript",
     "typescript": "catalog:typescript"

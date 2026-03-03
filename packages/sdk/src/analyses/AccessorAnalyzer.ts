@@ -1,4 +1,4 @@
-import { Escaper } from "typia/lib/utils/Escaper";
+import { NamingConvention } from "@typia/utils";
 
 import { ITypedHttpRoute } from "../structures/ITypedHttpRoute";
 import { ITypedWebSocketRoute } from "../structures/ITypedWebSocketRoute";
@@ -32,7 +32,7 @@ export namespace AccessorAnalyzer {
     for (const route of routeList) {
       const emended: string[] = route.accessor.slice();
       route.accessor.forEach((accessor, i) => {
-        if (Escaper.variable(accessor)) return;
+        if (NamingConvention.variable(accessor)) return;
         while (true) {
           accessor = "_" + accessor;
           const partial: string = [

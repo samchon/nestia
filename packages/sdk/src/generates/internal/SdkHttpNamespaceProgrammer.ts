@@ -1,9 +1,11 @@
+import {
+  ExpressionFactory,
+  IdentifierFactory,
+  LiteralFactory,
+  TypeFactory,
+} from "@typia/core";
+import { NamingConvention } from "@typia/utils";
 import ts from "typescript";
-import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
-import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
-import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
-import { TypeFactory } from "typia/lib/factories/TypeFactory";
-import { Escaper } from "typia/lib/utils/Escaper";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -425,7 +427,7 @@ export namespace SdkHttpNamespaceProgrammer {
                 : []),
               ...route.queryParameters.map((q) =>
                 ts.factory.createPropertyAssignment(
-                  Escaper.variable(q.field!)
+                  NamingConvention.variable(q.field!)
                     ? q.field!
                     : ts.factory.createStringLiteral(q.field!),
                   ts.factory.createIdentifier(access(q.name)),

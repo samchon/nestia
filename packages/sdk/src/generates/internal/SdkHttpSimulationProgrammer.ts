@@ -1,9 +1,11 @@
+import {
+  ExpressionFactory,
+  IdentifierFactory,
+  LiteralFactory,
+  StatementFactory,
+  TypeFactory,
+} from "@typia/core";
 import ts from "typescript";
-import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
-import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
-import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
-import { StatementFactory } from "typia/lib/factories/StatementFactory";
-import { TypeFactory } from "typia/lib/factories/TypeFactory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";

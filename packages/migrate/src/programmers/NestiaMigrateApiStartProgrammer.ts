@@ -1,7 +1,6 @@
-import { IHttpMigrateRoute } from "@samchon/openapi";
+import { IdentifierFactory, StatementFactory } from "@typia/core";
+import { IHttpMigrateRoute } from "@typia/interface";
 import ts from "typescript";
-import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
-import { StatementFactory } from "typia/lib/factories/StatementFactory";
 
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 import { FilePrinter } from "../utils/FilePrinter";

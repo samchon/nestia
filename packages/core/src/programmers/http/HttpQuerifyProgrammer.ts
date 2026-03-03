@@ -1,14 +1,16 @@
+import {
+  FunctionProgrammer,
+  HttpQueryProgrammer,
+  ITypiaContext,
+  IdentifierFactory,
+  MetadataCollection,
+  MetadataFactory,
+  MetadataObject,
+  MetadataSchema,
+  StatementFactory,
+  TransformerError,
+} from "@typia/core";
 import ts from "typescript";
-import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
-import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
-import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
-import { StatementFactory } from "typia/lib/factories/StatementFactory";
-import { FunctionProgrammer } from "typia/lib/programmers/helpers/FunctionProgrammer";
-import { HttpQueryProgrammer } from "typia/lib/programmers/http/HttpQueryProgrammer";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
-import { MetadataObject } from "typia/lib/schemas/metadata/MetadataObject";
-import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
-import { TransformerError } from "typia/lib/transformers/TransformerError";
 
 export namespace HttpQuerifyProgrammer {
   export const write = (props: {
@@ -20,7 +22,7 @@ export namespace HttpQuerifyProgrammer {
     const functor: FunctionProgrammer = new FunctionProgrammer(
       props.modulo.getText(),
     );
-    const collection: MetadataCollection = new MetadataCollection();
+    const storage: MetadataCollection = new MetadataCollection();
     const result = MetadataFactory.analyze({
       checker: props.context.checker,
       transformer: props.context.transformer,
@@ -31,7 +33,7 @@ export namespace HttpQuerifyProgrammer {
         validate: HttpQueryProgrammer.validate,
       },
       type: props.type,
-      collection,
+      components: storage,
     });
     if (result.success === false)
       throw TransformerError.from({
@@ -73,7 +75,7 @@ export namespace HttpQuerifyProgrammer {
 
   const decode =
     (key: string) =>
-    (value: Metadata): ts.CallExpression =>
+    (value: MetadataSchema): ts.CallExpression =>
       !!value.arrays.length
         ? ts.factory.createCallExpression(
             IdentifierFactory.access(

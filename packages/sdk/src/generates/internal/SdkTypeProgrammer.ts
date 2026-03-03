@@ -1,18 +1,19 @@
+import {
+  ExpressionFactory,
+  MetadataAliasType,
+  MetadataArray,
+  MetadataAtomic,
+  MetadataConstantValue,
+  MetadataEscaped,
+  MetadataObjectType,
+  MetadataProperty,
+  MetadataSchema,
+  MetadataTuple,
+  TypeFactory,
+} from "@typia/core";
+import { NamingConvention } from "@typia/utils";
 import ts from "typescript";
-import { IJsDocTagInfo } from "typia";
-import { ExpressionFactory } from "typia/lib/factories/ExpressionFactory";
-import { TypeFactory } from "typia/lib/factories/TypeFactory";
-import { IMetadataTypeTag } from "typia/lib/schemas/metadata/IMetadataTypeTag";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
-import { MetadataAliasType } from "typia/lib/schemas/metadata/MetadataAliasType";
-import { MetadataArray } from "typia/lib/schemas/metadata/MetadataArray";
-import { MetadataAtomic } from "typia/lib/schemas/metadata/MetadataAtomic";
-import { MetadataConstantValue } from "typia/lib/schemas/metadata/MetadataConstantValue";
-import { MetadataEscaped } from "typia/lib/schemas/metadata/MetadataEscaped";
-import { MetadataObjectType } from "typia/lib/schemas/metadata/MetadataObjectType";
-import { MetadataProperty } from "typia/lib/schemas/metadata/MetadataProperty";
-import { MetadataTuple } from "typia/lib/schemas/metadata/MetadataTuple";
-import { Escaper } from "typia/lib/utils/Escaper";
+import { IJsDocTagInfo, IMetadataTypeTag } from "typia";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { FilePrinter } from "./FilePrinter";
@@ -26,7 +27,7 @@ export namespace SdkTypeProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (meta: Metadata, parentEscaped: boolean = false): ts.TypeNode => {
+    (meta: MetadataSchema, parentEscaped: boolean = false): ts.TypeNode => {
       const union: ts.TypeNode[] = [];
 
       // COALESCES
@@ -135,7 +136,7 @@ export namespace SdkTypeProgrammer {
   const write_template =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (meta: Metadata[]): ts.TypeNode => {
+    (meta: MetadataSchema[]): ts.TypeNode => {
       const head: boolean = meta[0]!.isSoleLiteral();
       const spans: [ts.TypeNode | null, string | null][] = [];
       for (const elem of meta.slice(head ? 1 : 0)) {
@@ -244,7 +245,9 @@ export namespace SdkTypeProgrammer {
             const signature: ts.PropertySignature =
               ts.factory.createPropertySignature(
                 undefined,
-                Escaper.variable(String(p.key.constants[0]!.values[0]!.value))
+                NamingConvention.variable(
+                  String(p.key.constants[0]!.values[0]!.value),
+                )
                   ? ts.factory.createIdentifier(
                       String(p.key.constants[0]!.values[0]!.value),
                     )

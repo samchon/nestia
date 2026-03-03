@@ -1,4 +1,4 @@
-import { NoTransformConfigurationError } from "@nestia/core/lib/decorators/NoTransformConfigurationError";
+import { NoTransformConfigurationError } from "@nestia/core";
 import fs from "fs";
 import path from "path";
 import { register } from "ts-node";
@@ -39,22 +39,29 @@ export namespace NestiaConfigLoader {
       throw new Error(`Unable to find "${file}" file.`);
 
     NoTransformConfigurationError.throws = false;
+
+    const setup: boolean = typia
+      .assert<object[]>(compilerOptions.plugins ?? [])
+      .some(
+        (x: any) =>
+          x.transform === "@nestia/sdk/lib/transform" ||
+          x.transform === "@nestia/sdk/src/transform.ts",
+      );
     const plugins: any[] = [
-      ...typia
-        .assert<object[]>(compilerOptions.plugins ?? [])
-        .filter((x: any) => x.transform !== "@nestia/sdk/lib/transform"),
-      { transform: "@nestia/sdk/lib/transform" },
+      ...(compilerOptions.plugins ?? []),
+      ...(setup ? [{ transform: "@nestia/sdk/lib/transform" }] : []),
     ];
-    register({
-      emit: false,
-      compilerOptions: {
-        ...compilerOptions,
-        plugins,
-      },
-      require: compilerOptions.baseUrl
-        ? ["tsconfig-paths/register"]
-        : undefined,
-    });
+    if (!(process as any)[Symbol.for("ts-node.register.instance")])
+      register({
+        emit: false,
+        compilerOptions: {
+          ...compilerOptions,
+          plugins,
+        },
+        require: compilerOptions.baseUrl
+          ? ["tsconfig-paths/register"]
+          : undefined,
+      });
 
     const loaded: (INestiaConfig | INestiaConfig[]) & {
       default?: INestiaConfig | INestiaConfig[];

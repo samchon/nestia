@@ -1,14 +1,16 @@
+import {
+  HttpAssertFormDataProgrammer,
+  HttpFormDataProgrammer,
+  HttpIsFormDataProgrammer,
+  HttpValidateFormDataProgrammer,
+  ITypiaContext,
+  LiteralFactory,
+  MetadataCollection,
+  MetadataFactory,
+  MetadataSchema,
+  TransformerError,
+} from "@typia/core";
 import ts from "typescript";
-import { LiteralFactory } from "typia/lib/factories/LiteralFactory";
-import { MetadataCollection } from "typia/lib/factories/MetadataCollection";
-import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
-import { HttpAssertFormDataProgrammer } from "typia/lib/programmers/http/HttpAssertFormDataProgrammer";
-import { HttpFormDataProgrammer } from "typia/lib/programmers/http/HttpFormDataProgrammer";
-import { HttpIsFormDataProgrammer } from "typia/lib/programmers/http/HttpIsFormDataProgrammer";
-import { HttpValidateFormDataProgrammer } from "typia/lib/programmers/http/HttpValidateFormDataProgrammer";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
-import { ITypiaContext } from "typia/lib/transformers/ITypiaContext";
-import { TransformerError } from "typia/lib/transformers/TransformerError";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
 import { IRequestFormDataProps } from "../options/IRequestFormDataProps";
@@ -20,7 +22,7 @@ export namespace TypedFormDataBodyProgrammer {
     type: ts.Type;
   }): ts.ObjectLiteralExpression => {
     // VALIDATE TYPE
-    const collection: MetadataCollection = new MetadataCollection();
+    const storage: MetadataCollection = new MetadataCollection();
     const result = MetadataFactory.analyze({
       checker: props.context.checker,
       transformer: props.context.transformer,
@@ -31,7 +33,7 @@ export namespace TypedFormDataBodyProgrammer {
         validate: HttpFormDataProgrammer.validate,
       },
       type: props.type,
-      collection,
+      components: storage,
     });
     if (result.success === false)
       throw TransformerError.from({
@@ -112,5 +114,5 @@ export namespace TypedFormDataBodyProgrammer {
   };
 }
 
-const isFile = (meta: Metadata) =>
+const isFile = (meta: MetadataSchema) =>
   meta.natives.some(({ name }) => name === "File" || name === "Blob");

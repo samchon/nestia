@@ -1,11 +1,11 @@
 import { SwaggerCustomizer } from "@nestia/core";
-import { OpenApi, OpenApiV3, SwaggerV2 } from "@samchon/openapi";
+import { JsonSchemasProgrammer, MetadataSchema } from "@typia/core";
+import { OpenApi, OpenApiV3, SwaggerV2 } from "@typia/interface";
+import { OpenApiConverter } from "@typia/utils";
 import fs from "fs";
 import path from "path";
 import { Singleton } from "tstl";
 import typia, { IJsonSchemaCollection } from "typia";
-import { JsonSchemasProgrammer } from "typia/lib/programmers/json/JsonSchemasProgrammer";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { ITypedApplication } from "../structures/ITypedApplication";
@@ -48,9 +48,9 @@ export namespace SwaggerGenerator {
       | SwaggerV2.IDocument
       | OpenApiV3.IDocument =
       config.openapi === "2.0"
-        ? OpenApi.downgrade(document, config.openapi as "2.0")
+        ? OpenApiConverter.downgradeDocument(document, config.openapi)
         : config.openapi === "3.0"
-          ? OpenApi.downgrade(document, config.openapi as "3.0")
+          ? OpenApiConverter.downgradeDocument(document, config.openapi)
           : document;
     await fs.promises.writeFile(
       location,
@@ -76,7 +76,7 @@ export namespace SwaggerGenerator {
         (tag) => tag.name !== "internal" && tag.name !== "hidden",
       ),
     );
-    const metadatas: Metadata[] = routes
+    const metadatas: MetadataSchema[] = routes
       .map((r) => [
         r.success.metadata,
         ...SdkHttpParameterProgrammer.getAll(r).map((p) => p.metadata),
@@ -90,10 +90,11 @@ export namespace SwaggerGenerator {
       version: "3.1",
       metadatas,
     });
-    const dict: WeakMap<Metadata, OpenApi.IJsonSchema> = new WeakMap();
+    const dict: WeakMap<MetadataSchema, OpenApi.IJsonSchema> = new WeakMap();
     json.schemas.forEach((schema, i) => dict.set(metadatas[i]!, schema));
-    const schema = (metadata: Metadata): OpenApi.IJsonSchema | undefined =>
-      dict.get(metadata);
+    const schema = (
+      metadata: MetadataSchema,
+    ): OpenApi.IJsonSchema | undefined => dict.get(metadata);
 
     // COMPOSE DOCUMENT
     const document: OpenApi.IDocument = props.document;
@@ -187,7 +188,7 @@ export namespace SwaggerGenerator {
   const fillPaths = (props: {
     config: Omit<INestiaConfig.ISwaggerConfig, "output">;
     document: OpenApi.IDocument;
-    schema: (metadata: Metadata) => OpenApi.IJsonSchema | undefined;
+    schema: (metadata: MetadataSchema) => OpenApi.IJsonSchema | undefined;
     routes: ITypedHttpRoute[];
   }): void => {
     // SWAGGER CUSTOMIZER

@@ -27,7 +27,6 @@
     "@mui/material": "^6.4.0",
     "@mui/system": "^6.4.0",
     "@nestia/editor": "latest",
-    "@samchon/openapi": "latest",
     "next": "14.2.30",
     "nextra": "^3.2.4",
     "nextra-theme-docs": "^3.2.4",

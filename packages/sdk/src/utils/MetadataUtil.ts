@@ -1,9 +1,9 @@
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
+import { MetadataSchema } from "@typia/core";
 
 export namespace MetadataUtil {
-  export const visit = (closure: (m: Metadata) => unknown) => {
-    const visited: WeakSet<Metadata> = new WeakSet();
-    const iterate = (metadata: Metadata): void => {
+  export const visit = (closure: (m: MetadataSchema) => unknown) => {
+    const visited: WeakSet<MetadataSchema> = new WeakSet();
+    const iterate = (metadata: MetadataSchema): void => {
       if (visited.has(metadata)) return;
       visited.add(metadata);
       closure(metadata);

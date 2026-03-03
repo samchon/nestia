@@ -1,7 +1,7 @@
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
+import { MetadataSchema } from "@typia/core";
 
 export namespace TextPlainValidator {
-  export const validate = (metadata: Metadata): string[] => {
+  export const validate = (metadata: MetadataSchema): string[] => {
     const expected: number =
       metadata.atomics.filter((a) => a.type === "string").length +
       metadata.constants

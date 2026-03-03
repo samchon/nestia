@@ -1,4 +1,4 @@
-import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
+import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
 import { load } from "js-yaml";
 import React from "react";
 // @ts-ignore

@@ -1,6 +1,6 @@
+import { IdentifierFactory } from "@typia/core";
 import ts from "typescript";
 import { IJsDocTagInfo } from "typia";
-import { IdentifierFactory } from "typia/lib/factories/IdentifierFactory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";

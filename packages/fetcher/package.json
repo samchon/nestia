@@ -27,7 +27,8 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "@samchon/openapi": "^6.0.0"
+    "@typia/interface": "catalog:samchon",
+    "@typia/utils": "catalog:samchon"
   },
   "devDependencies": {
     "@types/node": "catalog:utils",

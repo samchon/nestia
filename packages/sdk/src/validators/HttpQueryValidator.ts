@@ -1,10 +1,12 @@
-import { MetadataFactory } from "typia/lib/factories/MetadataFactory";
-import { Metadata } from "typia/lib/schemas/metadata/Metadata";
-import { MetadataArrayType } from "typia/lib/schemas/metadata/MetadataArrayType";
+import {
+  MetadataArrayType,
+  MetadataFactory,
+  MetadataSchema,
+} from "@typia/core";
 
 export namespace HttpQueryValidator {
   export const validate = (
-    meta: Metadata,
+    meta: MetadataSchema,
     explore: MetadataFactory.IExplore,
   ): string[] => {
     const errors: string[] = [];

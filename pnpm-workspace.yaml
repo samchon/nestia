@@ -9,10 +9,12 @@ catalogs:
     '@nestjs/platform-express': ^11.1.4
     '@nestjs/platform-fastify': ^11.1.4
   samchon:
-    '@samchon/openapi': ^6.0.1
     tgrid: ^1.1.0
     tstl: ^3.0.0
-    typia: ^11.0.3
+    typia: 12.0.0-dev.20260303-2
+    '@typia/core': 12.0.0-dev.20260303-2
+    '@typia/interface': 12.0.0-dev.20260303-2
+    '@typia/utils': 12.0.0-dev.20260303-2
   utils:
     '@types/node': ^25.3.3
     '@types/uuid': ^11.0.0

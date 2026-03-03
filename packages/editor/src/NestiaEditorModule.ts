@@ -1,4 +1,4 @@
-import type { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
+import type { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
 import * as fs from "fs";
 
 export namespace NestiaEditorModule {

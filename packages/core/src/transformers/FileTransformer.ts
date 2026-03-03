@@ -1,6 +1,5 @@
+import { ImportProgrammer, TransformerError } from "@typia/core";
 import ts from "typescript";
-import { ImportProgrammer } from "typia/lib/programmers/ImportProgrammer";
-import { TransformerError } from "typia/lib/transformers/TransformerError";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
 import { NodeTransformer } from "./NodeTransformer";
