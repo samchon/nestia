@@ -48,9 +48,11 @@
   },
   "dependencies": {
     "@samchon/openapi": "catalog:samchon",
+    "@trivago/prettier-plugin-sort-imports": "catalog:typescript",
     "commander": "10.0.0",
     "inquirer": "8.2.5",
     "prettier": "catalog:typescript",
+    "prettier-plugin-jsdoc": "catalog:typescript",
     "tstl": "catalog:samchon",
     "typescript": "catalog:typescript",
     "typia": "catalog:samchon"

@@ -1,8 +1,9 @@
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@samchon/openapi";
-import sortImport from "@trivago/prettier-plugin-sort-imports";
+import * as prettierPluginSortImport from "@trivago/prettier-plugin-sort-imports";
 import fs from "fs";
 import path from "path";
 import { format } from "prettier";
+import * as prettierPluginJsDoc from "prettier-plugin-jsdoc";
 import typia, { IValidation, tags } from "typia";
 
 import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
@@ -78,7 +79,7 @@ export namespace NestiaMigrateCommander {
     try {
       return await format(script, {
         parser: "typescript",
-        plugins: [sortImport],
+        plugins: [prettierPluginSortImport, prettierPluginJsDoc],
         importOrder: ["<THIRD_PARTY_MODULES>", "^[./]"],
         importOrderSeparation: true,
         importOrderSortSpecifiers: true,
