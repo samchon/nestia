@@ -91,6 +91,9 @@
       "skipLibCheck": true, /* Skip type checking all .d.ts files. */
       "plugins": [
         { "transform": "typescript-transform-paths" },
+        { "transform": "typia/lib/transform" },
+        { "transform": "@nestia/core/src/transform.ts" },
+        { "transform": "@nestia/sdk/src/transform.ts" },
       ],
     }
   }

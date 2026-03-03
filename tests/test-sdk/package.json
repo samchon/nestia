@@ -3,8 +3,7 @@
   "name": "@nestia/test-migrate",
   "version": "0.1.0",
   "scripts": {
-    "dev": "tsc --watch",
-    "start": "ts-node src/index.ts"
+    "start": "node start.js"
   },
   "dependencies": {
     "@fastify/multipart": "^8.1.0",

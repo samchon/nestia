@@ -81,7 +81,8 @@
           {
               "transform": "@nestia/core/src/transform.ts",
               "validate": "assertEquals"
-          }
+          },
+          { "transform": "@nestia/sdk/src/transform.ts" }
       ],
 
       /* Interop Constraints */

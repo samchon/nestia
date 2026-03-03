@@ -89,13 +89,14 @@
       "plugins": [
         { "transform": "typescript-transform-paths" },
         { "transform": "typia/lib/transform" },
-        { 
+        {
           "transform": "@nestia/core/src/transform.ts",
           "llm": {
             "model": "chatgpt",
             "strict": true,
           },
         },
+        { "transform": "@nestia/sdk/src/transform.ts" },
       ],
     },
     "include": ["src"]

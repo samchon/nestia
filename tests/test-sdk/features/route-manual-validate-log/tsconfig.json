@@ -92,10 +92,11 @@
       "plugins": [
         { "transform": "typescript-transform-paths" },
         { "transform": "typia/lib/transform" },
-        { 
+        {
           "transform": "@nestia/core/src/transform.ts",
-          "stringify": "validate.log", 
+          "stringify": "validate.log",
         },
+        { "transform": "@nestia/sdk/src/transform.ts" },
       ],
     },
     "include": ["src"],

@@ -80,7 +80,8 @@
                 "afterDeclarations": true
             },
             { "transform": "typia/lib/transform" },
-            { "transform": "@nestia/core/src/transform.ts" }
+            { "transform": "@nestia/core/src/transform.ts" },
+            { "transform": "@nestia/sdk/src/transform.ts" }
         ],
 
         /* Interop Constraints */
