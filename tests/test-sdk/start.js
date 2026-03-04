@@ -67,7 +67,7 @@ const feature = (name) => {
   } else generate("all");
 
   // RUN TEST AUTOMATION PROGRAM
-  if (name === "cli-config" || name === "cli-config-project") return;
+  if (name === "cli-project" || name === "cli-config-project") return;
   else if (fs.existsSync("src/test")) {
     const test = (stdio) => cp.execSync("npx ts-node src/test", { stdio });
     for (let i = 0; i < 3; ++i)
