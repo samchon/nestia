@@ -1,3 +1,4 @@
 features/*/swagger.json
+packages/*/src/api/*.ts
 features/*/src/api/functional
 features/*/src/test/features/api/automated
