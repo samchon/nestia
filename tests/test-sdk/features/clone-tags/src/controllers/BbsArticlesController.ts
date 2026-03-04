@@ -3,8 +3,6 @@ import { Controller } from "@nestjs/common";
 import { ApiSecurity, ApiTags } from "@nestjs/swagger";
 import typia, { tags } from "typia";
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
-
 @ApiTags("bbs")
 @Controller("bbs/articles/:section")
 export class BbsArticlesController {
@@ -78,4 +76,35 @@ export class BbsArticlesController {
     section;
     id;
   }
+}
+
+interface IBbsArticle extends IBbsArticle.IStore {
+  id: string & tags.Format<"uuid">;
+  created_at: string & tags.Format<"date-time">;
+}
+namespace IBbsArticle {
+  export interface IStore {
+    section: string;
+    title: string & tags.MinLength<3> & tags.MaxLength<50>;
+    body: string;
+    files: IAttachmentFile[];
+  }
+  export type IUpdate = Partial<IStore>;
+}
+
+interface IAttachmentFile {
+  /**
+   * @minLength 1
+   * @maxLength 255
+   */
+  name: string | null;
+
+  /**
+   * @minLength 1
+   * @maxLength 8
+   */
+  extension: string | null;
+
+  /** @format uri */
+  url: string;
 }
