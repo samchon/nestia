@@ -1,4 +1,4 @@
-import { TypedParam, TypedQuery, TypedRoute } from "@nestia/core";
+import { TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import typia from "typia";
 
