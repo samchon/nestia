@@ -1,4 +1,4 @@
-import core, { TypedRoute, WebSocketRoute } from "@nestia/core";
+import { TypedRoute, WebSocketRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import { Driver, WebSocketAcceptor } from "tgrid";
 import { tags } from "typia";
