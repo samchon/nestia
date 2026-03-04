@@ -9,7 +9,7 @@ export const test_swagger_file = async (): Promise<void> => {
   );
   const swagger: OpenApi.IDocument = JSON.parse(content);
   const route: OpenApi.IOperation =
-    swagger.paths!["/custom/{key}/{value}/customize"].get!;
+    swagger.paths!["/custom/{key}/{value}/customize"]!.get!;
 
   TestValidator.equals("swagger.openapi", swagger.openapi, "3.1.11");
   TestValidator.equals(

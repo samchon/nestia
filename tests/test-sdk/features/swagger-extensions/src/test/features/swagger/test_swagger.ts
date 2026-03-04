@@ -8,6 +8,6 @@ export async function test_swagger(): Promise<void> {
       "x-deprecated": true,
       "x-visibility": "public",
     },
-    swagger.paths["/performance"].get,
+    swagger.paths["/performance"]!.get,
   );
 }
