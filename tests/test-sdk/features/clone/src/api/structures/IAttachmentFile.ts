@@ -1,9 +1,7 @@
-import type { Example } from "typia/lib/tags/Example";
-import type { MaxLength } from "typia/lib/tags/MaxLength";
-import type { MinLength } from "typia/lib/tags/MinLength";
+import type { tags } from "typia";
 
 export type IAttachmentFile = {
-  name: string & MaxLength<255> & Example<"logo">;
-  extension: null | (string & MinLength<1> & MaxLength<8>);
+  name: string & tags.MaxLength<255> & tags.Example<"logo">;
+  extension: null | (string & tags.MinLength<1> & tags.MaxLength<8>);
   url: string;
 };
