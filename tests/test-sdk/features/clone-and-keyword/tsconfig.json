@@ -99,5 +99,6 @@
         { "transform": "@nestia/core/lib/transform" },
         { "transform": "@nestia/sdk/lib/transform" },
       ],
-    }
+    },
+    "include": ["src"],
   }
