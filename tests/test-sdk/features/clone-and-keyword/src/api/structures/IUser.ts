@@ -1,9 +1,9 @@
-import type { Format } from "typia/lib/tags/Format";
+import type { tags } from "typia";
 
 export type IUser = {
   id: string;
   name: string;
-  email: null | (string & Format<"email">);
+  email: null | (string & tags.Format<"email">);
   optional_attr?: undefined | string;
   undefindable_attr?: undefined | string;
   both_optional_and_undefindable?: undefined | string;

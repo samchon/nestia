@@ -1,12 +1,11 @@
-import type { Format } from "typia/lib/tags/Format";
-import type { Type } from "typia/lib/tags/Type";
+import type { tags } from "typia";
 
 export type ObjectLietral = {
   id: string;
   member: {
-    id: string & Format<"uuid">;
-    email: string & Format<"email">;
-    age: number & Type<"uint32">;
+    id: string & tags.Format<"uuid">;
+    email: string & tags.Format<"email">;
+    age: number & tags.Type<"uint32">;
   };
-  created_at: string & Format<"date-time">;
+  created_at: string & tags.Format<"date-time">;
 };

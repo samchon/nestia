@@ -235,9 +235,9 @@ const TYPED_EXCEPTION_LIB_PATH = path.join(
 const TYPED_EXCEPTION_MONO_PATH = path.join(
   "packages",
   "core",
-  "lib",
+  "src",
   "decorators",
-  `TypedException.d.ts`,
+  `TypedException.ts`,
 );
 
 const collection = new Singleton(

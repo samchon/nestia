@@ -1,22 +1,21 @@
-import type { Format } from "typia/lib/tags/Format";
-import type { Type } from "typia/lib/tags/Type";
+import type { tags } from "typia";
 
 export namespace ISeller {
   export type IAuthorized = {
     authorization: {
       token: string;
-      expires_at: string & Format<"date-time">;
+      expires_at: string & tags.Format<"date-time">;
     };
 
     /**
      * Primary key.
      */
-    id: number & Type<"uint32">;
+    id: number & tags.Type<"uint32">;
 
     /**
      * Email address.
      */
-    email: string & Format<"email">;
+    email: string & tags.Format<"email">;
 
     /**
      * Name of the seller.
@@ -36,17 +35,17 @@ export namespace ISeller {
     /**
      * Joined time.
      */
-    created_at: string & Format<"date-time">;
+    created_at: string & tags.Format<"date-time">;
   };
   export type IJoin = {
-    email: string & Format<"email">;
+    email: string & tags.Format<"email">;
     password: string;
     name: string;
     mobile: string;
     company: string;
   };
   export type ILogin = {
-    email: string & Format<"email">;
+    email: string & tags.Format<"email">;
     password: string;
   };
   export type IChangePassword = {

@@ -13,7 +13,9 @@ export class UsersController {
    * - When `clone` mode being used in SDK generator, it was not possible to clone
    *   recursive DTO type.
    */
-  @core.TypedException<ErrorCode.NotFound>(404)
+  @core.TypedException<ErrorCode.NotFound>({
+    status: 404,
+  })
   @core.TypedRoute.Get(":user_id/oauth")
   public async getOauthProfile(
     @core.TypedParam("user_id") user_id: string,
