@@ -8,7 +8,6 @@
   "dependencies": {
     "@fastify/multipart": "^8.1.0",
     "@nestia/core": "workspace:^",
-    "@samchon/openapi": "^6.0.1",
     "@nestia/e2e": "workspace:^",
     "@nestia/fetcher": "workspace:^",
     "@nestjs/common": "catalog:nestjs",
