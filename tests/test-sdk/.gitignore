@@ -2,3 +2,5 @@ features/*/swagger.json
 features/*/src/api/*.ts
 features/*/src/api/functional
 features/*/src/test/features/api/automated
+
+features/clone*/src/api/structures

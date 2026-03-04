@@ -1,16 +1,16 @@
-import type { Format } from "typia/lib/tags/Format";
+import { tags } from "typia";
 
 export namespace IUser {
   export type IProfile = {
-    id: string & Format<"uuid">;
+    id: string & tags.Format<"uuid">;
     name: string;
-    created_at: string & Format<"date-time">;
+    created_at: string & tags.Format<"date-time">;
   };
   export namespace IProfile {
     export type o1 = {
-      id: string & Format<"uuid">;
+      id: string & tags.Format<"uuid">;
       name: string;
-      created_at: string & Format<"date-time">;
+      created_at: string & tags.Format<"date-time">;
     };
   }
 }
