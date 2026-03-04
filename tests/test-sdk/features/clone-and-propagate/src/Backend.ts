@@ -1,7 +1,6 @@
 import core from "@nestia/core";
 import { INestApplication } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-import FastifyMulter from "fastify-multer";
 
 export class Backend {
   private application_?: INestApplication;
