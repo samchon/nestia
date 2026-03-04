@@ -1,0 +1,11 @@
+{
+  "extends": "../../config/tsconfig.nestia.json",
+  "compilerOptions": {
+    "plugins": [
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typia/lib/transform" },
+      { "transform": "@nestia/core/lib/transform" },
+      { "transform": "@nestia/sdk/lib/transform" },
+    ],
+  },
+}

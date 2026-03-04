@@ -1,0 +1,11 @@
+{
+  "extends": "../../config/tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@api": ["./src/api"],
+      "@api/lib/*": ["./src/api/*"],
+    },
+    "strict": false,
+  },
+  "include": ["src"],
+}

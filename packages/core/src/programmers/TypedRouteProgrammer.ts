@@ -27,7 +27,7 @@ export namespace TypedRouteProgrammer {
         validate: (metadata) =>
           LlmSchemaProgrammer.validate({
             config: {
-              strict: props.context.options.llm?.strict,
+              strict: props.context.options.llm?.strict ?? false,
             },
             metadata,
           }),

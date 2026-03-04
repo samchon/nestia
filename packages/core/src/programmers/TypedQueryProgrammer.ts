@@ -43,7 +43,7 @@ export namespace TypedQueryProgrammer {
               errors.push(
                 ...LlmSchemaProgrammer.validate({
                   config: {
-                    strict: llm.strict,
+                    strict: llm.strict ?? false,
                   },
                   metadata: meta,
                 }),

@@ -29,6 +29,7 @@ export namespace ReflectHttpOperationExceptionAnalyzer {
         const matched: IOperationMetadata.IException | null =
           ctx.metadata.exceptions[i]!;
         if (matched === undefined) {
+          if (ctx.functionName === "getOauthProfile") console.log(ctx.metadata);
           errors.push({
             file: ctx.controller.file,
             class: ctx.controller.class.name,

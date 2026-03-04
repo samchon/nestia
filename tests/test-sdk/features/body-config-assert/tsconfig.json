@@ -1,0 +1,19 @@
+{
+  "extends": "../../config/tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@api": ["./src/api"],
+      "@api/lib/*": ["./src/api/*"],
+    },
+    "plugins": [
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typia/lib/transform" },
+      {
+        "transform": "@nestia/core/lib/transform",
+        "validate": "assert",
+      },
+      { "transform": "@nestia/sdk/lib/transform" },
+    ],
+  },
+  "include": ["src"],
+}
