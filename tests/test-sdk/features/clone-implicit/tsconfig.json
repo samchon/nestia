@@ -4,7 +4,7 @@
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         // "alwaysStrict": true, // strict mode family
-        "exactOptionalPropertyTypes": true,
+        // "exactOptionalPropertyTypes": true,
         "noFallthroughCasesInSwitch": false,
         //  "noImplicitAny": true, // strict mode family
         "noImplicitOverride": true,
