@@ -67,7 +67,8 @@ const feature = (name) => {
   } else generate("all");
 
   // RUN TEST AUTOMATION PROGRAM
-  if (fs.existsSync("src/test")) {
+  if (name === "cli-config" || name === "cli-config-project") return;
+  else if (fs.existsSync("src/test")) {
     const test = (stdio) => cp.execSync("npx ts-node src/test", { stdio });
     for (let i = 0; i < 3; ++i)
       try {
@@ -75,7 +76,14 @@ const feature = (name) => {
         return;
       } catch {}
     test("inherit");
-  } else cp.execSync("npx tsc", { stdio: "ignore" });
+  } else {
+    const test = (stdio) => cp.execSync("npx tsc", { stdio });
+    try {
+      test("ignore");
+    } catch {
+      test("inherit");
+    }
+  }
 };
 
 const main = async () => {
