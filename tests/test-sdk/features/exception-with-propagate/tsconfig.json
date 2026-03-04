@@ -4,8 +4,7 @@
     "paths": {
       "@api": ["./src/api"],
       "@api/lib/*": ["./src/api/*"],
-    },
-    "exactOptionalPropertyTypes": true,
+    }
   },
   "include": ["src"],
 }
