@@ -10,6 +10,11 @@
     "./lib/transform": "./src/transform.ts",
     "./src/transform.ts": "./src/transform.ts"
   },
+  "tsp": {
+    "tscOptions": {
+      "parseAllJsDoc": true
+    }
+  },
   "bin": {
     "@nestia/sdk": "src/executable/sdk.ts"
   },
