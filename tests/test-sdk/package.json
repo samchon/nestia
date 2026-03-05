@@ -21,7 +21,7 @@
     "express": "^4.21.1",
     "fastify": "^4.0.0",
     "fastify-multer": "^2.0.3",
-    "multer": "^2.0.2",
+    "multer": "^2.1.1",
     "tgrid": "catalog:samchon",
     "tstl": "catalog:samchon",
     "typia": "catalog:samchon",
