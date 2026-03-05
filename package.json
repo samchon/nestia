@@ -1,15 +1,16 @@
 {
   "private": true,
   "name": "@nestia/station",
-  "version": "10.0.2",
+  "version": "11.0.0-dev.20260305",
   "description": "Nestia station",
   "scripts": {
     "build": "pnpm --filter=./packages/* -r build",
     "format": "prettier --write packages/**/*.ts && prettier --write internals/**/*.ts && prettier --write tests/**/*.ts",
     "test": "pnpm --filter=./tests/test-* -r start",
-    "package:latest": "node deploy publish --tag latest",
-    "package:next": "node deploy publish --tag next --migrate",
-    "prepare": "ts-patch install"
+    "package:latest": "pnpm --filter=./packages/* -r publish --tag latest --access public",
+    "package:next": "bash deploy/next.bash",
+    "prepare": "ts-patch install",
+    "release": "bash deploy/README.bash && bumpp -r"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "catalog:typescript",
     "@types/ts-expose-internals": "npm:ts-expose-internals@5.4.5",
+    "bumpp": "^10.4.1",
     "prettier": "catalog:typescript",
     "prettier-plugin-jsdoc": "catalog:typescript",
     "rimraf": "catalog:utils",

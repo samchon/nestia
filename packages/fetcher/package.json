@@ -1,6 +1,6 @@
 {
   "name": "@nestia/fetcher",
-  "version": "9.0.0-dev.20251107-3",
+  "version": "11.0.0-dev.20260305",
   "description": "Fetcher library of Nestia SDK",
   "main": "src/index.ts",
   "exports": {

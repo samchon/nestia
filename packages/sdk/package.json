@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "9.0.0-dev.20251107-3",
+  "version": "11.0.0-dev.20260305",
   "description": "Nestia SDK and Swagger generator",
   "main": "src/index.ts",
   "exports": {
@@ -9,6 +9,11 @@
     "./lib/executable/sdk": "./src/executable/sdk.ts",
     "./lib/transform": "./src/transform.ts",
     "./src/transform.ts": "./src/transform.ts"
+  },
+  "tsp": {
+    "tscOptions": {
+      "parseAllJsDoc": true
+    }
   },
   "bin": {
     "@nestia/sdk": "src/executable/sdk.ts"
