@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/test-e2e",
-  "version": "11.0.0-dev.20260305",
+  "version": "11.0.0-dev.20260312",
   "scripts": {
     "dev": "tsc --watch",
     "start": "ts-node src/index.ts"
