@@ -147,7 +147,10 @@ const createContext = (
 ): INestiaMigrateContext => {
   return {
     mode,
-    application,
+    application: {
+      ...application,
+      routes: application.routes.filter((r) => r.method !== "query"),
+    },
     config,
   };
 };
