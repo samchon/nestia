@@ -49,7 +49,7 @@ export namespace NestiaConfigLoader {
       );
     const plugins: any[] = [
       ...(compilerOptions.plugins ?? []),
-      ...(setup ? [{ transform: "@nestia/sdk/lib/transform" }] : []),
+      ...(setup ? [] : [{ transform: "@nestia/sdk/lib/transform" }]),
     ];
     if (!(process as any)[Symbol.for("ts-node.register.instance")])
       register({
