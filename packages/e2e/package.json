@@ -1,6 +1,6 @@
 {
   "name": "@nestia/e2e",
-  "version": "11.0.0-dev.20260313-3",
+  "version": "11.0.0-dev.20260313-4",
   "description": "E2E test utilify functions",
   "main": "src/index.ts",
   "exports": {
