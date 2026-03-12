@@ -4,7 +4,12 @@ import {
   NestiaMigrateCommander,
   NestiaMigrateFileArchiver,
 } from "@nestia/migrate";
-import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
+import {
+  OpenApiV3,
+  OpenApiV3_1,
+  OpenApiV3_2,
+  SwaggerV2,
+} from "@typia/interface";
 import cp from "child_process";
 import fs from "fs";
 import { IValidation } from "typia";
@@ -26,7 +31,11 @@ const execute = (
   mode: "nest" | "sdk",
   config: INestiaMigrateConfig,
   project: string,
-  document: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument,
+  document:
+    | SwaggerV2.IDocument
+    | OpenApiV3.IDocument
+    | OpenApiV3_1.IDocument
+    | OpenApiV3_2.IDocument,
 ): Promise<number> => {
   const title: string = `${project}-${mode}-${config.keyword ? "keyword" : "positional"}`;
   return measure(title)(async () => {
@@ -111,7 +120,8 @@ const iterate = async (directory: string): Promise<void> => {
       const document:
         | SwaggerV2.IDocument
         | OpenApiV3.IDocument
-        | OpenApiV3_1.IDocument = JSON.parse(
+        | OpenApiV3_1.IDocument
+        | OpenApiV3_2.IDocument = JSON.parse(
         await fs.promises.readFile(location, "utf8"),
       );
       for (const [mode, flag] of [

@@ -116,7 +116,7 @@ export namespace SwaggerOperationParameterComposer {
         (tag) => tag.name !== "hidden" && tag.name !== "ignore",
       ),
     ).map((p) => {
-      const json: IJsonSchemaCollection = JsonSchemasProgrammer.write({
+      const json: IJsonSchemaCollection = JsonSchemasProgrammer.writeSchemas({
         version: "3.1",
         metadatas: [p.value],
       }) as IJsonSchemaCollection;

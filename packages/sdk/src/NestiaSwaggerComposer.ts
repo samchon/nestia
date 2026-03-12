@@ -1,6 +1,6 @@
 import { INestApplication } from "@nestjs/common";
 import { IMetadataDictionary } from "@typia/core";
-import { OpenApiV3, SwaggerV2 } from "@typia/interface";
+import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
 import { OpenApiConverter } from "@typia/utils";
 import path from "path";
 import { TreeMap } from "tstl";
@@ -25,18 +25,21 @@ export namespace NestiaSwaggerComposer {
   export const document = async (
     app: INestApplication,
     config: Omit<INestiaConfig.ISwaggerConfig, "output">,
-  ): Promise<OpenApi.IDocument | OpenApiV3.IDocument | SwaggerV2.IDocument> => {
+  ): Promise<
+    | OpenApi.IDocument
+    | OpenApiV3_1.IDocument
+    | OpenApiV3.IDocument
+    | SwaggerV2.IDocument
+  > => {
     const input: INestiaSdkInput = await ConfigAnalyzer.application(app);
     const document: OpenApi.IDocument = await SwaggerGenerator.compose({
       config,
       routes: analyze(input),
       document: await SwaggerGenerator.initialize(config),
     });
-    return config.openapi === "2.0"
-      ? OpenApiConverter.downgradeDocument(document, "2.0")
-      : config.openapi === "3.0"
-        ? OpenApiConverter.downgradeDocument(document, "3.0")
-        : document;
+    return (config.openapi ?? "3.2") === "3.2"
+      ? document
+      : OpenApiConverter.downgradeDocument(document, config.openapi as "2.0");
   };
 
   const analyze = (input: INestiaSdkInput): ITypedHttpRoute[] => {

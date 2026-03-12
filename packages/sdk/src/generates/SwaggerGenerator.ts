@@ -1,6 +1,12 @@
 import { SwaggerCustomizer } from "@nestia/core";
 import { JsonSchemasProgrammer, MetadataSchema } from "@typia/core";
-import { OpenApi, OpenApiV3, SwaggerV2 } from "@typia/interface";
+import {
+  OpenApi,
+  OpenApiV3,
+  OpenApiV3_1,
+  OpenApiV3_2,
+  SwaggerV2,
+} from "@typia/interface";
 import { OpenApiConverter } from "@typia/utils";
 import fs from "fs";
 import path from "path";
@@ -46,12 +52,12 @@ export namespace SwaggerGenerator {
     const specified:
       | OpenApi.IDocument
       | SwaggerV2.IDocument
-      | OpenApiV3.IDocument =
-      config.openapi === "2.0"
-        ? OpenApiConverter.downgradeDocument(document, config.openapi)
-        : config.openapi === "3.0"
-          ? OpenApiConverter.downgradeDocument(document, config.openapi)
-          : document;
+      | OpenApiV3.IDocument
+      | OpenApiV3_1.IDocument
+      | OpenApiV3_2.IDocument =
+      (config.openapi ?? "3.2") === "3.2"
+        ? document
+        : OpenApiConverter.downgradeDocument(document, config.openapi as "2.0");
     await fs.promises.writeFile(
       location,
       !config.beautify
@@ -86,7 +92,7 @@ export namespace SwaggerGenerator {
       .filter((m) => m.size() !== 0);
 
     // COMPOSE JSON SCHEMAS
-    const json: IJsonSchemaCollection = JsonSchemasProgrammer.write({
+    const json: IJsonSchemaCollection = JsonSchemasProgrammer.writeSchemas({
       version: "3.1",
       metadatas,
     });
@@ -155,7 +161,7 @@ export namespace SwaggerGenerator {
     );
 
     return {
-      openapi: "3.1.0",
+      openapi: "3.2.0",
       servers: config.servers ?? [
         {
           url: "https://github.com/samchon/nestia",
@@ -181,7 +187,7 @@ export namespace SwaggerGenerator {
         securitySchemes: config.security,
       },
       tags: config.tags ?? [],
-      "x-samchon-emended-v4": true,
+      "x-typia-emended-v12": true,
     };
   };
 
