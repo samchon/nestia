@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "11.0.0-dev.20260313-2",
+  "version": "11.0.0-dev.20260313-3",
   "description": "Super-fast validation decorators of NestJS",
   "main": "src/index.ts",
   "exports": {

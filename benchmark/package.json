@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@samchon/nestia-benchmark",
-  "version": "11.0.0-dev.20260313-2",
+  "version": "11.0.0-dev.20260313-3",
   "description": "Benchmark Nestia",
   "main": "lib/index.js",
   "scripts": {
