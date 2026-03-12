@@ -11,10 +11,10 @@ catalogs:
   samchon:
     tgrid: ^1.1.0
     tstl: ^3.0.0
-    typia: 12.0.0-dev.20260312-2
-    '@typia/core': 12.0.0-dev.20260312-2
-    '@typia/interface': 12.0.0-dev.20260312-2
-    '@typia/utils': 12.0.0-dev.20260312-2
+    typia: 12.0.0-dev.20260313
+    '@typia/core': 12.0.0-dev.20260313
+    '@typia/interface': 12.0.0-dev.20260313
+    '@typia/utils': 12.0.0-dev.20260313
   utils:
     '@types/node': ^25.3.3
     '@types/uuid': ^11.0.0
