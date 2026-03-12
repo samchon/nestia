@@ -1,5 +1,10 @@
 import * as prettierPluginSortImport from "@trivago/prettier-plugin-sort-imports";
-import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
+import {
+  OpenApiV3,
+  OpenApiV3_1,
+  OpenApiV3_2,
+  SwaggerV2,
+} from "@typia/interface";
 import fs from "fs";
 import path from "path";
 import { format } from "prettier";
@@ -30,7 +35,8 @@ export namespace NestiaMigrateCommander {
     const document:
       | SwaggerV2.IDocument
       | OpenApiV3.IDocument
-      | OpenApiV3_1.IDocument = await (async () => {
+      | OpenApiV3_1.IDocument
+      | OpenApiV3_2.IDocument = await (async () => {
       if (typia.is<string & tags.Format<"uri">>(options.input)) {
         const response: Response = await fetch(options.input);
         const content: string = await response.text();

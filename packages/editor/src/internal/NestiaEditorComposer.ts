@@ -1,5 +1,10 @@
 import { NestiaMigrateApplication } from "@nestia/migrate";
-import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
+import {
+  OpenApiV3,
+  OpenApiV3_1,
+  OpenApiV3_2,
+  SwaggerV2,
+} from "@typia/interface";
 import * as prettierEsTreePlugin from "prettier/plugins/estree";
 import * as prettierTsPlugin from "prettier/plugins/typescript";
 import { format } from "prettier/standalone";
@@ -7,7 +12,11 @@ import { IValidation } from "typia";
 
 export namespace NestiaEditorComposer {
   export interface IProps {
-    document: SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument;
+    document:
+      | SwaggerV2.IDocument
+      | OpenApiV3.IDocument
+      | OpenApiV3_1.IDocument
+      | OpenApiV3_2.IDocument;
     e2e: boolean;
     keyword: boolean;
     simulate: boolean;

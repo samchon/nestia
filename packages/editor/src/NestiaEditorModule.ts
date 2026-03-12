@@ -1,4 +1,9 @@
-import type { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
+import type {
+  OpenApiV3,
+  OpenApiV3_1,
+  OpenApiV3_2,
+  SwaggerV2,
+} from "@typia/interface";
 import * as fs from "fs";
 
 export namespace NestiaEditorModule {
@@ -9,7 +14,8 @@ export namespace NestiaEditorModule {
       | string
       | SwaggerV2.IDocument
       | OpenApiV3.IDocument
-      | OpenApiV3_1.IDocument;
+      | OpenApiV3_1.IDocument
+      | OpenApiV3_2.IDocument;
     package?: string;
     simulate?: boolean;
     e2e?: boolean;

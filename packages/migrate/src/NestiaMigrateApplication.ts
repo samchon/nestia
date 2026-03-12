@@ -3,6 +3,7 @@ import {
   OpenApi,
   OpenApiV3,
   OpenApiV3_1,
+  OpenApiV3_2,
   SwaggerV2,
 } from "@typia/interface";
 import { HttpMigration, OpenApiConverter } from "@typia/utils";
@@ -33,6 +34,7 @@ export class NestiaMigrateApplication {
       | SwaggerV2.IDocument
       | OpenApiV3.IDocument
       | OpenApiV3_1.IDocument
+      | OpenApiV3_2.IDocument
       | OpenApi.IDocument,
   ): NestiaMigrateApplication {
     return new NestiaMigrateApplication(
@@ -45,12 +47,14 @@ export class NestiaMigrateApplication {
       | SwaggerV2.IDocument
       | OpenApiV3.IDocument
       | OpenApiV3_1.IDocument
+      | OpenApiV3_2.IDocument
       | OpenApi.IDocument,
   ): IValidation<NestiaMigrateApplication> {
     const result: IValidation<
       | SwaggerV2.IDocument
       | OpenApiV3.IDocument
       | OpenApiV3_1.IDocument
+      | OpenApiV3_2.IDocument
       | OpenApi.IDocument
     > = typia.validate(document);
     if (result.success === false) return result;
