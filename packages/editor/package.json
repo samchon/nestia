@@ -13,6 +13,7 @@
     "build:lib": "rimraf lib && tsc --project tsconfig.lib.json && rollup -c",
     "dev": "vite",
     "lint": "eslint .",
+    "prepack": "pnpm run build",
     "preview": "vite preview"
   },
   "repository": {

@@ -14,7 +14,7 @@
     "build": "rimraf lib && tsc && rollup -c",
     "bundle": "node src/executable/bundle.js",
     "dev": "rimraf lib && tsc --watch",
-    "package:next": "npm publish --access public --tag next",
+    "prepack": "pnpm run build",
     "prepare": "npm run bundle",
     "test": "node lib/test"
   },

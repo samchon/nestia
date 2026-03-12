@@ -10,7 +10,7 @@
   "scripts": {
     "build": "rimraf lib && tsc",
     "dev": "rimraf lib && tsc --watch",
-    "test": "node bin/test"
+    "prepack": "pnpm run build"
   },
   "keywords": [
     "e2e",
