@@ -1,6 +1,6 @@
 {
   "name": "@nestia/editor",
-  "version": "11.0.0-dev.20260313",
+  "version": "11.0.0-dev.20260313-2",
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
@@ -13,6 +13,7 @@
     "build:lib": "rimraf lib && tsc --project tsconfig.lib.json && rollup -c",
     "dev": "vite",
     "lint": "eslint .",
+    "prepack": "pnpm run build",
     "preview": "vite preview"
   },
   "repository": {

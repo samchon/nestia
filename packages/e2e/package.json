@@ -1,6 +1,6 @@
 {
   "name": "@nestia/e2e",
-  "version": "11.0.0-dev.20260313",
+  "version": "11.0.0-dev.20260313-2",
   "description": "E2E test utilify functions",
   "main": "src/index.ts",
   "exports": {
@@ -9,7 +9,8 @@
   },
   "scripts": {
     "build": "rimraf lib && tsc",
-    "dev": "rimraf lib && tsc --watch"
+    "dev": "rimraf lib && tsc --watch",
+    "prepack": "pnpm run build"
   },
   "repository": {
     "type": "git",
