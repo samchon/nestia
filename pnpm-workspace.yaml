@@ -12,7 +12,7 @@ catalogs:
     '@typia/core': ^12.0.0
     '@typia/interface': ^12.0.0
     '@typia/utils': ^12.0.0
-    tgrid: ^1.1.0
+    tgrid: ^1.2.1
     tstl: ^3.0.0
     typia: ^12.0.0
   utils:
