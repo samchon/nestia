@@ -34,18 +34,19 @@ export namespace TypedQueryProgrammer {
             escape: false,
             constant: true,
             absorb: true,
-            validate: (meta, explore) => {
-              const errors: string[] = HttpQueryProgrammer.validate(
-                meta,
-                explore,
-                true,
-              );
+            validate: (next) => {
+              const errors: string[] = HttpQueryProgrammer.validate({
+                metadata: next.metadata,
+                explore: next.explore,
+                allowOptional: true,
+              });
               errors.push(
                 ...LlmSchemaProgrammer.validate({
                   config: {
                     strict: llm.strict ?? false,
                   },
-                  metadata: meta,
+                  metadata: next.metadata,
+                  explore: next.explore,
                 }),
               );
               return errors;

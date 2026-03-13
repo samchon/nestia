@@ -1,6 +1,6 @@
 {
   "name": "@nestia/editor",
-  "version": "11.0.0-dev.20260313-5",
+  "version": "11.0.0-dev.20260314",
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
@@ -90,6 +90,10 @@
         "types": "./lib/index.d.ts",
         "import": "./lib/index.mjs",
         "default": "./lib/index.js"
+      },
+      "./lib/NestiaEditorModule": {
+        "types": "./lib/NestiaEditorModule.d.ts",
+        "default": "./lib/NestiaEditorModule.js"
       },
       "./package.json": "./package.json"
     }

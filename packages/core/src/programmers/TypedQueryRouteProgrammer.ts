@@ -1,7 +1,7 @@
 import {
   HttpQueryProgrammer,
   ITypiaContext,
-  LlmSchemaProgrammer,
+  LlmParametersProgrammer,
   MetadataCollection,
   MetadataFactory,
   MetadataSchema,
@@ -34,20 +34,22 @@ export namespace TypedQueryRouteProgrammer {
             escape: false,
             constant: true,
             absorb: true,
-            validate: (meta, explore) => {
-              const errors: string[] = HttpQueryProgrammer.validate(
-                meta,
-                explore,
-                true,
-              );
-              errors.push(
-                ...LlmSchemaProgrammer.validate({
-                  config: {
-                    strict: llm.strict ?? false,
-                  },
-                  metadata: meta,
-                }),
-              );
+            validate: (next) => {
+              const errors: string[] = HttpQueryProgrammer.validate({
+                metadata: next.metadata,
+                explore: next.explore,
+                allowOptional: true,
+              });
+              if (next.metadata.size() !== 0)
+                errors.push(
+                  ...LlmParametersProgrammer.validate({
+                    config: {
+                      strict: llm.strict ?? false,
+                    },
+                    metadata: next.metadata,
+                    explore: next.explore,
+                  }),
+                );
               return errors;
             },
           },
