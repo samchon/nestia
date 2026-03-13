@@ -4,6 +4,9 @@ const fs = require("fs");
 
 const ROOT = `${__dirname}/../..`;
 const ASSETS = `${ROOT}/assets`;
+const TYPIA = require("js-yaml").load(
+  fs.readFileSync(`${__dirname}/../../../../pnpm-lock.yaml`, "utf8"),
+).catalogs.samchon;
 
 const update = (content) => {
   const parsed = JSON.parse(content);
@@ -14,6 +17,7 @@ const update = (content) => {
     for (const key of Object.keys(record))
       if (key.startsWith("@nestia/") || key === "nestia")
         record[key] = `^${version}`;
+      else if (TYPIA[key]) record[key] = TYPIA[key].specifier;
   return JSON.stringify(parsed, null, 2);
 };
 
@@ -97,7 +101,7 @@ const main = async () => {
       "test/features",
     ],
     transform: (key, value) => {
-      if (key === "package.json") return update(value);
+      if (key.endsWith("package.json")) return update(value);
       return value;
     },
   });
@@ -114,7 +118,7 @@ const main = async () => {
       "test/features",
     ],
     transform: (key, value) => {
-      if (key === "package.json") return update(value);
+      if (key.endsWith("package.json")) return update(value);
       return value;
     },
   });

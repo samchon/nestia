@@ -43,8 +43,10 @@
     "@rollup/plugin-typescript": "^12.1.1",
     "@types/inquirer": "^9.0.7",
     "@types/node": "catalog:utils",
-    "rimraf": "^6.0.1",
-    "rollup": "^4.24.3"
+    "js-yaml": "^4.1.0",
+    "rimraf": "catalog:utils",
+    "rollup": "^4.24.3",
+    "ts-node": "catalog:typescript"
   },
   "dependencies": {
     "@trivago/prettier-plugin-sort-imports": "catalog:typescript",
@@ -73,6 +75,9 @@
     "types": "lib/index.d.ts",
     "main": "lib/index.js",
     "module": "lib/index.mjs",
+    "bin": {
+      "@nestia/migrate": "./lib/executable/migrate.js"
+    },
     "exports": {
       ".": {
         "types": "./lib/index.d.ts",

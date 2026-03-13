@@ -29,7 +29,7 @@ catalogs:
       specifier: ^12.0.0
       version: 12.0.0
     tgrid:
-      specifier: ^1.1.0
+      specifier: ^1.2.1
       version: 1.2.1
     tstl:
       specifier: ^3.0.0
@@ -516,12 +516,18 @@ importers:
       '@types/node':
         specifier: catalog:utils
         version: 25.3.3
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.1
       rimraf:
-        specifier: ^6.0.1
+        specifier: catalog:utils
         version: 6.1.3
       rollup:
         specifier: ^4.24.3
         version: 4.59.0
+      ts-node:
+        specifier: catalog:typescript
+        version: 10.9.2(@types/node@25.3.3)(typescript@5.9.3)
 
   packages/sdk:
     dependencies:
