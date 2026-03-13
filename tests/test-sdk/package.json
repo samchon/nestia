@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/test-migrate",
-  "version": "11.0.0-dev.20260316",
+  "version": "11.0.0",
   "scripts": {
     "start": "node start.js"
   },
