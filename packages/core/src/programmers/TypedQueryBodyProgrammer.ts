@@ -25,7 +25,8 @@ export namespace TypedQueryBodyProgrammer {
   }): ts.ObjectLiteralExpression => {
     // VALIDATE TYPE
     if (props.context.options.llm) {
-      const llm: INestiaTransformOptions.ILlm = props.context.options.llm;
+      const llm: INestiaTransformOptions.ILlm | true =
+        props.context.options.llm;
       const result: ValidationPipe<MetadataSchema, MetadataFactory.IError> =
         MetadataFactory.analyze({
           checker: props.context.checker,
@@ -43,7 +44,7 @@ export namespace TypedQueryBodyProgrammer {
               errors.push(
                 ...LlmSchemaProgrammer.validate({
                   config: {
-                    strict: llm.strict ?? false,
+                    strict: llm === true ? false : (llm.strict ?? false),
                   },
                   metadata: meta,
                 }),
