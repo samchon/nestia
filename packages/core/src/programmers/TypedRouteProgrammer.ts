@@ -9,6 +9,7 @@ import {
 } from "@typia/core";
 import ts from "typescript";
 
+import { INestiaTransformOptions } from "../options/INestiaTransformOptions";
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
 
 export namespace TypedRouteProgrammer {
@@ -18,7 +19,9 @@ export namespace TypedRouteProgrammer {
     type: ts.Type;
   }): ts.Expression => {
     // VALIDATE TYPE
-    if (props.context.options.llm)
+    if (props.context.options.llm) {
+      const llm: INestiaTransformOptions.ILlm | true =
+        props.context.options.llm;
       JsonMetadataFactory.analyze({
         method: "@nestia.core.TypedRoute",
         checker: props.context.checker,
@@ -28,13 +31,14 @@ export namespace TypedRouteProgrammer {
           if (next.metadata.size() === 0) return [];
           return LlmParametersProgrammer.validate({
             config: {
-              strict: props.context.options.llm?.strict ?? false,
+              strict: llm === true ? false : (llm.strict ?? false),
             },
             metadata: next.metadata,
             explore: next.explore,
           });
         },
       });
+    }
 
     // GENERATE STRINGIFY PLAN
     const parameter = (next: {

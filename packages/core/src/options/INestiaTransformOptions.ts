@@ -1,7 +1,7 @@
 export interface INestiaTransformOptions {
   validate?: INestiaTransformOptions.Validate;
   stringify?: INestiaTransformOptions.Stringify | null;
-  llm?: INestiaTransformOptions.ILlm;
+  llm?: boolean | INestiaTransformOptions.ILlm;
   throws?: boolean;
 }
 export namespace INestiaTransformOptions {
