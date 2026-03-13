@@ -31,7 +31,10 @@ export namespace TypedBodyProgrammer {
         ? (metadata) =>
             LlmSchemaProgrammer.validate({
               config: {
-                strict: props.context.options.llm?.strict ?? false,
+                strict:
+                  typeof props.context.options.llm === "boolean"
+                    ? false
+                    : (props.context.options.llm?.strict ?? false),
               },
               metadata,
             })
