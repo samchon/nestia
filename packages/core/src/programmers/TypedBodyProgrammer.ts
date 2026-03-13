@@ -28,7 +28,7 @@ export namespace TypedBodyProgrammer {
       transformer: props.context.transformer,
       type: props.type,
       validate: props.context.options.llm
-        ? (metadata) =>
+        ? (next) =>
             LlmSchemaProgrammer.validate({
               config: {
                 strict:
@@ -36,7 +36,8 @@ export namespace TypedBodyProgrammer {
                     ? false
                     : (props.context.options.llm?.strict ?? false),
               },
-              metadata,
+              metadata: next.metadata,
+              explore: next.explore,
             })
         : undefined,
     });

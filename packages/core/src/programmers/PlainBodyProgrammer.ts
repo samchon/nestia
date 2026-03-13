@@ -22,7 +22,7 @@ export namespace PlainBodyProgrammer {
         escape: false,
         constant: true,
         absorb: true,
-        validate,
+        validate: ({ metadata }) => validate(metadata),
       },
       components: new MetadataCollection(),
       type: props.type,

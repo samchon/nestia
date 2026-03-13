@@ -5,7 +5,7 @@ import {
   JsonMetadataFactory,
   JsonStringifyProgrammer,
   JsonValidateStringifyProgrammer,
-  LlmSchemaProgrammer,
+  LlmParametersProgrammer,
 } from "@typia/core";
 import ts from "typescript";
 
@@ -27,13 +27,16 @@ export namespace TypedRouteProgrammer {
         checker: props.context.checker,
         transformer: props.context.transformer,
         type: props.type,
-        validate: (metadata) =>
-          LlmSchemaProgrammer.validate({
+        validate: (next) => {
+          if (next.metadata.size() === 0) return [];
+          return LlmParametersProgrammer.validate({
             config: {
               strict: llm === true ? false : (llm.strict ?? false),
             },
-            metadata,
-          }),
+            metadata: next.metadata,
+            explore: next.explore,
+          });
+        },
       });
     }
 

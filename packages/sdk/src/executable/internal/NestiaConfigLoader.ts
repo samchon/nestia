@@ -1,4 +1,4 @@
-import { NoTransformConfigurationError } from "@nestia/core";
+import { doNotThrowTransformError } from "@nestia/core";
 import fs from "fs";
 import path from "path";
 import { register } from "ts-node";
@@ -38,7 +38,7 @@ export namespace NestiaConfigLoader {
     if (fs.existsSync(path.resolve(file)) === false)
       throw new Error(`Unable to find "${file}" file.`);
 
-    NoTransformConfigurationError.throws = false;
+    doNotThrowTransformError(true);
 
     const setup: boolean = typia
       .assert<object[]>(compilerOptions.plugins ?? [])

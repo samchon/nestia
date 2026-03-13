@@ -99,8 +99,8 @@ export namespace ReflectHttpOperationResponseAnalyzer {
             ? HttpQueryProgrammer.validate
             : contentType === "text/plain"
               ? TextPlainValidator.validate
-              : (schema) =>
-                  schema.size()
+              : (next) =>
+                  next.metadata.size() !== 0
                     ? ["HEAD method must not have any return value."]
                     : [],
       example: example?.example,

@@ -1,3 +1,4 @@
+/** @internal */
 export function NoTransformConfigurationError(method: string) {
   if (NoTransformConfigurationError.throws === true)
     throw new Error(
@@ -9,6 +10,8 @@ export function NoTransformConfigurationError(method: string) {
     );
   return undefined as never;
 }
+
+/** @internal */
 export namespace NoTransformConfigurationError {
   /**
    * Whether to throw an error or not.
