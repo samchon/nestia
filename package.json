@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/station",
-  "version": "11.0.0",
+  "version": "11.0.1",
   "description": "Nestia station",
   "scripts": {
     "build": "pnpm --filter=./packages/* -r build",
@@ -10,7 +10,7 @@
     "package:latest": "pnpm --filter=./packages/* -r publish --tag latest --access public",
     "package:next": "bash deploy/next.bash",
     "prepare": "ts-patch install",
-    "release": "bash deploy/README.bash && bumpp -r"
+    "release": "rimraf packages/migrate/assets && bash deploy/README.bash && bumpp -r"
   },
   "repository": {
     "type": "git",
