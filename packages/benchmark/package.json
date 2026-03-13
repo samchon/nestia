@@ -1,6 +1,6 @@
 {
   "name": "@nestia/benchmark",
-  "version": "11.0.0-dev.20260314",
+  "version": "11.0.0-dev.20260316",
   "description": "NestJS Performance Benchmark Program",
   "main": "src/index.ts",
   "exports": {
