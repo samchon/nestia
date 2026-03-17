@@ -1,0 +1,10 @@
+{
+  "entryPointStrategy": "packages",
+  "entryPoints": [
+    "../packages/benchmark",
+    "../packages/core",
+    "../packages/e2e",
+    "../packages/fetcher"
+  ],
+  "out": "./public/api"
+}
