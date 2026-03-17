@@ -5,20 +5,14 @@ on:
       - master
     paths:
       - '.github/workflows/website.yml'
-      - 'packages/agent/**'
-      - 'packages/chat/**'
+      - 'packages/**'
       - 'website/**'
-      - 'packages/agent/package.json'
-      - 'packages/chat/package.json'
       - 'website/package.json'
   pull_request:
     paths:
       - '.github/workflows/website.yml'
-      - 'packages/agent/**'
-      - 'packages/chat/**'
+      - 'packages/**'
       - 'website/**'
-      - 'packages/agent/package.json'
-      - 'packages/chat/package.json'
       - 'website/package.json'
 jobs:
   deploy:
