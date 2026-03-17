@@ -3,6 +3,11 @@ import { useConfig } from "nextra-theme-docs";
 import React from "react";
 
 const config: DocsThemeConfig = {
+  darkMode: false,
+  nextThemes: {
+    defaultTheme: "dark",
+    forcedTheme: "dark",
+  },
   logo: () => (
     <>
       <img src="/favicon/android-chrome-192x192.png" width={32} height={32} />
