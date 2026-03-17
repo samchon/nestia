@@ -1,4 +1,4 @@
-import { NestiaEditorApplication } from "@nestia/editor/lib/NestiaEditorApplication";
+import { NestiaEditorApplication } from "@nestia/editor";
 
 export default function Editor() {
   return (
