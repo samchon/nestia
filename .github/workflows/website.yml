@@ -1,15 +1,18 @@
 name: website
-on: 
-  push: 
+on:
+  push:
     branches:
       - master
     paths:
       - '.github/workflows/website.yml'
-      - 'packages/agent/**'
-      - 'packages/chat/**'
+      - 'packages/**'
       - 'website/**'
-      - 'packages/agent/package.json'
-      - 'packages/chat/package.json'
+      - 'website/package.json'
+  pull_request:
+    paths:
+      - '.github/workflows/website.yml'
+      - 'packages/**'
+      - 'website/**'
       - 'website/package.json'
 jobs:
   deploy:
@@ -21,11 +24,16 @@ jobs:
           node-version: lts/*
       - uses: pnpm/action-setup@v4
       - name: Root Setup
-        run: pnpm install && pnpm run build
+        run: |
+          pnpm install
+          pnpm run package:tgz
       - name: Build
-        working-directory: website 
-        run: npm install && npm run build
+        working-directory: website
+        run: |
+          npm install --force
+          npm run build
       - name: Deploy
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: JamesIves/github-pages-deploy-action@4.1.3
         with:
           branch: gh-pages

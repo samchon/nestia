@@ -1,5 +1,11 @@
 import { Paper } from "@mui/material";
-import { NestiaEditorUploader } from "@nestia/editor";
+import dynamic from "next/dynamic";
+
+const NestiaEditorUploader = dynamic(
+  () =>
+    import("@nestia/editor").then((mod) => mod.NestiaEditorUploader),
+  { ssr: false },
+);
 
 const EditorMovie = () => {
   return (

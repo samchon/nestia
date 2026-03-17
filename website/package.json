@@ -5,10 +5,9 @@
   "description": "Nestia Guide Documents",
   "private": true,
   "scripts": {
-    "build": "rimraf .next && rimraf .out && node build/chat && node build/editor && node build/typedoc && next build && node build/sitemap",
+    "build": "rimraf .next && rimraf .out && node build/editor && node build/typedoc && next build && node build/sitemap",
     "deploy": "node build/deploy",
-    "dev": "next dev",
-    "prepare": "node build/chat"
+    "dev": "next dev"
   },
   "repository": {
     "type": "git",
@@ -20,13 +19,12 @@
     "url": "https://github.com/samchon/nestia/issues"
   },
   "dependencies": {
-    "@agentica/chat": "latest",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@mui/icons-material": "^6.4.0",
     "@mui/material": "^6.4.0",
     "@mui/system": "^6.4.0",
-    "@nestia/editor": "latest",
+    "@nestia/editor": "../deploy/tarballs/editor.tgz",
     "next": "14.2.30",
     "nextra": "^3.2.4",
     "nextra-theme-docs": "^3.2.4",

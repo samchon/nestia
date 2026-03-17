@@ -1,4 +1,10 @@
-import { NestiaEditorApplication } from "@nestia/editor/lib/NestiaEditorApplication";
+import dynamic from "next/dynamic";
+
+const NestiaEditorApplication = dynamic(
+  () =>
+    import("@nestia/editor").then((mod) => mod.NestiaEditorApplication),
+  { ssr: false },
+);
 
 export default function Editor() {
   return (
