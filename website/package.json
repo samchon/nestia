@@ -25,7 +25,7 @@
     "@mui/material": "^6.4.0",
     "@mui/system": "^6.4.0",
     "@nestia/editor": "../deploy/tarballs/editor.tgz",
-    "next": "14.2.30",
+    "next": "15.5.14",
     "nextra": "^3.2.4",
     "nextra-theme-docs": "^3.2.4",
     "react": "^18.2.0",
