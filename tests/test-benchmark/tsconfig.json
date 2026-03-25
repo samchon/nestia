@@ -6,6 +6,7 @@
     "emitDecoratorMetadata": true,
     "module": "commonjs",
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
     "noEmit": true,
     "downlevelIteration": true,
     "newLine": "lf",
