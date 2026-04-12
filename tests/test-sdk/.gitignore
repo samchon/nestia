@@ -6,6 +6,7 @@ features/*/src/test/features/api/automated
 
 features/clone*/src/api/structures
 features/clone-type-create-duplicate/sdk
+features/method-transformer-defensive/src/api/structures
 features/configurations/src/api/bbs
 features/configurations/src/api/common
 features/configurations/*.swagger.json
