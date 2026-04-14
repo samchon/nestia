@@ -8,3 +8,5 @@ packages/*/docs
 package-lock.json
 *.log
 .env
+# bun.lock
+playground/

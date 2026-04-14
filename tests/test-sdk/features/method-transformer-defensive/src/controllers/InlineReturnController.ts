@@ -9,7 +9,7 @@ export class InlineReturnController {
   }
 
   @TypedRoute.Get("intersection")
-  public intersection(): Promise<IX & IY> {
+  public intersection(): Promise<IWithX & IWithY> {
     return Promise.resolve({ x: 1, y: "hi" });
   }
 
@@ -24,10 +24,10 @@ export class InlineReturnController {
   }
 }
 
-interface IX {
+interface IWithX {
   x: number;
 }
-interface IY {
+interface IWithY {
   y: string;
 }
 interface IItem {
