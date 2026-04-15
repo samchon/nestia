@@ -16,6 +16,7 @@
     "@nestjs/core": "catalog:nestjs",
     "@nestjs/platform-express": "catalog:nestjs",
     "@nestjs/platform-fastify": "catalog:nestjs",
+    "@types/node": "catalog:utils",
     "@types/swagger-ui-express": "^4.1.8",
     "@typia/interface": "catalog:samchon",
     "chalk": "4.1.2",

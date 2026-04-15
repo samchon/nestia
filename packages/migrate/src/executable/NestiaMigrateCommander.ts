@@ -81,7 +81,7 @@ export namespace NestiaMigrateCommander {
     });
   };
 
-  export const beautify = async (script: string): Promise<string> => {
+  const beautify = async (script: string): Promise<string> => {
     try {
       return await format(script, {
         parser: "typescript",
