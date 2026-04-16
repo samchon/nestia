@@ -18,7 +18,7 @@ tags:
   - Github Repository: https://github.com/samchon/nestia
   - Guide Documents: https://nestia.io/docs
 
-In previous article, I introduced my library `nestia`, making `NestJS` much easier and much faster. In the article, introducing performance enhancements, I had told that `nestia` can boost up vaildation speed maximum 20,000x faster (JSON serialization is 200x faster). 
+In previous article, I introduced my library `nestia`, making `NestJS` much easier and much faster. In the article, introducing performance enhancements, I had told that `nestia` can boost up validation speed maximum 20,000x faster (JSON serialization is 200x faster). 
 
 By the way, some people have asked me like that:
 
@@ -112,7 +112,7 @@ Let's see below server benchmark graph.
 
 The answer was the entire server level performance be affected significantly.
 
-When comparing performance in the entire server level with simultaneous connections, `nestia` can increase the number of simultaneous connections about 10x higher than `NestJS`. If adapt `fastify`, such a performance gap would be increased up to 25x. Besides, adapting `fastify` in `NestJS` only gains performacne about 1~2%.
+When comparing performance in the entire server level with simultaneous connections, `nestia` can increase the number of simultaneous connections about 10x higher than `NestJS`. If adapt `fastify`, such a performance gap would be increased up to 25x. Besides, adapting `fastify` in `NestJS` only gains performance about 1~2%.
 
 I think such significant difference caused by two reasons.
 
@@ -123,7 +123,7 @@ The 2nd reason is just **20,000x** gap. Even though request body data validation
 Considering main thread operation with 20,000x performance gap, above benchmark result is enough reasonable.
 
 ### Reference
-For reference, request body validation utilzed an Array instance with length 100. If reduce the length to be 10, performance enhancement be halfed (about 60%). Otherwise, as increase the length to be larger as, performance enhancement be dramatically increased.
+For reference, request body validation utilized an Array instance with length 100. If reduce the length to be 10, performance enhancement be halved (about 60%). Otherwise, as increase the length to be larger as, performance enhancement be dramatically increased.
 
 ```typescript
 // "IBox3D" SIMILAR DTOS ARE USED, WITH 100 LENGTH ARRAY
@@ -219,7 +219,7 @@ Let's see below server benchmark graph.
 
 The answer was the entire server level performance be affected significantly, too.
 
-When comparing performance in the entire server level with simultaneous connections, `nestia` can increase the number of simultaneous connections about 10x higher than `NestJS`. If adapt `fastify`, such a performance gap would be increased up to 18x. Besides, adapting `fastify` in `NestJS` only gains performacne about 0~10%.
+When comparing performance in the entire server level with simultaneous connections, `nestia` can increase the number of simultaneous connections about 10x higher than `NestJS`. If adapt `fastify`, such a performance gap would be increased up to 18x. Besides, adapting `fastify` in `NestJS` only gains performance about 0~10%.
 
 I think such significant difference caused by two reasons.
 

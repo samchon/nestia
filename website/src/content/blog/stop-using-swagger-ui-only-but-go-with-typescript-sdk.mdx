@@ -35,7 +35,7 @@ If you're a frontend developer, and have received `swagger` documents from backe
 
 Reading a `swagger` documents from `swagger-ui`, you may implement interaction code with backend server using `axios` or `fetch` function. You also need to write DTO (Data Transfer Object) structures looking at JSON schema definitions. Some professional frontend developers even build a mocking backend server through `msw` for testing.
 
-During above processes, you may take a mistake that mis-reading API specs, or mis-writing DTO structures. Also, mocking the backend server with `msw`, you can misunderstand the real backend server's API specs. As long as front-end developers are human, not robots, these are all common mistakes we see all around us. 
+During above processes, you may take a mistake that miss-reading API specs, or miss-writing DTO structures. Also, mocking the backend server with `msw`, you can misunderstand the real backend server's API specs. As long as front-end developers are human, not robots, these are all common mistakes we see all around us. 
 
 By the way, such common mistakes sometimes cause serious problems in the real world. At least, such mistakes never be caught by compiler, but only by runtime. The more mistakes we make, the harder it is to catch and debug. Of course, even if there are no mistakes, redundant DTO or fetch function implementation and `msw` mocking code by hand is very laborious and cumbersome works.
 
