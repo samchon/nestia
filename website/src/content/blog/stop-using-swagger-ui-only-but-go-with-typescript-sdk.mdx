@@ -1,0 +1,234 @@
+﻿---
+title: "Stop using Swagger-UI and MSW, but SDK instead"
+description: "For frontend teams, a generated SDK and simulator can replace brittle Swagger UI and MSW workflows with type-safe API integration."
+date: "2023-07-29"
+author: "Jeongho Nam"
+ogImage: "https://media2.dev.to/dynamic/image/width=1000,height=500,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Ff8wbgrfs2rzb7ncm2t5i.png"
+devtoUrl: "https://dev.to/samchon/stop-using-swagger-ui-and-msw-but-sdk-instead-412b"
+tags:
+  - typescript
+  - opensource
+  - frontend
+  - nestjs
+---
+## Summary
+If you're a frontend developer, stop using `swagger-ui` and `msw`. 
+
+Instead, you can build SDK (Software Development Kit) automatically.
+
+  - Which features SDK contain?
+    - Collection of `fetch` functions
+    - DTO structures written in TypeScript
+    - Mockup simulator for testing
+  - Github Repository: https://github.com/samchon/nestia
+  - Related Manual: https://nestia.io/docs/migrate
+
+With the SDK, you don't need to be suffered from swagger documents reading and `msw` mocking anymore. You can only focus on your business logic, and build your frontend application much more quickly and safely.
+
+
+
+
+## Traditional way - `swagger-ui`
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/v4ev4mid7xba0lb5as9f.png)
+
+If you're a frontend developer, and have received `swagger` documents from backend, you may open it on `swagger-ui`. 
+
+Reading a `swagger` documents from `swagger-ui`, you may implement interaction code with backend server using `axios` or `fetch` function. You also need to write DTO (Data Transfer Object) structures looking at JSON schema definitions. Some professional frontend developers even build a mocking backend server through `msw` for testing.
+
+During above processes, you may take a mistake that mis-reading API specs, or mis-writing DTO structures. Also, mocking the backend server with `msw`, you can misunderstand the real backend server's API specs. As long as front-end developers are human, not robots, these are all common mistakes we see all around us. 
+
+By the way, such common mistakes sometimes cause serious problems in the real world. At least, such mistakes never be caught by compiler, but only by runtime. The more mistakes we make, the harder it is to catch and debug. Of course, even if there are no mistakes, redundant DTO or fetch function implementation and `msw` mocking code by hand is very laborious and cumbersome works.
+
+  - Hand-writings
+    - fetch functions
+    - DTO structures
+    - `msw` mocking code
+  - Redundant and laborious works
+  - Mistakes are not caught in compile time
+
+
+
+
+## New era - Software Development Kit
+```bash
+npm install -g @nestia/migrate
+npx @nestia/migrate swagger.json outputDirectory
+```
+
+By the way, if such processes can be fully automated, how it would be?
+
+Setup `@nestia/migrate` and run above build command. Then `@nestia/migrate` will analyze the target `swagger.json` file, and write TypeScript codes instead of you. The automatically generated TypeScript codes will contain all of the following features, and I call it as SDK (Software Development Kit).
+
+  - `fetch` functions
+  - DTO structures
+  - Mockup simulator for testing
+
+Looking around the newly built SDK files, you can find that `fetch` functions are gathered into `src/api/functional` directory, and converted DTO types are stored into `src/structures` directory. When you open one of them, then you may understand how the SDK looks like.
+
+![SDK](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
+
+> Right is client (frontend) code utilizing SDK
+>
+> For reference, left is [migrated](#nestiamigrate) NestJS server code
+
+
+
+
+## Demonstration
+Let's see how the SDK looks like with demo project.
+
+You can repeat the same SDK generation process by typing below commands.
+
+```bash
+git clone https://github.com/samchon/nestia-template
+
+cd nestia-template
+npm install
+npm run build:swagger
+
+npm install -g @nestia/migrate
+npx @nestia/migrate packages/api/swagger.json ../bbs
+```
+
+  - Target `swagger.json` file: [View in Swagger-UI](https://editor.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsamchon%2Fnestia-template%2Fmaster%2Fpackages%2Fapi%2Fswagger.json)
+  - Generated SDK: [samchon/nestia-migrate-examples/bbs/src/api](https://github.com/samchon/nestia-migrate-examples/tree/master/bbs/src/api)
+
+### [`src/api/structures/IBbsArticle.ts`](https://github.com/samchon/nestia-migrate-examples/blob/master/bbs/src/api/structures/IBbsArticle.ts)
+Comparing automatically generated TypeScript DTO structure type with original `swagger.json` file's JSON schema definition, you can find that it was perfectly converted. It succeeded to revive every property names and types exactly even including `format` comment tags.
+
+```typescript
+export type IBbsArticle = {
+    /**
+     * Primary Key.
+     * 
+     * @format uuid
+     */
+    id: string;
+    /**
+     * Section code.
+     * 
+     */
+    section: string;
+    /**
+     * Name of nickname of writer.
+     * 
+     */
+    writer: string;
+    /**
+     * List of snapshot contents.
+     * 
+     * Whenever updating an article, its contents would be accumulated.
+     * 
+     */
+    snapshots: Array<IBbsArticle.ISnapshot>;
+    /**
+     * Creation time of the article.
+     * 
+     * @format date-time
+     */
+    created_at: string;
+}
+```
+
+### [`src/api/functional/bbs/articles/index.ts`](https://github.com/samchon/nestia-migrate-examples/blob/master/bbs/src/api/functional/bbs/articles/index.ts)
+Automatically generated `fetch` function is also perfect.
+
+```typescript
+/**
+ * Update article.
+ * 
+ * When updating, this BBS system does not overwrite the content, but accumulate it.
+ * Therefore, whenever an article being updated, length of {@link IBbsArticle.snapshots}
+ * would be increased and accumulated.
+ * 
+ * @param section Target section
+ * @param id Target articles id
+ * @param input Content to update
+ * @returns Newly created content info
+ * 
+ * @controller BbsArticlesController.putById()
+ * @path PUT /bbs/articles/:section/:id
+ * @nestia Generated by Nestia - https://github.com/samchon/nestia
+ */
+export async function putById(
+    connection: IConnection,
+    section: string,
+    id: string,
+    body: IBbsArticle.IUpdate,
+): Promise<putById.Output> {
+    return !!connection.simulate
+        ? putById.simulate(
+              connection,
+              section,
+              id,
+              body,
+          )
+        : Fetcher.fetch(
+              connection,
+              putById.ENCRYPTED,
+              putById.METHOD,
+              putById.path(section, id),
+              body,
+          );
+}
+export namespace putById {
+    export type Input = IBbsArticle.IUpdate;
+    export type Output = IBbsArticle.ISnapshot;
+
+    export const METHOD = "PUT" as const;
+    export const PATH: string = "/bbs/articles/:section/:id";
+    export const ENCRYPTED: Fetcher.IEncrypted = {
+        request: false,
+        response: false,
+    };
+
+    export const path = (section: string, id: string): string => {
+        return `/bbs/articles/${encodeURIComponent(section ?? "null")}/${encodeURIComponent(id ?? "null")}`;
+    }
+    export const random = (g?: Partial<typia.IRandomGenerator>): Output =>
+        typia.random<Output>(g);
+    export const simulate = async (
+        connection: IConnection,
+        section: string,
+        id: string,
+        body: putById.Input,
+    ): Promise<Output> => {
+        const assert = NestiaSimulator.assert({
+            method: METHOD,
+            host: connection.host,
+            path: path(section, id)
+        });
+        assert.param("section")("string")(() => typia.assert(section));
+        assert.param("id")("string")(() => typia.assert(id));
+        assert.body(() => typia.assert(body));
+        return random(
+            typeof connection.simulate === 'object' &&
+                connection.simulate !== null
+                ? connection.simulate
+                : undefined
+        );
+    }
+}
+```
+
+Also, looking at the above `fetch` function again detaily, you may find that SDK function is embedding mockup simulator code. 
+
+When `connection.simulate` property be configured, internal `putById.simulate()` function be called, and it checks the input parameters through [`typia.assert<T>()`](https://typia.io/docs/validators/assert) function. After the validations, the `putById.simulate()` function returns a random value through [`typia.random<T>()`](https://typia.io/docs/random) function.
+
+This is the mockup simulator what I mean. It simply composes the mockup data just by using [`typia.random<T>()`](https://typia.io/docs/random) function, which has an ability that analyzing the target type `T` and generate perfectly typed matched random data.
+
+Of course, if you don't want random mockup data, but want to compose it by yourself, just do it.
+
+
+
+
+## `@nestia/migrate`
+In actually, I had developed `@nestia/migrate` for migration from other languages (or other frameworks) to `NestJS`. As I'm a big fan of `NestJS`, hoping much more backend developers to use `NestJS` in their backend projects, I had built such conversion tool.
+
+Also, I had developed another convenient tool that generating [SDK](https://nestia.io/docs/sdk/sdk) and [mockup simulator](https://nestia.io/docs/sdk/simulator) for frontend developers. By the way, I suddendly realized that they can be combined together. Although, those SDK generator and migration tool had been developed for different purposes, if they are combined together, they can be a perfect tool for frontend developers, despite origin purpose was for backend development.
+
+So, I combined them together, and introduce it in here article. Frontend developers, stop using `swagger-ui` and `msw`. Instead, let's use `@nestia/migrate` command to build SDK. Then, your frontend development would be much more easier, faster, and safer.
+
+I think `@nestia/migrate` can be a new solution for effective frontend development. Do you agree with me?
+
+

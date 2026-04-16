@@ -10,7 +10,7 @@ export function HyperLink(
     <a
       href={props.href}
       target={props.target}
-      className="nextra-focus _text-primary-600 _underline hover:_no-underline _decoration-from-font [text-underline-position:from-font]"
+      className="x:focus-visible:nextra-focus x:text-primary-600 x:underline x:hover:no-underline x:decoration-from-font [text-underline-position:from-font]"
     >
       {props.children}
     </a>

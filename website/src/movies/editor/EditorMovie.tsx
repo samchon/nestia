@@ -1,3 +1,5 @@
+"use client";
+
 import { Paper } from "@mui/material";
 import dynamic from "next/dynamic";
 

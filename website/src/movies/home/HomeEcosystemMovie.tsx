@@ -1,3 +1,5 @@
+"use client";
+
 import { Box, Container, Grid, Typography } from "@mui/material";
 
 const ComparisonColumn = (props: {

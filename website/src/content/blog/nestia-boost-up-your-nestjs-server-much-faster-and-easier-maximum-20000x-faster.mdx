@@ -1,0 +1,291 @@
+﻿---
+title: "Boost up NestJS server much faster and easier (maximum 20,000x faster + tRPC similar)"
+description: "Nestia replaces decorator-heavy NestJS boilerplate with pure TypeScript types, fast validation, fast serialization, and generated SDKs."
+date: "2023-04-28"
+author: "Jeongho Nam"
+ogImage: "https://media2.dev.to/dynamic/image/width=1000,height=500,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F4oi3zyuutjylioregwgp.png"
+devtoUrl: "https://dev.to/samchon/nestia-boost-up-your-nestjs-server-much-faster-and-easier-maximum-20000x-faster-59o5"
+tags:
+  - typescript
+  - javascript
+  - nestjs
+  - opensource
+---
+## Preface
+![Nestia Logo](https://nestia.io/logo.png)
+
+As I've promised in the previous [**Typia Series Articles (dev.to)**](https://dev.to/samchon/series/22474), I'll introduce you my new library [nestia](https://github.com/samchon/nestia), which can make `NestJS` much faster and easier.
+
+With my new library [nestia](https://github.com/samchon/nestia), you can boost up your `NestJS` server performance dramatically, just by writing only one line per each API function. Also, you can build SDK library, so you can help your fellow client developers to be much convenient.
+
+Let's see [nestia](https://github.com/samchon/nestia), and imagine how much your `NestJS` server would be powerful.
+
+ - Only one line required, with pure TypeScript type
+ - Runtime validator is 20,000x faster than [class-validator](https://github.com/typestack/class-validator)
+ - JSON serialization is 200x faster than [class-transformer](https://github.com/typestack/class-transformer)
+ - SDK is similar with [tRPC](https://trpc.io/), but much advanced
+
+![SDK Sample](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
+
+> Left is `NestJS` server code, and right is client code utilizing SDK.
+>
+> You can write client code much easily and safely.
+
+----------------
+
+## Pure TypeScript Type
+In `NestJS`, you have to define DTO by utilizing those libraries:
+
+  - `class-validator`
+  - `class-transformer`
+  - `@nestjs/swagger`
+
+I hate those libraries, because they force developer to define duplicated types like below. As long as you are using them following formal guide of `NestJS`, you never can avoid to duplicated type definitions in both TypeScript type and decorators.
+
+Let's see how those libraries make DTO ugly:
+
+```typescript
+export class BbsArticle {
+    @IsString()
+    @ApiProperty({
+        format: "uuid",
+    })
+    id!: string;
+
+    // DUPLICATED SCHEMA DEFINITION
+    // - duplicated function call + property type
+    // - have to specify `isArray` and `nullable` props by yourself
+    @IsArray()
+    @IsObject()
+    @ValidateNested()
+    @Type(() => AttachmentFile)
+    @ApiProperty({
+        type: () => AttachmentFile,
+        nullable: true,
+        isArray: true,
+        description: "List of attached files.",
+    })
+    files!: AttachmentFile[] | null;
+
+    @IsString()
+    @IsOptional()
+    @ApiProperty({
+        type: "string",
+        nullable: true,
+        minLength: 5,
+        maxLength: 100,
+        description: "Title of the article.",
+    })
+    title!: string | null;
+
+    @IsString()
+    @ApiProperty({
+        description: "Main content body of the article."
+    })
+    body!: string;
+
+    @IsString()
+    @ApiProperty({
+        format: "date-time",
+        description: "Creation time of article",
+    })
+    created_at!: string;
+}
+
+export class AttachmentFile {
+    @IsString()
+    @IsOptional()
+    @ApiProperty({
+        type: "string",
+        nullable: true,
+        maxLength: 255,
+        pattern: "^[a-zA-Z0-9-_]+$",
+        description: "File name.",
+    })
+    name!: string | null;
+
+    @IsString()
+    @IsOptional()
+    @ApiProperty({
+        type: "string",
+        nullable: true,
+        maxLength: 255,
+        pattern: "^[a-zA-Z0-9-_]+$",
+        description: "File extension.",
+    })
+    extension!: string | null;
+
+    @IsString()
+    @ApiProperty({
+        format: "url",
+        description: "URL of the file.",
+    })
+    url!: string;
+}
+```
+
+In contrary, with [nestia](https://github.com/samchon/nestia), you can define DTO with pure TypeScript type only. Thus, you don't need to be suffered from duplicated type definitions. Furthermore, even supports [nestia](https://github.com/samchon/nestia) interface typed DTO.
+
+Let's see how [nestia](https://github.com/samchon/nestia) changes DTO so much easier and beautiful:
+
+```typescript
+export interface IBbsArticle {
+    /**
+     * Primary Key.
+     * 
+     * @format uuid
+     */
+    id: string;
+
+    /**
+     * List of attached files.
+     */
+    files: IAttachmentFile[] | null;
+
+    /**
+     * Title of the article.
+     * 
+     * @minLength 5
+     * @maxLength 100
+     */
+    title: string | null;
+
+    /**
+     * Main content body of the article.
+     */
+    body: string;
+
+    /**
+     * Creation time of article.
+     * 
+     * @format date-time
+     */
+    created_at: string;
+}
+
+export interface IAttachmentFile {
+    /**
+     * File name.
+     * 
+     * @pattern ^[a-z0-9]+$
+     * @maxLength 255
+     */
+    name: string | null;
+
+    /**
+     * File extension.
+     * 
+     * @pattern ^[a-z0-9]+$
+     * @maxLength 8
+     */
+    extension: string | null;
+
+    /**
+     * URL of the file.
+     * 
+     * @format uri
+     */
+    url: string;
+}
+```
+
+----------------
+
+## Superfast Validation
+If you have seen my previous [**Typia Series Articles (dev.to)**](https://dev.to/samchon/series/22474), reading above [**#Pure TypeScript Type**](#pure-typescript-type) section, you may suspect that [nestia](https://github.com/samchon/nestia) is using [typia](https://github.com/samchon/typia).
+
+Yes, [nestia](https://github.com/samchon/nestia) is utilizing [typia](https://github.com/samchon/typia), and it is the secret why [nestia](https://github.com/samchon/nestia) can use [pure TypeScript type](#pure-typescript-type) as DTO. Also, as [nestia](https://github.com/samchon/nestia) is using [typia](https://github.com/samchon/typia), it can provide superfast validation.
+
+Do you remember? Validation speed of [typia](https://github.com/samchon/typia) was maximum 20,000x faster than `class-validator` what `NestJS` is using. Such super-fast validation speed also can be applied to your `NestJS` server, just by using [nestia](https://github.com/samchon/nestia).
+
+Now, change your `class-validator` based DTO classes to pure TypeScript type, and utilize `@TypedBody()` function like below. Then, your `NestJS` server's validation speed (about request body data) would be 20,000x times faster.
+
+It seems very easy and wonderful, isn't it?
+
+```typescript
+import { TypedBody, TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+ 
+import { IBbsArticle } from "./IBbsArticle";
+ 
+@Controller("bbs/articles")
+export class BbsArticlesController {
+    @TypedRoute.Post()
+    public async store(
+        // 20,000x faster validation
+        @TypedBody() input: IBbsArticle.IStore
+    ): Promise<IBbsArticle> {
+        return {
+            ...input,
+            id: "2b5e21d8-0e44-4482-bd3e-4540dee7f3d6",
+            created_at: "2023-04-23T12:04:54.168Z",
+        }
+    }
+}
+```
+
+![Assert Function Benchmark](https://github.com/samchon/typia/raw/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/assert.svg)
+
+> Measured on [Intel i5-1135g7, Surface Pro 8](https://github.com/samchon/typia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz#assert)
+
+----------------
+
+## Superfast Serialization
+[nestia](https://github.com/samchon/nestia) is using [typia](https://github.com/samchon/typia). Therefore, in the same reason with [**#Superfast Validation**](#superfast-validation), JSON serialization speed also can be 200x faster than `class-transformer` what `NestJS` is using.
+
+Just use `@TypedRoute.${method}()` decorator on your API function. Then, your `NestJS` server's JSON serialization speed (about response body data) would be 200x times faster.
+
+If you're wondering how JSON serialization speed in the server side, look at the server benchmark graph of below. Just by adapting [nestia](https://github.com/samchon/nestia) and utilizing its `@TypedRoute.${method}()` function, your `NestJS` server can accept maximum 30x more requests.
+
+> Most operations in NodeJS server are asynchronously executed in background thread, what are called "event based non-blocking I/O model". However, JSON serialization is a synchronous operation running on the main thread. Therefore, if the JSON serialization speed is slow, it makes the entire server program slow.
+
+It seems very powerful, isn't it?
+
+```typescript
+import { TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+ 
+import { IBbsArticle } from "./IBbsArticle";
+ 
+@Controller("bbs/articles")
+export class BbsArticlesController {
+    // 200x faster JSON serialization
+    @TypedRoute.Get("random")
+    public async random(): Promise<IBbsArticle> {
+        return {
+            id: "2b5e21d8-0e44-4482-bd3e-4540dee7f3d6",
+            title: "Hello nestia users",
+            body: "Just use `TypedRoute.Get()` function like this",
+            created_at: "2023-04-23T12:04:54.168Z",
+            files: [],
+        };
+    }
+}
+```
+
+![Stringify Function Benchmark](https://github.com/samchon/typia/raw/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/stringify.svg)
+
+> Measured on [Intel i5-1135g7, Surface Pro 8](https://github.com/samchon/typia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz#stringify)
+
+![Server Benchmark](https://raw.githubusercontent.com/samchon/typia/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/server.svg)
+
+> Measured on [Intel i5-1135g7, Surface Pro 8](https://github.com/samchon/typia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz#server)
+
+----------------
+
+## SDK generation
+Do you know [tRPC](https://trpc.io/)? If you develop your NodeJS backend server with it, you don't need to deliver any Swagger Documents to your fellow client developers. You just can send an interaction library for them.
+
+By the way, [tRPC](https://trpc.io/) is good for building toy projects, but not suitable for developing enterprise level backend server. In such reason, many `NestJS` lovers had requested [tRPC](https://trpc.io/) team to support `NestJS`. But considering principle of [tRPC](https://trpc.io/), it never can support `NestJS`.
+
+Instead, I support SDK generation for `NestJS` through my new library [nestia](https://github.com/samchon/nestia). Just run `npx nestia sdk` command, then [nestia](https://github.com/samchon/nestia) will analyze your `NestJS` backend server code, and generates optimal SDK library in the compilation level.
+
+Look at below gif image, and imagine how SDK would be helpful for your fellow client developers. Your fellow client developers will just import the SDK library, and call API functions with auto completion. 
+
+If they take any mistake, compiler will detect it, therefore you don't need to be suffered from runtime error by mistakes.
+
+![SDK Sample](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
+
+> Left is `NestJS` server code, and right is client code utilizing SDK.
+>
+> You can write client code much easily and safely.
