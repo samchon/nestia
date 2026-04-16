@@ -1,8 +1,10 @@
 .next
+_pagefind/
 node_modules/
 out/
 public/api/
 public/chat/
+public/blog/rss.xml
 typedoc-json/
 
 public/downloads
