@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Nestia Blog</title>
+    <link>https://nestia.io/blog/</link>
+    <description>Engineering notes, releases, and practical backend workflow articles from Nestia.</description>
+    <language>en</language>
+    <item>
+      <title>Do you have Swagger? AI can build your entire frontend. Swagger is the best context and harness</title>
+      <link>https://nestia.io/blog/swagger-automates-frontend-development/</link>
+      <guid>https://nestia.io/blog/swagger-automates-frontend-development/</guid>
+      <pubDate>Wed, 15 Apr 2026 00:00:00 GMT</pubDate>
+      <description>Well-designed backend types plus a Nestia-generated SDK give AI enough context, constraints, and simulation hooks to build frontend code reliably.</description>
+    </item>
+    <item>
+      <title>New NestJS Swagger Generator evolved than ever</title>
+      <link>https://nestia.io/blog/new-nestjs-swagger-generator-evolved-than-ever/</link>
+      <guid>https://nestia.io/blog/new-nestjs-swagger-generator-evolved-than-ever/</guid>
+      <pubDate>Wed, 28 Aug 2024 00:00:00 GMT</pubDate>
+      <description>Nestia’s upgraded Swagger generator produces cleaner OpenAPI documents directly from rich TypeScript and NestJS metadata.</description>
+    </item>
+    <item>
+      <title>TypeScript Swagger Editor - alternative of MSW and Swagger-UI</title>
+      <link>https://nestia.io/blog/new-swagger-ui-combined-with-cloud-typescript-editor-with-embedded-sdk/</link>
+      <guid>https://nestia.io/blog/new-swagger-ui-combined-with-cloud-typescript-editor-with-embedded-sdk/</guid>
+      <pubDate>Sun, 18 Feb 2024 00:00:00 GMT</pubDate>
+      <description>Nestia Editor combines Swagger UI, generated SDKs, and a cloud TypeScript playground for testing OpenAPI APIs with real typed code.</description>
+    </item>
+    <item>
+      <title>Stop using Swagger-UI and MSW, but SDK instead</title>
+      <link>https://nestia.io/blog/stop-using-swagger-ui-only-but-go-with-typescript-sdk/</link>
+      <guid>https://nestia.io/blog/stop-using-swagger-ui-only-but-go-with-typescript-sdk/</guid>
+      <pubDate>Sat, 29 Jul 2023 00:00:00 GMT</pubDate>
+      <description>For frontend teams, a generated SDK and simulator can replace brittle Swagger UI and MSW workflows with type-safe API integration.</description>
+    </item>
+    <item>
+      <title>[Nestia] I made backend simulator for frontend developers (similar with MSW, but fully automated)</title>
+      <link>https://nestia.io/blog/nestjs-i-made-backend-server-simulator-without-backend-server/</link>
+      <guid>https://nestia.io/blog/nestjs-i-made-backend-server-simulator-without-backend-server/</guid>
+      <pubDate>Fri, 09 Jun 2023 00:00:00 GMT</pubDate>
+      <description>Nestia generates a backend simulator for frontend developers, so typed API flows can be built and tested before the real server is ready.</description>
+    </item>
+    <item>
+      <title>[Nestia] Make NestJS 30x faster with fastify</title>
+      <link>https://nestia.io/blog/nestia-make-nestjs-30x-faster-with-fastify/</link>
+      <guid>https://nestia.io/blog/nestia-make-nestjs-30x-faster-with-fastify/</guid>
+      <pubDate>Mon, 22 May 2023 00:00:00 GMT</pubDate>
+      <description>Using Nestia with Fastify can push NestJS throughput dramatically higher by combining faster validation and serialization with a faster HTTP server.</description>
+    </item>
+    <item>
+      <title>I made automatic e2e test functions generator for NestJS</title>
+      <link>https://nestia.io/blog/nestia-i-made-automatic-e2e-test-functions-generator-for-nestjs/</link>
+      <guid>https://nestia.io/blog/nestia-i-made-automatic-e2e-test-functions-generator-for-nestjs/</guid>
+      <pubDate>Sat, 06 May 2023 00:00:00 GMT</pubDate>
+      <description>Nestia can generate end-to-end test functions from your NestJS controllers, turning API types into reusable, type-safe test scaffolding.</description>
+    </item>
+    <item>
+      <title>Boost up NestJS server much faster and easier (maximum 20,000x faster + tRPC similar)</title>
+      <link>https://nestia.io/blog/nestia-boost-up-your-nestjs-server-much-faster-and-easier-maximum-20000x-faster/</link>
+      <guid>https://nestia.io/blog/nestia-boost-up-your-nestjs-server-much-faster-and-easier-maximum-20000x-faster/</guid>
+      <pubDate>Fri, 28 Apr 2023 00:00:00 GMT</pubDate>
+      <description>Nestia replaces decorator-heavy NestJS boilerplate with pure TypeScript types, fast validation, fast serialization, and generated SDKs.</description>
+    </item>
+  </channel>
+</rss>
