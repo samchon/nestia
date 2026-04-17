@@ -78,20 +78,22 @@ const get_escaped_type =
 const escape_promise =
   (checker: ts.TypeChecker) =>
   (type: ts.Type): ts.Type => {
-    const generic: readonly ts.Type[] = checker.getTypeArguments(
-      type as ts.TypeReference,
-    );
-    if (generic.length !== 1)
-      throw new Error(
-        "Error on ImportAnalyzer.analyze(): invalid promise type.",
+    try {
+      const generic: readonly ts.Type[] = checker.getTypeArguments(
+        type as ts.TypeReference,
       );
-    return generic[0]!;
+      if (!generic?.length) return type;
+      return generic[0] ?? type;
+    } catch {
+      return type;
+    }
   };
 
-const get_name = (symbol: ts.Symbol): string =>
-  explore_name(symbol.getDeclarations()![0]!.parent)(
-    symbol.escapedName.toString(),
-  );
+const get_name = (symbol: ts.Symbol): string => {
+  const parent: ts.Node | undefined = symbol.getDeclarations()?.[0]?.parent;
+  const name: string = symbol.escapedName?.toString() ?? "";
+  return parent ? explore_name(parent)(name) : name;
+};
 
 const explore_name =
   (decl: ts.Node) =>
