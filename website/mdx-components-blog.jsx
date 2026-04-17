@@ -39,17 +39,17 @@ export function useMDXComponents(components) {
       }
 
       return (
-        <div className={hasToc ? "typia-blog-post-layout" : undefined}>
-          <div className="typia-blog-post-main">
+        <div className={hasToc ? "nestia-blog-post-layout" : undefined}>
+          <div className="nestia-blog-post-main">
             {metadata?.ogImage ? (
               <img
                 src={metadata.ogImage}
                 alt={metadata.title ?? "Blog cover image"}
-                className="typia-blog-hero"
+                className="nestia-blog-hero"
               />
             ) : null}
             <h1>{metadata?.title}</h1>
-            <div className="typia-blog-meta">
+            <div className="nestia-blog-meta">
               {date ? (
                 <time dateTime={date.toISOString()}>
                   {date.toLocaleDateString()}
@@ -63,7 +63,7 @@ export function useMDXComponents(components) {
               ) : null}
             </div>
             {tags.length ? (
-              <div className="typia-blog-tags">
+              <div className="nestia-blog-tags">
                 {tags.map((tag) => (
                   <span key={tag}>#{tag}</span>
                 ))}
@@ -73,29 +73,29 @@ export function useMDXComponents(components) {
             <GiscusComments />
           </div>
           {hasToc ? (
-            <aside className="typia-blog-toc" aria-label="Table of contents">
-              <div className="typia-blog-toc-inner">
-                <div className="typia-blog-toc-title">On This Page</div>
+            <aside className="nestia-blog-toc" aria-label="Table of contents">
+              <div className="nestia-blog-toc-inner">
+                <div className="nestia-blog-toc-title">On This Page</div>
                 <nav aria-label="Table of contents">
-                  <ul className="typia-blog-toc-list">
+                  <ul className="nestia-blog-toc-list">
                     {groups.map((item) => (
-                      <li key={item.id} className="typia-blog-toc-item">
+                      <li key={item.id} className="nestia-blog-toc-item">
                         <a
                           href={`#${item.id}`}
-                          className={`typia-blog-toc-link typia-blog-toc-depth-${item.depth}`}
+                          className={`nestia-blog-toc-link nestia-blog-toc-depth-${item.depth}`}
                         >
                           {item.value}
                         </a>
                         {item.children.length ? (
-                          <ul className="typia-blog-toc-sublist">
+                          <ul className="nestia-blog-toc-sublist">
                             {item.children.map((child) => (
                               <li
                                 key={child.id}
-                                className="typia-blog-toc-subitem"
+                                className="nestia-blog-toc-subitem"
                               >
                                 <a
                                   href={`#${child.id}`}
-                                  className={`typia-blog-toc-link typia-blog-toc-depth-${child.depth}`}
+                                  className={`nestia-blog-toc-link nestia-blog-toc-depth-${child.depth}`}
                                 >
                                   {child.value}
                                 </a>

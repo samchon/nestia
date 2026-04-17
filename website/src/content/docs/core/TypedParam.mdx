@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > Core Library > TypedParam
+description: Type-safe path parameter decorator that infers the parameter type from the TypeScript signature and validates formats like `uuid` or `date` at request time.
 ---
 import { Callout, Tabs } from 'nextra/components'
 
@@ -255,7 +256,7 @@ When wrong typed value comes, 400 bad request error would be thrown.
   - `string`
   - `bigint`
 
-Also, `@TypedParam()` allows nullable like `number | null`, but undefindable type is not.
+Also, `@TypedParam()` allows nullable like `number | null`, but undefinable type is not.
 
   - `number | null` is allowed
   - `string | undefined` is prohibited

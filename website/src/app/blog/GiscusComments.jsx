@@ -75,5 +75,5 @@ export default function GiscusComments() {
   }, [theme]);
 
   if (!isConfigured()) return null;
-  return <section className="typia-blog-comments" ref={containerRef} />;
+  return <section className="nestia-blog-comments" ref={containerRef} />;
 }

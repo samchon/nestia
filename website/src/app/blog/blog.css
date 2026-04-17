@@ -10,14 +10,14 @@
   max-width: none;
 }
 
-.typia-blog-grid {
+.nestia-blog-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-top: 2rem;
 }
 
-.typia-blog-card {
+.nestia-blog-card {
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -28,23 +28,23 @@
   color: inherit;
 }
 
-.dark .typia-blog-card {
+.dark .nestia-blog-card {
   background: color-mix(in srgb, rgb(var(--nextra-bg)) 94%, white 6%);
 }
 
-.typia-blog-card:hover {
+.nestia-blog-card:hover {
   transform: translateY(-2px);
   transition: transform 0.18s ease;
 }
 
-.typia-blog-card-image {
+.nestia-blog-card-image {
   width: 100%;
   aspect-ratio: 1.91 / 1;
   object-fit: cover;
   background: rgba(127, 127, 127, 0.08);
 }
 
-.typia-blog-card-body {
+.nestia-blog-card-body {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -52,23 +52,23 @@
   padding: 1.1rem 1.1rem 1.2rem;
 }
 
-.typia-blog-card-title {
+.nestia-blog-card-title {
   margin: 0;
   font-size: 1.15rem;
   line-height: 1.35;
 }
 
-.typia-blog-card-description {
+.nestia-blog-card-description {
   margin: 0;
   color: rgb(95 95 95);
   line-height: 1.6;
 }
 
-.dark .typia-blog-card-description {
+.dark .nestia-blog-card-description {
   color: rgb(170 170 170);
 }
 
-.typia-blog-card-meta {
+.nestia-blog-card-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
@@ -77,18 +77,18 @@
   color: rgb(110 110 110);
 }
 
-.dark .typia-blog-card-meta {
+.dark .nestia-blog-card-meta {
   color: rgb(155 155 155);
 }
 
-.typia-blog-card-tags {
+.nestia-blog-card-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
 }
 
-.typia-blog-card-tags span,
-.typia-blog-tags span {
+.nestia-blog-card-tags span,
+.nestia-blog-tags span {
   display: inline-flex;
   align-items: center;
   padding: 0.24rem 0.6rem;
@@ -97,7 +97,7 @@
   font-size: 0.84rem;
 }
 
-.typia-blog-hero {
+.nestia-blog-hero {
   width: 100%;
   max-height: 30rem;
   object-fit: cover;
@@ -106,30 +106,30 @@
   background: rgba(127, 127, 127, 0.08);
 }
 
-.typia-blog-meta,
-.typia-blog-tags {
+.nestia-blog-meta,
+.nestia-blog-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
   margin: 0 0 1rem;
 }
 
-.typia-blog-meta {
+.nestia-blog-meta {
   color: rgb(110 110 110);
   font-size: 0.95rem;
 }
 
-.dark .typia-blog-meta {
+.dark .nestia-blog-meta {
   color: rgb(160 160 160);
 }
 
-.typia-blog-comments {
+.nestia-blog-comments {
   margin-top: 3rem;
   padding-top: 2rem;
   border-top: 1px solid rgba(127, 127, 127, 0.18);
 }
 
-.typia-blog-post-layout {
+.nestia-blog-post-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 260px;
   gap: 2.5rem;
@@ -140,11 +140,11 @@
   padding: 2rem 1.5rem 0;
 }
 
-.typia-blog-post-main {
+.nestia-blog-post-main {
   min-width: 0;
 }
 
-.typia-blog-toc {
+.nestia-blog-toc {
   position: sticky;
   top: 5.5rem;
   align-self: start;
@@ -152,7 +152,7 @@
   overflow: auto;
 }
 
-.typia-blog-toc-inner {
+.nestia-blog-toc-inner {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -160,7 +160,7 @@
   border-left: 1px solid rgba(127, 127, 127, 0.18);
 }
 
-.typia-blog-toc-title {
+.nestia-blog-toc-title {
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -168,34 +168,34 @@
   color: rgb(115 115 115);
 }
 
-.dark .typia-blog-toc-title {
+.dark .nestia-blog-toc-title {
   color: rgb(165 165 165);
 }
 
-.typia-blog-toc-list,
-.typia-blog-toc-sublist {
+.nestia-blog-toc-list,
+.nestia-blog-toc-sublist {
   margin: 0;
   padding-left: 1.05rem;
 }
 
-.typia-blog-toc-list {
+.nestia-blog-toc-list {
   list-style: disc;
 }
 
-.typia-blog-toc-sublist {
+.nestia-blog-toc-sublist {
   list-style: circle;
   margin-top: 0.35rem;
 }
 
-.typia-blog-toc-item + .typia-blog-toc-item {
+.nestia-blog-toc-item + .nestia-blog-toc-item {
   margin-top: 0.55rem;
 }
 
-.typia-blog-toc-subitem + .typia-blog-toc-subitem {
+.nestia-blog-toc-subitem + .nestia-blog-toc-subitem {
   margin-top: 0.3rem;
 }
 
-.typia-blog-toc-link {
+.nestia-blog-toc-link {
   display: inline-block;
   color: rgb(90 90 90);
   text-decoration: none;
@@ -203,31 +203,31 @@
   font-size: 0.95rem;
 }
 
-.dark .typia-blog-toc-link {
+.dark .nestia-blog-toc-link {
   color: rgb(175 175 175);
 }
 
-.typia-blog-toc-link:hover {
+.nestia-blog-toc-link:hover {
   color: inherit;
 }
 
-.typia-blog-toc-depth-3 {
+.nestia-blog-toc-depth-3 {
   font-size: 0.9rem;
 }
 
 @media (max-width: 1024px) {
-  .typia-blog-post-layout {
+  .nestia-blog-post-layout {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .typia-blog-toc {
+  .nestia-blog-toc {
     position: static;
     top: auto;
     max-height: none;
     overflow: visible;
   }
 
-  .typia-blog-toc-inner {
+  .nestia-blog-toc-inner {
     margin-top: 1rem;
     padding: 1rem 0 0;
     border-left: 0;

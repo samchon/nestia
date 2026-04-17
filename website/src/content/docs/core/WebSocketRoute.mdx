@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > Core Library > WebSocketRoute
+description: Expose NestJS controllers over WebSocket with typed RPC — pair `@WebSocketRoute()` with TGrid drivers and acceptors for type-safe bidirectional calls.
 ---
 import { Callout, Tabs } from 'nextra/components'
 
@@ -751,7 +752,7 @@ export class CalculateController {
   - `number`
   - `string`
 
-Also, `@WebSocketRoute.Param()` allows nullable like `number | null`, but undefindable type is not.
+Also, `@WebSocketRoute.Param()` allows nullable like `number | null`, but undefinable type is not.
 
   - `number | null` is allowed
   - `string | undefined` is prohibited
@@ -765,9 +766,9 @@ Error on nestia.core.WebSocketRoute.Param(): only atomic type is allowed
 ### `@WebSocketRoute.Query()`
 When using `@WebSocketRoute.Query()`, you've to follow such restriction.
 
-At first, type of `@WebSocketRoute.Query()` must be a pure **object type**. It does not allow union type. Also, nullable and undefindable types are not allowed, either. Note that, query parameter type must be a sole **object type** without any extra definition.
+At first, type of `@WebSocketRoute.Query()` must be a pure **object type**. It does not allow union type. Also, nullable and undefinable types are not allowed, either. Note that, query parameter type must be a sole **object type** without any extra definition.
 
-At next, type of properties must be **atomic**, or array of atomic type. In the atomic type case, the atomic type allows both nullable and undefindable types. However, mixed union atomic type like `string | number` or `"1" | "2" | 3` are not allowed. Also, the array type does not allow both nullable and undefindable types, either.
+At next, type of properties must be **atomic**, or array of atomic type. In the atomic type case, the atomic type allows both nullable and undefinable types. However, mixed union atomic type like `string | number` or `"1" | "2" | 3` are not allowed. Also, the array type does not allow both nullable and undefinable types, either.
 
   - `boolean`
   - `number`

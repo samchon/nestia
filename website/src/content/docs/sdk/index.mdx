@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > S/W Development Kit
+description: Generate a type-safe client SDK from your NestJS controllers — typed `fetch` functions, DTO structures, and ready-to-publish NPM package layout.
 ---
 import { Tabs } from 'nextra/components'
 
@@ -670,11 +671,11 @@ export namespace IPropagation {
   /**
    * Range of status codes by the first digit.
    */
-  export type StatusRange<T extends "2XX" | "3XX" | "4XX" | "5XX"> = T extends 0
+  export type StatusRange<T extends "2XX" | "3XX" | "4XX" | "5XX"> = T extends "2XX"
     ? IntRange<200, 299>
-    : T extends 3
+    : T extends "3XX"
     ? IntRange<300, 399>
-    : T extends 4
+    : T extends "4XX"
     ? IntRange<400, 499>
     : IntRange<500, 599>;
 

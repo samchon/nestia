@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > Core Library > TypedBody
+description: Parse and validate `application/json` request bodies against pure TypeScript types — 20,000x faster than `class-validator` with 400 errors on schema mismatch.
 ---
 import { Callout, Tabs } from 'nextra/components'
 
@@ -586,7 +587,7 @@ exports.BbsArticlesController = BbsArticlesController = __decorate(
 
 Just call `@TypedBody()` function on the request body parameter, that's all.
 
-`Nestia` will analyze your type (`IBbsArticle.IUpdate`), and writes optimal code for the target type, in the compilation level. If you click the "Complied JavaScript File" tab of above, you can see the optimal validation code. 
+`Nestia` will analyze your type (`IBbsArticle.IUpdate`), and writes optimal code for the target type, in the compilation level. If you click the "Compiled JavaScript File" tab of above, you can see the optimal validation code. 
 
 Such optimization is called AOT (Ahead of Time) compilation, and it is the secret of `@TypedBody`.
 
@@ -697,7 +698,7 @@ For reference, such encryption spec is not supported in the [Swagger-UI](/docs/s
 
 
 ## Configuration
-```json filename="tsconfig.json" showLineNumbers {8}
+```json filename="tsconfig.json" showLineNumbers {8,9}
 {
   "compilerOptions": {
     "strict": true,
@@ -706,10 +707,7 @@ For reference, such encryption spec is not supported in the [Swagger-UI](/docs/s
       {
         "transform": "@nestia/core/lib/transform",
         "validate": "validate",
-        // "llm": {
-        //   "model": "chatgpt",
-        //   "strict": true,
-        // },
+        "llm": { "strict": true }
       }
     ]
   }
@@ -728,20 +726,9 @@ Below is the list of available validation functions.
   - [`assertPrune`](https://typia.io/docs/misc/#prune-functions) or [`validatePrune`](https://typia.io/docs/misc/#prune-functions): prune extra properties with type checking
   - [`assertClone`](https://typia.io/docs/misc/#clone-functions) or [`validateClone`](https://typia.io/docs/misc/#clone-functions): deep clone with type checking for faster pruning
 
-Also, if you configure `llm` property of the plugin, `@nestia/core` considers that your backend application has been developed for LLM function calling, and validates the request/response body types following the target LLM model's restrictions. 
+Also, if you turn on the `llm` property, `@nestia/core` validates at compile time that the body type stays within the schema subset LLM function calling accepts.
 
-For example, if you configure `chatgpt` with `strict` option, dynamic properties and optional properties are not allowed in the request/response body types. If your some request/response body types are not following the target LLM model's restrictions, `@nestia/core` will throw a compilation error.
-
-Here is the list of available LLM models. Read their definitions, and follow their restrictions.
-
-  - Supported schemas
-    - `"chatgpt"`: ([`IChatGptSchema`](https://github.com/samchon/openapi/blob/master/src/structures/IChatGptSchema.ts)), OpenAI ChatGPT
-    - `"claude"`: ([`IClaudeSchema`](https://github.com/samchon/openapi/blob/master/src/structures/IClaudeSchema.ts)), Anthropic Claude
-    - `"gemini"`: ([`IGeminiSchema`](https://github.com/samchon/openapi/blob/master/src/structures/IGeminiSchema.ts)), Google Gemini
-    - `"llama"`: ([`ILlamaSchema`](https://github.com/samchon/openapi/blob/master/src/structures/ILlamaSchema.ts)), Meta Llama
-  - Midldle layer schemas
-    - `"3.0"`: ([`ILlmSchemaV3`](https://github.com/samchon/openapi/blob/master/src/structures/ILlmSchemaV3.ts)), middle layer based on OpenAPI v3.0 specification
-    - `"3.1"`: ([`ILlmSchemaV3_1`](https://github.com/samchon/openapi/blob/master/src/structures/ILlmSchemaV3_1.ts)), middle layer based on OpenAPI v3.1 specification
+`llm: true` forbids tuple types. `llm: { "strict": true }` additionally forbids `additionalProperties` (dynamic properties) and optional properties. Any violation is a compilation error.
 
 
 

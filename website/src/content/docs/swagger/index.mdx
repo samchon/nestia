@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > Swagger Document
+description: Generate OpenAPI documents directly from NestJS controllers and pure TypeScript types — no `@ApiProperty` decorators required, powered by `NestiaSwaggerComposer`.
 ---
 import { Tabs } from 'nextra/components'
 
@@ -794,7 +795,7 @@ Swagger generator `@nestia/sdk` supports three type of comment tags for controll
     - `@ignore`: hide, never be shown, even in the SDK side
   - Labeling
     - `@summary` : short description of endpoint
-    - `@tag {name} {description?}`: grouppig with description
+    - `@tag {name} {description?}`: grouping with description
     - `@operationId {value}`: manual operation ID
   - Security
     - `@security {key}`: security scheme key
@@ -1574,7 +1575,7 @@ export namespace ISecurityScheme {
 ## Customization
 [Typia > JSON schema > Customization](https://typia.io/docs/json/schema/#customization)
 
-If what you want is not just filling special properties of JSON schema spec, but to adding custom properties into the JSON schema definition, you can accomlish it with `typia` feature. Define a type based on `typia.tags.TagBase` or `typia.tags.JsonSchemaPlugin`, and specify the `schema` property type as you want.
+If what you want is not just filling special properties of JSON schema spec, but to adding custom properties into the JSON schema definition, you can accomplish it with `typia` feature. Define a type based on `typia.tags.TagBase` or `typia.tags.JsonSchemaPlugin`, and specify the `schema` property type as you want.
 
 For reference, the custom property must be started with x- prefix. It's a rule of JSON schema.
 

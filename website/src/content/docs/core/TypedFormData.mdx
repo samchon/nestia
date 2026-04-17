@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > Core Library > TypedFormData
+description: Type-safe `multipart/form-data` body decorator for file uploads that casts and validates fields against a DTO — SDK-compatible replacement for `@UploadFile()`.
 ---
 import { Tabs } from 'nextra/components'
 
@@ -577,9 +578,9 @@ exports.checkSpecialTag = checkSpecialTag;
 ## Restriction
 When using `@TypedFormData.Body()`, you've to follow such restriction.
 
-At first, type of `@TypedFormData.Body()` must be a pure **object type**. It does not allow union type. Also, nullable and undefindable types are not allowed, either. Note that, query parameter type must be a sole **object type** without any extra definition.
+At first, type of `@TypedFormData.Body()` must be a pure **object type**. It does not allow union type. Also, nullable and undefinable types are not allowed, either. Note that, query parameter type must be a sole **object type** without any extra definition.
 
-At next, type of properties must be **atomic**, `Blob`, `File` or array of them. In the atomic type case, the atomic type allows both nullable and undefindable types. However, mixed union atomic type like `string | number` or `"1" | "2" | 3` are not allowed. Also, the array type does not allow both nullable and undefindable types, either.
+At next, type of properties must be **atomic**, `Blob`, `File` or array of them. In the atomic type case, the atomic type allows both nullable and undefinable types. However, mixed union atomic type like `string | number` or `"1" | "2" | 3` are not allowed. Also, the array type does not allow both nullable and undefinable types, either.
 
   - `boolean`
   - `number`

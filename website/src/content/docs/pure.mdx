@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > Pure TypeScript Type
+description: Drop the triple-duplicated `class-validator` and `@nestjs/swagger` decorators — Nestia derives validation and schema directly from pure TypeScript `interface` types.
 ---
 import { Tabs } from 'nextra/components'
 
@@ -32,11 +33,11 @@ This is the power of `nestia`, with pure TypeScript type.
 import { ApiProperty } from "@nestjs/swagger";
 import {
   ArrayNotEmpty,
-  Format,
   IsArray,
   IsObject,
   IsOptional,
   IsString,
+  IsUrl,
   Match,
   MaxLength,
   Type,
@@ -120,7 +121,7 @@ export class AttachmentFile {
     format: "url",
     description: "URL of the file.",
   })
-  @Format("uri")
+  @IsUrl()
   @IsString()
   url!: string;
 }

@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > E2E Testing > Why E2E Test?
+description: Why a Nestia SDK-driven e2e test suite beats traditional unit tests for NestJS — full type safety on remote calls plus free conversion into benchmarks.
 ---
 import { Alert, Tabs } from 'nextra/components'
 
@@ -204,7 +205,7 @@ Those are the reasons why I recommend to adapt the new era's e2e test paradigm i
     "Test Function #1",
     "Test Function #2",
   ]}
-  selectedIndex={1}>
+  defaultIndex={1}>
   <Tabs.Tab>
 ```typescript filename="test/index.ts" showLineNumbers {51-59}
 import { DynamicExecutor } from "@nestia/e2e";
@@ -429,7 +430,7 @@ If you want to experience the test program earlier, visit below playground websi
     "Test Function #1",
     "Test Function #2",
   ]}
-  selectedIndex={1}>
+  defaultIndex={1}>
   <Tabs.Tab>
 ```typescript filename="test/benchmark/index.ts" showLineNumbers {76-94}
 import { DynamicBenchmarker } from "@nestia/benchmark";

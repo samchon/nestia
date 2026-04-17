@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > Setup
+description: Bootstrap a Nestia-ready NestJS project with `npx nestia start` or run the setup wizard against an existing codebase — covers npm, pnpm, and yarn classic.
 ---
 
 "use client";
@@ -181,7 +182,7 @@ yarn install --production --ignore-scripts --immutable
 </Tabs>
 
 ### Single JS file only
-If you can build your NestJS project into a singile JS file, and that JS file even does not require the `node_modules` directory, it would be useful for building a serverless environment. Also, as it does not need to perform the pruning process (represented by `pnpm install --production --ignore-scripts` command), it would be much convenient and faster than the above method.
+If you can build your NestJS project into a single JS file, and that JS file even does not require the `node_modules` directory, it would be useful for building a serverless environment. Also, as it does not need to perform the pruning process (represented by `pnpm install --production --ignore-scripts` command), it would be much convenient and faster than the above method.
 
 To accomplish the light JS bundling, install special dependencies like below.
 

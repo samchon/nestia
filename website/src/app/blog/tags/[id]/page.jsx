@@ -32,7 +32,7 @@ export default async function BlogTagPage(props) {
       </p>
       <h1>#{tag}</h1>
       <p>{posts.length} post(s) tagged here.</p>
-      <div className="typia-blog-grid">
+      <div className="nestia-blog-grid">
         {posts.map((post) => (
           <BlogPostCard key={post.route} post={post} />
         ))}
