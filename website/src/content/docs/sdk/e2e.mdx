@@ -41,7 +41,7 @@ npx nestia e2e --config nestia.config.ts --project tsconfig.json
 
 Configure [`nestia.config.ts`](#configuration) file and run `npx nestia e2e` command.
 
-Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate both [SDK (Software Development Kit) library](./sdk) for client developers. Also, E2E test functions, utilizing the [SDK library](./sdk), will be automatically generated for corresponding to every API functions.
+Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate both [SDK (Software Development Kit) library](/docs/sdk) for client developers. Also, E2E test functions, utilizing the [SDK library](/docs/sdk), will be automatically generated for corresponding to every API functions.
 
 Here is an example of generated E2E test functions:
 
@@ -362,7 +362,7 @@ At least, you've to configure those three properties:
   - `output`: Path of output directory for SDK library
   - `e2e`: Path of output directory for E2E test functions
 
-When you've completed above configuration, just run `npx nestia e2e` command. Then, [SDK library](./sdk) would be generated into the `$config.output` directory, and E2E test functions would be generated into the `$config.e2e` directory, following your `nestia.config.ts` option.
+When you've completed above configuration, just run `npx nestia e2e` command. Then, [SDK library](/docs/sdk) would be generated into the `$config.output` directory, and E2E test functions would be generated into the `$config.e2e` directory, following your `nestia.config.ts` option.
 
 By the way, `nestia.config.ts` supports alternative options specifying the target controller classes instead of using the `Module` instance. If your backend application server does not have special configuration like `setGlobalPrefix`, `enableVersioning` and `RouterModule`, it is okay to specifying the target controller classes just by writing their file path like below.
 

@@ -591,7 +591,7 @@ The description comments would be transformed into the `description`, `summary` 
 
 Also, `OpenApi.IOperation` type has two descriptive properties `summary` and `description`. And the `OpenApi.IJsonSchema` has similar categorized two properties `title` and `description`. Both `summary` and `title` can be filled with two ways. The first way is closing the first line of the description comment with a period (`.`). By the way, this way's `description` property would be the entire description comment even including the first line composing the `summary` or `title` field.
 
-If you don?셳 want that, you can adapt the second way that writing `@summary {string}` or `@title {string}` comment tag. In that case, the title value would not be contained in the description value. For reference, it is possible to fill the description property of the ILlmSchema by the comment tag `@description`, but you have to take care of the indentation like below.
+If you don't want that, you can adapt the second way that writing `@summary {string}` or `@title {string}` comment tag. In that case, the title value would not be contained in the description value. For reference, it is possible to fill the description property of the ILlmSchema by the comment tag `@description`, but you have to take care of the indentation like below.
 
 ```typescript filename="src/api/structures/IMember.ts" showLineNumbers
 export interface IMember {
@@ -1204,13 +1204,13 @@ ple range conditions are also possible."
   </Tabs.Tab>
 </Tabs>
 
-You can utilize [type tags](https://typia.io/docs/validators/tags/#type-tags) (or [validator?셲 comment tags](https://typia.io/docs/validators/tags/#comment-tags)) to constructing special fields of JSON schema.
+You can utilize [type tags](https://typia.io/docs/validators/tags/#type-tags) (or [validator's comment tags](https://typia.io/docs/validators/tags/#comment-tags)) to constructing special fields of JSON schema.
 
-If you write any comment on a property, it would fill the IJsonSchema.description value. Also, there?셱e special comment tags only for JSON schema definition that are different with [validator?셲 comment tags](https://typia.io/docs/validators/tags/#comment-tags) like below.
+If you write any comment on a property, it would fill the IJsonSchema.description value. Also, there're special comment tags only for JSON schema definition that are different with [validator's comment tags](https://typia.io/docs/validators/tags/#comment-tags) like below.
 
   - `@deprecated`
   - `@hidden`
   - `@internal`
   - `@title {string}`
 
-Let?셲 see how those [type tags](https://typia.io/docs/validators/tags/#type-tags), comment tags and description comments are working with example code.
+Let's see how those [type tags](https://typia.io/docs/validators/tags/#type-tags), comment tags and description comments are working with example code.

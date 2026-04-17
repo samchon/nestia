@@ -9,7 +9,7 @@ export function TypedException<T extends object>(
   description?: string,
 ): MethodDecorator;
 export function TypedException<T extends object>(props: {
-  status: : number | "2XX" | "3XX" | "4XX" | "5XX";
+  status: number | "2XX" | "3XX" | "4XX" | "5XX";
   description?: string;
   example?: T;
   examples?: Record<string, T>;
@@ -18,7 +18,7 @@ export function TypedException<T extends object>(props: {
 
 Exception decorator of HTTP responses.
 
-`TypedException` is a decorator function describing HTTP exception and its type which could be occurred in a controller method. For reference, this decorator function does not affect to the method's behavior, but affects to the [swagger documents](../sdk/swagger) generation, or SDK functions when [propagation mode](../sdk/sdk#propagation-mode) being used. 
+`TypedException` is a decorator function describing HTTP exception and its type which could be occurred in a controller method. For reference, this decorator function does not affect to the method's behavior, but affects to the [swagger documents](/docs/swagger) generation, or SDK functions when [propagation mode](/docs/sdk#propagation-mode) being used. 
 
 
 
@@ -73,7 +73,7 @@ Just call `TypedException()` function with target type and status code.
 
 If you want to add description or example value, you also can add it as a property.
 
-For reference, [swagger](./sdk/swagger) allows to special pattern like `2XX`, `3XX`, `4XX`, `5XX` for status code.
+For reference, [swagger](/docs/swagger) allows to special pattern like `2XX`, `3XX`, `4XX`, `5XX` for status code.
 
 
 

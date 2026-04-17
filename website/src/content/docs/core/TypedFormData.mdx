@@ -17,9 +17,9 @@ Request body decorator of `multipart/form-data`.
 
 `@TypedFormData.Body()` is a request body decorator function, for the `multipart/form-data` content type. It is useful for file uploading with additional data, and automatically casts property type following its DTO definition, performing the type validation.
 
-As you can see from the below code, `@TypedFormData.Body()` function is much easier and type safer than `@UploadFile()` of NestJS. Also, if you're considering the [SDK library](../sdk/sdk) generation, only `@TypedFormData.Body()` is supported. Therefore, I recommend you to utilize `@TypedFormData.Body()` instead of the `@UploadFile()` function.
+As you can see from the below code, `@TypedFormData.Body()` function is much easier and type safer than `@UploadFile()` of NestJS. Also, if you're considering the [SDK library](/docs/sdk) generation, only `@TypedFormData.Body()` is supported. Therefore, I recommend you to utilize `@TypedFormData.Body()` instead of the `@UploadFile()` function.
 
-Of course, as every features of `nestia` does, you don't need to define any extra schema definition for the [Swagger Documents](../sdk/swagger) generation. `@nestia/sdk` and `@TypedFormData.Body()` will do everything just by analyzing your TypeScript types and codes.
+Of course, as every features of `nestia` does, you don't need to define any extra schema definition for the [Swagger Documents](/docs/swagger) generation. `@nestia/sdk` and `@TypedFormData.Body()` will do everything just by analyzing your TypeScript types and codes.
 
 <Tabs items={[
   <code>@TypedFormData.Body()</code>, 
@@ -450,7 +450,7 @@ Such optimization is called AOT (Ahead of Time) compilation, and it is the secre
 
 By the way, if you're using `fastify`, you have to setup `fastify-multer` and configure like below when composing the NestJS application. If you don't do it, `@TypedFormData.Body()` will not work properly, and throw 500 internal server error when `Blob` or `File` type being utilized.
 
-```typescript filename="fastify-nestjs showLineNumbers {1, 11}
+```typescript filename="main.ts" showLineNumbers {1, 11}
 // main.ts
 import { NestFactory } from "@nestjs/core";
 import { 
@@ -625,7 +625,7 @@ export interface SomeFormDataDto {
   optional_array: string[] | undefined;
   nullable_array: string[] | null;
   union_atomic_array: (string | number)[];
-  mixed_literal_array: ("A", "B", 3)[];
+  mixed_literal_array: ("A" | "B" | 3)[];
   mixed_tuple: ["A", "B", 3];
 }
 ```

@@ -6,7 +6,7 @@ import { Alert, Tabs } from 'nextra/components'
 ## Outline
 E2E test functions rather than unit test functions.
 
-When developing a test program for NestJS developed backend server, I recommend to adapt E2E test paradigm instead of unit test paradigm. It's because with the [`@nestia/sdk` generated SDK library](../sdk/sdk), E2E test functions can be much easier, safer and efficient for production than the traditional unit test functions.
+When developing a test program for NestJS developed backend server, I recommend to adapt E2E test paradigm instead of unit test paradigm. It's because with the [`@nestia/sdk` generated SDK library](/docs/sdk), E2E test functions can be much easier, safer and efficient for production than the traditional unit test functions.
 
 Furthermore, if you develop test functions utilizing the SDK library, you can easily switch the e2e test functions to the performance benchmark functions. Just by utilizing `@nestia/e2e` and `@nestia/benchmark` libraries, you can easily measure your NestJS developed backend server's performance through the SDK library utilizing e2e test functions.
 
@@ -191,7 +191,7 @@ Those are the reasons why I recommend to adapt the new era's e2e test paradigm i
 
 > You can experience benchmark program utilizing e2e test functions.
 >
-> ?뮲 [https://stackblitz.com/~/github.com/samchon/nestia-start](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md!,test/benchmark/index.ts,test/benchmark/servant.ts,test/features/api/bbs/test_api_bbs_article_create.ts&startScript=build:test,benchmark&view=editor)
+> 💻 [https://stackblitz.com/~/github.com/samchon/nestia-start](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md!,test/benchmark/index.ts,test/benchmark/servant.ts,test/features/api/bbs/test_api_bbs_article_create.ts&startScript=build:test,benchmark&view=editor)
 >
 > [![Benchmark Result Screenshot](/images/benchmark-dark.png)](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md!,test/benchmark/index.ts,test/benchmark/servant.ts,test/features/api/bbs/test_api_bbs_article_create.ts&startScript=build:test,benchmark&view=editor)
 
@@ -411,7 +411,7 @@ Just make test functions utilizing SDK library, and export those functions with 
 
 If you want to experience the test program earlier, visit below playground website.
 
-?뮲 [https://stackblitz.com/~/github.com/samchon/nestia-start](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,test/index.ts,test/features/api/bbs/test_api_bbs_article_create.ts!&view=editor)
+💻 [https://stackblitz.com/~/github.com/samchon/nestia-start](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,test/index.ts,test/features/api/bbs/test_api_bbs_article_create.ts!&view=editor)
 
 > ```bash
 > - test_api_bbs_article_at: 149 ms
@@ -693,13 +693,13 @@ Just compose the benchmark's main and servant programs like above pointing the t
 
 If you want to experience the benchmark program earlier, visit below playground website.
 
-?뮲 [https://stackblitz.com/~/github.com/samchon/nestia-start](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md!,test/benchmark/index.ts,test/benchmark/servant.ts,test/features/api/bbs/test_api_bbs_article_create.ts&startScript=build:test,benchmark&view=editor)
+💻 [https://stackblitz.com/~/github.com/samchon/nestia-start](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md!,test/benchmark/index.ts,test/benchmark/servant.ts,test/features/api/bbs/test_api_bbs_article_create.ts&startScript=build:test,benchmark&view=editor)
 
 > ```bash
 > ? Number of requests to make 1024
 > ? Number of threads to use 4
 > ? Number of simultaneous requests to make 32
-> ?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽?댿뻽 100% | ETA: 0s | 3654/1024
+> ████████████████████████████████████████ 100% | ETA: 0s | 3654/1024
 > ```
 >
 > [![Benchmark Image](/images/benchmark-dark.png)](https://stackblitz.com/~/github.com/samchon/nestia-start?file=README.md,docs/benchmarks/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics.md!,test/benchmark/index.ts,test/benchmark/servant.ts,test/features/api/bbs/test_api_bbs_article_create.ts&startScript=build:test,benchmark&view=editor)

@@ -50,7 +50,7 @@ const callouts = [
   },
 ];
 
-const HomeAiMovie = () => (
+const HomeSimulatorMovie = () => (
   <Box sx={{ py: { xs: 6, md: 10 } }}>
     <Container maxWidth="lg">
       <Box sx={{ textAlign: "center", mb: 6 }}>
@@ -200,4 +200,4 @@ const HomeAiMovie = () => (
     </Container>
   </Box>
 );
-export default HomeAiMovie;
+export default HomeSimulatorMovie;

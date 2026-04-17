@@ -92,7 +92,7 @@ WebSocket route decorators.
 
 `@WebSocketRoute()` is a collection of decorators for WebSocket routes.
 
-Also, supports [SDK (Software Development Kit)](../generators/sdk), so that you can easily develop the WebSocket client.
+Also, supports [SDK (Software Development Kit)](/docs/sdk), so that you can easily develop the WebSocket client.
 
 
   - References
@@ -100,7 +100,7 @@ Also, supports [SDK (Software Development Kit)](../generators/sdk), so that you 
     - [TGrid > Guide Documents > Features > Components](https://tgrid.com/docs/features/components/)
     - [TGrid > Guide Documents > Features > WebSocket Protocol](https://tgrid.com/docs/features/websocket/)
     - [TGrid > Guide Documents > Learn from Examples > NestJS WebSocket](https://tgrid.com/docs/examples/nestjs-websocket/)
-    - [?뮲 Playground Website](https://stackblitz.com/~/github.com/samchon/tgrid.example.nestjs?file=src/calculate.test.ts&view=editor)
+    - [💻 Playground Website](https://stackblitz.com/~/github.com/samchon/tgrid.example.nestjs?file=src/calculate.test.ts&view=editor)
 
 
 
@@ -496,7 +496,7 @@ Also, if you don't want to accept the client connection, reject it through `WebS
 
 
 ## Software Development Kit
-Related Document: [Software Development Kit](../generators/sdk)
+Related Document: [Software Development Kit](/docs/sdk)
 
 When you configure a `nestia.config.ts` file and run `npx nestia sdk` command, `@nestia/sdk` will generate a SDK (Software Development Kit) library for the WebSocket route. With the SDK library, you can easily develop the WebSocket client application with TypeScript types.
 
@@ -807,7 +807,7 @@ export interface SomeQueryDto {
   optional_array: string[] | undefined;
   nullable_array: string[] | null;
   union_atomic_array: (string | number)[];
-  mixed_literal_array: ("A", "B", 3)[];
+  mixed_literal_array: ("A" | "B" | 3)[];
   mixed_tuple: ["A", "B", 3];
 }
 ```

@@ -90,7 +90,7 @@ export default NESTIA_CONFIG;
   </Tabs.Tab>
   <Tabs.Tab>
 ```bash filename="Terminal" showLineNumbers
-# BUILD SWAGGER DOCUUMET ONLY
+# BUILD SWAGGER DOCUMENT ONLY
 npx nestia swagger
 
 # BUILD SWAGGER/SDK/E2E AT THE SAME TIME
@@ -101,7 +101,7 @@ npx nestia all
 
 Otherwise you want to generate a swagger file by CLI (Command Line Interface), configure `nestia.config.ts` file and run the `npx nestia swagger` command. Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate `swagger.json` file.
 
-When you want to build not only Swagger Document file, but also [SDK (Software Development Kit) library](./sdk) and [automated E2E (End-to-End) test functions](./e2e) at the same time, run `npx nestia all` command instead.
+When you want to build not only Swagger Document file, but also [SDK (Software Development Kit) library](/docs/sdk) and [automated E2E (End-to-End) test functions](/docs/e2e) at the same time, run `npx nestia all` command instead.
 
 
 
@@ -754,7 +754,7 @@ export namespace INestiaConfig {
 npx nestia swagger
 npx nestia swagger --config nestia2.config.ts
 npx nestia swagger --project tsconfig2.json
-npx nestia swagger --config nestia3.config.ts --project tsconfig3.tsconfig.json
+npx nestia swagger --config nestia3.config.ts --project tsconfig3.json
 ```
 
 If you have a special configuration file that its file name is not `nestia.config.ts` or the configuration file is not placed on the root directory of the project, you can specify it with `--config` option like `npx nestia swagger --config another.config.ts`. 
@@ -1742,7 +1742,7 @@ const singleton = new Singleton(() =>
 ## Distribution
 You can choose two options for `swagger.json` file distribution.
 
-The 1st is publishing the `swagger.json` file in a public repo, and showing it through [`@nestia/editor`](/docs/editor) like below:
+The 1st is publishing the `swagger.json` file in a public repo, and showing it through [`@nestia/editor`](/docs/swagger/editor) like below:
 
 {<List>
   {EDITOR_EXAMPLES.map((example) => (
