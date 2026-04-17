@@ -143,7 +143,7 @@ export interface IPoint3D {
 
 
 
-## JSON Serializaiton
+## JSON Serialization
 ### How to use
 ```typescript
 import { TypedBody, TypedParam } from "@nestia/core";
@@ -254,7 +254,7 @@ export class BbsArticlesController {
 }
 ```
 
-The last benchmark is about composite performance, validating request body data and serialize JSON response data at the same time. As `nestia` had shown significant performance gaps, composite benhcmark also shows significant performance gaps.
+The last benchmark is about composite performance, validating request body data and serialize JSON response data at the same time. As `nestia` had shown significant performance gaps, composite benchmark also shows significant performance gaps.
 
 Let's see below benchmark graph, and imagine how much performance would be increased if you adapt `nestia` in your `NestJS` backend server. I think that no more reason not to use `nestia`. It is much faster, and even much easier.
 

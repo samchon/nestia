@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > Core Library > TypedParam
+description: Type-safe path parameter decorator that infers the parameter type from the TypeScript signature and validates formats like `uuid` or `date` at request time.
 ---
 import { Callout, Tabs } from 'nextra/components'
 
@@ -20,7 +21,7 @@ Let's read below example code, and see how `@TypedParam()` works.
 
 <Callout type="warning">
 
-`@TypedParam()` is not essential for [Swagger Documents](./sdk/swagger) or [SDK Library](./sdk/sdk) building.
+`@TypedParam()` is not essential for [Swagger Documents](/docs/swagger) or [SDK Library](/docs/sdk) building.
 
 Therefore, it is not a matter to use `@TypedParam()` or `@Param()` of the original NestJS.
 
@@ -255,7 +256,7 @@ When wrong typed value comes, 400 bad request error would be thrown.
   - `string`
   - `bigint`
 
-Also, `@TypedParam()` allows nullable like `number | null`, but undefindable type is not.
+Also, `@TypedParam()` allows nullable like `number | null`, but undefinable type is not.
 
   - `number | null` is allowed
   - `string | undefined` is prohibited

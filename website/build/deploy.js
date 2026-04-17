@@ -13,6 +13,8 @@ deploy.publish(
     if (err) {
       console.log(err);
       process.exit(-1);
-    } else clear();
+    } else {
+      console.log("Deployed to gh-pages");
+    }
   },
 );

@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > S/W Development Kit
+description: Generate a type-safe client SDK from your NestJS controllers — typed `fetch` functions, DTO structures, and ready-to-publish NPM package layout.
 ---
 import { Tabs } from 'nextra/components'
 
@@ -111,7 +112,7 @@ Then, `@nestia/sdk` will analyze your NestJS backend server code, and generate S
 
 With the SDK library composed with RPC (Remote Procedure Call) functions, you can easily develop e2e test program. Also, frontend developers can utilize the SDK library to interact with your NestJS backend server, much safely and conveniently. 
 
-If you can't imagine how the SDK library works, then look at the gif image of below. Left side is the NestJS backend server program, and right side is the Frontend program interacting with your server. Isn't it look like much more convenient and safer than before [Swagger Documents](swagger) case?
+If you can't imagine how the SDK library works, then look at the gif image of below. Left side is the NestJS backend server program, and right side is the Frontend program interacting with your server. Isn't it look like much more convenient and safer than before [Swagger Documents](/docs/swagger) case?
 
 ![SDK](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
 
@@ -670,11 +671,11 @@ export namespace IPropagation {
   /**
    * Range of status codes by the first digit.
    */
-  export type StatusRange<T extends "2XX" | "3XX" | "4XX" | "5XX"> = T extends 0
+  export type StatusRange<T extends "2XX" | "3XX" | "4XX" | "5XX"> = T extends "2XX"
     ? IntRange<200, 299>
-    : T extends 3
+    : T extends "3XX"
     ? IntRange<300, 399>
-    : T extends 4
+    : T extends "4XX"
     ? IntRange<400, 499>
     : IntRange<500, 599>;
 
@@ -835,9 +836,55 @@ if (output.success) {
 npx nestia sdk
 npx nestia sdk --config nestia2.config.ts
 npx nestia sdk --project tsconfig2.json
-npx nestia sdk --config nestia3.config.ts --project tsconfig3.tsconfig.json
+npx nestia sdk --config nestia3.config.ts --project tsconfig3.json
 ```
 
 If you have a special configuration file that its file name is not `nestia.config.ts` or the configuration file is not placed on the root directory of the project, you can specify it with `--config` option like `npx nestia sdk --config another.config.ts`. 
 
 Also, if you have a special `tsconfig.json` file or the project file is not located in the root directory of the project, you can specify it with `--project` argument like `npx nestia sdk --project another.tsconfig.json`, too.
+
+
+
+
+## PNPM Monorepo
+
+When backend and frontend live in the same repository, ship the SDK as a third workspace package — `packages/api` between `packages/backend` and `packages/frontend`. The backend writes the SDK straight into the sibling via `output: "../api/src"`, and the frontend imports it as `"@samchon/shopping-api": "workspace:*"`. No `npm publish` round-trip during development.
+
+[`samchon/shopping`](https://github.com/samchon/shopping) is the canonical example. The whole setup boils down to two configuration tricks inside `packages/api/`:
+
+**1. The SDK package depends on itself** — pnpm symlinks `node_modules/@samchon/shopping-api` to `packages/api/`, so the SDK's own sources can import by public name.
+
+```json filename="packages/api/package.json" showLineNumbers {6}
+{
+  "name": "@samchon/shopping-api",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "devDependencies": {
+    "@samchon/shopping-api": "workspace:^"
+  }
+}
+```
+
+**2. tsconfig aliases the package back to itself** — `paths` for the type-checker, `typescript-transform-paths` to flatten the alias in emitted `.js`/`.d.ts` so the published `lib/` is standalone.
+
+```json filename="packages/api/tsconfig.json" showLineNumbers {7,10-11}
+{
+  "compilerOptions": {
+    "outDir": "./lib",
+    "declaration": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@samchon/shopping-api": ["./src"]
+    },
+    "plugins": [
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typia/lib/transform" }
+    ]
+  },
+  "include": ["src"]
+}
+```
+
+That symmetry — same import line inside the SDK source, in the backend, in the frontend, and on a third-party consumer's machine — removes the entire class of *"works in monorepo, breaks when published"* bugs.
+
+See [PNPM Monorepo](./monorepo) for the full walkthrough.

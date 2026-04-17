@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > Swagger Document > AI Chatbot Development 
+description: Turn a Nestia-generated Swagger document into an LLM function-calling agent with `@agentica` — skip the agent-graph plumbing and let the schema drive tool use.
 ---
 import { Callout, Tabs } from 'nextra/components'
 
@@ -135,7 +136,7 @@ Install above packages on your NestJS project.
 
 The first package `@agentica/core` is the core package of `@agentica` framework. It provides Agentic AI that is based on the LLM function calling. And `@agentica/rpc` is the package for the WebSocket RPC (Remote Procedure Call) combining with [`TGrid`](https://tgrid.com).
 
-The last package [`@samchon/openapi`](https://github.com/samchon/openapi) is a library for converting OpenAPI document to LLM functioni calling schema.
+The last package [`@samchon/openapi`](https://github.com/samchon/openapi) is a library for converting OpenAPI document to LLM function calling schema.
 
 ### Bootstrap
 ```typescript filename="src/index.ts" showLineNumbers
@@ -145,7 +146,7 @@ await WebSocketAdaptor.upgrade(app);
 
 Call `WebSocketAdaptor.upgrade()` function to the NestJS application instance.
 
-It will upgrade the NestJS backend server to be compatible with WebSocet protocol.
+It will upgrade the NestJS backend server to be compatible with WebSocket protocol.
 
 ### API Controller
 ```typescript filename="src/controllers/ChatController.ts" showLineNumbers
@@ -178,7 +179,7 @@ export class ChatController {
 
 At last, define a WebSocket route to a specific controller function.
 
-When a client connects to the server with `ws://localhost:3001/chat` like URL, Agentica made chatbot would be composed and Super AI cahtbot conversation will be started.
+When a client connects to the server with `ws://localhost:3001/chat` like URL, Agentica made chatbot would be composed and Super AI chatbot conversation will be started.
 
 And following the guide of [`@WebSocketRoute`](/docs/core/WebSocketRoute) document, build SDK (Software Development Kit) library for the client, so that complete the AI chatbot development.
 
@@ -290,23 +291,23 @@ Such validation feedback strategy and combination with `typia` runtime validator
 
 Components               | `typia` | `TypeBox` | `ajv` | `io-ts` | `zod` | `C.V.`
 -------------------------|--------|-----------|-------|---------|-------|------------------
-**Easy to use**          | ??| ??| ??| ??| ??| ??
-[Object (simple)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectSimple.ts)          | ??| ??| ??| ??| ??| ??
-[Object (hierarchical)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectHierarchical.ts)    | ??| ??| ??| ??| ??| ??
-[Object (recursive)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectRecursive.ts)       | ??| ??| ??| ??| ??| ??| ??
-[Object (union, implicit)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectUnionImplicit.ts) | ??| ??| ??| ??| ??| ??
-[Object (union, explicit)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectUnionExplicit.ts) | ??| ??| ??| ??| ??| ??
-[Object (additional tags)](https://github.com/samchon/typia/#comment-tags)        | ??| ??| ??| ??| ??| ??
-[Object (template literal types)](https://github.com/samchon/typia/blob/master/test/src/structures/TemplateUnion.ts) | ??| ??| ??| ??| ??| ??
-[Object (dynamic properties)](https://github.com/samchon/typia/blob/master/test/src/structures/DynamicTemplate.ts) | ??| ??| ??| ??| ??| ??
-[Array (rest tuple)](https://github.com/samchon/typia/blob/master/test/src/structures/TupleRestAtomic.ts) | ??| ??| ??| ??| ??| ??
-[Array (hierarchical)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayHierarchical.ts)     | ??| ??| ??| ??| ??| ??
-[Array (recursive)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRecursive.ts)        | ??| ??| ??| ??| ??| ??
-[Array (recursive, union)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRecursiveUnionExplicit.ts) | ??| ??| ??| ??| ??| ??
-[Array (R+U, implicit)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRecursiveUnionImplicit.ts)    | ??| ??| ??| ??| ??| ??
-[Array (repeated)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRepeatedNullable.ts)    | ??| ??| ??| ??| ??| ??
-[Array (repeated, union)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRepeatedUnionWithTuple.ts)    | ??| ??| ??| ??| ??| ??
-[**Ultimate Union Type**](https://github.com/samchon/typia/blob/master/test/src/structures/UltimateUnion.ts)  | ??| ??| ??| ??| ??| ??
+**Easy to use**          | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[Object (simple)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectSimple.ts)          | ✔ | ✔ | ✔ | ✔ | ✔ | ✔
+[Object (hierarchical)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectHierarchical.ts)    | ✔ | ✔ | ✔ | ✔ | ✔ | ✔
+[Object (recursive)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectRecursive.ts)       | ✔ | ❌ | ✔ | ✔ | ✔ | ✔
+[Object (union, implicit)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectUnionImplicit.ts) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[Object (union, explicit)](https://github.com/samchon/typia/blob/master/test/src/structures/ObjectUnionExplicit.ts) | ✔ | ✔ | ✔ | ✔ | ✔ | ❌
+[Object (additional tags)](https://github.com/samchon/typia/#comment-tags)        | ✔ | ✔ | ✔ | ✔ | ✔ | ✔
+[Object (template literal types)](https://github.com/samchon/typia/blob/master/test/src/structures/TemplateUnion.ts) | ✔ | ✔ | ✔ | ❌ | ❌ | ❌
+[Object (dynamic properties)](https://github.com/samchon/typia/blob/master/test/src/structures/DynamicTemplate.ts) | ✔ | ✔ | ✔ | ❌ | ❌ | ❌
+[Array (rest tuple)](https://github.com/samchon/typia/blob/master/test/src/structures/TupleRestAtomic.ts) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[Array (hierarchical)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayHierarchical.ts)     | ✔ | ✔ | ✔ | ✔ | ✔ | ✔
+[Array (recursive)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRecursive.ts)        | ✔ | ✔ | ✔ | ✔ | ✔ | ❌
+[Array (recursive, union)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRecursiveUnionExplicit.ts) | ✔ | ✔ | ❌ | ✔ | ✔ | ❌
+[Array (R+U, implicit)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRecursiveUnionImplicit.ts)    | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[Array (repeated)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRepeatedNullable.ts)    | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[Array (repeated, union)](https://github.com/samchon/typia/blob/master/test/src/structures/ArrayRepeatedUnionWithTuple.ts)    | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
+[**Ultimate Union Type**](https://github.com/samchon/typia/blob/master/test/src/structures/UltimateUnion.ts)  | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
 
 > `C.V.` means `class-validator`
 

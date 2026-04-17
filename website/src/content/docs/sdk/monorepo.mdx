@@ -1,0 +1,154 @@
+---
+title: Guide Documents > S/W Development Kit > PNPM Monorepo
+description: PNPM monorepo recipe for shipping a Nestia SDK as a workspace package, walked through against samchon/shopping. The two Nestia-specific tricks — self-referential workspace dependency and self-alias in tsconfig paths — explained.
+---
+import { Callout } from 'nextra/components'
+
+## Overview
+
+When backend and frontend live in the same repository, the cleanest way to ship a Nestia-generated SDK is as a **third workspace package** sitting between them. The frontend imports it like any npm dependency, but pnpm resolves it to a sibling folder — no publish round-trip, no version drift.
+
+### The reference: [`samchon/shopping`](https://github.com/samchon/shopping)
+
+The canonical demonstration is [`samchon/shopping`](https://github.com/samchon/shopping) — an enterprise-scale shopping mall built to prove that *"well-designed backend + Nestia-generated SDK = AI automates the frontend."* It ships three complete user surfaces (customer, seller, administrator) — all generated from a single prompt against the SDK package.
+
+The whole repo is a pnpm workspace with three packages:
+
+```
+shopping/
+├── packages/
+│   ├── api/          # @samchon/shopping-api      — generated SDK package
+│   ├── backend/      # @samchon/shopping-backend  — NestJS + Fastify server
+│   └── frontend/     # @samchon/shopping-frontend — Next.js storefront
+├── package.json
+├── pnpm-workspace.yaml
+└── pnpm-lock.yaml
+```
+
+Three rules wire the packages together:
+
+1. The **backend** runs `nestia sdk`, which writes the SDK source straight into the sibling `api` package.
+2. The **api** package re-exports that source as `@samchon/shopping-api`.
+3. The **frontend** depends on `@samchon/shopping-api` via `workspace:*`, so pnpm symlinks it back to `packages/api`.
+
+One `pnpm install` at the root sets up the symlinks; `pnpm -r build` regenerates and rebuilds the whole graph in topological order.
+
+### How the backend points at the sibling package — `nestia.config.ts`
+
+The single most important configuration line lives in `packages/backend/nestia.config.ts`. `output: "../api/src"` is what makes the monorepo layout work — Nestia writes generated `functional/` and `structures/` directly into the sibling SDK package, so there is no copy step and no separate publish dance.
+
+```typescript filename="packages/backend/nestia.config.ts" showLineNumbers {9,24}
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+import { FastifyAdapter } from "@nestjs/platform-fastify";
+
+import { ShoppingModule } from "./src/ShoppingModule";
+
+export default {
+  input: () => NestFactory.create(ShoppingModule, new FastifyAdapter()),
+  output: "../api/src",
+  swagger: {
+    servers: [
+      {
+        url: "https://shopping-be.wrtn.ai",
+        description: "Production, the real server",
+      },
+    ],
+    security: {
+      bearer: {
+        type: "apiKey",
+        name: "Authorization",
+        in: "header",
+      },
+    },
+    output: "../api/swagger.json",
+  },
+  simulate: true,
+  primitive: false,
+} satisfies INestiaConfig;
+```
+
+Two outputs both target the sibling `api` package:
+
+- `output: "../api/src"` — generated SDK functions and DTO structures.
+- `swagger.output: "../api/swagger.json"` — the Swagger document, also stored in the SDK package so consumers can pull it down with the SDK.
+
+After `npx nestia sdk`, `packages/api/src` contains a fresh, fully-typed SDK. From here on, the rest of this page is about making that package import cleanly from itself, the backend, the frontend, and a third-party consumer — using the **same import path** in all four places.
+
+The Nestia-specific bit is **only two configuration tricks** inside `packages/api/`:
+
+1. **`@samchon/shopping-api` lists itself in its own `devDependencies`** as `workspace:^`.
+2. **`packages/api/tsconfig.json` defines `@samchon/shopping-api` as a `paths` alias** pointing back at `./src`.
+
+Both let the SDK's *own* sources import from itself by its **public package name** — the exact same import line the backend, the frontend, and any third party will write after `npm install @samchon/shopping-api`. That symmetry is what removes the entire class of *"works in the monorepo, breaks when published"* bugs.
+
+## 1. Self-referential `devDependencies`
+
+```json filename="packages/api/package.json" showLineNumbers {6}
+{
+  "name": "@samchon/shopping-api",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "devDependencies": {
+    "@samchon/shopping-api": "workspace:^"
+  }
+}
+```
+
+The package depends on **itself**. pnpm resolves `workspace:^` to the local folder, so `packages/api/node_modules/@samchon/shopping-api` becomes a symlink to `packages/api/` itself.
+
+Why bother:
+
+- Generated SDK files (and any tests, barrel files, or examples that live under `packages/api/src`) can write `import { IShoppingSale } from "@samchon/shopping-api"` instead of climbing relative paths.
+- The exact same import line works inside `packages/backend/`, inside `packages/frontend/`, and on a third-party consumer's machine after `npm install`. One canonical import path, everywhere.
+- TypeScript's module resolver follows the symlink, reads `"main": "src/index.ts"`, and resolves the type — no compile-time difference between in-monorepo dev and post-publish consumption.
+
+## 2. Self-alias in `tsconfig.json` `paths`
+
+```json filename="packages/api/tsconfig.json" showLineNumbers {7,10-11}
+{
+  "compilerOptions": {
+    "outDir": "./lib",
+    "declaration": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@samchon/shopping-api": ["./src"]
+    },
+    "plugins": [
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typia/lib/transform" }
+    ]
+  },
+  "include": ["src"]
+}
+```
+
+`paths` tells the TypeScript compiler that `@samchon/shopping-api` resolves to `./src` — same target as the `node_modules` symlink in §1, but from the compiler's perspective rather than the runtime resolver's.
+
+Without this, `tsc --declaration` will emit `.d.ts` files containing `import { X } from "@samchon/shopping-api"` literally — and downstream consumers will see TypeScript chase its own tail (the published package importing itself).
+
+[`typescript-transform-paths`](https://github.com/LeDDGroup/typescript-transform-paths) (loaded as a `ts-patch` plugin) is the second half of the trick: it rewrites the alias at compile time so the emitted `.js` files contain real relative paths instead of the alias. The published `lib/` is then standalone — no `paths` config needed by the consumer.
+
+<Callout type="info">
+**Required pairing.** `paths` alone is a type-system hint; the compiler does not rewrite emitted JS. You must add `typescript-transform-paths` (via `ts-patch`) for the JavaScript output to match. Skipping the transform produces `.js` files that crash on import.
+</Callout>
+
+## What this combination buys you
+
+| Without these two tricks | With them |
+| --- | --- |
+| SDK source uses relative imports (`../../structures/IShoppingSale`) — verbose, breaks on file moves | SDK source uses public name (`@samchon/shopping-api`) — stable across refactors |
+| `packages/backend`, `packages/frontend`, and external consumers each see a different import shape | One import shape everywhere |
+| `tsc --declaration` emits unresolvable `.d.ts` references | `.d.ts` references resolve via the local symlink |
+| Published `lib/*.js` carries unresolvable alias paths | `typescript-transform-paths` flattens them to real paths |
+| "Works in monorepo, breaks when published" surprises | Identical resolution in dev and after publish |
+
+Everything else in this workspace — the root `package.json`, `pnpm-workspace.yaml` catalogs, the frontend's `"@samchon/shopping-api": "workspace:*"` dependency — is conventional pnpm workspace usage. The two tricks above are the Nestia-specific bit.
+
+## Reference files
+
+- [`packages/backend/nestia.config.ts`](https://github.com/samchon/shopping/blob/master/packages/backend/nestia.config.ts) — `output: "../api/src"` writing into the sibling SDK package.
+- [`packages/api/package.json`](https://github.com/samchon/shopping/blob/master/packages/api/package.json) — the self-referential `devDependencies` entry.
+- [`packages/api/tsconfig.json`](https://github.com/samchon/shopping/blob/master/packages/api/tsconfig.json) — the self-alias under `paths` plus the `typescript-transform-paths` plugin.
+
+Clone [`samchon/shopping`](https://github.com/samchon/shopping), rename the scope, and the rest of the workspace falls into place.

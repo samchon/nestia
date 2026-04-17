@@ -31,7 +31,7 @@ export default async function BlogPage() {
           ))}
         </p>
       ) : null}
-      <div className="typia-blog-grid">
+      <div className="nestia-blog-grid">
         {posts.map((post) => (
           <BlogPostCard key={post.route} post={post} />
         ))}

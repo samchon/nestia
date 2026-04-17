@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > Core Library > TypedHeaders
+description: Type-safe HTTP header decorator that parses request headers into a typed DTO and rejects invalid values with a 400 Bad Request via `typia.assert()`.
 ---
 import { Callout, Tabs } from 'nextra/components'
 
@@ -16,7 +17,7 @@ It is almost same with original `@Headers()` of `NestJS`, but much type safe.
 
 <Callout type="warning">
 
-`@TypedHeaders()` is not essential for [Swagger Documents](./sdk/swagger) or [SDK Library](./sdk/sdk) building.
+`@TypedHeaders()` is not essential for [Swagger Documents](/docs/swagger) or [SDK Library](/docs/sdk) building.
 
 Therefore, it is not a matter to use `@TypedHeaders()` or `@Headers()` of the original NestJS.
 
@@ -401,7 +402,7 @@ When using `@TypedHeaders()`, you've to follow such restrictions.
 
 At first, type of `@TypedHeaders()` must be a pure **object** type. It does not allow union type. Also, nullable types are not allowed, either. Note that, request headers type must be a sole **object type** without any extra definition. Of course, the word **object** does not contain array type.
 
-At next, type of properties must be **atomic**, or array of atomic type. In the atomic type case, the atomic type allows both nullable and undefindable types. However, mixed union atomic type like `string | number` or `"1" | "2" | 3` are not allowed. Also, the array type does not allow both nullable and undefindable types, either.
+At next, type of properties must be **atomic**, or array of atomic type. In the atomic type case, the atomic type allows both nullable and undefinable types. However, mixed union atomic type like `string | number` or `"1" | "2" | 3` are not allowed. Also, the array type does not allow both nullable and undefinable types, either.
 
   - `boolean`
   - `number`
@@ -465,7 +466,7 @@ export interface SomeHeadersDto {
   optional_array: string[] | undefined;
   nullable_array: string[] | null;
   union_atomic_array: (string | number)[];
-  mixed_literal_array: ("A", "B", 3)[];
+  mixed_literal_array: ("A" | "B" | 3)[];
   mixed_tuple: ["A", "B", 3];
 
   //----

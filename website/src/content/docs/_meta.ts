@@ -16,16 +16,6 @@ export default {
   swagger: "Swagger Document",
   e2e: "E2E Testing",
 
-  // LEGACY PAGES
-  migrate: {
-    title: "Migration from Swagger",
-    display: "hidden",
-  },
-  editor: {
-    title: "TypeScript Swagger Editor",
-    display: "hidden",
-  },
-
   // APPENDIX
   "-- appendix": {
     type: "separator",

@@ -11,27 +11,27 @@ export default function BlogPostCard({ post }) {
   const date = formatDate(frontMatter.date);
 
   return (
-    <Link href={post.route} className="typia-blog-card">
+    <Link href={post.route} className="nestia-blog-card">
       <img
         src={frontMatter.ogImage ?? "/og.jpg"}
         alt={frontMatter.title ?? "Blog cover image"}
-        className="typia-blog-card-image"
+        className="nestia-blog-card-image"
       />
-      <div className="typia-blog-card-body">
-        <h2 className="typia-blog-card-title">{frontMatter.title}</h2>
+      <div className="nestia-blog-card-body">
+        <h2 className="nestia-blog-card-title">{frontMatter.title}</h2>
         {frontMatter.description ? (
-          <p className="typia-blog-card-description">
+          <p className="nestia-blog-card-description">
             {frontMatter.description}
           </p>
         ) : null}
         {tags.length ? (
-          <div className="typia-blog-card-tags">
+          <div className="nestia-blog-card-tags">
             {tags.slice(0, 4).map((tag) => (
               <span key={tag}>#{tag}</span>
             ))}
           </div>
         ) : null}
-        <div className="typia-blog-card-meta">
+        <div className="nestia-blog-card-meta">
           {date ? <span>{date}</span> : null}
           {frontMatter.author ? <span>{frontMatter.author}</span> : null}
         </div>

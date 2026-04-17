@@ -1,5 +1,6 @@
 ﻿---
 title: Guide Documents > S/W Development Kit > Mockup Simulator
+description: Embed a mock backend inside the generated SDK — frontend teams can develop and test against random but schema-valid responses before any API is implemented.
 ---
 import { Tabs } from 'nextra/components'
 
@@ -132,7 +133,7 @@ export namespace update {
 
 Nestia SDK library supports Mockup simulator.
 
-When generating [SDK library](./sdk), if you configure `simulate` property of `nestia.config.file` to be `true`, newly generated SDK library will support mockup simulation mode for frontend developers. With the mockup simulator, frontend developers can simulate NestJS backend server with internal mock functions, instead of connecting to the real backend server.
+When generating [SDK library](/docs/sdk), if you configure `simulate` property of `nestia.config.ts` to be `true`, newly generated SDK library will support mockup simulation mode for frontend developers. With the mockup simulator, frontend developers can simulate NestJS backend server with internal mock functions, instead of connecting to the real backend server.
 
 Therefore, with the mockup simulator, frontend development can be started even when the backend server is not ready yet. Mockup simulator of Nestia SDK will replace the real backend server, validating request data, and returning mockup data as response.
 
@@ -429,7 +430,7 @@ Make `nestia.config.ts` file and run `npx nestia sdk` command.
 
 At first, create `nestia.config.ts` file through `npx nestia init` command. It would be placed on the top level directory of your NestJS backend project. For reference, `tsconfig.json` file also must be placed in the top level directory, too. After creation, configure the `nestia.config.ts` file referencing above example code and type definition.
 
-At least, you've to configure those three properties. Also, if you've decided to support mockup simulator for frontend developers, I recommend you to configure two properties more, for [automatic e2e functions generation](e2e) and [SDK library distribution](sdk#distribution).
+At least, you've to configure those three properties. Also, if you've decided to support mockup simulator for frontend developers, I recommend you to configure two properties more, for [automatic e2e functions generation](./e2e) and [SDK library distribution](./distribute).
 
   - Essential
     - `input`: Accessor of controller classes
@@ -439,7 +440,7 @@ At least, you've to configure those three properties. Also, if you've decided to
     - `e2e`: Path of output directory for E2E test functions
     - `distribute`: Target directory for SDK library distribution
 
-When you've completed above configuration, just run `npx nestia sdk` command. Then, [SDK library](./sdk) would be generated into the `$config.output` directory, with simulation mode supporting. If you want to generate e2e functions automatically, run `npx nestia e2e` command after.
+When you've completed above configuration, just run `npx nestia sdk` command. Then, [SDK library](/docs/sdk) would be generated into the `$config.output` directory, with simulation mode supporting. If you want to generate e2e functions automatically, run `npx nestia e2e` command after.
 
 By the way, `nestia.config.ts` supports alternative options specifying the target controller classes instead of using the `Module` instance. If your backend application server does not have special configuration like `setGlobalPrefix`, `enableVersioning` and `RouterModule`, it is okay to specifying the target controller classes just by writing their file path like below.
 
@@ -487,7 +488,7 @@ import { YourModule } from "./src/YourModule";
 
 const NESTIA_CONFIG: INestiaConfig = {
   input: async () => {
-    const app = await NestFactory.create(YourModule, new FastifyAdpator());
+    const app = await NestFactory.create(YourModule, new FastifyAdapter());
     // app.setGlobalPrefix("api");
     // app.enableVersioning({
     //     type: VersioningType.URI,

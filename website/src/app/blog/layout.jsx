@@ -6,6 +6,11 @@ import { Footer, Layout, Navbar } from "nextra-theme-docs";
 export const metadata = {
   title: "Blog",
   description: "Engineering notes, releases, and deep dives from Nestia.",
+  alternates: {
+    types: {
+      "application/rss+xml": "/blog/rss.xml",
+    },
+  },
 };
 
 const footer = (
