@@ -7,4 +7,5 @@ export default {
   TypedFormData: "TypedFormData",
   TypedHeaders: "TypedHeaders",
   TypedException: "TypedException",
+  SwaggerExample: "SwaggerExample",
 };
