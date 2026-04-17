@@ -1,5 +1,4 @@
 import fs from "fs";
-import matter from "gray-matter";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -19,6 +18,39 @@ const escapeXml = (value) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&apos;");
 
+const parseFrontmatter = (content) => {
+  const match = content.match(/^\uFEFF?---\r?\n([\s\S]*?)\r?\n---/);
+  if (!match) return {};
+
+  const metadata = {};
+  let currentKey = null;
+  for (const rawLine of match[1].split(/\r?\n/)) {
+    if (!rawLine.trim()) continue;
+
+    const listMatch = rawLine.match(/^\s*-\s+(.*)$/);
+    if (listMatch && currentKey && Array.isArray(metadata[currentKey])) {
+      metadata[currentKey].push(listMatch[1].trim().replace(/^"|"$/g, ""));
+      continue;
+    }
+
+    const keyValueMatch = rawLine.match(/^\s*([A-Za-z0-9_]+):\s*(.*)$/);
+    if (!keyValueMatch) continue;
+
+    const [, key, value] = keyValueMatch;
+    if (value === "") {
+      metadata[key] = [];
+      currentKey = key;
+    } else {
+      const trimmed = value.trim().replace(/^"|"$/g, "");
+      if (trimmed === "true") metadata[key] = true;
+      else if (trimmed === "false") metadata[key] = false;
+      else metadata[key] = trimmed;
+      currentKey = key;
+    }
+  }
+  return metadata;
+};
+
 const posts = fs
   .readdirSync(CONTENT_DIR)
   .filter(
@@ -30,7 +62,7 @@ const posts = fs
   .map((file) => {
     const fullPath = path.join(CONTENT_DIR, file);
     const source = fs.readFileSync(fullPath, "utf8");
-    const { data } = matter(source);
+    const data = parseFrontmatter(source);
     if (data.draft === true) return null;
     const slug = file.replace(/\.mdx?$/, "");
     return {
