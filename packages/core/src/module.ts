@@ -20,4 +20,6 @@ export * from "./decorators/SwaggerExample";
 
 export * from "./adaptors/WebSocketAdaptor";
 export * from "./decorators/WebSocketRoute";
+export * from "./adaptors/McpAdaptor";
+export * from "./decorators/McpRoute";
 export * from "./decorators/doNotThrowTransformError";

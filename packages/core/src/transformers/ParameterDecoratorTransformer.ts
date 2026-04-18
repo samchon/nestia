@@ -124,6 +124,11 @@ const FUNCTORS: Record<string, Programmer> = {
     props.arguments.length
       ? props.arguments
       : [TypedQueryProgrammer.generate(props)],
+
+  "McpRoute.Params": (props) =>
+    props.arguments.length
+      ? props.arguments
+      : [TypedBodyProgrammer.generate(props)],
 };
 
 const LIB_PATH = path.join("@nestia", "core", "lib", "decorators");

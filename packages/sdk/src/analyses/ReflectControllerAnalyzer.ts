@@ -8,10 +8,12 @@ import { INestiaProject } from "../structures/INestiaProject";
 import { INestiaSdkInput } from "../structures/INestiaSdkInput";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperation } from "../structures/IReflectHttpOperation";
+import { IReflectMcpOperation } from "../structures/IReflectMcpOperation";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
 import { IOperationMetadata } from "../transformers/IOperationMetadata";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { ReflectHttpOperationAnalyzer } from "./ReflectHttpOperationAnalyzer";
+import { ReflectMcpOperationAnalyzer } from "./ReflectMcpOperationAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";
 import { ReflectWebSocketOperationAnalyzer } from "./ReflectWebSocketOperationAnalyzer";
 
@@ -81,7 +83,12 @@ export namespace ReflectControllerAnalyzer {
         function: value,
         metadata,
       };
-      const child: IReflectHttpOperation | IReflectWebSocketOperation | null =
+      const child:
+        | IReflectHttpOperation
+        | IReflectWebSocketOperation
+        | IReflectMcpOperation
+        | null =
+        ReflectMcpOperationAnalyzer.analyze(next) ??
         ReflectWebSocketOperationAnalyzer.analyze(next) ??
         ReflectHttpOperationAnalyzer.analyze(next);
       if (child !== null) controller.operations.push(child);
