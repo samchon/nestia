@@ -1,6 +1,6 @@
-import { TestValidator } from "@nestia/e2e";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { TestValidator } from "@nestia/e2e";
 
 export interface IConnection {
   host: string;
@@ -33,11 +33,7 @@ export const test_mcp_tools_call = async (
       arguments: { location: "Tokyo", unit: "celsius" },
     });
     const weatherPayload = JSON.parse(weatherResult.content[0].text);
-    TestValidator.equals(
-      "weather location",
-      weatherPayload.location,
-      "Tokyo",
-    );
+    TestValidator.equals("weather location", weatherPayload.location, "Tokyo");
     TestValidator.equals("weather unit", weatherPayload.unit, "celsius");
     TestValidator.predicate(
       "weather temp is number",

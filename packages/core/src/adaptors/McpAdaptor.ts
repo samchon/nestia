@@ -37,37 +37,35 @@ import { IMcpRouteReflect } from "../decorators/internal/IMcpRouteReflect";
  * Error mapping follows the MCP specification:
  *
  * - Unknown tool name → JSON-RPC `-32601` ({@link ErrorCode.MethodNotFound}).
- * - Typia validation failure → JSON-RPC `-32602`
- *   ({@link ErrorCode.InvalidParams}) with structured diagnostics attached
- *   to `error.data.errors`.
- * - Handler throws {@link HttpException} → success response with
- *   `isError: true`, so the LLM can read the message and recover.
+ * - Typia validation failure → JSON-RPC `-32602` ({@link ErrorCode.InvalidParams})
+ *   with structured diagnostics attached to `error.data.errors`.
+ * - Handler throws {@link HttpException} → success response with `isError: true`,
+ *   so the LLM can read the message and recover.
  * - Any other throw → JSON-RPC `-32603` ({@link ErrorCode.InternalError}).
  *
- * @example
- * ```typescript
- * import core from "@nestia/core";
- * import { NestFactory } from "@nestjs/core";
- *
- * const app = await NestFactory.create(AppModule);
- * await core.McpAdaptor.upgrade(app, { path: "/mcp" });
- * await app.listen(3000);
- * ```
- *
  * @author wildduck - https://github.com/wildduck2
+ * @example
+ *   ```typescript
+ *   import core from "@nestia/core";
+ *   import { NestFactory } from "@nestjs/core";
+ *
+ *   const app = await NestFactory.create(AppModule);
+ *   await core.McpAdaptor.upgrade(app, { path: "/mcp" });
+ *   await app.listen(3000);
+ *   ```;
  */
 export class McpAdaptor {
   /**
    * Upgrade a running Nest application with an MCP endpoint.
    *
-   * Scans the application container for methods decorated with
-   * {@link McpRoute}, then registers a catch-all HTTP route at the configured
-   * path. Each incoming request builds a fresh MCP server + transport on
-   * demand, wires the registered tools into it, and delegates handling.
+   * Scans the application container for methods decorated with {@link McpRoute},
+   * then registers a catch-all HTTP route at the configured path. Each incoming
+   * request builds a fresh MCP server + transport on demand, wires the
+   * registered tools into it, and delegates handling.
    *
-   * Must be called after `NestFactory.create(...)` but before
-   * `app.listen(...)` if you want the MCP endpoint to be reachable alongside
-   * your regular HTTP routes.
+   * Must be called after `NestFactory.create(...)` but before `app.listen(...)`
+   * if you want the MCP endpoint to be reachable alongside your regular HTTP
+   * routes.
    *
    * @param app Running Nest application instance.
    * @param options Transport and identity overrides.
@@ -193,11 +191,7 @@ export class McpAdaptor {
       });
       try {
         await mcp.connect(transport);
-        await transport.handleRequest(
-          req.raw ?? req,
-          res.raw ?? res,
-          req.body,
-        );
+        await transport.handleRequest(req.raw ?? req, res.raw ?? res, req.body);
       } finally {
         // Release SDK resources even if handleRequest throws.
         await transport.close().catch(() => {});
@@ -208,9 +202,7 @@ export class McpAdaptor {
 }
 
 export namespace McpAdaptor {
-  /**
-   * Configuration options for {@link McpAdaptor.upgrade}.
-   */
+  /** Configuration options for {@link McpAdaptor.upgrade}. */
   export interface IOptions {
     /**
      * HTTP path where the MCP endpoint will be mounted.
@@ -220,8 +212,8 @@ export namespace McpAdaptor {
     path?: string;
 
     /**
-     * Identity advertised to MCP clients during the initialize handshake.
-     * Shows up in Claude Desktop / Cursor's MCP panel.
+     * Identity advertised to MCP clients during the initialize handshake. Shows
+     * up in Claude Desktop / Cursor's MCP panel.
      *
      * @default { name: "nestia-mcp", version: "1.0.0" }
      */
@@ -232,17 +224,15 @@ export namespace McpAdaptor {
      *
      * When `true`, the transport issues an `Mcp-Session-Id` header on the
      * initialize response and requires it on every subsequent request. When
-     * `false` (default), the server is stateless — simpler, covers the
-     * common tool-server use case.
+     * `false` (default), the server is stateless — simpler, covers the common
+     * tool-server use case.
      *
      * @default false
      */
     sessioned?: boolean;
   }
 
-  /**
-   * @internal
-   */
+  /** @internal */
   export interface ITool {
     meta: IMcpRouteReflect;
     handler: (args: unknown) => Promise<unknown>;

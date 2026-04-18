@@ -14,9 +14,7 @@ export namespace AccessorAnalyzer {
     for (const r of routes) r.name = r.accessor.at(-1) ?? r.name;
   };
 
-  const prepare = (
-    routeList: Array<AnyRoute>,
-  ): Map<string, number> => {
+  const prepare = (routeList: Array<AnyRoute>): Map<string, number> => {
     const dict: Map<string, number> = new Map();
     for (const route of routeList)
       route.accessor.forEach((_a, i) => {
@@ -26,9 +24,7 @@ export namespace AccessorAnalyzer {
     return dict;
   };
 
-  const variable = (
-    routeList: Array<AnyRoute>,
-  ) => {
+  const variable = (routeList: Array<AnyRoute>) => {
     const dict: Map<string, number> = prepare(routeList);
     for (const route of routeList) {
       const emended: string[] = route.accessor.slice();
