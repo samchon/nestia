@@ -12,30 +12,24 @@ export interface ICalcResult {
 
 @Controller()
 export class CalculatorController {
-  @core.McpRoute({
-    name: "add",
-    description: "Return the sum of two numbers.",
-  })
+  /** Return the sum of two numbers. */
+  @core.McpRoute({ name: "add" })
   public async add(
     @core.McpRoute.Params() params: ICalcInput,
   ): Promise<ICalcResult> {
     return { result: params.a + params.b };
   }
 
-  @core.McpRoute({
-    name: "subtract",
-    description: "Return the difference a - b.",
-  })
+  /** Return the difference a - b. */
+  @core.McpRoute({ name: "subtract" })
   public async subtract(
     @core.McpRoute.Params() params: ICalcInput,
   ): Promise<ICalcResult> {
     return { result: params.a - params.b };
   }
 
-  @core.McpRoute({
-    name: "divide",
-    description: "Return a / b. Throws on division by zero.",
-  })
+  /** Return a / b. Throws on division by zero. */
+  @core.McpRoute({ name: "divide" })
   public async divide(
     @core.McpRoute.Params() params: ICalcInput,
   ): Promise<ICalcResult> {

@@ -81,13 +81,20 @@ export namespace McpRoute {
      */
     name: string;
 
-    /** Human-readable display name shown in MCP client UIs. */
+    /**
+     * Human-readable display name shown in MCP client UIs.
+     *
+     * Auto-filled from a `@title` JSDoc tag on the method when omitted.
+     */
     title?: string;
 
     /**
      * Free-form description consumed by the LLM when deciding whether to call
      * this tool. Include expected inputs, side effects, and typical usage — the
      * quality of this text strongly affects tool-selection accuracy.
+     *
+     * Auto-filled from the method's JSDoc comment when omitted. Supply
+     * explicitly only to override the JSDoc-derived value.
      */
     description?: string;
 
