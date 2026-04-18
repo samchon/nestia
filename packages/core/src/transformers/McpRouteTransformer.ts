@@ -4,6 +4,20 @@ import ts from "typescript";
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
 import { McpRouteProgrammer } from "../programmers/McpRouteProgrammer";
 
+/**
+ * Rewrites `@McpRoute(...)` decorator calls at compile time.
+ *
+ * Two responsibilities:
+ *
+ * 1. Extract the `@McpRoute.Params<T>()` parameter type and inject the
+ *    typia-generated JSON Schema as the decorator's second argument (consumed
+ *    by {@link McpAdaptor} at runtime and by `@nestia/sdk` at generation time).
+ * 2. Parse the method's JSDoc and inject `description` / `title` into the
+ *    decorator's config object when the user did not set them explicitly. The
+ *    JSDoc comment becomes the single source of truth for human-readable tool
+ *    metadata; the decorator config is only needed for identity (`name`) and
+ *    explicit overrides.
+ */
 export namespace McpRouteTransformer {
   export const transform = (props: {
     context: INestiaTransformContext;
@@ -34,14 +48,22 @@ export namespace McpRouteTransformer {
     const paramsType = findParamsType(props);
     if (!paramsType) return props.decorator; // no Params decorator = no schema to inject
 
-    // 5. Generate JSON Schema, inject as second decorator arg
+    // 5. Pull JSDoc description / title and merge into the config literal
+    //    if the user did not set them explicitly.
+    const originalConfig = props.decorator.expression.arguments[0];
+    const enrichedConfig =
+      originalConfig && ts.isObjectLiteralExpression(originalConfig)
+        ? injectJsDoc(props.method, originalConfig)
+        : originalConfig;
+
+    // 6. Generate JSON Schema, inject as second decorator arg
     return ts.factory.createDecorator(
       ts.factory.updateCallExpression(
         props.decorator.expression,
         props.decorator.expression.expression,
         props.decorator.expression.typeArguments,
         [
-          ...props.decorator.expression.arguments,
+          enrichedConfig ?? props.decorator.expression.arguments[0]!,
           McpRouteProgrammer.generate({
             context: props.context,
             modulo: props.decorator.expression.expression,
@@ -66,6 +88,83 @@ export namespace McpRouteTransformer {
       if (match) return props.context.checker.getTypeAtLocation(param);
     }
     return undefined;
+  };
+
+  /**
+   * Parse the JSDoc block attached to `method` and return any description and
+   * optional `@title` tag content.
+   */
+  const extractJsDoc = (
+    method: ts.MethodDeclaration,
+  ): { description?: string; title?: string } => {
+    const docs = ts.getJSDocCommentsAndTags(method);
+    let description: string | undefined;
+    let title: string | undefined;
+
+    for (const d of docs) {
+      if (!ts.isJSDoc(d)) continue;
+
+      const raw =
+        typeof d.comment === "string"
+          ? d.comment
+          : (d.comment?.map((n) => n.text).join("") ?? undefined);
+      if (raw !== undefined && raw.trim().length !== 0)
+        description = raw.trim();
+
+      for (const tag of d.tags ?? []) {
+        const name = tag.tagName.getText();
+        const text =
+          typeof tag.comment === "string"
+            ? tag.comment
+            : tag.comment?.map((n) => n.text).join("");
+        if (name === "title" && text !== undefined && text.trim().length !== 0)
+          title = text.trim();
+      }
+    }
+    return { description, title };
+  };
+
+  /**
+   * Produce a new object literal that copies `config` and appends `description`
+   * / `title` fields taken from `method`'s JSDoc, unless the user already set
+   * them explicitly on the literal.
+   */
+  const injectJsDoc = (
+    method: ts.MethodDeclaration,
+    config: ts.ObjectLiteralExpression,
+  ): ts.ObjectLiteralExpression => {
+    const hasField = (name: string): boolean =>
+      config.properties.some(
+        (p) =>
+          ts.isPropertyAssignment(p) &&
+          !!p.name &&
+          (ts.isIdentifier(p.name) || ts.isStringLiteralLike(p.name)) &&
+          p.name.getText().replace(/["']/g, "") === name,
+      );
+
+    const jsdoc = extractJsDoc(method);
+    const extras: ts.PropertyAssignment[] = [];
+    if (!hasField("description") && jsdoc.description !== undefined)
+      extras.push(
+        ts.factory.createPropertyAssignment(
+          "description",
+          ts.factory.createStringLiteral(jsdoc.description),
+        ),
+      );
+    if (!hasField("title") && jsdoc.title !== undefined)
+      extras.push(
+        ts.factory.createPropertyAssignment(
+          "title",
+          ts.factory.createStringLiteral(jsdoc.title),
+        ),
+      );
+
+    return extras.length === 0
+      ? config
+      : ts.factory.updateObjectLiteralExpression(config, [
+          ...config.properties,
+          ...extras,
+        ]);
   };
 }
 

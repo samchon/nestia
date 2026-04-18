@@ -90,12 +90,16 @@ export namespace ReflectMcpOperationAnalyzer {
       });
       return null;
     }
+    // Prefer the decorator's explicit config. Fall back to the JSDoc-derived
+    // description captured by SdkOperationTransformer, so users who only
+    // document their method with a JSDoc comment still get it surfaced on
+    // the `tools/list` wire + the generated SDK metadata.
     return {
       protocol: "mcp",
       name: ctx.name,
       toolName: route.name,
       title: route.title ?? null,
-      toolDescription: route.description ?? null,
+      toolDescription: route.description ?? ctx.metadata.description ?? null,
       inputSchema: route.inputSchema,
       outputSchema: route.outputSchema ?? null,
       annotations: route.annotations ?? null,
