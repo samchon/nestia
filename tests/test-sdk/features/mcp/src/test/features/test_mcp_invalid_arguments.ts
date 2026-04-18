@@ -1,7 +1,7 @@
-import { TestValidator } from "@nestia/e2e";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { ErrorCode, McpError } from "@modelcontextprotocol/sdk/types.js";
+import { TestValidator } from "@nestia/e2e";
 
 export interface IConnection {
   host: string;
@@ -28,10 +28,7 @@ export const test_mcp_invalid_arguments = async (
       caught = e;
     }
     TestValidator.predicate("call rejected", caught !== null);
-    TestValidator.predicate(
-      "error is McpError",
-      caught instanceof McpError,
-    );
+    TestValidator.predicate("error is McpError", caught instanceof McpError);
     TestValidator.equals(
       "error code is InvalidParams",
       (caught as McpError).code,

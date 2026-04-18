@@ -3,11 +3,10 @@
  *
  * Every method decorated with `@McpRoute()` carries an `IMcpRouteReflect`
  * object under the `"nestia/McpRoute"` key on its function value. The
- * {@link McpAdaptor} reads these at bootstrap to build the MCP tool
- * registry.
+ * {@link McpAdaptor} reads these at bootstrap to build the MCP tool registry.
  *
- * @internal
  * @author wildduck - https://github.com/wildduck2
+ * @internal
  */
 export interface IMcpRouteReflect {
   name: string;
@@ -25,8 +24,8 @@ export interface IMcpRouteReflect {
 
 export namespace IMcpRouteReflect {
   /**
-   * Per-parameter reflection entry stored under
-   * `"nestia/McpRoute/Parameters"` on the owning prototype + property key.
+   * Per-parameter reflection entry stored under `"nestia/McpRoute/Parameters"`
+   * on the owning prototype + property key.
    *
    * `validate` is the closure returned by `validate_request_body(...)` — at
    * runtime it either returns the validated input or throws

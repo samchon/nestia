@@ -1,6 +1,6 @@
-import { TestValidator } from "@nestia/e2e";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { TestValidator } from "@nestia/e2e";
 
 export interface IConnection {
   host: string;
@@ -21,11 +21,12 @@ export const test_mcp_tools_list = async (
     TestValidator.equals("tool count", tools.length, 4);
 
     const names: string[] = tools.map((t) => t.name).sort();
-    TestValidator.equals(
-      "tool names",
-      names,
-      ["add", "divide", "get_weather", "subtract"],
-    );
+    TestValidator.equals("tool names", names, [
+      "add",
+      "divide",
+      "get_weather",
+      "subtract",
+    ]);
 
     const weather = tools.find((t) => t.name === "get_weather")!;
     TestValidator.predicate(

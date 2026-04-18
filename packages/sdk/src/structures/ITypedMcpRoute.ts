@@ -9,9 +9,9 @@ import { IReflectType } from "./IReflectType";
 /**
  * Final typed representation of an MCP tool route.
  *
- * Carries everything the SDK generator needs to emit a typed client
- * function: the controller reference, accessor path, typia-derived input
- * schema, and input/output type info.
+ * Carries everything the SDK generator needs to emit a typed client function:
+ * the controller reference, accessor path, typia-derived input schema, and
+ * input/output type info.
  */
 export interface ITypedMcpRoute {
   protocol: "mcp";

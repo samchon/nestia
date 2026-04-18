@@ -10,16 +10,15 @@ import { ImportDictionary } from "./ImportDictionary";
  *
  * Output mirrors `SdkHttpRouteProgrammer` conventions: a top-level async
  * function paired with a namespace that exposes `Input`, `Output`, and
- * `METADATA`. The output type is wrapped in `Primitive<T>` from typia —
- * MCP round-trips values through JSON, which matches the semantics of
- * `Primitive`.
+ * `METADATA`. The output type is wrapped in `Primitive<T>` from typia — MCP
+ * round-trips values through JSON, which matches the semantics of `Primitive`.
  *
  * The response is typed via `CallToolResult` from `@modelcontextprotocol/sdk`
- * and narrowed structurally (`isError === true`, `type === "text"`) rather
- * than asserted with `as any`. The single unavoidable cast is on the
- * `arguments` field of `client.callTool(...)`, which the MCP SDK types as
- * `Record<string, unknown> | undefined`; a user interface without an index
- * signature is not structurally assignable to that record.
+ * and narrowed structurally (`isError === true`, `type === "text"`) rather than
+ * asserted with `as any`. The single unavoidable cast is on the `arguments`
+ * field of `client.callTool(...)`, which the MCP SDK types as `Record<string,
+ * unknown> | undefined`; a user interface without an index signature is not
+ * structurally assignable to that record.
  */
 export namespace SdkMcpRouteProgrammer {
   export const write =

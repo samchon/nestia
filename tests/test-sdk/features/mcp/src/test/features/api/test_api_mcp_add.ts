@@ -1,6 +1,6 @@
-import { TestValidator } from "@nestia/e2e";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { TestValidator } from "@nestia/e2e";
 
 import api from "@api";
 
@@ -19,8 +19,10 @@ export const test_api_mcp_add = async (
     ),
   );
   try {
-    const result: api.functional.mcp.add.Output =
-      await api.functional.mcp.add(client, { a: 2, b: 3 });
+    const result: api.functional.mcp.add.Output = await api.functional.mcp.add(
+      client,
+      { a: 2, b: 3 },
+    );
     TestValidator.equals("add.result", result.result, 5);
   } finally {
     await client.close();
