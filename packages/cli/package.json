@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "11.0.2",
+  "version": "11.1.0",
   "description": "Nestia CLI tool",
   "main": "src/index.ts",
   "bin": {
