@@ -6,7 +6,7 @@
     <atom:link href="https://nestia.io/blog/rss.xml" rel="self" type="application/rss+xml" />
     <description>Engineering notes, releases, and practical backend workflow articles from Nestia.</description>
     <language>en</language>
-    <lastBuildDate>Tue, 28 Apr 2026 20:21:02 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 28 Apr 2026 20:23:43 GMT</lastBuildDate>
     <item>
       <title>Do you have Swagger? AI can build your entire frontend. Swagger is the best context and harness</title>
       <link>https://nestia.io/blog/swagger-automates-frontend-development/</link>
