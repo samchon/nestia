@@ -5,10 +5,12 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./lib/AesPkcs5": "./src/AesPcks5.ts",
+    "./lib/EncryptedFetcher": "./src/EncryptedFetcher.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rimraf lib && tsc",
+    "build": "rimraf lib && tsc && rollup -c",
     "dev": "rimraf lib && tsc --watch",
     "prepack": "pnpm run build"
   },
@@ -32,8 +34,15 @@
     "@typia/utils": "catalog:samchon"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "catalog:rollup",
+    "@rollup/plugin-node-resolve": "catalog:rollup",
+    "@rollup/plugin-typescript": "catalog:rollup",
     "@types/node": "catalog:utils",
     "rimraf": "catalog:utils",
+    "rollup": "catalog:rollup",
+    "rollup-plugin-auto-external": "catalog:rollup",
+    "rollup-plugin-node-externals": "catalog:rollup",
+    "tinyglobby": "^0.2.16",
     "typescript": "catalog:typescript"
   },
   "files": [
@@ -50,7 +59,18 @@
     "exports": {
       ".": {
         "types": "./lib/index.d.ts",
+        "import": "./lib/index.mjs",
         "default": "./lib/index.js"
+      },
+      "./lib/AesPkcs5": {
+        "types": "./lib/AesPkcs5.d.ts",
+        "import": "./lib/AesPkcs5.mjs",
+        "default": "./lib/AesPkcs5.js"
+      },
+      "./lib/EncryptedFetcher": {
+        "types": "./lib/EncryptedFetcher.d.ts",
+        "import": "./lib/EncryptedFetcher.mjs",
+        "default": "./lib/EncryptedFetcher.js"
       },
       "./package.json": "./package.json"
     }

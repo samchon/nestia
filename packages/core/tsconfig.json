@@ -4,7 +4,10 @@
     "outDir": "lib",
     "plugins": [
       { "transform": "typia/lib/transform" },
-    ]
+    ],
+    "paths": {
+      "@nestia/fetcher/lib/*": ["./node_modules/@nestia/fetcher/src/*"],
+    }
   },
   "include": ["src"],
 }
