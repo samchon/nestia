@@ -6,7 +6,7 @@
   "scripts": {
     "build": "pnpm --filter=./packages/* -r build",
     "format": "prettier --write packages/**/*.ts && prettier --write internals/**/*.ts && prettier --write tests/**/*.ts",
-    "test": "pnpm --filter=./tests/test-* -r start",
+    "test": "NODE_OPTIONS='--no-experimental-strip-types --no-experimental-detect-module' pnpm --filter=./tests/test-* -r start",
     "package:latest": "pnpm --filter=./packages/* -r publish --tag latest --access public",
     "package:next": "bash deploy/next.bash",
     "package:tgz": "node deploy/tarballs",
