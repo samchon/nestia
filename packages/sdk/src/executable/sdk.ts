@@ -51,7 +51,7 @@ async function initialize(): Promise<void> {
 async function execute(
   closure: (commander: typeof NestiaSdkCommand) => Promise<void>,
 ): Promise<void> {
-  const module = await import("./internal/NestiaSdkCommand");
+  const module = await import("./internal/NestiaSdkCommand.js");
   await closure(module.NestiaSdkCommand);
 }
 

@@ -25,11 +25,11 @@ async function main(): Promise<void> {
 
   if (type === "start") {
     await (
-      await import("./NestiaStarter")
+      await import("./NestiaStarter.js")
     ).NestiaStarter.clone((msg) => halt(msg ?? USAGE))(argv);
   } else if (type === "template") {
     await (
-      await import("./NestiaTemplate")
+      await import("./NestiaTemplate.js")
     ).NestiaTemplate.clone((msg) => halt(msg ?? USAGE))(argv);
   } else if (type === "setup") {
     try {
@@ -39,7 +39,7 @@ async function main(): Promise<void> {
     } catch {
       halt(`nestia has not been installed. Run "npm i -D nestia" before.`);
     }
-    await (await import("./NestiaSetupWizard")).NestiaSetupWizard.setup();
+    await (await import("./NestiaSetupWizard.js")).NestiaSetupWizard.setup();
   } else if (
     type === "dependencies" ||
     type === "init" ||
@@ -48,7 +48,7 @@ async function main(): Promise<void> {
     type === "e2e" ||
     type === "all"
   ) {
-    const location: string = "@nestia/sdk/lib/executable/sdk";
+    const location: string = "@nestia/sdk/lib/executable/sdk.js";
     try {
       require.resolve(location);
     } catch {
