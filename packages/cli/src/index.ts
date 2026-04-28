@@ -48,7 +48,7 @@ async function main(): Promise<void> {
     type === "e2e" ||
     type === "all"
   ) {
-    const location: string = "@nestia/sdk/lib/executable/sdk.js";
+    const location: string = "@nestia/sdk/lib/executable/sdk";
     try {
       require.resolve(location);
     } catch {
