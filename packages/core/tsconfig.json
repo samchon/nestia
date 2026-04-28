@@ -4,7 +4,7 @@
     "outDir": "lib",
     "plugins": [
       { "transform": "typia/lib/transform" },
-    ]
+    ],
   },
   "include": ["src"],
 }

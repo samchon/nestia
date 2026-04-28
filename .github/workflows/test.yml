@@ -27,4 +27,6 @@ jobs:
         run: pnpm install
 
       - name: Test
+        env:
+          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
         run: pnpm test

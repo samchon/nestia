@@ -4,8 +4,14 @@
     "plugins": [
       { "transform": "typescript-transform-paths" },
       { "transform": "typia/lib/transform" },
-      { "transform": "@nestia/core/lib/transform" },
-      { "transform": "@nestia/sdk/lib/transform" },
+      { "transform": "@nestia/core/src/transform.ts" },
+      { "transform": "@nestia/sdk/src/transform.ts" },
     ],
   },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "moduleResolution": "nodenext"
+    }
+  }
 }
