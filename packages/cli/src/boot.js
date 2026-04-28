@@ -2,7 +2,7 @@
 require("ts-node").register({
   compilerOptions: {
     module: "commonjs",
-    moduleResolution: "node",
+    moduleResolution: "nodenext",
     plugins: [
       { transform: "typia/lib/transform" },
       { transform: "@nestia/core/lib/transform" },
