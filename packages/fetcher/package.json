@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./lib/AesPkcs5": "./src/AesPcks5.ts",
+    "./lib/AesPkcs5": "./src/AesPkcs5.ts",
     "./lib/EncryptedFetcher": "./src/EncryptedFetcher.ts",
     "./package.json": "./package.json"
   },

@@ -5,8 +5,9 @@
     "plugins": [
       { "transform": "typia/lib/transform" },
     ],
+    "baseUrl": ".",
     "paths": {
-      "@nestia/fetcher/lib/*": ["./node_modules/@nestia/fetcher/src/*"],
+      "@nestia/fetcher/lib/*": ["@nestia/fetcher/src/*"],
     }
   },
   "include": ["src"],
