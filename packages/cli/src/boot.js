@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 require("ts-node").register({
   compilerOptions: {
+    module: "commonjs",
+    moduleResolution: "node",
     plugins: [
       { transform: "typia/lib/transform" },
       { transform: "@nestia/core/lib/transform" },
