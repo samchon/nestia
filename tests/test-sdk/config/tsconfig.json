@@ -8,4 +8,10 @@
       { "transform": "@nestia/sdk/src/transform.ts" },
     ],
   },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "moduleResolution": "nodenext"
+    }
+  }
 }
