@@ -4,7 +4,7 @@
   "version": "11.0.2",
   "scripts": {
     "dev": "tsc --watch",
-    "start": "ts-node -O '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' src/index.ts"
+    "start": "ts-node -O '{\"module\":\"commonjs\",\"moduleResolution\":\"nodenext\"}' src/index.ts"
   },
   "dependencies": {
     "@nestia/benchmark": "workspace:^",

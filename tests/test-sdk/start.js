@@ -35,7 +35,10 @@ const feature = (name) => {
       cp.execSync("npx tsc", { stdio: "ignore" });
       generate("all", true);
       if (fs.existsSync("src/test"))
-        cp.execSync("npx ts-node -O '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' src/test", { stdio: "ignore" });
+        cp.execSync(
+          'npx ts-node -O \'{"module":"commonjs","moduleResolution":"nodenext"}\' src/test',
+          { stdio: "ignore" },
+        );
     } catch {
       return;
     }
@@ -69,7 +72,11 @@ const feature = (name) => {
   // RUN TEST AUTOMATION PROGRAM
   if (name === "cli-project" || name === "cli-config-project") return;
   else if (fs.existsSync("src/test")) {
-    const test = (stdio) => cp.execSync("npx ts-node -O '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' src/test", { stdio });
+    const test = (stdio) =>
+      cp.execSync(
+        'npx ts-node -O \'{"module":"commonjs","moduleResolution":"nodenext"}\' src/test',
+        { stdio },
+      );
     for (let i = 0; i < 3; ++i)
       try {
         test("ignore");
