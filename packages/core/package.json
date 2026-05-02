@@ -6,8 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json",
-    "./lib/transform": "./src/transform.ts",
-    "./src/transform.ts": "./src/transform.ts"
+    "./lib/transform": "./src/transform.ts"
   },
   "tsp": {
     "tscOptions": {

@@ -42,11 +42,7 @@ export namespace NestiaConfigLoader {
 
     const setup: boolean = typia
       .assert<object[]>(compilerOptions.plugins ?? [])
-      .some(
-        (x: any) =>
-          x.transform === "@nestia/sdk/lib/transform" ||
-          x.transform === "@nestia/sdk/src/transform.ts",
-      );
+      .some((x: any) => x.transform === "@nestia/sdk/lib/transform");
     const plugins: any[] = [
       ...(compilerOptions.plugins ?? []),
       ...(setup ? [] : [{ transform: "@nestia/sdk/lib/transform" }]),

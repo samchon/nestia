@@ -7,8 +7,7 @@
     ".": "./src/index.ts",
     "./package.json": "./package.json",
     "./lib/executable/sdk": "./src/executable/sdk.ts",
-    "./lib/transform": "./src/transform.ts",
-    "./src/transform.ts": "./src/transform.ts"
+    "./lib/transform": "./src/transform.ts"
   },
   "tsp": {
     "tscOptions": {
