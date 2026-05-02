@@ -9,12 +9,12 @@ catalogs:
     '@nestjs/platform-express': ^11.1.6
     '@nestjs/platform-fastify': ^11.1.6
   samchon:
-    '@typia/core': ^12.0.0
-    '@typia/interface': ^12.0.0
-    '@typia/utils': ^12.0.0
+    '@typia/core': 12.1.0
+    '@typia/interface': 12.1.0
+    '@typia/utils': 12.1.0
     tgrid: ^1.2.1
     tstl: ^3.0.0
-    typia: ^12.0.0
+    typia: 12.1.0
   utils:
     '@types/node': ^25.3.3
     '@types/uuid': ^11.0.0
@@ -25,8 +25,8 @@ catalogs:
     prettier: ^3.8.1
     prettier-plugin-jsdoc: ^1.8.0
     ts-node: ^10.9.2
-    ts-patch: ^3.3.0
-    typescript: ~5.9.3
+    ts-patch: ^4.0.1
+    typescript: ~6.0.3
   rollup:
     rollup: ^4.56.0
     rollup-plugin-auto-external: ^2.0.0

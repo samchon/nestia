@@ -8,7 +8,6 @@
     "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "noEmit": true,
-    "downlevelIteration": true,
     "newLine": "lf",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -19,7 +18,7 @@
     "skipLibCheck": true,
     "plugins": [
       { "transform": "typia/lib/transform" },
-      { "transform": "@nestia/core/src/transform.ts" }
+      { "transform": "@nestia/core/lib/transform" }
     ]
   },
   "include": ["src"]
