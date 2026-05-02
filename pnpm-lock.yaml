@@ -20,14 +20,14 @@ catalogs:
       version: 11.1.15
   samchon:
     '@typia/core':
-      specifier: 12.1.0-dev.20260325
-      version: 12.1.0-dev.20260325
+      specifier: 12.1.0
+      version: 12.1.0
     '@typia/interface':
-      specifier: 12.1.0-dev.20260325
-      version: 12.1.0-dev.20260325
+      specifier: 12.1.0
+      version: 12.1.0
     '@typia/utils':
-      specifier: 12.1.0-dev.20260325
-      version: 12.1.0-dev.20260325
+      specifier: 12.1.0
+      version: 12.1.0
     tgrid:
       specifier: ^1.2.1
       version: 1.2.1
@@ -35,8 +35,8 @@ catalogs:
       specifier: ^3.0.0
       version: 3.0.0
     typia:
-      specifier: 12.1.0-dev.20260325
-      version: 12.1.0-dev.20260325
+      specifier: 12.1.0
+      version: 12.1.0
   typescript:
     '@trivago/prettier-plugin-sort-imports':
       specifier: ^4.3.0
@@ -51,11 +51,11 @@ catalogs:
       specifier: ^10.9.2
       version: 10.9.2
     ts-patch:
-      specifier: npm:@samchon/ts-patch@^3.4.0
-      version: 3.4.0
+      specifier: ^4.0.1
+      version: 4.0.1
     typescript:
-      specifier: ~6.0.2
-      version: 6.0.2
+      specifier: ~6.0.3
+      version: 6.0.3
   utils:
     '@types/node':
       specifier: ^25.3.3
@@ -97,10 +97,10 @@ importers:
         version: 0.3.2
       ts-patch:
         specifier: catalog:typescript
-        version: '@samchon/ts-patch@3.4.0'
+        version: 4.0.1
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
 
   benchmark:
     dependencies:
@@ -154,7 +154,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325(typescript@6.0.2)
+        version: 12.1.0(typescript@6.0.3)
     devDependencies:
       '@types/autocannon':
         specifier: ^7.9.0
@@ -176,13 +176,13 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.2)
+        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       ts-patch:
         specifier: catalog:typescript
-        version: '@samchon/ts-patch@3.4.0'
+        version: 4.0.1
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
 
   packages/benchmark:
     dependencies:
@@ -204,7 +204,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
 
   packages/cli:
     dependencies:
@@ -238,10 +238,10 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.2)
+        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
 
   packages/core:
     dependencies:
@@ -250,13 +250,13 @@ importers:
         version: link:../fetcher
       '@typia/core':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       '@typia/interface':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       detect-ts-node:
         specifier: ^1.0.5
         version: 1.0.5
@@ -283,7 +283,7 @@ importers:
         version: 1.2.1
       typia:
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325(typescript@6.0.2)
+        version: 12.1.0(typescript@6.0.3)
       ws:
         specifier: ^7.5.3
         version: 7.5.10
@@ -317,7 +317,7 @@ importers:
         version: 4.6.2
       eslint-plugin-deprecation:
         specifier: ^1.4.1
-        version: 1.6.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)
+        version: 1.6.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       fastify:
         specifier: ^4.28.1
         version: 4.29.1
@@ -332,13 +332,13 @@ importers:
         version: 6.1.3
       ts-node:
         specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.2)
+        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       tstl:
         specifier: catalog:samchon
         version: 3.0.0
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
 
   packages/e2e:
     devDependencies:
@@ -350,7 +350,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
 
   packages/editor:
     dependencies:
@@ -365,7 +365,7 @@ importers:
         version: 1.11.0
       '@typia/interface':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.1
@@ -377,7 +377,7 @@ importers:
         version: 0.5.2(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/icons-material@5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(prop-types@15.8.1)
       typia:
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325(typescript@6.0.2)
+        version: 12.1.0(typescript@6.0.3)
     devDependencies:
       '@eslint/js':
         specifier: ^9.13.0
@@ -399,7 +399,7 @@ importers:
         version: 0.4.4(rollup@4.59.0)
       '@rollup/plugin-typescript':
         specifier: ^12.1.1
-        version: 12.3.0(rollup@4.59.0)(tslib@2.8.1)(typescript@6.0.2)
+        version: 12.3.0(rollup@4.59.0)(tslib@2.8.1)(typescript@6.0.3)
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
@@ -438,13 +438,13 @@ importers:
         version: 4.59.0
       ts-node:
         specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.2)
+        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
       typescript-eslint:
         specifier: ^8.10.0
-        version: 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)
+        version: 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       vite:
         specifier: ^5.4.9
         version: 5.4.21(@types/node@25.3.3)(terser@5.46.0)
@@ -453,10 +453,10 @@ importers:
     dependencies:
       '@typia/interface':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
     devDependencies:
       '@types/node':
         specifier: catalog:utils
@@ -466,7 +466,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
 
   packages/migrate:
     dependencies:
@@ -475,13 +475,13 @@ importers:
         version: 4.3.0(prettier@3.8.1)
       '@typia/core':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       '@typia/interface':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       commander:
         specifier: 10.0.0
         version: 10.0.0
@@ -499,17 +499,17 @@ importers:
         version: 3.0.0
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
       typia:
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325(typescript@6.0.2)
+        version: 12.1.0(typescript@6.0.3)
     devDependencies:
       '@rollup/plugin-terser':
         specifier: ^0.4.4
         version: 0.4.4(rollup@4.59.0)
       '@rollup/plugin-typescript':
         specifier: ^12.1.1
-        version: 12.3.0(rollup@4.59.0)(tslib@2.8.1)(typescript@6.0.2)
+        version: 12.3.0(rollup@4.59.0)(tslib@2.8.1)(typescript@6.0.3)
       '@types/inquirer':
         specifier: ^9.0.7
         version: 9.0.9
@@ -527,7 +527,7 @@ importers:
         version: 4.59.0
       ts-node:
         specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.2)
+        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
 
   packages/sdk:
     dependencies:
@@ -539,13 +539,13 @@ importers:
         version: link:../fetcher
       '@typia/core':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       '@typia/interface':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       cli:
         specifier: ^1.0.1
         version: 1.0.1
@@ -563,10 +563,10 @@ importers:
         version: 3.8.1
       ts-node:
         specifier: '>=10.6.0'
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.2)
+        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       tsconfck:
         specifier: ^2.1.2
-        version: 2.1.2(typescript@6.0.2)
+        version: 2.1.2(typescript@6.0.3)
       tsconfig-paths:
         specifier: ^4.1.1
         version: 4.2.0
@@ -575,7 +575,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325(typescript@6.0.2)
+        version: 12.1.0(typescript@6.0.3)
     devDependencies:
       '@nestjs/common':
         specifier: catalog:nestjs
@@ -597,7 +597,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
 
   tests/test-benchmark:
     dependencies:
@@ -624,7 +624,7 @@ importers:
         version: 11.1.15(@nestjs/common@11.1.15(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.15)
       typia:
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325(typescript@6.0.2)
+        version: 12.1.0(typescript@6.0.3)
       uuid:
         specifier: catalog:utils
         version: 13.0.0
@@ -646,10 +646,10 @@ importers:
         version: link:../../packages/cli
       ts-node:
         specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.2)
+        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
 
   tests/test-e2e:
     dependencies:
@@ -661,17 +661,17 @@ importers:
         version: link:../../packages/fetcher
       typia:
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325(typescript@6.0.2)
+        version: 12.1.0(typescript@6.0.3)
     devDependencies:
       '@types/node':
         specifier: catalog:utils
         version: 25.3.3
       ts-node:
         specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.2)
+        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
 
   tests/test-migrate:
     dependencies:
@@ -707,7 +707,7 @@ importers:
         version: 4.1.8
       '@typia/interface':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       chalk:
         specifier: 4.1.2
         version: 4.1.2
@@ -749,7 +749,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325(typescript@6.0.2)
+        version: 12.1.0(typescript@6.0.3)
     devDependencies:
       '@nestia/sdk':
         specifier: workspace:^
@@ -774,13 +774,13 @@ importers:
         version: link:../../packages/cli
       ts-node:
         specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.2)
+        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
       typescript-transform-paths:
         specifier: ^3.5.6
-        version: 3.5.6(typescript@6.0.2)
+        version: 3.5.6(typescript@6.0.3)
 
   tests/test-sdk:
     dependencies:
@@ -813,13 +813,13 @@ importers:
         version: 11.2.6(@nestjs/common@11.1.15(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.15)(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)
       '@typia/interface':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       '@typia/utils':
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325
+        version: 12.1.0
       embed-typescript:
         specifier: ^1.1.0
-        version: 1.3.2(typescript@6.0.2)
+        version: 1.3.2(typescript@6.0.3)
       express:
         specifier: ^4.21.1
         version: 4.22.1
@@ -840,7 +840,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 12.1.0-dev.20260325(typescript@6.0.2)
+        version: 12.1.0(typescript@6.0.3)
       uuid:
         specifier: catalog:utils
         version: 13.0.0
@@ -868,16 +868,16 @@ importers:
         version: link:../../packages/cli
       ts-node:
         specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.2)
+        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       ts-patch:
         specifier: catalog:typescript
-        version: '@samchon/ts-patch@3.4.0'
+        version: 4.0.1
       typescript:
         specifier: catalog:typescript
-        version: 6.0.2
+        version: 6.0.3
       typescript-transform-paths:
         specifier: ^3.5.5
-        version: 3.5.6(typescript@6.0.2)
+        version: 3.5.6(typescript@6.0.3)
 
 packages:
 
@@ -1691,10 +1691,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@samchon/ts-patch@3.4.0':
-    resolution: {integrity: sha512-zPAZhaVxWSdWm486QIhta8hlOZIXEY4ereuGmoF3bh6dKgh2/o/Fa0lmnKGrckEK9piTwnw0NQaM9EDDdP1qBg==}
-    hasBin: true
-
   '@scarf/scarf@1.4.0':
     resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
 
@@ -2055,17 +2051,17 @@ packages:
     resolution: {integrity: sha512-KiROIzYdEV85YygXw6BI/Dx4fnBlFQu6Mq4QE4MOH9fFnhohw6wX/OAvDY2/C+ut0I3RSPKenvZJIVYqJNkhEw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@typia/core@12.1.0-dev.20260325':
-    resolution: {integrity: sha512-1VuDjSBZLZX9o9IVBmuqoQkj2nFhH4HzuvyJ3Ep7kiGtqFn3mKWyqTNeJ4WZ+PBsU06uxilCWW0VUL8tNGTatw==}
+  '@typia/core@12.1.0':
+    resolution: {integrity: sha512-5tMqqF+svjF71WEbpY+nF8Xi55JY5tcaL+C3f7T5UnAeFWmqbCfr7zqeISLWn7MlcmeJSd4Mv2kN5oBjCGnrZw==}
 
-  '@typia/interface@12.1.0-dev.20260325':
-    resolution: {integrity: sha512-oQGBLSKKc6MIxHGbP+aoaUIpCuNDFsfaJslJtzsnB79G2D8bF8q0GHFG3WYc/qCo2KG966JyzFIEjrCXlTAyPw==}
+  '@typia/interface@12.1.0':
+    resolution: {integrity: sha512-03NqgWn/+YYPPH0KGWmbdP4xS88x7cw0uytxjUCqp+5YV1iiDuTSj2RBGtB8J0Im+hb6/0zsoUXAd58CATcKhQ==}
 
-  '@typia/transform@12.1.0-dev.20260325':
-    resolution: {integrity: sha512-u+M4NMXNLvKTTEjZ/2I7z079v+KQzx7Gkb9FEDtlVjzYyFe+QaLEi5OcX24fdLvPlToXzmGsW6f7e92iXQ5XWQ==}
+  '@typia/transform@12.1.0':
+    resolution: {integrity: sha512-iy1LjDbRC51APnuWh/s6ouLiNqWQ8G/QmzWDcc6EUZ8DlYGebHQJ2JA6tsITVl/vcTLtktZgyfvjrsMrWS280A==}
 
-  '@typia/utils@12.1.0-dev.20260325':
-    resolution: {integrity: sha512-0iVdGKV5Ms3sth/ZR6T5JXhHisfx1/68xJ2ItkoKsPsCQRh3dEJZbjHg8STKsEuRqcobAeAKPAjj+qeeSxgPGw==}
+  '@typia/utils@12.1.0':
+    resolution: {integrity: sha512-Jv44yHrI9Ze5Gqb7WpQugqcjowe0e1JMyCjfp4C30YMLxhu7RmfsjZ6AdcWqvcHoVtlLB47UzP+avA79rWJaFQ==}
 
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
@@ -3833,6 +3829,11 @@ packages:
     engines: {node: '>= 0.4'}
     hasBin: true
 
+  resolve@1.22.12:
+    resolution: {integrity: sha512-TyeJ1zif53BPfHootBGwPRYT1RUt6oGWsaQr8UyZW/eAm9bKoijtvruSDEmZHm92CwS9nj7/fWttqPCgzep8CA==}
+    engines: {node: '>= 0.4'}
+    hasBin: true
+
   restore-cursor@3.1.0:
     resolution: {integrity: sha512-l+sSefzHpj5qimhFSE5a8nufZYAM3sBSVMAPtYkmC+4EH2anSGaEMXSD0izRQbu9nfyQ9y5JrVmp7E8oZrUjvA==}
     engines: {node: '>=8'}
@@ -4186,6 +4187,11 @@ packages:
       '@swc/wasm':
         optional: true
 
+  ts-patch@4.0.1:
+    resolution: {integrity: sha512-pzXS6vZlsBwq3U+CUiPJfCAh0MJGco1j1C8bWsLgvtzDZLGZ7II1Usjtwm09mZ8Uoma+sg6sO3BlWHd6apCUww==}
+    engines: {node: '>=22.15.0'}
+    hasBin: true
+
   tsconfck@2.1.2:
     resolution: {integrity: sha512-ghqN1b0puy3MhhviwO2kGF8SeMDNhEbnKxjK7h6+fvY9JAxqvXi8y5NAHSQv687OVboS2uZIByzGd45/YxrRHg==}
     engines: {node: ^14.13.1 || ^16 || >=18}
@@ -4250,13 +4256,13 @@ packages:
     peerDependencies:
       typescript: '>=3.6.5'
 
-  typescript@6.0.2:
-    resolution: {integrity: sha512-bGdAIrZ0wiGDo5l8c++HWtbaNCWTS4UTv7RaTH/ThVIgjkveJt83m74bBHMJkuCbslY8ixgLBVZJIOiQlQTjfQ==}
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typia@12.1.0-dev.20260325:
-    resolution: {integrity: sha512-p9faVRK5zzt+9IeGtfNz5O39lYwXVwJQlfzwZUQaIvEIrQjaZsuKvsNH9s5vJLXI+aAg1Z7teGhrGXFvM47p4g==}
+  typia@12.1.0:
+    resolution: {integrity: sha512-x9wDmqCRyLmJEDW3XkkgMHF1a/2aL4l0qZRFEVxJ60du+QrMgNEHndnarisKImnD+/rXDUbJBW4Llp1XIVs6cA==}
     hasBin: true
     peerDependencies:
       typescript: '>=4.8.0 <7.0.0'
@@ -5133,11 +5139,11 @@ snapshots:
     optionalDependencies:
       rollup: 4.59.0
 
-  '@rollup/plugin-typescript@12.3.0(rollup@4.59.0)(tslib@2.8.1)(typescript@6.0.2)':
+  '@rollup/plugin-typescript@12.3.0(rollup@4.59.0)(tslib@2.8.1)(typescript@6.0.3)':
     dependencies:
       '@rollup/pluginutils': 5.3.0(rollup@4.59.0)
       resolve: 1.22.11
-      typescript: 6.0.2
+      typescript: 6.0.3
     optionalDependencies:
       rollup: 4.59.0
       tslib: 2.8.1
@@ -5224,15 +5230,6 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.59.0':
     optional: true
-
-  '@samchon/ts-patch@3.4.0':
-    dependencies:
-      chalk: 4.1.2
-      global-prefix: 4.0.0
-      minimist: 1.2.8
-      resolve: 1.22.11
-      semver: 7.7.4
-      strip-ansi: 6.0.1
 
   '@scarf/scarf@1.4.0': {}
 
@@ -5557,40 +5554,40 @@ snapshots:
     dependencies:
       '@types/node': 25.3.3
 
-  '@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2))(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)':
+  '@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3))(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
-      '@typescript-eslint/parser': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)
+      '@typescript-eslint/parser': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       '@typescript-eslint/scope-manager': 8.56.1
-      '@typescript-eslint/type-utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)
-      '@typescript-eslint/utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)
+      '@typescript-eslint/type-utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
+      '@typescript-eslint/utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       '@typescript-eslint/visitor-keys': 8.56.1
       eslint: 9.39.3(jiti@2.6.1)
       ignore: 7.0.5
       natural-compare: 1.4.0
-      ts-api-utils: 2.4.0(typescript@6.0.2)
-      typescript: 6.0.2
+      ts-api-utils: 2.4.0(typescript@6.0.3)
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)':
+  '@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.56.1
       '@typescript-eslint/types': 8.56.1
-      '@typescript-eslint/typescript-estree': 8.56.1(typescript@6.0.2)
+      '@typescript-eslint/typescript-estree': 8.56.1(typescript@6.0.3)
       '@typescript-eslint/visitor-keys': 8.56.1
       debug: 4.4.3
       eslint: 9.39.3(jiti@2.6.1)
-      typescript: 6.0.2
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/project-service@8.56.1(typescript@6.0.2)':
+  '@typescript-eslint/project-service@8.56.1(typescript@6.0.3)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.56.1(typescript@6.0.2)
+      '@typescript-eslint/tsconfig-utils': 8.56.1(typescript@6.0.3)
       '@typescript-eslint/types': 8.56.1
       debug: 4.4.3
-      typescript: 6.0.2
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
@@ -5604,19 +5601,19 @@ snapshots:
       '@typescript-eslint/types': 8.56.1
       '@typescript-eslint/visitor-keys': 8.56.1
 
-  '@typescript-eslint/tsconfig-utils@8.56.1(typescript@6.0.2)':
+  '@typescript-eslint/tsconfig-utils@8.56.1(typescript@6.0.3)':
     dependencies:
-      typescript: 6.0.2
+      typescript: 6.0.3
 
-  '@typescript-eslint/type-utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)':
+  '@typescript-eslint/type-utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
     dependencies:
       '@typescript-eslint/types': 8.56.1
-      '@typescript-eslint/typescript-estree': 8.56.1(typescript@6.0.2)
-      '@typescript-eslint/utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)
+      '@typescript-eslint/typescript-estree': 8.56.1(typescript@6.0.3)
+      '@typescript-eslint/utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       debug: 4.4.3
       eslint: 9.39.3(jiti@2.6.1)
-      ts-api-utils: 2.4.0(typescript@6.0.2)
-      typescript: 6.0.2
+      ts-api-utils: 2.4.0(typescript@6.0.3)
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
@@ -5624,7 +5621,7 @@ snapshots:
 
   '@typescript-eslint/types@8.56.1': {}
 
-  '@typescript-eslint/typescript-estree@6.21.0(typescript@6.0.2)':
+  '@typescript-eslint/typescript-estree@6.21.0(typescript@6.0.3)':
     dependencies:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/visitor-keys': 6.21.0
@@ -5633,49 +5630,49 @@ snapshots:
       is-glob: 4.0.3
       minimatch: 9.0.3
       semver: 7.7.4
-      ts-api-utils: 1.4.3(typescript@6.0.2)
+      ts-api-utils: 1.4.3(typescript@6.0.3)
     optionalDependencies:
-      typescript: 6.0.2
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/typescript-estree@8.56.1(typescript@6.0.2)':
+  '@typescript-eslint/typescript-estree@8.56.1(typescript@6.0.3)':
     dependencies:
-      '@typescript-eslint/project-service': 8.56.1(typescript@6.0.2)
-      '@typescript-eslint/tsconfig-utils': 8.56.1(typescript@6.0.2)
+      '@typescript-eslint/project-service': 8.56.1(typescript@6.0.3)
+      '@typescript-eslint/tsconfig-utils': 8.56.1(typescript@6.0.3)
       '@typescript-eslint/types': 8.56.1
       '@typescript-eslint/visitor-keys': 8.56.1
       debug: 4.4.3
       minimatch: 10.2.4
       semver: 7.7.4
       tinyglobby: 0.2.15
-      ts-api-utils: 2.4.0(typescript@6.0.2)
-      typescript: 6.0.2
+      ts-api-utils: 2.4.0(typescript@6.0.3)
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/utils@6.21.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)':
+  '@typescript-eslint/utils@6.21.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.3(jiti@2.6.1))
       '@types/json-schema': 7.0.15
       '@types/semver': 7.7.1
       '@typescript-eslint/scope-manager': 6.21.0
       '@typescript-eslint/types': 6.21.0
-      '@typescript-eslint/typescript-estree': 6.21.0(typescript@6.0.2)
+      '@typescript-eslint/typescript-estree': 6.21.0(typescript@6.0.3)
       eslint: 9.39.3(jiti@2.6.1)
       semver: 7.7.4
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  '@typescript-eslint/utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)':
+  '@typescript-eslint/utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.3(jiti@2.6.1))
       '@typescript-eslint/scope-manager': 8.56.1
       '@typescript-eslint/types': 8.56.1
-      '@typescript-eslint/typescript-estree': 8.56.1(typescript@6.0.2)
+      '@typescript-eslint/typescript-estree': 8.56.1(typescript@6.0.3)
       eslint: 9.39.3(jiti@2.6.1)
-      typescript: 6.0.2
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
@@ -5689,22 +5686,22 @@ snapshots:
       '@typescript-eslint/types': 8.56.1
       eslint-visitor-keys: 5.0.1
 
-  '@typia/core@12.1.0-dev.20260325':
+  '@typia/core@12.1.0':
     dependencies:
-      '@typia/interface': 12.1.0-dev.20260325
-      '@typia/utils': 12.1.0-dev.20260325
+      '@typia/interface': 12.1.0
+      '@typia/utils': 12.1.0
 
-  '@typia/interface@12.1.0-dev.20260325': {}
+  '@typia/interface@12.1.0': {}
 
-  '@typia/transform@12.1.0-dev.20260325':
+  '@typia/transform@12.1.0':
     dependencies:
-      '@typia/core': 12.1.0-dev.20260325
-      '@typia/interface': 12.1.0-dev.20260325
-      '@typia/utils': 12.1.0-dev.20260325
+      '@typia/core': 12.1.0
+      '@typia/interface': 12.1.0
+      '@typia/utils': 12.1.0
 
-  '@typia/utils@12.1.0-dev.20260325':
+  '@typia/utils@12.1.0':
     dependencies:
-      '@typia/interface': 12.1.0-dev.20260325
+      '@typia/interface': 12.1.0
 
   '@vitejs/plugin-react@4.7.0(vite@5.4.21(@types/node@25.3.3)(terser@5.46.0))':
     dependencies:
@@ -6359,10 +6356,10 @@ snapshots:
 
   electron-to-chromium@1.5.307: {}
 
-  embed-typescript@1.3.2(typescript@6.0.2):
+  embed-typescript@1.3.2(typescript@6.0.3):
     dependencies:
       tstl: 3.0.0
-      typescript: 6.0.2
+      typescript: 6.0.3
 
   emoji-regex@8.0.0: {}
 
@@ -6423,13 +6420,13 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-plugin-deprecation@1.6.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2):
+  eslint-plugin-deprecation@1.6.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3):
     dependencies:
-      '@typescript-eslint/utils': 6.21.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)
+      '@typescript-eslint/utils': 6.21.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       eslint: 9.39.3(jiti@2.6.1)
       tslib: 2.8.1
-      tsutils: 3.21.0(typescript@6.0.2)
-      typescript: 6.0.2
+      tsutils: 3.21.0(typescript@6.0.3)
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
@@ -7737,6 +7734,13 @@ snapshots:
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
 
+  resolve@1.22.12:
+    dependencies:
+      es-errors: 1.3.0
+      is-core-module: 2.16.1
+      path-parse: 1.0.7
+      supports-preserve-symlinks-flag: 1.0.0
+
   restore-cursor@3.1.0:
     dependencies:
       onetime: 5.1.2
@@ -8104,17 +8108,17 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  ts-api-utils@1.4.3(typescript@6.0.2):
+  ts-api-utils@1.4.3(typescript@6.0.3):
     dependencies:
-      typescript: 6.0.2
+      typescript: 6.0.3
 
-  ts-api-utils@2.4.0(typescript@6.0.2):
+  ts-api-utils@2.4.0(typescript@6.0.3):
     dependencies:
-      typescript: 6.0.2
+      typescript: 6.0.3
 
   ts-expose-internals@5.4.5: {}
 
-  ts-node@10.9.2(@types/node@25.3.3)(typescript@6.0.2):
+  ts-node@10.9.2(@types/node@25.3.3)(typescript@6.0.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.12
@@ -8128,13 +8132,22 @@ snapshots:
       create-require: 1.1.1
       diff: 4.0.4
       make-error: 1.3.6
-      typescript: 6.0.2
+      typescript: 6.0.3
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
-  tsconfck@2.1.2(typescript@6.0.2):
+  ts-patch@4.0.1:
+    dependencies:
+      chalk: 4.1.2
+      global-prefix: 4.0.0
+      minimist: 1.2.8
+      resolve: 1.22.12
+      semver: 7.7.4
+      strip-ansi: 6.0.1
+
+  tsconfck@2.1.2(typescript@6.0.3):
     optionalDependencies:
-      typescript: 6.0.2
+      typescript: 6.0.3
 
   tsconfig-paths@4.2.0:
     dependencies:
@@ -8148,10 +8161,10 @@ snapshots:
 
   tstl@3.0.0: {}
 
-  tsutils@3.21.0(typescript@6.0.2):
+  tsutils@3.21.0(typescript@6.0.3):
     dependencies:
       tslib: 1.14.1
-      typescript: 6.0.2
+      typescript: 6.0.3
 
   type-check@0.4.0:
     dependencies:
@@ -8174,37 +8187,37 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-eslint@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2):
+  typescript-eslint@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2))(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)
-      '@typescript-eslint/parser': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)
-      '@typescript-eslint/typescript-estree': 8.56.1(typescript@6.0.2)
-      '@typescript-eslint/utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.2)
+      '@typescript-eslint/eslint-plugin': 8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3))(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
+      '@typescript-eslint/parser': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
+      '@typescript-eslint/typescript-estree': 8.56.1(typescript@6.0.3)
+      '@typescript-eslint/utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       eslint: 9.39.3(jiti@2.6.1)
-      typescript: 6.0.2
+      typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
 
-  typescript-transform-paths@3.5.6(typescript@6.0.2):
+  typescript-transform-paths@3.5.6(typescript@6.0.3):
     dependencies:
       minimatch: 9.0.9
-      typescript: 6.0.2
+      typescript: 6.0.3
 
-  typescript@6.0.2: {}
+  typescript@6.0.3: {}
 
-  typia@12.1.0-dev.20260325(typescript@6.0.2):
+  typia@12.1.0(typescript@6.0.3):
     dependencies:
       '@standard-schema/spec': 1.1.0
-      '@typia/core': 12.1.0-dev.20260325
-      '@typia/interface': 12.1.0-dev.20260325
-      '@typia/transform': 12.1.0-dev.20260325
-      '@typia/utils': 12.1.0-dev.20260325
+      '@typia/core': 12.1.0
+      '@typia/interface': 12.1.0
+      '@typia/transform': 12.1.0
+      '@typia/utils': 12.1.0
       commander: 10.0.0
       comment-json: 4.6.2
       inquirer: 8.2.5
       package-manager-detector: 0.2.11
       randexp: 0.5.3
-      typescript: 6.0.2
+      typescript: 6.0.3
 
   uid@2.0.2:
     dependencies:
