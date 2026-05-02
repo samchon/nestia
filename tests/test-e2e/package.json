@@ -1,10 +1,10 @@
 {
   "private": true,
   "name": "@nestia/test-e2e",
-  "version": "11.0.1",
+  "version": "11.1.0",
   "scripts": {
     "dev": "tsc --watch",
-    "start": "ts-node src/index.ts"
+    "start": "ts-node -O '{\"module\":\"commonjs\",\"moduleResolution\":\"nodenext\"}' src/index.ts"
   },
   "dependencies": {
     "@nestia/e2e": "workspace:^",

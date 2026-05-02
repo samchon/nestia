@@ -1,11 +1,19 @@
 .next
+_pagefind/
 node_modules/
 out/
 public/api/
 public/chat/
+public/blog/rss.xml
 typedoc-json/
+tsconfig.tsbuildinfo
 
 public/downloads
 public/robots.txt
 public/sitemap*.xml
 package-lock.json
+
+.env
+.env.local
+.env.*.local
+

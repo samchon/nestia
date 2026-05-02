@@ -1,3 +1,5 @@
+"use client";
+
 import ComputerIcon from "@mui/icons-material/Computer";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import MenuBookIcon from "@mui/icons-material/MenuBook";

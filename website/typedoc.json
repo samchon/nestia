@@ -4,7 +4,8 @@
     "../packages/benchmark",
     "../packages/core",
     "../packages/e2e",
-    "../packages/fetcher"
+    "../packages/fetcher",
+    "../packages/sdk"
   ],
   "out": "./public/api"
 }

@@ -1,0 +1,281 @@
+﻿---
+title: "[Nestia] Make NestJS 30x faster with fastify"
+description: "Using Nestia with Fastify can push NestJS throughput dramatically higher by combining faster validation and serialization with a faster HTTP server."
+date: "2023-05-22"
+author: "Jeongho Nam"
+ogImage: "https://media2.dev.to/dynamic/image/width=1000,height=500,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fbk0bupsf8937pu1vmz6o.png"
+devtoUrl: "https://dev.to/samchon/nestia-make-nestjs-30x-faster-with-fastify-133l"
+tags:
+  - typescript
+  - nestjs
+  - opensource
+  - fastify
+---
+## Outline
+`nestia` and `fastify` enhances `NestJS` server performance about 10x to 30x higher.
+
+  - Previous Article: [Boost up NestJS server much faster and easier](https://dev.to/samchon/nestia-boost-up-your-nestjs-server-much-faster-and-easier-maximum-20000x-faster-59o5)
+  - Github Repository: https://github.com/samchon/nestia
+  - Guide Documents: https://nestia.io/docs
+
+In previous article, I introduced my library `nestia`, making `NestJS` much easier and much faster. In the article, introducing performance enhancements, I had told that `nestia` can boost up validation speed maximum 20,000x faster (JSON serialization is 200x faster). 
+
+By the way, some people have asked me like that:
+
+> Okay, your `nestia` makes NestJS server faster, by boosting up validation and serialization speeds enormously. By the way, how about entire server performance? I especially want to know that how much `nestia` can increase the number of simultaneous connections.
+>
+> How about `nestia` performance in the entire server level?
+
+Today, I came back with answer. The answer is, `nestia` (+ `fastify`) increases `NestJS` server availabitily about **10x to 30x**. I'll show you how I've measured it, and describe how only validation and JSON serialization can affect entire server performance.
+
+![Performance Benchmark](https://raw.githubusercontent.com/samchon/nestia/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/performance.svg)
+>
+> Measured on [Surface Pro 8](https://github.com/samchon/nestia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz#performance)
+
+For reference, you can run the benchmark program on your computer by following below commands. After the benchmark, a report would be issued under `nestia/benchmark/results/{YOUR-CPU-NAME}` directory. If you send the result PR on my repo (https://github.com/samchon/nestia), I'd pleasure and appreciate it even more.
+
+```bash
+git clone https://github.com/samchon/nestia
+cd nestia/benchmark
+npm install
+npm start
+```
+
+
+
+
+## Validation
+### How to use
+```typescript
+import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+ 
+import { IBbsArticle } from "./IBbsArticle";
+ 
+@Controller("bbs/articles")
+export class BbsArticlesController {
+    @TypedRoute.Put(":id")
+    public async update(
+        @TypedParam("id", "uuid") id: string,
+        @TypedBody() input: IBbsArticle.IUpdate, // 20,000x faster validation
+    ): Promise<void> {}
+}
+```
+
+When you develop a `NestJS` backend server with `nestia`, you can easily validate request body data just by using `@nestia.TypedBody()` decorator function like above. 
+
+For reference, unlike `class-validator` and `class-transform` being used by `NestJS` which require [triple duplicated schema definitions](https://nestia.io/docs/pure/#demonstration), `nestia` can utilize pure TypeScript type. Look at below code snippet, then you may understand how `nestia` makes DTO schema definition easily.
+
+```typescript
+//----
+// NESTJS (class-validator + class-transform) REQUIRES 
+// TRIPLE DUPLICATED DEFINITION
+//----
+export class BbsArticle {
+    @ApiProperty({
+        type: () => AttachmentFile,
+        nullable: true,
+        isArray: true,
+        description: "List of attached files.",
+    })
+    @Type(() => AttachmentFile)
+    @IsArray()
+    @IsOptional()
+    @IsObject({ each: true })
+    @ValidateNested({ each: true })
+    files!: AttachmentFile[] | null;
+}
+
+//----
+// BESIDES, NESTIA UNDERSTANDS PURE TYPESCRIPT TYPE
+//----
+export interface IBbsArticle {
+    files: IAttachmentFile[] | null;
+}
+```
+
+### Individual Performance
+![Assert Benchmark](https://raw.githubusercontent.com/samchon/typia/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/assert.svg)
+
+> Measured on Intel [i5-1135g7, Surface Pro 8](https://github.com/samchon/typia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz#assert)
+
+When measuring validation performance, `nestia` (`nestia` utilizes [`typia.assert<T>()` function](https://typia.io/docs/validators/assert/)) is maximum 20,000x times faster than `class-validator` used by `NestJS` by default.
+
+How do you think about, if such a fast validation speed is applied to entire server level? As validation of request body data takes small portion of the entire backend server, so is this performance difference not sufficiently impactful at the overall server level? Or 20,000x times gap is an enormous value, therefore would affect to the entire server performance?
+
+Let's see below server benchmark graph.
+
+### Server Performance
+![Assert Benchmark](https://raw.githubusercontent.com/samchon/nestia/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/assert.svg)
+
+> Measured on [Intel i5-1135g7, Surface Pro 8](https://github.com/samchon/nestia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20@%202.40GHz#assert)
+
+The answer was the entire server level performance be affected significantly.
+
+When comparing performance in the entire server level with simultaneous connections, `nestia` can increase the number of simultaneous connections about 10x higher than `NestJS`. If adapt `fastify`, such a performance gap would be increased up to 25x. Besides, adapting `fastify` in `NestJS` only gains performance about 1~2%.
+
+I think such significant difference caused by two reasons.
+
+The 1st is: validations are processed in the main thread. As you know, the strength of NodeJS is events represented by non-blocking I/O, all of which run in the background. However, request body data validation is processed in the main thread, so if such validation logic is slow, it stops entire backend server.
+
+The 2nd reason is just **20,000x** gap. Even though request body data validation is a small work within framework of the entire server processes, if the performance gap is 20,000x times, it would be a significant difference. 
+
+Considering main thread operation with 20,000x performance gap, above benchmark result is enough reasonable.
+
+### Reference
+For reference, request body validation utilized an Array instance with length 100. If reduce the length to be 10, performance enhancement be halved (about 60%). Otherwise, as increase the length to be larger as, performance enhancement be dramatically increased.
+
+```typescript
+// "IBox3D" SIMILAR DTOS ARE USED, WITH 100 LENGTH ARRAY
+export interface IBox3D {
+    scale: IPoint3D;
+    position: IPoint3D;
+    rotate: IPoint3D;
+    pivot: IPoint3D;
+}
+export interface IPoint3D {
+    x: number;
+    y: number;
+    z: number;
+}
+```
+
+
+
+
+## JSON Serialization
+### How to use
+```typescript
+import { TypedBody, TypedParam } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import typia from "typia";
+ 
+import { IBbsArticle } from "./IBbsArticle";
+ 
+@Controller("bbs/articles")
+export class BbsArticlesController {
+    @TypedRoute.Get(":id") // 200x faster JSON serialization
+    public async at(
+        @TypedParam("id", "uuid") id: string
+    ): Promise<IBbsArticle> {
+        return typia.random<IBbsArticle>();
+    }
+}
+```
+
+When you develop a `NestJS` backend server with `nestia`, you can easily boost up JSON serialization speed just by using `@nestia.EncryptedRoute.${method}()` decorator function like above.
+
+For reference, unlike `class-validator` and `class-transform` being used by `NestJS` which require [triple duplicated schema definitions](https://nestia.io/docs/pure/#demonstration), `nestia` can utilize pure TypeScript type. Look at below code snippet, then you may understand how `nestia` makes DTO schema definition easily.
+
+```typescript
+//----
+// NESTJS (class-validator + class-transform) REQUIRES 
+// TRIPLE DUPLICATED DEFINITION
+//----
+export class BbsArticle {
+    @ApiProperty({
+        type: () => AttachmentFile,
+        nullable: true,
+        isArray: true,
+        description: "List of attached files.",
+    })
+    @Type(() => AttachmentFile)
+    @IsArray()
+    @IsOptional()
+    @IsObject({ each: true })
+    @ValidateNested({ each: true })
+    files!: AttachmentFile[] | null;
+}
+
+//----
+// BESIDES, NESTIA UNDERSTANDS PURE TYPESCRIPT TYPE
+//----
+export interface IBbsArticle {
+    files: IAttachmentFile[] | null;
+}
+```
+
+### Individual Performance
+Do you remember? I'd written an article about my another library `typia` and had compared JSON serialization performance between `typia` and `class-transformer`. In the previous benchmark, `typia` was maximum 200x times faster than `class-transformer`.
+
+For reference, `nestia` utilizes `typia`, and `NestJS` utilizes `class-transformer`.
+
+  - Previous Article: [I made Express faster than Fastify](https://dev.to/samchon/i-made-express-faster-than-fastify-4h8g)
+  - Github Repository: https://github.com/samchon/typia
+  - Guide Documents: https://typia.io/docs
+
+![Stringify Benchmark](https://raw.githubusercontent.com/samchon/typia/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/stringify.svg)
+
+> Measured on [Intel i5-1135g7, Surface Pro 8](https://github.com/samchon/typia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz)
+
+How do you think about, if such a fast JSON serialization speed is applied to entire server level? As JSON serialization performance enhancement is much smaller than validator case (200x vs 20,000x), so is this performance difference not sufficiently impactful at the overall server level? Or 200x times gap would affect to the entier server performance, because JSON serialization is heavier work than validation?
+
+Let's see below server benchmark graph.
+
+### Server Performance
+![Stringify Benchmark](https://raw.githubusercontent.com/samchon/nestia/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/stringify.svg)
+
+> Measured on [Intel i5-1135g7, Surface Pro 8](https://github.com/samchon/nestia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz)
+
+The answer was the entire server level performance be affected significantly, too.
+
+When comparing performance in the entire server level with simultaneous connections, `nestia` can increase the number of simultaneous connections about 10x higher than `NestJS`. If adapt `fastify`, such a performance gap would be increased up to 18x. Besides, adapting `fastify` in `NestJS` only gains performance about 0~10%.
+
+I think such significant difference caused by two reasons.
+
+The 1st reason is same with validation case. JSON serializations are processed in the main thread. As you know, the strength of NodeJS is events represented by non-blocking I/O, all of which run in the background. However, request body data validation is processed in the main thread, so if such validation logic is slow, it stops entire backend server.
+
+The 2nd reason is JSON serialization is heavier process than validation. Therefore, even though JSON serialization gains less performance than validation (200x vs 20,000), it would be still significant at the entire server level.
+
+Considering main thread operation and heavier JSON serialization process than validation, above benchmark result is enough reasonable.
+
+
+
+
+## Composite Performance
+```typescript
+import { TypedBody, TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+ 
+import { IBbsArticle } from "./IBbsArticle";
+ 
+@Controller("bbs/articles")
+export class BbsArticlesController {
+    @TypedRoute.Post()
+    public async store(
+        @TypedBody() input: IBbsArticle.IStore
+    ): Promise<IBbsArticle> {
+        return {
+            ...input,
+            id: "2b5e21d8-0e44-4482-bd3e-4540dee7f3d6",
+            created_at: "2023-04-23T12:04:54.168Z",
+        }
+    }
+}
+```
+
+The last benchmark is about composite performance, validating request body data and serialize JSON response data at the same time. As `nestia` had shown significant performance gaps, composite benchmark also shows significant performance gaps.
+
+Let's see below benchmark graph, and imagine how much performance would be increased if you adapt `nestia` in your `NestJS` backend server. I think that no more reason not to use `nestia`. It is much faster, and even much easier.
+
+![Performance Benchmark](https://raw.githubusercontent.com/samchon/nestia/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz/images/performance.svg)
+
+> Measured on [Intel i5-1135g7, Surface Pro 8](https://github.com/samchon/nestia/tree/master/benchmark/results/11th%20Gen%20Intel(R)%20Core(TM)%20i5-1135G7%20%40%202.40GHz#performance)
+
+
+
+
+## Conclusion
+1. `nestia` boosts up `NestJS` server performance significantly
+2. If adapt `fastify` with `nestia`, the performance would be increased more
+3. Otherwise adapt `fastify` without `nestia`, the performance would not be increased
+4. Let's use `nestia` when developing `NestJS` backend server
+  - Much faster
+  - Much easier
+  - Even supports SDK generation like `tRPC`
+
+![SDK](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
+
+> Left is server code, and right is client (frontend) code
+
+

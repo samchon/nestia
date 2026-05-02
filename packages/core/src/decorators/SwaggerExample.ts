@@ -1,4 +1,59 @@
+/**
+ * Attach example values to Swagger documents.
+ *
+ * `SwaggerExample` is a namespace of decorators that attach example values
+ * to controller methods (request/response bodies, parameters), so that
+ * `@nestia/sdk`'s Swagger generator can populate the `example` / `examples`
+ * fields of the generated OpenAPI document.
+ *
+ * The decorators only affect Swagger document generation. They do not change
+ * runtime behavior, validation, or SDK function signatures.
+ *
+ * @example
+ *
+ * ```typescript
+ * import core from "@nestia/core";
+ * import { Controller } from "@nestjs/common";
+ * import typia from "typia";
+ *
+ * @Controller("bbs/articles")
+ * export class BbsArticlesController {
+ *   // Single response example.
+ *   @core.SwaggerExample.Response(typia.random<IBbsArticle>())
+ *   @core.TypedRoute.Post()
+ *   public async create(
+ *     // Multiple named parameter examples plus a default one.
+ *     @core.SwaggerExample.Parameter(typia.random<IBbsArticle.ICreate>())
+ *     @core.SwaggerExample.Parameter("x", typia.random<IBbsArticle.ICreate>())
+ *     @core.SwaggerExample.Parameter("y", typia.random<IBbsArticle.ICreate>())
+ *     @core.TypedBody()
+ *     input: IBbsArticle.ICreate,
+ *   ): Promise<IBbsArticle> {
+ *     // ...
+ *   }
+ * }
+ * ```
+ *
+ * @author Jeongho Nam - https://github.com/samchon
+ */
 export namespace SwaggerExample {
+  /**
+   * Attach an example value to the response body of a controller method.
+   *
+   * Two forms are supported:
+   *
+   * - {@link Response | `Response(value)`}: registers `value` as the single
+   *   default `example`.
+   * - {@link Response | `Response(key, value)`}: registers `value` under
+   *   `examples[key]`. May be applied multiple times to attach several
+   *   named examples.
+   *
+   * Both forms can coexist on the same method — the default `example` and
+   * any number of named `examples` will all surface in the generated
+   * Swagger document.
+   *
+   * @template T Type of the example value (typically the route's response DTO).
+   */
   export function Response<T>(value: T): MethodDecorator;
   export function Response<T>(key: string, value: T): MethodDecorator;
   export function Response(...args: any[]): MethodDecorator {
@@ -12,6 +67,24 @@ export namespace SwaggerExample {
     };
   }
 
+  /**
+   * Attach an example value to a request parameter (body, path, query, etc.)
+   * of a controller method.
+   *
+   * Two forms are supported:
+   *
+   * - {@link Parameter | `Parameter(value)`}: registers `value` as the single
+   *   default `example` for that parameter.
+   * - {@link Parameter | `Parameter(key, value)`}: registers `value` under
+   *   `examples[key]`. May be applied multiple times to attach several
+   *   named examples to the same parameter.
+   *
+   * Apply alongside the actual parameter decorator
+   * (`@TypedBody()`, `@TypedParam()`, `@TypedQuery()`, etc.); decorator
+   * order does not matter.
+   *
+   * @template T Type of the example value (typically the parameter's DTO).
+   */
   export function Parameter<T>(value: T): ParameterDecorator;
   export function Parameter<T>(key: string, value: T): ParameterDecorator;
   export function Parameter(...args: any[]): ParameterDecorator {
@@ -24,6 +97,13 @@ export namespace SwaggerExample {
     };
   }
 
+  /**
+   * Internal storage shape for `SwaggerExample` metadata.
+   *
+   * Reflects the OpenAPI spec's two example fields: a single default
+   * `example`, and/or a named map `examples`. `index` is used internally
+   * to associate parameter examples with the right parameter position.
+   */
   export interface IData<T> {
     examples?: Record<string, T>;
     example?: T;

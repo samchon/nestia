@@ -1,3 +1,5 @@
+"use client";
+
 import { Box, Container, Typography } from "@mui/material";
 
 const HomeSponsorMovie = () => (
