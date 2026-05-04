@@ -34,9 +34,9 @@
     "@nestia/editor": "../deploy/tarballs/editor.tgz",
     "@nestia/migrate": "../deploy/tarballs/migrate.tgz",
     "next": "^15.3.4",
-    "nextra": "^4.6.0",
-    "nextra-theme-blog": "^4.6.1",
-    "nextra-theme-docs": "^4.6.0",
+    "nextra": "4.6.0",
+    "nextra-theme-blog": "4.6.0",
+    "nextra-theme-docs": "4.6.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
