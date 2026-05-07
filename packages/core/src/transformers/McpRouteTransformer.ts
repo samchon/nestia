@@ -3,20 +3,30 @@ import ts from "typescript";
 
 import { INestiaTransformContext } from "../options/INestiaTransformProject";
 import { McpRouteProgrammer } from "../programmers/McpRouteProgrammer";
+import { McpRouteReturnProgrammer } from "../programmers/McpRouteReturnProgrammer";
 
 /**
  * Rewrites `@McpRoute(...)` decorator calls at compile time.
  *
- * Two responsibilities:
+ * Responsibilities:
  *
- * 1. Extract the `@McpRoute.Params<T>()` parameter type and inject the
- *    typia-generated JSON Schema as the decorator's second argument (consumed
- *    by {@link McpAdaptor} at runtime and by `@nestia/sdk` at generation time).
- * 2. Parse the method's JSDoc and inject `description` / `title` into the
- *    decorator's config object when the user did not set them explicitly. The
- *    JSDoc comment becomes the single source of truth for human-readable tool
- *    metadata; the decorator config is only needed for identity (`name`) and
- *    explicit overrides.
+ * 1. Normalize the public string form (`@McpRoute("tool_name")`) into an
+ *    internal config object literal (`@McpRoute({ name: "tool_name" })`) so
+ *    downstream consumers — runtime adaptor + SDK reflection — only ever see
+ *    the rich object shape.
+ * 2. Enforce MCP-spec constraints by delegating to typia validators:
+ *    - exactly one `@McpRoute.Params()` parameter (or zero);
+ *    - parameter type is an object without dynamic properties
+ *      ({@link McpRouteProgrammer});
+ *    - return type is `void` or a single object without dynamic properties
+ *      ({@link McpRouteReturnProgrammer}).
+ * 3. Inject typia-generated `inputSchema` (and `outputSchema`, when the return
+ *    type is non-void) into the config literal.
+ * 4. Parse the method's JSDoc and inject `description` / `title` into the
+ *    config literal when not already explicit. The JSDoc comment is the
+ *    canonical source for human-readable tool metadata.
+ *
+ * @author wildduck - https://github.com/wildduck2
  */
 export namespace McpRouteTransformer {
   export const transform = (props: {
@@ -24,11 +34,9 @@ export namespace McpRouteTransformer {
     decorator: ts.Decorator;
     method: ts.MethodDeclaration;
   }): ts.Decorator => {
-    // 1. Must be a call expression: @McpRoute(...)
     if (!ts.isCallExpression(props.decorator.expression))
       return props.decorator;
 
-    // 2. Check it's THIS project's McpRoute (not some other lib's)
     const signature = props.context.checker.getResolvedSignature(
       props.decorator.expression,
     );
@@ -40,38 +48,103 @@ export namespace McpRouteTransformer {
     if (LIB_PATHS.every((str) => location.indexOf(str) === -1))
       return props.decorator;
 
-    // 3. Already transformed? (2+ args means second run — skip)
-    if (props.decorator.expression.arguments.length >= 2)
+    // Already transformed (config has injected inputSchema entry — second run).
+    if (
+      props.decorator.expression.arguments.length >= 1 &&
+      ts.isObjectLiteralExpression(props.decorator.expression.arguments[0]!) &&
+      hasField(
+        props.decorator.expression.arguments[0] as ts.ObjectLiteralExpression,
+        "inputSchema",
+      )
+    )
       return props.decorator;
 
-    // 4. Find the @McpRoute.Params<T>() parameter to extract its type
+    enforceSingleParams(props);
+
     const paramsType = findParamsType(props);
-    if (!paramsType) return props.decorator; // no Params decorator = no schema to inject
+    const inputSchema = paramsType
+      ? McpRouteProgrammer.generate({
+          context: props.context,
+          modulo: props.decorator.expression.expression,
+          type: paramsType,
+        })
+      : ts.factory.createObjectLiteralExpression(
+          [
+            ts.factory.createPropertyAssignment(
+              "type",
+              ts.factory.createStringLiteral("object"),
+            ),
+            ts.factory.createPropertyAssignment(
+              "properties",
+              ts.factory.createObjectLiteralExpression([]),
+            ),
+          ],
+          true,
+        );
 
-    // 5. Pull JSDoc description / title and merge into the config literal
-    //    if the user did not set them explicitly.
-    const originalConfig = props.decorator.expression.arguments[0];
-    const enrichedConfig =
-      originalConfig && ts.isObjectLiteralExpression(originalConfig)
-        ? injectJsDoc(props.method, originalConfig)
-        : originalConfig;
+    // Validate the return type to catch MCP-illegal shapes at compile time
+    // (non-object, dynamic-property records, mixed `void | object` unions).
+    // We do NOT emit `outputSchema` onto the wire — declaring an output schema
+    // obliges the server to return `structuredContent` per the MCP spec, which
+    // the v1 adaptor does not produce. Validation alone is enough to honour
+    // the constraint.
+    const returnType = getReturnType(props);
+    if (returnType)
+      McpRouteReturnProgrammer.generate({
+        context: props.context,
+        modulo: props.decorator.expression.expression,
+        type: returnType,
+      });
 
-    // 6. Generate JSON Schema, inject as second decorator arg
+    const config: ts.ObjectLiteralExpression = normalizeConfig(
+      props.decorator.expression.arguments[0],
+    );
+
+    const enriched = injectFields(config, [
+      ...(!hasField(config, "inputSchema")
+        ? [
+            ts.factory.createPropertyAssignment(
+              "inputSchema",
+              inputSchema as ts.Expression,
+            ),
+          ]
+        : []),
+      ...jsDocFields(props.method, config),
+    ]);
+
     return ts.factory.createDecorator(
       ts.factory.updateCallExpression(
         props.decorator.expression,
         props.decorator.expression.expression,
         props.decorator.expression.typeArguments,
-        [
-          enrichedConfig ?? props.decorator.expression.arguments[0]!,
-          McpRouteProgrammer.generate({
-            context: props.context,
-            modulo: props.decorator.expression.expression,
-            type: paramsType,
-          }),
-        ],
+        [enriched],
       ),
     );
+  };
+
+  /**
+   * Reject methods that carry `@McpRoute.Params()` more than once. MCP
+   * tools take a single arguments object, not a list of positional args.
+   */
+  const enforceSingleParams = (props: {
+    method: ts.MethodDeclaration;
+  }): void => {
+    let count = 0;
+    for (const param of props.method.parameters) {
+      const decos = (param.modifiers ?? []).filter((m) =>
+        ts.isDecorator(m),
+      ) as ts.Decorator[];
+      if (
+        decos.some((d) =>
+          d.expression.getText().includes("McpRoute.Params"),
+        )
+      )
+        count += 1;
+    }
+    if (count > 1)
+      throw new Error(
+        `[@nestia.core.McpRoute] method ${props.method.name.getText()} declares ${count} @McpRoute.Params() parameters; only one is allowed.`,
+      );
   };
 
   const findParamsType = (props: {
@@ -82,28 +155,66 @@ export namespace McpRouteTransformer {
       const decos = (param.modifiers ?? []).filter((m) =>
         ts.isDecorator(m),
       ) as ts.Decorator[];
-      const match = decos.some((d) =>
-        d.expression.getText().includes("McpRoute.Params"),
-      );
-      if (match) return props.context.checker.getTypeAtLocation(param);
+      if (
+        decos.some((d) => d.expression.getText().includes("McpRoute.Params"))
+      )
+        return props.context.checker.getTypeAtLocation(param);
     }
     return undefined;
   };
 
+  const getReturnType = (props: {
+    context: INestiaTransformContext;
+    method: ts.MethodDeclaration;
+  }): ts.Type | undefined => {
+    const sig = props.context.checker.getSignatureFromDeclaration(props.method);
+    if (!sig) return undefined;
+    return props.context.checker.getReturnTypeOfSignature(sig);
+  };
+
   /**
-   * Parse the JSDoc block attached to `method` and return any description and
-   * optional `@title` tag content.
+   * Convert a string literal argument (`@McpRoute("name")`) into the canonical
+   * object form (`@McpRoute({ name: "name" })`). If the argument is already an
+   * object literal it is returned unchanged. Anything else (computed
+   * expressions etc.) is rejected via TransformerError so the wire metadata
+   * stays statically analyzable.
    */
-  const extractJsDoc = (
+  const normalizeConfig = (
+    arg: ts.Expression | undefined,
+  ): ts.ObjectLiteralExpression => {
+    if (arg === undefined)
+      return ts.factory.createObjectLiteralExpression([], true);
+    if (ts.isStringLiteralLike(arg))
+      return ts.factory.createObjectLiteralExpression(
+        [
+          ts.factory.createPropertyAssignment(
+            "name",
+            ts.factory.createStringLiteral(arg.text),
+          ),
+        ],
+        true,
+      );
+    if (ts.isObjectLiteralExpression(arg)) return arg;
+    throw new Error(
+      "[@nestia.core.McpRoute] argument must be a string literal or object literal so the tool name can be statically resolved.",
+    );
+  };
+
+  /**
+   * Parse the JSDoc block attached to `method` and emit the property
+   * assignments needed to set `description` / `title` when the existing
+   * config object does not already define them.
+   */
+  const jsDocFields = (
     method: ts.MethodDeclaration,
-  ): { description?: string; title?: string } => {
+    config: ts.ObjectLiteralExpression,
+  ): ts.PropertyAssignment[] => {
     const docs = ts.getJSDocCommentsAndTags(method);
     let description: string | undefined;
     let title: string | undefined;
 
     for (const d of docs) {
       if (!ts.isJSDoc(d)) continue;
-
       const raw =
         typeof d.comment === "string"
           ? d.comment
@@ -121,51 +232,47 @@ export namespace McpRouteTransformer {
           title = text.trim();
       }
     }
-    return { description, title };
-  };
 
-  /**
-   * Produce a new object literal that copies `config` and appends `description`
-   * / `title` fields taken from `method`'s JSDoc, unless the user already set
-   * them explicitly on the literal.
-   */
-  const injectJsDoc = (
-    method: ts.MethodDeclaration,
-    config: ts.ObjectLiteralExpression,
-  ): ts.ObjectLiteralExpression => {
-    const hasField = (name: string): boolean =>
-      config.properties.some(
-        (p) =>
-          ts.isPropertyAssignment(p) &&
-          !!p.name &&
-          (ts.isIdentifier(p.name) || ts.isStringLiteralLike(p.name)) &&
-          p.name.getText().replace(/["']/g, "") === name,
-      );
-
-    const jsdoc = extractJsDoc(method);
-    const extras: ts.PropertyAssignment[] = [];
-    if (!hasField("description") && jsdoc.description !== undefined)
-      extras.push(
+    const out: ts.PropertyAssignment[] = [];
+    if (description !== undefined && !hasField(config, "description"))
+      out.push(
         ts.factory.createPropertyAssignment(
           "description",
-          ts.factory.createStringLiteral(jsdoc.description),
+          ts.factory.createStringLiteral(description),
         ),
       );
-    if (!hasField("title") && jsdoc.title !== undefined)
-      extras.push(
+    if (title !== undefined && !hasField(config, "title"))
+      out.push(
         ts.factory.createPropertyAssignment(
           "title",
-          ts.factory.createStringLiteral(jsdoc.title),
+          ts.factory.createStringLiteral(title),
         ),
       );
+    return out;
+  };
 
-    return extras.length === 0
+  const hasField = (
+    config: ts.ObjectLiteralExpression,
+    name: string,
+  ): boolean =>
+    config.properties.some(
+      (p) =>
+        ts.isPropertyAssignment(p) &&
+        !!p.name &&
+        (ts.isIdentifier(p.name) || ts.isStringLiteralLike(p.name)) &&
+        p.name.getText().replace(/["']/g, "") === name,
+    );
+
+  const injectFields = (
+    config: ts.ObjectLiteralExpression,
+    additions: ts.PropertyAssignment[],
+  ): ts.ObjectLiteralExpression =>
+    additions.length === 0
       ? config
       : ts.factory.updateObjectLiteralExpression(config, [
           ...config.properties,
-          ...extras,
+          ...additions,
         ]);
-  };
 }
 
 const LIB_PATHS = [
