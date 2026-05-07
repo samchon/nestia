@@ -17,6 +17,12 @@ export interface IWeatherResult {
   conditions: string;
 }
 
+/**
+ * MCP tool fixture exercising nested input types so the typia → JSON Schema
+ * pipeline is hit with non-trivial structure.
+ *
+ * @author wildduck - https://github.com/wildduck2
+ */
 @Controller()
 export class WeatherController {
   /**

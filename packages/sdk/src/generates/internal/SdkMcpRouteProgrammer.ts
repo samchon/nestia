@@ -19,6 +19,8 @@ import { ImportDictionary } from "./ImportDictionary";
  * field of `client.callTool(...)`, which the MCP SDK types as `Record<string,
  * unknown> | undefined`; a user interface without an index signature is not
  * structurally assignable to that record.
+ *
+ * @author wildduck - https://github.com/wildduck2
  */
 export namespace SdkMcpRouteProgrammer {
   export const write =

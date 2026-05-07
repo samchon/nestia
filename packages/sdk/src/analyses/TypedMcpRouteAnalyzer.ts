@@ -2,6 +2,12 @@ import { IReflectController } from "../structures/IReflectController";
 import { IReflectMcpOperation } from "../structures/IReflectMcpOperation";
 import { ITypedMcpRoute } from "../structures/ITypedMcpRoute";
 
+/**
+ * Builds {@link ITypedMcpRoute} entries from a reflected MCP operation,
+ * assigning a stable `["mcp", toolName]` accessor for SDK file emission.
+ *
+ * @author wildduck - https://github.com/wildduck2
+ */
 export namespace TypedMcpRouteAnalyzer {
   export const analyze = (props: {
     controller: IReflectController;

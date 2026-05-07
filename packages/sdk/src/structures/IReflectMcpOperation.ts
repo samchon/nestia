@@ -10,6 +10,8 @@ import { IReflectType } from "./IReflectType";
  * Produced by {@link ReflectMcpOperationAnalyzer.analyze}; consumed by
  * {@link TypedMcpRouteAnalyzer.analyze} to produce the final
  * {@link ITypedMcpRoute}.
+ *
+ * @author wildduck - https://github.com/wildduck2
  */
 export interface IReflectMcpOperation {
   protocol: "mcp";
