@@ -12,6 +12,8 @@ import { IReflectType } from "./IReflectType";
  * Carries everything the SDK generator needs to emit a typed client function:
  * the controller reference, accessor path, typia-derived input schema, and
  * input/output type info.
+ *
+ * @author wildduck - https://github.com/wildduck2
  */
 export interface ITypedMcpRoute {
   protocol: "mcp";

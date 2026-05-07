@@ -7,6 +7,8 @@ import { IReflectType } from "./IReflectType";
  * Parameter descriptor for an MCP tool method. Reflected from
  * `"nestia/McpRoute/Parameters"` metadata plus compile-time type information
  * collected by the nestia transformer.
+ *
+ * @author wildduck - https://github.com/wildduck2
  */
 export interface IReflectMcpOperationParameter {
   category: "params";

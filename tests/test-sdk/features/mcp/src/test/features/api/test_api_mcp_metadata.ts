@@ -1,3 +1,6 @@
+/**
+ * @author wildduck - https://github.com/wildduck2
+ */
 import { TestValidator } from "@nestia/e2e";
 
 import api from "@api";

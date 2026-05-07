@@ -1,3 +1,10 @@
+/**
+ * Test bootstrap for the MCP feature: starts the Backend, runs every
+ * `test_*` and `test_api_*` exported under `./features/`, then closes the
+ * server. Mirrors the websocket feature's harness.
+ *
+ * @author wildduck - https://github.com/wildduck2
+ */
 import { DynamicExecutor } from "@nestia/e2e";
 
 import { Backend } from "../Backend";

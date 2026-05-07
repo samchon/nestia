@@ -6,6 +6,12 @@ import { IReflectMcpOperationParameter } from "../structures/IReflectMcpOperatio
 import { IOperationMetadata } from "../transformers/IOperationMetadata";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 
+/**
+ * Reflects controller methods carrying `"nestia/McpRoute"` metadata into
+ * {@link IReflectMcpOperation} structures consumed by the SDK generator.
+ *
+ * @author wildduck - https://github.com/wildduck2
+ */
 export namespace ReflectMcpOperationAnalyzer {
   export interface IProps {
     project: Omit<INestiaProject, "config">;

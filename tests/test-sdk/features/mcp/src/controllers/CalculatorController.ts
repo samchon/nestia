@@ -10,6 +10,12 @@ export interface ICalcResult {
   result: number;
 }
 
+/**
+ * MCP tool fixture covering the happy path (`add`, `subtract`) and the
+ * `HttpException` mapping path (`divide`).
+ *
+ * @author wildduck - https://github.com/wildduck2
+ */
 @Controller()
 export class CalculatorController {
   /** Return the sum of two numbers. */
