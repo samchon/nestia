@@ -1,7 +1,8 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import { FormatCheatSheet, TypeFactory } from "@typia/core";
 import { NamingConvention, OpenApiTypeChecker } from "@typia/utils";
 import ts from "typescript";
-import typia, { OpenApi } from "typia";
+import type { OpenApi } from "typia";
 
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
@@ -86,7 +87,7 @@ export namespace NestiaMigrateSchemaProgrammer {
     // DETERMINE
     if (union.length === 0) return TypeFactory.keyword("any");
     else if (union.length === 1) return union[0]!;
-    return ts.factory.createUnionTypeNode(union);
+    return TypeScriptFactory.createUnionTypeNode(union);
   };
 
   /* -----------------------------------------------------------
@@ -96,19 +97,19 @@ export namespace NestiaMigrateSchemaProgrammer {
     importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.IConstant;
   }): ts.TypeNode => {
-    return ts.factory.createLiteralTypeNode(
+    return TypeScriptFactory.createLiteralTypeNode(
       typeof props.schema.const === "boolean"
         ? props.schema.const === true
-          ? ts.factory.createTrue()
-          : ts.factory.createFalse()
+          ? TypeScriptFactory.createTrue()
+          : TypeScriptFactory.createFalse()
         : typeof props.schema.const === "number"
           ? props.schema.const < 0
-            ? ts.factory.createPrefixUnaryExpression(
+            ? TypeScriptFactory.createPrefixUnaryExpression(
                 ts.SyntaxKind.MinusToken,
-                ts.factory.createNumericLiteral(-props.schema.const),
+                TypeScriptFactory.createNumericLiteral(-props.schema.const),
               )
-            : ts.factory.createNumericLiteral(props.schema.const)
-          : ts.factory.createStringLiteral(props.schema.const),
+            : TypeScriptFactory.createNumericLiteral(props.schema.const)
+          : TypeScriptFactory.createStringLiteral(props.schema.const),
     );
   };
 
@@ -165,7 +166,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       );
     return intersection.length === 1
       ? intersection[0]!
-      : ts.factory.createIntersectionTypeNode(intersection);
+      : TypeScriptFactory.createIntersectionTypeNode(intersection);
   };
 
   const writeString = (props: {
@@ -173,7 +174,7 @@ export namespace NestiaMigrateSchemaProgrammer {
     schema: OpenApi.IJsonSchema.IString;
   }): ts.TypeNode => {
     if (props.schema.format === "binary")
-      return ts.factory.createTypeReferenceNode("File");
+      return TypeScriptFactory.createTypeReferenceNode("File");
 
     const intersection: ts.TypeNode[] = [TypeFactory.keyword("string")];
     if (props.schema.default !== undefined)
@@ -200,7 +201,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       );
     return intersection.length === 1
       ? intersection[0]!
-      : ts.factory.createIntersectionTypeNode(intersection);
+      : TypeScriptFactory.createIntersectionTypeNode(intersection);
   };
 
   /* -----------------------------------------------------------
@@ -212,7 +213,7 @@ export namespace NestiaMigrateSchemaProgrammer {
     schema: OpenApi.IJsonSchema.IArray;
   }): ts.TypeNode => {
     const intersection: ts.TypeNode[] = [
-      ts.factory.createArrayTypeNode(
+      TypeScriptFactory.createArrayTypeNode(
         write({
           components: props.components,
           importer: props.importer,
@@ -228,7 +229,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       intersection.push(props.importer.tag("UniqueItems"));
     return intersection.length === 1
       ? intersection[0]!
-      : ts.factory.createIntersectionTypeNode(intersection);
+      : TypeScriptFactory.createIntersectionTypeNode(intersection);
   };
 
   const writeTuple = (props: {
@@ -236,7 +237,7 @@ export namespace NestiaMigrateSchemaProgrammer {
     importer: NestiaMigrateImportProgrammer;
     schema: OpenApi.IJsonSchema.ITuple;
   }): ts.TypeNode =>
-    ts.factory.createTupleTypeNode([
+    TypeScriptFactory.createTupleTypeNode([
       ...props.schema.prefixItems.map((item) =>
         write({
           components: props.components,
@@ -247,7 +248,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       ...(typeof props.schema.additionalItems === "object" &&
       props.schema.additionalItems !== null
         ? [
-            ts.factory.createRestTypeNode(
+            TypeScriptFactory.createRestTypeNode(
               write({
                 components: props.components,
                 importer: props.importer,
@@ -257,9 +258,11 @@ export namespace NestiaMigrateSchemaProgrammer {
           ]
         : props.schema.additionalItems === true
           ? [
-              ts.factory.createRestTypeNode(
-                ts.factory.createArrayTypeNode(
-                  ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
+              TypeScriptFactory.createRestTypeNode(
+                TypeScriptFactory.createArrayTypeNode(
+                  TypeScriptFactory.createKeywordTypeNode(
+                    ts.SyntaxKind.AnyKeyword,
+                  ),
                 ),
               ),
             ]
@@ -272,12 +275,12 @@ export namespace NestiaMigrateSchemaProgrammer {
     schema: OpenApi.IJsonSchema.IObject;
   }): ts.TypeNode => {
     const regular = () =>
-      ts.factory.createTypeLiteralNode(
+      TypeScriptFactory.createTypeLiteralNode(
         Object.entries(props.schema.properties ?? [])
           .map(([key, value], index) => [
             ...(index !== 0 &&
             (!!value.title?.length || !!value.description?.length)
-              ? [ts.factory.createIdentifier("\n") as any]
+              ? [TypeScriptFactory.createIdentifier("\n") as any]
               : []),
             writeRegularProperty({
               components: props.components,
@@ -290,7 +293,7 @@ export namespace NestiaMigrateSchemaProgrammer {
           .flat(),
       );
     const dynamic = () =>
-      ts.factory.createTypeLiteralNode([
+      TypeScriptFactory.createTypeLiteralNode([
         writeDynamicProperty({
           components: props.components,
           importer: props.importer,
@@ -299,7 +302,7 @@ export namespace NestiaMigrateSchemaProgrammer {
       ]);
     return !!props.schema.properties?.length &&
       typeof props.schema.additionalProperties === "object"
-      ? ts.factory.createIntersectionTypeNode([regular(), dynamic()])
+      ? TypeScriptFactory.createIntersectionTypeNode([regular(), dynamic()])
       : typeof props.schema.additionalProperties === "object"
         ? dynamic()
         : regular();
@@ -318,26 +321,26 @@ export namespace NestiaMigrateSchemaProgrammer {
       schema: props.value,
     });
     return FilePrinter.description(
-      ts.factory.createPropertySignature(
+      TypeScriptFactory.createPropertySignature(
         props.value.readOnly
-          ? [ts.factory.createToken(ts.SyntaxKind.ReadonlyKeyword)]
+          ? [TypeScriptFactory.createToken(ts.SyntaxKind.ReadonlyKeyword)]
           : undefined,
         NamingConvention.variable(props.key)
-          ? ts.factory.createIdentifier(props.key)
-          : ts.factory.createStringLiteral(props.key),
+          ? TypeScriptFactory.createIdentifier(props.key)
+          : TypeScriptFactory.createStringLiteral(props.key),
         props.required.includes(props.key)
           ? undefined
-          : ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+          : TypeScriptFactory.createToken(ts.SyntaxKind.QuestionToken),
         props.required.includes(props.key)
           ? valueTypeNode
           : ts.isUnionTypeNode(valueTypeNode)
-            ? ts.factory.createUnionTypeNode([
+            ? TypeScriptFactory.createUnionTypeNode([
                 ...valueTypeNode.types,
-                ts.factory.createTypeReferenceNode("undefined"),
+                TypeScriptFactory.createTypeReferenceNode("undefined"),
               ])
-            : ts.factory.createUnionTypeNode([
+            : TypeScriptFactory.createUnionTypeNode([
                 valueTypeNode,
-                ts.factory.createTypeReferenceNode("undefined"),
+                TypeScriptFactory.createTypeReferenceNode("undefined"),
               ]),
       ),
       writeComment(props.value),
@@ -350,13 +353,13 @@ export namespace NestiaMigrateSchemaProgrammer {
     schema: OpenApi.IJsonSchema;
   }) =>
     FilePrinter.description(
-      ts.factory.createIndexSignature(
+      TypeScriptFactory.createIndexSignature(
         undefined,
         [
-          ts.factory.createParameterDeclaration(
+          TypeScriptFactory.createParameterDeclaration(
             undefined,
             undefined,
-            ts.factory.createIdentifier("key"),
+            TypeScriptFactory.createIdentifier("key"),
             undefined,
             TypeFactory.keyword("string"),
           ),
@@ -390,7 +393,7 @@ export namespace NestiaMigrateSchemaProgrammer {
     importer: NestiaMigrateImportProgrammer;
     elements: OpenApi.IJsonSchema[];
   }): ts.UnionTypeNode =>
-    ts.factory.createUnionTypeNode(
+    TypeScriptFactory.createUnionTypeNode(
       props.elements.map((schema) =>
         write({
           components: props.components,
@@ -400,7 +403,8 @@ export namespace NestiaMigrateSchemaProgrammer {
       ),
     );
 }
-const createNode = (text: string) => ts.factory.createTypeReferenceNode(text);
+const createNode = (text: string) =>
+  TypeScriptFactory.createTypeReferenceNode(text);
 
 const writeComment = (schema: OpenApi.IJsonSchema): string => {
   interface IPlugin {
@@ -419,7 +423,7 @@ const writeComment = (schema: OpenApi.IJsonSchema): string => {
       value: undefined,
     });
   for (const [key, value] of Object.entries(schema))
-    if (key.startsWith("x-") && typia.is<boolean | number | string>(value))
+    if (key.startsWith("x-") && isExtensionValue(value))
       plugins.push({
         key,
         value,
@@ -434,6 +438,11 @@ const writeComment = (schema: OpenApi.IJsonSchema): string => {
     ),
   ].join("\n");
 };
+
+const isExtensionValue = (value: unknown): value is boolean | number | string =>
+  typeof value === "boolean" ||
+  typeof value === "number" ||
+  typeof value === "string";
 
 const eraseCommentTags = (description: string): string => {
   const lines: string[] = description.split("\n");

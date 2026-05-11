@@ -29,8 +29,8 @@ Nestia의 `NestiaConfigLoader`는 현재 `ts-node.register()`를 사용한다. G
 1. project config resolve
 2. native plugin load/build
 3. check stage plugin 실행
-4. transform/build stage plugin 또는 TypeScript-Go normal build 실행
-5. output stage plugin 적용
+4. transform stage plugin 또는 TypeScript-Go normal build 실행
+5. build/emit path에서는 native backend가 `WriteFile` callback과 rewrite set을 통해 output text를 확정
 6. diagnostics/result 정규화
 
 Go sidecar가 compiler backend라면 Program creation과 emit을 sidecar가 소유한다.
@@ -71,4 +71,3 @@ Nestia는 이 문제를 다음 중 하나로 풀어야 한다.
 3. `typia` 쪽 manifest와 Nestia manifest가 같은 통합 backend를 반환할 수 있도록 별도 협업 protocol을 만든다.
 
 현재 `ttsc` 철학을 따르면 2번 또는 3번이 맞다. 1번만으로는 user project 안의 일반 `typia.*<T>()` call을 같이 처리하지 못한다.
-

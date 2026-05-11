@@ -9,7 +9,7 @@ import fs from "fs";
 import path from "path";
 import { format } from "prettier";
 import * as prettierPluginJsDoc from "prettier-plugin-jsdoc";
-import typia, { IValidation, tags } from "typia";
+import type { IValidation } from "typia";
 
 import { NestiaMigrateApplication } from "../NestiaMigrateApplication";
 import { NestiaMigrateFileArchiver } from "../archivers/NestiaMigrateFileArchiver";
@@ -37,7 +37,7 @@ export namespace NestiaMigrateCommander {
       | OpenApiV3.IDocument
       | OpenApiV3_1.IDocument
       | OpenApiV3_2.IDocument = await (async () => {
-      if (typia.is<string & tags.Format<"uri">>(options.input)) {
+      if (isUri(options.input)) {
         const response: Response = await fetch(options.input);
         const content: string = await response.text();
         return JSON.parse(content);
@@ -100,5 +100,14 @@ export namespace NestiaMigrateCommander {
   const halt = (desc: string): never => {
     console.error(desc);
     process.exit(-1);
+  };
+
+  const isUri = (input: string): boolean => {
+    try {
+      new URL(input);
+      return true;
+    } catch {
+      return false;
+    }
   };
 }

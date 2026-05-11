@@ -12,8 +12,8 @@
 | `packages/ttsc/src/compiler/internal/transformProjectInMemory.ts` | transform stage 실행, check stage 선행, single transform backend 제약 |
 | `packages/ttsc/driver/program.go` | Program facade, diagnostics, checker lease, source file filter |
 | `packages/ttsc/driver/rewrite.go` | emit-time rewrite, `RewriteSet`, sentinel, output path와 source path 매칭 |
-| `packages/ttsc/cmd/ttsc/api_transform.go` | source-to-source JSON API `{ typescript }` |
-| `packages/ttsc/cmd/ttsc/build.go` | native build/check/emit path |
+| `packages/ttsc/utility/host.go` | first-party utility plugin host, `check`/`build`/`transform`, `--plugins-json`, config discovery |
+| `packages/ttsc/src/compiler/internal/compileProjectInMemory.ts` | compile output materialization의 근거가 되는 in-memory output record |
 
 ## typia 핵심 파일
 
@@ -54,3 +54,6 @@
 | `packages/sdk/src/executable/internal/NestiaConfigLoader.ts` | `ts-node`로 config import, sdk transform 자동 추가 |
 | `packages/migrate/src/NestiaMigrateApplication.ts` | OpenAPI document를 Nest/SDK 프로젝트 파일로 변환 |
 
+## Phase 0 파일별 재확인
+
+2026-05-09에 `packages/core/src`, `packages/sdk/src`, `packages/cli/src`의 `src/*.ts`와 `src/**/*.ts` 179개, 15,546라인을 ledger로 재고정했다. 결과는 `.wiki/06-phase0-ledger/`에 있다.

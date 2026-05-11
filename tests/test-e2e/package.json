@@ -4,7 +4,7 @@
   "version": "11.2.0",
   "scripts": {
     "dev": "tsc --watch",
-    "start": "ts-node -O '{\"module\":\"commonjs\",\"moduleResolution\":\"nodenext\"}' src/index.ts"
+    "start": "node ../run-with-ttsc-env.cjs ttsx -P tsconfig.json src/index.ts"
   },
   "dependencies": {
     "@nestia/e2e": "workspace:^",
@@ -14,6 +14,7 @@
   "devDependencies": {
     "@types/node": "catalog:utils",
     "ts-node": "catalog:typescript",
+    "ttsc": "catalog:typescript",
     "typescript": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"

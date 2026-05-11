@@ -29,8 +29,13 @@ export namespace NestiaSetupWizard {
     pack.install({ dev: false, modulo: "typia", version: "latest" });
 
     // INSTALL TYPESCRIPT COMPILERS
-    pack.install({ dev: true, modulo: "ts-patch", version: "latest" });
+    pack.install({
+      dev: true,
+      modulo: "@typescript/native-preview",
+      version: "latest",
+    });
     pack.install({ dev: true, modulo: "ts-node", version: "latest" });
+    pack.install({ dev: true, modulo: "ttsc", version: "latest" });
     pack.install({
       dev: true,
       modulo: "typescript",
@@ -44,22 +49,17 @@ export namespace NestiaSetupWizard {
 
     // SETUP TRANSFORMER
     await pack.save((data) => {
-      // COMPOSE PREPARE COMMAND
       data.scripts ??= {};
-      if (
-        typeof data.scripts.prepare === "string" &&
-        data.scripts.prepare.trim().length !== 0
-      ) {
-        if (data.scripts.prepare.includes("ts-patch install") === false)
-          data.scripts.prepare = "ts-patch install && " + data.scripts.prepare;
-      } else data.scripts.prepare = "ts-patch install";
 
-      // NO MORE "typia patch" REQUIRED
-      data.scripts.prepare = data.scripts.prepare
-        .split("&&")
-        .map((str) => str.trim())
-        .filter((str) => str !== "typia patch")
-        .join(" && ");
+      // NO MORE "ts-patch install" OR "typia patch" REQUIRED
+      if (typeof data.scripts.prepare === "string") {
+        data.scripts.prepare = data.scripts.prepare
+          .split("&&")
+          .map((str) => str.trim())
+          .filter((str) => str !== "typia patch" && str !== "ts-patch install")
+          .join(" && ");
+        if (data.scripts.prepare.length === 0) delete data.scripts.prepare;
+      }
 
       // FOR OLDER VERSIONS
       if (typeof data.scripts.postinstall === "string") {
@@ -72,7 +72,6 @@ export namespace NestiaSetupWizard {
           delete data.scripts.postinstall;
       }
     });
-    CommandExecutor.run(`${pack.manager} run prepare`);
 
     // CONFIGURE PLUGIN
     await PluginConfigurator.configure(args);

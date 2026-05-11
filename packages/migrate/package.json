@@ -49,6 +49,7 @@
     "ts-node": "catalog:typescript"
   },
   "dependencies": {
+    "@nestia/factory": "workspace:^",
     "@trivago/prettier-plugin-sort-imports": "catalog:typescript",
     "@typia/core": "catalog:samchon",
     "@typia/interface": "catalog:samchon",

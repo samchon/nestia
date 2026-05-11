@@ -11,7 +11,7 @@ import {
 } from "@typia/interface";
 import cp from "child_process";
 import fs from "fs";
-import { IValidation } from "typia";
+import type { IValidation } from "typia";
 
 const INPUT: string = `${__dirname}/../assets/input`;
 const OUTPUT: string = `${__dirname}/../assets/output`;
@@ -68,10 +68,13 @@ const execute = (
           `Please check the generated files.`,
       );
     }
-    if (files["tsconfig.json"] !== undefined) {
-      files["tsconfig.json"] = files["tsconfig.json"]
-        .replace("@nestia/core/lib/transform", "@nestia/core/src/transform.ts")
-        .replace("@nestia/sdk/lib/transform", "@nestia/sdk/src/transform.ts");
+    for (const key of Object.keys(files)) {
+      const content: string | undefined = files[key];
+      if (key.endsWith("tsconfig.json") && content !== undefined)
+        files[key] = content.replace(
+          /^\s*\{\s*"transform":\s*"typescript-transform-paths"\s*\},\n/gm,
+          "",
+        );
     }
 
     await NestiaMigrateFileArchiver.archive({
@@ -82,11 +85,11 @@ const execute = (
       files,
     });
 
-    cp.execSync(`pnpm tsc`, {
+    cp.execSync(`pnpm ttsc`, {
       stdio: "inherit",
       cwd: directory,
     });
-    cp.execSync(`pnpm tsc -p test/tsconfig.json`, {
+    cp.execSync(`pnpm ttsc -p test/tsconfig.json`, {
       stdio: "inherit",
       cwd: directory,
     });

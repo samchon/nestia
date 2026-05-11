@@ -1,7 +1,8 @@
+import fs from "fs";
 import { TestValidator } from "@nestia/e2e";
 
 export const test_swagger = async (): Promise<void> => {
-  const swagger = await import("../../../swagger.json");
+  const swagger = JSON.parse(await fs.promises.readFile(__dirname + "/../../../swagger.json", "utf8"));
   TestValidator.equals(
     "tags of store()",
     swagger.paths["/bbs/articles/{section}"].post.tags,

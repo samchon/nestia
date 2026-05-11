@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import { NamingConvention } from "@typia/utils";
 import ts from "typescript";
 
@@ -15,40 +16,42 @@ export namespace TypeLiteralFactory {
               : Array.isArray(value)
                 ? generateTuple(value)
                 : generateObject(value)
-            : ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword);
+            : TypeScriptFactory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword);
 
   const generatestring = (str: string) =>
-    ts.factory.createLiteralTypeNode(ts.factory.createStringLiteral(str));
+    TypeScriptFactory.createLiteralTypeNode(
+      TypeScriptFactory.createStringLiteral(str),
+    );
 
   const generateNumber = (num: number) =>
-    ts.factory.createLiteralTypeNode(
+    TypeScriptFactory.createLiteralTypeNode(
       num < 0
-        ? ts.factory.createPrefixUnaryExpression(
+        ? TypeScriptFactory.createPrefixUnaryExpression(
             ts.SyntaxKind.MinusToken,
-            ts.factory.createNumericLiteral(-num),
+            TypeScriptFactory.createNumericLiteral(-num),
           )
-        : ts.factory.createNumericLiteral(num),
+        : TypeScriptFactory.createNumericLiteral(num),
     );
 
   const generateBoolean = (bool: boolean) =>
-    ts.factory.createLiteralTypeNode(
-      bool ? ts.factory.createTrue() : ts.factory.createFalse(),
+    TypeScriptFactory.createLiteralTypeNode(
+      bool ? TypeScriptFactory.createTrue() : TypeScriptFactory.createFalse(),
     );
 
   const generateNull = () =>
-    ts.factory.createLiteralTypeNode(ts.factory.createNull());
+    TypeScriptFactory.createLiteralTypeNode(TypeScriptFactory.createNull());
 
   const generateTuple = (items: any[]) =>
-    ts.factory.createTupleTypeNode(items.map(generate));
+    TypeScriptFactory.createTupleTypeNode(items.map(generate));
 
   const generateObject = (obj: object) =>
-    ts.factory.createTypeLiteralNode(
+    TypeScriptFactory.createTypeLiteralNode(
       Object.entries(obj).map(([key, value]) =>
-        ts.factory.createPropertySignature(
+        TypeScriptFactory.createPropertySignature(
           undefined,
           NamingConvention.variable(key)
-            ? ts.factory.createIdentifier(key)
-            : ts.factory.createStringLiteral(key),
+            ? TypeScriptFactory.createIdentifier(key)
+            : TypeScriptFactory.createStringLiteral(key),
           undefined,
           generate(value),
         ),

@@ -8,7 +8,7 @@ const TYPIA = require("js-yaml").load(
   fs.readFileSync(`${__dirname}/../../../../pnpm-lock.yaml`, "utf8"),
 ).catalogs.samchon;
 
-const update = (content) => {
+const update = (content, options = {}) => {
   const parsed = JSON.parse(content);
   for (const record of [
     parsed.dependencies ?? {},
@@ -18,7 +18,58 @@ const update = (content) => {
       if (key.startsWith("@nestia/") || key === "nestia")
         record[key] = `^${version}`;
       else if (TYPIA[key]) record[key] = TYPIA[key].specifier;
+  migratePackageJson(parsed);
+  if (options.sdkAggregate) {
+    parsed.devDependencies ??= {};
+    parsed.devDependencies["@nestia/core"] = `^${version}`;
+  }
   return JSON.stringify(parsed, null, 2);
+};
+
+const migratePackageJson = (parsed) => {
+  if (parsed.scripts)
+    for (const [key, value] of Object.entries(parsed.scripts))
+      if (typeof value === "string")
+        parsed.scripts[key] = normalizeScript(value);
+
+  if (typeof parsed.scripts?.prepare === "string") {
+    const prepare = parsed.scripts.prepare
+      .split("&&")
+      .map((str) => str.trim())
+      .filter((str) => str !== "ts-patch install" && str !== "typia patch")
+      .join(" && ");
+    if (prepare.length === 0) delete parsed.scripts.prepare;
+    else parsed.scripts.prepare = prepare;
+  }
+
+  const devDependencies = parsed.devDependencies;
+  if (devDependencies) {
+    const usesTypeScript = typeof devDependencies.typescript === "string";
+    delete devDependencies["ts-patch"];
+    delete devDependencies["typescript-transform-paths"];
+    if (usesTypeScript) devDependencies.ttsc ??= "^0.9.0";
+  }
+};
+
+const normalizeScript = (script) =>
+  script.replace(/(^|[^A-Za-z0-9_-])tsc(?=$|[^A-Za-z0-9_-])/g, "$1ttsc");
+
+const updateTsConfig = (content, options = {}) => {
+  content = content.replace(
+    /^\s*\{\s*"transform":\s*"typescript-transform-paths"\s*\},\n/gm,
+    "",
+  );
+  if (options.disableTypia)
+    content = content.replace(
+      /\{\s*"transform":\s*"typia\/lib\/transform"\s*\}/g,
+      `{ "transform": "typia/lib/transform", "enabled": false }`,
+    );
+  if (options.useNestiaAggregate)
+    content = content.replace(
+      /\{\s*"transform":\s*"typia\/lib\/transform",\s*"enabled":\s*false\s*\},/g,
+      `{ "transform": "typia/lib/transform", "enabled": false },\n      { "transform": "@nestia/core/lib/transform" },`,
+    );
+  return content;
 };
 
 const bundle = async ({ mode, repository, exceptions, transform }) => {
@@ -82,8 +133,17 @@ const bundle = async ({ mode, repository, exceptions, transform }) => {
   await iterate(collection)(template);
   if (transform)
     for (const [key, value] of Object.entries(collection))
-      collection[key] = transform(key, value);
+      collection[key] = await writeTransformedAsset(
+        template,
+        key,
+        transform(key, value),
+      );
   await archive(collection);
+};
+
+const writeTransformedAsset = async (template, key, value) => {
+  await fs.promises.writeFile(`${template}/${key}`, value, "utf8");
+  return value;
 };
 
 const main = async () => {
@@ -102,6 +162,8 @@ const main = async () => {
     ],
     transform: (key, value) => {
       if (key.endsWith("package.json")) return update(value);
+      if (key.endsWith("tsconfig.json"))
+        return updateTsConfig(value, { disableTypia: key === "tsconfig.json" });
       return value;
     },
   });
@@ -118,7 +180,13 @@ const main = async () => {
       "test/features",
     ],
     transform: (key, value) => {
-      if (key.endsWith("package.json")) return update(value);
+      if (key.endsWith("package.json"))
+        return update(value, { sdkAggregate: key === "package.json" });
+      if (key.endsWith("tsconfig.json"))
+        return updateTsConfig(value, {
+          disableTypia: true,
+          useNestiaAggregate: true,
+        });
       return value;
     },
   });

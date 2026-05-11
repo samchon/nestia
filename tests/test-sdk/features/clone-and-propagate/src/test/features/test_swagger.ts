@@ -1,7 +1,8 @@
+import fs from "fs";
 import { TestValidator } from "@nestia/e2e";
 
 export const test_swagger = async () => {
-  const content = await import("../../../swagger.json");
+  const content = JSON.parse(await fs.promises.readFile(__dirname + "/../../../swagger.json", "utf8"));
   const route = content.paths["/users/{user_id}/user"].get;
 
   TestValidator.equals(

@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import ts from "typescript";
 
 export namespace FilePrinter {
@@ -27,7 +28,9 @@ export namespace FilePrinter {
   };
 
   export const newLine = () =>
-    ts.factory.createExpressionStatement(ts.factory.createIdentifier("\n"));
+    TypeScriptFactory.createExpressionStatement(
+      TypeScriptFactory.createIdentifier("\n"),
+    );
 
   export const write = (props: {
     statements: ts.Statement[];
@@ -38,9 +41,9 @@ export namespace FilePrinter {
         newLine: ts.NewLineKind.LineFeed,
       })
       .printFile(
-        ts.factory.createSourceFile(
+        TypeScriptFactory.createSourceFile(
           props.statements,
-          ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
+          TypeScriptFactory.createToken(ts.SyntaxKind.EndOfFileToken),
           ts.NodeFlags.None,
         ),
       );

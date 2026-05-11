@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import { IdentifierFactory, StatementFactory } from "@typia/core";
 import { IHttpMigrateRoute } from "@typia/interface";
 import ts from "typescript";
@@ -23,25 +24,25 @@ export namespace NestiaMigrateApiStartProgrammer {
         (name) => `@ORGANIZATION/PROJECT-api/lib/structures/${name}`,
       ),
       FilePrinter.newLine(),
-      ts.factory.createImportDeclaration(
+      TypeScriptFactory.createImportDeclaration(
         undefined,
-        ts.factory.createImportClause(
+        TypeScriptFactory.createImportClause(
           false,
           undefined,
-          ts.factory.createNamedImports([
-            ts.factory.createImportSpecifier(
+          TypeScriptFactory.createNamedImports([
+            TypeScriptFactory.createImportSpecifier(
               false,
               undefined,
-              ts.factory.createIdentifier("TestGlobal"),
+              TypeScriptFactory.createIdentifier("TestGlobal"),
             ),
           ]),
         ),
-        ts.factory.createStringLiteral("./TestGlobal"),
+        TypeScriptFactory.createStringLiteral("./TestGlobal"),
         undefined,
       ),
       FilePrinter.newLine(),
       main,
-      ts.factory.createExpressionStatement(writeStarter()),
+      TypeScriptFactory.createExpressionStatement(writeStarter()),
     ];
     return {
       "test/start.ts": FilePrinter.write({ statements }),
@@ -55,13 +56,13 @@ export namespace NestiaMigrateApiStartProgrammer {
   ): ts.VariableStatement =>
     StatementFactory.constant({
       name: "main",
-      value: ts.factory.createArrowFunction(
-        [ts.factory.createToken(ts.SyntaxKind.AsyncKeyword)],
+      value: TypeScriptFactory.createArrowFunction(
+        [TypeScriptFactory.createToken(ts.SyntaxKind.AsyncKeyword)],
         undefined,
         [],
         undefined,
         undefined,
-        ts.factory.createBlock(
+        TypeScriptFactory.createBlock(
           [
             writeConnection(ctx, importer),
             ...NestiaMigrateE2eFunctionProgrammer.writeBody({
@@ -80,31 +81,31 @@ export namespace NestiaMigrateApiStartProgrammer {
     ctx: INestiaMigrateContext,
     importer: NestiaMigrateImportProgrammer,
   ): ts.VariableStatement =>
-    ts.factory.createVariableStatement(
+    TypeScriptFactory.createVariableStatement(
       undefined,
-      ts.factory.createVariableDeclarationList(
+      TypeScriptFactory.createVariableDeclarationList(
         [
-          ts.factory.createVariableDeclaration(
+          TypeScriptFactory.createVariableDeclaration(
             "connection",
             undefined,
-            ts.factory.createTypeReferenceNode(
-              ts.factory.createQualifiedName(
-                ts.factory.createIdentifier(
+            TypeScriptFactory.createTypeReferenceNode(
+              TypeScriptFactory.createQualifiedName(
+                TypeScriptFactory.createIdentifier(
                   importer.external({
                     type: "default",
                     library: "@ORGANIZATION/PROJECT-api",
                     name: "api",
                   }),
                 ),
-                ts.factory.createIdentifier("IConnection"),
+                TypeScriptFactory.createIdentifier("IConnection"),
               ),
             ),
-            ts.factory.createObjectLiteralExpression(
+            TypeScriptFactory.createObjectLiteralExpression(
               [
-                ts.factory.createSpreadAssignment(
-                  ts.factory.createCallExpression(
-                    ts.factory.createPropertyAccessExpression(
-                      ts.factory.createIdentifier("TestGlobal"),
+                TypeScriptFactory.createSpreadAssignment(
+                  TypeScriptFactory.createCallExpression(
+                    TypeScriptFactory.createPropertyAccessExpression(
+                      TypeScriptFactory.createIdentifier("TestGlobal"),
                       "connection",
                     ),
                     undefined,
@@ -113,9 +114,9 @@ export namespace NestiaMigrateApiStartProgrammer {
                 ),
                 ...(ctx.application.document().servers?.[0]?.url?.length
                   ? [
-                      ts.factory.createPropertyAssignment(
+                      TypeScriptFactory.createPropertyAssignment(
                         "host",
-                        ts.factory.createStringLiteral(
+                        TypeScriptFactory.createStringLiteral(
                           ctx.application.document().servers![0]!.url,
                         ),
                       ),
@@ -123,9 +124,9 @@ export namespace NestiaMigrateApiStartProgrammer {
                   : []),
                 ...(ctx.config.simulate === true
                   ? [
-                      ts.factory.createPropertyAssignment(
+                      TypeScriptFactory.createPropertyAssignment(
                         "simulate",
-                        ts.factory.createTrue(),
+                        TypeScriptFactory.createTrue(),
                       ),
                     ]
                   : []),
@@ -139,10 +140,10 @@ export namespace NestiaMigrateApiStartProgrammer {
     );
 
   const writeStarter = (): ts.CallExpression =>
-    ts.factory.createCallExpression(
-      ts.factory.createPropertyAccessExpression(
-        ts.factory.createCallExpression(
-          ts.factory.createIdentifier("main"),
+    TypeScriptFactory.createCallExpression(
+      TypeScriptFactory.createPropertyAccessExpression(
+        TypeScriptFactory.createCallExpression(
+          TypeScriptFactory.createIdentifier("main"),
           undefined,
           undefined,
         ),
@@ -150,34 +151,34 @@ export namespace NestiaMigrateApiStartProgrammer {
       ),
       undefined,
       [
-        ts.factory.createArrowFunction(
+        TypeScriptFactory.createArrowFunction(
           undefined,
           undefined,
           [IdentifierFactory.parameter("exp")],
           undefined,
           undefined,
-          ts.factory.createBlock(
+          TypeScriptFactory.createBlock(
             [
-              ts.factory.createExpressionStatement(
-                ts.factory.createCallExpression(
-                  ts.factory.createPropertyAccessExpression(
-                    ts.factory.createIdentifier("console"),
+              TypeScriptFactory.createExpressionStatement(
+                TypeScriptFactory.createCallExpression(
+                  TypeScriptFactory.createPropertyAccessExpression(
+                    TypeScriptFactory.createIdentifier("console"),
                     "log",
                   ),
                   undefined,
-                  [ts.factory.createIdentifier("exp")],
+                  [TypeScriptFactory.createIdentifier("exp")],
                 ),
               ),
-              ts.factory.createExpressionStatement(
-                ts.factory.createCallExpression(
-                  ts.factory.createPropertyAccessExpression(
-                    ts.factory.createIdentifier("process"),
+              TypeScriptFactory.createExpressionStatement(
+                TypeScriptFactory.createCallExpression(
+                  TypeScriptFactory.createPropertyAccessExpression(
+                    TypeScriptFactory.createIdentifier("process"),
                     "exit",
                   ),
                   undefined,
                   [
-                    ts.factory.createPrefixMinus(
-                      ts.factory.createNumericLiteral("1"),
+                    TypeScriptFactory.createPrefixMinus(
+                      TypeScriptFactory.createNumericLiteral("1"),
                     ),
                   ],
                 ),

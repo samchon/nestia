@@ -2,6 +2,9 @@
   "extends": "../../config/tsconfig.json",
   "compilerOptions": {
     "paths": {},
+    "plugins": [
+      { "transform": "@nestia/core/lib/transform", "llm": { "strict": true } },
+    ],
   },
   "include": ["src"],
 }

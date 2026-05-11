@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import {
   ExpressionFactory,
   IdentifierFactory,
@@ -33,50 +34,51 @@ export namespace NestiaMigrateNestMethodProgrammer {
         })
       : TypeFactory.keyword("void");
 
-    const method: ts.MethodDeclaration = ts.factory.createMethodDeclaration(
-      [
-        ...writeMethodDecorators(ctx),
-        ts.factory.createToken(ts.SyntaxKind.PublicKeyword),
-        ts.factory.createToken(ts.SyntaxKind.AsyncKeyword),
-      ],
-      undefined,
-      ctx.route.accessor.at(-1)!,
-      undefined,
-      undefined,
-      writeParameters(ctx),
-      ts.factory.createTypeReferenceNode("Promise", [output]),
-      ts.factory.createBlock(
+    const method: ts.MethodDeclaration =
+      TypeScriptFactory.createMethodDeclaration(
         [
-          ...[
-            ...ctx.route.parameters.map((p) => p.key),
-            ...(ctx.route.headers ? ["headers"] : []),
-            ...(ctx.route.query ? ["query"] : []),
-            ...(ctx.route.body ? ["body"] : []),
-          ].map((str) =>
-            ts.factory.createExpressionStatement(
-              ts.factory.createIdentifier(str),
-            ),
-          ),
-          ts.factory.createReturnStatement(
-            ts.factory.createCallExpression(
-              IdentifierFactory.access(
-                ts.factory.createIdentifier(
-                  ctx.importer.external({
-                    type: "default",
-                    library: "typia",
-                    name: "typia",
-                  }),
-                ),
-                "random",
-              ),
-              [output],
-              undefined,
-            ),
-          ),
+          ...writeMethodDecorators(ctx),
+          TypeScriptFactory.createToken(ts.SyntaxKind.PublicKeyword),
+          TypeScriptFactory.createToken(ts.SyntaxKind.AsyncKeyword),
         ],
-        true,
-      ),
-    );
+        undefined,
+        ctx.route.accessor.at(-1)!,
+        undefined,
+        undefined,
+        writeParameters(ctx),
+        TypeScriptFactory.createTypeReferenceNode("Promise", [output]),
+        TypeScriptFactory.createBlock(
+          [
+            ...[
+              ...ctx.route.parameters.map((p) => p.key),
+              ...(ctx.route.headers ? ["headers"] : []),
+              ...(ctx.route.query ? ["query"] : []),
+              ...(ctx.route.body ? ["body"] : []),
+            ].map((str) =>
+              TypeScriptFactory.createExpressionStatement(
+                TypeScriptFactory.createIdentifier(str),
+              ),
+            ),
+            TypeScriptFactory.createReturnStatement(
+              TypeScriptFactory.createCallExpression(
+                IdentifierFactory.access(
+                  TypeScriptFactory.createIdentifier(
+                    ctx.importer.external({
+                      type: "default",
+                      library: "typia",
+                      name: "typia",
+                    }),
+                  ),
+                  "random",
+                ),
+                [output],
+                undefined,
+              ),
+            ),
+          ],
+          true,
+        ),
+      );
     return FilePrinter.description(
       method,
       writeDescription(ctx.config, ctx.route),
@@ -94,7 +96,7 @@ export namespace NestiaMigrateNestMethodProgrammer {
 
   const writeMethodDecorators = (ctx: IContext): ts.Decorator[] => {
     const external = (lib: string, instance: string): ts.Identifier =>
-      ts.factory.createIdentifier(
+      TypeScriptFactory.createIdentifier(
         ctx.importer.external({
           type: "instance",
           library: lib,
@@ -114,8 +116,8 @@ export namespace NestiaMigrateNestMethodProgrammer {
     // HUMAN-ONLY
     if (ctx.route.operation()["x-samchon-human"] === true)
       decorators.push(
-        ts.factory.createDecorator(
-          ts.factory.createCallExpression(
+        TypeScriptFactory.createDecorator(
+          TypeScriptFactory.createCallExpression(
             external("@nestia/core", "HumanRoute"),
             undefined,
             undefined,
@@ -130,15 +132,15 @@ export namespace NestiaMigrateNestMethodProgrammer {
       .filter((str) => !!str.length)
       .join("/");
     const router = (instance: string) =>
-      ts.factory.createDecorator(
-        ts.factory.createCallExpression(
+      TypeScriptFactory.createDecorator(
+        TypeScriptFactory.createCallExpression(
           IdentifierFactory.access(
             external("@nestia/core", instance),
             StringUtil.capitalize(ctx.route.method),
           ),
           [],
           localPath.length
-            ? [ts.factory.createStringLiteral(localPath)]
+            ? [TypeScriptFactory.createStringLiteral(localPath)]
             : undefined,
         ),
       );
@@ -146,11 +148,11 @@ export namespace NestiaMigrateNestMethodProgrammer {
       decorators.push(router("EncryptedRoute"));
     else if (ctx.route.success?.type === "text/plain")
       decorators.push(
-        ts.factory.createDecorator(
-          ts.factory.createCallExpression(
+        TypeScriptFactory.createDecorator(
+          TypeScriptFactory.createCallExpression(
             external("@nestjs/common", StringUtil.capitalize(ctx.route.method)),
             [],
-            [ts.factory.createStringLiteral(ctx.route.path)],
+            [TypeScriptFactory.createStringLiteral(ctx.route.path)],
           ),
         ),
       );
@@ -158,11 +160,11 @@ export namespace NestiaMigrateNestMethodProgrammer {
       decorators.push(router("TypedQuery"));
     else if (ctx.route.method === "head")
       decorators.push(
-        ts.factory.createDecorator(
-          ts.factory.createCallExpression(
+        TypeScriptFactory.createDecorator(
+          TypeScriptFactory.createCallExpression(
             external("@nestjs/common", "Head"),
             [],
-            [ts.factory.createStringLiteral(ctx.route.path)],
+            [TypeScriptFactory.createStringLiteral(ctx.route.path)],
           ),
         ),
       );
@@ -173,8 +175,8 @@ export namespace NestiaMigrateNestMethodProgrammer {
       decorators.push(router("TypedRoute"));
     for (const [key, value] of Object.entries(ctx.route.exceptions ?? {}))
       decorators.push(
-        ts.factory.createDecorator(
-          ts.factory.createCallExpression(
+        TypeScriptFactory.createDecorator(
+          TypeScriptFactory.createCallExpression(
             external("@nestia/core", "TypedException"),
             [
               NestiaMigrateSchemaProgrammer.write({
@@ -185,11 +187,11 @@ export namespace NestiaMigrateNestMethodProgrammer {
             ],
             [
               isNaN(Number(key))
-                ? ts.factory.createStringLiteral(key)
+                ? TypeScriptFactory.createStringLiteral(key)
                 : ExpressionFactory.number(Number(key)),
               ...(value.response().description?.length
                 ? [
-                    ts.factory.createStringLiteral(
+                    TypeScriptFactory.createStringLiteral(
                       value.response().description!,
                     ),
                   ]
@@ -203,12 +205,12 @@ export namespace NestiaMigrateNestMethodProgrammer {
 
   const writeParameters = (ctx: IContext): ts.ParameterDeclaration[] => [
     ...ctx.route.parameters.map((p) =>
-      ts.factory.createParameterDeclaration(
+      TypeScriptFactory.createParameterDeclaration(
         [
           ...writeExampleDecorators("Parameter")(ctx.importer)(p.parameter()),
-          ts.factory.createDecorator(
-            ts.factory.createCallExpression(
-              ts.factory.createIdentifier(
+          TypeScriptFactory.createDecorator(
+            TypeScriptFactory.createCallExpression(
+              TypeScriptFactory.createIdentifier(
                 ctx.importer.external({
                   type: "instance",
                   library: "@nestia/core",
@@ -216,7 +218,7 @@ export namespace NestiaMigrateNestMethodProgrammer {
                 }),
               ),
               undefined,
-              [ts.factory.createStringLiteral(p.key)],
+              [TypeScriptFactory.createStringLiteral(p.key)],
             ),
           ),
         ],
@@ -276,14 +278,14 @@ export namespace NestiaMigrateNestMethodProgrammer {
             arguments:
               ctx.route.body.type === "multipart/form-data"
                 ? [
-                    ts.factory.createArrowFunction(
+                    TypeScriptFactory.createArrowFunction(
                       undefined,
                       undefined,
                       [],
                       undefined,
                       undefined,
-                      ts.factory.createCallExpression(
-                        ts.factory.createIdentifier(
+                      TypeScriptFactory.createCallExpression(
+                        TypeScriptFactory.createIdentifier(
                           ctx.importer.external({
                             type: "default",
                             library: "multer",
@@ -324,7 +326,7 @@ export namespace NestiaMigrateNestMethodProgrammer {
       example?: any;
       examples?: Record<string, any>;
     }): ts.ParameterDeclaration => {
-      const instance = ts.factory.createIdentifier(
+      const instance = TypeScriptFactory.createIdentifier(
         importer.external({
           type: "instance",
           library: "@nestia/core",
@@ -334,11 +336,11 @@ export namespace NestiaMigrateNestMethodProgrammer {
               : accessor.method[0],
         }),
       );
-      return ts.factory.createParameterDeclaration(
+      return TypeScriptFactory.createParameterDeclaration(
         [
           ...writeExampleDecorators("Parameter")(importer)(props),
-          ts.factory.createDecorator(
-            ts.factory.createCallExpression(
+          TypeScriptFactory.createDecorator(
+            TypeScriptFactory.createCallExpression(
               typeof accessor.method === "string"
                 ? instance
                 : IdentifierFactory.access(instance, accessor.method[1]),
@@ -350,7 +352,7 @@ export namespace NestiaMigrateNestMethodProgrammer {
         undefined,
         accessor.variable,
         props.required === false
-          ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
+          ? TypeScriptFactory.createToken(ts.SyntaxKind.QuestionToken)
           : undefined,
         NestiaMigrateSchemaProgrammer.write({
           components,
@@ -369,10 +371,10 @@ export namespace NestiaMigrateNestMethodProgrammer {
     }): ts.Decorator[] => [
       ...(media.example !== undefined
         ? [
-            ts.factory.createDecorator(
-              ts.factory.createCallExpression(
+            TypeScriptFactory.createDecorator(
+              TypeScriptFactory.createCallExpression(
                 IdentifierFactory.access(
-                  ts.factory.createIdentifier(
+                  TypeScriptFactory.createIdentifier(
                     importer.external({
                       type: "instance",
                       library: "@nestia/core",
@@ -388,10 +390,10 @@ export namespace NestiaMigrateNestMethodProgrammer {
           ]
         : []),
       ...Object.entries(media.examples ?? {}).map(([key, value]) =>
-        ts.factory.createDecorator(
-          ts.factory.createCallExpression(
+        TypeScriptFactory.createDecorator(
+          TypeScriptFactory.createCallExpression(
             IdentifierFactory.access(
-              ts.factory.createIdentifier(
+              TypeScriptFactory.createIdentifier(
                 importer.external({
                   type: "instance",
                   library: "@nestia/core",
@@ -401,7 +403,10 @@ export namespace NestiaMigrateNestMethodProgrammer {
               kind,
             ),
             [],
-            [ts.factory.createStringLiteral(key), LiteralFactory.write(value)],
+            [
+              TypeScriptFactory.createStringLiteral(key),
+              LiteralFactory.write(value),
+            ],
           ),
         ),
       ),

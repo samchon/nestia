@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import ts from "typescript";
 
 import { INestiaProject } from "../../structures/INestiaProject";
@@ -79,7 +80,7 @@ export namespace SdkHttpParameterProgrammer {
                         props.route.queryObject.metadata,
                       )
                     : SdkAliasCollection.name(props.route.queryObject)
-                  : ts.factory.createTypeReferenceNode(`${prefix}Query`),
+                  : TypeScriptFactory.createTypeReferenceNode(`${prefix}Query`),
               parameter: props.route.queryObject,
             },
           ]
@@ -96,7 +97,7 @@ export namespace SdkHttpParameterProgrammer {
                         props.route.body.metadata,
                       )
                     : SdkAliasCollection.name(props.route.body)
-                  : ts.factory.createTypeReferenceNode(`${prefix}Body`),
+                  : TypeScriptFactory.createTypeReferenceNode(`${prefix}Body`),
               parameter: props.route.body,
             },
           ]
@@ -119,15 +120,15 @@ export namespace SdkHttpParameterProgrammer {
         : "Props";
       const node: ts.TypeReferenceNode =
         props.body === false && props.route.body !== null
-          ? ts.factory.createTypeReferenceNode("Omit", [
-              ts.factory.createTypeReferenceNode(typeName),
-              ts.factory.createLiteralTypeNode(
-                ts.factory.createStringLiteral(props.route.body.name),
+          ? TypeScriptFactory.createTypeReferenceNode("Omit", [
+              TypeScriptFactory.createTypeReferenceNode(typeName),
+              TypeScriptFactory.createLiteralTypeNode(
+                TypeScriptFactory.createStringLiteral(props.route.body.name),
               ),
             ])
-          : ts.factory.createTypeReferenceNode(typeName);
+          : TypeScriptFactory.createTypeReferenceNode(typeName);
       return [
-        ts.factory.createParameterDeclaration(
+        TypeScriptFactory.createParameterDeclaration(
           undefined,
           undefined,
           "props",
@@ -138,13 +139,13 @@ export namespace SdkHttpParameterProgrammer {
       ];
     }
     return entries.map((e) =>
-      ts.factory.createParameterDeclaration(
+      TypeScriptFactory.createParameterDeclaration(
         undefined,
         undefined,
         e.key,
         e.required
           ? undefined
-          : ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+          : TypeScriptFactory.createToken(ts.SyntaxKind.QuestionToken),
         e.type,
         undefined,
       ),
@@ -159,8 +160,8 @@ export namespace SdkHttpParameterProgrammer {
     const parameters = getSignificant(props.route, props.body);
     if (parameters.length === 0) return [];
     else if (props.project.config.keyword === true)
-      return [ts.factory.createIdentifier("props")];
-    return parameters.map((p) => ts.factory.createIdentifier(p.name));
+      return [TypeScriptFactory.createIdentifier("props")];
+    return parameters.map((p) => TypeScriptFactory.createIdentifier(p.name));
   };
 
   export const getAccessors = (props: {
@@ -172,7 +173,7 @@ export namespace SdkHttpParameterProgrammer {
     const prefix: string =
       props.project.config.keyword === true ? "props." : "";
     return getSignificant(props.route, props.body).map((p) =>
-      ts.factory.createIdentifier(`${prefix}${p.name}`),
+      TypeScriptFactory.createIdentifier(`${prefix}${p.name}`),
     );
   };
 }

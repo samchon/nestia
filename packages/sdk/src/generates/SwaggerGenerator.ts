@@ -11,7 +11,7 @@ import { OpenApiConverter } from "@typia/utils";
 import fs from "fs";
 import path from "path";
 import { Singleton } from "tstl";
-import typia, { IJsonSchemaCollection } from "typia";
+import type { IJsonSchemaCollection } from "typia";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { ITypedApplication } from "../structures/ITypedApplication";
@@ -127,7 +127,7 @@ export namespace SwaggerGenerator {
 
         try {
           const content: string = await fs.promises.readFile(location, "utf8");
-          const data = typia.json.assertParse<{
+          const data = JSON.parse(content) as {
             name?: string;
             version?: string;
             description?: string;
@@ -138,12 +138,16 @@ export namespace SwaggerGenerator {
                   /** @format uri */
                   url: string;
                 };
-          }>(content);
+          };
           return {
-            title: data.name,
-            version: data.version,
-            description: data.description,
-            license: data.license
+            title: typeof data.name === "string" ? data.name : undefined,
+            version:
+              typeof data.version === "string" ? data.version : undefined,
+            description:
+              typeof data.description === "string"
+                ? data.description
+                : undefined,
+            license: isLicense(data.license)
               ? typeof data.license === "string"
                 ? { name: data.license }
                 : typeof data.license === "object"
@@ -190,6 +194,21 @@ export namespace SwaggerGenerator {
       "x-typia-emended-v12": true,
     };
   };
+
+  const isLicense = (
+    input: unknown,
+  ): input is
+    | string
+    | {
+        type: string;
+        url: string;
+      } =>
+    typeof input === "string" ||
+    (typeof input === "object" &&
+      input !== null &&
+      Array.isArray(input) === false &&
+      typeof (input as { type?: unknown }).type === "string" &&
+      typeof (input as { url?: unknown }).url === "string");
 
   const fillPaths = (props: {
     config: Omit<INestiaConfig.ISwaggerConfig, "output">;

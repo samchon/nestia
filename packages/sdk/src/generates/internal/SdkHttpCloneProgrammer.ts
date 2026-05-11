@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import {
   MetadataAliasType,
   MetadataAtomic,
@@ -71,8 +72,8 @@ export namespace SdkHttpCloneProgrammer {
     (importer: ImportDictionary) =>
     (alias: MetadataAliasType): ts.TypeAliasDeclaration =>
       FilePrinter.description(
-        ts.factory.createTypeAliasDeclaration(
-          [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
+        TypeScriptFactory.createTypeAliasDeclaration(
+          [TypeScriptFactory.createToken(ts.SyntaxKind.ExportKeyword)],
           alias.name.split(".").at(-1)!,
           [],
           SdkTypeProgrammer.write(project)(importer)(alias.value),
@@ -85,8 +86,8 @@ export namespace SdkHttpCloneProgrammer {
     (importer: ImportDictionary) =>
     (object: MetadataObjectType): ts.TypeAliasDeclaration => {
       return FilePrinter.description(
-        ts.factory.createTypeAliasDeclaration(
-          [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
+        TypeScriptFactory.createTypeAliasDeclaration(
+          [TypeScriptFactory.createToken(ts.SyntaxKind.ExportKeyword)],
           object.name.split(".").at(-1)!,
           [],
           SdkTypeProgrammer.write_object(project)(importer)(object),

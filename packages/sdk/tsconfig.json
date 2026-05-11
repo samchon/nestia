@@ -7,7 +7,7 @@
     "outDir": "lib",
     "plugins": [
       {
-        "transform": "typia/lib/transform",
+        "transform": "@nestia/core/native/transform.cjs",
         "functional": true,
       },
     ],

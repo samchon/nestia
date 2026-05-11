@@ -1,5 +1,7 @@
 # 필수 보강 항목
 
+2026-05-09 보강 결과: 아래 항목은 `.wiki/06-phase0-ledger/`와 `.wiki/04-strategy/04-decisions.md`에 반영되었다. 원문은 2026-05-04 리뷰 당시 결손을 보존하기 위해 남긴다.
+
 ## P0. 파일별 Ledger
 
 현재 Phase 0 완료 기준을 만족하지 못한다.
@@ -10,7 +12,7 @@
 - `packages/sdk/src/**/*.ts`
 - `packages/cli/src/**/*.ts`
 
-현재 합계는 180개 source file이다.
+2026-05-09 현재 합계는 179개 source file이다. 기존 180개 표기는 오래된 pathspec/branch 상태에서 나온 숫자다.
 
 각 파일별 문서에는 다음을 포함한다.
 
@@ -72,4 +74,3 @@
 - `use strict`/directive 뒤 import 삽입
 - JSDoc tag/description 보존
 - published d.ts path, pnpm symlink path, monorepo source path
-

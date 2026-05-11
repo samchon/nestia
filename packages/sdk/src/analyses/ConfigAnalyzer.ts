@@ -3,8 +3,10 @@ import { INestApplication, VersioningType } from "@nestjs/common";
 import { MODULE_PATH } from "@nestjs/common/constants";
 import { NestContainer } from "@nestjs/core";
 import { Module } from "@nestjs/core/injector/module";
+import cp from "child_process";
 import fs from "fs";
 import getFunctionLocation from "get-function-location";
+import os from "os";
 import path from "path";
 import { HashMap, Pair, Singleton } from "tstl";
 
@@ -35,9 +37,10 @@ export namespace ConfigAnalyzer {
             : [],
         filter: filter(config),
       });
+      const runtime: RuntimeCompiler = await RuntimeCompiler.compile(sources);
       const controllers: INestiaSdkInput.IController[] = [];
       for (const file of sources) {
-        const external: any[] = await import(file);
+        const external: any[] = await import(runtime.output(file));
         for (const key in external) {
           const instance: Function = external[key];
           if (Reflect.getMetadata("path", instance) !== undefined)
@@ -113,6 +116,77 @@ export namespace ConfigAnalyzer {
   };
 }
 const memory = new Map<INestiaConfig, Promise<INestiaSdkInput>>();
+class RuntimeCompiler {
+  private constructor(
+    private readonly cwd: string,
+    private readonly outDir: string,
+  ) {}
+
+  public static async compile(sources: string[]): Promise<RuntimeCompiler> {
+    const cwd: string = process.cwd();
+    const outDir: string = await fs.promises.mkdtemp(
+      path.join(os.tmpdir(), "nestia-runtime-"),
+    );
+    const project: string = path.join(
+      cwd,
+      `.nestia.runtime.${process.pid}.${Date.now()}.json`,
+    );
+    const relative = (file: string): string =>
+      path.relative(cwd, file).split("\\").join("/");
+    await fs.promises.writeFile(
+      project,
+      JSON.stringify(
+        {
+          extends: normalizeProjectPath(process.env.NESTIA_PROJECT),
+          compilerOptions: {
+            noEmit: false,
+            noUnusedLocals: false,
+            noUnusedParameters: false,
+            outDir,
+            rootDir: ".",
+          },
+          include: sources.map(relative),
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+    try {
+      cp.execFileSync("npx", ["ttsc", "-p", project], {
+        cwd,
+        stdio: "pipe",
+      });
+    } catch (error) {
+      const output =
+        error instanceof Error && "stderr" in error
+          ? String((error as Error & { stderr?: Buffer }).stderr ?? "")
+          : "";
+      throw new Error(output || `Failed to compile Nestia runtime inputs.`);
+    } finally {
+      await fs.promises.rm(project, { force: true });
+    }
+    return new RuntimeCompiler(cwd, outDir);
+  }
+
+  public output(source: string): string {
+    const relative: string = path.relative(this.cwd, source);
+    const emitted: string = path.join(
+      this.outDir,
+      replaceExtension(relative, ".js"),
+    );
+    return emitted;
+  }
+}
+
+const replaceExtension = (file: string, extension: string): string =>
+  file.replace(/\.[cm]?tsx?$/i, extension);
+
+const normalizeProjectPath = (project: string | undefined): string => {
+  const next: string = project ?? "tsconfig.json";
+  return path.isAbsolute(next) || next.startsWith(".") ? next : `./${next}`;
+};
+
 const normalize_file = (str: string) =>
   str.substring(
     str.startsWith("file:///")

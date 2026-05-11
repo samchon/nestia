@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import { MetadataSchema, TypeFactory } from "@typia/core";
 import ts from "typescript";
 
@@ -13,7 +14,7 @@ import { SdkTypeProgrammer } from "./SdkTypeProgrammer";
 
 export namespace SdkAliasCollection {
   export const name = ({ type }: { type: IReflectType }): ts.TypeNode =>
-    ts.factory.createTypeReferenceNode(
+    TypeScriptFactory.createTypeReferenceNode(
       type.name,
       type.typeArguments
         ? type.typeArguments.map((a) => name({ type: a }))
@@ -30,7 +31,7 @@ export namespace SdkAliasCollection {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.TypeNode =>
-      ts.factory.createTypeLiteralNode(
+      TypeScriptFactory.createTypeLiteralNode(
         SdkHttpParameterProgrammer.getEntries({
           project,
           importer,
@@ -40,12 +41,12 @@ export namespace SdkAliasCollection {
         })
           .map((e) => {
             const signature: ts.PropertySignature =
-              ts.factory.createPropertySignature(
+              TypeScriptFactory.createPropertySignature(
                 undefined,
                 e.key,
                 e.required
                   ? undefined
-                  : ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+                  : TypeScriptFactory.createToken(ts.SyntaxKind.QuestionToken),
                 e.type,
               );
             const description: string | null =
@@ -61,7 +62,7 @@ export namespace SdkAliasCollection {
               null;
             return description?.length
               ? [
-                  ts.factory.createIdentifier("\n") as any,
+                  TypeScriptFactory.createIdentifier("\n") as any,
                   FilePrinter.description(signature, description),
                 ]
               : [signature];
@@ -70,9 +71,9 @@ export namespace SdkAliasCollection {
       );
 
   export const websocketProps = (route: ITypedWebSocketRoute): ts.TypeNode =>
-    ts.factory.createTypeLiteralNode([
+    TypeScriptFactory.createTypeLiteralNode([
       ...route.pathParameters.map((p) =>
-        ts.factory.createPropertySignature(
+        TypeScriptFactory.createPropertySignature(
           undefined,
           p.name,
           undefined,
@@ -81,19 +82,19 @@ export namespace SdkAliasCollection {
       ),
       ...(route.query
         ? [
-            ts.factory.createPropertySignature(
+            TypeScriptFactory.createPropertySignature(
               undefined,
               "query",
               undefined,
-              ts.factory.createTypeReferenceNode("Query"),
+              TypeScriptFactory.createTypeReferenceNode("Query"),
             ),
           ]
         : []),
-      ts.factory.createPropertySignature(
+      TypeScriptFactory.createPropertySignature(
         undefined,
         "provider",
         undefined,
-        ts.factory.createTypeReferenceNode("Provider"),
+        TypeScriptFactory.createTypeReferenceNode("Provider"),
       ),
     ]);
 
@@ -105,7 +106,7 @@ export namespace SdkAliasCollection {
         return from(project)(importer)(param.metadata);
       const type: ts.TypeNode = name(param);
       if (project.config.primitive === false) return type;
-      return ts.factory.createTypeReferenceNode(
+      return TypeScriptFactory.createTypeReferenceNode(
         importer.external({
           file: "typia",
           declaration: true,
@@ -124,7 +125,7 @@ export namespace SdkAliasCollection {
         return from(project)(importer)(param.metadata);
       const type: ts.TypeNode = name(param);
       if (project.config.primitive === false) return type;
-      return ts.factory.createTypeReferenceNode(
+      return TypeScriptFactory.createTypeReferenceNode(
         importer.external({
           file: "typia",
           declaration: true,
@@ -149,7 +150,7 @@ export namespace SdkAliasCollection {
       if (param.contentType === "multipart/form-data")
         return formDataInput(importer)(type);
       else if (project.config.primitive === false) return type;
-      return ts.factory.createTypeReferenceNode(
+      return TypeScriptFactory.createTypeReferenceNode(
         importer.external({
           file: "typia",
           declaration: true,
@@ -173,7 +174,7 @@ export namespace SdkAliasCollection {
           : project.config.clone === true
             ? from(project)(importer)(p.metadata)
             : project.config.primitive !== false
-              ? ts.factory.createTypeReferenceNode(
+              ? TypeScriptFactory.createTypeReferenceNode(
                   importer.external({
                     file: "typia",
                     declaration: true,
@@ -201,7 +202,7 @@ export namespace SdkAliasCollection {
           type: schema(value),
         })),
       ];
-      return ts.factory.createTypeReferenceNode(
+      return TypeScriptFactory.createTypeReferenceNode(
         importer.external({
           file: "@nestia/fetcher",
           declaration: true,
@@ -209,11 +210,11 @@ export namespace SdkAliasCollection {
           name: "IPropagation",
         }),
         [
-          ts.factory.createTypeLiteralNode(
+          TypeScriptFactory.createTypeLiteralNode(
             branches.map((b) =>
-              ts.factory.createPropertySignature(
+              TypeScriptFactory.createPropertySignature(
                 undefined,
-                ts.factory.createNumericLiteral(b.status),
+                TypeScriptFactory.createNumericLiteral(b.status),
                 undefined,
                 b.type,
               ),
@@ -221,8 +222,8 @@ export namespace SdkAliasCollection {
           ),
           ...(route.success.status
             ? [
-                ts.factory.createLiteralTypeNode(
-                  ts.factory.createNumericLiteral(route.success.status),
+                TypeScriptFactory.createLiteralTypeNode(
+                  TypeScriptFactory.createNumericLiteral(route.success.status),
                 ),
               ]
             : []),
@@ -243,7 +244,7 @@ export namespace SdkAliasCollection {
       })(importer)(route);
 
   const formDataInput = (importer: ImportDictionary) => (type: ts.TypeNode) =>
-    ts.factory.createTypeReferenceNode(
+    TypeScriptFactory.createTypeReferenceNode(
       importer.external({
         file: "@nestia/fetcher",
         declaration: true,

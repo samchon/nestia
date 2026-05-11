@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import fs from "fs";
 import { format } from "prettier";
 import ts from "typescript";
@@ -29,7 +30,9 @@ export namespace FilePrinter {
   };
 
   export const enter = () =>
-    ts.factory.createExpressionStatement(ts.factory.createIdentifier("\n"));
+    TypeScriptFactory.createExpressionStatement(
+      TypeScriptFactory.createIdentifier("\n"),
+    );
 
   export const write = async (props: {
     location: string;
@@ -39,9 +42,9 @@ export namespace FilePrinter {
     const script: string = ts
       .createPrinter()
       .printFile(
-        ts.factory.createSourceFile(
+        TypeScriptFactory.createSourceFile(
           props.statements,
-          ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
+          TypeScriptFactory.createToken(ts.SyntaxKind.EndOfFileToken),
           ts.NodeFlags.None,
         ),
       );

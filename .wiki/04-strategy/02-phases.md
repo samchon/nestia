@@ -4,16 +4,17 @@
 
 목표:
 
-- Nestia source file별 wiki 생성
+- Nestia source file별 wiki 생성 (`.wiki/06-phase0-ledger/`)
 - core/sdk/cli/migrate package별 포팅 대상 분류
 - TypeScript compiler API 사용 지점 전수 목록화
 
 완료 기준:
 
-- `packages/core/src/**/*.ts` 전체 문서화
-- `packages/sdk/src/**/*.ts` 전체 문서화
-- `packages/cli/src/**/*.ts` 전체 문서화
+- `packages/core/src/*.ts`, `packages/core/src/**/*.ts` 73개 전체 문서화
+- `packages/sdk/src/*.ts`, `packages/sdk/src/**/*.ts` 97개 전체 문서화
+- `packages/cli/src/*.ts`, `packages/cli/src/**/*.ts` 9개 전체 문서화
 - `ts-patch`/`ts-node` 의존 경로 전부 표시
+- single host, typia native module reuse, SDK config materialization, early package gate, printer/decorator fidelity 정책 결정
 
 ## Phase 1. ttsc manifest transition
 

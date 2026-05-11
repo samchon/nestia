@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import { LiteralFactory, MetadataCollection, TypeFactory } from "@typia/core";
 import path from "path";
 import { HashSet, Singleton, hash } from "tstl";
@@ -35,17 +36,17 @@ export namespace SdkOperationTransformer {
           api,
         );
         if (visitor.done === false) return file;
-        return ts.factory.updateSourceFile(file, [
-          ts.factory.createImportDeclaration(
+        return TypeScriptFactory.updateSourceFile(file, [
+          TypeScriptFactory.createImportDeclaration(
             undefined,
-            ts.factory.createImportClause(
+            TypeScriptFactory.createImportClause(
               false,
               undefined,
-              ts.factory.createNamespaceImport(
-                ts.factory.createIdentifier("__OperationMetadata"),
+              TypeScriptFactory.createNamespaceImport(
+                TypeScriptFactory.createIdentifier("__OperationMetadata"),
               ),
             ),
-            ts.factory.createStringLiteral("@nestia/sdk"),
+            TypeScriptFactory.createStringLiteral("@nestia/sdk"),
             undefined,
           ),
           ...file.statements,
@@ -107,7 +108,7 @@ export namespace SdkOperationTransformer {
       if (!ts.isIdentifier(identifier)) continue;
       symbolDict.set(identifier.escapedText.toString(), symbol);
     }
-    return ts.factory.updateClassDeclaration(
+    return TypeScriptFactory.updateClassDeclaration(
       props.node,
       props.node.modifiers,
       props.node.name,
@@ -154,18 +155,18 @@ export namespace SdkOperationTransformer {
         decorators,
       }),
     });
-    return ts.factory.updateMethodDeclaration(
+    return TypeScriptFactory.updateMethodDeclaration(
       props.node,
       [
         ...(props.node.modifiers ?? []),
-        ts.factory.createDecorator(
-          ts.factory.createCallExpression(
-            ts.factory.createIdentifier(
+        TypeScriptFactory.createDecorator(
+          TypeScriptFactory.createCallExpression(
+            TypeScriptFactory.createIdentifier(
               "__OperationMetadata.OperationMetadata",
             ),
             undefined,
             [
-              ts.factory.createAsExpression(
+              TypeScriptFactory.createAsExpression(
                 LiteralFactory.write(metadata),
                 TypeFactory.keyword("any"),
               ),

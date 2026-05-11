@@ -1,9 +1,12 @@
 import { TestValidator } from "@nestia/e2e";
+import fs from "fs";
 
 export const test_swagger = async () => {
-  const content = await import("../../../swagger.json");
-  const queries = content.paths["/query/typed"].get.parameters.filter(
-    (p) => p.in === "query",
+  const content = JSON.parse(
+    await fs.promises.readFile(`${__dirname}/../../../swagger.json`, "utf8"),
+  );
+  const queries: any[] = content.paths["/query/typed"].get.parameters.filter(
+    (p: any) => p.in === "query",
   );
 
   TestValidator.equals(

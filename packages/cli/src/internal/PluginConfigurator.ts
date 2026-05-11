@@ -19,11 +19,12 @@ export namespace PluginConfigurator {
       );
 
     // PREPARE PLUGINS
-    const plugins: comments.CommentArray<comments.CommentObject> = (() => {
+    const plugins: comments.CommentArray<comments.CommentObject> | undefined =
+      (() => {
       const plugins = compilerOptions.plugins as
         | comments.CommentArray<comments.CommentObject>
         | undefined;
-      if (plugins === undefined) return (compilerOptions.plugins = [] as any);
+      if (plugins === undefined) return undefined;
       else if (!Array.isArray(plugins))
         throw new Error(
           `"plugins" property of ${args.project} must be array type.`,
@@ -40,31 +41,12 @@ export namespace PluginConfigurator {
     const skipLibCheck: boolean | undefined = compilerOptions.skipLibCheck as
       | boolean
       | undefined;
-    const core: comments.CommentObject | undefined = plugins.find(
-      (p) =>
-        typeof p === "object" &&
-        p !== null &&
-        p.transform === "@nestia/core/lib/transform",
-    );
-    const typia: comments.CommentObject | undefined = plugins.find(
-      (p) =>
-        typeof p === "object" &&
-        p !== null &&
-        p.transform === "typia/lib/transform",
-    );
-    const swagger: comments.CommentObject | undefined = plugins.find(
-      (p) =>
-        typeof p === "object" &&
-        p !== null &&
-        p.transform === "@nestia/sdk/lib/transform",
-    );
+    const pluginsChanged: boolean = cleanPlugins(compilerOptions, plugins);
     if (
       strictNullChecks !== false &&
       (strict === true || strictNullChecks === true) &&
-      core !== undefined &&
-      typia !== undefined &&
-      swagger !== undefined &&
-      skipLibCheck === true
+      skipLibCheck === true &&
+      pluginsChanged === false
     )
       return;
 
@@ -76,50 +58,38 @@ export namespace PluginConfigurator {
     compilerOptions.experimentalDecorators = true;
     compilerOptions.emitDecoratorMetadata = true;
 
-    if (core === undefined)
-      plugins.push(
-        comments.parse(`{
-                    "transform": "@nestia/core/lib/transform",
-        /**
-         * Validate request body.
-         * 
-         *   - "assert": Use typia.assert() function
-         *   - "is": Use typia.is() function
-         *   - "validate": Use typia.validate() function
-         *   - "assertEquals": Use typia.assertEquals() function
-         *   - "equals": Use typia.equals() function
-         *   - "validateEquals": Use typia.validateEquals() function
-         */
-                            "validate": "validate",
-
-        /**
-         * Validate JSON typed response body.
-         * 
-         *   - "assert": Use typia.assertStringify() function
-         *   - "is": Use typia.isStringify() function
-         *   - "validate": Use typia.validateStringify() function
-         *   - "validate.log": typia.validateStringify(), but do not throw and just log it
-         *   - "stringify": Use typia.stringify() function, but dangerous
-         *   - null: Just use JSON.stringify() function, without boosting
-         */
-                    "stringify": "assert"
-                }`) as comments.CommentObject,
-      );
-    if (swagger === undefined && args.runtime === true)
-      plugins.push(
-        comments.parse(
-          `{ "transform": "@nestia/sdk/lib/transform" }`,
-        ) as comments.CommentObject,
-      );
-    if (typia === undefined)
-      plugins.push(
-        comments.parse(
-          `{ "transform": "typia/lib/transform" }`,
-        ) as comments.CommentObject,
-      );
     await fs.promises.writeFile(
       args.project!,
       comments.stringify(config, null, 2),
     );
   }
+
+  const cleanPlugins = (
+    compilerOptions: comments.CommentObject,
+    plugins: comments.CommentArray<comments.CommentObject> | undefined,
+  ): boolean => {
+    if (plugins === undefined) return false;
+    const retained: comments.CommentObject[] = plugins.filter(
+      (plugin) =>
+        isTransformPlugin(plugin) === false || hasCustomOption(plugin),
+    );
+    const changed: boolean = retained.length !== plugins.length;
+    if (changed === false) return false;
+    plugins.splice(0, plugins.length, ...(retained as any));
+    if (plugins.length === 0) delete compilerOptions.plugins;
+    return true;
+  };
+
+  const isTransformPlugin = (plugin: unknown): plugin is comments.CommentObject =>
+    typeof plugin === "object" &&
+    plugin !== null &&
+    (plugin as comments.CommentObject).transform !== undefined;
+
+  const hasCustomOption = (plugin: comments.CommentObject): boolean =>
+    Object.keys(plugin).some(
+      (key) =>
+        key !== "transform" &&
+        key !== "enabled" &&
+        (plugin as Record<string, unknown>)[key] !== undefined,
+    );
 }

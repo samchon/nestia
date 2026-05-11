@@ -191,7 +191,7 @@ export class NestiaSdkApplication {
     console.log("Analyzing source codes");
 
     // METADATA COMPONENTS
-    const collection: IMetadataDictionary =
+    const sourceCollection: IMetadataDictionary =
       TypedHttpRouteAnalyzer.dictionary(controllers);
 
     // CONVERT TO TYPED OPERATIONS
@@ -216,7 +216,7 @@ export class NestiaSdkApplication {
             ...TypedHttpRouteAnalyzer.analyze({
               controller: c,
               errors: project.errors,
-              dictionary: collection,
+              dictionary: sourceCollection,
               operation: o,
               paths: Array.from(pathList),
             }),
@@ -231,6 +231,11 @@ export class NestiaSdkApplication {
           );
       }
     AccessorAnalyzer.analyze(routes);
+
+    const collection: IMetadataDictionary =
+      TypedHttpRouteAnalyzer.routeDictionary(
+        routes.filter((r): r is ITypedHttpRoute => r.protocol === "http"),
+      );
 
     if (props.validate !== undefined)
       project.errors.push(

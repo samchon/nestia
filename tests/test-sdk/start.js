@@ -1,13 +1,15 @@
 const cp = require("child_process");
 const fs = require("fs");
+const path = require("path");
 
 process.env.NODE_OPTIONS = [
   process.env.NODE_OPTIONS ?? "",
-  "--no-experimental-strip-types",
   "--no-experimental-detect-module",
 ]
   .filter(Boolean)
   .join(" ");
+delete process.env.npm_config_dir;
+delete process.env.npm_config_verify_deps_before_run;
 
 const featureDirectory = (name) => `${__dirname}/features/${name}`;
 const feature = (name) => {
@@ -22,11 +24,13 @@ const feature = (name) => {
       : "nestia.config.ts";
   const generate = (type, mustBeError) => {
     const tail =
-      name === "cli-config" || name === "cli-config-project"
-        ? " --config nestia.configuration.ts"
-        : name === "cli-config-project" || name === "cli-project"
-          ? " --project tsconfig.nestia.json"
-          : "";
+      name === "cli-config-project"
+        ? " --config nestia.configuration.ts --project tsconfig.nestia.json"
+        : name === "cli-config"
+          ? " --config nestia.configuration.ts"
+          : name === "cli-project"
+            ? " --project tsconfig.nestia.json"
+            : "";
     if (mustBeError)
       cp.execSync(`npx nestia ${type}${tail}`, { stdio: "ignore" });
     else
@@ -43,9 +47,7 @@ const feature = (name) => {
       cp.execSync("npx tsc", { stdio: "ignore" });
       generate("all", true);
       if (fs.existsSync("src/test"))
-        cp.execSync('npx ts-node -O \'{"module":"commonjs","moduleResolution":"nodenext"}\' -r @nestjs/platform-express src/test', {
-          stdio: "ignore",
-        });
+        runTtsxTest("ignore");
     } catch {
       return;
     }
@@ -79,16 +81,12 @@ const feature = (name) => {
   // RUN TEST AUTOMATION PROGRAM
   if (name === "cli-project" || name === "cli-config-project") return;
   else if (fs.existsSync("src/test")) {
-    const test = (stdio) =>
-      cp.execSync('npx ts-node -O \'{"module":"commonjs","moduleResolution":"nodenext"}\' -r @nestjs/platform-express src/test', {
-        stdio,
-      });
     for (let i = 0; i < 3; ++i)
       try {
-        test("ignore");
+        runTtsxTest("ignore");
         return;
       } catch {}
-    test("inherit");
+    runTtsxTest("inherit");
   } else {
     const test = (stdio) => cp.execSync("npx tsc", { stdio });
     try {
@@ -99,7 +97,57 @@ const feature = (name) => {
   }
 };
 
+const runTtsxTest = (stdio) => {
+  const project = ".ttsx.tsconfig.json";
+  fs.writeFileSync(
+    project,
+    JSON.stringify(
+      {
+        extends: "./tsconfig.json",
+        compilerOptions: {
+          noUnusedLocals: false,
+          noUnusedParameters: false,
+          rootDir: "src",
+        },
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
+  try {
+    cp.execSync(
+      `npx ttsx -P ${project} -r @nestjs/platform-express src/test/index.ts`,
+      {
+        stdio,
+      },
+    );
+  } finally {
+    fs.rmSync(project, { force: true });
+  }
+};
+
 const main = async () => {
+  cp.execSync(
+    [
+      "pnpm",
+      "--filter @nestia/factory",
+      "--filter @nestia/fetcher",
+      "--filter @nestia/core",
+      "--filter @nestia/sdk",
+      "--filter @nestia/e2e",
+      "-r run build",
+    ].join(" "),
+    {
+      cwd: path.join(__dirname, "../.."),
+      env: {
+        ...process.env,
+        NODE_OPTIONS: "",
+      },
+      stdio: "ignore",
+    },
+  );
+
   const measure = (title) => async (task) => {
     const time = Date.now();
     await task();

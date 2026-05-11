@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import { IdentifierFactory, LiteralFactory } from "@typia/core";
 import ts from "typescript";
 
@@ -39,12 +40,12 @@ export namespace E2eFileProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): ts.Statement =>
-      ts.factory.createVariableStatement(
-        [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-        ts.factory.createVariableDeclarationList(
+      TypeScriptFactory.createVariableStatement(
+        [TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword)],
+        TypeScriptFactory.createVariableDeclarationList(
           [
-            ts.factory.createVariableDeclaration(
-              ts.factory.createIdentifier(getFunctionName(route)),
+            TypeScriptFactory.createVariableDeclaration(
+              TypeScriptFactory.createIdentifier(getFunctionName(route)),
               undefined,
               undefined,
               generateArrow(project)(importer)(route),
@@ -59,27 +60,27 @@ export namespace E2eFileProgrammer {
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute) => {
       const random = IdentifierFactory.access(
-        ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
+        TypeScriptFactory.createIdentifier(SdkImportWizard.typia(importer)),
         "random",
       );
       const connection = route.headerObject
-        ? ts.factory.createObjectLiteralExpression(
+        ? TypeScriptFactory.createObjectLiteralExpression(
             [
-              ts.factory.createSpreadAssignment(
-                ts.factory.createIdentifier("connection"),
+              TypeScriptFactory.createSpreadAssignment(
+                TypeScriptFactory.createIdentifier("connection"),
               ),
-              ts.factory.createPropertyAssignment(
+              TypeScriptFactory.createPropertyAssignment(
                 "headers",
-                ts.factory.createObjectLiteralExpression(
+                TypeScriptFactory.createObjectLiteralExpression(
                   [
-                    ts.factory.createSpreadAssignment(
+                    TypeScriptFactory.createSpreadAssignment(
                       IdentifierFactory.access(
-                        ts.factory.createIdentifier("connection"),
+                        TypeScriptFactory.createIdentifier("connection"),
                         "headers",
                       ),
                     ),
-                    ts.factory.createSpreadAssignment(
-                      ts.factory.createCallExpression(
+                    TypeScriptFactory.createSpreadAssignment(
+                      TypeScriptFactory.createCallExpression(
                         random,
                         [
                           project.config.clone === true
@@ -98,7 +99,7 @@ export namespace E2eFileProgrammer {
             ],
             true,
           )
-        : ts.factory.createIdentifier("connection");
+        : TypeScriptFactory.createIdentifier("connection");
       const entries = SdkHttpParameterProgrammer.getEntries({
         project,
         importer,
@@ -107,8 +108,8 @@ export namespace E2eFileProgrammer {
         e2e: true,
         prefix: ["api", "functional", ...route.accessor].join(".") + ".",
       });
-      const fetch = ts.factory.createCallExpression(
-        ts.factory.createIdentifier(
+      const fetch = TypeScriptFactory.createCallExpression(
+        TypeScriptFactory.createIdentifier(
           ["api", "functional", ...route.accessor].join("."),
         ),
         undefined,
@@ -120,9 +121,9 @@ export namespace E2eFileProgrammer {
                   Object.fromEntries(
                     entries.map((e) => [
                       e.key,
-                      ts.factory.createCallExpression(
+                      TypeScriptFactory.createCallExpression(
                         IdentifierFactory.access(
-                          ts.factory.createIdentifier(
+                          TypeScriptFactory.createIdentifier(
                             SdkImportWizard.typia(importer),
                           ),
                           "random",
@@ -135,9 +136,9 @@ export namespace E2eFileProgrammer {
                 ),
               ]
             : entries.map((e) =>
-                ts.factory.createCallExpression(
+                TypeScriptFactory.createCallExpression(
                   IdentifierFactory.access(
-                    ts.factory.createIdentifier(
+                    TypeScriptFactory.createIdentifier(
                       SdkImportWizard.typia(importer),
                     ),
                     "random",
@@ -148,45 +149,45 @@ export namespace E2eFileProgrammer {
               )),
         ],
       );
-      const assert = ts.factory.createCallExpression(
+      const assert = TypeScriptFactory.createCallExpression(
         IdentifierFactory.access(
-          ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
+          TypeScriptFactory.createIdentifier(SdkImportWizard.typia(importer)),
           "assert",
         ),
         undefined,
-        [ts.factory.createIdentifier("output")],
+        [TypeScriptFactory.createIdentifier("output")],
       );
 
-      return ts.factory.createArrowFunction(
-        [ts.factory.createModifier(ts.SyntaxKind.AsyncKeyword)],
+      return TypeScriptFactory.createArrowFunction(
+        [TypeScriptFactory.createModifier(ts.SyntaxKind.AsyncKeyword)],
         undefined,
         [
           IdentifierFactory.parameter(
             "connection",
-            ts.factory.createTypeReferenceNode("api.IConnection"),
+            TypeScriptFactory.createTypeReferenceNode("api.IConnection"),
           ),
         ],
         undefined,
         undefined,
-        ts.factory.createBlock([
-          ts.factory.createVariableStatement(
+        TypeScriptFactory.createBlock([
+          TypeScriptFactory.createVariableStatement(
             [],
-            ts.factory.createVariableDeclarationList(
+            TypeScriptFactory.createVariableDeclarationList(
               [
-                ts.factory.createVariableDeclaration(
+                TypeScriptFactory.createVariableDeclaration(
                   "output",
                   undefined,
                   project.config.propagate !== true &&
                     route.success.type.name === "void"
                     ? undefined
                     : SdkAliasCollection.response(project)(importer)(route),
-                  ts.factory.createAwaitExpression(fetch),
+                  TypeScriptFactory.createAwaitExpression(fetch),
                 ),
               ],
               ts.NodeFlags.Const,
             ),
           ),
-          ts.factory.createExpressionStatement(assert),
+          TypeScriptFactory.createExpressionStatement(assert),
         ]),
       );
     };

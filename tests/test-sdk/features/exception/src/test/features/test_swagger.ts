@@ -1,7 +1,8 @@
+import fs from "fs";
 import { TestValidator } from "@nestia/e2e";
 
 export const test_swagger = async () => {
-  const content = await import("../../../swagger.json");
+  const content = JSON.parse(await fs.promises.readFile(__dirname + "/../../../swagger.json", "utf8"));
   for (const [key, value] of [
     [201, "IBbsArticle"],
     [400, "TypeGuardErrorany"],

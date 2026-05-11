@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import { IdentifierFactory } from "@typia/core";
 import ts from "typescript";
 import { IJsDocTagInfo } from "typia";
@@ -59,10 +60,10 @@ export namespace SdkWebSocketRouteProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedWebSocketRoute): ts.FunctionDeclaration => {
-      return ts.factory.createFunctionDeclaration(
+      return TypeScriptFactory.createFunctionDeclaration(
         [
-          ts.factory.createModifier(ts.SyntaxKind.ExportKeyword),
-          ts.factory.createModifier(ts.SyntaxKind.AsyncKeyword),
+          TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword),
+          TypeScriptFactory.createModifier(ts.SyntaxKind.AsyncKeyword),
         ],
         undefined,
         route.name,
@@ -70,9 +71,13 @@ export namespace SdkWebSocketRouteProgrammer {
         [
           IdentifierFactory.parameter(
             "connection",
-            ts.factory.createTypeReferenceNode(
+            TypeScriptFactory.createTypeReferenceNode(
               SdkImportWizard.IConnection(importer),
-              [ts.factory.createTypeReferenceNode(`${route.name}.Header`)],
+              [
+                TypeScriptFactory.createTypeReferenceNode(
+                  `${route.name}.Header`,
+                ),
+              ],
             ),
           ),
           ...SdkWebSocketParameterProgrammer.getParameterDeclarations({
@@ -82,10 +87,10 @@ export namespace SdkWebSocketRouteProgrammer {
             prefix: true,
           }),
         ],
-        ts.factory.createTypeReferenceNode("Promise", [
-          ts.factory.createTypeReferenceNode(`${route.name}.Output`),
+        TypeScriptFactory.createTypeReferenceNode("Promise", [
+          TypeScriptFactory.createTypeReferenceNode(`${route.name}.Output`),
         ]),
-        ts.factory.createBlock(
+        TypeScriptFactory.createBlock(
           writeFunctionBody(project)(importer)(route),
           true,
         ),
@@ -98,34 +103,34 @@ export namespace SdkWebSocketRouteProgrammer {
     (route: ITypedWebSocketRoute): ts.Statement[] => {
       const access = (key: string) =>
         project.config.keyword === true
-          ? ts.factory.createPropertyAccessExpression(
-              ts.factory.createIdentifier("props"),
+          ? TypeScriptFactory.createPropertyAccessExpression(
+              TypeScriptFactory.createIdentifier("props"),
               key,
             )
-          : ts.factory.createIdentifier(key);
+          : TypeScriptFactory.createIdentifier(key);
       return [
-        local("url")(ts.factory.createTypeReferenceNode("string"))(
+        local("url")(TypeScriptFactory.createTypeReferenceNode("string"))(
           joinPath(
-            ts.factory.createCallExpression(
-              ts.factory.createPropertyAccessExpression(
-                ts.factory.createIdentifier(route.name),
+            TypeScriptFactory.createCallExpression(
+              TypeScriptFactory.createPropertyAccessExpression(
+                TypeScriptFactory.createIdentifier(route.name),
                 "path",
               ),
               [],
               project.config.keyword === true &&
                 SdkWebSocketParameterProgrammer.isPathEmpty(route) === false
-                ? [ts.factory.createIdentifier("props")]
+                ? [TypeScriptFactory.createIdentifier("props")]
                 : SdkWebSocketParameterProgrammer.getEntries({
                     project,
                     route,
                     provider: false,
                     prefix: true,
-                  }).map((p) => ts.factory.createIdentifier(p.key)),
+                  }).map((p) => TypeScriptFactory.createIdentifier(p.key)),
             ),
           ),
         ),
         local("connector")(
-          ts.factory.createTypeReferenceNode(
+          TypeScriptFactory.createTypeReferenceNode(
             importer.external({
               declaration: false,
               file: "tgrid",
@@ -133,14 +138,18 @@ export namespace SdkWebSocketRouteProgrammer {
               name: "WebSocketConnector",
             }),
             [
-              ts.factory.createTypeReferenceNode(`${route.name}.Header`),
-              ts.factory.createTypeReferenceNode(`${route.name}.Provider`),
-              ts.factory.createTypeReferenceNode(`${route.name}.Listener`),
+              TypeScriptFactory.createTypeReferenceNode(`${route.name}.Header`),
+              TypeScriptFactory.createTypeReferenceNode(
+                `${route.name}.Provider`,
+              ),
+              TypeScriptFactory.createTypeReferenceNode(
+                `${route.name}.Listener`,
+              ),
             ],
           ),
         )(
-          ts.factory.createNewExpression(
-            ts.factory.createIdentifier(
+          TypeScriptFactory.createNewExpression(
+            TypeScriptFactory.createIdentifier(
               importer.external({
                 declaration: false,
                 file: "tgrid",
@@ -150,74 +159,84 @@ export namespace SdkWebSocketRouteProgrammer {
             ),
             undefined,
             [
-              ts.factory.createAsExpression(
-                ts.factory.createBinaryExpression(
-                  ts.factory.createPropertyAccessExpression(
-                    ts.factory.createIdentifier("connection"),
+              TypeScriptFactory.createAsExpression(
+                TypeScriptFactory.createBinaryExpression(
+                  TypeScriptFactory.createPropertyAccessExpression(
+                    TypeScriptFactory.createIdentifier("connection"),
                     "headers",
                   ),
-                  ts.factory.createToken(ts.SyntaxKind.QuestionQuestionToken),
-                  ts.factory.createObjectLiteralExpression([], false),
+                  TypeScriptFactory.createToken(
+                    ts.SyntaxKind.QuestionQuestionToken,
+                  ),
+                  TypeScriptFactory.createObjectLiteralExpression([], false),
                 ),
-                ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
+                TypeScriptFactory.createKeywordTypeNode(
+                  ts.SyntaxKind.AnyKeyword,
+                ),
               ),
               access("provider"),
             ],
           ),
         ),
-        ts.factory.createExpressionStatement(
-          ts.factory.createAwaitExpression(
-            ts.factory.createCallExpression(
-              ts.factory.createPropertyAccessExpression(
-                ts.factory.createIdentifier("connector"),
+        TypeScriptFactory.createExpressionStatement(
+          TypeScriptFactory.createAwaitExpression(
+            TypeScriptFactory.createCallExpression(
+              TypeScriptFactory.createPropertyAccessExpression(
+                TypeScriptFactory.createIdentifier("connector"),
                 "connect",
               ),
               undefined,
-              [ts.factory.createIdentifier("url")],
+              [TypeScriptFactory.createIdentifier("url")],
             ),
           ),
         ),
         local("driver")(
-          ts.factory.createTypeReferenceNode(
+          TypeScriptFactory.createTypeReferenceNode(
             importer.external({
               declaration: true,
               file: "tgrid",
               type: "element",
               name: "Driver",
             }),
-            [ts.factory.createTypeReferenceNode(`${route.name}.Listener`)],
+            [
+              TypeScriptFactory.createTypeReferenceNode(
+                `${route.name}.Listener`,
+              ),
+            ],
           ),
         )(
-          ts.factory.createCallExpression(
-            ts.factory.createPropertyAccessExpression(
-              ts.factory.createIdentifier("connector"),
+          TypeScriptFactory.createCallExpression(
+            TypeScriptFactory.createPropertyAccessExpression(
+              TypeScriptFactory.createIdentifier("connector"),
               "getDriver",
             ),
             undefined,
             undefined,
           ),
         ),
-        ts.factory.createReturnStatement(
-          ts.factory.createObjectLiteralExpression(
+        TypeScriptFactory.createReturnStatement(
+          TypeScriptFactory.createObjectLiteralExpression(
             [
-              ts.factory.createShorthandPropertyAssignment("connector"),
-              ts.factory.createShorthandPropertyAssignment("driver"),
-              ts.factory.createPropertyAssignment(
-                ts.factory.createIdentifier("reconnect"),
-                ts.factory.createArrowFunction(
-                  [ts.factory.createToken(ts.SyntaxKind.AsyncKeyword)],
+              TypeScriptFactory.createShorthandPropertyAssignment("connector"),
+              TypeScriptFactory.createShorthandPropertyAssignment("driver"),
+              TypeScriptFactory.createPropertyAssignment(
+                TypeScriptFactory.createIdentifier("reconnect"),
+                TypeScriptFactory.createArrowFunction(
+                  [TypeScriptFactory.createToken(ts.SyntaxKind.AsyncKeyword)],
                   undefined,
                   [],
                   undefined,
-                  ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
-                  ts.factory.createAwaitExpression(
-                    ts.factory.createCallExpression(
-                      ts.factory.createPropertyAccessExpression(
-                        ts.factory.createIdentifier("connector"),
-                        ts.factory.createIdentifier("connect"),
+                  TypeScriptFactory.createToken(
+                    ts.SyntaxKind.EqualsGreaterThanToken,
+                  ),
+                  TypeScriptFactory.createAwaitExpression(
+                    TypeScriptFactory.createCallExpression(
+                      TypeScriptFactory.createPropertyAccessExpression(
+                        TypeScriptFactory.createIdentifier("connector"),
+                        TypeScriptFactory.createIdentifier("connect"),
                       ),
                       undefined,
-                      [ts.factory.createIdentifier("url")],
+                      [TypeScriptFactory.createIdentifier("url")],
                     ),
                   ),
                 ),
@@ -232,11 +251,11 @@ export namespace SdkWebSocketRouteProgrammer {
 
 const local =
   (name: string) => (type: ts.TypeNode) => (expression: ts.Expression) =>
-    ts.factory.createVariableStatement(
+    TypeScriptFactory.createVariableStatement(
       [],
-      ts.factory.createVariableDeclarationList(
+      TypeScriptFactory.createVariableDeclarationList(
         [
-          ts.factory.createVariableDeclaration(
+          TypeScriptFactory.createVariableDeclaration(
             name,
             undefined,
             type,
@@ -248,55 +267,58 @@ const local =
     );
 
 const joinPath = (caller: ts.Expression) =>
-  ts.factory.createTemplateExpression(ts.factory.createTemplateHead("", ""), [
-    ts.factory.createTemplateSpan(
-      ts.factory.createConditionalExpression(
-        ts.factory.createCallExpression(
-          ts.factory.createPropertyAccessExpression(
-            ts.factory.createPropertyAccessExpression(
-              ts.factory.createIdentifier("connection"),
-              ts.factory.createIdentifier("host"),
-            ),
-            ts.factory.createIdentifier("endsWith"),
-          ),
-          undefined,
-          [ts.factory.createStringLiteral("/")],
-        ),
-        ts.factory.createToken(ts.SyntaxKind.QuestionToken),
-        ts.factory.createCallExpression(
-          ts.factory.createPropertyAccessExpression(
-            ts.factory.createPropertyAccessExpression(
-              ts.factory.createIdentifier("connection"),
-              ts.factory.createIdentifier("host"),
-            ),
-            ts.factory.createIdentifier("substring"),
-          ),
-          undefined,
-          [
-            ts.factory.createNumericLiteral("0"),
-            ts.factory.createBinaryExpression(
-              ts.factory.createPropertyAccessExpression(
-                ts.factory.createPropertyAccessExpression(
-                  ts.factory.createIdentifier("connection"),
-                  ts.factory.createIdentifier("host"),
-                ),
-                ts.factory.createIdentifier("length"),
+  TypeScriptFactory.createTemplateExpression(
+    TypeScriptFactory.createTemplateHead("", ""),
+    [
+      TypeScriptFactory.createTemplateSpan(
+        TypeScriptFactory.createConditionalExpression(
+          TypeScriptFactory.createCallExpression(
+            TypeScriptFactory.createPropertyAccessExpression(
+              TypeScriptFactory.createPropertyAccessExpression(
+                TypeScriptFactory.createIdentifier("connection"),
+                TypeScriptFactory.createIdentifier("host"),
               ),
-              ts.factory.createToken(ts.SyntaxKind.MinusToken),
-              ts.factory.createNumericLiteral("1"),
+              TypeScriptFactory.createIdentifier("endsWith"),
             ),
-          ],
+            undefined,
+            [TypeScriptFactory.createStringLiteral("/")],
+          ),
+          TypeScriptFactory.createToken(ts.SyntaxKind.QuestionToken),
+          TypeScriptFactory.createCallExpression(
+            TypeScriptFactory.createPropertyAccessExpression(
+              TypeScriptFactory.createPropertyAccessExpression(
+                TypeScriptFactory.createIdentifier("connection"),
+                TypeScriptFactory.createIdentifier("host"),
+              ),
+              TypeScriptFactory.createIdentifier("substring"),
+            ),
+            undefined,
+            [
+              TypeScriptFactory.createNumericLiteral("0"),
+              TypeScriptFactory.createBinaryExpression(
+                TypeScriptFactory.createPropertyAccessExpression(
+                  TypeScriptFactory.createPropertyAccessExpression(
+                    TypeScriptFactory.createIdentifier("connection"),
+                    TypeScriptFactory.createIdentifier("host"),
+                  ),
+                  TypeScriptFactory.createIdentifier("length"),
+                ),
+                TypeScriptFactory.createToken(ts.SyntaxKind.MinusToken),
+                TypeScriptFactory.createNumericLiteral("1"),
+              ),
+            ],
+          ),
+          TypeScriptFactory.createToken(ts.SyntaxKind.ColonToken),
+          TypeScriptFactory.createPropertyAccessExpression(
+            TypeScriptFactory.createIdentifier("connection"),
+            TypeScriptFactory.createIdentifier("host"),
+          ),
         ),
-        ts.factory.createToken(ts.SyntaxKind.ColonToken),
-        ts.factory.createPropertyAccessExpression(
-          ts.factory.createIdentifier("connection"),
-          ts.factory.createIdentifier("host"),
-        ),
+        TypeScriptFactory.createTemplateMiddle("", ""),
       ),
-      ts.factory.createTemplateMiddle("", ""),
-    ),
-    ts.factory.createTemplateSpan(
-      caller,
-      ts.factory.createTemplateTail("", ""),
-    ),
-  ]);
+      TypeScriptFactory.createTemplateSpan(
+        caller,
+        TypeScriptFactory.createTemplateTail("", ""),
+      ),
+    ],
+  );

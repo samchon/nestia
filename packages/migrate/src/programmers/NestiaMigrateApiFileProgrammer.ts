@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import { IHttpMigrateRoute, OpenApi } from "@typia/interface";
 import ts from "typescript";
 
@@ -41,11 +42,13 @@ export namespace NestiaMigrateApiFileProgrammer {
         (ref) => `../${"../".repeat(props.namespace.length)}structures/${ref}`,
       ),
       ...[...props.children].map((child) =>
-        ts.factory.createExportDeclaration(
+        TypeScriptFactory.createExportDeclaration(
           undefined,
           false,
-          ts.factory.createNamespaceExport(ts.factory.createIdentifier(child)),
-          ts.factory.createStringLiteral(`./${child}/index`),
+          TypeScriptFactory.createNamespaceExport(
+            TypeScriptFactory.createIdentifier(child),
+          ),
+          TypeScriptFactory.createStringLiteral(`./${child}/index`),
           undefined,
         ),
       ),

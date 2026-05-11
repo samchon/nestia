@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import {
   ExpressionFactory,
   MetadataAliasType,
@@ -67,7 +68,7 @@ export namespace SdkTypeProgrammer {
 
       return union.length === 1
         ? union[0]!
-        : ts.factory.createUnionTypeNode(union);
+        : TypeScriptFactory.createUnionTypeNode(union);
     };
 
   export const write_object =
@@ -77,12 +78,12 @@ export namespace SdkTypeProgrammer {
       const regular = object.properties.filter((p) => p.key.isSoleLiteral());
       const dynamic = object.properties.filter((p) => !p.key.isSoleLiteral());
       return regular.length && dynamic.length
-        ? ts.factory.createIntersectionTypeNode([
+        ? TypeScriptFactory.createIntersectionTypeNode([
             write_regular_property(project)(importer)(regular),
             ...dynamic.map(write_dynamic_property(project)(importer)),
           ])
         : dynamic.length
-          ? ts.factory.createIntersectionTypeNode(
+          ? TypeScriptFactory.createIntersectionTypeNode(
               dynamic.map(write_dynamic_property(project)(importer)),
             )
           : write_regular_property(project)(importer)(regular);
@@ -97,7 +98,7 @@ export namespace SdkTypeProgrammer {
         meta.original.natives.length === 1 &&
         meta.original.natives[0]!.name === "Date"
       )
-        return ts.factory.createIntersectionTypeNode([
+        return TypeScriptFactory.createIntersectionTypeNode([
           TypeFactory.keyword("string"),
           SdkTypeTagProgrammer.write(importer, "string", {
             name: "Format",
@@ -112,24 +113,26 @@ export namespace SdkTypeProgrammer {
   ----------------------------------------------------------- */
   const write_constant = (value: MetadataConstantValue) => {
     if (typeof value.value === "boolean")
-      return ts.factory.createLiteralTypeNode(
-        value ? ts.factory.createTrue() : ts.factory.createFalse(),
+      return TypeScriptFactory.createLiteralTypeNode(
+        value
+          ? TypeScriptFactory.createTrue()
+          : TypeScriptFactory.createFalse(),
       );
     else if (typeof value.value === "bigint")
-      return ts.factory.createLiteralTypeNode(
+      return TypeScriptFactory.createLiteralTypeNode(
         value.value < BigInt(0)
-          ? ts.factory.createPrefixUnaryExpression(
+          ? TypeScriptFactory.createPrefixUnaryExpression(
               ts.SyntaxKind.MinusToken,
-              ts.factory.createBigIntLiteral((-value).toString()),
+              TypeScriptFactory.createBigIntLiteral((-value).toString()),
             )
-          : ts.factory.createBigIntLiteral(value.toString()),
+          : TypeScriptFactory.createBigIntLiteral(value.toString()),
       );
     else if (typeof value.value === "number")
-      return ts.factory.createLiteralTypeNode(
+      return TypeScriptFactory.createLiteralTypeNode(
         ExpressionFactory.number(value.value),
       );
-    return ts.factory.createLiteralTypeNode(
-      ts.factory.createStringLiteral(value.value as string),
+    return TypeScriptFactory.createLiteralTypeNode(
+      TypeScriptFactory.createStringLiteral(value.value as string),
     );
   };
 
@@ -152,8 +155,8 @@ export namespace SdkTypeProgrammer {
             last[1] = String(elem.constants[0]!.values[0]!.value);
           else
             spans.push([
-              ts.factory.createLiteralTypeNode(
-                ts.factory.createStringLiteral(
+              TypeScriptFactory.createLiteralTypeNode(
+                TypeScriptFactory.createStringLiteral(
                   String(elem.constants[0]!.values[0]!.value),
                 ),
               ),
@@ -162,18 +165,18 @@ export namespace SdkTypeProgrammer {
         else if (last[0] === null) last[0] = write(project)(importer)(elem);
         else spans.push([write(project)(importer)(elem), null]);
       }
-      return ts.factory.createTemplateLiteralType(
-        ts.factory.createTemplateHead(
+      return TypeScriptFactory.createTemplateLiteralType(
+        TypeScriptFactory.createTemplateHead(
           head ? (meta[0]!.constants[0]!.values[0]!.value as string) : "",
         ),
         spans
           .filter(([node]) => node !== null)
           .map(([node, str], i, array) =>
-            ts.factory.createTemplateLiteralTypeSpan(
+            TypeScriptFactory.createTemplateLiteralTypeSpan(
               node!,
               (i !== array.length - 1
-                ? ts.factory.createTemplateMiddle
-                : ts.factory.createTemplateTail)(str ?? ""),
+                ? TypeScriptFactory.createTemplateMiddle
+                : TypeScriptFactory.createTemplateTail)(str ?? ""),
             ),
           ),
       );
@@ -184,7 +187,7 @@ export namespace SdkTypeProgrammer {
     (meta: MetadataAtomic): ts.TypeNode =>
       write_type_tag_matrix(importer)(
         meta.type as "boolean" | "bigint" | "number" | "string",
-        ts.factory.createKeywordTypeNode(
+        TypeScriptFactory.createKeywordTypeNode(
           meta.type === "boolean"
             ? ts.SyntaxKind.BooleanKeyword
             : meta.type === "bigint"
@@ -205,7 +208,7 @@ export namespace SdkTypeProgrammer {
     (meta: MetadataArray): ts.TypeNode =>
       write_type_tag_matrix(importer)(
         "array",
-        ts.factory.createArrayTypeNode(
+        TypeScriptFactory.createArrayTypeNode(
           write(project)(importer)(meta.type.value),
         ),
         meta.tags,
@@ -215,16 +218,16 @@ export namespace SdkTypeProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (meta: MetadataTuple): ts.TypeNode =>
-      ts.factory.createTupleTypeNode(
+      TypeScriptFactory.createTupleTypeNode(
         meta.type.elements.map((elem) =>
           elem.rest
-            ? ts.factory.createRestTypeNode(
-                ts.factory.createArrayTypeNode(
+            ? TypeScriptFactory.createRestTypeNode(
+                TypeScriptFactory.createArrayTypeNode(
                   write(project)(importer)(elem.rest),
                 ),
               )
             : elem.optional
-              ? ts.factory.createOptionalTypeNode(
+              ? TypeScriptFactory.createOptionalTypeNode(
                   write(project)(importer)(elem),
                 )
               : write(project)(importer)(elem),
@@ -235,7 +238,7 @@ export namespace SdkTypeProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (properties: MetadataProperty[]): ts.TypeLiteralNode =>
-      ts.factory.createTypeLiteralNode(
+      TypeScriptFactory.createTypeLiteralNode(
         properties
           .map((p) => {
             const description: string = writeComment(p.value.atomics)(
@@ -243,25 +246,25 @@ export namespace SdkTypeProgrammer {
               p.jsDocTags,
             );
             const signature: ts.PropertySignature =
-              ts.factory.createPropertySignature(
+              TypeScriptFactory.createPropertySignature(
                 undefined,
                 NamingConvention.variable(
                   String(p.key.constants[0]!.values[0]!.value),
                 )
-                  ? ts.factory.createIdentifier(
+                  ? TypeScriptFactory.createIdentifier(
                       String(p.key.constants[0]!.values[0]!.value),
                     )
-                  : ts.factory.createStringLiteral(
+                  : TypeScriptFactory.createStringLiteral(
                       String(p.key.constants[0]!.values[0]!.value),
                     ),
                 p.value.isRequired() === false
-                  ? ts.factory.createToken(ts.SyntaxKind.QuestionToken)
+                  ? TypeScriptFactory.createToken(ts.SyntaxKind.QuestionToken)
                   : undefined,
                 SdkTypeProgrammer.write(project)(importer)(p.value),
               );
             return !!description.length
               ? [
-                  ts.factory.createIdentifier("\n") as any,
+                  TypeScriptFactory.createIdentifier("\n") as any,
                   FilePrinter.description(signature, description),
                 ]
               : signature;
@@ -273,15 +276,15 @@ export namespace SdkTypeProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (property: MetadataProperty): ts.TypeLiteralNode =>
-      ts.factory.createTypeLiteralNode([
+      TypeScriptFactory.createTypeLiteralNode([
         FilePrinter.description(
-          ts.factory.createIndexSignature(
+          TypeScriptFactory.createIndexSignature(
             undefined,
             [
-              ts.factory.createParameterDeclaration(
+              TypeScriptFactory.createParameterDeclaration(
                 undefined,
                 undefined,
-                ts.factory.createIdentifier("key"),
+                TypeScriptFactory.createIdentifier("key"),
                 undefined,
                 SdkTypeProgrammer.write(project)(importer)(property.key),
               ),
@@ -300,11 +303,11 @@ export namespace SdkTypeProgrammer {
     (importer: ImportDictionary) =>
     (meta: MetadataAliasType | MetadataObjectType): ts.TypeNode => {
       importInternalFile(project)(importer)(meta.name);
-      return ts.factory.createTypeReferenceNode(meta.name);
+      return TypeScriptFactory.createTypeReferenceNode(meta.name);
     };
 
   const write_native = (name: string): ts.TypeNode =>
-    ts.factory.createTypeReferenceNode(name);
+    TypeScriptFactory.createTypeReferenceNode(name);
 
   /* -----------------------------------------------------------
     MISCELLANEOUS
@@ -319,19 +322,19 @@ export namespace SdkTypeProgrammer {
       matrix = matrix.filter((row) => row.length !== 0);
       if (matrix.length === 0) return base;
       else if (matrix.length === 1)
-        return ts.factory.createIntersectionTypeNode([
+        return TypeScriptFactory.createIntersectionTypeNode([
           base,
           ...matrix[0]!.map((tag) =>
             SdkTypeTagProgrammer.write(importer, from, tag),
           ),
         ]);
-      return ts.factory.createIntersectionTypeNode([
+      return TypeScriptFactory.createIntersectionTypeNode([
         base,
-        ts.factory.createUnionTypeNode(
+        TypeScriptFactory.createUnionTypeNode(
           matrix.map((row) =>
             row.length === 1
               ? SdkTypeTagProgrammer.write(importer, from, row[0]!)
-              : ts.factory.createIntersectionTypeNode(
+              : TypeScriptFactory.createIntersectionTypeNode(
                   row.map((tag) =>
                     SdkTypeTagProgrammer.write(importer, from, tag),
                   ),
@@ -342,7 +345,8 @@ export namespace SdkTypeProgrammer {
     };
 }
 
-const writeNode = (text: string) => ts.factory.createTypeReferenceNode(text);
+const writeNode = (text: string) =>
+  TypeScriptFactory.createTypeReferenceNode(text);
 const writeComment =
   (atomics: MetadataAtomic[]) =>
   (description: string | null, jsDocTags: IJsDocTagInfo[]): string => {

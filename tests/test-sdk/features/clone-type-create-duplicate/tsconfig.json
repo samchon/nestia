@@ -5,13 +5,10 @@
     "outDir": "./dist",
     "exactOptionalPropertyTypes": false,
     "plugins": [
-      { "transform": "typescript-transform-paths" },
-      { "transform": "typia/lib/transform" },
       {
         "transform": "@nestia/core/lib/transform",
         "validate": "assertEquals",
       },
-      { "transform": "@nestia/sdk/lib/transform" },
     ],
   },
   "include": ["src"],
