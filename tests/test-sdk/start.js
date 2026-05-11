@@ -107,6 +107,19 @@ const runTtsxTest = (stdio) => {
         compilerOptions: {
           noUnusedLocals: false,
           noUnusedParameters: false,
+          plugins: [
+            {
+              transform: "typia/lib/transform",
+              enabled: false,
+            },
+            {
+              transform: "@nestia/sdk/lib/transform",
+              enabled: false,
+            },
+            {
+              transform: "@nestia/core/native/transform.cjs",
+            },
+          ],
           rootDir: "src",
         },
       },

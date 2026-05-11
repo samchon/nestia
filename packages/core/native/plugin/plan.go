@@ -7,9 +7,11 @@ import (
 )
 
 const (
-	CoreTransform  = "@nestia/core/lib/transform"
-	SDKTransform   = "@nestia/sdk/lib/transform"
-	TypiaTransform = "typia/lib/transform"
+	CoreNativeTransform = "@nestia/core/native/transform.cjs"
+	CoreTransform       = "@nestia/core/lib/transform"
+	SDKNativeTransform  = "@nestia/sdk/native/transform.cjs"
+	SDKTransform        = "@nestia/sdk/lib/transform"
+	TypiaTransform      = "typia/lib/transform"
 )
 
 type Entry struct {
@@ -73,9 +75,9 @@ func classify(entry Entry) string {
 	name := strings.TrimSpace(entry.Name)
 	transform := strings.TrimSpace(entry.Transform)
 	switch {
-	case name == "@nestia/core" || transform == CoreTransform:
+	case name == "@nestia/core" || transform == CoreTransform || transform == CoreNativeTransform:
 		return "core"
-	case name == "@nestia/sdk" || transform == SDKTransform:
+	case name == "@nestia/sdk" || transform == SDKTransform || transform == SDKNativeTransform:
 		return "sdk"
 	case name == "typia" || transform == TypiaTransform:
 		return "typia"

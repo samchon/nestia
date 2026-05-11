@@ -49,7 +49,27 @@ func TestSDKNativeBuildInjectsOperationMetadata(t *testing.T) {
 	typeRoots := nodeTypeRoots(t, root)
 	if err := os.WriteFile(
 		tsconfig,
-		[]byte(`{"extends":"`+filepath.ToSlash(filepath.Join(root, "tests/test-sdk/features/body/tsconfig.json"))+`","compilerOptions":{"rootDir":"`+filepath.ToSlash(sourceRoot)+`","types":["node"],"typeRoots":["`+typeRoots+`"]}}`),
+		[]byte(`{
+  "extends": "`+filepath.ToSlash(filepath.Join(root, "tests/test-sdk/features/body/tsconfig.json"))+`",
+  "compilerOptions": {
+    "rootDir": "`+filepath.ToSlash(sourceRoot)+`",
+    "types": ["node"],
+    "typeRoots": ["`+typeRoots+`"],
+    "paths": {
+      "@api": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api"))+`"],
+      "@api/lib/*": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api/*"))+`"],
+      "@nestia/core": ["`+filepath.ToSlash(filepath.Join(root, "packages/core/src"))+`"],
+      "@nestia/core/*": ["`+filepath.ToSlash(filepath.Join(root, "packages/core/src/*"))+`"],
+      "@nestia/sdk": ["`+filepath.ToSlash(filepath.Join(root, "packages/sdk/src"))+`"],
+      "@nestia/sdk/*": ["`+filepath.ToSlash(filepath.Join(root, "packages/sdk/src/*"))+`"]
+    }
+  },
+  "files": [
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "controllers/TypedBodyController.ts"))+`",
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "api/structures/IBbsArticle.ts"))+`"
+  ],
+  "include": []
+}`),
 		0o644,
 	); err != nil {
 		t.Fatal(err)
@@ -107,7 +127,11 @@ func TestSDKNativeBuildInjectsTypedExceptionMetadata(t *testing.T) {
     "typeRoots": ["`+typeRoots+`"],
     "paths": {
       "@api": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api"))+`"],
-      "@api/lib/*": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api/*"))+`"]
+      "@api/lib/*": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api/*"))+`"],
+      "@nestia/core": ["`+filepath.ToSlash(filepath.Join(root, "packages/core/src"))+`"],
+      "@nestia/core/*": ["`+filepath.ToSlash(filepath.Join(root, "packages/core/src/*"))+`"],
+      "@nestia/sdk": ["`+filepath.ToSlash(filepath.Join(root, "packages/sdk/src"))+`"],
+      "@nestia/sdk/*": ["`+filepath.ToSlash(filepath.Join(root, "packages/sdk/src/*"))+`"]
     }
   },
   "include": [

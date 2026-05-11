@@ -3,7 +3,6 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import { parse } from "tsconfck";
-import { TtscCompiler } from "ttsc";
 import ts from "typescript";
 import { pathToFileURL } from "url";
 
@@ -85,48 +84,25 @@ export namespace NestiaConfigLoader {
       path.join(ensureMaterializedRoot(projectRoot), "run-"),
     );
     const wrapperFile: string = path.join(wrapperRoot, "tsconfig.json");
-    fs.writeFileSync(
-      wrapperFile,
-      JSON.stringify(
-        {
-          extends: projectFile,
-          compilerOptions: {
-            noEmit: false,
-            noUnusedLocals: false,
-            noUnusedParameters: false,
-            ...nodeAmbientCompilerOptions(projectRoot, props.compilerOptions),
-            outDir: ".",
-            rootDir: projectRoot,
-          },
-          include: [configFile],
-          exclude: [path.join(projectRoot, "src", "test", "**", "*")],
-        },
-        null,
-        2,
-      ),
-      "utf8",
-    );
+    const wrapperConfig = {
+      extends: projectFile,
+      compilerOptions: {
+        noEmit: false,
+        noUnusedLocals: false,
+        noUnusedParameters: false,
+        ...nodeAmbientCompilerOptions(projectRoot, props.compilerOptions),
+        outDir: outputRoot,
+        rootDir: projectRoot,
+      },
+      include: [configFile],
+      exclude: [path.join(projectRoot, "src", "test", "**", "*")],
+    };
+    fs.writeFileSync(wrapperFile, JSON.stringify(wrapperConfig, null, 2), "utf8");
 
-    const compiler: TtscCompiler = new TtscCompiler({
-      cwd: projectRoot,
-      env: process.env,
-      plugins: props.compilerOptions.plugins,
-      projectRoot,
-      tsconfig: wrapperFile,
-    });
-    const result = compiler.compile();
+    const result = emitConfiguration(wrapperFile);
     fs.rmSync(wrapperRoot, { force: true, recursive: true });
-    if (result.type !== "success")
+    if (result.length !== 0)
       throw new Error(formatCompilerFailure(props.file, result));
-
-    for (const [key, content] of Object.entries(result.output)) {
-      const relative: string = path.isAbsolute(key)
-        ? path.relative(wrapperRoot, key)
-        : key;
-      const location: string = path.join(outputRoot, relative);
-      fs.mkdirSync(path.dirname(location), { recursive: true });
-      fs.writeFileSync(location, content, "utf8");
-    }
 
     const configKey: string = emittedJavaScriptKey(projectRoot, configFile);
     const next: string = path.join(outputRoot, configKey);
@@ -135,6 +111,33 @@ export namespace NestiaConfigLoader {
         `failed to materialize "${props.file}" through ttsc native transform.`,
       );
     return next;
+  };
+
+  const emitConfiguration = (wrapperFile: string): ts.Diagnostic[] => {
+    const configDiagnostics: ts.Diagnostic[] = [];
+    const parsed: ts.ParsedCommandLine | undefined =
+      ts.getParsedCommandLineOfConfigFile(
+        wrapperFile,
+        {},
+        {
+          ...ts.sys,
+          onUnRecoverableConfigFileDiagnostic: (diagnostic) =>
+            configDiagnostics.push(diagnostic),
+        },
+      );
+    if (parsed === undefined) return configDiagnostics;
+
+    const program: ts.Program = ts.createProgram({
+      rootNames: parsed.fileNames,
+      options: parsed.options,
+      projectReferences: parsed.projectReferences,
+    });
+    const emitted: ts.EmitResult = program.emit();
+    return [
+      ...configDiagnostics,
+      ...ts.getPreEmitDiagnostics(program),
+      ...emitted.diagnostics,
+    ].filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error);
   };
 
   const ensureMaterializedRoot = (projectRoot: string): string => {
@@ -211,26 +214,28 @@ export namespace NestiaConfigLoader {
 
   const formatCompilerFailure = (
     file: string,
-    result: ReturnType<TtscCompiler["compile"]>,
+    diagnostics: ts.Diagnostic[],
   ): string => {
-    if (result.type === "exception")
-      return `failed to compile "${file}" through ttsc native transform: ${JSON.stringify(result.error)}`;
-    const diagnostics = result.type === "failure" ? result.diagnostics : [];
     return [
-      `failed to compile "${file}" through ttsc native transform.`,
-      ...diagnostics.map((diag) =>
-        [
-          diag.file ?? "<global>",
-          diag.line !== undefined && diag.character !== undefined
-            ? `${diag.line}:${diag.character}`
-            : null,
-          `TS${diag.code}`,
-          diag.messageText,
-        ]
-          .filter((str) => str !== null)
-          .join(" - "),
-      ),
+      `failed to compile "${file}" through TypeScript compiler.`,
+      ...diagnostics.map(formatDiagnostic),
     ].join("\n");
+  };
+
+  const formatDiagnostic = (diag: ts.Diagnostic): string => {
+    const location = diag.file
+      ? (() => {
+          const position = diag.file!.getLineAndCharacterOfPosition(
+            diag.start ?? 0,
+          );
+          return `${diag.file!.fileName} - ${position.line + 1}:${position.character + 1}`;
+        })()
+      : "<global>";
+    return [
+      location,
+      `TS${diag.code}`,
+      ts.flattenDiagnosticMessageText(diag.messageText, "\n"),
+    ].join(" - ");
   };
 
   const extractConfiguration = (

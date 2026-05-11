@@ -16,7 +16,7 @@ export function createTtscPlugin(
   const root: string =
     resolvePackageRoot("@nestia/core/package.json", context.projectRoot) ??
     inferPackageRoot();
-  return {
+  const plugin: ITtscPlugin & { composes: string[] } = {
     name: "@nestia/core",
     source: path.resolve(root, "native", "cmd", "ttsc-nestia"),
     composes: [
@@ -29,6 +29,7 @@ export function createTtscPlugin(
       "@nestia/sdk/lib/transform",
     ],
   };
+  return plugin;
 }
 
 export const transform = (

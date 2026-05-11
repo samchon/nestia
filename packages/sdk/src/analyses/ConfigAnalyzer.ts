@@ -143,6 +143,19 @@ class RuntimeCompiler {
             noUnusedLocals: false,
             noUnusedParameters: false,
             outDir,
+            plugins: [
+              {
+                transform: "typia/lib/transform",
+                enabled: false,
+              },
+              {
+                transform: "@nestia/sdk/lib/transform",
+                enabled: false,
+              },
+              {
+                transform: "@nestia/core/native/transform.cjs",
+              },
+            ],
             rootDir: ".",
           },
           include: sources.map(relative),
