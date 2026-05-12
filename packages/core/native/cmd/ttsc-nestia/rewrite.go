@@ -205,7 +205,8 @@ func spliceNativeCall(text string, r nativeRewrite) (string, bool, error) {
 			}
 			closePos, ok := matchNativeParen(text, hit.paren)
 			if !ok {
-				return text, false, fmt.Errorf("native rewrite: unbalanced parens while locating plugin call")
+				searchFrom = advanceNativeSearch(searchFrom, hit)
+				continue
 			}
 			if r.ExpectedArgumentCount != nil &&
 				countNativeArguments(text[hit.paren+1:closePos]) != *r.ExpectedArgumentCount {

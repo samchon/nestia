@@ -179,6 +179,144 @@ func TestSDKNativeBuildInjectsTypedExceptionMetadata(t *testing.T) {
 	}
 }
 
+func TestSDKNativeBuildKeepsImportsArrayForInferredReturn(t *testing.T) {
+	root := repoRoot(t)
+	temp := t.TempDir()
+	tsconfig := filepath.Join(temp, "tsconfig.json")
+	featureRoot := filepath.Join(root, "tests/test-sdk/features/clone-implicit")
+	sourceRoot := filepath.Join(featureRoot, "src")
+	typeRoots := nodeTypeRoots(t, root)
+	if err := os.WriteFile(
+		tsconfig,
+		[]byte(`{
+  "extends": "`+filepath.ToSlash(filepath.Join(featureRoot, "tsconfig.json"))+`",
+  "compilerOptions": {
+    "rootDir": "`+filepath.ToSlash(sourceRoot)+`",
+    "types": ["node"],
+    "typeRoots": ["`+typeRoots+`"],
+    "paths": {
+      "@api": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api"))+`"],
+      "@api/lib/*": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api/*"))+`"],
+      "@nestia/core": ["`+filepath.ToSlash(filepath.Join(root, "packages/core/src"))+`"],
+      "@nestia/core/*": ["`+filepath.ToSlash(filepath.Join(root, "packages/core/src/*"))+`"],
+      "@nestia/sdk": ["`+filepath.ToSlash(filepath.Join(root, "packages/sdk/src"))+`"],
+      "@nestia/sdk/*": ["`+filepath.ToSlash(filepath.Join(root, "packages/sdk/src/*"))+`"]
+    }
+  },
+  "include": [
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "controllers/TypedBodyController.ts"))+`"
+  ]
+}`),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	outDir := filepath.Join(temp, "lib")
+	cmd := exec.Command(
+		"go",
+		"run",
+		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		"build",
+		"--cwd", temp,
+		"--tsconfig", "tsconfig.json",
+		"--emit",
+		"--outDir", outDir,
+		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("native build failed: %v\n%s", err, out)
+	}
+	js, err := os.ReadFile(filepath.Join(outDir, "controllers/TypedBodyController.js"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(js)
+	expected := "success: {\n        type: {\n            name: \"__type\"\n        },\n        imports: [],"
+	if !strings.Contains(text, expected) {
+		t.Fatalf("inferred return metadata is missing imports array\n%s", text)
+	}
+}
+
+func TestSDKNativeTransformKeepsEmptyJSDocTagsUndefined(t *testing.T) {
+	root := repoRoot(t)
+	cmd := exec.Command(
+		"go",
+		"run",
+		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		"transform",
+		"--cwd", filepath.Join(root, "tests/test-sdk"),
+		"--tsconfig", "features/security/tsconfig.json",
+		"--file", filepath.Join(root, "tests/test-sdk/features/security/src/controllers/SecurityController.ts"),
+		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("native transform failed: %v\n%s", err, out)
+	}
+	text := string(out)
+	expected := "jsDocTags: [\n    {\n        name: \"security\"\n    },\n    {\n        name: \"security\",\n        text: ["
+	if !strings.Contains(text, expected) {
+		t.Fatalf("empty JSDoc tag should omit text so Swagger can emit optional security\n%s", text)
+	}
+}
+
+func TestSDKNativeBuildImportsLocalTypeAliases(t *testing.T) {
+	root := repoRoot(t)
+	temp := t.TempDir()
+	tsconfig := filepath.Join(temp, "tsconfig.json")
+	featureRoot := filepath.Join(root, "tests/test-sdk/features/tags")
+	sourceRoot := filepath.Join(featureRoot, "src")
+	if err := os.WriteFile(
+		tsconfig,
+		[]byte(`{
+  "extends": "`+filepath.ToSlash(filepath.Join(featureRoot, "tsconfig.json"))+`",
+  "compilerOptions": {
+    "rootDir": "`+filepath.ToSlash(sourceRoot)+`",
+    "paths": {
+      "@api": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api"))+`"],
+      "@api/lib/*": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api/*"))+`"]
+    }
+  },
+  "include": [
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "controllers/TransactionController.ts"))+`"
+  ]
+}`),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	outDir := filepath.Join(temp, "lib")
+	cmd := exec.Command(
+		"go",
+		"run",
+		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		"build",
+		"--cwd", temp,
+		"--tsconfig", "tsconfig.json",
+		"--emit",
+		"--outDir", outDir,
+		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("native build failed: %v\n%s", err, out)
+	}
+	js, err := os.ReadFile(filepath.Join(outDir, "controllers/TransactionController.js"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(js)
+	for _, expected := range []string{
+		`"PubkeyInput"`,
+		`TransactionController`,
+	} {
+		if !strings.Contains(text, expected) {
+			t.Fatalf("local type alias import metadata is missing %q\n%s", expected, text)
+		}
+	}
+}
+
 func repoRoot(t *testing.T) string {
 	t.Helper()
 	root, err := filepath.Abs("../../..")

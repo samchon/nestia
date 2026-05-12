@@ -1,4 +1,5 @@
 import { doNotThrowTransformError } from "@nestia/core";
+import cp from "child_process";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -92,6 +93,7 @@ export namespace NestiaConfigLoader {
         noUnusedParameters: false,
         ...nodeAmbientCompilerOptions(projectRoot, props.compilerOptions),
         outDir: outputRoot,
+        plugins: materializePlugins(props.compilerOptions.plugins),
         rootDir: projectRoot,
       },
       include: [configFile],
@@ -99,10 +101,22 @@ export namespace NestiaConfigLoader {
     };
     fs.writeFileSync(wrapperFile, JSON.stringify(wrapperConfig, null, 2), "utf8");
 
-    const result = emitConfiguration(wrapperFile);
-    fs.rmSync(wrapperRoot, { force: true, recursive: true });
-    if (result.length !== 0)
-      throw new Error(formatCompilerFailure(props.file, result));
+    try {
+      cp.execFileSync("npx", ["ttsc", "-p", wrapperFile], {
+        cwd: projectRoot,
+        stdio: "pipe",
+      });
+    } catch (error) {
+      const output =
+        error instanceof Error && "stderr" in error
+          ? String((error as Error & { stderr?: Buffer }).stderr ?? "")
+          : "";
+      throw new Error(
+        output || `failed to compile "${props.file}" through ttsc.`,
+      );
+    } finally {
+      fs.rmSync(wrapperRoot, { force: true, recursive: true });
+    }
 
     const configKey: string = emittedJavaScriptKey(projectRoot, configFile);
     const next: string = path.join(outputRoot, configKey);
@@ -111,33 +125,6 @@ export namespace NestiaConfigLoader {
         `failed to materialize "${props.file}" through ttsc native transform.`,
       );
     return next;
-  };
-
-  const emitConfiguration = (wrapperFile: string): ts.Diagnostic[] => {
-    const configDiagnostics: ts.Diagnostic[] = [];
-    const parsed: ts.ParsedCommandLine | undefined =
-      ts.getParsedCommandLineOfConfigFile(
-        wrapperFile,
-        {},
-        {
-          ...ts.sys,
-          onUnRecoverableConfigFileDiagnostic: (diagnostic) =>
-            configDiagnostics.push(diagnostic),
-        },
-      );
-    if (parsed === undefined) return configDiagnostics;
-
-    const program: ts.Program = ts.createProgram({
-      rootNames: parsed.fileNames,
-      options: parsed.options,
-      projectReferences: parsed.projectReferences,
-    });
-    const emitted: ts.EmitResult = program.emit();
-    return [
-      ...configDiagnostics,
-      ...ts.getPreEmitDiagnostics(program),
-      ...emitted.diagnostics,
-    ].filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error);
   };
 
   const ensureMaterializedRoot = (projectRoot: string): string => {
@@ -212,31 +199,48 @@ export namespace NestiaConfigLoader {
 
   const uniqueStrings = (input: string[]): string[] => [...new Set(input)];
 
-  const formatCompilerFailure = (
-    file: string,
-    diagnostics: ts.Diagnostic[],
-  ): string => {
+  type MaterializePlugin = Record<string, unknown> & { transform?: unknown };
+
+  const materializePlugins = (input: unknown): MaterializePlugin[] => {
+    const plugins: MaterializePlugin[] = Array.isArray(input)
+      ? input
+          .filter((p) => typeof p === "object" && p !== null)
+          .map((p) => ({ ...(p as MaterializePlugin) }))
+      : [];
+    const typia: MaterializePlugin | undefined = plugins.find((p) =>
+      isTransform(p, "typia"),
+    );
+    const sdk: MaterializePlugin | undefined = plugins.find((p) =>
+      isTransform(p, "@nestia/sdk"),
+    );
+    const core: MaterializePlugin | undefined = plugins.find((p) =>
+      isTransform(p, "@nestia/core"),
+    );
     return [
-      `failed to compile "${file}" through TypeScript compiler.`,
-      ...diagnostics.map(formatDiagnostic),
-    ].join("\n");
+      {
+        ...(typia ?? {}),
+        transform: "typia/lib/transform",
+        enabled: false,
+      },
+      normalizePlugin({
+        ...(sdk ?? {}),
+        transform: "@nestia/sdk/lib/transform",
+      }),
+      normalizePlugin({
+        ...(core ?? {}),
+        transform: "@nestia/core/native/transform.cjs",
+      }),
+    ];
   };
 
-  const formatDiagnostic = (diag: ts.Diagnostic): string => {
-    const location = diag.file
-      ? (() => {
-          const position = diag.file!.getLineAndCharacterOfPosition(
-            diag.start ?? 0,
-          );
-          return `${diag.file!.fileName} - ${position.line + 1}:${position.character + 1}`;
-        })()
-      : "<global>";
-    return [
-      location,
-      `TS${diag.code}`,
-      ts.flattenDiagnosticMessageText(diag.messageText, "\n"),
-    ].join(" - ");
+  const normalizePlugin = (plugin: MaterializePlugin): MaterializePlugin => {
+    const output: MaterializePlugin = { ...plugin };
+    if (output.enabled === false) delete output.enabled;
+    return output;
   };
+
+  const isTransform = (plugin: MaterializePlugin, name: string): boolean =>
+    typeof plugin.transform === "string" && plugin.transform.includes(name);
 
   const extractConfiguration = (
     file: string,

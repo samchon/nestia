@@ -9,6 +9,7 @@ import getFunctionLocation from "get-function-location";
 import os from "os";
 import path from "path";
 import { HashMap, Pair, Singleton } from "tstl";
+import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { SdkGenerator } from "../generates/SdkGenerator";
@@ -143,19 +144,7 @@ class RuntimeCompiler {
             noUnusedLocals: false,
             noUnusedParameters: false,
             outDir,
-            plugins: [
-              {
-                transform: "typia/lib/transform",
-                enabled: false,
-              },
-              {
-                transform: "@nestia/sdk/lib/transform",
-                enabled: false,
-              },
-              {
-                transform: "@nestia/core/native/transform.cjs",
-              },
-            ],
+            plugins: runtimePlugins(cwd),
             rootDir: ".",
           },
           include: sources.map(relative),
@@ -191,6 +180,68 @@ class RuntimeCompiler {
     return emitted;
   }
 }
+
+type RuntimePlugin = Record<string, unknown> & { transform?: unknown };
+
+const runtimePlugins = (cwd: string): RuntimePlugin[] => {
+  const plugins: RuntimePlugin[] = readProjectPlugins(cwd);
+  const typia: RuntimePlugin | undefined = plugins.find((p) =>
+    isTransform(p, "typia"),
+  );
+  const sdk: RuntimePlugin | undefined = plugins.find((p) =>
+    isTransform(p, "@nestia/sdk"),
+  );
+  const core: RuntimePlugin | undefined = plugins.find((p) =>
+    isTransform(p, "@nestia/core"),
+  );
+  return [
+    {
+      ...(typia ?? {}),
+      transform: "typia/lib/transform",
+      enabled: false,
+    },
+    normalizeRuntimePlugin({
+      ...(sdk ?? {}),
+      transform: "@nestia/sdk/lib/transform",
+    }),
+    normalizeRuntimePlugin({
+      ...(core ?? {}),
+      transform: "@nestia/core/native/transform.cjs",
+    }),
+  ];
+};
+
+const readProjectPlugins = (cwd: string): RuntimePlugin[] => {
+  const project: string = normalizeProjectPath(process.env.NESTIA_PROJECT);
+  const file: string = path.isAbsolute(project)
+    ? project
+    : path.join(cwd, project);
+  const loaded: { config?: unknown; error?: ts.Diagnostic } =
+    ts.readConfigFile(file, ts.sys.readFile);
+  if (loaded.error !== undefined || loaded.config === undefined) return [];
+  const config: ts.ParsedCommandLine = ts.parseJsonConfigFileContent(
+    loaded.config,
+    ts.sys,
+    path.dirname(file),
+  );
+  const options = config.options as
+    | (ts.CompilerOptions & { plugins?: RuntimePlugin[] })
+    | undefined;
+  return Array.isArray(options?.plugins)
+    ? options.plugins
+        .filter((p) => typeof p === "object" && p !== null)
+        .map((p) => ({ ...(p as unknown as RuntimePlugin) }))
+    : [];
+};
+
+const normalizeRuntimePlugin = (plugin: RuntimePlugin): RuntimePlugin => {
+  const output: RuntimePlugin = { ...plugin };
+  if (output.enabled === false) delete output.enabled;
+  return output;
+};
+
+const isTransform = (plugin: RuntimePlugin, name: string): boolean =>
+  typeof plugin.transform === "string" && plugin.transform.includes(name);
 
 const replaceExtension = (file: string, extension: string): string =>
   file.replace(/\.[cm]?tsx?$/i, extension);

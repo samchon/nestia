@@ -72,6 +72,206 @@ func TestCoreNativeTransformInjectsDecoratorArguments(t *testing.T) {
 	}
 }
 
+func TestCoreNativeTransformUsesValidateLogStringifier(t *testing.T) {
+	root := repoRoot(t)
+	cmd := exec.Command(
+		"go",
+		"run",
+		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		"transform",
+		"--cwd", filepath.Join(root, "tests/test-sdk"),
+		"--tsconfig", "features/route-manual-validate-log-encrypted/tsconfig.json",
+		"--file", "features/route-manual-validate-log-encrypted/src/controllers/BbsArticleController.ts",
+		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"validate.log"}}]`,
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("native transform failed: %v\n%s", err, out)
+	}
+	text := string(out)
+	for _, expected := range []string{
+		`@TypedRoute.Get(":id", ({`,
+		`type: "validate.log"`,
+		`validate: (() =>`,
+	} {
+		if !strings.Contains(text, expected) {
+			t.Fatalf("transformed source is missing %q\n%s", expected, text)
+		}
+	}
+	if strings.Contains(text, `validate.log: `) {
+		t.Fatalf("validate.log must be emitted as the stringifier type, not a property name\n%s", text)
+	}
+}
+
+func TestCoreNativeBuildKeepsDecoratorTypiaRewritesInEmitOrder(t *testing.T) {
+	root := repoRoot(t)
+	temp := t.TempDir()
+	featureRoot := filepath.Join(root, "tests/test-sdk/features/swagger-example")
+	sourceRoot := filepath.Join(featureRoot, "src")
+	tsconfig := filepath.Join(temp, "tsconfig.json")
+	if err := os.WriteFile(
+		tsconfig,
+		[]byte(`{
+  "extends": "`+filepath.ToSlash(filepath.Join(featureRoot, "tsconfig.json"))+`",
+  "compilerOptions": {
+    "rootDir": "`+filepath.ToSlash(sourceRoot)+`",
+    "paths": {
+      "@api": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api"))+`"],
+      "@api/lib/*": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api/*"))+`"]
+    }
+  },
+  "include": [
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "controllers/BbsArticlesController.ts"))+`",
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "api/structures/IBbsArticle.ts"))+`"
+  ]
+}`),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	outDir := filepath.Join(temp, "lib")
+	cmd := exec.Command(
+		"go",
+		"run",
+		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		"build",
+		"--cwd", temp,
+		"--tsconfig", "tsconfig.json",
+		"--emit",
+		"--outDir", outDir,
+		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("native build failed: %v\n%s", err, out)
+	}
+	js, err := os.ReadFile(filepath.Join(outDir, "controllers/BbsArticlesController.js"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(js)
+	start := strings.Index(text, "SwaggerExample.Response((() =>")
+	end := strings.Index(text[start:], "core_1.default.TypedRoute.Post")
+	if start < 0 || end < 0 {
+		t.Fatalf("could not locate create response decorator\n%s", text)
+	}
+	response := text[start : start+end]
+	for _, expected := range []string{
+		`id:`,
+		`created_at:`,
+	} {
+		if !strings.Contains(response, expected) {
+			t.Fatalf("response example rewrite is missing %q\n%s", expected, response)
+		}
+	}
+}
+
+func TestCoreNativeBuildEmitsControllersAfterSkippingBadRewriteCandidates(t *testing.T) {
+	root := repoRoot(t)
+	temp := t.TempDir()
+	featureRoot := filepath.Join(root, "tests/test-sdk/features/clone-and-keyword")
+	sourceRoot := filepath.Join(featureRoot, "src")
+	tsconfig := filepath.Join(temp, "tsconfig.json")
+	if err := os.WriteFile(
+		tsconfig,
+		[]byte(`{
+  "extends": "`+filepath.ToSlash(filepath.Join(featureRoot, "tsconfig.json"))+`",
+  "compilerOptions": {
+    "rootDir": "`+filepath.ToSlash(sourceRoot)+`",
+    "paths": {
+      "@api": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api"))+`"],
+      "@api/lib/*": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api/*"))+`"]
+    }
+  },
+  "files": [
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "controllers/UserNormalsController.ts"))+`",
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "controllers/ErrorCode.ts"))+`"
+  ],
+  "include": []
+}`),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	outDir := filepath.Join(temp, "lib")
+	cmd := exec.Command(
+		"go",
+		"run",
+		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		"build",
+		"--cwd", temp,
+		"--tsconfig", "tsconfig.json",
+		"--emit",
+		"--outDir", outDir,
+		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("native build failed: %v\n%s", err, out)
+	}
+	if _, err := os.Stat(filepath.Join(outDir, "controllers/UserNormalsController.js")); err != nil {
+		t.Fatalf("UserNormalsController.js was not emitted: %v\n%s", err, out)
+	}
+}
+
+func TestCoreNativeTransformAppliesJSDocTypeTagsToTypedQuery(t *testing.T) {
+	root := repoRoot(t)
+	cmd := exec.Command(
+		"go",
+		"run",
+		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		"transform",
+		"--cwd", filepath.Join(root, "tests/test-sdk/features/app"),
+		"--tsconfig", "tsconfig.json",
+		"--file", filepath.Join(root, "tests/test-sdk/features/app/src/controllers/BbsArticlesController.ts"),
+		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}}]`,
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("native transform failed: %v\n%s", err, out)
+	}
+	text := string(out)
+	for _, expected := range []string{
+		`Math.floor(input.page) === input.page && 0 <= input.page && input.page <= 4294967295`,
+		`Math.floor(input.limit) === input.limit && 0 <= input.limit && input.limit <= 4294967295`,
+	} {
+		if !strings.Contains(text, expected) {
+			t.Fatalf("transformed source is missing %q\n%s", expected, text)
+		}
+	}
+}
+
+func TestCoreNativeTypiaRandomUsesJSDocTypeTags(t *testing.T) {
+	root := repoRoot(t)
+	cmd := exec.Command(
+		"go",
+		"run",
+		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		"transform",
+		"--cwd", filepath.Join(root, "tests/test-sdk/features/app"),
+		"--tsconfig", "tsconfig.json",
+		"--file", filepath.Join(root, "tests/test-sdk/features/app/src/test/features/api/automated/test_api_bbs_articles_index.ts"),
+		"--plugins-json", `[{"name":"typia","stage":"transform","config":{"transform":"typia/lib/transform"}}]`,
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("native transform failed: %v\n%s", err, out)
+	}
+	text := string(out)
+	for _, expected := range []string{
+		`_randomInteger`,
+		`type: "integer"`,
+		`minimum: 0`,
+	} {
+		if !strings.Contains(text, expected) {
+			t.Fatalf("transformed source is missing %q\n%s", expected, text)
+		}
+	}
+	if strings.Contains(text, `_randomNumber`) {
+		t.Fatalf("random generator must use integer constraints for @type uint\n%s", text)
+	}
+}
+
 func TestCoreNativeTransformInjectsFormDataFileOptions(t *testing.T) {
 	root := repoRoot(t)
 	temp := t.TempDir()

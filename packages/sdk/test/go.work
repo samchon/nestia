@@ -13,7 +13,7 @@ replace (
 	github.com/microsoft/typescript-go/shim/core => ../../../../ttsc/packages/ttsc/shim/core
 	github.com/microsoft/typescript-go/shim/diagnosticwriter => ../../../../ttsc/packages/ttsc/shim/diagnosticwriter
 	github.com/microsoft/typescript-go/shim/parser => ../../../../ttsc/packages/ttsc/shim/parser
-	github.com/microsoft/typescript-go/shim/printer => ../../../../typia@next/packages/typia/native/shim/printer
+	github.com/microsoft/typescript-go/shim/printer => ../../../../ttsc/packages/ttsc/shim/printer
 	github.com/microsoft/typescript-go/shim/scanner => ../../../../ttsc/packages/ttsc/shim/scanner
 	github.com/microsoft/typescript-go/shim/tsoptions => ../../../../ttsc/packages/ttsc/shim/tsoptions
 	github.com/microsoft/typescript-go/shim/tspath => ../../../../ttsc/packages/ttsc/shim/tspath
@@ -21,5 +21,5 @@ replace (
 	github.com/microsoft/typescript-go/shim/vfs/cachedvfs => ../../../../ttsc/packages/ttsc/shim/vfs/cachedvfs
 	github.com/microsoft/typescript-go/shim/vfs/osvfs => ../../../../ttsc/packages/ttsc/shim/vfs/osvfs
 	github.com/samchon/ttsc/packages/ttsc => ../../../../ttsc/packages/ttsc
-	github.com/samchon/typia/packages/typia/native => ../../../../typia@next/packages/typia/native
+	github.com/samchon/typia/packages/typia/native => ../../../../typia/packages/typia/native
 )

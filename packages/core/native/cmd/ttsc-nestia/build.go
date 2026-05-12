@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 
+	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimcompiler "github.com/microsoft/typescript-go/shim/compiler"
 	shimscanner "github.com/microsoft/typescript-go/shim/scanner"
 	"github.com/samchon/nestia/packages/core/native/plugin"
@@ -272,7 +273,7 @@ func collectTypiaRewrites(
 			Method:        site.Method,
 			Replacement:   expr,
 			ConsumeParens: true,
-			SourceStart:   site.Call.AsNode().Pos(),
+			SourceStart:   typiaBuildRewriteSortKey(site),
 		})
 		if !emit && !quiet {
 			fmt.Fprintf(stdout, "%s: typia.%s<T> -> %s\n", rel, site.Method, expr)
@@ -280,6 +281,31 @@ func collectTypiaRewrites(
 		recognized++
 	}
 	return len(sites), recognized, diagnostics
+}
+
+func typiaBuildRewriteSortKey(site typiaadapter.CallSite) int {
+	node := site.Call.AsNode()
+	if node == nil {
+		return 0
+	}
+	insideDecorator := false
+	classEnd := 0
+	for current := node.Parent; current != nil; current = current.Parent {
+		if current.Kind == nestiaCoreKindDecorator {
+			insideDecorator = true
+		}
+		if current.Kind == shimast.KindClassDeclaration || current.Kind == shimast.KindClassExpression {
+			classEnd = current.End()
+			break
+		}
+	}
+	if insideDecorator == false {
+		return node.Pos()
+	}
+	if classEnd != 0 {
+		return classEnd + node.Pos()
+	}
+	return node.Pos() + 1_000_000_000
 }
 
 func readTypiaPluginOptions(cwd, tsconfigPath string) typiaadapter.PluginOptions {

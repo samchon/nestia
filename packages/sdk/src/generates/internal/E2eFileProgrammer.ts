@@ -128,7 +128,7 @@ export namespace E2eFileProgrammer {
                           ),
                           "random",
                         ),
-                        [e.type],
+                        [getRandomType(importer)(e)],
                         undefined,
                       ),
                     ]),
@@ -143,7 +143,7 @@ export namespace E2eFileProgrammer {
                     ),
                     "random",
                   ),
-                  [e.type],
+                  [getRandomType(importer)(e)],
                   undefined,
                 ),
               )),
@@ -192,6 +192,43 @@ export namespace E2eFileProgrammer {
       );
     };
 }
+
+const getRandomType =
+  (importer: ImportDictionary) =>
+  (entry: SdkHttpParameterProgrammer.IEntry): ts.TypeNode => {
+    if (isPlainStringPathParameter(entry) === false) return entry.type;
+    return TypeScriptFactory.createIntersectionTypeNode([
+      entry.type,
+      TypeScriptFactory.createTypeReferenceNode(
+        TypeScriptFactory.createQualifiedName(
+          TypeScriptFactory.createIdentifier(
+            importer.external({
+              declaration: true,
+              file: "typia",
+              type: "element",
+              name: "tags",
+            }),
+          ),
+          TypeScriptFactory.createIdentifier("MinLength"),
+        ),
+        [
+          TypeScriptFactory.createLiteralTypeNode(
+            LiteralFactory.write(1) as ts.LiteralExpression,
+          ),
+        ],
+      ),
+    ]);
+  };
+
+const isPlainStringPathParameter = (
+  entry: SdkHttpParameterProgrammer.IEntry,
+): boolean =>
+  entry.parameter.category === "param" &&
+  entry.parameter.metadata.atomics.length === 1 &&
+  entry.parameter.metadata.atomics[0]!.type === "string" &&
+  entry.parameter.metadata.atomics[0]!.tags.every((row) =>
+    row.every((tag) => tag.kind !== "minLength"),
+  );
 
 const getFunctionName = (route: ITypedHttpRoute): string =>
   ["test", "api", ...route.accessor].join("_");

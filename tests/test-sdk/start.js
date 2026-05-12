@@ -1,6 +1,7 @@
 const cp = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const ts = require("typescript");
 
 process.env.NODE_OPTIONS = [
   process.env.NODE_OPTIONS ?? "",
@@ -46,7 +47,7 @@ const feature = (name) => {
     try {
       cp.execSync("npx tsc", { stdio: "ignore" });
       generate("all", true);
-      if (fs.existsSync("src/test"))
+      if (hasTtsxTestFiles())
         runTtsxTest("ignore");
     } catch {
       return;
@@ -80,7 +81,7 @@ const feature = (name) => {
 
   // RUN TEST AUTOMATION PROGRAM
   if (name === "cli-project" || name === "cli-config-project") return;
-  else if (fs.existsSync("src/test")) {
+  else if (hasTtsxTestFiles()) {
     for (let i = 0; i < 3; ++i)
       try {
         runTtsxTest("ignore");
@@ -97,6 +98,21 @@ const feature = (name) => {
   }
 };
 
+const hasTtsxTestFiles = () => {
+  const directory = "src/test/features";
+  const iterate = (location) => {
+    if (!fs.existsSync(location)) return false;
+    for (const file of fs.readdirSync(location)) {
+      const next = path.join(location, file);
+      const stats = fs.statSync(next);
+      if (stats.isDirectory() && iterate(next)) return true;
+      if (stats.isFile() && file.endsWith(".ts")) return true;
+    }
+    return false;
+  };
+  return iterate(directory);
+};
+
 const runTtsxTest = (stdio) => {
   const project = ".ttsx.tsconfig.json";
   fs.writeFileSync(
@@ -104,23 +120,27 @@ const runTtsxTest = (stdio) => {
     JSON.stringify(
       {
         extends: "./tsconfig.json",
+        exclude: [],
         compilerOptions: {
           noUnusedLocals: false,
           noUnusedParameters: false,
+          outDir: ".",
           plugins: [
             {
+              ...runtimePlugins().find((p) => isTransform(p, "typia")),
               transform: "typia/lib/transform",
               enabled: false,
             },
-            {
+            normalizeRuntimePlugin({
+              ...runtimePlugins().find((p) => isTransform(p, "@nestia/sdk")),
               transform: "@nestia/sdk/lib/transform",
-              enabled: false,
-            },
-            {
+            }),
+            normalizeRuntimePlugin({
+              ...runtimePlugins().find((p) => isTransform(p, "@nestia/core")),
               transform: "@nestia/core/native/transform.cjs",
-            },
+            }),
           ],
-          rootDir: "src",
+          rootDir: ".",
         },
       },
       null,
@@ -129,9 +149,19 @@ const runTtsxTest = (stdio) => {
     "utf8",
   );
   try {
+    const nodeOptions = [
+      process.env.NODE_OPTIONS ?? "",
+      `--loader=${path.join(__dirname, "config-ts-loader.mjs")}`,
+    ]
+      .filter(Boolean)
+      .join(" ");
     cp.execSync(
       `npx ttsx -P ${project} -r @nestjs/platform-express src/test/index.ts`,
       {
+        env: {
+          ...process.env,
+          NODE_OPTIONS: nodeOptions,
+        },
         stdio,
       },
     );
@@ -140,10 +170,36 @@ const runTtsxTest = (stdio) => {
   }
 };
 
+const runtimePlugins = () => {
+  const loaded = ts.readConfigFile("tsconfig.json", ts.sys.readFile);
+  if (loaded.error !== undefined || loaded.config === undefined) return [];
+  const config = ts.parseJsonConfigFileContent(
+    loaded.config,
+    ts.sys,
+    process.cwd(),
+  );
+  const plugins = config.options?.plugins;
+  return Array.isArray(plugins)
+    ? plugins
+        .filter((plugin) => typeof plugin === "object" && plugin !== null)
+        .map((plugin) => ({ ...plugin }))
+    : [];
+};
+
+const normalizeRuntimePlugin = (plugin) => {
+  const output = { ...plugin };
+  if (output.enabled === false) delete output.enabled;
+  return output;
+};
+
+const isTransform = (plugin, name) =>
+  typeof plugin?.transform === "string" && plugin.transform.includes(name);
+
 const main = async () => {
   cp.execSync(
     [
       "pnpm",
+      "--workspace-concurrency=1",
       "--filter @nestia/factory",
       "--filter @nestia/fetcher",
       "--filter @nestia/core",

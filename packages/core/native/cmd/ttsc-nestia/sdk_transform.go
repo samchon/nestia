@@ -345,7 +345,6 @@ func nestiaSDKJSDocTag(name string, text string) map[string]any {
 	if text == "" {
 		return map[string]any{
 			"name": name,
-			"text": []any{},
 		}
 	}
 	return map[string]any{
@@ -570,6 +569,9 @@ func nestiaSDKResponse(
 	typeNode *shimast.Node,
 ) map[string]any {
 	refType, refImports := nestiaSDKReflectType(prog, imports, typ, typeNode)
+	if refImports == nil {
+		refImports = []any{}
+	}
 	return map[string]any{
 		"type":      refType,
 		"imports":   refImports,
@@ -818,7 +820,7 @@ func nestiaSDKReflectType(
 	typeNode *shimast.Node,
 ) (map[string]any, []any) {
 	if typeNode == nil {
-		return map[string]any{"name": "__type"}, nil
+		return map[string]any{"name": "__type"}, []any{}
 	}
 	if typeNode != nil {
 		if ref, refs, ok := nestiaSDKReflectTypeNode(prog, imports, typeNode); ok {
@@ -890,6 +892,9 @@ func nestiaSDKReflectTypeNode(
 		ref := node.AsTypeReferenceNode()
 		name := nestiaSDKEntityNameText(ref.TypeName)
 		rootRefs := nestiaSDKReflectImports(name, imports)
+		if len(rootRefs) == 0 && name != "Promise" {
+			rootRefs = nestiaSDKReflectTypeReferenceSymbolImport(prog, ref.TypeName, name)
+		}
 		if ref.TypeArguments != nil && len(ref.TypeArguments.Nodes) != 0 {
 			if name == "Promise" && len(ref.TypeArguments.Nodes) == 1 {
 				return nestiaSDKReflectTypeNode(prog, imports, ref.TypeArguments.Nodes[0])
@@ -918,6 +923,42 @@ func nestiaSDKReflectTypeNode(
 			return nil, nil, false
 		}
 		return map[string]any{"name": name}, nestiaSDKReflectImports(name, imports), true
+	}
+}
+
+func nestiaSDKReflectTypeReferenceSymbolImport(prog *driver.Program, node *shimast.Node, name string) []any {
+	if prog == nil || prog.Checker == nil || node == nil {
+		return nil
+	}
+	prefix := strings.Split(name, ".")[0]
+	if nestiaSDKIsGlobalTypePrefix(prefix) {
+		return nil
+	}
+	symbol := prog.Checker.GetSymbolAtLocation(node)
+	if symbol == nil {
+		typ := prog.Checker.GetTypeFromTypeNode(node)
+		if typ != nil {
+			symbol = typ.Symbol()
+		}
+	}
+	if symbol == nil || len(symbol.Declarations) == 0 {
+		return nil
+	}
+	sourceFile := shimast.GetSourceFileOfNode(symbol.Declarations[0])
+	if sourceFile == nil {
+		return nil
+	}
+	file := filepath.ToSlash(sourceFile.FileName())
+	if strings.Contains(file, "/typescript/lib/") {
+		return nil
+	}
+	return []any{
+		map[string]any{
+			"file":     file,
+			"asterisk": nestiaSDKLiteralNull,
+			"default":  nestiaSDKLiteralNull,
+			"elements": []string{prefix},
+		},
 	}
 }
 

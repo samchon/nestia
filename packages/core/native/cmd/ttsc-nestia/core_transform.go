@@ -757,7 +757,7 @@ func nestiaCoreGenerateTypedRoute(prog *driver.Program, options nestiaCoreOption
 	case "stringify":
 		return nestiaCoreValidatorObject("type", "stringify", nativejson.JsonStringifyProgrammer.Write(nativecontext.IProgrammerProps{Context: context, Modulo: modulo, Type: typ, Name: name}))
 	case "validate.log":
-		return nestiaCoreValidatorObject("type", "validate.log", nativejson.JsonValidateStringifyProgrammer.Write(nativecontext.IProgrammerProps{Context: context, Modulo: modulo, Type: typ, Name: name}))
+		return nestiaCoreValidatorObjectWithKey("type", "validate.log", "validate", nativejson.JsonValidateStringifyProgrammer.Write(nativecontext.IProgrammerProps{Context: context, Modulo: modulo, Type: typ, Name: name}))
 	default:
 		return nestiaCoreValidatorObject("type", "assert", nativejson.JsonAssertStringifyProgrammer.Write(nativecontext.IProgrammerProps{Context: context, Modulo: modulo, Type: typ, Name: name}))
 	}
@@ -1051,9 +1051,13 @@ func nestiaCoreMetadataErrors(errors []nativefactories.MetadataFactory_IError) [
 }
 
 func nestiaCoreValidatorObject(typeKey string, key string, validator *shimast.Node) *shimast.Node {
+	return nestiaCoreValidatorObjectWithKey(typeKey, key, key, validator)
+}
+
+func nestiaCoreValidatorObjectWithKey(typeKey string, typeValue string, validatorKey string, validator *shimast.Node) *shimast.Node {
 	return nestiaCoreFactory.NewObjectLiteralExpression(nestiaCoreFactory.NewNodeList([]*shimast.Node{
-		nestiaCoreProperty(typeKey, nestiaCoreFactory.NewStringLiteral(key, shimast.TokenFlagsNone)),
-		nestiaCoreProperty(key, validator),
+		nestiaCoreProperty(typeKey, nestiaCoreFactory.NewStringLiteral(typeValue, shimast.TokenFlagsNone)),
+		nestiaCoreProperty(validatorKey, validator),
 	}), true)
 }
 
