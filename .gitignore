@@ -6,6 +6,7 @@ wiki/
 packages/openapi
 packages/*/*.tgz
 packages/*/docs
+packages/*/native/ttsc-*
 package-lock.json
 *.log
 .env

@@ -270,31 +270,32 @@ const runFeatures = async (names) => {
 };
 
 const main = async () => {
-  await run(
-    PNPM,
-    [
-      "--workspace-concurrency=1",
-      "--filter",
-      "@nestia/factory",
-      "--filter",
-      "@nestia/fetcher",
-      "--filter",
-      "@nestia/core",
-      "--filter",
-      "@nestia/sdk",
-      "--filter",
-      "@nestia/e2e",
-      "-r",
-      "run",
-      "build",
-    ],
-    {
-      cwd: ROOT,
-      env: {
-        NODE_OPTIONS: "",
+  if (process.env.TEST_SDK_SKIP_BUILD !== "1")
+    await run(
+      PNPM,
+      [
+        "--workspace-concurrency=1",
+        "--filter",
+        "@nestia/factory",
+        "--filter",
+        "@nestia/fetcher",
+        "--filter",
+        "@nestia/core",
+        "--filter",
+        "@nestia/sdk",
+        "--filter",
+        "@nestia/e2e",
+        "-r",
+        "run",
+        "build",
+      ],
+      {
+        cwd: ROOT,
+        env: {
+          NODE_OPTIONS: "",
+        },
       },
-    },
-  );
+    );
 
   await measure("\nTotal Elapsed Time")(async () => {
     const filter = featureFilter();
