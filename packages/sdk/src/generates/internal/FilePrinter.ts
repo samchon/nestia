@@ -1,4 +1,4 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { TypeScriptFactory, TypeScriptPrinter } from "@nestia/factory";
 import fs from "fs";
 import { format } from "prettier";
 import ts from "typescript";
@@ -39,20 +39,14 @@ export namespace FilePrinter {
     statements: ts.Statement[];
     top?: string;
   }): Promise<void> => {
-    const script: string = ts
-      .createPrinter()
-      .printFile(
-        TypeScriptFactory.createSourceFile(
-          props.statements,
-          TypeScriptFactory.createToken(ts.SyntaxKind.EndOfFileToken),
-          ts.NodeFlags.None,
-        ),
-      );
-    await fs.promises.writeFile(
-      props.location,
-      await beautify((props.top ?? "") + script),
-      "utf8",
-    );
+    const script: string = TypeScriptPrinter.write({
+      statements: props.statements,
+      top: props.top,
+      printerOptions: {
+        newLine: ts.NewLineKind.LineFeed,
+      },
+    });
+    await fs.promises.writeFile(props.location, await beautify(script), "utf8");
   };
 
   const beautify = async (script: string): Promise<string> => {

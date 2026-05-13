@@ -35,7 +35,6 @@
     "@types/uuid": "catalog:utils",
     "chalk": "4.1.2",
     "nestia": "workspace:^",
-    "ts-node": "catalog:typescript",
     "ttsc": "catalog:typescript",
     "typescript": "catalog:typescript"
   },

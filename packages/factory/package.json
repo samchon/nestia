@@ -22,10 +22,7 @@
     "type": "git",
     "url": "https://github.com/samchon/nestia"
   },
-  "keywords": [
-    "nestia",
-    "factory"
-  ],
+  "keywords": ["nestia", "factory"],
   "author": "Jeongho Nam",
   "license": "MIT",
   "bugs": {
@@ -38,13 +35,7 @@
     "rollup": "catalog:rollup",
     "typescript": "catalog:typescript"
   },
-  "files": [
-    "README.md",
-    "LICENSE",
-    "package.json",
-    "lib",
-    "src"
-  ],
+  "files": ["README.md", "LICENSE", "package.json", "lib", "src"],
   "publishConfig": {
     "access": "public",
     "types": "lib/index.d.ts",

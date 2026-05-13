@@ -1,4 +1,4 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { TypeScriptFactory, TypeScriptPrinter } from "@nestia/factory";
 import ts from "typescript";
 
 export namespace FilePrinter {
@@ -36,17 +36,12 @@ export namespace FilePrinter {
     statements: ts.Statement[];
     top?: string;
   }): string => {
-    const script: string = ts
-      .createPrinter({
+    return TypeScriptPrinter.write({
+      statements: props.statements,
+      top: props.top,
+      printerOptions: {
         newLine: ts.NewLineKind.LineFeed,
-      })
-      .printFile(
-        TypeScriptFactory.createSourceFile(
-          props.statements,
-          TypeScriptFactory.createToken(ts.SyntaxKind.EndOfFileToken),
-          ts.NodeFlags.None,
-        ),
-      );
-    return (props.top ?? "") + script;
+      },
+    });
   };
 }

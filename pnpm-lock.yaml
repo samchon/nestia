@@ -945,9 +945,31 @@ importers:
       nestia:
         specifier: workspace:^
         version: link:../../packages/cli
-      ts-node:
+      ttsc:
         specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
+        version: 0.10.0
+      typescript:
+        specifier: catalog:typescript
+        version: 6.0.3
+
+  tests/test-transform-options:
+    dependencies:
+      '@nestia/core':
+        specifier: workspace:^
+        version: link:../../packages/core
+      '@nestjs/common':
+        specifier: catalog:nestjs
+        version: 11.1.15(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      typia:
+        specifier: catalog:samchon
+        version: 13.0.0-dev.20260510
+    devDependencies:
+      '@types/node':
+        specifier: catalog:utils
+        version: 25.3.3
+      rimraf:
+        specifier: catalog:utils
+        version: 6.1.3
       ttsc:
         specifier: catalog:typescript
         version: 0.10.0
