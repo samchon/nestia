@@ -1,5 +1,4 @@
 import { doNotThrowTransformError } from "@nestia/core";
-import cp from "child_process";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -8,6 +7,7 @@ import ts from "typescript";
 import { pathToFileURL } from "url";
 
 import { INestiaConfig } from "../../INestiaConfig";
+import { TtscExecutor } from "../../utils/TtscExecutor";
 
 export namespace NestiaConfigLoader {
   export const compilerOptions = async (
@@ -99,12 +99,16 @@ export namespace NestiaConfigLoader {
       include: [configFile],
       exclude: [path.join(projectRoot, "src", "test", "**", "*")],
     };
-    fs.writeFileSync(wrapperFile, JSON.stringify(wrapperConfig, null, 2), "utf8");
+    fs.writeFileSync(
+      wrapperFile,
+      JSON.stringify(wrapperConfig, null, 2),
+      "utf8",
+    );
 
     try {
-      cp.execFileSync("npx", ["ttsc", "-p", wrapperFile], {
+      TtscExecutor.run({
         cwd: projectRoot,
-        stdio: "pipe",
+        project: wrapperFile,
       });
     } catch (error) {
       const output =

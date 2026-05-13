@@ -3,7 +3,6 @@ import { INestApplication, VersioningType } from "@nestjs/common";
 import { MODULE_PATH } from "@nestjs/common/constants";
 import { NestContainer } from "@nestjs/core";
 import { Module } from "@nestjs/core/injector/module";
-import cp from "child_process";
 import fs from "fs";
 import getFunctionLocation from "get-function-location";
 import os from "os";
@@ -17,6 +16,7 @@ import { INestiaSdkInput } from "../structures/INestiaSdkInput";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { MapUtil } from "../utils/MapUtil";
 import { SourceFinder } from "../utils/SourceFinder";
+import { TtscExecutor } from "../utils/TtscExecutor";
 
 export namespace ConfigAnalyzer {
   export const input = async (
@@ -155,9 +155,9 @@ class RuntimeCompiler {
       "utf8",
     );
     try {
-      cp.execFileSync("npx", ["ttsc", "-p", project], {
+      TtscExecutor.run({
         cwd,
-        stdio: "pipe",
+        project,
       });
     } catch (error) {
       const output =
@@ -216,8 +216,10 @@ const readProjectPlugins = (cwd: string): RuntimePlugin[] => {
   const file: string = path.isAbsolute(project)
     ? project
     : path.join(cwd, project);
-  const loaded: { config?: unknown; error?: ts.Diagnostic } =
-    ts.readConfigFile(file, ts.sys.readFile);
+  const loaded: { config?: unknown; error?: ts.Diagnostic } = ts.readConfigFile(
+    file,
+    ts.sys.readFile,
+  );
   if (loaded.error !== undefined || loaded.config === undefined) return [];
   const config: ts.ParsedCommandLine = ts.parseJsonConfigFileContent(
     loaded.config,

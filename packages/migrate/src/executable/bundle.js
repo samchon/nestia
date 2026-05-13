@@ -67,7 +67,7 @@ const updateTsConfig = (content, options = {}) => {
   if (options.useNestiaAggregate)
     content = content.replace(
       /\{\s*"transform":\s*"typia\/lib\/transform",\s*"enabled":\s*false\s*\},/g,
-      `{ "transform": "typia/lib/transform", "enabled": false },\n      { "transform": "@nestia/core/lib/transform" },`,
+      `{ "transform": "typia/lib/transform", "enabled": false },\n      { "transform": "@nestia/core/native/transform.cjs" },`,
     );
   return content;
 };

@@ -1,12 +1,15 @@
 import { TypeScriptFactory } from "@nestia/factory";
 import { FormatCheatSheet, TypeFactory } from "@typia/core";
-import { NamingConvention, OpenApiTypeChecker } from "@typia/utils";
+import * as typiaUtils from "@typia/utils";
 import ts from "typescript";
 import type { OpenApi } from "typia";
 
 import { FilePrinter } from "../utils/FilePrinter";
 import { StringUtil } from "../utils/StringUtil";
 import { NestiaMigrateImportProgrammer } from "./NestiaMigrateImportProgrammer";
+
+const { NamingConvention, OpenApiTypeChecker } =
+  (typiaUtils as { default?: typeof typiaUtils }).default ?? typiaUtils;
 
 export namespace NestiaMigrateSchemaProgrammer {
   /* -----------------------------------------------------------

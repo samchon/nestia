@@ -17,6 +17,15 @@
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
+    "plugins": [
+      {
+        "transform": "typia/lib/transform",
+        "enabled": false
+      },
+      {
+        "transform": "@nestia/core/native/transform.cjs"
+      }
+    ]
   },
   "include": ["src"]
 }
