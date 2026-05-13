@@ -8,11 +8,12 @@ live code 기준 manifest는 단순하다.
 export interface ITtscPlugin {
   name: string;
   source: string;
-  stage?: "transform" | "check" | "output";
+  stage?: "transform" | "check";
 }
 ```
 
 예전 guide 문서에는 `native.source` descriptor가 남아 있으나 현재 loader는 `source: string`을 직접 요구한다. Nestia 문서와 구현은 live code를 따라야 한다.
+`stage`가 없으면 `"transform"`이며, live loader는 `"output"`을 제거된 stage로 처리해 upgrade error를 던진다.
 
 ## binary command
 
@@ -20,8 +21,7 @@ native binary는 stage와 host 호출에 맞춰 command를 구현해야 한다. 
 
 - `check`: check stage plugin과 `--noEmit` compiler backend가 사용한다.
 - `transform`: source-to-source transform stage가 사용한다.
-- `build`: emit을 소유하는 compiler backend가 사용한다.
-- `output`: output stage plugin이 emitted file마다 사용한다.
+- `build`: emit을 소유하는 compiler backend command가 사용한다. plugin manifest stage는 아니지만 `ttsc-typia` 같은 sidecar가 직접 구현한다.
 - `version`, `help`: host 필수 contract는 아니지만 운영과 진단을 위해 권장한다.
 
 `typia@next`의 `ttsc-typia`는 이 command dispatcher를 이미 갖추고 있다. Nestia도 `ttsc-nestia` 같은 단일 command를 만들고, command별 의미를 명확히 해야 한다.
@@ -68,5 +68,5 @@ source plugin은 consumer project에서 lazy build된다. 따라서 Nestia packa
 - `files`에 `native/**` 포함
 - `publishConfig.exports`가 built JS manifest와 type file을 가리킴
 - `source`가 package root에서 안정적으로 resolve됨
-- `lib` 제외 규칙 때문에 source plugin scratch copy에서 build output과 source가 섞이지 않음
+- scratch copy가 `node_modules`, `.git`, `.ttsc`, `go.work`, `go.work.sum`을 제외하므로 source tree 안의 generated workspace artifact가 섞이지 않음
 - monorepo dev와 npm package install 양쪽에서 `go.mod`를 찾을 수 있음

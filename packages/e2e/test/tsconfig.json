@@ -5,10 +5,6 @@
     "paths": {
       "@nestia/e2e": ["../src/index.ts"],
     },
-    "plugins": [
-      { "transform": "typescript-transform-paths" },
-      { "transform": "typia/lib/transform" },
-    ]
   },
   "include": ["./", "../src"]
 }

@@ -7,9 +7,10 @@
 최종 판정은 다음과 같다.
 
 - 방향성: 승인
-- 포팅 구현 착수 기준: 아직 NOT READY
-- 사용자 요청의 “모든 소스코드 line-by-line 지식대백과” 기준: 아직 NOT READY
-- 다음 작업: 구현이 아니라 Phase 0 지식대백과 보강
+- 2026-05-04 기준 포팅 구현 착수 기준: NOT READY
+- 2026-05-09 보강 후 Phase 1 착수 기준: READY
+- 사용자 요청의 “core/sdk/cli 직접 범위 파일별 지식대백과” 기준: READY
+- 다음 작업: Phase 1 manifest transition과 native skeleton 구현
 
 ## 유지할 결론
 
@@ -19,17 +20,25 @@ Nestia Go 포팅은 runtime/fetcher/migrate 재작성부터 시작하면 안 된
 
 ## 반려할 주장
 
-현재 `.wiki`가 이미 포팅 착수 가능한 완성 지식대백과라는 주장은 반려한다.
+2026-05-04 당시 `.wiki`가 이미 포팅 착수 가능한 완성 지식대백과라는 주장은 반려했다.
 
 이유:
 
-- 파일별 ledger가 없다.
-- `packages/core/src`, `packages/sdk/src`, `packages/cli/src` 180개 source 파일의 per-file 분석이 없다.
+- 파일별 ledger가 없었다.
+- `packages/core/src`, `packages/sdk/src`, `packages/cli/src` source 파일의 per-file 분석이 없었다.
 - typia native module 공급 방식이 결정되지 않았다.
 - `typia/lib/transform` migration 정책이 결정되지 않았다.
 - SDK config execution bridge가 `TtscCompiler.compile()` 한 단어로만 쓰였고, in-memory output materialization 또는 `ttsx` bridge 중 어느 쪽인지 닫히지 않았다.
 - package/tarball native source inclusion gate가 너무 늦게 배치되어 있었다.
-- TypeScript-Go printer가 Nestia decorator syntax와 metadata literal을 안정적으로 보존하는지 실증 fixture가 없다.
+- TypeScript-Go printer가 Nestia decorator syntax와 metadata literal을 안정적으로 보존하는지 실증 fixture가 없었다.
+
+2026-05-09 보강에서 위 결손은 다음 문서로 닫았다.
+
+- `.wiki/06-phase0-ledger/01-cli-ledger.md`
+- `.wiki/06-phase0-ledger/02-core-ledger.md`
+- `.wiki/06-phase0-ledger/03-sdk-ledger.md`
+- `.wiki/06-phase0-ledger/04-policy-closures.md`
+- `.wiki/05-review/02-completion-audit.md`
 
 ## 회의 합의
 
@@ -39,4 +48,3 @@ Nestia Go 포팅은 runtime/fetcher/migrate 재작성부터 시작하면 안 된
 4. typia native source 공급 방식은 별도 결정 항목이다.
 5. `TtscCompiler.compile()`은 in-memory output을 반환하므로 SDK config import bridge에는 materialization 또는 `ttsx` bridge 설계가 필요하다.
 6. migrate 자체 재작성은 후순위가 맞지만, migrate template의 legacy compiler setup은 package/setup compatibility 범위에 포함해야 한다.
-

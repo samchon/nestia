@@ -32,13 +32,15 @@
     "@mui/material": "^6.4.0",
     "@mui/system": "^6.4.0",
     "@nestia/editor": "../deploy/tarballs/editor.tgz",
+    "@nestia/factory": "../deploy/tarballs/factory.tgz",
     "@nestia/migrate": "../deploy/tarballs/migrate.tgz",
     "next": "^15.3.4",
-    "nextra": "^4.6.0",
-    "nextra-theme-blog": "^4.6.1",
-    "nextra-theme-docs": "^4.6.0",
+    "nextra": "4.6.1",
+    "nextra-theme-blog": "4.6.1",
+    "nextra-theme-docs": "4.6.1",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "zod": "4.1.12"
   },
   "devDependencies": {
     "@types/node": "18.11.10",

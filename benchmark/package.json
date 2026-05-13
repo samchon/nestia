@@ -51,7 +51,6 @@
     "@types/physical-cpu-count": "^2.0.0",
     "rimraf": "catalog:utils",
     "ts-node": "catalog:typescript",
-    "ts-patch": "catalog:typescript",
     "typescript": "catalog:typescript"
   }
 }

@@ -54,13 +54,14 @@ export namespace NestiaSdkCommand {
     validate: (config: INestiaConfig) => boolean;
   }) => {
     // LOAD CONFIG INFO
+    const project: string =
+      getFileArgument({
+        type: "project",
+        extension: "json",
+      }) ?? "tsconfig.json";
+    process.env.NESTIA_PROJECT = project;
     const command: ts.ParsedCommandLine =
-      await NestiaConfigLoader.compilerOptions(
-        getFileArgument({
-          type: "project",
-          extension: "json",
-        }) ?? "tsconfig.json",
-      );
+      await NestiaConfigLoader.compilerOptions(project);
 
     const configurations: INestiaConfig[] =
       await NestiaConfigLoader.configurations(

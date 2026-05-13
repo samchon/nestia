@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import fs from "fs";
 import ts from "typescript";
 
@@ -58,11 +59,13 @@ export namespace SdkFileProgrammer {
       for (const [key, value] of directory.children) {
         await iterate(project)(value)(`${outDir}/${key}`);
         statements.push(
-          ts.factory.createExportDeclaration(
+          TypeScriptFactory.createExportDeclaration(
             undefined,
             false,
-            ts.factory.createNamespaceExport(ts.factory.createIdentifier(key)),
-            ts.factory.createStringLiteral(`./${key}/index`),
+            TypeScriptFactory.createNamespaceExport(
+              TypeScriptFactory.createIdentifier(key),
+            ),
+            TypeScriptFactory.createStringLiteral(`./${key}/index`),
             undefined,
           ),
         );

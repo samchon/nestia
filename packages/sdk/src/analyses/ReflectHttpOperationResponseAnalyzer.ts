@@ -5,7 +5,6 @@ import {
   INTERCEPTORS_METADATA,
 } from "@nestjs/common/constants";
 import { HttpQueryProgrammer, JsonMetadataFactory } from "@typia/core";
-import typia from "typia";
 
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperationSuccess";
@@ -65,10 +64,7 @@ export namespace ReflectHttpOperationResponseAnalyzer {
     if (schema.success === false) errors.push(...schema.errors);
     if (ctx.httpMethod === "HEAD" && contentType !== null)
       errors.push(`HEAD method must not have a content type.`);
-    if (
-      typia.is<IReflectHttpOperationSuccess["contentType"]>(contentType) ===
-      false
-    )
+    if (isContentType(contentType) === false)
       errors.push(
         `@nestia/sdk does not support ${JSON.stringify(contentType)} content type.`,
       );
@@ -77,7 +73,7 @@ export namespace ReflectHttpOperationResponseAnalyzer {
     else if (
       ctx.metadata.success.type === null ||
       schema.success === false ||
-      !typia.is<IReflectHttpOperationSuccess["contentType"]>(contentType)
+      !isContentType(contentType)
     )
       return null;
 
@@ -123,4 +119,12 @@ export namespace ReflectHttpOperationResponseAnalyzer {
     if (Array.isArray(meta) === false) return false;
     return meta.some((elem) => elem?.constructor?.name === props.name);
   };
+
+  const isContentType = (
+    input: string | null,
+  ): input is IReflectHttpOperationSuccess["contentType"] =>
+    input === null ||
+    input === "application/json" ||
+    input === "text/plain" ||
+    input === "application/x-www-form-urlencoded";
 }

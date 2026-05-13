@@ -35,6 +35,7 @@ const assert =
           message: MESSAGE,
         });
       }
+      if (is_missing_query_property(exp)) return new BadRequestException(MESSAGE);
       throw exp;
     }
   };
@@ -43,7 +44,14 @@ const assert =
 const is =
   <T>(closure: (input: URLSearchParams) => T | null) =>
   (input: URLSearchParams): T | BadRequestException => {
-    const result: T | null = closure(input);
+    const result: T | null = (() => {
+      try {
+        return closure(input);
+      } catch (exp) {
+        if (is_missing_query_property(exp)) return null;
+        throw exp;
+      }
+    })();
     return result !== null ? result : new BadRequestException(MESSAGE);
   };
 
@@ -51,7 +59,15 @@ const is =
 const validate =
   <T>(closure: (input: URLSearchParams) => IValidation<T>) =>
   (input: URLSearchParams): T | BadRequestException => {
-    const result: IValidation<T> = closure(input);
+    const result: IValidation<T> | null = (() => {
+      try {
+        return closure(input);
+      } catch (exp) {
+        if (is_missing_query_property(exp)) return null;
+        throw exp;
+      }
+    })();
+    if (result === null) return new BadRequestException(MESSAGE);
     return result.success
       ? result.data
       : new BadRequestException({
@@ -62,3 +78,6 @@ const validate =
 
 /** @internal */
 const MESSAGE = "Request query data is not following the promised type.";
+
+const is_missing_query_property = (exp: unknown): exp is Error =>
+  exp instanceof Error && /^missing [^.\[\]\s]+$/.test(exp.message);

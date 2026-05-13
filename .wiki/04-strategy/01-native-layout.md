@@ -64,7 +64,7 @@ import github.com/samchon/typia/packages/typia/native/transform/...
 import github.com/microsoft/typescript-go/shim/...
 ```
 
-`ttsc` source build가 `go.work` overlay를 구성하므로 monorepo 개발과 npm install 환경을 모두 검증해야 한다. 특히 typia native source를 npm dependency에서 어떻게 공급할지 결정해야 한다. 선택지는 typia native module을 package dependency로 그대로 참조하는 방식, Nestia compiler package 안에 tested snapshot을 vendoring하는 방식, 또는 `ttsc` overlay를 확장하는 방식이다. 이 결정이 닫히기 전에는 Go build contract가 완성되지 않는다.
+현재 결정은 typia native module을 dependency로 그대로 참조하는 방식이다. Nestia는 `native/third_party` tree를 만들지 않는다. release용 `go.mod`는 typia native Go module pseudo-version을 require하고, local `go.work`만 `../ttsc`, `../typia@next` checkout으로 replace한다. `ttsc` source build는 scratch directory에 `go.work`를 새로 쓰고 installed `ttsc` shim overlay를 붙이므로, clean npm fixture에서는 `go.mod`의 remote typia module contract를 검증해야 한다.
 
 ## plugin payload parser
 

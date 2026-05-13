@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import ts from "typescript";
 
 import { INestiaProject } from "../../structures/INestiaProject";
@@ -26,7 +27,7 @@ export namespace SdkWebSocketParameterProgrammer {
         ? [
             {
               key: "query",
-              type: ts.factory.createTypeReferenceNode(`${prefix}Query`),
+              type: TypeScriptFactory.createTypeReferenceNode(`${prefix}Query`),
             },
           ]
         : []),
@@ -34,7 +35,9 @@ export namespace SdkWebSocketParameterProgrammer {
         ? [
             {
               key: "provider",
-              type: ts.factory.createTypeReferenceNode(`${prefix}Provider`),
+              type: TypeScriptFactory.createTypeReferenceNode(
+                `${prefix}Provider`,
+              ),
             },
           ]
         : []),
@@ -54,15 +57,15 @@ export namespace SdkWebSocketParameterProgrammer {
         ? `${props.route.name}.Props`
         : "Props";
       const node: ts.TypeNode = props.provider
-        ? ts.factory.createTypeReferenceNode(typeName)
-        : ts.factory.createTypeReferenceNode("Omit", [
-            ts.factory.createTypeReferenceNode(typeName),
-            ts.factory.createLiteralTypeNode(
-              ts.factory.createStringLiteral("provider"),
+        ? TypeScriptFactory.createTypeReferenceNode(typeName)
+        : TypeScriptFactory.createTypeReferenceNode("Omit", [
+            TypeScriptFactory.createTypeReferenceNode(typeName),
+            TypeScriptFactory.createLiteralTypeNode(
+              TypeScriptFactory.createStringLiteral("provider"),
             ),
           ]);
       return [
-        ts.factory.createParameterDeclaration(
+        TypeScriptFactory.createParameterDeclaration(
           undefined,
           undefined,
           "props",
@@ -72,7 +75,7 @@ export namespace SdkWebSocketParameterProgrammer {
       ];
     }
     return entries.map((entry) =>
-      ts.factory.createParameterDeclaration(
+      TypeScriptFactory.createParameterDeclaration(
         undefined,
         undefined,
         entry.key,

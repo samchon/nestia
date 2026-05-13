@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import fs from "fs";
 import ts from "typescript";
 
@@ -53,10 +54,10 @@ export namespace CloneGenerator {
         for (const child of modulo.children.values())
           internal.push(...iterate(importer)(child));
         output.push(
-          ts.factory.createModuleDeclaration(
-            [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-            ts.factory.createIdentifier(modulo.name),
-            ts.factory.createModuleBlock(internal),
+          TypeScriptFactory.createModuleDeclaration(
+            [TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword)],
+            TypeScriptFactory.createIdentifier(modulo.name),
+            TypeScriptFactory.createModuleBlock(internal),
             ts.NodeFlags.Namespace,
           ),
         );

@@ -3,7 +3,7 @@
   "name": "@nestia/test-migrate",
   "version": "11.2.0",
   "scripts": {
-    "start": "node start.js"
+    "start": "node ../run-with-ttsc-env.cjs node start.js"
   },
   "dependencies": {
     "@fastify/multipart": "^8.1.0",
@@ -35,10 +35,8 @@
     "@types/uuid": "catalog:utils",
     "chalk": "4.1.2",
     "nestia": "workspace:^",
-    "ts-node": "catalog:typescript",
-    "ts-patch": "catalog:typescript",
-    "typescript": "catalog:typescript",
-    "typescript-transform-paths": "^3.5.5"
+    "ttsc": "catalog:typescript",
+    "typescript": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"
 }

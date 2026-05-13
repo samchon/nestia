@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import ts from "typescript";
 
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
@@ -13,20 +14,20 @@ export namespace NestiaMigrateNestModuleProgrammer {
       $import(`${c.location.replace("src/", "./")}/${c.name}`)(c.name),
     ),
     ...(controllers.length ? [FilePrinter.newLine()] : []),
-    ts.factory.createClassDeclaration(
+    TypeScriptFactory.createClassDeclaration(
       [
-        ts.factory.createDecorator(
-          ts.factory.createCallExpression(
-            ts.factory.createIdentifier("Module"),
+        TypeScriptFactory.createDecorator(
+          TypeScriptFactory.createCallExpression(
+            TypeScriptFactory.createIdentifier("Module"),
             undefined,
             [
-              ts.factory.createObjectLiteralExpression(
+              TypeScriptFactory.createObjectLiteralExpression(
                 [
-                  ts.factory.createPropertyAssignment(
-                    ts.factory.createIdentifier("controllers"),
-                    ts.factory.createArrayLiteralExpression(
+                  TypeScriptFactory.createPropertyAssignment(
+                    TypeScriptFactory.createIdentifier("controllers"),
+                    TypeScriptFactory.createArrayLiteralExpression(
                       controllers.map((c) =>
-                        ts.factory.createIdentifier(c.name),
+                        TypeScriptFactory.createIdentifier(c.name),
                       ),
                       true,
                     ),
@@ -37,7 +38,7 @@ export namespace NestiaMigrateNestModuleProgrammer {
             ],
           ),
         ),
-        ts.factory.createToken(ts.SyntaxKind.ExportKeyword),
+        TypeScriptFactory.createToken(ts.SyntaxKind.ExportKeyword),
       ],
       "MyModule",
       undefined,
@@ -48,18 +49,18 @@ export namespace NestiaMigrateNestModuleProgrammer {
 }
 
 const $import = (file: string) => (instance: string) =>
-  ts.factory.createImportDeclaration(
+  TypeScriptFactory.createImportDeclaration(
     undefined,
-    ts.factory.createImportClause(
+    TypeScriptFactory.createImportClause(
       false,
       undefined,
-      ts.factory.createNamedImports([
-        ts.factory.createImportSpecifier(
+      TypeScriptFactory.createNamedImports([
+        TypeScriptFactory.createImportSpecifier(
           false,
           undefined,
-          ts.factory.createIdentifier(instance),
+          TypeScriptFactory.createIdentifier(instance),
         ),
       ]),
     ),
-    ts.factory.createStringLiteral(file),
+    TypeScriptFactory.createStringLiteral(file),
   );

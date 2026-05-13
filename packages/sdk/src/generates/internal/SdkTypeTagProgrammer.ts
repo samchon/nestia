@@ -1,6 +1,6 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import { LiteralFactory } from "@typia/core";
 import { IMetadataTypeTag } from "@typia/interface";
-import ts from "typescript";
 
 import { ImportDictionary } from "./ImportDictionary";
 
@@ -12,9 +12,9 @@ export namespace SdkTypeTagProgrammer {
   ) => {
     const name: string = tag.name.split("<")[0]!;
     if (PREDEFINED[from]?.has(name) === true)
-      return ts.factory.createTypeReferenceNode(
-        ts.factory.createQualifiedName(
-          ts.factory.createIdentifier(
+      return TypeScriptFactory.createTypeReferenceNode(
+        TypeScriptFactory.createQualifiedName(
+          TypeScriptFactory.createIdentifier(
             importer.external({
               declaration: true,
               file: `typia`,
@@ -22,17 +22,17 @@ export namespace SdkTypeTagProgrammer {
               name: "tags",
             }),
           ),
-          ts.factory.createIdentifier(name),
+          TypeScriptFactory.createIdentifier(name),
         ),
         [
-          ts.factory.createLiteralTypeNode(
+          TypeScriptFactory.createLiteralTypeNode(
             LiteralFactory.write(tag.value) as any,
           ),
         ],
       );
-    return ts.factory.createTypeReferenceNode(
-      ts.factory.createQualifiedName(
-        ts.factory.createIdentifier(
+    return TypeScriptFactory.createTypeReferenceNode(
+      TypeScriptFactory.createQualifiedName(
+        TypeScriptFactory.createIdentifier(
           importer.external({
             declaration: true,
             file: `typia`,
@@ -40,10 +40,10 @@ export namespace SdkTypeTagProgrammer {
             name: "tags",
           }),
         ),
-        ts.factory.createIdentifier("TagBase"),
+        TypeScriptFactory.createIdentifier("TagBase"),
       ),
       [
-        ts.factory.createLiteralTypeNode(
+        TypeScriptFactory.createLiteralTypeNode(
           LiteralFactory.write({
             target: from,
             kind: tag.kind,

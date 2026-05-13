@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import {
   ExpressionFactory,
   IdentifierFactory,
@@ -21,20 +22,22 @@ export namespace SdkHttpSimulationProgrammer {
     (route: ITypedHttpRoute): ts.VariableStatement => {
       const output = SdkAliasCollection.responseBody(project)(importer)(route);
       return constant("random")(
-        ts.factory.createArrowFunction(
+        TypeScriptFactory.createArrowFunction(
           undefined,
           undefined,
           [],
           project.config.primitive === false
             ? output
-            : ts.factory.createTypeReferenceNode(
+            : TypeScriptFactory.createTypeReferenceNode(
                 SdkImportWizard.Resolved(importer),
                 [output],
               ),
           undefined,
-          ts.factory.createCallExpression(
+          TypeScriptFactory.createCallExpression(
             IdentifierFactory.access(
-              ts.factory.createIdentifier(SdkImportWizard.typia(importer)),
+              TypeScriptFactory.createIdentifier(
+                SdkImportWizard.typia(importer),
+              ),
               "random",
             ),
             [output],
@@ -52,13 +55,13 @@ export namespace SdkHttpSimulationProgrammer {
         project.config.propagate === true ||
         route.success.metadata.size() !== 0;
       const caller = () =>
-        ts.factory.createCallExpression(
-          ts.factory.createIdentifier("random"),
+        TypeScriptFactory.createCallExpression(
+          TypeScriptFactory.createIdentifier("random"),
           undefined,
           undefined,
         );
       return constant("simulate")(
-        ts.factory.createArrowFunction(
+        TypeScriptFactory.createArrowFunction(
           undefined,
           undefined,
           [
@@ -67,11 +70,11 @@ export namespace SdkHttpSimulationProgrammer {
                 0
                 ? "connection"
                 : "_connection",
-              ts.factory.createTypeReferenceNode(
+              TypeScriptFactory.createTypeReferenceNode(
                 SdkImportWizard.IConnection(importer),
                 route.headerObject
                   ? [
-                      ts.factory.createTypeReferenceNode(
+                      TypeScriptFactory.createTypeReferenceNode(
                         `${route.name}.Headers`,
                       ),
                     ]
@@ -86,38 +89,41 @@ export namespace SdkHttpSimulationProgrammer {
               prefix: false,
             }),
           ],
-          ts.factory.createTypeReferenceNode(output ? "Output" : "void"),
+          TypeScriptFactory.createTypeReferenceNode(output ? "Output" : "void"),
           undefined,
-          ts.factory.createBlock(
+          TypeScriptFactory.createBlock(
             [
               ...assert(project)(importer)(route),
-              ts.factory.createReturnStatement(
+              TypeScriptFactory.createReturnStatement(
                 project.config.propagate
-                  ? ts.factory.createAsExpression(
-                      ts.factory.createObjectLiteralExpression(
+                  ? TypeScriptFactory.createAsExpression(
+                      TypeScriptFactory.createObjectLiteralExpression(
                         [
-                          ts.factory.createPropertyAssignment(
+                          TypeScriptFactory.createPropertyAssignment(
                             "success",
-                            ts.factory.createTrue(),
+                            TypeScriptFactory.createTrue(),
                           ),
-                          ts.factory.createPropertyAssignment(
+                          TypeScriptFactory.createPropertyAssignment(
                             "status",
                             ExpressionFactory.number(
                               route.success.status ??
                                 (route.method === "POST" ? 201 : 200),
                             ),
                           ),
-                          ts.factory.createPropertyAssignment(
+                          TypeScriptFactory.createPropertyAssignment(
                             "headers",
                             LiteralFactory.write({
                               "Content-Type": route.success.contentType,
                             }),
                           ),
-                          ts.factory.createPropertyAssignment("data", caller()),
+                          TypeScriptFactory.createPropertyAssignment(
+                            "data",
+                            caller(),
+                          ),
                         ],
                         true,
                       ),
-                      ts.factory.createTypeReferenceNode("Output"),
+                      TypeScriptFactory.createTypeReferenceNode("Output"),
                     )
                   : caller(),
               ),
@@ -138,9 +144,9 @@ export namespace SdkHttpSimulationProgrammer {
       const typia = SdkImportWizard.typia(importer);
       const validator = StatementFactory.constant({
         name: "assert",
-        value: ts.factory.createCallExpression(
+        value: TypeScriptFactory.createCallExpression(
           IdentifierFactory.access(
-            ts.factory.createIdentifier(
+            TypeScriptFactory.createIdentifier(
               importer.external({
                 file: `@nestia/fetcher`,
                 declaration: false,
@@ -152,20 +158,20 @@ export namespace SdkHttpSimulationProgrammer {
           ),
           undefined,
           [
-            ts.factory.createObjectLiteralExpression(
+            TypeScriptFactory.createObjectLiteralExpression(
               [
-                ts.factory.createPropertyAssignment(
+                TypeScriptFactory.createPropertyAssignment(
                   "method",
-                  ts.factory.createIdentifier("METADATA.method"),
+                  TypeScriptFactory.createIdentifier("METADATA.method"),
                 ),
-                ts.factory.createPropertyAssignment(
+                TypeScriptFactory.createPropertyAssignment(
                   "host",
-                  ts.factory.createIdentifier("connection.host"),
+                  TypeScriptFactory.createIdentifier("connection.host"),
                 ),
-                ts.factory.createPropertyAssignment(
+                TypeScriptFactory.createPropertyAssignment(
                   "path",
-                  ts.factory.createCallExpression(
-                    ts.factory.createIdentifier("path"),
+                  TypeScriptFactory.createCallExpression(
+                    TypeScriptFactory.createIdentifier("path"),
                     undefined,
                     SdkHttpParameterProgrammer.getArguments({
                       project,
@@ -174,9 +180,9 @@ export namespace SdkHttpSimulationProgrammer {
                     }),
                   ),
                 ),
-                ts.factory.createPropertyAssignment(
+                TypeScriptFactory.createPropertyAssignment(
                   "contentType",
-                  ts.factory.createIdentifier(
+                  TypeScriptFactory.createIdentifier(
                     JSON.stringify(route.success.contentType),
                   ),
                 ),
@@ -186,44 +192,44 @@ export namespace SdkHttpSimulationProgrammer {
           ],
         ),
       });
-      const individual = parameters
+      const individual: ts.Statement[] = parameters
         .map((p) =>
-          ts.factory.createCallExpression(
+          TypeScriptFactory.createCallExpression(
             (() => {
               const base = IdentifierFactory.access(
-                ts.factory.createIdentifier("assert"),
+                TypeScriptFactory.createIdentifier("assert"),
                 p.category,
               );
               if (p.category !== "param") return base;
-              return ts.factory.createCallExpression(base, undefined, [
-                ts.factory.createStringLiteral(p.name),
+              return TypeScriptFactory.createCallExpression(base, undefined, [
+                TypeScriptFactory.createStringLiteral(p.name),
               ]);
             })(),
             undefined,
             [
-              ts.factory.createArrowFunction(
+              TypeScriptFactory.createArrowFunction(
                 undefined,
                 undefined,
                 [],
                 undefined,
                 undefined,
-                ts.factory.createCallExpression(
+                TypeScriptFactory.createCallExpression(
                   IdentifierFactory.access(
-                    ts.factory.createIdentifier(typia),
+                    TypeScriptFactory.createIdentifier(typia),
                     "assert",
                   ),
                   undefined,
                   [
                     project.config.keyword === true
-                      ? ts.factory.createIdentifier(`props.${p.name}`)
-                      : ts.factory.createIdentifier(p.name),
+                      ? TypeScriptFactory.createIdentifier(`props.${p.name}`)
+                      : TypeScriptFactory.createIdentifier(p.name),
                   ],
                 ),
               ),
             ],
           ),
         )
-        .map(ts.factory.createExpressionStatement);
+        .map(TypeScriptFactory.createExpressionStatement) as ts.Statement[];
       return [
         validator,
         ...(project.config.propagate !== true
@@ -234,52 +240,54 @@ export namespace SdkHttpSimulationProgrammer {
 
   const tryAndCatch =
     (importer: ImportDictionary) => (individual: ts.Statement[]) =>
-      ts.factory.createTryStatement(
-        ts.factory.createBlock(individual, true),
-        ts.factory.createCatchClause(
+      TypeScriptFactory.createTryStatement(
+        TypeScriptFactory.createBlock(individual, true),
+        TypeScriptFactory.createCatchClause(
           "exp",
-          ts.factory.createBlock(
+          TypeScriptFactory.createBlock(
             [
-              ts.factory.createIfStatement(
-                ts.factory.createLogicalNot(
-                  ts.factory.createCallExpression(
+              TypeScriptFactory.createIfStatement(
+                TypeScriptFactory.createLogicalNot(
+                  TypeScriptFactory.createCallExpression(
                     IdentifierFactory.access(
-                      ts.factory.createIdentifier(
+                      TypeScriptFactory.createIdentifier(
                         SdkImportWizard.typia(importer),
                       ),
                       "is",
                     ),
                     [
-                      ts.factory.createTypeReferenceNode(
+                      TypeScriptFactory.createTypeReferenceNode(
                         SdkImportWizard.HttpError(importer),
                       ),
                     ],
-                    [ts.factory.createIdentifier("exp")],
+                    [TypeScriptFactory.createIdentifier("exp")],
                   ),
                 ),
-                ts.factory.createThrowStatement(
-                  ts.factory.createIdentifier("exp"),
+                TypeScriptFactory.createThrowStatement(
+                  TypeScriptFactory.createIdentifier("exp"),
                 ),
               ),
-              ts.factory.createReturnStatement(
-                ts.factory.createAsExpression(
-                  ts.factory.createObjectLiteralExpression(
+              TypeScriptFactory.createReturnStatement(
+                TypeScriptFactory.createAsExpression(
+                  TypeScriptFactory.createObjectLiteralExpression(
                     [
-                      ts.factory.createPropertyAssignment(
+                      TypeScriptFactory.createPropertyAssignment(
                         "success",
-                        ts.factory.createFalse(),
+                        TypeScriptFactory.createFalse(),
                       ),
-                      ts.factory.createPropertyAssignment(
+                      TypeScriptFactory.createPropertyAssignment(
                         "status",
-                        ts.factory.createIdentifier("exp.status"),
+                        TypeScriptFactory.createIdentifier("exp.status"),
                       ),
-                      ts.factory.createPropertyAssignment(
+                      TypeScriptFactory.createPropertyAssignment(
                         "headers",
-                        ts.factory.createIdentifier("exp.headers"),
+                        TypeScriptFactory.createIdentifier("exp.headers"),
                       ),
-                      ts.factory.createPropertyAssignment(
+                      TypeScriptFactory.createPropertyAssignment(
                         "data",
-                        ts.factory.createIdentifier("exp.toJSON().message"),
+                        TypeScriptFactory.createIdentifier(
+                          "exp.toJSON().message",
+                        ),
                       ),
                     ],
                     true,
@@ -296,12 +304,12 @@ export namespace SdkHttpSimulationProgrammer {
 }
 
 const constant = (name: string) => (expression: ts.Expression) =>
-  ts.factory.createVariableStatement(
-    [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-    ts.factory.createVariableDeclarationList(
+  TypeScriptFactory.createVariableStatement(
+    [TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword)],
+    TypeScriptFactory.createVariableDeclarationList(
       [
-        ts.factory.createVariableDeclaration(
-          ts.factory.createIdentifier(name),
+        TypeScriptFactory.createVariableDeclaration(
+          TypeScriptFactory.createIdentifier(name),
           undefined,
           undefined,
           expression,

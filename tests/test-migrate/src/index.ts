@@ -11,10 +11,17 @@ import {
 } from "@typia/interface";
 import cp from "child_process";
 import fs from "fs";
-import { IValidation } from "typia";
+import path from "path";
+import type { IValidation } from "typia";
 
 const INPUT: string = `${__dirname}/../assets/input`;
 const OUTPUT: string = `${__dirname}/../assets/output`;
+const ROOT: string = path.resolve(__dirname, "../../..");
+const PNPM: string = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+const TTSC_CACHE_DIR: string = path.resolve(
+  ROOT,
+  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
+);
 
 const measure =
   (title: string) =>
@@ -68,10 +75,13 @@ const execute = (
           `Please check the generated files.`,
       );
     }
-    if (files["tsconfig.json"] !== undefined) {
-      files["tsconfig.json"] = files["tsconfig.json"]
-        .replace("@nestia/core/lib/transform", "@nestia/core/src/transform.ts")
-        .replace("@nestia/sdk/lib/transform", "@nestia/sdk/src/transform.ts");
+    for (const key of Object.keys(files)) {
+      const content: string | undefined = files[key];
+      if (key.endsWith("tsconfig.json") && content !== undefined)
+        files[key] = content.replace(
+          /^\s*\{\s*"transform":\s*"typescript-transform-paths"\s*\},\n/gm,
+          "",
+        );
     }
 
     await NestiaMigrateFileArchiver.archive({
@@ -82,14 +92,27 @@ const execute = (
       files,
     });
 
-    cp.execSync(`pnpm tsc`, {
-      stdio: "inherit",
-      cwd: directory,
-    });
-    cp.execSync(`pnpm tsc -p test/tsconfig.json`, {
-      stdio: "inherit",
-      cwd: directory,
-    });
+    const ttsc = (project?: string): void => {
+      cp.execFileSync(
+        PNPM,
+        [
+          "ttsc",
+          "--cache-dir",
+          TTSC_CACHE_DIR,
+          ...(project !== undefined ? ["-p", project] : []),
+        ],
+        {
+          stdio: "inherit",
+          cwd: directory,
+          env: {
+            ...process.env,
+            TTSC_CACHE_DIR,
+          },
+        },
+      );
+    };
+    ttsc();
+    ttsc("test/tsconfig.json");
   });
 };
 

@@ -1,7 +1,6 @@
 import cp from "child_process";
 import fs from "fs";
 import path from "path";
-import typia from "typia";
 
 import { INestiaConfig } from "../../INestiaConfig";
 
@@ -87,11 +86,22 @@ export namespace SdkDistributionComposer {
       dependencies: Record<string, string>;
       devDependencies: Record<string, string>;
     } = JSON.parse(content);
-    return typia.assert<IDependencies>({
+    const dependencies: Record<string, string> = {
       ...json.devDependencies,
       ...json.dependencies,
-      version: json.version,
-    });
+    };
+    const pick = (key: keyof IDependencies): string => {
+      const value: string | undefined =
+        key === "version" ? json.version : dependencies[key];
+      if (typeof value !== "string" || value.length === 0)
+        throw new Error(`Unable to resolve ${key} version for SDK distribution.`);
+      return value;
+    };
+    return {
+      version: pick("version"),
+      typia: pick("typia"),
+      tgrid: pick("tgrid"),
+    };
   };
 }
 

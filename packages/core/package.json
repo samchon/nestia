@@ -2,11 +2,19 @@
   "name": "@nestia/core",
   "version": "11.2.0",
   "description": "Super-fast validation decorators of NestJS",
-  "main": "src/index.ts",
+  "types": "lib/index.d.ts",
+  "main": "lib/index.js",
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
     "./package.json": "./package.json",
-    "./lib/transform": "./src/transform.ts",
+    "./lib/transform": {
+      "types": "./src/transform.ts",
+      "default": "./lib/transform.js"
+    },
+    "./native/transform.cjs": "./native/transform.cjs",
     "./src/transform.ts": "./src/transform.ts"
   },
   "tsp": {
@@ -15,9 +23,15 @@
     }
   },
   "scripts": {
-    "build": "rimraf lib && tsc",
-    "dev": "rimraf lib && tsc --watch",
-    "prepack": "pnpm run build"
+    "build": "rimraf lib && ttsc",
+    "dev": "ttsc --watch",
+    "prepack": "pnpm run build",
+    "test:go": "cd test && go test ./..."
+  },
+  "ttsc": {
+    "plugin": {
+      "transform": "@nestia/core/native/transform.cjs"
+    }
   },
   "repository": {
     "type": "git",
@@ -66,6 +80,7 @@
     "@nestjs/common": "catalog:nestjs",
     "@nestjs/core": "catalog:nestjs",
     "@nestjs/platform-express": "catalog:nestjs",
+    "@typescript/native-preview": "catalog:typescript",
     "@types/express": "^4.17.15",
     "@types/inquirer": "^9.0.3",
     "@types/multer": "^1.4.12",
@@ -78,6 +93,7 @@
     "inquirer": "^8.2.5",
     "rimraf": "catalog:utils",
     "ts-node": "catalog:typescript",
+    "ttsc": "catalog:typescript",
     "tstl": "catalog:samchon",
     "typescript": "catalog:typescript"
   },
@@ -86,6 +102,11 @@
     "LICENSE",
     "package.json",
     "lib",
+    "native/cmd",
+    "native/go.mod",
+    "native/go.sum",
+    "native/plugin",
+    "native/transform.cjs",
     "src"
   ],
   "publishConfig": {
@@ -101,6 +122,7 @@
         "types": "./lib/transform.d.ts",
         "default": "./lib/transform.js"
       },
+      "./native/transform.cjs": "./native/transform.cjs",
       "./package.json": "./package.json"
     }
   }

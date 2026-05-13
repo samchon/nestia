@@ -5,8 +5,10 @@ import { NestContainer } from "@nestjs/core";
 import { Module } from "@nestjs/core/injector/module";
 import fs from "fs";
 import getFunctionLocation from "get-function-location";
+import os from "os";
 import path from "path";
 import { HashMap, Pair, Singleton } from "tstl";
+import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { SdkGenerator } from "../generates/SdkGenerator";
@@ -14,6 +16,7 @@ import { INestiaSdkInput } from "../structures/INestiaSdkInput";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { MapUtil } from "../utils/MapUtil";
 import { SourceFinder } from "../utils/SourceFinder";
+import { TtscExecutor } from "../utils/TtscExecutor";
 
 export namespace ConfigAnalyzer {
   export const input = async (
@@ -35,9 +38,10 @@ export namespace ConfigAnalyzer {
             : [],
         filter: filter(config),
       });
+      const runtime: RuntimeCompiler = await RuntimeCompiler.compile(sources);
       const controllers: INestiaSdkInput.IController[] = [];
       for (const file of sources) {
-        const external: any[] = await import(file);
+        const external: any[] = await import(runtime.output(file));
         for (const key in external) {
           const instance: Function = external[key];
           if (Reflect.getMetadata("path", instance) !== undefined)
@@ -113,6 +117,142 @@ export namespace ConfigAnalyzer {
   };
 }
 const memory = new Map<INestiaConfig, Promise<INestiaSdkInput>>();
+class RuntimeCompiler {
+  private constructor(
+    private readonly cwd: string,
+    private readonly outDir: string,
+  ) {}
+
+  public static async compile(sources: string[]): Promise<RuntimeCompiler> {
+    const cwd: string = process.cwd();
+    const outDir: string = await fs.promises.mkdtemp(
+      path.join(os.tmpdir(), "nestia-runtime-"),
+    );
+    const project: string = path.join(
+      cwd,
+      `.nestia.runtime.${process.pid}.${Date.now()}.json`,
+    );
+    const relative = (file: string): string =>
+      path.relative(cwd, file).split("\\").join("/");
+    await fs.promises.writeFile(
+      project,
+      JSON.stringify(
+        {
+          extends: normalizeProjectPath(process.env.NESTIA_PROJECT),
+          compilerOptions: {
+            noEmit: false,
+            noUnusedLocals: false,
+            noUnusedParameters: false,
+            outDir,
+            plugins: runtimePlugins(cwd),
+            rootDir: ".",
+          },
+          include: sources.map(relative),
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+    try {
+      TtscExecutor.run({
+        cwd,
+        project,
+      });
+    } catch (error) {
+      const output =
+        error instanceof Error && "stderr" in error
+          ? String((error as Error & { stderr?: Buffer }).stderr ?? "")
+          : "";
+      throw new Error(output || `Failed to compile Nestia runtime inputs.`);
+    } finally {
+      await fs.promises.rm(project, { force: true });
+    }
+    return new RuntimeCompiler(cwd, outDir);
+  }
+
+  public output(source: string): string {
+    const relative: string = path.relative(this.cwd, source);
+    const emitted: string = path.join(
+      this.outDir,
+      replaceExtension(relative, ".js"),
+    );
+    return emitted;
+  }
+}
+
+type RuntimePlugin = Record<string, unknown> & { transform?: unknown };
+
+const runtimePlugins = (cwd: string): RuntimePlugin[] => {
+  const plugins: RuntimePlugin[] = readProjectPlugins(cwd);
+  const typia: RuntimePlugin | undefined = plugins.find((p) =>
+    isTransform(p, "typia"),
+  );
+  const sdk: RuntimePlugin | undefined = plugins.find((p) =>
+    isTransform(p, "@nestia/sdk"),
+  );
+  const core: RuntimePlugin | undefined = plugins.find((p) =>
+    isTransform(p, "@nestia/core"),
+  );
+  return [
+    {
+      ...(typia ?? {}),
+      transform: "typia/lib/transform",
+      enabled: false,
+    },
+    normalizeRuntimePlugin({
+      ...(sdk ?? {}),
+      transform: "@nestia/sdk/lib/transform",
+    }),
+    normalizeRuntimePlugin({
+      ...(core ?? {}),
+      transform: "@nestia/core/native/transform.cjs",
+    }),
+  ];
+};
+
+const readProjectPlugins = (cwd: string): RuntimePlugin[] => {
+  const project: string = normalizeProjectPath(process.env.NESTIA_PROJECT);
+  const file: string = path.isAbsolute(project)
+    ? project
+    : path.join(cwd, project);
+  const loaded: { config?: unknown; error?: ts.Diagnostic } = ts.readConfigFile(
+    file,
+    ts.sys.readFile,
+  );
+  if (loaded.error !== undefined || loaded.config === undefined) return [];
+  const config: ts.ParsedCommandLine = ts.parseJsonConfigFileContent(
+    loaded.config,
+    ts.sys,
+    path.dirname(file),
+  );
+  const options = config.options as
+    | (ts.CompilerOptions & { plugins?: RuntimePlugin[] })
+    | undefined;
+  return Array.isArray(options?.plugins)
+    ? options.plugins
+        .filter((p) => typeof p === "object" && p !== null)
+        .map((p) => ({ ...(p as unknown as RuntimePlugin) }))
+    : [];
+};
+
+const normalizeRuntimePlugin = (plugin: RuntimePlugin): RuntimePlugin => {
+  const output: RuntimePlugin = { ...plugin };
+  if (output.enabled === false) delete output.enabled;
+  return output;
+};
+
+const isTransform = (plugin: RuntimePlugin, name: string): boolean =>
+  typeof plugin.transform === "string" && plugin.transform.includes(name);
+
+const replaceExtension = (file: string, extension: string): string =>
+  file.replace(/\.[cm]?tsx?$/i, extension);
+
+const normalizeProjectPath = (project: string | undefined): string => {
+  const next: string = project ?? "tsconfig.json";
+  return path.isAbsolute(next) || next.startsWith(".") ? next : `./${next}`;
+};
+
 const normalize_file = (str: string) =>
   str.substring(
     str.startsWith("file:///")

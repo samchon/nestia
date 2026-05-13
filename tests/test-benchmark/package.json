@@ -4,7 +4,7 @@
   "version": "11.2.0",
   "scripts": {
     "dev": "tsc --watch",
-    "start": "ts-node -O '{\"module\":\"commonjs\",\"moduleResolution\":\"nodenext\"}' src/index.ts"
+    "start": "node ../run-with-ttsc-env.cjs ttsx -P tsconfig.json -r @nestjs/platform-express src/index.ts"
   },
   "dependencies": {
     "@nestia/benchmark": "workspace:^",
@@ -24,6 +24,7 @@
     "cross-env": "^10.1.0",
     "nestia": "workspace:^",
     "ts-node": "catalog:typescript",
+    "ttsc": "catalog:typescript",
     "typescript": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"

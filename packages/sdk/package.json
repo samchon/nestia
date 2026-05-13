@@ -2,12 +2,19 @@
   "name": "@nestia/sdk",
   "version": "11.2.0",
   "description": "Nestia SDK and Swagger generator",
-  "main": "src/index.ts",
+  "types": "lib/index.d.ts",
+  "main": "lib/index.js",
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
     "./package.json": "./package.json",
     "./lib/executable/sdk": "./src/executable/sdk.ts",
-    "./lib/transform": "./src/transform.ts",
+    "./lib/transform": {
+      "types": "./src/transform.ts",
+      "default": "./lib/transform.js"
+    },
     "./src/transform.ts": "./src/transform.ts"
   },
   "tsp": {
@@ -19,22 +26,21 @@
     "@nestia/sdk": "src/executable/sdk.ts"
   },
   "scripts": {
-    "build": "rimraf lib && tsc",
-    "dev": "rimraf lib && tsc --watch",
-    "prepack": "pnpm run build"
+    "build": "rimraf lib && ttsc",
+    "dev": "ttsc --watch",
+    "prepack": "pnpm run build",
+    "test:go": "cd test && go test ./..."
+  },
+  "ttsc": {
+    "plugin": {
+      "transform": "@nestia/sdk/lib/transform"
+    }
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/samchon/nestia"
   },
-  "keywords": [
-    "nestia",
-    "sdk",
-    "swagger",
-    "generator",
-    "nestjs",
-    "typia"
-  ],
+  "keywords": ["nestia", "sdk", "swagger", "generator", "nestjs", "typia"],
   "author": "Jeongho Nam",
   "license": "MIT",
   "bugs": {
@@ -43,6 +49,7 @@
   "homepage": "https://nestia.io",
   "dependencies": {
     "@nestia/core": "workspace:^",
+    "@nestia/factory": "workspace:^",
     "@nestia/fetcher": "workspace:^",
     "@typia/core": "catalog:samchon",
     "@typia/interface": "catalog:samchon",
@@ -55,6 +62,7 @@
     "ts-node": ">=10.6.0",
     "tsconfck": "^2.1.2",
     "tsconfig-paths": "^4.1.1",
+    "ttsc": "catalog:typescript",
     "tstl": "catalog:samchon",
     "typia": "catalog:samchon"
   },
@@ -64,20 +72,15 @@
   "devDependencies": {
     "@nestjs/common": "catalog:nestjs",
     "@nestjs/core": "catalog:nestjs",
+    "@typescript/native-preview": "catalog:typescript",
     "@types/cli": "^0.11.21",
     "@types/express": "^4.17.15",
     "@types/node": "catalog:utils",
     "rimraf": "catalog:utils",
+    "ttsc": "catalog:typescript",
     "typescript": "catalog:typescript"
   },
-  "files": [
-    "assets",
-    "lib",
-    "src",
-    "README.md",
-    "LICENSE",
-    "package.json"
-  ],
+  "files": ["assets", "lib", "src", "README.md", "LICENSE", "package.json"],
   "publishConfig": {
     "access": "public",
     "types": "lib/index.d.ts",

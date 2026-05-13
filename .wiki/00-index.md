@@ -11,6 +11,8 @@
 - `02-typia/`: `typia` TypeScript 원본과 `typia@next` Go 포팅의 대응 방식
 - `03-nestia/`: 현재 `nestia@next` 패키지와 transformer/generator 구조
 - `04-strategy/`: Nestia Go 포팅 마스터 플랜, native layout, 단계, 검증 계획
+- `05-review/`: 2026-05-04 심층 리뷰와 2026-05-09 보강 후 감사 결과
+- `06-phase0-ledger/`: `core`, `sdk`, `cli` 179개 파일별 ledger와 닫힌 정책 결정
 
 ## 현재 판단
 
@@ -28,4 +30,3 @@
 - `ttsc`의 plugin contract를 우회하지 않는다.
 - `typia@next`처럼 copy-first, per-file ledger-first, test-immutable 방식으로 진행한다.
 - Nestia 전용 hard-coding으로 특정 테스트나 특정 DTO 이름을 통과시키지 않는다.
-

@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import path from "path";
 import { HashMap, TreeSet, hash } from "tstl";
 import ts from "typescript";
@@ -117,10 +118,10 @@ export class ImportDictionary {
           .sort((a, b) => a.file.localeCompare(b.file));
         for (const c of compositions)
           container.push(
-            ts.factory.createImportDeclaration(
+            TypeScriptFactory.createImportDeclaration(
               undefined,
               this.toImportClaude(c),
-              ts.factory.createStringLiteral(c.file),
+              TypeScriptFactory.createStringLiteral(c.file),
               undefined,
             ),
           );
@@ -137,23 +138,25 @@ export class ImportDictionary {
 
   private toImportClaude(c: ICompositeValue): ts.ImportClause {
     if (c.asterisk !== null)
-      return ts.factory.createImportClause(
+      return TypeScriptFactory.createImportClause(
         c.declaration,
         undefined,
-        ts.factory.createNamespaceImport(
-          ts.factory.createIdentifier(c.asterisk),
+        TypeScriptFactory.createNamespaceImport(
+          TypeScriptFactory.createIdentifier(c.asterisk),
         ),
       );
-    return ts.factory.createImportClause(
+    return TypeScriptFactory.createImportClause(
       c.declaration,
-      c.default !== null ? ts.factory.createIdentifier(c.default) : undefined,
+      c.default !== null
+        ? TypeScriptFactory.createIdentifier(c.default)
+        : undefined,
       c.elements.size() !== 0
-        ? ts.factory.createNamedImports(
+        ? TypeScriptFactory.createNamedImports(
             Array.from(c.elements).map((elem) =>
-              ts.factory.createImportSpecifier(
+              TypeScriptFactory.createImportSpecifier(
                 false,
                 undefined,
-                ts.factory.createIdentifier(elem),
+                TypeScriptFactory.createIdentifier(elem),
               ),
             ),
           )

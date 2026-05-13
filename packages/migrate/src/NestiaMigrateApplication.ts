@@ -6,8 +6,8 @@ import {
   OpenApiV3_2,
   SwaggerV2,
 } from "@typia/interface";
-import { HttpMigration, OpenApiConverter } from "@typia/utils";
-import typia, { IValidation } from "typia";
+import type { IValidation } from "@typia/interface";
+import * as typiaUtils from "@typia/utils";
 
 import { NEST_TEMPLATE } from "./bundles/NEST_TEMPLATE";
 import { SDK_TEMPLATE } from "./bundles/SDK_TEMPLATE";
@@ -18,6 +18,9 @@ import { NestiaMigrateNestProgrammer } from "./programmers/NestiaMigrateNestProg
 import { INestiaMigrateConfig } from "./structures/INestiaMigrateConfig";
 import { INestiaMigrateContext } from "./structures/INestiaMigrateContext";
 import { INestiaMigrateFile } from "./structures/INestiaMigrateFile";
+
+const { HttpMigration, OpenApiConverter } =
+  (typiaUtils as { default?: typeof typiaUtils }).default ?? typiaUtils;
 
 export class NestiaMigrateApplication {
   private readonly data_: IHttpMigrateApplication;
@@ -38,7 +41,7 @@ export class NestiaMigrateApplication {
       | OpenApi.IDocument,
   ): NestiaMigrateApplication {
     return new NestiaMigrateApplication(
-      OpenApiConverter.upgradeDocument(typia.assert(document)),
+      OpenApiConverter.upgradeDocument(document),
     );
   }
 
@@ -50,20 +53,27 @@ export class NestiaMigrateApplication {
       | OpenApiV3_2.IDocument
       | OpenApi.IDocument,
   ): IValidation<NestiaMigrateApplication> {
-    const result: IValidation<
-      | SwaggerV2.IDocument
-      | OpenApiV3.IDocument
-      | OpenApiV3_1.IDocument
-      | OpenApiV3_2.IDocument
-      | OpenApi.IDocument
-    > = typia.validate(document);
-    if (result.success === false) return result;
-    return {
-      success: true,
-      data: new NestiaMigrateApplication(
-        OpenApiConverter.upgradeDocument(document),
-      ),
-    };
+    try {
+      return {
+        success: true,
+        data: new NestiaMigrateApplication(
+          OpenApiConverter.upgradeDocument(document),
+        ),
+      };
+    } catch {
+      return {
+        success: false,
+        data: document,
+        errors: [
+          {
+            path: "$input",
+            expected:
+              "SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument | OpenApiV3_2.IDocument | OpenApi.IDocument",
+            value: document,
+          },
+        ],
+      };
+    }
   }
 
   /* -----------------------------------------------------------

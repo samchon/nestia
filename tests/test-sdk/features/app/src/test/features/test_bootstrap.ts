@@ -5,10 +5,12 @@ import { SwaggerModule } from "@nestjs/swagger";
 
 class ApplicationModule {}
 
-const bootstrap = async (): Promise<void> => {
+export const test_bootstrap = async (): Promise<void> => {
   const app: INestApplication = await NestFactory.create(ApplicationModule);
-  const document = await NestiaSwaggerComposer.document(app, {});
-  SwaggerModule.setup("api", app, document as any);
-  await app.listen(37_000);
+  try {
+    const document = await NestiaSwaggerComposer.document(app, {});
+    SwaggerModule.setup("api", app, document as any);
+  } finally {
+    await app.close();
+  }
 };
-bootstrap().catch(console.error);

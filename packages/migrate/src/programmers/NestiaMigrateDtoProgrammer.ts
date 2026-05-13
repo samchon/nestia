@@ -1,3 +1,4 @@
+import { TypeScriptFactory } from "@nestia/factory";
 import { OpenApi } from "@typia/interface";
 import { IPointer } from "tstl";
 import ts from "typescript";
@@ -65,8 +66,8 @@ export namespace NestiaMigrateDtoProgrammer {
     (importer: NestiaMigrateImportProgrammer) =>
     (key: string, value: OpenApi.IJsonSchema) =>
       FilePrinter.description(
-        ts.factory.createTypeAliasDeclaration(
-          [ts.factory.createToken(ts.SyntaxKind.ExportKeyword)],
+        TypeScriptFactory.createTypeAliasDeclaration(
+          [TypeScriptFactory.createToken(ts.SyntaxKind.ExportKeyword)],
           key.split(".").at(-1)!,
           [],
           NestiaMigrateSchemaProgrammer.write({

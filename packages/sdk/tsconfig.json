@@ -8,6 +8,10 @@
     "plugins": [
       {
         "transform": "typia/lib/transform",
+        "enabled": false,
+      },
+      {
+        "transform": "@nestia/core/native/transform.cjs",
         "functional": true,
       },
     ],

@@ -1,6 +1,7 @@
 import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
 import typia, { tags } from "typia";
+import { v4 } from "uuid";
 
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
@@ -20,6 +21,8 @@ export class BbsArticlesController {
     const output: IBbsArticle = {
       ...typia.random<IBbsArticle>(),
       ...input,
+      id: v4(),
+      created_at: new Date().toISOString(),
     };
     return output;
   }
