@@ -55,7 +55,7 @@ export namespace NestiaConfigLoader {
           ...compilerOptions,
           plugins,
         },
-        require: compilerOptions.baseUrl || hasPathAliases
+        require: (compilerOptions.baseUrl || hasPathAliases)
           ? ["tsconfig-paths/register"]
           : undefined,
       });
