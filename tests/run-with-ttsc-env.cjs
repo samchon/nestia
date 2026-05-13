@@ -53,19 +53,33 @@ const resolveGoBinary = () => {
 };
 
 const command = process.argv[2];
-const args = process.argv.slice(3);
+let args = process.argv.slice(3);
 if (command === undefined) {
   console.error("Usage: node tests/run-with-ttsc-env.cjs <command> [...args]");
   process.exit(1);
 }
 
-process.env.TTSC_CACHE_DIR ??= path.join(ROOT, "node_modules", ".ttsc");
+process.env.TTSC_CACHE_DIR = path.resolve(
+  ROOT,
+  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
+);
 if (process.env.TTSC_GO_BINARY === undefined) {
   const goBinary = resolveGoBinary();
   if (goBinary !== undefined) process.env.TTSC_GO_BINARY = goBinary;
 }
 
 appendNodeOption("--no-experimental-strip-types");
+
+const commandName = path
+  .basename(command)
+  .replace(/\.(?:cmd|exe|ps1)$/i, "");
+if (
+  (commandName === "ttsc" || commandName === "ttsx") &&
+  args.some((arg) => arg === "--cache-dir" || arg.startsWith("--cache-dir=")) ===
+    false
+) {
+  args = ["--cache-dir", process.env.TTSC_CACHE_DIR, ...args];
+}
 
 const child = childProcess.spawn(command, args, {
   env: process.env,

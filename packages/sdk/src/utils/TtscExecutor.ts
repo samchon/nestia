@@ -7,11 +7,15 @@ export namespace TtscExecutor {
     cwd: string;
     project: string;
     stdio?: cp.StdioOptions;
-  }): Buffer =>
-    cp.execFileSync(process.execPath, [bin(), "-p", props.project], {
+  }): Buffer => {
+    const args: string[] = [bin(), "-p", props.project];
+    if (process.env.TTSC_CACHE_DIR !== undefined)
+      args.push("--cache-dir", process.env.TTSC_CACHE_DIR);
+    return cp.execFileSync(process.execPath, args, {
       cwd: props.cwd,
       stdio: props.stdio ?? "pipe",
     });
+  };
 
   let bin_: string | undefined;
 

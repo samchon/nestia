@@ -3,6 +3,14 @@ const fs = require("fs");
 const path = require("path");
 const ts = require("typescript");
 
+const ROOT = path.join(__dirname, "../..");
+const TTSC_CACHE_DIR = path.resolve(
+  ROOT,
+  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
+);
+const NPX = process.platform === "win32" ? "npx.cmd" : "npx";
+
+process.env.TTSC_CACHE_DIR = TTSC_CACHE_DIR;
 process.env.NODE_OPTIONS = [
   process.env.NODE_OPTIONS ?? "",
   "--no-experimental-detect-module",
@@ -155,8 +163,18 @@ const runTtsxTest = (stdio) => {
     ]
       .filter(Boolean)
       .join(" ");
-    cp.execSync(
-      `npx ttsx -P ${project} -r @nestjs/platform-express src/test/index.ts`,
+    cp.execFileSync(
+      NPX,
+      [
+        "ttsx",
+        "--cache-dir",
+        TTSC_CACHE_DIR,
+        "-P",
+        project,
+        "-r",
+        "@nestjs/platform-express",
+        "src/test/index.ts",
+      ],
       {
         env: {
           ...process.env,

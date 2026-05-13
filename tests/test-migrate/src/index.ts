@@ -11,10 +11,17 @@ import {
 } from "@typia/interface";
 import cp from "child_process";
 import fs from "fs";
+import path from "path";
 import type { IValidation } from "typia";
 
 const INPUT: string = `${__dirname}/../assets/input`;
 const OUTPUT: string = `${__dirname}/../assets/output`;
+const ROOT: string = path.resolve(__dirname, "../../..");
+const PNPM: string = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+const TTSC_CACHE_DIR: string = path.resolve(
+  ROOT,
+  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
+);
 
 const measure =
   (title: string) =>
@@ -85,14 +92,27 @@ const execute = (
       files,
     });
 
-    cp.execSync(`pnpm ttsc`, {
-      stdio: "inherit",
-      cwd: directory,
-    });
-    cp.execSync(`pnpm ttsc -p test/tsconfig.json`, {
-      stdio: "inherit",
-      cwd: directory,
-    });
+    const ttsc = (project?: string): void => {
+      cp.execFileSync(
+        PNPM,
+        [
+          "ttsc",
+          "--cache-dir",
+          TTSC_CACHE_DIR,
+          ...(project !== undefined ? ["-p", project] : []),
+        ],
+        {
+          stdio: "inherit",
+          cwd: directory,
+          env: {
+            ...process.env,
+            TTSC_CACHE_DIR,
+          },
+        },
+      );
+    };
+    ttsc();
+    ttsc("test/tsconfig.json");
   });
 };
 
