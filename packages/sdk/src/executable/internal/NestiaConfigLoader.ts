@@ -85,6 +85,7 @@ export namespace NestiaConfigLoader {
       path.join(ensureMaterializedRoot(projectRoot), "run-"),
     );
     const wrapperFile: string = path.join(wrapperRoot, "tsconfig.json");
+    const requiresTransforms: boolean = requiresConfigurationTransforms(configFile);
     const wrapperConfig = {
       extends: projectFile,
       compilerOptions: {
@@ -93,7 +94,9 @@ export namespace NestiaConfigLoader {
         noUnusedParameters: false,
         ...nodeAmbientCompilerOptions(projectRoot, props.compilerOptions),
         outDir: outputRoot,
-        plugins: materializePlugins(props.compilerOptions.plugins),
+        ...(requiresTransforms
+          ? { plugins: materializePlugins(props.compilerOptions.plugins) }
+          : {}),
         rootDir: projectRoot,
       },
       include: [configFile],
@@ -245,6 +248,43 @@ export namespace NestiaConfigLoader {
 
   const isTransform = (plugin: MaterializePlugin, name: string): boolean =>
     typeof plugin.transform === "string" && plugin.transform.includes(name);
+
+  const requiresConfigurationTransforms = (file: string): boolean => {
+    const source: ts.SourceFile = ts.createSourceFile(
+      file,
+      fs.readFileSync(file, "utf8"),
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+    let output: boolean = false;
+    const visit = (node: ts.Node): void => {
+      if (output === true) return;
+      if (
+        ts.isPropertyAssignment(node) &&
+        propertyName(node.name) === "input" &&
+        isFunctionLikeInitializer(node.initializer)
+      ) {
+        output = true;
+        return;
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+    return output;
+  };
+
+  const propertyName = (node: ts.PropertyName): string | null => {
+    if (ts.isIdentifier(node) || ts.isStringLiteral(node)) return node.text;
+    if (ts.isNumericLiteral(node)) return node.text;
+    return null;
+  };
+
+  const isFunctionLikeInitializer = (node: ts.Expression): boolean => {
+    while (ts.isAsExpression(node) || ts.isSatisfiesExpression(node))
+      node = node.expression;
+    return ts.isArrowFunction(node) || ts.isFunctionExpression(node);
+  };
 
   const extractConfiguration = (
     file: string,

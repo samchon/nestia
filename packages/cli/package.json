@@ -2,12 +2,15 @@
   "name": "nestia",
   "version": "11.2.0",
   "description": "Nestia CLI tool",
-  "main": "src/index.ts",
+  "main": "bin/index.js",
   "bin": {
-    "nestia": "src/boot.js"
+    "nestia": "bin/index.js"
   },
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "types": "./bin/index.d.ts",
+      "default": "./bin/index.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {

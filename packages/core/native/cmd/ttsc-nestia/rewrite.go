@@ -23,11 +23,17 @@ type nativeRewrite struct {
 }
 
 type nativeRewriteSet struct {
-	byPath map[string][]nativeRewrite
+	byPath              map[string][]nativeRewrite
+	aliasesByPath       map[string]map[string]bool
+	sortedAliasesByPath map[string][]string
 }
 
 func newNativeRewriteSet() *nativeRewriteSet {
-	return &nativeRewriteSet{byPath: map[string][]nativeRewrite{}}
+	return &nativeRewriteSet{
+		byPath:              map[string][]nativeRewrite{},
+		aliasesByPath:       map[string]map[string]bool{},
+		sortedAliasesByPath: map[string][]string{},
+	}
 }
 
 func (rs *nativeRewriteSet) Add(r nativeRewrite) {
@@ -36,6 +42,20 @@ func (rs *nativeRewriteSet) Add(r nativeRewrite) {
 	}
 	path := filepath.ToSlash(r.FilePath)
 	rs.byPath[path] = append(rs.byPath[path], r)
+	rs.addRuntimeAliases(path, r.Replacement)
+	for _, argument := range r.AppendArguments {
+		rs.addRuntimeAliases(path, argument)
+	}
+}
+
+func (rs *nativeRewriteSet) addRuntimeAliases(path string, text string) {
+	for _, alias := range collectCleanupRuntimeAliases(text) {
+		if rs.aliasesByPath[path] == nil {
+			rs.aliasesByPath[path] = map[string]bool{}
+		}
+		rs.aliasesByPath[path][alias] = true
+		delete(rs.sortedAliasesByPath, path)
+	}
 }
 
 func (rs *nativeRewriteSet) Len() int {
@@ -104,6 +124,27 @@ func (rs *nativeRewriteSet) Apply(outputName string, text string, cursors map[st
 	return out, nil
 }
 
+func (rs *nativeRewriteSet) RuntimeAliasesForOutput(outputName string) []string {
+	if rs == nil || len(rs.aliasesByPath) == 0 || isJavaScriptOutput(outputName) == false {
+		return nil
+	}
+	srcPath, ok := rs.findSourceForOutput(outputName)
+	if !ok {
+		return nil
+	}
+	if aliases, ok := rs.sortedAliasesByPath[srcPath]; ok {
+		return aliases
+	}
+	seen := rs.aliasesByPath[srcPath]
+	if len(seen) == 0 {
+		rs.sortedAliasesByPath[srcPath] = []string{}
+		return rs.sortedAliasesByPath[srcPath]
+	}
+	aliases := sortCleanupRuntimeAliases(seen)
+	rs.sortedAliasesByPath[srcPath] = aliases
+	return aliases
+}
+
 func nativeRewriteFirstIndex(text string, rewrite nativeRewrite) (int, bool) {
 	best := -1
 	for _, target := range candidateNativeTargets(rewrite) {
@@ -144,6 +185,15 @@ func outputMatchesSourceStem(outputStem string, sourceStem string) bool {
 		}
 	}
 	return false
+}
+
+func isJavaScriptOutput(fileName string) bool {
+	switch strings.ToLower(filepath.Ext(fileName)) {
+	case ".js", ".mjs", ".cjs":
+		return true
+	default:
+		return false
+	}
 }
 
 func sourceOutputCandidates(stem string) []string {

@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
@@ -45,9 +46,44 @@ type nestiaCoreSite struct {
 	Arguments []string
 }
 
+type nestiaCoreTransformState struct {
+	prog        *driver.Program
+	options     nestiaCoreOptions
+	cache       map[nestiaCoreCacheKey][]string
+	cacheHits   int
+	cacheMisses int
+}
+
+type nestiaCoreCacheKey struct {
+	Kind          string
+	Type          *shimchecker.Type
+	TypeName      string
+	Modulo        string
+	Validate      string
+	Stringify     string
+	StringifyNull bool
+	Llm           bool
+	LlmStrict     bool
+	ArgCount      int
+	AllowOptional bool
+}
+
+func newNestiaCoreTransformState(prog *driver.Program, options nestiaCoreOptions) *nestiaCoreTransformState {
+	return &nestiaCoreTransformState{
+		prog:    prog,
+		options: options,
+		cache:   map[nestiaCoreCacheKey][]string{},
+	}
+}
+
 var nestiaCoreFactory = shimast.NewNodeFactory(shimast.NodeFactoryHooks{})
 
 const nestiaCoreKindDecorator shimast.Kind = 171
+
+type nestiaCoreFileContext struct {
+	file        *shimast.SourceFile
+	coreImports map[string]bool
+}
 
 func readNestiaCoreOptions(plan plugin.Plan) nestiaCoreOptions {
 	options := nestiaCoreOptions{}
@@ -89,7 +125,7 @@ func collectNestiaCoreSourceRewriteMap(
 		return map[string][]transformSourceRewrite{}, nil
 	}
 	options := readNestiaCoreOptions(plan)
-	sites, diagnostics := collectNestiaCoreSites(prog, options)
+	sites, diagnostics := collectNestiaCoreSites(newNestiaCoreTransformState(prog, options))
 	rewrites := map[string][]transformSourceRewrite{}
 	for _, site := range sites {
 		if onlyFile != "" && filepath.ToSlash(site.FilePath) != filepath.ToSlash(onlyFile) {
@@ -124,7 +160,7 @@ func collectNestiaCoreBuildRewrites(
 		return nil
 	}
 	options := readNestiaCoreOptions(plan)
-	sites, diagnostics := collectNestiaCoreSites(prog, options)
+	sites, diagnostics := collectNestiaCoreSites(newNestiaCoreTransformState(prog, options))
 	for _, site := range sites {
 		expectedArgumentCount := site.ArgCount
 		expectedArgumentsText := nestiaCoreStableOriginalArgumentText(site)
@@ -162,12 +198,10 @@ func nestiaCoreStableOriginalArgumentText(site nestiaCoreSite) string {
 	return text
 }
 
-func collectNestiaCoreSites(
-	prog *driver.Program,
-	options nestiaCoreOptions,
-) ([]nestiaCoreSite, []typiaTransformDiagnostic) {
+func collectNestiaCoreSites(state *nestiaCoreTransformState) ([]nestiaCoreSite, []typiaTransformDiagnostic) {
 	sites := []nestiaCoreSite{}
 	diagnostics := []typiaTransformDiagnostic{}
+	prog := state.prog
 	if nestiaCoreStrictMode(prog) == false {
 		diagnostics = append(diagnostics, nestiaCoreGlobalDiagnostic("@nestia/core", "strict mode is required."))
 	}
@@ -175,18 +209,21 @@ func collectNestiaCoreSites(
 		if file == nil || file.IsDeclarationFile {
 			continue
 		}
+		context := newNestiaCoreFileContext(file)
 		file.ForEachChild(func(node *shimast.Node) bool {
-			visitNestiaCoreNode(prog, options, file, node, &sites, &diagnostics)
+			visitNestiaCoreNode(state, context, node, &sites, &diagnostics)
 			return false
 		})
+	}
+	if os.Getenv("TTSC_NESTIA_PROFILE") != "" {
+		fmt.Fprintf(stderr, "ttsc-nestia profile: core-cache hits=%d misses=%d\n", state.cacheHits, state.cacheMisses)
 	}
 	return sites, diagnostics
 }
 
 func visitNestiaCoreNode(
-	prog *driver.Program,
-	options nestiaCoreOptions,
-	file *shimast.SourceFile,
+	state *nestiaCoreTransformState,
+	context nestiaCoreFileContext,
 	node *shimast.Node,
 	sites *[]nestiaCoreSite,
 	diagnostics *[]typiaTransformDiagnostic,
@@ -196,9 +233,46 @@ func visitNestiaCoreNode(
 	}
 	switch node.Kind {
 	case shimast.KindParameter:
-		typ := prog.Checker.GetTypeAtLocation(node)
-		for _, decorator := range node.Decorators() {
-			site, ok, err := transformNestiaCoreParameterDecorator(prog, options, file, decorator, typ)
+		decorators := node.Decorators()
+		if len(decorators) == 0 {
+			break
+		}
+		type candidate struct {
+			decorator *shimast.Node
+			call      *shimast.CallExpression
+			segments  []string
+			kind      string
+		}
+		candidates := []candidate{}
+		for _, decorator := range decorators {
+			call, segments, ok := nestiaCoreRawDecoratorCall(decorator)
+			if !ok {
+				continue
+			}
+			kind := nestiaCoreParameterKind(segments)
+			if kind == "" || nestiaCoreDecoratorReference(state.prog, context, decorator, segments) == false {
+				continue
+			}
+			candidates = append(candidates, candidate{
+				decorator: decorator,
+				call:      call,
+				segments:  segments,
+				kind:      kind,
+			})
+		}
+		if len(candidates) == 0 {
+			break
+		}
+		typ := state.prog.Checker.GetTypeAtLocation(node)
+		for _, candidate := range candidates {
+			site, ok, err := transformNestiaCoreParameterDecorator(
+				state,
+				context.file,
+				candidate.call,
+				candidate.segments,
+				candidate.kind,
+				typ,
+			)
 			if err != nil {
 				*diagnostics = append(*diagnostics, nestiaCoreDiagnostic(site, err.Error()))
 			} else if ok {
@@ -206,13 +280,48 @@ func visitNestiaCoreNode(
 			}
 		}
 	case shimast.KindMethodDeclaration:
-		for _, decorator := range node.Decorators() {
-			*diagnostics = append(*diagnostics, validateNestiaCoreWebSocketRoute(prog, file, node, decorator)...)
+		decorators := node.Decorators()
+		if len(decorators) == 0 {
+			break
 		}
-		typ := nestiaCoreMethodReturnType(prog, node)
+		type candidate struct {
+			call     *shimast.CallExpression
+			segments []string
+			kind     string
+		}
+		candidates := []candidate{}
+		for _, decorator := range decorators {
+			call, segments, ok := nestiaCoreRawDecoratorCall(decorator)
+			if !ok || nestiaCoreDecoratorReference(state.prog, context, decorator, segments) == false {
+				continue
+			}
+			if len(segments) != 0 && segments[len(segments)-1] == "WebSocketRoute" {
+				*diagnostics = append(*diagnostics, validateNestiaCoreWebSocketRoute(state.prog, context, node, call, segments)...)
+			}
+			kind := nestiaCoreMethodKind(segments)
+			if kind == "" || nestiaCoreShouldSkipMethodDecorator(state.prog, call) {
+				continue
+			}
+			candidates = append(candidates, candidate{
+				call:     call,
+				segments: segments,
+				kind:     kind,
+			})
+		}
+		if len(candidates) == 0 {
+			break
+		}
+		typ := nestiaCoreMethodReturnType(state.prog, node)
 		if typ != nil {
-			for _, decorator := range node.Decorators() {
-				site, ok, err := transformNestiaCoreMethodDecorator(prog, options, file, decorator, typ)
+			for _, candidate := range candidates {
+				site, ok, err := transformNestiaCoreMethodDecorator(
+					state,
+					context.file,
+					candidate.call,
+					candidate.segments,
+					candidate.kind,
+					typ,
+				)
 				if err != nil {
 					*diagnostics = append(*diagnostics, nestiaCoreDiagnostic(site, err.Error()))
 				} else if ok {
@@ -222,28 +331,21 @@ func visitNestiaCoreNode(
 		}
 	}
 	node.ForEachChild(func(child *shimast.Node) bool {
-		visitNestiaCoreNode(prog, options, file, child, sites, diagnostics)
+		visitNestiaCoreNode(state, context, child, sites, diagnostics)
 		return false
 	})
 }
 
 func transformNestiaCoreParameterDecorator(
-	prog *driver.Program,
-	options nestiaCoreOptions,
+	state *nestiaCoreTransformState,
 	file *shimast.SourceFile,
-	decorator *shimast.Node,
+	call *shimast.CallExpression,
+	segments []string,
+	kind string,
 	typ *shimchecker.Type,
 ) (nestiaCoreSite, bool, error) {
-	call, segments, ok := nestiaCoreDecoratorCall(prog, decorator)
-	if !ok {
-		return nestiaCoreSite{}, false, nil
-	}
-	kind := nestiaCoreParameterKind(segments)
-	if kind == "" {
-		return nestiaCoreSite{}, false, nil
-	}
 	modulo := nestiaCoreModuloNode(call.Expression)
-	arguments, ok, err := nestiaCoreParameterArguments(prog, options, call, modulo, kind, typ)
+	arguments, ok, err := state.parameterArguments(call, segments, modulo, kind, typ)
 	if err != nil || !ok {
 		return nestiaCoreSite{
 			File:     file,
@@ -269,30 +371,15 @@ func transformNestiaCoreParameterDecorator(
 }
 
 func transformNestiaCoreMethodDecorator(
-	prog *driver.Program,
-	options nestiaCoreOptions,
+	state *nestiaCoreTransformState,
 	file *shimast.SourceFile,
-	decorator *shimast.Node,
+	call *shimast.CallExpression,
+	segments []string,
+	kind string,
 	typ *shimchecker.Type,
 ) (nestiaCoreSite, bool, error) {
-	call, segments, ok := nestiaCoreDecoratorCall(prog, decorator)
-	if !ok {
-		return nestiaCoreSite{}, false, nil
-	}
-	kind := nestiaCoreMethodKind(segments)
-	skip := nestiaCoreShouldSkipMethodDecorator(prog, call)
-	if kind == "" || skip {
-		return nestiaCoreSite{}, false, nil
-	}
 	modulo := nestiaCoreModuloNode(call.Expression)
-	arg, err := safeNestiaCoreGenerate(func() (*shimast.Node, error) {
-		switch kind {
-		case "TypedQueryRoute":
-			return nestiaCoreGenerateTypedQueryRoute(prog, options, modulo, typ), nil
-		default:
-			return nestiaCoreGenerateTypedRoute(prog, options, modulo, typ), nil
-		}
-	}, prog, file, false)
+	arguments, err := state.methodArguments(file, segments, modulo, kind, typ, nestiaCoreArgumentCount(call))
 	if err != nil {
 		return nestiaCoreSite{
 			File:     file,
@@ -313,11 +400,89 @@ func transformNestiaCoreMethodDecorator(
 		Type:      typ,
 		ArgCount:  nestiaCoreArgumentCount(call),
 		Segments:  segments,
-		Arguments: []string{arg},
+		Arguments: arguments,
 	}, true, nil
 }
 
-func nestiaCoreDecoratorCall(prog *driver.Program, decorator *shimast.Node) (*shimast.CallExpression, []string, bool) {
+func (state *nestiaCoreTransformState) parameterArguments(
+	call *shimast.CallExpression,
+	segments []string,
+	modulo *shimast.Node,
+	kind string,
+	typ *shimchecker.Type,
+) ([]string, bool, error) {
+	key := state.cacheKey(segments, kind, typ, nestiaCoreArgumentCount(call), kind == "TypedQuery")
+	return state.cachedArguments(key, func() ([]string, bool, error) {
+		return nestiaCoreParameterArguments(state.prog, state.options, call, modulo, kind, typ)
+	})
+}
+
+func (state *nestiaCoreTransformState) methodArguments(
+	file *shimast.SourceFile,
+	segments []string,
+	modulo *shimast.Node,
+	kind string,
+	typ *shimchecker.Type,
+	argCount int,
+) ([]string, error) {
+	key := state.cacheKey(segments, kind, typ, argCount, kind == "TypedQueryRoute")
+	arguments, _, err := state.cachedArguments(key, func() ([]string, bool, error) {
+		arg, err := safeNestiaCoreGenerate(func() (*shimast.Node, error) {
+			switch kind {
+			case "TypedQueryRoute":
+				return nestiaCoreGenerateTypedQueryRoute(state.prog, state.options, modulo, typ), nil
+			default:
+				return nestiaCoreGenerateTypedRoute(state.prog, state.options, modulo, typ), nil
+			}
+		}, state.prog, file, false)
+		if err != nil {
+			return nil, false, err
+		}
+		return []string{arg}, true, nil
+	})
+	return arguments, err
+}
+
+func (state *nestiaCoreTransformState) cachedArguments(
+	key nestiaCoreCacheKey,
+	generate func() ([]string, bool, error),
+) ([]string, bool, error) {
+	if cached, ok := state.cache[key]; ok {
+		state.cacheHits++
+		return append([]string(nil), cached...), true, nil
+	}
+	state.cacheMisses++
+	arguments, ok, err := generate()
+	if err != nil || ok == false {
+		return arguments, ok, err
+	}
+	state.cache[key] = append([]string(nil), arguments...)
+	return append([]string(nil), arguments...), true, nil
+}
+
+func (state *nestiaCoreTransformState) cacheKey(
+	segments []string,
+	kind string,
+	typ *shimchecker.Type,
+	argCount int,
+	allowOptional bool,
+) nestiaCoreCacheKey {
+	return nestiaCoreCacheKey{
+		Kind:          kind,
+		Type:          typ,
+		TypeName:      nestiaCoreTypeNameText(state.prog, typ),
+		Modulo:        strings.Join(segments, "."),
+		Validate:      state.options.Validate,
+		Stringify:     state.options.Stringify,
+		StringifyNull: state.options.StringifyNull,
+		Llm:           state.options.Llm,
+		LlmStrict:     state.options.LlmStrict,
+		ArgCount:      argCount,
+		AllowOptional: allowOptional,
+	}
+}
+
+func nestiaCoreRawDecoratorCall(decorator *shimast.Node) (*shimast.CallExpression, []string, bool) {
 	if decorator == nil || decorator.Kind != nestiaCoreKindDecorator {
 		return nil, nil, false
 	}
@@ -330,11 +495,93 @@ func nestiaCoreDecoratorCall(prog *driver.Program, decorator *shimast.Node) (*sh
 	if len(segments) == 0 {
 		return nil, nil, false
 	}
-	if isNestiaCoreCall(prog, expression) == false &&
-		isNestiaCoreImportedExpression(decorator, segments) == false {
+	return call, segments, true
+}
+
+func nestiaCoreDecoratorCall(prog *driver.Program, decorator *shimast.Node) (*shimast.CallExpression, []string, bool) {
+	call, segments, ok := nestiaCoreRawDecoratorCall(decorator)
+	if !ok {
+		return nil, nil, false
+	}
+	context := newNestiaCoreFileContext(shimast.GetSourceFileOfNode(decorator))
+	if nestiaCoreDecoratorReference(prog, context, decorator, segments) == false {
 		return nil, nil, false
 	}
 	return call, segments, true
+}
+
+func newNestiaCoreFileContext(file *shimast.SourceFile) nestiaCoreFileContext {
+	context := nestiaCoreFileContext{
+		file:        file,
+		coreImports: map[string]bool{},
+	}
+	if file == nil || file.Statements == nil {
+		return context
+	}
+	for _, stmt := range file.Statements.Nodes {
+		if stmt == nil || stmt.Kind != shimast.KindImportDeclaration {
+			continue
+		}
+		decl := stmt.AsImportDeclaration()
+		if decl == nil || decl.ImportClause == nil || decl.ModuleSpecifier == nil || decl.ModuleSpecifier.Kind != shimast.KindStringLiteral {
+			continue
+		}
+		if decl.ModuleSpecifier.Text() != "@nestia/core" {
+			continue
+		}
+		clause := decl.ImportClause.AsImportClause()
+		if clause == nil || clause.PhaseModifier == shimast.KindTypeKeyword {
+			continue
+		}
+		if name := clause.Name(); name != nil {
+			context.coreImports[name.Text()] = true
+		}
+		if clause.NamedBindings == nil || clause.NamedBindings.Kind != shimast.KindNamedImports {
+			continue
+		}
+		named := clause.NamedBindings.AsNamedImports()
+		if named == nil || named.Elements == nil {
+			continue
+		}
+		for _, elem := range named.Elements.Nodes {
+			if elem == nil {
+				continue
+			}
+			spec := elem.AsImportSpecifier()
+			if spec == nil || spec.IsTypeOnly {
+				continue
+			}
+			name := spec.Name()
+			if name != nil {
+				context.coreImports[name.Text()] = true
+			}
+		}
+	}
+	return context
+}
+
+func nestiaCoreDecoratorReference(
+	prog *driver.Program,
+	context nestiaCoreFileContext,
+	decorator *shimast.Node,
+	segments []string,
+) bool {
+	if len(segments) == 0 {
+		return false
+	}
+	if context.coreImports[segments[0]] {
+		return true
+	}
+	if nestiaCorePotentialDecoratorSegments(segments) == false {
+		return false
+	}
+	return isNestiaCoreCall(prog, decorator.AsDecorator().Expression)
+}
+
+func nestiaCorePotentialDecoratorSegments(segments []string) bool {
+	return nestiaCoreParameterKind(segments) != "" ||
+		nestiaCoreMethodKind(segments) != "" ||
+		(len(segments) != 0 && segments[len(segments)-1] == "WebSocketRoute")
 }
 
 func isNestiaCoreCall(prog *driver.Program, node *shimast.Node) bool {
@@ -1247,11 +1494,28 @@ func nestiaCoreModuloNode(node *shimast.Node) *shimast.Node {
 }
 
 func nestiaCoreTypeName(prog *driver.Program, typ *shimchecker.Type) *string {
-	name := "any"
-	if prog != nil && prog.Checker != nil && typ != nil {
-		name = prog.Checker.TypeToString(typ)
-	}
+	name := nestiaCoreTypeNameText(prog, typ)
 	return &name
+}
+
+type nestiaCoreTypeNameCacheKey struct {
+	checker *shimchecker.Checker
+	typ     *shimchecker.Type
+}
+
+var nestiaCoreTypeNameCache sync.Map
+
+func nestiaCoreTypeNameText(prog *driver.Program, typ *shimchecker.Type) string {
+	if prog != nil && prog.Checker != nil && typ != nil {
+		key := nestiaCoreTypeNameCacheKey{checker: prog.Checker, typ: typ}
+		if cached, ok := nestiaCoreTypeNameCache.Load(key); ok {
+			return cached.(string)
+		}
+		name := prog.Checker.TypeToString(typ)
+		nestiaCoreTypeNameCache.Store(key, name)
+		return name
+	}
+	return "any"
 }
 
 func nestiaCoreSegmentsHaveSuffix(segments []string, suffix []string) bool {
@@ -1296,9 +1560,18 @@ func identifierSubstitutionsForEmit(program *driver.Program, file any) map[strin
 	return commonJSImportIdentifierSubstitutions(sourceFile)
 }
 
+type commonJSImportIdentifierSubstitutionsCacheEntry struct {
+	value map[string]string
+}
+
+var commonJSImportIdentifierSubstitutionsCache sync.Map
+
 func commonJSImportIdentifierSubstitutions(file *shimast.SourceFile) map[string]string {
 	if file == nil || file.Statements == nil {
 		return nil
+	}
+	if cached, ok := commonJSImportIdentifierSubstitutionsCache.Load(file); ok {
+		return cached.(commonJSImportIdentifierSubstitutionsCacheEntry).value
 	}
 	output := map[string]string{}
 	counts := map[string]int{}
@@ -1348,8 +1621,9 @@ func commonJSImportIdentifierSubstitutions(file *shimast.SourceFile) map[string]
 		}
 	}
 	if len(output) == 0 {
-		return nil
+		output = nil
 	}
+	commonJSImportIdentifierSubstitutionsCache.Store(file, commonJSImportIdentifierSubstitutionsCacheEntry{value: output})
 	return output
 }
 

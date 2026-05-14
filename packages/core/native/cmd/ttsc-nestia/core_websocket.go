@@ -10,12 +10,12 @@ import (
 
 func validateNestiaCoreWebSocketRoute(
 	prog *driver.Program,
-	file *shimast.SourceFile,
+	context nestiaCoreFileContext,
 	method *shimast.Node,
-	decorator *shimast.Node,
+	call *shimast.CallExpression,
+	segments []string,
 ) []typiaTransformDiagnostic {
-	call, segments, ok := nestiaCoreDecoratorCall(prog, decorator)
-	if ok == false || len(segments) == 0 || segments[len(segments)-1] != "WebSocketRoute" {
+	if call == nil || len(segments) == 0 || segments[len(segments)-1] != "WebSocketRoute" {
 		_ = call
 		return nil
 	}
@@ -23,7 +23,7 @@ func validateNestiaCoreWebSocketRoute(
 	accepted := false
 	methodDecl := method.AsMethodDeclaration()
 	if methodDecl == nil || methodDecl.Parameters == nil {
-		return []typiaTransformDiagnostic{nestiaCoreWebSocketDiagnostic(file, "WebSocketRoute", fmt.Sprintf(
+		return []typiaTransformDiagnostic{nestiaCoreWebSocketDiagnostic(context.file, "WebSocketRoute", fmt.Sprintf(
 			"method %q must have at least one parameter decorated by @WebSocketRoute.Acceptor().",
 			nestiaSDKMethodName(method),
 		))}
@@ -32,7 +32,7 @@ func validateNestiaCoreWebSocketRoute(
 		category := nestiaCoreWebSocketParameterCategory(prog, param)
 		name := nestiaSDKParameterName(param)
 		if category == "" {
-			diagnostics = append(diagnostics, nestiaCoreWebSocketDiagnostic(file, "WebSocketRoute", fmt.Sprintf(
+			diagnostics = append(diagnostics, nestiaCoreWebSocketDiagnostic(context.file, "WebSocketRoute", fmt.Sprintf(
 				"parameter %q is not decorated with nested function of WebSocketRoute module.",
 				name,
 			)))
@@ -42,14 +42,14 @@ func validateNestiaCoreWebSocketRoute(
 		case "Acceptor":
 			accepted = true
 			if strings.HasPrefix(nestiaCoreWebSocketParameterTypeName(param), "WebSocketAcceptor") == false {
-				diagnostics = append(diagnostics, nestiaCoreWebSocketDiagnostic(file, "WebSocketRoute", fmt.Sprintf(
+				diagnostics = append(diagnostics, nestiaCoreWebSocketDiagnostic(context.file, "WebSocketRoute", fmt.Sprintf(
 					"parameter %q must have WebSocketAcceptor<Header, Provider, Listener> type.",
 					name,
 				)))
 			}
 		case "Driver":
 			if strings.HasPrefix(nestiaCoreWebSocketParameterTypeName(param), "Driver") == false {
-				diagnostics = append(diagnostics, nestiaCoreWebSocketDiagnostic(file, "WebSocketRoute", fmt.Sprintf(
+				diagnostics = append(diagnostics, nestiaCoreWebSocketDiagnostic(context.file, "WebSocketRoute", fmt.Sprintf(
 					"parameter %q must have Driver<Listener> type.",
 					name,
 				)))
@@ -57,7 +57,7 @@ func validateNestiaCoreWebSocketRoute(
 		}
 	}
 	if accepted == false {
-		diagnostics = append(diagnostics, nestiaCoreWebSocketDiagnostic(file, "WebSocketRoute", fmt.Sprintf(
+		diagnostics = append(diagnostics, nestiaCoreWebSocketDiagnostic(context.file, "WebSocketRoute", fmt.Sprintf(
 			"method %q must have at least one parameter decorated by @WebSocketRoute.Acceptor().",
 			nestiaSDKMethodName(method),
 		)))

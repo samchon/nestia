@@ -8,9 +8,13 @@ const TTSC_CACHE_DIR = path.resolve(
   ROOT,
   process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
 );
-const NPX = process.platform === "win32" ? "npx.cmd" : "npx";
+const NODE = process.execPath;
 const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const PROJECT_CONFIG = "tsconfig.project.json";
+const CLI_BOOT = path.join(ROOT, "packages/cli/src/boot.js");
+const CLI_BIN = path.join(ROOT, "packages/cli/bin/index.js");
+const TSC_BIN = packageBin("typescript", "tsc");
+const TTSX_BIN = packageBin("ttsc", "ttsx");
 
 process.env.TTSC_CACHE_DIR = TTSC_CACHE_DIR;
 process.env.NODE_OPTIONS = [
@@ -19,10 +23,27 @@ process.env.NODE_OPTIONS = [
 ]
   .filter(Boolean)
   .join(" ");
+process.env.NODE_PATH = [
+  path.join(ROOT, "node_modules"),
+  path.join(ROOT, "node_modules", ".pnpm", "node_modules"),
+  process.env.NODE_PATH ?? "",
+]
+  .filter(Boolean)
+  .join(path.delimiter);
 delete process.env.npm_config_dir;
 delete process.env.npm_config_verify_deps_before_run;
 
 const featureDirectory = (name = "") => path.join(__dirname, "features", name);
+const TYPESCRIPT_ERROR_FEATURES = new Set([
+  "body-error-get",
+  "body-error-implicit",
+  "headers-error-array",
+  "method-error-head-non-void",
+  "route-invalid-path-error",
+  "security-error-not-found",
+  "security-error-not-oauth2",
+  "security-error-out-of-scopes",
+]);
 
 const run = (file, args, options) =>
   new Promise((resolve, reject) => {
@@ -51,8 +72,26 @@ const run = (file, args, options) =>
     });
   });
 
-const runNpx = (cwd, args, stdio = "ignore", env = undefined) =>
-  run(NPX, args, { cwd, env, stdio });
+function packageBin(name, key) {
+  const directory = path.dirname(
+    require.resolve(`${name}/package.json`, { paths: [ROOT] }),
+  );
+  const pack = JSON.parse(
+    fs.readFileSync(path.join(directory, "package.json"), "utf8"),
+  );
+  const location = typeof pack.bin === "string" ? pack.bin : pack.bin?.[key];
+  if (location === undefined)
+    throw new Error(`Unable to find "${key}" binary from ${name}.`);
+  return path.join(directory, location);
+}
+
+const runNode = (cwd, script, args, stdio = "ignore", env = undefined) =>
+  run(NODE, [script, ...args], { cwd, env, stdio });
+
+const runNestia = (cwd, args, stdio = "ignore") =>
+  runNode(cwd, fs.existsSync(CLI_BIN) ? CLI_BIN : CLI_BOOT, args, stdio);
+
+const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TSC_BIN, [], stdio);
 
 const feature = async (name) => {
   const cwd = featureDirectory(name);
@@ -61,18 +100,18 @@ const feature = async (name) => {
       ? "nestia.configuration.ts"
       : "nestia.config.ts";
   const generate = async (type, mustBeError = false) => {
-    const args = ["nestia", type, ...generationTail(name)];
-    if (mustBeError) return runNpx(cwd, args);
+    const args = [type, ...generationTail(name)];
+    if (mustBeError) return runNestia(cwd, args);
     try {
-      await runNpx(cwd, args);
+      await runNestia(cwd, args);
     } catch {
-      await runNpx(cwd, args, "inherit");
+      await runNestia(cwd, args, "inherit");
     }
   };
 
   if (name.includes("error")) {
     try {
-      await runNpx(cwd, ["tsc"]);
+      if (TYPESCRIPT_ERROR_FEATURES.has(name)) await runTsc(cwd);
       await generate("all", true);
       if (hasTtsxTestFiles(cwd)) await runTtsxTest(cwd);
     } catch {
@@ -81,8 +120,7 @@ const feature = async (name) => {
     throw new Error("compile error must be occurred.");
   }
 
-  await runNpx(cwd, [
-    "rimraf",
+  await removePaths(cwd, [
     "swagger.json",
     "src/api/functional",
     "src/api/HttpError.ts",
@@ -114,11 +152,22 @@ const feature = async (name) => {
     await runTtsxTest(cwd, "inherit");
   } else {
     try {
-      await runNpx(cwd, ["tsc"]);
+      await runTsc(cwd);
     } catch {
-      await runNpx(cwd, ["tsc"], "inherit");
+      await runTsc(cwd, "inherit");
     }
   }
+};
+
+const removePaths = async (cwd, locations) => {
+  await Promise.all(
+    locations.map((location) =>
+      fs.promises.rm(path.join(cwd, location), {
+        force: true,
+        recursive: true,
+      }),
+    ),
+  );
 };
 
 const generationTail = (name) =>
@@ -184,10 +233,10 @@ const runTtsxTest = async (cwd, stdio = "ignore") => {
     ]
       .filter(Boolean)
       .join(" ");
-    await runNpx(
+    await runNode(
       cwd,
+      TTSX_BIN,
       [
-        "ttsx",
         "--cache-dir",
         TTSC_CACHE_DIR,
         "-P",
@@ -279,6 +328,8 @@ const main = async () => {
         "@nestia/factory",
         "--filter",
         "@nestia/fetcher",
+        "--filter",
+        "nestia",
         "--filter",
         "@nestia/core",
         "--filter",

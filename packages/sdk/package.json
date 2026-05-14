@@ -10,7 +10,10 @@
       "default": "./lib/index.js"
     },
     "./package.json": "./package.json",
-    "./lib/executable/sdk": "./src/executable/sdk.ts",
+    "./lib/executable/sdk": {
+      "types": "./lib/executable/sdk.d.ts",
+      "default": "./lib/executable/sdk.js"
+    },
     "./lib/transform": {
       "types": "./src/transform.ts",
       "default": "./lib/transform.js"
@@ -23,7 +26,7 @@
     }
   },
   "bin": {
-    "@nestia/sdk": "src/executable/sdk.ts"
+    "@nestia/sdk": "lib/executable/sdk.js"
   },
   "scripts": {
     "build": "rimraf lib && ttsc",

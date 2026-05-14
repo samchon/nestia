@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"time"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimcompiler "github.com/microsoft/typescript-go/shim/compiler"
@@ -18,6 +19,11 @@ import (
 )
 
 func runBuild(args []string) int {
+	profile := os.Getenv("TTSC_NESTIA_PROFILE") != ""
+	var totalStarted time.Time
+	if profile {
+		totalStarted = time.Now()
+	}
 	fs := flag.NewFlagSet("build", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	tsconfigPath := fs.String("tsconfig", "tsconfig.json", "path to tsconfig.json")
@@ -49,11 +55,16 @@ func runBuild(args []string) int {
 	if !ok {
 		return 2
 	}
+	var started time.Time
+	if profile {
+		started = time.Now()
+	}
 	prog, diags, err := driver.LoadProgram(cwd, *tsconfigPath, driver.LoadProgramOptions{
 		ForceEmit:   *emit,
 		ForceNoEmit: *noEmit,
 		OutDir:      *outDir,
 	})
+	profileBuildStep(profile, "load-program", started)
 	if err != nil {
 		fmt.Fprintf(stderr, "ttsc-nestia build: %v\n", err)
 		return 2
@@ -63,10 +74,15 @@ func runBuild(args []string) int {
 		return 2
 	}
 	defer prog.Close()
+	if profile {
+		started = time.Now()
+	}
 	if diags := prog.Diagnostics(); len(diags) > 0 {
+		profileBuildStep(profile, "diagnostics", started)
 		driver.WritePrettyDiagnostics(stderr, diags, cwd)
 		return 2
 	}
+	profileBuildStep(profile, "diagnostics", started)
 
 	shouldEmit := !prog.ParsedConfig.ParsedConfig.CompilerOptions.NoEmit.IsTrue()
 	if !*quiet {
@@ -86,6 +102,9 @@ func runBuild(args []string) int {
 	}
 
 	rewrites := newNativeRewriteSet()
+	if profile {
+		started = time.Now()
+	}
 	sites, recognized, transformDiags := collectTypiaRewrites(
 		prog,
 		cwd,
@@ -95,36 +114,85 @@ func runBuild(args []string) int {
 		rewrites,
 		readTypiaPluginOptions(cwd, *tsconfigPath),
 	)
+	profileBuildStepCount(profile, "typia-rewrites", started, rewrites.Len())
 	if len(transformDiags) > 0 {
 		writeTypiaTransformDiagnostics(stderr, transformDiags, cwd)
 		return 3
 	}
-	if coreDiags := collectNestiaCoreBuildRewrites(prog, plan, rewrites); len(coreDiags) > 0 {
+	if profile {
+		started = time.Now()
+	}
+	coreDiags := collectNestiaCoreBuildRewrites(prog, plan, rewrites)
+	profileBuildStepCount(profile, "core-rewrites", started, rewrites.Len())
+	if len(coreDiags) > 0 {
 		writeTypiaTransformDiagnostics(stderr, coreDiags, cwd)
 		return 3
 	}
+	if profile {
+		started = time.Now()
+	}
 	sdkRewrites, sdkDiags := collectNestiaSDKBuildRewrites(prog, plan)
+	profileBuildStepCount(profile, "sdk-rewrites", started, sdkRewrites.Len())
 	if len(sdkDiags) > 0 {
 		writeTypiaTransformDiagnostics(stderr, sdkDiags, cwd)
 		return 3
 	}
+	if profile {
+		started = time.Now()
+	}
 	newPathsRewriter(prog).applyAll(prog.SourceFiles())
+	profileBuildStep(profile, "paths-rewrite", started)
 
 	cursors := map[string]int{}
+	var nativePatchElapsed time.Duration
+	var sdkPatchElapsed time.Duration
+	var cleanupElapsed time.Duration
+	var writeElapsed time.Duration
 	writeFile := shimcompiler.WriteFile(func(fileName, text string, data *shimcompiler.WriteFileData) error {
 		_ = data
+		var patchStarted time.Time
+		if profile {
+			patchStarted = time.Now()
+		}
 		patched, err := rewrites.Apply(fileName, text, cursors)
+		if profile {
+			nativePatchElapsed += time.Since(patchStarted)
+		}
 		if err != nil {
 			return err
+		}
+		if profile {
+			patchStarted = time.Now()
 		}
 		patched, err = sdkRewrites.Apply(fileName, patched)
+		if profile {
+			sdkPatchElapsed += time.Since(patchStarted)
+		}
 		if err != nil {
 			return err
 		}
-		patched = typiaadapter.CleanupTransformedText(patched)
+		if profile {
+			patchStarted = time.Now()
+		}
+		patched = cleanupTransformedTextWithRuntimeAliases(patched, rewrites.RuntimeAliasesForOutput(fileName))
+		if profile {
+			cleanupElapsed += time.Since(patchStarted)
+			patchStarted = time.Now()
+			defer func() {
+				writeElapsed += time.Since(patchStarted)
+			}()
+		}
 		return driver.DefaultWriteFile(fileName, patched)
 	})
+	if profile {
+		started = time.Now()
+	}
 	res, eDiags, err := prog.EmitAllRaw(writeFile)
+	profileBuildStep(profile, "emit-total", started)
+	profileBuildDuration(profile, "emit-native-patch", nativePatchElapsed)
+	profileBuildDuration(profile, "emit-sdk-patch", sdkPatchElapsed)
+	profileBuildDuration(profile, "emit-cleanup", cleanupElapsed)
+	profileBuildDuration(profile, "emit-write", writeElapsed)
 	if err != nil {
 		fmt.Fprintf(stderr, "ttsc-nestia build: emit failed: %v\n", err)
 		return 3
@@ -150,6 +218,7 @@ func runBuild(args []string) int {
 	if !*quiet {
 		fmt.Fprintf(stdout, "// ttsc-nestia build: typia recognized=%d total=%d rewrites=%d\n", recognized, sites, rewrites.Len())
 	}
+	profileBuildStep(profile, "total", totalStarted)
 	return 0
 }
 
@@ -214,6 +283,24 @@ func writeTypiaTransformDiagnostics(out io.Writer, diagnostics []typiaTransformD
 	}
 }
 
+func profileBuildStep(enabled bool, name string, started time.Time) {
+	if enabled {
+		profileBuildDuration(enabled, name, time.Since(started))
+	}
+}
+
+func profileBuildStepCount(enabled bool, name string, started time.Time, count int) {
+	if enabled {
+		fmt.Fprintf(stderr, "ttsc-nestia profile: %s=%s count=%d\n", name, time.Since(started), count)
+	}
+}
+
+func profileBuildDuration(enabled bool, name string, elapsed time.Duration) {
+	if enabled {
+		fmt.Fprintf(stderr, "ttsc-nestia profile: %s=%s\n", name, elapsed)
+	}
+}
+
 func newTypiaTransformDiagnostic(site typiaadapter.CallSite, message string) typiaTransformDiagnostic {
 	line, column := 0, 0
 	if site.File != nil && site.Call != nil {
@@ -241,7 +328,7 @@ func collectTypiaRewrites(
 	rewrites *nativeRewriteSet,
 	pluginOptions typiaadapter.PluginOptions,
 ) (int, int, []typiaTransformDiagnostic) {
-	sites := typiaadapter.CollectCallSites(prog.SourceFiles(), prog.Checker)
+	sites := collectNestiaTypiaCallSites(prog.SourceFiles(), prog.Checker)
 	recognized := 0
 	diagnostics := []typiaTransformDiagnostic{}
 	for _, site := range sites {
