@@ -226,10 +226,6 @@ importers:
         version: 6.0.3
 
   packages/cli:
-    dependencies:
-      commander:
-        specifier: ^10.0.0
-        version: 10.0.0
     devDependencies:
       '@nestia/core':
         specifier: workspace:^

@@ -1,6 +1,6 @@
-# Migration: Nestia v6 → v7
+# Migration: Go-backed transform
 
-Nestia v7 replaces the TypeScript-side transformer pipeline with a Go-backed binary (`ttsc-nestia`) hosted by `ttsc`. Public decorator APIs are unchanged; only your build configuration and tool chain change.
+Nestia replaces the TypeScript-side transformer pipeline with a Go-backed binary (`ttsc-nestia`) hosted by `ttsc`. Public decorator APIs are unchanged; only your build configuration and tool chain change.
 
 ## What stayed the same
 
@@ -36,15 +36,17 @@ The Go binary is hosted by [`ttsc`](https://www.npmjs.com/package/ttsc), a TypeS
  }
 ```
 
-### 3. devDependencies
+### 3. Dependencies
 
-Remove `ts-patch` and `typia patch` postinstalls — they are no longer used.
+Keep `@nestia/core`, `@nestia/fetcher`, and `typia` as runtime dependencies.
+Install `ttsc` and TypeScript for transformed builds, and remove `ts-patch`
+and `typia patch` postinstalls — they are no longer used.
 
 ```diff
  {
    "devDependencies": {
 -    "ts-patch": "...",
-+    "ttsc": "^0.9.0",
++    "ttsc": "^0.10.2",
      "typescript": "~6.0.3"
    },
    "scripts": {
@@ -65,17 +67,17 @@ The Go binary hash-locks to a specific TypeScript-Go upstream commit. Loose rang
 
 ### 5. `npx nestia setup` is removed
 
-The interactive wizard is gone. The replacement is to add the plugin entry to `tsconfig.json` directly (step 1 above) and install the devDependencies in step 3. See https://nestia.io/docs/setup.
+The interactive wizard is gone. The replacement is to add the plugin entry to `tsconfig.json` directly (step 1 above) and install the dependencies in step 3. See https://nestia.io/docs/setup.
 
 ### 6. Plugin composition order is load-bearing
 
-If you compose plugins manually, the order is fixed: typia (host tombstone) → `@nestia/core/native/transform.cjs` → `@nestia/sdk/lib/transform`. The `typia` entry must remain with `enabled: false` — typia runs inside the Go binary, but other tools may still inspect the entry.
+If you compose plugins manually, the order is fixed: typia (host tombstone) → `@nestia/sdk/lib/transform` → `@nestia/core/native/transform.cjs`. The `typia` entry must remain with `enabled: false` — typia runs inside the Go binary, but other tools may still inspect the entry.
 
 ```jsonc
 "plugins": [
   { "transform": "typia/lib/transform", "enabled": false },
-  { "transform": "@nestia/core/native/transform.cjs" },
-  { "transform": "@nestia/sdk/lib/transform" }
+  { "transform": "@nestia/sdk/lib/transform" },
+  { "transform": "@nestia/core/native/transform.cjs" }
 ]
 ```
 
@@ -98,8 +100,9 @@ Compilation failures now surface through `ttsc-nestia: ...` stderr. The `NoTrans
 ## Quickest upgrade recipe
 
 ```bash
-# 1. Update devDependencies
-npm install --save-dev @nestia/core@^7 @nestia/sdk@^7 ttsc@^0.9.0 typescript@~6.0.3
+# 1. Update dependencies
+npm install --save @nestia/core @nestia/fetcher typia
+npm install --save-dev @nestia/sdk nestia ttsc@^0.10.2 typescript@~6.0.3
 npm uninstall ts-patch
 
 # 2. Update tsconfig.json plugins (see §1 above)

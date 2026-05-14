@@ -47,7 +47,7 @@ const migratePackageJson = (parsed) => {
     const usesTypeScript = typeof devDependencies.typescript === "string";
     delete devDependencies["ts-patch"];
     delete devDependencies["typescript-transform-paths"];
-    if (usesTypeScript) devDependencies.ttsc ??= "^0.9.0";
+    if (usesTypeScript) devDependencies.ttsc ??= "^0.10.2";
   }
 };
 
@@ -65,6 +65,10 @@ const trimTemplateDependencies = (parsed) => {
 
 const normalizeScript = (script) =>
   script.replace(/(^|[^A-Za-z0-9_-])tsc(?=$|[^A-Za-z0-9_-])/g, "$1ttsc");
+
+const TYPIA_PLUGIN = `{ "transform": "typia/lib/transform", "enabled": false }`;
+const SDK_PLUGIN = `{ "transform": "@nestia/sdk/lib/transform" }`;
+const CORE_PLUGIN = `{ "transform": "@nestia/core/native/transform.cjs" }`;
 
 const ARGUMENT_PARSER = `import { createInterface } from "node:readline/promises";
 
@@ -185,12 +189,20 @@ const updateTsConfig = (content, options = {}) => {
   if (options.disableTypia)
     content = content.replace(
       /\{\s*"transform":\s*"typia\/lib\/transform"\s*\}/g,
-      `{ "transform": "typia/lib/transform", "enabled": false }`,
+      TYPIA_PLUGIN,
     );
   if (options.useNestiaAggregate)
     content = content.replace(
       /\{\s*"transform":\s*"@nestia\/core\/lib\/transform"\s*\}/g,
-      `{ "transform": "@nestia/core/native/transform.cjs" }`,
+      CORE_PLUGIN,
+    );
+  if (
+    options.useNestiaSdk &&
+    content.includes(`"@nestia/sdk/lib/transform"`) === false
+  )
+    content = content.replace(
+      /\{\s*"transform":\s*"@nestia\/core\/native\/transform\.cjs"\s*\}/g,
+      `${SDK_PLUGIN},\n      ${CORE_PLUGIN}`,
     );
   if (
     options.useNestiaAggregate &&
@@ -198,7 +210,14 @@ const updateTsConfig = (content, options = {}) => {
   )
     content = content.replace(
       /\{\s*"transform":\s*"typia\/lib\/transform",\s*"enabled":\s*false\s*\},/g,
-      `{ "transform": "typia/lib/transform", "enabled": false },\n      { "transform": "@nestia/core/native/transform.cjs" },`,
+      options.useNestiaSdk
+        ? `${TYPIA_PLUGIN},\n      ${SDK_PLUGIN},\n      ${CORE_PLUGIN},`
+        : `${TYPIA_PLUGIN},\n      ${CORE_PLUGIN},`,
+    );
+  if (options.useNestiaSdk)
+    content = content.replace(
+      /\{\s*"transform":\s*"@nestia\/core\/native\/transform\.cjs"\s*\},\n\s*\{\s*"transform":\s*"@nestia\/sdk\/lib\/transform"\s*\},/g,
+      `${SDK_PLUGIN},\n      ${CORE_PLUGIN},`,
     );
   return content;
 };
@@ -300,8 +319,9 @@ const main = async () => {
       if (key === "test/helpers/ArgumentParser.ts") return ARGUMENT_PARSER;
       if (key.endsWith("tsconfig.json"))
         return updateTsConfig(value, {
-          disableTypia: key === "tsconfig.json",
+          disableTypia: true,
           useNestiaAggregate: key === "tsconfig.json",
+          useNestiaSdk: key === "tsconfig.json",
         });
       return value;
     },

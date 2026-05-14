@@ -1,6 +1,10 @@
 import { TypedBody, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import { IEmbedTypeScriptResult } from "embed-typescript";
+import {
+  EmbedTypeScript,
+  type IEmbedTypeScriptDiagnostic,
+} from "embed-typescript";
+import type { IEmbedTypeScriptResult } from "embed-typescript";
 
 @Controller("external")
 export class ExternalController {
@@ -14,5 +18,14 @@ export class ExternalController {
       type: "success",
       javascript: {},
     };
+  }
+
+  @TypedRoute.Post("diagnostic")
+  public async diagnostic(
+    @TypedBody()
+    body: IEmbedTypeScriptDiagnostic,
+  ): Promise<IEmbedTypeScriptDiagnostic> {
+    void EmbedTypeScript;
+    return body;
   }
 }

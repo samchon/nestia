@@ -6,7 +6,8 @@
   "scripts": {
     "build": "pnpm --filter=./packages/* -r build",
     "format": "prettier --write packages/**/*.ts && prettier --write internals/**/*.ts && prettier --write tests/**/*.ts",
-    "test": "node tests/run-with-ttsc-env.cjs pnpm build && node tests/run-with-ttsc-env.cjs pnpm --filter=./tests/test-* --workspace-concurrency=1 -r start",
+    "test:go": "pnpm --filter @nestia/core --filter @nestia/sdk -r run test:go && cd packages/core/native && go test ./...",
+    "test": "node tests/run-with-ttsc-env.cjs pnpm build && node tests/run-with-ttsc-env.cjs pnpm test:go && node tests/run-with-ttsc-env.cjs pnpm --filter=./tests/test-* --workspace-concurrency=1 -r start",
     "package:latest": "pnpm --filter=./packages/* -r publish --tag latest --access public",
     "package:next": "bash deploy/next.bash",
     "package:tgz": "node deploy/tarballs",

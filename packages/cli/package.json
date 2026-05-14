@@ -37,9 +37,6 @@
     "url": "https://github.com/samchon/nestia/issues"
   },
   "homepage": "https://nestia.io",
-  "dependencies": {
-    "commander": "^10.0.0"
-  },
   "devDependencies": {
     "@nestia/core": "workspace:^",
     "@nestia/sdk": "workspace:^",

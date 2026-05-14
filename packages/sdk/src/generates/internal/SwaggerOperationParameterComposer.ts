@@ -31,6 +31,7 @@ export namespace SwaggerOperationParameterComposer {
     props: Omit<IProps<ITypedHttpRouteParameter.IBody>, "config" | "document">,
   ): OpenApi.IOperation.IRequestBody => {
     const description: string | undefined =
+      props.parameter.description ??
       SwaggerDescriptionComposer.descriptionFromJsDocTag({
         jsDocTags: props.jsDocTags,
         tag: "param",

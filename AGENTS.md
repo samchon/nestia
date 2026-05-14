@@ -1,39 +1,39 @@
 ## 1. Project
 
-### 1.1. Product Contract
+### 1.1. What Nestia Is
 
-Nestia is a set of helper libraries for NestJS. It ships runtime decorators, generators, runtime helpers, a CLI, and a single native compiler sidecar that backs the typed decorators and the SDK generator:
+Nestia is a set of NestJS helper libraries built around one idea: a pure TypeScript type definition should replace the stack of decorators, validators, transformers, and Swagger annotations that NestJS normally needs. The compile-time transform reads those types and injects everything else.
 
-- `@nestia/core` — typed request/response decorators for NestJS controllers.
-- `@nestia/sdk` — Swagger/OpenAPI generator, SDK library generator, mockup simulator, and automatic E2E test generator. Driven by the `nestia` CLI and by metadata injected at compile time.
-- `@nestia/fetcher` — typed `fetch` runtime used by generated SDKs.
-- `@nestia/migrate` — Swagger/OpenAPI to NestJS migration program.
-- `@nestia/e2e` — test utilities used by generated and hand-written e2e suites.
-- `@nestia/benchmark` — benchmark runner built on top of e2e functions.
-- `@nestia/editor` — Swagger UI and cloud TypeScript editor.
-- `@nestia/factory` — TypeScript AST factory used by Nestia generators.
-- `nestia` — the CLI.
-- A single Go native plugin under `packages/core/native` that both `@nestia/core` and `@nestia/sdk` register through their `ttsc` plugin manifests. The typia transform is composed in.
+The packages:
 
-The public contract is the package API, decorator names, generated SDK surface, CLI flags, and config option names. The Go binary is internal: consumers reach it only through `ttsc`/`ttsx` and the published plugin descriptors. The JS `transform.ts` files in `@nestia/core` and `@nestia/sdk` are plugin descriptors, not the transform itself.
+- **`@nestia/core`** — typed request/response decorators for NestJS controllers. Replaces class-validator and class-transformer with type-driven validation and serialization that runs an order of magnitude faster.
+- **`@nestia/sdk`** — generators driven by the `nestia` CLI that emit Swagger documents, typed SDK libraries, mockup simulators, and automatic e2e test suites from decorated controllers. Reads metadata that the native transform attaches at build time.
+- **`@nestia/fetcher`** — typed `fetch` runtime that generated SDKs sit on top of. Plain and AES-encrypted variants, with simulation support for the mockup mode.
+- **`@nestia/migrate`** — converts a Swagger/OpenAPI document into a NestJS project (controllers, DTOs, optional e2e suite). Generated templates are non-interactive.
+- **`@nestia/e2e`** — test utilities used by both hand-written and generated e2e suites; discovers test functions by prefix and bundles small assertion and HTTP helpers.
+- **`@nestia/benchmark`** — load-test runner built on top of e2e functions; emits markdown reports.
+- **`@nestia/factory`** — printer-compatible TypeScript AST node factory used by Nestia generators.
+- **`@nestia/editor`** — Swagger UI with an embedded cloud TypeScript editor.
+- **`nestia`** — the CLI binary that drives `@nestia/sdk`.
 
-### 1.2. Layout
+Downstream projects (`@agentica`, `@autobe`) build on this stack but are not part of this repository's contract.
 
-- `packages/core` — `@nestia/core`. TS sources and the shared Go plugin (the binary lives here and is reused by `@nestia/sdk`).
-- `packages/sdk` — `@nestia/sdk`. TS sources for the generator; its Go tests exercise the shared binary in core.
-- `packages/fetcher`, `packages/e2e`, `packages/benchmark`, `packages/factory`, `packages/migrate`, `packages/editor` — pure TypeScript packages.
-- `packages/cli` — the `nestia` CLI.
-- `tests/test-*` — feature-test workspaces, invoked through `tests/run-with-ttsc-env.cjs` so the Go binary and the `ttsc` cache directory are picked up.
-- `tests/test-sdk/features/*` and `tests/test-migrate/fixture` — project-shaped fixtures.
-- `benchmark/` — the benchmark workspace that produces results under `benchmark/results/**`.
-- `website/src/content/docs/**` — public guide site published at `nestia.io/docs` (MDX).
-- `.wiki/` — internal Go-port encyclopedia (porting strategy, plugin protocol notes, reviews). Not user documentation.
-- `.discussions/` — multi-agent review and discussion workspace (see §4).
-- `conventions/` — long-running session minutes and participant readiness templates.
+### 1.2. How It Works
+
+A single Go binary under `packages/core/native` performs the compile-time transform that injects validators, stringifiers, and SDK metadata. Both `@nestia/core` and `@nestia/sdk` register that binary through their `ttsc` plugin manifests; the typia transform is composed in.
+
+The `transform.ts` files in `@nestia/core` and `@nestia/sdk` are plugin descriptors, not transformers — there is no TypeScript-side transform anymore. Consumers reach the binary through `ttsc` / `ttsx` and the published descriptors. Inside the repo, `tests/run-with-ttsc-env.cjs` wires the Go binary and the `ttsc` cache directory into every test workspace.
+
+### 1.3. Layout
+
+- `packages/*` — the published packages, including the shared Go plugin under `packages/core/native`.
+- `tests/test-*` — feature-test workspaces. `test-e2e` and `test-migrate` are function-per-file; `test-sdk` is project-shaped (each `features/<name>` is a real nestia project); `test-transform-options` is a synthetic harness for plugin option matrices; `test-benchmark` boots a real NestJS app.
+- `benchmark/` — the published benchmark workspace, with results under `benchmark/results/**`.
+- `website/src/content/docs/**` — user-facing MDX guides published at `nestia.io/docs`.
+- `.discussions/`, `conventions/` — multi-agent review workspace and its minutes.
 - `deploy/` — release scripts.
-- `config/`, `tests/config` — shared tsconfig fragments.
 
-### 1.3. Commands
+### 1.4. Commands
 
 ```bash
 pnpm install
@@ -42,85 +42,78 @@ pnpm build
 pnpm test
 ```
 
-`pnpm test` runs the test workspaces serially after a full build. The native plugin requires a working Go toolchain on `PATH` (or `TTSC_GO_BINARY`).
+`pnpm test` builds, then runs each test workspace through `tests/run-with-ttsc-env.cjs`. It needs `go` on `PATH` (or `TTSC_GO_BINARY`).
 
 ## 2. Development
 
 ### 2.1. Work Rules
 
-- Match existing conventions. Before adding a file, function, or test, open a nearby peer in the same package and mirror its naming, location, and code style — do not create parallel structures.
-- Respect package boundaries. The Go binary lives in `@nestia/core`. `@nestia/sdk` and the rest do not get their own native binary; they go through the shared plugin and the published descriptors.
-- Plugin descriptors are JS; transform behavior is Go. Do not reintroduce a TS-side transformer.
-- Public decorator names, config option names, generated SDK surface, and CLI flags are part of the contract. Renames and removals belong in a separate, deliberate change.
-- Do not hard-code consumer-specific DTO, controller, or feature names into the native transform or the generators. Detection must remain general.
-- Path matching in the native transform must resolve through the published package root, not through workspace-only directory substrings.
-- Migration templates ship without interactive dependencies; keep generated projects non-interactive.
-- When behavior changes affect the public surface, update the matching guide page under `website/src/content/docs/**` in the same change.
+- Match existing conventions. Before adding a file, function, or test, open a nearby peer in the same package and mirror its naming, location, and code style — don't create parallel structures.
+- Respect package boundaries. The Go binary lives in `@nestia/core` and is shared with `@nestia/sdk`. Don't fork a second native binary, and don't reintroduce a TypeScript-side transformer.
+- Preserve the contract. Decorator names, `INestiaConfig` options, CLI flags, and the generated SDK / Swagger / e2e surface are public. Renaming or removing any of them is a deliberate, separate change.
+- Keep detection general. The native transform must locate target packages through their resolved package root, not through workspace-only path substrings — substring matching breaks the moment a consumer installs from npm. The same rule applies to generators: no hard-coded DTO, controller, or feature names.
+- Use the workspace catalogs. `pnpm-workspace.yaml` pins versions under `catalog:typescript`, `catalog:samchon`, `catalog:nestjs`, `catalog:utils`, `catalog:rollup`. New dependencies go through the matching catalog; internal references use `workspace:^`.
+- Migration templates ship without interactive dependencies — generated projects stay non-interactive.
+- When public behavior changes, update the matching guide page under `website/src/content/docs/**` in the same change.
 
 ### 2.2. Testing
 
-Nestia has two test layers. Use the narrowest one that proves the change.
+**One test case per file, named after what it asserts.** Applies to both layers.
 
-- **Go unit tests** live alongside the native plugin and under each package's `test/` directory. They cover in-process helpers and also run the real binary against fixture projects so the CLI surface and emit paths stay covered. One `Test*` per file, named after what it asserts.
-- **TypeScript e2e tests** live in `tests/test-*`. There are two shapes:
-  - *Function-per-file*: each file exports one `test_<snake_case>` function with a matching file name, discovered by prefix.
-  - *Project-shaped fixture*: each feature directory is a self-contained nestia project (config, tsconfig, controllers, expected outputs). The harness runs the CLI inside the directory, compiles, and asserts on observable output. Directory names that include `error` are expected to fail compilation.
-- A focused harness exists for plugin option matrices. Add new option combinations there instead of inventing new project fixtures.
-- Use the shared utility package and each suite's local helpers; do not reach into another suite's internals.
-- When a regression needs a real project layout (server boot, swagger emission, SDK consumption), add a fixture to the project-shaped suite. When it only needs a synthetic plugin config, extend the option-matrix harness.
+- **Go unit tests** live under `packages/*/test/` and next to the native binary. One `Test*` per file, named after the assertion. Tests that exercise the CLI surface or emit pipeline should invoke the real binary (e.g. `go run ./packages/core/native/cmd/...`) so the wrapper branches stay covered.
+- **TypeScript suites** under `tests/test-*` come in three shapes:
+  - *Function-per-file* (`test-e2e`, `test-migrate`, and the generated tests inside `test-sdk` features): each file exports exactly one `test_<snake_case>` function with a matching file name; `DynamicExecutor` discovers them by prefix.
+  - *Project-shaped* (`tests/test-sdk/features/<name>`): each directory is a real nestia project — config, tsconfig, controllers, expected outputs. The harness runs the CLI, compiles, and asserts on observable output. Directory names containing `error` are expected to fail compilation.
+  - *Synthetic* (`tests/test-transform-options`): drives `ttsc` with hand-written plugin configs to verify transform options. Add new option combinations here instead of inventing new project fixtures.
 
-For new test cases that pin a non-obvious branch, open the case with a short doc comment in the same three-part shape: a one-line `Verifies …` headline, a short paragraph stating *why* (which branch or regression is being pinned), and a 2–4-step numbered scenario.
+Open every case with a doc comment in the same three-part shape: a one-line `Verifies …` headline, a short paragraph stating the non-obvious *why* (which branch or regression is being pinned), and a 2–4-step numbered scenario.
 
 ```ts
 /**
- * Verifies <what is being asserted>.
+ * Verifies @TypedBody with `validate: "assertPrune"` strips extras from
+ * both input and return value.
  *
- * <Short paragraph on the non-obvious why: which branch or regression
- * is being pinned, and what would silently go wrong without this test.>
+ * Locks the assertPrune branch of the native body validator. Other validate
+ * modes pass the input through untouched; only the Prune family removes
+ * extras, and the transformer has to pick the matching typia helper. A
+ * regression in helper selection would silently fall back to a non-pruning
+ * validator and let extra properties through.
  *
- * 1. <set up>
- * 2. <run>
- * 3. <assert>
+ * 1. Build a controller method with `@TypedBody()` and `validate: "assertPrune"`.
+ * 2. Send a payload carrying an extra property.
+ * 3. Assert the extra is missing from both the input and the return value.
  */
-export const test_<snake_case> = () => { /* ... */ };
+export const test_body_config_assertPrune_strips_extras = () => { /* ... */ };
 ```
+
+Use the shared helpers in `@nestia/e2e` and each suite's local helpers; don't reach into another suite's internals.
 
 ### 2.3. Validation
 
-Run the narrowest command that proves the change first, then a broader one when shared behavior or packaging changed. Report any command that could not be run.
+Match the scope of the command to the scope of the change. Report any command you couldn't run.
 
-- Touched the native plugin → run Go tests in the relevant module.
-- Touched one test workspace → run that workspace's start script after building the packages it depends on.
-- Touched compiler or transform behavior, decorators, or generators → run the full `pnpm test`.
-- Touched package metadata or anything that affects publishing → run a packed-install smoke before claiming the change is safe to release.
+- Touched the Go binary → `go test` in that module.
+- Touched one test workspace → `pnpm --filter ./tests/<name> start`.
+- Touched the transform, decorators, or generators broadly → `pnpm test`.
+- Touched packaging → `pnpm package:tgz` from `deploy/tarballs` and try a clean install.
+
+### 2.4. Change Integrity
+
+Treat tests, fixtures, snapshots, CI workflows, package wiring, dependencies, core algorithms, and generated baselines as part of the specification. Changing them requires an explicit user request or a clear product reason, and the final report must call it out.
+
+For mechanical ports, migrations, or broad rewrites, preserve the existing algorithm and public behavior in reviewable slices. Prefer a concrete exemplar over abstract instructions, and inspect the diff before trusting a green test run.
 
 ## 3. Documentation
 
-### 3.1. READMEs
+User-facing guides live under `website/src/content/docs/**` and publish to `nestia.io/docs`. One audience, one task per page. Update the page's `_meta.ts` when adding or moving it.
 
-Each package README is for the final reader of that package — usually a NestJS author. Start with what it is, when to use it, installation, and the smallest working setup. Keep wording direct and practical; move compiler internals, plugin protocol details, and migration history into the guide site and link them only as the next step.
+Update `AGENTS.md` when the repository's load-bearing facts shift — the package family, the JS-descriptor / Go-plugin boundary, the test layering, the release flow. Treat it as a map, not a rulebook.
 
-The root README lists the package family and links to the guide site and benchmark results. Keep it consistent with the actual packages.
-
-### 3.2. Guide Documents
-
-Public guides live under `website/src/content/docs/**` and are published to `nestia.io/docs`. Each page must name its reader: NestJS server author, SDK consumer, client or test author, plugin/integration author, or migration user.
-
-Pages may go deeper than READMEs with full option tables, recipes, troubleshooting, compatibility notes, and migration details. Keep one audience and one task per page. When adding or moving a page, update its navigation metadata so it shows up in the sidebar.
-
-Documents under `.wiki/` are not user guides. They are the working knowledge base for the Go port and follow numeric prefixes for ordering. Update them when the porting picture changes, not when the public API changes.
-
-### 3.3. AGENTS.md Maintenance
-
-Update `AGENTS.md` when the repository contract changes: new package families, moved directories, new commands, testing conventions, documentation policy, release flow, or coding-agent workflow rules. The boundary between the JS plugin descriptors and the single shared Go plugin, and the test layering (Go vs TS, function-per-file vs project-fixture) are load-bearing — call them out when they shift.
-
-Keep `AGENTS.md` systematic, natural to read, and concise. Preserve the numbered H2/H3 structure, place new guidance in the smallest fitting section, and prefer direct rules over long rationale.
+When adding agent-facing rules, state the desired workflow first. Use negative constraints only for named failure modes, and include the reason so the rule points back to the intended behavior.
 
 ## 4. Multi-Agent Workflows
 
 Use these workflows only when the user explicitly asks for the named workflow, a multi-agent review, or a multi-agent discussion. Use Review Cycles for direct review of changed source, docs, and tests; Discussions for open-ended topic exploration; and Research Review Rounds when review needs shared research before individual proposals.
-
-`.discussions/` and `conventions/` already host live workflows. New cycles should follow the same on-disk shape so prior cycles remain readable.
 
 ### 4.1. Review Cycles
 

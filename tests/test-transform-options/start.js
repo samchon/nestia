@@ -109,6 +109,31 @@ const main = () => {
       "disabled TypedBody was transformed",
     );
   });
+
+  measure("aliased core imports", () => {
+    const file = compile({
+      name: "aliases",
+      source: "aliases",
+      plugin: { validate: "validate" },
+    });
+    const captured = load(file);
+    assert(
+      first(captured.TypedBody)?.[0]?.type === "validate",
+      "aliased TypedBody was not transformed",
+    );
+    assert(
+      first(captured.TypedParam)?.[2] === true,
+      "aliased TypedParam did not receive validation flag",
+    );
+    assert(
+      first(captured.TypedQuery)?.[0]?.type === "validate",
+      "aliased TypedQuery was not transformed",
+    );
+    assert(
+      first(captured["TypedRoute.Post"])?.[1]?.type === "assert",
+      "aliased TypedRoute.Post was not transformed",
+    );
+  });
 };
 
 const compile = (props) => {

@@ -82,7 +82,7 @@ const nestiaCoreKindDecorator = shimast.KindDecorator
 
 type nestiaCoreFileContext struct {
 	file        *shimast.SourceFile
-	coreImports map[string]bool
+	coreImports map[string]string
 }
 
 func readNestiaCoreOptions(plan plugin.Plan) nestiaCoreOptions {
@@ -249,8 +249,9 @@ func visitNestiaCoreNode(
 			if !ok {
 				continue
 			}
-			kind := nestiaCoreParameterKind(segments)
-			if kind == "" || nestiaCoreDecoratorReference(state.prog, context, decorator, segments) == false {
+			canonical := nestiaCoreCanonicalSegments(context, segments)
+			kind := nestiaCoreParameterKind(canonical)
+			if kind == "" || nestiaCoreDecoratorReference(state.prog, context, decorator, segments, canonical) == false {
 				continue
 			}
 			candidates = append(candidates, candidate{
@@ -292,13 +293,17 @@ func visitNestiaCoreNode(
 		candidates := []candidate{}
 		for _, decorator := range decorators {
 			call, segments, ok := nestiaCoreRawDecoratorCall(decorator)
-			if !ok || nestiaCoreDecoratorReference(state.prog, context, decorator, segments) == false {
+			if !ok {
 				continue
 			}
-			if len(segments) != 0 && segments[len(segments)-1] == "WebSocketRoute" {
-				*diagnostics = append(*diagnostics, validateNestiaCoreWebSocketRoute(state.prog, context, node, call, segments)...)
+			canonical := nestiaCoreCanonicalSegments(context, segments)
+			if nestiaCoreDecoratorReference(state.prog, context, decorator, segments, canonical) == false {
+				continue
 			}
-			kind := nestiaCoreMethodKind(segments)
+			if len(canonical) != 0 && canonical[len(canonical)-1] == "WebSocketRoute" {
+				*diagnostics = append(*diagnostics, validateNestiaCoreWebSocketRoute(state.prog, context, node, call, canonical)...)
+			}
+			kind := nestiaCoreMethodKind(canonical)
 			if kind == "" || nestiaCoreShouldSkipMethodDecorator(state.prog, call) {
 				continue
 			}
@@ -504,16 +509,17 @@ func nestiaCoreDecoratorCall(prog *driver.Program, decorator *shimast.Node) (*sh
 		return nil, nil, false
 	}
 	context := newNestiaCoreFileContext(shimast.GetSourceFileOfNode(decorator))
-	if nestiaCoreDecoratorReference(prog, context, decorator, segments) == false {
+	canonical := nestiaCoreCanonicalSegments(context, segments)
+	if nestiaCoreDecoratorReference(prog, context, decorator, segments, canonical) == false {
 		return nil, nil, false
 	}
-	return call, segments, true
+	return call, canonical, true
 }
 
 func newNestiaCoreFileContext(file *shimast.SourceFile) nestiaCoreFileContext {
 	context := nestiaCoreFileContext{
 		file:        file,
-		coreImports: map[string]bool{},
+		coreImports: map[string]string{},
 	}
 	if file == nil || file.Statements == nil {
 		return context
@@ -534,7 +540,7 @@ func newNestiaCoreFileContext(file *shimast.SourceFile) nestiaCoreFileContext {
 			continue
 		}
 		if name := clause.Name(); name != nil {
-			context.coreImports[name.Text()] = true
+			context.coreImports[name.Text()] = name.Text()
 		}
 		if clause.NamedBindings == nil || clause.NamedBindings.Kind != shimast.KindNamedImports {
 			continue
@@ -553,11 +559,28 @@ func newNestiaCoreFileContext(file *shimast.SourceFile) nestiaCoreFileContext {
 			}
 			name := spec.Name()
 			if name != nil {
-				context.coreImports[name.Text()] = true
+				imported := name.Text()
+				if spec.PropertyName != nil {
+					imported = spec.PropertyName.Text()
+				}
+				context.coreImports[name.Text()] = imported
 			}
 		}
 	}
 	return context
+}
+
+func nestiaCoreCanonicalSegments(context nestiaCoreFileContext, segments []string) []string {
+	if len(segments) == 0 {
+		return segments
+	}
+	imported, ok := context.coreImports[segments[0]]
+	if !ok || imported == "" || imported == segments[0] {
+		return segments
+	}
+	canonical := append([]string{}, segments...)
+	canonical[0] = imported
+	return canonical
 }
 
 func nestiaCoreDecoratorReference(
@@ -565,14 +588,15 @@ func nestiaCoreDecoratorReference(
 	context nestiaCoreFileContext,
 	decorator *shimast.Node,
 	segments []string,
+	canonical []string,
 ) bool {
 	if len(segments) == 0 {
 		return false
 	}
-	if context.coreImports[segments[0]] {
+	if _, ok := context.coreImports[segments[0]]; ok {
 		return true
 	}
-	if nestiaCorePotentialDecoratorSegments(segments) == false {
+	if nestiaCorePotentialDecoratorSegments(canonical) == false {
 		return false
 	}
 	return isNestiaCoreCall(prog, decorator.AsDecorator().Expression)

@@ -180,7 +180,12 @@ func outputMatchesSourceStem(outputStem string, sourceStem string) bool {
 				return true
 			}
 		}
-		if strings.HasSuffix(outputStem, "/"+sourceRel) {
+		// Suffix-only matching is a fallback for paths that don't share a
+		// recognized build marker (e.g. ttsc's virtual filesystem mirroring
+		// the source tree). Require the relative path to span at least two
+		// segments so a top-level source like `src/index.ts` does not match
+		// every output file that happens to end in `/index.js`.
+		if strings.Contains(sourceRel, "/") && strings.HasSuffix(outputStem, "/"+sourceRel) {
 			return true
 		}
 	}
@@ -212,10 +217,22 @@ func sourceOutputCandidates(stem string) []string {
 
 func outputSourceCandidates(stem string) []string {
 	candidates := []string{}
-	for _, marker := range [][]string{{"lib"}, {"bin"}, {"dist"}, {"build"}} {
+	// Mirror sourceOutputCandidates so paths whose source and output trees
+	// share the same `src/` (or `test/`) root — e.g. ttsc's virtual filesystem
+	// emits next to the source — can intersect on the same relative tail.
+	// We intentionally do NOT include the {"src","api"} marker here: that
+	// marker exists on the source side to let a source under `src/api/`
+	// pretend its rel is the leaf only (so it matches an output that lacks
+	// the `api/` segment); mirroring it on the output side would let two
+	// unrelated files (e.g. `src/index.ts` and `src/api/index.ts`) collide
+	// on the rel "index".
+	for _, marker := range [][]string{{"lib"}, {"bin"}, {"dist"}, {"build"}, {"src"}} {
 		if rel, ok := suffixAfterPathMarker(stem, marker, false); ok {
 			candidates = append(candidates, rel)
 		}
+	}
+	if rel, ok := suffixAfterPathMarker(stem, []string{"test"}, true); ok {
+		candidates = append(candidates, rel)
 	}
 	return append(candidates, stem)
 }

@@ -33,9 +33,9 @@ main().catch(console.error);
   "compilerOptions": {
     "strict": true,
     "plugins": [
-      { "transform": "typia/lib/transform" },
-      { "transform": "@nestia/core/native/transform.cjs" },
+      { "transform": "typia/lib/transform", "enabled": false },
       { "transform": "@nestia/sdk/lib/transform" }, // essential
+      { "transform": "@nestia/core/native/transform.cjs" },
     ],
   },
 }
@@ -146,9 +146,9 @@ After that, deliver the generated Swagger Document object to the `SwaggerModule.
   "compilerOptions": {
     "strict": true,
     "plugins": [
-      { "transform": "typia/lib/transform" },
-      { "transform": "@nestia/core/native/transform.cjs" },
+      { "transform": "typia/lib/transform", "enabled": false },
       { "transform": "@nestia/sdk/lib/transform" }, // essential
+      { "transform": "@nestia/core/native/transform.cjs" },
     ],
   },
 }

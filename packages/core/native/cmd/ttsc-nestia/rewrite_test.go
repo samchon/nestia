@@ -2,6 +2,69 @@ package main
 
 import "testing"
 
+// Regression: a top-level source like `src/index.ts` produced a one-segment
+// relative ("index") that the HasSuffix fallback in outputMatchesSourceStem
+// happily matched against every output ending in `/index.js`. That made the
+// native rewrite scan unrelated files (e.g. `src/api/functional/health/index.js`)
+// for typia call sites that only exist in the root entry, and the missing
+// match raised "could not locate typia.reflect.schemas(...) call".
+//
+// The matcher must now (1) accept the legitimate same-stem virtual-fs case
+// where output and source share an `src/` tail, and (2) reject single-segment
+// suffix matches that point at a different file in the same source tree.
+func TestOutputMatchesSourceStem(t *testing.T) {
+	cases := []struct {
+		name   string
+		output string
+		source string
+		want   bool
+	}{
+		{
+			name:   "virtual fs mirrors src tree",
+			output: "/cache/.ttsc/project/1/fs/posix/repo/tests/foo/src/index",
+			source: "/repo/tests/foo/src/index",
+			want:   true,
+		},
+		{
+			name:   "top-level src/index does not match nested src/api/health/index",
+			output: "/cache/.ttsc/project/1/fs/posix/repo/tests/foo/src/api/functional/health/index",
+			source: "/repo/tests/foo/src/index",
+			want:   false,
+		},
+		{
+			name:   "src/api source matches nested api output",
+			output: "/cache/.ttsc/project/1/fs/posix/repo/tests/foo/src/api/functional/health/index",
+			source: "/repo/tests/foo/src/api/functional/health/index",
+			want:   true,
+		},
+		{
+			name:   "package src maps to lib output",
+			output: "/repo/packages/core/lib/decorators/TypedBody",
+			source: "/repo/packages/core/src/decorators/TypedBody",
+			want:   true,
+		},
+		{
+			name:   "unrelated stems",
+			output: "/repo/packages/core/lib/decorators/TypedBody",
+			source: "/repo/packages/sdk/src/generates/Foo",
+			want:   false,
+		},
+		{
+			name:   "top-level src/index does not match nested src/api/index",
+			output: "/cache/.ttsc/project/1/fs/posix/repo/tests/foo/src/api/index",
+			source: "/repo/tests/foo/src/index",
+			want:   false,
+		},
+	}
+	for _, tc := range cases {
+		got := outputMatchesSourceStem(tc.output, tc.source)
+		if got != tc.want {
+			t.Errorf("%s: outputMatchesSourceStem(%q, %q) = %v, want %v",
+				tc.name, tc.output, tc.source, got, tc.want)
+		}
+	}
+}
+
 func TestCountNativeArgumentsBasic(t *testing.T) {
 	cases := []struct {
 		name string

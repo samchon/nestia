@@ -45,7 +45,8 @@ async function main(): Promise<void> {
       halt(
         [
           `@nestia/sdk has not been installed.`,
-          `Install with: npm install --save-dev @nestia/sdk @nestia/core ttsc typescript@~6.0.3`,
+          `Install runtime packages with: npm install --save @nestia/core @nestia/fetcher typia`,
+          `Install generator packages with: npm install --save-dev nestia @nestia/sdk ttsc typescript@~6.0.3`,
           `Then configure tsconfig.json plugins per https://nestia.io/docs/setup`,
         ].join("\n"),
       );
