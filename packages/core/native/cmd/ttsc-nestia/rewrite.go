@@ -167,7 +167,28 @@ func (rs *nativeRewriteSet) findSourceForOutput(outputName string) (string, bool
 			return path, true
 		}
 	}
-	return "", false
+	return rs.findSourceByUniqueBase(outSlash)
+}
+
+func (rs *nativeRewriteSet) findSourceByUniqueBase(outputStem string) (string, bool) {
+	base := pathBase(outputStem)
+	if base == "" {
+		return "", false
+	}
+	matched := ""
+	count := 0
+	for path := range rs.byPath {
+		srcStem := strings.TrimSuffix(filepath.ToSlash(path), filepath.Ext(path))
+		if pathBase(srcStem) != base {
+			continue
+		}
+		matched = path
+		count++
+		if count > 1 {
+			return "", false
+		}
+	}
+	return matched, count == 1
 }
 
 func outputMatchesSourceStem(outputStem string, sourceStem string) bool {
@@ -190,6 +211,17 @@ func outputMatchesSourceStem(outputStem string, sourceStem string) bool {
 		}
 	}
 	return false
+}
+
+func pathBase(stem string) string {
+	stem = strings.TrimSuffix(filepath.ToSlash(stem), "/")
+	if stem == "" {
+		return ""
+	}
+	if idx := strings.LastIndexByte(stem, '/'); idx >= 0 {
+		return stem[idx+1:]
+	}
+	return stem
 }
 
 func isJavaScriptOutput(fileName string) bool {
