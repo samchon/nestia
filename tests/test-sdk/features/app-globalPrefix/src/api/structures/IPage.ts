@@ -1,3 +1,5 @@
+import { tags } from "typia";
+
 export interface IPage<T> {
   data: T[];
   pagination: IPage.IPagination;
@@ -5,25 +7,19 @@ export interface IPage<T> {
 export namespace IPage {
   /** Page request data */
   export interface IRequest {
-    /** @type uint */
-    page?: number | null;
+    page?: (number & tags.Type<"uint32">) | null;
 
-    /** @type uint */
-    limit?: number | null;
+    limit?: (number & tags.Type<"uint32">) | null;
   }
 
   /** Page information. */
   export interface IPagination {
-    /** @type uint */
-    current: number;
+    current: number & tags.Type<"uint32">;
 
-    /** @type uint */
-    limit: number;
+    limit: number & tags.Type<"uint32">;
 
-    /** @type uint */
-    records: number;
+    records: number & tags.Type<"uint32">;
 
-    /** @type uint */
-    pages: number;
+    pages: number & tags.Type<"uint32">;
   }
 }

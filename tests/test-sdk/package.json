@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@nestia/test-migrate",
+  "name": "@nestia/test-sdk",
   "version": "11.2.0",
   "scripts": {
     "start": "node ../run-with-ttsc-env.cjs node start.js"

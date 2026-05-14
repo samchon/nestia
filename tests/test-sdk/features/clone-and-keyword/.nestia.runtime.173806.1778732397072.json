@@ -1,0 +1,40 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "outDir": "/home/samchon/github/samchon/nestia@next/tests/test-sdk/features/clone-and-keyword/node_modules/.nestia/runtime/run-4YUZQ3",
+    "plugins": [
+      {
+        "transform": "typia/lib/transform",
+        "enabled": false
+      },
+      {
+        "transform": "@nestia/sdk/lib/transform"
+      },
+      {
+        "transform": "@nestia/core/native/transform.cjs"
+      }
+    ],
+    "rootDir": "."
+  },
+  "include": [
+    "src/controllers/ArrayRecursiveController.ts",
+    "src/controllers/ArrayRecursiveUnionExplicitController.ts",
+    "src/controllers/ArrayRecursiveUnionImplicitController.ts",
+    "src/controllers/ArraySimpleController.ts",
+    "src/controllers/BbsArticlesController.ts",
+    "src/controllers/ErrorCode.ts",
+    "src/controllers/HealthController.ts",
+    "src/controllers/ObjectLiteralController.ts",
+    "src/controllers/ObjectSimpleController.ts",
+    "src/controllers/ObjectUnionExplicitController.ts",
+    "src/controllers/ObjectUnionImplicitController.ts",
+    "src/controllers/PerformanceController.ts",
+    "src/controllers/SellerAuthenticateController.ts",
+    "src/controllers/TemplateController.ts",
+    "src/controllers/TupleHierarchicalController.ts",
+    "src/controllers/UserNormalsController.ts"
+  ]
+}
