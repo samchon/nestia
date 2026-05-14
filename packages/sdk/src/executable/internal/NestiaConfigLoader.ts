@@ -93,9 +93,9 @@ export namespace NestiaConfigLoader {
         noUnusedParameters: false,
         ...nodeAmbientCompilerOptions(projectRoot, props.compilerOptions),
         outDir: outputRoot,
-        ...(requiresTransforms
-          ? { plugins: materializePlugins(props.compilerOptions.plugins) }
-          : {}),
+        plugins: requiresTransforms
+          ? materializePlugins(props.compilerOptions.plugins)
+          : [],
         rootDir: projectRoot,
       },
       include: [configFile],

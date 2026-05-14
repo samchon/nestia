@@ -2,6 +2,7 @@ const cp = require("child_process");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const ts = require("typescript");
 
 const ROOT = path.join(__dirname, "../..");
 const TTSC_CACHE_DIR = path.resolve(
@@ -207,18 +208,7 @@ const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
           noUnusedLocals: false,
           noUnusedParameters: false,
           outDir: ".",
-          plugins: [
-            {
-              transform: "typia/lib/transform",
-              enabled: false,
-            },
-            {
-              transform: "@nestia/sdk/lib/transform",
-            },
-            {
-              transform: "@nestia/core/native/transform.cjs",
-            },
-          ],
+          plugins: runtimePlugins(cwd),
           rootDir: ".",
         },
       },
@@ -257,6 +247,51 @@ const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
   }
 };
 
+const runtimePlugins = (cwd) => {
+  const core = readProjectPlugins(cwd).find((plugin) =>
+    isTransform(plugin, "@nestia/core"),
+  );
+  return [
+    {
+      transform: "typia/lib/transform",
+      enabled: false,
+    },
+    {
+      transform: "@nestia/sdk/lib/transform",
+    },
+    normalizePlugin({
+      ...(core ?? {}),
+      transform: "@nestia/core/native/transform.cjs",
+    }),
+  ];
+};
+
+const readProjectPlugins = (cwd) => {
+  const projectFile = path.join(cwd, "tsconfig.json");
+  const loaded = ts.readConfigFile(projectFile, ts.sys.readFile);
+  if (loaded.error !== undefined || loaded.config === undefined) return [];
+  const parsed = ts.parseJsonConfigFileContent(
+    loaded.config,
+    ts.sys,
+    path.dirname(projectFile),
+  );
+  const plugins = parsed.options?.plugins;
+  return Array.isArray(plugins)
+    ? plugins
+        .filter((plugin) => typeof plugin === "object" && plugin !== null)
+        .map((plugin) => ({ ...plugin }))
+    : [];
+};
+
+const normalizePlugin = (plugin) => {
+  const output = { ...plugin };
+  if (output.enabled === false) delete output.enabled;
+  return output;
+};
+
+const isTransform = (plugin, name) =>
+  typeof plugin.transform === "string" && plugin.transform.includes(name);
+
 const argumentValue = (name) => {
   const index = process.argv.findIndex((str) => str === name);
   return index !== -1 && process.argv.length > index + 1
@@ -277,7 +312,8 @@ const concurrency = (count) => {
     8,
     Math.max(1, os.availableParallelism?.() ?? os.cpus().length ?? 1),
   );
-  const raw = argumentValue("--concurrency") ?? process.env.TEST_SDK_CONCURRENCY;
+  const raw =
+    argumentValue("--concurrency") ?? process.env.TEST_SDK_CONCURRENCY;
   const value = raw === undefined ? fallback : Number(raw);
   return Math.min(
     count,

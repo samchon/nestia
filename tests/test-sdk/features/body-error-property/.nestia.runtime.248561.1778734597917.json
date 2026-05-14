@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "outDir": "/home/samchon/github/samchon/nestia@next/tests/test-sdk/features/body-error-property/node_modules/.nestia/runtime/run-9wrujZ",
+    "plugins": [
+      {
+        "transform": "typia/lib/transform",
+        "enabled": false
+      },
+      {
+        "transform": "@nestia/sdk/lib/transform"
+      },
+      {
+        "transform": "@nestia/core/native/transform.cjs"
+      }
+    ],
+    "rootDir": "."
+  },
+  "include": [
+    "src/controllers/BbsArticlesController.ts",
+    "src/controllers/HealthController.ts"
+  ]
+}
