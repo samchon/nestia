@@ -1,4 +1,6 @@
 features/*/packages
+features/*/.nestia.runtime.*.json
+features/*/.ttsx.tsconfig.json
 features/*/swagger.json
 features/*/src/api/*.ts
 features/*/src/api/functional

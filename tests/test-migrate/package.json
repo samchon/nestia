@@ -4,6 +4,7 @@
   "version": "11.2.0",
   "scripts": {
     "dev": "tsc --watch",
+    "fixture": "node -e \"require('fs').mkdirSync('.generated',{recursive:true})\" && cd fixture && node ../../run-with-ttsc-env.cjs node ../../../packages/cli/src/boot.js swagger --project tsconfig.json",
     "start": "node ../run-with-ttsc-env.cjs ts-node -O '{\"module\":\"commonjs\",\"moduleResolution\":\"nodenext\"}' src/index.ts"
   },
   "dependencies": {
@@ -40,6 +41,7 @@
     "@types/inquirer": "^9.0.7",
     "@types/multer": "^1.4.12",
     "@types/node": "catalog:utils",
+    "@typescript/native-preview": "catalog:typescript",
     "nestia": "workspace:^",
     "ts-node": "catalog:typescript",
     "typescript": "catalog:typescript"

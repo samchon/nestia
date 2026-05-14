@@ -14,14 +14,29 @@ import fs from "fs";
 import path from "path";
 import type { IValidation } from "typia";
 
-const INPUT: string = `${__dirname}/../assets/input`;
-const OUTPUT: string = `${__dirname}/../assets/output`;
 const ROOT: string = path.resolve(__dirname, "../../..");
+const TEST_ROOT: string = path.resolve(__dirname, "..");
+const FIXTURE: string = path.join(TEST_ROOT, "fixture");
+const GENERATED: string = path.join(TEST_ROOT, ".generated");
+const SWAGGER: string = path.join(GENERATED, "swagger.json");
+const OUTPUT: string = path.join(GENERATED, "output");
 const PNPM: string = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+const NODE: string = process.execPath;
 const TTSC_CACHE_DIR: string = path.resolve(
   ROOT,
   process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
 );
+
+type SwaggerDocument =
+  | SwaggerV2.IDocument
+  | OpenApiV3.IDocument
+  | OpenApiV3_1.IDocument
+  | OpenApiV3_2.IDocument;
+
+interface IScenario {
+  name: string;
+  file: string;
+}
 
 const measure =
   (title: string) =>
@@ -30,22 +45,84 @@ const measure =
     const time: number = Date.now();
     await task();
     console.log(`${(Date.now() - time).toLocaleString()} ms`);
-    return time;
+    return Date.now() - time;
   };
+
+const spawn = (cwd: string, args: string[]): void => {
+  cp.execFileSync(args[0]!, args.slice(1), {
+    stdio: "inherit",
+    cwd,
+    env: {
+      ...process.env,
+      TTSC_CACHE_DIR,
+    },
+  });
+};
+
+const generateSwagger = (): Promise<number> =>
+  measure("fixture-swagger")(() => {
+    spawn(FIXTURE, [
+      NODE,
+      path.join(TEST_ROOT, "..", "run-with-ttsc-env.cjs"),
+      NODE,
+      path.join(ROOT, "packages", "cli", "src", "boot.js"),
+      "swagger",
+      "--project",
+      "tsconfig.json",
+    ]);
+    return Promise.resolve();
+  });
+
+const readDocument = async (file: string): Promise<SwaggerDocument> =>
+  JSON.parse(await fs.promises.readFile(file, "utf8")) as SwaggerDocument;
+
+const assertFixtureSwagger = (document: SwaggerDocument): void => {
+  const current = document as OpenApiV3_1.IDocument;
+  const text: string = JSON.stringify(document);
+  const paths: string[] = Object.keys(current.paths ?? {});
+  const operations: number = paths
+    .map((accessor) =>
+      Object.keys(current.paths?.[accessor] ?? {}).filter((method) =>
+        METHODS.has(method),
+      ).length,
+    )
+    .reduce((a, b) => a + b, 0);
+  const schemas: number = Object.keys(current.components?.schemas ?? {}).length;
+  const security: string[] = Object.keys(
+    current.components?.securitySchemes ?? {},
+  );
+
+  const errors: string[] = [];
+  if (current.openapi !== "3.1.0") errors.push("OpenAPI 3.1 fixture expected");
+  if (paths.length < 7) errors.push("fixture must contain several paths");
+  if (operations < 10) errors.push("fixture must contain at least 10 operations");
+  if (schemas < 20) errors.push("fixture must contain rich schemas");
+  if (text.includes('"oneOf"') === false)
+    errors.push("fixture must contain union schemas");
+  if (text.includes("multipart/form-data") === false)
+    errors.push("fixture must contain multipart/form-data");
+  if (text.includes("text/plain") === false)
+    errors.push("fixture must contain text/plain");
+  if (
+    security.includes("bearer") === false ||
+    security.includes("apiKey") === false
+  )
+    errors.push("fixture must contain bearer and apiKey security schemes");
+  if (errors.length !== 0)
+    throw new Error(`Invalid fixture swagger:\n${errors.join("\n")}`);
+};
 
 const execute = (
   mode: "nest" | "sdk",
   config: INestiaMigrateConfig,
-  project: string,
-  document:
-    | SwaggerV2.IDocument
-    | OpenApiV3.IDocument
-    | OpenApiV3_1.IDocument
-    | OpenApiV3_2.IDocument,
+  scenario: IScenario,
+  document: SwaggerDocument,
 ): Promise<number> => {
-  const title: string = `${project}-${mode}-${config.keyword ? "keyword" : "positional"}`;
+  const title: string = `${scenario.name}-${mode}-${
+    config.keyword ? "keyword" : "positional"
+  }`;
   return measure(title)(async () => {
-    const directory = `${OUTPUT}/${title}`;
+    const directory = path.join(OUTPUT, title);
     const result: IValidation<NestiaMigrateApplication> =
       await NestiaMigrateApplication.validate(document);
     if (result.success === false)
@@ -58,23 +135,18 @@ const execute = (
       mode === "nest"
         ? app.nest({
             ...config,
-            package: project,
+            package: scenario.name,
           })
         : app.sdk({
             ...config,
-            package: project,
+            package: scenario.name,
           });
     const invalidPaths: string[] = Object.keys(files).filter(
       (key) =>
         key.startsWith("/") || key.startsWith("./") || key.includes("//"),
     );
-    if (invalidPaths.length > 0) {
-      for (const key of invalidPaths) console.log(key);
-      throw new Error(
-        `Invalid file paths: ${invalidPaths.join(", ")}\n` +
-          `Please check the generated files.`,
-      );
-    }
+    if (invalidPaths.length > 0)
+      throw new Error(`Invalid file paths: ${invalidPaths.join(", ")}`);
     for (const key of Object.keys(files)) {
       const content: string | undefined = files[key];
       if (key.endsWith("tsconfig.json") && content !== undefined)
@@ -93,30 +165,32 @@ const execute = (
     });
 
     const ttsc = (project?: string): void => {
-      cp.execFileSync(
+      spawn(directory, [
         PNPM,
-        [
-          "ttsc",
-          "--cache-dir",
-          TTSC_CACHE_DIR,
-          ...(project !== undefined ? ["-p", project] : []),
-        ],
-        {
-          stdio: "inherit",
-          cwd: directory,
-          env: {
-            ...process.env,
-            TTSC_CACHE_DIR,
-          },
-        },
-      );
+        "ttsc",
+        "--cache-dir",
+        TTSC_CACHE_DIR,
+        ...(project !== undefined ? ["-p", project] : []),
+      ]);
     };
     ttsc();
     ttsc("test/tsconfig.json");
   });
 };
 
-const iterate = async (directory: string): Promise<void> => {
+const main = async (): Promise<void> => {
+  if (fs.existsSync(GENERATED))
+    await fs.promises.rm(GENERATED, { recursive: true });
+  await fs.promises.mkdir(OUTPUT, { recursive: true });
+
+  await generateSwagger();
+
+  const scenarios: IScenario[] = [
+    {
+      name: "fixture",
+      file: SWAGGER,
+    },
+  ];
   const filter = (() => {
     const only = process.argv.findIndex((str) => str === "--only");
     if (only !== -1 && process.argv.length >= only + 1)
@@ -124,44 +198,40 @@ const iterate = async (directory: string): Promise<void> => {
     return () => true;
   })();
 
-  for (const file of await fs.promises.readdir(directory)) {
-    const location: string = `${directory}/${file}`;
-    if (fs.statSync(location).isDirectory()) await iterate(location);
-    else if (location.endsWith(".json")) {
-      const project: string = file.substring(0, file.length - 5);
-      if (filter(project) === false) continue;
-      const document:
-        | SwaggerV2.IDocument
-        | OpenApiV3.IDocument
-        | OpenApiV3_1.IDocument
-        | OpenApiV3_2.IDocument = JSON.parse(
-        await fs.promises.readFile(location, "utf8"),
+  for (const scenario of scenarios) {
+    if (filter(scenario.name) === false) continue;
+    const document: SwaggerDocument = await readDocument(scenario.file);
+    assertFixtureSwagger(document);
+    for (const [mode, keyword] of [
+      ["nest", true],
+      ["nest", false],
+      ["sdk", true],
+      ["sdk", false],
+    ] as const)
+      await execute(
+        mode,
+        {
+          keyword,
+          simulate: true,
+          e2e: true,
+        },
+        scenario,
+        document,
       );
-      for (const [mode, flag] of [
-        ["nest", true],
-        ["nest", false],
-        ["sdk", true],
-        ["sdk", false],
-      ] as const)
-        await execute(
-          mode,
-          {
-            keyword: flag,
-            simulate: true,
-            e2e: true,
-          },
-          project,
-          document,
-        );
-    }
   }
 };
 
-const main = async () => {
-  if (fs.existsSync(OUTPUT)) await fs.promises.rm(OUTPUT, { recursive: true });
-  await fs.promises.mkdir(OUTPUT);
-  await iterate(INPUT);
-};
+const METHODS: Set<string> = new Set([
+  "get",
+  "put",
+  "post",
+  "delete",
+  "patch",
+  "head",
+  "options",
+  "trace",
+]);
+
 main().catch((error) => {
   console.error(error);
   process.exit(1);

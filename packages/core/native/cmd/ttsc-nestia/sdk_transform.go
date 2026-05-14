@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -26,6 +28,51 @@ type nestiaSDKSite struct {
 
 type nestiaSDKBuildRewriteSet struct {
 	byPath map[string][]nestiaSDKSite
+}
+
+type nestiaSDKContext struct {
+	prog          *driver.Program
+	collection    *schemametadata.MetadataCollection
+	importsByFile map[string][]nestiaSDKImportInfo
+	schemaCache   map[nestiaSDKSchemaCacheKey]any
+	schemaHits    int
+	schemaMisses  int
+}
+
+type nestiaSDKSchemaCacheKey struct {
+	Type   *shimchecker.Type
+	Text   string
+	Escape bool
+}
+
+func newNestiaSDKContext(prog *driver.Program) *nestiaSDKContext {
+	return &nestiaSDKContext{
+		prog:          prog,
+		collection:    newNestiaSDKMetadataCollection(),
+		importsByFile: map[string][]nestiaSDKImportInfo{},
+		schemaCache:   map[nestiaSDKSchemaCacheKey]any{},
+	}
+}
+
+func newNestiaSDKMetadataCollection() *schemametadata.MetadataCollection {
+	return schemametadata.NewMetadataCollection(
+		&schemametadata.MetadataCollection_IOptions{
+			Replace: schemametadata.MetadataCollection_replace,
+		},
+	)
+}
+
+func (ctx *nestiaSDKContext) imports(file *shimast.SourceFile) []nestiaSDKImportInfo {
+	if file == nil {
+		return nil
+	}
+	name := filepath.ToSlash(file.FileName())
+	if imports, ok := ctx.importsByFile[name]; ok {
+		return imports
+	}
+	imports := nestiaSDKAnalyzeImports(file)
+	ctx.importsByFile[name] = imports
+	return imports
 }
 
 func newNestiaSDKBuildRewriteSet() *nestiaSDKBuildRewriteSet {
@@ -60,12 +107,7 @@ func (rs *nestiaSDKBuildRewriteSet) Apply(outputName string, text string) (strin
 		return text, nil
 	}
 	out := text
-	for _, site := range rs.byPath[srcPath] {
-		next, changed := insertSDKOperationMetadataDecorator(out, site)
-		if changed {
-			out = next
-		}
-	}
+	out = insertSDKOperationMetadataDecorators(out, rs.byPath[srcPath])
 	return injectSDKOperationMetadataImport(out), nil
 }
 
@@ -141,22 +183,28 @@ func collectNestiaSDKBuildRewrites(
 func collectNestiaSDKSites(prog *driver.Program) ([]nestiaSDKSite, []typiaTransformDiagnostic) {
 	sites := []nestiaSDKSite{}
 	diagnostics := []typiaTransformDiagnostic{}
+	context := newNestiaSDKContext(prog)
 	for _, file := range prog.SourceFiles() {
 		if file == nil || file.IsDeclarationFile {
 			continue
 		}
+		visited := map[string]bool{}
 		file.ForEachChild(func(node *shimast.Node) bool {
-			visitNestiaSDKNode(prog, file, node, &sites, &diagnostics)
+			visitNestiaSDKNode(context, file, node, visited, &sites, &diagnostics)
 			return false
 		})
+	}
+	if os.Getenv("TTSC_NESTIA_PROFILE") != "" {
+		fmt.Fprintf(stderr, "ttsc-nestia profile: sdk-schema-cache hits=%d misses=%d\n", context.schemaHits, context.schemaMisses)
 	}
 	return sites, diagnostics
 }
 
 func visitNestiaSDKNode(
-	prog *driver.Program,
+	context *nestiaSDKContext,
 	file *shimast.SourceFile,
 	node *shimast.Node,
+	visited map[string]bool,
 	sites *[]nestiaSDKSite,
 	diagnostics *[]typiaTransformDiagnostic,
 ) {
@@ -167,38 +215,43 @@ func visitNestiaSDKNode(
 		className := nestiaSDKParentClassName(node)
 		methodName := nestiaSDKMethodName(node)
 		if className != "" && methodName != "" {
-			metadata, err := nestiaSDKMetadataText(prog, file, node)
-			site := nestiaSDKSite{
-				File:       file,
-				FilePath:   file.FileName(),
-				ClassName:  className,
-				MethodName: methodName,
-				Method:     node,
-				Metadata:   metadata,
-			}
-			if err != nil {
-				*diagnostics = append(*diagnostics, nestiaSDKDiagnostic(site, err.Error()))
-			} else {
-				*sites = append(*sites, site)
+			key := className + "." + methodName
+			if visited[key] == false {
+				visited[key] = true
+				metadata, err := nestiaSDKMetadataText(context, file, node)
+				site := nestiaSDKSite{
+					File:       file,
+					FilePath:   file.FileName(),
+					ClassName:  className,
+					MethodName: methodName,
+					Method:     node,
+					Metadata:   metadata,
+				}
+				if err != nil {
+					*diagnostics = append(*diagnostics, nestiaSDKDiagnostic(site, err.Error()))
+				} else {
+					*sites = append(*sites, site)
+				}
 			}
 		}
 	}
 	node.ForEachChild(func(child *shimast.Node) bool {
-		visitNestiaSDKNode(prog, file, child, sites, diagnostics)
+		visitNestiaSDKNode(context, file, child, visited, sites, diagnostics)
 		return false
 	})
 }
 
-func nestiaSDKMetadataText(prog *driver.Program, file *shimast.SourceFile, method *shimast.Node) (string, error) {
+func nestiaSDKMetadataText(context *nestiaSDKContext, file *shimast.SourceFile, method *shimast.Node) (string, error) {
+	prog := context.prog
 	methodDecl := method.AsMethodDeclaration()
-	imports := nestiaSDKAnalyzeImports(file)
+	imports := context.imports(file)
 	doc := nestiaSDKMethodJSDoc(file, method)
 	parameters := []any{}
 	if methodDecl.Parameters != nil {
 		for index, param := range methodDecl.Parameters.Nodes {
 			typ := prog.Checker.GetTypeAtLocation(param)
 			name := nestiaSDKParameterName(param)
-			response := nestiaSDKResponse(prog, file, imports, typ, nestiaSDKParameterTypeNode(param))
+			response := nestiaSDKResponse(context, imports, typ, nestiaSDKParameterTypeNode(param))
 			parameters = append(parameters, map[string]any{
 				"name":        name,
 				"index":       index,
@@ -213,21 +266,28 @@ func nestiaSDKMetadataText(prog *driver.Program, file *shimast.SourceFile, metho
 	}
 	returnType := nestiaCoreMethodReturnType(prog, method)
 	returnTypeNode := nestiaSDKMethodReturnTypeNode(method)
-	exceptions := nestiaSDKExceptionResponses(prog, file, imports, method)
+	exceptions := nestiaSDKExceptionResponses(context, imports, method)
 	metadata := map[string]any{
 		"parameters":  parameters,
-		"success":     nestiaSDKResponse(prog, file, imports, returnType, returnTypeNode),
+		"success":     nestiaSDKResponse(context, imports, returnType, returnTypeNode),
 		"exceptions":  exceptions,
 		"description": nestiaSDKNullableString(doc.Description),
 		"jsDocTags":   doc.Tags,
 	}
-	node := nativefactories.LiteralFactory.Write(metadata)
-	text := emitNestiaCoreExpression(prog, file, node, false)
-	text = strings.ReplaceAll(text, `"`+nestiaSDKLiteralNull+`"`, "null")
-	return text, nil
+	return nestiaSDKMetadataLiteralText(metadata)
 }
 
 const nestiaSDKLiteralNull = "__NESTIA_LITERAL_NULL__"
+
+func nestiaSDKMetadataLiteralText(metadata map[string]any) (string, error) {
+	data, err := json.Marshal(metadata)
+	if err != nil {
+		return "", err
+	}
+	text := string(data)
+	text = strings.ReplaceAll(text, `"`+nestiaSDKLiteralNull+`"`, "null")
+	return text, nil
+}
 
 type nestiaSDKJSDoc struct {
 	Description string
@@ -367,18 +427,18 @@ func nestiaSDKNullableString(value string) any {
 }
 
 func nestiaSDKExceptionResponses(
-	prog *driver.Program,
-	file *shimast.SourceFile,
+	context *nestiaSDKContext,
 	imports []nestiaSDKImportInfo,
 	method *shimast.Node,
 ) []any {
+	prog := context.prog
 	responses := []any{}
 	for _, decorator := range method.Decorators() {
 		exception := nestiaSDKTypedExceptionInfo(prog, decorator)
 		if exception == nil {
 			continue
 		}
-		responses = append(responses, nestiaSDKResponse(prog, file, imports, exception.Type, exception.Node))
+		responses = append(responses, nestiaSDKResponse(context, imports, exception.Type, exception.Node))
 	}
 	return responses
 }
@@ -562,12 +622,12 @@ func nestiaSDKImportLiteral(imp nestiaSDKImportInfo, prefixes map[string]bool) m
 }
 
 func nestiaSDKResponse(
-	prog *driver.Program,
-	file *shimast.SourceFile,
+	context *nestiaSDKContext,
 	imports []nestiaSDKImportInfo,
 	typ *shimchecker.Type,
 	typeNode *shimast.Node,
 ) map[string]any {
+	prog := context.prog
 	refType, refImports := nestiaSDKReflectType(prog, imports, typ, typeNode)
 	if refImports == nil {
 		refImports = []any{}
@@ -575,20 +635,28 @@ func nestiaSDKResponse(
 	return map[string]any{
 		"type":      refType,
 		"imports":   refImports,
-		"primitive": nestiaSDKSchemaPipe(prog, typ, typeNode, true),
-		"resolved":  nestiaSDKSchemaPipe(prog, typ, typeNode, false),
+		"primitive": nestiaSDKSchemaPipe(context, typ, typeNode, true),
+		"resolved":  nestiaSDKSchemaPipe(context, typ, typeNode, false),
 	}
 }
 
-func nestiaSDKSchemaPipe(prog *driver.Program, typ *shimchecker.Type, typeNode *shimast.Node, escape bool) any {
-	if nestiaSDKIsTypeGuardError(prog, typ, typeNode) {
-		return nestiaSDKTypeGuardErrorSchemaPipe()
+func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeNode *shimast.Node, escape bool) any {
+	prog := context.prog
+	key := nestiaSDKSchemaCacheKey{
+		Type:   typ,
+		Text:   nestiaSDKTypeNodeText(typeNode),
+		Escape: escape,
 	}
-	collection := schemametadata.NewMetadataCollection(
-		&schemametadata.MetadataCollection_IOptions{
-			Replace: schemametadata.MetadataCollection_replace,
-		},
-	)
+	if cached, ok := context.schemaCache[key]; ok {
+		context.schemaHits++
+		return cached
+	}
+	context.schemaMisses++
+	if nestiaSDKIsTypeGuardError(prog, typ, typeNode) {
+		value := nestiaSDKTypeGuardErrorSchemaPipe()
+		context.schemaCache[key] = value
+		return value
+	}
 	result := nativefactories.MetadataFactory.Analyze(nativefactories.MetadataFactory_IProps{
 		Checker: prog.Checker,
 		Options: nativefactories.MetadataFactory_IOptions{
@@ -596,7 +664,7 @@ func nestiaSDKSchemaPipe(prog *driver.Program, typ *shimchecker.Type, typeNode *
 			Constant: true,
 			Absorb:   true,
 		},
-		Components: collection,
+		Components: context.collection,
 		Type:       typ,
 	})
 	if result.Success == false {
@@ -614,13 +682,15 @@ func nestiaSDKSchemaPipe(prog *driver.Program, typ *shimchecker.Type, typeNode *
 		}
 	}
 	nestiaSDKRestoreUnionOrder(typeNode, result.Data)
-	return map[string]any{
+	value := map[string]any{
 		"success": true,
 		"data": map[string]any{
-			"components": nestiaSDKMetadataComponentsLiteral(collection.ToJSON()),
+			"components": nestiaSDKMetadataComponentsLiteral(nestiaSDKVisitedMetadataComponents(context.collection, result.Data)),
 			"metadata":   nestiaSDKMetadataSchemaLiteral(result.Data.ToJSON()),
 		},
 	}
+	context.schemaCache[key] = value
+	return value
 }
 
 func nestiaSDKRestoreUnionOrder(typeNode *shimast.Node, metadata *schemametadata.MetadataSchema) {
@@ -654,6 +724,98 @@ func nestiaSDKRestoreUnionOrder(typeNode *shimast.Node, metadata *schemametadata
 	sort.SliceStable(metadata.Tuples, func(i, j int) bool {
 		return nestiaSDKUnionRank(order, metadata.Tuples[i].Type.Name) < nestiaSDKUnionRank(order, metadata.Tuples[j].Type.Name)
 	})
+}
+
+func nestiaSDKVisitedMetadataComponents(
+	collection *schemametadata.MetadataCollection,
+	metadata *schemametadata.MetadataSchema,
+) schemametadata.IMetadataComponents {
+	visited := map[string]bool{}
+	nestiaSDKVisitMetadataSchema(metadata, visited, map[*schemametadata.MetadataSchema]bool{})
+	filtered := schemametadata.IMetadataComponents{
+		Objects: []schemametadata.IMetadataSchema_IObjectType{},
+		Aliases: []schemametadata.IMetadataSchema_IAliasType{},
+		Arrays:  []schemametadata.IMetadataSchema_IArrayType{},
+		Tuples:  []schemametadata.IMetadataSchema_ITupleType{},
+	}
+	for _, obj := range collection.Objects() {
+		if obj != nil && visited[obj.Name] {
+			filtered.Objects = append(filtered.Objects, obj.ToJSON())
+		}
+	}
+	for _, alias := range collection.Aliases() {
+		if alias != nil && visited[alias.Name] {
+			filtered.Aliases = append(filtered.Aliases, alias.ToJSON())
+		}
+	}
+	for _, array := range collection.Arrays() {
+		if array != nil && visited[array.Name] {
+			filtered.Arrays = append(filtered.Arrays, array.ToJSON())
+		}
+	}
+	for _, tuple := range collection.Tuples() {
+		if tuple != nil && visited[tuple.Name] {
+			filtered.Tuples = append(filtered.Tuples, tuple.ToJSON())
+		}
+	}
+	return filtered
+}
+
+func nestiaSDKVisitMetadataSchema(
+	metadata *schemametadata.MetadataSchema,
+	visited map[string]bool,
+	seen map[*schemametadata.MetadataSchema]bool,
+) {
+	if metadata == nil || seen[metadata] {
+		return
+	}
+	seen[metadata] = true
+	if metadata.Escaped != nil {
+		nestiaSDKVisitMetadataSchema(metadata.Escaped.Original, visited, seen)
+		nestiaSDKVisitMetadataSchema(metadata.Escaped.Returns, visited, seen)
+	}
+	if metadata.Rest != nil {
+		nestiaSDKVisitMetadataSchema(metadata.Rest, visited, seen)
+	}
+	for _, alias := range metadata.Aliases {
+		if alias.Type != nil {
+			visited[alias.Type.Name] = true
+			nestiaSDKVisitMetadataSchema(alias.Type.Value, visited, seen)
+		}
+	}
+	for _, array := range metadata.Arrays {
+		if array.Type != nil {
+			visited[array.Type.Name] = true
+			nestiaSDKVisitMetadataSchema(array.Type.Value, visited, seen)
+		}
+	}
+	for _, tuple := range metadata.Tuples {
+		if tuple.Type != nil {
+			visited[tuple.Type.Name] = true
+			for _, elem := range tuple.Type.Elements {
+				nestiaSDKVisitMetadataSchema(elem, visited, seen)
+			}
+		}
+	}
+	for _, object := range metadata.Objects {
+		if object.Type != nil {
+			visited[object.Type.Name] = true
+			for _, prop := range object.Type.Properties {
+				if prop == nil {
+					continue
+				}
+				nestiaSDKVisitMetadataSchema(prop.Key, visited, seen)
+				nestiaSDKVisitMetadataSchema(prop.Value, visited, seen)
+			}
+		}
+	}
+	for _, set := range metadata.Sets {
+		nestiaSDKVisitMetadataSchema(set.Value, visited, seen)
+	}
+	for _, item := range metadata.Maps {
+		nestiaSDKVisitMetadataSchema(item.Key, visited, seen)
+		nestiaSDKVisitMetadataSchema(item.Value, visited, seen)
+	}
 }
 
 func nestiaSDKUnionTypeNames(node *shimast.Node) []string {
@@ -1138,19 +1300,57 @@ func nestiaSDKTypeNameFromChecker(prog *driver.Program, typ *shimchecker.Type) s
 	return "any"
 }
 
-func insertSDKOperationMetadataDecorator(text string, site nestiaSDKSite) (string, bool) {
+func insertSDKOperationMetadataDecorators(text string, sites []nestiaSDKSite) string {
+	if len(sites) == 0 {
+		return text
+	}
+	cursor := 0
+	out := text
+	for _, site := range sites {
+		next, ok := insertSDKOperationMetadataDecorator(out, site, cursor)
+		if ok {
+			out = next.text
+			cursor = next.cursor
+			continue
+		}
+		next, ok = insertSDKOperationMetadataDecorator(out, site, 0)
+		if ok {
+			out = next.text
+			cursor = next.cursor
+		}
+	}
+	return out
+}
+
+type sdkOperationMetadataInsertResult struct {
+	text   string
+	cursor int
+}
+
+func insertSDKOperationMetadataDecorator(text string, site nestiaSDKSite, offset int) (sdkOperationMetadataInsertResult, bool) {
+	if offset < 0 || offset > len(text) {
+		offset = 0
+	}
 	needle := "], " + site.ClassName + ".prototype, \"" + site.MethodName + "\","
-	idx := strings.Index(text, needle)
+	relative := strings.Index(text[offset:], needle)
+	idx := -1
+	if relative >= 0 {
+		idx = offset + relative
+	}
 	if idx < 0 {
-		return text, false
+		return sdkOperationMetadataInsertResult{text: text, cursor: offset}, false
 	}
 	head := strings.LastIndex(text[:idx], "__decorate([")
 	if head < 0 {
-		return text, false
+		return sdkOperationMetadataInsertResult{text: text, cursor: offset}, false
 	}
 	insert := head + len("__decorate([")
 	decorator := "\n    __OperationMetadata.OperationMetadata(" + site.Metadata + "),"
-	return text[:insert] + decorator + text[insert:], true
+	next := text[:insert] + decorator + text[insert:]
+	return sdkOperationMetadataInsertResult{
+		text:   next,
+		cursor: idx + len(decorator) + len(needle),
+	}, true
 }
 
 func injectSDKOperationMetadataImport(text string) string {

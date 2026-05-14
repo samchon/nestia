@@ -80,8 +80,8 @@ func TestCoreNativeTransformUsesValidateLogStringifier(t *testing.T) {
 		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
 		"transform",
 		"--cwd", filepath.Join(root, "tests/test-sdk"),
-		"--tsconfig", "features/route-manual-validate-log-encrypted/tsconfig.json",
-		"--file", "features/route-manual-validate-log-encrypted/src/controllers/BbsArticleController.ts",
+		"--tsconfig", "features/body/tsconfig.json",
+		"--file", "features/body/src/controllers/TypedBodyController.ts",
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"validate.log"}}]`,
 	)
 	out, err := cmd.CombinedOutput()
@@ -90,7 +90,7 @@ func TestCoreNativeTransformUsesValidateLogStringifier(t *testing.T) {
 	}
 	text := string(out)
 	for _, expected := range []string{
-		`@TypedRoute.Get(":id", ({`,
+		`@core.TypedRoute.Post(({`,
 		`type: "validate.log"`,
 		`validate: (() =>`,
 	} {

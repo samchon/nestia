@@ -100,9 +100,8 @@ func TestSDKNativeBuildInjectsOperationMetadata(t *testing.T) {
 		`__OperationMetadata.OperationMetadata(`,
 		`core_1.default.TypedRoute.Put(":id", ({`,
 		`core_1.default.TypedBody(({`,
-		`name: "IBbsArticle.IUpdate"`,
-		`elements: [`,
-		`"IBbsArticle"`,
+		`"name":"IBbsArticle.IUpdate"`,
+		`"elements":["IBbsArticle"]`,
 	} {
 		if !strings.Contains(text, expected) {
 			t.Fatalf("emitted JavaScript is missing %q\n%s", expected, text)
@@ -165,13 +164,13 @@ func TestSDKNativeBuildInjectsTypedExceptionMetadata(t *testing.T) {
 	}
 	text := string(js)
 	for _, expected := range []string{
-		`exceptions: [`,
-		`name: "TypeGuardError"`,
-		`name: "INotFound"`,
-		`name: "IUnprocessibleEntity"`,
-		`name: "IInternalServerError"`,
-		`name: "throws"`,
-		`text: "400 invalid request"`,
+		`"exceptions":[`,
+		`"name":"TypeGuardError"`,
+		`"name":"INotFound"`,
+		`"name":"IUnprocessibleEntity"`,
+		`"name":"IInternalServerError"`,
+		`"name":"throws"`,
+		`"text":"400 invalid request"`,
 	} {
 		if !strings.Contains(text, expected) {
 			t.Fatalf("emitted JavaScript is missing %q\n%s", expected, text)
@@ -232,7 +231,7 @@ func TestSDKNativeBuildKeepsImportsArrayForInferredReturn(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := string(js)
-	expected := "success: {\n        type: {\n            name: \"__type\"\n        },\n        imports: [],"
+	expected := `"success":{"imports":[]`
 	if !strings.Contains(text, expected) {
 		t.Fatalf("inferred return metadata is missing imports array\n%s", text)
 	}
@@ -255,7 +254,7 @@ func TestSDKNativeTransformKeepsEmptyJSDocTagsUndefined(t *testing.T) {
 		t.Fatalf("native transform failed: %v\n%s", err, out)
 	}
 	text := string(out)
-	expected := "jsDocTags: [\n    {\n        name: \"security\"\n    },\n    {\n        name: \"security\",\n        text: ["
+	expected := `"jsDocTags":[{"name":"security"},{"name":"security","text":[`
 	if !strings.Contains(text, expected) {
 		t.Fatalf("empty JSDoc tag should omit text so Swagger can emit optional security\n%s", text)
 	}

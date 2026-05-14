@@ -12,7 +12,7 @@ async function main(): Promise<void> {
     prefix: "test",
     parameters: () => [
       {
-        host: "http://127.0.0.1:37000",
+        host: `http://127.0.0.1:${process.env.TEST_SDK_PORT ?? 37_000}`,
         simulate: true,
       },
     ],

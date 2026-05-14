@@ -2,15 +2,21 @@ const cp = require("child_process");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const ts = require("typescript");
 
 const ROOT = path.join(__dirname, "../..");
 const TTSC_CACHE_DIR = path.resolve(
   ROOT,
   process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
 );
-const NPX = process.platform === "win32" ? "npx.cmd" : "npx";
+const NODE = process.execPath;
 const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const PROJECT_CONFIG = "tsconfig.project.json";
+const CLI_BOOT = path.join(ROOT, "packages/cli/src/boot.js");
+const CLI_BIN = path.join(ROOT, "packages/cli/bin/index.js");
+const TSC_BIN = packageBin("typescript", "tsc");
+const TTSX_BIN = packageBin("ttsc", "ttsx");
+const BASE_PORT = 37_000;
 
 process.env.TTSC_CACHE_DIR = TTSC_CACHE_DIR;
 process.env.NODE_OPTIONS = [
@@ -19,10 +25,27 @@ process.env.NODE_OPTIONS = [
 ]
   .filter(Boolean)
   .join(" ");
+process.env.NODE_PATH = [
+  path.join(ROOT, "node_modules"),
+  path.join(ROOT, "node_modules", ".pnpm", "node_modules"),
+  process.env.NODE_PATH ?? "",
+]
+  .filter(Boolean)
+  .join(path.delimiter);
 delete process.env.npm_config_dir;
 delete process.env.npm_config_verify_deps_before_run;
 
 const featureDirectory = (name = "") => path.join(__dirname, "features", name);
+const TYPESCRIPT_ERROR_FEATURES = new Set([
+  "body-error-get",
+  "body-error-implicit",
+  "headers-error-array",
+  "method-error-head-non-void",
+  "route-invalid-path-error",
+  "security-error-not-found",
+  "security-error-not-oauth2",
+  "security-error-out-of-scopes",
+]);
 
 const run = (file, args, options) =>
   new Promise((resolve, reject) => {
@@ -51,38 +74,55 @@ const run = (file, args, options) =>
     });
   });
 
-const runNpx = (cwd, args, stdio = "ignore", env = undefined) =>
-  run(NPX, args, { cwd, env, stdio });
+function packageBin(name, key) {
+  const directory = path.dirname(
+    require.resolve(`${name}/package.json`, { paths: [ROOT] }),
+  );
+  const pack = JSON.parse(
+    fs.readFileSync(path.join(directory, "package.json"), "utf8"),
+  );
+  const location = typeof pack.bin === "string" ? pack.bin : pack.bin?.[key];
+  if (location === undefined)
+    throw new Error(`Unable to find "${key}" binary from ${name}.`);
+  return path.join(directory, location);
+}
 
-const feature = async (name) => {
+const runNode = (cwd, script, args, stdio = "ignore", env = undefined) =>
+  run(NODE, [script, ...args], { cwd, env, stdio });
+
+const runNestia = (cwd, args, stdio = "ignore") =>
+  runNode(cwd, fs.existsSync(CLI_BIN) ? CLI_BIN : CLI_BOOT, args, stdio);
+
+const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TSC_BIN, [], stdio);
+
+const feature = async (name, port) => {
   const cwd = featureDirectory(name);
   const configFile =
     name === "cli-config" || name === "cli-config-project"
       ? "nestia.configuration.ts"
       : "nestia.config.ts";
   const generate = async (type, mustBeError = false) => {
-    const args = ["nestia", type, ...generationTail(name)];
-    if (mustBeError) return runNpx(cwd, args);
+    const args = [type, ...generationTail(name)];
+    if (mustBeError) return runNestia(cwd, args);
     try {
-      await runNpx(cwd, args);
+      await runNestia(cwd, args);
     } catch {
-      await runNpx(cwd, args, "inherit");
+      await runNestia(cwd, args, "inherit");
     }
   };
 
   if (name.includes("error")) {
     try {
-      await runNpx(cwd, ["tsc"]);
+      if (TYPESCRIPT_ERROR_FEATURES.has(name)) await runTsc(cwd);
       await generate("all", true);
-      if (hasTtsxTestFiles(cwd)) await runTtsxTest(cwd);
+      if (hasTtsxTestFiles(cwd)) await runTtsxTest(cwd, "ignore", port);
     } catch {
       return;
     }
     throw new Error("compile error must be occurred.");
   }
 
-  await runNpx(cwd, [
-    "rimraf",
+  await removePaths(cwd, [
     "swagger.json",
     "src/api/functional",
     "src/api/HttpError.ts",
@@ -108,17 +148,28 @@ const feature = async (name) => {
   else if (hasTtsxTestFiles(cwd)) {
     for (let i = 0; i < 3; ++i)
       try {
-        await runTtsxTest(cwd);
+        await runTtsxTest(cwd, "ignore", port);
         return;
       } catch {}
-    await runTtsxTest(cwd, "inherit");
+    await runTtsxTest(cwd, "inherit", port);
   } else {
     try {
-      await runNpx(cwd, ["tsc"]);
+      await runTsc(cwd);
     } catch {
-      await runNpx(cwd, ["tsc"], "inherit");
+      await runTsc(cwd, "inherit");
     }
   }
+};
+
+const removePaths = async (cwd, locations) => {
+  await Promise.all(
+    locations.map((location) =>
+      fs.promises.rm(path.join(cwd, location), {
+        force: true,
+        recursive: true,
+      }),
+    ),
+  );
 };
 
 const generationTail = (name) =>
@@ -144,7 +195,7 @@ const hasTtsxTestFiles = (cwd) => {
   return iterate(path.join(cwd, "src/test/features"));
 };
 
-const runTtsxTest = async (cwd, stdio = "ignore") => {
+const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
   const project = ".ttsx.tsconfig.json";
   const projectFile = path.join(cwd, project);
   fs.writeFileSync(
@@ -157,18 +208,7 @@ const runTtsxTest = async (cwd, stdio = "ignore") => {
           noUnusedLocals: false,
           noUnusedParameters: false,
           outDir: ".",
-          plugins: [
-            {
-              transform: "typia/lib/transform",
-              enabled: false,
-            },
-            {
-              transform: "@nestia/sdk/lib/transform",
-            },
-            {
-              transform: "@nestia/core/native/transform.cjs",
-            },
-          ],
+          plugins: runtimePlugins(cwd),
           rootDir: ".",
         },
       },
@@ -184,10 +224,10 @@ const runTtsxTest = async (cwd, stdio = "ignore") => {
     ]
       .filter(Boolean)
       .join(" ");
-    await runNpx(
+    await runNode(
       cwd,
+      TTSX_BIN,
       [
-        "ttsx",
         "--cache-dir",
         TTSC_CACHE_DIR,
         "-P",
@@ -199,12 +239,58 @@ const runTtsxTest = async (cwd, stdio = "ignore") => {
       stdio,
       {
         NODE_OPTIONS: nodeOptions,
+        TEST_SDK_PORT: String(port),
       },
     );
   } finally {
     fs.rmSync(projectFile, { force: true });
   }
 };
+
+const runtimePlugins = (cwd) => {
+  const core = readProjectPlugins(cwd).find((plugin) =>
+    isTransform(plugin, "@nestia/core"),
+  );
+  return [
+    {
+      transform: "typia/lib/transform",
+      enabled: false,
+    },
+    {
+      transform: "@nestia/sdk/lib/transform",
+    },
+    normalizePlugin({
+      ...(core ?? {}),
+      transform: "@nestia/core/native/transform.cjs",
+    }),
+  ];
+};
+
+const readProjectPlugins = (cwd) => {
+  const projectFile = path.join(cwd, "tsconfig.json");
+  const loaded = ts.readConfigFile(projectFile, ts.sys.readFile);
+  if (loaded.error !== undefined || loaded.config === undefined) return [];
+  const parsed = ts.parseJsonConfigFileContent(
+    loaded.config,
+    ts.sys,
+    path.dirname(projectFile),
+  );
+  const plugins = parsed.options?.plugins;
+  return Array.isArray(plugins)
+    ? plugins
+        .filter((plugin) => typeof plugin === "object" && plugin !== null)
+        .map((plugin) => ({ ...plugin }))
+    : [];
+};
+
+const normalizePlugin = (plugin) => {
+  const output = { ...plugin };
+  if (output.enabled === false) delete output.enabled;
+  return output;
+};
+
+const isTransform = (plugin, name) =>
+  typeof plugin.transform === "string" && plugin.transform.includes(name);
 
 const argumentValue = (name) => {
   const index = process.argv.findIndex((str) => str === name);
@@ -223,10 +309,11 @@ const featureFilter = () => {
 
 const concurrency = (count) => {
   const fallback = Math.min(
-    4,
+    8,
     Math.max(1, os.availableParallelism?.() ?? os.cpus().length ?? 1),
   );
-  const raw = argumentValue("--concurrency") ?? process.env.TEST_SDK_CONCURRENCY;
+  const raw =
+    argumentValue("--concurrency") ?? process.env.TEST_SDK_CONCURRENCY;
   const value = raw === undefined ? fallback : Number(raw);
   return Math.min(
     count,
@@ -253,7 +340,7 @@ const runFeatures = async (names) => {
       const index = cursor++;
       const name = names[index];
       try {
-        await measure(`  - ${name}`)(() => feature(name));
+        await measure(`  - ${name}`)(() => feature(name, BASE_PORT + index));
       } catch (error) {
         failures.push({ name, error });
         console.error(`  - ${name}: failed`);
@@ -279,6 +366,8 @@ const main = async () => {
         "@nestia/factory",
         "--filter",
         "@nestia/fetcher",
+        "--filter",
+        "nestia",
         "--filter",
         "@nestia/core",
         "--filter",

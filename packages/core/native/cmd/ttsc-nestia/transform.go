@@ -204,7 +204,7 @@ func collectTypiaSourceRewrites(
 	onlyFile string,
 	pluginOptions typiaadapter.PluginOptions,
 ) ([]transformSourceRewrite, []typiaTransformDiagnostic) {
-	sites := typiaadapter.CollectCallSites(prog.SourceFiles(), prog.Checker)
+	sites := collectNestiaTypiaCallSites(prog.SourceFiles(), prog.Checker)
 	rewrites := []transformSourceRewrite{}
 	diagnostics := []typiaTransformDiagnostic{}
 	for _, site := range sites {
@@ -240,7 +240,7 @@ func collectTypiaSourceRewriteMap(
 	prog *driver.Program,
 	pluginOptions typiaadapter.PluginOptions,
 ) (map[string][]transformSourceRewrite, []typiaTransformDiagnostic) {
-	sites := typiaadapter.CollectCallSites(prog.SourceFiles(), prog.Checker)
+	sites := collectNestiaTypiaCallSites(prog.SourceFiles(), prog.Checker)
 	rewrites := map[string][]transformSourceRewrite{}
 	diagnostics := []typiaTransformDiagnostic{}
 	for _, site := range sites {
@@ -295,7 +295,7 @@ func sourceFileText(target any) (string, bool) {
 }
 
 func cleanupTypeScriptTransformText(text string) string {
-	text = typiaadapter.CleanupTransformedText(text)
+	text = cleanupTransformedText(text)
 	text = normalizeParenthesizedTypeAnnotations(text)
 	text = regexp.MustCompile(`(?m)^import type \{([^{}\n]+)\} from`).ReplaceAllStringFunc(text, func(line string) string {
 		return regexp.MustCompile(`^import type \{\s*([^{}\n]+?)\s*\} from`).ReplaceAllString(line, "import type { $1 } from")

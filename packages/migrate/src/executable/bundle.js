@@ -66,6 +66,14 @@ const updateTsConfig = (content, options = {}) => {
     );
   if (options.useNestiaAggregate)
     content = content.replace(
+      /\{\s*"transform":\s*"@nestia\/core\/lib\/transform"\s*\}/g,
+      `{ "transform": "@nestia/core/native/transform.cjs" }`,
+    );
+  if (
+    options.useNestiaAggregate &&
+    content.includes(`"@nestia/core/native/transform.cjs"`) === false
+  )
+    content = content.replace(
       /\{\s*"transform":\s*"typia\/lib\/transform",\s*"enabled":\s*false\s*\},/g,
       `{ "transform": "typia/lib/transform", "enabled": false },\n      { "transform": "@nestia/core/native/transform.cjs" },`,
     );
@@ -163,7 +171,10 @@ const main = async () => {
     transform: (key, value) => {
       if (key.endsWith("package.json")) return update(value);
       if (key.endsWith("tsconfig.json"))
-        return updateTsConfig(value, { disableTypia: key === "tsconfig.json" });
+        return updateTsConfig(value, {
+          disableTypia: key === "tsconfig.json",
+          useNestiaAggregate: key === "tsconfig.json",
+        });
       return value;
     },
   });

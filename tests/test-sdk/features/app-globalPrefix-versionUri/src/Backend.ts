@@ -19,7 +19,7 @@ export class Backend {
     });
 
   public async open(): Promise<void> {
-    return (await this.application.get()).listen(37_000);
+    return (await this.application.get()).listen(Number(process.env.TEST_SDK_PORT ?? 37_000));
   }
 
   public async close(): Promise<void> {

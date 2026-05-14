@@ -1,13 +1,11 @@
 #!/usr/bin/env node
 require("ts-node").register({
+  skipProject: true,
+  transpileOnly: true,
   compilerOptions: {
     module: "commonjs",
-    moduleResolution: "nodenext",
-    plugins: [
-      { transform: "typia/lib/transform" },
-      { transform: "@nestia/core/lib/transform" },
-      { transform: "@nestia/sdk/lib/transform" },
-    ],
+    moduleResolution: "node",
+    ignoreDeprecations: "6.0",
     experimentalDecorators: true,
     emitDecoratorMetadata: true,
     esModuleInterop: true,
