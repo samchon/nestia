@@ -1,4 +1,4 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
 import {
   ExpressionFactory,
   IdentifierFactory,
@@ -6,7 +6,6 @@ import {
   StatementFactory,
   TypeFactory,
 } from "@typia/core";
-import ts from "typescript";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -19,7 +18,7 @@ export namespace SdkHttpSimulationProgrammer {
   export const random =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.VariableStatement => {
+    (route: ITypedHttpRoute): Node => {
       const output = SdkAliasCollection.responseBody(project)(importer)(route);
       return constant("random")(
         TypeScriptFactory.createArrowFunction(
@@ -50,7 +49,7 @@ export namespace SdkHttpSimulationProgrammer {
   export const simulate =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.VariableStatement => {
+    (route: ITypedHttpRoute): Node => {
       const output: boolean =
         project.config.propagate === true ||
         route.success.metadata.size() !== 0;
@@ -137,7 +136,7 @@ export namespace SdkHttpSimulationProgrammer {
   const assert =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.Statement[] => {
+    (route: ITypedHttpRoute): Node[] => {
       const parameters = SdkHttpParameterProgrammer.getSignificant(route, true);
       if (parameters.length === 0) return [];
 
@@ -192,7 +191,7 @@ export namespace SdkHttpSimulationProgrammer {
           ],
         ),
       });
-      const individual: ts.Statement[] = parameters
+      const individual: Node[] = parameters
         .map((p) =>
           TypeScriptFactory.createCallExpression(
             (() => {
@@ -229,7 +228,7 @@ export namespace SdkHttpSimulationProgrammer {
             ],
           ),
         )
-        .map(TypeScriptFactory.createExpressionStatement) as ts.Statement[];
+        .map(TypeScriptFactory.createExpressionStatement) as Node[];
       return [
         validator,
         ...(project.config.propagate !== true
@@ -239,7 +238,7 @@ export namespace SdkHttpSimulationProgrammer {
     };
 
   const tryAndCatch =
-    (importer: ImportDictionary) => (individual: ts.Statement[]) =>
+    (importer: ImportDictionary) => (individual: Node[]) =>
       TypeScriptFactory.createTryStatement(
         TypeScriptFactory.createBlock(individual, true),
         TypeScriptFactory.createCatchClause(
@@ -303,9 +302,9 @@ export namespace SdkHttpSimulationProgrammer {
       );
 }
 
-const constant = (name: string) => (expression: ts.Expression) =>
+const constant = (name: string) => (expression: Node) =>
   TypeScriptFactory.createVariableStatement(
-    [TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword)],
+    [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
     TypeScriptFactory.createVariableDeclarationList(
       [
         TypeScriptFactory.createVariableDeclaration(
@@ -315,6 +314,6 @@ const constant = (name: string) => (expression: ts.Expression) =>
           expression,
         ),
       ],
-      ts.NodeFlags.Const,
+      NodeFlags.Const,
     ),
   );

@@ -7,7 +7,7 @@ import { IReflectHttpOperation } from "../structures/IReflectHttpOperation";
 import { IReflectHttpOperationParameter } from "../structures/IReflectHttpOperationParameter";
 import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperationSuccess";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
-import { IOperationMetadata } from "../transformers/IOperationMetadata";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";

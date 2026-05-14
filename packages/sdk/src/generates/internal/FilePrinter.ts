@@ -1,31 +1,38 @@
-import { TypeScriptFactory, TypeScriptPrinter } from "@nestia/factory";
+import {
+  Node,
+  SyntaxKind,
+  TypeScriptFactory,
+  TypeScriptPrinter,
+} from "@nestia/factory";
 import fs from "fs";
 import { format } from "prettier";
-import ts from "typescript";
 
 export namespace FilePrinter {
-  export const description = <Node extends ts.Node>(
-    node: Node,
+  export const description = <T extends Node>(
+    node: T,
     comment: string,
-  ): Node => {
+  ): T => {
     if (comment.length === 0) return node;
-    ts.addSyntheticLeadingComment(
-      node,
-      ts.SyntaxKind.MultiLineCommentTrivia,
-      [
-        "*",
-        ...comment
-          .split("\r\n")
-          .join("\n")
-          .split("\n")
-          .map(
-            (str) =>
-              ` * ${str.split("*/").join("*\\\\/").split("*\\/").join("*\\\\/")}`,
-          ),
-        "",
-      ].join("\n"),
-      true,
-    );
+    node.emitNode ??= {};
+    node.emitNode.leadingComments = [
+      ...(node.emitNode.leadingComments ?? []),
+      {
+        kind: SyntaxKind.MultiLineCommentTrivia,
+        text: [
+          "*",
+          ...comment
+            .split("\r\n")
+            .join("\n")
+            .split("\n")
+            .map(
+              (str) =>
+                ` * ${str.split("*/").join("*\\\\/").split("*\\/").join("*\\\\/")}`,
+            ),
+          "",
+        ].join("\n"),
+        hasTrailingNewLine: true,
+      },
+    ];
     return node;
   };
 
@@ -36,15 +43,12 @@ export namespace FilePrinter {
 
   export const write = async (props: {
     location: string;
-    statements: ts.Statement[];
+    statements: Node[];
     top?: string;
   }): Promise<void> => {
     const script: string = TypeScriptPrinter.write({
       statements: props.statements,
       top: props.top,
-      printerOptions: {
-        newLine: ts.NewLineKind.LineFeed,
-      },
     });
     await fs.promises.writeFile(props.location, await beautify(script), "utf8");
   };

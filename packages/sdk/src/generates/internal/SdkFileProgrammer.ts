@@ -1,6 +1,5 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { Node, TypeScriptFactory } from "@nestia/factory";
 import fs from "fs";
-import ts from "typescript";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedApplication } from "../../structures/ITypedApplication";
@@ -55,7 +54,7 @@ export namespace SdkFileProgrammer {
       } catch {}
 
       // ITERATE CHILDREN
-      const statements: ts.Statement[] = [];
+      const statements: Node[] = [];
       for (const [key, value] of directory.children) {
         await iterate(project)(value)(`${outDir}/${key}`);
         statements.push(

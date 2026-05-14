@@ -1,5 +1,3 @@
-import ts from "typescript";
-
 import { INestiaConfig } from "../../INestiaConfig";
 import { NestiaSdkApplication } from "../../NestiaSdkApplication";
 import { NestiaConfigLoader } from "./NestiaConfigLoader";
@@ -60,7 +58,7 @@ export namespace NestiaSdkCommand {
         extension: "json",
       }) ?? "tsconfig.json";
     process.env.NESTIA_PROJECT = project;
-    const command: ts.ParsedCommandLine =
+    const command: NestiaConfigLoader.ICompilerOptions =
       await NestiaConfigLoader.compilerOptions(project);
 
     const configurations: INestiaConfig[] =
@@ -69,7 +67,7 @@ export namespace NestiaSdkCommand {
           type: "config",
           extension: "ts",
         }) ?? "nestia.config.ts",
-        command.raw.compilerOptions,
+        command.raw.compilerOptions ?? {},
       );
 
     // GENERATE

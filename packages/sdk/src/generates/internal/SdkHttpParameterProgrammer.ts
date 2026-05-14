@@ -1,5 +1,4 @@
-import { TypeScriptFactory } from "@nestia/factory";
-import ts from "typescript";
+import { Node, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -11,7 +10,7 @@ export namespace SdkHttpParameterProgrammer {
   export interface IEntry {
     key: string;
     required: boolean;
-    type: ts.TypeNode;
+    type: Node;
     parameter: ITypedHttpRouteParameter;
   }
 
@@ -111,14 +110,14 @@ export namespace SdkHttpParameterProgrammer {
     route: ITypedHttpRoute;
     body: boolean;
     prefix: boolean;
-  }): ts.ParameterDeclaration[] => {
+  }): Node[] => {
     const entries: IEntry[] = getEntries(props);
     if (entries.length === 0) return [];
     else if (props.project.config.keyword === true) {
       const typeName: string = props.prefix
         ? `${props.route.name}.Props`
         : "Props";
-      const node: ts.TypeReferenceNode =
+      const node: Node =
         props.body === false && props.route.body !== null
           ? TypeScriptFactory.createTypeReferenceNode("Omit", [
               TypeScriptFactory.createTypeReferenceNode(typeName),
@@ -145,7 +144,7 @@ export namespace SdkHttpParameterProgrammer {
         e.key,
         e.required
           ? undefined
-          : TypeScriptFactory.createToken(ts.SyntaxKind.QuestionToken),
+          : TypeScriptFactory.createToken(SyntaxKind.QuestionToken),
         e.type,
         undefined,
       ),
@@ -156,7 +155,7 @@ export namespace SdkHttpParameterProgrammer {
     project: INestiaProject;
     route: ITypedHttpRoute;
     body: boolean;
-  }): ts.Expression[] => {
+  }): Node[] => {
     const parameters = getSignificant(props.route, props.body);
     if (parameters.length === 0) return [];
     else if (props.project.config.keyword === true)
@@ -169,7 +168,7 @@ export namespace SdkHttpParameterProgrammer {
     importer: ImportDictionary;
     route: ITypedHttpRoute;
     body: boolean;
-  }): ts.Expression[] => {
+  }): Node[] => {
     const prefix: string =
       props.project.config.keyword === true ? "props." : "";
     return getSignificant(props.route, props.body).map((p) =>

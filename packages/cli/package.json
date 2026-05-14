@@ -38,18 +38,13 @@
   },
   "homepage": "https://nestia.io",
   "dependencies": {
-    "commander": "^10.0.0",
-    "comment-json": "^4.2.3",
-    "inquirer": "^8.2.5",
-    "package-manager-detector": "^0.2.0"
+    "commander": "^10.0.0"
   },
   "devDependencies": {
     "@nestia/core": "workspace:^",
     "@nestia/sdk": "workspace:^",
-    "@types/inquirer": "^9.0.3",
     "@types/node": "catalog:utils",
     "rimraf": "catalog:utils",
-    "ts-node": "catalog:typescript",
     "typescript": "catalog:typescript"
   },
   "files": [

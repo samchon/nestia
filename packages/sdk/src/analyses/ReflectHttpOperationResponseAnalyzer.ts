@@ -9,8 +9,8 @@ import { HttpQueryProgrammer, JsonMetadataFactory } from "@typia/core";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperationSuccess";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
-import { IOperationMetadata } from "../transformers/IOperationMetadata";
-import { TextPlainValidator } from "../transformers/TextPlainValidator";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
+import { TextPlainValidator } from "../validators/TextPlainValidator";
 
 export namespace ReflectHttpOperationResponseAnalyzer {
   export interface IContext {

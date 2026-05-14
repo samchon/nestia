@@ -5,8 +5,8 @@
   "description": "Benchmark Nestia",
   "main": "lib/index.js",
   "scripts": {
-    "build": "rimraf bin && tsc",
-    "generate": "ts-node src/generate && npm run prettier && npm run build",
+    "build": "rimraf bin && ttsc",
+    "generate": "ttsx -P tsconfig.json src/generate/index.ts && npm run prettier && npm run build",
     "prettier": "prettier ./src/**/*.ts --write",
     "start": "npm run build && node bin"
   },
@@ -50,7 +50,7 @@
     "@types/node": "catalog:utils",
     "@types/physical-cpu-count": "^2.0.0",
     "rimraf": "catalog:utils",
-    "ts-node": "catalog:typescript",
+    "ttsc": "catalog:typescript",
     "typescript": "catalog:typescript"
   }
 }

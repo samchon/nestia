@@ -5,8 +5,8 @@ import {
 } from "@typia/interface";
 import { IJsDocTagInfo } from "typia";
 
-import { IReflectImport } from "../structures/IReflectImport";
-import { IReflectType } from "../structures/IReflectType";
+import { IReflectImport } from "./IReflectImport";
+import { IReflectType } from "./IReflectType";
 
 export interface IOperationMetadata {
   parameters: IOperationMetadata.IParameter[];

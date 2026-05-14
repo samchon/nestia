@@ -12,8 +12,8 @@ import {
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationParameter } from "../structures/IReflectHttpOperationParameter";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
-import { IOperationMetadata } from "../transformers/IOperationMetadata";
-import { TextPlainValidator } from "../transformers/TextPlainValidator";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
+import { TextPlainValidator } from "../validators/TextPlainValidator";
 import { HttpHeadersValidator } from "../validators/HttpHeadersValidator";
 import { HttpQueryValidator } from "../validators/HttpQueryValidator";
 

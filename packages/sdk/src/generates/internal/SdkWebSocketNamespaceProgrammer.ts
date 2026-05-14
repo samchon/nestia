@@ -1,6 +1,5 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
 import { ExpressionFactory, IdentifierFactory, TypeFactory } from "@typia/core";
-import ts from "typescript";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
@@ -13,27 +12,27 @@ export namespace SdkWebSocketNamespaceProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedWebSocketRoute): ts.ModuleDeclaration =>
+    (route: ITypedWebSocketRoute): Node =>
       TypeScriptFactory.createModuleDeclaration(
-        [TypeScriptFactory.createToken(ts.SyntaxKind.ExportKeyword)],
+        [TypeScriptFactory.createToken(SyntaxKind.ExportKeyword)],
         TypeScriptFactory.createIdentifier(route.name),
         TypeScriptFactory.createModuleBlock([
           ...writeTypes(project)(importer)(route),
           FilePrinter.enter(),
           writePath(project)(route),
         ]),
-        ts.NodeFlags.Namespace,
+        NodeFlags.Namespace,
       );
 
   const writeTypes =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedWebSocketRoute): ts.TypeAliasDeclaration[] => {
-      const output: ts.TypeAliasDeclaration[] = [];
-      const declare = (name: string, type: ts.TypeNode) =>
+    (route: ITypedWebSocketRoute): Node[] => {
+      const output: Node[] = [];
+      const declare = (name: string, type: Node) =>
         output.push(
           TypeScriptFactory.createTypeAliasDeclaration(
-            [TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword)],
+            [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
             name,
             undefined,
             type,
@@ -88,7 +87,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
                 TypeScriptFactory.createIdentifier("Promise"),
                 [
                   TypeScriptFactory.createKeywordTypeNode(
-                    ts.SyntaxKind.VoidKeyword,
+                    SyntaxKind.VoidKeyword,
                   ),
                 ],
               ),
@@ -123,8 +122,8 @@ export namespace SdkWebSocketNamespaceProgrammer {
 
   const writePath =
     (project: INestiaProject) =>
-    (route: ITypedWebSocketRoute): ts.VariableStatement => {
-      const out = (body: ts.ConciseBody) =>
+    (route: ITypedWebSocketRoute): Node => {
+      const out = (body: Node) =>
         constant("path")(
           TypeScriptFactory.createArrowFunction(
             [],
@@ -171,7 +170,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
                             .name,
                         ),
                         TypeScriptFactory.createToken(
-                          ts.SyntaxKind.QuestionDotToken,
+                          SyntaxKind.QuestionDotToken,
                         ),
                         "toString",
                       ),
@@ -180,7 +179,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
                       [],
                     ),
                     TypeScriptFactory.createToken(
-                      ts.SyntaxKind.QuestionQuestionToken,
+                      SyntaxKind.QuestionQuestionToken,
                     ),
                     TypeScriptFactory.createStringLiteral("null"),
                   ),
@@ -197,7 +196,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
       };
       if (route.query === null) return out(template());
 
-      const block = (expr: ts.Expression) => {
+      const block = (expr: Node) => {
         const computeName = (str: string): string =>
           [...route.pathParameters, ...(route.query ? [route.query] : [])].find(
             (p) => p.name === str,
@@ -238,7 +237,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
                     undefined,
                   ),
                 ],
-                ts.NodeFlags.Const,
+                NodeFlags.Const,
               ),
               TypeScriptFactory.createCallExpression(
                 TypeScriptFactory.createIdentifier("Object.entries"),
@@ -358,7 +357,7 @@ export namespace SdkWebSocketNamespaceProgrammer {
     };
 }
 
-const local = (name: string) => (type: string) => (expression: ts.Expression) =>
+const local = (name: string) => (type: string) => (expression: Node) =>
   TypeScriptFactory.createVariableStatement(
     [],
     TypeScriptFactory.createVariableDeclarationList(
@@ -370,12 +369,12 @@ const local = (name: string) => (type: string) => (expression: ts.Expression) =>
           expression,
         ),
       ],
-      ts.NodeFlags.Const,
+      NodeFlags.Const,
     ),
   );
-const constant = (name: string) => (expression: ts.Expression) =>
+const constant = (name: string) => (expression: Node) =>
   TypeScriptFactory.createVariableStatement(
-    [TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword)],
+    [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
     TypeScriptFactory.createVariableDeclarationList(
       [
         TypeScriptFactory.createVariableDeclaration(
@@ -385,6 +384,6 @@ const constant = (name: string) => (expression: ts.Expression) =>
           expression,
         ),
       ],
-      ts.NodeFlags.Const,
+      NodeFlags.Const,
     ),
   );

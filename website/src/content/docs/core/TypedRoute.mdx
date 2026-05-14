@@ -553,7 +553,7 @@ For reference, such encryption spec is not supported in the [Swagger-UI](/docs/s
     "plugins": [
       { "transform": "typia/lib/transform" },
       {
-        "transform": "@nestia/core/lib/transform",
+        "transform": "@nestia/core/native/transform.cjs",
         "stringify": "assert",
         "llm": { "strict": true }
       }
@@ -625,4 +625,3 @@ I'll show you the benchmark result that, how JSON serizliation speed affects on 
 ![Server Benchmark](https://raw.githubusercontent.com/samchon/nestia/master/benchmark/results/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics/images/stringify.svg)
 
 > Measured on [AMD R9-7940HS, Rog Flow X13](https://github.com/samchon/nestia/tree/master/benchmark/results/AMD%20Ryzen%209%207940HS%20w%20Radeon%20780M%20Graphics#stringify)
-

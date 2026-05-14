@@ -4,7 +4,7 @@ import { JsonMetadataFactory } from "@typia/core";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationException } from "../structures/IReflectHttpOperationException";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
-import { IOperationMetadata } from "../transformers/IOperationMetadata";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
 
 export namespace ReflectHttpOperationExceptionAnalyzer {
   export interface IContext {

@@ -1,11 +1,10 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { Node, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
 import {
   MetadataAliasType,
   MetadataAtomic,
   MetadataObjectType,
 } from "@typia/core";
 import { IPointer } from "tstl";
-import ts from "typescript";
 import { IJsDocTagInfo } from "typia";
 
 import { INestiaProject } from "../../structures/INestiaProject";
@@ -22,7 +21,7 @@ export namespace SdkHttpCloneProgrammer {
     children: Map<string, IModule>;
     programmer:
       | null
-      | ((importer: ImportDictionary) => ts.TypeAliasDeclaration);
+      | ((importer: ImportDictionary) => Node);
   }
 
   export const write = (app: ITypedApplication): Map<string, IModule> => {
@@ -48,7 +47,7 @@ export namespace SdkHttpCloneProgrammer {
   const prepare = (props: {
     dict: Map<string, IModule>;
     name: string;
-    programmer: (importer: ImportDictionary) => ts.TypeAliasDeclaration;
+    programmer: (importer: ImportDictionary) => Node;
   }) => {
     let next: Map<string, IModule> = props.dict;
     const accessors: string[] = props.name.split(".");
@@ -70,10 +69,10 @@ export namespace SdkHttpCloneProgrammer {
   const writeAlias =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (alias: MetadataAliasType): ts.TypeAliasDeclaration =>
+    (alias: MetadataAliasType): Node =>
       FilePrinter.description(
         TypeScriptFactory.createTypeAliasDeclaration(
-          [TypeScriptFactory.createToken(ts.SyntaxKind.ExportKeyword)],
+          [TypeScriptFactory.createToken(SyntaxKind.ExportKeyword)],
           alias.name.split(".").at(-1)!,
           [],
           SdkTypeProgrammer.write(project)(importer)(alias.value),
@@ -84,10 +83,10 @@ export namespace SdkHttpCloneProgrammer {
   const writeObject =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (object: MetadataObjectType): ts.TypeAliasDeclaration => {
+    (object: MetadataObjectType): Node => {
       return FilePrinter.description(
         TypeScriptFactory.createTypeAliasDeclaration(
-          [TypeScriptFactory.createToken(ts.SyntaxKind.ExportKeyword)],
+          [TypeScriptFactory.createToken(SyntaxKind.ExportKeyword)],
           object.name.split(".").at(-1)!,
           [],
           SdkTypeProgrammer.write_object(project)(importer)(object),

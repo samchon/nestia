@@ -19,7 +19,7 @@ import { IReflectOperationError } from "./structures/IReflectOperationError";
 import { ITypedApplication } from "./structures/ITypedApplication";
 import { ITypedHttpRoute } from "./structures/ITypedHttpRoute";
 import { ITypedWebSocketRoute } from "./structures/ITypedWebSocketRoute";
-import { IOperationMetadata } from "./transformers/IOperationMetadata";
+import { IOperationMetadata } from "./structures/IOperationMetadata";
 import { StringUtil } from "./utils/StringUtil";
 import { VersioningStrategy } from "./utils/VersioningStrategy";
 
@@ -135,7 +135,6 @@ export class NestiaSdkApplication {
     const project: INestiaProject = {
       config: this.config,
       input: await ConfigAnalyzer.input(this.config),
-      checker: null!,
       errors: [],
       warnings: [],
     };

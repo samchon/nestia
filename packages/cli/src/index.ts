@@ -5,13 +5,12 @@ npx nestia [command] [options?]
 
   1. npx nestia start <directory>
   2. npx nestia template <directory>
-  3. npx nestia setup
-  4. npx nestia dependencies
-  5. npx nestia init
-  6. npx nestia sdk
-  7. npx nestia swagger
-  9. npx nestia e2e
-  10. npx nestia all
+  3. npx nestia dependencies
+  4. npx nestia init
+  5. npx nestia sdk
+  6. npx nestia swagger
+  7. npx nestia e2e
+  8. npx nestia all
 `;
 
 function halt(desc: string): never {
@@ -31,15 +30,6 @@ async function main(): Promise<void> {
     await (
       await import("./NestiaTemplate.js")
     ).NestiaTemplate.clone((msg) => halt(msg ?? USAGE))(argv);
-  } else if (type === "setup") {
-    try {
-      await import("comment-json");
-      await import("inquirer");
-      await import("commander");
-    } catch {
-      halt(`nestia has not been installed. Run "npm i -D nestia" before.`);
-    }
-    await (await import("./NestiaSetupWizard.js")).NestiaSetupWizard.setup();
   } else if (
     type === "dependencies" ||
     type === "init" ||
@@ -53,7 +43,7 @@ async function main(): Promise<void> {
       require.resolve(location);
     } catch {
       halt(
-        `@nestia/sdk has not been installed. Run "npx nestia setup" before.`,
+        `@nestia/sdk has not been installed. Install "@nestia/sdk" before running this command.`,
       );
     }
     await import(location);

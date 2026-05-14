@@ -7,7 +7,6 @@ import fs from "fs";
 import getFunctionLocation from "get-function-location";
 import path from "path";
 import { HashMap, Pair, Singleton } from "tstl";
-import ts from "typescript";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { SdkGenerator } from "../generates/SdkGenerator";
@@ -15,6 +14,7 @@ import { INestiaSdkInput } from "../structures/INestiaSdkInput";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { MapUtil } from "../utils/MapUtil";
 import { SourceFinder } from "../utils/SourceFinder";
+import { TsConfigReader } from "../utils/TsConfigReader";
 import { TtscExecutor } from "../utils/TtscExecutor";
 
 export namespace ConfigAnalyzer {
@@ -150,7 +150,7 @@ class RuntimeCompiler {
             noUnusedLocals: false,
             noUnusedParameters: false,
             outDir,
-            plugins: runtimePlugins(cwd),
+            plugins: await runtimePlugins(cwd),
             rootDir: ".",
           },
           include: sources.map(relative),
@@ -189,8 +189,8 @@ class RuntimeCompiler {
 
 type RuntimePlugin = Record<string, unknown> & { transform?: unknown };
 
-const runtimePlugins = (cwd: string): RuntimePlugin[] => {
-  const plugins: RuntimePlugin[] = readProjectPlugins(cwd);
+const runtimePlugins = async (cwd: string): Promise<RuntimePlugin[]> => {
+  const plugins: RuntimePlugin[] = await readProjectPlugins(cwd);
   const typia: RuntimePlugin | undefined = plugins.find((p) =>
     isTransform(p, "typia"),
   );
@@ -217,23 +217,14 @@ const runtimePlugins = (cwd: string): RuntimePlugin[] => {
   ];
 };
 
-const readProjectPlugins = (cwd: string): RuntimePlugin[] => {
+const readProjectPlugins = async (cwd: string): Promise<RuntimePlugin[]> => {
   const project: string = normalizeProjectPath(process.env.NESTIA_PROJECT);
   const file: string = path.isAbsolute(project)
     ? project
     : path.join(cwd, project);
-  const loaded: { config?: unknown; error?: ts.Diagnostic } = ts.readConfigFile(
-    file,
-    ts.sys.readFile,
-  );
-  if (loaded.error !== undefined || loaded.config === undefined) return [];
-  const config: ts.ParsedCommandLine = ts.parseJsonConfigFileContent(
-    loaded.config,
-    ts.sys,
-    path.dirname(file),
-  );
-  const options = config.options as
-    | (ts.CompilerOptions & { plugins?: RuntimePlugin[] })
+  const config = await TsConfigReader.read(file);
+  const options = config.compilerOptions as
+    | { plugins?: RuntimePlugin[] }
     | undefined;
   return Array.isArray(options?.plugins)
     ? options.plugins

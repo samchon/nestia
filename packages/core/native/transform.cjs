@@ -6,18 +6,14 @@ function createTtscPlugin(context) {
     typeof transform === "string" && transform.includes("@nestia/sdk")
       ? "@nestia/sdk"
       : "@nestia/core";
+  const peer =
+    name === "@nestia/sdk"
+      ? ["@nestia/core/lib/transform"]
+      : ["@nestia/sdk/lib/transform"];
   return {
     name,
     source: path.resolve(__dirname, "cmd", "ttsc-nestia"),
-    composes: [
-      "typia",
-      "typia/lib/transform",
-      "@nestia/core",
-      "@nestia/core/lib/transform",
-      "@nestia/core/native/transform.cjs",
-      "@nestia/sdk",
-      "@nestia/sdk/lib/transform",
-    ],
+    composes: ["typia/lib/transform", ...peer],
   };
 }
 

@@ -34,7 +34,7 @@ main().catch(console.error);
     "strict": true,
     "plugins": [
       { "transform": "typia/lib/transform" },
-      { "transform": "@nestia/core/lib/transform" },
+      { "transform": "@nestia/core/native/transform.cjs" },
       { "transform": "@nestia/sdk/lib/transform" }, // essential
     ],
   },
@@ -147,7 +147,7 @@ After that, deliver the generated Swagger Document object to the `SwaggerModule.
     "strict": true,
     "plugins": [
       { "transform": "typia/lib/transform" },
-      { "transform": "@nestia/core/lib/transform" },
+      { "transform": "@nestia/core/native/transform.cjs" },
       { "transform": "@nestia/sdk/lib/transform" }, // essential
     ],
   },
@@ -157,36 +157,6 @@ After that, deliver the generated Swagger Document object to the `SwaggerModule.
 Configure plugin property of `tsconfig.json` file like above.
 
 To activate the runtime swagger composer by `NestiaSwaggerComposer.document()` function, you have to configure the plugin on the `tsconfig.json` file. If you've not done it yet, open the `tsconfig.json` file and configure like above. If you don't do that, the runtime swagger composer cannot find any API operations, so that the Swagger Document would be empty.
-
-<Tabs items={["Argument Specified", "Prompt Question"]}>
-  <Tabs.Tab>
-```bash filename="Terminal"
-npm install --save-dev nestia@latest
-npx nestia setup --runtime true
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash filename="Terminal"
-npm install --save-dev nestia@latest
-npx nestia setup
-
-----------------------------------------
- Nestia Setup Wizard
-----------------------------------------
-? Package Manager (Use arrow keys)
-> npm
-  pnpm
-  yarn (berry is not supported)
-? Transform Runtime Swagger (Use arrow keys)
-> true
-  false
-```
-  </Tabs.Tab>
-</Tabs>
-
-If you feel the `tsconfig.json` file configuration annoying, you can do it with CLI command of `nestia`. Just run the `npx nestia setup --runtime true` command, then the `tsconfig.json` file would be automatically configured with the plugin property. 
-
-If you do not specify the `--runtime true` argument, so that run only the `npx nestia setup` command, the CLI prompt will ask you whether to configure the runtime argument or not. Answer as `yes` to configure it.
 
 
 
@@ -1797,4 +1767,3 @@ main().catch(console.error);
 ```
   </Tabs.Tab>
 </Tabs>
-

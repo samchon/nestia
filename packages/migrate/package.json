@@ -2,13 +2,17 @@
   "name": "@nestia/migrate",
   "version": "11.2.0",
   "description": "Migration program from swagger to NestJS",
-  "main": "src/index.ts",
+  "main": "lib/index.js",
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.mjs",
+      "default": "./lib/index.js"
+    },
     "./package.json": "./package.json"
   },
   "bin": {
-    "@nestia/migrate": "src/executable/migrate.ts"
+    "@nestia/migrate": "lib/executable/migrate.js"
   },
   "scripts": {
     "build": "rimraf lib && tsc && rollup -c",
@@ -45,8 +49,7 @@
     "@types/node": "catalog:utils",
     "js-yaml": "^4.1.0",
     "rimraf": "catalog:utils",
-    "rollup": "^4.24.3",
-    "ts-node": "catalog:typescript"
+    "rollup": "^4.24.3"
   },
   "dependencies": {
     "@nestia/factory": "workspace:^",

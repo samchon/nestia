@@ -57,7 +57,7 @@ func runTransform(args []string) int {
 		return 2
 	}
 	prog, diags, err := driver.LoadProgram(cwd, *tsconfigPath, driver.LoadProgramOptions{
-		ForceEmit: true,
+		ForceNoEmit: true,
 	})
 	if err != nil {
 		fmt.Fprintf(stderr, "ttsc-nestia transform: %v\n", err)

@@ -18,7 +18,7 @@ import { INestiaSdkInput } from "./structures/INestiaSdkInput";
 import { IReflectController } from "./structures/IReflectController";
 import { IReflectOperationError } from "./structures/IReflectOperationError";
 import { ITypedHttpRoute } from "./structures/ITypedHttpRoute";
-import { IOperationMetadata } from "./transformers/IOperationMetadata";
+import { IOperationMetadata } from "./structures/IOperationMetadata";
 import { VersioningStrategy } from "./utils/VersioningStrategy";
 
 export namespace NestiaSwaggerComposer {
@@ -47,7 +47,6 @@ export namespace NestiaSwaggerComposer {
     const unique: WeakSet<any> = new WeakSet();
     const project: Omit<INestiaProject, "config"> = {
       input,
-      checker: null!,
       errors: [],
       warnings: [],
     };

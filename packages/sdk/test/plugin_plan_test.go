@@ -52,7 +52,7 @@ func TestSDKNativeBuildInjectsOperationMetadata(t *testing.T) {
 		[]byte(`{
   "extends": "`+filepath.ToSlash(filepath.Join(root, "tests/test-sdk/features/body/tsconfig.json"))+`",
   "compilerOptions": {
-    "rootDir": "`+filepath.ToSlash(sourceRoot)+`",
+    "rootDir": "`+filepath.ToSlash(root)+`",
     "types": ["node"],
     "typeRoots": ["`+typeRoots+`"],
     "paths": {
@@ -90,7 +90,7 @@ func TestSDKNativeBuildInjectsOperationMetadata(t *testing.T) {
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
 	}
-	js, err := os.ReadFile(filepath.Join(outDir, "controllers/TypedBodyController.js"))
+	js, err := os.ReadFile(emittedJSPath(t, root, outDir, filepath.Join(sourceRoot, "controllers/TypedBodyController.ts")))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,7 +121,7 @@ func TestSDKNativeBuildInjectsTypedExceptionMetadata(t *testing.T) {
 		[]byte(`{
   "extends": "`+filepath.ToSlash(filepath.Join(featureRoot, "tsconfig.json"))+`",
   "compilerOptions": {
-    "rootDir": "`+filepath.ToSlash(sourceRoot)+`",
+    "rootDir": "`+filepath.ToSlash(root)+`",
     "types": ["node"],
     "typeRoots": ["`+typeRoots+`"],
     "paths": {
@@ -158,7 +158,7 @@ func TestSDKNativeBuildInjectsTypedExceptionMetadata(t *testing.T) {
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
 	}
-	js, err := os.ReadFile(filepath.Join(outDir, "controllers/ExceptionController.js"))
+	js, err := os.ReadFile(emittedJSPath(t, root, outDir, filepath.Join(sourceRoot, "controllers/ExceptionController.ts")))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -190,7 +190,7 @@ func TestSDKNativeBuildKeepsImportsArrayForInferredReturn(t *testing.T) {
 		[]byte(`{
   "extends": "`+filepath.ToSlash(filepath.Join(featureRoot, "tsconfig.json"))+`",
   "compilerOptions": {
-    "rootDir": "`+filepath.ToSlash(sourceRoot)+`",
+    "rootDir": "`+filepath.ToSlash(root)+`",
     "types": ["node"],
     "typeRoots": ["`+typeRoots+`"],
     "paths": {
@@ -226,7 +226,7 @@ func TestSDKNativeBuildKeepsImportsArrayForInferredReturn(t *testing.T) {
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
 	}
-	js, err := os.ReadFile(filepath.Join(outDir, "controllers/TypedBodyController.js"))
+	js, err := os.ReadFile(emittedJSPath(t, root, outDir, filepath.Join(sourceRoot, "controllers/TypedBodyController.ts")))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -271,7 +271,7 @@ func TestSDKNativeBuildImportsLocalTypeAliases(t *testing.T) {
 		[]byte(`{
   "extends": "`+filepath.ToSlash(filepath.Join(featureRoot, "tsconfig.json"))+`",
   "compilerOptions": {
-    "rootDir": "`+filepath.ToSlash(sourceRoot)+`",
+    "rootDir": "`+filepath.ToSlash(root)+`",
     "paths": {
       "@api": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api"))+`"],
       "@api/lib/*": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api/*"))+`"]
@@ -301,7 +301,7 @@ func TestSDKNativeBuildImportsLocalTypeAliases(t *testing.T) {
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
 	}
-	js, err := os.ReadFile(filepath.Join(outDir, "controllers/TransactionController.js"))
+	js, err := os.ReadFile(emittedJSPath(t, root, outDir, filepath.Join(sourceRoot, "controllers/TransactionController.ts")))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -342,4 +342,13 @@ func nodeTypeRoots(t *testing.T, root string) string {
 	}
 	t.Fatal("unable to locate @types/node")
 	return ""
+}
+
+func emittedJSPath(t *testing.T, root string, outDir string, source string) string {
+	t.Helper()
+	rel, err := filepath.Rel(root, source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return filepath.Join(outDir, strings.TrimSuffix(rel, filepath.Ext(rel))+".js")
 }

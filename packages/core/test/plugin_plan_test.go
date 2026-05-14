@@ -232,8 +232,8 @@ func TestCoreNativeTransformAppliesJSDocTypeTagsToTypedQuery(t *testing.T) {
 	}
 	text := string(out)
 	for _, expected := range []string{
-		`Math.floor(input.page) === input.page && 0 <= input.page && input.page <= 4294967295`,
-		`Math.floor(input.limit) === input.limit && 0 <= input.limit && input.limit <= 4294967295`,
+		`__typia_transform__isTypeUint32(input.page)`,
+		`__typia_transform__isTypeUint32(input.limit)`,
 	} {
 		if !strings.Contains(text, expected) {
 			t.Fatalf("transformed source is missing %q\n%s", expected, text)

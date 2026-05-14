@@ -14,8 +14,8 @@ import fs from "fs";
 import path from "path";
 import type { IValidation } from "typia";
 
-const ROOT: string = path.resolve(__dirname, "../../..");
-const TEST_ROOT: string = path.resolve(__dirname, "..");
+const TEST_ROOT: string = process.cwd();
+const ROOT: string = path.resolve(TEST_ROOT, "../..");
 const FIXTURE: string = path.join(TEST_ROOT, "fixture");
 const GENERATED: string = path.join(TEST_ROOT, ".generated");
 const SWAGGER: string = path.join(GENERATED, "swagger.json");
@@ -65,7 +65,7 @@ const generateSwagger = (): Promise<number> =>
       NODE,
       path.join(TEST_ROOT, "..", "run-with-ttsc-env.cjs"),
       NODE,
-      path.join(ROOT, "packages", "cli", "src", "boot.js"),
+      path.join(ROOT, "packages", "cli", "bin", "index.js"),
       "swagger",
       "--project",
       "tsconfig.json",
@@ -193,7 +193,7 @@ const main = async (): Promise<void> => {
   ];
   const filter = (() => {
     const only = process.argv.findIndex((str) => str === "--only");
-    if (only !== -1 && process.argv.length >= only + 1)
+    if (only !== -1 && process.argv.length > only + 1)
       return (str: string) => str.includes(process.argv[only + 1]!);
     return () => true;
   })();

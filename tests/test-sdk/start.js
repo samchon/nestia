@@ -2,7 +2,6 @@ const cp = require("child_process");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const ts = require("typescript");
 
 const ROOT = path.join(__dirname, "../..");
 const TTSC_CACHE_DIR = path.resolve(
@@ -12,7 +11,6 @@ const TTSC_CACHE_DIR = path.resolve(
 const NODE = process.execPath;
 const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const PROJECT_CONFIG = "tsconfig.project.json";
-const CLI_BOOT = path.join(ROOT, "packages/cli/src/boot.js");
 const CLI_BIN = path.join(ROOT, "packages/cli/bin/index.js");
 const TSC_BIN = packageBin("typescript", "tsc");
 const TTSX_BIN = packageBin("ttsc", "ttsx");
@@ -91,7 +89,7 @@ const runNode = (cwd, script, args, stdio = "ignore", env = undefined) =>
   run(NODE, [script, ...args], { cwd, env, stdio });
 
 const runNestia = (cwd, args, stdio = "ignore") =>
-  runNode(cwd, fs.existsSync(CLI_BIN) ? CLI_BIN : CLI_BOOT, args, stdio);
+  runNode(cwd, CLI_BIN, args, stdio);
 
 const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TSC_BIN, [], stdio);
 
@@ -268,20 +266,50 @@ const runtimePlugins = (cwd) => {
 
 const readProjectPlugins = (cwd) => {
   const projectFile = path.join(cwd, "tsconfig.json");
-  const loaded = ts.readConfigFile(projectFile, ts.sys.readFile);
-  if (loaded.error !== undefined || loaded.config === undefined) return [];
-  const parsed = ts.parseJsonConfigFileContent(
-    loaded.config,
-    ts.sys,
-    path.dirname(projectFile),
+  if (!fs.existsSync(projectFile)) return [];
+  const parsed = JSON.parse(
+    stripTrailingCommas(stripJsonComments(fs.readFileSync(projectFile, "utf8"))),
   );
-  const plugins = parsed.options?.plugins;
+  const plugins = parsed.compilerOptions?.plugins;
   return Array.isArray(plugins)
     ? plugins
         .filter((plugin) => typeof plugin === "object" && plugin !== null)
         .map((plugin) => ({ ...plugin }))
     : [];
 };
+
+const stripJsonComments = (input) => {
+  let output = "";
+  let quoted = false;
+  let escaped = false;
+  for (let i = 0; i < input.length; ++i) {
+    const ch = input[i];
+    const next = input[i + 1];
+    if (quoted) {
+      output += ch;
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') quoted = false;
+    } else if (ch === '"') {
+      quoted = true;
+      output += ch;
+    } else if (ch === "/" && next === "/") {
+      while (i < input.length && input[i] !== "\n") ++i;
+      output += "\n";
+    } else if (ch === "/" && next === "*") {
+      i += 2;
+      while (i < input.length && !(input[i] === "*" && input[i + 1] === "/")) {
+        output += input[i] === "\n" ? "\n" : " ";
+        ++i;
+      }
+      ++i;
+    } else output += ch;
+  }
+  return output;
+};
+
+const stripTrailingCommas = (input) =>
+  input.replace(/,\s*([}\]])/g, (_, close) => close);
 
 const normalizePlugin = (plugin) => {
   const output = { ...plugin };

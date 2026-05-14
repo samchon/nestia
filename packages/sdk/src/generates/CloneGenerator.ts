@@ -1,6 +1,5 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
 import fs from "fs";
-import ts from "typescript";
 
 import { INestiaProject } from "../structures/INestiaProject";
 import { ITypedApplication } from "../structures/ITypedApplication";
@@ -31,7 +30,7 @@ export namespace CloneGenerator {
     ): Promise<void> => {
       const location: string = `${project.config.output}/structures/${key}.ts`;
       const importer: ImportDictionary = new ImportDictionary(location);
-      const statements: ts.Statement[] = iterate(importer)(value);
+      const statements: Node[] = iterate(importer)(value);
       if (statements.length === 0) return;
 
       await FilePrinter.write({
@@ -46,19 +45,19 @@ export namespace CloneGenerator {
 
   const iterate =
     (importer: ImportDictionary) =>
-    (modulo: SdkHttpCloneProgrammer.IModule): ts.Statement[] => {
-      const output: ts.Statement[] = [];
+    (modulo: SdkHttpCloneProgrammer.IModule): Node[] => {
+      const output: Node[] = [];
       if (modulo.programmer !== null) output.push(modulo.programmer(importer));
       if (modulo.children.size) {
-        const internal: ts.Statement[] = [];
+        const internal: Node[] = [];
         for (const child of modulo.children.values())
           internal.push(...iterate(importer)(child));
         output.push(
           TypeScriptFactory.createModuleDeclaration(
-            [TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword)],
+            [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
             TypeScriptFactory.createIdentifier(modulo.name),
             TypeScriptFactory.createModuleBlock(internal),
-            ts.NodeFlags.Namespace,
+            NodeFlags.Namespace,
           ),
         );
       }

@@ -1,4 +1,3 @@
-import is_ts_node from "detect-ts-node";
 import fs from "fs";
 import path from "path";
 
@@ -17,7 +16,7 @@ export const load_controllers = async (
   const exclude: string[] =
     typeof path === "object" && !Array.isArray(path) ? (path.exclude ?? []) : [];
   const filter =
-    isTsNode === true || EXTENSION === "ts"
+    isTsNode === true
       ? (file: string) =>
           file.substring(file.length - 3) === ".ts" &&
           file.substring(file.length - 5) !== ".d.ts"
@@ -28,8 +27,7 @@ export const load_controllers = async (
     filter,
   });
   const controllers: Creator<object>[] = await mount(sources);
-  if (controllers.length !== 0 || isTsNode === true || EXTENSION === "ts")
-    return controllers;
+  if (controllers.length !== 0 || isTsNode === true) return controllers;
 
   const runtimeRoot: string | null = findTtsxRuntimeRoot();
   if (runtimeRoot === null) return controllers;
@@ -55,9 +53,6 @@ async function mount(sources: string[]): Promise<any[]> {
   }
   return controllers;
 }
-
-/** @internal */
-const EXTENSION = is_ts_node ? "ts" : "js";
 
 function findTtsxRuntimeRoot(): string | null {
   const entry: string | undefined = process.argv[1];
