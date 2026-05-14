@@ -51,8 +51,131 @@ const migratePackageJson = (parsed) => {
   }
 };
 
+const trimTemplateDependencies = (parsed) => {
+  if (parsed.dependencies) {
+    delete parsed.dependencies.commander;
+    delete parsed.dependencies.inquirer;
+  }
+  if (parsed.devDependencies) {
+    delete parsed.devDependencies["@types/inquirer"];
+    delete parsed.devDependencies.commander;
+    delete parsed.devDependencies.inquirer;
+  }
+};
+
 const normalizeScript = (script) =>
   script.replace(/(^|[^A-Za-z0-9_-])tsc(?=$|[^A-Za-z0-9_-])/g, "$1ttsc");
+
+const ARGUMENT_PARSER = `import { createInterface } from "node:readline/promises";
+
+export namespace ArgumentParser {
+  export interface Command {
+    option: (flags: string, description?: string) => Command;
+  }
+
+  export interface Prompt {
+    select: (
+      name: string,
+    ) => (
+      message: string,
+    ) => <Choice extends string>(choices: Choice[]) => Promise<Choice>;
+    boolean: (name: string) => (message: string) => Promise<boolean>;
+    number: (name: string) => (message: string) => Promise<number>;
+  }
+
+  export const parse = async <T>(
+    inquiry: (
+      command: Command,
+      prompt: Prompt,
+      action: (closure: (options: Partial<T>) => Promise<T>) => Promise<T>,
+    ) => Promise<T>,
+  ): Promise<T> => {
+    const command: Command = {
+      option: (_flags: string, _description?: string): Command => command,
+    };
+    const action = (closure: (options: Partial<T>) => Promise<T>) =>
+      closure(parseArguments() as Partial<T>);
+    return inquiry(
+      command,
+      { select, boolean, number },
+      action,
+    );
+  };
+
+  const select =
+    (_name: string) =>
+    (message: string) =>
+    async <Choice extends string>(choices: Choice[]): Promise<Choice> => {
+      const answer: string = await ask(\`\${message} (\${choices.join("/")})\`);
+      return (choices.find((choice) => choice === answer) ?? choices[0])!;
+    };
+
+  const boolean = (_name: string) => async (message: string) =>
+    /^(true|t|yes|y|1)$/i.test(await ask(\`\${message} [y/N]\`));
+
+  const number = (_name: string) => async (message: string) =>
+    Number(await ask(message));
+
+  const ask = async (message: string): Promise<string> => {
+    const reader = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+    try {
+      return (await reader.question(\`\${message}: \`)).trim();
+    } finally {
+      reader.close();
+    }
+  };
+
+  const parseArguments = (): Record<string, string | string[] | boolean> => {
+    const output: Record<string, string | string[] | boolean> = {};
+    const args: string[] = process.argv.slice(2);
+    for (let i = 0; i < args.length; ++i) {
+      const raw: string = args[i]!;
+      if (raw.startsWith("--") === false) continue;
+
+      const equal: number = raw.indexOf("=");
+      const name: string = toCamelCase(
+        raw.slice(2, equal === -1 ? undefined : equal),
+      );
+      if (equal !== -1) {
+        assign(output, name, raw.slice(equal + 1));
+        continue;
+      }
+
+      const values: string[] = [];
+      while (i + 1 < args.length && args[i + 1]!.startsWith("--") === false)
+        values.push(args[++i]!);
+      assign(
+        output,
+        name,
+        values.length === 0 ? true : values.length === 1 ? values[0]! : values,
+      );
+    }
+    return output;
+  };
+
+  const assign = (
+    output: Record<string, string | string[] | boolean>,
+    name: string,
+    value: string | string[] | boolean,
+  ): void => {
+    const current: string | string[] | boolean | undefined = output[name];
+    if (current === undefined) output[name] = value;
+    else
+      output[name] = [
+        ...(Array.isArray(current) ? current : [String(current)]),
+        ...(Array.isArray(value) ? value : [String(value)]),
+      ];
+  };
+
+  const toCamelCase = (str: string): string =>
+    str.replace(/-([a-z])/g, (_matched, letter: string) =>
+      letter.toUpperCase(),
+    );
+}
+`;
 
 const updateTsConfig = (content, options = {}) => {
   content = content.replace(
@@ -169,7 +292,12 @@ const main = async () => {
       "test/features",
     ],
     transform: (key, value) => {
-      if (key.endsWith("package.json")) return update(value);
+      if (key.endsWith("package.json")) {
+        const parsed = JSON.parse(update(value));
+        trimTemplateDependencies(parsed);
+        return JSON.stringify(parsed, null, 2);
+      }
+      if (key === "test/helpers/ArgumentParser.ts") return ARGUMENT_PARSER;
       if (key.endsWith("tsconfig.json"))
         return updateTsConfig(value, {
           disableTypia: key === "tsconfig.json",
@@ -191,8 +319,14 @@ const main = async () => {
       "test/features",
     ],
     transform: (key, value) => {
-      if (key.endsWith("package.json"))
-        return update(value, { sdkAggregate: key === "package.json" });
+      if (key.endsWith("package.json")) {
+        const parsed = JSON.parse(
+          update(value, { sdkAggregate: key === "package.json" }),
+        );
+        trimTemplateDependencies(parsed);
+        return JSON.stringify(parsed, null, 2);
+      }
+      if (key === "test/utils/ArgumentParser.ts") return ARGUMENT_PARSER;
       if (key.endsWith("tsconfig.json"))
         return updateTsConfig(value, {
           disableTypia: true,
