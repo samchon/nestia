@@ -16,7 +16,7 @@ export class Backend {
     const app: INestApplication = await this.application.get();
     const document = await NestiaSwaggerComposer.document(app, {});
     SwaggerModule.setup("api", app, document as any);
-    await app.listen(37_000);
+    await app.listen(Number(process.env.TEST_SDK_PORT ?? 37_000));
   }
 
   public async close(): Promise<void> {

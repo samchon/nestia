@@ -8,7 +8,7 @@ export class Backend {
 
   public async open(): Promise<void> {
     this.application_ = await NestFactory.create(MyModule, { logger: false });
-    await this.application_.listen(37_000);
+    await this.application_.listen(Number(process.env.TEST_SDK_PORT ?? 37_000));
   }
 
   public async close(): Promise<void> {

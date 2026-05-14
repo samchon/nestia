@@ -10,14 +10,14 @@ async function main(): Promise<void> {
       exclude: [],
     }),
   );
-  await server.listen(37_000);
+  await server.listen(Number(process.env.TEST_SDK_PORT ?? 37_000));
 
   const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
     extension: __filename.substring(__filename.length - 2),
     prefix: "test",
     parameters: () => [
       {
-        host: "http://127.0.0.1:37000",
+        host: `http://127.0.0.1:${process.env.TEST_SDK_PORT ?? 37_000}`,
       },
     ],
     location: `${__dirname}/features`,

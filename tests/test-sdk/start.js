@@ -15,6 +15,7 @@ const CLI_BOOT = path.join(ROOT, "packages/cli/src/boot.js");
 const CLI_BIN = path.join(ROOT, "packages/cli/bin/index.js");
 const TSC_BIN = packageBin("typescript", "tsc");
 const TTSX_BIN = packageBin("ttsc", "ttsx");
+const BASE_PORT = 37_000;
 
 process.env.TTSC_CACHE_DIR = TTSC_CACHE_DIR;
 process.env.NODE_OPTIONS = [
@@ -93,7 +94,7 @@ const runNestia = (cwd, args, stdio = "ignore") =>
 
 const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TSC_BIN, [], stdio);
 
-const feature = async (name) => {
+const feature = async (name, port) => {
   const cwd = featureDirectory(name);
   const configFile =
     name === "cli-config" || name === "cli-config-project"
@@ -113,7 +114,7 @@ const feature = async (name) => {
     try {
       if (TYPESCRIPT_ERROR_FEATURES.has(name)) await runTsc(cwd);
       await generate("all", true);
-      if (hasTtsxTestFiles(cwd)) await runTtsxTest(cwd);
+      if (hasTtsxTestFiles(cwd)) await runTtsxTest(cwd, "ignore", port);
     } catch {
       return;
     }
@@ -146,10 +147,10 @@ const feature = async (name) => {
   else if (hasTtsxTestFiles(cwd)) {
     for (let i = 0; i < 3; ++i)
       try {
-        await runTtsxTest(cwd);
+        await runTtsxTest(cwd, "ignore", port);
         return;
       } catch {}
-    await runTtsxTest(cwd, "inherit");
+    await runTtsxTest(cwd, "inherit", port);
   } else {
     try {
       await runTsc(cwd);
@@ -193,7 +194,7 @@ const hasTtsxTestFiles = (cwd) => {
   return iterate(path.join(cwd, "src/test/features"));
 };
 
-const runTtsxTest = async (cwd, stdio = "ignore") => {
+const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
   const project = ".ttsx.tsconfig.json";
   const projectFile = path.join(cwd, project);
   fs.writeFileSync(
@@ -248,6 +249,7 @@ const runTtsxTest = async (cwd, stdio = "ignore") => {
       stdio,
       {
         NODE_OPTIONS: nodeOptions,
+        TEST_SDK_PORT: String(port),
       },
     );
   } finally {
@@ -272,7 +274,7 @@ const featureFilter = () => {
 
 const concurrency = (count) => {
   const fallback = Math.min(
-    4,
+    8,
     Math.max(1, os.availableParallelism?.() ?? os.cpus().length ?? 1),
   );
   const raw = argumentValue("--concurrency") ?? process.env.TEST_SDK_CONCURRENCY;
@@ -302,7 +304,7 @@ const runFeatures = async (names) => {
       const index = cursor++;
       const name = names[index];
       try {
-        await measure(`  - ${name}`)(() => feature(name));
+        await measure(`  - ${name}`)(() => feature(name, BASE_PORT + index));
       } catch (error) {
         failures.push({ name, error });
         console.error(`  - ${name}: failed`);
