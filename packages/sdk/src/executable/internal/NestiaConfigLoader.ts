@@ -1,6 +1,5 @@
 import { doNotThrowTransformError } from "@nestia/core";
 import fs from "fs";
-import os from "os";
 import path from "path";
 import { parse } from "tsconfck";
 import ts from "typescript";
@@ -79,7 +78,7 @@ export namespace NestiaConfigLoader {
 
     const projectRoot: string = path.dirname(path.resolve(projectFile));
     const wrapperRoot: string = fs.mkdtempSync(
-      path.join(os.tmpdir(), "nestia-config-tsconfig-"),
+      path.join(ensureMaterializedRoot(projectRoot), "tsconfig-"),
     );
     const outputRoot: string = fs.mkdtempSync(
       path.join(ensureMaterializedRoot(projectRoot), "run-"),

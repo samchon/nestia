@@ -5,7 +5,6 @@ import { NestContainer } from "@nestjs/core";
 import { Module } from "@nestjs/core/injector/module";
 import fs from "fs";
 import getFunctionLocation from "get-function-location";
-import os from "os";
 import path from "path";
 import { HashMap, Pair, Singleton } from "tstl";
 import ts from "typescript";
@@ -125,8 +124,15 @@ class RuntimeCompiler {
 
   public static async compile(sources: string[]): Promise<RuntimeCompiler> {
     const cwd: string = process.cwd();
+    const runtimeRoot: string = path.join(
+      cwd,
+      "node_modules",
+      ".nestia",
+      "runtime",
+    );
+    await fs.promises.mkdir(runtimeRoot, { recursive: true });
     const outDir: string = await fs.promises.mkdtemp(
-      path.join(os.tmpdir(), "nestia-runtime-"),
+      path.join(runtimeRoot, "run-"),
     );
     const project: string = path.join(
       cwd,
