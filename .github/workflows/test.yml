@@ -22,7 +22,11 @@ jobs:
         with:
           node-version: 24.x
       - uses: pnpm/action-setup@v4
-      
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: packages/core/native/go.mod
+          cache-dependency-path: packages/core/native/go.sum
+
       - name: Install Dependencies
         run: pnpm install
 

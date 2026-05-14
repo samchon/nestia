@@ -883,6 +883,15 @@ importers:
         specifier: catalog:typescript
         version: 6.0.3
 
+  tests/test-syntaxkind-parity:
+    dependencies:
+      '@nestia/factory':
+        specifier: workspace:^
+        version: link:../../packages/factory
+      typescript:
+        specifier: catalog:typescript
+        version: 6.0.3
+
   tests/test-transform-options:
     dependencies:
       '@nestia/core':

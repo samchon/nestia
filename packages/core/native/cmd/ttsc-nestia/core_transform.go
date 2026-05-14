@@ -78,7 +78,7 @@ func newNestiaCoreTransformState(prog *driver.Program, options nestiaCoreOptions
 
 var nestiaCoreFactory = shimast.NewNodeFactory(shimast.NodeFactoryHooks{})
 
-const nestiaCoreKindDecorator shimast.Kind = 171
+const nestiaCoreKindDecorator = shimast.KindDecorator
 
 type nestiaCoreFileContext struct {
 	file        *shimast.SourceFile
@@ -1435,7 +1435,7 @@ func nestiaCoreArgumentCount(call *shimast.CallExpression) int {
 }
 
 func callArgumentBounds(source string, call *shimast.CallExpression) (int, int, bool) {
-	if call == nil || call.AsNode() == nil {
+	if call == nil || call.AsNode() == nil || call.Expression == nil {
 		return 0, 0, false
 	}
 	start := call.Expression.End()

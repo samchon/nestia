@@ -43,13 +43,17 @@ async function main(): Promise<void> {
       require.resolve(location);
     } catch {
       halt(
-        `@nestia/sdk has not been installed. Install "@nestia/sdk" before running this command.`,
+        [
+          `@nestia/sdk has not been installed.`,
+          `Install with: npm install --save-dev @nestia/sdk @nestia/core ttsc typescript@~6.0.3`,
+          `Then configure tsconfig.json plugins per https://nestia.io/docs/setup`,
+        ].join("\n"),
       );
     }
     await import(location);
   } else halt(USAGE);
 }
 main().catch((exp) => {
-  console.log(exp.message);
+  console.error(exp instanceof Error ? exp.message : String(exp));
   process.exit(-1);
 });

@@ -1,10 +1,17 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+/** @internal */
 interface ITtscPluginFactoryContext {
   projectRoot: string;
 }
 
+/**
+ * @internal
+ *
+ * The `composes` array order is load-bearing: `typia/lib/transform` first
+ * (host), then peers consumed by the Go binary's `plugin.ParsePlan`.
+ */
 interface ITtscPlugin {
   name: string;
   source: string;

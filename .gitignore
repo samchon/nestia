@@ -1,7 +1,9 @@
 bin/
 lib/
 node_modules/
-wiki/
+
+.discussions/
+.wiki/
 
 packages/openapi
 packages/*/*.tgz

@@ -72,6 +72,6 @@ async function main() {
   process.exit(0);
 }
 main().catch((exp) => {
-  console.log(exp);
+  console.error(exp instanceof Error ? exp.message : String(exp));
   process.exit(-1);
 });

@@ -17,6 +17,10 @@ jobs:
           node-version: 24.x
           registry-url: https://registry.npmjs.org/
       - uses: pnpm/action-setup@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: packages/core/native/go.mod
+          cache-dependency-path: packages/core/native/go.sum
       - name: Install dependencies
         run: pnpm install
       - name: Publish to npm
@@ -46,6 +50,10 @@ jobs:
           node-version: 24.x
           registry-url: https://registry.npmjs.org/
       - uses: pnpm/action-setup@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: packages/core/native/go.mod
+          cache-dependency-path: packages/core/native/go.sum
       - name: Build Packages
         run: pnpm install && pnpm run package:tgz
       - name: Website Setup

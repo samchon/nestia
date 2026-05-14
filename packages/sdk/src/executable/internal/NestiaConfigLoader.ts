@@ -108,12 +108,19 @@ export namespace NestiaConfigLoader {
         project: wrapperFile,
       });
     } catch (error) {
-      const output =
-        error instanceof Error && "stderr" in error
-          ? String((error as Error & { stderr?: Buffer }).stderr ?? "")
-          : "";
+      const stderr: string = readChildOutput(error, "stderr");
+      const stdout: string = readChildOutput(error, "stdout");
+      const detail: string = stderr || stdout;
+      const cause: Error =
+        error instanceof Error ? error : new Error(String(error));
+      const status: number | string | undefined =
+        (cause as { status?: number }).status ??
+        (cause as NodeJS.ErrnoException).code;
       throw new Error(
-        output || `failed to compile "${props.file}" through ttsc.`,
+        detail
+          ? `failed to compile "${props.file}" through ttsc:\n${detail}`
+          : `failed to compile "${props.file}" through ttsc (exit code ${status ?? "unknown"}). Run \`npx ttsc -p ${projectFile}\` to see the underlying diagnostics.`,
+        { cause },
       );
     } finally {
       fs.rmSync(wrapperRoot, { force: true, recursive: true });
@@ -402,4 +409,16 @@ export namespace NestiaConfigLoader {
 
   const isStringArray = (input: unknown): input is string[] =>
     Array.isArray(input) && input.every((elem) => typeof elem === "string");
+
+  const readChildOutput = (
+    error: unknown,
+    key: "stderr" | "stdout",
+  ): string => {
+    if (!error || typeof error !== "object" || !(key in error)) return "";
+    const value = (error as Record<string, unknown>)[key];
+    if (value === null || value === undefined) return "";
+    if (typeof value === "string") return value.trim();
+    if (Buffer.isBuffer(value)) return value.toString("utf8").trim();
+    return "";
+  };
 }

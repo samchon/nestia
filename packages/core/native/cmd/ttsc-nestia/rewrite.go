@@ -399,30 +399,76 @@ func countNativeArguments(text string) int {
 	}
 	count := 1
 	depth := 0
-	for i := 0; i < len(text); i++ {
-		switch text[i] {
+	// templateDepths records the bracket depth at which each currently-open
+	// `${...}` substitution started. When depth drops back to that level on a
+	// '}' token, we pop and re-enter template-string mode.
+	templateDepths := []int{}
+	i := 0
+	for i < len(text) {
+		ch := text[i]
+		switch ch {
 		case '(', '[', '{':
 			depth++
-		case ')', ']', '}':
+		case ')', ']':
 			if depth > 0 {
 				depth--
 			}
-		case '"', '\'', '`':
-			q := text[i]
+		case '}':
+			if depth > 0 {
+				depth--
+			}
+			if n := len(templateDepths); n > 0 && templateDepths[n-1] == depth {
+				templateDepths = templateDepths[:n-1]
+				i++
+				skipTemplateLiteral(text, &i, &templateDepths, &depth)
+				continue
+			}
+		case '"', '\'':
 			i++
-			for i < len(text) && text[i] != q {
-				if text[i] == '\\' {
+			for i < len(text) && text[i] != ch {
+				if text[i] == '\\' && i+1 < len(text) {
 					i++
 				}
 				i++
 			}
+		case '`':
+			i++
+			skipTemplateLiteral(text, &i, &templateDepths, &depth)
+			continue
 		case ',':
 			if depth == 0 {
 				count++
 			}
 		}
+		i++
 	}
 	return count
+}
+
+// skipTemplateLiteral advances i through a template-literal body. It exits
+// either at the matching closing backtick (consuming it) or at the opening
+// of a `${...}` substitution, in which case the caller resumes regular
+// expression parsing and templateDepths records that we owe a return to
+// template-string mode on the matching '}'.
+func skipTemplateLiteral(text string, i *int, templateDepths *[]int, depth *int) {
+	for *i < len(text) {
+		c := text[*i]
+		if c == '\\' && *i+1 < len(text) {
+			*i += 2
+			continue
+		}
+		if c == '`' {
+			*i++
+			return
+		}
+		if c == '$' && *i+1 < len(text) && text[*i+1] == '{' {
+			*templateDepths = append(*templateDepths, *depth)
+			*depth++
+			*i += 2
+			return
+		}
+		*i++
+	}
 }
 
 func candidateNativeRoots(root string) []string {
