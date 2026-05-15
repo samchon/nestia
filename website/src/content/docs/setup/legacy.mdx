@@ -64,100 +64,104 @@ npx nestia start <directory>
 npx nestia template <directory>
 ```
 
-Both commands clone, install, and run the test suite for you. The detailed companion project lives at [`@samchon/backend`](https://github.com/samchon/backend).
+`start` clones, installs, builds, and runs the test suite. `template` clones, installs, and builds — leaving the test suite for the first run against your local database, so the wizard does not fail on missing secrets. The detailed companion project lives at [`@samchon/backend`](https://github.com/samchon/backend).
 
 ## Manual Setup
 
-When the wizard cannot run (for example, in a monorepo where the dependency graph differs from the wizard's expectations), patch the project by hand.
+When the wizard cannot run (for example, in a monorepo where the dependency graph differs from the wizard's expectations), patch the project by hand. Six steps:
 
-<Tabs items={["npm", "pnpm", "yarn"]}>
-  <Tabs.Tab>
-```bash filename="Terminal" showLineNumbers copy
-npm install --save @nestia/core @nestia/fetcher typia
-npm install --save-dev nestia@^11 @nestia/sdk typescript ts-patch
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash filename="Terminal" showLineNumbers copy
-pnpm install --save @nestia/core @nestia/fetcher typia
-pnpm install --save-dev nestia@^11 @nestia/sdk typescript ts-patch
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-    <Callout type="warning">
-      Yarn berry is not supported.
-    </Callout>
-```bash filename="Terminal" showLineNumbers copy
-yarn add @nestia/core @nestia/fetcher typia
-yarn add -D nestia@^11 @nestia/sdk typescript ts-patch
-```
-  </Tabs.Tab>
-</Tabs>
+1. **Install runtime + dev packages.**
 
-Move `@nestia/sdk` to runtime dependencies (`--save` instead of `--save-dev`) only when the application imports `NestiaSwaggerComposer`. (This is the v11 rule. On the `@next` line `@nestia/sdk` is already runtime by default — see [TypeScript-Go](/docs/setup/tsgo).)
+   <Tabs items={["npm", "pnpm", "yarn"]}>
+     <Tabs.Tab>
+   ```bash filename="Terminal" showLineNumbers copy
+   npm install --save @nestia/core @nestia/fetcher typia
+   npm install --save-dev nestia@^11 @nestia/sdk typescript ts-patch
+   ```
+     </Tabs.Tab>
+     <Tabs.Tab>
+   ```bash filename="Terminal" showLineNumbers copy
+   pnpm install --save @nestia/core @nestia/fetcher typia
+   pnpm install --save-dev nestia@^11 @nestia/sdk typescript ts-patch
+   ```
+     </Tabs.Tab>
+     <Tabs.Tab>
+       <Callout type="warning">
+         Yarn berry is not supported.
+       </Callout>
+   ```bash filename="Terminal" showLineNumbers copy
+   yarn add @nestia/core @nestia/fetcher typia
+   yarn add -D nestia@^11 @nestia/sdk typescript ts-patch
+   ```
+     </Tabs.Tab>
+   </Tabs>
 
-Then open `tsconfig.json` and register the three transforms.
+2. **(Optional) Move `@nestia/sdk` to runtime dependencies** when the application imports `NestiaSwaggerComposer`. Use `--save` instead of `--save-dev` for this package. (On the `@next` line `@nestia/sdk` is already runtime by default — see [TypeScript-Go](/docs/setup/tsgo).)
 
-```json filename="tsconfig.json" showLineNumbers copy
-{
-  "compilerOptions": {
-    "strict": true,
-    "skipLibCheck": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "plugins": [
-      { "transform": "@nestia/core/lib/transform" },
-      { "transform": "@nestia/sdk/lib/transform" },
-      { "transform": "typia/lib/transform" }
-    ]
-  }
-}
-```
+3. **Register the three transforms in `tsconfig.json`.** Order matters — `@nestia/core` first, `typia` last.
 
-Order matters. `@nestia/core` rewrites controller decorators into `typia` calls, `@nestia/sdk` snapshots the route metadata for the CLI, and `typia` lowers the calls into runtime validators. `typia` must come last; `@nestia/core` must come before `typia`. When you migrate to TypeScript-Go, this order changes — see [Migrating to TypeScript-Go](#migrating-to-typescript-go) below.
+   ```json filename="tsconfig.json" showLineNumbers copy
+   {
+     "compilerOptions": {
+       "strict": true,
+       "skipLibCheck": true,
+       "experimentalDecorators": true,
+       "emitDecoratorMetadata": true,
+       "plugins": [
+         { "transform": "@nestia/core/lib/transform" },
+         { "transform": "@nestia/sdk/lib/transform" },
+         { "transform": "typia/lib/transform" }
+       ]
+     }
+   }
+   ```
 
-Add a `prepare` script so `ts-patch` re-patches the local TypeScript compiler whenever dependencies are installed.
+   `@nestia/core` rewrites controller decorators into `typia` calls, `@nestia/sdk` snapshots the route metadata for the CLI, and `typia` lowers the calls into runtime validators. When you migrate to TypeScript-Go, this order changes — see [Migrating to TypeScript-Go](#migrating-to-typescript-go) below.
 
-```json filename="package.json" showLineNumbers copy {2-4}
-{
-  "scripts": {
-    "prepare": "ts-patch install"
-  },
-  "dependencies": {
-    "@nestia/core": "^11.0.0",
-    "@nestia/fetcher": "^11.0.0",
-    "typia": "^11.0.0"
-  },
-  "devDependencies": {
-    "@nestia/sdk": "^11.0.0",
-    "nestia": "^11.0.0",
-    "ts-patch": "^4.0.1",
-    "typescript": "~5.8.0"
-  }
-}
-```
+4. **Add a `prepare` script** so `ts-patch` re-patches the local TypeScript compiler whenever dependencies are installed.
 
-Version pins above are illustrative — run `npm info nestia@latest` for the current published numbers.
+   ```json filename="package.json" showLineNumbers copy {2-4}
+   {
+     "scripts": {
+       "prepare": "ts-patch install"
+     },
+     "dependencies": {
+       "@nestia/core": "^11.0.0",
+       "@nestia/fetcher": "^11.0.0",
+       "typia": "^11.0.0"
+     },
+     "devDependencies": {
+       "@nestia/sdk": "^11.0.0",
+       "nestia": "^11.0.0",
+       "ts-patch": "^4.0.1",
+       "typescript": "~5.8.0"
+     }
+   }
+   ```
 
-<Tabs items={["npm", "pnpm", "yarn"]}>
-  <Tabs.Tab>
-```bash filename="Terminal" showLineNumbers copy
-npm run prepare
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash filename="Terminal" showLineNumbers copy
-pnpm prepare
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash filename="Terminal" showLineNumbers copy
-yarn prepare
-```
-  </Tabs.Tab>
-</Tabs>
+   Version pins above are illustrative — run `npm info nestia@latest` for the current published numbers.
 
-From now on, every `tsc` invocation runs the patched compiler and applies the Nestia / typia transforms.
+5. **Run `prepare` once.**
+
+   <Tabs items={["npm", "pnpm", "yarn"]}>
+     <Tabs.Tab>
+   ```bash filename="Terminal" showLineNumbers copy
+   npm run prepare
+   ```
+     </Tabs.Tab>
+     <Tabs.Tab>
+   ```bash filename="Terminal" showLineNumbers copy
+   pnpm prepare
+   ```
+     </Tabs.Tab>
+     <Tabs.Tab>
+   ```bash filename="Terminal" showLineNumbers copy
+   yarn prepare
+   ```
+     </Tabs.Tab>
+   </Tabs>
+
+6. **Build.** From now on, every `tsc` invocation runs the patched compiler and applies the Nestia / typia transforms.
 
 ## Generate
 
@@ -533,18 +537,24 @@ When you are ready to move to the new toolchain, follow [TypeScript-Go](/docs/se
     }
    ```
    If you keep an explicit array (for `stringify`, `llm`, …), the order also changes — `typia` first as a disabled tombstone, then `@nestia/sdk`, then `@nestia/core/native/transform.cjs`. See [tsgo > Transform Options](/docs/setup/tsgo#transform-options).
-5. **Switch the build commands.** Replace every `tsc` with `ttsc` and every `ts-node` / `tsx` with `ttsx` in `package.json` scripts. If you used `nest build` / `nest start` from `@nestjs/cli`, replace those too — both invoke stock `tsc` and silently skip the Nestia transform.
+5. **Switch the build commands.** Replace every `tsc` / `nest build` with `ttsc` and every `ts-node` / `tsx` with `ttsx`. The full `nest new` script set rewrites cleanly to `ttsc` + `node`:
    ```diff filename="package.json"
     {
       "scripts": {
    -    "prepare": "ts-patch install",
-   -    "build": "tsc",
-   -    "start:dev": "ts-node src/main.ts"
+   -    "build": "nest build",
+   -    "start": "nest start",
+   -    "start:dev": "nest start --watch",
+   -    "start:debug": "nest start --debug --watch",
+   -    "start:prod": "node dist/main"
    +    "build": "ttsc",
-   +    "start:dev": "ttsx --watch src/main.ts"
+   +    "start": "node dist/main.js",
+   +    "start:dev": "ttsc --watch & node --watch dist/main.js",
+   +    "start:prod": "node dist/main.js"
       }
     }
    ```
+   `start:debug` drops out — attach a debugger to the `node --watch` process directly. `start:dev` here is the rebuild + restart pair; if you prefer a single watcher that re-runs the script in process, use `ttsx --watch src/main.ts`.
 6. **Verify.** Confirm Go 1.26+ is on `PATH` (or set `TTSC_GO_BINARY`). Run `npx ttsc --noEmit` once to surface any plugin or pin diagnostics before the first real build, then `npx nestia all` to regenerate SDK / Swagger / e2e against the new toolchain.
 
 > [!CAUTION]
