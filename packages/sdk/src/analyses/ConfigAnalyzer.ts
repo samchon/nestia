@@ -208,6 +208,11 @@ const ensureRuntimeCleanup = (runtimeRoot: string): void => {
   // `process.listenerCount(signal) > 0` because NestiaConfigLoader's parallel
   // sweep registers first, and that gate would skip our registration —
   // leaving RUNTIME_ROOTS unswept on Ctrl-C while config-loader cleans up.
+  // Windows note: `process.kill(pid, "SIGINT")` calls TerminateProcess
+  // rather than re-raising through the listener queue, so the handler
+  // cascade documented above only holds on POSIX. On Windows, whichever
+  // module registers FIRST runs its sweep and the second is skipped —
+  // RUNTIME_ROOTS cleanup is best-effort there. SIGHUP is silently inert.
   const onSignal = (signal: NodeJS.Signals): void => {
     sweep();
     process.kill(process.pid, signal);
