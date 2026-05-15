@@ -25,6 +25,9 @@ catalogs:
     '@rollup/plugin-node-resolve':
       specifier: ^16.0.3
       version: 16.0.3
+    '@rollup/plugin-terser':
+      specifier: ^0.4.4
+      version: 0.4.4
     '@rollup/plugin-typescript':
       specifier: ^12.3.0
       version: 12.3.0
@@ -69,9 +72,6 @@ catalogs:
     prettier-plugin-jsdoc:
       specifier: ^1.8.0
       version: 1.8.0
-    ts-node:
-      specifier: ^10.9.2
-      version: 10.9.2
     ttsc:
       specifier: ^0.10.2
       version: 0.10.2
@@ -199,9 +199,9 @@ importers:
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
-      ts-node:
+      ttsc:
         specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
+        version: 0.10.2
       typescript:
         specifier: catalog:typescript
         version: 6.0.3
@@ -229,19 +229,6 @@ importers:
         version: 6.0.3
 
   packages/cli:
-    dependencies:
-      commander:
-        specifier: ^10.0.0
-        version: 10.0.0
-      comment-json:
-        specifier: ^4.2.3
-        version: 4.6.2
-      inquirer:
-        specifier: ^8.2.5
-        version: 8.2.5
-      package-manager-detector:
-        specifier: ^0.2.0
-        version: 0.2.11
     devDependencies:
       '@nestia/core':
         specifier: workspace:^
@@ -249,18 +236,12 @@ importers:
       '@nestia/sdk':
         specifier: workspace:^
         version: link:../sdk
-      '@types/inquirer':
-        specifier: ^9.0.3
-        version: 9.0.9
       '@types/node':
         specifier: catalog:utils
         version: 25.3.3
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
-      ts-node:
-        specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       typescript:
         specifier: catalog:typescript
         version: 6.0.3
@@ -279,9 +260,6 @@ importers:
       '@typia/utils':
         specifier: catalog:samchon
         version: 13.0.0-dev.20260514
-      detect-ts-node:
-        specifier: ^1.0.5
-        version: 1.0.5
       get-function-location:
         specifier: ^2.0.0
         version: 2.0.0
@@ -322,9 +300,6 @@ importers:
       '@types/express':
         specifier: ^4.17.15
         version: 4.17.25
-      '@types/inquirer':
-        specifier: ^9.0.3
-        version: 9.0.9
       '@types/multer':
         specifier: ^1.4.12
         version: 1.4.13
@@ -334,39 +309,21 @@ importers:
       '@typescript/native-preview':
         specifier: catalog:typescript
         version: 7.0.0-dev.20260505.1
-      commander:
-        specifier: ^10.0.0
-        version: 10.0.0
-      comment-json:
-        specifier: ^4.2.3
-        version: 4.6.2
       eslint-plugin-deprecation:
         specifier: ^1.4.1
         version: 1.6.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       fastify:
         specifier: ^4.28.1
         version: 4.29.1
-      git-last-commit:
-        specifier: ^1.0.1
-        version: 1.0.1
-      inquirer:
-        specifier: ^8.2.5
-        version: 8.2.5
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
-      ts-node:
-        specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       tstl:
         specifier: catalog:samchon
         version: 3.0.0
       ttsc:
         specifier: catalog:typescript
         version: 0.10.2
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
 
   packages/e2e:
     devDependencies:
@@ -423,10 +380,10 @@ importers:
         specifier: catalog:nestjs
         version: 11.1.15(@nestjs/common@11.1.15(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.15)
       '@rollup/plugin-terser':
-        specifier: ^0.4.4
+        specifier: catalog:rollup
         version: 0.4.4(rollup@4.59.0)
       '@rollup/plugin-typescript':
-        specifier: ^12.1.1
+        specifier: catalog:rollup
         version: 12.3.0(rollup@4.59.0)(tslib@2.8.1)(typescript@6.0.3)
       '@types/js-yaml':
         specifier: ^4.0.9
@@ -462,11 +419,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       rollup:
-        specifier: ^4.24.2
+        specifier: catalog:rollup
         version: 4.59.0
-      ts-node:
-        specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       typescript:
         specifier: catalog:typescript
         version: 6.0.3
@@ -572,10 +526,10 @@ importers:
         version: 13.0.0-dev.20260514
     devDependencies:
       '@rollup/plugin-terser':
-        specifier: ^0.4.4
+        specifier: catalog:rollup
         version: 0.4.4(rollup@4.59.0)
       '@rollup/plugin-typescript':
-        specifier: ^12.1.1
+        specifier: catalog:rollup
         version: 12.3.0(rollup@4.59.0)(tslib@2.8.1)(typescript@6.0.3)
       '@types/inquirer':
         specifier: ^9.0.7
@@ -590,11 +544,8 @@ importers:
         specifier: catalog:utils
         version: 6.1.3
       rollup:
-        specifier: ^4.24.3
+        specifier: catalog:rollup
         version: 4.59.0
-      ts-node:
-        specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
 
   packages/sdk:
     dependencies:
@@ -631,12 +582,6 @@ importers:
       prettier:
         specifier: catalog:typescript
         version: 3.8.1
-      ts-node:
-        specifier: '>=10.6.0'
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
-      tsconfck:
-        specifier: ^2.1.2
-        version: 2.1.2(typescript@6.0.3)
       tsconfig-paths:
         specifier: ^4.1.1
         version: 4.2.0
@@ -671,9 +616,6 @@ importers:
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
 
   tests/test-benchmark:
     dependencies:
@@ -720,9 +662,6 @@ importers:
       nestia:
         specifier: workspace:^
         version: link:../../packages/cli
-      ts-node:
-        specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       ttsc:
         specifier: catalog:typescript
         version: 0.10.2
@@ -745,9 +684,6 @@ importers:
       '@types/node':
         specifier: catalog:utils
         version: 25.3.3
-      ts-node:
-        specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
       ttsc:
         specifier: catalog:typescript
         version: 0.10.2
@@ -796,9 +732,6 @@ importers:
       cli-progress:
         specifier: ^3.12.0
         version: 3.12.0
-      commander:
-        specifier: 10.0.0
-        version: 10.0.0
       dotenv:
         specifier: ^16.3.1
         version: 16.6.1
@@ -808,9 +741,6 @@ importers:
       express:
         specifier: ^4.19.2
         version: 4.22.1
-      inquirer:
-        specifier: 8.2.5
-        version: 8.2.5
       multer:
         specifier: ^2.0.2
         version: 2.1.0
@@ -842,9 +772,6 @@ importers:
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
-      '@types/inquirer':
-        specifier: ^9.0.7
-        version: 9.0.9
       '@types/multer':
         specifier: ^1.4.12
         version: 1.4.13
@@ -857,9 +784,9 @@ importers:
       nestia:
         specifier: workspace:^
         version: link:../../packages/cli
-      ts-node:
+      ttsc:
         specifier: catalog:typescript
-        version: 10.9.2(@types/node@25.3.3)(typescript@6.0.3)
+        version: 0.10.2
       typescript:
         specifier: catalog:typescript
         version: 6.0.3
@@ -951,6 +878,15 @@ importers:
       ttsc:
         specifier: catalog:typescript
         version: 0.10.2
+      typescript:
+        specifier: catalog:typescript
+        version: 6.0.3
+
+  tests/test-syntaxkind-parity:
+    dependencies:
+      '@nestia/factory':
+        specifier: workspace:^
+        version: link:../../packages/factory
       typescript:
         specifier: catalog:typescript
         version: 6.0.3
@@ -1106,10 +1042,6 @@ packages:
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
-
-  '@cspotcode/source-map-support@0.8.1':
-    resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
-    engines: {node: '>=12'}
 
   '@emotion/babel-plugin@11.13.5':
     resolution: {integrity: sha512-pxHCpT2ex+0q+HH91/zsdHkw/lXd468DIN2zvfvLtPKLLMo6gQj7oLObq8PhkrxOZb/gGCq03S3Z7PDhS8pduQ==}
@@ -1431,9 +1363,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
-
-  '@jridgewell/trace-mapping@0.3.9':
-    resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
@@ -1838,18 +1767,6 @@ packages:
     peerDependenciesMeta:
       '@vue/compiler-sfc':
         optional: true
-
-  '@tsconfig/node10@1.0.12':
-    resolution: {integrity: sha512-UCYBaeFvM11aU2y3YPZ//O5Rhj+xKyzy7mvcIoAjASbigy8mHMryP5cK7dgjlz2hWxh1g5pLw084E0a/wlUSFQ==}
-
-  '@tsconfig/node12@1.0.11':
-    resolution: {integrity: sha512-cqefuRsh12pWyGsIoBKJA9luFu3mRxCA+ORZvA4ktLSzIuCUtWVxGIuXigEwO5/ywWFMZ2QEGKWvkZG1zDMTag==}
-
-  '@tsconfig/node14@1.0.3':
-    resolution: {integrity: sha512-ysT8mhdixWK6Hw3i1V2AeRqZ5WfXg1G43mqoYlM2nc6388Fq5jcXyr5mRsqViLx/GJYdoL0bfXD8nmF+Zn/Iow==}
-
-  '@tsconfig/node16@1.0.4':
-    resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
   '@ttsc/darwin-arm64@0.10.2':
     resolution: {integrity: sha512-QA1uIYRK1MP8I3jcnEz5yhgfGS4KeyO22Rlet8DHdAlSDGF4NbR674hKqmE/FUm6TLLD1HEPzq1QP2Fs+a1/sg==}
@@ -2302,10 +2219,6 @@ packages:
     peerDependencies:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
 
-  acorn-walk@8.3.5:
-    resolution: {integrity: sha512-HEHNfbars9v4pgpW6SO1KSPkfoS0xVOM/9UzkJltjlsHZmJasxg8aXkuZa7SMf8vKGIBhpUsPluQSqhJFCqebw==}
-    engines: {node: '>=0.4.0'}
-
   acorn@8.16.0:
     resolution: {integrity: sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw==}
     engines: {node: '>=0.4.0'}
@@ -2356,9 +2269,6 @@ packages:
   append-field@1.0.0:
     resolution: {integrity: sha512-klpgFSWLW1ZEs8svjfb7g4qWY0YS5imI82dTg+QahUvJ8YqAY0P10Uk8tTyh9ZGuYEZEMaeJYCF5BFuX552hsw==}
 
-  arg@4.1.3:
-    resolution: {integrity: sha512-58S9QDqG0Xx27YwPSt9fJxivjYl432YCwfDMfZ+71RAqUrZef7LrKQZ3LHLOwCS4FLNBplP533Zx895SeOCHvA==}
-
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
@@ -2367,9 +2277,6 @@ packages:
 
   array-flatten@1.1.1:
     resolution: {integrity: sha512-PCVAQswWemu6UdxsDFFX/+gVeYqKAod3D3UVm91jHwynguOwAvYPhx8nNlM++NqRcK6CxxpUafjmhIdKiHibqg==}
-
-  array-timsort@1.0.3:
-    resolution: {integrity: sha512-/+3GRL7dDAGEfM6TseQk/U+mi18TU2Ms9I3UlLdUMhz2hbvGNTKdj9xniwXfUqgYhHxRx0+8UnKkvlNwVU+cWQ==}
 
   array-union@2.1.0:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
@@ -2591,10 +2498,6 @@ packages:
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
-  comment-json@4.6.2:
-    resolution: {integrity: sha512-R2rze/hDX30uul4NZoIZ76ImSJLFxn/1/ZxtKC1L77y2X1k+yYu1joKbAtMA2Fg3hZrTOiw0I5mwVMo0cf250w==}
-    engines: {node: '>= 6'}
-
   comment-parser@1.4.5:
     resolution: {integrity: sha512-aRDkn3uyIlCFfk5NUA+VdwMmMsh8JGhc4hapfV4yxymHGQ3BVskMQfoXGpCo5IoBuQ9tS5iiVKhCpTcB4pW4qw==}
     engines: {node: '>= 12.0.0'}
@@ -2656,9 +2559,6 @@ packages:
   cosmiconfig@7.1.0:
     resolution: {integrity: sha512-AdmX6xUzdNASswsFtmwSt7Vj8po9IuqXm0UXz7QKPuEUmPB4XyjGfaAr2PSuELMwkRMVH1EpIkX5bTZGRB3eCA==}
     engines: {node: '>=10'}
-
-  create-require@1.1.1:
-    resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
 
   cross-argv@2.0.0:
     resolution: {integrity: sha512-YIaY9TR5Nxeb8SMdtrU8asWVM4jqJDNDYlKV21LxtYcfNJhp1kEsgSa6qXwXgzN0WQWGODps0+TlGp2xQSHwOg==}
@@ -2835,15 +2735,8 @@ packages:
     resolution: {integrity: sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg==}
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
 
-  detect-ts-node@1.0.5:
-    resolution: {integrity: sha512-lWACfJ+H6jpxT1uuIQi2KAIkczeHJcM4rmfbAR86gfmAlrJpCVZbnKB0fiqmH8TGw4dm9xrptfwNObEsDdvsFg==}
-
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
-
-  diff@4.0.4:
-    resolution: {integrity: sha512-X07nttJQkwkfKfvTPG/KSnE2OMdcUCao6+eXF3wmnIQRn2aPAHH3VxDbDOdegkd6JbPsXqShpvEOHfAT+nCNwQ==}
-    engines: {node: '>=0.3.1'}
 
   dir-glob@3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
@@ -2986,11 +2879,6 @@ packages:
   espree@10.4.0:
     resolution: {integrity: sha512-j6PAQ2uUr79PZhBjP5C5fhl8e39FmRnOjsD5lGnWrFU8i2G776tBK7+nP8KuQUTTyAZUwfQqXAgrVH5MbH9CYQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  esprima@4.0.1:
-    resolution: {integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==}
-    engines: {node: '>=4'}
-    hasBin: true
 
   esquery@1.7.0:
     resolution: {integrity: sha512-Ap6G0WQwcU/LHsvLwON1fAQX9Zp0A2Y6Y/cJBl9r/JbW90Zyg4/zbG6zzKa2OTALELarYHmKu0GhpM5EO+7T0g==}
@@ -3198,9 +3086,6 @@ packages:
   giget@2.0.0:
     resolution: {integrity: sha512-L5bGsVkxJbJgdnwyuheIunkGatUF/zssUoxxjACCseZYAVbaqdh9Tsmmlkl8vYan09H7sbvKt4pS8GqKLBrEzA==}
     hasBin: true
-
-  git-last-commit@1.0.1:
-    resolution: {integrity: sha512-FDSgeMqa7GnJDxt/q0AbrxbfeTyxp4ImxEw1e4nw6NUHA5FMhFUq33dTXI4Xdgcj1VQ1q5QLWF6WxFrJ8KCBOg==}
 
   glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
@@ -3537,9 +3422,6 @@ packages:
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
-  make-error@1.3.6:
-    resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
-
   manage-path@2.0.0:
     resolution: {integrity: sha512-NJhyB+PJYTpxhxZJ3lecIGgh4kwIY2RAh44XvAz9UlqthlQwtPBf62uBVR8XaD8CRuSjQ6TnZH2lNJkbLPZM2A==}
 
@@ -3790,9 +3672,6 @@ packages:
   package-json-from-dist@1.0.1:
     resolution: {integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==}
 
-  package-manager-detector@0.2.11:
-    resolution: {integrity: sha512-BEnLolu+yuz22S56CU1SUKq3XC3PkwD5wv4ikR4MfGvnRVcmzXR9DwSlW2fEamyTPyXHomBJRzgapeuBvRNzJQ==}
-
   package-manager-detector@1.6.0:
     resolution: {integrity: sha512-61A5ThoTiDG/C8s8UMZwSorAGwMJ0ERVGj2OjoW5pAalsNOg15+iQiPzrLJ4jhZ1HJzmC2PIHT2oEiH3R5fzNA==}
 
@@ -3962,9 +3841,6 @@ packages:
   qs@6.15.0:
     resolution: {integrity: sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==}
     engines: {node: '>=0.6'}
-
-  quansync@0.2.11:
-    resolution: {integrity: sha512-AifT7QEbW9Nri4tAwR5M/uzpBuqfZf+zwaEM/QkzEjj7NBuFD2rBuy0K3dE+8wltbezDV7JMA0WfnCPYRSYbXA==}
 
   querystringify@2.2.0:
     resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
@@ -4452,30 +4328,6 @@ packages:
   ts-expose-internals@5.4.5:
     resolution: {integrity: sha512-0HfRwjgSIOyuDlHzkFedMWU4aHWq9pu4MUKHgH75U+L76wCAtK5WB0rc/dAIhulMRcPUlcKONeiiR5Sxy/7XcA==}
 
-  ts-node@10.9.2:
-    resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
-    hasBin: true
-    peerDependencies:
-      '@swc/core': '>=1.2.50'
-      '@swc/wasm': '>=1.2.50'
-      '@types/node': '*'
-      typescript: '>=2.7'
-    peerDependenciesMeta:
-      '@swc/core':
-        optional: true
-      '@swc/wasm':
-        optional: true
-
-  tsconfck@2.1.2:
-    resolution: {integrity: sha512-ghqN1b0puy3MhhviwO2kGF8SeMDNhEbnKxjK7h6+fvY9JAxqvXi8y5NAHSQv687OVboS2uZIByzGd45/YxrRHg==}
-    engines: {node: ^14.13.1 || ^16 || >=18}
-    hasBin: true
-    peerDependencies:
-      typescript: ^4.3.5 || ^5.0.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   tsconfig-paths@4.2.0:
     resolution: {integrity: sha512-NoZ4roiN7LnbKn9QqE1amc9DJfzvZXxF4xDavcOWt1BPkdx+m+0gJuPM+S0vCe7zTJMYUP0R8pO2XMr+Y8oLIg==}
     engines: {node: '>=6'}
@@ -4593,9 +4445,6 @@ packages:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
-
-  v8-compile-cache-lib@3.0.1:
-    resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
 
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
@@ -4725,10 +4574,6 @@ packages:
     resolution: {integrity: sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==}
     engines: {node: '>= 14.6'}
     hasBin: true
-
-  yn@3.1.1:
-    resolution: {integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==}
-    engines: {node: '>=6'}
 
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
@@ -4899,10 +4744,6 @@ snapshots:
 
   '@colors/colors@1.5.0':
     optional: true
-
-  '@cspotcode/source-map-support@0.8.1':
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.9
 
   '@emotion/babel-plugin@11.13.5':
     dependencies:
@@ -5203,11 +5044,6 @@ snapshots:
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
   '@jridgewell/trace-mapping@0.3.31':
-    dependencies:
-      '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.5.5
-
-  '@jridgewell/trace-mapping@0.3.9':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -5551,14 +5387,6 @@ snapshots:
       prettier: 3.8.1
     transitivePeerDependencies:
       - supports-color
-
-  '@tsconfig/node10@1.0.12': {}
-
-  '@tsconfig/node12@1.0.11': {}
-
-  '@tsconfig/node14@1.0.3': {}
-
-  '@tsconfig/node16@1.0.4': {}
 
   '@ttsc/darwin-arm64@0.10.2':
     optional: true
@@ -6085,10 +5913,6 @@ snapshots:
     dependencies:
       acorn: 8.16.0
 
-  acorn-walk@8.3.5:
-    dependencies:
-      acorn: 8.16.0
-
   acorn@8.16.0: {}
 
   agent-base@6.0.2:
@@ -6133,15 +5957,11 @@ snapshots:
 
   append-field@1.0.0: {}
 
-  arg@4.1.3: {}
-
   argparse@2.0.1: {}
 
   args-tokenizer@0.3.0: {}
 
   array-flatten@1.1.1: {}
-
-  array-timsort@1.0.3: {}
 
   array-union@2.1.0: {}
 
@@ -6409,11 +6229,6 @@ snapshots:
 
   commander@2.20.3: {}
 
-  comment-json@4.6.2:
-    dependencies:
-      array-timsort: 1.0.3
-      esprima: 4.0.1
-
   comment-parser@1.4.5: {}
 
   commondir@1.0.1: {}
@@ -6463,8 +6278,6 @@ snapshots:
       parse-json: 5.2.0
       path-type: 4.0.0
       yaml: 1.10.2
-
-  create-require@1.1.1: {}
 
   cross-argv@2.0.0: {}
 
@@ -6677,13 +6490,9 @@ snapshots:
 
   destroy@1.2.0: {}
 
-  detect-ts-node@1.0.5: {}
-
   devlop@1.1.0:
     dependencies:
       dequal: 2.0.3
-
-  diff@4.0.4: {}
 
   dir-glob@3.0.1:
     dependencies:
@@ -6855,8 +6664,6 @@ snapshots:
       acorn: 8.16.0
       acorn-jsx: 5.3.2(acorn@8.16.0)
       eslint-visitor-keys: 4.2.1
-
-  esprima@4.0.1: {}
 
   esquery@1.7.0:
     dependencies:
@@ -7196,8 +7003,6 @@ snapshots:
       node-fetch-native: 1.6.7
       nypm: 0.6.5
       pathe: 2.0.3
-
-  git-last-commit@1.0.1: {}
 
   glob-parent@5.1.2:
     dependencies:
@@ -7542,8 +7347,6 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  make-error@1.3.6: {}
-
   manage-path@2.0.0: {}
 
   math-intrinsics@1.1.0: {}
@@ -7848,10 +7651,6 @@ snapshots:
 
   package-json-from-dist@1.0.1: {}
 
-  package-manager-detector@0.2.11:
-    dependencies:
-      quansync: 0.2.11
-
   package-manager-detector@1.6.0: {}
 
   pako@1.0.11: {}
@@ -8021,8 +7820,6 @@ snapshots:
   qs@6.15.0:
     dependencies:
       side-channel: 1.1.0
-
-  quansync@0.2.11: {}
 
   querystringify@2.2.0: {}
 
@@ -8548,28 +8345,6 @@ snapshots:
 
   ts-expose-internals@5.4.5: {}
 
-  ts-node@10.9.2(@types/node@25.3.3)(typescript@6.0.3):
-    dependencies:
-      '@cspotcode/source-map-support': 0.8.1
-      '@tsconfig/node10': 1.0.12
-      '@tsconfig/node12': 1.0.11
-      '@tsconfig/node14': 1.0.3
-      '@tsconfig/node16': 1.0.4
-      '@types/node': 25.3.3
-      acorn: 8.16.0
-      acorn-walk: 8.3.5
-      arg: 4.1.3
-      create-require: 1.1.1
-      diff: 4.0.4
-      make-error: 1.3.6
-      typescript: 6.0.3
-      v8-compile-cache-lib: 3.0.1
-      yn: 3.1.1
-
-  tsconfck@2.1.2(typescript@6.0.3):
-    optionalDependencies:
-      typescript: 6.0.3
-
   tsconfig-paths@4.2.0:
     dependencies:
       json5: 2.2.3
@@ -8683,8 +8458,6 @@ snapshots:
 
   uuid@8.3.2: {}
 
-  v8-compile-cache-lib@3.0.1: {}
-
   validate-npm-package-license@3.0.4:
     dependencies:
       spdx-correct: 3.2.0
@@ -8754,7 +8527,5 @@ snapshots:
   yaml@1.10.2: {}
 
   yaml@2.8.2: {}
-
-  yn@3.1.1: {}
 
   yocto-queue@0.1.0: {}

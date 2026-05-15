@@ -1,6 +1,6 @@
 import { IComparable } from "tstl";
 
-import { IOperationMetadata } from "../transformers/IOperationMetadata";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
 
 export interface IReflectOperationError {
   file: string;

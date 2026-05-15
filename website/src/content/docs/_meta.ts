@@ -3,8 +3,8 @@ import { MetaRecord } from "nextra";
 export default {
   // GETTINIG STARTED
   index: "🙋🏻‍♂️ Introduction",
-  setup: "📦 Setup",
   pure: "⛲ Pure TypeScript",
+  setup: "Setup",
 
   // CORE FEATURES
   "-- features": {

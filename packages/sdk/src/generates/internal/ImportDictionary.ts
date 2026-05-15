@@ -1,7 +1,6 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { Node, TypeScriptFactory } from "@nestia/factory";
 import path from "path";
 import { HashMap, TreeSet, hash } from "tstl";
-import ts from "typescript";
 
 import { ImportAnalyzer } from "../../analyses/ImportAnalyzer";
 import { IReflectImport } from "../../structures/IReflectImport";
@@ -85,11 +84,11 @@ export class ImportDictionary {
     return props.name;
   }
 
-  public toStatements(outDir: string): ts.Statement[] {
+  public toStatements(outDir: string): Node[] {
     outDir = path.resolve(outDir);
 
-    const external: ts.ImportDeclaration[] = [];
-    const internal: ts.ImportDeclaration[] = [];
+    const external: Node[] = [];
+    const internal: Node[] = [];
     const locator = (str: string) => {
       const location: string = path
         .relative(outDir, str)
@@ -104,7 +103,7 @@ export class ImportDictionary {
     };
     const enroll =
       (filter: (str: string) => boolean) =>
-      (container: ts.ImportDeclaration[]) => {
+      (container: Node[]) => {
         const compositions: ICompositeValue[] = this.components_
           .toJSON()
           .filter((c) => filter(c.second.file))
@@ -136,7 +135,7 @@ export class ImportDictionary {
     ];
   }
 
-  private toImportClaude(c: ICompositeValue): ts.ImportClause {
+  private toImportClaude(c: ICompositeValue): Node {
     if (c.asterisk !== null)
       return TypeScriptFactory.createImportClause(
         c.declaration,

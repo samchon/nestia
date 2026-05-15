@@ -25,7 +25,6 @@ catalogs:
     '@trivago/prettier-plugin-sort-imports': ^4.3.0
     prettier: ^3.8.1
     prettier-plugin-jsdoc: ^1.8.0
-    ts-node: ^10.9.2
     ttsc: ^0.10.2
     typescript: ~6.0.3
   rollup:

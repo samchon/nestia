@@ -865,7 +865,7 @@ When backend and frontend live in the same repository, ship the SDK as a third w
 }
 ```
 
-**2. tsconfig aliases the package back to itself** — `paths` for the type-checker, `typescript-transform-paths` to flatten the alias in emitted `.js`/`.d.ts` so the published `lib/` is standalone.
+**2. tsconfig aliases the package back to itself** — `paths` lets the type-checker resolve the SDK package name back to the local source.
 
 ```json filename="packages/api/tsconfig.json" showLineNumbers {7,10-11}
 {
@@ -876,10 +876,7 @@ When backend and frontend live in the same repository, ship the SDK as a third w
     "paths": {
       "@samchon/shopping-api": ["./src"]
     },
-    "plugins": [
-      { "transform": "typescript-transform-paths" },
-      { "transform": "typia/lib/transform" }
-    ]
+    "plugins": [{ "transform": "typia/lib/transform", "enabled": false }]
   },
   "include": ["src"]
 }

@@ -197,8 +197,15 @@ func runBuild(args []string) int {
 		fmt.Fprintf(stderr, "ttsc-nestia build: emit failed: %v\n", err)
 		return 3
 	}
+	emitHasError := false
 	for _, d := range eDiags {
 		fmt.Fprintln(stderr, "  -", d.String())
+		if d.IsError() {
+			emitHasError = true
+		}
+	}
+	if emitHasError {
+		return 3
 	}
 	if *manifestPath != "" {
 		data, err := json.Marshal(res.EmittedFiles)

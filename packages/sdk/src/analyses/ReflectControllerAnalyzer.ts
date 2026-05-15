@@ -9,7 +9,7 @@ import { INestiaSdkInput } from "../structures/INestiaSdkInput";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperation } from "../structures/IReflectHttpOperation";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
-import { IOperationMetadata } from "../transformers/IOperationMetadata";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { ArrayUtil } from "../utils/ArrayUtil";
 import { ReflectHttpOperationAnalyzer } from "./ReflectHttpOperationAnalyzer";
 import { ReflectMetadataAnalyzer } from "./ReflectMetadataAnalyzer";

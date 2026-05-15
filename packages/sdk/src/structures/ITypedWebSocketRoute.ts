@@ -1,5 +1,5 @@
 import { VERSION_NEUTRAL } from "@nestjs/common";
-import ts from "typescript";
+import { IJsDocTagInfo } from "typia";
 
 import { IReflectController } from "./IReflectController";
 import { IReflectImport } from "./IReflectImport";
@@ -20,5 +20,5 @@ export interface ITypedWebSocketRoute {
   driver: ITypedWebSocketRouteParameter.IDriver | null;
   imports: IReflectImport[];
   description: string | null;
-  jsDocTags: ts.JSDocTagInfo[];
+  jsDocTags: IJsDocTagInfo[];
 }

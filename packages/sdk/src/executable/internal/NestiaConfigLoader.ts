@@ -1,34 +1,33 @@
 import { doNotThrowTransformError } from "@nestia/core";
 import fs from "fs";
 import path from "path";
-import { parse } from "tsconfck";
-import ts from "typescript";
 import { pathToFileURL } from "url";
 
 import { INestiaConfig } from "../../INestiaConfig";
+import { TsConfigReader } from "../../utils/TsConfigReader";
 import { TtscExecutor } from "../../utils/TtscExecutor";
 
 export namespace NestiaConfigLoader {
+  export interface ICompilerOptions {
+    raw: {
+      compilerOptions?: Record<string, any>;
+    };
+  }
+
   export const compilerOptions = async (
     project: string,
-  ): Promise<ts.ParsedCommandLine> => {
-    const configFileName = ts.findConfigFile(
-      process.cwd(),
-      ts.sys.fileExists,
-      project,
-    );
+  ): Promise<ICompilerOptions> => {
+    const configFileName = findConfigFile(process.cwd(), project);
     if (!configFileName) throw new Error(`unable to find "${project}" file.`);
-    const { tsconfig } = await parse(configFileName);
-    const configFileText = JSON.stringify(tsconfig);
-    const { config } = ts.parseConfigFileTextToJson(
-      configFileName,
-      configFileText,
-    );
-    return ts.parseJsonConfigFileContent(
-      config,
-      ts.sys,
-      path.dirname(configFileName),
-    );
+    const tsconfig = await TsConfigReader.read(configFileName);
+    return {
+      raw: {
+        compilerOptions:
+          typeof tsconfig?.compilerOptions === "object"
+            ? (tsconfig.compilerOptions as Record<string, any>)
+            : {},
+      },
+    };
   };
 
   export const configurations = async (
@@ -68,9 +67,8 @@ export namespace NestiaConfigLoader {
   }): Promise<string> => {
     const configFile: string = path.resolve(props.file);
     const project: string = process.env.NESTIA_PROJECT ?? "tsconfig.json";
-    const projectFile: string | undefined = ts.findConfigFile(
+    const projectFile: string | undefined = findConfigFile(
       process.cwd(),
-      ts.sys.fileExists,
       project,
     );
     if (projectFile === undefined)
@@ -84,7 +82,6 @@ export namespace NestiaConfigLoader {
       path.join(ensureMaterializedRoot(projectRoot), "run-"),
     );
     const wrapperFile: string = path.join(wrapperRoot, "tsconfig.json");
-    const requiresTransforms: boolean = requiresConfigurationTransforms(configFile);
     const wrapperConfig = {
       extends: projectFile,
       compilerOptions: {
@@ -93,9 +90,7 @@ export namespace NestiaConfigLoader {
         noUnusedParameters: false,
         ...nodeAmbientCompilerOptions(projectRoot, props.compilerOptions),
         outDir: outputRoot,
-        plugins: requiresTransforms
-          ? materializePlugins(props.compilerOptions.plugins)
-          : [],
+        plugins: materializePlugins(props.compilerOptions.plugins),
         rootDir: projectRoot,
       },
       include: [configFile],
@@ -113,12 +108,19 @@ export namespace NestiaConfigLoader {
         project: wrapperFile,
       });
     } catch (error) {
-      const output =
-        error instanceof Error && "stderr" in error
-          ? String((error as Error & { stderr?: Buffer }).stderr ?? "")
-          : "";
+      const stderr: string = readChildOutput(error, "stderr");
+      const stdout: string = readChildOutput(error, "stdout");
+      const detail: string = stderr || stdout;
+      const cause: Error =
+        error instanceof Error ? error : new Error(String(error));
+      const status: number | string | undefined =
+        (cause as { status?: number }).status ??
+        (cause as NodeJS.ErrnoException).code;
       throw new Error(
-        output || `failed to compile "${props.file}" through ttsc.`,
+        detail
+          ? `failed to compile "${props.file}" through ttsc:\n${detail}`
+          : `failed to compile "${props.file}" through ttsc (exit code ${status ?? "unknown"}). Run \`npx ttsc -p ${projectFile}\` to see the underlying diagnostics.`,
+        { cause },
       );
     } finally {
       fs.rmSync(wrapperRoot, { force: true, recursive: true });
@@ -169,7 +171,7 @@ export namespace NestiaConfigLoader {
   const nodeAmbientCompilerOptions = (
     projectRoot: string,
     compilerOptions: Record<string, any>,
-  ): Pick<ts.CompilerOptions, "typeRoots" | "types"> => {
+  ): { typeRoots?: string[]; types: string[] } => {
     const typeRoots: string[] = uniqueStrings([
       ...asStringArray(compilerOptions.typeRoots),
       ...resolveNodeTypeRoots(projectRoot),
@@ -248,41 +250,25 @@ export namespace NestiaConfigLoader {
   const isTransform = (plugin: MaterializePlugin, name: string): boolean =>
     typeof plugin.transform === "string" && plugin.transform.includes(name);
 
-  const requiresConfigurationTransforms = (file: string): boolean => {
-    const source: ts.SourceFile = ts.createSourceFile(
-      file,
-      fs.readFileSync(file, "utf8"),
-      ts.ScriptTarget.Latest,
-      true,
-      ts.ScriptKind.TS,
-    );
-    let output: boolean = false;
-    const visit = (node: ts.Node): void => {
-      if (output === true) return;
-      if (
-        ts.isPropertyAssignment(node) &&
-        propertyName(node.name) === "input" &&
-        isFunctionLikeInitializer(node.initializer)
-      ) {
-        output = true;
-        return;
-      }
-      ts.forEachChild(node, visit);
-    };
-    visit(source);
-    return output;
-  };
+  const findConfigFile = (
+    cwd: string,
+    project: string,
+  ): string | undefined => {
+    const candidate: string = path.isAbsolute(project)
+      ? project
+      : path.resolve(cwd, project);
+    if (fs.existsSync(candidate)) return candidate;
+    if (path.isAbsolute(project) || project.includes(path.sep))
+      return undefined;
 
-  const propertyName = (node: ts.PropertyName): string | null => {
-    if (ts.isIdentifier(node) || ts.isStringLiteral(node)) return node.text;
-    if (ts.isNumericLiteral(node)) return node.text;
-    return null;
-  };
-
-  const isFunctionLikeInitializer = (node: ts.Expression): boolean => {
-    while (ts.isAsExpression(node) || ts.isSatisfiesExpression(node))
-      node = node.expression;
-    return ts.isArrowFunction(node) || ts.isFunctionExpression(node);
+    let current: string = path.resolve(cwd);
+    while (true) {
+      const next: string = path.join(current, project);
+      if (fs.existsSync(next)) return next;
+      const parent: string = path.dirname(current);
+      if (parent === current) return undefined;
+      current = parent;
+    }
   };
 
   const extractConfiguration = (
@@ -423,4 +409,16 @@ export namespace NestiaConfigLoader {
 
   const isStringArray = (input: unknown): input is string[] =>
     Array.isArray(input) && input.every((elem) => typeof elem === "string");
+
+  const readChildOutput = (
+    error: unknown,
+    key: "stderr" | "stdout",
+  ): string => {
+    if (!error || typeof error !== "object" || !(key in error)) return "";
+    const value = (error as Record<string, unknown>)[key];
+    if (value === null || value === undefined) return "";
+    if (typeof value === "string") return value.trim();
+    if (Buffer.isBuffer(value)) return value.toString("utf8").trim();
+    return "";
+  };
 }

@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "esModuleInterop": true,
+    "allowJs": true
+  },
+  "include": ["start.js"]
+}

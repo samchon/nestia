@@ -1,4 +1,4 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { Node, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
 import {
   ExpressionFactory,
   MetadataAliasType,
@@ -13,7 +13,6 @@ import {
   TypeFactory,
 } from "@typia/core";
 import { NamingConvention } from "@typia/utils";
-import ts from "typescript";
 import { IJsDocTagInfo, IMetadataTypeTag } from "typia";
 
 import { INestiaProject } from "../../structures/INestiaProject";
@@ -28,8 +27,8 @@ export namespace SdkTypeProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (meta: MetadataSchema, parentEscaped: boolean = false): ts.TypeNode => {
-      const union: ts.TypeNode[] = [];
+    (meta: MetadataSchema, parentEscaped: boolean = false): Node => {
+      const union: Node[] = [];
 
       // COALESCES
       if (meta.any) union.push(TypeFactory.keyword("any"));
@@ -74,7 +73,7 @@ export namespace SdkTypeProgrammer {
   export const write_object =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (object: MetadataObjectType): ts.TypeNode => {
+    (object: MetadataObjectType): Node => {
       const regular = object.properties.filter((p) => p.key.isSoleLiteral());
       const dynamic = object.properties.filter((p) => !p.key.isSoleLiteral());
       return regular.length && dynamic.length
@@ -92,7 +91,7 @@ export namespace SdkTypeProgrammer {
   const write_escaped =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (meta: MetadataEscaped): ts.TypeNode => {
+    (meta: MetadataEscaped): Node => {
       if (
         meta.original.size() === 1 &&
         meta.original.natives.length === 1 &&
@@ -122,7 +121,7 @@ export namespace SdkTypeProgrammer {
       return TypeScriptFactory.createLiteralTypeNode(
         value.value < BigInt(0)
           ? TypeScriptFactory.createPrefixUnaryExpression(
-              ts.SyntaxKind.MinusToken,
+              SyntaxKind.MinusToken,
               TypeScriptFactory.createBigIntLiteral((-value).toString()),
             )
           : TypeScriptFactory.createBigIntLiteral(value.toString()),
@@ -139,14 +138,14 @@ export namespace SdkTypeProgrammer {
   const write_template =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (meta: MetadataSchema[]): ts.TypeNode => {
+    (meta: MetadataSchema[]): Node => {
       const head: boolean = meta[0]!.isSoleLiteral();
-      const spans: [ts.TypeNode | null, string | null][] = [];
+      const spans: [Node | null, string | null][] = [];
       for (const elem of meta.slice(head ? 1 : 0)) {
         const last =
           spans.at(-1) ??
           (() => {
-            const tuple = [null!, null!] as [ts.TypeNode | null, string | null];
+            const tuple = [null!, null!] as [Node | null, string | null];
             spans.push(tuple);
             return tuple;
           })();
@@ -184,17 +183,17 @@ export namespace SdkTypeProgrammer {
 
   const write_atomic =
     (importer: ImportDictionary) =>
-    (meta: MetadataAtomic): ts.TypeNode =>
+    (meta: MetadataAtomic): Node =>
       write_type_tag_matrix(importer)(
         meta.type as "boolean" | "bigint" | "number" | "string",
         TypeScriptFactory.createKeywordTypeNode(
           meta.type === "boolean"
-            ? ts.SyntaxKind.BooleanKeyword
+            ? SyntaxKind.BooleanKeyword
             : meta.type === "bigint"
-              ? ts.SyntaxKind.BigIntKeyword
+              ? SyntaxKind.BigIntKeyword
               : meta.type === "number"
-                ? ts.SyntaxKind.NumberKeyword
-                : ts.SyntaxKind.StringKeyword,
+                ? SyntaxKind.NumberKeyword
+                : SyntaxKind.StringKeyword,
         ),
         meta.tags,
       );
@@ -205,7 +204,7 @@ export namespace SdkTypeProgrammer {
   const write_array =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (meta: MetadataArray): ts.TypeNode =>
+    (meta: MetadataArray): Node =>
       write_type_tag_matrix(importer)(
         "array",
         TypeScriptFactory.createArrayTypeNode(
@@ -217,7 +216,7 @@ export namespace SdkTypeProgrammer {
   const write_tuple =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (meta: MetadataTuple): ts.TypeNode =>
+    (meta: MetadataTuple): Node =>
       TypeScriptFactory.createTupleTypeNode(
         meta.type.elements.map((elem) =>
           elem.rest
@@ -237,7 +236,7 @@ export namespace SdkTypeProgrammer {
   const write_regular_property =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (properties: MetadataProperty[]): ts.TypeLiteralNode =>
+    (properties: MetadataProperty[]): Node =>
       TypeScriptFactory.createTypeLiteralNode(
         properties
           .map((p) => {
@@ -245,7 +244,7 @@ export namespace SdkTypeProgrammer {
               p.description,
               p.jsDocTags,
             );
-            const signature: ts.PropertySignature =
+            const signature: Node =
               TypeScriptFactory.createPropertySignature(
                 undefined,
                 NamingConvention.variable(
@@ -258,7 +257,7 @@ export namespace SdkTypeProgrammer {
                       String(p.key.constants[0]!.values[0]!.value),
                     ),
                 p.value.isRequired() === false
-                  ? TypeScriptFactory.createToken(ts.SyntaxKind.QuestionToken)
+                  ? TypeScriptFactory.createToken(SyntaxKind.QuestionToken)
                   : undefined,
                 SdkTypeProgrammer.write(project)(importer)(p.value),
               );
@@ -275,7 +274,7 @@ export namespace SdkTypeProgrammer {
   const write_dynamic_property =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (property: MetadataProperty): ts.TypeLiteralNode =>
+    (property: MetadataProperty): Node =>
       TypeScriptFactory.createTypeLiteralNode([
         FilePrinter.description(
           TypeScriptFactory.createIndexSignature(
@@ -301,12 +300,12 @@ export namespace SdkTypeProgrammer {
   const writeAlias =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (meta: MetadataAliasType | MetadataObjectType): ts.TypeNode => {
+    (meta: MetadataAliasType | MetadataObjectType): Node => {
       importInternalFile(project)(importer)(meta.name);
       return TypeScriptFactory.createTypeReferenceNode(meta.name);
     };
 
-  const write_native = (name: string): ts.TypeNode =>
+  const write_native = (name: string): Node =>
     TypeScriptFactory.createTypeReferenceNode(name);
 
   /* -----------------------------------------------------------
@@ -316,9 +315,9 @@ export namespace SdkTypeProgrammer {
     (importer: ImportDictionary) =>
     (
       from: "array" | "boolean" | "number" | "bigint" | "string" | "object",
-      base: ts.TypeNode,
+      base: Node,
       matrix: IMetadataTypeTag[][],
-    ): ts.TypeNode => {
+    ): Node => {
       matrix = matrix.filter((row) => row.length !== 0);
       if (matrix.length === 0) return base;
       else if (matrix.length === 1)

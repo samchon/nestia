@@ -57,7 +57,7 @@ func runTransform(args []string) int {
 		return 2
 	}
 	prog, diags, err := driver.LoadProgram(cwd, *tsconfigPath, driver.LoadProgramOptions{
-		ForceEmit: true,
+		ForceNoEmit: true,
 	})
 	if err != nil {
 		fmt.Fprintf(stderr, "ttsc-nestia transform: %v\n", err)
@@ -273,6 +273,12 @@ func applySourceRewrites(source string, rewrites []transformSourceRewrite) (stri
 	sort.SliceStable(rewrites, func(i, j int) bool {
 		return rewrites[i].start > rewrites[j].start
 	})
+	for i := 0; i < len(rewrites)-1; i++ {
+		if rewrites[i+1].end > rewrites[i].start {
+			return "", fmt.Errorf("overlapping rewrites: [%d,%d) vs [%d,%d)",
+				rewrites[i+1].start, rewrites[i+1].end, rewrites[i].start, rewrites[i].end)
+		}
+	}
 	output := source
 	for _, rewrite := range rewrites {
 		if rewrite.start < 0 || rewrite.end < rewrite.start || rewrite.end > len(output) {

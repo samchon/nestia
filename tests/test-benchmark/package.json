@@ -23,7 +23,6 @@
     "@types/uuid": "catalog:utils",
     "cross-env": "^10.1.0",
     "nestia": "workspace:^",
-    "ts-node": "catalog:typescript",
     "ttsc": "catalog:typescript",
     "typescript": "catalog:typescript"
   },

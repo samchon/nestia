@@ -1,6 +1,5 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
 import { IdentifierFactory, LiteralFactory } from "@typia/core";
-import ts from "typescript";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -25,7 +24,7 @@ export namespace E2eFileProgrammer {
         type: "default",
         name: "api",
       });
-      const functor: ts.Statement = generateFunctor(project)(importer)(route);
+      const functor: Node = generateFunctor(project)(importer)(route);
       await FilePrinter.write({
         location: importer.file,
         statements: [
@@ -39,9 +38,9 @@ export namespace E2eFileProgrammer {
   const generateFunctor =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.Statement =>
+    (route: ITypedHttpRoute): Node =>
       TypeScriptFactory.createVariableStatement(
-        [TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword)],
+        [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
         TypeScriptFactory.createVariableDeclarationList(
           [
             TypeScriptFactory.createVariableDeclaration(
@@ -51,7 +50,7 @@ export namespace E2eFileProgrammer {
               generateArrow(project)(importer)(route),
             ),
           ],
-          ts.NodeFlags.Const,
+          NodeFlags.Const,
         ),
       );
 
@@ -159,7 +158,7 @@ export namespace E2eFileProgrammer {
       );
 
       return TypeScriptFactory.createArrowFunction(
-        [TypeScriptFactory.createModifier(ts.SyntaxKind.AsyncKeyword)],
+        [TypeScriptFactory.createModifier(SyntaxKind.AsyncKeyword)],
         undefined,
         [
           IdentifierFactory.parameter(
@@ -184,7 +183,7 @@ export namespace E2eFileProgrammer {
                   TypeScriptFactory.createAwaitExpression(fetch),
                 ),
               ],
-              ts.NodeFlags.Const,
+              NodeFlags.Const,
             ),
           ),
           TypeScriptFactory.createExpressionStatement(assert),
@@ -195,7 +194,7 @@ export namespace E2eFileProgrammer {
 
 const getRandomType =
   (importer: ImportDictionary) =>
-  (entry: SdkHttpParameterProgrammer.IEntry): ts.TypeNode => {
+  (entry: SdkHttpParameterProgrammer.IEntry): Node => {
     if (isPlainStringPathParameter(entry) === false) return entry.type;
     return TypeScriptFactory.createIntersectionTypeNode([
       entry.type,
@@ -213,7 +212,7 @@ const getRandomType =
         ),
         [
           TypeScriptFactory.createLiteralTypeNode(
-            LiteralFactory.write(1) as ts.LiteralExpression,
+            LiteralFactory.write(1) as Node,
           ),
         ],
       ),

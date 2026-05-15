@@ -14,6 +14,7 @@ export namespace TtscExecutor {
     return cp.execFileSync(process.execPath, args, {
       cwd: props.cwd,
       stdio: props.stdio ?? "pipe",
+      maxBuffer: 64 * 1024 * 1024,
     });
   };
 
@@ -30,9 +31,24 @@ export namespace TtscExecutor {
     );
     const location: string | undefined =
       typeof pack.bin === "string" ? pack.bin : pack.bin?.ttsc;
-    if (location === undefined)
-      throw new Error(`Unable to find "ttsc" binary from package metadata.`);
+    if (location === undefined) {
+      const keys =
+        typeof pack.bin === "object" && pack.bin !== null
+          ? Object.keys(pack.bin).join(", ")
+          : "<none>";
+      throw new Error(
+        `Unable to find "ttsc" binary from package metadata. ` +
+          `Available bin entries: ${keys}. ` +
+          `Reinstall with: npm install --save-dev ttsc`,
+      );
+    }
 
-    return (bin_ = path.join(directory, location));
+    const resolved: string = path.join(directory, location);
+    if (!fs.existsSync(resolved))
+      throw new Error(
+        `"ttsc" binary not found at "${resolved}". ` +
+          `Reinstall with: npm install --save-dev ttsc`,
+      );
+    return (bin_ = resolved);
   };
 }

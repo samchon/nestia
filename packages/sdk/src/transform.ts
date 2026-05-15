@@ -1,9 +1,14 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { ITtscPlugin, ITtscPluginFactoryContext } from "ttsc";
-import ts from "typescript";
 
-import { SdkOperationTransformer } from "./transformers/SdkOperationTransformer";
+interface ITtscPluginFactoryContext {
+  projectRoot: string;
+}
+
+interface ITtscPlugin {
+  name: string;
+  source: string;
+}
 
 const filename: string = currentFilename();
 const dirname: string = path.dirname(filename);
@@ -14,18 +19,12 @@ export function createTtscPlugin(
   const root: string =
     resolvePackageRoot("@nestia/core/package.json", context.projectRoot) ??
     inferCorePackageRoot();
-  const plugin: ITtscPlugin = {
+  return {
     name: "@nestia/sdk",
     source: path.resolve(root, "native", "cmd", "ttsc-nestia"),
   };
-  return plugin;
 }
-
-export const transform = (
-  program: ts.Program,
-): ts.TransformerFactory<ts.SourceFile> =>
-  SdkOperationTransformer.iterateFile(program.getTypeChecker());
-export default transform;
+export default createTtscPlugin;
 
 function resolvePackageRoot(
   packageJson: string,

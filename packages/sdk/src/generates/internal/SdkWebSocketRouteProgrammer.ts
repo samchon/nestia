@@ -1,6 +1,5 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
 import { IdentifierFactory } from "@typia/core";
-import ts from "typescript";
 import { IJsDocTagInfo } from "typia";
 
 import { INestiaProject } from "../../structures/INestiaProject";
@@ -15,7 +14,7 @@ export namespace SdkWebSocketRouteProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedWebSocketRoute): ts.Statement[] => [
+    (route: ITypedWebSocketRoute): Node[] => [
       FilePrinter.description(
         writeFunction(project)(importer)(route),
         writeDescription(route),
@@ -59,11 +58,11 @@ export namespace SdkWebSocketRouteProgrammer {
   const writeFunction =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedWebSocketRoute): ts.FunctionDeclaration => {
+    (route: ITypedWebSocketRoute): Node => {
       return TypeScriptFactory.createFunctionDeclaration(
         [
-          TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword),
-          TypeScriptFactory.createModifier(ts.SyntaxKind.AsyncKeyword),
+          TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword),
+          TypeScriptFactory.createModifier(SyntaxKind.AsyncKeyword),
         ],
         undefined,
         route.name,
@@ -100,7 +99,7 @@ export namespace SdkWebSocketRouteProgrammer {
   const writeFunctionBody =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedWebSocketRoute): ts.Statement[] => {
+    (route: ITypedWebSocketRoute): Node[] => {
       const access = (key: string) =>
         project.config.keyword === true
           ? TypeScriptFactory.createPropertyAccessExpression(
@@ -166,12 +165,12 @@ export namespace SdkWebSocketRouteProgrammer {
                     "headers",
                   ),
                   TypeScriptFactory.createToken(
-                    ts.SyntaxKind.QuestionQuestionToken,
+                    SyntaxKind.QuestionQuestionToken,
                   ),
                   TypeScriptFactory.createObjectLiteralExpression([], false),
                 ),
                 TypeScriptFactory.createKeywordTypeNode(
-                  ts.SyntaxKind.AnyKeyword,
+                  SyntaxKind.AnyKeyword,
                 ),
               ),
               access("provider"),
@@ -222,12 +221,12 @@ export namespace SdkWebSocketRouteProgrammer {
               TypeScriptFactory.createPropertyAssignment(
                 TypeScriptFactory.createIdentifier("reconnect"),
                 TypeScriptFactory.createArrowFunction(
-                  [TypeScriptFactory.createToken(ts.SyntaxKind.AsyncKeyword)],
+                  [TypeScriptFactory.createToken(SyntaxKind.AsyncKeyword)],
                   undefined,
                   [],
                   undefined,
                   TypeScriptFactory.createToken(
-                    ts.SyntaxKind.EqualsGreaterThanToken,
+                    SyntaxKind.EqualsGreaterThanToken,
                   ),
                   TypeScriptFactory.createAwaitExpression(
                     TypeScriptFactory.createCallExpression(
@@ -250,7 +249,7 @@ export namespace SdkWebSocketRouteProgrammer {
 }
 
 const local =
-  (name: string) => (type: ts.TypeNode) => (expression: ts.Expression) =>
+  (name: string) => (type: Node) => (expression: Node) =>
     TypeScriptFactory.createVariableStatement(
       [],
       TypeScriptFactory.createVariableDeclarationList(
@@ -262,11 +261,11 @@ const local =
             expression,
           ),
         ],
-        ts.NodeFlags.Const,
+        NodeFlags.Const,
       ),
     );
 
-const joinPath = (caller: ts.Expression) =>
+const joinPath = (caller: Node) =>
   TypeScriptFactory.createTemplateExpression(
     TypeScriptFactory.createTemplateHead("", ""),
     [
@@ -283,7 +282,7 @@ const joinPath = (caller: ts.Expression) =>
             undefined,
             [TypeScriptFactory.createStringLiteral("/")],
           ),
-          TypeScriptFactory.createToken(ts.SyntaxKind.QuestionToken),
+          TypeScriptFactory.createToken(SyntaxKind.QuestionToken),
           TypeScriptFactory.createCallExpression(
             TypeScriptFactory.createPropertyAccessExpression(
               TypeScriptFactory.createPropertyAccessExpression(
@@ -303,12 +302,12 @@ const joinPath = (caller: ts.Expression) =>
                   ),
                   TypeScriptFactory.createIdentifier("length"),
                 ),
-                TypeScriptFactory.createToken(ts.SyntaxKind.MinusToken),
+                TypeScriptFactory.createToken(SyntaxKind.MinusToken),
                 TypeScriptFactory.createNumericLiteral("1"),
               ),
             ],
           ),
-          TypeScriptFactory.createToken(ts.SyntaxKind.ColonToken),
+          TypeScriptFactory.createToken(SyntaxKind.ColonToken),
           TypeScriptFactory.createPropertyAccessExpression(
             TypeScriptFactory.createIdentifier("connection"),
             TypeScriptFactory.createIdentifier("host"),

@@ -1,0 +1,81 @@
+---
+title: Guide Documents > Setup
+description: "Two install paths for Nestia: the new TypeScript-Go (`ttsc`) toolchain on `@nestia/core@next`, and the legacy `ts-patch` setup on the published v11 line."
+---
+
+import { Tabs } from "nextra/components";
+
+Pick **TypeScript-Go** for new projects on the `@next` line (npm's `next` dist-tag, which moves with every dev release), or **Legacy** for production projects already on v11. Both paths share decorator APIs and CLI subcommands; only the build toolchain differs.
+
+## [TypeScript-Go](/docs/setup/tsgo)
+
+Use `@nestia/core@next` and `@nestia/sdk@next` with `ttsc`.
+
+TypeScript is migrating its compiler to Go through TypeScript-Go. `ttsc` is the Go-based plugin toolchain for that compiler, and the `@next` line of Nestia ships its transform as a Go binary that runs inside `ttsc`. The same binary covers both `@nestia/core` (controller decorators) and `@nestia/sdk` (SDK / Swagger / e2e generators).
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+npm i -D nestia@next
+npx nestia setup
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+pnpm i -D nestia@next
+pnpm nestia setup --manager pnpm
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+yarn add -D nestia@next
+yarn nestia setup --manager yarn
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+bun add -d nestia@next
+bun nestia setup --manager bun
+```
+  </Tabs.Tab>
+</Tabs>
+
+Prefer to install the packages by hand? See [TypeScript-Go → Install (manual)](/docs/setup/tsgo#install-manual).
+
+You must use `ttsc` and `ttsx`. The stock `tsc`, `ts-node`, and `tsx` cannot apply the Nestia transform. Go 1.26 or newer must also be available on `PATH` (or via `TTSC_GO_BINARY`); the native binary is built on demand.
+
+For bundlers, use `@ttsc/unplugin` — see [TypeScript-Go → Bundlers](/docs/setup/tsgo#bundlers).
+
+## [Legacy (ts-patch)](/docs/setup/legacy)
+
+Use `nestia` with `ts-patch`.
+
+This is the existing setup path on TypeScript v5 + `ts-patch`. It uses the JavaScript-based TypeScript compiler with `ts-patch`, and remains the stable path for current `nestia` v11 releases. The `npx nestia setup` wizard installs and patches everything in one step.
+
+<Tabs items={["npm", "pnpm", "yarn"]}>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+npm i -D nestia@^11
+npx nestia setup
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+pnpm i -D nestia@^11
+pnpm nestia setup --manager pnpm
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+# yarn berry is not supported
+yarn add -D nestia@^11
+yarn nestia setup --manager yarn
+```
+  </Tabs.Tab>
+</Tabs>
+
+For bundlers on the legacy line, see [Legacy → Bundlers](/docs/setup/legacy#bundlers).
+
+## [Migrating from v11](/docs/setup/legacy#migrating-to-typescript-go)
+
+Already on `nestia@^11` with `ts-patch`? The legacy page's last section is a six-step cutover to `ttsc`: drop the patch chain, reinstall on `@next`, switch the build commands. The cutover is reversible — keep your previous lockfile and `tsconfig.json` until the new build is green.

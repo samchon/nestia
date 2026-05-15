@@ -1,5 +1,4 @@
-import { TypeScriptFactory } from "@nestia/factory";
-import ts from "typescript";
+import { Node, TypeScriptFactory } from "@nestia/factory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";
@@ -8,7 +7,7 @@ import { SdkAliasCollection } from "./SdkAliasCollection";
 export namespace SdkWebSocketParameterProgrammer {
   export interface IEntry {
     key: string;
-    type: ts.TypeNode;
+    type: Node;
   }
 
   export const getEntries = (props: {
@@ -49,14 +48,14 @@ export namespace SdkWebSocketParameterProgrammer {
     route: ITypedWebSocketRoute;
     provider: boolean;
     prefix: boolean;
-  }): ts.ParameterDeclaration[] => {
+  }): Node[] => {
     const entries: IEntry[] = getEntries(props);
     if (entries.length === 0) return [];
     else if (props.project.config.keyword === true) {
       const typeName: string = props.prefix
         ? `${props.route.name}.Props`
         : "Props";
-      const node: ts.TypeNode = props.provider
+      const node: Node = props.provider
         ? TypeScriptFactory.createTypeReferenceNode(typeName)
         : TypeScriptFactory.createTypeReferenceNode("Omit", [
             TypeScriptFactory.createTypeReferenceNode(typeName),

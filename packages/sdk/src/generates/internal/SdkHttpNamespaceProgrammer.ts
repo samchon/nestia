@@ -1,4 +1,4 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
 import {
   ExpressionFactory,
   IdentifierFactory,
@@ -6,7 +6,6 @@ import {
   TypeFactory,
 } from "@typia/core";
 import { NamingConvention } from "@typia/utils";
-import ts from "typescript";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -21,11 +20,11 @@ export namespace SdkHttpNamespaceProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.ModuleDeclaration => {
-      const types: ts.TypeAliasDeclaration[] =
+    (route: ITypedHttpRoute): Node => {
+      const types: Node[] =
         writeTypes(project)(importer)(route);
       return TypeScriptFactory.createModuleDeclaration(
-        [TypeScriptFactory.createToken(ts.SyntaxKind.ExportKeyword)],
+        [TypeScriptFactory.createToken(SyntaxKind.ExportKeyword)],
         TypeScriptFactory.createIdentifier(route.name),
         TypeScriptFactory.createModuleBlock([
           ...types,
@@ -46,19 +45,19 @@ export namespace SdkHttpNamespaceProgrammer {
             ? [writeStringify(project)(importer)]
             : []),
         ]),
-        ts.NodeFlags.Namespace,
+        NodeFlags.Namespace,
       );
     };
 
   const writeTypes =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.TypeAliasDeclaration[] => {
-      const array: ts.TypeAliasDeclaration[] = [];
-      const declare = (name: string, type: ts.TypeNode) =>
+    (route: ITypedHttpRoute): Node[] => {
+      const array: Node[] = [];
+      const declare = (name: string, type: Node) =>
         array.push(
           TypeScriptFactory.createTypeAliasDeclaration(
-            [TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword)],
+            [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
             name,
             undefined,
             type,
@@ -98,7 +97,7 @@ export namespace SdkHttpNamespaceProgrammer {
   const writeMetadata =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.VariableStatement =>
+    (route: ITypedHttpRoute): Node =>
       constant("METADATA")(
         TypeScriptFactory.createAsExpression(
           TypeScriptFactory.createObjectLiteralExpression(
@@ -175,8 +174,8 @@ export namespace SdkHttpNamespaceProgrammer {
   const writePath =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.VariableStatement => {
-      const out = (body: ts.ConciseBody) =>
+    (route: ITypedHttpRoute): Node => {
+      const out = (body: Node) =>
         constant("path")(
           TypeScriptFactory.createArrowFunction(
             [],
@@ -225,7 +224,7 @@ export namespace SdkHttpNamespaceProgrammer {
                           ),
                         ),
                         TypeScriptFactory.createToken(
-                          ts.SyntaxKind.QuestionDotToken,
+                          SyntaxKind.QuestionDotToken,
                         ),
                         "toString",
                       ),
@@ -234,7 +233,7 @@ export namespace SdkHttpNamespaceProgrammer {
                       [],
                     ),
                     TypeScriptFactory.createToken(
-                      ts.SyntaxKind.QuestionQuestionToken,
+                      SyntaxKind.QuestionQuestionToken,
                     ),
                     TypeScriptFactory.createStringLiteral("null"),
                   ),
@@ -252,7 +251,7 @@ export namespace SdkHttpNamespaceProgrammer {
       if (route.queryObject === null && route.queryParameters.length === 0)
         return out(template());
 
-      const block = (expr: ts.Expression) => {
+      const block = (expr: Node) => {
         const computeName = (str: string): string =>
           parameters.find((p) => p.name === str) !== undefined
             ? computeName("_" + str)
@@ -291,7 +290,7 @@ export namespace SdkHttpNamespaceProgrammer {
                     undefined,
                   ),
                 ],
-                ts.NodeFlags.Const,
+                NodeFlags.Const,
               ),
               TypeScriptFactory.createCallExpression(
                 TypeScriptFactory.createIdentifier("Object.entries"),
@@ -414,7 +413,7 @@ export namespace SdkHttpNamespaceProgrammer {
               ? TypeScriptFactory.createBinaryExpression(
                   TypeScriptFactory.createIdentifier(route.queryObject.name),
                   TypeScriptFactory.createToken(
-                    ts.SyntaxKind.QuestionQuestionToken,
+                    SyntaxKind.QuestionQuestionToken,
                   ),
                   TypeScriptFactory.createObjectLiteralExpression([], false),
                 )
@@ -453,7 +452,7 @@ export namespace SdkHttpNamespaceProgrammer {
 
   const writeStringify =
     (project: INestiaProject) =>
-    (importer: ImportDictionary): ts.VariableStatement =>
+    (importer: ImportDictionary): Node =>
       constant("stringify")(
         TypeScriptFactory.createArrowFunction(
           [],
@@ -483,7 +482,7 @@ export namespace SdkHttpNamespaceProgrammer {
       );
 }
 
-const local = (name: string) => (type: string) => (expression: ts.Expression) =>
+const local = (name: string) => (type: string) => (expression: Node) =>
   TypeScriptFactory.createVariableStatement(
     [],
     TypeScriptFactory.createVariableDeclarationList(
@@ -495,12 +494,12 @@ const local = (name: string) => (type: string) => (expression: ts.Expression) =>
           expression,
         ),
       ],
-      ts.NodeFlags.Const,
+      NodeFlags.Const,
     ),
   );
-const constant = (name: string) => (expression: ts.Expression) =>
+const constant = (name: string) => (expression: Node) =>
   TypeScriptFactory.createVariableStatement(
-    [TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword)],
+    [TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword)],
     TypeScriptFactory.createVariableDeclarationList(
       [
         TypeScriptFactory.createVariableDeclaration(
@@ -510,6 +509,6 @@ const constant = (name: string) => (expression: ts.Expression) =>
           expression,
         ),
       ],
-      ts.NodeFlags.Const,
+      NodeFlags.Const,
     ),
   );

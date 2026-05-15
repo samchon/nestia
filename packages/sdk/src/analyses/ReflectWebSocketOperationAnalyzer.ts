@@ -5,7 +5,7 @@ import { IReflectController } from "../structures/IReflectController";
 import { IReflectImport } from "../structures/IReflectImport";
 import { IReflectWebSocketOperation } from "../structures/IReflectWebSocketOperation";
 import { IReflectWebSocketOperationParameter } from "../structures/IReflectWebSocketOperationParameter";
-import { IOperationMetadata } from "../transformers/IOperationMetadata";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
 import { StringUtil } from "../utils/StringUtil";
 import { ImportAnalyzer } from "./ImportAnalyzer";
 import { PathAnalyzer } from "./PathAnalyzer";
@@ -36,7 +36,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
           ctx.name,
         ) ?? []) as IReflectWebSocketOperationParameter[]
       ).sort((a, b) => a.index - b.index);
-    if (preconfigured.find((p) => (p.category === "acceptor") === undefined))
+    if (preconfigured.find((p) => p.category === "acceptor") === undefined)
       errors.push("@WebSocketRoute.Acceptor() is essentially required");
     if (preconfigured.length !== ctx.function.length)
       errors.push(

@@ -167,7 +167,45 @@ func (rs *nativeRewriteSet) findSourceForOutput(outputName string) (string, bool
 			return path, true
 		}
 	}
-	return "", false
+	return rs.findSourceByUniqueBase(outSlash)
+}
+
+func (rs *nativeRewriteSet) findSourceByUniqueBase(outputStem string) (string, bool) {
+	// Only fall back to basename matching when the output looks like an actual
+	// build product (sits inside lib/dist/bin/build). If the output lives in
+	// the source tree (e.g. ttsc's virtual filesystem mirroring src/), basename
+	// matching crosses unrelated files — `src/index.ts` would silently absorb
+	// the rewrite intended for every `src/.../index.ts` sibling.
+	if outputHasBuildMarker(outputStem) == false {
+		return "", false
+	}
+	base := pathBase(outputStem)
+	if base == "" {
+		return "", false
+	}
+	matched := ""
+	count := 0
+	for path := range rs.byPath {
+		srcStem := strings.TrimSuffix(filepath.ToSlash(path), filepath.Ext(path))
+		if pathBase(srcStem) != base {
+			continue
+		}
+		matched = path
+		count++
+		if count > 1 {
+			return "", false
+		}
+	}
+	return matched, count == 1
+}
+
+func outputHasBuildMarker(stem string) bool {
+	for _, marker := range []string{"lib", "dist", "bin", "build"} {
+		if _, ok := suffixAfterPathMarker(stem, []string{marker}, false); ok {
+			return true
+		}
+	}
+	return false
 }
 
 func outputMatchesSourceStem(outputStem string, sourceStem string) bool {
@@ -180,11 +218,27 @@ func outputMatchesSourceStem(outputStem string, sourceStem string) bool {
 				return true
 			}
 		}
-		if strings.HasSuffix(outputStem, "/"+sourceRel) {
+		// Suffix-only matching is a fallback for paths that don't share a
+		// recognized build marker (e.g. ttsc's virtual filesystem mirroring
+		// the source tree). Require the relative path to span at least two
+		// segments so a top-level source like `src/index.ts` does not match
+		// every output file that happens to end in `/index.js`.
+		if strings.Contains(sourceRel, "/") && strings.HasSuffix(outputStem, "/"+sourceRel) {
 			return true
 		}
 	}
 	return false
+}
+
+func pathBase(stem string) string {
+	stem = strings.TrimSuffix(filepath.ToSlash(stem), "/")
+	if stem == "" {
+		return ""
+	}
+	if idx := strings.LastIndexByte(stem, '/'); idx >= 0 {
+		return stem[idx+1:]
+	}
+	return stem
 }
 
 func isJavaScriptOutput(fileName string) bool {
@@ -212,10 +266,22 @@ func sourceOutputCandidates(stem string) []string {
 
 func outputSourceCandidates(stem string) []string {
 	candidates := []string{}
-	for _, marker := range [][]string{{"lib"}, {"bin"}, {"dist"}, {"build"}} {
+	// Mirror sourceOutputCandidates so paths whose source and output trees
+	// share the same `src/` (or `test/`) root — e.g. ttsc's virtual filesystem
+	// emits next to the source — can intersect on the same relative tail.
+	// We intentionally do NOT include the {"src","api"} marker here: that
+	// marker exists on the source side to let a source under `src/api/`
+	// pretend its rel is the leaf only (so it matches an output that lacks
+	// the `api/` segment); mirroring it on the output side would let two
+	// unrelated files (e.g. `src/index.ts` and `src/api/index.ts`) collide
+	// on the rel "index".
+	for _, marker := range [][]string{{"lib"}, {"bin"}, {"dist"}, {"build"}, {"src"}} {
 		if rel, ok := suffixAfterPathMarker(stem, marker, false); ok {
 			candidates = append(candidates, rel)
 		}
+	}
+	if rel, ok := suffixAfterPathMarker(stem, []string{"test"}, true); ok {
+		candidates = append(candidates, rel)
 	}
 	return append(candidates, stem)
 }
@@ -399,30 +465,76 @@ func countNativeArguments(text string) int {
 	}
 	count := 1
 	depth := 0
-	for i := 0; i < len(text); i++ {
-		switch text[i] {
+	// templateDepths records the bracket depth at which each currently-open
+	// `${...}` substitution started. When depth drops back to that level on a
+	// '}' token, we pop and re-enter template-string mode.
+	templateDepths := []int{}
+	i := 0
+	for i < len(text) {
+		ch := text[i]
+		switch ch {
 		case '(', '[', '{':
 			depth++
-		case ')', ']', '}':
+		case ')', ']':
 			if depth > 0 {
 				depth--
 			}
-		case '"', '\'', '`':
-			q := text[i]
+		case '}':
+			if depth > 0 {
+				depth--
+			}
+			if n := len(templateDepths); n > 0 && templateDepths[n-1] == depth {
+				templateDepths = templateDepths[:n-1]
+				i++
+				skipTemplateLiteral(text, &i, &templateDepths, &depth)
+				continue
+			}
+		case '"', '\'':
 			i++
-			for i < len(text) && text[i] != q {
-				if text[i] == '\\' {
+			for i < len(text) && text[i] != ch {
+				if text[i] == '\\' && i+1 < len(text) {
 					i++
 				}
 				i++
 			}
+		case '`':
+			i++
+			skipTemplateLiteral(text, &i, &templateDepths, &depth)
+			continue
 		case ',':
 			if depth == 0 {
 				count++
 			}
 		}
+		i++
 	}
 	return count
+}
+
+// skipTemplateLiteral advances i through a template-literal body. It exits
+// either at the matching closing backtick (consuming it) or at the opening
+// of a `${...}` substitution, in which case the caller resumes regular
+// expression parsing and templateDepths records that we owe a return to
+// template-string mode on the matching '}'.
+func skipTemplateLiteral(text string, i *int, templateDepths *[]int, depth *int) {
+	for *i < len(text) {
+		c := text[*i]
+		if c == '\\' && *i+1 < len(text) {
+			*i += 2
+			continue
+		}
+		if c == '`' {
+			*i++
+			return
+		}
+		if c == '$' && *i+1 < len(text) && text[*i+1] == '{' {
+			*templateDepths = append(*templateDepths, *depth)
+			*depth++
+			*i += 2
+			return
+		}
+		*i++
+	}
 }
 
 func candidateNativeRoots(root string) []string {

@@ -17,7 +17,7 @@ npx @nestia/sdk [command] [options?]
   3. npx @nestia/sdk sdk --config? [config file] --project? [project file]
   4. npx @nestia/sdk swagger --config? [config file] --project? [project file]
   5. npx @nestia/sdk e2e --config? [config file] --project? [project file]
-  6. npx @nestia/sdk generate --config? [config file] --project? [project file]
+  6. npx @nestia/sdk all --config? [config file] --project? [project file]
 `;
 
 function halt(desc: string): never {
@@ -27,7 +27,8 @@ function halt(desc: string): never {
 
 function dependencies(argv: string[]): void {
   // INSTALL DEPENDENCIES
-  const module = CommandParser.parse(argv).module ?? "npm";
+  const options = CommandParser.parse(argv);
+  const module = options.manager ?? options.module ?? "npm";
   const prefix: string = module === "yarn" ? "yarn add" : `${module} install`;
 
   for (const lib of ["@nestia/fetcher", "typia"]) {
@@ -72,6 +73,6 @@ async function main() {
   process.exit(0);
 }
 main().catch((exp) => {
-  console.log(exp);
+  console.error(exp instanceof Error ? exp.message : String(exp));
   process.exit(-1);
 });

@@ -39,10 +39,18 @@ OpenAPI (Swagger) document generator for NestJS evolved than ever.
 
 `@nestia/sdk` automatically analyzes the NestJS source code in the compilation level, and makes the OpenAPI document without any extra dedication like `@nestjs/swagger` decorator function calls. Everything is automated in the `@nestia/sdk`.
 
-Let's setup `@nestia/sdk`, and take advantages of it.
+Install `@nestia/sdk` and configure the transformer plugin to take advantage of it.
 
-```bash
-npx nestia setup --runtime
+```json filename="tsconfig.json"
+{
+  "compilerOptions": {
+    "plugins": [
+      { "transform": "typia/lib/transform" },
+      { "transform": "@nestia/core/native/transform.cjs" },
+      { "transform": "@nestia/sdk/lib/transform" }
+    ]
+  }
+}
 ```
 
   - Github Repository: https://github.com/samchon/nestia
@@ -116,5 +124,4 @@ If you've succeeded to build up OpenAPI document by `@nestia/sdk`, let's challen
 If you've succeeded to build the OpenAPI (Swagger) document, you may provide it to the companion developers through Swagger-UI. By the way, how about combining the Swagger-UI with online TypeScript editor embedding the SDK (Software Development Kit) library?
 
 Just visit above website (https://nestia.io/docs/swagger/editor/) and put down the swagger file to there. Then, online TypeScript editor (of StackBlitz) combined Swagger-UI would be opened, and client developers can utilize it much efficiently.
-
 

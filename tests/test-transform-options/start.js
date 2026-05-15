@@ -62,6 +62,17 @@ const main = () => {
         (param?.[2] === true) === expectValidateParam,
         `${option}: wrong TypedParam validation flag`,
       );
+
+      // TypedQuery shares the assert/is/validate routing with TypedBody but
+      // collapses Clone/Prune variants onto the base assert/validate paths
+      // (see nestiaCoreGenerateTypedQuery in core_transform.go). Asserting
+      // the captured type per mode locks the same routing table integration
+      // tests cannot otherwise reach.
+      const query = first(captured.TypedQuery)?.[0];
+      assert(
+        query?.type === expectedType,
+        `${option}: wrong TypedQuery validator (got ${query?.type}, expected ${expectedType})`,
+      );
     }
   });
 
@@ -107,6 +118,31 @@ const main = () => {
     assert(
       first(captured.TypedBody)?.[0] === undefined,
       "disabled TypedBody was transformed",
+    );
+  });
+
+  measure("aliased core imports", () => {
+    const file = compile({
+      name: "aliases",
+      source: "aliases",
+      plugin: { validate: "validate" },
+    });
+    const captured = load(file);
+    assert(
+      first(captured.TypedBody)?.[0]?.type === "validate",
+      "aliased TypedBody was not transformed",
+    );
+    assert(
+      first(captured.TypedParam)?.[2] === true,
+      "aliased TypedParam did not receive validation flag",
+    );
+    assert(
+      first(captured.TypedQuery)?.[0]?.type === "validate",
+      "aliased TypedQuery was not transformed",
+    );
+    assert(
+      first(captured["TypedRoute.Post"])?.[1]?.type === "assert",
+      "aliased TypedRoute.Post was not transformed",
     );
   });
 };

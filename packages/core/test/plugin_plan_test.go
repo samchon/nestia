@@ -54,6 +54,7 @@ func TestCoreNativeTransformInjectsDecoratorArguments(t *testing.T) {
 		"--file", "features/body/src/controllers/TypedBodyController.ts",
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native transform failed: %v\n%s", err, out)
@@ -63,6 +64,11 @@ func TestCoreNativeTransformInjectsDecoratorArguments(t *testing.T) {
 		`@core.TypedRoute.Post(({`,
 		`@core.TypedRoute.Put(":id", ({`,
 		`@core.TypedParam("id", ((input) =>`,
+		// TypedParam's third argument is the `validate?: boolean` flag from
+		// packages/core/src/decorators/TypedParam.ts; when validate-family
+		// modes are active the transform appends `true` so the runtime emits
+		// the detailed report shape.
+		`}), true)`,
 		`@core.TypedBody(({`,
 		`_validateReport`,
 	} {
@@ -84,6 +90,7 @@ func TestCoreNativeTransformUsesValidateLogStringifier(t *testing.T) {
 		"--file", "features/body/src/controllers/TypedBodyController.ts",
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"validate.log"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native transform failed: %v\n%s", err, out)
@@ -141,6 +148,7 @@ func TestCoreNativeBuildKeepsDecoratorTypiaRewritesInEmitOrder(t *testing.T) {
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
@@ -205,6 +213,7 @@ func TestCoreNativeBuildEmitsControllersAfterSkippingBadRewriteCandidates(t *tes
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
@@ -226,14 +235,15 @@ func TestCoreNativeTransformAppliesJSDocTypeTagsToTypedQuery(t *testing.T) {
 		"--file", filepath.Join(root, "tests/test-sdk/features/app/src/controllers/BbsArticlesController.ts"),
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native transform failed: %v\n%s", err, out)
 	}
 	text := string(out)
 	for _, expected := range []string{
-		`Math.floor(input.page) === input.page && 0 <= input.page && input.page <= 4294967295`,
-		`Math.floor(input.limit) === input.limit && 0 <= input.limit && input.limit <= 4294967295`,
+		`__typia_transform__isTypeUint32(input.page)`,
+		`__typia_transform__isTypeUint32(input.limit)`,
 	} {
 		if !strings.Contains(text, expected) {
 			t.Fatalf("transformed source is missing %q\n%s", expected, text)
@@ -243,16 +253,43 @@ func TestCoreNativeTransformAppliesJSDocTypeTagsToTypedQuery(t *testing.T) {
 
 func TestCoreNativeTypiaRandomUsesJSDocTypeTags(t *testing.T) {
 	root := repoRoot(t)
+	temp := t.TempDir()
+	featureRoot := filepath.Join(root, "tests/test-sdk/features/app")
+	sourceRoot := filepath.Join(featureRoot, "src")
+	fixture := filepath.Join(sourceRoot, "test/transform_random_uint_fixture.ts")
+	tsconfig := filepath.Join(temp, "tsconfig.json")
+	if err := os.WriteFile(
+		tsconfig,
+		[]byte(`{
+  "extends": "`+filepath.ToSlash(filepath.Join(featureRoot, "tsconfig.json"))+`",
+  "compilerOptions": {
+    "rootDir": "`+filepath.ToSlash(sourceRoot)+`",
+    "paths": {
+      "@api": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api"))+`"],
+      "@api/lib/*": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api/*"))+`"]
+    }
+  },
+  "files": [
+    "`+filepath.ToSlash(fixture)+`",
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "api/structures/IPage.ts"))+`"
+  ],
+  "include": []
+}`),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
 	cmd := exec.Command(
 		"go",
 		"run",
 		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
 		"transform",
-		"--cwd", filepath.Join(root, "tests/test-sdk/features/app"),
+		"--cwd", temp,
 		"--tsconfig", "tsconfig.json",
-		"--file", filepath.Join(root, "tests/test-sdk/features/app/src/test/features/api/automated/test_api_bbs_articles_index.ts"),
+		"--file", fixture,
 		"--plugins-json", `[{"name":"typia","stage":"transform","config":{"transform":"typia/lib/transform"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native transform failed: %v\n%s", err, out)
@@ -309,6 +346,7 @@ func TestCoreNativeTransformInjectsFormDataFileOptions(t *testing.T) {
 		"--file", filepath.Join(sourceRoot, "controllers/MultipartController.ts"),
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"assert","stringify":"assert"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native transform failed: %v\n%s", err, out)
@@ -368,6 +406,7 @@ func TestCoreNativeTransformUsesQuerifyForTypedQueryRoute(t *testing.T) {
 		"--file", filepath.Join(sourceRoot, "controllers/QueryController.ts"),
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native transform failed: %v\n%s", err, out)
@@ -426,6 +465,7 @@ func TestCoreNativeTransformReportsStrictNullChecksDisabled(t *testing.T) {
 		"--file", filepath.Join(sourceRoot, "controllers/QueryController.ts"),
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("expected native transform to fail when strictNullChecks is disabled\n%s", out)
@@ -474,6 +514,7 @@ func TestCoreNativeTransformReportsLlmQueryRouteViolation(t *testing.T) {
 		"--file", filepath.Join(sourceRoot, "controllers/QueryController.ts"),
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert","llm":{"strict":true}}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("expected native transform to fail for strict LLM query metadata\n%s", out)
@@ -519,6 +560,7 @@ func TestCoreNativeTransformReportsInvalidWebSocketDriver(t *testing.T) {
 		"--file", filepath.Join(sourceRoot, "controllers/CalculateController.ts"),
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err == nil {
 		t.Fatalf("expected native transform to fail for invalid WebSocket driver\n%s", out)

@@ -1,4 +1,4 @@
-import ts from "typescript";
+import { Node } from "@nestia/factory";
 import { IJsDocTagInfo } from "typia";
 
 import { INestiaConfig } from "../../INestiaConfig";
@@ -14,7 +14,7 @@ export namespace SdkHttpRouteProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.Statement[] => [
+    (route: ITypedHttpRoute): Node[] => [
       FilePrinter.description(
         SdkHttpFunctionProgrammer.write(project)(importer)(route),
         describe(project.config, route),

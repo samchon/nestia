@@ -1,6 +1,5 @@
-import { TypeScriptFactory } from "@nestia/factory";
+import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
 import { IdentifierFactory, TypeFactory } from "@typia/core";
-import ts from "typescript";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -14,11 +13,11 @@ export namespace SdkHttpFunctionProgrammer {
   export const write =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.FunctionDeclaration => {
+    (route: ITypedHttpRoute): Node => {
       return TypeScriptFactory.createFunctionDeclaration(
         [
-          TypeScriptFactory.createModifier(ts.SyntaxKind.ExportKeyword),
-          TypeScriptFactory.createModifier(ts.SyntaxKind.AsyncKeyword),
+          TypeScriptFactory.createModifier(SyntaxKind.ExportKeyword),
+          TypeScriptFactory.createModifier(SyntaxKind.AsyncKeyword),
         ],
         undefined,
         route.name,
@@ -61,10 +60,10 @@ export namespace SdkHttpFunctionProgrammer {
   const writeBody =
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
-    (route: ITypedHttpRoute): ts.Statement[] => {
-      const access = (name: string): ts.Expression =>
+    (route: ITypedHttpRoute): Node[] => {
+      const access = (name: string): Node =>
         project.config.keyword === true
-          ? IdentifierFactory.access(
+          ? TypeScriptFactory.createPropertyAccessExpression(
               TypeScriptFactory.createIdentifier("props"),
               name,
             )
@@ -222,7 +221,7 @@ export namespace SdkHttpFunctionProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute) =>
-    (condition: ts.Expression): ts.Statement[] => {
+    (condition: Node): Node[] => {
       const accessor = (x: string) => (y: string) =>
         x[0] === "[" ? `${x}${y}` : `${x}.${y}`;
       const output: string = StringUtil.escapeDuplicate([
@@ -236,11 +235,11 @@ export namespace SdkHttpFunctionProgrammer {
         ? accessor(output)("data")
         : output;
 
-      const assigners: ts.ExpressionStatement[] = [
+      const assigners: Node[] = [
         TypeScriptFactory.createBinaryExpression(
           TypeScriptFactory.createIdentifier(headers),
           TypeScriptFactory.createToken(
-            ts.SyntaxKind.QuestionQuestionEqualsToken,
+            SyntaxKind.QuestionQuestionEqualsToken,
           ),
           TypeScriptFactory.createObjectLiteralExpression([]),
         ),
@@ -260,7 +259,7 @@ export namespace SdkHttpFunctionProgrammer {
                 TypeScriptFactory.createIdentifier(
                   accessor(headers)(tuple.target ?? tuple.source),
                 ),
-                TypeScriptFactory.createToken(ts.SyntaxKind.EqualsToken),
+                TypeScriptFactory.createToken(SyntaxKind.EqualsToken),
                 TypeScriptFactory.createIdentifier(
                   accessor(data)(tuple.source),
                 ),
@@ -279,7 +278,7 @@ export namespace SdkHttpFunctionProgrammer {
                 condition,
               ),
             ],
-            ts.NodeFlags.Const,
+            NodeFlags.Const,
           ),
         ),
         ...(project.config.propagate

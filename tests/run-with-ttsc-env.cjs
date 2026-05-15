@@ -73,12 +73,19 @@ appendNodeOption("--no-experimental-strip-types");
 const commandName = path
   .basename(command)
   .replace(/\.(?:cmd|exe|ps1)$/i, "");
-if (
-  (commandName === "ttsc" || commandName === "ttsx") &&
-  args.some((arg) => arg === "--cache-dir" || arg.startsWith("--cache-dir=")) ===
+if (commandName === "ttsc" || commandName === "ttsx") {
+  if (!process.env.TTSC_GO_BINARY) {
+    console.error(
+      "ttsc-nestia: Go toolchain not found on PATH; install Go 1.26+ from https://go.dev/dl/ or set TTSC_GO_BINARY to the `go` executable.",
+    );
+    process.exit(2);
+  }
+  if (
+    args.some((arg) => arg === "--cache-dir" || arg.startsWith("--cache-dir=")) ===
     false
-) {
-  args = ["--cache-dir", process.env.TTSC_CACHE_DIR, ...args];
+  ) {
+    args = ["--cache-dir", process.env.TTSC_CACHE_DIR, ...args];
+  }
 }
 
 const child = childProcess.spawn(command, args, {

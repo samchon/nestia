@@ -1,89 +1,119 @@
+import cp from "child_process";
 import fs from "fs";
 
-import { ArgumentParser } from "./internal/ArgumentParser";
-import { CommandExecutor } from "./internal/CommandExecutor";
-import { PackageManager } from "./internal/PackageManager";
-import { PluginConfigurator } from "./internal/PluginConfigurator";
+type Manager = "npm" | "pnpm" | "yarn" | "bun";
+
+const ADD: Record<Manager, string> = {
+  npm: "npm install",
+  pnpm: "pnpm add",
+  yarn: "yarn add",
+  bun: "bun add",
+};
+
+const DEV: Record<Manager, string> = {
+  npm: "-D",
+  pnpm: "-D",
+  yarn: "-D",
+  bun: "-d",
+};
+
+const TAG = "next";
 
 export namespace NestiaSetupWizard {
-  export async function setup(): Promise<void> {
+  export async function setup(argv: string[]): Promise<void> {
+    if (!fs.existsSync("package.json")) {
+      console.error(
+        [
+          `npx nestia setup must be run inside a directory that owns a package.json.`,
+          `Either cd into the project root, or create one with "npm init -y" and re-run.`,
+        ].join("\n"),
+      );
+      process.exit(1);
+    }
+
+    const manager: Manager = pick(argv);
+
     console.log("----------------------------------------");
     console.log(" Nestia Setup Wizard");
     console.log("----------------------------------------");
+    console.log(`package manager : ${manager}`);
+    console.log("");
 
-    // PREPARE ASSETS
-    const pack: PackageManager = await PackageManager.mount();
-    const args: ArgumentParser.IArguments = await ArgumentParser.parse(pack);
+    const go = cp.spawnSync("go", ["version"], { stdio: "ignore" });
+    if (go.status !== 0 && !process.env.TTSC_GO_BINARY) {
+      console.warn(
+        [
+          "Heads up: Go 1.26+ was not found on PATH.",
+          "Install it (https://go.dev/dl) or set TTSC_GO_BINARY before you run `ttsc`.",
+          "Continuing with the install — the @nestia/core native transform binary is built on demand the first time `ttsc` compiles your project.",
+          "",
+        ].join("\n"),
+      );
+    }
 
-    // INSTALL NESTIA
-    pack.install({ dev: false, modulo: "@nestia/core", version: "latest" });
-    pack.install({ dev: false, modulo: "@nestia/e2e", version: "latest" });
-    pack.install({ dev: false, modulo: "@nestia/fetcher", version: "latest" });
-    pack.install({
-      dev: args.runtime === false,
-      modulo: "@nestia/sdk",
-      version: "latest",
-    });
-    pack.install({ dev: true, modulo: "@nestia/benchmark", version: "latest" });
-    pack.install({ dev: true, modulo: "nestia", version: "latest" });
-    pack.install({ dev: false, modulo: "typia", version: "latest" });
+    install(manager, true, "ttsc", "@typescript/native-preview");
+    install(manager, false, tagged("typia"));
+    install(
+      manager,
+      false,
+      tagged("@nestia/core"),
+      tagged("@nestia/sdk"),
+      tagged("@nestia/fetcher"),
+    );
+    install(manager, true, tagged("nestia"));
 
-    // INSTALL TYPESCRIPT COMPILERS
-    pack.install({
-      dev: true,
-      modulo: "@typescript/native-preview",
-      version: "latest",
-    });
-    pack.install({ dev: true, modulo: "ts-node", version: "latest" });
-    pack.install({ dev: true, modulo: "ttsc", version: "latest" });
-    pack.install({
-      dev: true,
-      modulo: "typescript",
-      version: await getTypeScriptVersion(),
-    });
-    args.project ??= (() => {
-      const runner: string = pack.manager === "npm" ? "npx" : pack.manager;
-      CommandExecutor.run(`${runner} tsc --init`);
-      return (args.project = "tsconfig.json");
-    })();
-
-    // SETUP TRANSFORMER
-    await pack.save((data) => {
-      data.scripts ??= {};
-
-      // NO MORE "ts-patch install" OR "typia patch" REQUIRED
-      if (typeof data.scripts.prepare === "string") {
-        data.scripts.prepare = data.scripts.prepare
-          .split("&&")
-          .map((str) => str.trim())
-          .filter((str) => str !== "typia patch" && str !== "ts-patch install")
-          .join(" && ");
-        if (data.scripts.prepare.length === 0) delete data.scripts.prepare;
-      }
-
-      // FOR OLDER VERSIONS
-      if (typeof data.scripts.postinstall === "string") {
-        data.scripts.postinstall = data.scripts.postinstall
-          .split("&&")
-          .map((str) => str.trim())
-          .filter((str) => str.indexOf("ts-patch install") === -1)
-          .join(" && ");
-        if (data.scripts.postinstall.length === 0)
-          delete data.scripts.postinstall;
-      }
-    });
-
-    // CONFIGURE PLUGIN
-    await PluginConfigurator.configure(args);
+    console.log("----------------------------------------");
+    console.log(" Nestia setup complete.");
+    console.log("----------------------------------------");
+    console.log("Next: see https://nestia.io/docs/setup/tsgo");
+    console.log("");
   }
 
-  const getTypeScriptVersion = async (): Promise<string> => {
-    const content: string = await fs.promises.readFile(
-      `${__dirname}/../package.json`,
-      "utf-8",
+  function install(
+    manager: Manager,
+    dev: boolean,
+    ...modules: string[]
+  ): void {
+    const command: string = [ADD[manager], dev ? DEV[manager] : "", ...modules]
+      .filter((s) => s.length !== 0)
+      .join(" ");
+    console.log(`$ ${command}`);
+    cp.execSync(command, { stdio: "inherit" });
+    console.log("");
+  }
+
+  function tagged(name: string): string {
+    return `${name}@${TAG}`;
+  }
+
+  function pick(argv: string[]): Manager {
+    for (let i = 0; i < argv.length; ++i) {
+      const token: string | undefined = argv[i];
+      if (token === undefined) continue;
+      if (token === "--manager") return ensure(argv[i + 1]);
+      if (token.startsWith("--manager="))
+        return ensure(token.slice("--manager=".length));
+    }
+    if (fs.existsSync("bun.lockb") || fs.existsSync("bun.lock")) return "bun";
+    if (fs.existsSync("pnpm-lock.yaml")) return "pnpm";
+    if (fs.existsSync("yarn.lock")) return "yarn";
+    return "npm";
+  }
+
+  function ensure(value: string | undefined): Manager {
+    if (
+      value === "npm" ||
+      value === "pnpm" ||
+      value === "yarn" ||
+      value === "bun"
+    )
+      return value;
+    console.error(
+      [
+        `--manager requires one of: npm | pnpm | yarn | bun.`,
+        `Use either "--manager <name>" or "--manager=<name>".`,
+      ].join("\n"),
     );
-    const json: { devDependencies: { typescript: string } } =
-      JSON.parse(content);
-    return json.devDependencies.typescript;
-  };
+    process.exit(1);
+  }
 }

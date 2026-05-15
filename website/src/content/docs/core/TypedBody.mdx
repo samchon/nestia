@@ -703,9 +703,9 @@ For reference, such encryption spec is not supported in the [Swagger-UI](/docs/s
   "compilerOptions": {
     "strict": true,
     "plugins": [
-      { "transform": "typia/lib/transform" },
+      { "transform": "typia/lib/transform", "enabled": false },
       {
-        "transform": "@nestia/core/lib/transform",
+        "transform": "@nestia/core/native/transform.cjs",
         "validate": "validate",
         "llm": { "strict": true }
       }
@@ -771,4 +771,3 @@ Components               | `typia` | `TypeBox` | `ajv` | `io-ts` | `zod` | `C.V.
 [**Ultimate Union Type**](https://github.com/samchon/typia/blob/master/src/schemas/IJsonSchema.ts)  | ✅ | ❌ | ❌ | ❌ | ❌ | ❌
 
 > `C.V.` means `class-validator`
-

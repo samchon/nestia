@@ -4,8 +4,11 @@ export function NoTransformConfigurationError(method: string) {
     throw new Error(
       [
         `Error on nestia.core.${method}(): no transform has been configured.`,
-        `Run "npx nestia setup" command, or check if you're using non-standard TypeScript compiler like Babel or SWC.`,
-        `Otherwise you're running "npx nestia sdk/swagger" or similar, run "npx tsc" command to find the reason why.`,
+        `Build the project with "ttsc" (not stock "tsc"); the Go-backed @nestia/core transform attaches automatically through ttsc plugin auto-discovery.`,
+        `If "ttsc" is missing, run "npx nestia setup" to install the toolchain and runtime packages.`,
+        `If you're using a non-standard TypeScript compiler like Babel or SWC, the @nestia/core transformer is not available.`,
+        `If you're running "npx nestia sdk/swagger" or similar, run "npx ttsc --noEmit" to surface the underlying compilation error.`,
+        `See https://nestia.io/docs/setup for the full setup (tsgo and legacy paths); migration notes are at node_modules/@nestia/core/MIGRATION.md.`,
       ].join(" "),
     );
   return undefined as never;

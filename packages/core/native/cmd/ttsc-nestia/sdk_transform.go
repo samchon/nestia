@@ -495,7 +495,7 @@ func nestiaSDKAnalyzeImports(file *shimast.SourceFile) []nestiaSDKImportInfo {
 			continue
 		}
 		clause := decl.ImportClause.AsImportClause()
-		if clause == nil || clause.PhaseModifier == shimast.KindTypeKeyword {
+		if clause == nil {
 			continue
 		}
 		info := nestiaSDKImportInfo{
@@ -518,7 +518,7 @@ func nestiaSDKAnalyzeImports(file *shimast.SourceFile) []nestiaSDKImportInfo {
 							continue
 						}
 						spec := elem.AsImportSpecifier()
-						if spec == nil || spec.IsTypeOnly {
+						if spec == nil {
 							continue
 						}
 						if name := spec.Name(); name != nil {

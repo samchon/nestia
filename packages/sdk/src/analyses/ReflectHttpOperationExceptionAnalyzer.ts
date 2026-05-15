@@ -4,7 +4,7 @@ import { JsonMetadataFactory } from "@typia/core";
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationException } from "../structures/IReflectHttpOperationException";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
-import { IOperationMetadata } from "../transformers/IOperationMetadata";
+import { IOperationMetadata } from "../structures/IOperationMetadata";
 
 export namespace ReflectHttpOperationExceptionAnalyzer {
   export interface IContext {
@@ -18,6 +18,12 @@ export namespace ReflectHttpOperationExceptionAnalyzer {
   export const analyze = (
     ctx: IContext,
   ): Record<string, IReflectHttpOperationException> => {
+    // TypeScript applies decorators bottom-up, so Reflect's metadata array
+    // is the reverse of declaration order. Reverse it once here so the
+    // resulting status-code → exception map iterates in declaration order
+    // and lines up with the Go transformer's metadata.exceptions[], which
+    // is emitted in AST/declaration order (see
+    // packages/core/native/cmd/ttsc-nestia/sdk_transform.go).
     const preconfigured: TypedException.IProps<any>[] = analyzePreconfigured(
       ctx.function,
     )
@@ -29,7 +35,6 @@ export namespace ReflectHttpOperationExceptionAnalyzer {
         const matched: IOperationMetadata.IException | null =
           ctx.metadata.exceptions[i]!;
         if (matched === undefined) {
-          if (ctx.functionName === "getOauthProfile") console.log(ctx.metadata);
           errors.push({
             file: ctx.controller.file,
             class: ctx.controller.class.name,

@@ -1,5 +1,5 @@
 import { VERSION_NEUTRAL } from "@nestjs/common";
-import ts from "typescript";
+import { IJsDocTagInfo } from "typia";
 
 import { IReflectImport } from "./IReflectImport";
 import { IReflectWebSocketOperationParameter } from "./IReflectWebSocketOperationParameter";
@@ -13,5 +13,5 @@ export interface IReflectWebSocketOperation {
   parameters: IReflectWebSocketOperationParameter[];
   imports: IReflectImport[];
   description: string | null;
-  jsDocTags: ts.JSDocTagInfo[];
+  jsDocTags: IJsDocTagInfo[];
 }
