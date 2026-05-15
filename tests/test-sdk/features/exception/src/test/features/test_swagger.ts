@@ -6,16 +6,18 @@ import { TestValidator } from "@nestia/e2e";
  * for each status code, including the 5XX wildcard and the oneOf union.
  *
  * Pins five distinct branches of `IApiExceptionVariable` serialization
- * (201/400/404/428/5XX) plus a oneOf union and JSDoc-derived `examples`
- * triples. A regression in the Go-side exception serializer — emitting
- * `INotFound` under a different key, dropping the 5XX wildcard, or
- * switching the union to `anyOf` — would silently fail this test; the
- * `oneOf` is a deliberate OpenAPI 3.1 choice that consumers depend on.
+ * (201/400/404/428/5XX) plus a oneOf union and decorator-supplied
+ * `examples` literals. A regression in the Go-side exception serializer
+ * — emitting `INotFound` under a different key, dropping the 5XX
+ * wildcard, or switching the union to `anyOf` — would silently fail this
+ * test; the `oneOf` is a deliberate OpenAPI 3.1 choice that consumers
+ * depend on.
  *
  *  1. Read the generated `swagger.json` from the SDK output.
  *  2. For each (code, schema-name) pair assert `$ref` ends with the schema.
- *  3. Assert the `/union` route's response uses `oneOf` and that `examples`
- *     carry summary / description / value triples.
+ *  3. Assert the `/union` route's response uses `oneOf` and that the
+ *     `examples` literals from the decorator carry summary / description /
+ *     value triples through to the OpenAPI output.
  */
 export const test_swagger = async () => {
   const content = JSON.parse(await fs.promises.readFile(__dirname + "/../../../swagger.json", "utf8"));

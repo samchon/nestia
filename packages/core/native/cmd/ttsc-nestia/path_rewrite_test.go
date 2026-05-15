@@ -68,6 +68,8 @@ func TestMatchPatternLiteralAndWildcardBranches(t *testing.T) {
 		{"wildcard mismatch suffix", "@api/*.ts", "@api/users.tsx", "", false},
 		{"wildcard between prefix and suffix", "src/*/index.ts", "src/foo/index.ts", "foo", true},
 		{"empty capture allowed", "prefix*suffix", "prefixsuffix", "", true},
+		{"second wildcard treated as literal", "@api/*/lib/*", "@api/foo/lib/*", "foo", true},
+		{"second wildcard does not expand", "@api/*/lib/*", "@api/foo/lib/bar", "", false},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -110,17 +112,18 @@ func TestPatternRankCountsNonWildcardCharacters(t *testing.T) {
 	}
 }
 
-// Verifies normalizePath collapses redundant separators and translates
-// platform path separators to POSIX form.
+// Verifies normalizePath collapses redundant POSIX separators and
+// resolves `..` segments via filepath.Clean.
 //
 // The rewrite pipeline keys outputs and sources by their normalized
-// POSIX-shaped path. A regression here would split a single logical
-// source into multiple cache entries on Windows, defeating
-// `nativeRewriteSet`'s deduplication.
+// path. A regression here would split a single logical source into
+// multiple cache entries, defeating `nativeRewriteSet`'s deduplication.
+// `filepath.ToSlash` runs after Clean — on Linux it is a no-op for
+// already-POSIX input; backslash handling is delegated to the platform.
 //
 //  1. Empty input returns empty.
-//  2. Backslashes are translated and adjacent separators collapsed.
-//  3. `..` segments are resolved.
+//  2. Adjacent separators collapse and trailing slashes are dropped.
+//  3. `..` segments are resolved relative to the preceding directory.
 func TestNormalizePathProducesPosixSlashes(t *testing.T) {
 	cases := []struct {
 		input string
@@ -211,11 +214,14 @@ func TestStripKnownSourceExtensionPrefersLongestMatch(t *testing.T) {
 // Combined with `emittedJavaScriptExtension`, this drives the source ↔
 // output filename mapping the rewrite scan depends on. Declaration-file
 // suffixes must be stripped wholly so that `types.d.ts` becomes
-// `types.js`, not `types.d.js`.
+// `types.js`, not `types.d.js`. The idempotent case — strip the same
+// extension being added — pins that a future regression dropping `.js`
+// from `stripKnownSourceExtension` cannot quietly produce `index.js.js`.
 //
 //  1. `.ts` is replaced with the chosen output extension.
-//  2. Declaration suffixes are stripped before replacement.
+//  2. Declaration suffixes (`.d.ts`) strip wholly before replacement.
 //  3. POSIX separators in the input flow through unchanged.
+//  4. Idempotent replacements survive: `.js` + `.js` stays `.js`.
 func TestReplaceSourceExtensionSwapsKnownSuffix(t *testing.T) {
 	cases := []struct {
 		input string
@@ -226,6 +232,8 @@ func TestReplaceSourceExtensionSwapsKnownSuffix(t *testing.T) {
 		{"src/index.mts", ".mjs", "src/index.mjs"},
 		{"src/types.d.ts", ".js", "src/types.js"},
 		{"src/nested/foo.ts", ".js", "src/nested/foo.js"},
+		{"src/index.js", ".js", "src/index.js"},
+		{"src/types.d.ts", ".d.ts", "src/types.d.ts"},
 	}
 	for _, tc := range cases {
 		if got := replaceSourceExtension(tc.input, tc.ext); got != tc.want {

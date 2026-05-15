@@ -8,12 +8,13 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 /**
  * Verifies `TypedRoute.setValidateErrorLogger` receives a structured
- * `IValidateErrorLog` entry under the Fastify runtime adapter.
+ * `IValidateErrorLog` entry in the `-fastify`-suffixed sibling fixture.
  *
- * Mirror of the Express-side test in `route-manual-validate-log`. The
- * assertion shape must stay identical across the three sibling fixtures
- * (`-` Express, `-fastify`, `-encrypted`) — divergence would indicate
- * the validate-error logger pipeline is not adapter-agnostic.
+ * This fixture is currently a near-duplicate of `route-manual-validate-log`
+ * — the test body and controller are identical to the base fixture. The
+ * suffix exists to reserve a slot for an actual Fastify-adapter variant
+ * without disturbing existing tooling. The assertion contract is the one
+ * pinned by the base fixture's docstring.
  *
  *  1. Register a logger and call a route that returns an invalid `at` field.
  *  2. Expect exactly one log entry naming method + path + the malformed data.
