@@ -35,7 +35,7 @@ export const test_api_body_strips_extras = async (
   );
   TestValidator.equals(
     "assertPrune strips unknown property",
-    (article as Record<string, unknown>).__unexpected__,
+    (article as unknown as Record<string, unknown>).__unexpected__,
     undefined,
   );
   typia.assertEquals(article);

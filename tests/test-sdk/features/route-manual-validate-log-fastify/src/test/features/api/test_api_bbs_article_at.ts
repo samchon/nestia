@@ -6,6 +6,19 @@ import { v4 } from "uuid";
 import api from "@api";
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
+/**
+ * Verifies `TypedRoute.setValidateErrorLogger` receives a structured
+ * `IValidateErrorLog` entry under the Fastify runtime adapter.
+ *
+ * Mirror of the Express-side test in `route-manual-validate-log`. The
+ * assertion shape must stay identical across the three sibling fixtures
+ * (`-` Express, `-fastify`, `-encrypted`) — divergence would indicate
+ * the validate-error logger pipeline is not adapter-agnostic.
+ *
+ *  1. Register a logger and call a route that returns an invalid `at` field.
+ *  2. Expect exactly one log entry naming method + path + the malformed data.
+ *  3. Assert the `errors[]` entry carries `expected: 'string & Format<"date-time">'`.
+ */
 export const test_api_bbs_article_at = async (
   connection: api.IConnection,
 ): Promise<void> => {
