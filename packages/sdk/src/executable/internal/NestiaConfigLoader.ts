@@ -155,14 +155,23 @@ export namespace NestiaConfigLoader {
       // these handlers a Ctrl-C during codegen leaves `run-*` and
       // `tsconfig-*` mkdtempSync directories behind under
       // node_modules/.nestia/config-loader/ until a subsequent clean exit.
+      // The module-level CLEANUP_REGISTERED flag above guards against
+      // re-entrancy within this module; we deliberately do NOT gate on
+      // `process.listenerCount(signal) > 0` because the parallel sweep in
+      // `ConfigAnalyzer.ensureRuntimeCleanup` (or any user-app SIGINT
+      // handler) could register first, and that gate would skip our
+      // registration — leaving MATERIALIZED_ROOTS unswept on Ctrl-C.
+      // Windows note: `process.kill(pid, "SIGINT")` calls TerminateProcess
+      // rather than re-raising; whichever module registers FIRST runs its
+      // sweep, the second is skipped, RUNTIME/MATERIALIZED cleanup is
+      // best-effort on Windows. SIGHUP is a no-op for most common code
+      // paths on Windows (Node fires it on console-close and exits within
+      // seconds).
       const onSignal = (signal: NodeJS.Signals): void => {
         sweep();
         process.kill(process.pid, signal);
       };
       for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {
-        if (typeof process.listenerCount === "function" &&
-            process.listenerCount(signal) > 0)
-          continue;
         process.once(signal, onSignal);
       }
     }

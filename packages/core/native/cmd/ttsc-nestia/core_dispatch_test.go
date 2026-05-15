@@ -94,7 +94,7 @@ func TestNestiaCoreMethodKindDispatch(t *testing.T) {
 // the trailing positions of the segment slice.
 //
 // The helper underpins every decorator-dispatch lookup. Off-by-one or
-// length-clamping bugs would silently mis-match `core.TypedQuery.Body`
+// length-clamping bugs would silently mismatch `core.TypedQuery.Body`
 // against the suffix `["TypedQuery"]` — a regression flagged by the
 // existing decorator routing tests, but cheap to anchor at the helper
 // level too.
