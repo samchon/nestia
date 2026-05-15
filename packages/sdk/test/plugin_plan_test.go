@@ -266,12 +266,18 @@ func TestSDKNativeTransformKeepsEmptyJSDocTagsUndefined(t *testing.T) {
 	}
 }
 
-// TestSDKOperationMetadataShapeRoundTrip locks the JSON shape that the Go
-// transformer injects via __OperationMetadata.OperationMetadata(...). The
-// surrounding tests only substring-match key fragments, so a Go-side field
-// rename or removal would still pass them. Here we extract one literal,
-// json.Unmarshal it, and assert against packages/sdk/src/structures/
-// IOperationMetadata.ts.
+// Verifies the JSON literal injected via __OperationMetadata.OperationMetadata
+// round-trips into the IOperationMetadata shape defined in
+// packages/sdk/src/structures/IOperationMetadata.ts.
+//
+// Sibling tests only substring-match key fragments, so a Go-side field
+// rename or removal would still pass them. This one parses the emitted
+// literal as JSON and asserts every required top-level and parameter key
+// is present — the only guard against silent SDK metadata drift.
+//
+//  1. Build TypedBodyController with both core and sdk plugins enabled.
+//  2. Extract and json.Unmarshal the first OperationMetadata literal.
+//  3. Assert required keys on the root, parameters, and success objects.
 func TestSDKOperationMetadataShapeRoundTrip(t *testing.T) {
 	root := repoRoot(t)
 	temp := t.TempDir()

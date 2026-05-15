@@ -4,6 +4,22 @@ import typia from "typia";
 import api from "@api";
 import { IHeaders } from "@api/lib/structures/IHeaders";
 
+/**
+ * Verifies @TypedHeaders round-trips mixed-case HTTP header names and
+ * rejects type-incorrect array payloads.
+ *
+ * Header names are deliberately mixed-case (`x-fLags`, `X-Descriptions`)
+ * to assert RFC-compliant case-insensitive normalization through the SDK
+ * fetch path. The string-instead-of-number-array case pins that typia
+ * runtime validation fires for parsed header arrays even though HTTP
+ * itself would accept them as valid strings. Sibling fixtures
+ * `headers-decompose` and `headers-config-assert` mirror this test with
+ * different nestia configs; the body must stay identical.
+ *
+ *  1. Send a request with mixed-case header keys and well-typed values.
+ *  2. Assert the echoed payload preserves header semantics.
+ *  3. Send a request whose `x-values` is `["a","b","c"]` and expect rejection.
+ */
 export const test_api_headers = async (
   connection: api.IConnection,
 ): Promise<void> => {
