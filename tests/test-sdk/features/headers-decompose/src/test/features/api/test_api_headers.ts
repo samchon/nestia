@@ -8,17 +8,16 @@ import { IHeaders } from "@api/lib/structures/IHeaders";
  * Verifies @TypedHeaders round-trips correctly when nestia.config sets
  * `swagger.decompose: true`.
  *
- * The `decompose` option is consumed by the swagger composer (each
- * header becomes its own OpenAPI parameter) and does not change the SDK
- * fetcher's runtime path. This test exercises the same observable
- * round-trip and rejection contract as the base `headers` fixture; the
- * pair pins that the swagger-side option doesn't accidentally bleed
- * into runtime header handling.
+ * The `decompose` option is consumed by the swagger composer (each header
+ * becomes its own OpenAPI parameter) and does not change the SDK fetcher's
+ * runtime path. This test exercises the same observable round-trip and
+ * rejection contract as the base `headers` fixture; the pair pins that the
+ * swagger-side option doesn't accidentally bleed into runtime header handling.
  *
- *  1. Send a request with header keys and well-typed values.
- *  2. Assert the echoed payload preserves header semantics.
- *  3. Send a request whose `x-values` is `["one","two","three"]` and
- *     expect rejection (numeric array expected, not strings).
+ * 1. Send a request with header keys and well-typed values.
+ * 2. Assert the echoed payload preserves header semantics.
+ * 3. Send a request whose `x-values` is `["one","two","three"]` and expect
+ *    rejection (numeric array expected, not strings).
  */
 export const test_api_headers = async (
   connection: api.IConnection,

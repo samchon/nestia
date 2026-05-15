@@ -212,7 +212,9 @@ const ensureRuntimeCleanup = (runtimeRoot: string): void => {
   // rather than re-raising through the listener queue, so the handler
   // cascade documented above only holds on POSIX. On Windows, whichever
   // module registers FIRST runs its sweep and the second is skipped —
-  // RUNTIME_ROOTS cleanup is best-effort there. SIGHUP is silently inert.
+  // RUNTIME_ROOTS cleanup is best-effort there. SIGHUP is a no-op for
+  // most common code paths on Windows (Node fires it on console-close
+  // and exits within seconds).
   const onSignal = (signal: NodeJS.Signals): void => {
     sweep();
     process.kill(process.pid, signal);

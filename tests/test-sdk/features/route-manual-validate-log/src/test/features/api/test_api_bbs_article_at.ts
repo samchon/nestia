@@ -10,16 +10,17 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
  * Verifies `TypedRoute.setValidateErrorLogger` receives a structured
  * `IValidateErrorLog` entry when the controller returns a malformed value.
  *
- * `IValidateErrorLog` is a public contract consumed downstream; the
- * `expected: 'string & Format<"date-time">'` field embeds the Typia tag
- * literal verbatim, so a Go-side change to tag rendering would silently
- * break consumers' parsers. The `-fastify` and `-encrypted` sibling
- * fixtures currently hold byte-identical copies of this test as
- * reserved slots for a future runtime-adapter divergence.
+ * `IValidateErrorLog` is a public contract consumed downstream; the `expected:
+ * 'string & Format<"date-time">'` field embeds the Typia tag literal verbatim,
+ * so a Go-side change to tag rendering would silently break consumers' parsers.
+ * The `-fastify` and `-encrypted` sibling fixtures currently hold
+ * byte-identical copies of this test as reserved slots for a future
+ * runtime-adapter divergence.
  *
- *  1. Register a logger and call a route that returns an invalid `at` field.
- *  2. Expect exactly one log entry naming method + path + the malformed data.
- *  3. Assert the `errors[]` entry carries `expected: 'string & Format<"date-time">'`.
+ * 1. Register a logger and call a route that returns an invalid `at` field.
+ * 2. Expect exactly one log entry naming method + path + the malformed data.
+ * 3. Assert the `errors[]` entry carries `expected: 'string &
+ *    Format<"date-time">'`.
  */
 export const test_api_bbs_article_at = async (
   connection: api.IConnection,
