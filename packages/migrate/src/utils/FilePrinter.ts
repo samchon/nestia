@@ -39,9 +39,6 @@ export namespace FilePrinter {
     return TypeScriptPrinter.write({
       statements: props.statements,
       top: props.top,
-      printerOptions: {
-        newLine: ts.NewLineKind.LineFeed,
-      },
     });
   };
 }

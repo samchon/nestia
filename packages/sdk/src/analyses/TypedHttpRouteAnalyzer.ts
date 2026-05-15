@@ -378,8 +378,12 @@ const clearMetadataNameCache = (
     for (const p of func.parameters) clearMetadataNameCache(p.type, visited);
     clearMetadataNameCache(func.output, visited);
   }
-  for (const set of metadata.sets) clearMetadataNameCache(set.value, visited);
+  for (const set of metadata.sets) {
+    (set as unknown as { name_?: string }).name_ = undefined;
+    clearMetadataNameCache(set.value, visited);
+  }
   for (const map of metadata.maps) {
+    (map as unknown as { name_?: string }).name_ = undefined;
     clearMetadataNameCache(map.key, visited);
     clearMetadataNameCache(map.value, visited);
   }
@@ -387,9 +391,11 @@ const clearMetadataNameCache = (
     (array as unknown as { name_?: string }).name_ = undefined;
     clearMetadataNameCache(array.type.value, visited);
   }
-  for (const tuple of metadata.tuples)
+  for (const tuple of metadata.tuples) {
+    (tuple as unknown as { name_?: string }).name_ = undefined;
     for (const elem of tuple.type.elements)
       clearMetadataNameCache(elem, visited);
+  }
   for (const alias of metadata.aliases) {
     (alias as unknown as { name_?: string }).name_ = undefined;
     clearMetadataNameCache(alias.type.value, visited);

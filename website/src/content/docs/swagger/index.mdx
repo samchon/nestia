@@ -28,7 +28,7 @@ main().catch(console.error);
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```typescript filename="tsconfig.json" showLineNumbers
+```jsonc filename="tsconfig.json" showLineNumbers
 {
   "compilerOptions": {
     "strict": true,
@@ -141,7 +141,7 @@ When you call the `NestiaSwaggerComposer.document()` function, `@nestia/sdk` wil
 After that, deliver the generated Swagger Document object to the `SwaggerModule.setup()` function of the `@nestjs/swagger` module. Then, the Swagger UI would be served in the `http://localhost:3000/api` address, and the `swagger.json` file would be placed on the http://localhost:3000/api-json location. Note that, as the NestJS core team and `SwaggerModule.setup()` function have not defined the exact OpenAPI document types, you've to cast the `document` object to `any` type.
 
 ### Plugin Configuration
-```json filename="tsconfig.json" showLineNumbers
+```jsonc filename="tsconfig.json" showLineNumbers
 {
   "compilerOptions": {
     "strict": true,

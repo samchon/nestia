@@ -837,6 +837,13 @@ func nestiaCoreGenerateTypedBody(
 	}
 }
 
+// nestiaCoreGenerateTypedHeaders intentionally collapses the 10-mode validate
+// option down to {assert, is, validate}. Header values are strings keyed by
+// name; deep-clone and prune semantics that @TypedBody honors (assertClone,
+// assertPrune, validateClone, validatePrune, etc.) have no meaningful effect
+// on a flat string→string map. Pass-through to the base programmer is the
+// intended behavior, not a fallthrough — matches v6 parity. See also
+// nestiaCoreGenerateTypedQuery and nestiaCoreGenerateTypedFormDataBody.
 func nestiaCoreGenerateTypedHeaders(prog *driver.Program, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
 	context := nestiaCoreTypiaContext(prog, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)

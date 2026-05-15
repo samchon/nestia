@@ -146,10 +146,25 @@ export namespace NestiaConfigLoader {
     MATERIALIZED_ROOTS.add(root);
     if (CLEANUP_REGISTERED === false) {
       CLEANUP_REGISTERED = true;
-      process.once("exit", () => {
+      const sweep = (): void => {
         for (const location of MATERIALIZED_ROOTS)
           fs.rmSync(location, { force: true, recursive: true });
-      });
+      };
+      process.once("exit", sweep);
+      // process.once("exit", …) does not fire on SIGINT/SIGTERM. Without
+      // these handlers a Ctrl-C during codegen leaves `run-*` and
+      // `tsconfig-*` mkdtempSync directories behind under
+      // node_modules/.nestia/config-loader/ until a subsequent clean exit.
+      const onSignal = (signal: NodeJS.Signals): void => {
+        sweep();
+        process.kill(process.pid, signal);
+      };
+      for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {
+        if (typeof process.listenerCount === "function" &&
+            process.listenerCount(signal) > 0)
+          continue;
+        process.once(signal, onSignal);
+      }
     }
     return root;
   };

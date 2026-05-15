@@ -43,8 +43,10 @@ export namespace TsConfigReader {
     value === undefined ? [] : Array.isArray(value) ? value : [value];
 
   const resolveExtends = (specifier: string, cwd: string): string | null => {
-    const candidates = (base: string): string[] =>
-      path.extname(base) === "" ? [base, `${base}.json`] : [base];
+    const candidates = (base: string): string[] => {
+      const ext: string = path.extname(base);
+      return ext === ".json" || ext === ".jsonc" ? [base] : [base, `${base}.json`];
+    };
 
     if (path.isAbsolute(specifier) || specifier.startsWith(".")) {
       for (const candidate of candidates(path.resolve(cwd, specifier)))

@@ -17,7 +17,6 @@ import { NestiaMigrateE2eProgrammer } from "./programmers/NestiaMigrateE2eProgra
 import { NestiaMigrateNestProgrammer } from "./programmers/NestiaMigrateNestProgrammer";
 import { INestiaMigrateConfig } from "./structures/INestiaMigrateConfig";
 import { INestiaMigrateContext } from "./structures/INestiaMigrateContext";
-import { INestiaMigrateFile } from "./structures/INestiaMigrateFile";
 
 const { HttpMigration, OpenApiConverter } =
   (typiaUtils as { default?: typeof typiaUtils }).default ?? typiaUtils;
@@ -60,7 +59,9 @@ export class NestiaMigrateApplication {
           OpenApiConverter.upgradeDocument(document),
         ),
       };
-    } catch {
+    } catch (exp) {
+      const message: string =
+        exp instanceof Error ? exp.message : String(exp);
       return {
         success: false,
         data: document,
@@ -69,7 +70,7 @@ export class NestiaMigrateApplication {
             path: "$input",
             expected:
               "SwaggerV2.IDocument | OpenApiV3.IDocument | OpenApiV3_1.IDocument | OpenApiV3_2.IDocument | OpenApi.IDocument",
-            value: document,
+            value: message,
           },
         ],
       };
@@ -81,11 +82,6 @@ export class NestiaMigrateApplication {
   ----------------------------------------------------------- */
   public getData(): IHttpMigrateApplication {
     return this.data_;
-  }
-
-  /** @deprecated */
-  public getErrors(): IHttpMigrateApplication.IError[] {
-    return this.data_.errors;
   }
 
   public nest(config: INestiaMigrateConfig): Record<string, string> {
@@ -140,13 +136,6 @@ export class NestiaMigrateApplication {
       "swagger.json": JSON.stringify(this.document, null, 2),
     };
     return config.package ? renameSlug(config.package, files) : files;
-  }
-}
-export namespace MigrateApplication {
-  export interface IOutput {
-    context: INestiaMigrateContext;
-    files: INestiaMigrateFile[];
-    errors: IHttpMigrateApplication.IError[];
   }
 }
 

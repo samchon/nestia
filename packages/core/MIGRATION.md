@@ -95,10 +95,10 @@ options (`stringify`, `llm`, etc.) — see §6.
 ### 6. Optional plugin composition order
 
 If you do choose to register plugins manually (for example, to pass
-`stringify` or `llm` options), the order is fixed: typia (host tombstone) →
-`@nestia/sdk/lib/transform` → `@nestia/core/native/transform.cjs`. The
-`typia` entry stays with `enabled: false` — typia runs inside the Go binary,
-but tooling may still inspect the entry.
+`stringify` or `llm` options), the recommended shape is: typia (host
+tombstone) → `@nestia/sdk/lib/transform` → `@nestia/core/native/transform.cjs`.
+The `typia` entry stays with `enabled: false` — typia runs inside the Go
+binary, but tooling may still inspect the entry.
 
 ```jsonc
 "plugins": [

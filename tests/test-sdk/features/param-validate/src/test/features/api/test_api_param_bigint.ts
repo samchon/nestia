@@ -3,7 +3,7 @@ import typia from "typia";
 
 import api from "@api";
 
-export const test_api_param_number = async (
+export const test_api_param_bigint = async (
   connection: api.IConnection,
 ): Promise<void> => {
   const value: number = await api.functional.param.bigint(

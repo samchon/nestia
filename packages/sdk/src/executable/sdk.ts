@@ -31,7 +31,7 @@ function dependencies(argv: string[]): void {
   const module = options.manager ?? options.module ?? "npm";
   const prefix: string = module === "yarn" ? "yarn add" : `${module} install`;
 
-  for (const lib of ["@nestia/fetcher", "typia"]) {
+  for (const lib of ["@nestia/e2e", "@nestia/fetcher", "typia"]) {
     const command: string = `${prefix} ${lib}`;
     console.log(`\n$ ${command}`);
     cp.execSync(command, { stdio: "inherit" });
@@ -73,6 +73,16 @@ async function main() {
   process.exit(0);
 }
 main().catch((exp) => {
-  console.error(exp instanceof Error ? exp.message : String(exp));
+  let current: unknown = exp;
+  let depth = 0;
+  while (current !== undefined && current !== null && depth < 10) {
+    const message: string =
+      current instanceof Error ? current.message : String(current);
+    console.error(`${"  ".repeat(depth)}${depth === 0 ? "" : "caused by: "}${message}`);
+    if (current instanceof Error && current.cause !== undefined) {
+      current = current.cause;
+      depth++;
+    } else break;
+  }
   process.exit(-1);
 });

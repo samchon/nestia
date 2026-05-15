@@ -29,11 +29,12 @@ export namespace SdkDistributionComposer {
       await replace({ root, output })(file);
 
     // INSTALL PACKAGES
-    const v: IDependencies = await dependencies();
+    const v: IDependencies = await dependencies({ websocket: props.websocket });
     execute("npm install --save-dev rimraf");
     execute(`npm install --save @nestia/fetcher@${v.version}`);
     execute(`npm install --save typia@${v.typia}`);
-    if (props.websocket) execute(`npm install --save tgrid@${v.tgrid}`);
+    if (props.websocket && v.tgrid !== undefined)
+      execute(`npm install --save tgrid@${v.tgrid}`);
     execute("npx typia setup --manager npm");
 
     exit();
@@ -76,7 +77,9 @@ export namespace SdkDistributionComposer {
       );
     };
 
-  const dependencies = async (): Promise<IDependencies> => {
+  const dependencies = async (opts: {
+    websocket: boolean;
+  }): Promise<IDependencies> => {
     const content: string = await fs.promises.readFile(
       __dirname + "/../../../package.json",
       "utf8",
@@ -90,7 +93,7 @@ export namespace SdkDistributionComposer {
       ...json.devDependencies,
       ...json.dependencies,
     };
-    const pick = (key: keyof IDependencies): string => {
+    const required = (key: "version" | "typia"): string => {
       const value: string | undefined =
         key === "version" ? json.version : dependencies[key];
       if (typeof value !== "string" || value.length === 0)
@@ -98,9 +101,9 @@ export namespace SdkDistributionComposer {
       return value;
     };
     return {
-      version: pick("version"),
-      typia: pick("typia"),
-      tgrid: pick("tgrid"),
+      version: required("version"),
+      typia: required("typia"),
+      tgrid: opts.websocket ? dependencies.tgrid : undefined,
     };
   };
 }
@@ -108,6 +111,6 @@ export namespace SdkDistributionComposer {
 interface IDependencies {
   version: string;
   typia: string;
-  tgrid: string;
+  tgrid: string | undefined;
 }
 const BUNDLE = __dirname + "/../../../assets/bundle/distribute";

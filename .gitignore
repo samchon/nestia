@@ -11,6 +11,8 @@ packages/*/docs
 packages/*/native/ttsc-*
 packages/*/test/go.work
 packages/*/test/go.work.sum
+packages/*/README.md
+!packages/factory/README.md
 package-lock.json
 *.log
 .env

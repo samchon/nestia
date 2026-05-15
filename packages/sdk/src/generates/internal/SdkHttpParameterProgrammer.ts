@@ -162,17 +162,4 @@ export namespace SdkHttpParameterProgrammer {
       return [TypeScriptFactory.createIdentifier("props")];
     return parameters.map((p) => TypeScriptFactory.createIdentifier(p.name));
   };
-
-  export const getAccessors = (props: {
-    project: INestiaProject;
-    importer: ImportDictionary;
-    route: ITypedHttpRoute;
-    body: boolean;
-  }): Node[] => {
-    const prefix: string =
-      props.project.config.keyword === true ? "props." : "";
-    return getSignificant(props.route, props.body).map((p) =>
-      TypeScriptFactory.createIdentifier(`${prefix}${p.name}`),
-    );
-  };
 }

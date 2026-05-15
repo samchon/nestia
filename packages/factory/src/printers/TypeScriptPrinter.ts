@@ -7,7 +7,7 @@ import { NodePrinter } from "./internal/NodePrinter";
 export class TypeScriptPrinter {
   private readonly printer: NodePrinter;
 
-  public constructor(_options: TypeScriptPrinter.IPrinterOptions = {}) {
+  public constructor() {
     this.printer = new NodePrinter();
   }
 
@@ -34,16 +34,11 @@ export class TypeScriptPrinter {
   }
 
   public static write(props: TypeScriptPrinter.IWriteProps): string {
-    return new TypeScriptPrinter(props.printerOptions).printStatements(
-      props.statements,
-      props,
-    );
+    return new TypeScriptPrinter().printStatements(props.statements, props);
   }
 }
 
 export namespace TypeScriptPrinter {
-  export type IPrinterOptions = Record<string, unknown>;
-
   export interface IPrintStatementsProps {
     endOfFileToken?: Node;
     flags?: number;
@@ -51,7 +46,6 @@ export namespace TypeScriptPrinter {
   }
 
   export interface IWriteProps extends IPrintStatementsProps {
-    printerOptions?: IPrinterOptions;
     statements: readonly Node[];
   }
 }
