@@ -24,8 +24,6 @@ github.com/samchon/ttsc/packages/ttsc/shim/diagnosticwriter v0.0.0-2026051504240
 github.com/samchon/ttsc/packages/ttsc/shim/diagnosticwriter v0.0.0-20260515042402-b1ffbb39cb71/go.mod h1:v86GtrD7qALo6Xkgz1MDomPMSV2D9NdniQWB5t8eY6k=
 github.com/samchon/ttsc/packages/ttsc/shim/parser v0.0.0-20260515042402-b1ffbb39cb71 h1:FAXhgDlxtelKxeVEwqkr3J2SstfsN+6ujyS6pFixS44=
 github.com/samchon/ttsc/packages/ttsc/shim/parser v0.0.0-20260515042402-b1ffbb39cb71/go.mod h1:inUjC/bNlCkO0zIzHZRXlHR/WgLcK0vi2KLc7tpQ1ek=
-github.com/samchon/ttsc/packages/ttsc/shim/printer v0.0.0-20260515042402-b1ffbb39cb71 h1:159trmIJVjMyZYc6iZi4p+l9RXu9pFcpKw4/GdOVr+0=
-github.com/samchon/ttsc/packages/ttsc/shim/printer v0.0.0-20260515042402-b1ffbb39cb71/go.mod h1:ESjhY+UiPRspef4JcXcUPNgt4ySQQrlVIUCLKaKeyEQ=
 github.com/samchon/ttsc/packages/ttsc/shim/scanner v0.0.0-20260515042402-b1ffbb39cb71 h1:gxlbAixdq3rzum3Kwey1lfCvwr817UJhG+YReS3iVpI=
 github.com/samchon/ttsc/packages/ttsc/shim/scanner v0.0.0-20260515042402-b1ffbb39cb71/go.mod h1:abIC7C28cUA5IQKmLJulsl2qOvmimhkMNOfjJhRm5jM=
 github.com/samchon/ttsc/packages/ttsc/shim/tsoptions v0.0.0-20260515042402-b1ffbb39cb71 h1:dLOJHfKx0hjK92ho/oa6q7kq4MDHQNXNMMng5KsPDXw=

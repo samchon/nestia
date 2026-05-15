@@ -88,6 +88,7 @@ func TestSDKNativeBuildInjectsOperationMetadata(t *testing.T) {
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
@@ -156,6 +157,7 @@ func TestSDKNativeBuildInjectsTypedExceptionMetadata(t *testing.T) {
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
@@ -224,6 +226,7 @@ func TestSDKNativeBuildKeepsImportsArrayForInferredReturn(t *testing.T) {
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
@@ -251,6 +254,7 @@ func TestSDKNativeTransformKeepsEmptyJSDocTagsUndefined(t *testing.T) {
 		"--file", filepath.Join(root, "tests/test-sdk/features/security/src/controllers/SecurityController.ts"),
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native transform failed: %v\n%s", err, out)
@@ -313,6 +317,7 @@ func TestSDKOperationMetadataShapeRoundTrip(t *testing.T) {
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
 	}
@@ -461,6 +466,7 @@ func TestSDKNativeBuildImportsLocalTypeAliases(t *testing.T) {
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
+	cmd.Dir = filepath.Join(root, "packages/core/native")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
