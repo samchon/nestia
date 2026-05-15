@@ -176,7 +176,7 @@ npx nestia e2e
 npx nestia all
 ```
 
-`init` writes a starter `nestia.config.ts`; `sdk`, `swagger`, and `e2e` produce one artefact each; `all` runs the three together.
+`init` writes a starter `nestia.config.ts`; `sdk`, `swagger`, and `e2e` produce one artifact each; `all` runs the three together.
 
 ## Bundlers
 
@@ -510,7 +510,7 @@ If a build emits `Error on nestia.core.<method>(): no transform has been configu
 
 When you are ready to move to the new toolchain, follow [TypeScript-Go](/docs/setup/tsgo). The cutover is reversible — keep your previous lockfile and `tsconfig.json` in version control until the new build is green.
 
-1. **Stop the old build and clear stale outputs.** Delete `dist/` (and `lib/` if present); a fresh build must not run on top of artefacts produced by the previous transformer.
+1. **Stop the old build and clear stale outputs.** Delete `dist/` (and `lib/` if present); a fresh build must not run on top of artifacts produced by the previous transformer.
 2. **Drop the patch chain.** Remove `ts-patch` from `devDependencies` and remove the `prepare: "ts-patch install"` script. If you historically ran `npx typia patch`, drop that too — the `@next` runtime does not need it and a patched `typia` will conflict with the Go-emitted code.
    ```bash filename="Terminal" showLineNumbers copy
    npm uninstall ts-patch

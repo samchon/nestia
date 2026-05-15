@@ -237,7 +237,7 @@ NestJS monorepos created with `nest g app <name>` put each app at `apps/<name>/s
 
 First time on this project? Run `npx nestia init` once — it writes a starter `nestia.config.ts` next to your `tsconfig.json`. After that, `npx nestia all` emits the SDK, Swagger document, and e2e suite in one pass.
 
-The `nestia` CLI reads `nestia.config.ts` and the project `tsconfig.json` to emit those artefacts. The Go binary attached to `ttsc` provides the metadata the CLI consumes.
+The `nestia` CLI reads `nestia.config.ts` and the project `tsconfig.json` to emit those artifacts. The Go binary attached to `ttsc` provides the metadata the CLI consumes.
 
 <Tabs items={["npm", "pnpm", "yarn", "bun"]}>
   <Tabs.Tab>
@@ -287,7 +287,7 @@ The `nestia` CLI is a thin dispatcher:
 - `start`, `template`, `setup` — bootstrap a project from the CLI itself; these run before `@nestia/sdk` is installed.
 - `dependencies` — checks installed packages against expected versions; optional.
 - `init` — writes a starter `nestia.config.ts`. Run once, before the generators below.
-- `sdk`, `swagger`, `e2e`, `all` — drive the project-local `@nestia/sdk` to emit the artefact in their name. `all` runs `sdk + swagger + e2e`.
+- `sdk`, `swagger`, `e2e`, `all` — drive the project-local `@nestia/sdk` to emit the artifact in their name. `all` runs `sdk + swagger + e2e`.
 
 A fresh `nest new` ships an `AppController` with `@Get`, which Nestia ignores. Replace one method with `@TypedRoute.Get` (see [TypedRoute](/docs/core/TypedRoute)) and re-run `npx nestia all` to see the SDK, Swagger document, and e2e suite populated.
 
@@ -308,7 +308,7 @@ A normal NestJS server compiles with `ttsc` directly — you do not need a bundl
 >
 > | Bundler | Emits decorator metadata? |
 > | --- | --- |
-> | **Webpack** with `ts-loader` | Yes — TypeScript compiler honours `emitDecoratorMetadata`. |
+> | **Webpack** with `ts-loader` | Yes — TypeScript compiler honors `emitDecoratorMetadata`. |
 > | **Rspack** with `builtin:swc-loader` + decorator flags | Yes, only if you opt in (snippet below). |
 > | **Webpack** with community `swc-loader` (no decorator flags) | No — swc strips metadata unless you opt in. |
 > | **Rspack** with `builtin:swc-loader` (no decorator flags) | No — same; the snippet below shows the opt-in. |
