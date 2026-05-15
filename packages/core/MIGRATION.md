@@ -151,7 +151,9 @@ If the Go binary aborts with `nestia.internal.panic`, set `NESTIA_NATIVE_DEBUG_S
 # 1. Drop the old patch chain
 npm uninstall ts-patch
 
-# 2. Reinstall dependencies in the new order — same effect as `npx nestia setup`
+# 2. Reinstall dependencies in the new order. The runtime set matches what
+#    `npx nestia setup` installs, plus `@nestia/e2e` for projects that emit
+#    the generated e2e bundle (`npx nestia dependencies` adds it separately).
 npm i -D ttsc @typescript/native-preview
 npm i typia
 npm i @nestia/core @nestia/sdk @nestia/e2e @nestia/fetcher
