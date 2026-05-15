@@ -126,6 +126,21 @@ Until prebuilt binaries are distributed via optional npm dependencies, the local
 
 Compilation failures now surface through `ttsc-nestia: ...` stderr. The `NoTransformConfigurationError` thrown at runtime points back to this document and to https://nestia.io/docs/setup.
 
+### 11. Optional cache profiling: `TTSC_NESTIA_PROFILE`
+
+Set `TTSC_NESTIA_PROFILE=1` before running `ttsc` to print per-pass cache hit / miss counters to stderr:
+
+```bash
+TTSC_NESTIA_PROFILE=1 ttsc
+```
+
+```
+ttsc-nestia profile: core-cache hits=1024 misses=234
+ttsc-nestia profile: sdk-cache hits=567 misses=89
+```
+
+Informational only — the counters do not affect compilation output or exit code. Useful when investigating large-codebase build times.
+
 ## Quickest upgrade recipe
 
 ```bash

@@ -36,7 +36,7 @@ export namespace ReflectWebSocketOperationAnalyzer {
           ctx.name,
         ) ?? []) as IReflectWebSocketOperationParameter[]
       ).sort((a, b) => a.index - b.index);
-    if (preconfigured.find((p) => (p.category === "acceptor") === undefined))
+    if (preconfigured.find((p) => p.category === "acceptor") === undefined)
       errors.push("@WebSocketRoute.Acceptor() is essentially required");
     if (preconfigured.length !== ctx.function.length)
       errors.push(

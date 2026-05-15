@@ -96,7 +96,7 @@ When the wizard cannot run (for example, in a monorepo where the dependency grap
      </Tabs.Tab>
    </Tabs>
 
-2. **(Optional) Move `@nestia/sdk` to runtime dependencies** when the application imports `NestiaSwaggerComposer`. Use `--save` instead of `--save-dev` for this package. (On the `@next` line `@nestia/sdk` is already runtime by default — see [TypeScript-Go](/docs/setup/tsgo).)
+2. **(Optional) Move `@nestia/sdk` to runtime dependencies** when the application imports `NestiaSwaggerComposer`. Use `--save` instead of `--save-dev` for this package. On the `@next` line, `@nestia/sdk` is already a runtime dependency by default; see [TypeScript-Go](/docs/setup/tsgo).
 
 3. **Register the three transforms in `tsconfig.json`.** Order matters — `@nestia/core` first, `typia` last.
 
@@ -523,7 +523,7 @@ When you are ready to move to the new toolchain, follow [TypeScript-Go](/docs/se
    npm i @nestia/core@next @nestia/sdk@next @nestia/fetcher@next
    npm i -D nestia@next
    ```
-4. **Update `tsconfig.json`.** The simplest move is to delete `compilerOptions.plugins` entirely — `ttsc` auto-discovers Nestia and typia. Only register plugins explicitly when you want to set transform options.
+4. **Update `tsconfig.json`.** The simplest move is to delete `compilerOptions.plugins` entirely — `ttsc` auto-discovers Nestia and typia.
    ```diff filename="tsconfig.json"
     {
       "compilerOptions": {
@@ -536,8 +536,10 @@ When you are ready to move to the new toolchain, follow [TypeScript-Go](/docs/se
       }
     }
    ```
-   If you keep an explicit array (for `stringify`, `llm`, …), the order also changes — `typia` first as a disabled tombstone, then `@nestia/sdk`, then `@nestia/core/native/transform.cjs`. See [tsgo > Transform Options](/docs/setup/tsgo#transform-options).
-5. **Switch the build commands.** Replace every `tsc` / `nest build` with `ttsc` and every `ts-node` / `tsx` with `ttsx`. The full `nest new` script set rewrites cleanly to `ttsc` + `node`:
+   > [!NOTE]
+   >
+   > If you keep an explicit array (for `stringify`, `llm`, …), the order also changes — `typia` first as a disabled tombstone, then `@nestia/sdk`, then `@nestia/core/native/transform.cjs`. See [tsgo > Transform Options](/docs/setup/tsgo#transform-options).
+5. **Switch the build commands.** Replace every `tsc` / `nest build` with `ttsc` and every `ts-node` / `tsx` with `ttsx`. Use `concurrently` for the watch scripts so they behave the same on cmd, PowerShell, and POSIX shells. The full `nest new` script set rewrites cleanly:
    ```diff filename="package.json"
     {
       "scripts": {
@@ -549,13 +551,16 @@ When you are ready to move to the new toolchain, follow [TypeScript-Go](/docs/se
    -    "start:prod": "node dist/main"
    +    "build": "ttsc",
    +    "start": "node dist/main.js",
-   +    "start:dev": "ttsc --watch & node --watch dist/main.js",
+   +    "start:dev": "concurrently \"ttsc --watch\" \"node --watch dist/main.js\"",
+   +    "start:debug": "concurrently \"ttsc --watch\" \"node --watch --inspect-brk dist/main.js\"",
    +    "start:prod": "node dist/main.js"
       }
     }
    ```
-   `start:debug` drops out — attach a debugger to the `node --watch` process directly. `start:dev` here is the rebuild + restart pair; if you prefer a single watcher that re-runs the script in process, use `ttsx --watch src/main.ts`.
-6. **Verify.** Confirm Go 1.26+ is on `PATH` (or set `TTSC_GO_BINARY`). Run `npx ttsc --noEmit` once to surface any plugin or pin diagnostics before the first real build, then `npx nestia all` to regenerate SDK / Swagger / e2e against the new toolchain.
+   `--inspect-brk` waits for the debugger; switch to `--inspect` for non-blocking attach. If you prefer a single watcher that re-runs the script in process, use `ttsx --watch src/main.ts`.
+6. **Verify.** Confirm Go 1.26+ is on `PATH` (or set `TTSC_GO_BINARY`). Run `npx ttsc --noEmit` once to surface any plugin or pin diagnostics before the first real build, then `npx nestia all` to regenerate SDK / Swagger / e2e against the new toolchain. Your existing `nestia.config.ts` is forward-compatible — `@nestia/sdk@next` reads the same shape, so you do not need to re-run `npx nestia init` unless you want a fresh starter.
+
+For the full transformer-architecture rationale (why the explicit-plugin order changed), see [`@nestia/core` MIGRATION.md](https://github.com/samchon/nestia/blob/master/packages/core/MIGRATION.md).
 
 > [!CAUTION]
 >

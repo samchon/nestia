@@ -76,4 +76,6 @@ yarn nestia setup --manager yarn
 
 For bundlers on the legacy line, see [Legacy → Bundlers](/docs/setup/legacy#bundlers).
 
-Already on v11 and ready to move? Follow [Legacy → Migrating to TypeScript-Go](/docs/setup/legacy#migrating-to-typescript-go).
+## [Migrating from v11](/docs/setup/legacy#migrating-to-typescript-go)
+
+Already on `nestia@^11` with `ts-patch`? The legacy page's last section is a six-step cutover to `ttsc`: drop the patch chain, reinstall on `@next`, switch the build commands. The cutover is reversible — keep your previous lockfile and `tsconfig.json` until the new build is green.

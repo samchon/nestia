@@ -5,7 +5,7 @@ npx nestia [command] [options?]
 
   1. npx nestia start <directory>
   2. npx nestia template <directory>
-  3. npx nestia setup [--manager npm|pnpm|yarn|bun]
+  3. npx nestia setup [--manager npm|pnpm|yarn|bun]   (also: --manager=value)
   4. npx nestia dependencies
   5. npx nestia init
   6. npx nestia sdk

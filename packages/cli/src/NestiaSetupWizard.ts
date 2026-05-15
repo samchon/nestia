@@ -24,8 +24,8 @@ export namespace NestiaSetupWizard {
     if (!fs.existsSync("package.json")) {
       console.error(
         [
-          `npx nestia setup must be run inside a project that already has a package.json.`,
-          `Create one with "npm init -y" and re-run.`,
+          `npx nestia setup must be run inside a directory that owns a package.json.`,
+          `Either cd into the project root, or create one with "npm init -y" and re-run.`,
         ].join("\n"),
       );
       process.exit(1);
@@ -38,6 +38,18 @@ export namespace NestiaSetupWizard {
     console.log("----------------------------------------");
     console.log(`package manager : ${manager}`);
     console.log("");
+
+    const go = cp.spawnSync("go", ["version"], { stdio: "ignore" });
+    if (go.status !== 0 && !process.env.TTSC_GO_BINARY) {
+      console.warn(
+        [
+          "Heads up: Go 1.26+ was not found on PATH.",
+          "Install it (https://go.dev/dl) or set TTSC_GO_BINARY before you run `ttsc`.",
+          "Continuing with the install — the @nestia/core native transform binary is built on demand the first time `ttsc` compiles your project.",
+          "",
+        ].join("\n"),
+      );
+    }
 
     install(manager, true, "ttsc", "@typescript/native-preview");
     install(manager, false, tagged("typia"));
@@ -55,17 +67,6 @@ export namespace NestiaSetupWizard {
     console.log("----------------------------------------");
     console.log("Next: see https://nestia.io/docs/setup/tsgo");
     console.log("");
-
-    const go = cp.spawnSync("go", ["version"], { stdio: "ignore" });
-    if (go.status !== 0 && !process.env.TTSC_GO_BINARY) {
-      console.warn(
-        [
-          "Heads up: Go 1.26+ was not found on PATH.",
-          "Install it (https://go.dev/dl) or set TTSC_GO_BINARY before running ttsc;",
-          "the @nestia/core native transform binary is built on demand at first compile.",
-        ].join("\n"),
-      );
-    }
   }
 
   function install(
