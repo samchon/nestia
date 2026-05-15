@@ -9,8 +9,8 @@ packages/openapi
 packages/*/*.tgz
 packages/*/docs
 packages/*/native/ttsc-*
-go.work
-go.work.sum
+packages/*/test/go.work
+packages/*/test/go.work.sum
 package-lock.json
 *.log
 .env
