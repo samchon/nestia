@@ -2,16 +2,18 @@ package main
 
 import "testing"
 
-// Regression: a top-level source like `src/index.ts` produced a one-segment
-// relative ("index") that the HasSuffix fallback in outputMatchesSourceStem
-// happily matched against every output ending in `/index.js`. That made the
-// native rewrite scan unrelated files (e.g. `src/api/functional/health/index.js`)
-// for typia call sites that only exist in the root entry, and the missing
-// match raised "could not locate typia.reflect.schemas(...) call".
+// Verifies outputMatchesSourceStem accepts virtual-fs same-stem mirrors and
+// rejects single-segment suffix collisions across the source tree.
 //
-// The matcher must now (1) accept the legitimate same-stem virtual-fs case
-// where output and source share an `src/` tail, and (2) reject single-segment
-// suffix matches that point at a different file in the same source tree.
+// Regression: a top-level `src/index.ts` produced a one-segment relative
+// ("index") that the HasSuffix fallback matched against every output ending
+// in `/index.js`. The native rewrite scan then trawled unrelated files for
+// typia call sites that only existed in the root entry, raising
+// "could not locate typia.reflect.schemas(...) call".
+//
+//  1. Mirror a src/index virtual fs — must match.
+//  2. Compare top-level src/index against nested src/api/health/index — must reject.
+//  3. Cover the package src->lib mapping and an unrelated stem pair.
 func TestOutputMatchesSourceStem(t *testing.T) {
 	cases := []struct {
 		name   string

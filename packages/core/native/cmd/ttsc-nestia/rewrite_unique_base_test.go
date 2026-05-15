@@ -20,12 +20,17 @@ func TestNativeRewriteSetFindSourceByUniqueBase(t *testing.T) {
 	}
 }
 
-// Regression: the unique-basename fallback used to match any output that
-// shared a basename with a registered source, even when the output was a
-// sibling file inside the same source tree. That made `src/index.ts`
-// silently claim rewrites for every `src/.../index.ts` neighbor produced by
-// ttsc's virtual filesystem and surfaced as "could not locate typia.*(...)"
-// errors on unrelated generated SDK files.
+// Verifies the unique-basename fallback does not match a sibling output that
+// lives inside the same `src/` tree as the registered source.
+//
+// Regression: the fallback used to match any output sharing a basename with
+// a registered source, so `src/index.ts` silently absorbed rewrites destined
+// for every `src/.../index.ts` neighbor produced by ttsc's virtual fs. The
+// symptom was `could not locate typia.*(...)` on unrelated generated files.
+//
+//  1. Register one rewrite for `/repo/tests/foo/src/index.ts`.
+//  2. Ask findSourceForOutput for a sibling output inside the same src tree.
+//  3. Expect no match.
 func TestNativeRewriteSetFindSourceByUniqueBaseSkipsSourceTreeSiblings(t *testing.T) {
 	set := newNativeRewriteSet()
 	set.Add(nativeRewrite{
