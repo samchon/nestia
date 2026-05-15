@@ -13,9 +13,9 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
  * `IValidateErrorLog` is a public contract consumed downstream; the
  * `expected: 'string & Format<"date-time">'` field embeds the Typia tag
  * literal verbatim, so a Go-side change to tag rendering would silently
- * break consumers' parsers. Sibling fixtures (`-fastify`, `-encrypted`)
- * mirror this test to pin runtime-adapter parity — the assertion shape
- * must stay identical across all three.
+ * break consumers' parsers. The `-fastify` and `-encrypted` sibling
+ * fixtures currently hold byte-identical copies of this test as
+ * reserved slots for a future runtime-adapter divergence.
  *
  *  1. Register a logger and call a route that returns an invalid `at` field.
  *  2. Expect exactly one log entry naming method + path + the malformed data.
