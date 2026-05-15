@@ -8,7 +8,7 @@ export namespace TtscExecutor {
     project: string;
     stdio?: cp.StdioOptions;
   }): Buffer => {
-    const args: string[] = [bin(), "-p", props.project];
+    const args: string[] = [bin(props.cwd), "-p", props.project];
     if (process.env.TTSC_CACHE_DIR !== undefined)
       args.push("--cache-dir", process.env.TTSC_CACHE_DIR);
     return cp.execFileSync(process.execPath, args, {
@@ -18,16 +18,24 @@ export namespace TtscExecutor {
     });
   };
 
-  let bin_: string | undefined;
+  const bin_: Map<string, string> = new Map();
 
-  const bin = (): string => {
-    if (bin_ !== undefined) return bin_;
+  const bin = (cwd: string): string => {
+    const cached: string | undefined = bin_.get(cwd);
+    if (cached !== undefined) return cached;
 
-    const directory: string = path.dirname(
-      require.resolve("ttsc/package.json"),
-    );
+    // Prefer the user's project-local ttsc; fall back to the module's own
+    // lookup path so a programmatic caller without an installed ttsc in
+    // `cwd` still resolves the bundled dep.
+    let manifest: string;
+    try {
+      manifest = require.resolve("ttsc/package.json", { paths: [cwd] });
+    } catch {
+      manifest = require.resolve("ttsc/package.json");
+    }
+    const directory: string = path.dirname(manifest);
     const pack: { bin?: string | Record<string, string> } = JSON.parse(
-      fs.readFileSync(path.join(directory, "package.json"), "utf8"),
+      fs.readFileSync(manifest, "utf8"),
     );
     const location: string | undefined =
       typeof pack.bin === "string" ? pack.bin : pack.bin?.ttsc;
@@ -49,6 +57,7 @@ export namespace TtscExecutor {
         `"ttsc" binary not found at "${resolved}". ` +
           `Reinstall with: npm install --save-dev ttsc`,
       );
-    return (bin_ = resolved);
+    bin_.set(cwd, resolved);
+    return resolved;
   };
 }

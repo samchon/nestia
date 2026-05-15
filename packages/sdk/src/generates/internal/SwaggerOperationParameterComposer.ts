@@ -53,7 +53,7 @@ export namespace SwaggerOperationParameterComposer {
     };
   };
 
-  export const path = (
+  const path = (
     props: Omit<IProps<ITypedHttpRouteParameter.IPath>, "config" | "document">,
   ): OpenApi.IOperation.IParameter => ({
     name: props.parameter.field,
@@ -65,11 +65,11 @@ export namespace SwaggerOperationParameterComposer {
     examples: props.parameter.examples,
   });
 
-  export const query = (
+  const query = (
     props: IProps<ITypedHttpRouteParameter.IQuery>,
   ): OpenApi.IOperation.IParameter[] => decomposible(props);
 
-  export const header = (
+  const header = (
     props: IProps<ITypedHttpRouteParameter.IHeaders>,
   ): OpenApi.IOperation.IParameter[] => decomposible(props);
 

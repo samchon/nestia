@@ -32,8 +32,8 @@ export namespace ReflectHttpOperationExceptionAnalyzer {
     const errors: IReflectOperationError[] = [];
     const exceptions: IReflectHttpOperationException[] = preconfigured
       .map((pre, i) => {
-        const matched: IOperationMetadata.IException | null =
-          ctx.metadata.exceptions[i]!;
+        const matched: IOperationMetadata.IResponse | undefined =
+          ctx.metadata.exceptions[i];
         if (matched === undefined) {
           errors.push({
             file: ctx.controller.file,

@@ -2,6 +2,22 @@ import { IReflectImport } from "../structures/IReflectImport";
 import { MapUtil } from "../utils/MapUtil";
 
 export namespace ImportAnalyzer {
+  /**
+   * @deprecated Removed in the Go-migration cycle. Import metadata is now
+   * attached by the native transformer in `packages/core/native/cmd/ttsc-nestia`
+   * and consumed via `IOperationMetadata.imports`. Call sites that previously
+   * walked a `ts.SourceFile` to derive imports should read the metadata
+   * delivered through `Reflect.getMetadata("nestia/OperationMetadata", …)`
+   * instead. See `packages/core/MIGRATION.md`.
+   */
+  export const analyze = (): never => {
+    throw new Error(
+      "ImportAnalyzer.analyze was removed in @nestia/sdk@next. " +
+        "Imports are now attached by the native transformer; read them from " +
+        "IOperationMetadata.imports (see packages/core/MIGRATION.md).",
+    );
+  };
+
   export const merge = (imports: IReflectImport[]): IReflectImport[] => {
     // group by files
     const fileGroups: Map<string, IReflectImport[]> = new Map();

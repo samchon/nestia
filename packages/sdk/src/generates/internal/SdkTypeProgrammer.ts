@@ -113,7 +113,7 @@ export namespace SdkTypeProgrammer {
   const write_constant = (value: MetadataConstantValue) => {
     if (typeof value.value === "boolean")
       return TypeScriptFactory.createLiteralTypeNode(
-        value
+        value.value
           ? TypeScriptFactory.createTrue()
           : TypeScriptFactory.createFalse(),
       );
@@ -122,9 +122,9 @@ export namespace SdkTypeProgrammer {
         value.value < BigInt(0)
           ? TypeScriptFactory.createPrefixUnaryExpression(
               SyntaxKind.MinusToken,
-              TypeScriptFactory.createBigIntLiteral((-value).toString()),
+              TypeScriptFactory.createBigIntLiteral((-value.value).toString()),
             )
-          : TypeScriptFactory.createBigIntLiteral(value.toString()),
+          : TypeScriptFactory.createBigIntLiteral(value.value.toString()),
       );
     else if (typeof value.value === "number")
       return TypeScriptFactory.createLiteralTypeNode(

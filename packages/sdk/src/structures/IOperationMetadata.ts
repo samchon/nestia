@@ -28,11 +28,6 @@ export namespace IOperationMetadata {
     primitive: ValidationPipe<ISchema, IError>;
     resolved: ValidationPipe<ISchema, IError>;
   }
-  export interface IException {
-    type: IReflectType | null;
-    imports: IReflectImport[];
-    primitive: ValidationPipe<ISchema, IError>;
-  }
 
   export interface ISchema {
     components: IMetadataComponents;

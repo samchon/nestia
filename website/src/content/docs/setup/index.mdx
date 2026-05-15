@@ -3,7 +3,7 @@ title: Guide Documents > Setup
 description: "Two install paths for Nestia: the new TypeScript-Go (`ttsc`) toolchain on `@nestia/core@next`, and the legacy `ts-patch` setup on the published v11 line."
 ---
 
-import { Tabs } from "nextra/components";
+import { Callout, Tabs } from "nextra/components";
 
 Pick **TypeScript-Go** for new projects on the `@next` line (npm's `next` dist-tag, which moves with every dev release), or **Legacy** for production projects already on v11. Both paths share decorator APIs and CLI subcommands; only the build toolchain differs.
 
@@ -66,8 +66,10 @@ pnpm nestia setup --manager pnpm
 ```
   </Tabs.Tab>
   <Tabs.Tab>
+    <Callout type="warning">
+      Yarn berry is not supported.
+    </Callout>
 ```bash filename="Terminal" showLineNumbers copy
-# yarn berry is not supported
 yarn add -D nestia@^11
 yarn nestia setup --manager yarn
 ```

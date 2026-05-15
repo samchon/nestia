@@ -4,7 +4,7 @@ export default {
   // GETTINIG STARTED
   index: "🙋🏻‍♂️ Introduction",
   pure: "⛲ Pure TypeScript",
-  setup: "Setup",
+  setup: "📦 Setup",
 
   // CORE FEATURES
   "-- features": {

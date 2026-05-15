@@ -57,12 +57,10 @@
     "@typia/core": "catalog:samchon",
     "@typia/interface": "catalog:samchon",
     "@typia/utils": "catalog:samchon",
-    "cli": "^1.0.1",
     "get-function-location": "^2.0.0",
     "glob": "^11.0.3",
     "path-to-regexp": "^6.2.1",
     "prettier": "catalog:typescript",
-    "tsconfig-paths": "^4.1.1",
     "ttsc": "catalog:typescript",
     "tstl": "catalog:samchon",
     "typia": "catalog:samchon"
@@ -74,11 +72,9 @@
     "@nestjs/common": "catalog:nestjs",
     "@nestjs/core": "catalog:nestjs",
     "@typescript/native-preview": "catalog:typescript",
-    "@types/cli": "^0.11.21",
     "@types/express": "^4.17.15",
     "@types/node": "catalog:utils",
-    "rimraf": "catalog:utils",
-    "ttsc": "catalog:typescript"
+    "rimraf": "catalog:utils"
   },
   "files": ["assets", "lib", "src", "README.md", "LICENSE", "package.json"],
   "publishConfig": {

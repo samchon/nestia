@@ -8,11 +8,6 @@ export namespace StringUtil {
       .map((str) => normalize(str.trim()))
       .filter((str) => !!str.length);
 
-  export const escapeDuplicate =
-    (keep: string[]) =>
-    (change: string): string =>
-      keep.includes(change) ? escapeDuplicate(keep)(`_${change}`) : change;
-
   export const escapeNonVariable = (str: string): string => {
     str = escape(str);
     for (const [before, after] of VARIABLE_REPLACERS)

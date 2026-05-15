@@ -57,9 +57,11 @@ export namespace NestiaMigrateCommander {
     const result: IValidation<NestiaMigrateApplication> =
       NestiaMigrateApplication.validate(document);
     if (result.success === false) {
-      console.log(result.errors);
+      console.error("nestia migrate: invalid swagger:");
+      for (const err of result.errors)
+        console.error(`  - ${err.path}: ${err.value}`);
       throw new Error(
-        `Invalid swagger file (must follow the OpenAPI 3.0 spec).`,
+        `Invalid swagger file (must follow the OpenAPI 3.0 spec): ${options.input}`,
       );
     }
 
@@ -104,8 +106,8 @@ export namespace NestiaMigrateCommander {
 
   const isUri = (input: string): boolean => {
     try {
-      new URL(input);
-      return true;
+      const url: URL = new URL(input);
+      return url.protocol === "http:" || url.protocol === "https:";
     } catch {
       return false;
     }

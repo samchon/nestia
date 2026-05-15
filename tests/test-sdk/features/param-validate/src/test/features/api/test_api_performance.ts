@@ -3,7 +3,7 @@ import typia from "typia";
 import api from "@api";
 import { IPerformance } from "@api/lib/structures/IPerformance";
 
-export const test_api_monitor_performance = async (
+export const test_api_performance = async (
   connection: api.IConnection,
 ): Promise<void> => {
   const performance: IPerformance =
