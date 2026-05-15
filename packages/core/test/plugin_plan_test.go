@@ -253,14 +253,40 @@ func TestCoreNativeTransformAppliesJSDocTypeTagsToTypedQuery(t *testing.T) {
 
 func TestCoreNativeTypiaRandomUsesJSDocTypeTags(t *testing.T) {
 	root := repoRoot(t)
+	temp := t.TempDir()
+	featureRoot := filepath.Join(root, "tests/test-sdk/features/app")
+	sourceRoot := filepath.Join(featureRoot, "src")
+	fixture := filepath.Join(sourceRoot, "test/transform_random_uint_fixture.ts")
+	tsconfig := filepath.Join(temp, "tsconfig.json")
+	if err := os.WriteFile(
+		tsconfig,
+		[]byte(`{
+  "extends": "`+filepath.ToSlash(filepath.Join(featureRoot, "tsconfig.json"))+`",
+  "compilerOptions": {
+    "rootDir": "`+filepath.ToSlash(sourceRoot)+`",
+    "paths": {
+      "@api": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api"))+`"],
+      "@api/lib/*": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api/*"))+`"]
+    }
+  },
+  "files": [
+    "`+filepath.ToSlash(fixture)+`",
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "api/structures/IPage.ts"))+`"
+  ],
+  "include": []
+}`),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
 	cmd := exec.Command(
 		"go",
 		"run",
 		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
 		"transform",
-		"--cwd", filepath.Join(root, "tests/test-sdk/features/app"),
+		"--cwd", temp,
 		"--tsconfig", "tsconfig.json",
-		"--file", filepath.Join(root, "tests/test-sdk/features/app/src/test/features/api/automated/test_api_bbs_articles_index.ts"),
+		"--file", fixture,
 		"--plugins-json", `[{"name":"typia","stage":"transform","config":{"transform":"typia/lib/transform"}}]`,
 	)
 	cmd.Dir = filepath.Join(root, "packages/core/native")
