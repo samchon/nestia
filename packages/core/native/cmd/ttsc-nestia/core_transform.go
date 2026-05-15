@@ -14,6 +14,7 @@ import (
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimchecker "github.com/microsoft/typescript-go/shim/checker"
+	shimscanner "github.com/microsoft/typescript-go/shim/scanner"
 	"github.com/samchon/nestia/packages/core/native/plugin"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 	nativecontext "github.com/samchon/typia/packages/typia/native/core/context"
@@ -1688,8 +1689,17 @@ func commonJSImportAliasBase(module string) string {
 }
 
 func nestiaCoreDiagnostic(site nestiaCoreSite, message string) typiaTransformDiagnostic {
+	line, column := 0, 0
+	if site.File != nil && site.Call != nil {
+		if pos := site.Call.AsNode().Pos(); pos >= 0 {
+			l, c := shimscanner.GetECMALineAndByteOffsetOfPosition(site.File, pos)
+			line, column = l+1, c+1
+		}
+	}
 	return typiaTransformDiagnostic{
 		File:    site.FilePath,
+		Line:    line,
+		Column:  column,
 		Code:    "nestia.core." + site.Kind,
 		Message: message,
 	}

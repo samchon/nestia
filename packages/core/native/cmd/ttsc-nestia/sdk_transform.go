@@ -11,6 +11,7 @@ import (
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
 	shimchecker "github.com/microsoft/typescript-go/shim/checker"
+	shimscanner "github.com/microsoft/typescript-go/shim/scanner"
 	"github.com/samchon/nestia/packages/core/native/plugin"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 	nativefactories "github.com/samchon/typia/packages/typia/native/core/factories"
@@ -676,10 +677,12 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 				"messages": err.Messages,
 			})
 		}
-		return map[string]any{
+		failure := map[string]any{
 			"success": false,
 			"errors":  errors,
 		}
+		context.schemaCache[key] = failure
+		return failure
 	}
 	nestiaSDKRestoreUnionOrder(typeNode, result.Data)
 	value := map[string]any{
@@ -1426,8 +1429,17 @@ func sourceLineIndent(source string, pos int) string {
 }
 
 func nestiaSDKDiagnostic(site nestiaSDKSite, message string) typiaTransformDiagnostic {
+	line, column := 0, 0
+	if site.File != nil && site.Method != nil {
+		if pos := site.Method.Pos(); pos >= 0 {
+			l, c := shimscanner.GetECMALineAndByteOffsetOfPosition(site.File, pos)
+			line, column = l+1, c+1
+		}
+	}
 	return typiaTransformDiagnostic{
 		File:    site.FilePath,
+		Line:    line,
+		Column:  column,
 		Code:    "nestia.sdk.OperationMetadata",
 		Message: message,
 	}

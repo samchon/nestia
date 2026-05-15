@@ -141,6 +141,10 @@ ttsc-nestia profile: sdk-cache hits=567 misses=89
 
 Informational only — the counters do not affect compilation output or exit code. Useful when investigating large-codebase build times.
 
+### 12. Panic stack opt-in: `NESTIA_NATIVE_DEBUG_STACK`
+
+If the Go binary aborts with `nestia.internal.panic`, set `NESTIA_NATIVE_DEBUG_STACK=1` to also print the full Go stack alongside the diagnostic. Off by default to keep build output clean; turn it on only when reproducing a panic for triage.
+
 ## Quickest upgrade recipe
 
 ```bash
@@ -150,7 +154,7 @@ npm uninstall ts-patch
 # 2. Reinstall dependencies in the new order — same effect as `npx nestia setup`
 npm i -D ttsc @typescript/native-preview
 npm i typia
-npm i @nestia/core @nestia/sdk @nestia/fetcher
+npm i @nestia/core @nestia/sdk @nestia/e2e @nestia/fetcher
 npm i -D nestia
 
 # 3. Update the build script (see §2)
