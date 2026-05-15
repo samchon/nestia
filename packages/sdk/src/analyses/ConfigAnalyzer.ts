@@ -131,6 +131,7 @@ class RuntimeCompiler {
       "runtime",
     );
     await fs.promises.mkdir(runtimeRoot, { recursive: true });
+    ensureRuntimeCleanup(runtimeRoot);
     const outDir: string = await fs.promises.mkdtemp(
       path.join(runtimeRoot, "run-"),
     );
@@ -186,6 +187,33 @@ class RuntimeCompiler {
     return emitted;
   }
 }
+
+const RUNTIME_ROOTS: Set<string> = new Set();
+let RUNTIME_CLEANUP_REGISTERED: boolean = false;
+
+const ensureRuntimeCleanup = (runtimeRoot: string): void => {
+  RUNTIME_ROOTS.add(runtimeRoot);
+  if (RUNTIME_CLEANUP_REGISTERED === true) return;
+  RUNTIME_CLEANUP_REGISTERED = true;
+  const sweep = (): void => {
+    for (const location of RUNTIME_ROOTS)
+      fs.rmSync(location, { force: true, recursive: true });
+  };
+  process.once("exit", sweep);
+  // process.once("exit", …) does not fire on SIGINT/SIGTERM. Without these
+  // handlers a Ctrl-C during codegen leaves `run-*` mkdtemp directories
+  // behind under node_modules/.nestia/runtime/ until a subsequent clean exit.
+  const onSignal = (signal: NodeJS.Signals): void => {
+    sweep();
+    process.kill(process.pid, signal);
+  };
+  for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {
+    if (typeof process.listenerCount === "function" &&
+        process.listenerCount(signal) > 0)
+      continue;
+    process.once(signal, onSignal);
+  }
+};
 
 type RuntimePlugin = Record<string, unknown> & { transform?: unknown };
 

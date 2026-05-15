@@ -9,6 +9,7 @@ packages/openapi
 packages/*/*.tgz
 packages/*/docs
 packages/*/native/ttsc-*
+packages/*/native/go.work.sum
 packages/*/test/go.work
 packages/*/test/go.work.sum
 packages/*/README.md

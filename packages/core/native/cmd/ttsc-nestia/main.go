@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime/debug"
 )
 
 var (
@@ -12,7 +13,28 @@ var (
 )
 
 func main() {
-	os.Exit(run(os.Args[1:]))
+	os.Exit(runSafe(os.Args[1:]))
+}
+
+// runSafe wraps run() in a panic recovery envelope so that any unexpected
+// panic surfaces as a parseable transform-diagnostic line on stderr instead
+// of a raw Go stack trace that ttsc's compiler-diagnostic regex cannot read.
+// The full stack is preserved behind NESTIA_NATIVE_DEBUG_STACK for triage.
+func runSafe(args []string) (code int) {
+	defer func() {
+		if exp := recover(); exp != nil {
+			diag := typiaTransformDiagnostic{
+				Code:    "nestia.internal.panic",
+				Message: fmt.Sprintf("ttsc-nestia panicked: %v", exp),
+			}
+			writeTypiaTransformDiagnostics(stderr, []typiaTransformDiagnostic{diag}, "")
+			if os.Getenv("NESTIA_NATIVE_DEBUG_STACK") != "" {
+				fmt.Fprintln(stderr, string(debug.Stack()))
+			}
+			code = 3
+		}
+	}()
+	return run(args)
 }
 
 func run(args []string) int {

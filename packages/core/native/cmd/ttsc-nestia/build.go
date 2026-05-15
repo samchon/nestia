@@ -119,11 +119,12 @@ func runBuild(args []string) int {
 		writeTypiaTransformDiagnostics(stderr, transformDiags, cwd)
 		return 3
 	}
+	beforeCore := rewrites.Len()
 	if profile {
 		started = time.Now()
 	}
 	coreDiags := collectNestiaCoreBuildRewrites(prog, plan, rewrites)
-	profileBuildStepCount(profile, "core-rewrites", started, rewrites.Len())
+	profileBuildStepCount(profile, "core-rewrites", started, rewrites.Len()-beforeCore)
 	if len(coreDiags) > 0 {
 		writeTypiaTransformDiagnostics(stderr, coreDiags, cwd)
 		return 3
