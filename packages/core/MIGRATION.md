@@ -108,7 +108,7 @@ but tooling may still inspect the entry.
 ]
 ```
 
-`@nestia/sdk` ships its plugin as `lib/transform` (a thin descriptor) while `@nestia/core` ships `native/transform.cjs` (the Go binary host). The asymmetry is intentional: the Go binary inside `transform.cjs` recognises an SDK descriptor by name and runs both transforms in one compiler pass via `composes`, so plugin order in the array does not matter.
+`@nestia/sdk` ships its plugin as `lib/transform` (a thin descriptor) while `@nestia/core` ships `native/transform.cjs` (the Go binary host). The asymmetry is intentional: the Go binary inside `transform.cjs` recognizes an SDK descriptor by name and runs both transforms in one compiler pass via `composes`, so plugin order in the array does not matter.
 
 ### 7. Internal symbols removed
 
