@@ -8,15 +8,16 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
 /**
  * Verifies `TypedRoute.setValidateErrorLogger` receives a structured
- * `IValidateErrorLog` entry when the controller uses `@EncryptedRoute`.
+ * `IValidateErrorLog` entry in the `-encrypted`-suffixed sibling fixture.
  *
- * Mirror of the plaintext route test in `route-manual-validate-log`.
- * The AES-PKCS5 response codec sits between the controller's malformed
- * payload and the logger — a regression in that codec must not corrupt
- * the logged `data` field. The assertion shape stays identical to the
- * Express and Fastify sibling fixtures.
+ * This fixture is currently a near-duplicate of `route-manual-validate-log`
+ * (same `@TypedRoute.Get` controller, same Backend, same nestia.config) —
+ * the suffix is preserved so a future divergence into an
+ * `@EncryptedRoute`-flavored test has a stable home without disturbing
+ * existing tooling. The assertion contract is the one pinned by the
+ * base fixture's docstring.
  *
- *  1. Register a logger and call an encrypted route that returns an invalid `at` field.
+ *  1. Register a logger and call a route that returns an invalid `at` field.
  *  2. Expect exactly one log entry naming method + path + the malformed data.
  *  3. Assert the `errors[]` entry carries `expected: 'string & Format<"date-time">'`.
  */

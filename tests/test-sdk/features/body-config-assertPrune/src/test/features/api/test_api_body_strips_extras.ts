@@ -17,9 +17,13 @@ import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
  * to a non-pruning validator and let the extra slip through.
  *
  *  1. Build a valid `IBbsArticle.IStore` and attach an extra property.
- *  2. Send the payload via the SDK (cast `any` to bypass the static type).
- *  3. Assert the SDK response carries no `__unexpected__` key and that
- *     the rest of the article still validates as a well-formed `IBbsArticle`.
+ *  2. Send the payload via the SDK; the tainted object is cast back to
+ *     `IBbsArticle.IStore` so the SDK accepts it, and the SDK's
+ *     `JSON.stringify` fallback (see `FetcherBase.ts:107`) transmits
+ *     the extra to the server untouched.
+ *  3. Cast the response through `unknown` to read the unknown key and
+ *     assert it is absent; then `typia.assertEquals` on the article to
+ *     verify the rest of the payload still validates.
  */
 export const test_api_body_strips_extras = async (
   connection: api.IConnection,

@@ -2,16 +2,19 @@ import fs from "fs";
 import typia from "typia";
 
 /**
- * Verifies @SwaggerSecurity emits the correct OpenAPI security-requirement
- * shape per route, including the `undefined`-vs-`[]` distinction.
+ * Verifies @ApiBasicAuth / @ApiBearerAuth / @ApiOAuth2 decorators emit
+ * the correct OpenAPI security-requirement shape, including the
+ * `undefined`-vs-`[]` distinction.
  *
- * Three load-bearing branches are pinned: (a) decorator-derived security
- * (`/basic`, `/bearer`, `/oauth2`) matches JSDoc-derived security
- * (`*_by_comment`) byte-for-byte, (b) `/optional_by_comment` emits
- * `[{}, { bearer: [] }]` where the `{}` is the "no auth" option, and
- * (c) the route with no security MUST emit `undefined` — NOT an empty
- * array, which OpenAPI would interpret as "apply the document-level
- * default."
+ * Three load-bearing branches are pinned: (a) NestJS Swagger decorator
+ * routes (`/basic`, `/bearer`, `/oauth2`) and their JSDoc-tagged
+ * counterparts (`*_by_comment`) both populate `security`, (b)
+ * `/optional_by_comment` emits `[{}, { bearer: [] }]` where the `{}` is
+ * the "no auth" option, and (c) the route with no security MUST emit
+ * `undefined` — NOT an empty array, which OpenAPI would interpret as
+ * "apply the document-level default." Note that `typia.assertEquals` is
+ * type-shaped, so the assertion locks the literal shape of each
+ * requirement, not byte equality across pairs.
  *
  *  1. Read the generated `swagger.json` from the SDK output.
  *  2. Assert each `security` member matches the expected literal shape.
