@@ -25,6 +25,9 @@ catalogs:
     '@rollup/plugin-node-resolve':
       specifier: ^16.0.3
       version: 16.0.3
+    '@rollup/plugin-terser':
+      specifier: ^0.4.4
+      version: 0.4.4
     '@rollup/plugin-typescript':
       specifier: ^12.3.0
       version: 12.3.0
@@ -377,10 +380,10 @@ importers:
         specifier: catalog:nestjs
         version: 11.1.15(@nestjs/common@11.1.15(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.15)
       '@rollup/plugin-terser':
-        specifier: ^0.4.4
+        specifier: catalog:rollup
         version: 0.4.4(rollup@4.59.0)
       '@rollup/plugin-typescript':
-        specifier: ^12.1.1
+        specifier: catalog:rollup
         version: 12.3.0(rollup@4.59.0)(tslib@2.8.1)(typescript@6.0.3)
       '@types/js-yaml':
         specifier: ^4.0.9
@@ -416,7 +419,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       rollup:
-        specifier: ^4.24.2
+        specifier: catalog:rollup
         version: 4.59.0
       typescript:
         specifier: catalog:typescript
@@ -523,10 +526,10 @@ importers:
         version: 13.0.0-dev.20260514
     devDependencies:
       '@rollup/plugin-terser':
-        specifier: ^0.4.4
+        specifier: catalog:rollup
         version: 0.4.4(rollup@4.59.0)
       '@rollup/plugin-typescript':
-        specifier: ^12.1.1
+        specifier: catalog:rollup
         version: 12.3.0(rollup@4.59.0)(tslib@2.8.1)(typescript@6.0.3)
       '@types/inquirer':
         specifier: ^9.0.7
@@ -541,7 +544,7 @@ importers:
         specifier: catalog:utils
         version: 6.1.3
       rollup:
-        specifier: ^4.24.3
+        specifier: catalog:rollup
         version: 4.59.0
 
   packages/sdk:

@@ -62,6 +62,17 @@ const main = () => {
         (param?.[2] === true) === expectValidateParam,
         `${option}: wrong TypedParam validation flag`,
       );
+
+      // TypedQuery shares the assert/is/validate routing with TypedBody but
+      // collapses Clone/Prune variants onto the base assert/validate paths
+      // (see nestiaCoreGenerateTypedQuery in core_transform.go). Asserting
+      // the captured type per mode locks the same routing table integration
+      // tests cannot otherwise reach.
+      const query = first(captured.TypedQuery)?.[0];
+      assert(
+        query?.type === expectedType,
+        `${option}: wrong TypedQuery validator (got ${query?.type}, expected ${expectedType})`,
+      );
     }
   });
 

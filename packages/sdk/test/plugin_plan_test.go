@@ -1,6 +1,8 @@
 package test
 
 import (
+	"bytes"
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -259,6 +261,168 @@ func TestSDKNativeTransformKeepsEmptyJSDocTagsUndefined(t *testing.T) {
 		t.Fatalf("empty JSDoc tag should omit text so Swagger can emit optional security\n%s", text)
 	}
 }
+
+// TestSDKOperationMetadataShapeRoundTrip locks the JSON shape that the Go
+// transformer injects via __OperationMetadata.OperationMetadata(...). The
+// surrounding tests only substring-match key fragments, so a Go-side field
+// rename or removal would still pass them. Here we extract one literal,
+// json.Unmarshal it, and assert against packages/sdk/src/structures/
+// IOperationMetadata.ts.
+func TestSDKOperationMetadataShapeRoundTrip(t *testing.T) {
+	root := repoRoot(t)
+	temp := t.TempDir()
+	tsconfig := filepath.Join(temp, "tsconfig.json")
+	sourceRoot := filepath.Join(root, "tests/test-sdk/features/body/src")
+	typeRoots := nodeTypeRoots(t, root)
+	if err := os.WriteFile(
+		tsconfig,
+		[]byte(`{
+  "extends": "`+filepath.ToSlash(filepath.Join(root, "tests/test-sdk/features/body/tsconfig.json"))+`",
+  "compilerOptions": {
+    "rootDir": "`+filepath.ToSlash(root)+`",
+    "types": ["node"],
+    "typeRoots": ["`+typeRoots+`"],
+    "paths": {
+      "@api": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api"))+`"],
+      "@api/lib/*": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api/*"))+`"],
+      "@nestia/core": ["`+filepath.ToSlash(filepath.Join(root, "packages/core/src"))+`"],
+      "@nestia/core/*": ["`+filepath.ToSlash(filepath.Join(root, "packages/core/src/*"))+`"],
+      "@nestia/sdk": ["`+filepath.ToSlash(filepath.Join(root, "packages/sdk/src"))+`"],
+      "@nestia/sdk/*": ["`+filepath.ToSlash(filepath.Join(root, "packages/sdk/src/*"))+`"]
+    }
+  },
+  "files": [
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "controllers/TypedBodyController.ts"))+`",
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "api/structures/IBbsArticle.ts"))+`"
+  ],
+  "include": []
+}`),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	outDir := filepath.Join(temp, "lib")
+	cmd := exec.Command(
+		"go",
+		"run",
+		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		"build",
+		"--cwd", temp,
+		"--tsconfig", "tsconfig.json",
+		"--emit",
+		"--outDir", outDir,
+		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
+	)
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("native build failed: %v\n%s", err, out)
+	}
+	js, err := os.ReadFile(emittedJSPath(t, root, outDir, filepath.Join(sourceRoot, "controllers/TypedBodyController.ts")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	literal, err := extractFirstOperationMetadataLiteral(js)
+	if err != nil {
+		t.Fatalf("could not locate __OperationMetadata literal: %v\n%s", err, js)
+	}
+	var meta map[string]any
+	if err := json.Unmarshal(literal, &meta); err != nil {
+		t.Fatalf("OperationMetadata literal is not valid JSON: %v\nliteral=%s", err, literal)
+	}
+	for _, key := range []string{"parameters", "success", "exceptions", "description", "jsDocTags"} {
+		if _, ok := meta[key]; !ok {
+			t.Fatalf("IOperationMetadata is missing required key %q\nmeta=%v", key, meta)
+		}
+	}
+	parameters, ok := meta["parameters"].([]any)
+	if !ok {
+		t.Fatalf("expected parameters to be []any, got %T", meta["parameters"])
+	}
+	if len(parameters) == 0 {
+		t.Fatal("expected at least one parameter in the TypedBodyController fixture")
+	}
+	for index, raw := range parameters {
+		param, ok := raw.(map[string]any)
+		if !ok {
+			t.Fatalf("parameters[%d] is not an object: %T", index, raw)
+		}
+		for _, key := range []string{"name", "index", "description", "jsDocTags", "type", "imports", "primitive", "resolved"} {
+			if _, ok := param[key]; !ok {
+				t.Fatalf("parameters[%d] missing required key %q\nparam=%v", index, key, param)
+			}
+		}
+		if _, ok := param["name"].(string); !ok {
+			t.Fatalf("parameters[%d].name should be string, got %T", index, param["name"])
+		}
+	}
+	success, ok := meta["success"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected success to be an object, got %T", meta["success"])
+	}
+	for _, key := range []string{"type", "imports", "primitive", "resolved"} {
+		if _, ok := success[key]; !ok {
+			t.Fatalf("success missing required key %q\nsuccess=%v", key, success)
+		}
+	}
+	if _, ok := meta["exceptions"].([]any); !ok {
+		t.Fatalf("expected exceptions to be []any, got %T", meta["exceptions"])
+	}
+}
+
+// extractFirstOperationMetadataLiteral scans the emitted JS for the first
+// __OperationMetadata.OperationMetadata( call and returns the inner JSON
+// object literal (everything between the matching `{` and `}`). The
+// transformer emits valid JSON via json.Marshal (see
+// nestiaSDKMetadataLiteralText in packages/core/native/cmd/ttsc-nestia/
+// sdk_transform.go), so the slice can be fed directly to json.Unmarshal.
+func extractFirstOperationMetadataLiteral(js []byte) ([]byte, error) {
+	const needle = "__OperationMetadata.OperationMetadata("
+	idx := bytes.Index(js, []byte(needle))
+	if idx < 0 {
+		return nil, &literalError{msg: "OperationMetadata call not found"}
+	}
+	start := idx + len(needle)
+	for start < len(js) && js[start] != '{' {
+		start++
+	}
+	if start >= len(js) {
+		return nil, &literalError{msg: "no opening brace after OperationMetadata("}
+	}
+	depth := 0
+	inString := false
+	escape := false
+	for i := start; i < len(js); i++ {
+		c := js[i]
+		if escape {
+			escape = false
+			continue
+		}
+		if inString {
+			switch c {
+			case '\\':
+				escape = true
+			case '"':
+				inString = false
+			}
+			continue
+		}
+		switch c {
+		case '"':
+			inString = true
+		case '{':
+			depth++
+		case '}':
+			depth--
+			if depth == 0 {
+				return js[start : i+1], nil
+			}
+		}
+	}
+	return nil, &literalError{msg: "unterminated OperationMetadata literal"}
+}
+
+type literalError struct{ msg string }
+
+func (e *literalError) Error() string { return e.msg }
 
 func TestSDKNativeBuildImportsLocalTypeAliases(t *testing.T) {
 	root := repoRoot(t)

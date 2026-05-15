@@ -91,6 +91,7 @@
   },
   "files": [
     "README.md",
+    "MIGRATION.md",
     "LICENSE",
     "package.json",
     "lib",

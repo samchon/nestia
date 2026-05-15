@@ -5,12 +5,13 @@ npx nestia [command] [options?]
 
   1. npx nestia start <directory>
   2. npx nestia template <directory>
-  3. npx nestia dependencies
-  4. npx nestia init
-  5. npx nestia sdk
-  6. npx nestia swagger
-  7. npx nestia e2e
-  8. npx nestia all
+  3. npx nestia setup [--manager npm|pnpm|yarn|bun]
+  4. npx nestia dependencies
+  5. npx nestia init
+  6. npx nestia sdk
+  7. npx nestia swagger
+  8. npx nestia e2e
+  9. npx nestia all
 `;
 
 function halt(desc: string): never {
@@ -30,6 +31,10 @@ async function main(): Promise<void> {
     await (
       await import("./NestiaTemplate.js")
     ).NestiaTemplate.clone((msg) => halt(msg ?? USAGE))(argv);
+  } else if (type === "setup") {
+    await (await import("./NestiaSetupWizard.js")).NestiaSetupWizard.setup(
+      argv,
+    );
   } else if (
     type === "dependencies" ||
     type === "init" ||
@@ -45,9 +50,11 @@ async function main(): Promise<void> {
       halt(
         [
           `@nestia/sdk has not been installed.`,
-          `Install runtime packages with: npm install --save @nestia/core @nestia/fetcher typia`,
-          `Install generator packages with: npm install --save-dev nestia @nestia/sdk ttsc typescript@~6.0.3`,
-          `Then configure tsconfig.json plugins per https://nestia.io/docs/setup`,
+          `Run "npx nestia setup" first, or install manually:`,
+          `  npm i -D ttsc @typescript/native-preview`,
+          `  npm i typia`,
+          `  npm i @nestia/core @nestia/sdk @nestia/fetcher`,
+          `  npm i -D nestia`,
         ].join("\n"),
       );
     }

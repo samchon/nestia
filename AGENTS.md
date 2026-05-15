@@ -7,7 +7,7 @@ Nestia is a set of NestJS helper libraries built around one idea: a pure TypeScr
 The packages:
 
 - **`@nestia/core`** — typed request/response decorators for NestJS controllers. Replaces class-validator and class-transformer with type-driven validation and serialization that runs an order of magnitude faster.
-- **`@nestia/sdk`** — generators driven by the `nestia` CLI that emit Swagger documents, typed SDK libraries, mockup simulators, and automatic e2e test suites from decorated controllers. Reads metadata that the native transform attaches at build time.
+- **`@nestia/sdk`** — generators driven by the `nestia` CLI that emit Swagger documents, typed SDK libraries, mockup simulators, and automatic e2e test suites from decorated controllers. Reads metadata that the native transform attaches at build time. On the `@next` line it ships as a runtime dependency (the Go binary needs to resolve it; `NestiaSwaggerComposer` consumers needed it at runtime anyway).
 - **`@nestia/fetcher`** — typed `fetch` runtime that generated SDKs sit on top of. Plain and AES-encrypted variants, with simulation support for the mockup mode.
 - **`@nestia/migrate`** — converts a Swagger/OpenAPI document into a NestJS project (controllers, DTOs, optional e2e suite). Generated templates are non-interactive.
 - **`@nestia/e2e`** — test utilities used by both hand-written and generated e2e suites; discovers test functions by prefix and bundles small assertion and HTTP helpers.

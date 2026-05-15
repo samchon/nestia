@@ -171,6 +171,14 @@ func (rs *nativeRewriteSet) findSourceForOutput(outputName string) (string, bool
 }
 
 func (rs *nativeRewriteSet) findSourceByUniqueBase(outputStem string) (string, bool) {
+	// Only fall back to basename matching when the output looks like an actual
+	// build product (sits inside lib/dist/bin/build). If the output lives in
+	// the source tree (e.g. ttsc's virtual filesystem mirroring src/), basename
+	// matching crosses unrelated files — `src/index.ts` would silently absorb
+	// the rewrite intended for every `src/.../index.ts` sibling.
+	if outputHasBuildMarker(outputStem) == false {
+		return "", false
+	}
 	base := pathBase(outputStem)
 	if base == "" {
 		return "", false
@@ -189,6 +197,15 @@ func (rs *nativeRewriteSet) findSourceByUniqueBase(outputStem string) (string, b
 		}
 	}
 	return matched, count == 1
+}
+
+func outputHasBuildMarker(stem string) bool {
+	for _, marker := range []string{"lib", "dist", "bin", "build"} {
+		if _, ok := suffixAfterPathMarker(stem, []string{marker}, false); ok {
+			return true
+		}
+	}
+	return false
 }
 
 func outputMatchesSourceStem(outputStem string, sourceStem string) bool {

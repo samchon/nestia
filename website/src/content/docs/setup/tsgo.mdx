@@ -1,0 +1,633 @@
+---
+title: Guide Documents > Setup > TypeScript-Go
+description: Install Nestia (`@next` line) on the new TypeScript-Go toolchain — `ttsc` runs the Go-rewritten Nestia transform end-to-end, with `npx nestia setup` for one-line install and auto-discovery so `tsconfig.json` stays untouched.
+---
+
+import { Tabs } from "nextra/components";
+
+## Summary
+
+`@nestia/core@next` and `@nestia/sdk@next` use the [`ttsc`](https://github.com/samchon/ttsc) toolchain.
+
+This setup targets TypeScript-Go, the Go migration of the TypeScript compiler. `ttsc` provides the Go-based plugin toolchain, and Nestia ships its transform as a Go binary that `ttsc` loads at compile time. Both `@nestia/core` (controller decorators, request / response validation) and `@nestia/sdk` (SDK / Swagger / e2e generators) are driven by that single binary, with the `typia` transform composed in automatically.
+
+- `ttsc` — build, type-check, watch
+- `ttsx` — execute a TypeScript file with type checking
+- `@ttsc/unplugin` — run `ttsc` plugins inside bundlers
+- `nestia` CLI — generate the SDK, Swagger document, and e2e suite
+
+> [!NOTE]
+>
+> `@typescript/native-preview` is not a stable TypeScript release yet, and the `@next` line of Nestia is an experimental release that tracks `typia@next`.
+>
+> Stock `tsc`, `ts-node`, and `tsx` cannot apply the Nestia transform — you must use `ttsc` and `ttsx`.
+>
+> Go 1.26 or newer must be available on `PATH`, or pointed at by `TTSC_GO_BINARY`. The Nestia transform binary is built on demand from the Go sources shipped inside `@nestia/core`; prebuilt platform binaries are not published in this preview line.
+>
+> For reproducible builds, pin to an exact dev version (e.g. `typia@13.0.0-dev.20260514`) instead of `@next` — the `@next` dist-tag moves with every dev release.
+
+## Setup
+
+### Install (wizard)
+
+`npx nestia setup` installs every dependency in the right slot (runtime vs dev) and the right order, and then stops — it deliberately does not write `compilerOptions.plugins`, because `ttsc` auto-discovers the Nestia transform (see [tsconfig.json](#tsconfigjson) below). The wizard installs packages only — it does not edit `package.json` scripts, `nest-cli.json`, or `tsconfig.build.json`. After it finishes, replace `nest build` / `nest start` in your scripts with `ttsc` / `node dist/main.js` (see [Compile](#compile) below) and check the [tsconfig.build.json](#tsconfigjson) note.
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+npm i -D nestia@next
+npx nestia setup
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+pnpm i -D nestia@next
+pnpm nestia setup --manager pnpm
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+yarn add -D nestia@next
+yarn nestia setup --manager yarn
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+bun add -d nestia@next
+bun nestia setup --manager bun
+```
+  </Tabs.Tab>
+</Tabs>
+
+The wizard prints each install line as it runs:
+
+```text filename="Terminal output"
+----------------------------------------
+ Nestia Setup Wizard
+----------------------------------------
+package manager : npm
+
+$ npm install -D ttsc @typescript/native-preview
+$ npm install typia@next
+$ npm install @nestia/core@next @nestia/sdk@next @nestia/fetcher@next
+$ npm install -D nestia@next
+
+----------------------------------------
+ Nestia setup complete.
+----------------------------------------
+Next: see https://nestia.io/docs/setup/tsgo
+```
+
+Yarn berry is supported on the `@next` wizard (the wizard no longer drives `ts-patch` / `node_modules` resolver internals). In a workspace (`pnpm-workspace.yaml`, `yarn workspaces`, `bun workspaces`), the wizard runs `npm install` / `pnpm add` etc. in the cwd; pass `-w` / `--filter` flags by hand if you need workspace-aware installs instead.
+
+### Install (manual)
+
+The wizard runs four installs in this order. The blank line between the typia step and the nestia step is intentional — it visually separates the compiler / typia layer from the framework layer.
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+npm i -D ttsc @typescript/native-preview
+npm i typia@next
+
+npm i @nestia/core@next @nestia/sdk@next @nestia/fetcher@next
+npm i -D nestia@next
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+pnpm i -D ttsc @typescript/native-preview
+pnpm i typia@next
+
+pnpm i @nestia/core@next @nestia/sdk@next @nestia/fetcher@next
+pnpm i -D nestia@next
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+yarn add -D ttsc @typescript/native-preview
+yarn add typia@next
+
+yarn add @nestia/core@next @nestia/sdk@next @nestia/fetcher@next
+yarn add -D nestia@next
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+bun add -d ttsc @typescript/native-preview
+bun add typia@next
+
+bun add @nestia/core@next @nestia/sdk@next @nestia/fetcher@next
+bun add -d nestia@next
+```
+  </Tabs.Tab>
+</Tabs>
+
+`@nestia/sdk` is installed as a runtime dependency, not a dev dependency. The Go binary needs to resolve it whenever the SDK / Swagger / e2e transform attaches metadata, and projects that serve runtime Swagger via `NestiaSwaggerComposer` already needed it at runtime.
+
+### tsconfig.json
+
+Keep the project strict, and keep the NestJS decorator-metadata flags — NestJS still uses `Reflect.getMetadata("design:paramtypes", …)` for constructor injection. The Nestia transform itself does not require either flag.
+
+```json filename="tsconfig.json" showLineNumbers copy
+{
+  "compilerOptions": {
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
+```
+
+That is the entire required configuration. `ttsc` auto-discovers `@nestia/core`, `@nestia/sdk`, and `typia` through their `package.json#ttsc.plugin` markers — you do not need a `compilerOptions.plugins` array unless you want to override transform options (see [Transform Options](#transform-options) below).
+
+> [!NOTE]
+>
+> `nest new` ships a `tsconfig.build.json` that extends `tsconfig.json` and excludes `test`, `dist`, and `**/*spec.ts`. Either point `ttsc` at it (`ttsc -p tsconfig.build.json`) or fold those `exclude` entries into the root `tsconfig.json` and delete the build file. Otherwise `ttsc` will try to compile your spec files.
+
+### Compile
+
+Use `ttsc` to build the project. It compiles your sources and applies the Nestia transform in one step.
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+npx ttsc
+npx ttsc --noEmit
+npx ttsc --watch
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+pnpm ttsc
+pnpm ttsc --noEmit
+pnpm ttsc --watch
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+yarn ttsc
+yarn ttsc --noEmit
+yarn ttsc --watch
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+bun ttsc
+bun ttsc --noEmit
+bun ttsc --watch
+```
+  </Tabs.Tab>
+</Tabs>
+
+Wire `ttsc` into the `package.json` scripts the way NestJS projects normally wire `tsc`. `ttsx --watch` re-runs a script on change; for the `nest start --watch` workflow (incremental rebuild + process restart), pair `ttsc --watch` with `node --watch dist/main.js`.
+
+```json filename="package.json" showLineNumbers copy
+{
+  "scripts": {
+    "build": "ttsc",
+    "start": "node dist/main.js",
+    "start:dev": "ttsc --watch & node --watch dist/main.js",
+    "start:script": "ttsx src/main.ts"
+  }
+}
+```
+
+`nest start` and `nest build` from `@nestjs/cli` invoke the stock `tsc` and therefore skip the Nestia transform. Replace them with `ttsc` / `ttsx` as shown.
+
+> [!WARNING]
+>
+> If your `nest-cli.json` sets `compilerOptions.builder` to `"swc"` or `"webpack"`, the Nestia transform never runs — `@nestjs/cli` invokes the chosen builder directly and skips ttsc. Either delete the `builder` field or stop using `nest build` / `nest start`. Replace them with `ttsc` (or `@ttsc/unplugin/webpack` for a Webpack pipeline; see [Bundlers](#bundlers)).
+
+### Execute
+
+Use `ttsx` to run a TypeScript file directly, without a build step. This is the equivalent of `ts-node` for the TypeScript-Go toolchain.
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+npx ttsx src/main.ts
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+pnpm ttsx src/main.ts
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+yarn ttsx src/main.ts
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+bun ttsx src/main.ts
+```
+  </Tabs.Tab>
+</Tabs>
+
+### Monorepo
+
+NestJS monorepos created with `nest g app <name>` put each app at `apps/<name>/src/main.ts` with its own `apps/<name>/tsconfig.app.json`. Build each app with `ttsc -p apps/<name>/tsconfig.app.json`, and run the SDK / Swagger / e2e generators per app — `nestia.config.ts` is project-scoped.
+
+## Generate
+
+The `nestia` CLI reads `nestia.config.ts` and the project `tsconfig.json` to emit the SDK library, Swagger document, and e2e suite. The Go binary attached to `ttsc` provides the metadata the CLI consumes.
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+npx nestia dependencies
+npx nestia init
+npx nestia sdk
+npx nestia swagger
+npx nestia e2e
+npx nestia all
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+pnpm nestia dependencies
+pnpm nestia init
+pnpm nestia sdk
+pnpm nestia swagger
+pnpm nestia e2e
+pnpm nestia all
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+yarn nestia dependencies
+yarn nestia init
+yarn nestia sdk
+yarn nestia swagger
+yarn nestia e2e
+yarn nestia all
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+bun nestia dependencies
+bun nestia init
+bun nestia sdk
+bun nestia swagger
+bun nestia e2e
+bun nestia all
+```
+  </Tabs.Tab>
+</Tabs>
+
+The `nestia` CLI is a thin dispatcher:
+
+- `start`, `template`, `setup` — bootstrap or wire a project from the CLI itself; these run before `@nestia/sdk` is installed.
+- `dependencies`, `init`, `sdk`, `swagger`, `e2e`, `all` — drive the project-local `@nestia/sdk` to emit the SDK / Swagger / e2e artefacts.
+
+### Coexistence with `@nestjs/swagger`
+
+`nestia swagger` generates the OpenAPI document from your TypeScript types — you do not need `@nestjs/swagger` decorators (`@ApiProperty`, `@ApiResponse`, etc.). If you already have them, leave them in place; Nestia ignores them. The runtime `SwaggerModule.setup()` call from `@nestjs/swagger` can still be used to serve the generated `swagger.json`, or use [`NestiaSwaggerComposer`](/docs/swagger#runtime-composition) for runtime composition.
+
+## Bundlers
+
+A normal NestJS server compiles with `ttsc` directly — you do not need a bundler. The bundlers below cover two specific cases:
+
+- **Bundling the NestJS server** into a single JS file for serverless or container deployment — Webpack, Rspack.
+- **Bundling a frontend** that imports the generated SDK or calls `typia` — Vite, Next.js, Rollup, Rolldown, esbuild, Farm, Bun.build.
+
+> [!WARNING]
+>
+> NestJS dependency injection needs **decorator metadata at runtime**. The bundlers below split into two groups by what their `.ts` loader emits:
+>
+> | Bundler | Emits decorator metadata? |
+> | --- | --- |
+> | **Webpack** with `ts-loader` | Yes — TypeScript compiler honours `emitDecoratorMetadata`. |
+> | **Rspack** with `builtin:swc-loader` + decorator flags | Yes, only if you opt in (snippet below). |
+> | **Webpack / Rspack** with the default loader chain | No — same caveat as below. |
+> | **Vite, Rollup, Rolldown, esbuild, Farm, Bun.build, Next.js** | No — swc / esbuild / Bun strip metadata in bundle mode. |
+>
+> If you are bundling the NestJS server itself, the safe paths are Webpack with `ts-loader` (shown below) or Rspack with `builtin:swc-loader` + decorator-metadata flags (also shown below). For the other bundlers, treat the bundle as **frontend / SDK consumer only** — they are correct for code that imports the generated SDK and calls `typia.assert()`, but they are not viable for bundling a NestJS server today.
+
+### Install
+
+`@ttsc/unplugin` ships adapters for Vite, Next.js, Rollup, Rolldown, esbuild, Webpack, Rspack, Farm, and Bun.
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+npm i -D @ttsc/unplugin
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+pnpm i -D @ttsc/unplugin
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+yarn add -D @ttsc/unplugin
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash filename="Terminal" showLineNumbers copy
+bun add -d @ttsc/unplugin
+```
+  </Tabs.Tab>
+</Tabs>
+
+Bundler-specific dependencies — `ts-loader`, `webpack-node-externals`, `esbuild`, `vite`, `next`, etc. — are not installed by `@ttsc/unplugin`; install them as your bundler normally requires.
+
+### Configuration
+
+Add the matching plugin to the bundler config that already builds your application; the import path must match the bundler. NestJS server entries are usually `src/main.ts`; the frontend / library entries below use `src/index.ts`.
+
+> [!NOTE]
+>
+> `nest build --webpack` from `@nestjs/cli` skips the Nestia transform — it invokes the stock `tsc`. Replace it with the `npx webpack` (or `npx rspack`, `node esbuild.config.ts`, …) commands that read your bundler config below.
+
+<Tabs
+  items={[
+    "Webpack",
+    "Rspack",
+    "esbuild",
+    "Bun.build",
+    "Vite",
+    "Next.js",
+    "Rollup",
+    "Rolldown",
+    "Farm",
+  ]}
+>
+  <Tabs.Tab>
+```js filename="webpack.config.mjs" showLineNumbers copy
+import { fileURLToPath } from "node:url";
+import nodeExternals from "webpack-node-externals";
+import ttsc from "@ttsc/unplugin/webpack";
+
+export default {
+  entry: { server: "./src/main.ts" },
+  output: {
+    path: fileURLToPath(new URL("./dist", import.meta.url)),
+    filename: "[name].js",
+  },
+  externals: [nodeExternals()],
+  target: "node",
+  mode: "production",
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        loader: "ts-loader",
+      },
+    ],
+  },
+  resolve: { extensions: [".ts", ".js"] },
+  plugins: [ttsc()],
+};
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```js filename="rspack.config.mjs" showLineNumbers copy
+import { fileURLToPath } from "node:url";
+import nodeExternals from "webpack-node-externals";
+import ttsc from "@ttsc/unplugin/rspack";
+
+export default {
+  entry: { server: "./src/main.ts" },
+  output: {
+    path: fileURLToPath(new URL("./dist", import.meta.url)),
+    filename: "[name].js",
+  },
+  externals: [nodeExternals()],
+  target: "node",
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "builtin:swc-loader",
+          options: {
+            jsc: {
+              parser: { syntax: "typescript", decorators: true },
+              transform: { legacyDecorator: true, decoratorMetadata: true },
+            },
+          },
+        },
+      },
+    ],
+  },
+  resolve: { extensions: [".ts", ".js"] },
+  plugins: [ttsc()],
+};
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```ts filename="esbuild.config.ts" showLineNumbers copy
+import ttsc from "@ttsc/unplugin/esbuild";
+import { build } from "esbuild";
+
+build({
+  entryPoints: ["src/main.ts"],
+  outdir: "dist",
+  platform: "node",
+  bundle: true,
+  // NestJS optional peer dependencies — leave external so the bundle does
+  // not fail on `Could not resolve "@nestjs/microservices"`.
+  external: [
+    "@nestjs/microservices",
+    "@nestjs/websockets",
+    "@fastify/static",
+    "@fastify/view",
+    "class-transformer",
+    "class-validator",
+  ],
+  plugins: [ttsc()],
+}).catch(() => process.exit(1));
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```ts filename="build.ts" showLineNumbers copy
+import ttsc from "@ttsc/unplugin/bun";
+
+// Bun.build is for bundling library / frontend code that imports the
+// generated Nestia SDK. NestJS server processes should use `bun run` —
+// Bun.build does not emit decorator metadata, so DI fails in the bundle.
+await Bun.build({
+  entrypoints: ["src/index.ts"],
+  outdir: "dist",
+  target: "bun",
+  plugins: [ttsc()],
+});
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```ts filename="vite.config.ts" showLineNumbers copy
+import ttsc from "@ttsc/unplugin/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [ttsc()],
+});
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```js filename="next.config.mjs" showLineNumbers copy
+import withTtsc from "@ttsc/unplugin/next";
+
+/** @type {import("next").NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+};
+
+// `withTtsc` composes with an existing `nextConfig.webpack` if you set one.
+// It transforms typia / Nestia SDK calls in your Next.js code, but it does
+// not turn Next into a NestJS host — Next 13+ uses SWC, which does not emit
+// decorator metadata, so `@TypedRoute` etc. cannot live in a Next API route.
+export default withTtsc(nextConfig);
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```ts filename="rollup.config.ts" showLineNumbers copy
+import ttsc from "@ttsc/unplugin/rollup";
+
+export default {
+  input: "src/index.ts",
+  output: {
+    dir: "dist",
+    format: "esm",
+  },
+  plugins: [ttsc()],
+};
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```ts filename="rolldown.config.ts" showLineNumbers copy
+import ttsc from "@ttsc/unplugin/rolldown";
+import { defineConfig } from "rolldown";
+
+export default defineConfig({
+  input: "src/index.ts",
+  output: {
+    dir: "dist",
+    format: "esm",
+  },
+  plugins: [ttsc()],
+});
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```ts filename="farm.config.ts" showLineNumbers copy
+import ttsc from "@ttsc/unplugin/farm";
+import { defineConfig } from "@farmfe/core";
+
+export default defineConfig({
+  plugins: [ttsc()],
+});
+```
+  </Tabs.Tab>
+</Tabs>
+
+### Project
+
+Pass `project` when the bundler should read a different TypeScript config than the one in the project root — for example, when the build `tsconfig.json` targets `commonjs` for Node but the bundle config targets `esnext` for tree-shaking. The path is resolved from the current working directory and the same key works on every adapter; three representative shapes follow.
+
+Auto-discovery looks at the `package.json` nearest the selected `tsconfig.json`. Keep `tsconfig.bundle.json` next to `package.json` (the project root), or auto-discovery may not find `@nestia/core` and `typia` in the dependency list. If you must place the bundle config in a subdirectory without its own `package.json`, the parent's `package.json` is still used; if the subdirectory has its own thin `package.json` that does not list nestia, register the plugin explicitly via [Transform Options](#transform-options).
+
+<Tabs items={["Vite", "Next.js", "Webpack"]}>
+  <Tabs.Tab>
+```ts filename="vite.config.ts" showLineNumbers copy
+import ttsc from "@ttsc/unplugin/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [
+    ttsc({
+      project: "tsconfig.bundle.json",
+    }),
+  ],
+});
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```js filename="next.config.mjs" showLineNumbers copy
+import withTtsc from "@ttsc/unplugin/next";
+
+/** @type {import("next").NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+};
+
+export default withTtsc(nextConfig, {
+  project: "tsconfig.bundle.json",
+});
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```js filename="webpack.config.mjs" showLineNumbers copy
+// Only the `project` argument is shown here — merge with the full
+// Configuration > Webpack tab above.
+import ttsc from "@ttsc/unplugin/webpack";
+
+export default {
+  entry: { server: "./src/main.ts" },
+  plugins: [
+    ttsc({
+      project: "tsconfig.bundle.json",
+    }),
+  ],
+};
+```
+  </Tabs.Tab>
+</Tabs>
+
+## Transform Options
+
+Register `@nestia/core/native/transform.cjs` explicitly when you want to set transform options (`stringify`, `llm`, …). The other entries in the example below are tombstones / no-ops kept for tooling that scans `compilerOptions.plugins`; you do not need them unless that tooling does. Add `compilerOptions.plugins` only at this point — never as a "you must wire the plugin" step, because auto-discovery already handles that.
+
+```jsonc filename="tsconfig.json" showLineNumbers copy
+{
+  "compilerOptions": {
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "plugins": [
+      { "transform": "typia/lib/transform", "enabled": false },
+      { "transform": "@nestia/sdk/lib/transform" },
+      {
+        "transform": "@nestia/core/native/transform.cjs",
+        "stringify": "assert",
+        "llm": { "strict": true }
+      }
+    ]
+  }
+}
+```
+
+The `typia/lib/transform` entry is a tombstone: `ttsc` filters disabled entries before plugin composition, so no extra typia work happens — the entry is there only so package installers that scan `compilerOptions.plugins` see typia in the chain. The `@nestia/sdk/lib/transform` entry is also a no-op when present without overrides; the Go binary inside `@nestia/core/native/transform.cjs` runs the SDK and typia transforms in the same compiler pass via ttsc's `composes` redirect, so plugin ordering inside the array does not matter.
+
+- `stringify` — pick the serializer used by `@TypedRoute`. Defaults to `"assert"` (validate then stringify). Other values: `"stringify"`, `"is"`, `"validate"`, `"validate.log"`, or `null` to fall back to `JSON.stringify`. See [`TypedRoute`](/docs/core/TypedRoute#configuration).
+- `llm` — when set, the transform refuses route or body types that fall outside the schema subset accepted by LLM function calling. `true` forbids tuples; `{ "strict": true }` additionally forbids `additionalProperties` and optional properties.
+
+## Boilerplate
+
+Use `start` for the smaller, SDK-focused starter and `template` for the larger Prisma + PostgreSQL backend with FP / TDD scaffolding.
+
+```bash filename="Terminal" showLineNumbers copy
+npx nestia start my-app
+npx nestia template my-backend
+```
+
+`start` clones, installs, builds, and runs the test suite end-to-end. `template` clones, installs, and builds — leaving the test suite for the first run against your local database / environment, so the wizard does not fail on missing secrets.
+
+If the cloned project is still on the v11 / `ts-patch` toolchain (the templates are shared with the v11 line), follow [Migrating to TypeScript-Go](/docs/setup/legacy#migrating-to-typescript-go) to move it to `ttsc`.
+
+## Troubleshooting
+
+If a build fails with `Error on nestia.core.<method>(): no transform has been configured`, or with a Go diagnostic, run `npx ttsc --noEmit` directly to see the raw stderr. The most common causes are:
+
+- The build was invoked with stock `tsc` (often through a leftover `nest build` script) instead of `ttsc`. Auto-discovery only fires inside `ttsc`.
+- `nest-cli.json` has `compilerOptions.builder: "swc"` (or `"webpack"`). `@nestjs/cli` invokes the chosen builder directly, never `ttsc`, and the Nestia transform is skipped. Remove the field or stop using `nest build`.
+- `ttsc` is not installed, or `npx nestia setup` was never run.
+- Go 1.26 or newer is not on `PATH`, and `TTSC_GO_BINARY` is not pointing at a usable binary.
+- You upgraded from v11 but the lockfile still pins old packages — confirm `@nestia/core`, `@nestia/sdk`, `@nestia/fetcher`, `nestia`, and `typia` were all bumped together. Mixed `@latest` / `@next` packages will not interoperate. See [Migrating from Legacy](/docs/setup/legacy#migrating-to-typescript-go).
+- You explicitly configured `compilerOptions.plugins` and added another plugin entry that interferes with the Nestia transform's `composes` redirect — drop the explicit array and let auto-discovery handle it.

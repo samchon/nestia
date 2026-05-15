@@ -1,12 +1,18 @@
 # Migration: Go-backed transform
 
+> [!NOTE]
+> This guide covers the **`@next`** line of Nestia, which runs on
+> TypeScript-Go (`@typescript/native-preview`) hosted by `ttsc`. For the
+> stable, stock-TypeScript v6 transform path, follow
+> [setup](https://nestia.io/docs/setup) instead.
+
 Nestia replaces the TypeScript-side transformer pipeline with a Go-backed binary (`ttsc-nestia`) hosted by `ttsc`. Public decorator APIs are unchanged; only your build configuration and tool chain change.
 
 ## What stayed the same
 
 - All `@TypedBody`, `@TypedRoute`, `@TypedQuery`, `@TypedHeaders`, `@TypedParam`, `@TypedException`, `@TypedFormData`, `@PlainBody`, `@HumanRoute`, `@EncryptedBody`, `@EncryptedRoute`, `@EncryptedController`, `@EncryptedModule`, `@SwaggerCustomizer`, `@SwaggerExample`, `@WebSocketRoute`, `WebSocketAdaptor`, `DynamicModule`, `ExceptionManager`, `doNotThrowTransformError` — identical signatures.
 - All `IRequest*Validator` / `IResponse*Querifier` / `IResponse*Stringifier` runtime option interfaces — identical shapes.
-- `INestiaConfig` shape, `nestia.config.ts` lookup, the eight CLI subcommands (`start`, `template`, `dependencies`, `init`, `sdk`, `swagger`, `e2e`, `all`).
+- `INestiaConfig` shape, `nestia.config.ts` lookup, and the CLI subcommands (`start`, `template`, `setup`, `dependencies`, `init`, `sdk`, `swagger`, `e2e`, `all`).
 
 ## What changed
 
@@ -39,15 +45,22 @@ The Go binary is hosted by [`ttsc`](https://www.npmjs.com/package/ttsc), a TypeS
 ### 3. Dependencies
 
 Keep `@nestia/core`, `@nestia/fetcher`, and `typia` as runtime dependencies.
-Install `ttsc` and TypeScript for transformed builds, and remove `ts-patch`
-and `typia patch` postinstalls — they are no longer used.
+**`@nestia/sdk` is now a runtime dependency too** — the Go binary needs to
+resolve it to attach SDK / Swagger / e2e metadata, and projects that serve
+runtime Swagger via `NestiaSwaggerComposer` already needed it at runtime.
+Install `ttsc` and `@typescript/native-preview` as devDependencies, and remove
+`ts-patch` and `typia patch` postinstalls — they are no longer used.
 
 ```diff
  {
+   "dependencies": {
++    "@nestia/sdk": "^11.2.0"
+   },
    "devDependencies": {
 -    "ts-patch": "...",
+-    "@nestia/sdk": "...",
 +    "ttsc": "^0.10.2",
-     "typescript": "~6.0.3"
++    "@typescript/native-preview": "..."
    },
    "scripts": {
 -    "prepare": "ts-patch install && typia patch",
@@ -56,22 +69,36 @@ and `typia patch` postinstalls — they are no longer used.
  }
 ```
 
-### 4. TypeScript version pin
+### 4. TypeScript-Go preview pin
 
-The Go binary hash-locks to a specific TypeScript-Go upstream commit. Loose ranges may drift the AST contract.
+The Go binary hash-locks to a specific TypeScript-Go upstream commit, surfaced through `@typescript/native-preview`. Loose ranges may drift the AST contract.
 
 ```diff
 - "typescript": "^5.6.0"
-+ "typescript": "~6.0.3"
++ "@typescript/native-preview": "7.0.0-dev.20260505.1"
 ```
 
-### 5. `npx nestia setup` is removed
+The legacy `typescript` package is no longer required at runtime; keep it only if your editor language service needs it.
 
-The interactive wizard is gone. The replacement is to add the plugin entry to `tsconfig.json` directly (step 1 above) and install the dependencies in step 3. See https://nestia.io/docs/setup.
+### 5. `npx nestia setup` no longer writes `tsconfig.json` plugins
 
-### 6. Plugin composition order is load-bearing
+The wizard still exists — `npx nestia setup` installs the new dep / devDep
+split (`ttsc` + `@typescript/native-preview` as devDependencies; `typia`,
+`@nestia/core`, `@nestia/sdk`, `@nestia/fetcher` as dependencies; `nestia` as
+devDependency). It no longer touches `tsconfig.json` or runs `ts-patch`,
+because `ttsc` auto-discovers the Nestia transform from each package's
+`package.json#ttsc.plugin` block.
 
-If you compose plugins manually, the order is fixed: typia (host tombstone) → `@nestia/sdk/lib/transform` → `@nestia/core/native/transform.cjs`. The `typia` entry must remain with `enabled: false` — typia runs inside the Go binary, but other tools may still inspect the entry.
+You only need `compilerOptions.plugins` if you want to override transform
+options (`stringify`, `llm`, etc.) — see §6.
+
+### 6. Optional plugin composition order
+
+If you do choose to register plugins manually (for example, to pass
+`stringify` or `llm` options), the order is fixed: typia (host tombstone) →
+`@nestia/sdk/lib/transform` → `@nestia/core/native/transform.cjs`. The
+`typia` entry stays with `enabled: false` — typia runs inside the Go binary,
+but tooling may still inspect the entry.
 
 ```jsonc
 "plugins": [
@@ -80,6 +107,8 @@ If you compose plugins manually, the order is fixed: typia (host tombstone) → 
   { "transform": "@nestia/core/native/transform.cjs" }
 ]
 ```
+
+`@nestia/sdk` ships its plugin as `lib/transform` (a thin descriptor) while `@nestia/core` ships `native/transform.cjs` (the Go binary host). The asymmetry is intentional: the Go binary inside `transform.cjs` recognises an SDK descriptor by name and runs both transforms in one compiler pass via `composes`, so plugin order in the array does not matter.
 
 ### 7. Internal symbols removed
 
@@ -100,14 +129,17 @@ Compilation failures now surface through `ttsc-nestia: ...` stderr. The `NoTrans
 ## Quickest upgrade recipe
 
 ```bash
-# 1. Update dependencies
-npm install --save @nestia/core @nestia/fetcher typia
-npm install --save-dev @nestia/sdk nestia ttsc@^0.10.2 typescript@~6.0.3
+# 1. Drop the old patch chain
 npm uninstall ts-patch
 
-# 2. Update tsconfig.json plugins (see §1 above)
+# 2. Reinstall dependencies in the new order — same effect as `npx nestia setup`
+npm i -D ttsc @typescript/native-preview
+npm i typia
+npm i @nestia/core @nestia/sdk @nestia/fetcher
+npm i -D nestia
 
 # 3. Update the build script (see §2)
+#    Optional: if you registered plugins manually, update the entries (§6)
 
 # 4. Build
 npm run build

@@ -18,6 +18,12 @@ export namespace ReflectHttpOperationExceptionAnalyzer {
   export const analyze = (
     ctx: IContext,
   ): Record<string, IReflectHttpOperationException> => {
+    // TypeScript applies decorators bottom-up, so Reflect's metadata array
+    // is the reverse of declaration order. Reverse it once here so the
+    // resulting status-code → exception map iterates in declaration order
+    // and lines up with the Go transformer's metadata.exceptions[], which
+    // is emitted in AST/declaration order (see
+    // packages/core/native/cmd/ttsc-nestia/sdk_transform.go).
     const preconfigured: TypedException.IProps<any>[] = analyzePreconfigured(
       ctx.function,
     )

@@ -63,6 +63,11 @@ func TestCoreNativeTransformInjectsDecoratorArguments(t *testing.T) {
 		`@core.TypedRoute.Post(({`,
 		`@core.TypedRoute.Put(":id", ({`,
 		`@core.TypedParam("id", ((input) =>`,
+		// TypedParam's third argument is the `validate?: boolean` flag from
+		// packages/core/src/decorators/TypedParam.ts; when validate-family
+		// modes are active the transform appends `true` so the runtime emits
+		// the detailed report shape.
+		`}), true)`,
 		`@core.TypedBody(({`,
 		`_validateReport`,
 	} {

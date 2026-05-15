@@ -766,6 +766,11 @@ func nestiaCoreParameterArguments(
 		output = append(output, "undefined")
 	}
 	output = append(output, expr)
+	// TypedParam takes a third `validate?: boolean` argument (see
+	// packages/core/src/decorators/TypedParam.ts). When the configured
+	// validate mode starts with "validate", emit `true` so the runtime
+	// returns the detailed report shape instead of the single-error shape.
+	// The legacy TypedParamProgrammer applied the same conditional.
 	if kind == "TypedParam" && strings.HasPrefix(options.Validate, "validate") {
 		output = append(output, "true")
 	}

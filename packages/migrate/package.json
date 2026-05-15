@@ -43,13 +43,13 @@
   },
   "homepage": "https://nestia.io",
   "devDependencies": {
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^12.1.1",
+    "@rollup/plugin-terser": "catalog:rollup",
+    "@rollup/plugin-typescript": "catalog:rollup",
     "@types/inquirer": "^9.0.7",
     "@types/node": "catalog:utils",
     "js-yaml": "^4.1.0",
     "rimraf": "catalog:utils",
-    "rollup": "^4.24.3"
+    "rollup": "catalog:rollup"
   },
   "dependencies": {
     "@nestia/factory": "workspace:^",
