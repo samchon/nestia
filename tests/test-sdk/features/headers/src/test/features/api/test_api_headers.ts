@@ -12,13 +12,15 @@ import { IHeaders } from "@api/lib/structures/IHeaders";
  * to assert RFC-compliant case-insensitive normalization through the SDK
  * fetch path. The string-instead-of-number-array case pins that typia
  * runtime validation fires for parsed header arrays even though HTTP
- * itself would accept them as valid strings. Sibling fixtures
- * `headers-decompose` and `headers-config-assert` mirror this test with
- * different nestia configs; the body must stay identical.
+ * itself would accept them as valid strings. The `headers-config-assert`
+ * sibling holds a byte-identical copy under a different nestia config;
+ * `headers-decompose` lower-cases the header keys but keeps the same
+ * rejection assertion.
  *
  *  1. Send a request with mixed-case header keys and well-typed values.
  *  2. Assert the echoed payload preserves header semantics.
- *  3. Send a request whose `x-values` is `["a","b","c"]` and expect rejection.
+ *  3. Send a request whose `x-values` is `["one","two","three"]` and
+ *     expect rejection (numeric array expected, not strings).
  */
 export const test_api_headers = async (
   connection: api.IConnection,

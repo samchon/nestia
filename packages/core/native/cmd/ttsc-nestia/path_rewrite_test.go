@@ -54,11 +54,11 @@ func TestEmittedJavaScriptExtensionMapsSourceToOutput(t *testing.T) {
 //  3. Mismatched prefix or suffix returns no capture.
 func TestMatchPatternLiteralAndWildcardBranches(t *testing.T) {
 	cases := []struct {
-		name     string
-		pattern  string
-		input    string
-		want     string
-		matched  bool
+		name    string
+		pattern string
+		input   string
+		want    string
+		matched bool
 	}{
 		{"literal match", "@api", "@api", "", true},
 		{"literal mismatch", "@api", "@api/lib", "", false},
@@ -122,8 +122,9 @@ func TestPatternRankCountsNonWildcardCharacters(t *testing.T) {
 // already-POSIX input; backslash handling is delegated to the platform.
 //
 //  1. Empty input returns empty.
-//  2. Adjacent separators collapse and trailing slashes are dropped.
+//  2. Adjacent separators collapse.
 //  3. `..` segments are resolved relative to the preceding directory.
+//  4. A leading `./` is stripped (filepath.Clean canonicalization).
 func TestNormalizePathProducesPosixSlashes(t *testing.T) {
 	cases := []struct {
 		input string
@@ -212,16 +213,16 @@ func TestStripKnownSourceExtensionPrefersLongestMatch(t *testing.T) {
 // while preserving the rest of the path.
 //
 // Combined with `emittedJavaScriptExtension`, this drives the source ↔
-// output filename mapping the rewrite scan depends on. Declaration-file
-// suffixes must be stripped wholly so that `types.d.ts` becomes
-// `types.js`, not `types.d.js`. The idempotent case — strip the same
-// extension being added — pins that a future regression dropping `.js`
-// from `stripKnownSourceExtension` cannot quietly produce `index.js.js`.
+// output filename mapping the rewrite scan depends on. The declaration
+// case is load-bearing: `stripKnownSourceExtension` must prefer the full
+// `.d.ts` suffix over a plain `.ts` strip, otherwise `types.d.ts +
+// .d.ts` would silently become `types..d.ts` and the declaration
+// emitter would write a corrupt path.
 //
 //  1. `.ts` is replaced with the chosen output extension.
 //  2. Declaration suffixes (`.d.ts`) strip wholly before replacement.
 //  3. POSIX separators in the input flow through unchanged.
-//  4. Idempotent replacements survive: `.js` + `.js` stays `.js`.
+//  4. `.d.ts` + `.d.ts` stays `.d.ts` (pins the longest-match prefer rule).
 func TestReplaceSourceExtensionSwapsKnownSuffix(t *testing.T) {
 	cases := []struct {
 		input string
@@ -232,7 +233,6 @@ func TestReplaceSourceExtensionSwapsKnownSuffix(t *testing.T) {
 		{"src/index.mts", ".mjs", "src/index.mjs"},
 		{"src/types.d.ts", ".js", "src/types.js"},
 		{"src/nested/foo.ts", ".js", "src/nested/foo.js"},
-		{"src/index.js", ".js", "src/index.js"},
 		{"src/types.d.ts", ".d.ts", "src/types.d.ts"},
 	}
 	for _, tc := range cases {

@@ -12,7 +12,7 @@
     "plugins": [
       {
         "transform": "@nestia/core/lib/transform",
-        "validate": "assert"
+        "validate": "assertClone"
       }
     ]
   },

@@ -17,7 +17,8 @@ import { IHeaders } from "@api/lib/structures/IHeaders";
  *
  *  1. Send a request with header keys and well-typed values.
  *  2. Assert the echoed payload preserves header semantics.
- *  3. Send a request whose `x-values` is `["a","b","c"]` and expect rejection.
+ *  3. Send a request whose `x-values` is `["one","two","three"]` and
+ *     expect rejection (numeric array expected, not strings).
  */
 export const test_api_headers = async (
   connection: api.IConnection,

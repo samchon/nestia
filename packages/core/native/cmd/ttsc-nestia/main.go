@@ -17,9 +17,13 @@ func main() {
 }
 
 // runSafe wraps run() in a panic recovery envelope so that any unexpected
-// panic surfaces as a parseable transform-diagnostic line on stderr instead
-// of a raw Go stack trace that ttsc's compiler-diagnostic regex cannot read.
-// The full stack is preserved behind NESTIA_NATIVE_DEBUG_STACK for triage.
+// panic surfaces as a one-line transform-diagnostic on stderr instead of
+// a multi-line raw Go stack trace. The diagnostic uses the same `<file> -
+// error TS(code): message` shape as every other nestia / typia diagnostic;
+// ttsc reads it via `error.stderr` (`RuntimeCompiler.compile` at
+// `ConfigAnalyzer.ts:170-174`) rather than its structured-diagnostic regex,
+// which is a pre-existing protocol shared by all `nestia.*` codes. The
+// full stack is preserved behind NESTIA_NATIVE_DEBUG_STACK for triage.
 func runSafe(args []string) (code int) {
 	defer func() {
 		if exp := recover(); exp != nil {
