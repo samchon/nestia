@@ -6,6 +6,21 @@ import { v4 } from "uuid";
 import api from "@api";
 import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
 
+/**
+ * Verifies `TypedRoute.setValidateErrorLogger` receives a structured
+ * `IValidateErrorLog` entry in the `-fastify`-suffixed sibling fixture.
+ *
+ * This fixture is currently a near-duplicate of `route-manual-validate-log` —
+ * the test body and controller are identical to the base fixture. The suffix
+ * exists to reserve a slot for an actual Fastify-adapter variant without
+ * disturbing existing tooling. The assertion contract is the one pinned by the
+ * base fixture's docstring.
+ *
+ * 1. Register a logger and call a route that returns an invalid `at` field.
+ * 2. Expect exactly one log entry naming method + path + the malformed data.
+ * 3. Assert the `errors[]` entry carries `expected: 'string &
+ *    Format<"date-time">'`.
+ */
 export const test_api_bbs_article_at = async (
   connection: api.IConnection,
 ): Promise<void> => {

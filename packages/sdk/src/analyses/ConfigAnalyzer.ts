@@ -203,14 +203,23 @@ const ensureRuntimeCleanup = (runtimeRoot: string): void => {
   // process.once("exit", …) does not fire on SIGINT/SIGTERM. Without these
   // handlers a Ctrl-C during codegen leaves `run-*` mkdtemp directories
   // behind under node_modules/.nestia/runtime/ until a subsequent clean exit.
+  // The module-level RUNTIME_CLEANUP_REGISTERED flag above guards against
+  // re-entrancy within this module; we deliberately do NOT gate on
+  // `process.listenerCount(signal) > 0` because NestiaConfigLoader's parallel
+  // sweep registers first, and that gate would skip our registration —
+  // leaving RUNTIME_ROOTS unswept on Ctrl-C while config-loader cleans up.
+  // Windows note: `process.kill(pid, "SIGINT")` calls TerminateProcess
+  // rather than re-raising through the listener queue, so the handler
+  // cascade documented above only holds on POSIX. On Windows, whichever
+  // module registers FIRST runs its sweep and the second is skipped —
+  // RUNTIME_ROOTS cleanup is best-effort there. SIGHUP is a no-op for
+  // most common code paths on Windows (Node fires it on console-close
+  // and exits within seconds).
   const onSignal = (signal: NodeJS.Signals): void => {
     sweep();
     process.kill(process.pid, signal);
   };
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {
-    if (typeof process.listenerCount === "function" &&
-        process.listenerCount(signal) > 0)
-      continue;
     process.once(signal, onSignal);
   }
 };

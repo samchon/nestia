@@ -309,6 +309,18 @@ func TestCoreNativeTypiaRandomUsesJSDocTypeTags(t *testing.T) {
 	}
 }
 
+// Verifies @TypedFormData.Body injects per-field file options (name, limit)
+// for blob, blobs, file, and files members of the multipart DTO.
+//
+// The transform has to walk the form DTO members and emit a Multer-aware
+// option list — `limit: 1` for singular file members, `limit: null` for
+// arrays. A regression in member-kind detection silently falls back to a
+// uniform option set and breaks downstream multer wiring, but compilation
+// still succeeds; only this assertion pins the per-member shape.
+//
+//  1. Build a tsconfig that includes MultipartController plus IMultipart.
+//  2. Run the native transform with `validate: "assert"`.
+//  3. Assert each `name: "<field>"` / `limit: ...` pair appears in output.
 func TestCoreNativeTransformInjectsFormDataFileOptions(t *testing.T) {
 	root := repoRoot(t)
 	temp := t.TempDir()
@@ -425,6 +437,18 @@ func TestCoreNativeTransformUsesQuerifyForTypedQueryRoute(t *testing.T) {
 	}
 }
 
+// Verifies the native transform refuses to run when `strictNullChecks` is off
+// and surfaces the failure as a parseable `strict mode is required.` diagnostic.
+//
+// The Go binary mirrors typia's hard strict-mode precondition: without
+// strictNullChecks the generated validators cannot distinguish required from
+// optional, and silent emission would produce runtime errors far from the
+// config that caused them. The diagnostic shape is consumed by ttsc, so the
+// exact phrase is part of the contract.
+//
+//  1. Write a tsconfig that extends the feature config but disables strictNullChecks.
+//  2. Run `ttsc-nestia transform` against QueryController.
+//  3. Expect a non-zero exit and the literal `strict mode is required.` in stderr.
 func TestCoreNativeTransformReportsStrictNullChecksDisabled(t *testing.T) {
 	root := repoRoot(t)
 	temp := t.TempDir()
