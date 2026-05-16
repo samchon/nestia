@@ -1,0 +1,181 @@
+---
+title: Tutorial · Validate Inputs
+description: "Use typia tags to add format, range, and pattern constraints to your TypeScript types. Nestia turns those tags into runtime validators automatically."
+---
+
+import { Callout, Tabs } from "nextra/components";
+
+# Validate Inputs
+
+You already saw `tags.MinLength<3>` and `tags.Format<"uuid">` on the previous page. This chapter shows the full toolbox and how validation errors look in practice.
+
+---
+
+## 1. Tags live on the type
+
+A tag is an intersection between a primitive type and a marker from `typia`:
+
+```ts
+import { tags } from "typia";
+
+type Email = string & tags.Format<"email">;
+type Age   = number & tags.Type<"uint32"> & tags.Minimum<0> & tags.Maximum<150>;
+type Color = "red" | "green" | "blue";  // plain unions work too
+```
+
+Wherever you can write a TypeScript type, you can add tags. They have zero runtime presence in your source. They exist purely so the Nestia transformer can read them and emit the matching check in the compiled JavaScript.
+
+---
+
+## 2. The tag catalog
+
+A handful of tags cover ~95% of cases. Full list lives in the [typia docs](https://typia.io/docs/validators/tags/); these are the everyday ones:
+
+| Tag                                | Applies to        | Example                                        |
+| ---------------------------------- | ----------------- | ---------------------------------------------- |
+| `tags.Format<"uuid">`              | `string`          | `string & tags.Format<"uuid">`                 |
+| `tags.Format<"email">`             | `string`          | `string & tags.Format<"email">`                |
+| `tags.Format<"date-time">`         | `string`          | ISO 8601 datetime                              |
+| `tags.Format<"url">`               | `string`          | HTTP / FTP URL                                 |
+| `tags.Pattern<"^[a-z]+$">`         | `string`          | Custom regex                                   |
+| `tags.MinLength<N>` / `MaxLength<N>` | `string`        | Length bounds                                  |
+| `tags.Type<"uint32">`              | `number`          | Integer 0..2³²−1                               |
+| `tags.Minimum<N>` / `Maximum<N>`   | `number`          | Inclusive bounds                               |
+| `tags.MinItems<N>` / `MaxItems<N>` | `T[]`             | Array length bounds                            |
+
+You apply tags by intersection (`&`). They compose freely:
+
+```ts
+type Username =
+  & string
+  & tags.MinLength<3>
+  & tags.MaxLength<32>
+  & tags.Pattern<"^[a-zA-Z0-9_-]+$">;
+
+type Tags = Array<string & tags.MinLength<1>> & tags.MinItems<1> & tags.MaxItems<10>;
+```
+
+---
+
+## 3. A realistic example
+
+```ts filename="src/structures/ISignup.ts" copy
+import { tags } from "typia";
+
+export interface ISignup {
+  email: string & tags.Format<"email">;
+
+  password: string
+    & tags.MinLength<8>
+    & tags.MaxLength<64>;
+
+  age?: number
+    & tags.Type<"uint32">
+    & tags.Minimum<13>
+    & tags.Maximum<150>;
+
+  nickname: string
+    & tags.MinLength<3>
+    & tags.MaxLength<32>
+    & tags.Pattern<"^[a-zA-Z0-9_-]+$">;
+
+  tags: Array<string & tags.MinLength<1>>
+    & tags.MinItems<1>
+    & tags.MaxItems<10>;
+}
+```
+
+Use it in a controller:
+
+```ts copy
+@TypedRoute.Post("signup")
+public async signup(@TypedBody() input: ISignup): Promise<{ id: string }> {
+  // input is now guaranteed to match ISignup — no defensive checks needed
+  return { id: "..." };
+}
+```
+
+The validation runs **before** your handler body executes; if anything fails the client sees a 400.
+
+---
+
+## 4. What an error looks like
+
+When validation fails, Nestia intercepts the request **before** your handler runs and returns a 400 response with a structured body. Your handler is never invoked on bad input — there is nothing for it to defend against.
+
+POST a deliberately broken payload:
+
+```bash filename="Terminal" copy
+curl -X POST http://localhost:37001/signup \
+  -H "Content-Type: application/json" \
+  -d '{"email":"nope","password":"short","nickname":"!!","tags":[]}'
+```
+
+Response:
+
+```json filename="HTTP 400"
+{
+  "statusCode": 400,
+  "message": "Request body data is not following the promised type.",
+  "errors": [
+    { "path": "$input.email",    "expected": "string & Format<\"email\">", "value": "nope" },
+    { "path": "$input.password", "expected": "string & MinLength<8>",      "value": "short" },
+    { "path": "$input.nickname", "expected": "string & Pattern<\"...\">",  "value": "!!" },
+    { "path": "$input.tags",     "expected": "Array & MinItems<1>",        "value": [] }
+  ]
+}
+```
+
+Each entry in `errors` has a `path` that starts at `$input` and walks into nested fields with dot / bracket notation, so a frontend can surface field-level messages without parsing prose. The top-level `message` is fixed; the `errors` array is what your form binding cares about.
+
+<Callout type="info">
+The default validation mode is `"validate"` — it reports **every** failure at once. Want just the first error, or want to use a different shape? See [TypedBody → Configuration](/docs/core/TypedBody#configuration) for the `"assert"`, `"is"`, `"validateEquals"`, and `"assertPrune"` modes.
+</Callout>
+
+---
+
+## 5. Strip extra properties
+
+By default Nestia lets unknown fields pass through silently (`validate` mode). If you need to **strip** them, set the validation mode to `"validatePrune"` (or `"assertPrune"`):
+
+```jsonc filename="tsconfig.json"
+{
+  "compilerOptions": {
+    "plugins": [
+      { "transform": "typia/lib/transform", "enabled": false },
+      {
+        "transform": "@nestia/core/native/transform.cjs",
+        "validate": "validatePrune"
+      }
+    ]
+  }
+}
+```
+
+Now a body with extra fields gets cleaned before your handler sees it.
+
+---
+
+## 6. Combining tags with unions and `null`
+
+Everything that works in TypeScript works here — including discriminated unions, nullables, and recursive shapes:
+
+```ts
+type IShape =
+  | { kind: "circle"; radius: number & tags.Minimum<0> }
+  | { kind: "rect";   width: number; height: number };
+
+interface ITree {
+  value: number;
+  children: ITree[];                       // recursive
+  parent_id: null | (string & tags.Format<"uuid">);
+}
+```
+
+These are the cases where `class-validator` either gives up or needs special escape hatches. Nestia handles them by reading the actual TypeScript types — there is no schema language to fight with.
+
+---
+
+## Next
+
+You can validate anything. Next, the payoff: **[Generate Your SDK](/docs/tutorial/sdk)** — one command turns these controllers into a typed client library.

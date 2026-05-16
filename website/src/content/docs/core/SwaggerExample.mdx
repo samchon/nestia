@@ -1,10 +1,11 @@
 ---
-title: Guide Documents > Core Library > SwaggerExample
-description: Attach example values to request parameters and response bodies — surfaced in the generated Swagger document's `example` / `examples` fields without affecting runtime behavior.
+title: "Reference · SwaggerExample"
+description: "Attach example values to request parameters and response bodies. Surfaced in the generated Swagger document's example / examples fields without affecting runtime behavior."
 ---
 
-## Outline
-```typescript filename="@nestia/core" showLineNumbers
+# `@SwaggerExample`
+
+```ts filename="@nestia/core" copy
 export namespace SwaggerExample {
   export function Response<T>(value: T): MethodDecorator;
   export function Response<T>(key: string, value: T): MethodDecorator;

@@ -1,0 +1,170 @@
+---
+title: Tutorial · Generate Your SDK
+description: "Run `npx nestia sdk` and watch a fully typed client SDK appear from your NestJS controllers — no manual codegen, no Swagger round-trip."
+---
+
+import { Callout, Tabs } from "nextra/components";
+
+# Generate Your SDK
+
+So far you've built a typed server. This is the part most teams come for: every controller you wrote becomes a **typed function** in a generated SDK that a frontend can `import` and call. No `fetch`, no URL strings, no hand-maintained DTOs in two places.
+
+---
+
+## 1. The config file
+
+Nestia reads `nestia.config.ts` at the project root. If you used the starter it is already there; otherwise:
+
+```bash filename="Terminal" copy
+npx nestia init
+```
+
+Open it:
+
+```ts filename="nestia.config.ts" copy
+import { INestiaConfig } from "@nestia/sdk";
+import { NestFactory } from "@nestjs/core";
+
+import { AppModule } from "./src/AppModule";
+
+const config: INestiaConfig = {
+  input: () => NestFactory.create(AppModule),
+  output: "src/api",
+};
+export default config;
+```
+
+Three things matter:
+
+- **`input`** — how Nestia finds your controllers. A function returning your `NestApplication` is the most reliable form; it picks up every module, prefix, and versioning rule you set on the app.
+- **`output`** — where the generated SDK lives. We recommend `src/api`.
+- That's all you need for the SDK. We will add `swagger` and `e2e` keys in later chapters.
+
+---
+
+## 2. Generate
+
+```bash filename="Terminal" copy
+npx nestia sdk
+```
+
+You should see a tree appear under `src/api/`:
+
+```text filename="src/api/"
+src/api/
+├── HttpError.ts
+├── IConnection.ts
+├── Primitive.ts
+├── module.ts
+└── functional/
+    └── articles/
+        └── index.ts        # one file per controller
+```
+
+Open `src/api/functional/articles/index.ts` and you will find one exported function per controller method. The function signature is **derived from your TypeScript types**:
+
+```ts filename="src/api/functional/articles/index.ts (excerpt)"
+/**
+ * Create a new article.
+ *
+ * @param input The article payload.
+ * @returns The stored article with `id` and `created_at` populated.
+ *
+ * @controller ArticlesController.create()
+ * @path POST /articles
+ */
+export async function create(
+  connection: IConnection,
+  input: create.Input,
+): Promise<create.Output> { /* ... */ }
+
+export namespace create {
+  export type Input  = Primitive<IArticle.ICreate>;
+  export type Output = Primitive<IArticle>;
+  // ...
+}
+```
+
+The JSDoc came from your controller's JSDoc. The `Input` / `Output` types came from your TypeScript types. Nothing about this file is hand-written.
+
+---
+
+## 3. The shape of an SDK call
+
+Every generated function takes an `IConnection` as the first argument and the rest of the parameters in source order. `IConnection` is a small config object exported from the SDK that tells it where your server lives and what headers to send — no class, no client to instantiate, just a plain object.
+
+```ts
+import api from "@my-app/api";
+// or, when the SDK lives in the same repo:
+import * as api from "../api";
+
+const connection: api.IConnection = {
+  host: "http://localhost:37001",
+};
+
+const article = await api.functional.articles.create(connection, {
+  title: "Hello",
+  body: "World",
+});
+```
+
+- `connection.host` points at your server.
+- `connection.headers` (optional) is merged into every request — handy for `Authorization`.
+- The function returns the **typed** response. Your IDE autocompletes `article.id`, `article.created_at`, etc.
+
+A 4xx / 5xx response throws an `HttpError`. Mistyped arguments are a **TypeScript compile error**, not a 400 at runtime.
+
+---
+
+## 4. Where to put the generated SDK
+
+Three common shapes:
+
+<Tabs items={["Single repo", "Monorepo (recommended)", "Published package"]}>
+  <Tabs.Tab>
+**Single repo:** put `output: "src/api"` inside the NestJS project. Tests inside the repo import the SDK from `../api`. Good for solo projects and prototypes.
+  </Tabs.Tab>
+  <Tabs.Tab>
+**Monorepo:** SDK is its own workspace package, e.g. `packages/api`. Backend writes the SDK to a sibling package; frontend imports it by name. No `npm publish` round-trip during development.
+
+See **[SDK → PNPM Monorepo](/docs/sdk/monorepo)** for the wiring.
+  </Tabs.Tab>
+  <Tabs.Tab>
+**Published:** add a `distribute: "packages/api"` key to `nestia.config.ts`. Nestia stages a publishable `package.json`, `tsconfig.json`, and `README.md` in that directory. `cd packages/api && npm publish` is the whole story.
+
+See **[SDK → Distribution](/docs/sdk/distribute)** for the details.
+  </Tabs.Tab>
+</Tabs>
+
+---
+
+## 5. When to regenerate
+
+Re-run `npx nestia sdk` whenever your controllers, DTOs, or `nestia.config.ts` change. In a typical workflow you wire it into your build:
+
+```jsonc filename="package.json"
+{
+  "scripts": {
+    "build": "ttsc && npx nestia sdk"
+  }
+}
+```
+
+If you also want Swagger and e2e, use the combined command (`npx nestia all`) covered in the next chapters.
+
+---
+
+## 6. What you can do now
+
+The generated SDK is a normal TypeScript module. You can:
+
+- Import it from a Next.js / Vite / React Native client.
+- Use it inside Node scripts and Lambda functions.
+- Bundle it into a published `npm` package for external partners.
+- Drive it from tests (Chapter 8 will do exactly that).
+
+---
+
+## Next
+
+You have an SDK. Let's **[Call Your API](/docs/tutorial/consume)** from a tiny client and feel what type-safe RPC looks like.
