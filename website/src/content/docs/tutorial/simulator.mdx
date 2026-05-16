@@ -1,0 +1,123 @@
+---
+title: Tutorial · Mockup Simulator
+description: "Flip `simulate: true` and your SDK answers requests with realistic random data, with full input validation. Frontend can ship before the backend exists."
+---
+
+import { Callout } from "nextra/components";
+
+# Mockup Simulator
+
+Frontend teams usually wait for a backend to exist before they can build screens. Nestia ships an answer: the **same SDK** can run in **simulator mode**, where requests do not hit the network but get answered with type-correct random data — generated from your DTO types.
+
+You get:
+
+- A working "backend" that runs entirely in the frontend bundle.
+- The same input validation the real server would do (so bad payloads still 400).
+- Type-correct responses, so UI states render with real shapes.
+
+This is conceptually like [`msw`](https://mswjs.io) — except you do not write a single handler.
+
+---
+
+## 1. Enable it in `nestia.config.ts`
+
+```ts filename="nestia.config.ts" {5} copy
+const config: INestiaConfig = {
+  input: () => NestFactory.create(AppModule),
+  output: "src/api",
+  simulate: true,
+};
+```
+
+Regenerate:
+
+```bash filename="Terminal" copy
+npx nestia sdk
+```
+
+Each generated SDK function now has a hidden `simulate` branch. It activates when you flip `connection.simulate` to `true`.
+
+---
+
+## 2. Flip the connection flag
+
+```ts copy
+const connection: api.IConnection = {
+  host: "http://localhost:37001",
+  simulate: true,
+};
+
+const article = await api.functional.articles.create(connection, {
+  title: "Hello",
+  body: "World",
+});
+// `article` is a fully populated IArticle — generated, not fetched.
+```
+
+Behind the scenes:
+
+1. The SDK validates your `input` against `IArticle.ICreate` (same code path as the real server).
+2. If valid, it generates a `Primitive<IArticle>` with `typia.random<IArticle>()` and returns it.
+3. If invalid, it throws an `HttpError` with status 400 — exactly like the real server.
+
+---
+
+## 3. A real workflow
+
+Most teams toggle the flag based on environment:
+
+```ts filename="src/connection.ts" copy
+export const connection: api.IConnection = {
+  host: process.env.NEXT_PUBLIC_API_HOST ?? "http://localhost:37001",
+  simulate: process.env.NEXT_PUBLIC_USE_MOCK === "true",
+};
+```
+
+Run the frontend with `NEXT_PUBLIC_USE_MOCK=true npm run dev` and the entire client is decoupled from the server. No CORS pain, no backend deploy needed for a UI demo.
+
+---
+
+## 4. Customize the responses
+
+Pure random data is fine for layout work but boring for demos. Override with `random` factories:
+
+```ts copy
+import { Primitive, typia } from "typia";
+
+import api, { IArticle } from "@my-app/api";
+
+api.functional.articles.at.simulate = (
+  connection,
+  id,
+): Primitive<IArticle> => ({
+  id,
+  title: "Curated demo title",
+  body: "This article looks real because we wrote it.",
+  created_at: new Date().toISOString(),
+});
+```
+
+You only override the endpoints you care about; the rest stay random.
+
+---
+
+## 5. When you should use it
+
+- **Frontend-first development.** Build screens before the server endpoint exists.
+- **Demos.** Sales / design demos with no server running.
+- **Tests.** Replace external service calls in unit tests without a mock library.
+- **Storybook.** Render every component variant without spinning up infra.
+
+When you should not:
+
+- **Integration tests against real DB state.** Use the e2e suite from the previous chapter for that.
+
+<Callout type="info">
+The simulator is bundled in the **same SDK file** as the real client. Tree-shaking removes it from production builds where `simulate` is statically `false`.
+</Callout>
+
+---
+
+## Next
+
+You have seen every Nestia feature. **[Where to Next](/docs/tutorial/next)** points to the right reference pages for the part you care about deepening.

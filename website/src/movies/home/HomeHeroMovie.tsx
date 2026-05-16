@@ -88,17 +88,15 @@ const HomeHeroMovie = () => {
             fontWeight: 400,
             fontSize: { xs: "1rem", sm: "1.15rem", md: "1.3rem" },
             lineHeight: 1.7,
-            maxWidth: 700,
+            maxWidth: 720,
             mx: "auto",
             mb: 2,
           }}
         >
-          Supercharge your NestJS backend with
-          <br />
-          <strong style={{ color: "rgba(255,255,255,0.95)" }}>
-            20,000x faster
-          </strong>{" "}
-          validation, type-safe SDK, and AI integration
+          Stop writing DTOs three times. One TypeScript type drives a NestJS
+          endpoint,
+          <br />a <strong style={{ color: "rgba(255,255,255,0.95)" }}>typed
+          client SDK</strong>, an OpenAPI document, and e2e tests — for free.
         </Typography>
         <Typography
           variant="body1"
@@ -108,7 +106,7 @@ const HomeHeroMovie = () => {
             mb: 3,
           }}
         >
-          No extra schema required. Just fine with pure TypeScript type.
+          No `class-validator`. No `@ApiProperty`. No codegen round-trip.
         </Typography>
         <Typography
           sx={{
@@ -133,9 +131,9 @@ const HomeHeroMovie = () => {
           }}
         >
           <HeroButton
-            title="Guide Documents"
+            title="Start the Tutorial"
             icon={<MenuBookIcon />}
-            href="/docs"
+            href="/docs/tutorial"
             variant="contained"
           />
           <HeroButton

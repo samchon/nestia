@@ -1,105 +1,157 @@
-﻿---
-title: Guide Documents > Introduction
-description: Introduction to Nestia — a NestJS helper suite that turns pure TypeScript types into runtime validators, Swagger documents, SDK libraries, and e2e test scaffolding.
 ---
-import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
+title: Introduction
+description: Nestia — a NestJS helper suite that turns pure TypeScript types into runtime validators, OpenAPI documents, typed client SDKs, and e2e test suites. One source of truth, with a 20,000× speedup as a side effect.
+---
 
-## Outline
+import Alert from "@mui/material/Alert";
+import Stack from "@mui/material/Stack";
+import { Cards, Callout } from "nextra/components";
 
-![Nestia Logo](/logo.png)
+## What is Nestia?
 
-<span style={{ display: "flex", flexDirection: "row" }}>
+**Nestia turns a plain TypeScript type into everything a NestJS server usually needs to wire by hand.** You write one interface, and you get:
+
+- **Runtime validation** of requests and responses — typically 30–100× faster than `class-validator` (up to 20,000× on pathological cases; see [Why So Fast](/docs/concepts/why-fast) for the honest breakdown).
+- A **typed client SDK** — like tRPC, but over plain REST.
+- An **OpenAPI 3.1 / 3.0 / 2.0** document.
+- An **end-to-end test suite** generated for every endpoint.
+- A **mockup simulator** so a frontend can call your API before the server exists.
+
+No decorator triplets. No separate schema files. No codegen round-trip. Just types.
+
+<Callout type="info">
+**New here?** Start with **[Tutorial → Welcome](/docs/tutorial)** — a 30-minute guided tour from zero to a working Nestia app. This page is the high-level "why."
+</Callout>
+
+---
+
+## The vanilla NestJS problem
+
+NestJS DTOs need to be declared three times:
+
+```ts
+class CreateArticle {
+  @ApiProperty({ description: "Title", minLength: 3, maxLength: 50 })   // ← Swagger
+  @IsString() @MinLength(3) @MaxLength(50)                              // ← validator
+  title!: string;
+  // ...and the TypeScript type itself
+}
+```
+
+Three sources of truth. Any drift — and there is always drift — becomes a runtime bug.
+
+Nestia replaces all of that with one TypeScript type. The validation, the schema, and the SDK function signature all derive from the same declaration:
+
+```ts
+interface ICreateArticle {
+  title: string & tags.MinLength<3> & tags.MaxLength<50>;
+}
+```
+
+That's it. The rest is generated.
+
+---
+
+## How it works (in three lines)
+
+1. You decorate routes with **`@TypedRoute.*`** and parameters with **`@TypedBody`, `@TypedParam`, `@TypedQuery`** — same shape as vanilla NestJS, type-aware.
+2. At build time, **`ttsc`** (a Go-based TypeScript compiler) runs Nestia's transformer. It reads your TypeScript types and **inlines a hand-written validator and serializer** for each call site.
+3. The **`nestia` CLI** reads the same types to generate an SDK, a Swagger document, and an e2e suite into files you commit.
+
+Read the longer version on **[Concepts → AOT Compilation](/docs/concepts/aot)**.
+
+---
+
+## The packages
+
+Nestia is a small family. The two you'll see most are bold:
+
+- **`@nestia/core`** — typed request / response decorators for NestJS controllers.
+- **`@nestia/sdk`** — generators: SDK, Swagger document, mockup simulator, e2e suite.
+- `@nestia/fetcher` — the typed `fetch` runtime the generated SDK is built on.
+- `@nestia/e2e` — discoverer and helpers for the generated e2e suite.
+- `@nestia/benchmark` — runs the same e2e functions as a load test.
+- `@nestia/migrate` — turns an existing Swagger document into a NestJS project.
+- `@nestia/editor` — Swagger UI with an embedded TypeScript playground.
+- `nestia` — the CLI that drives `@nestia/sdk`.
+
+You only think about the first two day-to-day. `npx nestia setup` installs them in one go.
+
+---
+
+## Where to go next
+
+<Cards>
+  <Cards.Card title="🚀 Tutorial" href="/docs/tutorial">
+    30-minute guided walkthrough. Start here if you have not used Nestia before.
+  </Cards.Card>
+  <Cards.Card title="📦 Setup" href="/docs/setup">
+    Install Nestia in an existing NestJS project (TypeScript-Go or legacy).
+  </Cards.Card>
+  <Cards.Card title="🧠 Concepts" href="/docs/concepts/pure-typescript">
+    Pure TypeScript types, AOT compilation, why so fast — the "magic" explained.
+  </Cards.Card>
+  <Cards.Card title="📖 Reference" href="/docs/core/TypedRoute">
+    Per-decorator and per-feature reference pages.
+  </Cards.Card>
+  <Cards.Card title="🍳 Recipes / FAQ" href="/docs/recipes">
+    Short answers, migration recipes, troubleshooting.
+  </Cards.Card>
+  <Cards.Card title="🎮 Playground" href="https://stackblitz.com/github/samchon/nestia-start?file=README.md&view=editor">
+    Try Nestia in a browser, no local setup needed.
+  </Cards.Card>
+</Cards>
+
+---
+
+## Quick numbers
+
+<Stack spacing={1} sx={{ my: 3 }}>
+  <Alert severity="success">
+    **Runtime validation** is up to **20,000× faster** than `class-validator`.
+    **JSON serialization** is up to **200× faster** than `class-transformer`.
+  </Alert>
+  <Alert severity="info">
+    **Type-safe SDK** auto-generated from your controllers — like tRPC, but over plain REST and zero contract duplication.
+  </Alert>
+  <Alert severity="info">
+    **Mockup simulator** built into the SDK — flip `simulate: true` and your frontend runs without a backend.
+  </Alert>
+</Stack>
+
+Curious how those numbers hold up under load? See **[Why So Fast](/docs/concepts/why-fast)** for the methodology and the caveats.
+
+---
+
+## Community
+
+- **[GitHub](https://github.com/samchon/nestia)** — source, issues, releases.
+- **[Discord](https://discord.gg/E94XhzrUCZ)** — live questions.
+- **[Gurubase](https://gurubase.io/g/nestia)** — an LLM that has read all of this for you.
+- **[dev.to articles](https://dev.to/samchon/series/22751)** — long-form posts on each feature.
+
+### Status badges
+
+<span style={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
 {[
-  [
-    "MIT License",
-    "https://img.shields.io/badge/license-MIT-blue.svg",
-    "https://github.com/samchon/nestia/blob/master/LICENSE",
-  ],
-  [
-    "NPM Version",
-    "https://img.shields.io/npm/v/@nestia/sdk.svg",
-    "https://www.npmjs.com/package/@nestia/sdk",
-  ],
-  [
-    "NPM Downloads",
-    "https://img.shields.io/npm/dm/@nestia/sdk.svg",
-    "https://www.npmjs.com/package/@nestia/sdk",
-  ],
-  [
-    "Build Status",
-    "https://github.com/samchon/nestia/workflows/build/badge.svg",
-    "https://github.com/samchon/nestia/actions?query=workflow%3Abuild",
-  ],
-  [
-    "Guide Documents",
-    "https://img.shields.io/badge/Guide-Documents-forestgreen",
-    "https://nestia.io/docs/",
-  ],
-  [
-    "Gurubase",
-    "https://img.shields.io/badge/Gurubase-Document%20Chatbot-006BFF",
-    "https://gurubase.io/g/nestia",
-  ],
-  [
-    "Discord",
-    "https://img.shields.io/badge/discord-samchon-d91965?style=flat&labelColor=5866f2&logo=discord&logoColor=white&link=https://discord.gg/E94XhzrUCZ",
-    "https://discord.gg/E94XhzrUCZ",
-  ]
+  ["MIT License", "https://img.shields.io/badge/license-MIT-blue.svg", "https://github.com/samchon/nestia/blob/master/LICENSE"],
+  ["NPM Version", "https://img.shields.io/npm/v/@nestia/sdk.svg", "https://www.npmjs.com/package/@nestia/sdk"],
+  ["NPM Downloads", "https://img.shields.io/npm/dm/@nestia/sdk.svg", "https://www.npmjs.com/package/@nestia/sdk"],
+  ["Build", "https://github.com/samchon/nestia/workflows/build/badge.svg", "https://github.com/samchon/nestia/actions?query=workflow%3Abuild"],
+  ["Guides", "https://img.shields.io/badge/Guide-Documents-forestgreen", "https://nestia.io/docs/"],
+  ["Gurubase", "https://img.shields.io/badge/Gurubase-Document%20Chatbot-006BFF", "https://gurubase.io/g/nestia"],
+  ["Discord", "https://img.shields.io/badge/discord-samchon-d91965?style=flat&labelColor=5866f2&logo=discord&logoColor=white", "https://discord.gg/E94XhzrUCZ"],
 ].map(([alt, image, url]) => (
-  <a href={url} style={{ marginTop: "30px", marginRight: "6px" }}>
+  <a key={alt} href={url} style={{ marginTop: "10px", marginRight: "6px" }}>
     <img src={image} alt={alt} />
   </a>
 ))}
 </span>
 
-Nestia is a set of helper libraries for [NestJS](https://docs.nestjs.com), supporting below features:
-
-  - `@nestia/core`:
-    - Super-fast/easy decorators
-    - Advanced WebSocket routes
-  - `@nestia/sdk`:
-    - Swagger generator evolved than ever
-    - OpenAI function calling schema generator
-    - SDK library generator for clients
-    - Mockup Simulator for client developers
-    - Automatic E2E test functions generator
-  - `@nestia/e2e`: Test program utilizing e2e test functions
-  - `@nestia/benchmark`: Benchmark program using e2e test functions
-  - `@nestia/chat`: Super A.I. Chatbot by Swagger document
-  - `@nestia/editor`: Swagger-UI with Online TypeScript Editor
-  - `nestia`: Just CLI (command line interface) tool
-
-<br/>
-<Stack spacing={1}>
-  <Alert severity="warning">
-    Only **one line** required, with pure TypeScript type
-  </Alert>
-  <Alert severity="success">
-    Enhance performance **30x** up
-    
-    - Runtime validator is **20,000x** faster than `class-validator`
-    - JSON serialization is **200x faster** than `class-transformer`
-  </Alert>
-  <Alert severity="info"> 
-    Software Development Kit
-
-    - Collection of typed `fetch` functions with DTO structures like [tRPC](https://trpc.io/)
-    - Mockup simulator means embedded backend simulator in the SDK
-      - similar with [msw](https://mswjs.io/), but fully automated
-  </Alert>
-</Stack>
-
-![SDK](https://user-images.githubusercontent.com/13158709/215004990-368c589d-7101-404e-b81b-fbc936382f05.gif)
-
-> Left is NestJS server code, and right is client (frontend) code utilizing SDK
-
-
-
+---
 
 ## Sponsors
-Thanks for your support.
 
-Your donation would encourage `nestia` development.
+Your support keeps Nestia development going.
 
 [![Backers](https://opencollective.com/nestia/backers.svg?width=1000)](https://opencollective.com/nestia)

@@ -1,0 +1,145 @@
+---
+title: Tutorial · Your First Endpoint
+description: "Write a NestJS controller using Nestia's typed decorators. Learn how @TypedRoute, @TypedBody, @TypedParam, and @TypedQuery replace their vanilla counterparts."
+---
+
+import { Callout } from "nextra/components";
+
+# Your First Endpoint
+
+In this chapter you write a controller from scratch — a tiny "article store" with two routes — and see exactly which decorators change.
+
+If you cloned the starter from the previous chapter, open `src/controllers/` and follow along. If not, the code is self-contained.
+
+---
+
+## 1. Define the data type
+
+Create `src/structures/IArticle.ts`:
+
+```ts filename="src/structures/IArticle.ts" copy
+import { tags } from "typia";
+
+export interface IArticle {
+  id: string & tags.Format<"uuid">;
+  title: string & tags.MinLength<3> & tags.MaxLength<50>;
+  body: string;
+  created_at: string & tags.Format<"date-time">;
+}
+
+export namespace IArticle {
+  export interface ICreate {
+    title: string & tags.MinLength<3> & tags.MaxLength<50>;
+    body: string;
+  }
+}
+```
+
+That is the entire schema. Two TypeScript interfaces, no decorators, no separate file for OpenAPI, no separate file for validation. The `tags.*` intersection types are how Nestia attaches constraints — they have no runtime cost in your TypeScript code; they live purely in the type system.
+
+<Callout type="info">
+**Why an interface and not a class?** Both work, but interfaces make it clearer that Nestia derives behavior from the **type**, not from a class with metadata. You will see this pattern throughout the docs.
+</Callout>
+
+---
+
+## 2. Write the controller
+
+Create `src/controllers/ArticlesController.ts`. Note the inline `tags.Format<"uuid">` on the `:id` parameter — `tags.*` works the same way inline on a method parameter as it does on an interface field.
+
+```ts filename="src/controllers/ArticlesController.ts" copy
+import { TypedBody, TypedParam, TypedRoute } from "@nestia/core";
+import { Controller } from "@nestjs/common";
+import { tags } from "typia";
+
+import { IArticle } from "../structures/IArticle";
+
+@Controller("articles")
+export class ArticlesController {
+  /**
+   * Create a new article.
+   *
+   * @param input The article payload.
+   * @returns The stored article with `id` and `created_at` populated.
+   */
+  @TypedRoute.Post()
+  public async create(
+    @TypedBody() input: IArticle.ICreate,
+  ): Promise<IArticle> {
+    return {
+      ...input,
+      id: "2b5e21d8-0e44-4482-bd3e-4540dee7f3d6",
+      created_at: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Read one article by ID.
+   */
+  @TypedRoute.Get(":id")
+  public async at(
+    @TypedParam("id") id: string & tags.Format<"uuid">,
+  ): Promise<IArticle> {
+    return {
+      id,
+      title: "Hello Nestia",
+      body: "Welcome to your first endpoint",
+      created_at: new Date().toISOString(),
+    };
+  }
+}
+```
+
+Register the controller in your application module — same as any other NestJS controller.
+
+---
+
+## 3. The three decorators you just used
+
+| Vanilla NestJS  | Nestia                       | What changes                                              |
+| --------------- | ---------------------------- | --------------------------------------------------------- |
+| `@Get(path)`    | `@TypedRoute.Get(path)`      | Response is **validated** then serialized 200× faster.    |
+| `@Post(path)`   | `@TypedRoute.Post(path)`     | Same.                                                     |
+| `@Body()`       | `@TypedBody()`               | Body is **validated** against the parameter type. 400 on mismatch. |
+| `@Param("id")`  | `@TypedParam("id")`          | Param is **coerced and validated** to the declared type — `uuid`, `int32`, etc. |
+| `@Query("q")`   | `@TypedQuery()`              | Query string is **validated** against the parameter type. |
+
+Mental model: **every `@Typed*` decorator is the same as the vanilla one, with type-driven validation added at the boundary.** You do not lose anything from NestJS — guards, interceptors, pipes, exception filters all still work.
+
+<Callout type="info">
+**Mixing is allowed.** You can use `@Get` and `@TypedRoute.Get` in the same project. The Nestia generators only pick up `@Typed*` routes for SDK / Swagger / e2e, so use vanilla decorators wherever you don't need validation or schema generation.
+</Callout>
+
+---
+
+## 4. Try it
+
+Restart the server (if `start:dev` is not already watching) and:
+
+```bash filename="Terminal" copy
+# Happy path — 201 Created
+curl -X POST http://localhost:37001/articles \
+  -H "Content-Type: application/json" \
+  -d '{"title": "My first post", "body": "Hello!"}'
+
+# Bad payload — 400 Bad Request with a clear path
+curl -X POST http://localhost:37001/articles \
+  -H "Content-Type: application/json" \
+  -d '{"title": "no", "body": 42}'
+```
+
+The bad payload comes back with a structured error pointing at `$input.title` (too short) and `$input.body` (wrong type). You did not write a single line of validation code.
+
+---
+
+## What just happened
+
+The Nestia transformer ran at compile time. It looked at every `@TypedBody()` and `@TypedRoute.*()` it could see and **inlined** a hand-written validator for that exact type into the compiled JavaScript. There is no schema registry, no decorator metadata reflection, no runtime type inference.
+
+If that sounds magical, read **[Concepts → Pure TypeScript](/docs/concepts/pure-typescript)** and **[Concepts → AOT Compilation](/docs/concepts/aot)** when you have time. They are short.
+
+---
+
+## Next
+
+You have a typed endpoint. Next, **[Validate Inputs](/docs/tutorial/validate)** — adding format constraints, custom checks, and seeing how error messages are shaped.

@@ -1,0 +1,104 @@
+---
+title: "Concepts · typia and Nestia"
+description: "Nestia is the NestJS layer; typia is the engine underneath. This page explains the split, why it exists, and when to reach for which."
+---
+
+import { Callout } from "nextra/components";
+
+# typia and Nestia
+
+You will see references to **[typia](https://typia.io)** throughout the docs — in imports (`import { tags } from "typia"`), in benchmarks, in plugin config (`typia/lib/transform`). It's the engine that does the actual validation and serialization. Nestia is the NestJS adapter on top.
+
+This page explains the relationship in 60 seconds.
+
+---
+
+## Two libraries, one transform
+
+```text
+┌─────────────────────────────────────────────────────────┐
+│ NestJS controllers, decorators, route handlers          │
+│                                                         │
+│   @TypedBody()  @TypedRoute.Post()  @TypedParam()       │
+│                                                         │
+│            ←  this is `@nestia/core`                    │
+└────────────────────────┬────────────────────────────────┘
+                         │ calls
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│ Type-driven validators, serializers, random data        │
+│                                                         │
+│   typia.assert<T>()    typia.json.stringify<T>()        │
+│   typia.is<T>()        typia.random<T>()                │
+│                                                         │
+│            ←  this is `typia`                           │
+└─────────────────────────────────────────────────────────┘
+```
+
+`@nestia/core` plugs typia into NestJS. typia does the heavy lifting — reading TypeScript types and generating runtime code from them.
+
+You install **both** when you install Nestia (`npx nestia setup` handles it). On the `@next` line, both transforms compose through `ttsc` automatically, so you never wire them up manually.
+
+---
+
+## Why split?
+
+typia is useful outside NestJS too:
+
+- A **Lambda handler** that validates an incoming event.
+- A **CLI** that parses a config file.
+- A **worker** that processes queue messages.
+- A **frontend** that calls `typia.assert` on a response before using it.
+
+None of those need NestJS. Keeping typia framework-agnostic means the same engine powers all of them, and the Nestia layer can stay focused on the NestJS-specific glue (decorators, route metadata, SDK / Swagger / e2e generation).
+
+---
+
+## Which one should I import from?
+
+| You want to…                                  | Import from        |
+| --------------------------------------------- | ------------------ |
+| Decorate a controller route or parameter      | `@nestia/core`     |
+| Attach a constraint to a type (`MinLength<3>`)| `typia` (the `tags` namespace) |
+| Validate an arbitrary value in a service / script | `typia`            |
+| Generate fake data of a type                  | `typia` (`typia.random<T>()`) |
+| Build a typed JSON encoder for a value        | `typia` (`typia.json.stringify<T>()`) |
+
+You will end up with both in your imports — that's expected.
+
+---
+
+## When the docs say "Nestia does X"
+
+Most of the time, "Nestia validates the body" is shorthand for "Nestia routes the body through typia's validator, which it generated from the parameter type at build time." We say it the short way because it reads better; the technical version is just the long version of the same thing.
+
+---
+
+## When the docs say "typia does X"
+
+When the speedup is the topic, the credit usually belongs to typia. The
+[20,000× / 200× benchmarks](/docs/concepts/why-fast) measure typia's
+specialized predicates against `class-validator` and `class-transformer`. Nestia just wires those predicates into the NestJS request pipeline.
+
+<Callout type="info">
+**Typia has its own docs at [typia.io](https://typia.io).** If you want to go deeper on tags, custom validators, or the `random` / `stringify` APIs, that's the canonical source. Nestia's docs only cover what you need for the NestJS integration.
+</Callout>
+
+---
+
+## The version-pinning rule
+
+Because the transform runs as one combined pass, the versions matter:
+
+- `@nestia/core@next` and `typia@next` are co-released. Mixing them with the `@latest` line will fail with confusing transform errors.
+- The `npx nestia setup` wizard pins the right pair automatically. If you install by hand, install `typia@next` first, then `@nestia/core@next`.
+
+See **[Recipes → Troubleshooting → Mixed @latest / @next packages](/docs/recipes/troubleshooting#mixed-latest--next-packages)** if you hit a version-mismatch error.
+
+---
+
+## Next
+
+- **[Pure TypeScript Types](/docs/concepts/pure-typescript)** — why the type is enough.
+- **[AOT Compilation](/docs/concepts/aot)** — what the transformer is doing at build time.
+- **[typia.io](https://typia.io/docs)** — typia's own docs for the standalone API.
