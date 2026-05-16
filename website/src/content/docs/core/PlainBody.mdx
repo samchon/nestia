@@ -1,72 +1,69 @@
 ---
-title: Guide Documents > Core Library > PlainBody
-description: Receive raw `text/plain` request bodies as a string — the body comes through verbatim, no JSON parsing, no class transformer in the way.
+title: "Reference · PlainBody"
+description: "Parse a text/plain request body into a TypeScript string, with optional pattern / length validation via typia tags."
 ---
-import { Callout, Tabs } from 'nextra/components'
 
-## Outline
-```typescript filename="@nestia/core" showLineNumbers
+import { Callout } from "nextra/components";
+
+# `@PlainBody`
+
+```ts filename="@nestia/core" copy
 export function PlainBody(): ParameterDecorator;
 ```
 
-Decorator that reads the **raw `text/plain`** request body as a string.
+Parameter decorator for `text/plain` request bodies. Drop-in replacement for `@Body()` when the wire format is plain text rather than JSON.
 
-`@PlainBody()` exists because `@Body()` (and `@TypedBody()`) always try to parse the body as JSON. When the client sends `Content-Type: text/plain` — markdown payloads, memos, copied-pasted logs, raw template content — both decorators throw or produce `{}`. `@PlainBody()` short-circuits the parser and hands you the body as `string`.
+The decorator hands you the raw request body as a `string`. If the parameter type declares constraints via typia tags, the body is validated against them and a mismatch returns `400 Bad Request`.
 
 <Callout type="info">
-
-For other content types use the typed variant that matches:
-
-  - `application/json`: [`@TypedBody()`](./TypedBody)
-  - `application/x-www-form-urlencoded`: [`@TypedQuery.Body()`](./TypedQuery#typedquerybody)
-  - `multipart/form-data`: [`@TypedFormData.Body()`](./TypedFormData#TypedFormDatabody)
-
+**For JSON bodies** use **[`@TypedBody`](./TypedBody)**. **For form-urlencoded** use **[`@TypedQuery.Body`](./TypedQuery#typedquerybody)**. **For multipart** use **[`@TypedFormData`](./TypedFormData)**.
 </Callout>
 
-## How to use
+---
 
-```typescript copy filename="MemoController.ts" showLineNumbers
+## Basic usage
+
+```ts filename="src/controllers/WebhooksController.ts" copy
 import { PlainBody, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
+import { tags } from "typia";
 
-@Controller("memos")
-export class MemoController {
-  @TypedRoute.Post()
-  public store(@PlainBody() body: string): { stored: number } {
-    return { stored: body.length };
+@Controller("webhooks")
+export class WebhooksController {
+  // Accept any plain-text body.
+  @TypedRoute.Post("raw")
+  public async raw(
+    @PlainBody() body: string,
+  ): Promise<{ length: number }> {
+    return { length: body.length };
+  }
+
+  // Constrain the body shape.
+  @TypedRoute.Post("token")
+  public async token(
+    @PlainBody() token: string & tags.Pattern<"^[A-Za-z0-9_-]+$"> & tags.MaxLength<200>,
+  ): Promise<{ ok: true }> {
+    return { ok: true };
   }
 }
 ```
 
-Send the request with `Content-Type: text/plain`:
+A `POST /webhooks/token` with body `bad!!!` returns 400; with body `eyJhbGc...` it succeeds.
 
-```bash filename="Terminal"
-curl -X POST http://localhost:3000/memos \
-  -H "Content-Type: text/plain" \
-  --data-binary @memo.md
-```
+---
 
-The handler receives the file's contents verbatim, including newlines, trailing whitespace, and any non-ASCII characters in UTF-8.
+## When to use
 
-## Behavior
+- **Webhooks** that POST plain text (Stripe signature blocks, raw payloads).
+- **Token endpoints** that accept a single opaque string.
+- **Healthcheck-style endpoints** that take plain text.
 
-- The decorator only accepts requests whose `Content-Type` resolves to `text/plain` (with optional `charset=...` parameters). Any other content type triggers `400 Bad Request` with the message `Request body type is not "text/plain".`
-- When the body is empty (no `Content-Length` header or zero bytes), the parameter is `undefined`.
-- No validation is run on the body. If you need to enforce a shape on the string, use TypeScript tags or a manual guard inside your handler:
+For structured data, prefer `@TypedBody()` — JSON is easier to evolve.
 
-```typescript
-import type { tags } from "typia";
+---
 
-@TypedRoute.Post()
-public store(@PlainBody() body: string & tags.MinLength<1>): void;
-```
+## See also
 
-<Callout type="warning">
-
-`@PlainBody()` is incompatible with `@TypedBody()` on the same handler — only one request-body decorator can run per method.
-
-</Callout>
-
-## When not to use
-
-If your endpoint accepts JSON, use [`@TypedBody()`](./TypedBody). If it accepts form-encoded payloads, use [`@TypedQuery.Body()`](./TypedQuery#typedquerybody) or [`@TypedFormData.Body()`](./TypedFormData#TypedFormDatabody). `@PlainBody()` is the right choice only when the contract really is "give me the body as a string."
+- **[TypedBody](./TypedBody)** — JSON bodies.
+- **[TypedQuery.Body](./TypedQuery#typedquerybody)** — form-urlencoded bodies.
+- **[TypedFormData](./TypedFormData)** — multipart bodies (file uploads).

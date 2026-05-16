@@ -1,14 +1,18 @@
-﻿---
-title: Guide Documents > Core Library > TypedException
-description: Declare the HTTP error status codes and response shapes a controller method can throw — surfaced in Swagger documents and SDK propagation-mode return types.
+---
+title: "Reference · TypedException"
+description: "Declare the HTTP error status codes and response shapes a route can return. Surfaced in Swagger documents and SDK propagation-mode return types."
 ---
 
-## Outline
-```typescript filename="@nestia/core" showLineNumbers
+import { Callout } from "nextra/components";
+
+# `@TypedException`
+
+```ts filename="@nestia/core" copy
 export function TypedException<T extends object>(
   status: number | "2XX" | "3XX" | "4XX" | "5XX",
   description?: string,
 ): MethodDecorator;
+
 export function TypedException<T extends object>(props: {
   status: number | "2XX" | "3XX" | "4XX" | "5XX";
   description?: string;
@@ -17,362 +21,116 @@ export function TypedException<T extends object>(props: {
 }): MethodDecorator;
 ```
 
-Exception decorator of HTTP responses.
+Declare an error response a route can return — typed, documented, optionally exampled.
 
-`TypedException` is a decorator function describing HTTP exception and its type which could be occurred in a controller method. For reference, this decorator function does not affect to the method's behavior, but affects to the [swagger documents](/docs/swagger) generation, or SDK functions when [propagation mode](/docs/sdk#propagation-mode) being used. 
+The decorator **does not affect runtime behavior** — your handler still throws / returns whatever it normally would. It tells the Swagger generator and the SDK what shape that error has, so the OpenAPI document and the **propagation-mode SDK** both pick it up with full type information.
 
+<Callout type="info">
+**When you'd reach for this:** any route where 4xx / 5xx responses carry a structured body that the client cares about. Validation errors are auto-documented by `@TypedBody`, so you don't need it for those — but business errors (`"order locked"`, `"insufficient funds"`) deserve a `@TypedException`.
+</Callout>
 
+---
 
+## Basic usage
 
-## How to use
-```typescript filename="ExceptionController.ts" showLineNumbers {19-22}
+```ts filename="src/controllers/OrdersController.ts" copy
+import { TypedBody, TypedException, TypedRoute } from "@nestia/core";
 import { Controller } from "@nestjs/common";
-import typia, { TypeGuardError } from "typia";
 
-import {
-  TypedBody,
-  TypedException,
-  TypedParam,
-  TypedRoute,
-} from "@nestia/core";
+interface IOrderNotFound      { code: "ORDER_NOT_FOUND"; orderId: string; }
+interface IInsufficientFunds  { code: "INSUFFICIENT_FUNDS"; balance: number; required: number; }
+interface IInternalServerError { code: "INTERNAL"; traceId: string; }
 
-import { IBbsArticle } from "@api/lib/structures/IBbsArticle";
-import { IInternalServerError } from "@api/lib/structures/IInternalServerError";
-import { INotFound } from "@api/lib/structures/INotFound";
-import { IUnprocessableEntity } from "@api/lib/structures/IUnprocessableEntity";
-
-@Controller("exception")
-export class ExceptionController {
-  @TypedRoute.Post(":section/typed")
-  @TypedException<TypeGuardError>({
-    status: 400, 
-    description: "invalid request",
-    example: {
-      name: "BadRequestException",
-      method: "TypedBody",
-      path: "$input.title",
-      expected: "string",
-      value: 123,
-      message: "invalid type",
-    },
-  })
-  @TypedException<INotFound>(404, "unable to find the matched section")
-  @TypedException<IUnprocessableEntity>(428)
-  @TypedException<IInternalServerError>("5XX", "internal server error")
-  public async typed(
-    @TypedParam("section") section: string,
-    @TypedBody() input: IBbsArticle.IStore,
-  ): Promise<IBbsArticle> {
-    section;
-    input;
-    return typia.random<IBbsArticle>();
-  }
+@Controller("orders")
+export class OrdersController {
+  @TypedRoute.Post(":id/pay")
+  @TypedException<IOrderNotFound>(404, "Order does not exist")
+  @TypedException<IInsufficientFunds>(402, "Balance too low")
+  @TypedException<IInternalServerError>("5XX", "Unhandled error")
+  public async pay(...): Promise<IReceipt> { ... }
 }
 ```
 
-Just call `TypedException()` function with target type and status code. 
+The handler throws regular `NotFoundException` / `ConflictException` / etc. with the body shape that matches each `@TypedException`. The decorators **annotate** those shapes for downstream tooling.
 
-If you want to add description or example value, you also can add it as a property.
+---
 
-For reference, [swagger](/docs/swagger) allows to special pattern like `2XX`, `3XX`, `4XX`, `5XX` for status code.
+## What it changes
 
+### In the Swagger document
 
+Each `@TypedException` becomes an entry under the route's `responses` map, with the declared schema, description, and any examples.
 
-
-## Swagger Example
-Here is an example of swagger documents utilizing the `@TypedException()` decorator.
-
-```json filename="swagger.json" showLineNumbers {51-97}
-{
-  "openapi": "3.1.0",
-  "servers": [
-    {
-      "url": "https://github.com/samchon/nestia",
-      "description": "insert your server url"
-    }
-  ],
-  "info": {
-    "version": "3.11.1",
-    "title": "@samchon/nestia-test",
-    "description": "Test program of Nestia",
-    "license": {
-      "name": "MIT"
-    }
-  },
-  "paths": {
-    "/exception/{section}/typed": {
-      "post": {
-        "tags": [],
-        "parameters": [
-          {
-            "name": "section",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IBbsArticle.IStore"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IBbsArticle"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "invalid request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TypeGuardErrorany"
-                },
-                "example": {
-                  "name": "BadRequestException",
-                  "method": "TypedBody",
-                  "path": "$input.title",
-                  "expected": "string",
-                  "value": 123,
-                  "message": "invalid type"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "unable to find the matched section",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/INotFound"
-                }
-              }
-            }
-          },
-          "428": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IUnprocessableEntity"
-                }
-              }
-            }
-          },
-          "5XX": {
-            "description": "internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IInternalServerError"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "IBbsArticle": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "title": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 50
-          },
-          "body": {
-            "type": "string"
-          },
-          "files": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IAttachmentFile"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "created_at",
-          "title",
-          "body",
-          "files"
-        ]
-      },
-      "IAttachmentFile": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string",
-                "maxLength": 255
-              }
-            ]
-          },
-          "extension": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 8
-              }
-            ]
-          },
-          "url": {
-            "type": "string",
-            "format": "uri"
-          }
-        },
-        "required": [
-          "name",
-          "extension",
-          "url"
-        ]
-      },
-      "IBbsArticle.IStore": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 50
-          },
-          "body": {
-            "type": "string"
-          },
-          "files": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IAttachmentFile"
-            }
-          }
-        },
-        "required": [
-          "title",
-          "body",
-          "files"
-        ]
-      },
-      "TypeGuardErrorany": {
-        "type": "object",
-        "properties": {
-          "method": {
-            "type": "string"
-          },
-          "path": {
-            "type": "string"
-          },
-          "expected": {
-            "type": "string"
-          },
-          "value": {},
-          "fake_expected_typed_value_": {},
-          "name": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          },
-          "stack": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "method",
-          "expected",
-          "value",
-          "name",
-          "message"
-        ]
-      },
-      "INotFound": {
-        "type": "object",
-        "properties": {
-          "schema": {
-            "type": "string"
-          },
-          "table": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "schema",
-          "table",
-          "id"
-        ]
-      },
-      "IUnprocessableEntity": {
-        "type": "object",
-        "properties": {
-          "reason": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "reason"
-        ]
-      },
-      "IInternalServerError": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          },
-          "stack": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "name",
-          "message",
-          "stack"
-        ]
-      }
-    },
-    "securitySchemes": {
-      "bearer": {
-        "type": "apiKey"
-      }
-    }
-  },
-  "tags": [],
-  "x-samchon-emended": true
-}
+```yaml
+responses:
+  "404":
+    description: "Order does not exist"
+    content:
+      application/json:
+        schema: { $ref: "#/components/schemas/IOrderNotFound" }
 ```
+
+### In the generated SDK (propagation mode)
+
+When you set `propagate: true` in `nestia.config.ts`, the SDK function returns a **discriminated union** that includes branches for each `@TypedException` status. The client can branch on the status code with type narrowing:
+
+```ts
+const out = await api.functional.orders.pay(connection, id, input);
+if (out.success)                  out.data.receiptId;        // IReceipt
+else if (out.status === 404)      out.data.orderId;          // IOrderNotFound
+else if (out.status === 402)      out.data.balance;          // IInsufficientFunds
+else /* 5XX or other */           out.data;                  // unknown
+```
+
+See **[SDK → Propagation Mode](/docs/sdk#propagation-mode)** for the full pattern.
+
+---
+
+## With examples
+
+The object form takes `example` (one) or `examples` (a map of named samples):
+
+```ts copy
+@TypedException<IBadRequest>({
+  status: 400,
+  description: "Invalid payload",
+  example: {
+    code: "INVALID_TITLE",
+    message: "Title must be 3-50 characters",
+  },
+})
+```
+
+Examples appear in Swagger UI as preset payloads.
+
+---
+
+## Range matchers
+
+The status accepts ranges as strings:
+
+| Value   | Matches            |
+| ------- | ------------------ |
+| `"2XX"` | 200-299            |
+| `"3XX"` | 300-399            |
+| `"4XX"` | 400-499            |
+| `"5XX"` | 500-599            |
+| `404`   | exactly 404        |
+
+Use ranges for catch-all schemas (`"5XX"` for "any server error"). Specific codes win over ranges when both are declared.
+
+---
+
+## What it does *not* do
+
+- **Throw the exception for you.** That's still your handler's job (via `throw new HttpException(...)` or returning a NestJS exception).
+- **Validate the response body.** If you throw a body that doesn't match the declared type, the client sees what you sent, not what you declared. Nestia validates `@TypedRoute` *success* responses; error responses are honor-system on the server side.
+- **Change runtime behavior.** Remove every `@TypedException` and your routes still work — you just lose the schema annotations.
+
+---
+
+## See also
+
+- **[Tutorial → Call Your API → handle errors](/docs/tutorial/consume#4-handle-errors)** — the propagation-mode pattern with `@TypedException`.
+- **[Swagger Document](/docs/swagger)** — how the schema reaches OpenAPI.
+- **[SDK Propagation Mode](/docs/sdk#propagation-mode)** — typed error branches in the generated client.

@@ -1,0 +1,106 @@
+---
+title: Concepts · Nestia vs Other Tools
+description: "Where Nestia sits among class-validator, zod, tRPC, ts-rest, and friends. Honest trade-offs, not marketing."
+---
+
+# Nestia vs Other Tools
+
+A short, honest comparison. Pick the tool that fits your project, not the one with the loudest pitch.
+
+---
+
+## Nestia vs `class-validator` + `@nestjs/swagger`
+
+The default NestJS stack.
+
+|                     | NestJS default            | Nestia                       |
+| ------------------- | ------------------------- | ---------------------------- |
+| DTO definition      | Class + decorators        | Plain interface              |
+| Validation source   | Decorator metadata        | TypeScript type              |
+| Validation speed    | Reflective walker         | Inlined predicate (much faster) |
+| OpenAPI source      | Separate decorators       | Same TypeScript type         |
+| SDK generation      | `swagger-codegen` etc., separate step | Built-in (`npx nestia sdk`) |
+| Effort to adopt     | Already there             | Switch decorators, run `nestia setup` |
+| Effort to maintain  | Three places to update per DTO change | One place                |
+
+**Pick Nestia** if you want one source of truth and a generated SDK. **Stay default** if your project is small and you don't want to touch the build pipeline.
+
+---
+
+## Nestia vs `zod`
+
+`zod` is a runtime schema library; you write `z.object(...)` and infer the type from it.
+
+|                  | `zod`                              | Nestia                              |
+| ---------------- | ---------------------------------- | ----------------------------------- |
+| Source of truth  | `z.object` schema, type inferred   | TypeScript type                     |
+| Runtime cost     | Generic walker                     | Specialized predicate               |
+| Build requirement | None                              | `ttsc` (Go 1.26+ on first build)    |
+| OpenAPI generation | Add-on libraries                 | Built in                            |
+| Client SDK       | Hand-written or a separate codegen | Built in                            |
+
+**Pick `zod`** if you want zero build-tool changes, work outside NestJS, or need runtime-built schemas.
+**Pick Nestia** if you want the OpenAPI / SDK / e2e / benchmark loop without bolting on five extra libraries.
+
+---
+
+## Nestia vs `tRPC`
+
+`tRPC` is an excellent choice when client and server share a TypeScript repo and you don't care about REST / OpenAPI.
+
+|                       | `tRPC`                          | Nestia                              |
+| --------------------- | ------------------------------- | ----------------------------------- |
+| Transport             | Custom JSON-RPC over HTTP/WS    | Plain REST                          |
+| OpenAPI               | Add-on, partial                 | First-class                         |
+| Non-TS clients        | Hard                            | Same REST API, codegen any client   |
+| Existing NestJS app   | Big rewrite                     | Swap decorators                     |
+| SDK generation        | Yes (TypeScript only)           | Yes (TypeScript-first, REST anywhere) |
+| Validation source     | `zod` / similar                 | TypeScript type                     |
+
+**Pick `tRPC`** for a greenfield TS-only stack with no need for OpenAPI or non-TS clients.
+**Pick Nestia** when you're on NestJS, want REST, want OpenAPI, or have non-TS clients.
+
+---
+
+## Nestia vs `ts-rest`
+
+`ts-rest` is the closest spiritual cousin — contract-first with type-safe REST.
+
+|                  | `ts-rest`                         | Nestia                              |
+| ---------------- | --------------------------------- | ----------------------------------- |
+| Contract location | Standalone "router" object you import on both sides | The controller IS the contract  |
+| Runtime validation | `zod` (you write the schema)    | Compile-time from TypeScript types  |
+| Client codegen   | Type-only via the imported router | Generated SDK module                |
+| OpenAPI          | Add-on                           | Built-in                            |
+| Mockup simulator | No                               | Yes                                 |
+
+**Pick `ts-rest`** if you like the explicit contract-router pattern.
+**Pick Nestia** if you want zero contract duplication.
+
+---
+
+## Nestia vs `typia`
+
+This one comes up a lot.
+
+- **`typia`** is the underlying validator and JSON utility. It has nothing to do with HTTP.
+- **Nestia** wires `typia` into NestJS — controllers, SDK, Swagger, e2e.
+
+If you're using NestJS, use Nestia (it pulls in typia transparently). If you need a validator outside NestJS — a CLI, a Lambda, a worker — use `typia` directly.
+
+---
+
+## Honest reasons to NOT pick Nestia
+
+- **You can't change the build pipeline.** Nestia requires `ttsc`. If your team has a hard rule against compiler plugins, look elsewhere.
+- **You need Go 1.26+ on the build machine.** CI image bumps are sometimes harder than they sound.
+- **Your project is on the legacy v11 line and you don't want to migrate yet.** That is fine — v11 with `ts-patch` works and is stable.
+- **You're not on NestJS.** Use `typia` for validation and a different tool for the framework layer.
+
+If none of those apply, give the tutorial a shot.
+
+---
+
+## Next
+
+You've seen the landscape. Head back to **[Tutorial → Quick Start](/docs/tutorial/quickstart)** and try it.

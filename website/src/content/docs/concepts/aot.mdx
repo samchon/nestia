@@ -1,0 +1,100 @@
+---
+title: Concepts · AOT Compilation
+description: "Nestia is a compile-time transformer, not a runtime library. This page explains what runs when, and why that distinction matters."
+---
+
+# AOT Compilation
+
+The single sentence: **Nestia generates a validator, serializer, and SDK at build time, not at runtime.**
+
+That is unusual enough to confuse newcomers, so this page unpacks it.
+
+---
+
+## What "AOT" means here
+
+AOT = **Ahead-of-Time**. The opposite of JIT.
+
+Most validation libraries work like this:
+
+```text
+runtime:  payload → walker → schema → result
+```
+
+A generic walker visits each field, looks up the rule in a schema object, and applies it. That walker is small and reusable, but it pays for that flexibility on every request.
+
+Nestia works like this:
+
+```text
+build time: TypeScript types → transformer → specialized JS code
+runtime:    payload → specialized JS code → result
+```
+
+There is no walker. There is no schema object. The compiled JavaScript already contains a hand-shaped function that knows your exact type — `input.title.length >= 3` is written out as a literal expression.
+
+That is also why it is faster (see [Why So Fast](/docs/concepts/why-fast)). The runtime does the absolute minimum: it runs straight-line code with no indirection.
+
+---
+
+## What runs the transformer
+
+The transformer is a **Go binary** shipped inside `@nestia/core`. It plugs into the TypeScript compilation pipeline via `ttsc` — the Go-based TypeScript compiler that supports compile-time plugins.
+
+Two practical consequences:
+
+- **You must use `ttsc`, not `tsc`.** Stock `tsc` has no plugin system, so the transformer never gets a chance to run. `nest build` and `nest start` from `@nestjs/cli` also invoke stock `tsc`, so they skip the transform too. Use `ttsc` and `ttsx` instead — see [Setup → TypeScript-Go](/docs/setup/tsgo).
+- **Go 1.26+ must be available** on first build. The transformer compiles itself from Go source on demand. Subsequent builds use the cached binary.
+
+The legacy `nestia@^11` line used a different mechanism — `ts-patch` patching the JavaScript-based TypeScript compiler — but the **idea** is identical: a transformer reads your types and emits specialized code. The `@next` line just runs that transformer in Go for speed.
+
+---
+
+## What the transformer can see
+
+Anything the TypeScript type-checker can see. The transformer asks the compiler "what is the type at this AST node?" and gets back the fully resolved type — including generics, imports, JSDoc, and computed members. That is why `@TypedBody() input: IPage<IArticle>` works without you registering anything: TypeScript already knows what `IPage<IArticle>` expands to, and Nestia walks that expanded type.
+
+---
+
+## What the transformer can't see
+
+Anything decided at runtime:
+
+- "The type depends on a header value." → no, the type must be statically known at compile time.
+- "Some properties are added by middleware." → middleware runs after validation; declare them in the type or accept that they won't be validated.
+- "I want to validate against a JSON Schema loaded at runtime." → Nestia is the wrong tool for that case. Use `ajv`.
+
+This restriction is what buys the performance, the static guarantees, and the SDK / Swagger generation. It is a deliberate trade.
+
+---
+
+## What gets emitted
+
+For one `@TypedBody()` of type `T`, the transformer emits roughly:
+
+1. An `__is(input)` predicate — fast path, returns boolean.
+2. An `$ao` walker that, on failure, produces a `{ path, expected, value }` error object.
+3. Glue that wires the above into `@nestia/core/native`'s parameter-parsing pipeline.
+
+For one `@TypedRoute.Post()` of return type `T`, it emits:
+
+1. The same validation pair (for the response).
+2. A `stringify` function — a hand-written JSON encoder for `T` that avoids the runtime cost of `JSON.stringify`'s generic recursion.
+3. Glue into NestJS's response pipeline.
+
+You never look at this code in normal use. Curious? Open the `dist/` folder after a build, or read the example in **[Pure TypeScript Types](/docs/concepts/pure-typescript)**.
+
+---
+
+## What the transformer does not change
+
+- **Decorator semantics.** `@Controller`, `@UseGuards`, `@Injectable`, `@Inject` still work exactly as in NestJS. Guards run before validation; interceptors wrap your handler; pipes still apply.
+- **DI container.** NestJS still constructs your controllers via its DI container.
+- **Runtime errors.** Validation failures become NestJS exceptions, so your global exception filter still catches them.
+
+Nestia is additive. It is the **boundary** code — the bit that translates between the wire and your handler — that gets specialized.
+
+---
+
+## Next
+
+See the practical payoff in **[Why So Fast](/docs/concepts/why-fast)**, or skim **[Nestia vs Other Tools](/docs/concepts/vs-others)** to place it among the alternatives.

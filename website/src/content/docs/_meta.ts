@@ -1,20 +1,34 @@
 import { MetaRecord } from "nextra";
 
 export default {
-  // GETTINIG STARTED
+  // GETTING STARTED
   index: "🙋🏻‍♂️ Introduction",
-  pure: "⛲ Pure TypeScript",
+  tutorial: "🚀 Tutorial",
   setup: "📦 Setup",
 
-  // CORE FEATURES
+  // BACKGROUND
+  "-- concepts": {
+    type: "separator",
+    title: "🧠 Concepts",
+  },
+  concepts: "Concepts",
+
+  // FEATURE REFERENCE
   "-- features": {
     type: "separator",
-    title: "📖 Features",
+    title: "📖 Reference",
   },
   core: "Core Library",
   sdk: "S/W Development Kit",
   swagger: "Swagger Document",
   e2e: "E2E Testing",
+
+  // PROBLEM-SOLVING
+  "-- recipes": {
+    type: "separator",
+    title: "🍳 Recipes",
+  },
+  recipes: "Recipes & FAQ",
 
   // APPENDIX
   "-- appendix": {
