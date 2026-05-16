@@ -1,0 +1,103 @@
+---
+title: Guide Documents > Swagger Document > Atlas Cloud Provider
+description: Use Atlas Cloud as an OpenAI-compatible provider for Nestia and Agentica workflows, with a ready-to-open Swagger example for Atlas Cloud chat completions.
+---
+import { Callout } from 'nextra/components'
+
+## Overview
+
+Atlas Cloud is a good fit for Nestia's Swagger-to-AI workflow because its LLM API is OpenAI-compatible. In practice, that means you can keep the same Agentica and OpenAI SDK flow, and only swap the API key, base URL, and model name.
+
+- Official website: [Atlas Cloud](https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=nestia)
+- Official docs: [LLM / Chat](https://www.atlascloud.ai/docs/models/llm)
+- Base URL: `https://api.atlascloud.ai/v1`
+- Chat endpoint: `POST /chat/completions`
+- Verified model for local smoke tests: `deepseek-ai/deepseek-v3.2`
+
+<Callout type="info">
+This guide keeps the integration minimal on purpose: use Atlas Cloud as a drop-in OpenAI-compatible provider, and use the bundled `atlascloud.json` Swagger example with `@nestia/editor`.
+</Callout>
+
+## Editor Example
+
+You can open the bundled Atlas Cloud example in the cloud editor:
+
+```text
+https://nestia.io/editor/?url=https://nestia.io/swaggers/atlascloud.json&package=atlascloud&simulate=true&e2e=true
+```
+
+The bundled Swagger file models the OpenAI-compatible chat completions surface so you can inspect the request schema, generate SDK code, and validate generated typings from the editor.
+
+## Environment Variables
+
+Store Atlas Cloud settings in environment variables:
+
+```bash
+ATLASCLOUD_API_KEY=your-api-key
+ATLASCLOUD_BASE_URL=https://api.atlascloud.ai/v1
+ATLASCLOUD_MODEL=deepseek-ai/deepseek-v3.2
+```
+
+## OpenAI SDK
+
+Atlas Cloud works as a drop-in OpenAI-compatible endpoint:
+
+```typescript
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.ATLASCLOUD_API_KEY,
+  baseURL: process.env.ATLASCLOUD_BASE_URL ?? "https://api.atlascloud.ai/v1",
+});
+
+const completion = await client.chat.completions.create({
+  model: process.env.ATLASCLOUD_MODEL ?? "deepseek-ai/deepseek-v3.2",
+  messages: [
+    { role: "system", content: "You are a helpful assistant." },
+    { role: "user", content: "Explain Nestia in one paragraph." },
+  ],
+});
+
+console.log(completion.choices[0]?.message?.content ?? "");
+```
+
+## Streaming
+
+The same endpoint supports streaming responses:
+
+```typescript
+const stream = await client.chat.completions.create({
+  model: process.env.ATLASCLOUD_MODEL ?? "deepseek-ai/deepseek-v3.2",
+  messages: [{ role: "user", content: "Write a short poem about type safety." }],
+  stream: true,
+});
+
+for await (const chunk of stream) {
+  process.stdout.write(chunk.choices[0]?.delta?.content ?? "");
+}
+```
+
+## Agentica
+
+When building an AI chatbot from a Swagger document, only the provider wiring changes:
+
+```typescript
+import { Agentica } from "@agentica/core";
+import OpenAI from "openai";
+
+const agent = new Agentica({
+  model: "chatgpt",
+  vendor: {
+    api: new OpenAI({
+      apiKey: process.env.ATLASCLOUD_API_KEY,
+      baseURL: process.env.ATLASCLOUD_BASE_URL ?? "https://api.atlascloud.ai/v1",
+    }),
+    model: process.env.ATLASCLOUD_MODEL ?? "deepseek-ai/deepseek-v3.2",
+  },
+  controllers: [
+    await fetch("https://nestia.io/swaggers/atlascloud.json").then((r) => r.json()),
+  ],
+});
+```
+
+If you already have a Nestia-generated Swagger document for your own backend, replace the demo URL with your document and keep the Atlas Cloud provider settings unchanged.

@@ -80,6 +80,7 @@ Check out the document in the [website](https://nestia.io/docs/):
   - Swagger Document
     - [Swagger Builder](https://nestia.io/docs/swagger/)
     - [**AI Chatbot Development**](https://nestia.io/docs/swagger/chat/)
+    - [Atlas Cloud Provider](https://nestia.io/docs/swagger/atlas-cloud/)
     - [Cloud Swagger Editor](https://nestia.io/docs/swagger/editor/)
     - [Documentation Strategy](https://nestia.io/docs/swagger/strategy/)
   - E2E Testing

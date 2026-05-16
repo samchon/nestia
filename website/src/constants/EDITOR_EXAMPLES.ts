@@ -35,6 +35,11 @@ export const EDITOR_EXAMPLES: IAsset[] = [
     swagger:
       "https://raw.githubusercontent.com/samchon/openapi/refs/heads/master/test/examples/v3.0/openai.json",
   },
+  {
+    title: "Atlas Cloud",
+    package: "atlascloud",
+    swagger: "https://nestia.io/swaggers/atlascloud.json",
+  },
 ];
 interface IAsset {
   title: string;
