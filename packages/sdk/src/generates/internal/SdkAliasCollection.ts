@@ -1,5 +1,6 @@
 import { Node, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import { MetadataSchema, TypeFactory } from "@typia/core";
+import { TypeFactory } from "@nestia/factory";
+import { MetadataSchema } from "@nestia/typia-core-legacy";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { IReflectType } from "../../structures/IReflectType";

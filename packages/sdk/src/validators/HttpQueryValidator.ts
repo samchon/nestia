@@ -2,7 +2,7 @@ import {
   MetadataArrayType,
   MetadataFactory,
   MetadataSchema,
-} from "@typia/core";
+} from "@nestia/typia-core-legacy";
 
 export namespace HttpQueryValidator {
   export const validate = (props: {

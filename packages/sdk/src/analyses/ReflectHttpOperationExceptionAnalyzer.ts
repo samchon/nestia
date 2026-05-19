@@ -1,5 +1,5 @@
 import { TypedException } from "@nestia/core";
-import { JsonMetadataFactory } from "@typia/core";
+import { JsonMetadataFactory } from "@nestia/typia-core-legacy";
 
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationException } from "../structures/IReflectHttpOperationException";

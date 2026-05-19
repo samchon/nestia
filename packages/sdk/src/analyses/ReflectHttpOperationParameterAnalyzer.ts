@@ -7,7 +7,7 @@ import {
   HttpParameterProgrammer,
   HttpQueryProgrammer,
   JsonMetadataFactory,
-} from "@typia/core";
+} from "@nestia/typia-core-legacy";
 
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationParameter } from "../structures/IReflectHttpOperationParameter";

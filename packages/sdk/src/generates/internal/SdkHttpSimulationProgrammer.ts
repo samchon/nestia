@@ -1,11 +1,5 @@
 import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import {
-  ExpressionFactory,
-  IdentifierFactory,
-  LiteralFactory,
-  StatementFactory,
-  TypeFactory,
-} from "@typia/core";
+import { ExpressionFactory, IdentifierFactory, LiteralFactory, StatementFactory, TypeFactory } from "@nestia/factory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";

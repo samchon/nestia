@@ -1,17 +1,6 @@
 import { Node, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import {
-  ExpressionFactory,
-  MetadataAliasType,
-  MetadataArray,
-  MetadataAtomic,
-  MetadataConstantValue,
-  MetadataEscaped,
-  MetadataObjectType,
-  MetadataProperty,
-  MetadataSchema,
-  MetadataTuple,
-  TypeFactory,
-} from "@typia/core";
+import { ExpressionFactory, TypeFactory } from "@nestia/factory";
+import { MetadataAliasType, MetadataArray, MetadataAtomic, MetadataConstantValue, MetadataEscaped, MetadataObjectType, MetadataProperty, MetadataSchema, MetadataTuple } from "@nestia/typia-core-legacy";
 import { NamingConvention } from "@typia/utils";
 import { IJsDocTagInfo, IMetadataTypeTag } from "typia";
 

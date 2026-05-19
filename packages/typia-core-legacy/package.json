@@ -1,0 +1,74 @@
+{
+  "name": "@nestia/typia-core-legacy",
+  "version": "12.1.1",
+  "description": "Vendored typia v12 runtime helpers used by @nestia/sdk for metadata-to-schema conversion until that responsibility moves into the typia Go transform.",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.mjs",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/typia"
+  },
+  "author": "Jeongho Nam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samchon/typia/issues"
+  },
+  "homepage": "https://typia.io",
+  "dependencies": {
+    "@typia/interface": "catalog:samchon",
+    "@typia/utils": "catalog:samchon"
+  },
+  "sideEffects": false,
+  "files": [
+    "README.md",
+    "package.json",
+    "lib",
+    "src"
+  ],
+  "keywords": [
+    "fast",
+    "json",
+    "stringify",
+    "typescript",
+    "transform",
+    "ajv",
+    "io-ts",
+    "zod",
+    "schema",
+    "json-schema",
+    "generator",
+    "assert",
+    "clone",
+    "is",
+    "validate",
+    "equal",
+    "runtime",
+    "type",
+    "typebox",
+    "checker",
+    "validator",
+    "safe",
+    "parse",
+    "prune",
+    "random",
+    "protobuf",
+    "llm",
+    "llm-function-calling",
+    "structured-output",
+    "openai",
+    "chatgpt",
+    "claude",
+    "gemini",
+    "llama"
+  ],
+  "module": "lib/index.mjs",
+  "types": "lib/index.d.ts",
+  "private": true
+}

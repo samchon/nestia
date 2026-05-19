@@ -4,7 +4,7 @@ import {
   HTTP_CODE_METADATA,
   INTERCEPTORS_METADATA,
 } from "@nestjs/common/constants";
-import { HttpQueryProgrammer, JsonMetadataFactory } from "@typia/core";
+import { HttpQueryProgrammer, JsonMetadataFactory } from "@nestia/typia-core-legacy";
 
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperationSuccess";

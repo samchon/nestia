@@ -7,7 +7,7 @@ import {
   MetadataObjectType,
   MetadataSchema,
   MetadataTupleType,
-} from "@typia/core";
+} from "@nestia/typia-core-legacy";
 import { NamingConvention } from "@typia/utils";
 import { IMetadataComponents, IMetadataSchema } from "typia";
 

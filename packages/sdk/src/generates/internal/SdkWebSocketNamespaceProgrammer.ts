@@ -1,5 +1,5 @@
 import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import { ExpressionFactory, IdentifierFactory, TypeFactory } from "@typia/core";
+import { ExpressionFactory, IdentifierFactory, TypeFactory } from "@nestia/factory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedWebSocketRoute } from "../../structures/ITypedWebSocketRoute";

@@ -1,4 +1,4 @@
-import { MetadataSchema } from "@typia/core";
+import { MetadataSchema } from "@nestia/typia-core-legacy";
 
 export namespace TextPlainValidator {
   export const validate = (props: { metadata: MetadataSchema }): string[] => {

@@ -43,7 +43,14 @@
     "type": "git",
     "url": "https://github.com/samchon/nestia"
   },
-  "keywords": ["nestia", "sdk", "swagger", "generator", "nestjs", "typia"],
+  "keywords": [
+    "nestia",
+    "sdk",
+    "swagger",
+    "generator",
+    "nestjs",
+    "typia"
+  ],
   "author": "Jeongho Nam",
   "license": "MIT",
   "bugs": {
@@ -54,7 +61,6 @@
     "@nestia/core": "workspace:^",
     "@nestia/factory": "workspace:^",
     "@nestia/fetcher": "workspace:^",
-    "@typia/core": "catalog:samchon",
     "@typia/interface": "catalog:samchon",
     "@typia/utils": "catalog:samchon",
     "get-function-location": "^2.0.0",
@@ -63,7 +69,8 @@
     "prettier": "catalog:typescript",
     "ttsc": "catalog:typescript",
     "tstl": "catalog:samchon",
-    "typia": "catalog:samchon"
+    "typia": "catalog:samchon",
+    "@nestia/typia-core-legacy": "workspace:^"
   },
   "peerDependencies": {
     "@nestia/core": "workspace:^"
@@ -76,7 +83,14 @@
     "@types/node": "catalog:utils",
     "rimraf": "catalog:utils"
   },
-  "files": ["assets", "lib", "src", "README.md", "LICENSE", "package.json"],
+  "files": [
+    "assets",
+    "lib",
+    "src",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
   "publishConfig": {
     "access": "public",
     "types": "lib/index.d.ts",

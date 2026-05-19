@@ -1,4 +1,4 @@
-import { JsonSchemasProgrammer } from "@typia/core";
+import { JsonSchemasProgrammer } from "@nestia/typia-core-legacy";
 import { OpenApi } from "@typia/interface";
 import { VariadicSingleton } from "tstl";
 import { IJsDocTagInfo, IJsonSchemaCollection } from "typia";

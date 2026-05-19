@@ -1,5 +1,5 @@
 import { SwaggerCustomizer } from "@nestia/core";
-import { JsonSchemasProgrammer, MetadataSchema } from "@typia/core";
+import { JsonSchemasProgrammer, MetadataSchema } from "@nestia/typia-core-legacy";
 import {
   OpenApi,
   OpenApiV3,

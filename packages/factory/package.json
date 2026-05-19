@@ -14,28 +14,39 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rimraf lib && tsc && rollup -c",
-    "dev": "rimraf lib && tsc --watch",
+    "build": "rimraf lib && ttsc && rollup -c",
+    "dev": "rimraf lib && ttsc --watch",
     "prepack": "pnpm run build"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/samchon/nestia"
   },
-  "keywords": ["nestia", "factory"],
+  "keywords": [
+    "nestia",
+    "factory"
+  ],
   "author": "Jeongho Nam",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/samchon/nestia/issues"
   },
   "homepage": "https://nestia.io",
+  "dependencies": {
+    "@typia/utils": "catalog:samchon"
+  },
   "devDependencies": {
-    "@rollup/plugin-typescript": "catalog:rollup",
     "rimraf": "catalog:utils",
     "rollup": "catalog:rollup",
-    "typescript": "catalog:typescript"
+    "@rollup/plugin-typescript": "catalog:rollup"
   },
-  "files": ["README.md", "LICENSE", "package.json", "lib", "src"],
+  "files": [
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "lib",
+    "src"
+  ],
   "publishConfig": {
     "access": "public",
     "types": "lib/index.d.ts",

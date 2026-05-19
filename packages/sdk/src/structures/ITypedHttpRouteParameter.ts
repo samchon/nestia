@@ -1,4 +1,4 @@
-import { MetadataSchema } from "@typia/core";
+import { MetadataSchema } from "@nestia/typia-core-legacy";
 import { IJsDocTagInfo } from "typia";
 
 import { IReflectType } from "./IReflectType";

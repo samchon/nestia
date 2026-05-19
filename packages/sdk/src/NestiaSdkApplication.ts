@@ -1,4 +1,4 @@
-import { IMetadataDictionary } from "@typia/core";
+import { IMetadataDictionary } from "@nestia/typia-core-legacy";
 import fs from "fs";
 import path from "path";
 import { HashSet, Pair, TreeMap } from "tstl";
