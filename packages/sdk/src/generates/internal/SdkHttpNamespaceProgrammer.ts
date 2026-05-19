@@ -10,6 +10,7 @@ import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkHttpSimulationProgrammer } from "./SdkHttpSimulationProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
+import { sizeOf } from "../../internal/legacy";
 
 export namespace SdkHttpNamespaceProgrammer {
   export const write =
@@ -80,7 +81,7 @@ export namespace SdkHttpNamespaceProgrammer {
         declare("Body", SdkAliasCollection.body(project)(importer)(route.body));
       if (
         project.config.propagate === true ||
-        route.success.metadata.size() !== 0
+        sizeOf(route.success.metadata) !== 0
       )
         declare(
           "Output",
@@ -404,7 +405,7 @@ export namespace SdkHttpNamespaceProgrammer {
       if (route.queryObject !== null && route.queryParameters.length === 0)
         return out(
           block(
-            route.queryObject.metadata.isRequired() === false
+            route.queryObject.metadata.required === false
               ? TypeScriptFactory.createBinaryExpression(
                   TypeScriptFactory.createIdentifier(route.queryObject.name),
                   TypeScriptFactory.createToken(

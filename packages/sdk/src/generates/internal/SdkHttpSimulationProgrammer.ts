@@ -7,6 +7,7 @@ import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
+import { sizeOf } from "../../internal/legacy";
 
 export namespace SdkHttpSimulationProgrammer {
   export const random =
@@ -46,7 +47,7 @@ export namespace SdkHttpSimulationProgrammer {
     (route: ITypedHttpRoute): Node => {
       const output: boolean =
         project.config.propagate === true ||
-        route.success.metadata.size() !== 0;
+        sizeOf(route.success.metadata) !== 0;
       const caller = () =>
         TypeScriptFactory.createCallExpression(
           TypeScriptFactory.createIdentifier("random"),

@@ -1,5 +1,5 @@
 import { TypedException } from "@nestia/core";
-import { JsonMetadataFactory } from "@nestia/typia-core-legacy";
+import { JsonMetadataFactory } from "../internal/legacy";
 
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationException } from "../structures/IReflectHttpOperationException";
@@ -56,7 +56,20 @@ export namespace ReflectHttpOperationExceptionAnalyzer {
           .success
           ? matched.primitive.data
           : null;
-        if (schema === null || matched.type === null) return null; // unreachable
+        if (matched.primitive.success === false) {
+          errors.push({
+            file: ctx.controller.file,
+            class: ctx.controller.class.name,
+            function: ctx.functionName,
+            from: `exception (status: ${pre.status})`,
+            contents: matched.primitive.errors.map((e) => ({
+              name: e.name,
+              accessor: e.accessor,
+              messages: e.messages,
+            })),
+          });
+        }
+        if (schema === null || matched.type === null) return null;
         return {
           status: pre.status,
           description: pre.description ?? null,

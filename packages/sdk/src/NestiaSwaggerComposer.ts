@@ -1,5 +1,5 @@
 import { INestApplication } from "@nestjs/common";
-import { IMetadataDictionary } from "@nestia/typia-core-legacy";
+import { IMetadataDictionary } from "./internal/legacy";
 import { OpenApiV3, OpenApiV3_1, SwaggerV2 } from "@typia/interface";
 import { OpenApiConverter } from "@typia/utils";
 import path from "path";

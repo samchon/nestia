@@ -1,4 +1,4 @@
-import { IMetadataDictionary } from "@nestia/typia-core-legacy";
+import { IMetadataDictionary } from "../internal/legacy";
 
 import { INestiaProject } from "./INestiaProject";
 import { ITypedHttpRoute } from "./ITypedHttpRoute";

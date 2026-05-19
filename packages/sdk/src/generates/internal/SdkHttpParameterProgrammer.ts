@@ -57,7 +57,7 @@ export namespace SdkHttpParameterProgrammer {
       ...[...props.route.pathParameters, ...props.route.queryParameters].map(
         (p) => ({
           key: p.name,
-          required: p.metadata.isRequired(),
+          required: p.metadata.required,
           type:
             props.project.config.clone === true
               ? SdkAliasCollection.from(props.project)(props.importer)(
@@ -71,7 +71,7 @@ export namespace SdkHttpParameterProgrammer {
         ? [
             {
               key: props.route.queryObject.name,
-              required: props.route.queryObject.metadata.isRequired(),
+              required: props.route.queryObject.metadata.required,
               type:
                 props.e2e === true
                   ? props.project.config.clone === true
@@ -88,7 +88,7 @@ export namespace SdkHttpParameterProgrammer {
         ? [
             {
               key: props.route.body.name,
-              required: props.route.body.metadata.isRequired(),
+              required: props.route.body.metadata.required,
               type:
                 props.e2e === true
                   ? props.project.config.clone === true

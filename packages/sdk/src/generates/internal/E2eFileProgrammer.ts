@@ -177,7 +177,7 @@ export namespace E2eFileProgrammer {
                   "output",
                   undefined,
                   project.config.propagate !== true &&
-                    route.success.type.name === "void"
+                    route.success.type!.name === "void"
                     ? undefined
                     : SdkAliasCollection.response(project)(importer)(route),
                   TypeScriptFactory.createAwaitExpression(fetch),

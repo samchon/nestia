@@ -1,4 +1,4 @@
-import { MetadataFactory } from "@nestia/typia-core-legacy";
+import { MetadataFactory } from "../internal/legacy";
 import {
   IJsDocTagInfo,
   IMetadataComponents,

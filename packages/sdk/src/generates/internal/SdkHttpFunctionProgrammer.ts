@@ -8,6 +8,7 @@ import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
+import { sizeOf } from "../../internal/legacy";
 
 export namespace SdkHttpFunctionProgrammer {
   export const write =
@@ -46,7 +47,7 @@ export namespace SdkHttpFunctionProgrammer {
         ],
         TypeScriptFactory.createTypeReferenceNode("Promise", [
           project.config.propagate === true ||
-          route.success.metadata.size() !== 0
+          sizeOf(route.success.metadata) !== 0
             ? TypeScriptFactory.createTypeReferenceNode(`${route.name}.Output`)
             : TypeScriptFactory.createTypeReferenceNode("void"),
         ]),
