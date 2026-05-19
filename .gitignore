@@ -3,6 +3,7 @@ lib/
 node_modules/
 
 .discussions/
+.ttsc-cache/
 .wiki/
 
 packages/openapi
@@ -17,4 +18,3 @@ packages/*/README.md
 package-lock.json
 *.log
 .env
-.ttsc-cache/
