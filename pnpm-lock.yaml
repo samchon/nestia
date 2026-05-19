@@ -41,43 +41,25 @@ catalogs:
       specifier: ^8.1.2
       version: 8.1.2
   samchon:
-    '@typia/core':
-      specifier: 12.1.1
-      version: 12.1.1
-    '@typia/interface':
-      specifier: 13.0.0-dev.20260514
-      version: 13.0.0-dev.20260514
-    '@typia/utils':
-      specifier: 13.0.0-dev.20260514
-      version: 13.0.0-dev.20260514
     tgrid:
       specifier: ^1.2.1
       version: 1.2.1
     tstl:
       specifier: ^3.0.0
       version: 3.0.0
-    typia:
-      specifier: 13.0.0-dev.20260514
-      version: 13.0.0-dev.20260514
   typescript:
     '@trivago/prettier-plugin-sort-imports':
       specifier: ^4.3.0
       version: 4.3.0
     '@typescript/native-preview':
-      specifier: 7.0.0-dev.20260505.1
-      version: 7.0.0-dev.20260505.1
+      specifier: 7.0.0-dev.20260518.1
+      version: 7.0.0-dev.20260518.1
     prettier:
       specifier: ^3.8.1
       version: 3.8.1
     prettier-plugin-jsdoc:
       specifier: ^1.8.0
       version: 1.8.0
-    ttsc:
-      specifier: ^0.10.2
-      version: 0.10.2
-    typescript:
-      specifier: ~6.0.3
-      version: 6.0.3
   utils:
     '@types/node':
       specifier: ^25.3.3
@@ -92,6 +74,28 @@ catalogs:
       specifier: ^13.0.0
       version: 13.0.0
 
+overrides:
+  ttsc: file:./vendor/ttsc.tgz
+  '@ttsc/darwin-arm64': file:./vendor/ttsc-darwin-arm64.tgz
+  '@ttsc/darwin-x64': file:./vendor/ttsc-darwin-x64.tgz
+  '@ttsc/linux-arm': file:./vendor/ttsc-linux-arm.tgz
+  '@ttsc/linux-arm64': file:./vendor/ttsc-linux-arm64.tgz
+  '@ttsc/linux-x64': file:./vendor/ttsc-linux-x64.tgz
+  '@ttsc/win32-arm64': file:./vendor/ttsc-win32-arm64.tgz
+  '@ttsc/win32-x64': file:./vendor/ttsc-win32-x64.tgz
+  '@ttsc/banner': file:./vendor/banner.tgz
+  '@ttsc/lint': file:./vendor/lint.tgz
+  '@ttsc/paths': file:./vendor/paths.tgz
+  '@ttsc/strip': file:./vendor/strip.tgz
+  '@ttsc/unplugin': file:./vendor/unplugin.tgz
+  '@ttsc/wasm': file:./vendor/wasm.tgz
+  typia: file:./vendor/typia.tgz
+  '@typia/interface': file:./vendor/interface.tgz
+  '@typia/utils': file:./vendor/utils.tgz
+  '@typia/langchain': file:./vendor/langchain.tgz
+  '@typia/mcp': file:./vendor/mcp.tgz
+  '@typia/vercel': file:./vendor/vercel.tgz
+
 importers:
 
   .:
@@ -104,7 +108,7 @@ importers:
         version: ts-expose-internals@5.4.5
       '@typescript/native-preview':
         specifier: catalog:typescript
-        version: 7.0.0-dev.20260505.1
+        version: 7.0.0-dev.20260518.1
       bumpp:
         specifier: ^10.4.1
         version: 10.4.1
@@ -121,11 +125,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.2
       ttsc:
-        specifier: catalog:typescript
-        version: 0.10.2
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
+        specifier: file:vendor/ttsc.tgz
+        version: file:vendor/ttsc.tgz
 
   benchmark:
     dependencies:
@@ -178,8 +179,8 @@ importers:
         specifier: catalog:samchon
         version: 3.0.0
       typia:
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../vendor/typia.tgz
+        version: file:vendor/typia.tgz
     devDependencies:
       '@types/autocannon':
         specifier: ^7.9.0
@@ -200,11 +201,8 @@ importers:
         specifier: catalog:utils
         version: 6.1.3
       ttsc:
-        specifier: catalog:typescript
-        version: 0.10.2
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
+        specifier: file:../vendor/ttsc.tgz
+        version: file:vendor/ttsc.tgz
 
   packages/benchmark:
     dependencies:
@@ -224,9 +222,6 @@ importers:
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
 
   packages/cli:
     devDependencies:
@@ -242,24 +237,18 @@ importers:
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
 
   packages/core:
     dependencies:
       '@nestia/fetcher':
         specifier: workspace:^
         version: link:../fetcher
-      '@typia/core':
-        specifier: catalog:samchon
-        version: 12.1.1
       '@typia/interface':
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/interface.tgz
+        version: file:vendor/interface.tgz
       '@typia/utils':
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/utils.tgz
+        version: file:vendor/utils.tgz
       get-function-location:
         specifier: ^2.0.0
         version: 2.0.0
@@ -282,8 +271,8 @@ importers:
         specifier: ^1.1.0
         version: 1.2.1
       typia:
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/typia.tgz
+        version: file:vendor/typia.tgz
       ws:
         specifier: ^7.5.3
         version: 7.5.10
@@ -308,10 +297,7 @@ importers:
         version: 8.18.1
       '@typescript/native-preview':
         specifier: catalog:typescript
-        version: 7.0.0-dev.20260505.1
-      eslint-plugin-deprecation:
-        specifier: ^1.4.1
-        version: 1.6.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
+        version: 7.0.0-dev.20260518.1
       fastify:
         specifier: ^4.28.1
         version: 4.29.1
@@ -322,8 +308,8 @@ importers:
         specifier: catalog:samchon
         version: 3.0.0
       ttsc:
-        specifier: catalog:typescript
-        version: 0.10.2
+        specifier: file:../../vendor/ttsc.tgz
+        version: file:vendor/ttsc.tgz
 
   packages/e2e:
     devDependencies:
@@ -333,9 +319,6 @@ importers:
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
 
   packages/editor:
     dependencies:
@@ -349,8 +332,8 @@ importers:
         specifier: ^1.11.0
         version: 1.11.0
       '@typia/interface':
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/interface.tgz
+        version: file:vendor/interface.tgz
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.1
@@ -361,8 +344,8 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/icons-material@5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(prop-types@15.8.1)
       typia:
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/typia.tgz
+        version: file:vendor/typia.tgz
     devDependencies:
       '@eslint/js':
         specifier: ^9.13.0
@@ -421,17 +404,15 @@ importers:
       rollup:
         specifier: catalog:rollup
         version: 4.59.0
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
-      typescript-eslint:
-        specifier: ^8.10.0
-        version: 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
       vite:
         specifier: ^5.4.9
         version: 5.4.21(@types/node@25.3.3)(terser@5.46.0)
 
   packages/factory:
+    dependencies:
+      '@typia/utils':
+        specifier: file:../../vendor/utils.tgz
+        version: file:vendor/utils.tgz
     devDependencies:
       '@rollup/plugin-typescript':
         specifier: catalog:rollup
@@ -442,18 +423,15 @@ importers:
       rollup:
         specifier: catalog:rollup
         version: 4.59.0
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
 
   packages/fetcher:
     dependencies:
       '@typia/interface':
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/interface.tgz
+        version: file:vendor/interface.tgz
       '@typia/utils':
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/utils.tgz
+        version: file:vendor/utils.tgz
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: catalog:rollup
@@ -482,9 +460,6 @@ importers:
       tinyglobby:
         specifier: ^0.2.16
         version: 0.2.16
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
 
   packages/migrate:
     dependencies:
@@ -494,15 +469,12 @@ importers:
       '@trivago/prettier-plugin-sort-imports':
         specifier: catalog:typescript
         version: 4.3.0(prettier@3.8.1)
-      '@typia/core':
-        specifier: catalog:samchon
-        version: 12.1.1
       '@typia/interface':
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/interface.tgz
+        version: file:vendor/interface.tgz
       '@typia/utils':
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/utils.tgz
+        version: file:vendor/utils.tgz
       commander:
         specifier: 10.0.0
         version: 10.0.0
@@ -518,12 +490,9 @@ importers:
       tstl:
         specifier: catalog:samchon
         version: 3.0.0
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
       typia:
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/typia.tgz
+        version: file:vendor/typia.tgz
     devDependencies:
       '@rollup/plugin-terser':
         specifier: catalog:rollup
@@ -558,15 +527,15 @@ importers:
       '@nestia/fetcher':
         specifier: workspace:^
         version: link:../fetcher
-      '@typia/core':
-        specifier: catalog:samchon
-        version: 12.1.1
+      '@nestia/typia-core-legacy':
+        specifier: workspace:^
+        version: link:../typia-core-legacy
       '@typia/interface':
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/interface.tgz
+        version: file:vendor/interface.tgz
       '@typia/utils':
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/utils.tgz
+        version: file:vendor/utils.tgz
       get-function-location:
         specifier: ^2.0.0
         version: 2.0.0
@@ -583,11 +552,11 @@ importers:
         specifier: catalog:samchon
         version: 3.0.0
       ttsc:
-        specifier: catalog:typescript
-        version: 0.10.2
+        specifier: file:../../vendor/ttsc.tgz
+        version: file:vendor/ttsc.tgz
       typia:
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/typia.tgz
+        version: file:vendor/typia.tgz
     devDependencies:
       '@nestjs/common':
         specifier: catalog:nestjs
@@ -603,10 +572,19 @@ importers:
         version: 25.3.3
       '@typescript/native-preview':
         specifier: catalog:typescript
-        version: 7.0.0-dev.20260505.1
+        version: 7.0.0-dev.20260518.1
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
+
+  packages/typia-core-legacy:
+    dependencies:
+      '@typia/interface':
+        specifier: file:../../vendor/interface.tgz
+        version: file:vendor/interface.tgz
+      '@typia/utils':
+        specifier: file:../../vendor/utils.tgz
+        version: file:vendor/utils.tgz
 
   tests/test-benchmark:
     dependencies:
@@ -632,8 +610,8 @@ importers:
         specifier: catalog:nestjs
         version: 11.1.15(@nestjs/common@11.1.15(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.15)
       typia:
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/typia.tgz
+        version: file:vendor/typia.tgz
       uuid:
         specifier: catalog:utils
         version: 13.0.0
@@ -654,11 +632,8 @@ importers:
         specifier: workspace:^
         version: link:../../packages/cli
       ttsc:
-        specifier: catalog:typescript
-        version: 0.10.2
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
+        specifier: file:../../vendor/ttsc.tgz
+        version: file:vendor/ttsc.tgz
 
   tests/test-e2e:
     dependencies:
@@ -669,18 +644,15 @@ importers:
         specifier: workspace:^
         version: link:../../packages/fetcher
       typia:
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/typia.tgz
+        version: file:vendor/typia.tgz
     devDependencies:
       '@types/node':
         specifier: catalog:utils
         version: 25.3.3
       ttsc:
-        specifier: catalog:typescript
-        version: 0.10.2
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
+        specifier: file:../../vendor/ttsc.tgz
+        version: file:vendor/ttsc.tgz
 
   tests/test-migrate:
     dependencies:
@@ -715,8 +687,8 @@ importers:
         specifier: ^4.1.8
         version: 4.1.8
       '@typia/interface':
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/interface.tgz
+        version: file:vendor/interface.tgz
       chalk:
         specifier: 4.1.2
         version: 4.1.2
@@ -751,8 +723,8 @@ importers:
         specifier: catalog:samchon
         version: 3.0.0
       typia:
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/typia.tgz
+        version: file:vendor/typia.tgz
     devDependencies:
       '@nestia/sdk':
         specifier: workspace:^
@@ -771,16 +743,13 @@ importers:
         version: 25.3.3
       '@typescript/native-preview':
         specifier: catalog:typescript
-        version: 7.0.0-dev.20260505.1
+        version: 7.0.0-dev.20260518.1
       nestia:
         specifier: workspace:^
         version: link:../../packages/cli
       ttsc:
-        specifier: catalog:typescript
-        version: 0.10.2
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
+        specifier: file:../../vendor/ttsc.tgz
+        version: file:vendor/ttsc.tgz
 
   tests/test-sdk:
     dependencies:
@@ -812,14 +781,11 @@ importers:
         specifier: ^11.2.6
         version: 11.2.6(@nestjs/common@11.1.15(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.15)(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)
       '@typia/interface':
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/interface.tgz
+        version: file:vendor/interface.tgz
       '@typia/utils':
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
-      embed-typescript:
-        specifier: ^1.1.0
-        version: 1.3.2(typescript@6.0.3)
+        specifier: file:../../vendor/utils.tgz
+        version: file:vendor/utils.tgz
       express:
         specifier: ^4.21.1
         version: 4.22.1
@@ -839,8 +805,8 @@ importers:
         specifier: catalog:samchon
         version: 3.0.0
       typia:
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/typia.tgz
+        version: file:vendor/typia.tgz
       uuid:
         specifier: catalog:utils
         version: 13.0.0
@@ -867,20 +833,8 @@ importers:
         specifier: workspace:^
         version: link:../../packages/cli
       ttsc:
-        specifier: catalog:typescript
-        version: 0.10.2
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
-
-  tests/test-syntaxkind-parity:
-    dependencies:
-      '@nestia/factory':
-        specifier: workspace:^
-        version: link:../../packages/factory
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
+        specifier: file:../../vendor/ttsc.tgz
+        version: file:vendor/ttsc.tgz
 
   tests/test-transform-options:
     dependencies:
@@ -894,8 +848,8 @@ importers:
         specifier: catalog:nestjs
         version: 11.1.15(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       typia:
-        specifier: catalog:samchon
-        version: 13.0.0-dev.20260514
+        specifier: file:../../vendor/typia.tgz
+        version: file:vendor/typia.tgz
     devDependencies:
       '@types/node':
         specifier: catalog:utils
@@ -904,11 +858,8 @@ importers:
         specifier: catalog:utils
         version: 6.1.3
       ttsc:
-        specifier: catalog:typescript
-        version: 0.10.2
-      typescript:
-        specifier: catalog:typescript
-        version: 6.0.3
+        specifier: file:../../vendor/ttsc.tgz
+        version: file:vendor/ttsc.tgz
 
 packages:
 
@@ -1533,18 +1484,6 @@ packages:
       class-validator:
         optional: true
 
-  '@nodelib/fs.scandir@2.1.5':
-    resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
-    engines: {node: '>= 8'}
-
-  '@nodelib/fs.stat@2.0.5':
-    resolution: {integrity: sha512-RkhPPp2zrqDAQA/2jNhnztcPAlv64XdhIp7a7454A5ovI7Bukxgt7MX7udwAu3zg1DcpPU0rz3VV1SeaqvY4+A==}
-    engines: {node: '>= 8'}
-
-  '@nodelib/fs.walk@1.2.8':
-    resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
-    engines: {node: '>= 8'}
-
   '@nuxt/opencollective@0.4.1':
     resolution: {integrity: sha512-GXD3wy50qYbxCJ652bDrDzgMr3NFEkIS374+IgFQKkCvk9yiYcLvX2XDYr7UyQxf4wK0e+yqDYRubZ0DtOxnmQ==}
     engines: {node: ^14.18.0 || >=16.10.0, npm: '>=5.10.0'}
@@ -1762,39 +1701,39 @@ packages:
       '@vue/compiler-sfc':
         optional: true
 
-  '@ttsc/darwin-arm64@0.10.2':
-    resolution: {integrity: sha512-QA1uIYRK1MP8I3jcnEz5yhgfGS4KeyO22Rlet8DHdAlSDGF4NbR674hKqmE/FUm6TLLD1HEPzq1QP2Fs+a1/sg==}
-    cpu: [arm64]
+  '@ttsc/darwin-arm64@file:vendor/ttsc-darwin-arm64.tgz':
+    resolution: {integrity: sha512-QEReWkGadnK2W/VgdZy+HeUhxAgwkn3Jph6O8hybpJSvSa5SLbB3iPnfCHacheN/PWWVCpQ+JB9K8ZmU/mCgHw==, tarball: file:vendor/ttsc-darwin-arm64.tgz}
+    version: 0.12.3
     os: [darwin]
 
-  '@ttsc/darwin-x64@0.10.2':
-    resolution: {integrity: sha512-FzzDlspRjMs1bMcAwltcZ4XYxHy3Y6dNIsxoTH8qJR67HkuDC+wSZet7HGdKm6heOrn42OiVXzV6ecikJ5BQRA==}
-    cpu: [x64]
+  '@ttsc/darwin-x64@file:vendor/ttsc-darwin-x64.tgz':
+    resolution: {integrity: sha512-aJjb7PWpW5TdfxQ/4ubCwOaYPlx6oe6cZhgnILbPqy3U6hWlZ4RQY85QJhxpF8uBirV81hifKIyUx7rrrq8KhA==, tarball: file:vendor/ttsc-darwin-x64.tgz}
+    version: 0.12.3
     os: [darwin]
 
-  '@ttsc/linux-arm64@0.10.2':
-    resolution: {integrity: sha512-CFnVuzxpdw9iZ94hmjZ7qRhvpJQYTVm16OoXO8prxYpiJJgE42UxY4RoqzlQVX7tlz94k0JNCIlhrF2mOGyfeQ==}
-    cpu: [arm64]
+  '@ttsc/linux-arm64@file:vendor/ttsc-linux-arm64.tgz':
+    resolution: {integrity: sha512-EwyAJB/No4Ng/fNIPUVvbCxwvAPnnzTs9DRReU6x6qmYsrIESidnF/tQFhUjKJFZ2oPk4vjpRXfHoPmjks8k4A==, tarball: file:vendor/ttsc-linux-arm64.tgz}
+    version: 0.12.3
     os: [linux]
 
-  '@ttsc/linux-arm@0.10.2':
-    resolution: {integrity: sha512-YtJ7tkAvVqK8E45oyNiROkA1gCALSsenjdrcRO1rbTpyhFkS8XQdlPIYjOQNnNk4C/5uSrvvnMTQ4I/awOU4Pw==}
-    cpu: [arm]
+  '@ttsc/linux-arm@file:vendor/ttsc-linux-arm.tgz':
+    resolution: {integrity: sha512-qGV0iFiX2Wui8/zVa6tAtHEztmKvmIo6CGbYTP5YOEOrH5PFpcbIHS+FMeDO6eYMN3igvL/3+EdQQj+IGM3HmQ==, tarball: file:vendor/ttsc-linux-arm.tgz}
+    version: 0.12.3
     os: [linux]
 
-  '@ttsc/linux-x64@0.10.2':
-    resolution: {integrity: sha512-jZUO0cbRafgVgbI39xhVLNfd0Ki4MjYYoBdgSLUS3O1TQDvKGjDBNwpw9vCVaiU1cQIzzLnpfU3HGnpNAAmv/Q==}
-    cpu: [x64]
+  '@ttsc/linux-x64@file:vendor/ttsc-linux-x64.tgz':
+    resolution: {integrity: sha512-4hAswBQe3ZDq3pSkA6ElVvyKhRMP4zhhgBWb4nwasQAHbGwnLOuk2CykzCWy19WnIhKZTbDhDWcfZE7LkEyjGw==, tarball: file:vendor/ttsc-linux-x64.tgz}
+    version: 0.12.3
     os: [linux]
 
-  '@ttsc/win32-arm64@0.10.2':
-    resolution: {integrity: sha512-3PmZZgtU8P+eepejKkNwDpUL+5RZ7mOIXkhKCfUrbdFpyCSDFvmTQc+NA3U7LBxG9RpxYYl/5afHZViqIVwsZw==}
-    cpu: [arm64]
+  '@ttsc/win32-arm64@file:vendor/ttsc-win32-arm64.tgz':
+    resolution: {integrity: sha512-8z00gMoPF2kriOvdHvPGI8WDAb52h7xhjjtwJnOHx168OsetJUQJWqgF/u1sU5Wsh3gYU0xtu4X+G3e6jrYGbA==, tarball: file:vendor/ttsc-win32-arm64.tgz}
+    version: 0.12.3
     os: [win32]
 
-  '@ttsc/win32-x64@0.10.2':
-    resolution: {integrity: sha512-zUypP5i3IvuElpDwRbhvYNsrkhGGAYwm6yitVg3+Pi1nqqNfZ2lpEO8n+tmRGBi1LgNgLb+sPLi5ibsFOuDO7Q==}
-    cpu: [x64]
+  '@ttsc/win32-x64@file:vendor/ttsc-win32-x64.tgz':
+    resolution: {integrity: sha512-Btzv2oUXbvfu0UwHvzgV0i9JUTzs8MKQp6fYSnKnOX93QkUT12o4FW5w5sGVFf6iaLaV3ehahQmTjYHL/YXChQ==, tarball: file:vendor/ttsc-win32-x64.tgz}
+    version: 0.12.3
     os: [win32]
 
   '@types/autocannon@7.12.7':
@@ -1990,9 +1929,6 @@ packages:
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
 
-  '@types/semver@7.7.1':
-    resolution: {integrity: sha512-FmgJfu+MOcQ370SD0ev7EI8TlCAfKYU+B4m5T3yXc1CiRN94g/SZPtsCkk506aUDtlMnFZvasDwHHUcZUEaYuA==}
-
   '@types/send@0.17.6':
     resolution: {integrity: sha512-Uqt8rPBE8SY0RK8JB1EzVOIZ32uqy8HwdxCnoCOsYrvnswqmFZ/k+9Ikidlk/ImhsdvBsloHbAlewb2IEBV/Og==}
 
@@ -2030,159 +1966,60 @@ packages:
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
-  '@typescript-eslint/eslint-plugin@8.56.1':
-    resolution: {integrity: sha512-Jz9ZztpB37dNC+HU2HI28Bs9QXpzCz+y/twHOwhyrIRdbuVDxSytJNDl6z/aAKlaRIwC7y8wJdkBv7FxYGgi0A==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      '@typescript-eslint/parser': ^8.56.1
-      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
-      typescript: '>=4.8.4 <6.0.0'
-
-  '@typescript-eslint/parser@8.56.1':
-    resolution: {integrity: sha512-klQbnPAAiGYFyI02+znpBRLyjL4/BrBd0nyWkdC0s/6xFLkXYQ8OoRrSkqacS1ddVxf/LDyODIKbQ5TgKAf/Fg==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
-      typescript: '>=4.8.4 <6.0.0'
-
-  '@typescript-eslint/project-service@8.56.1':
-    resolution: {integrity: sha512-TAdqQTzHNNvlVFfR+hu2PDJrURiwKsUvxFn1M0h95BB8ah5jejas08jUWG4dBA68jDMI988IvtfdAI53JzEHOQ==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      typescript: '>=4.8.4 <6.0.0'
-
-  '@typescript-eslint/scope-manager@6.21.0':
-    resolution: {integrity: sha512-OwLUIWZJry80O99zvqXVEioyniJMa+d2GrqpUTqi5/v5D5rOrppJVBPa0yKCblcigC0/aYAzxxqQ1B+DS2RYsg==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-
-  '@typescript-eslint/scope-manager@8.56.1':
-    resolution: {integrity: sha512-YAi4VDKcIZp0O4tz/haYKhmIDZFEUPOreKbfdAN3SzUDMcPhJ8QI99xQXqX+HoUVq8cs85eRKnD+rne2UAnj2w==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@typescript-eslint/tsconfig-utils@8.56.1':
-    resolution: {integrity: sha512-qOtCYzKEeyr3aR9f28mPJqBty7+DBqsdd63eO0yyDwc6vgThj2UjWfJIcsFeSucYydqcuudMOprZ+x1SpF3ZuQ==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      typescript: '>=4.8.4 <6.0.0'
-
-  '@typescript-eslint/type-utils@8.56.1':
-    resolution: {integrity: sha512-yB/7dxi7MgTtGhZdaHCemf7PuwrHMenHjmzgUW1aJpO+bBU43OycnM3Wn+DdvDO/8zzA9HlhaJ0AUGuvri4oGg==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
-      typescript: '>=4.8.4 <6.0.0'
-
-  '@typescript-eslint/types@6.21.0':
-    resolution: {integrity: sha512-1kFmZ1rOm5epu9NZEZm1kckCDGj5UJEf7P1kliH4LKu/RkwpsfqqGmY2OOcUs18lSlQBKLDYBOGxRVtrMN5lpg==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-
-  '@typescript-eslint/types@8.56.1':
-    resolution: {integrity: sha512-dbMkdIUkIkchgGDIv7KLUpa0Mda4IYjo4IAMJUZ+3xNoUXxMsk9YtKpTHSChRS85o+H9ftm51gsK1dZReY9CVw==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@typescript-eslint/typescript-estree@6.21.0':
-    resolution: {integrity: sha512-6npJTkZcO+y2/kr+z0hc4HwNfrrP4kNYh57ek7yCNlrBjWQ1Y0OS7jiZTkgumrvkX5HkEKXFZkkdFNkaW2wmUQ==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    peerDependencies:
-      typescript: '*'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
-  '@typescript-eslint/typescript-estree@8.56.1':
-    resolution: {integrity: sha512-qzUL1qgalIvKWAf9C1HpvBjif+Vm6rcT5wZd4VoMb9+Km3iS3Cv9DY6dMRMDtPnwRAFyAi7YXJpTIEXLvdfPxg==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      typescript: '>=4.8.4 <6.0.0'
-
-  '@typescript-eslint/utils@6.21.0':
-    resolution: {integrity: sha512-NfWVaC8HP9T8cbKQxHcsJBY5YE1O33+jpMwN45qzWWaPDZgLIbo12toGMWnmhvCpd3sIxkpDw3Wv1B3dYrbDQQ==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-    peerDependencies:
-      eslint: ^7.0.0 || ^8.0.0
-
-  '@typescript-eslint/utils@8.56.1':
-    resolution: {integrity: sha512-HPAVNIME3tABJ61siYlHzSWCGtOoeP2RTIaHXFMPqjrQKCGB9OgUVdiNgH7TJS2JNIQ5qQ4RsAUDuGaGme/KOA==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
-      typescript: '>=4.8.4 <6.0.0'
-
-  '@typescript-eslint/visitor-keys@6.21.0':
-    resolution: {integrity: sha512-JJtkDduxLi9bivAB+cYOVMtbkqdPOhZ+ZI5LC47MIRrDV4Yn2o+ZnW10Nkmr28xRpSpdJ6Sm42Hjf2+REYXm0A==}
-    engines: {node: ^16.0.0 || >=18.0.0}
-
-  '@typescript-eslint/visitor-keys@8.56.1':
-    resolution: {integrity: sha512-KiROIzYdEV85YygXw6BI/Dx4fnBlFQu6Mq4QE4MOH9fFnhohw6wX/OAvDY2/C+ut0I3RSPKenvZJIVYqJNkhEw==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-5W94O493huwcjrAkuP9yTQVPosXjX/0fEjCZsDn2D59m7VuPLy78R9D2i3UwlnajC75ubFiLcp/sh5o6/dFZVg==}
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260518.1':
+    resolution: {integrity: sha512-5n6xnR8jsDjrjHkf30hVVzby/cTusPrc0f6S3hQLrTdACC9JejsrHMHV1rRu55gSAIZhhBY0pqvG3/VKB9J0tA==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [darwin]
 
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-j+N/276dONuTv2mOLgZy/jLsEZ2JLrxbZ8wBS/LIsMGtvp6elaN/ZESEntpUpIUbeoc5H6nHkjicJKNxQTZ90Q==}
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260518.1':
+    resolution: {integrity: sha512-zO1lq7F6QskMZOfyQGpvnJF+DtbWtraMF/1srgtu86Yoc3MvRAnidX3R5S6l10d+r153WL0T4A8aMfZNhv2SAQ==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [darwin]
 
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-pP/LpkknUTeyQkIiC916BpW2R4ToXDZI7zTbkG6Llh5bGTPcTbtM/5SxXSzYH04ogrc5AP6yYRZsUxtv1GGeQA==}
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260518.1':
+    resolution: {integrity: sha512-V/nLg3BtptWuRJnFUM2wACfZqtkqwC461eb07VabOWTkTEP+ouB7bUWapx6sbb023FiUIk3C3BPK5icjDM7GxA==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [linux]
 
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-Vo7nGP0Wbs+VafCMabS4pSDcfJj60fLAmuZ2+hfdsUMFMO0BzHIUFyKBhbaeKVgO5V0yAqvBKrWkovZy0YXxGA==}
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20260518.1':
+    resolution: {integrity: sha512-u2XUYrpqqBoYa+sb80pNURIy7OqIj1sBNecJb3+cGVxKdeBOMT2p7yPlg6ozuZnurAeUSuGwMWt5eekG0QRYVQ==}
     engines: {node: '>=16.20.0'}
     cpu: [arm]
     os: [linux]
 
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-90Bpi2xCPCE3S/pcL5uXn793AKSf8qLVvQ+w87FpwKknHYXQqOQ38KBO9jX2lynoxr8YcVO1S8BS7PngkwicYg==}
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20260518.1':
+    resolution: {integrity: sha512-NpG2X1kViy7YRpw54GTanHuoH/hwLywuVvFDnoAitR7zDCGJ7OP2YMyCLMrVJX+aCjz4NPrYqROf9OfdwRyNIw==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [linux]
 
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-VkNazv418LbiI0X6SQPCqVFTiBBvCrIxGkdVD7WBO/M3WHZam4qhK8fF61uQclK2NqYPClI2hPbuR5i8+4s4cg==}
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260518.1':
+    resolution: {integrity: sha512-Y7NTZd5yD/FxQLVxQdlK9MdXEsVQFgSOMu24p32kHthFJeVT81TYeMCr6qg0dKWCgOHGEcZtgN3jdmBz0OdaTg==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [win32]
 
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-QhueS4Y0hxYnkQoXrAmB0JKpnXn18nNJwqxLSpyEHCEr+XnggiHBNfjT+p1LeG42TEn0w+skcfwc/Mkmk/gyCg==}
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20260518.1':
+    resolution: {integrity: sha512-bFtq+ynOjZ3zqJSSm0wMFxlstXHoxGhT+dXnj5HihmuGGjrRM5PoNbPZVnpJ4xqAwvx8KHWZchZnpAr+yPgekA==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [win32]
 
-  '@typescript/native-preview@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-o82qX7L97dwQMpj6DzzokF6SQlChcxduNaL4OWzJhJkz1EP//gZOa0/xNPbPLufoJojHLQcANnpkA4JDXZDFhQ==}
+  '@typescript/native-preview@7.0.0-dev.20260518.1':
+    resolution: {integrity: sha512-aJq3XQBPkL91U0YWPQ4WUzFpfzLmfwWt5tmtzdXaIiPZisqFVeG/uw+2b4e/uL/YhPAQt9OHG0UEIGLNfoiFwA==}
     engines: {node: '>=16.20.0'}
     hasBin: true
 
-  '@typia/core@12.1.1':
-    resolution: {integrity: sha512-SfyugTNTCJa75pVwSXwfx6SwvS5YcNOCBg8VjxqykhSgCyoAXkZtc2PsWEkeeaB8EPut1JRBCrzlWtsXo1EZ8Q==}
+  '@typia/interface@file:vendor/interface.tgz':
+    resolution: {integrity: sha512-t4blEFGuXNmCZ8tqRgaMUTzbsv609R8HxOZejt0/kTNJhxtvjLuN6J4VXL6b9Qp0fu0gqVK90hxJ+uBSAzVvww==, tarball: file:vendor/interface.tgz}
+    version: 13.0.0-dev.20260519
 
-  '@typia/interface@12.1.1':
-    resolution: {integrity: sha512-FKLpgNX1mrGnPfeXhU6ztRyMhLvuK13OY8MgqaIucl59XNyCVtcRqgnCMc7dJGLpXEveVp3N5a5VGyZdNUHnCQ==}
-
-  '@typia/interface@13.0.0-dev.20260502-2':
-    resolution: {integrity: sha512-/8KQCt5lUNx+XI7SwcfgEFueeTorTTrbpKu4OrfnP+5ou44l0R2B7RkUY+5EdMoDsalI8brnMNj/O412SkH74w==}
-
-  '@typia/interface@13.0.0-dev.20260514':
-    resolution: {integrity: sha512-L7HipZQikzVRETDcbYWYLq/zmupMK7W/ovu57BeER+mp6N8XIwSXkjKgublAaejrpRm5ylaoyCbOhTGZdFtRtg==}
-
-  '@typia/utils@12.1.1':
-    resolution: {integrity: sha512-RQSHMEyVfPnpQJHGfFe2pxU1H5lJPUBF9CQcCB6/EtI+QKcBj/QmQBOJX7a/WRyvC5ojJlJGL0DEylufhBKxkQ==}
-
-  '@typia/utils@13.0.0-dev.20260502-2':
-    resolution: {integrity: sha512-hTu32x9B6SRd2L+qeteVqYUPvx4+5qdqhIsco1GOfBH4LKjhpeFh40DmcM1gl0wy7+fi//9d/buLyYoVHSjXyQ==}
-
-  '@typia/utils@13.0.0-dev.20260514':
-    resolution: {integrity: sha512-ws0H4pH3EJtVzGj980EO2MAGwsBapHuq6c+e5xFpKaEJNRzn8zNNpukGWcBzi8ioZDtBGb30/q0fxOA5jWs6jA==}
+  '@typia/utils@file:vendor/utils.tgz':
+    resolution: {integrity: sha512-7e4hnIsp6Y3bUkH72IgkV8E85uBSZL8otdD5hDccoogiB6wsQdKzr8XZ+3aOFOD5ubAETk3fhff6dqENsny+gA==, tarball: file:vendor/utils.tgz}
+    version: 13.0.0-dev.20260519
 
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
@@ -2269,10 +2106,6 @@ packages:
   array-flatten@1.1.1:
     resolution: {integrity: sha512-PCVAQswWemu6UdxsDFFX/+gVeYqKAod3D3UVm91jHwynguOwAvYPhx8nNlM++NqRcK6CxxpUafjmhIdKiHibqg==}
 
-  array-union@2.1.0:
-    resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
-    engines: {node: '>=8'}
-
   async@3.2.6:
     resolution: {integrity: sha512-htCUDlxyyCLMgaM3xXg0C0LW2xqfuQ6p05pCEIsXuyQ+a1koYKTuBMzRNwmybfLgvJDMd0r1LTn4+E0Ti6C2AA==}
 
@@ -2329,16 +2162,9 @@ packages:
   brace-expansion@1.1.12:
     resolution: {integrity: sha512-9T9UjW3r0UW5c1Q7GTwllptXwhvYmEzFhzMfZ9H7FQWt+uZePjZPjBP/W1ZEyZ1twGWom5/56TF4lPcqjnDHcg==}
 
-  brace-expansion@2.0.2:
-    resolution: {integrity: sha512-Jt0vHyM+jmUBqojB7E1NIYadt0vI0Qxjxd2TErW94wDz+E2LAm5vKMXXwg6ZZBTHPuUlDgQHKXvjGBdfcF1ZDQ==}
-
   brace-expansion@5.0.4:
     resolution: {integrity: sha512-h+DEnpVvxmfVefa4jFbCf5HdH5YMDXRsmKflpf1pILZWRFlTbJpxeU55nJl4Smt5HQaGzg1o6RHFPJaOqnmBDg==}
     engines: {node: 18 || 20 || >=22}
-
-  braces@3.0.3:
-    resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
-    engines: {node: '>=8'}
 
   browserslist@4.28.1:
     resolution: {integrity: sha512-ZC5Bd0LgJXgwGqUknZY/vkUQ04r8NXnJZ3yYi4vDmSiZmC/pdSN0NbNRPxZpbtO4uAfDUAFffO8IZoM3Gj8IkA==}
@@ -2725,10 +2551,6 @@ packages:
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
 
-  dir-glob@3.0.1:
-    resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
-    engines: {node: '>=8'}
-
   dom-helpers@5.2.1:
     resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
 
@@ -2762,12 +2584,6 @@ packages:
 
   electron-to-chromium@1.5.307:
     resolution: {integrity: sha512-5z3uFKBWjiNR44nFcYdkcXjKMbg5KXNdciu7mhTPo9tB7NbqSNP2sSnGR+fqknZSCwKkBN+oxiiajWs4dT6ORg==}
-
-  embed-typescript@1.3.2:
-    resolution: {integrity: sha512-JSC3w2leQEv3Pr+lNLtuTES/vWVHkcCuXkx1snjsNy9VosGaQmjyzUECJjIo2l89qUpePnCyBhlt9smlmFJQCw==}
-    hasBin: true
-    peerDependencies:
-      typescript: '>=5.0.0 <6.0.0'
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -2819,13 +2635,6 @@ packages:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
 
-  eslint-plugin-deprecation@1.6.0:
-    resolution: {integrity: sha512-rld+Vrneh/NXRtDB0vQifOvgUy0HJYoejaxWlVnsk/LK7iij2tCWQIFcCKG4uzQb+Ef86bDke39w1lh4wnon4Q==}
-    deprecated: this package has been deprecated, please use v2.0.0
-    peerDependencies:
-      eslint: ^7.0.0 || ^8.0.0
-      typescript: ^4.2.4 || ^5.0.0
-
   eslint-plugin-react-hooks@5.2.0:
     resolution: {integrity: sha512-+f15FfK64YQwZdJNELETdn5ibXEUQmW1DZL6KXhNnc2heoy/sg9VJJeT7n8TlMWouzWqSWavFkIhHyIbIAEapg==}
     engines: {node: '>=10'}
@@ -2848,10 +2657,6 @@ packages:
   eslint-visitor-keys@4.2.1:
     resolution: {integrity: sha512-Uhdk5sfqcee/9H/rCOJikYz67o0a2Tw2hGRPOG2Y1R2dg7brRe1uG0yaNQDHu+TO/uQPF/5eCapvYSmHUjt7JQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  eslint-visitor-keys@5.0.1:
-    resolution: {integrity: sha512-tD40eHxA35h0PEIZNeIjkHoDR4YjjJp34biM0mDvplBe//mB+IHCqHDGV7pxF+7MklTvighcCPPZC7ynWyjdTA==}
-    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
   eslint@9.39.3:
     resolution: {integrity: sha512-VmQ+sifHUbI/IcSopBCF/HO3YiHQx/AVd3UVyYL6weuwW+HvON9VYn5l6Zl1WZzPWXPNZrSQpxwkkZ/VuvJZzg==}
@@ -2913,10 +2718,6 @@ packages:
 
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
-
-  fast-glob@3.3.3:
-    resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
-    engines: {node: '>=8.6.0'}
 
   fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}
@@ -2984,10 +2785,6 @@ packages:
   file-type@21.3.0:
     resolution: {integrity: sha512-8kPJMIGz1Yt/aPEwOsrR97ZyZaD1Iqm8PClb1nYFclUCkBi0Ma5IsYNQzvSFS9ib51lWyIw5mIT9rWzI/xjpzA==}
     engines: {node: '>=20'}
-
-  fill-range@7.1.1:
-    resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
-    engines: {node: '>=8'}
 
   finalhandler@1.3.2:
     resolution: {integrity: sha512-aA4RyPcd3badbdABGDuTXCMTtOneUCAYH/gxoYRTZlIJdF0YPWuGqiAsIrhNnnqdXGswYk6dGujem4w80UJFhg==}
@@ -3067,10 +2864,6 @@ packages:
     resolution: {integrity: sha512-L5bGsVkxJbJgdnwyuheIunkGatUF/zssUoxxjACCseZYAVbaqdh9Tsmmlkl8vYan09H7sbvKt4pS8GqKLBrEzA==}
     hasBin: true
 
-  glob-parent@5.1.2:
-    resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
-    engines: {node: '>= 6'}
-
   glob-parent@6.0.2:
     resolution: {integrity: sha512-XxwI8EOhVQgWp6iDL+3b0r86f4d6AX6zSU55HfB4ydCEuXLXc5FcYeOu+nnGftS4TEju/11rt4KJPTMgbfmv4A==}
     engines: {node: '>=10.13.0'}
@@ -3096,10 +2889,6 @@ packages:
   globals@15.15.0:
     resolution: {integrity: sha512-7ACyT3wmyp3I61S4fG682L0VA2RGD9otkqGJIwNUMF1SWUombIIk+af1unuDYgMm082aHYwD+mzJvv9Iu8dsgg==}
     engines: {node: '>=18'}
-
-  globby@11.1.0:
-    resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
-    engines: {node: '>=10'}
 
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
@@ -3181,10 +2970,6 @@ packages:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
     engines: {node: '>= 4'}
 
-  ignore@7.0.5:
-    resolution: {integrity: sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg==}
-    engines: {node: '>= 4'}
-
   import-fresh@3.3.1:
     resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
     engines: {node: '>=6'}
@@ -3236,10 +3021,6 @@ packages:
 
   is-module@1.0.0:
     resolution: {integrity: sha512-51ypPSPCoTEIN9dy5Oy+h4pShgJmPCygKfyRCISBI+JoWT/2oJvK8QPxmwv7b/p239jXrm9M1mlQbyKJ5A152g==}
-
-  is-number@7.0.0:
-    resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
-    engines: {node: '>=0.12.0'}
 
   is-potential-custom-element-name@1.0.1:
     resolution: {integrity: sha512-bCYeRA2rVibKZd+s2625gGnGF/t7DSqDs4dP7CrLA1m7jKWz6pps0LpYLJN8Q64HtmPKJ1hrN3nzPNKFEKOUiQ==}
@@ -3422,10 +3203,6 @@ packages:
     resolution: {integrity: sha512-Snk314V5ayFLhp3fkUREub6WtjBfPdCPY1Ln8/8munuLuiYhsABgBVWsozAG+MWMbVEvcdcpbi9R7ww22l9Q3g==}
     engines: {node: '>=18'}
 
-  merge2@1.4.1:
-    resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
-    engines: {node: '>= 8'}
-
   methods@1.1.2:
     resolution: {integrity: sha512-iclAHeNqNm68zFtnZ0e+1L2yUIdvzNoauKU4WBA3VvH/vPFieF7qfRlwUZU+DA9P9bPXIS90ulxoUoCH23sV2w==}
     engines: {node: '>= 0.6'}
@@ -3493,10 +3270,6 @@ packages:
   micromark@4.0.2:
     resolution: {integrity: sha512-zpe98Q6kvavpCr1NPVSCMebCKfD7CA2NqZ+rykeNhONIJBpc1tFKt9hucLGwha3jNTNI8lHpctWJWoimVF4PfA==}
 
-  micromatch@4.0.8:
-    resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
-    engines: {node: '>=8.6'}
-
   mime-db@1.52.0:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
     engines: {node: '>= 0.6'}
@@ -3528,10 +3301,6 @@ packages:
 
   minimatch@3.1.5:
     resolution: {integrity: sha512-VgjWUsnnT6n+NUk6eZq77zeFdpW2LWDzP6zFGrCbHXiYNul5Dzqk2HHQ5uFH2DNW5Xbp8+jVzaeNt94ssEEl4w==}
-
-  minimatch@9.0.3:
-    resolution: {integrity: sha512-RHiac9mvaRw0x3AYRgDC1CxAP7HTcNrrECeA8YYJeWnpo+2Q5CegtZjaotWTWxDG3UeGA1coE05iH1mPjT/2mg==}
-    engines: {node: '>=16 || 14 >=14.17'}
 
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
@@ -3813,9 +3582,6 @@ packages:
   querystringify@2.2.0:
     resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
 
-  queue-microtask@1.2.3:
-    resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
-
   quick-format-unescaped@4.0.4:
     resolution: {integrity: sha512-tYC1Q1hgyRuHgloV/YXs2w15unPVh8qfu/qCTfhTYamaw7fyhumKa2yGpdSo87vY32rIclj+4fWYQXUMs9EHvg==}
 
@@ -3985,9 +3751,6 @@ packages:
     resolution: {integrity: sha512-tvVnVv01b8c1RrA6Ep7JkStj85Guv/YrMcwqYQnwjsAS2cTmmPGBBjAjpCW7RrSodNSoE2/qg9O4bceNvUuDgQ==}
     engines: {node: '>=0.12.0'}
 
-  run-parallel@1.2.0:
-    resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
-
   rw@1.3.3:
     resolution: {integrity: sha512-PdhdWy89SiZogBLaw42zdeqtRJ//zFd2PgQavcICDUgJT5oW10QCRKbJ6bg4r0/UY2M6BWd5tkxuGFRvCkgfHQ==}
 
@@ -4101,10 +3864,6 @@ packages:
   signal-exit@4.1.0:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
-
-  slash@3.0.0:
-    resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
-    engines: {node: '>=8'}
 
   sloc@0.3.2:
     resolution: {integrity: sha512-tnB+gi6TiFpt3qmCGfaV+78dfKwLiH5HRohkW+PnJYHNAcEdk408uxWG+F/3pu4w1eyCO2NC5CpZKuiyMac5GQ==}
@@ -4257,10 +4016,6 @@ packages:
     resolution: {integrity: sha512-/OaKK0xYrs3DmxRYqL/yDc+FxFUVYhDlXMhRmv3z915w2HF1tnN1omB354j8VUGO/hbRzyD6Y3sA7v7GS/ceog==}
     engines: {node: '>=4'}
 
-  to-regex-range@5.0.1:
-    resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
-    engines: {node: '>=8.0'}
-
   toad-cache@3.7.0:
     resolution: {integrity: sha512-/m8M+2BJUpoJdgAHoG+baCwBT+tf2VraSfkBgl0Y00qIWt41DJ8R5B8nsEw0I58YwF5IZH6z24/2TobDKnqSWw==}
     engines: {node: '>=12'}
@@ -4281,18 +4036,6 @@ packages:
     resolution: {integrity: sha512-2lv/66T7e5yNyhAAC4NaKe5nVavzuGJQVVtRYLyQ2OI8tsJ61PMLlelehb0wi2Hx6+hT/OJUWZcw8MjlSRnxvw==}
     engines: {node: '>=14'}
 
-  ts-api-utils@1.4.3:
-    resolution: {integrity: sha512-i3eMG77UTMD0hZhgRS562pv83RC6ukSAC2GMNWc+9dieh/+jDM5u5YG+NHX6VNDRHQcHwmsTHctP9LhbC3WxVw==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      typescript: '>=4.2.0'
-
-  ts-api-utils@2.4.0:
-    resolution: {integrity: sha512-3TaVTaAv2gTiMB35i3FiGJaRfwb3Pyn/j3m/bfAvGe8FB7CF6u+LMYqYlDh7reQf7UNvoTvdfAqHGmPGOSsPmA==}
-    engines: {node: '>=18.12'}
-    peerDependencies:
-      typescript: '>=4.8.4'
-
   ts-expose-internals@5.4.5:
     resolution: {integrity: sha512-0HfRwjgSIOyuDlHzkFedMWU4aHWq9pu4MUKHgH75U+L76wCAtK5WB0rc/dAIhulMRcPUlcKONeiiR5Sxy/7XcA==}
 
@@ -4305,14 +4048,9 @@ packages:
   tstl@3.0.0:
     resolution: {integrity: sha512-pR83y6/tbJx6jeGRqGJXk2t/eCUynaHEE6zsOLB0Zga8ej61LXtPfoeiROdhezpoCT15+1QMbqKB1Um5kasSKg==}
 
-  tsutils@3.21.0:
-    resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
-    engines: {node: '>= 6'}
-    peerDependencies:
-      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
-
-  ttsc@0.10.2:
-    resolution: {integrity: sha512-7oTOOaysPxX7ArTt87MQik5tNam1I5e+cbMo1jZzObaeJ2hNpcVor2k3fKtrhOv9IrwvWpu0QsXb4kEiAZKYYg==}
+  ttsc@file:vendor/ttsc.tgz:
+    resolution: {integrity: sha512-cW21qOIBo4E7M0eTxK1rJU3VqUdESNaQfQ6HUy8HDk8yI1M+3HAqpuogn819aRg3kdqxK5pYpAhOTJnT34Fs2A==, tarball: file:vendor/ttsc.tgz}
+    version: 0.12.3
     hasBin: true
 
   type-check@0.4.0:
@@ -4338,20 +4076,14 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-eslint@8.56.1:
-    resolution: {integrity: sha512-U4lM6pjmBX7J5wk4szltF7I1cGBHXZopnAXCMXb3+fZ3B/0Z3hq3wS/CCUB2NZBNAExK92mCU2tEohWuwVMsDQ==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
-      typescript: '>=4.8.4 <6.0.0'
-
   typescript@6.0.3:
     resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typia@13.0.0-dev.20260514:
-    resolution: {integrity: sha512-v0+uuTOucaXGMLdZGubBHQUCszNGCuKjZ2kYSTs+vz6t9u5Yg5/80Y+oQkMiT7Ll4y+CjmjvJiKKJ0K7u3yhjQ==}
+  typia@file:vendor/typia.tgz:
+    resolution: {integrity: sha512-f/0o9NnxXSxRTDhZT9z6KLNew8f2M6a+5ytKgoJUYhZR6q/CcdbNgwUmntpDEyQrHnytspA97r+BJa2bPB6Zaw==, tarball: file:vendor/typia.tgz}
+    version: 13.0.0-dev.20260519
     hasBin: true
 
   uid@2.0.2:
@@ -5179,18 +4911,6 @@ snapshots:
       class-transformer: 0.5.1
       class-validator: 0.14.4
 
-  '@nodelib/fs.scandir@2.1.5':
-    dependencies:
-      '@nodelib/fs.stat': 2.0.5
-      run-parallel: 1.2.0
-
-  '@nodelib/fs.stat@2.0.5': {}
-
-  '@nodelib/fs.walk@1.2.8':
-    dependencies:
-      '@nodelib/fs.scandir': 2.1.5
-      fastq: 1.20.1
-
   '@nuxt/opencollective@0.4.1':
     dependencies:
       consola: 3.4.2
@@ -5219,7 +4939,7 @@ snapshots:
       '@types/resolve': 1.20.2
       deepmerge: 4.3.1
       is-module: 1.0.0
-      resolve: 1.22.11
+      resolve: 1.22.12
     optionalDependencies:
       rollup: 4.59.0
 
@@ -5352,25 +5072,25 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@ttsc/darwin-arm64@0.10.2':
+  '@ttsc/darwin-arm64@file:vendor/ttsc-darwin-arm64.tgz':
     optional: true
 
-  '@ttsc/darwin-x64@0.10.2':
+  '@ttsc/darwin-x64@file:vendor/ttsc-darwin-x64.tgz':
     optional: true
 
-  '@ttsc/linux-arm64@0.10.2':
+  '@ttsc/linux-arm64@file:vendor/ttsc-linux-arm64.tgz':
     optional: true
 
-  '@ttsc/linux-arm@0.10.2':
+  '@ttsc/linux-arm@file:vendor/ttsc-linux-arm.tgz':
     optional: true
 
-  '@ttsc/linux-x64@0.10.2':
+  '@ttsc/linux-x64@file:vendor/ttsc-linux-x64.tgz':
     optional: true
 
-  '@ttsc/win32-arm64@0.10.2':
+  '@ttsc/win32-arm64@file:vendor/ttsc-win32-arm64.tgz':
     optional: true
 
-  '@ttsc/win32-x64@0.10.2':
+  '@ttsc/win32-x64@file:vendor/ttsc-win32-x64.tgz':
     optional: true
 
   '@types/autocannon@7.12.7':
@@ -5606,8 +5326,6 @@ snapshots:
 
   '@types/resolve@1.20.2': {}
 
-  '@types/semver@7.7.1': {}
-
   '@types/send@0.17.6':
     dependencies:
       '@types/mime': 1.3.5
@@ -5657,191 +5375,42 @@ snapshots:
     dependencies:
       '@types/node': 25.3.3
 
-  '@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3))(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
-    dependencies:
-      '@eslint-community/regexpp': 4.12.2
-      '@typescript-eslint/parser': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
-      '@typescript-eslint/scope-manager': 8.56.1
-      '@typescript-eslint/type-utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
-      '@typescript-eslint/utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
-      '@typescript-eslint/visitor-keys': 8.56.1
-      eslint: 9.39.3(jiti@2.6.1)
-      ignore: 7.0.5
-      natural-compare: 1.4.0
-      ts-api-utils: 2.4.0(typescript@6.0.3)
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260518.1':
+    optional: true
 
-  '@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
-    dependencies:
-      '@typescript-eslint/scope-manager': 8.56.1
-      '@typescript-eslint/types': 8.56.1
-      '@typescript-eslint/typescript-estree': 8.56.1(typescript@6.0.3)
-      '@typescript-eslint/visitor-keys': 8.56.1
-      debug: 4.4.3
-      eslint: 9.39.3(jiti@2.6.1)
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260518.1':
+    optional: true
 
-  '@typescript-eslint/project-service@8.56.1(typescript@6.0.3)':
-    dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.56.1(typescript@6.0.3)
-      '@typescript-eslint/types': 8.56.1
-      debug: 4.4.3
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260518.1':
+    optional: true
 
-  '@typescript-eslint/scope-manager@6.21.0':
-    dependencies:
-      '@typescript-eslint/types': 6.21.0
-      '@typescript-eslint/visitor-keys': 6.21.0
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20260518.1':
+    optional: true
 
-  '@typescript-eslint/scope-manager@8.56.1':
-    dependencies:
-      '@typescript-eslint/types': 8.56.1
-      '@typescript-eslint/visitor-keys': 8.56.1
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20260518.1':
+    optional: true
 
-  '@typescript-eslint/tsconfig-utils@8.56.1(typescript@6.0.3)':
-    dependencies:
-      typescript: 6.0.3
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260518.1':
+    optional: true
 
-  '@typescript-eslint/type-utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
-    dependencies:
-      '@typescript-eslint/types': 8.56.1
-      '@typescript-eslint/typescript-estree': 8.56.1(typescript@6.0.3)
-      '@typescript-eslint/utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
-      debug: 4.4.3
-      eslint: 9.39.3(jiti@2.6.1)
-      ts-api-utils: 2.4.0(typescript@6.0.3)
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20260518.1':
+    optional: true
 
-  '@typescript-eslint/types@6.21.0': {}
-
-  '@typescript-eslint/types@8.56.1': {}
-
-  '@typescript-eslint/typescript-estree@6.21.0(typescript@6.0.3)':
-    dependencies:
-      '@typescript-eslint/types': 6.21.0
-      '@typescript-eslint/visitor-keys': 6.21.0
-      debug: 4.4.3
-      globby: 11.1.0
-      is-glob: 4.0.3
-      minimatch: 9.0.3
-      semver: 7.7.4
-      ts-api-utils: 1.4.3(typescript@6.0.3)
+  '@typescript/native-preview@7.0.0-dev.20260518.1':
     optionalDependencies:
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
+      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260518.1
+      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260518.1
+      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260518.1
+      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260518.1
+      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260518.1
+      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260518.1
+      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260518.1
 
-  '@typescript-eslint/typescript-estree@8.56.1(typescript@6.0.3)':
+  '@typia/interface@file:vendor/interface.tgz': {}
+
+  '@typia/utils@file:vendor/utils.tgz':
     dependencies:
-      '@typescript-eslint/project-service': 8.56.1(typescript@6.0.3)
-      '@typescript-eslint/tsconfig-utils': 8.56.1(typescript@6.0.3)
-      '@typescript-eslint/types': 8.56.1
-      '@typescript-eslint/visitor-keys': 8.56.1
-      debug: 4.4.3
-      minimatch: 10.2.4
-      semver: 7.7.4
-      tinyglobby: 0.2.15
-      ts-api-utils: 2.4.0(typescript@6.0.3)
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
-
-  '@typescript-eslint/utils@6.21.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
-    dependencies:
-      '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.3(jiti@2.6.1))
-      '@types/json-schema': 7.0.15
-      '@types/semver': 7.7.1
-      '@typescript-eslint/scope-manager': 6.21.0
-      '@typescript-eslint/types': 6.21.0
-      '@typescript-eslint/typescript-estree': 6.21.0(typescript@6.0.3)
-      eslint: 9.39.3(jiti@2.6.1)
-      semver: 7.7.4
-    transitivePeerDependencies:
-      - supports-color
-      - typescript
-
-  '@typescript-eslint/utils@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)':
-    dependencies:
-      '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.3(jiti@2.6.1))
-      '@typescript-eslint/scope-manager': 8.56.1
-      '@typescript-eslint/types': 8.56.1
-      '@typescript-eslint/typescript-estree': 8.56.1(typescript@6.0.3)
-      eslint: 9.39.3(jiti@2.6.1)
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
-
-  '@typescript-eslint/visitor-keys@6.21.0':
-    dependencies:
-      '@typescript-eslint/types': 6.21.0
-      eslint-visitor-keys: 3.4.3
-
-  '@typescript-eslint/visitor-keys@8.56.1':
-    dependencies:
-      '@typescript-eslint/types': 8.56.1
-      eslint-visitor-keys: 5.0.1
-
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260505.1':
-    optional: true
-
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260505.1':
-    optional: true
-
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260505.1':
-    optional: true
-
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260505.1':
-    optional: true
-
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260505.1':
-    optional: true
-
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260505.1':
-    optional: true
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260505.1':
-    optional: true
-
-  '@typescript/native-preview@7.0.0-dev.20260505.1':
-    optionalDependencies:
-      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260505.1
-      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260505.1
-      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260505.1
-      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260505.1
-      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260505.1
-      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260505.1
-      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260505.1
-
-  '@typia/core@12.1.1':
-    dependencies:
-      '@typia/interface': 12.1.1
-      '@typia/utils': 12.1.1
-
-  '@typia/interface@12.1.1': {}
-
-  '@typia/interface@13.0.0-dev.20260502-2': {}
-
-  '@typia/interface@13.0.0-dev.20260514': {}
-
-  '@typia/utils@12.1.1':
-    dependencies:
-      '@typia/interface': 12.1.1
-
-  '@typia/utils@13.0.0-dev.20260502-2':
-    dependencies:
-      '@typia/interface': 13.0.0-dev.20260502-2
-
-  '@typia/utils@13.0.0-dev.20260514':
-    dependencies:
-      '@typia/interface': 13.0.0-dev.20260514
+      '@typia/interface': file:vendor/interface.tgz
 
   '@vitejs/plugin-react@4.7.0(vite@5.4.21(@types/node@25.3.3)(terser@5.46.0))':
     dependencies:
@@ -5922,8 +5491,6 @@ snapshots:
   args-tokenizer@0.3.0: {}
 
   array-flatten@1.1.1: {}
-
-  array-union@2.1.0: {}
 
   async@3.2.6: {}
 
@@ -6025,17 +5592,9 @@ snapshots:
       balanced-match: 1.0.2
       concat-map: 0.0.1
 
-  brace-expansion@2.0.2:
-    dependencies:
-      balanced-match: 1.0.2
-
   brace-expansion@5.0.4:
     dependencies:
       balanced-match: 4.0.4
-
-  braces@3.0.3:
-    dependencies:
-      fill-range: 7.1.1
 
   browserslist@4.28.1:
     dependencies:
@@ -6449,10 +6008,6 @@ snapshots:
     dependencies:
       dequal: 2.0.3
 
-  dir-glob@3.0.1:
-    dependencies:
-      path-type: 4.0.0
-
   dom-helpers@5.2.1:
     dependencies:
       '@babel/runtime': 7.28.6
@@ -6479,11 +6034,6 @@ snapshots:
   ee-first@1.1.1: {}
 
   electron-to-chromium@1.5.307: {}
-
-  embed-typescript@1.3.2(typescript@6.0.3):
-    dependencies:
-      tstl: 3.0.0
-      typescript: 6.0.3
 
   emoji-regex@8.0.0: {}
 
@@ -6544,16 +6094,6 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-plugin-deprecation@1.6.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3):
-    dependencies:
-      '@typescript-eslint/utils': 6.21.0(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
-      eslint: 9.39.3(jiti@2.6.1)
-      tslib: 2.8.1
-      tsutils: 3.21.0(typescript@6.0.3)
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
-
   eslint-plugin-react-hooks@5.2.0(eslint@9.39.3(jiti@2.6.1)):
     dependencies:
       eslint: 9.39.3(jiti@2.6.1)
@@ -6570,8 +6110,6 @@ snapshots:
   eslint-visitor-keys@3.4.3: {}
 
   eslint-visitor-keys@4.2.1: {}
-
-  eslint-visitor-keys@5.0.1: {}
 
   eslint@9.39.3(jiti@2.6.1):
     dependencies:
@@ -6719,14 +6257,6 @@ snapshots:
 
   fast-deep-equal@3.1.3: {}
 
-  fast-glob@3.3.3:
-    dependencies:
-      '@nodelib/fs.stat': 2.0.5
-      '@nodelib/fs.walk': 1.2.8
-      glob-parent: 5.1.2
-      merge2: 1.4.1
-      micromatch: 4.0.8
-
   fast-json-stable-stringify@2.1.0: {}
 
   fast-json-stringify@5.16.1:
@@ -6845,10 +6375,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  fill-range@7.1.1:
-    dependencies:
-      to-regex-range: 5.0.1
-
   finalhandler@1.3.2:
     dependencies:
       debug: 2.6.9
@@ -6955,10 +6481,6 @@ snapshots:
       nypm: 0.6.5
       pathe: 2.0.3
 
-  glob-parent@5.1.2:
-    dependencies:
-      is-glob: 4.0.3
-
   glob-parent@6.0.2:
     dependencies:
       is-glob: 4.0.3
@@ -6983,15 +6505,6 @@ snapshots:
   globals@14.0.0: {}
 
   globals@15.15.0: {}
-
-  globby@11.1.0:
-    dependencies:
-      array-union: 2.1.0
-      dir-glob: 3.0.1
-      fast-glob: 3.3.3
-      ignore: 5.3.2
-      merge2: 1.4.1
-      slash: 3.0.0
 
   gopd@1.2.0: {}
 
@@ -7076,8 +6589,6 @@ snapshots:
 
   ignore@5.3.2: {}
 
-  ignore@7.0.5: {}
-
   import-fresh@3.3.1:
     dependencies:
       parent-module: 1.0.1
@@ -7128,8 +6639,6 @@ snapshots:
   is-interactive@1.0.0: {}
 
   is-module@1.0.0: {}
-
-  is-number@7.0.0: {}
 
   is-potential-custom-element-name@1.0.1: {}
 
@@ -7317,8 +6826,6 @@ snapshots:
 
   merge-descriptors@2.0.0: {}
 
-  merge2@1.4.1: {}
-
   methods@1.1.2: {}
 
   micromark-core-commonmark@2.0.3:
@@ -7454,11 +6961,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  micromatch@4.0.8:
-    dependencies:
-      braces: 3.0.3
-      picomatch: 2.3.1
-
   mime-db@1.52.0: {}
 
   mime-db@1.54.0: {}
@@ -7482,10 +6984,6 @@ snapshots:
   minimatch@3.1.5:
     dependencies:
       brace-expansion: 1.1.12
-
-  minimatch@9.0.3:
-    dependencies:
-      brace-expansion: 2.0.2
 
   minimist@1.2.8: {}
 
@@ -7758,8 +7256,6 @@ snapshots:
 
   querystringify@2.2.0: {}
 
-  queue-microtask@1.2.3: {}
-
   quick-format-unescaped@4.0.4: {}
 
   randexp@0.5.3:
@@ -7949,10 +7445,6 @@ snapshots:
 
   run-async@2.4.1: {}
 
-  run-parallel@1.2.0:
-    dependencies:
-      queue-microtask: 1.2.3
-
   rw@1.3.3: {}
 
   rxjs@7.8.2:
@@ -8096,8 +7588,6 @@ snapshots:
   signal-exit@3.0.7: {}
 
   signal-exit@4.1.0: {}
-
-  slash@3.0.0: {}
 
   sloc@0.3.2:
     dependencies:
@@ -8245,10 +7735,6 @@ snapshots:
 
   to-fast-properties@2.0.0: {}
 
-  to-regex-range@5.0.1:
-    dependencies:
-      is-number: 7.0.0
-
   toad-cache@3.7.0: {}
 
   toidentifier@1.0.1: {}
@@ -8270,14 +7756,6 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  ts-api-utils@1.4.3(typescript@6.0.3):
-    dependencies:
-      typescript: 6.0.3
-
-  ts-api-utils@2.4.0(typescript@6.0.3):
-    dependencies:
-      typescript: 6.0.3
-
   ts-expose-internals@5.4.5: {}
 
   tslib@1.14.1: {}
@@ -8286,20 +7764,15 @@ snapshots:
 
   tstl@3.0.0: {}
 
-  tsutils@3.21.0(typescript@6.0.3):
-    dependencies:
-      tslib: 1.14.1
-      typescript: 6.0.3
-
-  ttsc@0.10.2:
+  ttsc@file:vendor/ttsc.tgz:
     optionalDependencies:
-      '@ttsc/darwin-arm64': 0.10.2
-      '@ttsc/darwin-x64': 0.10.2
-      '@ttsc/linux-arm': 0.10.2
-      '@ttsc/linux-arm64': 0.10.2
-      '@ttsc/linux-x64': 0.10.2
-      '@ttsc/win32-arm64': 0.10.2
-      '@ttsc/win32-x64': 0.10.2
+      '@ttsc/darwin-arm64': file:vendor/ttsc-darwin-arm64.tgz
+      '@ttsc/darwin-x64': file:vendor/ttsc-darwin-x64.tgz
+      '@ttsc/linux-arm': file:vendor/ttsc-linux-arm.tgz
+      '@ttsc/linux-arm64': file:vendor/ttsc-linux-arm64.tgz
+      '@ttsc/linux-x64': file:vendor/ttsc-linux-x64.tgz
+      '@ttsc/win32-arm64': file:vendor/ttsc-win32-arm64.tgz
+      '@ttsc/win32-x64': file:vendor/ttsc-win32-x64.tgz
 
   type-check@0.4.0:
     dependencies:
@@ -8322,24 +7795,13 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-eslint@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3):
-    dependencies:
-      '@typescript-eslint/eslint-plugin': 8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3))(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
-      '@typescript-eslint/parser': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
-      '@typescript-eslint/typescript-estree': 8.56.1(typescript@6.0.3)
-      '@typescript-eslint/utils': 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@6.0.3)
-      eslint: 9.39.3(jiti@2.6.1)
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
-
   typescript@6.0.3: {}
 
-  typia@13.0.0-dev.20260514:
+  typia@file:vendor/typia.tgz:
     dependencies:
       '@standard-schema/spec': 1.1.0
-      '@typia/interface': 13.0.0-dev.20260502-2
-      '@typia/utils': 13.0.0-dev.20260502-2
+      '@typia/interface': file:vendor/interface.tgz
+      '@typia/utils': file:vendor/utils.tgz
       commander: 10.0.0
       inquirer: 8.2.5
       randexp: 0.5.3
