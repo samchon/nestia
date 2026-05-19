@@ -3,33 +3,6 @@ packages:
   - 'packages/*'
   - 'tests/*'
 
-# Local tgz overrides pin the toolchain to QualifiedName-fixed builds of ttsc
-# and typia produced from sibling checkouts; ttsc shim/ast.NodeText covers the
-# upstream Node.Text() panic on JSDoc parameter names like `@param obj.field`
-# and typia's MetadataHelper now calls it instead of (*Node).Text() directly.
-# Remove these once both upstreams publish the same fixes.
-overrides:
-  ttsc: 'file:./vendor/ttsc.tgz'
-  '@ttsc/darwin-arm64': 'file:./vendor/ttsc-darwin-arm64.tgz'
-  '@ttsc/darwin-x64': 'file:./vendor/ttsc-darwin-x64.tgz'
-  '@ttsc/linux-arm': 'file:./vendor/ttsc-linux-arm.tgz'
-  '@ttsc/linux-arm64': 'file:./vendor/ttsc-linux-arm64.tgz'
-  '@ttsc/linux-x64': 'file:./vendor/ttsc-linux-x64.tgz'
-  '@ttsc/win32-arm64': 'file:./vendor/ttsc-win32-arm64.tgz'
-  '@ttsc/win32-x64': 'file:./vendor/ttsc-win32-x64.tgz'
-  '@ttsc/banner': 'file:./vendor/banner.tgz'
-  '@ttsc/lint': 'file:./vendor/lint.tgz'
-  '@ttsc/paths': 'file:./vendor/paths.tgz'
-  '@ttsc/strip': 'file:./vendor/strip.tgz'
-  '@ttsc/unplugin': 'file:./vendor/unplugin.tgz'
-  '@ttsc/wasm': 'file:./vendor/wasm.tgz'
-  typia: 'file:./vendor/typia.tgz'
-  '@typia/interface': 'file:./vendor/interface.tgz'
-  '@typia/utils': 'file:./vendor/utils.tgz'
-  '@typia/langchain': 'file:./vendor/langchain.tgz'
-  '@typia/mcp': 'file:./vendor/mcp.tgz'
-  '@typia/vercel': 'file:./vendor/vercel.tgz'
-
 catalogs:
   nestjs:
     '@nestjs/common': ^11.1.6
@@ -37,11 +10,11 @@ catalogs:
     '@nestjs/platform-express': ^11.1.6
     '@nestjs/platform-fastify': ^11.1.6
   samchon:
-    '@typia/interface': 'file:./vendor/interface.tgz'
-    '@typia/utils': 'file:./vendor/utils.tgz'
+    '@typia/interface': 13.0.0-dev.20260520.2
+    '@typia/utils': 13.0.0-dev.20260520.2
     tgrid: ^1.2.1
     tstl: ^3.0.0
-    typia: 'file:./vendor/typia.tgz'
+    typia: 13.0.0-dev.20260520.2
   utils:
     '@types/node': ^25.3.3
     '@types/uuid': ^11.0.0
@@ -52,7 +25,7 @@ catalogs:
     '@trivago/prettier-plugin-sort-imports': ^4.3.0
     prettier: ^3.8.1
     prettier-plugin-jsdoc: ^1.8.0
-    ttsc: 'file:./vendor/ttsc.tgz'
+    ttsc: ^0.12.3
   rollup:
     rollup: ^4.56.0
     rollup-plugin-auto-external: ^2.0.0

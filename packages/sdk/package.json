@@ -69,8 +69,7 @@
     "prettier": "catalog:typescript",
     "ttsc": "catalog:typescript",
     "tstl": "catalog:samchon",
-    "typia": "catalog:samchon",
-    "@nestia/typia-core-legacy": "workspace:^"
+    "typia": "catalog:samchon"
   },
   "peerDependencies": {
     "@nestia/core": "workspace:^"
