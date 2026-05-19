@@ -9,8 +9,8 @@
   "description": "Swagger-UI + Cloud TypeScript Editor",
   "scripts": {
     "build": "npm run build:static && npm run build:lib",
-    "build:static": "rimraf dist && tsc -b && vite build",
-    "build:lib": "rimraf lib && tsc --project tsconfig.lib.json && rollup -c",
+    "build:static": "rimraf dist && ttsc && vite build",
+    "build:lib": "rimraf lib && ttsc --project tsconfig.lib.json && rollup -c",
     "dev": "vite",
     "lint": "eslint .",
     "prepack": "pnpm run build",
@@ -67,8 +67,6 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "rollup": "catalog:rollup",
-    "typescript": "catalog:typescript",
-    "typescript-eslint": "^8.10.0",
     "vite": "^5.4.9"
   },
   "files": [

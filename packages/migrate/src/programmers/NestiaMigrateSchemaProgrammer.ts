@@ -1,7 +1,7 @@
 import { TypeScriptFactory } from "@nestia/factory";
-import { FormatCheatSheet, TypeFactory } from "@typia/core";
+import { FormatCheatSheet, TypeFactory } from "@nestia/factory";
 import * as typiaUtils from "@typia/utils";
-import ts from "typescript";
+import ts from "../internal/ts";
 import type { OpenApi } from "typia";
 
 import { FilePrinter } from "../utils/FilePrinter";
@@ -338,7 +338,7 @@ export namespace NestiaMigrateSchemaProgrammer {
           ? valueTypeNode
           : ts.isUnionTypeNode(valueTypeNode)
             ? TypeScriptFactory.createUnionTypeNode([
-                ...valueTypeNode.types,
+                ...(valueTypeNode.types ?? []),
                 TypeScriptFactory.createTypeReferenceNode("undefined"),
               ])
             : TypeScriptFactory.createUnionTypeNode([

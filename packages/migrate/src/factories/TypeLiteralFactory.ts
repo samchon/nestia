@@ -1,6 +1,6 @@
 import { TypeScriptFactory } from "@nestia/factory";
 import * as typiaUtils from "@typia/utils";
-import ts from "typescript";
+import ts from "../internal/ts";
 
 const { NamingConvention } =
   (typiaUtils as { default?: typeof typiaUtils }).default ?? typiaUtils;

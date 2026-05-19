@@ -50,7 +50,6 @@
     "@types/node": "catalog:utils",
     "@types/physical-cpu-count": "^2.0.0",
     "rimraf": "catalog:utils",
-    "ttsc": "catalog:typescript",
-    "typescript": "catalog:typescript"
+    "ttsc": "catalog:typescript"
   }
 }

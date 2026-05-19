@@ -1,4 +1,4 @@
-import ts from "typescript";
+import ts from "../internal/ts";
 
 import { NestiaMigrateNestMethodProgrammer } from "../programmers/NestiaMigrateNestMethodProgrammer";
 

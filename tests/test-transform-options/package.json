@@ -14,8 +14,7 @@
   "devDependencies": {
     "@types/node": "catalog:utils",
     "rimraf": "catalog:utils",
-    "ttsc": "catalog:typescript",
-    "typescript": "catalog:typescript"
+    "ttsc": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"
 }

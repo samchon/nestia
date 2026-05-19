@@ -4,9 +4,9 @@ import {
   IdentifierFactory,
   LiteralFactory,
   TypeFactory,
-} from "@typia/core";
+} from "@nestia/factory";
 import { IHttpMigrateRoute } from "@typia/interface";
-import ts from "typescript";
+import ts from "../internal/ts";
 import { OpenApi } from "typia";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";

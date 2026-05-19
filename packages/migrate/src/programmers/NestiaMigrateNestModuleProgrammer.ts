@@ -1,5 +1,5 @@
 import { TypeScriptFactory } from "@nestia/factory";
-import ts from "typescript";
+import ts from "../internal/ts";
 
 import { INestiaMigrateController } from "../structures/INestiaMigrateController";
 import { FilePrinter } from "../utils/FilePrinter";

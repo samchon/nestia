@@ -32,8 +32,7 @@
     "prettier-plugin-jsdoc": "catalog:typescript",
     "rimraf": "catalog:utils",
     "sloc": "^0.3.0",
-    "ttsc": "catalog:typescript",
-    "typescript": "catalog:typescript"
+    "ttsc": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"
 }

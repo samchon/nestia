@@ -1,3 +1,10 @@
+// Emits the dual-format publish artifact (`lib/*.js` CJS + `lib/*.mjs`
+// ESM). `@rollup/plugin-typescript` stays here because rollup needs to
+// re-compile the TypeScript source to ESM with statically-discoverable
+// named exports — consumers cannot pull named symbols out of a CJS
+// module that uses dynamic `__exportStar`. No nestia source file
+// imports from `typescript`; the dep is build-pipeline-only.
+
 import commonjs from "@rollup/plugin-commonjs";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";

@@ -3,7 +3,7 @@
   "name": "@nestia/test-migrate",
   "version": "11.2.0",
   "scripts": {
-    "dev": "tsc --watch",
+    "dev": "ttsc --watch",
     "fixture": "node -e \"require('fs').mkdirSync('.generated',{recursive:true})\" && cd fixture && node ../../run-with-ttsc-env.cjs node ../../../packages/cli/bin/index.js swagger --project tsconfig.json",
     "start": "node ../run-with-ttsc-env.cjs ttsx -P tsconfig.json src/index.ts"
   },
@@ -40,8 +40,7 @@
     "@types/node": "catalog:utils",
     "@typescript/native-preview": "catalog:typescript",
     "nestia": "workspace:^",
-    "ttsc": "catalog:typescript",
-    "typescript": "catalog:typescript"
+    "ttsc": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"
 }
