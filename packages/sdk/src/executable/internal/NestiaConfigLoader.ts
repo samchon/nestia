@@ -4,6 +4,7 @@ import path from "path";
 import { pathToFileURL } from "url";
 
 import { INestiaConfig } from "../../INestiaConfig";
+import { EmittedJavaScriptPatcher } from "../../utils/EmittedJavaScriptPatcher";
 import { TsConfigReader } from "../../utils/TsConfigReader";
 import { TtscExecutor } from "../../utils/TtscExecutor";
 
@@ -125,6 +126,7 @@ export namespace NestiaConfigLoader {
     } finally {
       fs.rmSync(wrapperRoot, { force: true, recursive: true });
     }
+    await EmittedJavaScriptPatcher.importMetaUrl(outputRoot);
 
     const configKey: string = emittedJavaScriptKey(projectRoot, configFile);
     const next: string = path.join(outputRoot, configKey);
@@ -274,10 +276,7 @@ export namespace NestiaConfigLoader {
   const isTransform = (plugin: MaterializePlugin, name: string): boolean =>
     typeof plugin.transform === "string" && plugin.transform.includes(name);
 
-  const findConfigFile = (
-    cwd: string,
-    project: string,
-  ): string | undefined => {
+  const findConfigFile = (cwd: string, project: string): string | undefined => {
     const candidate: string = path.isAbsolute(project)
       ? project
       : path.resolve(cwd, project);

@@ -12,6 +12,7 @@ import { INestiaConfig } from "../INestiaConfig";
 import { SdkGenerator } from "../generates/SdkGenerator";
 import { INestiaSdkInput } from "../structures/INestiaSdkInput";
 import { ArrayUtil } from "../utils/ArrayUtil";
+import { EmittedJavaScriptPatcher } from "../utils/EmittedJavaScriptPatcher";
 import { MapUtil } from "../utils/MapUtil";
 import { SourceFinder } from "../utils/SourceFinder";
 import { TsConfigReader } from "../utils/TsConfigReader";
@@ -175,6 +176,7 @@ class RuntimeCompiler {
     } finally {
       await fs.promises.rm(project, { force: true });
     }
+    await EmittedJavaScriptPatcher.importMetaUrl(outDir);
     return new RuntimeCompiler(cwd, outDir);
   }
 
