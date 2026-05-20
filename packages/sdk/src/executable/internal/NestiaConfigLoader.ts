@@ -4,6 +4,7 @@ import path from "path";
 import { pathToFileURL } from "url";
 
 import { INestiaConfig } from "../../INestiaConfig";
+import { EmittedJavaScriptPatcher } from "../../utils/EmittedJavaScriptPatcher";
 import { TsConfigReader } from "../../utils/TsConfigReader";
 import { TtscExecutor } from "../../utils/TtscExecutor";
 
@@ -105,6 +106,7 @@ export namespace NestiaConfigLoader {
     try {
       TtscExecutor.run({
         cwd: projectRoot,
+        env: sdkTransformEnv(),
         project: wrapperFile,
       });
     } catch (error) {
@@ -125,6 +127,7 @@ export namespace NestiaConfigLoader {
     } finally {
       fs.rmSync(wrapperRoot, { force: true, recursive: true });
     }
+    await EmittedJavaScriptPatcher.importMetaUrl(outputRoot);
 
     const configKey: string = emittedJavaScriptKey(projectRoot, configFile);
     const next: string = path.join(outputRoot, configKey);
@@ -233,6 +236,11 @@ export namespace NestiaConfigLoader {
 
   type MaterializePlugin = Record<string, unknown> & { transform?: unknown };
 
+  const sdkTransformEnv = (): NodeJS.ProcessEnv =>
+    process.env.NESTIA_SDK_TRANSFORM === undefined
+      ? { NESTIA_SDK_TRANSFORM: "1" }
+      : {};
+
   const materializePlugins = (input: unknown): MaterializePlugin[] => {
     const plugins: MaterializePlugin[] = Array.isArray(input)
       ? input
@@ -241,9 +249,6 @@ export namespace NestiaConfigLoader {
       : [];
     const typia: MaterializePlugin | undefined = plugins.find((p) =>
       isTransform(p, "typia"),
-    );
-    const sdk: MaterializePlugin | undefined = plugins.find((p) =>
-      isTransform(p, "@nestia/sdk"),
     );
     const core: MaterializePlugin | undefined = plugins.find((p) =>
       isTransform(p, "@nestia/core"),
@@ -254,10 +259,6 @@ export namespace NestiaConfigLoader {
         transform: "typia/lib/transform",
         enabled: false,
       },
-      normalizePlugin({
-        ...(sdk ?? {}),
-        transform: "@nestia/sdk/lib/transform",
-      }),
       normalizePlugin({
         ...(core ?? {}),
         transform: "@nestia/core/native/transform.cjs",
@@ -274,10 +275,7 @@ export namespace NestiaConfigLoader {
   const isTransform = (plugin: MaterializePlugin, name: string): boolean =>
     typeof plugin.transform === "string" && plugin.transform.includes(name);
 
-  const findConfigFile = (
-    cwd: string,
-    project: string,
-  ): string | undefined => {
+  const findConfigFile = (cwd: string, project: string): string | undefined => {
     const candidate: string = path.isAbsolute(project)
       ? project
       : path.resolve(cwd, project);

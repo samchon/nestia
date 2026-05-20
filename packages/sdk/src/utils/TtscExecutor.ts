@@ -5,6 +5,7 @@ import path from "path";
 export namespace TtscExecutor {
   export const run = (props: {
     cwd: string;
+    env?: NodeJS.ProcessEnv;
     project: string;
     stdio?: cp.StdioOptions;
   }): Buffer => {
@@ -13,6 +14,10 @@ export namespace TtscExecutor {
       args.push("--cache-dir", process.env.TTSC_CACHE_DIR);
     return cp.execFileSync(process.execPath, args, {
       cwd: props.cwd,
+      env: {
+        ...process.env,
+        ...props.env,
+      },
       stdio: props.stdio ?? "pipe",
       maxBuffer: 64 * 1024 * 1024,
     });

@@ -1,4 +1,4 @@
-package main
+package transform
 
 import (
 	"fmt"
@@ -163,7 +163,7 @@ func (rs *nativeRewriteSet) findSourceForOutput(outputName string) (string, bool
 	outSlash := strings.TrimSuffix(filepath.ToSlash(outputName), filepath.Ext(outputName))
 	for path := range rs.byPath {
 		srcStem := strings.TrimSuffix(filepath.ToSlash(path), filepath.Ext(path))
-		if outputMatchesSourceStem(outSlash, srcStem) {
+		if OutputMatchesSourceStem(outSlash, srcStem) {
 			return path, true
 		}
 	}
@@ -208,7 +208,7 @@ func outputHasBuildMarker(stem string) bool {
 	return false
 }
 
-func outputMatchesSourceStem(outputStem string, sourceStem string) bool {
+func OutputMatchesSourceStem(outputStem string, sourceStem string) bool {
 	if outputStem == sourceStem {
 		return true
 	}

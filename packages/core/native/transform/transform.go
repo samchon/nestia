@@ -1,4 +1,4 @@
-package main
+package transform
 
 import (
 	"bytes"
@@ -94,27 +94,27 @@ func runTransform(args []string) int {
 		readTypiaPluginOptions(cwd, *tsconfigPath),
 	)
 	if len(diagnostics) > 0 {
-		writeTypiaTransformDiagnostics(stderr, diagnostics, cwd)
+		WriteTypiaTransformDiagnostics(stderr, diagnostics, cwd)
 		return 3
 	}
 	coreRewriteMap, coreDiagnostics := collectNestiaCoreSourceRewriteMap(prog, plan, absFile)
 	if len(coreDiagnostics) > 0 {
-		writeTypiaTransformDiagnostics(stderr, coreDiagnostics, cwd)
+		WriteTypiaTransformDiagnostics(stderr, coreDiagnostics, cwd)
 		return 3
 	}
 	rewrites = append(rewrites, coreRewriteMap[filepath.ToSlash(absFile)]...)
-	sdkRewriteMap, sdkDiagnostics := collectNestiaSDKSourceRewriteMap(prog, plan, absFile)
-	if len(sdkDiagnostics) > 0 {
-		writeTypiaTransformDiagnostics(stderr, sdkDiagnostics, cwd)
+	contributorRewriteMap, contributorDiagnostics := collectContributorSourceRewriteMap(prog, plan, absFile)
+	if len(contributorDiagnostics) > 0 {
+		WriteTypiaTransformDiagnostics(stderr, contributorDiagnostics, cwd)
 		return 3
 	}
-	rewrites = append(rewrites, sdkRewriteMap[filepath.ToSlash(absFile)]...)
-	source, ok := sourceFileText(target)
+	rewrites = append(rewrites, contributorRewriteMap[filepath.ToSlash(absFile)]...)
+	source, ok := SourceFileText(target)
 	if !ok {
 		fmt.Fprintf(stderr, "ttsc-nestia transform: source text is unavailable for %s\n", absFile)
 		return 3
 	}
-	source, err = applySourceRewrites(source, rewrites)
+	source, err = ApplySourceRewrites(source, rewrites)
 	if err != nil {
 		fmt.Fprintf(stderr, "ttsc-nestia transform: source rewrite: %v\n", err)
 		return 3
@@ -149,12 +149,12 @@ func runTransformProject(prog *driver.Program, cwd string, tsconfigPath string, 
 	for file, entries := range coreRewriteMap {
 		rewrites[file] = append(rewrites[file], entries...)
 	}
-	diags = append(diags, coreDiags...)
-	sdkRewriteMap, sdkDiags := collectNestiaSDKSourceRewriteMap(prog, plan, "")
-	for file, entries := range sdkRewriteMap {
+	contributorRewriteMap, contributorDiags := collectContributorSourceRewriteMap(prog, plan, "")
+	for file, entries := range contributorRewriteMap {
 		rewrites[file] = append(rewrites[file], entries...)
 	}
-	diags = append(diags, sdkDiags...)
+	diags = append(diags, coreDiags...)
+	diags = append(diags, contributorDiags...)
 	output := transformProjectOutput{
 		Diagnostics: make([]transformCompilerDiagnostic, 0, len(diags)),
 		TypeScript:  map[string]string{},
@@ -164,7 +164,7 @@ func runTransformProject(prog *driver.Program, cwd string, tsconfigPath string, 
 	}
 	for _, file := range prog.SourceFiles() {
 		filename := filepath.ToSlash(file.FileName())
-		source, ok := sourceFileText(file)
+		source, ok := SourceFileText(file)
 		if !ok {
 			output.Diagnostics = append(
 				output.Diagnostics,
@@ -172,7 +172,7 @@ func runTransformProject(prog *driver.Program, cwd string, tsconfigPath string, 
 			)
 			continue
 		}
-		transformed, err := applySourceRewrites(source, rewrites[filename])
+		transformed, err := ApplySourceRewrites(source, rewrites[filename])
 		if err != nil {
 			output.Diagnostics = append(
 				output.Diagnostics,
@@ -192,7 +192,7 @@ func runTransformProject(prog *driver.Program, cwd string, tsconfigPath string, 
 	return 0
 }
 
-type transformSourceRewrite struct {
+type SourceRewrite struct {
 	start       int
 	end         int
 	replacement string
@@ -203,30 +203,30 @@ func collectTypiaSourceRewrites(
 	cwd string,
 	onlyFile string,
 	pluginOptions typiaadapter.PluginOptions,
-) ([]transformSourceRewrite, []typiaTransformDiagnostic) {
+) ([]SourceRewrite, []Diagnostic) {
 	sites := collectNestiaTypiaCallSites(prog.SourceFiles(), prog.Checker)
-	rewrites := []transformSourceRewrite{}
-	diagnostics := []typiaTransformDiagnostic{}
+	rewrites := []SourceRewrite{}
+	diagnostics := []Diagnostic{}
 	for _, site := range sites {
 		if filepath.ToSlash(site.FilePath) != filepath.ToSlash(onlyFile) {
 			continue
 		}
 		if reason := typiaadapter.UnsupportedReason(site); reason != "" {
-			diagnostics = append(diagnostics, newTypiaTransformDiagnostic(site, reason))
+			diagnostics = append(diagnostics, NewDiagnostic(site, reason))
 			continue
 		}
 		expr, handled, err := typiaadapter.EmitCallWithOptionsPreservingTypes(prog, site, pluginOptions)
 		if !handled {
-			diagnostics = append(diagnostics, newTypiaTransformDiagnostic(site, "method not covered"))
+			diagnostics = append(diagnostics, NewDiagnostic(site, "method not covered"))
 			continue
 		}
 		if err != nil {
-			diagnostics = append(diagnostics, newTypiaTransformDiagnostic(site, err.Error()))
+			diagnostics = append(diagnostics, NewDiagnostic(site, err.Error()))
 			continue
 		}
 		expr = parenthesizeTypiaReplacement(site, expr)
 		node := site.Call.AsNode()
-		rewrites = append(rewrites, transformSourceRewrite{
+		rewrites = append(rewrites, SourceRewrite{
 			start:       node.Pos(),
 			end:         node.End(),
 			replacement: expr,
@@ -239,28 +239,28 @@ func collectTypiaSourceRewrites(
 func collectTypiaSourceRewriteMap(
 	prog *driver.Program,
 	pluginOptions typiaadapter.PluginOptions,
-) (map[string][]transformSourceRewrite, []typiaTransformDiagnostic) {
+) (map[string][]SourceRewrite, []Diagnostic) {
 	sites := collectNestiaTypiaCallSites(prog.SourceFiles(), prog.Checker)
-	rewrites := map[string][]transformSourceRewrite{}
-	diagnostics := []typiaTransformDiagnostic{}
+	rewrites := map[string][]SourceRewrite{}
+	diagnostics := []Diagnostic{}
 	for _, site := range sites {
 		file := filepath.ToSlash(site.FilePath)
 		if reason := typiaadapter.UnsupportedReason(site); reason != "" {
-			diagnostics = append(diagnostics, newTypiaTransformDiagnostic(site, reason))
+			diagnostics = append(diagnostics, NewDiagnostic(site, reason))
 			continue
 		}
 		expr, handled, err := typiaadapter.EmitCallWithOptionsPreservingTypes(prog, site, pluginOptions)
 		if !handled {
-			diagnostics = append(diagnostics, newTypiaTransformDiagnostic(site, "method not covered"))
+			diagnostics = append(diagnostics, NewDiagnostic(site, "method not covered"))
 			continue
 		}
 		if err != nil {
-			diagnostics = append(diagnostics, newTypiaTransformDiagnostic(site, err.Error()))
+			diagnostics = append(diagnostics, NewDiagnostic(site, err.Error()))
 			continue
 		}
 		expr = parenthesizeTypiaReplacement(site, expr)
 		node := site.Call.AsNode()
-		rewrites[file] = append(rewrites[file], transformSourceRewrite{
+		rewrites[file] = append(rewrites[file], SourceRewrite{
 			start:       node.Pos(),
 			end:         node.End(),
 			replacement: expr,
@@ -269,7 +269,7 @@ func collectTypiaSourceRewriteMap(
 	return rewrites, diagnostics
 }
 
-func applySourceRewrites(source string, rewrites []transformSourceRewrite) (string, error) {
+func ApplySourceRewrites(source string, rewrites []SourceRewrite) (string, error) {
 	sort.SliceStable(rewrites, func(i, j int) bool {
 		return rewrites[i].start > rewrites[j].start
 	})
@@ -289,7 +289,7 @@ func applySourceRewrites(source string, rewrites []transformSourceRewrite) (stri
 	return output, nil
 }
 
-func sourceFileText(target any) (string, bool) {
+func SourceFileText(target any) (string, bool) {
 	type sourceText interface {
 		Text() string
 	}
@@ -369,7 +369,7 @@ func newTransformCompilerDiagnostic(
 }
 
 func transformDiagnosticToCompilerDiagnostic(
-	diag typiaTransformDiagnostic,
+	diag Diagnostic,
 ) transformCompilerDiagnostic {
 	var ptr *string
 	if diag.File != "" {

@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "12.0.0-dev.20260520.1",
+  "version": "12.0.0-dev.20260521.6",
   "description": "Nestia SDK and Swagger generator",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -33,11 +33,6 @@
     "dev": "ttsc --watch",
     "prepack": "pnpm run build",
     "test:go": "cd test && go test ./..."
-  },
-  "ttsc": {
-    "plugin": {
-      "transform": "@nestia/sdk/lib/transform"
-    }
   },
   "repository": {
     "type": "git",
@@ -85,6 +80,9 @@
   "files": [
     "assets",
     "lib",
+    "native/go.mod",
+    "native/go.sum",
+    "native/sdk",
     "src",
     "README.md",
     "LICENSE",

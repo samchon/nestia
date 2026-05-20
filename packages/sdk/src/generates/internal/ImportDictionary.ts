@@ -61,15 +61,7 @@ export class ImportDictionary {
   }
 
   public internal(props: ImportDictionary.IProps): string {
-    const file: string = normalize(
-      (() => {
-        if (props.file.substring(props.file.length - 5) === ".d.ts")
-          return props.file.substring(0, props.file.length - 5);
-        else if (props.file.substring(props.file.length - 3) === ".ts")
-          return props.file.substring(0, props.file.length - 3);
-        return props.file;
-      })(),
-    );
+    const file: string = normalize(trimSourceExtension(props.file));
     const key: ICompositeKey = {
       file: file,
       declaration: props.declaration,
@@ -102,8 +94,7 @@ export class ImportDictionary {
         : location.substring(index + NODE_MODULES.length);
     };
     const enroll =
-      (filter: (str: string) => boolean) =>
-      (container: Node[]) => {
+      (filter: (str: string) => boolean) => (container: Node[]) => {
         const compositions: ICompositeValue[] = this.components_
           .toJSON()
           .filter((c) => filter(c.second.file))
@@ -183,6 +174,19 @@ interface ICompositeValue extends ICompositeKey {
 }
 
 const NODE_MODULES = "node_modules/";
+const SOURCE_EXTENSIONS: string[] = [
+  ".d.mts",
+  ".d.cts",
+  ".d.ts",
+  ".mts",
+  ".cts",
+  ".tsx",
+  ".ts",
+  ".mjs",
+  ".cjs",
+  ".jsx",
+  ".js",
+];
 
 const normalize = (file: string): string => {
   file = path.resolve(file);
@@ -190,5 +194,11 @@ const normalize = (file: string): string => {
     file =
       "node_modules/" +
       file.split(`node_modules${path.sep}`).at(-1)!.split(path.sep).join("/");
+  return file;
+};
+
+const trimSourceExtension = (file: string): string => {
+  for (const ext of SOURCE_EXTENSIONS)
+    if (file.endsWith(ext)) return file.substring(0, file.length - ext.length);
   return file;
 };

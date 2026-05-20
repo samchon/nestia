@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -6,51 +7,69 @@ interface ITtscPluginFactoryContext {
   projectRoot: string;
 }
 
-/**
- * @internal
- *
- * The `composes` array order is load-bearing: `typia/lib/transform` first
- * (host), then peers consumed by the Go binary's `plugin.ParsePlan`.
- */
+/** @internal */
 interface ITtscPlugin {
   name: string;
   source: string;
   composes: string[];
+  contributors?: { name: string; source: string }[];
 }
 
 const filename: string = currentFilename();
 const dirname: string = path.dirname(filename);
 
+/**
+ * `@nestia/core` ttsc plugin descriptor.
+ *
+ * `@nestia/sdk` is not a standalone plugin: its Go transform is declared here
+ * as a `contributor` that ttsc statically links into this host binary, and
+ * only when `@nestia/sdk` is actually resolvable from the project. A project
+ * depending on `@nestia/core` alone never compiles any SDK transform code.
+ */
 export function createTtscPlugin(
   context: ITtscPluginFactoryContext,
 ): ITtscPlugin {
-  const root: string =
-    resolvePackageRoot("@nestia/core/package.json", context.projectRoot) ??
-    inferPackageRoot();
-  return {
+  const plugin: ITtscPlugin = {
     name: "@nestia/core",
-    source: path.resolve(root, "native", "cmd", "ttsc-nestia"),
-    composes: [
-      "typia/lib/transform",
-      "@nestia/sdk/lib/transform",
-    ],
+    source: path.resolve(root(context), "native", "cmd", "ttsc-nestia"),
+    composes: ["typia/lib/transform"],
   };
+  const sdk: string | null = resolveSdkContributorSource(context);
+  if (sdk !== null) plugin.contributors = [{ name: "sdk", source: sdk }];
+  return plugin;
 }
 export default createTtscPlugin;
+
+function root(context: ITtscPluginFactoryContext): string {
+  return (
+    resolvePackageRoot("@nestia/core/package.json", context.projectRoot) ??
+    path.resolve(dirname, "..")
+  );
+}
+
+function resolveSdkContributorSource(
+  context: ITtscPluginFactoryContext,
+): string | null {
+  const manifest: string | null = resolvePackageRoot(
+    "@nestia/sdk/package.json",
+    context.projectRoot,
+  );
+  if (manifest === null) return null;
+  const source: string = path.resolve(manifest, "native", "sdk");
+  return fs.existsSync(source) ? source : null;
+}
 
 function resolvePackageRoot(
   packageJson: string,
   projectRoot: string,
 ): string | null {
   try {
-    return path.dirname(require.resolve(packageJson, { paths: [projectRoot] }));
+    return path.dirname(
+      require.resolve(packageJson, { paths: [dirname, projectRoot] }),
+    );
   } catch {
     return null;
   }
-}
-
-function inferPackageRoot(): string {
-  return path.resolve(dirname, "..");
 }
 
 function currentFilename(): string {

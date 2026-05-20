@@ -12,6 +12,7 @@ import { INestiaConfig } from "../INestiaConfig";
 import { SdkGenerator } from "../generates/SdkGenerator";
 import { INestiaSdkInput } from "../structures/INestiaSdkInput";
 import { ArrayUtil } from "../utils/ArrayUtil";
+import { EmittedJavaScriptPatcher } from "../utils/EmittedJavaScriptPatcher";
 import { MapUtil } from "../utils/MapUtil";
 import { SourceFinder } from "../utils/SourceFinder";
 import { TsConfigReader } from "../utils/TsConfigReader";
@@ -164,6 +165,7 @@ class RuntimeCompiler {
     try {
       TtscExecutor.run({
         cwd,
+        env: sdkTransformEnv(),
         project,
       });
     } catch (error) {
@@ -175,6 +177,7 @@ class RuntimeCompiler {
     } finally {
       await fs.promises.rm(project, { force: true });
     }
+    await EmittedJavaScriptPatcher.importMetaUrl(outDir);
     return new RuntimeCompiler(cwd, outDir);
   }
 
@@ -226,13 +229,15 @@ const ensureRuntimeCleanup = (runtimeRoot: string): void => {
 
 type RuntimePlugin = Record<string, unknown> & { transform?: unknown };
 
+const sdkTransformEnv = (): NodeJS.ProcessEnv =>
+  process.env.NESTIA_SDK_TRANSFORM === undefined
+    ? { NESTIA_SDK_TRANSFORM: "1" }
+    : {};
+
 const runtimePlugins = async (cwd: string): Promise<RuntimePlugin[]> => {
   const plugins: RuntimePlugin[] = await readProjectPlugins(cwd);
   const typia: RuntimePlugin | undefined = plugins.find((p) =>
     isTransform(p, "typia"),
-  );
-  const sdk: RuntimePlugin | undefined = plugins.find((p) =>
-    isTransform(p, "@nestia/sdk"),
   );
   const core: RuntimePlugin | undefined = plugins.find((p) =>
     isTransform(p, "@nestia/core"),
@@ -243,10 +248,6 @@ const runtimePlugins = async (cwd: string): Promise<RuntimePlugin[]> => {
       transform: "typia/lib/transform",
       enabled: false,
     },
-    normalizeRuntimePlugin({
-      ...(sdk ?? {}),
-      transform: "@nestia/sdk/lib/transform",
-    }),
     normalizeRuntimePlugin({
       ...(core ?? {}),
       transform: "@nestia/core/native/transform.cjs",

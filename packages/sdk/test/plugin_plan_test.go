@@ -12,6 +12,12 @@ import (
 	"github.com/samchon/nestia/packages/core/native/plugin"
 )
 
+// sdkLinkedPluginsEnv tells the ttsc driver that one linked plugin — the SDK
+// contributor — is present, so it invokes the plugin the blank import in
+// cmd/ttsc-nestia-sdk registers. ttsc sets this env for real contributor
+// builds; the test-support host reproduces it.
+const sdkLinkedPluginsEnv = `TTSC_LINKED_PLUGINS_JSON=[{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`
+
 func TestParsePlanDetectsSDKTransform(t *testing.T) {
 	plan, err := plugin.ParsePlan(`[
 		{"name":"@nestia/sdk","config":{"transform":"@nestia/sdk/lib/transform"}}
@@ -80,7 +86,7 @@ func TestSDKNativeBuildInjectsOperationMetadata(t *testing.T) {
 	cmd := exec.Command(
 		"go",
 		"run",
-		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		filepath.Join(root, "packages/sdk/native/cmd/ttsc-nestia-sdk"),
 		"build",
 		"--cwd", temp,
 		"--tsconfig", "tsconfig.json",
@@ -88,7 +94,8 @@ func TestSDKNativeBuildInjectsOperationMetadata(t *testing.T) {
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
-	cmd.Dir = filepath.Join(root, "packages/core/native")
+	cmd.Dir = filepath.Join(root, "packages/sdk/native")
+	cmd.Env = append(os.Environ(), sdkLinkedPluginsEnv)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
@@ -98,16 +105,29 @@ func TestSDKNativeBuildInjectsOperationMetadata(t *testing.T) {
 		t.Fatal(err)
 	}
 	text := string(js)
+	// The SDK contributor injects the namespace import and the
+	// OperationMetadata decorator as synthesized AST nodes; the emitter prints
+	// the `import * as` namespace import in the esModuleInterop `__importStar`
+	// form.
 	for _, expected := range []string{
-		`const __OperationMetadata = require("@nestia/sdk");`,
+		`const __OperationMetadata = __importStar(require("@nestia/sdk"));`,
 		`__OperationMetadata.OperationMetadata(`,
 		`core_1.default.TypedRoute.Put(":id", ({`,
 		`core_1.default.TypedBody(({`,
-		`"name":"IBbsArticle.IUpdate"`,
-		`"elements":["IBbsArticle"]`,
 	} {
 		if !strings.Contains(text, expected) {
 			t.Fatalf("emitted JavaScript is missing %q\n%s", expected, text)
+		}
+	}
+	// The metadata rides in a single JSON string literal that the decorator
+	// JSON.parses at runtime; decode it back to the raw metadata JSON.
+	meta := extractOperationMetadataJSON(t, js)
+	for _, expected := range []string{
+		`"name":"IBbsArticle.IUpdate"`,
+		`"elements":["IBbsArticle"]`,
+	} {
+		if !strings.Contains(meta, expected) {
+			t.Fatalf("OperationMetadata JSON is missing %q\n%s", expected, meta)
 		}
 	}
 }
@@ -149,7 +169,7 @@ func TestSDKNativeBuildInjectsTypedExceptionMetadata(t *testing.T) {
 	cmd := exec.Command(
 		"go",
 		"run",
-		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		filepath.Join(root, "packages/sdk/native/cmd/ttsc-nestia-sdk"),
 		"build",
 		"--cwd", temp,
 		"--tsconfig", "tsconfig.json",
@@ -157,7 +177,8 @@ func TestSDKNativeBuildInjectsTypedExceptionMetadata(t *testing.T) {
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
-	cmd.Dir = filepath.Join(root, "packages/core/native")
+	cmd.Dir = filepath.Join(root, "packages/sdk/native")
+	cmd.Env = append(os.Environ(), sdkLinkedPluginsEnv)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
@@ -166,7 +187,7 @@ func TestSDKNativeBuildInjectsTypedExceptionMetadata(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	text := string(js)
+	meta := extractOperationMetadataJSON(t, js)
 	for _, expected := range []string{
 		`"exceptions":[`,
 		`"name":"TypeGuardError"`,
@@ -176,8 +197,8 @@ func TestSDKNativeBuildInjectsTypedExceptionMetadata(t *testing.T) {
 		`"name":"throws"`,
 		`"text":"400 invalid request"`,
 	} {
-		if !strings.Contains(text, expected) {
-			t.Fatalf("emitted JavaScript is missing %q\n%s", expected, text)
+		if !strings.Contains(meta, expected) {
+			t.Fatalf("OperationMetadata JSON is missing %q\n%s", expected, meta)
 		}
 	}
 }
@@ -218,7 +239,7 @@ func TestSDKNativeBuildKeepsImportsArrayForInferredReturn(t *testing.T) {
 	cmd := exec.Command(
 		"go",
 		"run",
-		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		filepath.Join(root, "packages/sdk/native/cmd/ttsc-nestia-sdk"),
 		"build",
 		"--cwd", temp,
 		"--tsconfig", "tsconfig.json",
@@ -226,7 +247,8 @@ func TestSDKNativeBuildKeepsImportsArrayForInferredReturn(t *testing.T) {
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
-	cmd.Dir = filepath.Join(root, "packages/core/native")
+	cmd.Dir = filepath.Join(root, "packages/sdk/native")
+	cmd.Env = append(os.Environ(), sdkLinkedPluginsEnv)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
@@ -235,34 +257,83 @@ func TestSDKNativeBuildKeepsImportsArrayForInferredReturn(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	text := string(js)
+	meta := extractOperationMetadataJSON(t, js)
 	expected := `"success":{"imports":[]`
-	if !strings.Contains(text, expected) {
-		t.Fatalf("inferred return metadata is missing imports array\n%s", text)
+	if !strings.Contains(meta, expected) {
+		t.Fatalf("inferred return metadata is missing imports array\n%s", meta)
 	}
 }
 
+// Verifies an empty `@security` JSDoc tag is carried into the SDK metadata
+// with no `text`, so the Swagger generator can emit an optional security
+// requirement.
+//
+// The SDK transform is a linked contributor that injects metadata during the
+// emit pass, so this exercises a `build` (not the bare `transform` subcommand,
+// which prints rewritten source text and never runs the AST-level contributor).
+//
+//  1. Build SecurityController with both core and sdk plugins enabled.
+//  2. Decode the injected OperationMetadata JSON literals.
+//  3. Assert a bare `{"name":"security"}` tag survives next to a tagged one.
 func TestSDKNativeTransformKeepsEmptyJSDocTagsUndefined(t *testing.T) {
 	root := repoRoot(t)
+	temp := t.TempDir()
+	tsconfig := filepath.Join(temp, "tsconfig.json")
+	featureRoot := filepath.Join(root, "tests/test-sdk/features/security")
+	sourceRoot := filepath.Join(featureRoot, "src")
+	typeRoots := nodeTypeRoots(t, root)
+	if err := os.WriteFile(
+		tsconfig,
+		[]byte(`{
+  "extends": "`+filepath.ToSlash(filepath.Join(featureRoot, "tsconfig.json"))+`",
+  "compilerOptions": {
+    "rootDir": "`+filepath.ToSlash(root)+`",
+    "types": ["node"],
+    "typeRoots": ["`+typeRoots+`"],
+    "paths": {
+      "@api": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api"))+`"],
+      "@api/lib/*": ["`+filepath.ToSlash(filepath.Join(sourceRoot, "api/*"))+`"],
+      "@nestia/core": ["`+filepath.ToSlash(filepath.Join(root, "packages/core/src"))+`"],
+      "@nestia/core/*": ["`+filepath.ToSlash(filepath.Join(root, "packages/core/src/*"))+`"],
+      "@nestia/sdk": ["`+filepath.ToSlash(filepath.Join(root, "packages/sdk/src"))+`"],
+      "@nestia/sdk/*": ["`+filepath.ToSlash(filepath.Join(root, "packages/sdk/src/*"))+`"]
+    }
+  },
+  "include": [
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "controllers/SecurityController.ts"))+`",
+    "`+filepath.ToSlash(filepath.Join(sourceRoot, "api/structures/**/*.ts"))+`"
+  ]
+}`),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	outDir := filepath.Join(temp, "lib")
 	cmd := exec.Command(
 		"go",
 		"run",
-		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
-		"transform",
-		"--cwd", filepath.Join(root, "tests/test-sdk"),
-		"--tsconfig", "features/security/tsconfig.json",
-		"--file", filepath.Join(root, "tests/test-sdk/features/security/src/controllers/SecurityController.ts"),
+		filepath.Join(root, "packages/sdk/native/cmd/ttsc-nestia-sdk"),
+		"build",
+		"--cwd", temp,
+		"--tsconfig", "tsconfig.json",
+		"--emit",
+		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
-	cmd.Dir = filepath.Join(root, "packages/core/native")
+	cmd.Dir = filepath.Join(root, "packages/sdk/native")
+	cmd.Env = append(os.Environ(), sdkLinkedPluginsEnv)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		t.Fatalf("native transform failed: %v\n%s", err, out)
+		t.Fatalf("native build failed: %v\n%s", err, out)
 	}
-	text := string(out)
+	js, err := os.ReadFile(emittedJSPath(t, root, outDir, filepath.Join(sourceRoot, "controllers/SecurityController.ts")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	meta := extractOperationMetadataJSON(t, js)
 	expected := `"jsDocTags":[{"name":"security"},{"name":"security","text":[`
-	if !strings.Contains(text, expected) {
-		t.Fatalf("empty JSDoc tag should omit text so Swagger can emit optional security\n%s", text)
+	if !strings.Contains(meta, expected) {
+		t.Fatalf("empty JSDoc tag should omit text so Swagger can emit optional security\n%s", meta)
 	}
 }
 
@@ -315,7 +386,7 @@ func TestSDKOperationMetadataShapeRoundTrip(t *testing.T) {
 	cmd := exec.Command(
 		"go",
 		"run",
-		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		filepath.Join(root, "packages/sdk/native/cmd/ttsc-nestia-sdk"),
 		"build",
 		"--cwd", temp,
 		"--tsconfig", "tsconfig.json",
@@ -323,7 +394,8 @@ func TestSDKOperationMetadataShapeRoundTrip(t *testing.T) {
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
-	cmd.Dir = filepath.Join(root, "packages/core/native")
+	cmd.Dir = filepath.Join(root, "packages/sdk/native")
+	cmd.Env = append(os.Environ(), sdkLinkedPluginsEnv)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
 	}
@@ -379,56 +451,79 @@ func TestSDKOperationMetadataShapeRoundTrip(t *testing.T) {
 	}
 }
 
-// extractFirstOperationMetadataLiteral scans the emitted JS for the first
-// __OperationMetadata.OperationMetadata( call and returns the inner JSON
-// object literal (everything between the matching `{` and `}`). The
-// transformer emits valid JSON via json.Marshal (see
-// nestiaSDKMetadataLiteralText in packages/core/native/cmd/ttsc-nestia/
-// sdk_transform.go), so the slice can be fed directly to json.Unmarshal.
-func extractFirstOperationMetadataLiteral(js []byte) ([]byte, error) {
+// extractAllOperationMetadataLiterals scans build output for every
+// __OperationMetadata.OperationMetadata("<json>") call and returns the decoded
+// metadata JSON of each.
+//
+// The SDK contributor injects metadata as one JSON string literal that the
+// OperationMetadata decorator JSON.parses at runtime (see
+// packages/sdk/native/sdk/register.go). The emitter prints that argument as a
+// double-quoted JS string literal — itself a valid JSON string — so a single
+// json.Unmarshal pass unescapes it back to the raw metadata JSON that
+// json.Marshal produced in packages/sdk/native/sdk/sdk_metadata_json.go.
+func extractAllOperationMetadataLiterals(data []byte) ([][]byte, error) {
 	const needle = "__OperationMetadata.OperationMetadata("
-	idx := bytes.Index(js, []byte(needle))
-	if idx < 0 {
+	var literals [][]byte
+	for rest := data; ; {
+		idx := bytes.Index(rest, []byte(needle))
+		if idx < 0 {
+			break
+		}
+		rest = rest[idx+len(needle):]
+		start := 0
+		for start < len(rest) && (rest[start] == ' ' || rest[start] == '\t' || rest[start] == '\n' || rest[start] == '\r') {
+			start++
+		}
+		if start >= len(rest) || rest[start] != '"' {
+			return nil, &literalError{msg: "OperationMetadata argument is not a string literal"}
+		}
+		end := start + 1
+		for end < len(rest) && rest[end] != '"' {
+			if rest[end] == '\\' {
+				end++
+			}
+			end++
+		}
+		if end >= len(rest) {
+			return nil, &literalError{msg: "unterminated OperationMetadata string literal"}
+		}
+		var inner string
+		if err := json.Unmarshal(rest[start:end+1], &inner); err != nil {
+			return nil, &literalError{msg: "OperationMetadata literal is not a decodable JS string: " + err.Error()}
+		}
+		literals = append(literals, []byte(inner))
+		rest = rest[end+1:]
+	}
+	if len(literals) == 0 {
 		return nil, &literalError{msg: "OperationMetadata call not found"}
 	}
-	start := idx + len(needle)
-	for start < len(js) && js[start] != '{' {
-		start++
+	return literals, nil
+}
+
+// extractFirstOperationMetadataLiteral returns the decoded metadata JSON of the
+// first OperationMetadata call, ready for json.Unmarshal.
+func extractFirstOperationMetadataLiteral(data []byte) ([]byte, error) {
+	literals, err := extractAllOperationMetadataLiterals(data)
+	if err != nil {
+		return nil, err
 	}
-	if start >= len(js) {
-		return nil, &literalError{msg: "no opening brace after OperationMetadata("}
+	return literals[0], nil
+}
+
+// extractOperationMetadataJSON decodes every OperationMetadata literal in the
+// build output and joins them with newlines, so a substring assertion can scan
+// the metadata regardless of which controller method carries it.
+func extractOperationMetadataJSON(t *testing.T, data []byte) string {
+	t.Helper()
+	literals, err := extractAllOperationMetadataLiterals(data)
+	if err != nil {
+		t.Fatalf("could not locate __OperationMetadata literal: %v\n%s", err, data)
 	}
-	depth := 0
-	inString := false
-	escape := false
-	for i := start; i < len(js); i++ {
-		c := js[i]
-		if escape {
-			escape = false
-			continue
-		}
-		if inString {
-			switch c {
-			case '\\':
-				escape = true
-			case '"':
-				inString = false
-			}
-			continue
-		}
-		switch c {
-		case '"':
-			inString = true
-		case '{':
-			depth++
-		case '}':
-			depth--
-			if depth == 0 {
-				return js[start : i+1], nil
-			}
-		}
+	parts := make([]string, len(literals))
+	for i, literal := range literals {
+		parts[i] = string(literal)
 	}
-	return nil, &literalError{msg: "unterminated OperationMetadata literal"}
+	return strings.Join(parts, "\n")
 }
 
 type literalError struct{ msg string }
@@ -464,7 +559,7 @@ func TestSDKNativeBuildImportsLocalTypeAliases(t *testing.T) {
 	cmd := exec.Command(
 		"go",
 		"run",
-		filepath.Join(root, "packages/core/native/cmd/ttsc-nestia"),
+		filepath.Join(root, "packages/sdk/native/cmd/ttsc-nestia-sdk"),
 		"build",
 		"--cwd", temp,
 		"--tsconfig", "tsconfig.json",
@@ -472,7 +567,8 @@ func TestSDKNativeBuildImportsLocalTypeAliases(t *testing.T) {
 		"--outDir", outDir,
 		"--plugins-json", `[{"name":"@nestia/core","stage":"transform","config":{"transform":"@nestia/core/lib/transform","validate":"validate","stringify":"assert"}},{"name":"@nestia/sdk","stage":"transform","config":{"transform":"@nestia/sdk/lib/transform"}}]`,
 	)
-	cmd.Dir = filepath.Join(root, "packages/core/native")
+	cmd.Dir = filepath.Join(root, "packages/sdk/native")
+	cmd.Env = append(os.Environ(), sdkLinkedPluginsEnv)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("native build failed: %v\n%s", err, out)
@@ -481,14 +577,12 @@ func TestSDKNativeBuildImportsLocalTypeAliases(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	text := string(js)
-	for _, expected := range []string{
-		`"PubkeyInput"`,
-		`TransactionController`,
-	} {
-		if !strings.Contains(text, expected) {
-			t.Fatalf("local type alias import metadata is missing %q\n%s", expected, text)
-		}
+	if text := string(js); !strings.Contains(text, `TransactionController`) {
+		t.Fatalf("emitted JavaScript is missing the controller class\n%s", text)
+	}
+	meta := extractOperationMetadataJSON(t, js)
+	if !strings.Contains(meta, `"PubkeyInput"`) {
+		t.Fatalf("local type alias import metadata is missing %q\n%s", `"PubkeyInput"`, meta)
 	}
 }
 

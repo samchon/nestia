@@ -1,4 +1,4 @@
-package main
+package sdk
 
 import (
 	"encoding/json"
@@ -13,6 +13,7 @@ import (
 	shimchecker "github.com/microsoft/typescript-go/shim/checker"
 	shimscanner "github.com/microsoft/typescript-go/shim/scanner"
 	"github.com/samchon/nestia/packages/core/native/plugin"
+	"github.com/samchon/nestia/packages/core/native/transform"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 	nativecontext "github.com/samchon/typia/packages/typia/native/core/context"
 	nativefactories "github.com/samchon/typia/packages/typia/native/core/factories"
@@ -118,7 +119,7 @@ func (rs *nestiaSDKBuildRewriteSet) findSourceForOutput(outputName string) (stri
 	outSlash := strings.TrimSuffix(filepath.ToSlash(outputName), filepath.Ext(outputName))
 	for path := range rs.byPath {
 		srcStem := strings.TrimSuffix(filepath.ToSlash(path), filepath.Ext(path))
-		if outputMatchesSourceStem(outSlash, srcStem) {
+		if transform.OutputMatchesSourceStem(outSlash, srcStem) {
 			return path, true
 		}
 	}
@@ -129,19 +130,19 @@ func collectNestiaSDKSourceRewriteMap(
 	prog *driver.Program,
 	plan plugin.Plan,
 	onlyFile string,
-) (map[string][]transformSourceRewrite, []typiaTransformDiagnostic) {
+) (map[string][]transform.SourceRewrite, []transform.Diagnostic) {
 	if plan.SDK == false {
-		return map[string][]transformSourceRewrite{}, nil
+		return map[string][]transform.SourceRewrite{}, nil
 	}
 	sites, diagnostics := collectNestiaSDKSites(prog)
-	rewrites := map[string][]transformSourceRewrite{}
+	rewrites := map[string][]transform.SourceRewrite{}
 	touched := map[string]bool{}
 	for _, site := range sites {
 		file := filepath.ToSlash(site.FilePath)
 		if onlyFile != "" && file != filepath.ToSlash(onlyFile) {
 			continue
 		}
-		source, ok := sourceFileText(site.File)
+		source, ok := transform.SourceFileText(site.File)
 		if !ok {
 			diagnostics = append(diagnostics, nestiaSDKDiagnostic(site, "source text is unavailable"))
 			continue
@@ -151,19 +152,19 @@ func collectNestiaSDKSourceRewriteMap(
 			insert = decorators[0].Pos()
 		}
 		indent := sourceLineIndent(source, insert)
-		rewrites[file] = append(rewrites[file], transformSourceRewrite{
-			start:       insert,
-			end:         insert,
-			replacement: "\n" + indent + "@__OperationMetadata.OperationMetadata(" + site.Metadata + " as any)\n",
-		})
+		rewrites[file] = append(rewrites[file], transform.NewSourceRewrite(
+			insert,
+			insert,
+			"\n"+indent+"@__OperationMetadata.OperationMetadata("+site.Metadata+" as any)\n",
+		))
 		touched[file] = true
 	}
 	for file := range touched {
-		rewrites[file] = append(rewrites[file], transformSourceRewrite{
-			start:       0,
-			end:         0,
-			replacement: "import * as __OperationMetadata from \"@nestia/sdk\";\n",
-		})
+		rewrites[file] = append(rewrites[file], transform.NewSourceRewrite(
+			0,
+			0,
+			"import * as __OperationMetadata from \"@nestia/sdk\";\n",
+		))
 	}
 	return rewrites, diagnostics
 }
@@ -171,7 +172,7 @@ func collectNestiaSDKSourceRewriteMap(
 func collectNestiaSDKBuildRewrites(
 	prog *driver.Program,
 	plan plugin.Plan,
-) (*nestiaSDKBuildRewriteSet, []typiaTransformDiagnostic) {
+) (*nestiaSDKBuildRewriteSet, []transform.Diagnostic) {
 	set := newNestiaSDKBuildRewriteSet()
 	if plan.SDK == false {
 		return set, nil
@@ -183,9 +184,9 @@ func collectNestiaSDKBuildRewrites(
 	return set, diagnostics
 }
 
-func collectNestiaSDKSites(prog *driver.Program) ([]nestiaSDKSite, []typiaTransformDiagnostic) {
+func collectNestiaSDKSites(prog *driver.Program) ([]nestiaSDKSite, []transform.Diagnostic) {
 	sites := []nestiaSDKSite{}
-	diagnostics := []typiaTransformDiagnostic{}
+	diagnostics := []transform.Diagnostic{}
 	context := newNestiaSDKContext(prog)
 	for _, file := range prog.SourceFiles() {
 		if file == nil || file.IsDeclarationFile {
@@ -209,7 +210,7 @@ func visitNestiaSDKNode(
 	node *shimast.Node,
 	visited map[string]bool,
 	sites *[]nestiaSDKSite,
-	diagnostics *[]typiaTransformDiagnostic,
+	diagnostics *[]transform.Diagnostic,
 ) {
 	if node == nil {
 		return
@@ -267,7 +268,7 @@ func nestiaSDKMetadataText(context *nestiaSDKContext, file *shimast.SourceFile, 
 			})
 		}
 	}
-	returnType := nestiaCoreMethodReturnType(prog, method)
+	returnType := transform.NestiaCoreMethodReturnType(prog, method)
 	returnTypeNode := nestiaSDKMethodReturnTypeNode(method)
 	exceptions := nestiaSDKExceptionResponses(context, imports, method)
 	metadata := map[string]any{
@@ -303,7 +304,7 @@ func nestiaSDKMethodJSDoc(file *shimast.SourceFile, method *shimast.Node) nestia
 		Tags:   []any{},
 		Params: map[string]string{},
 	}
-	source, ok := sourceFileText(file)
+	source, ok := transform.SourceFileText(file)
 	if ok == false || method == nil {
 		return doc
 	}
@@ -452,7 +453,7 @@ type nestiaSDKTypedException struct {
 }
 
 func nestiaSDKTypedExceptionInfo(prog *driver.Program, decorator *shimast.Node) *nestiaSDKTypedException {
-	if decorator == nil || decorator.Kind != nestiaCoreKindDecorator {
+	if decorator == nil || decorator.Kind != transform.NestiaCoreKindDecorator {
 		return nil
 	}
 	expression := decorator.AsDecorator().Expression
@@ -460,11 +461,11 @@ func nestiaSDKTypedExceptionInfo(prog *driver.Program, decorator *shimast.Node) 
 		return nil
 	}
 	call := expression.AsCallExpression()
-	segments := nestiaCoreExpressionSegments(call.Expression)
+	segments := transform.NestiaCoreExpressionSegments(call.Expression)
 	if len(segments) == 0 || segments[len(segments)-1] != "TypedException" {
 		return nil
 	}
-	if isNestiaCoreCall(prog, expression) == false {
+	if transform.IsNestiaCoreCall(prog, expression) == false {
 		return nil
 	}
 	if call.TypeArguments == nil || len(call.TypeArguments.Nodes) != 1 {
@@ -1380,7 +1381,7 @@ func nestiaSDKTypeNodeText(node *shimast.Node) string {
 		return ""
 	}
 	file := shimast.GetSourceFileOfNode(node)
-	source, ok := sourceFileText(file)
+	source, ok := transform.SourceFileText(file)
 	if ok == false {
 		return ""
 	}
@@ -1442,6 +1443,12 @@ func insertSDKOperationMetadataDecorator(text string, site nestiaSDKSite, offset
 	if head < 0 {
 		return sdkOperationMetadataInsertResult{text: text, cursor: offset}, false
 	}
+	if strings.Contains(text[head:idx], "__OperationMetadata.OperationMetadata") {
+		return sdkOperationMetadataInsertResult{
+			text:   text,
+			cursor: idx + len(needle),
+		}, true
+	}
 	insert := head + len("__decorate([")
 	decorator := "\n    __OperationMetadata.OperationMetadata(" + site.Metadata + "),"
 	next := text[:insert] + decorator + text[insert:]
@@ -1454,6 +1461,7 @@ func insertSDKOperationMetadataDecorator(text string, site nestiaSDKSite, offset
 func injectSDKOperationMetadataImport(text string) string {
 	if strings.Contains(text, "__OperationMetadata.OperationMetadata") == false ||
 		strings.Contains(text, "const __OperationMetadata = require(\"@nestia/sdk\")") ||
+		strings.Contains(text, "__OperationMetadata = __importStar(require(\"@nestia/sdk\"))") ||
 		strings.Contains(text, "import * as __OperationMetadata from \"@nestia/sdk\"") {
 		return text
 	}
@@ -1523,7 +1531,7 @@ func sourceLineIndent(source string, pos int) string {
 	return source[start:end]
 }
 
-func nestiaSDKDiagnostic(site nestiaSDKSite, message string) typiaTransformDiagnostic {
+func nestiaSDKDiagnostic(site nestiaSDKSite, message string) transform.Diagnostic {
 	line, column := 0, 0
 	if site.File != nil && site.Method != nil {
 		if pos := site.Method.Pos(); pos >= 0 {
@@ -1531,7 +1539,7 @@ func nestiaSDKDiagnostic(site nestiaSDKSite, message string) typiaTransformDiagn
 			line, column = l+1, c+1
 		}
 	}
-	return typiaTransformDiagnostic{
+	return transform.Diagnostic{
 		File:    site.FilePath,
 		Line:    line,
 		Column:  column,

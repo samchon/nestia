@@ -1,6 +1,6 @@
 {
   "name": "@nestia/fetcher",
-  "version": "12.0.0-dev.20260520.1",
+  "version": "12.0.0-dev.20260521.6",
   "description": "Fetcher library of Nestia SDK",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -23,7 +23,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rimraf lib && ttsc && rollup -c rollup.config.mjs",
+    "build": "rimraf lib && ttsc && rollup -c rollup.config.mjs && node ../../deploy/verify-package-exports.cjs --require-main",
     "dev": "rimraf lib && ttsc --watch",
     "prepack": "pnpm run build"
   },

@@ -1,8 +1,8 @@
-package main
+package transform
 
 import "testing"
 
-// Verifies outputMatchesSourceStem accepts virtual-fs same-stem mirrors and
+// Verifies OutputMatchesSourceStem accepts virtual-fs same-stem mirrors and
 // rejects single-segment suffix collisions across the source tree.
 //
 // Regression: a top-level `src/index.ts` produced a one-segment relative
@@ -59,9 +59,9 @@ func TestOutputMatchesSourceStem(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		got := outputMatchesSourceStem(tc.output, tc.source)
+		got := OutputMatchesSourceStem(tc.output, tc.source)
 		if got != tc.want {
-			t.Errorf("%s: outputMatchesSourceStem(%q, %q) = %v, want %v",
+			t.Errorf("%s: OutputMatchesSourceStem(%q, %q) = %v, want %v",
 				tc.name, tc.output, tc.source, got, tc.want)
 		}
 	}

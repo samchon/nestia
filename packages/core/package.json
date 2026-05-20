@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "12.0.0-dev.20260520.1",
+  "version": "12.0.0-dev.20260521.6",
   "description": "Super-fast validation decorators of NestJS",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -97,6 +97,7 @@
     "native/go.mod",
     "native/go.sum",
     "native/plugin",
+    "native/transform",
     "native/transform.cjs",
     "src"
   ],

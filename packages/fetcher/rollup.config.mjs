@@ -15,19 +15,20 @@ import { globSync } from "tinyglobby";
 export default {
   input: globSync("./src/**/*.ts"),
   external: (id) => /node_modules/.test(id),
-  output: {
+  output: ["cjs", "esm"].map((format) => ({
     dir: "./lib",
-    format: "esm",
+    format,
     sourcemap: true,
     entryFileNames: (chunkInfo) => {
       if (chunkInfo.name.includes("node_modules")) {
         throw new Error(`Invalid chunk name: ${chunkInfo.name}`);
       }
-      return `[name].mjs`;
+      return `[name].${format === "esm" ? "mjs" : "js"}`;
     },
     preserveModules: true,
     preserveModulesRoot: "src",
-  },
+    exports: "named",
+  })),
   plugins: [
     nodeExternals(),
     autoExternal(),
