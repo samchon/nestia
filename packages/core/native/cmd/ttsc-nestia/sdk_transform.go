@@ -702,7 +702,7 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 	// already treats a missing `jsonSchema` as "skip", so swallow the panic
 	// and omit the field — the sdk generator falls back to its own derived
 	// schema path. This must never mask a real bug, so re-raise anything we
-	// don't recognise as a transformer error from the typia runtime.
+	// don't recognize as a transformer error from the typia runtime.
 	if baked := nestiaSDKTryBakeJsonSchema(result.Data); baked != nil {
 		metadataLiteral["jsonSchema"] = baked
 	}
