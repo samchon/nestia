@@ -14,7 +14,9 @@ import (
 	shimscanner "github.com/microsoft/typescript-go/shim/scanner"
 	"github.com/samchon/nestia/packages/core/native/plugin"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
+	nativecontext "github.com/samchon/typia/packages/typia/native/core/context"
 	nativefactories "github.com/samchon/typia/packages/typia/native/core/factories"
+	nativejson "github.com/samchon/typia/packages/typia/native/core/programmers/json"
 	schemametadata "github.com/samchon/typia/packages/typia/native/core/schemas/metadata"
 )
 
@@ -685,15 +687,77 @@ func nestiaSDKSchemaPipe(context *nestiaSDKContext, typ *shimchecker.Type, typeN
 		return failure
 	}
 	nestiaSDKRestoreUnionOrder(typeNode, result.Data)
+	// Pre-bake the values that the legacy `@typia/core` 12.x `MetadataSchema`
+	// class exposed as runtime methods (.size(), .getName(), .empty()) and
+	// the OpenAPI 3.1 schema typia v13 only produces on the Go side. nestia
+	// reads them through the `packages/sdk/src/internal/legacy.ts` namespace
+	// utilities so no JS-side class wrapper or vendored package is needed.
+	metadataLiteral := nestiaSDKMetadataSchemaLiteral(result.Data.ToJSON()).(map[string]any)
+	metadataLiteral["size"] = result.Data.Size()
+	metadataLiteral["name"] = result.Data.GetName()
+	metadataLiteral["empty"] = result.Data.Empty()
+	// `JsonSchemasProgrammer.WriteSchemas` panics on metadata that has no
+	// JSON-schema representation (e.g. a `void` route return or a parameter
+	// whose only members are functions). The legacy reader on the JS side
+	// already treats a missing `jsonSchema` as "skip", so swallow the panic
+	// and omit the field — the sdk generator falls back to its own derived
+	// schema path. This must never mask a real bug, so re-raise anything we
+	// don't recognize as a transformer error from the typia runtime.
+	if baked := nestiaSDKTryBakeJsonSchema(result.Data); baked != nil {
+		metadataLiteral["jsonSchema"] = baked
+	}
 	value := map[string]any{
 		"success": true,
 		"data": map[string]any{
 			"components": nestiaSDKMetadataComponentsLiteral(nestiaSDKVisitedMetadataComponents(context.collection, result.Data)),
-			"metadata":   nestiaSDKMetadataSchemaLiteral(result.Data.ToJSON()),
+			"metadata":   metadataLiteral,
 		},
 	}
 	context.schemaCache[key] = value
 	return value
+}
+
+// nestiaSDKTryBakeJsonSchema runs `JsonSchemasProgrammer.WriteSchemas` for a
+// single metadata and returns the OpenAPI 3.1 schema literal. Returns nil
+// when typia signals the metadata has no JSON-schema representation (e.g.
+// `void` returns, function-only types) — the JS-side reader handles missing
+// `jsonSchema` fields. Any other panic is re-raised so real bugs surface.
+func nestiaSDKTryBakeJsonSchema(metadata *schemametadata.MetadataSchema) (baked map[string]any) {
+	defer func() {
+		if r := recover(); r != nil {
+			if _, ok := r.(*nativecontext.TransformerError); ok {
+				baked = nil
+				return
+			}
+			panic(r)
+		}
+	}()
+	collection := nativejson.JsonSchemasProgrammer.WriteSchemas(struct {
+		Version   string
+		Metadatas []*schemametadata.MetadataSchema
+	}{
+		Version:   "3.1",
+		Metadatas: []*schemametadata.MetadataSchema{metadata},
+	})
+	if len(collection.Schemas) == 0 {
+		return nil
+	}
+	// `iterate.OpenApi_IComponents` has no JSON tags on its Schemas field,
+	// so default Go marshaling would emit `"Schemas"` (capital). The JS
+	// side reads `components.schemas`, so flatten to a plain map here.
+	componentsLiteral := map[string]any{"schemas": map[string]any{}}
+	if collection.Components != nil && collection.Components.Schemas != nil {
+		schemasLiteral := map[string]any{}
+		for key, val := range collection.Components.Schemas {
+			schemasLiteral[key] = map[string]any(val)
+		}
+		componentsLiteral["schemas"] = schemasLiteral
+	}
+	return map[string]any{
+		"version":    collection.Version,
+		"components": componentsLiteral,
+		"schema":     map[string]any(collection.Schemas[0]),
+	}
 }
 
 func nestiaSDKRestoreUnionOrder(typeNode *shimast.Node, metadata *schemametadata.MetadataSchema) {
@@ -868,6 +932,37 @@ func nestiaSDKIsTypeGuardError(prog *driver.Program, typ *shimchecker.Type, type
 }
 
 func nestiaSDKTypeGuardErrorSchemaPipe() any {
+	// Synthetic metadata for `TypeGuardError` exception responses — does not
+	// flow through `nestiaSDKSchemaPipe`, so the pre-baked fields legacy.ts
+	// reads (size/name/empty/jsonSchema) have to be filled by hand.
+	metadata := nestiaSDKObjectReferenceSchema("TypeGuardErrorany")
+	metadata["size"] = 1
+	metadata["name"] = "TypeGuardErrorany"
+	metadata["empty"] = false
+	metadata["jsonSchema"] = map[string]any{
+		"version": "3.1",
+		"components": map[string]any{
+			"schemas": map[string]any{
+				"TypeGuardErrorany": map[string]any{
+					"type":                 "object",
+					"additionalProperties": false,
+					"required":             []any{"name", "method", "expected", "value"},
+					"properties": map[string]any{
+						"name":        map[string]any{"type": "string"},
+						"method":      map[string]any{"type": "string"},
+						"path":        map[string]any{"type": "string"},
+						"expected":    map[string]any{"type": "string"},
+						"value":       map[string]any{},
+						"description": map[string]any{"type": "string"},
+						"message":     map[string]any{"type": "string"},
+					},
+				},
+			},
+		},
+		"schema": map[string]any{
+			"$ref": "#/components/schemas/TypeGuardErrorany",
+		},
+	}
 	return map[string]any{
 		"success": true,
 		"data": map[string]any{
@@ -895,7 +990,7 @@ func nestiaSDKTypeGuardErrorSchemaPipe() any {
 				},
 				"tuples": []any{},
 			},
-			"metadata": nestiaSDKObjectReferenceSchema("TypeGuardErrorany"),
+			"metadata": metadata,
 		},
 	}
 }

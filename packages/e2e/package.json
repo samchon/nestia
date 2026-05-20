@@ -1,6 +1,6 @@
 {
   "name": "@nestia/e2e",
-  "version": "11.2.0",
+  "version": "12.0.0-dev.20260520.1",
   "description": "E2E test utilify functions",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -12,8 +12,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rimraf lib && tsc",
-    "dev": "rimraf lib && tsc --watch",
+    "build": "rimraf lib && ttsc",
+    "dev": "rimraf lib && ttsc --watch",
     "prepack": "pnpm run build"
   },
   "repository": {
@@ -36,8 +36,7 @@
   "homepage": "https://nestia.io",
   "devDependencies": {
     "@types/node": "catalog:utils",
-    "rimraf": "catalog:utils",
-    "typescript": "catalog:typescript"
+    "rimraf": "catalog:utils"
   },
   "files": [
     "lib",

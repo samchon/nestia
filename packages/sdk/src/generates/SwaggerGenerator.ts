@@ -1,5 +1,5 @@
 import { SwaggerCustomizer } from "@nestia/core";
-import { JsonSchemasProgrammer, MetadataSchema } from "@typia/core";
+import { JsonSchemasProgrammer, MetadataSchema, sizeOf } from "../internal/legacy";
 import {
   OpenApi,
   OpenApiV3,
@@ -89,7 +89,7 @@ export namespace SwaggerGenerator {
         ...Object.values(r.exceptions).map((e) => e.metadata),
       ])
       .flat()
-      .filter((m) => m.size() !== 0);
+      .filter((m) => sizeOf(m) !== 0);
 
     // COMPOSE JSON SCHEMAS
     const json: IJsonSchemaCollection = JsonSchemasProgrammer.writeSchemas({

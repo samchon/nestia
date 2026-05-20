@@ -1,5 +1,5 @@
 import { TypeScriptFactory } from "@nestia/factory";
-import { LiteralFactory } from "@typia/core";
+import { LiteralFactory } from "@nestia/factory";
 import { IMetadataTypeTag } from "@typia/interface";
 
 import { ImportDictionary } from "./ImportDictionary";

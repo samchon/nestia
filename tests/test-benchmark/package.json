@@ -1,9 +1,9 @@
 {
   "private": true,
   "name": "@nestia/test-benchmark",
-  "version": "11.2.0",
+  "version": "12.0.0-dev.20260520.1",
   "scripts": {
-    "dev": "tsc --watch",
+    "dev": "ttsc --watch",
     "start": "node ../run-with-ttsc-env.cjs ttsx -P tsconfig.json -r @nestjs/platform-express src/index.ts"
   },
   "dependencies": {
@@ -23,8 +23,7 @@
     "@types/uuid": "catalog:utils",
     "cross-env": "^10.1.0",
     "nestia": "workspace:^",
-    "ttsc": "catalog:typescript",
-    "typescript": "catalog:typescript"
+    "ttsc": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"
 }

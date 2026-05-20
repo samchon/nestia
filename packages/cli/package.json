@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "11.2.0",
+  "version": "12.0.0-dev.20260520.1",
   "description": "Nestia CLI tool",
   "main": "bin/index.js",
   "bin": {
@@ -14,8 +14,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rimraf bin && tsc",
-    "dev": "rimraf bin && tsc --watch",
+    "build": "rimraf bin && ttsc",
+    "dev": "rimraf bin && ttsc --watch",
     "prepack": "pnpm run build"
   },
   "repository": {
@@ -41,8 +41,7 @@
     "@nestia/core": "workspace:^",
     "@nestia/sdk": "workspace:^",
     "@types/node": "catalog:utils",
-    "rimraf": "catalog:utils",
-    "typescript": "catalog:typescript"
+    "rimraf": "catalog:utils"
   },
   "files": [
     "bin",

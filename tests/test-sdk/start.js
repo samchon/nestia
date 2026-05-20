@@ -4,19 +4,14 @@ const os = require("os");
 const path = require("path");
 
 const ROOT = path.join(__dirname, "../..");
-const TTSC_CACHE_DIR = path.resolve(
-  ROOT,
-  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
-);
 const NODE = process.execPath;
 const PNPM = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const PROJECT_CONFIG = "tsconfig.project.json";
 const CLI_BIN = path.join(ROOT, "packages/cli/bin/index.js");
-const TSC_BIN = packageBin("typescript", "tsc");
+const TTSC_BIN = packageBin("ttsc", "ttsc");
 const TTSX_BIN = packageBin("ttsc", "ttsx");
 const BASE_PORT = 37_000;
 
-process.env.TTSC_CACHE_DIR = TTSC_CACHE_DIR;
 process.env.NODE_OPTIONS = [
   process.env.NODE_OPTIONS ?? "",
   "--no-experimental-detect-module",
@@ -91,7 +86,7 @@ const runNode = (cwd, script, args, stdio = "ignore", env = undefined) =>
 const runNestia = (cwd, args, stdio = "ignore") =>
   runNode(cwd, CLI_BIN, args, stdio);
 
-const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TSC_BIN, [], stdio);
+const runTsc = (cwd, stdio = "ignore") => runNode(cwd, TTSC_BIN, [], stdio);
 
 const feature = async (name, port) => {
   const cwd = featureDirectory(name);
@@ -216,6 +211,14 @@ const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
     "utf8",
   );
   try {
+    // ttsc materializes each fixture's `nestia.config.ts` under
+    // `<feature>/node_modules/.cache/ttsc/ttsx/project/<id>/fs/...`, which
+    // Node 24's built-in `--experimental-strip-types` refuses to strip
+    // (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING). The local loader
+    // (a test-only devDep on `typescript`) intercepts just those config
+    // files and transpiles them with `ts.transpileModule`. Once ttsc
+    // materializes its caches outside `node_modules/`, the loader and
+    // its devDep both go away.
     const nodeOptions = [
       process.env.NODE_OPTIONS ?? "",
       `--loader=${path.join(__dirname, "config-ts-loader.mjs")}`,
@@ -226,8 +229,6 @@ const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
       cwd,
       TTSX_BIN,
       [
-        "--cache-dir",
-        TTSC_CACHE_DIR,
         "-P",
         project,
         "-r",

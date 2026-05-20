@@ -1,7 +1,7 @@
 import { TypeScriptFactory } from "@nestia/factory";
 import { OpenApi } from "@typia/interface";
 import { IPointer } from "tstl";
-import ts from "typescript";
+import ts from "../internal/ts";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { FilePrinter } from "../utils/FilePrinter";

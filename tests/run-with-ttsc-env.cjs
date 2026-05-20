@@ -59,10 +59,6 @@ if (command === undefined) {
   process.exit(1);
 }
 
-process.env.TTSC_CACHE_DIR = path.resolve(
-  ROOT,
-  process.env.TTSC_CACHE_DIR ?? path.join(ROOT, "node_modules", ".ttsc"),
-);
 if (process.env.TTSC_GO_BINARY === undefined) {
   const goBinary = resolveGoBinary();
   if (goBinary !== undefined) process.env.TTSC_GO_BINARY = goBinary;
@@ -79,12 +75,6 @@ if (commandName === "ttsc" || commandName === "ttsx") {
       "ttsc-nestia: Go toolchain not found on PATH; install Go 1.26+ from https://go.dev/dl/ or set TTSC_GO_BINARY to the `go` executable.",
     );
     process.exit(2);
-  }
-  if (
-    args.some((arg) => arg === "--cache-dir" || arg.startsWith("--cache-dir=")) ===
-    false
-  ) {
-    args = ["--cache-dir", process.env.TTSC_CACHE_DIR, ...args];
   }
 }
 

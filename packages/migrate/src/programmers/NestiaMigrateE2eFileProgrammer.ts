@@ -1,7 +1,7 @@
 import { TypeScriptFactory } from "@nestia/factory";
-import { IdentifierFactory, LiteralFactory } from "@typia/core";
+import { IdentifierFactory, LiteralFactory } from "@nestia/factory";
 import { IHttpMigrateRoute } from "@typia/interface";
-import ts from "typescript";
+import ts from "../internal/ts";
 import { OpenApi } from "typia";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";

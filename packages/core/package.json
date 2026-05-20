@@ -1,6 +1,6 @@
 {
   "name": "@nestia/core",
-  "version": "11.2.0",
+  "version": "12.0.0-dev.20260520.1",
   "description": "Super-fast validation decorators of NestJS",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -54,7 +54,6 @@
   "homepage": "https://nestia.io",
   "dependencies": {
     "@nestia/fetcher": "workspace:^",
-    "@typia/core": "catalog:samchon",
     "@typia/interface": "catalog:samchon",
     "@typia/utils": "catalog:samchon",
     "get-function-location": "^2.0.0",
@@ -83,7 +82,6 @@
     "@types/express": "^4.17.15",
     "@types/multer": "^1.4.12",
     "@types/ws": "^8.5.10",
-    "eslint-plugin-deprecation": "^1.4.1",
     "fastify": "^4.28.1",
     "rimraf": "catalog:utils",
     "ttsc": "catalog:typescript",

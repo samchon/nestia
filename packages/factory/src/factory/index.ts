@@ -18,6 +18,8 @@ export { createBinaryExpression } from "./expressions/createBinaryExpression";
 export { createCallChain } from "./expressions/createCallChain";
 export { createCallExpression } from "./expressions/createCallExpression";
 export { createConditionalExpression } from "./expressions/createConditionalExpression";
+export { createElementAccessChain } from "./expressions/createElementAccessChain";
+export { createElementAccessExpression } from "./expressions/createElementAccessExpression";
 export { createLogicalNot } from "./expressions/createLogicalNot";
 export { createNewExpression } from "./expressions/createNewExpression";
 export { createObjectLiteralExpression } from "./expressions/createObjectLiteralExpression";

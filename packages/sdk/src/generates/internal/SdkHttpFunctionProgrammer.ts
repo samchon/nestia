@@ -1,5 +1,5 @@
 import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import { IdentifierFactory, TypeFactory } from "@typia/core";
+import { IdentifierFactory, TypeFactory } from "@nestia/factory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -8,6 +8,7 @@ import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
+import { sizeOf } from "../../internal/legacy";
 
 export namespace SdkHttpFunctionProgrammer {
   export const write =
@@ -46,7 +47,7 @@ export namespace SdkHttpFunctionProgrammer {
         ],
         TypeScriptFactory.createTypeReferenceNode("Promise", [
           project.config.propagate === true ||
-          route.success.metadata.size() !== 0
+          sizeOf(route.success.metadata) !== 0
             ? TypeScriptFactory.createTypeReferenceNode(`${route.name}.Output`)
             : TypeScriptFactory.createTypeReferenceNode("void"),
         ]),

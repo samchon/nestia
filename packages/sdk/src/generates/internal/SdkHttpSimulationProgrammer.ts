@@ -1,11 +1,5 @@
 import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import {
-  ExpressionFactory,
-  IdentifierFactory,
-  LiteralFactory,
-  StatementFactory,
-  TypeFactory,
-} from "@typia/core";
+import { ExpressionFactory, IdentifierFactory, LiteralFactory, StatementFactory, TypeFactory } from "@nestia/factory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -13,6 +7,7 @@ import { ImportDictionary } from "./ImportDictionary";
 import { SdkAliasCollection } from "./SdkAliasCollection";
 import { SdkHttpParameterProgrammer } from "./SdkHttpParameterProgrammer";
 import { SdkImportWizard } from "./SdkImportWizard";
+import { sizeOf } from "../../internal/legacy";
 
 export namespace SdkHttpSimulationProgrammer {
   export const random =
@@ -52,7 +47,7 @@ export namespace SdkHttpSimulationProgrammer {
     (route: ITypedHttpRoute): Node => {
       const output: boolean =
         project.config.propagate === true ||
-        route.success.metadata.size() !== 0;
+        sizeOf(route.success.metadata) !== 0;
       const caller = () =>
         TypeScriptFactory.createCallExpression(
           TypeScriptFactory.createIdentifier("random"),

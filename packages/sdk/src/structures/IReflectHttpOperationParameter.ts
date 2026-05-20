@@ -1,4 +1,4 @@
-import { MetadataFactory } from "@typia/core";
+import { MetadataFactory } from "../internal/legacy";
 import {
   IJsDocTagInfo,
   IMetadataComponents,

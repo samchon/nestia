@@ -1,5 +1,5 @@
 import { TypeScriptFactory, TypeScriptPrinter } from "@nestia/factory";
-import ts from "typescript";
+import ts from "../internal/ts";
 
 export namespace FilePrinter {
   export const description = <Node extends ts.Node>(

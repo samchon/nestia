@@ -1,4 +1,4 @@
-import { IMetadataDictionary } from "@typia/core";
+import { IMetadataDictionary } from "../internal/legacy";
 
 import { INestiaProject } from "./INestiaProject";
 import { ITypedHttpRoute } from "./ITypedHttpRoute";

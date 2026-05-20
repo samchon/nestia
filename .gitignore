@@ -3,6 +3,7 @@ lib/
 node_modules/
 
 .discussions/
+.ttsc-cache/
 .wiki/
 
 packages/openapi

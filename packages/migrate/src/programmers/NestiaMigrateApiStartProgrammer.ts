@@ -1,7 +1,7 @@
 import { TypeScriptFactory } from "@nestia/factory";
-import { IdentifierFactory, StatementFactory } from "@typia/core";
+import { IdentifierFactory, StatementFactory } from "@nestia/factory";
 import { IHttpMigrateRoute } from "@typia/interface";
-import ts from "typescript";
+import ts from "../internal/ts";
 
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 import { FilePrinter } from "../utils/FilePrinter";

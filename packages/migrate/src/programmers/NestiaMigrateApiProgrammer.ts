@@ -1,6 +1,6 @@
 import { TypeScriptFactory } from "@nestia/factory";
 import { HashMap, hash } from "tstl";
-import ts from "typescript";
+import ts from "../internal/ts";
 
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";
 import { FilePrinter } from "../utils/FilePrinter";

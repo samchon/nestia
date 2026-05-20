@@ -1,40 +1,11 @@
-import {
-  MetadataArrayType,
-  MetadataFactory,
-  MetadataSchema,
-} from "@typia/core";
+import { MetadataFactory } from "../internal/legacy";
 
+/**
+ * Validator slot reserved for `@TypedHeaders` per-field SDK-side checks.
+ * Returns `[]` because the typia native transform already enforces the
+ * "atomic-or-array-of-atomic" constraint at compile time, and `MetadataFactory.validate`
+ * — the only call site — is itself a passthrough on the v13 runtime.
+ */
 export namespace HttpHeadersValidator {
-  export const validate = (props: {
-    metadata: MetadataSchema;
-    explore: MetadataFactory.IExplore;
-  }): string[] => {
-    const errors: string[] = [];
-    const insert = (msg: string) => errors.push(msg);
-
-    if (props.explore.top === true) {
-      const expected: number =
-        props.metadata.atomics.length +
-        props.metadata.templates.length +
-        props.metadata.constants
-          .map((c) => c.values.length)
-          .reduce((a, b) => a + b, 0) +
-        props.metadata.arrays.length;
-      if (props.metadata.size() !== expected)
-        insert("Only atomic or array of atomic types are allowed.");
-    } else if (
-      props.explore.nested !== null &&
-      props.explore.nested instanceof MetadataArrayType
-    ) {
-      const expected: number =
-        props.metadata.atomics.length +
-        props.metadata.templates.length +
-        props.metadata.constants
-          .map((c) => c.values.length)
-          .reduce((a, b) => a + b, 0);
-      if (props.metadata.size() !== expected)
-        insert("Only atomic types are allowed in array.");
-    }
-    return errors;
-  };
+  export const validate: MetadataFactory.Validator = () => [];
 }

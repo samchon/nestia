@@ -1,5 +1,5 @@
 import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import { IdentifierFactory, LiteralFactory } from "@typia/core";
+import { IdentifierFactory, LiteralFactory } from "@nestia/factory";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { ITypedHttpRoute } from "../../structures/ITypedHttpRoute";
@@ -177,7 +177,7 @@ export namespace E2eFileProgrammer {
                   "output",
                   undefined,
                   project.config.propagate !== true &&
-                    route.success.type.name === "void"
+                    route.success.type!.name === "void"
                     ? undefined
                     : SdkAliasCollection.response(project)(importer)(route),
                   TypeScriptFactory.createAwaitExpression(fetch),

@@ -1,4 +1,4 @@
-import { MetadataSchema } from "@typia/core";
+import { MetadataSchema, sizeOf } from "../internal/legacy";
 
 export namespace TextPlainValidator {
   export const validate = (props: { metadata: MetadataSchema }): string[] => {
@@ -10,7 +10,7 @@ export namespace TextPlainValidator {
         .reduce((a, b) => a + b, 0) +
       props.metadata.templates.length +
       props.metadata.natives.filter((n) => n.name === "String").length;
-    if (props.metadata.size() === 0 || props.metadata.size() !== expected)
+    if (sizeOf(props.metadata) === 0 || sizeOf(props.metadata) !== expected)
       return [`Only string type is allowed in the "text/plain" content type.`];
     return [];
   };

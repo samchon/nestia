@@ -4,7 +4,7 @@ import {
   HTTP_CODE_METADATA,
   INTERCEPTORS_METADATA,
 } from "@nestjs/common/constants";
-import { HttpQueryProgrammer, JsonMetadataFactory } from "@typia/core";
+import { HttpQueryProgrammer, JsonMetadataFactory, sizeOf } from "../internal/legacy";
 
 import { IReflectController } from "../structures/IReflectController";
 import { IReflectHttpOperationSuccess } from "../structures/IReflectHttpOperationSuccess";
@@ -96,7 +96,7 @@ export namespace ReflectHttpOperationResponseAnalyzer {
             : contentType === "text/plain"
               ? TextPlainValidator.validate
               : (next) =>
-                  next.metadata.size() !== 0
+                  sizeOf(next.metadata) !== 0
                     ? ["HEAD method must not have any return value."]
                     : [],
       example: example?.example,

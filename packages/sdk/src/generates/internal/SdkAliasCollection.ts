@@ -1,5 +1,6 @@
 import { Node, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import { MetadataSchema, TypeFactory } from "@typia/core";
+import { TypeFactory } from "@nestia/factory";
+import { MetadataSchema, sizeOf } from "../../internal/legacy";
 
 import { INestiaProject } from "../../structures/INestiaProject";
 import { IReflectType } from "../../structures/IReflectType";
@@ -168,7 +169,7 @@ export namespace SdkAliasCollection {
     (importer: ImportDictionary) =>
     (route: ITypedHttpRoute): Node => {
       const schema = (p: { metadata: MetadataSchema; type: IReflectType }) =>
-        p.metadata.size() === 0
+        sizeOf(p.metadata) === 0
           ? TypeFactory.keyword("void")
           : project.config.clone === true
             ? from(project)(importer)(p.metadata)

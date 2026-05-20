@@ -3,7 +3,7 @@ import {
   MetadataAliasType,
   MetadataAtomic,
   MetadataObjectType,
-} from "@typia/core";
+} from "../../internal/legacy";
 import { IPointer } from "tstl";
 import { IJsDocTagInfo } from "typia";
 

@@ -1,4 +1,4 @@
-import { MetadataSchema } from "@typia/core";
+import { MetadataSchema } from "../internal/legacy";
 
 import { IReflectType } from "./IReflectType";
 

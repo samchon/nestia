@@ -1,4 +1,4 @@
-import { JsonSchemasProgrammer } from "@typia/core";
+import { JsonSchemasProgrammer, MetadataObjectType } from "../../internal/legacy";
 import { OpenApi } from "@typia/interface";
 import { VariadicSingleton } from "tstl";
 import { IJsDocTagInfo, IJsonSchemaCollection } from "typia";
@@ -48,7 +48,7 @@ export namespace SwaggerOperationParameterComposer {
           examples: props.parameter.examples,
         },
       },
-      required: props.parameter.metadata.isRequired(),
+      required: props.parameter.metadata.required,
       ...(props.parameter.encrypted ? { "x-nestia-encrypted": true } : {}),
     };
   };
@@ -59,7 +59,7 @@ export namespace SwaggerOperationParameterComposer {
     name: props.parameter.field,
     in: "path",
     schema: props.schema,
-    required: props.parameter.metadata.isRequired(),
+    required: props.parameter.metadata.required,
     description: parameterDescription(props),
     example: props.parameter.example,
     examples: props.parameter.examples,
@@ -103,7 +103,7 @@ export namespace SwaggerOperationParameterComposer {
       in: props.parameter.category === "query" ? "query" : "header",
       schema: props.schema,
       description: parameterDescription(props),
-      required: props.parameter.metadata.isRequired(),
+      required: props.parameter.metadata.required,
       example: props.parameter.example,
       examples: props.parameter.examples,
     };
@@ -112,7 +112,7 @@ export namespace SwaggerOperationParameterComposer {
       props.parameter.metadata.objects.length === 0
     )
       return [param];
-    return props.parameter.metadata.objects[0]!.type.properties.filter((p) =>
+    return (props.parameter.metadata.objects[0]!.type as MetadataObjectType).properties.filter((p) =>
       p.jsDocTags.every(
         (tag) => tag.name !== "hidden" && tag.name !== "ignore",
       ),
@@ -133,7 +133,7 @@ export namespace SwaggerOperationParameterComposer {
         name: p.key.constants[0]!.values[0]!.value as string,
         in: props.parameter.category === "query" ? "query" : "header",
         schema: json.schemas[0]!,
-        required: p.value.isRequired(),
+        required: p.value.required,
         description: SwaggerDescriptionComposer.compose({
           description: p.description ?? null,
           jsDocTags: p.jsDocTags,

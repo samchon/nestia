@@ -1,5 +1,5 @@
 import { Node, NodeFlags, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import { IdentifierFactory } from "@typia/core";
+import { IdentifierFactory } from "@nestia/factory";
 import { IJsDocTagInfo } from "typia";
 
 import { INestiaProject } from "../../structures/INestiaProject";

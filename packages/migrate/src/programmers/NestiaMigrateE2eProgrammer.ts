@@ -1,5 +1,5 @@
 import { IHttpMigrateRoute, OpenApi } from "@typia/interface";
-import ts from "typescript";
+import ts from "../internal/ts";
 
 import { INestiaMigrateConfig } from "../structures/INestiaMigrateConfig";
 import { INestiaMigrateContext } from "../structures/INestiaMigrateContext";

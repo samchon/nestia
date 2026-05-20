@@ -1,17 +1,6 @@
 import { Node, SyntaxKind, TypeScriptFactory } from "@nestia/factory";
-import {
-  ExpressionFactory,
-  MetadataAliasType,
-  MetadataArray,
-  MetadataAtomic,
-  MetadataConstantValue,
-  MetadataEscaped,
-  MetadataObjectType,
-  MetadataProperty,
-  MetadataSchema,
-  MetadataTuple,
-  TypeFactory,
-} from "@typia/core";
+import { ExpressionFactory, TypeFactory } from "@nestia/factory";
+import { MetadataAliasType, MetadataArray, MetadataAtomic, MetadataConstantValue, MetadataEscaped, MetadataObjectType, MetadataProperty, MetadataSchema, MetadataTuple, isSoleLiteralOf, sizeOf } from "../../internal/legacy";
 import { NamingConvention } from "@typia/utils";
 import { IJsDocTagInfo, IMetadataTypeTag } from "typia";
 
@@ -33,7 +22,7 @@ export namespace SdkTypeProgrammer {
       // COALESCES
       if (meta.any) union.push(TypeFactory.keyword("any"));
       if (meta.nullable) union.push(writeNode("null"));
-      if (meta.isRequired() === false) union.push(writeNode("undefined"));
+      if (meta.required === false) union.push(writeNode("undefined"));
       if (parentEscaped === false && meta.escaped)
         union.push(write_escaped(project)(importer)(meta.escaped));
 
@@ -46,21 +35,23 @@ export namespace SdkTypeProgrammer {
 
       // OBJECT TYPES
       for (const tuple of meta.tuples)
-        union.push(write_tuple(project)(importer)(tuple));
+        union.push(write_tuple(project)(importer)(tuple as MetadataTuple));
       for (const array of meta.arrays)
-        union.push(write_array(project)(importer)(array));
-      for (const object of meta.objects)
+        union.push(write_array(project)(importer)(array as MetadataArray));
+      for (const object of meta.objects) {
+        const target = object.type as MetadataObjectType;
         if (
-          object.type.name === "object" ||
-          object.type.name === "__type" ||
-          object.type.name.startsWith("__type.") ||
-          object.type.name === "__object" ||
-          object.type.name.startsWith("__object.")
+          target.name === "object" ||
+          target.name === "__type" ||
+          target.name.startsWith("__type.") ||
+          target.name === "__object" ||
+          target.name.startsWith("__object.")
         )
-          union.push(write_object(project)(importer)(object.type));
-        else union.push(writeAlias(project)(importer)(object.type));
+          union.push(write_object(project)(importer)(target));
+        else union.push(writeAlias(project)(importer)(target));
+      }
       for (const alias of meta.aliases)
-        union.push(writeAlias(project)(importer)(alias.type));
+        union.push(writeAlias(project)(importer)(alias.type as MetadataAliasType));
       for (const native of meta.natives)
         if (native.name === "Blob" || native.name === "File")
           union.push(write_native(native.name));
@@ -74,8 +65,8 @@ export namespace SdkTypeProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (object: MetadataObjectType): Node => {
-      const regular = object.properties.filter((p) => p.key.isSoleLiteral());
-      const dynamic = object.properties.filter((p) => !p.key.isSoleLiteral());
+      const regular = object.properties.filter((p) => isSoleLiteralOf(p.key));
+      const dynamic = object.properties.filter((p) => !isSoleLiteralOf(p.key));
       return regular.length && dynamic.length
         ? TypeScriptFactory.createIntersectionTypeNode([
             write_regular_property(project)(importer)(regular),
@@ -93,7 +84,7 @@ export namespace SdkTypeProgrammer {
     (importer: ImportDictionary) =>
     (meta: MetadataEscaped): Node => {
       if (
-        meta.original.size() === 1 &&
+        sizeOf(meta.original) === 1 &&
         meta.original.natives.length === 1 &&
         meta.original.natives[0]!.name === "Date"
       )
@@ -139,7 +130,7 @@ export namespace SdkTypeProgrammer {
     (project: INestiaProject) =>
     (importer: ImportDictionary) =>
     (meta: MetadataSchema[]): Node => {
-      const head: boolean = meta[0]!.isSoleLiteral();
+      const head: boolean = isSoleLiteralOf(meta[0]!);
       const spans: [Node | null, string | null][] = [];
       for (const elem of meta.slice(head ? 1 : 0)) {
         const last =
@@ -149,7 +140,7 @@ export namespace SdkTypeProgrammer {
             spans.push(tuple);
             return tuple;
           })();
-        if (elem.isSoleLiteral())
+        if (isSoleLiteralOf(elem))
           if (last[1] === null)
             last[1] = String(elem.constants[0]!.values[0]!.value);
           else
@@ -208,7 +199,7 @@ export namespace SdkTypeProgrammer {
       write_type_tag_matrix(importer)(
         "array",
         TypeScriptFactory.createArrayTypeNode(
-          write(project)(importer)(meta.type.value),
+          write(project)(importer)(meta.type!.value),
         ),
         meta.tags,
       );
@@ -218,7 +209,7 @@ export namespace SdkTypeProgrammer {
     (importer: ImportDictionary) =>
     (meta: MetadataTuple): Node =>
       TypeScriptFactory.createTupleTypeNode(
-        meta.type.elements.map((elem) =>
+        meta.type!.elements.map((elem) =>
           elem.rest
             ? TypeScriptFactory.createRestTypeNode(
                 TypeScriptFactory.createArrayTypeNode(
@@ -256,7 +247,7 @@ export namespace SdkTypeProgrammer {
                   : TypeScriptFactory.createStringLiteral(
                       String(p.key.constants[0]!.values[0]!.value),
                     ),
-                p.value.isRequired() === false
+                p.value.required === false
                   ? TypeScriptFactory.createToken(SyntaxKind.QuestionToken)
                   : undefined,
                 SdkTypeProgrammer.write(project)(importer)(p.value),

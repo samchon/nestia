@@ -1,4 +1,4 @@
-import { MetadataSchema } from "@typia/core";
+import { MetadataSchema } from "../../internal/legacy";
 import { OpenApi } from "@typia/interface";
 
 import { INestiaConfig } from "../../INestiaConfig";

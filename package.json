@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nestia/station",
-  "version": "11.2.0",
+  "version": "12.0.0-dev.20260520.1",
   "description": "Nestia station",
   "scripts": {
     "build": "pnpm --filter=./packages/* -r build",
@@ -32,8 +32,7 @@
     "prettier-plugin-jsdoc": "catalog:typescript",
     "rimraf": "catalog:utils",
     "sloc": "^0.3.0",
-    "ttsc": "catalog:typescript",
-    "typescript": "catalog:typescript"
+    "ttsc": "catalog:typescript"
   },
   "packageManager": "pnpm@10.6.4"
 }
