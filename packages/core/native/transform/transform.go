@@ -103,6 +103,12 @@ func runTransform(args []string) int {
 		return 3
 	}
 	rewrites = append(rewrites, coreRewriteMap[filepath.ToSlash(absFile)]...)
+	contributorRewriteMap, contributorDiagnostics := collectContributorSourceRewriteMap(prog, plan, absFile)
+	if len(contributorDiagnostics) > 0 {
+		WriteTypiaTransformDiagnostics(stderr, contributorDiagnostics, cwd)
+		return 3
+	}
+	rewrites = append(rewrites, contributorRewriteMap[filepath.ToSlash(absFile)]...)
 	source, ok := SourceFileText(target)
 	if !ok {
 		fmt.Fprintf(stderr, "ttsc-nestia transform: source text is unavailable for %s\n", absFile)
@@ -143,7 +149,12 @@ func runTransformProject(prog *driver.Program, cwd string, tsconfigPath string, 
 	for file, entries := range coreRewriteMap {
 		rewrites[file] = append(rewrites[file], entries...)
 	}
+	contributorRewriteMap, contributorDiags := collectContributorSourceRewriteMap(prog, plan, "")
+	for file, entries := range contributorRewriteMap {
+		rewrites[file] = append(rewrites[file], entries...)
+	}
 	diags = append(diags, coreDiags...)
+	diags = append(diags, contributorDiags...)
 	output := transformProjectOutput{
 		Diagnostics: make([]transformCompilerDiagnostic, 0, len(diags)),
 		TypeScript:  map[string]string{},

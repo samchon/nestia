@@ -21,9 +21,10 @@ var (
 // which is a pre-existing protocol shared by all `nestia.*` codes. The
 // full stack is preserved behind NESTIA_NATIVE_DEBUG_STACK for triage.
 //
-// This is the `@nestia/core` plugin entry point — it performs the typia
-// and `@nestia/core` decorator transforms only. The `@nestia/sdk` metadata
-// transform lives in its own plugin (`packages/sdk/native`).
+// This is the `@nestia/core` plugin entry point. It performs typia and core
+// decorator rewrites, then runs any statically linked contributor rewrite
+// collectors such as the SDK metadata pass when the caller explicitly enables
+// them.
 func Run(args []string) (code int) {
 	defer func() {
 		if exp := recover(); exp != nil {

@@ -132,6 +132,21 @@ func runBuild(args []string) int {
 	if profile {
 		started = time.Now()
 	}
+	contributorRewriters, contributorDiags := collectContributorBuildOutputRewriters(prog, plan)
+	contributorCount := 0
+	for _, rewriter := range contributorRewriters {
+		if rewriter.Len != nil {
+			contributorCount += rewriter.Len()
+		}
+	}
+	profileBuildStepCount(profile, "contributor-rewrites", started, contributorCount)
+	if len(contributorDiags) > 0 {
+		WriteTypiaTransformDiagnostics(stderr, contributorDiags, cwd)
+		return 3
+	}
+	if profile {
+		started = time.Now()
+	}
 	newPathsRewriter(prog).applyAll(prog.SourceFiles())
 	profileBuildStep(profile, "paths-rewrite", started)
 
@@ -151,6 +166,15 @@ func runBuild(args []string) int {
 		}
 		if err != nil {
 			return err
+		}
+		for _, rewriter := range contributorRewriters {
+			if rewriter.Apply == nil {
+				continue
+			}
+			patched, err = rewriter.Apply(fileName, patched)
+			if err != nil {
+				return err
+			}
 		}
 		if profile {
 			patchStarted = time.Now()

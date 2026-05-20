@@ -2,25 +2,29 @@ package sdk
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
+	"github.com/samchon/nestia/packages/core/native/plugin"
+	"github.com/samchon/nestia/packages/core/native/transform"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 )
 
 // sdkMetadataNamespace is the import alias the injected decorator references.
 const sdkMetadataNamespace = "__OperationMetadata"
 
-// init registers the SDK metadata transform with the ttsc driver.
+// init registers the SDK metadata transform with both native entry paths.
 //
 // ttsc classifies this package (name != "main") as a linked transform and
 // statically links it into the `@nestia/core` host binary — but only for
-// projects that depend on `@nestia/sdk`. A project depending on `@nestia/core`
-// alone never links, compiles, or ships any of this code. When linked, this
-// `init()` runs before the host's `main`; the driver then invokes
-// `ApplyProgram` once per build, after the host's own typia + core passes.
+// projects that depend on `@nestia/sdk`. The direct linked-plugin path keeps
+// old plugin plans working, while the contributor collectors let the aggregate
+// core host run SDK metadata rewrites without starting a second native backend.
 func init() {
 	driver.RegisterPlugin(linkedPlugin{})
+	transform.RegisterBuildOutputRewriteCollector(collectSDKBuildOutputRewriter)
+	transform.RegisterSourceRewriteCollector(collectSDKSourceRewriteMap)
 }
 
 type linkedPlugin struct{}
@@ -59,6 +63,37 @@ func (linkedPlugin) ApplyProgram(prog *driver.Program, _ driver.PluginContext) e
 		injectOperationMetadataImport(factory, file)
 	}
 	return nil
+}
+
+func collectSDKBuildOutputRewriter(
+	prog *driver.Program,
+	plan plugin.Plan,
+) (*transform.BuildOutputRewriter, []transform.Diagnostic) {
+	if shouldRunSDKContributorTransform() == false {
+		return nil, nil
+	}
+	plan.SDK = true
+	set, diagnostics := collectNestiaSDKBuildRewrites(prog, plan)
+	return &transform.BuildOutputRewriter{
+		Len:   set.Len,
+		Apply: set.Apply,
+	}, diagnostics
+}
+
+func collectSDKSourceRewriteMap(
+	prog *driver.Program,
+	plan plugin.Plan,
+	onlyFile string,
+) (map[string][]transform.SourceRewrite, []transform.Diagnostic) {
+	if shouldRunSDKContributorTransform() == false {
+		return map[string][]transform.SourceRewrite{}, nil
+	}
+	plan.SDK = true
+	return collectNestiaSDKSourceRewriteMap(prog, plan, onlyFile)
+}
+
+func shouldRunSDKContributorTransform() bool {
+	return os.Getenv("NESTIA_SDK_TRANSFORM") == "1"
 }
 
 func synthesized(node *shimast.Node) *shimast.Node {

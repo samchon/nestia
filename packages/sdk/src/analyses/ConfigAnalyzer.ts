@@ -165,7 +165,7 @@ class RuntimeCompiler {
     try {
       TtscExecutor.run({
         cwd,
-        env: sdkLinkedPluginEnv(),
+        env: sdkTransformEnv(),
         project,
       });
     } catch (error) {
@@ -229,17 +229,9 @@ const ensureRuntimeCleanup = (runtimeRoot: string): void => {
 
 type RuntimePlugin = Record<string, unknown> & { transform?: unknown };
 
-const SDK_LINKED_PLUGIN_ENV: string = JSON.stringify([
-  {
-    config: {},
-    name: "@nestia/sdk",
-    stage: "transform",
-  },
-]);
-
-const sdkLinkedPluginEnv = (): NodeJS.ProcessEnv =>
-  process.env.TTSC_LINKED_PLUGINS_JSON === undefined
-    ? { TTSC_LINKED_PLUGINS_JSON: SDK_LINKED_PLUGIN_ENV }
+const sdkTransformEnv = (): NodeJS.ProcessEnv =>
+  process.env.NESTIA_SDK_TRANSFORM === undefined
+    ? { NESTIA_SDK_TRANSFORM: "1" }
     : {};
 
 const runtimePlugins = async (cwd: string): Promise<RuntimePlugin[]> => {

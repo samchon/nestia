@@ -1443,6 +1443,12 @@ func insertSDKOperationMetadataDecorator(text string, site nestiaSDKSite, offset
 	if head < 0 {
 		return sdkOperationMetadataInsertResult{text: text, cursor: offset}, false
 	}
+	if strings.Contains(text[head:idx], "__OperationMetadata.OperationMetadata") {
+		return sdkOperationMetadataInsertResult{
+			text:   text,
+			cursor: idx + len(needle),
+		}, true
+	}
 	insert := head + len("__decorate([")
 	decorator := "\n    __OperationMetadata.OperationMetadata(" + site.Metadata + "),"
 	next := text[:insert] + decorator + text[insert:]
@@ -1455,6 +1461,7 @@ func insertSDKOperationMetadataDecorator(text string, site nestiaSDKSite, offset
 func injectSDKOperationMetadataImport(text string) string {
 	if strings.Contains(text, "__OperationMetadata.OperationMetadata") == false ||
 		strings.Contains(text, "const __OperationMetadata = require(\"@nestia/sdk\")") ||
+		strings.Contains(text, "__OperationMetadata = __importStar(require(\"@nestia/sdk\"))") ||
 		strings.Contains(text, "import * as __OperationMetadata from \"@nestia/sdk\"") {
 		return text
 	}
