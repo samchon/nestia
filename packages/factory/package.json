@@ -1,6 +1,6 @@
 {
   "name": "@nestia/factory",
-  "version": "12.0.0-dev.20260521.4",
+  "version": "12.0.0-dev.20260521.6",
   "description": "Printer-compatible TypeScript AST node factory for Nestia generators",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",

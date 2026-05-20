@@ -1,6 +1,6 @@
 {
   "name": "@nestia/editor",
-  "version": "12.0.0-dev.20260521.4",
+  "version": "12.0.0-dev.20260521.6",
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
