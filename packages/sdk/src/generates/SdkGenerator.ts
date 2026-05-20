@@ -1,6 +1,5 @@
 import fs from "fs";
 import NodePath from "path";
-import { IPointer } from "tstl";
 
 import { INestiaConfig } from "../INestiaConfig";
 import { IReflectOperationError } from "../structures/IReflectOperationError";
@@ -32,16 +31,7 @@ export namespace SdkGenerator {
 
       if (stats.isFile() === true) {
         const content: string = await fs.promises.readFile(current, "utf8");
-        if (fs.existsSync(target) === false)
-          await fs.promises.writeFile(target, content, "utf8");
-        else if (BUNDLE_CHANGES[file] !== undefined) {
-          const r: IPointer<string> = {
-            value: await fs.promises.readFile(target, "utf8"),
-          };
-          for (const [before, after] of BUNDLE_CHANGES[file])
-            r.value = r.value.replace(before, after);
-          await fs.promises.writeFile(target, r.value, "utf8");
-        }
+        await fs.promises.writeFile(target, content, "utf8");
       }
     }
 
@@ -126,35 +116,3 @@ export namespace SdkGenerator {
     "api",
   );
 }
-
-const BUNDLE_CHANGES: Record<string, [string, string][]> = {
-  "IConnection.ts": [
-    [
-      `export { IConnection } from "@nestia/fetcher"`,
-      `export type { IConnection } from "@nestia/fetcher"`,
-    ],
-  ],
-  "module.ts": [
-    [`export * from "./IConnection"`, `export type * from "./IConnection"`],
-  ],
-  "Primitive.ts": [
-    [
-      `export { Primitive } from "@nestia/fetcher"`,
-      `export type { Primitive } from "typia"`,
-    ],
-    [
-      `export type { Primitive } from "@nestia/fetcher"`,
-      `export type { Primitive } from "typia"`,
-    ],
-  ],
-  "Resolved.ts": [
-    [
-      `export { Resolved } from "@nestia/fetcher"`,
-      `export type { Resolved } from "typia"`,
-    ],
-    [
-      `export type { Resolved } from "@nestia/fetcher"`,
-      `export type { Resolved } from "typia"`,
-    ],
-  ],
-};
