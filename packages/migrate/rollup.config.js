@@ -4,7 +4,7 @@
 // need statically-discoverable named ESM exports, which the alternative
 // "compile to CJS via ttsc, then commonjs() → ESM" pipeline cannot
 // produce: `__exportStar(require("./module"), exports)` defeats the
-// static analyser. No nestia source file imports from `typescript`.
+// static analyzer. No nestia source file imports from `typescript`.
 
 const typescript = require("@rollup/plugin-typescript");
 const terser = require("@rollup/plugin-terser");
