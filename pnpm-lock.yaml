@@ -42,11 +42,11 @@ catalogs:
       version: 8.1.2
   samchon:
     '@typia/interface':
-      specifier: 13.0.0-dev.20260520.2
-      version: 13.0.0-dev.20260520.2
+      specifier: 13.0.0-dev.20260521.1
+      version: 13.0.0-dev.20260521.1
     '@typia/utils':
-      specifier: 13.0.0-dev.20260520.2
-      version: 13.0.0-dev.20260520.2
+      specifier: 13.0.0-dev.20260521.1
+      version: 13.0.0-dev.20260521.1
     tgrid:
       specifier: ^1.2.1
       version: 1.2.1
@@ -54,8 +54,8 @@ catalogs:
       specifier: ^3.0.0
       version: 3.0.0
     typia:
-      specifier: 13.0.0-dev.20260520.2
-      version: 13.0.0-dev.20260520.2
+      specifier: 13.0.0-dev.20260521.1
+      version: 13.0.0-dev.20260521.1
   typescript:
     '@trivago/prettier-plugin-sort-imports':
       specifier: ^4.3.0
@@ -170,7 +170,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
     devDependencies:
       '@types/autocannon':
         specifier: ^7.9.0
@@ -235,10 +235,10 @@ importers:
         version: link:../fetcher
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       get-function-location:
         specifier: ^2.0.0
         version: 2.0.0
@@ -262,7 +262,7 @@ importers:
         version: 1.2.1
       typia:
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       ws:
         specifier: ^7.5.3
         version: 7.5.10
@@ -323,7 +323,7 @@ importers:
         version: 1.11.0
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.1
@@ -335,7 +335,7 @@ importers:
         version: 0.5.2(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/icons-material@5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(prop-types@15.8.1)
       typia:
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
     devDependencies:
       '@eslint/js':
         specifier: ^9.13.0
@@ -402,7 +402,7 @@ importers:
     dependencies:
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
     devDependencies:
       '@rollup/plugin-typescript':
         specifier: catalog:rollup
@@ -418,10 +418,10 @@ importers:
     dependencies:
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: catalog:rollup
@@ -461,10 +461,10 @@ importers:
         version: 4.3.0(prettier@3.8.3)
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       commander:
         specifier: 10.0.0
         version: 10.0.0
@@ -482,7 +482,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
     devDependencies:
       '@rollup/plugin-terser':
         specifier: catalog:rollup
@@ -519,10 +519,10 @@ importers:
         version: link:../fetcher
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       get-function-location:
         specifier: ^2.0.0
         version: 2.0.0
@@ -543,7 +543,7 @@ importers:
         version: 0.12.3
       typia:
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
     devDependencies:
       '@nestjs/common':
         specifier: catalog:nestjs
@@ -589,7 +589,7 @@ importers:
         version: 11.1.21(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)
       typia:
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       uuid:
         specifier: catalog:utils
         version: 13.0.2
@@ -623,7 +623,7 @@ importers:
         version: link:../../packages/fetcher
       typia:
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
     devDependencies:
       '@types/node':
         specifier: catalog:utils
@@ -666,7 +666,7 @@ importers:
         version: 4.1.8
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       chalk:
         specifier: 4.1.2
         version: 4.1.2
@@ -702,7 +702,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
     devDependencies:
       '@nestia/sdk':
         specifier: workspace:^
@@ -760,10 +760,10 @@ importers:
         version: 11.4.3(@nestjs/common@11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.21)(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)
       '@typia/interface':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       '@typia/utils':
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       express:
         specifier: ^4.21.1
         version: 4.22.2
@@ -784,7 +784,7 @@ importers:
         version: 3.0.0
       typia:
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
       uuid:
         specifier: catalog:utils
         version: 13.0.2
@@ -827,7 +827,7 @@ importers:
         version: 11.1.21(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       typia:
         specifier: catalog:samchon
-        version: 13.0.0-dev.20260520.2
+        version: 13.0.0-dev.20260521.1
     devDependencies:
       '@types/node':
         specifier: catalog:utils
@@ -2001,14 +2001,14 @@ packages:
   '@typia/interface@13.0.0-dev.20260502-2':
     resolution: {integrity: sha512-/8KQCt5lUNx+XI7SwcfgEFueeTorTTrbpKu4OrfnP+5ou44l0R2B7RkUY+5EdMoDsalI8brnMNj/O412SkH74w==}
 
-  '@typia/interface@13.0.0-dev.20260520.2':
-    resolution: {integrity: sha512-45PIQx6xrwWje4mdEn4gETzNR8+rgpYCJxs9pUgY6nOFVK+0oNUgWe5OoVJyUDT714xUl+y4G9YgMaeMXNr1Iw==}
+  '@typia/interface@13.0.0-dev.20260521.1':
+    resolution: {integrity: sha512-6nMyqzGSIPPHMwAuNFTst/O1uUcQDxT4cLTQ/Vd2DEAEycVUpGpPH95cyrdKQcV+NEHbR/TDvbu3FNrImX5KPQ==}
 
   '@typia/utils@13.0.0-dev.20260502-2':
     resolution: {integrity: sha512-hTu32x9B6SRd2L+qeteVqYUPvx4+5qdqhIsco1GOfBH4LKjhpeFh40DmcM1gl0wy7+fi//9d/buLyYoVHSjXyQ==}
 
-  '@typia/utils@13.0.0-dev.20260520.2':
-    resolution: {integrity: sha512-wCNVgbrebif3DoWut9JnSfNzP3whAmVaeZ/SVNd0CscQpbdzrPyf7WlIwQBOUy/25TaH56wk7zYt55Z2t1xH7g==}
+  '@typia/utils@13.0.0-dev.20260521.1':
+    resolution: {integrity: sha512-2bHCRZePVaeh1rIkCKEgKUTtDfdctq4T+jP6KCgU6LZk2DQR0goLNWc+ju+lZDtRZoq/r+B/nblLMkB0ZKAu0A==}
 
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
@@ -4043,8 +4043,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typia@13.0.0-dev.20260520.2:
-    resolution: {integrity: sha512-LkzusCBXsJ+pp3nQgq6zqMC30njQbNUNa9C80Acb/1KBMw9bwG/s8UTieHgZsGmduTFvK+gFOHsCDOWk+8bcIQ==}
+  typia@13.0.0-dev.20260521.1:
+    resolution: {integrity: sha512-W9dVDM/flYoeEg0xaPkAXfIANEKZP8e345An2gTTyOEUENAgS3jBfukNBW7TjkMYvLXEC37KGU1wC/4N2tPHBw==}
     hasBin: true
 
   uid@2.0.2:
@@ -5376,15 +5376,15 @@ snapshots:
 
   '@typia/interface@13.0.0-dev.20260502-2': {}
 
-  '@typia/interface@13.0.0-dev.20260520.2': {}
+  '@typia/interface@13.0.0-dev.20260521.1': {}
 
   '@typia/utils@13.0.0-dev.20260502-2':
     dependencies:
       '@typia/interface': 13.0.0-dev.20260502-2
 
-  '@typia/utils@13.0.0-dev.20260520.2':
+  '@typia/utils@13.0.0-dev.20260521.1':
     dependencies:
-      '@typia/interface': 13.0.0-dev.20260520.2
+      '@typia/interface': 13.0.0-dev.20260521.1
 
   '@vitejs/plugin-react@4.7.0(vite@5.4.21(@types/node@25.9.0)(terser@5.47.1))':
     dependencies:
@@ -7729,7 +7729,7 @@ snapshots:
 
   typescript@6.0.3: {}
 
-  typia@13.0.0-dev.20260520.2:
+  typia@13.0.0-dev.20260521.1:
     dependencies:
       '@standard-schema/spec': 1.1.0
       '@typia/interface': 13.0.0-dev.20260502-2
