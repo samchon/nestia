@@ -137,6 +137,7 @@ const feature = async (name, port) => {
       if (config.includes(`${kind}:`)) await generate(kind);
   } else await generate("all");
 
+  assertGeneratedImportsAreExtensionless(cwd);
   if (name === "cli-project" || name === "cli-config-project") return;
   else if (hasTtsxTestFiles(cwd)) {
     for (let i = 0; i < 3; ++i)
@@ -188,6 +189,37 @@ const hasTtsxTestFiles = (cwd) => {
   return iterate(path.join(cwd, "src/test/features"));
 };
 
+const assertGeneratedImportsAreExtensionless = (cwd) => {
+  const root = path.join(cwd, "src/api");
+  if (!fs.existsSync(root)) return;
+
+  const failures = [];
+  const iterate = (location) => {
+    for (const file of fs.readdirSync(location)) {
+      const next = path.join(location, file);
+      const stats = fs.statSync(next);
+      if (stats.isDirectory()) iterate(next);
+      else if (stats.isFile() && file.endsWith(".ts")) {
+        const content = fs.readFileSync(next, "utf8");
+        const matcher =
+          /\b(?:from|export\s+(?:type\s+)?(?:\*|\{[^}]*\})\s+from)\s+["']([^"']+\.(?:[cm]?js|jsx|[cm]?ts|tsx))["']/g;
+        for (const match of content.matchAll(matcher))
+          failures.push(
+            `${path.relative(cwd, next)} imports ${JSON.stringify(match[1])}`,
+          );
+      }
+    }
+  };
+  iterate(root);
+  if (failures.length)
+    throw new Error(
+      [
+        "Generated SDK sources must not include source file extensions in import specifiers.",
+        ...failures,
+      ].join("\n"),
+    );
+};
+
 const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
   const project = ".ttsx.tsconfig.json";
   const projectFile = path.join(cwd, project);
@@ -228,13 +260,7 @@ const runTtsxTest = async (cwd, stdio = "ignore", port = BASE_PORT) => {
     await runNode(
       cwd,
       TTSX_BIN,
-      [
-        "-P",
-        project,
-        "-r",
-        "@nestjs/platform-express",
-        "src/test/index.ts",
-      ],
+      ["-P", project, "-r", "@nestjs/platform-express", "src/test/index.ts"],
       stdio,
       {
         NODE_OPTIONS: nodeOptions,
@@ -255,9 +281,6 @@ const runtimePlugins = (cwd) => {
       transform: "typia/lib/transform",
       enabled: false,
     },
-    {
-      transform: "@nestia/sdk/lib/transform",
-    },
     normalizePlugin({
       ...(core ?? {}),
       transform: "@nestia/core/native/transform.cjs",
@@ -269,7 +292,9 @@ const readProjectPlugins = (cwd) => {
   const projectFile = path.join(cwd, "tsconfig.json");
   if (!fs.existsSync(projectFile)) return [];
   const parsed = JSON.parse(
-    stripTrailingCommas(stripJsonComments(fs.readFileSync(projectFile, "utf8"))),
+    stripTrailingCommas(
+      stripJsonComments(fs.readFileSync(projectFile, "utf8")),
+    ),
   );
   const plugins = parsed.compilerOptions?.plugins;
   return Array.isArray(plugins)

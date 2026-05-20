@@ -106,6 +106,7 @@ export namespace NestiaConfigLoader {
     try {
       TtscExecutor.run({
         cwd: projectRoot,
+        env: sdkLinkedPluginEnv(),
         project: wrapperFile,
       });
     } catch (error) {
@@ -235,6 +236,19 @@ export namespace NestiaConfigLoader {
 
   type MaterializePlugin = Record<string, unknown> & { transform?: unknown };
 
+  const SDK_LINKED_PLUGIN_ENV: string = JSON.stringify([
+    {
+      config: {},
+      name: "@nestia/sdk",
+      stage: "transform",
+    },
+  ]);
+
+  const sdkLinkedPluginEnv = (): NodeJS.ProcessEnv =>
+    process.env.TTSC_LINKED_PLUGINS_JSON === undefined
+      ? { TTSC_LINKED_PLUGINS_JSON: SDK_LINKED_PLUGIN_ENV }
+      : {};
+
   const materializePlugins = (input: unknown): MaterializePlugin[] => {
     const plugins: MaterializePlugin[] = Array.isArray(input)
       ? input
@@ -243,9 +257,6 @@ export namespace NestiaConfigLoader {
       : [];
     const typia: MaterializePlugin | undefined = plugins.find((p) =>
       isTransform(p, "typia"),
-    );
-    const sdk: MaterializePlugin | undefined = plugins.find((p) =>
-      isTransform(p, "@nestia/sdk"),
     );
     const core: MaterializePlugin | undefined = plugins.find((p) =>
       isTransform(p, "@nestia/core"),
@@ -256,10 +267,6 @@ export namespace NestiaConfigLoader {
         transform: "typia/lib/transform",
         enabled: false,
       },
-      normalizePlugin({
-        ...(sdk ?? {}),
-        transform: "@nestia/sdk/lib/transform",
-      }),
       normalizePlugin({
         ...(core ?? {}),
         transform: "@nestia/core/native/transform.cjs",

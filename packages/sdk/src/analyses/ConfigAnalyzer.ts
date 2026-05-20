@@ -165,6 +165,7 @@ class RuntimeCompiler {
     try {
       TtscExecutor.run({
         cwd,
+        env: sdkLinkedPluginEnv(),
         project,
       });
     } catch (error) {
@@ -228,13 +229,23 @@ const ensureRuntimeCleanup = (runtimeRoot: string): void => {
 
 type RuntimePlugin = Record<string, unknown> & { transform?: unknown };
 
+const SDK_LINKED_PLUGIN_ENV: string = JSON.stringify([
+  {
+    config: {},
+    name: "@nestia/sdk",
+    stage: "transform",
+  },
+]);
+
+const sdkLinkedPluginEnv = (): NodeJS.ProcessEnv =>
+  process.env.TTSC_LINKED_PLUGINS_JSON === undefined
+    ? { TTSC_LINKED_PLUGINS_JSON: SDK_LINKED_PLUGIN_ENV }
+    : {};
+
 const runtimePlugins = async (cwd: string): Promise<RuntimePlugin[]> => {
   const plugins: RuntimePlugin[] = await readProjectPlugins(cwd);
   const typia: RuntimePlugin | undefined = plugins.find((p) =>
     isTransform(p, "typia"),
-  );
-  const sdk: RuntimePlugin | undefined = plugins.find((p) =>
-    isTransform(p, "@nestia/sdk"),
   );
   const core: RuntimePlugin | undefined = plugins.find((p) =>
     isTransform(p, "@nestia/core"),
@@ -245,10 +256,6 @@ const runtimePlugins = async (cwd: string): Promise<RuntimePlugin[]> => {
       transform: "typia/lib/transform",
       enabled: false,
     },
-    normalizeRuntimePlugin({
-      ...(sdk ?? {}),
-      transform: "@nestia/sdk/lib/transform",
-    }),
     normalizeRuntimePlugin({
       ...(core ?? {}),
       transform: "@nestia/core/native/transform.cjs",
