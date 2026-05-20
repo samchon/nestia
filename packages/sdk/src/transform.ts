@@ -1,10 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-interface ITtscPluginFactoryContext {
-  projectRoot: string;
-}
-
 interface ITtscPlugin {
   name: string;
   source: string;
@@ -13,33 +9,26 @@ interface ITtscPlugin {
 const filename: string = currentFilename();
 const dirname: string = path.dirname(filename);
 
-export function createTtscPlugin(
-  context: ITtscPluginFactoryContext,
-): ITtscPlugin {
-  const root: string =
-    resolvePackageRoot("@nestia/core/package.json", context.projectRoot) ??
-    inferCorePackageRoot();
+/**
+ * `@nestia/sdk` ttsc plugin descriptor.
+ *
+ * Points ttsc at this package's own Go source (`native/sdk`, package `sdk`).
+ * Because that package is not `package main`, ttsc classifies it as a linked
+ * transform and statically links it into the `@nestia/core` host binary as a
+ * contributor — but only for projects that actually depend on `@nestia/sdk`.
+ * A project depending on `@nestia/core` alone never links, compiles, or ships
+ * any of this SDK transform code.
+ */
+export function createTtscPlugin(): ITtscPlugin {
+  // `<root>/lib/transform.js` (published) or `<root>/src/transform.ts` (dev)
+  // → `<root>` → the `native/sdk` linked-transform source package.
+  const root: string = path.resolve(dirname, "..");
   return {
     name: "@nestia/sdk",
-    source: path.resolve(root, "native", "cmd", "ttsc-nestia"),
+    source: path.resolve(root, "native", "sdk"),
   };
 }
 export default createTtscPlugin;
-
-function resolvePackageRoot(
-  packageJson: string,
-  projectRoot: string,
-): string | null {
-  try {
-    return path.dirname(require.resolve(packageJson, { paths: [projectRoot] }));
-  } catch {
-    return null;
-  }
-}
-
-function inferCorePackageRoot(): string {
-  return path.resolve(dirname, "..", "..", "core");
-}
 
 function currentFilename(): string {
   if (

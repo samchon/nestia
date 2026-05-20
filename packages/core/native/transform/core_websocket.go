@@ -1,4 +1,4 @@
-package main
+package transform
 
 import (
 	"fmt"
@@ -15,23 +15,23 @@ func validateNestiaCoreWebSocketRoute(
 	method *shimast.Node,
 	call *shimast.CallExpression,
 	segments []string,
-) []typiaTransformDiagnostic {
+) []Diagnostic {
 	if call == nil || len(segments) == 0 || segments[len(segments)-1] != "WebSocketRoute" {
 		_ = call
 		return nil
 	}
-	diagnostics := []typiaTransformDiagnostic{}
+	diagnostics := []Diagnostic{}
 	accepted := false
 	methodDecl := method.AsMethodDeclaration()
 	if methodDecl == nil || methodDecl.Parameters == nil {
-		return []typiaTransformDiagnostic{nestiaCoreWebSocketDiagnostic(context.file, method, "WebSocketRoute", fmt.Sprintf(
+		return []Diagnostic{nestiaCoreWebSocketDiagnostic(context.file, method, "WebSocketRoute", fmt.Sprintf(
 			"method %q must have at least one parameter decorated by @WebSocketRoute.Acceptor().",
-			nestiaSDKMethodName(method),
+			NodeName(method),
 		))}
 	}
 	for _, param := range methodDecl.Parameters.Nodes {
 		category := nestiaCoreWebSocketParameterCategory(prog, param)
-		name := nestiaSDKParameterName(param)
+		name := NodeName(param)
 		if category == "" {
 			diagnostics = append(diagnostics, nestiaCoreWebSocketDiagnostic(context.file, param, "WebSocketRoute", fmt.Sprintf(
 				"parameter %q is not decorated with nested function of WebSocketRoute module.",
@@ -60,7 +60,7 @@ func validateNestiaCoreWebSocketRoute(
 	if accepted == false {
 		diagnostics = append(diagnostics, nestiaCoreWebSocketDiagnostic(context.file, method, "WebSocketRoute", fmt.Sprintf(
 			"method %q must have at least one parameter decorated by @WebSocketRoute.Acceptor().",
-			nestiaSDKMethodName(method),
+			NodeName(method),
 		)))
 	}
 	return diagnostics
@@ -82,7 +82,7 @@ func nestiaCoreWebSocketParameterTypeName(param *shimast.Node) string {
 	if param == nil || param.AsParameterDeclaration() == nil || param.AsParameterDeclaration().Type == nil {
 		return ""
 	}
-	text := nestiaSDKTypeNodeText(param.AsParameterDeclaration().Type)
+	text := NodeText(param.AsParameterDeclaration().Type)
 	text = strings.TrimSpace(text)
 	if index := strings.Index(text, "<"); index >= 0 {
 		text = text[:index]
@@ -93,7 +93,7 @@ func nestiaCoreWebSocketParameterTypeName(param *shimast.Node) string {
 	return text
 }
 
-func nestiaCoreWebSocketDiagnostic(file *shimast.SourceFile, node *shimast.Node, kind string, message string) typiaTransformDiagnostic {
+func nestiaCoreWebSocketDiagnostic(file *shimast.SourceFile, node *shimast.Node, kind string, message string) Diagnostic {
 	filePath := ""
 	line, column := 0, 0
 	if file != nil {
@@ -105,7 +105,7 @@ func nestiaCoreWebSocketDiagnostic(file *shimast.SourceFile, node *shimast.Node,
 			}
 		}
 	}
-	return typiaTransformDiagnostic{
+	return Diagnostic{
 		File:    filePath,
 		Line:    line,
 		Column:  column,

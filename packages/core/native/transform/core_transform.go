@@ -1,4 +1,4 @@
-package main
+package transform
 
 import (
 	"fmt"
@@ -79,7 +79,7 @@ func newNestiaCoreTransformState(prog *driver.Program, options nestiaCoreOptions
 
 var nestiaCoreFactory = shimast.NewNodeFactory(shimast.NodeFactoryHooks{})
 
-const nestiaCoreKindDecorator = shimast.KindDecorator
+const NestiaCoreKindDecorator = shimast.KindDecorator
 
 type nestiaCoreFileContext struct {
 	file        *shimast.SourceFile
@@ -121,18 +121,18 @@ func collectNestiaCoreSourceRewriteMap(
 	prog *driver.Program,
 	plan plugin.Plan,
 	onlyFile string,
-) (map[string][]transformSourceRewrite, []typiaTransformDiagnostic) {
+) (map[string][]SourceRewrite, []Diagnostic) {
 	if plan.Core == false {
-		return map[string][]transformSourceRewrite{}, nil
+		return map[string][]SourceRewrite{}, nil
 	}
 	options := readNestiaCoreOptions(plan)
 	sites, diagnostics := collectNestiaCoreSites(newNestiaCoreTransformState(prog, options))
-	rewrites := map[string][]transformSourceRewrite{}
+	rewrites := map[string][]SourceRewrite{}
 	for _, site := range sites {
 		if onlyFile != "" && filepath.ToSlash(site.FilePath) != filepath.ToSlash(onlyFile) {
 			continue
 		}
-		source, ok := sourceFileText(site.File)
+		source, ok := SourceFileText(site.File)
 		if !ok {
 			diagnostics = append(diagnostics, nestiaCoreDiagnostic(site, "source text is unavailable"))
 			continue
@@ -143,7 +143,7 @@ func collectNestiaCoreSourceRewriteMap(
 			continue
 		}
 		replacement := appendArgumentsText(source[open+1:close], site.Arguments)
-		rewrites[filepath.ToSlash(site.FilePath)] = append(rewrites[filepath.ToSlash(site.FilePath)], transformSourceRewrite{
+		rewrites[filepath.ToSlash(site.FilePath)] = append(rewrites[filepath.ToSlash(site.FilePath)], SourceRewrite{
 			start:       open + 1,
 			end:         close,
 			replacement: replacement,
@@ -156,7 +156,7 @@ func collectNestiaCoreBuildRewrites(
 	prog *driver.Program,
 	plan plugin.Plan,
 	rewrites *nativeRewriteSet,
-) []typiaTransformDiagnostic {
+) []Diagnostic {
 	if plan.Core == false {
 		return nil
 	}
@@ -180,7 +180,7 @@ func collectNestiaCoreBuildRewrites(
 }
 
 func nestiaCoreOriginalArgumentText(site nestiaCoreSite) string {
-	source, ok := sourceFileText(site.File)
+	source, ok := SourceFileText(site.File)
 	if !ok {
 		return ""
 	}
@@ -199,9 +199,9 @@ func nestiaCoreStableOriginalArgumentText(site nestiaCoreSite) string {
 	return text
 }
 
-func collectNestiaCoreSites(state *nestiaCoreTransformState) ([]nestiaCoreSite, []typiaTransformDiagnostic) {
+func collectNestiaCoreSites(state *nestiaCoreTransformState) ([]nestiaCoreSite, []Diagnostic) {
 	sites := []nestiaCoreSite{}
-	diagnostics := []typiaTransformDiagnostic{}
+	diagnostics := []Diagnostic{}
 	prog := state.prog
 	if nestiaCoreStrictMode(prog) == false {
 		diagnostics = append(diagnostics, nestiaCoreGlobalDiagnostic("@nestia/core", "strict mode is required."))
@@ -227,7 +227,7 @@ func visitNestiaCoreNode(
 	context nestiaCoreFileContext,
 	node *shimast.Node,
 	sites *[]nestiaCoreSite,
-	diagnostics *[]typiaTransformDiagnostic,
+	diagnostics *[]Diagnostic,
 ) {
 	if node == nil {
 		return
@@ -317,7 +317,7 @@ func visitNestiaCoreNode(
 		if len(candidates) == 0 {
 			break
 		}
-		typ := nestiaCoreMethodReturnType(state.prog, node)
+		typ := NestiaCoreMethodReturnType(state.prog, node)
 		if typ != nil {
 			for _, candidate := range candidates {
 				site, ok, err := transformNestiaCoreMethodDecorator(
@@ -489,7 +489,7 @@ func (state *nestiaCoreTransformState) cacheKey(
 }
 
 func nestiaCoreRawDecoratorCall(decorator *shimast.Node) (*shimast.CallExpression, []string, bool) {
-	if decorator == nil || decorator.Kind != nestiaCoreKindDecorator {
+	if decorator == nil || decorator.Kind != NestiaCoreKindDecorator {
 		return nil, nil, false
 	}
 	expression := decorator.AsDecorator().Expression
@@ -497,7 +497,7 @@ func nestiaCoreRawDecoratorCall(decorator *shimast.Node) (*shimast.CallExpressio
 		return nil, nil, false
 	}
 	call := expression.AsCallExpression()
-	segments := nestiaCoreExpressionSegments(call.Expression)
+	segments := NestiaCoreExpressionSegments(call.Expression)
 	if len(segments) == 0 {
 		return nil, nil, false
 	}
@@ -600,7 +600,7 @@ func nestiaCoreDecoratorReference(
 	if nestiaCorePotentialDecoratorSegments(canonical) == false {
 		return false
 	}
-	return isNestiaCoreCall(prog, decorator.AsDecorator().Expression)
+	return IsNestiaCoreCall(prog, decorator.AsDecorator().Expression)
 }
 
 func nestiaCorePotentialDecoratorSegments(segments []string) bool {
@@ -609,7 +609,7 @@ func nestiaCorePotentialDecoratorSegments(segments []string) bool {
 		(len(segments) != 0 && segments[len(segments)-1] == "WebSocketRoute")
 }
 
-func isNestiaCoreCall(prog *driver.Program, node *shimast.Node) bool {
+func IsNestiaCoreCall(prog *driver.Program, node *shimast.Node) bool {
 	signature := prog.Checker.GetResolvedSignature(node)
 	if signature == nil || signature.Declaration() == nil {
 		return false
@@ -1406,7 +1406,7 @@ func cleanupNestiaCorePrintedExpression(text string) string {
 
 var nestiaCoreSingleParameterArrowPattern = regexp.MustCompile(`(^|[\s(=,:?])([A-Za-z_$][A-Za-z0-9_$]*) =>`)
 
-func nestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimchecker.Type {
+func NestiaCoreMethodReturnType(prog *driver.Program, node *shimast.Node) *shimchecker.Type {
 	signature := prog.Checker.GetSignatureFromDeclaration(node)
 	if signature == nil {
 		return nil
@@ -1449,7 +1449,7 @@ func nestiaCoreShouldSkipMethodDecorator(prog *driver.Program, call *shimast.Cal
 }
 
 func nestiaCoreHasPathLiteralArgument(call *shimast.CallExpression) bool {
-	source, ok := sourceFileText(shimast.GetSourceFileOfNode(call.AsNode()))
+	source, ok := SourceFileText(shimast.GetSourceFileOfNode(call.AsNode()))
 	if !ok {
 		return false
 	}
@@ -1498,7 +1498,7 @@ func appendArgumentsText(current string, arguments []string) string {
 	return current + ", " + next
 }
 
-func nestiaCoreExpressionSegments(node *shimast.Node) []string {
+func NestiaCoreExpressionSegments(node *shimast.Node) []string {
 	if node == nil {
 		return nil
 	}
@@ -1512,7 +1512,7 @@ func nestiaCoreExpressionSegments(node *shimast.Node) []string {
 		if access == nil {
 			return nil
 		}
-		left := nestiaCoreExpressionSegments(access.Expression)
+		left := NestiaCoreExpressionSegments(access.Expression)
 		name := access.Name()
 		if len(left) == 0 || name == nil || name.Kind != shimast.KindIdentifier {
 			return nil
@@ -1523,7 +1523,7 @@ func nestiaCoreExpressionSegments(node *shimast.Node) []string {
 }
 
 func nestiaCoreModuloNode(node *shimast.Node) *shimast.Node {
-	segments := nestiaCoreExpressionSegments(node)
+	segments := NestiaCoreExpressionSegments(node)
 	if len(segments) == 0 {
 		return nestiaCoreFactory.NewIdentifier("nestia_core_transform")
 	}
@@ -1688,7 +1688,7 @@ func commonJSImportAliasBase(module string) string {
 	return text
 }
 
-func nestiaCoreDiagnostic(site nestiaCoreSite, message string) typiaTransformDiagnostic {
+func nestiaCoreDiagnostic(site nestiaCoreSite, message string) Diagnostic {
 	line, column := 0, 0
 	if site.File != nil && site.Call != nil {
 		if pos := site.Call.AsNode().Pos(); pos >= 0 {
@@ -1696,7 +1696,7 @@ func nestiaCoreDiagnostic(site nestiaCoreSite, message string) typiaTransformDia
 			line, column = l+1, c+1
 		}
 	}
-	return typiaTransformDiagnostic{
+	return Diagnostic{
 		File:    site.FilePath,
 		Line:    line,
 		Column:  column,
@@ -1705,8 +1705,8 @@ func nestiaCoreDiagnostic(site nestiaCoreSite, message string) typiaTransformDia
 	}
 }
 
-func nestiaCoreGlobalDiagnostic(code string, message string) typiaTransformDiagnostic {
-	return typiaTransformDiagnostic{
+func nestiaCoreGlobalDiagnostic(code string, message string) Diagnostic {
+	return Diagnostic{
 		Code:    code,
 		Message: message,
 	}

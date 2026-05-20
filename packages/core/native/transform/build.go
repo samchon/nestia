@@ -1,4 +1,4 @@
-package main
+package transform
 
 import (
 	"encoding/json"
@@ -116,7 +116,7 @@ func runBuild(args []string) int {
 	)
 	profileBuildStepCount(profile, "typia-rewrites", started, rewrites.Len())
 	if len(transformDiags) > 0 {
-		writeTypiaTransformDiagnostics(stderr, transformDiags, cwd)
+		WriteTypiaTransformDiagnostics(stderr, transformDiags, cwd)
 		return 3
 	}
 	beforeCore := rewrites.Len()
@@ -126,16 +126,7 @@ func runBuild(args []string) int {
 	coreDiags := collectNestiaCoreBuildRewrites(prog, plan, rewrites)
 	profileBuildStepCount(profile, "core-rewrites", started, rewrites.Len()-beforeCore)
 	if len(coreDiags) > 0 {
-		writeTypiaTransformDiagnostics(stderr, coreDiags, cwd)
-		return 3
-	}
-	if profile {
-		started = time.Now()
-	}
-	sdkRewrites, sdkDiags := collectNestiaSDKBuildRewrites(prog, plan)
-	profileBuildStepCount(profile, "sdk-rewrites", started, sdkRewrites.Len())
-	if len(sdkDiags) > 0 {
-		writeTypiaTransformDiagnostics(stderr, sdkDiags, cwd)
+		WriteTypiaTransformDiagnostics(stderr, coreDiags, cwd)
 		return 3
 	}
 	if profile {
@@ -146,7 +137,6 @@ func runBuild(args []string) int {
 
 	cursors := map[string]int{}
 	var nativePatchElapsed time.Duration
-	var sdkPatchElapsed time.Duration
 	var cleanupElapsed time.Duration
 	var writeElapsed time.Duration
 	writeFile := shimcompiler.WriteFile(func(fileName, text string, data *shimcompiler.WriteFileData) error {
@@ -158,16 +148,6 @@ func runBuild(args []string) int {
 		patched, err := rewrites.Apply(fileName, text, cursors)
 		if profile {
 			nativePatchElapsed += time.Since(patchStarted)
-		}
-		if err != nil {
-			return err
-		}
-		if profile {
-			patchStarted = time.Now()
-		}
-		patched, err = sdkRewrites.Apply(fileName, patched)
-		if profile {
-			sdkPatchElapsed += time.Since(patchStarted)
 		}
 		if err != nil {
 			return err
@@ -191,7 +171,6 @@ func runBuild(args []string) int {
 	res, eDiags, err := prog.EmitAllRaw(writeFile)
 	profileBuildStep(profile, "emit-total", started)
 	profileBuildDuration(profile, "emit-native-patch", nativePatchElapsed)
-	profileBuildDuration(profile, "emit-sdk-patch", sdkPatchElapsed)
 	profileBuildDuration(profile, "emit-cleanup", cleanupElapsed)
 	profileBuildDuration(profile, "emit-write", writeElapsed)
 	if err != nil {
@@ -266,7 +245,7 @@ func runCheck(args []string) int {
 	return 0
 }
 
-type typiaTransformDiagnostic struct {
+type Diagnostic struct {
 	File    string
 	Line    int
 	Column  int
@@ -274,7 +253,7 @@ type typiaTransformDiagnostic struct {
 	Message string
 }
 
-func (d typiaTransformDiagnostic) String(cwd string) string {
+func (d Diagnostic) String(cwd string) string {
 	file := d.File
 	if rel, err := filepath.Rel(cwd, file); err == nil {
 		file = rel
@@ -285,7 +264,7 @@ func (d typiaTransformDiagnostic) String(cwd string) string {
 	return fmt.Sprintf("%s - error TS(%s): %s", file, d.Code, d.Message)
 }
 
-func writeTypiaTransformDiagnostics(out io.Writer, diagnostics []typiaTransformDiagnostic, cwd string) {
+func WriteTypiaTransformDiagnostics(out io.Writer, diagnostics []Diagnostic, cwd string) {
 	for _, diag := range diagnostics {
 		fmt.Fprintln(out, diag.String(cwd))
 	}
@@ -309,7 +288,7 @@ func profileBuildDuration(enabled bool, name string, elapsed time.Duration) {
 	}
 }
 
-func newTypiaTransformDiagnostic(site typiaadapter.CallSite, message string) typiaTransformDiagnostic {
+func NewDiagnostic(site typiaadapter.CallSite, message string) Diagnostic {
 	line, column := 0, 0
 	if site.File != nil && site.Call != nil {
 		pos := site.Call.AsNode().Pos()
@@ -318,7 +297,7 @@ func newTypiaTransformDiagnostic(site typiaadapter.CallSite, message string) typ
 			line, column = l+1, c+1
 		}
 	}
-	return typiaTransformDiagnostic{
+	return Diagnostic{
 		File:    site.FilePath,
 		Line:    line,
 		Column:  column,
@@ -335,10 +314,10 @@ func collectTypiaRewrites(
 	onlyFile string,
 	rewrites *nativeRewriteSet,
 	pluginOptions typiaadapter.PluginOptions,
-) (int, int, []typiaTransformDiagnostic) {
+) (int, int, []Diagnostic) {
 	sites := collectNestiaTypiaCallSites(prog.SourceFiles(), prog.Checker)
 	recognized := 0
-	diagnostics := []typiaTransformDiagnostic{}
+	diagnostics := []Diagnostic{}
 	for _, site := range sites {
 		if onlyFile != "" && filepath.ToSlash(site.FilePath) != filepath.ToSlash(onlyFile) {
 			continue
@@ -348,16 +327,16 @@ func collectTypiaRewrites(
 			rel = abs
 		}
 		if reason := typiaadapter.UnsupportedReason(site); reason != "" {
-			diagnostics = append(diagnostics, newTypiaTransformDiagnostic(site, reason))
+			diagnostics = append(diagnostics, NewDiagnostic(site, reason))
 			continue
 		}
 		expr, handled, err := typiaadapter.EmitCallWithOptions(prog, site, pluginOptions)
 		if !handled {
-			diagnostics = append(diagnostics, newTypiaTransformDiagnostic(site, "method not covered"))
+			diagnostics = append(diagnostics, NewDiagnostic(site, "method not covered"))
 			continue
 		}
 		if err != nil {
-			diagnostics = append(diagnostics, newTypiaTransformDiagnostic(site, err.Error()))
+			diagnostics = append(diagnostics, NewDiagnostic(site, err.Error()))
 			continue
 		}
 		expr = parenthesizeTypiaReplacement(site, expr)
@@ -386,7 +365,7 @@ func typiaBuildRewriteSortKey(site typiaadapter.CallSite) int {
 	insideDecorator := false
 	classEnd := 0
 	for current := node.Parent; current != nil; current = current.Parent {
-		if current.Kind == nestiaCoreKindDecorator {
+		if current.Kind == NestiaCoreKindDecorator {
 			insideDecorator = true
 		}
 		if current.Kind == shimast.KindClassDeclaration || current.Kind == shimast.KindClassExpression {

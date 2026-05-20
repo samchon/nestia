@@ -97,6 +97,7 @@
     "native/go.mod",
     "native/go.sum",
     "native/plugin",
+    "native/transform",
     "native/transform.cjs",
     "src"
   ],

@@ -189,9 +189,9 @@ const writeProject = (props) => {
               transform: "typia/lib/transform",
               enabled: false,
             },
-            {
-              transform: "@nestia/sdk/lib/transform",
-            },
+            // `@nestia/sdk` is not a standalone ttsc plugin: its Go transform
+            // is linked into the `@nestia/core` host as a contributor, so it
+            // must not be listed as a separate plugin entry here.
             {
               transform: "@nestia/core/native/transform.cjs",
               ...props.plugin,

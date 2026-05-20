@@ -1,4 +1,4 @@
-package main
+package sdk
 
 import schemametadata "github.com/samchon/typia/packages/typia/native/core/schemas/metadata"
 
