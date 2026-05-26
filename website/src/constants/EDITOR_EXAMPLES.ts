@@ -38,7 +38,8 @@ export const EDITOR_EXAMPLES: IAsset[] = [
   {
     title: "Atlas Cloud",
     package: "atlascloud",
-    swagger: "https://nestia.io/swaggers/atlascloud.json",
+    swagger:
+      "https://gist.githubusercontent.com/lucaszhu-hue/a8ded2ffb46aa668bd1dd2ba2a47249d/raw/atlascloud.json",
   },
 ];
 interface IAsset {

@@ -15,18 +15,18 @@ Atlas Cloud is a good fit for Nestia's Swagger-to-AI workflow because its LLM AP
 - Verified model for local smoke tests: `deepseek-ai/deepseek-v3.2`
 
 <Callout type="info">
-This guide keeps the integration minimal on purpose: use Atlas Cloud as a drop-in OpenAI-compatible provider, and use the bundled `atlascloud.json` Swagger example with `@nestia/editor`.
+This guide keeps the integration minimal on purpose: use Atlas Cloud as a drop-in OpenAI-compatible provider, and use the externally hosted `atlascloud.json` Swagger example with `@nestia/editor`.
 </Callout>
 
 ## Editor Example
 
-You can open the bundled Atlas Cloud example in the cloud editor:
+You can open the public Atlas Cloud example in the cloud editor:
 
 ```text
-https://nestia.io/editor/?url=https://nestia.io/swaggers/atlascloud.json&package=atlascloud&simulate=true&e2e=true
+https://nestia.io/editor/?url=https://gist.githubusercontent.com/lucaszhu-hue/a8ded2ffb46aa668bd1dd2ba2a47249d/raw/atlascloud.json&package=atlascloud&simulate=true&e2e=true
 ```
 
-The bundled Swagger file models the OpenAI-compatible chat completions surface so you can inspect the request schema, generate SDK code, and validate generated typings from the editor.
+The hosted Swagger file models the OpenAI-compatible chat completions surface so you can inspect the request schema, generate SDK code, and validate generated typings from the editor.
 
 ## Environment Variables
 
@@ -95,7 +95,9 @@ const agent = new Agentica({
     model: process.env.ATLASCLOUD_MODEL ?? "deepseek-ai/deepseek-v3.2",
   },
   controllers: [
-    await fetch("https://nestia.io/swaggers/atlascloud.json").then((r) => r.json()),
+    await fetch(
+      "https://gist.githubusercontent.com/lucaszhu-hue/a8ded2ffb46aa668bd1dd2ba2a47249d/raw/atlascloud.json",
+    ).then((r) => r.json()),
   ],
 });
 ```

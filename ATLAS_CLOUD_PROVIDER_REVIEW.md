@@ -6,9 +6,9 @@ This change adds a minimal Atlas Cloud provider path to the `nestia` docs and ed
 
 ## What Changed
 
-1. Added `website/public/swaggers/atlascloud.json`
-   - New OpenAPI 3.1 example for Atlas Cloud's OpenAI-compatible chat completions API.
-   - Uses `https://api.atlascloud.ai/v1` as the server URL.
+1. Added an externally hosted `atlascloud.json` example
+   - Uses a public raw gist URL instead of embedding the Swagger file in this repository.
+   - Models Atlas Cloud's OpenAI-compatible chat completions API with `https://api.atlascloud.ai/v1` as the server URL.
    - Covers request fields used in Atlas docs, including `model`, `messages`, `stream`, `temperature`, `max_tokens`, `top_p`, `top_k`, and `repetition_penalty`.
 
 2. Added `website/src/content/docs/swagger/atlas-cloud.mdx`
@@ -41,12 +41,12 @@ This change adds a minimal Atlas Cloud provider path to the `nestia` docs and ed
 3. Run a local Atlas Cloud smoke test with:
    - one non-streaming chat completion
    - one streaming chat completion
-4. Verify the bundled `atlascloud.json` is valid enough for the editor/docs build.
+4. Verify the hosted `atlascloud.json` remains valid enough for the editor/docs build.
 
 ## Validation Results
 
 - Website build passed with `npm run build` in `website/`.
-- `website/public/swaggers/atlascloud.json` parses correctly alongside the existing `openai.json`.
+- The external `atlascloud.json` raw URL loads correctly for the editor/docs flow.
 - Non-streaming Atlas Cloud smoke test passed against `https://api.atlascloud.ai/v1/chat/completions`.
 - Streaming Atlas Cloud smoke test passed against `https://api.atlascloud.ai/v1/chat/completions`.
 - The verified working model ID for local testing is `deepseek-ai/deepseek-v3.2`.
