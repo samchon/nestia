@@ -1,6 +1,6 @@
 {
   "name": "@nestia/sdk",
-  "version": "12.0.0-dev.20260521.6",
+  "version": "12.0.0-dev.20260601.1",
   "description": "Nestia SDK and Swagger generator",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",

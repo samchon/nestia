@@ -1,6 +1,6 @@
 {
   "name": "nestia",
-  "version": "12.0.0-dev.20260521.6",
+  "version": "12.0.0-dev.20260601.1",
   "description": "Nestia CLI tool",
   "main": "bin/index.js",
   "bin": {
