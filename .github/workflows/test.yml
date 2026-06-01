@@ -1,5 +1,5 @@
 name: test
-on: 
+on:
   pull_request:
     paths:
       - '.github/workflows/test.yml'
@@ -13,24 +13,48 @@ on:
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - 'package.json'
+
+concurrency:
+  group: test-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  Ubuntu:
+  test:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: go, run: "pnpm test:go" }
+          - { name: sdk, run: "pnpm --filter ./tests/test-sdk start" }
+          - { name: migrate, run: "pnpm --filter ./tests/test-migrate start" }
+          - { name: transform-options, run: "pnpm --filter ./tests/test-transform-options start" }
+          - { name: e2e, run: "pnpm --filter ./tests/test-e2e start" }
+          - { name: benchmark, run: "pnpm --filter ./tests/test-benchmark start" }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24.x
-      - uses: pnpm/action-setup@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: packages/core/native/go.mod
           cache-dependency-path: packages/core/native/go.sum
+      - uses: pnpm/action-setup@v4
 
       - name: Install Dependencies
         run: pnpm install
 
-      - name: Test
+      - name: Use System Go For Source Plugin Build
+        run: echo "TTSC_GO_BINARY=$(go env GOROOT)/bin/go" >> "$GITHUB_ENV"
+
+      - name: Build Packages
         env:
           NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
-        run: pnpm test
+        run: pnpm build
+
+      - name: Run ${{ matrix.name }}
+        env:
+          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
+        run: ${{ matrix.run }}

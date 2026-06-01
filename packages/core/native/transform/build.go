@@ -417,12 +417,19 @@ func readTypiaPluginOptions(cwd, tsconfigPath string) typiaadapter.PluginOptions
 	}
 	text := string(data)
 	return typiaadapter.PluginOptions{
-		Functional: regexp.MustCompile(`(?s)"functional"\s*:\s*true`).MatchString(text),
-		Numeric:    regexp.MustCompile(`(?s)"numeric"\s*:\s*true`).MatchString(text),
-		Finite:     regexp.MustCompile(`(?s)"finite"\s*:\s*true`).MatchString(text),
-		Undefined:  regexp.MustCompile(`(?s)"undefined"\s*:\s*true`).MatchString(text),
+		Functional: typiaOptionFunctionalPattern.MatchString(text),
+		Numeric:    typiaOptionNumericPattern.MatchString(text),
+		Finite:     typiaOptionFinitePattern.MatchString(text),
+		Undefined:  typiaOptionUndefinedPattern.MatchString(text),
 	}
 }
+
+var (
+	typiaOptionFunctionalPattern = regexp.MustCompile(`(?s)"functional"\s*:\s*true`)
+	typiaOptionNumericPattern    = regexp.MustCompile(`(?s)"numeric"\s*:\s*true`)
+	typiaOptionFinitePattern     = regexp.MustCompile(`(?s)"finite"\s*:\s*true`)
+	typiaOptionUndefinedPattern  = regexp.MustCompile(`(?s)"undefined"\s*:\s*true`)
+)
 
 func resolveCWD(label string, cwdOverride string) (string, bool) {
 	if cwdOverride != "" {
