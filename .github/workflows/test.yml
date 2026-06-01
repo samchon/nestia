@@ -32,8 +32,6 @@ jobs:
           - { name: transform-options, run: "pnpm --filter ./tests/test-transform-options start" }
           - { name: e2e, run: "pnpm --filter ./tests/test-e2e start" }
           - { name: benchmark, run: "pnpm --filter ./tests/test-benchmark start" }
-    env:
-      NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -52,7 +50,11 @@ jobs:
         run: echo "TTSC_GO_BINARY=$(go env GOROOT)/bin/go" >> "$GITHUB_ENV"
 
       - name: Build Packages
+        env:
+          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
         run: pnpm build
 
       - name: Run ${{ matrix.name }}
+        env:
+          NODE_OPTIONS: --no-experimental-strip-types --no-experimental-detect-module
         run: ${{ matrix.run }}
