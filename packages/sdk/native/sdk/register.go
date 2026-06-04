@@ -3,16 +3,27 @@ package sdk
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	shimast "github.com/microsoft/typescript-go/shim/ast"
+	shimprinter "github.com/microsoft/typescript-go/shim/printer"
 	"github.com/samchon/nestia/packages/core/native/plugin"
 	"github.com/samchon/nestia/packages/core/native/transform"
 	"github.com/samchon/ttsc/packages/ttsc/driver"
 )
 
-// sdkMetadataNamespace is the import alias the injected decorator references.
+// sdkMetadataNamespace is the import alias the legacy (text/program-mutation)
+// path references. The emit-context path lets tsgo's module-transform pick the
+// generated alias itself, so it does not use this constant.
 const sdkMetadataNamespace = "__OperationMetadata"
+
+// sdkMetadataModule is the runtime package the injected decorator is imported
+// from.
+const sdkMetadataModule = "@nestia/sdk"
+
+// sdkMetadataMember is the decorator factory exported by sdkMetadataModule.
+const sdkMetadataMember = "OperationMetadata"
 
 // init registers the SDK metadata transform with both native entry paths.
 //
@@ -63,6 +74,56 @@ func (linkedPlugin) ApplyProgram(prog *driver.Program, _ driver.PluginContext) e
 		injectOperationMetadataImport(factory, file)
 	}
 	return nil
+}
+
+// EmitTransform builds the SDK metadata pass as an emit-phase AST transformer
+// (the AST-integration path that mirrors typia's `transform.Transform`). It
+// collects every controller-method site once for the program, then returns a
+// per-file `driver.PluginTransform` that injects the
+// `@<ns>.OperationMetadata("<json>")` decorator plus a namespace import of
+// `@nestia/sdk`, both built with ec.Factory and referenced through
+// NewGeneratedNameForNode(modSpec), so tsgo's builtin module-transform emits the
+// `require("@nestia/sdk")` and aliases the reference itself — no hand-rolled
+// `__OperationMetadata` namespace and no text-splice.
+//
+// Core's build command wires this into `prog.EmitWithPluginTransformers`
+// alongside the typia and core transforms, exactly as the typia build command
+// wires `nativetransform.Transform`. A site-collection failure is returned as
+// diagnostics; the returned transform is nil when there are no sites.
+func EmitTransform(prog *driver.Program) (driver.PluginTransform, []transform.Diagnostic) {
+	sites, diagnostics := collectNestiaSDKSites(prog)
+	if len(diagnostics) > 0 {
+		return nil, diagnostics
+	}
+	if len(sites) == 0 {
+		return nil, nil
+	}
+	byFile := map[string][]nestiaSDKSite{}
+	for _, site := range sites {
+		byFile[filepath.ToSlash(site.FilePath)] = append(byFile[filepath.ToSlash(site.FilePath)], site)
+	}
+	return func(ec *shimprinter.EmitContext, sf *shimast.SourceFile) *shimast.SourceFile {
+		if sf == nil {
+			return sf
+		}
+		fileSites := byFile[filepath.ToSlash(sf.FileName())]
+		if len(fileSites) == 0 {
+			return sf
+		}
+		// One module-specifier literal per file, shared between the injected
+		// import declaration and every decorator reference, so
+		// NewGeneratedNameForNode binds them to the same alias tsgo's
+		// module-transform emits for the require.
+		modSpec := ec.Factory.NewStringLiteral(sdkMetadataModule, shimast.TokenFlagsNone)
+		for _, site := range fileSites {
+			if site.Method == nil {
+				continue
+			}
+			injectOperationMetadataDecoratorEC(ec, modSpec, site.Method, site.Metadata)
+		}
+		injectOperationMetadataImportEC(ec, modSpec, sf)
+		return sf
+	}, nil
 }
 
 func collectSDKBuildOutputRewriter(
@@ -161,5 +222,57 @@ func injectOperationMetadataImport(
 	clause.Parent = declaration
 	specifier.Parent = declaration
 	declaration.Parent = file.AsNode()
+	file.Statements.Nodes = append([]*shimast.Node{declaration}, file.Statements.Nodes...)
+}
+
+// injectOperationMetadataDecoratorEC is the emit-context (AST-integration)
+// twin of injectOperationMetadataDecorator. The decorator's namespace reference
+// is `ec.Factory.NewGeneratedNameForNode(modSpec)`, the same generated name
+// tsgo's module-transform binds to `require("@nestia/sdk")`, so no hand-rolled
+// `__OperationMetadata` alias is needed.
+func injectOperationMetadataDecoratorEC(
+	ec *shimprinter.EmitContext,
+	modSpec *shimast.Node,
+	method *shimast.Node,
+	metadataJSON string,
+) {
+	modifiers := method.Modifiers()
+	if modifiers == nil {
+		return
+	}
+	access := ec.Factory.NewPropertyAccessExpression(
+		ec.Factory.NewGeneratedNameForNode(modSpec),
+		nil,
+		ec.Factory.NewIdentifier(sdkMetadataMember),
+		shimast.NodeFlagsNone,
+	)
+	argument := ec.Factory.NewStringLiteral(metadataJSON, shimast.TokenFlagsNone)
+	call := ec.Factory.NewCallExpression(
+		access,
+		nil,
+		nil,
+		ec.Factory.NewNodeList([]*shimast.Node{argument}),
+		shimast.NodeFlagsNone,
+	)
+	decorator := ec.Factory.NewDecorator(call)
+	modifiers.Nodes = append([]*shimast.Node{decorator}, modifiers.Nodes...)
+}
+
+// injectOperationMetadataImportEC is the emit-context twin of
+// injectOperationMetadataImport. It prepends `import * as <gen> from
+// "@nestia/sdk"` built with ec.Factory, reusing modSpec so the namespace alias
+// matches every decorator reference; tsgo's module-transform turns it into the
+// `const <gen> = require("@nestia/sdk")` binding.
+func injectOperationMetadataImportEC(
+	ec *shimprinter.EmitContext,
+	modSpec *shimast.Node,
+	file *shimast.SourceFile,
+) {
+	if file == nil || file.Statements == nil {
+		return
+	}
+	namespace := ec.Factory.NewNamespaceImport(ec.Factory.NewGeneratedNameForNode(modSpec))
+	clause := ec.Factory.NewImportClause(shimast.KindUnknown, nil, namespace)
+	declaration := ec.Factory.NewImportDeclaration(nil, clause, modSpec, nil)
 	file.Statements.Nodes = append([]*shimast.Node{declaration}, file.Statements.Nodes...)
 }

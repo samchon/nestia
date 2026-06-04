@@ -48,8 +48,15 @@ type nestiaCoreSite struct {
 }
 
 type nestiaCoreTransformState struct {
-	prog        *driver.Program
-	options     nestiaCoreOptions
+	prog    *driver.Program
+	options nestiaCoreOptions
+	// importer is the file-scoped ImportProgrammer shared by every validator
+	// generated for the current file on the AST-integration emit path; nil on
+	// the legacy text-splice paths, where each generation gets a throwaway
+	// importer. When set, generation result caching is disabled: the cache keys
+	// on text, but ec-mode nodes embed per-file NewGeneratedNameForNode imports
+	// that cannot be reused verbatim across files.
+	importer    *nativeprogrammers.ImportProgrammer
 	cache       map[nestiaCoreCacheKey][]string
 	cacheHits   int
 	cacheMisses int
@@ -433,20 +440,35 @@ func (state *nestiaCoreTransformState) methodArguments(
 ) ([]string, error) {
 	key := state.cacheKey(segments, kind, typ, argCount, kind == "TypedQueryRoute")
 	arguments, _, err := state.cachedArguments(key, func() ([]string, bool, error) {
-		arg, err := safeNestiaCoreGenerate(func() (*shimast.Node, error) {
-			switch kind {
-			case "TypedQueryRoute":
-				return nestiaCoreGenerateTypedQueryRoute(state.prog, state.options, modulo, typ), nil
-			default:
-				return nestiaCoreGenerateTypedRoute(state.prog, state.options, modulo, typ), nil
-			}
-		}, state.prog, file, false)
+		node, err := nestiaCoreMethodArgumentNode(state.prog, state.importer, state.options, modulo, kind, typ)
 		if err != nil {
 			return nil, false, err
 		}
-		return []string{arg}, true, nil
+		return []string{emitNestiaCoreExpression(state.prog, file, node, false)}, true, nil
 	})
 	return arguments, err
+}
+
+// nestiaCoreMethodArgumentNode builds the single appended decorator-argument
+// node for a method decorator (TypedRoute / TypedQueryRoute). The importer is
+// the shared ec-mode ImportProgrammer on the node-emit path; nil on the legacy
+// text path.
+func nestiaCoreMethodArgumentNode(
+	prog *driver.Program,
+	importer *nativeprogrammers.ImportProgrammer,
+	options nestiaCoreOptions,
+	modulo *shimast.Node,
+	kind string,
+	typ *shimchecker.Type,
+) (*shimast.Node, error) {
+	return safeNestiaCoreGenerateNode(func() (*shimast.Node, error) {
+		switch kind {
+		case "TypedQueryRoute":
+			return nestiaCoreGenerateTypedQueryRoute(prog, importer, options, modulo, typ), nil
+		default:
+			return nestiaCoreGenerateTypedRoute(prog, importer, options, modulo, typ), nil
+		}
+	})
 }
 
 func (state *nestiaCoreTransformState) cachedArguments(
@@ -724,6 +746,46 @@ func nestiaCoreParameterArguments(
 	kind string,
 	typ *shimchecker.Type,
 ) ([]string, bool, error) {
+	nodes, ok, err := nestiaCoreParameterArgumentNodes(prog, nil, options, call, modulo, kind, typ)
+	if err != nil || !ok {
+		return nil, ok, err
+	}
+	file := shimast.GetSourceFileOfNode(call.AsNode())
+	output := make([]string, 0, len(nodes))
+	for _, node := range nodes {
+		output = append(output, nestiaCoreArgumentNodeToText(prog, file, node))
+	}
+	return output, true, nil
+}
+
+// nestiaCoreArgumentNodeToText prints a single appended decorator-argument node
+// for the legacy text-splice path. Keyword nodes (undefined / true) print as
+// their literal text; validator nodes go through the type-stripping printer.
+func nestiaCoreArgumentNodeToText(prog *driver.Program, file *shimast.SourceFile, node *shimast.Node) string {
+	switch node.Kind {
+	case shimast.KindUndefinedKeyword:
+		return "undefined"
+	case shimast.KindTrueKeyword:
+		return "true"
+	}
+	return emitNestiaCoreExpression(prog, file, node, false)
+}
+
+// nestiaCoreParameterArgumentNodes builds the appended decorator-argument nodes
+// for a parameter decorator. The importer is the file-scoped ImportProgrammer:
+// on the node-emit path it is the shared ec-mode importer, so the validator's
+// runtime references resolve to tsgo-aliased namespace imports; nil keeps the
+// legacy text behavior. Returning nodes (not text) is the single source of truth
+// shared by the text path (nestiaCoreParameterArguments) and the AST emit path.
+func nestiaCoreParameterArgumentNodes(
+	prog *driver.Program,
+	importer *nativeprogrammers.ImportProgrammer,
+	options nestiaCoreOptions,
+	call *shimast.CallExpression,
+	modulo *shimast.Node,
+	kind string,
+	typ *shimchecker.Type,
+) ([]*shimast.Node, bool, error) {
 	argCount := nestiaCoreArgumentCount(call)
 	switch kind {
 	case "TypedBody", "TypedHeaders", "TypedQuery", "TypedQueryBody", "PlainBody":
@@ -739,53 +801,54 @@ func nestiaCoreParameterArguments(
 			return nil, false, nil
 		}
 	}
-	expr, err := safeNestiaCoreGenerate(func() (*shimast.Node, error) {
+	node, err := safeNestiaCoreGenerateNode(func() (*shimast.Node, error) {
 		switch kind {
 		case "TypedBody":
-			return nestiaCoreGenerateTypedBody(prog, options, modulo, typ), nil
+			return nestiaCoreGenerateTypedBody(prog, importer, options, modulo, typ), nil
 		case "TypedHeaders":
-			return nestiaCoreGenerateTypedHeaders(prog, options, modulo, typ), nil
+			return nestiaCoreGenerateTypedHeaders(prog, importer, options, modulo, typ), nil
 		case "TypedParam":
-			return nestiaCoreGenerateTypedParam(prog, modulo, typ), nil
+			return nestiaCoreGenerateTypedParam(prog, importer, modulo, typ), nil
 		case "TypedQuery":
-			return nestiaCoreGenerateTypedQuery(prog, options, modulo, typ, true), nil
+			return nestiaCoreGenerateTypedQuery(prog, importer, options, modulo, typ, true), nil
 		case "TypedQueryBody":
-			return nestiaCoreGenerateTypedQuery(prog, options, modulo, typ, false), nil
+			return nestiaCoreGenerateTypedQuery(prog, importer, options, modulo, typ, false), nil
 		case "TypedFormDataBody":
-			return nestiaCoreGenerateTypedFormDataBody(prog, options, modulo, typ), nil
+			return nestiaCoreGenerateTypedFormDataBody(prog, importer, options, modulo, typ), nil
 		case "PlainBody":
-			return nestiaCoreGeneratePlainBody(prog, modulo, typ), nil
+			return nestiaCoreGeneratePlainBody(prog, importer, modulo, typ), nil
 		default:
 			return nil, fmt.Errorf("unsupported parameter decorator %s", kind)
 		}
-	}, prog, shimast.GetSourceFileOfNode(call.AsNode()), false)
+	})
 	if err != nil {
 		return nil, false, err
 	}
-	output := []string{}
+	output := []*shimast.Node{}
 	if kind == "TypedFormDataBody" && argCount == 0 {
-		output = append(output, "undefined")
+		output = append(output, nestiaCoreFactory.NewKeywordExpression(shimast.KindUndefinedKeyword))
 	}
-	output = append(output, expr)
+	output = append(output, node)
 	// TypedParam takes a third `validate?: boolean` argument (see
 	// packages/core/src/decorators/TypedParam.ts). When the configured
 	// validate mode starts with "validate", emit `true` so the runtime
 	// returns the detailed report shape instead of the single-error shape.
 	// The legacy TypedParamProgrammer applied the same conditional.
 	if kind == "TypedParam" && strings.HasPrefix(options.Validate, "validate") {
-		output = append(output, "true")
+		output = append(output, nestiaCoreFactory.NewKeywordExpression(shimast.KindTrueKeyword))
 	}
 	return output, true, nil
 }
 
 func nestiaCoreGenerateTypedBody(
 	prog *driver.Program,
+	importer *nativeprogrammers.ImportProgrammer,
 	options nestiaCoreOptions,
 	modulo *shimast.Node,
 	typ *shimchecker.Type,
 ) *shimast.Node {
 	nestiaCoreValidateTypedBody(prog, options, typ)
-	context := nestiaCoreTypiaContext(prog, false, false, false)
+	context := nestiaCoreTypiaContext(prog, importer, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	category := options.Validate
 	switch category {
@@ -845,8 +908,8 @@ func nestiaCoreGenerateTypedBody(
 // on a flat string→string map. Pass-through to the base programmer is the
 // intended behavior, not a fallthrough — matches v6 parity. See also
 // nestiaCoreGenerateTypedQuery and nestiaCoreGenerateTypedFormDataBody.
-func nestiaCoreGenerateTypedHeaders(prog *driver.Program, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
-	context := nestiaCoreTypiaContext(prog, false, false, false)
+func nestiaCoreGenerateTypedHeaders(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+	context := nestiaCoreTypiaContext(prog, importer, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	category := options.Validate
 	if category == "is" || category == "equals" {
@@ -858,18 +921,18 @@ func nestiaCoreGenerateTypedHeaders(prog *driver.Program, options nestiaCoreOpti
 	return nestiaCoreValidatorObject("type", "assert", nativehttp.HttpAssertHeadersProgrammer.Write(nativecontext.IProgrammerProps{Context: context, Modulo: modulo, Type: typ, Name: name}))
 }
 
-func nestiaCoreGenerateTypedParam(prog *driver.Program, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+func nestiaCoreGenerateTypedParam(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
 	return nativehttp.HttpParameterProgrammer.Write(nativecontext.IProgrammerProps{
-		Context: nestiaCoreTypiaContext(prog, true, false, false),
+		Context: nestiaCoreTypiaContext(prog, importer, true, false, false),
 		Modulo:  modulo,
 		Type:    typ,
 		Name:    nestiaCoreTypeName(prog, typ),
 	})
 }
 
-func nestiaCoreGenerateTypedQuery(prog *driver.Program, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type, allowOptional bool) *shimast.Node {
+func nestiaCoreGenerateTypedQuery(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type, allowOptional bool) *shimast.Node {
 	nestiaCoreValidateTypedQuery(prog, options, typ, allowOptional, "@nestia.core.TypedQuery")
-	context := nestiaCoreTypiaContext(prog, false, false, false)
+	context := nestiaCoreTypiaContext(prog, importer, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	category := options.Validate
 	if category == "is" || category == "equals" {
@@ -881,8 +944,8 @@ func nestiaCoreGenerateTypedQuery(prog *driver.Program, options nestiaCoreOption
 	return nestiaCoreValidatorObject("type", "assert", nativehttp.HttpAssertQueryProgrammer.Write(nativehttp.HttpAssertQueryProgrammer_IProps{Context: context, Modulo: modulo, Type: typ, Name: name, AllowOptional: allowOptional}))
 }
 
-func nestiaCoreGenerateTypedFormDataBody(prog *driver.Program, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
-	context := nestiaCoreTypiaContext(prog, false, false, false)
+func nestiaCoreGenerateTypedFormDataBody(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+	context := nestiaCoreTypiaContext(prog, importer, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	category := options.Validate
 	files := nestiaCoreFormDataFiles(prog, typ)
@@ -1015,10 +1078,10 @@ func nestiaCoreFormDataFilesExpression(files []nestiaCoreFormDataFile) *shimast.
 	return nestiaCoreFactory.NewArrayLiteralExpression(nestiaCoreFactory.NewNodeList(elements), true)
 }
 
-func nestiaCoreGeneratePlainBody(prog *driver.Program, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+func nestiaCoreGeneratePlainBody(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
 	nestiaCoreValidatePlainBody(prog, typ)
 	return nativeprogrammers.AssertProgrammer.Write(nativeprogrammers.AssertProgrammer_IProps{
-		Context: nestiaCoreTypiaContext(prog, false, false, false),
+		Context: nestiaCoreTypiaContext(prog, importer, false, false, false),
 		Modulo:  modulo,
 		Type:    typ,
 		Name:    nestiaCoreTypeName(prog, typ),
@@ -1026,12 +1089,12 @@ func nestiaCoreGeneratePlainBody(prog *driver.Program, modulo *shimast.Node, typ
 	})
 }
 
-func nestiaCoreGenerateTypedRoute(prog *driver.Program, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+func nestiaCoreGenerateTypedRoute(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
 	nestiaCoreValidateTypedRoute(prog, options, typ)
 	if options.StringifyNull {
 		return nestiaCoreFactory.NewKeywordExpression(shimast.KindNullKeyword)
 	}
-	context := nestiaCoreTypiaContext(prog, false, false, false)
+	context := nestiaCoreTypiaContext(prog, importer, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	switch options.Stringify {
 	case "is":
@@ -1047,24 +1110,37 @@ func nestiaCoreGenerateTypedRoute(prog *driver.Program, options nestiaCoreOption
 	}
 }
 
-func nestiaCoreGenerateTypedQueryRoute(prog *driver.Program, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+func nestiaCoreGenerateTypedQueryRoute(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, options nestiaCoreOptions, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
 	nestiaCoreValidateTypedQueryRoute(prog, options, typ)
 	if options.StringifyNull {
 		return nestiaCoreFactory.NewKeywordExpression(shimast.KindNullKeyword)
 	}
 	switch options.Stringify {
 	case "is":
-		return nestiaCoreValidatorObject("type", "is", nestiaCoreHttpIsQuerifyProgrammer(prog, modulo, typ))
+		return nestiaCoreValidatorObject("type", "is", nestiaCoreHttpIsQuerifyProgrammer(prog, importer, modulo, typ))
 	case "validate":
-		return nestiaCoreValidatorObject("type", "validate", nestiaCoreHttpValidateQuerifyProgrammer(prog, modulo, typ))
+		return nestiaCoreValidatorObject("type", "validate", nestiaCoreHttpValidateQuerifyProgrammer(prog, importer, modulo, typ))
 	case "stringify":
 		return nestiaCoreValidatorObject("type", "stringify", nestiaCoreHttpQuerifyProgrammer(prog, typ))
 	default:
-		return nestiaCoreValidatorObject("type", "assert", nestiaCoreHttpAssertQuerifyProgrammer(prog, modulo, typ))
+		return nestiaCoreValidatorObject("type", "assert", nestiaCoreHttpAssertQuerifyProgrammer(prog, importer, modulo, typ))
 	}
 }
 
-func nestiaCoreTypiaContext(prog *driver.Program, numeric bool, finite bool, functional bool) nativecontext.ITypiaContext {
+// nestiaCoreTypiaContext builds the typia transform context for a single
+// validator generation. The importer argument is the file-scoped ImportProgrammer:
+// on the AST-integration emit path it is the shared, ec-mode importer (so every
+// generated validator references namespace imports tsgo's module-transform
+// aliases, and all injected imports collapse into one ToStatements() set). When
+// importer is nil a throwaway importer is allocated, preserving the legacy
+// text-splice behavior used by the `transform` / `check` source paths.
+func nestiaCoreTypiaContext(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, numeric bool, finite bool, functional bool) nativecontext.ITypiaContext {
+	if importer == nil {
+		importer = nativeprogrammers.NewImportProgrammer(nativeprogrammers.ImportProgrammer_IOptions{
+			InternalPrefix: "typia_transform_",
+			Runtime:        "typia",
+		})
+	}
 	return nativecontext.ITypiaContext{
 		Program:         prog,
 		CompilerOptions: prog.ParsedConfig.ParsedConfig.CompilerOptions,
@@ -1075,10 +1151,7 @@ func nestiaCoreTypiaContext(prog *driver.Program, numeric bool, finite bool, fun
 			Functional: &functional,
 			Runtime:    "typia",
 		},
-		Importer: nativeprogrammers.NewImportProgrammer(nativeprogrammers.ImportProgrammer_IOptions{
-			InternalPrefix: "typia_transform_",
-			Runtime:        "typia",
-		}),
+		Importer: importer,
 	}
 }
 
@@ -1353,6 +1426,24 @@ func nestiaCoreProperty(name string, initializer *shimast.Node) *shimast.Node {
 		nil,
 		initializer,
 	)
+}
+
+// safeNestiaCoreGenerateNode runs a validator generator, recovering any panic
+// (a typia programmer raises one for user-facing transform errors) into an
+// error so the caller can surface a diagnostic instead of crashing the emit.
+// It is the node-emit twin of safeNestiaCoreGenerate, which additionally prints
+// the node to text for the legacy splice path.
+func safeNestiaCoreGenerateNode(generator func() (*shimast.Node, error)) (node *shimast.Node, err error) {
+	defer func() {
+		if exp := recover(); exp != nil {
+			if os.Getenv("NESTIA_NATIVE_DEBUG_STACK") != "" {
+				err = fmt.Errorf("%v\n%s", exp, debug.Stack())
+			} else {
+				err = fmt.Errorf("%v", exp)
+			}
+		}
+	}()
+	return generator()
 }
 
 func safeNestiaCoreGenerate(

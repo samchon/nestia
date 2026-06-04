@@ -79,8 +79,8 @@ func nestiaCoreHttpQuerifyProgrammer(prog *driver.Program, typ *shimchecker.Type
 	)
 }
 
-func nestiaCoreHttpAssertQuerifyProgrammer(prog *driver.Program, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
-	context := nestiaCoreTypiaContext(prog, false, false, false)
+func nestiaCoreHttpAssertQuerifyProgrammer(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+	context := nestiaCoreTypiaContext(prog, importer, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	return nestiaCoreQueryWrapperArrow([]*shimast.Node{
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
@@ -101,8 +101,8 @@ func nestiaCoreHttpAssertQuerifyProgrammer(prog *driver.Program, modulo *shimast
 	})
 }
 
-func nestiaCoreHttpIsQuerifyProgrammer(prog *driver.Program, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
-	context := nestiaCoreTypiaContext(prog, false, false, false)
+func nestiaCoreHttpIsQuerifyProgrammer(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+	context := nestiaCoreTypiaContext(prog, importer, false, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	return nestiaCoreQueryWrapperArrow([]*shimast.Node{
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
@@ -129,8 +129,8 @@ func nestiaCoreHttpIsQuerifyProgrammer(prog *driver.Program, modulo *shimast.Nod
 	})
 }
 
-func nestiaCoreHttpValidateQuerifyProgrammer(prog *driver.Program, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
-	context := nestiaCoreTypiaContext(prog, true, false, false)
+func nestiaCoreHttpValidateQuerifyProgrammer(prog *driver.Program, importer *nativeprogrammers.ImportProgrammer, modulo *shimast.Node, typ *shimchecker.Type) *shimast.Node {
+	context := nestiaCoreTypiaContext(prog, importer, true, false, false)
 	name := nestiaCoreTypeName(prog, typ)
 	return nestiaCoreQueryWrapperArrow([]*shimast.Node{
 		nativefactories.StatementFactory.Constant(nativefactories.StatementFactory_ConstantProps{
