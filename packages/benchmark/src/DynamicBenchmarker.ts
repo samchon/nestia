@@ -121,6 +121,19 @@ export namespace DynamicBenchmarker {
     location: string;
 
     /**
+     * Extension of the benchmark function files to load, without the leading
+     * dot.
+     *
+     * The servant reads {@link location} and imports every file ending with
+     * this extension. Set it to match how the feature files are actually run:
+     * `"js"` when they are built JavaScript, or `"ts"` when they are executed
+     * from TypeScript source (for example under `ttsx`).
+     *
+     * @default "js"
+     */
+    extension?: string;
+
+    /**
      * Prefix of the benchmark functions.
      *
      * Every prefixed function will be executed in the servant.
@@ -378,7 +391,16 @@ const iterate =
       const location: string = `${path}/${file}`;
       const stat: fs.Stats = await fs.promises.stat(location);
       if (stat.isDirectory() === true) await iterate(ctx)(location);
-      else if (file.endsWith(__filename.substr(-3)) === true) {
+      // Load feature files whose extension matches `props.extension`. This is
+      // configurable instead of inferred from the servant's own module
+      // extension, because the benchmark library may be built (`.js`) while the
+      // feature files it drives are run from source (`.ts`, e.g. under `ttsx`);
+      // inferring would look for `.js` features that do not exist, load
+      // nothing, and spin forever.
+      else if (
+        file.endsWith(`.${ctx.props.extension ?? "js"}`) &&
+        file.endsWith(".d.ts") === false
+      ) {
         const modulo = await import(location);
         for (const [key, value] of Object.entries(modulo)) {
           if (typeof value !== "function") continue;

@@ -7,6 +7,8 @@ DynamicBenchmarker.servant({
   location: `${__dirname}/features`,
   parameters: (connection) => [connection],
   prefix: "test_api_",
+  // Feature files are executed from TypeScript source under ttsx.
+  extension: "ts",
 }).catch((exp) => {
   console.error(exp);
   process.exit(-1);
