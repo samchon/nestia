@@ -13,7 +13,7 @@ import (
 // Project mode (runTransformProject) is the seam ttsc uses to ask the host to
 // transform a whole program in one shot; it is a distinct path from the single
 // --file case and owns sourceFileKey filtering plus the JSON output envelope. A
-// regression that skipped files or mis-keyed the map would corrupt the bulk
+// regression that skipped files or miskeyed the map would corrupt the bulk
 // transform contract. Driving it with a feature program pins the success branch.
 //
 //  1. Run transform against the body feature's own tsconfig with no --file.

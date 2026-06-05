@@ -12,7 +12,7 @@ import (
 //
 // These guards sit at the top of runBuild / runTransform and short-circuit the
 // expensive LoadProgram step: mutually exclusive --emit/--noEmit, an unknown
-// --output kind, and unparseable --plugins-json. They never reach the AST, so
+// --output kind, and unparsable --plugins-json. They never reach the AST, so
 // the only observable is the exit code; a regression that fell through to
 // LoadProgram would change the failure mode ttsc reports. Each branch is pinned
 // with a direct in-process Run call.

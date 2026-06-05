@@ -14,7 +14,7 @@ import (
 // validateNestiaCoreWebSocketRoute runs inside the AST emit transform for every
 // @WebSocketRoute method; the error variants (invalid driver, missing acceptor)
 // are pinned elsewhere, but the all-categories-present success branch is only
-// reached by a valid controller. A regression that mis-categorized a parameter
+// reached by a valid controller. A regression that miscategorized a parameter
 // would either emit a spurious diagnostic (nonzero exit) or skip validation. We
 // transform the websocket feature in project mode and assert a clean exit 0.
 //

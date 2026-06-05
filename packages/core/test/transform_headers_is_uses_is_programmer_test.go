@@ -11,7 +11,7 @@ import (
 //
 // This drives the first arm of nestiaCoreGenerateTypedHeaders (category == "is"
 // || "equals"), the only arm that the assert and validate header tests cannot
-// reach. A regression in the prefix check would mis-route is-mode headers to
+// reach. A regression in the prefix check would misroute is-mode headers to
 // the assert programmer.
 //
 //  1. Transform the headers feature's HeadersController with validate "is".
